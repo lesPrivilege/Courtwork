@@ -121,6 +121,9 @@ async function mountApp(cases: Array<Record<string, unknown>>) {
       registriesFor: runtime.registriesFor,
     }),
     materialResolver: materialStore,
+    packageIdentities: {},
+    launchableScenarioIds: [],
+    verticalScenarioIds: [],
     loadRuntimeLimits: () => loadSettings().runtimeGuard,
   });
   container = document.createElement('div');
@@ -222,6 +225,8 @@ describe('切 matter 的首个 committed render 零垂类泄漏', () => {
     ).not.toBeNull();
     expect(legalLeaks(host.innerHTML)).toEqual([]);
   // 首例要冷装配整张 App（模块图 + 组合根端口）；并行满载下 5s 缺省超时不够用，
-  // 与判据无关，故只放宽时限本身。
-  }, 30_000);
+  // 与判据无关，故只放宽时限本身。GENERIC-SCENARIOS-1：基线包入准入后冷装配再涨一档
+  // （三包准入 + 第三张 registry），并行满载下越过 30s；隔离下同例约 3s，故是**冷装配时长**
+  // 不是挂起——上界随之抬到 90s，判据一字不动。
+  }, 90_000);
 });

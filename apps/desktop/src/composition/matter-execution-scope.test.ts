@@ -12,6 +12,7 @@ import type { StoredMaterial } from '../material/material-ref';
 import type { ResolveResult } from '../material/material-store';
 import type { WorkModelRoute } from '../protocol/client';
 import {
+  PRODUCTION_SCENARIO_IDS,
   LEGAL_S3_SCHEMA_VERSION,
   S2_SCENARIO_ID,
   buildArtifactVersioningSource,
@@ -98,6 +99,11 @@ function harness(cases: Array<{ id: string; packBinding?: readonly string[] }>) 
       availablePackageIds: runtime.packageIds,
       registriesFor: runtime.registriesFor,
     }),
+    // GENERIC-SCENARIOS-1：可启动闭集与包身份自此由装配点注入。本谱只验垂类路径，故逐字给垂类
+    // 子集；packageIdentities 留空即走「未登记不猜」的 legal 回落，账本头断言逐字不变。
+    launchableScenarioIds: PRODUCTION_SCENARIO_IDS,
+    verticalScenarioIds: PRODUCTION_SCENARIO_IDS,
+    packageIdentities: {},
     codec: createArtifactEnvelopeCodec(
       buildArtifactVersioningSource(runtime.packageRegistries, { legal: LEGAL_S3_SCHEMA_VERSION }),
     ),
@@ -239,7 +245,10 @@ describe('production execution seam · 按 matter fail-closed', () => {
       availablePackageIds: runtime.packageIds,
       registriesFor: runtime.registriesFor,
     });
-    expect(resolve('case-x').scenarios.list()).toEqual([]);
+    // ADR-023 决定三：零绑定得到的是基线 registry；垂类授权面仍恒空（判据收窄为「零垂类场景」）。
+    const registries = resolve('case-x');
+    expect(registries.scenarios.list().every((scenario) => scenario.packageId === 'generic')).toBe(true);
+    expect(registries.scenarios.get('legal.S3')).toBeUndefined();
     // 每次调用都现读——绑定可变，缓存一份就等于把授权停在卸载之前的世界。
     resolve('case-x');
     expect(readCases).toHaveBeenCalledTimes(2);

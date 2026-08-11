@@ -14,6 +14,11 @@ import { createTauriMaterialHost } from './material/tauri-material-host';
 import { createLegalWorkSurface } from './verticals/legal/legal-work-surface';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createCaseRegistriesResolver } from './composition/matter-registries';
+import { scopeRegistriesForRun } from './composition/baseline-session-scope';
+import {
+  PRODUCTION_LAUNCHABLE_SCENARIO_IDS,
+  VERTICAL_PRODUCTION_SCENARIO_IDS,
+} from './composition/production-scenarios';
 import { readCaseList } from './case/case-store';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
@@ -74,13 +79,21 @@ const registriesForCase = createCaseRegistriesResolver({
 const workCommand = createDesktopWorkCommand({
   registries: packageRuntime.packageRegistries,
   registriesForCase,
+  packageIdentities: packageRuntime.packageIdentities,
+  // ADR-023 决定三/五：基线场景经**同一条** production work command 链接入可启动闭集。
+  launchableScenarioIds: PRODUCTION_LAUNCHABLE_SCENARIO_IDS,
+  verticalScenarioIds: VERTICAL_PRODUCTION_SCENARIO_IDS,
+  scopeRegistriesForRun,
   materialResolver: materialStore,
   loadRuntimeLimits: () => loadSettings().runtimeGuard,
   ...(providerTransport ? { transport: providerTransport } : {}),
   ...(workHost ? { host: workHost } : {}),
 });
 
-const verticalWorkSurface = createLegalWorkSurface({ workCommand });
+const verticalWorkSurface = createLegalWorkSurface({
+  workCommand,
+  productionScenarioIds: PRODUCTION_LAUNCHABLE_SCENARIO_IDS,
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

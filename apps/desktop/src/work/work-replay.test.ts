@@ -12,7 +12,12 @@ import type { TurnStore } from '@courtwork/core/turn-protocol';
 import type { ResolveResult } from '../material/material-store';
 import type { StoredMaterial } from '../material/material-ref';
 import { WorkReplayError, type WorkModelRoute } from '../protocol/client';
-import { LEGAL_S3_SCHEMA_VERSION, admitLegalS3Package, buildArtifactVersioningSource } from '../verticals/legal/legal-s3-binding';
+import {
+  LEGAL_S3_SCHEMA_VERSION,
+  PRODUCTION_SCENARIO_IDS,
+  admitLegalS3Package,
+  buildArtifactVersioningSource,
+} from '../verticals/legal/legal-s3-binding';
 import { createLegalWorkCommand, type LegalWorkCommand } from '../verticals/legal/work-command';
 import { createDemoWorkFixture, DEMO_S1_SESSION_ID, DEMO_S3_SESSION_ID } from '../demo/client';
 import { DEMO_CASE_ID } from '../case/case-scope';
@@ -67,6 +72,11 @@ function commandWith(host: WorkStateHostPort): LegalWorkCommand {
     host,
     // 本组只测读侧；授权面给「已绑定 Legal」的常量解析器（等价于 canonical 账本里绑了法律包）。
     registriesForCase: () => registries,
+    // GENERIC-SCENARIOS-1：可启动闭集与包身份自此由装配点注入。本谱只验垂类路径，故逐字给垂类
+    // 子集；packageIdentities 留空即走「未登记不猜」的 legal 回落，账本头断言逐字不变。
+    launchableScenarioIds: PRODUCTION_SCENARIO_IDS,
+    verticalScenarioIds: PRODUCTION_SCENARIO_IDS,
+    packageIdentities: {},
     codec: codecFor(registries),
     actor: ACTOR,
     materialResolver: {

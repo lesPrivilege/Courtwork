@@ -39,7 +39,13 @@ const UNSPLIT_FAMILIES = {};
 /** 族级登记的可视化样板库：ADR-012 决定五点名以真实垂类 fixture 证明原语可编排。 */
 const GALLERY_FAMILY = path.join('preview', 'gallery');
 
-const VERTICAL_IMPORT = /from\s+['"]@courtwork\/(legal|pm)(\/[^'"]*)?['"]|import\s*\(\s*['"]@courtwork\/(legal|pm)(\/[^'"]*)?['"]/;
+// ADR-023 决定四：基线包 `@courtwork/generic` 同受本门辖制——它的「恒在」是**执行授权**层面的
+// 恒在，不是「壳可以直连它」的许可。通用件与壳仍须经 registry 取用，import 只许住三个绑定族。
+const PACKAGE_NAMESPACES = 'legal|pm|generic';
+const VERTICAL_IMPORT = new RegExp(
+  `from\\s+['"]@courtwork/(${PACKAGE_NAMESPACES})(/[^'"]*)?['"]`
+  + `|import\\s*\\(\\s*['"]@courtwork/(${PACKAGE_NAMESPACES})(/[^'"]*)?['"]`,
+);
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {

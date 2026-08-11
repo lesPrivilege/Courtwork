@@ -72,7 +72,6 @@ import {
   MaterialResolutionBlockedError,
   MissingContractPartyError,
   MissingToolInputError,
-  PRODUCTION_SCENARIO_IDS,
   S3_RISK_LIST_TYPE,
   S3_SCENARIO_ID,
   UnknownReviewItemError,
@@ -101,6 +100,27 @@ export interface LegalWorkCommandDeps {
    * 于是每个 effect 之前就显式 `rejected/invalid_scope`。
    */
   registriesForCase: (caseId: string) => PackageRegistries;
+  /**
+   * production 可启动场景闭集（受信组合根声明，`composition/production-scenarios.ts`）。
+   * 本端口只问「在不在闭集内」，不认识任何 id 语义——基线场景经同一条链接入即在此加员。
+   */
+  launchableScenarioIds: readonly string[];
+  /**
+   * **垂类**可启动子集：续行侧「这枚 matter 有没有任何可执行场景」的兜底判据只认它。
+   * 基线恒在生效 registry 内，拿全集去问会让答案恒为真，垂类续行授权就被基线顶穿。
+   */
+  verticalScenarioIds: readonly string[];
+  /** 已准入包的身份表（packageId → version/schemaVersion）：账本头逐字记**产出该场景的包**。 */
+  packageIdentities: Readonly<Record<string, { version: string; schemaVersion: number }>>;
+  /**
+   * 会话作用域的 registry 收窄缝（受信组合根注入）。基线批处理据此把「就绪材料闭集」编进
+   * `generic.BatchReport` 的 schema——逐项完整性裁决于是落在产物成形之前，而不是读侧补丁。
+   * 缺省恒等：垂类路径零行为变化。
+   */
+  scopeRegistriesForRun?: (
+    registries: PackageRegistries,
+    context: { scenarioId: string; materialIds: readonly string[] },
+  ) => PackageRegistries;
   codec: ArtifactEnvelopeCodec;
   /** desktop identity 注入的 actor（ADR-010：React 不得自报 actor）。真实 identity dependency 未装配为已知边界。 */
   actor: ConfirmationActor;
@@ -164,6 +184,8 @@ type StartPayload = {
   materialRefs: string[];
   modelRoute: WorkModelRoute;
   subject: ContractPartySubject | null;
+  /** 通用预检值槽（二批裁定一）；无预检场景恒空对象。 */
+  startParams: Readonly<Record<string, string>>;
 };
 
 type ResolveReviewPayload = {
@@ -218,6 +240,8 @@ function normalizeStartPayload(payload: StartPayload): StartPayload {
           partyName: payload.subject.partyName.trim(),
         }
       : null,
+    // 冻结快照：调用方之后改自己那份对象，动不了本次命令的取值（也不动 first-wins 键）。
+    startParams: Object.freeze({ ...payload.startParams }),
   };
 }
 
@@ -230,6 +254,7 @@ function stableKey(payload: CommandPayload): string {
       materialRefs: [...payload.materialRefs],
       modelRoute: { ...payload.modelRoute },
       subject: payload.subject ? { ...payload.subject } : null,
+      startParams: { ...payload.startParams },
     });
   }
   return JSON.stringify({
@@ -259,13 +284,20 @@ function stableKey(payload: CommandPayload): string {
   });
 }
 
+/** 账本头的包身份（GENERIC-SCENARIOS-1 最小中性化：此前逐字写死 legal，非 legal 场景会被顶名）。 */
+interface HeaderPackageIdentity {
+  packageId: string;
+  version: string;
+  schemaVersion: number;
+}
+
 /** 结构化 scenario fingerprint（drift 检测契约位；本单不强制 re-validate，故用稳定结构串非 crypto hash）。 */
-function scenarioFingerprint(scenarioId: string): string {
+function scenarioFingerprint(scenarioId: string, identity: HeaderPackageIdentity): string {
   return JSON.stringify({
     id: scenarioId,
-    packageId: LEGAL_PACKAGE.identity.packageId,
-    version: LEGAL_PACKAGE.identity.version,
-    schemaVersion: LEGAL_S3_SCHEMA_VERSION,
+    packageId: identity.packageId,
+    version: identity.version,
+    schemaVersion: identity.schemaVersion,
   });
 }
 
@@ -281,16 +313,31 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
   /** 活跃 leg 的 AbortController（cancel 只取消当前活跃 Turn；无 leg 即无 controller）。 */
   const controllers = new Map<string, AbortController>();
 
+  /** 场景 → 产出它的包身份。查不到即回落 legal（既有唯一垂类），缺登记不猜版本。 */
+  function identityFor(scenarioId: string, caseId: string): HeaderPackageIdentity {
+    const packageId = deps.registriesForCase(caseId).scenarios.get(scenarioId)?.packageId;
+    const registered = packageId === undefined ? undefined : deps.packageIdentities[packageId];
+    if (packageId === undefined || registered === undefined) {
+      return {
+        packageId: LEGAL_PACKAGE.identity.packageId,
+        version: LEGAL_PACKAGE.identity.version,
+        schemaVersion: LEGAL_S3_SCHEMA_VERSION,
+      };
+    }
+    return { packageId, version: registered.version, schemaVersion: registered.schemaVersion };
+  }
+
   function buildHeader(input: StartPayload, sessionId: string, runtimeBudget: WorkRuntimeBudget): WorkStateHeader {
+    const identity = identityFor(input.scenarioId, input.caseId);
     return {
       caseId: input.caseId,
       sessionId,
       chainId: sessionId,
       scenarioId: input.scenarioId,
-      packageId: LEGAL_PACKAGE.identity.packageId,
-      packageVersion: LEGAL_PACKAGE.identity.version,
-      schemaVersion: LEGAL_S3_SCHEMA_VERSION,
-      scenarioFingerprint: scenarioFingerprint(input.scenarioId),
+      packageId: identity.packageId,
+      packageVersion: identity.version,
+      schemaVersion: identity.schemaVersion,
+      scenarioFingerprint: scenarioFingerprint(input.scenarioId, identity),
       modelRoute: { ...input.modelRoute },
       materialRefs: [...input.materialRefs],
       createdAt: now(),
@@ -401,11 +448,20 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     controllers.set(ref.sessionId, controller);
     let scenario: ReturnType<typeof getProductionScenario>;
     let runInput: ReturnType<typeof buildS3RunInput>;
+    let runRegistries: PackageRegistries = deps.registriesForCase(input.caseId);
     try {
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
       // 场景身份只从**本 matter 生效 registry**取（全局集不作执行授权）。
-      scenario = getProductionScenario(deps.registriesForCase(input.caseId), input.scenarioId);
+      scenario = getProductionScenario(deps.registriesForCase(input.caseId), input.scenarioId, deps.launchableScenarioIds);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
+      // 会话作用域收窄（缺省恒等）：把本次运行的就绪材料闭集编进 registry，供基线批处理的
+      // 逐项完整性裁决在产物成形之前生效。
+      runRegistries = deps.scopeRegistriesForRun
+        ? deps.scopeRegistriesForRun(deps.registriesForCase(input.caseId), {
+            scenarioId: input.scenarioId,
+            materialIds: materials.map((item) => item.materialId),
+          })
+        : deps.registriesForCase(input.caseId);
       if (input.scenarioId === S3_SCENARIO_ID) {
         // CONTRACT-OUTPUT-TRUTH-1：materialRefs[0] 就是用户显式选定的主合同，CaseFile 从同一
         // 输入机械派生——S3 声明了 legal.CaseFile input，此前一直收到空 artifacts。
@@ -421,6 +477,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
           scenario,
           materials: materialInputs,
           ...(needsCaseFile ? { caseFile: deriveCaseFileFromMaterials(input.caseId, materials) } : {}),
+          startParams: input.startParams,
         });
       }
     } catch (error) {
@@ -437,7 +494,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         turnRunner: deps.makeTurnRunner(turnStore, { ...route }),
         expectedModelRoute: { ...route },
         ledger: createEvidenceLedger(),
-        registries: deps.registriesForCase(input.caseId),
+        registries: runRegistries,
         signal,
         afterCommit: publishNew,
       });
@@ -459,6 +516,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: [],
         modelRoute: { providerId: '', modelId: '', reasoning: 'standard' },
         subject: null,
+        startParams: {},
       },
       ref.sessionId,
       { limits: {}, costBasis: { currency: 'USD', assumptions: [] }, consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' } },
@@ -471,7 +529,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
       const resumeInput = build(store);
       // 续行的场景身份**只认账本头**（信封是持久真源）；此前写死 S3，非 S3 会话续行会以错误场景
       // 声明重放——闭集化后必须逐字取回。
-      const scenario = getProductionScenario(deps.registriesForCase(ref.caseId), store.snapshot().scenarioId);
+      const scenario = getProductionScenario(deps.registriesForCase(ref.caseId), store.snapshot().scenarioId, deps.launchableScenarioIds);
       const route = { ...store.snapshot().modelRoute };
       const scenarioDeps = createLegalS3ScenarioDeps({
         store,
@@ -518,7 +576,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
       scenarioId = undefined;
     }
     if (scenarioId !== undefined) return registries.scenarios.get(scenarioId) !== undefined;
-    return (PRODUCTION_SCENARIO_IDS as readonly string[]).some((id) => registries.scenarios.get(id) !== undefined);
+    return deps.verticalScenarioIds.some((id) => registries.scenarios.get(id) !== undefined);
   }
 
   function conflictOutcome(): WorkCommandOutcome {
@@ -546,7 +604,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     }
     const payloadKey = stableKey(payload);
     const sessionId = mintSessionId();
-    if (!(PRODUCTION_SCENARIO_IDS as readonly string[]).includes(payload.scenarioId)) {
+    if (!deps.launchableScenarioIds.includes(payload.scenarioId)) {
       const done = Promise.resolve<WorkCommandOutcome>({
         status: 'rejected',
         reason: 'invalid_scope',
@@ -559,6 +617,22 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     // WorkState CAS、journal append 与确认 effect——拒绝时 effect 恰为零。
     if (deps.registriesForCase(payload.caseId).scenarios.get(payload.scenarioId) === undefined) {
       const done = Promise.resolve<WorkCommandOutcome>(outOfScopeOutcome());
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
+    // 二批裁定一：fieldId 越集在**任何 effect 之前** fail-closed 拒。判据取该场景声明的
+    // `launch.formFields` id 集——无 formFields 的场景（无预检直启）收到任何提交值即越集。
+    const declaredFieldIds = new Set(
+      (deps.registriesForCase(payload.caseId).scenarios.get(payload.scenarioId)?.launch?.formFields ?? [])
+        .map((field) => field.id),
+    );
+    const outOfScopeFieldIds = Object.keys(payload.startParams).filter((id) => !declaredFieldIds.has(id));
+    if (outOfScopeFieldIds.length > 0) {
+      const done = Promise.resolve<WorkCommandOutcome>({
+        status: 'rejected',
+        reason: 'invalid_scope',
+        message: '起跑信息与本场景的填写项不一致，请重新打开起跑面填写',
+      });
       commands.set(commandId, { sessionId, payloadKey, done });
       return { sessionId, done };
     }
@@ -597,6 +671,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: input.materialRefs,
         modelRoute: input.modelRoute,
         subject: input.subject,
+        startParams: {},
       }, publish);
     },
 
@@ -609,6 +684,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: command.materialRefs,
         modelRoute: command.modelRoute,
         subject: null,
+        startParams: command.startParams ?? {},
       }, publish);
     },
 

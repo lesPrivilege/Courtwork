@@ -21,9 +21,15 @@ import type { TurnStore } from '@courtwork/core/turn-protocol';
 import type { ConfirmationActor, PersistedTurn, TurnRunnerPort, WorkRuntimeBudget, WorkStateHostPort } from '@courtwork/core';
 import type { PackageRegistries } from '@courtwork/registry';
 import type { WorkModelRoute, WorkSessionRef } from '../protocol/client';
-import { buildArtifactVersioningSource, LEGAL_S3_SCHEMA_VERSION } from '../verticals/legal/legal-s3-binding';
+import { buildArtifactVersioningSource } from '../verticals/legal/legal-s3-binding';
 import { createLegalWorkCommand, type LegalWorkCommand } from '../verticals/legal/work-command';
 import type { MaterialResolver } from '../verticals/legal/legal-s3-binding';
+
+/** 会话作用域 registry 收窄缝的注入形（实现住受信组合根，见 composition/baseline-session-scope.ts）。 */
+export type DesktopScopeRegistriesForRun = (
+  registries: PackageRegistries,
+  context: { scenarioId: string; materialIds: readonly string[] },
+) => PackageRegistries;
 
 const KEYCHAIN_PLACEHOLDER = '__keychain__';
 
@@ -92,6 +98,13 @@ export interface DesktopWorkRuntimeInput {
    * 受信组合根从 canonical case store 现读绑定解析；UI 自报的 packageId/binding 一概不作数。
    */
   registriesForCase: (caseId: string) => PackageRegistries;
+  /** 已准入包身份表（组合根注入）：ArtifactEnvelope 版本源与账本头的包身份都从这里取，不写死单枚垂类。 */
+  packageIdentities: Readonly<Record<string, { version: string; schemaVersion: number }>>;
+  /** production 可启动场景闭集与其垂类子集（受信组合根声明，见 composition/production-scenarios.ts）。 */
+  launchableScenarioIds: readonly string[];
+  verticalScenarioIds: readonly string[];
+  /** 会话作用域 registry 收窄（基线批处理的逐项完整性裁决）。 */
+  scopeRegistriesForRun?: DesktopScopeRegistriesForRun;
   materialResolver: MaterialResolver;
   loadRuntimeLimits: () => WorkRuntimeBudget['limits'];
   transport?: ProviderTransport;
@@ -122,7 +135,12 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalW
   readHost = (ref) => host!.read(ref);
 
   const codec = createArtifactEnvelopeCodec(
-    buildArtifactVersioningSource(input.registries, { legal: LEGAL_S3_SCHEMA_VERSION }),
+    buildArtifactVersioningSource(
+      input.registries,
+      Object.fromEntries(
+        Object.entries(input.packageIdentities).map(([packageId, identity]) => [packageId, identity.schemaVersion]),
+      ),
+    ),
   );
 
   const makeTurnRunner = (turnStore: TurnStore, modelRoute: Readonly<WorkModelRoute>): TurnRunnerPort => {
@@ -185,6 +203,10 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalW
   return createLegalWorkCommand({
     host,
     registriesForCase: input.registriesForCase,
+    packageIdentities: input.packageIdentities,
+    launchableScenarioIds: input.launchableScenarioIds,
+    verticalScenarioIds: input.verticalScenarioIds,
+    ...(input.scopeRegistriesForRun ? { scopeRegistriesForRun: input.scopeRegistriesForRun } : {}),
     codec,
     actor: DESKTOP_WORK_ACTOR,
     materialResolver: input.materialResolver,

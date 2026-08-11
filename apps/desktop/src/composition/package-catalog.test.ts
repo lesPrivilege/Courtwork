@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describePackage } from './package-catalog.js';
+import { describePackage, loadablePackages, type PackageAvailability } from './package-catalog.js';
 
 /**
  * 宿主包目录（PACK-INTERACT-1 ①/②）：加载 UX 的「全局可用集呈现」取词。
@@ -21,13 +21,35 @@ describe('host package catalog', () => {
    * 建立/设置处激活）分层。发行成熟度是**宿主发行事实**——只住受信组合根，不进 Package ABI、
    * 不进 `packBinding`/case store/wire/journal，也不另立持久开关。
    */
-  it('发行成熟度是两枚闭集：Legal=loadable，PM=catalog-only', () => {
-    for (const packageId of ['legal', 'pm']) {
+  it('发行成熟度是三枚闭集：Legal=loadable，PM=catalog-only，基线包=baseline', () => {
+    for (const packageId of ['legal', 'pm', 'generic']) {
       const entry = describePackage({ identity: { packageId, version: '0.1.0' } });
-      expect(['loadable', 'catalog-only']).toContain(entry.availability);
+      expect(['loadable', 'catalog-only', 'baseline']).toContain(entry.availability);
     }
     expect(describePackage({ identity: { packageId: 'legal', version: '0.1.0' } }).availability).toBe('loadable');
     expect(describePackage({ identity: { packageId: 'pm', version: '0.1.0' } }).availability).toBe('catalog-only');
+    expect(describePackage({ identity: { packageId: 'generic', version: '0.1.0' } }).availability).toBe('baseline');
+  });
+
+  /**
+   * ADR-023 决定二：`baseline` 不进加载选择面——用户不加载也不卸载它，它是产品本体的一部分，
+   * 不是可选项。把它渲染成一枚「加载 X 包」就是给用户一个既关不掉也开不了的开关。
+   */
+  it('baseline 不进可交互加载子集（loadablePackages 只取 loadable）', () => {
+    const catalog = (['legal', 'pm', 'generic'] as const).map((packageId) =>
+      describePackage({ identity: { packageId, version: '0.1.0' } }),
+    );
+    expect(loadablePackages(catalog).map((entry) => entry.packageId)).toEqual(['legal']);
+    expect(loadablePackages(catalog).some((entry) => entry.availability !== 'loadable')).toBe(false);
+  });
+
+  it('基线包有宿主呈现名（准入包缺呈现名即装配失败的判据同样适用于它）', () => {
+    expect(describePackage({ identity: { packageId: 'generic', version: '0.1.0' } })).toEqual({
+      packageId: 'generic',
+      displayName: '通用基线包',
+      version: '0.1.0',
+      availability: 'baseline' satisfies PackageAvailability,
+    });
   });
 
   it('准入包缺宿主呈现名 → 装配显式失败（不回落到 packageId 字面量）', () => {

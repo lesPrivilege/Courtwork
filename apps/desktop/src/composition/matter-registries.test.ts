@@ -12,7 +12,7 @@ import { resolveMatterRegistries } from './matter-registries.js';
 describe('resolveMatterRegistries', () => {
   const runtime = createDesktopPackageRuntime();
 
-  it('已声明合法绑定 → 成功 registry（只见绑定包，不见其余）', () => {
+  it('已声明合法绑定 → 成功 registry（绑定垂类 ∪ 基线，不见其余垂类）', () => {
     const res = resolveMatterRegistries(
       { packBinding: ['legal'] },
       runtime.packageIds,
@@ -20,11 +20,16 @@ describe('resolveMatterRegistries', () => {
       runtime.packageRegistries,
     );
     expect(res.bindingErrorId).toBeUndefined();
-    const packageIds = [...new Set(res.registries.artifactSchemas.list().map((entry) => entry.packageId))];
-    expect(packageIds).toEqual(['legal']);
+    const packageIds = [...new Set(res.registries.artifactSchemas.list().map((entry) => entry.packageId))].sort();
+    expect(packageIds).toEqual(['generic', 'legal']);
+    expect(res.registries.artifactSchemas.get('pm.PrdReview')).toBeUndefined();
   });
 
-  it('显式零绑定 → 零垂类 registry', () => {
+  /**
+   * ADR-023 决定三：零绑定 matter 的生效 registry **即基线 registry 本身**——「零垂类」
+   * 不再等于「零 registry」。垂类面判据一字不动：这里仍是零垂类产物、零垂类场景。
+   */
+  it('显式零绑定 → 基线 registry（零垂类，但非空）', () => {
     const res = resolveMatterRegistries(
       { packBinding: [] },
       runtime.packageIds,
@@ -32,7 +37,8 @@ describe('resolveMatterRegistries', () => {
       runtime.packageRegistries,
     );
     expect(res.bindingErrorId).toBeUndefined();
-    expect(res.registries.artifactSchemas.list()).toEqual([]);
+    expect([...new Set(res.registries.artifactSchemas.list().map((entry) => entry.packageId))]).toEqual(['generic']);
+    expect(res.registries.scenarios.list().every((scenario) => scenario.packageId === 'generic')).toBe(true);
   });
 
   it('未声明（字段缺席）→ 全局可用集（既有 matter 的诚实读法）', () => {
@@ -44,7 +50,7 @@ describe('resolveMatterRegistries', () => {
     );
     expect(res.bindingErrorId).toBeUndefined();
     const packageIds = [...new Set(res.registries.artifactSchemas.list().map((entry) => entry.packageId))].sort();
-    expect(packageIds).toEqual(['legal', 'pm']);
+    expect(packageIds).toEqual(['generic', 'legal', 'pm']);
   });
 
   it('无选中 matter → 全局可用集', () => {
@@ -61,6 +67,8 @@ describe('resolveMatterRegistries', () => {
       runtime.packageRegistries,
     );
     expect(res.bindingErrorId).toBe('tender');
-    expect(res.registries.artifactSchemas.list()).toEqual([]);
+    // fail-closed 落**零垂类**（＝基线 registry），与显式零绑定同形：失效绑定不得换来半张垂类面。
+    expect([...new Set(res.registries.artifactSchemas.list().map((entry) => entry.packageId))]).toEqual(['generic']);
+    expect(res.registries.artifactSchemas.get('legal.RiskList')).toBeUndefined();
   });
 });

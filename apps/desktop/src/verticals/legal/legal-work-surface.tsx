@@ -68,11 +68,13 @@ function readableError(error: unknown, fallback: string): string {
  */
 
 export function createLegalWorkSurface(
-  deps: { workCommand: LegalWorkCommand },
+  deps: { workCommand: LegalWorkCommand; productionScenarioIds?: readonly string[] },
 ): VerticalWorkSurface {
   return {
     // LEGAL-FIVE-FACES-1：production 可启动集＝装配点声明的闭集（S1 阅卷 / S2 矩阵 / S3 合同审查）。
-    productionScenarioIds: [...PRODUCTION_SCENARIO_IDS],
+    // GENERIC-SCENARIOS-1：闭集自此由受信组合根注入（垂类 ∪ 基线）；缺省仍是垂类子集，
+    // 场景条据此过滤——驱动与壳都不认识 id 语义。
+    productionScenarioIds: [...(deps.productionScenarioIds ?? PRODUCTION_SCENARIO_IDS)],
     
     use(host: VerticalWorkSurfaceHost): VerticalWorkSurfaceState {
       const [gate, setGate] = useState<ReviewGateProjection>();
@@ -236,7 +238,7 @@ export function createLegalWorkSurface(
                 : `停止${host.registries.scenarios.get(workRun.runningScenarioId)?.name ?? '运行'}`,
             }
           : {}),
-        startScenario: (scenarioId: string) => workRun.start(scenarioId, {}),
+        startScenario: (scenarioId: string, params) => workRun.start(scenarioId, { ...(params ?? {}) }),
         cancelRun: workRun.cancel,
         resetForContextSwitch: () => {
           setGate(undefined);

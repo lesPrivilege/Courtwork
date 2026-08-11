@@ -51,6 +51,9 @@ export const S3_RISK_LIST_TYPE = 'legal.RiskList';
  * 时间线／关系图谱（S1）与矩阵审阅（S2）在真实案上**结构性无从起跑**，四张工作面因此永远空着。
  * 闭集立在装配点上，端口只问「在不在闭集内」——加员在此一处，端口与壳都不认识 id 语义。
  *
+ * GENERIC-SCENARIOS-1：本常量自此是**垂类子集**——production 全集（垂类 ∪ 基线）住受信组合根
+ * `composition/production-scenarios.ts`，端口从 deps 取用。续行侧的垂类兜底判据仍只认本子集。
+ *
  * **S6（卷宗整理）不在闭集内**：它的产出经确定性执行器落文件，属另一条已装配的 demo 路径，
  * 本票不扩面；S4（文书起草）是视图入口不是场景启动（包声明 `launch.kind='view'`）。
  */
@@ -171,12 +174,17 @@ export function buildIntakeRunInput(input: {
   scenario: ScenarioRuntime;
   materials: MaterialInput[];
   caseFile?: unknown;
+  /** 通用预检值槽（GENERIC-SCENARIOS-1 二批裁定一）：空对象不进请求。 */
+  startParams?: Readonly<Record<string, string>>;
 }): ScenarioRunInput {
   assertScenarioToolInputsComplete(input.scenario, {});
   return {
     inputArtifacts: input.caseFile !== undefined ? { 'legal.CaseFile': input.caseFile } : {},
     toolInputs: {},
     materials: input.materials,
+    ...(input.startParams !== undefined && Object.keys(input.startParams).length > 0
+      ? { startParams: input.startParams }
+      : {}),
   };
 }
 
@@ -385,19 +393,23 @@ export function admitLegalS3Package(): PackageRegistries {
 
 /** 取 legal.S3 运行时场景；未注册即显式失败（legal 包装载异常）。 */
 export function getS3Scenario(registries: PackageRegistries): ScenarioRuntime {
-  return getProductionScenario(registries, S3_SCENARIO_ID);
+  return getProductionScenario(registries, S3_SCENARIO_ID, PRODUCTION_SCENARIO_IDS);
 }
 
 /**
  * 取 production 可启动场景；闭集外或未注册一律显式失败——**不回落 S3**。
  * 「不认识的场景静默当成合同审查」正是本票要消灭的那类静默降级。
  */
-export function getProductionScenario(registries: PackageRegistries, scenarioId: string): ScenarioRuntime {
-  if (!(PRODUCTION_SCENARIO_IDS as readonly string[]).includes(scenarioId)) {
+export function getProductionScenario(
+  registries: PackageRegistries,
+  scenarioId: string,
+  launchableScenarioIds: readonly string[] = PRODUCTION_SCENARIO_IDS,
+): ScenarioRuntime {
+  if (!launchableScenarioIds.includes(scenarioId)) {
     throw new Error(`${scenarioId} 不在 production 可启动场景闭集内`);
   }
   const scenario = registries.scenarios.get(scenarioId);
-  if (!scenario) throw new Error(`${scenarioId} 未在场景注册表中——legal 包装载异常`);
+  if (!scenario) throw new Error(`${scenarioId} 未在场景注册表中——包装载异常`);
   return scenario;
 }
 

@@ -14,11 +14,15 @@
  *  - `loadable`：当期产品允许用户在 matter 建立/设置处激活。
  *  - `catalog-only`：descriptor/schema/renderer 已过构建期准入（故能识别与读取既有产物），
  *    但当期不开放交互加载——渲染成普通「加载 X 包」就是以 UI 承诺不存在的场景与 prompt。
+ *  - `baseline`（ADR-023 决定二）：恒在每个 matter 的生效 registry 内，与该 matter 的垂类绑定态
+ *    无关；不占 `packBinding` 席位（该字段自 ADR-023 起显式限定为**垂类**绑定）；不进加载选择面
+ *    ——用户不加载也不卸载它，它是产品本体的一部分，不是可选项。渲染成一枚「加载 X 包」就是
+ *    给用户一个既关不掉也开不了的开关。
  *
- * 闭集只此两枚。该字段是**宿主发行事实**：只住受信组合根，不进 Package ABI、不进
+ * 闭集只此三枚。该字段是**宿主发行事实**：只住受信组合根，不进 Package ABI、不进
  * `packBinding`/case store/wire/journal，也不另立第二持久开关。
  */
-export type PackageAvailability = 'loadable' | 'catalog-only';
+export type PackageAvailability = 'loadable' | 'catalog-only' | 'baseline';
 
 export interface PackageCatalogEntry {
   packageId: string;
@@ -35,7 +39,15 @@ const PACKAGE_PRESENTATION: Readonly<Record<string, { displayName: string; avail
   legal: { displayName: '法律包', availability: 'loadable' },
   // PM descriptor 明写 `scenarios: []`、`promptSegments: []`——只上架 schema/catalog。
   pm: { displayName: '产品管理包', availability: 'catalog-only' },
+  // ADR-023 决定一/二：通用基线包按同一 ABI 成立，成熟度为 baseline（恒在、不占绑定席位、
+  // 不进加载选择面）。呈现名仍须在册——基线身份不豁免「缺呈现名即装配失败」这条。
+  generic: { displayName: '通用基线包', availability: 'baseline' },
 };
+
+/** 基线成熟度的包 id（宿主发行事实；`registriesFor` 的并集底座）。 */
+export function isBaselinePackage(packageId: string): boolean {
+  return PACKAGE_PRESENTATION[packageId]?.availability === 'baseline';
+}
 
 export function describePackage(manifest: { identity: { packageId: string; version: string } }): PackageCatalogEntry {
   const presentation = PACKAGE_PRESENTATION[manifest.identity.packageId];

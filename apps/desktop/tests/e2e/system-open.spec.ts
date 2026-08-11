@@ -31,7 +31,9 @@ test('确认编译后产出目录存在 docx，起草画布才进入冻结态', 
   await draft.getByRole('button', { name: '编译为 Word 文档' }).click();
   await page.getByTestId('confirm-draft-compile').click();
 
-  await expect(page.getByTestId('system-open-feedback')).toHaveText('已写入本案「产出」目录：答辩意见.docx');
+  // GENERIC-SCENARIOS-1 顺带清偿：起草画布是通用主工作面，产物名随之中性化（垂类文案
+  // 「答辩意见.docx」退役），落盘改原子 no-replace。断言随产品事实同批订正。
+  await expect(page.getByTestId('system-open-feedback')).toHaveText('已写入本案「产出」目录：起草文稿.docx');
   await expect(draft).toHaveClass(/frozen/);
   await expect(draft.getByTestId('open-word-doc')).toBeEnabled();
 

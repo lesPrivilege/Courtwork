@@ -94,6 +94,11 @@ function harness(materials: StoredMaterial[] = [storedMaterial()]) {
     host,
     // 本谱的 matter 恒绑 Legal（授权面另由 composition/matter-execution-scope.test.ts 立谱）。
     registriesForCase: () => registries,
+    // GENERIC-SCENARIOS-1：可启动闭集与包身份自此由装配点注入。本谱只验垂类路径，故逐字给垂类
+    // 子集；packageIdentities 留空即走「未登记不猜」的 legal 回落，账本头断言逐字不变。
+    launchableScenarioIds: PRODUCTION_SCENARIO_IDS,
+    verticalScenarioIds: PRODUCTION_SCENARIO_IDS,
+    packageIdentities: {},
     codec: createArtifactEnvelopeCodec(buildArtifactVersioningSource(registries, { legal: LEGAL_S3_SCHEMA_VERSION })),
     actor: ACTOR,
     materialResolver: materialResolver(materials),

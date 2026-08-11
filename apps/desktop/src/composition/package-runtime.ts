@@ -1,3 +1,4 @@
+import { GENERIC_PACKAGE } from '@courtwork/generic/package';
 import { LEGAL_PACKAGE } from '@courtwork/legal/package';
 import { PM_PACKAGE } from '@courtwork/pm/package';
 import {
@@ -8,7 +9,7 @@ import {
 } from '@courtwork/registry';
 import { createCourtworkHostRendererRegistry } from '../preview/courtwork-host-renderers.js';
 import type { HostRendererRegistry } from '../preview/HostRendererRegistry.js';
-import { describePackage, type PackageCatalogEntry } from './package-catalog.js';
+import { describePackage, isBaselinePackage, type PackageCatalogEntry } from './package-catalog.js';
 
 export interface DesktopPackageRuntime {
   /** 全局可用集：随制品分发并通过准入的包（ADR-015 决定三「全局 registry 只决定可用集」）。 */
@@ -16,9 +17,15 @@ export interface DesktopPackageRuntime {
   /** 全局可用集的宿主呈现目录（PACK-INTERACT-1 ①：加载 UX 取词面，只供文案，不参与机制）。 */
   packageCatalog: readonly PackageCatalogEntry[];
   packageRegistries: PackageRegistries;
+  /** 已准入包的身份表（packageId → version/schemaVersion）：账本头与 ArtifactEnvelope 版本源的唯一取处。 */
+  packageIdentities: Readonly<Record<string, { version: string; schemaVersion: number }>>;
   hostRenderers: HostRendererRegistry;
   /**
-   * 逐 matter 取生效 registry。`packageIds` 是该 matter 的绑定（零或一枚）。
+   * 逐 matter 取生效 registry。`packageIds` 是该 matter 的**垂类**绑定（零或一枚）。
+   *
+   * 返回语义是**基线 registry 与该绑定所解析 registry 的并集**（ADR-023 决定三）：基线包恒在，
+   * 与绑定态无关；零绑定 matter 的生效 registry 即基线 registry 本身。垂类侧 fail-closed 判据
+   * 一字不动——并集只加基线，绝不把别的垂类包一并放进来。
    *
    * 绑定里出现不在可用集内的 id 一律**拒载**（不静默忽略）：那意味着这枚 matter 绑的是本制品
    * 没有的包，静默降级成「加载了别的」正是 ADR-015 决定四禁止的伪装。消费侧把该 throw 收进
@@ -29,7 +36,7 @@ export interface DesktopPackageRuntime {
 }
 
 export function createDesktopPackageRuntime(): DesktopPackageRuntime {
-  const admission = admitPackages([LEGAL_PACKAGE, PM_PACKAGE]);
+  const admission = admitPackages([LEGAL_PACKAGE, PM_PACKAGE, GENERIC_PACKAGE]);
   if (admission.rejected.length > 0) {
     const details = admission.rejected
       .map((item) => `${item.packageId}: ${item.issues.join('; ')}`)
@@ -42,10 +49,21 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
   // 逐 matter 的 registry 按绑定现算；同一绑定复用同一枚，避免每次渲染重建投影表。
   const cache = new Map<string, PackageRegistries>();
   const packageCatalog = admission.admitted.map(describePackage);
+  /**
+   * 基线底座（ADR-023 决定三）：恒进每一枚生效 registry。次序上排在垂类**之后**——
+   * 场景条按注册表序渲染，垂类是这枚 matter 被显式加载的能力，理应排在通用能力前面。
+   */
+  const baseline = admission.admitted.filter((manifest) => isBaselinePackage(manifest.identity.packageId));
   return {
     packageIds: [...byId.keys()],
     packageCatalog,
     packageRegistries: buildPackageRegistries(admission.admitted),
+    packageIdentities: Object.fromEntries(
+      admission.admitted.map((manifest) => [
+        manifest.identity.packageId,
+        { version: manifest.identity.version, schemaVersion: manifest.identity.schemaVersion },
+      ]),
+    ),
     hostRenderers: createCourtworkHostRendererRegistry(),
     registriesFor: (packageIds) => {
       const key = [...packageIds].join(' ');
@@ -58,7 +76,13 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
         }
         return manifest;
       });
-      const registries = buildPackageRegistries(manifests);
+      // 并集（ADR-023 决定三）：拒载判据先跑完，基线才并进来——失效绑定仍在基线之前 throw。
+      // 去重按 packageId：显式把基线写进 packBinding 也只得一份（同 id 拒载是准入机器的既有律）。
+      const bound = new Set(manifests.map((manifest) => manifest.identity.packageId));
+      const registries = buildPackageRegistries([
+        ...manifests,
+        ...baseline.filter((manifest) => !bound.has(manifest.identity.packageId)),
+      ]);
       cache.set(key, registries);
       return registries;
     },

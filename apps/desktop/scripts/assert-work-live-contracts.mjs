@@ -108,7 +108,10 @@ requireMatch(legalSurface, /useWorkRunLifecycle\(\{[\s\S]*?workCommand: deps\.wo
 requireMatch(lifecycle, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
 requireMatch(legalSurface, /useContractReviewSubmission\(\{[\s\S]*?workCommand: deps\.workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（垂类驱动侧接线）');
 // 组合根装配锁：生产 workCommand 只能由 main.tsx 注入垂类驱动，壳不得自持第二条注入路径。
-requireMatch(main, /createLegalWorkSurface\(\{\s*workCommand\s*\}\)/, '受信组合根必须把生产 workCommand 注入垂类工作面驱动');
+// GENERIC-SCENARIOS-1 收尾订正：原式写死「装配参数恰一枚 `{ workCommand }`」，于是裁定 B4
+// 给驱动加注可启动场景闭集（`productionScenarioIds`）后本门即红——**锁的是注入路径，不是
+// 参数表长度**，故改判「装配点上带着 workCommand 这枚参数」，加参数不再误红，删注入仍触红。
+requireMatch(main, /createLegalWorkSurface\(\{[\s\S]*?\bworkCommand\b[,\s}]/, '受信组合根必须把生产 workCommand 注入垂类工作面驱动');
 forbidMatch(app, /createLegalWorkSurface/, 'App.tsx 不得自行构造垂类工作面驱动（装配点只属组合根）');
 requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
 requireMatch(lifecycle, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');

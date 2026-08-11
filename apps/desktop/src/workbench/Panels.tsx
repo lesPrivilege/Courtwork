@@ -75,7 +75,10 @@ export function DraftPanel({
     <div className={`draft-panel ${frozen ? 'frozen' : ''}`} data-testid="draft-panel">
       <header>
         <div>
-          <strong>答辩状</strong>
+          {/* 中性抬头（GENERIC-SCENARIOS-1 收尾追修）：起草画布是 ADR-015 成品律点名的**通用**
+              主工作面，基线「送入起草画布」落地后它在零垂类绑定 matter 上真实可达，抬头写死
+              一种文书名即是壳内垂类文案泄漏。与产物名 `起草文稿.docx` 同词。 */}
+          <strong>起草文稿</strong>
           <span>{frozen ? '已定稿 · 2026-07-10 17:40' : '起草中 · 自动保存'}</span>
         </div>
         {frozen

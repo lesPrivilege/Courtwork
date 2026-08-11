@@ -89,6 +89,16 @@ export interface ScenarioRunInput {
   toolInputs: Record<string, unknown>;
   /** 容器材料（阅读视图全文 + 哈希），经会话与语料段在显式数据边界内注入。 */
   materials?: MaterialInput[];
+  /**
+   * 用户预检提交值（GENERIC-SCENARIOS-1 二批裁定一 · ADR-016 填格协议同族）。
+   *
+   * 由宿主按 `launch.formFields` 声明收成 `Record<fieldId, string>` 的冻结快照，作为 task 段的
+   * 结构化输入随 `taskInstruction` 注入——**用户填格进请求，模型只读不改址**。fieldId 是否越出
+   * 该场景声明的 id 集由装配点在 effect 之前判定，执行器只忠实转述。
+   *
+   * 缺省/空对象**不进请求**：不给模型一个恒空的字段去解读，既有场景的请求字节零变化。
+   */
+  startParams?: Readonly<Record<string, string>>;
 }
 
 /** 场景终局失败原因（对齐 ScenarioFailedEvent.reason，映射为 typed WorkCommandOutcome）。 */
@@ -462,6 +472,7 @@ async function generateArtifact(
     toolResults: Record<string, unknown>;
     producedSoFar: Partial<Record<string, unknown>>;
     materials: MaterialInput[];
+    startParams?: Readonly<Record<string, string>>;
   },
   deps: ScenarioExecutorDeps,
   guard: RuntimeGuard,
@@ -486,6 +497,9 @@ async function generateArtifact(
       artifactType,
       inputArtifacts: context.inputArtifacts,
       toolResults: context.toolResults,
+      ...(context.startParams !== undefined && Object.keys(context.startParams).length > 0
+        ? { startParams: context.startParams }
+        : {}),
     };
     if (repairFailures !== undefined) {
       // 受限修复重试（docs/architecture/schema-engineering.md 校准语义）：携原判与失败原因，只修引语不重写判断。
@@ -594,6 +608,8 @@ interface SequenceState {
   producedSoFar: Partial<Record<string, unknown>>;
   inputArtifacts: Partial<Record<string, unknown>>;
   materials: MaterialInput[];
+  /** 用户预检提交值（见 ScenarioRunInput.startParams）；空/缺省不进请求。 */
+  startParams?: Readonly<Record<string, string>>;
 }
 
 function findGate(scenario: ScenarioRuntime, artifactType: string | undefined) {
@@ -659,6 +675,7 @@ async function produceSequence(
         toolResults: state.toolResults,
         producedSoFar: state.producedSoFar,
         materials: state.materials,
+        ...(state.startParams !== undefined ? { startParams: state.startParams } : {}),
       },
       deps,
       guard,
@@ -774,6 +791,7 @@ export async function runScenario(
         producedSoFar: { ...input.inputArtifacts },
         inputArtifacts: input.inputArtifacts,
         materials: input.materials ?? [],
+        ...(input.startParams !== undefined ? { startParams: input.startParams } : {}),
       },
       deps,
       guard,
