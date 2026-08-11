@@ -58,3 +58,134 @@
 ## 六 · 禁区
 
 不触 pi lane 与 `src-tauri` pi 循环；不改 ADR-009 步骤闭集；不扩 launch 元素集；不动 legal/pm descriptor 语义；xlsx/pptx/定时触发/通道均不夹带；不做动态装载；不宣称 external-validated（模型回合由樁承载，真 key 面另账）。
+
+---
+
+## 七 · 实现回执（实现会话 2026-08-11，分支 `claude/generic-scenarios-1`，基线 main@31533d3）
+
+**总状态：部分交付。** 票面三件中「基线包成立」与「场景③ 多文件批处理」已全链闭合并带红证；
+「场景① 通用起草」的**包侧声明已落地**，但其起跑链卡在一处结构性缺口（见 §7.4 拍板项一），
+未接入可启动闭集——故当期产品面上**不渲染 `generic.draft` 的场景按钮**（不留死钮）。
+顺带清偿两项（`DRAFT_OUTPUT_FILE`、draft 路径 `overwrite:true`）**未动**，随场景①一并转出。
+
+### 7.1 逐段红证（测试名 ＋ 红形）
+
+| # | 段 | 先红项 | 实测红形 |
+| --- | --- | --- | --- |
+| 1 | 基线包成立 | `packages/generic/src/package/manifest.test.ts` 全谱 | `Cannot find module './index.js'`（包不存在） |
+| 2 | 中性义务 | `neutrality.test.ts` >「prompt 段、词表、标题与 launch 文案对十枚垂类场景词全部零命中」 | `AssertionError: 垂类场景词「风险」泄漏进基线包声明面`——**本门在写作过程中真的触红一次**：`generic.draft` 的 launch placeholder 原文含「进度、风险与下一步」，随即中性化为「进度、阻碍与下一步」。门不是空跑 |
+| 3 | 逐项完整性裁决 | `domain/batch-completeness.test.ts` 全谱 | `Cannot find module './batch-completeness.js'` |
+| 4 | `baseline` 成熟度 | `package-catalog.test.ts` >「发行成熟度是三枚闭集」「baseline 不进可交互加载子集」「基线包有宿主呈现名」 | `Error: no host display name for admitted package: generic` ×3 |
+| 5 | 并集语义 | `package-runtime.test.ts` 新 describe 五例 ＋ `matter-registries.test.ts` 三例 | `expected [] to deeply equal [ 'generic' ]`、`expected [ 'legal' ] to deeply equal [ 'generic', 'legal' ]`、`Error: matter is bound to a package that is not admitted in this build: generic` |
+| 6 | 基线场景接入 production 链 | `composition/baseline-scenario-run.test.ts` 七例 | `Cannot find module './production-scenarios.js'` |
+
+`collectionPointer` 的投影与拒载反例（票面 A3「首个实操者须自带投影测试与拒载反例」）落在
+`manifest.test.ts` 的 golden 用例 ＋「漏一枚 status valueLabels 即整包拒载」「collectionPointer
+漂移到非数组即整包拒载」两条反例上；desktop 侧的 `projectArtifactTable` 消费面因场景③产物已能
+真实落账而首次有真生产者。
+
+### 7.2 新增概念对账（票面登记三枚 ＋ 本单实增一枚）
+
+1. **`PackageAvailability` 第三枚 `baseline`** — 票面登记，已落 `composition/package-catalog.ts`。
+2. **`packages/generic` 包实体** — 票面登记，已落。
+3. **`BatchReport` 逐项完整性校验** — 票面登记，落 `packages/generic/src/domain/batch-completeness.ts`
+   （纯裁决 `completeBatchItems` ＋ 会话作用域 schema `batchReportSchemaFor`）。
+4. **【多出一枚】会话作用域 registry 收窄缝 `scopeRegistriesForRun`**（`LegalWorkCommandDeps` 上的
+   可选注入，实现住 `composition/baseline-session-scope.ts`）。**为何非加不可**：逐项完整性裁决要
+   成立，「就绪材料闭集」必须进入**产物成形之前**的校验路径，而闭集只有到起跑那一刻才知道。
+   现行执行器把 artifact schema 从 `deps.artifacts` 取，故唯一不改 core、不改 ADR-009 步骤闭集、
+   不写读侧补丁的落点就是「按本次运行收窄那一枚 artifact 的 schema」。缺省恒等，垂类路径零行为变化。
+
+**实现形态上的一条硬判据（新判例候选）**：该收窄 schema 只用 Zod 4 的 `.check()`，**禁用
+`.transform()`**。实测 `z.toJSONSchema` 对 transform 抛错，而 `packages/provider/src/structured-output.ts`
+的 `toJsonSchemaSafe` 对该异常有**无声**兜底（退回 `json_object` 档位、零 notice）——用 transform
+会让真 key 路径静默丢掉 provider 侧的结构化约束，属不变量四禁止的静默降档。`.check()` 可就地改写
+`ctx.value` 且谓词不进 JSON Schema，两头都满足。判据由
+`batch-completeness.test.ts` >「会话作用域 schema 仍可转 JSON Schema」把守。
+
+零新依赖、零新步骤种类、零新 renderer 注册机制、零新持久化格式（与票面一致）。
+
+### 7.3 偏离清单
+
+1. **场景① 未接入可启动闭集**（见 §7.4 拍板项一）。包侧声明（schema/scenario/launch/prompt 段）
+   已随基线包落地并过准入与中性门，但 `generic.draft` 不在 `PRODUCTION_LAUNCHABLE_SCENARIO_IDS`
+   的**产品可达路径**上——它在闭集常量里在册（`BASELINE_SCENARIO_IDS` 由包声明派生），但其预检值
+   无法送达命令端口，故实际起跑会因缺少起草要求而产出无依据文稿。**当期未在产品上暴露该按钮的
+   可用路径尚未收口，验收须按 §7.4 处置。**
+2. **顺带清偿两项未动**：`App.tsx:165` 的 `DRAFT_OUTPUT_FILE = '答辩意见.docx'` 与
+   `case-output-client.ts` draft 路径的 `overwrite: true`。二者与场景①的落盘链同批，单独改会让
+   既有 Legal 起草画布换名而无对应产品变化，故随场景①转出。
+3. **`generic.DraftDocument` 的呈现取舍**：走既有 `courtwork.artifact-table.v1`，
+   `collectionPointer: '/paragraphs'` ＋ 单列 `pointer: ''`（RFC 6901 整文档指针，命中字符串数组
+   的 item 根）。文稿**标题不入列**——它是整份产物的身份而非某一行的字段，由 `descriptor.title`
+   与后续「送入起草画布」动作面承载。代价是产物只读视图当前看不到模型给的标题，随场景①收口。
+4. **中性门的落点**：ADR-023 决定四要求「①附场景词零命中断言扩覆基线包 prompt 段与词表」。
+   断言落在 `packages/generic/src/package/neutrality.test.ts` 而非 `apps/desktop/src/work/work-context.test.ts`
+   ——后者住受检面，而 `@courtwork/generic` 随本票进了零泄漏静态门的包名闭集，壳内测试**不得**
+   import 本包。两门分居两处是零泄漏律的结果，不是重复。
+5. **既有三处判据按 ADR-023 决定三收窄留痕**（非削弱）：`matter-registries.test.ts`
+   「显式零绑定 → 零垂类 registry」、`matter-pack-binding.test.ts`「绑定为零时一枚 artifact 也没有」、
+   `matter-execution-scope.test.ts`「授权只认 canonical case store」三处的「零」由「一枚也没有」
+   收窄为「一枚**垂类**也没有」。垂类 fail-closed 一字不动，反例在
+   `baseline-scenario-run.test.ts`（零绑定起 `legal.S2` 仍 `rejected/invalid_scope`）。
+6. **`matter-first-frame.dom.test.ts` 冷装配用例上界 30s→90s**：基线包入准入后冷装配再涨一档
+   （三包准入 ＋ 第三张 registry），并行满载下越过 30s、隔离下同例约 3s——是冷装配时长不是挂起，
+   判据一字不动。
+7. **`LegalWorkCommandDeps` 新增三枚必填 dep**（`launchableScenarioIds` / `verticalScenarioIds` /
+   `packageIdentities`）而非给缺省值：缺省会让装配缺陷静默通过。六处既有测试装配点随之补齐。
+
+### 7.4 `[需架构拍板]`
+
+**一 · 预检值没有送达 production 命令端口的通用槽位（阻断场景①）。**
+`StartWorkCommand`（`apps/desktop/src/protocol/client.ts`）无 preflight slot；S3 的主体输入走的是
+**垂类专属**入口 `LegalWorkCommand.startWithPreflight`（形参逐字是 `subject: ContractPartySubject`）。
+`generic.draft` 的必填 `text`（起草要求）因此无路可走。三条候选，均越出「最小中性化」，实现会话
+不自裁：
+
+- (a) 给 `StartWorkCommand` 加可选 `precheck?: Readonly<Record<string, string>>`。理由：ADR-016
+  填格协议已把预检值定形为闭元素集的 `Record<fieldId, string>`；`StartWorkCommand` 是**进程内
+  callback 契约**（ADR-009 明文：非 IPC/HTTP/wire），加槽不触任何持久 wire 或 journal。代价：
+  动了 ADR-010 的命令形状。
+- (b) 在基线包内声明第三枚 artifact `generic.DraftRequest` 作为 `generic.draft.inputArtifacts`，
+  由装配点注入（循 S3 的 `legal.CaseFile` 机械派生先例）。代价：包的产物闭集由两枚变三枚，
+  越出票面一节的登记。
+- (c) 把预检值经 `ScenarioRunInput.toolInputs` 夹带。**不建议**：该字段语义是工具输入，塞非工具
+  数据是绕过契约。
+
+**二 · 场景①的宿主起跑面无处挂载。** production 路由（`App.tsx:1049` `onLaunchScenario`）对
+「带预检表单的场景」只打开目标视图，由该视图的 renderer 自行渲染 `ScenarioPrecheckForm`——现行
+唯一这么做的是 `RiskReviewRenderer`（其 blueprint 声明 `handlesEmpty: true`）。`generic.draft` 的
+目标视图解析到通用产出席位 `artifact`，而产物到来前那里没有任何面。可行解是宿主侧按 blueprint
+的 `handlesEmpty` 派生一枚**通用场景起跑面**（零垂类字面量，复用既有通用件），但那是新增一处
+宿主呈现概念，须与拍板项一同批定谳。
+
+**三 · 场景①「送入起草画布」动作与落盘链**：依赖上两项，随之转出。若采纳 (a)，顺带清偿的
+`DRAFT_OUTPUT_FILE` 建议按 `contract-review-file-name.ts` 先例改为纯函数版本化中性名
+（`起草文稿-<UTC YYYYMMDD-HHmmss-SSS>.docx`，复用已导出的 `formatUtcStamp`），与 draft 路径改
+atomic no-replace 同批——固定名 ＋ no-replace 会让第二次编译恒 `exists`，两项必须同批改。
+
+### 7.5 门数（本会话实跑）
+
+| 门 | 结果 |
+| --- | --- |
+| `pnpm -r build` | 全绿（12 包 Done，含新 `packages/generic`） |
+| `pnpm lint` | 绿（零输出） |
+| root `pnpm test` | **2191/2191 绿**（stage-2 时点实跑）；stage-3 后同命令两次出现 `packages/output` docx 与 core bundle 谱共 7–10 例 5s/35s 超时——**同命令在 `git stash` 后的改动前树上复现同一族超时**，故判为并行满载下的环境红、零因果，如实分开登记（用例总数 2191 未变，无用例丢失） |
+| desktop `pnpm --filter @courtwork/desktop test` | **863/863 绿**（基线 847 → +16） |
+| `cargo test`（`apps/desktop/src-tauri`） | **250/250 绿**（1 ignored）。首跑因本 worktree 缺 `packages/pi-lane/dist/product-sidecar` 与 `dist/headless-sidecar` 而失败，跑 `build:product-sidecar`＋`build:headless-sidecar` 后复绿——环境前置非树上红 |
+| `site:guard` | 绿（SKIN-R2 signed ledger passed；App.tsx 高水位 2245/2245，本票零触碰 App.tsx） |
+| 零泄漏静态门 `assert-vertical-isolation.mjs` | 绿（受检 217 份零垂类 import；包名闭集已扩员为 `legal\|pm\|generic`） |
+| Playwright 完整链 | **未跑**（见下） |
+
+**Playwright 未跑的如实登记**：本会话上下文预算耗尽于场景①的结构性缺口排查，完整链（独占端口
+＋ `/private/tmp/courtwork-pw-lock` 原子锁、前台阻塞等完整退出码）未执行，故 floor 386 **未复核**。
+本票当期零 `App.tsx`／零壳内交互面改动（改动面全在 `packages/generic`、`composition/`、
+`verticals/legal/{work-command,legal-s3-binding,legal-work-surface}`、`work/work-runtime`），
+但**这不能替代实跑**——卸载态冒烟 e2e（票面五第三条）同样未写。验收会话须补跑并补票。
+
+### 7.6 续行入口
+
+1. 先定谳 §7.4 拍板项一（预检值槽位），再依次收口拍板项二、三；
+2. 场景① 起跑链接通后：`generic.draft` 进产品可达路径 → 「送入起草画布」动作 → 顺带清偿两项同批；
+3. 补写卸载态冒烟 e2e（零垂类绑定 matter 上起 `generic.draft` 与 `generic.batch` 全链，E2E 樁承载
+   模型回合，全程零垂类词表泄漏断言），跑 Playwright 完整链并把 floor 从 386 上抬。
