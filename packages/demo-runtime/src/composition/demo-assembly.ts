@@ -8,9 +8,14 @@ import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@
 import { convertToReadingView, type ReadingViewOutcome } from '@courtwork/reading-view';
 import {
   createDemoFixturePartyVerifyAdapter,
+  createDossierListTool,
+  createMaterialReadTool,
   createPartyVerifyTool,
+  createReadySourceAdapters,
+  type MaterialReadData,
   type PartyVerifyData,
   type PartyVerifyInput,
+  type ReadySourcePort,
 } from '@courtwork/tools';
 import {
   createMemoryTurnStore,
@@ -101,6 +106,58 @@ export function buildDemoS3Runtime(options: { provider?: Provider; turnStore?: T
     toolInputs: { 'party-verify': { name: '起云智能装备（虚构）有限公司' } },
     registries: buildPackageRegistries(admission.admitted),
   };
+}
+
+const MEDIA_TYPE_BY_EXTENSION: Record<string, string> = { docx: 'docx', pdf: 'pdf', md: 'md', txt: 'txt' };
+
+function mediaTypeOf(fileId: string): string {
+  return MEDIA_TYPE_BY_EXTENSION[fileId.split('.').pop()?.toLowerCase() ?? ''] ?? 'unknown';
+}
+
+/**
+ * demo/acceptance 侧的就绪材料数据源（TOOL-READ-1 裁定三/五）：以既有 demo 材料链供给
+ * `dossier-list` / `material-read` 两枚可请求只读工具。容器身份闭合在这份材料快照里
+ * ——模型点不到快照之外的任何东西。生产侧数据源（宿主 MaterialStore 复验链）随各自票面接入。
+ */
+export function createDemoReadySource(materials: MaterialInput[]): ReadySourcePort {
+  const byId = new Map<string, MaterialReadData>(
+    materials.map((material) => [material.fileId, {
+      materialId: material.fileId,
+      fileName: material.fileId,
+      mediaType: mediaTypeOf(material.fileId),
+      readingMarkdown: material.readingMarkdown,
+    }]),
+  );
+  return {
+    async list() {
+      return [...byId.values()].map(({ materialId, fileName, mediaType }) => ({ materialId, fileName, mediaType }));
+    },
+    async read(materialId) {
+      const material = byId.get(materialId);
+      // 查不到即 blocked，拒因逐字透出——不返回空正文冒充「读到了但是空的」。
+      return material ? { status: 'ready', material } : { status: 'blocked', reason: 'not_found' };
+    },
+  };
+}
+
+/**
+ * TOOL-READ-1 裁定五消费者边界：可请求只读工具的 demo/acceptance 装配。与 S3 装配分开一份
+ * registry——S3 的既有工具面一个字节不动，本装配也不夹带 party-verify。
+ */
+export function buildRequestableToolRegistry(materials: MaterialInput[]): ToolRegistry {
+  const adapters = createReadySourceAdapters(createDemoReadySource(materials), 'demo-fixture');
+  const tools = createToolRegistry();
+  tools.register('dossier-list', {
+    tool: createDossierListTool(adapters.dossierList),
+    grade: 'B',
+    sideEffect: 'pure_read',
+  });
+  tools.register('material-read', {
+    tool: createMaterialReadTool(adapters.materialRead),
+    grade: 'B',
+    sideEffect: 'pure_read',
+  });
+  return tools;
 }
 
 /** ReadingViewOutcome → MaterialInput：语料全文 + sha256 + 文本层块（resolver 公证基底）1:1 派生。 */

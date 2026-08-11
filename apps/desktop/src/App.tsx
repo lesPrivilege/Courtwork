@@ -1803,6 +1803,22 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                           : 'risk-list=6 gate=awaiting-review'
                         : 'timeline=47 parties=14 conflicts=4'}
                     />
+                    {/* TOOL-READ-1 裁定六/十：模型请求的只读工具结果投影自 EventLog 账本条目，
+                        复用既有 ToolCallRow 原语——界面事件面就是账本本身，不折成通用文本行。 */}
+                    {session.modelToolResults.map((entry) => (
+                      <ToolCallRow
+                        key={`${entry.toolId}-${entry.round}-${entry.seq}`}
+                        label={entry.verified ? '模型请求的只读查询' : '模型请求的只读查询未取得结果'}
+                        tool={entry.toolId}
+                        args={`round=${entry.round} step=${entry.stepId}`}
+                        result={entry.truncated ? `${entry.content}` : entry.content}
+                      />
+                    ))}
+                    {session.unrecognizedEntries.length > 0 && (
+                      <p className="turn-recovery-error" role="status" data-testid="unrecognized-ledger-entries">
+                        账本中有 {session.unrecognizedEntries.length} 条未识别记录未参与呈现（{session.unrecognizedEntries.map((e) => `#${e.seq} ${e.type}`).join('、')}）
+                      </p>
+                    )}
                     <div className="turn-event-stream" data-testid="event-stream">
                       <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已启动'} status="success" testId="turn-event-start" />
                       {session.progress.map((message, index) => (

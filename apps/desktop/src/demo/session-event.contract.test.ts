@@ -25,8 +25,9 @@ describe('core 事件录制回放契约', () => {
 
   it('S3 录制契约层对齐包声明（LEGAL-DEMO-RUN ③ 防录制漂移）：顺序/todo 步/门禁标签/公证观测', () => {
     // 契约层顺序 = executor pauseAt 语义：artifact → todo → confirmation（progress 为演示旁白，允许先行）。
+    // TOOL-READ-1：model_tool_result 落在 artifact 之前——它是产出这件 artifact 途中的请求轮。
     expect(S3_RECORDING.map((event) => event.type)).toEqual([
-      'progress', 'artifact_produced', 'todo_snapshot', 'confirmation_requested',
+      'progress', 'model_tool_result', 'artifact_produced', 'todo_snapshot', 'confirmation_requested',
     ]);
 
     const scenario = LEGAL_PACKAGE.scenarios.find((item) => item.id === 'legal.S3');
@@ -104,7 +105,10 @@ describe('core 事件录制回放契约', () => {
     expect(projected.artifacts['legal.RiskList']).toBeDefined();
     expect(projected.confirmation?.requestId).toBe('demo-s3-risk-gate');
     expect(projected.evidenceGrades).toHaveLength(2);
-    expect(projected.lastSeq).toBe(4);
+    expect(projected.lastSeq).toBe(5);
+    // TOOL-READ-1：工具结果进 trace 投影，未识别登记恒空（录制全在闭集内）。
+    expect(projected.modelToolResults.map((entry) => entry.toolId)).toEqual(['material-read']);
+    expect(projected.unrecognizedEntries).toEqual([]);
   });
 
   it('step_failed 只进入失败列表，不吞掉既有产出', () => {

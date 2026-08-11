@@ -45,7 +45,14 @@ const at = (second: number) => `2026-07-10T09:00:${String(second).padStart(2, '0
 export const S3_RECORDING: SessionEvent[] = [
   { type: 'progress', sessionId: 'demo-s3', seq: 1, emittedAt: at(1), message: '正在核对合同条款与当事人信息…' },
   {
-    type: 'artifact_produced', sessionId: 'demo-s3', seq: 2, emittedAt: at(2), artifactType: 'legal.RiskList', artifact: riskList,
+    // TOOL-READ-1 裁定六：模型请求的只读工具结果是 trace 区的一等条目——界面事件面就是账本本身。
+    type: 'model_tool_result', sessionId: 'demo-s3', seq: 2, emittedAt: at(2),
+    stepId: 'produce-risk-list', artifactType: 'legal.RiskList', round: 1, toolId: 'material-read',
+    verified: true, truncated: false,
+    content: '{"verified":true,"data":{"materialId":"04-设备采购合同.md","fileName":"04-设备采购合同.md","mediaType":"md"},"source":"demo-fixture"}',
+  },
+  {
+    type: 'artifact_produced', sessionId: 'demo-s3', seq: 3, emittedAt: at(3), artifactType: 'legal.RiskList', artifact: riskList,
     evidenceGrades: [
       { key: 'contract-corpus', grade: 'B', sourceId: 'demo-fixture', confirmed: true },
       { key: 'open-reference', grade: 'C', sourceId: 'demo-fixture', confirmed: false },
@@ -53,7 +60,7 @@ export const S3_RECORDING: SessionEvent[] = [
     citationStats: { claims: 8, firstPassResolved: 6, retryRounds: 0, resolvedAfterRetry: 6, outOfCoverage: 2 },
   },
   {
-    type: 'todo_snapshot', sessionId: 'demo-s3', seq: 3, emittedAt: at(3),
+    type: 'todo_snapshot', sessionId: 'demo-s3', seq: 4, emittedAt: at(4),
     steps: [
       { stepId: 'verify-parties', label: '核验合同主体', status: 'done' },
       {
@@ -63,7 +70,7 @@ export const S3_RECORDING: SessionEvent[] = [
     ],
   },
   {
-    type: 'confirmation_requested', sessionId: 'demo-s3', seq: 4, emittedAt: at(4), requestId: 'demo-s3-risk-gate',
+    type: 'confirmation_requested', sessionId: 'demo-s3', seq: 5, emittedAt: at(5), requestId: 'demo-s3-risk-gate',
     gateLabel: '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿', artifactType: 'legal.RiskList',
   },
 ];

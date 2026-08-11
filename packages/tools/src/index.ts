@@ -2,6 +2,7 @@ export * from './contract.js';
 export * from './cache.js';
 export * from './party-verify.js';
 export * from './cite-check.js';
+export * from './dossier-read.js';
 export * from './web-fetch-ssrf.js';
 export * from './web-fetch-spotlight.js';
 export * from './web-fetch-extract.js';

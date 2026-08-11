@@ -3,18 +3,33 @@ import { relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../../..');
-const TRUSTED_REGISTRATIONS = new Map<string, {
+interface TrustedRegistration {
   toolToken: string; toolId: string; toolFactory: string; sideEffect: string;
-}>([
-  ['apps/desktop/src/verticals/legal/legal-s3-binding.ts', {
+}
+
+/**
+ * 每个受信装配点的**逐枚**注册清单。TOOL-READ-1 前本表是「文件 → 唯一一枚注册」；两枚可请求
+ * 只读工具进 demo/acceptance 装配点后改为「文件 → 有序注册清单」——门的强度不变：每一次
+ * `tools.register()` 仍须逐字对上具名 toolId、具名工厂与具名 sideEffect，多一次少一次都触红。
+ */
+const TRUSTED_REGISTRATIONS = new Map<string, TrustedRegistration[]>([
+  ['apps/desktop/src/verticals/legal/legal-s3-binding.ts', [{
     toolToken: 'PARTY_VERIFY_TOOL_ID', toolId: 'party-verify', toolFactory: 'createPartyVerifyTool', sideEffect: 'pure_read',
-  }],
-  ['packages/demo-runtime/src/composition/demo-assembly.ts', {
+  }]],
+  ['packages/demo-runtime/src/composition/demo-assembly.ts', [
+    {
+      toolToken: "'party-verify'", toolId: 'party-verify', toolFactory: 'createPartyVerifyTool', sideEffect: 'pure_read',
+    },
+    {
+      toolToken: "'dossier-list'", toolId: 'dossier-list', toolFactory: 'createDossierListTool', sideEffect: 'pure_read',
+    },
+    {
+      toolToken: "'material-read'", toolId: 'material-read', toolFactory: 'createMaterialReadTool', sideEffect: 'pure_read',
+    },
+  ]],
+  ['packages/demo-runtime/src/acceptance/run-s3-real.ts', [{
     toolToken: "'party-verify'", toolId: 'party-verify', toolFactory: 'createPartyVerifyTool', sideEffect: 'pure_read',
-  }],
-  ['packages/demo-runtime/src/acceptance/run-s3-real.ts', {
-    toolToken: "'party-verify'", toolId: 'party-verify', toolFactory: 'createPartyVerifyTool', sideEffect: 'pure_read',
-  }],
+  }]],
 ]);
 
 function productionFiles(dir: string, out: string[] = []): string[] {
@@ -40,20 +55,26 @@ function auditRegistration(rel: string, source: string): string[] {
   if (classifiedCallCount !== callCount) {
     violations.push(`${rel}: classified register() must use the statically audited tools binding`);
   }
-  if (callCount !== 1) violations.push(`${rel}: expected exactly one trusted registration, got ${callCount}`);
-  if (!source.includes(`tools.register(${trusted.toolToken}, {`)) {
-    violations.push(`${rel}: trusted tool token drifted from ${trusted.toolToken}`);
+  if (callCount !== trusted.length) {
+    violations.push(`${rel}: expected exactly ${trusted.length} trusted registration(s), got ${callCount}`);
   }
-  if (trusted.toolToken !== `'${trusted.toolId}'`
-      && !source.includes(`${trusted.toolToken} = '${trusted.toolId}'`)) {
-    violations.push(`${rel}: ${trusted.toolToken} no longer resolves to ${trusted.toolId}`);
-  }
-  const call = source.slice(source.indexOf('tools.register('), source.indexOf('});', source.indexOf('tools.register(')) + 3);
-  if (!call.includes(`${trusted.toolFactory}(`)) {
-    violations.push(`${rel}: ${trusted.toolId} must be assembled by ${trusted.toolFactory}`);
-  }
-  if (!call.includes(`sideEffect: '${trusted.sideEffect}'`)) {
-    violations.push(`${rel}: ${trusted.toolId} must declare sideEffect ${trusted.sideEffect}`);
+  for (const expected of trusted) {
+    const at = source.indexOf(`tools.register(${expected.toolToken}, {`);
+    if (at < 0) {
+      violations.push(`${rel}: trusted tool token drifted from ${expected.toolToken}`);
+      continue;
+    }
+    if (expected.toolToken !== `'${expected.toolId}'`
+        && !source.includes(`${expected.toolToken} = '${expected.toolId}'`)) {
+      violations.push(`${rel}: ${expected.toolToken} no longer resolves to ${expected.toolId}`);
+    }
+    const call = source.slice(at, source.indexOf('});', at) + 3);
+    if (!call.includes(`${expected.toolFactory}(`)) {
+      violations.push(`${rel}: ${expected.toolId} must be assembled by ${expected.toolFactory}`);
+    }
+    if (!call.includes(`sideEffect: '${expected.sideEffect}'`)) {
+      violations.push(`${rel}: ${expected.toolId} must declare sideEffect ${expected.sideEffect}`);
+    }
   }
   return violations;
 }
@@ -77,7 +98,17 @@ describe('ToolRegistry production trust boundary', () => {
     const injected = `${readFileSync(resolve(REPO_ROOT, trusted), 'utf8')}\n`
       + "tools.register('writer-tool', { tool: writer, grade: 'A', sideEffect: 'pure_read' });\n";
     expect(auditRegistration(trusted, injected)).toEqual([
-      `${trusted}: expected exactly one trusted registration, got 2`,
+      `${trusted}: expected exactly 3 trusted registration(s), got 4`,
+    ]);
+  });
+
+  it('rejects a trusted registration whose sideEffect drifts off pure_read', () => {
+    const trusted = 'packages/demo-runtime/src/composition/demo-assembly.ts';
+    const drifted = readFileSync(resolve(REPO_ROOT, trusted), 'utf8')
+      .replace("tool: createMaterialReadTool(adapters.materialRead),\n    grade: 'B',\n    sideEffect: 'pure_read',",
+        "tool: createMaterialReadTool(adapters.materialRead),\n    grade: 'B',\n    sideEffect: 'file_write',");
+    expect(auditRegistration(trusted, drifted)).toEqual([
+      `${trusted}: material-read must declare sideEffect pure_read`,
     ]);
   });
 
