@@ -238,7 +238,7 @@ export function createLegalWorkSurface(
                 : `停止${host.registries.scenarios.get(workRun.runningScenarioId)?.name ?? '运行'}`,
             }
           : {}),
-        startScenario: (scenarioId: string) => workRun.start(scenarioId, {}),
+        startScenario: (scenarioId: string, params) => workRun.start(scenarioId, { ...(params ?? {}) }),
         cancelRun: workRun.cancel,
         resetForContextSwitch: () => {
           setGate(undefined);

@@ -380,7 +380,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
    * ②不写会话指针——指针记录携 `contractMaterialId` 且恢复入口文案属合同审查，
    *   借它承载第二类场景会把「上次审查」指向一次阅卷。跨会话恢复属另一票（SPEC 五节登记）。
    */
-  const startIntake = (scenarioId: string) => {
+  const startIntake = (scenarioId: string, startParams: ScenarioStartParams) => {
     const caseId = selectedCaseId;
     if (caseBinding.kind !== 'grant' || !caseId || workRunning) return;
     if (!isWorkSafeCaseId(caseId)) {
@@ -388,7 +388,10 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       return;
     }
     const materialRefs = caseMaterials.filter((material) => material.status === 'ready').map((material) => material.materialId);
-    if (materialRefs.length === 0) {
+    // 零就绪材料的显式 blocked（票面裁定 B1，宿主判定不动 ABI）。
+    // 判据是「这枚场景还有没有别的任务来源」：携预检提交值的场景（用户已显式给出任务定义）
+    // 可以在空工作区起跑；无提交值的场景其工作**就是**定义在材料上的，零材料即无从开始。
+    if (materialRefs.length === 0 && Object.keys(startParams).length === 0) {
       showSystemFeedback('本案还没有可用材料 · 先把卷宗材料入库再开始', false, 'info');
       return;
     }
@@ -399,7 +402,14 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
     setWorkRunning(true);
     setRunningScenarioId(scenarioId);
     const { sessionId, done } = workCommand.start(
-      { commandId: `${scenarioId}-${caseId}-${Date.now()}`, caseId, scenarioId, materialRefs, modelRoute },
+      {
+        commandId: `${scenarioId}-${caseId}-${Date.now()}`,
+        caseId,
+        scenarioId,
+        materialRefs,
+        modelRoute,
+        startParams: { ...startParams },
+      },
       dispatch,
     );
     setWorkSessionId(sessionId);
@@ -558,7 +568,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       startPreflight(params);
       return;
     }
-    startIntake(scenarioId);
+    startIntake(scenarioId, params);
   };
 
   return { recoverableSession, contractOutputResult, start, confirmGate, runningScenarioId, cancel, recover, retryOutput };

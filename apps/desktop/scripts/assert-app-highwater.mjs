@@ -125,7 +125,12 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 退役＝`activeArtifactType` 这枚 state 与它的两处写入——席位内「自持产出选择」随多对一席位
 // 一并作废，产出选择从此就是页签选择本身。本票在 App 净增的只有一次席位派生调用与一处产出
 // 页签分支，由上述抵消并净减 3。
-const HIGH_WATER_LINES = 2245;
+// GENERIC-SCENARIOS-1（2026-08-11）下调至 2229：外提物两件。①宿主通用起跑面（预检承载面 +
+// 场景条起跑三态路由接线）→ `src/workbench/scene-precheck-host.tsx`；②起草画布编译落盘与案件
+// 产出目录存在性 → `src/output/draft-compile.ts` 与 `src/output/use-case-output-existence.ts`
+// （本票改了这面的产物名与落盘纪律，按「过手即拆」随手搬出）。本票新增的起跑面状态与 JSX
+// 由这两件外提净抵消有余。
+const HIGH_WATER_LINES = 2229;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

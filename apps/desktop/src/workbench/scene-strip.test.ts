@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { createDesktopPackageRuntime } from '../composition/package-runtime.js';
 import {
+  resolveSceneLaunchRoute,
   resolveSceneStripEntries,
   SceneStrip,
   type SceneStripEntry,
@@ -103,5 +104,24 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
     for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '合同']) {
       expect(html).not.toContain(legalCopy);
     }
+  });
+});
+
+/**
+ * GENERIC-SCENARIOS-1 二批裁定二：预检承载面改宿主通用承载——**不依赖任何目标视图 renderer 在场**。
+ * 此前带预检表单的场景一律指望目标视图自渲表单，故没有面收留的场景点了什么也不会发生。
+ */
+describe('resolveSceneLaunchRoute', () => {
+  it('无预检表单 → 直接起跑（与目标面自渲能力无关）', () => {
+    expect(resolveSceneLaunchRoute({ hasPrecheckForm: false }, true)).toBe('start');
+    expect(resolveSceneLaunchRoute({ hasPrecheckForm: false }, false)).toBe('start');
+  });
+
+  it('有预检表单 ＋ 目标 blueprint 自声明 handlesEmpty → 沿既有自渲路径（S3）', () => {
+    expect(resolveSceneLaunchRoute({ hasPrecheckForm: true }, true)).toBe('renderer');
+  });
+
+  it('有预检表单但没有面收留它 → 宿主通用容器承载（此前是死钮）', () => {
+    expect(resolveSceneLaunchRoute({ hasPrecheckForm: true }, false)).toBe('host-form');
   });
 });

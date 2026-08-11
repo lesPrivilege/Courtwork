@@ -129,6 +129,7 @@ import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import { DraftPanel, INITIAL_DRAFT, type DraftDocument } from './workbench/Panels';
 import { resolveSceneStripEntries, SceneStrip, type SceneStripEntry } from './workbench/scene-strip';
+import { routeSceneLaunch, ScenePrecheckHost } from './workbench/scene-precheck-host';
 import { describeViewProducer, resolveLaunchTargetView } from './preview/view-producer';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { MessageActions } from './chat/MessageActions';
@@ -151,8 +152,9 @@ import { appendDistilled, distillMemory, memorySegmentFor } from './chat/chat-me
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
-import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
+import { compileDraftToCaseOutput, DRAFT_OUTPUT_FILE } from './output/draft-compile';
+import { useCaseOutputExistence } from './output/use-case-output-existence';
 import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 
 /** 页签 id 的唯一定义在 preview 层；壳只用别名，不再自持一份垂类枚举。 */
@@ -162,7 +164,6 @@ type WorkbenchView = WorkbenchTabId;
 const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
 /** 样板案主合同的展示名（demo 原件；production 一律从冻结材料取真实文件名）。 */
 const DEMO_CONTRACT_SOURCE_NAME = '设备采购合同';
-const DRAFT_OUTPUT_FILE = '答辩意见.docx';
 
 function previewViewForArtifact(
   artifactType: string,
@@ -265,13 +266,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
   const [compilePending, setCompilePending] = useState(false);
-  const [draftOutputExists, setDraftOutputExists] = useState(false);
   /**
    * CONTRACT-TRACE-1 顺带（架构裁定 2026-07-26）：命名残留清理。旧名 `contractOutputExists`
    * 读起来像「本案批注稿是否存在」，实际**只有样板案渲染它**（固定产物名的存在性探询也只对
    * demo 提问）；production 的产物事实一律走 coordinator 结果，不按名猜。名字即边界声明。
    */
-  const [demoContractOutputExists, setDemoContractOutputExists] = useState(false);
   // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条待用户确认后才落盘。
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
@@ -316,6 +315,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
+  /** 宿主通用起跑面正在承载的场景 id（GENERIC-SCENARIOS-1 二批裁定二）；null＝未在起跑面。 */
+  const [precheckScenarioId, setPrecheckScenarioId] = useState<string | null>(null);
   /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
   const [fileOpsMode, setFileOpsMode] = useState(false);
   // tone='info'：中性「未就绪/冲突」反馈（rejected 命令，非错误红条，voice.md §6）；缺省由 ok 映射 ok/error。
@@ -916,6 +917,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     [selectedCase],
   );
   const demoCaseRoot = caseBinding.kind === 'demo' ? DEMO_CASE_ROOT : undefined;
+  // 产出目录存在性（外提为 hook；语义逐字不变，见 output/use-case-output-existence）。
+  const {
+    draftOutputExists, setDraftOutputExists,
+    demoContractOutputExists, setDemoContractOutputExists,
+  } = useCaseOutputExistence({ caseBinding, demoContractOutputFile: DEMO_CONTRACT_OUTPUT_FILE });
 
   // MATERIAL-INGRESS-1 + DEBT-DOSSIER-1 件二：已入库材料清单逐案持有，件数与原件列表读同一份
   // （持有与派生外提至 `case/use-case-materials.ts`）。
@@ -1058,7 +1064,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     // ③无预检表单的场景 → 直接起跑，并落到它产出的那张面（此前落到「什么都不发生」）。
     const target = resolveLaunchTargetView(entry.scenarioId, entry.uiTemplateId, matterRegistries, hostRenderers);
     if (target) choosePrimaryView(target);
-    if (entry.kind === 'scenario' && !entry.hasPrecheckForm) verticalSurface.startScenario(entry.scenarioId);
+    if (entry.kind !== 'scenario') return;
+    // 二批裁定二：带预检表单的场景不再指望目标视图 renderer 在场——没有面收留它时由宿主
+    // 通用起跑面承载（`workbench/scene-precheck-host`）。判据取 blueprint 既有 handlesEmpty。
+    const blueprint = target === undefined
+      ? undefined
+      : hostRenderers.list().find((item) => item.kind !== 'passive' && item.view === target);
+    setPrecheckScenarioId(routeSceneLaunch({
+      entry,
+      targetHandlesEmpty: blueprint?.kind === 'component' && blueprint.handlesEmpty === true,
+      startScenario: verticalSurface.startScenario,
+    }));
   };
 
   const draftFrozen = draftOutputExists;
@@ -1091,38 +1107,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       }
     : null;
 
-  useEffect(() => {
-    let cancelled = false;
-    let requestVersion = 0;
-    setDraftOutputExists(false);
-    setDemoContractOutputExists(false);
-    if (caseBinding.kind === 'unbound') return;
-
-    const refreshOutputExistence = () => {
-      const currentRequest = ++requestVersion;
-      void Promise.all([
-        caseOutputClient.exists(caseBinding, DRAFT_OUTPUT_FILE),
-        caseBinding.kind === 'demo' ? caseOutputClient.exists(caseBinding, DEMO_CONTRACT_OUTPUT_FILE) : false, // 固定名只对样板案提问；grant 读不到持久名即无产物
-      ]).then(([draftExists, contractExists]) => {
-        if (cancelled || currentRequest !== requestVersion) return;
-        setDraftOutputExists(draftExists);
-        setDemoContractOutputExists(contractExists);
-      }).catch(() => {
-        if (cancelled || currentRequest !== requestVersion) return;
-        setDraftOutputExists(false);
-        setDemoContractOutputExists(false);
-      });
-    };
-
-    refreshOutputExistence();
-    // 用户在访达删除/替换产物后回到应用时重新询问宿主；冻结不能由一次 true
-    // 永久缓存成裸 UI 状态。
-    window.addEventListener('focus', refreshOutputExistence);
-    return () => {
-      cancelled = true;
-      window.removeEventListener('focus', refreshOutputExistence);
-    };
-  }, [caseBinding]);
 
   const createCase = ({
     title,
@@ -1390,22 +1374,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const confirmDraftCompile = () => {
     if (caseBinding.kind === 'unbound' || compilePending) return;
     setCompilePending(true);
-    void (async () => {
-      try {
-        const docx = compileDraftToDocx(draft);
-        await caseOutputClient.writeDocx(caseBinding, DRAFT_OUTPUT_FILE, docx);
-        const exists = await caseOutputClient.exists(caseBinding, DRAFT_OUTPUT_FILE);
-        if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
-        setDraftOutputExists(true);
+    void compileDraftToCaseOutput({ binding: caseBinding, draft }).then((outcome) => {
+      setDraftOutputExists(outcome.status === 'written');
+      if (outcome.status === 'written') {
         setCompileOpen(false);
-        showSystemFeedback(`已写入本案「产出」目录：${DRAFT_OUTPUT_FILE}`, true);
-      } catch (error) {
-        setDraftOutputExists(false);
-        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
-      } finally {
-        setCompilePending(false);
+        showSystemFeedback(`已写入本案「产出」目录：${outcome.fileName}`, true);
+      } else {
+        showSystemFeedback(outcome.message, false);
       }
-    })();
+    }).finally(() => setCompilePending(false));
   };
 
   const selectFlow = (next: ScenarioFlow) => {
@@ -1955,6 +1932,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                 onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
               />
             ))}
+            <ScenePrecheckHost
+              scenarioId={precheckScenarioId}
+              registries={matterRegistries}
+              caseMaterials={caseMaterials}
+              onStart={(scenarioId, params) => { setPrecheckScenarioId(null); verticalSurface.startScenario(scenarioId, params); }}
+              onCancel={() => setPrecheckScenarioId(null)}
+            />
             {/* L1：composer 浮卡（welcome 态 composer 已居中于 welcome-home,不重复渲染） */}
             {!isWelcome && renderComposer(
               handleComposerSend,

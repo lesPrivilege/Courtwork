@@ -66,6 +66,28 @@ export function resolveSceneStripEntries(
   ];
 }
 
+/**
+ * 起跑路由（GENERIC-SCENARIOS-1 二批裁定二）：scene-strip 触发后这枚场景该走哪条路。
+ *
+ * 三态闭集，纯函数、零垂类字面量：
+ *  - `start`      无预检表单 → 直接起跑；
+ *  - `renderer`   有预检表单**且**目标视图 blueprint 自声明 `handlesEmpty` → 沿既有自渲路径
+ *                 （当期唯一这么做的是 S3 的修订预览面，挂过手即拆）；
+ *  - `host-form`  有预检表单但没有任何面收留它 → **宿主通用容器**承载 `scenario-precheck-form`。
+ *
+ * 判据取 blueprint 的既有 `handlesEmpty` 声明，不新立第二处开关：产物到来前那一格是不是
+ * 场景起跑面，本来就由它说了算。
+ */
+export type SceneLaunchRoute = 'start' | 'renderer' | 'host-form';
+
+export function resolveSceneLaunchRoute(
+  entry: Pick<SceneStripEntry, 'hasPrecheckForm'>,
+  targetHandlesEmpty: boolean,
+): SceneLaunchRoute {
+  if (!entry.hasPrecheckForm) return 'start';
+  return targetHandlesEmpty ? 'renderer' : 'host-form';
+}
+
 function toneClass(tone: SceneStripEntry['tone']): string {
   if (tone === 'primary') return 'scene-primary';
   if (tone === 'wide') return 'scene-wide-only';

@@ -79,8 +79,11 @@ export interface VerticalWorkSurfaceState {
    * 文案必须随**正在跑的那一枚**派生——静态一枚只能说对其中一个场景。
    */
   readonly runningControlCopy?: string;
-  /** 无预检表单的场景由场景条按钮直接起跑（有表单者由面内表单起跑）。 */
-  readonly startScenario: (scenarioId: string) => void;
+  /**
+   * 场景起跑。无预检表单者由场景条按钮直启；有表单者携提交值起跑——
+   * 表单可以住面内（S3 自渲），也可以住宿主通用容器（二批裁定二），本接口对两者同形。
+   */
+  readonly startScenario: (scenarioId: string, params?: Readonly<Record<string, string>>) => void;
   /** 停止当前运行（场景条控件）。 */
   readonly cancelRun: () => void;
   /**
