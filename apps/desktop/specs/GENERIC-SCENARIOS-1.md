@@ -315,3 +315,127 @@ preflight 另一路径）。
 票面收尾范围恰三件（§9.6）。实现过程中另有**两处「判据被基线顶穿」**在本段坐实——它们不是
 新需求，是二批裁定落地后**已经发生但无人观测**的行为变化（Playwright 从未实跑，故此前三段的
 门数掩盖了它们）。两处都按「与本票面相关的红必须追修」处置，逐处红证见 §10.3。
+
+### 10.3 两处基线顶穿的坐实与追修
+
+两处是**同一个代理判据**的两个落点：ADR-023 决定三让基线 registry 恒在之后，「场景条零条目」
+不再等价于「这枚 matter 没有加载垂类能力」——零绑定 matter 上基线两枚场景照样在册。二批裁定
+落地那一刻这两处就已经失效，只是此前三段的门数照不出来（PW 从未实跑，单测也没有一条问过
+「基线在册时卸载态还成不成立」）。
+
+| # | 顶穿点 | 顶穿后的实际行为 | 追修 | 红证 |
+| --- | --- | --- | --- | --- |
+| 一 | `workbench/scene-strip.tsx` 的 `entries.length === 0` | 卸载态起手引导（《场景规范.md》提示＋起草画布入口）在零绑定 matter 上**整块消失** | 判据改问「条目里有没有非基线包」——新纯函数 `isVerticalCapabilityUnloaded`；引导与基线按钮改为**同框**而非互相顶替（两者说的是两件事：缺什么能力 / 此刻能起什么活） | `scene-strip.test.ts` >「卸载态＋基线场景在册：起手引导与基线按钮同框」red=`expected '<div class="scene-strip"…' to contain 'data-testid="scene-unloaded-hint"'`；判据三例 red=`isVerticalCapabilityUnloaded is not a function` |
+| 二 | `App.tsx` 的 `sceneEntries.length === 0`（起草面落轨） | 零绑定 matter 的起草面由**通用工作稿轨**翻回**垂类色起草画布**——抬头「答辩状」与样板案初值「答辩意见」就此出现在零垂类 matter 上（零泄漏律被顶穿） | 同一判据换成 `verticalUnloaded`；并把画布抬头中性化为「起草文稿」（与产物名同词）——画布随件一在零垂类 matter 上真实可达后，写死一种文书名即是壳内垂类文案 | e2e `generic-scenarios-1.spec.ts` 链①（走到画布那一步）的零垂类词表断言，词表含「答辩」；变异复红实测见下方附注 |
+
+**顶穿二的变异实证（附注）**：把画布抬头改回垂类文案「答辩状」，e2e 链①即红——
+`卸载态可见面泄漏垂类词「答辩」`（`expected …not to contain '答辩'`）；恢复中性抬头即绿。
+**逐字登记断言的作用域**：该断言只在链①红，链②（批处理）全程不经过起草画布，故它对这处
+顶穿零区分力——「两链各有一道断言」不等于「两链都守着同一件事」。
+
+**为何不是「把画布挡回去」**：件一要求把产物送进可编辑工作稿，而 `generic.draft` 正是零垂类
+matter 上的场景——若卸载态一律落工作稿轨，移交就永远落在一张不显示的面上（静默无事发生，
+不变量四）。故取「默认仍落工作稿轨，用户**显式**送入后落画布」：新增一枚会话内粘着的
+`draftCanvasOpen`（切案归零），判据成为 `workDraftMode || (verticalUnloaded && !draftCanvasOpen)`。
+pi 线的工作稿轨一字未动（票面七节禁区）。
+
+### 10.4 顺带坐实的第三处：静态门自本分支中段起即红
+
+`scripts/assert-work-live-contracts.mjs` 的组合根装配锁原式写死 `createLegalWorkSurface({ workCommand })`
+——**参数表恰一枚**。裁定 B4 给驱动加注 `productionScenarioIds`（提交 `e013dbd`）后本门即红，
+而续行段的门选择（build／lint／desktop `--filter`／零泄漏／高水位）不含静态门链，故一直没人看见。
+改判为「装配点上带着 `workCommand` 这枚参数」：锁的是**注入路径**不是参数表长度。有效性已实证
+——删去该参数后本门复红（`mutation exit=1`），恢复即绿。
+
+判例（转 workflow.md 候选）：**门写死「参数表恰 N 枚」就是把无关的扩展算作违例**；锁注入路径
+的门应当只咬那一枚参数在不在，加参数不误红、删注入仍触红。
+
+### 10.5 收尾三件的落地
+
+**件一 · 「送入起草画布」显式移交。** 判定住受信组合根 `composition/draft-handoff.ts`
+（`planDraftHandoff`）：能不能进画布由包冻结的 `DraftDocumentSchema` 说了算，**不按形状猜**
+——`{title, paragraphs}` 谁都可能长成，按形状认就等于宿主替包认领语义。两道闸次序不可交换：
+①画布已定稿 → 显式拒绝（定稿转只读是既有确认账，移交不得从背面改回可编辑）；②载荷不合
+schema → 显式拒绝，不半份塞进画布。席位件 `ArtifactTabPanes` 只收一枚领域无关声明
+（地址＋文案＋处理器）并落到被点名那一格上，**席位件不认识任何具体产物**。
+零新确认机制：动作本身就是那次显式确认（票面「复用既有交互形态」），落盘仍走既有
+`confirmDraftCompile` 确认流。
+
+先红后绿：`composition/draft-handoff.test.ts` 六例 red=`Cannot find module './draft-handoff.js'`；
+`ArtifactTabPanes.test.ts` >「移交动作只落在声明的那一格」red=`expected '<div class="artifact-tab-pane"…' to contain 'data-testid="artifact-handoff-action"'`。
+产品级变异实证：抽掉 `App.tsx` 的 `handoff={...}` 声明后 e2e 链①复红
+（`waiting for getByTestId('artifact-pane-generic.DraftDocument').getByTestId('artifact-handoff-action')`），
+恢复即绿。
+
+**件二 · 卸载态冒烟 e2e**（`tests/e2e/generic-scenarios-1.spec.ts`，floor 386 → 388）。
+零垂类绑定的 grant matter（建案不选任何包）上两条链：①`generic.draft` 经宿主通用起跑面填
+「起草要求」→ 产出席位见文稿 → 「送入起草画布」→ 画布里逐字是模型那份文稿，且可编辑、
+落盘入口在场；②`generic.batch` 无表单直启 → 逐份材料成行，**樁刻意只回一行**，另一份由系统
+的逐项完整性裁决补成「缺行·系统补记」（`tbody tr` 恰两行）。模型回合由 DEV/E2E turn 樁承载。
+
+三条如实登记（写作过程中由实跑照出，非事后追述）：
+1. **产物到来后活动面不会自动跳到产出页签**——页签出现在页签条上，活动面仍停在原处，须用户
+   点选。这不是本段引入的行为（`resolveLaunchTargetView` 给出的是席位标记 `artifact`，而页签 id
+   是 `artifact:<type>`，同步收口于是回落到在册默认面）。当期按现状取证（用例显式点页签），
+   **不在收尾三件内改路由**——那要动 `resolveLaunchTargetView` 的语义，属另票。
+2. `wide` 变体的场景按钮（`generic.batch`）在窄容器下由 CSS 收进「更多」弹层，宽容器下直接在
+   条上：同一枚条目的两处呈现。用例按**此刻可见与否**分流（`launchScene` 助手），写死任一条
+   路都会在另一态假红——首轮实测正是如此（链②在弹层里找不到该按钮，因为它就在条上）。
+3. 零垂类词表断言判在 `document.body.innerText` 而非 `textContent`：非活动产出页签常驻 DOM 只加
+   `hidden`（ADR-014 决定一），把它算进来测的就是 DOM 存量而不是用户此刻看见的面。
+
+**「过手即拆」外提两件**（App.tsx 高水位 2229 → 2225）：①起草面席位（工作稿轨/起草画布二选一
+的整块渲染分支）→ `workbench/draft-seat.tsx`；②定稿确认编排（`compileOpen`/`compilePending`
+两枚 state ＋ `confirmDraftCompile` 本体 ＋ 弹层 JSX）→ `output/use-draft-compile.ts` 与
+`output/DraftCompileDialog.tsx`——本票改了这条链的两端（中性产物名、原子 no-replace），按纪律
+随手搬出。本段新增的移交处理器、移交声明、卸载态判据与 `draftCanvasOpen` 由这两件抵消并再收紧 4。
+
+### 10.6 本段新增概念对账
+
+零新依赖、零新步骤种类、零新 renderer 注册机制、零新持久化格式（与票面一致）。新增概念一枚：
+
+1. **`draftCanvasOpen`（会话内粘着的一枚壳态）** — 为何非加不可：卸载态起草面默认落工作稿轨
+   （GENERIC-PACK-1 ⑧ 的显式诚实呈现分支，本段不推翻），而件一要求把产物送进**画布**；没有
+   这枚状态，移交就落在一张不显示的面上，等于静默无事发生。它只影响「同一张通用工作面此刻
+   渲哪条轨」，不进 case store、不进 journal、不进任何持久信封，切案即归零。
+
+`composition/draft-handoff.ts` 与两件外提模组不计新概念：前者是既有「受信组合根做跨域绑定」
+的又一处落点，后两者是既有代码的搬家（语义逐字不变）。
+
+### 10.7 本段未做与转出
+
+1. **产物到来后不自动跳到产出页签**（§10.5 登记项一）：要改须动 `resolveLaunchTargetView` 的
+   返回语义（席位标记 `artifact` vs 页签 id `artifact:<type>`），属另票，本段只如实取证。
+2. **S3 的 `startWithPreflight` 与自渲预检面**：二批裁定明写「当期保留不迁移，挂过手即拆」，
+   本段未触碰该面，故不偿还。
+3. **画布定稿态的固定时间文案**（`已定稿 · 2026-07-10 17:40`）：壳内写死的展示时间，对真实案件
+   不成立。与本票面无因果（既有行为，且不属垂类词表），如实登记，不夹带修改。
+
+### 10.8 门数（本段实跑）
+
+| 门 | 结果 |
+| --- | --- |
+| `pnpm -r build` | 绿（12 包 Done） |
+| `pnpm lint` | 绿（零输出） |
+| root `pnpm test` | **2191/2191 绿**（与前段同值：本段新增用例全部落 desktop 面） |
+| desktop `pnpm --filter @courtwork/desktop test` | **883/883 绿**（本段起点 870 → +13；本票起点 847 → +36） |
+| `cargo test` | 未再跑；本段**零 Rust 改动**（`src-tauri` 零触碰，`git diff --stat` 可证），引前段 250/250（1 ignored）作等价 |
+| 静态门链（`test:e2e` 内 `playwright test` 之前的 40 余枚） | **全绿**，含本段修好的 `assert-work-live-contracts`、高水位 2225/2225、floor 388/388、零泄漏（受检面含新增五件）、voice、skin-r2 ledger、schema-exemplar、isolation-binding |
+| Playwright 完整链 | 见下方「环境登记」 |
+
+**Playwright 的环境登记（如实，不粉饰）**
+
+本段共起三轮完整链，两轮在**外部负载**下作废、第三轮见下：
+
+| 轮 | 起跑时机 | 观测 | 处置 |
+| --- | --- | --- | --- |
+| R1 | load1≈32 起跑，中途升至 88 | 116 例跑完 18 例红，红形全是 30–60s 等待超时；本段自建的两条链亦在其中 | 判负载轮，中止 |
+| R2 | 等到 load1=11 才起跑，跑到第 31 例时外部负载升至 166 | 31 例跑完 12 例红，红形同上 | 判负载轮，中止 |
+
+负载来源经 `ps` 逐条核实**全在本仓之外**：Claude/ChatGPT 两个 GUI 宿主各占约一颗核、
+`pdftoppm` 批量转 PDF、iOS 模拟器、Spotlight 索引、另一项目的 `vitest` 与一枚 `pi` 进程；
+本机 8 核，`/private/tmp/courtwork-pw-lock` 原子锁全程在手（该锁只互斥本仓的 PW，管不到别的项目）。
+**判据本身不因负载改口**：中止的两轮一律作废，不取其中任何一例作证据。
+
+本段自建的两条链在**同一命令、独占端口、机器空闲**时逐例实跑为绿（`2 passed`，2.1s／1.6s），
+且带产品级变异红证（抽掉移交声明即复红，恢复即绿）——但那是**单文件**取证，不能替代完整链。
