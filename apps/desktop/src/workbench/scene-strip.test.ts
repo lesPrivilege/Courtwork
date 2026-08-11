@@ -2,7 +2,9 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { createDesktopPackageRuntime } from '../composition/package-runtime.js';
+import { BASELINE_SCENARIO_IDS } from '../composition/production-scenarios.js';
 import {
+  isVerticalCapabilityUnloaded,
   resolveSceneLaunchRoute,
   resolveSceneStripEntries,
   SceneStrip,
@@ -18,11 +20,18 @@ import {
 const runtime = createDesktopPackageRuntime();
 
 const LEGAL_ENTRIES: readonly SceneStripEntry[] = [
-  { scenarioId: 'legal.S1', uiTemplateId: 'case-intake-panel', label: '整理卷宗', tone: 'primary', kind: 'scenario', hasPrecheckForm: false },
-  { scenarioId: 'legal.S3', uiTemplateId: 'courtwork.risk-review.v1', label: '审查合同', tone: 'primary', kind: 'scenario', hasPrecheckForm: true },
-  { scenarioId: 'legal.S6', uiTemplateId: 'file-ops-plan-panel', label: '卷宗整理', tone: 'wide', kind: 'scenario', hasPrecheckForm: false },
-  { scenarioId: 'legal.S4', uiTemplateId: 'draft-review-panel', label: '起草答辩状', tone: 'draft-wide', kind: 'view', hasPrecheckForm: false },
+  { scenarioId: 'legal.S1', packageId: 'legal', uiTemplateId: 'case-intake-panel', label: '整理卷宗', tone: 'primary', kind: 'scenario', hasPrecheckForm: false },
+  { scenarioId: 'legal.S3', packageId: 'legal', uiTemplateId: 'courtwork.risk-review.v1', label: '审查合同', tone: 'primary', kind: 'scenario', hasPrecheckForm: true },
+  { scenarioId: 'legal.S6', packageId: 'legal', uiTemplateId: 'file-ops-plan-panel', label: '卷宗整理', tone: 'wide', kind: 'scenario', hasPrecheckForm: false },
+  { scenarioId: 'legal.S4', packageId: 'legal', uiTemplateId: 'draft-review-panel', label: '起草答辩状', tone: 'draft-wide', kind: 'view', hasPrecheckForm: false },
 ];
+
+/** 零垂类绑定 matter 的真实条目集（基线恒在生效 registry 内，ADR-023 决定三）。 */
+const BASELINE_ENTRIES: readonly SceneStripEntry[] = resolveSceneStripEntries(
+  runtime.registriesFor([]),
+  { productionScenarioIds: BASELINE_SCENARIO_IDS },
+  'production',
+);
 
 describe('resolveSceneStripEntries（registry 冻结 launch 声明的宿主投影）', () => {
   it('零垂类 registry → 空集（卸载态起手引导的判定入口）', () => {
@@ -94,6 +103,23 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
     expect(html).toContain('起草答辩状');
   });
 
+  it('卸载态＋基线场景在册：起手引导与基线按钮同框（引导不因基线到场消失）', () => {
+    const html = render({ entries: BASELINE_ENTRIES });
+    expect(html).toContain('data-testid="scene-unloaded-hint"');
+    expect(html).toContain('data-testid="scene-unloaded-draft"');
+    expect(html).toContain('data-testid="scene-generic.draft"');
+    expect(html).toContain('data-testid="scene-generic.batch"');
+    for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '合同']) {
+      expect(html).not.toContain(legalCopy);
+    }
+  });
+
+  it('加载态：起手引导不出现（垂类在册即非卸载态）', () => {
+    const html = render({ entries: [...LEGAL_ENTRIES, ...BASELINE_ENTRIES] });
+    expect(html).not.toContain('data-testid="scene-unloaded-hint"');
+    expect(html).not.toContain('data-testid="scene-unloaded-draft"');
+  });
+
   it('卸载态：起手引导＝matter 规范文件提示＋Draft 入口，零垂类文案、无更多', () => {
     const html = render({ entries: [] });
     expect(html).toContain('data-testid="scene-unloaded-hint"');
@@ -104,6 +130,42 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
     for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '合同']) {
       expect(html).not.toContain(legalCopy);
     }
+  });
+});
+
+/**
+ * GENERIC-SCENARIOS-1 收尾段：**卸载态判据被基线顶穿**的追修。
+ *
+ * ADR-023 决定三让基线 registry 恒在，于是「场景条零条目」不再等价于「这枚 matter 没有加载
+ * 垂类能力」——零绑定 matter 上基线两枚场景照样在册。判据必须改问包的成熟度：条目里有没有
+ * 一枚来自**非基线**包。
+ */
+describe('isVerticalCapabilityUnloaded（卸载态判据）', () => {
+  it('零条目 → 卸载（旧判据的行为逐字保留）', () => {
+    expect(isVerticalCapabilityUnloaded([])).toBe(true);
+  });
+
+  it('只有基线场景在册 → 仍是卸载态（基线不是被加载的垂类能力）', () => {
+    expect(BASELINE_ENTRIES.length).toBeGreaterThan(0);
+    expect(isVerticalCapabilityUnloaded(BASELINE_ENTRIES)).toBe(true);
+  });
+
+  it('任一垂类条目在册 → 非卸载态（含只有 view 条目的情形）', () => {
+    expect(isVerticalCapabilityUnloaded([...BASELINE_ENTRIES, ...LEGAL_ENTRIES])).toBe(false);
+    expect(isVerticalCapabilityUnloaded([LEGAL_ENTRIES[3]!])).toBe(false);
+  });
+});
+
+describe('resolveSceneStripEntries 携出包身份（卸载态判据的取处）', () => {
+  it('条目逐枚带 packageId，且与 registry 冻结的场景归属一致', () => {
+    const entries = resolveSceneStripEntries(runtime.packageRegistries, {
+      demoLaunchable: () => true,
+      productionScenarioIds: [],
+    }, 'demo');
+    for (const entry of entries) {
+      expect(runtime.packageRegistries.scenarios.get(entry.scenarioId)?.packageId).toBe(entry.packageId);
+    }
+    expect(entries.some((entry) => entry.packageId === 'generic')).toBe(true);
   });
 });
 

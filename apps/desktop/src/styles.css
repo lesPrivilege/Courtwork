@@ -1169,7 +1169,10 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 
 /* PREVIEW-TAB-1：并列产出页签的格栈——非活动格常驻 DOM 只加 hidden（切换不销毁状态），
    故此处只有「占满父格」与「隐藏即不占位」两条布局声明，零视觉表达。 */
-.artifact-tab-pane { height: 100%; }
+/* 移交动作（GENERIC-SCENARIOS-1）与表格共处一格：格内改纵向排布，表格吃掉剩余高度，
+   动作条沿用既有 .batch-bar 形制（零新视觉表达）。 */
+.artifact-tab-pane { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.artifact-tab-pane > .artifact-table-view { min-height: 0; flex: 1; }
 .artifact-tab-pane[hidden] { display: none; }
 
 /* VIEW-ABI-1：通用 artifact 只复用 L1 内既有 ledger/table 分割线，不新增长卡外壳。 */

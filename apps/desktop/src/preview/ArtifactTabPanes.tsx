@@ -24,6 +24,7 @@ export function ArtifactTabPanes({
   matterRegistries,
   hostRenderers,
   packageLabelFor,
+  handoff,
 }: {
   seat: readonly ArtifactSeatTab[];
   activeTab: string;
@@ -32,6 +33,12 @@ export function ArtifactTabPanes({
   hostRenderers: HostRendererRegistry;
   /** packageId → 用户可见包名（宿主目录取词，不透出 packageId 字面量）。 */
   packageLabelFor: (packageId: string) => string;
+  /**
+   * 产出席位上的显式移交动作（GENERIC-SCENARIOS-1 收尾件一）：由宿主装配声明**地址＋文案＋
+   * 处理器**，席位件只把它落到被点名的那一格上——席位件不认识任何具体产物，也不据形状认亲。
+   * 缺席即该席位零动作。
+   */
+  handoff?: { artifactType: string; label: string; onSend: () => void };
 }) {
   return (
     <>
@@ -42,6 +49,11 @@ export function ArtifactTabPanes({
           data-testid={`artifact-pane-${tab.artifactType}`}
           hidden={tab.id !== activeTab}
         >
+          {tab.status === 'ready' && handoff?.artifactType === tab.artifactType && (
+            <div className="batch-bar">
+              <button type="button" className="primary-button" data-testid="artifact-handoff-action" onClick={handoff.onSend}>{handoff.label}</button>
+            </div>
+          )}
           {tab.status === 'ready' && (
             <ArtifactHostView
               artifactType={tab.artifactType}

@@ -47,7 +47,12 @@ const ACTIONS = {
 };
 const ARTIFACTS: Record<string, unknown> = { 'pm.PrdReview': PRD, 'pm.ActionItems': ACTIONS };
 
-function markup(artifacts: Record<string, unknown>, activeTab: string, matterRegistries = mixed) {
+function markup(
+  artifacts: Record<string, unknown>,
+  activeTab: string,
+  matterRegistries = mixed,
+  handoff?: { artifactType: string; label: string; onSend: () => void },
+) {
   const seat = resolveArtifactSeat({
     artifacts,
     matterRegistries,
@@ -61,6 +66,7 @@ function markup(artifacts: Record<string, unknown>, activeTab: string, matterReg
     matterRegistries,
     hostRenderers: runtime.hostRenderers,
     packageLabelFor: (packageId: string) => runtime.describePackage(packageId)?.displayName ?? packageId,
+    ...(handoff ? { handoff } : {}),
   }));
 }
 
@@ -95,6 +101,35 @@ describe('ArtifactTabPanes：并列产出页签切换不销毁彼此', () => {
 
     expect(single).toContain('及时没有量化口径');
     expect(single).not.toContain('补充推送时延口径');
+  });
+
+  /**
+   * GENERIC-SCENARIOS-1 收尾件一：产出席位上的显式移交动作。
+   *
+   * 动作是**宿主装配注入**的一枚声明（地址＋文案＋处理器），不是壳按 artifact type 现认的
+   * 特例：席位件不认识任何具体产物，只把声明落到它点名的那一格上。
+   */
+  it('移交动作只落在声明的那一格，且缺席声明时零动作', () => {
+    const handoff = { artifactType: 'pm.ActionItems', label: '送入起草画布', onSend: () => undefined };
+    const withAction = markup(ARTIFACTS, 'artifact:pm.PrdReview', mixed, handoff);
+    expect(withAction).toContain('data-testid="artifact-handoff-action"');
+    expect(withAction).toContain('送入起草画布');
+    // 落在被点名那一格内（该格此刻是隐藏格，动作也跟着走，不漂到活动格上）。
+    const actionsPane = withAction.slice(withAction.indexOf('data-testid="artifact-pane-pm.ActionItems"'));
+    expect(actionsPane).toContain('data-testid="artifact-handoff-action"');
+    const prdPane = withAction.slice(
+      withAction.indexOf('data-testid="artifact-pane-pm.PrdReview"'),
+      withAction.indexOf('data-testid="artifact-pane-pm.ActionItems"'),
+    );
+    expect(prdPane).not.toContain('data-testid="artifact-handoff-action"');
+
+    expect(markup(ARTIFACTS, 'artifact:pm.PrdReview')).not.toContain('data-testid="artifact-handoff-action"');
+  });
+
+  it('声明地址在本席位上没有产物时，零动作（不给一枚点了没有对象的钮）', () => {
+    const handoff = { artifactType: 'generic.DraftDocument', label: '送入起草画布', onSend: () => undefined };
+    expect(markup(ARTIFACTS, 'artifact:pm.PrdReview', mixed, handoff))
+      .not.toContain('data-testid="artifact-handoff-action"');
   });
 
   it('包未加载的产出逐枚走显式退化格，标题是产物自己的身份', () => {

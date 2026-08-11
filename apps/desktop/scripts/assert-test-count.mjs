@@ -86,7 +86,10 @@ const count = match ? Number(match[1]) : 0;
 // PREVIEW-TAB-1：先把观测值 384 记为基线，再加本票两例——①页签集按已产出 artifact 动态生成
 // （三枚产出三张页签、逐张切换各显其身、整栈常驻只翻 hidden）、②D11 一个 matter 内多场景产物
 // 并存（跑完 S1 再跑 S2，时间线仍带着 S1 的产物）——384 + 2 → 386。数字由 `--list` 实跑核。
-const minimum = 386;
+// GENERIC-SCENARIOS-1：卸载态冒烟两例——①`generic.draft` 全链（宿主通用起跑面填「起草要求」
+// → 产出席位 → 送入起草画布 → 画布里就是模型那份文稿）、②`generic.batch` 全链（无表单直启 →
+// 逐份材料成行，模型漏行由系统补 `缺行·系统补记`）——386 + 2 → 388。数字由 `--list` 实跑核。
+const minimum = 388;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

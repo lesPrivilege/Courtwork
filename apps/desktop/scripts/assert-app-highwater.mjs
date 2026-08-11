@@ -130,7 +130,12 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 产出目录存在性 → `src/output/draft-compile.ts` 与 `src/output/use-case-output-existence.ts`
 // （本票改了这面的产物名与落盘纪律，按「过手即拆」随手搬出）。本票新增的起跑面状态与 JSX
 // 由这两件外提净抵消有余。
-const HIGH_WATER_LINES = 2229;
+// GENERIC-SCENARIOS-1 收尾段（2026-08-11）再下调至 2225：外提物两件。①起草面席位（工作稿轨 /
+// 起草画布二选一的整块渲染分支）→ `src/workbench/draft-seat.tsx`；②定稿确认编排（compileOpen /
+// compilePending 两枚 state ＋ `confirmDraftCompile` 本体 ＋ 弹层 JSX）→ `src/output/use-draft-compile.ts`
+// 与 `src/output/DraftCompileDialog.tsx`——本票改了这条链的两端（中性产物名、原子 no-replace），
+// 按「过手即拆」随手搬出。本票新增的移交处理器、移交声明与卸载态判据由这两件抵消并再收紧 4。
+const HIGH_WATER_LINES = 2225;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。
