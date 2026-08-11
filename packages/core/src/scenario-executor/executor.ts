@@ -34,7 +34,6 @@ import type { TurnRunnerPort } from '../turn/turn-runner.js';
 import type { PersistedTurn } from '../turn/types.js';
 import type { WorkModelRoute, WorkRuntimeBudget } from '../work-state/envelope.js';
 import { UnknownToolError } from './unknown-tool-error.js';
-import { ToolInputValidationError } from '@courtwork/tools';
 import {
   foldToolResult,
   modelToolResultKey,
@@ -264,20 +263,19 @@ async function runRequestedTool(
   // （与 runTools 同一条顺序律）。
   await deps.persistBarrier?.();
 
-  let envelope: unknown;
-  try {
-    envelope = await deps.toolExecutor.execute(binding.tool, request.input);
-  } catch (error) {
-    if (!(error instanceof ToolInputValidationError)) throw error;
-    // 模型给错入参不是场景故障：落一枚失败结果回喂，让下一 turn 有机会自己修正。
-    // reason 只活在这份「喂回模型的折叠文本」里，不进 ToolEnvelope 类型的失败枚举。
-    envelope = {
-      verified: false,
-      reason: 'invalid_tool_input',
-      message: error.message,
-      checkedAt: now(),
-    };
-  }
+  // 模型给的入参先过该工具自己的 inputSchema：不合格就根本不递给执行器（`ToolExecutor` 对
+  // 非法入参是抛错，而模型给错参数不是场景故障）。落一枚失败结果回喂，让下一 turn 自己修正。
+  // reason 只活在这份「喂回模型的折叠文本」里，不进 ToolEnvelope 类型的失败枚举。
+  const parsedInput = binding.tool.inputSchema.safeParse(request.input);
+  const envelope: unknown = parsedInput.success
+    ? await deps.toolExecutor.execute(binding.tool, parsedInput.data)
+    : {
+        verified: false,
+        reason: 'invalid_tool_input',
+        message: `工具 ${request.toolId} 的入参未通过该工具的输入 schema：`
+          + parsedInput.error.issues.map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`).join('；'),
+        checkedAt: now(),
+      };
   guard.checkTime();
 
   const verified = (envelope as { verified?: unknown }).verified === true;
