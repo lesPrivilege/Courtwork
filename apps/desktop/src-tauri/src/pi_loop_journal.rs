@@ -37,7 +37,7 @@ use crate::pi_loop_protocol::{
     AgentProjectionEvent, BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView,
     CancelReason, CodecResult, HostFailureCode, JsonNode, ProtocolErrorCode, TerminalError,
     TerminalFailureCode, TurnStopReason, TurnUsage, WorkspaceCapability, WriteDisposition,
-    MAX_LOGICAL_PATH_BYTES, MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
+    MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
 };
 
 /// 容器根目录名。`loop/` 是 ADR-019 的逻辑容器子档，物理上属 ADR-005 的 app-data 状态平面，
@@ -2966,6 +2966,9 @@ fn plan_close_with_budget_unknown(
 #[cfg(test)]
 mod tests {
     use super::*;
+    // `logicalPath` 上界只剩测面直接引用：生产解码已改走 `read_logical_path`（段①），
+    // 上界与非空判据自此在 protocol 侧同一枚函数里，journal 不再各持一份。
+    use crate::pi_loop_protocol::MAX_LOGICAL_PATH_BYTES;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     static TEMP_SEQ: AtomicU64 = AtomicU64::new(0);
