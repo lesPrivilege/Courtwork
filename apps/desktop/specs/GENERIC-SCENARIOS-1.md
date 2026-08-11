@@ -55,7 +55,13 @@
 - 语料墙：新造中性语料，外部 kit 与卷宗实物零入仓。
 - 实现会话在本 SPEC 追加实现回执（偏离、红证、门数）；验收由 Codex 独立会话在 clean worktree 执行并写 ACCEPTANCE，验收逐字复跑 SPEC 自查命令。
 
-## 六 · 禁区
+## 六 · 二批裁定（2026-08-11 架构会话，针对实现回执 §7.4 三项停手上报）
+
+1. **预检值通道取候选甲**：`StartWorkCommand` 增通用槽 `startParams: Readonly<Record<string, string>>`（`launch.formFields` 提交值的冻结快照，缺省空对象）。语义边界三条：executor 把它作为 task 段结构化输入随 `taskInstruction` 注入（ADR-016 填格协议同族——用户填格进请求，模型只读不改址）；提交值的 fieldId 集必须为该场景声明 `formFields` id 集的子集，越集在 effect 前 fail-closed 拒；S3 垂类专属 `startWithPreflight` 当期保留不迁移（过手即拆挂账，随下次触碰该面偿），新场景一律走通用槽，不得出现第三条预检值路径。
+2. **预检承载面改宿主通用承载**：scene-strip 触发后由宿主通用容器渲 `scenario-precheck-form`，不依赖任何目标视图 renderer 在场；提交即 start，产出席位维持既有显式指引空态。S3 现行自渲路径当期不迁，同挂过手即拆。
+3. **场景①按票面继续**：送入起草画布、版本化产物名与 no-replace 同批交付；实现会话所做「`generic.draft` 排除出可启动闭集」的临时收口随本段解除，解除须带反向红证（原排除断言翻转为在场断言）。Playwright 完整链与卸载态冒烟 e2e 义务不变（票面五节），续行段必须补跑。
+
+## 七 · 禁区
 
 不触 pi lane 与 `src-tauri` pi 循环；不改 ADR-009 步骤闭集；不扩 launch 元素集；不动 legal/pm descriptor 语义；xlsx/pptx/定时触发/通道均不夹带；不做动态装载；不宣称 external-validated（模型回合由樁承载，真 key 面另账）。
 
