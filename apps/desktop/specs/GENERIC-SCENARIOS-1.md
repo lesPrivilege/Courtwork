@@ -108,10 +108,12 @@
 ### 7.3 偏离清单
 
 1. **场景① 未接入可启动闭集**（见 §7.4 拍板项一）。包侧声明（schema/scenario/launch/prompt 段）
-   已随基线包落地并过准入与中性门，但 `generic.draft` 不在 `PRODUCTION_LAUNCHABLE_SCENARIO_IDS`
-   的**产品可达路径**上——它在闭集常量里在册（`BASELINE_SCENARIO_IDS` 由包声明派生），但其预检值
-   无法送达命令端口，故实际起跑会因缺少起草要求而产出无依据文稿。**当期未在产品上暴露该按钮的
-   可用路径尚未收口，验收须按 §7.4 处置。**
+   已随基线包落地并过准入与中性门；`generic.draft` 在**声明面**在册
+   （`BASELINE_DECLARED_SCENARIO_IDS`），但被 `production-scenarios.ts` 的
+   `LAUNCH_CHAIN_PENDING_SCENARIO_IDS` **显式排除**出当期可启动面——预检值送不到命令端口，
+   放进闭集就等于在场景条上多一枚点了什么也不会发生的按钮（LEGAL-FIVE-FACES-1 要消灭的死钮）。
+   排除是显式而非遗漏：起跑 `generic.draft` 得 `rejected/invalid_scope`，红证在
+   `baseline-scenario-run.test.ts` >「排除是显式而非遗漏」。拍板落地后从该表删行即自动在册。
 2. **顺带清偿两项未动**：`App.tsx:165` 的 `DRAFT_OUTPUT_FILE = '答辩意见.docx'` 与
    `case-output-client.ts` draft 路径的 `overwrite: true`。二者与场景①的落盘链同批，单独改会让
    既有 Legal 起草画布换名而无对应产品变化，故随场景①转出。
@@ -171,7 +173,7 @@ atomic no-replace 同批——固定名 ＋ no-replace 会让第二次编译恒 
 | `pnpm -r build` | 全绿（12 包 Done，含新 `packages/generic`） |
 | `pnpm lint` | 绿（零输出） |
 | root `pnpm test` | **2191/2191 绿**（stage-2 时点实跑）；stage-3 后同命令两次出现 `packages/output` docx 与 core bundle 谱共 7–10 例 5s/35s 超时——**同命令在 `git stash` 后的改动前树上复现同一族超时**，故判为并行满载下的环境红、零因果，如实分开登记（用例总数 2191 未变，无用例丢失） |
-| desktop `pnpm --filter @courtwork/desktop test` | **863/863 绿**（基线 847 → +16） |
+| desktop `pnpm --filter @courtwork/desktop test` | **864/864 绿**（基线 847 → +17） |
 | `cargo test`（`apps/desktop/src-tauri`） | **250/250 绿**（1 ignored）。首跑因本 worktree 缺 `packages/pi-lane/dist/product-sidecar` 与 `dist/headless-sidecar` 而失败，跑 `build:product-sidecar`＋`build:headless-sidecar` 后复绿——环境前置非树上红 |
 | `site:guard` | 绿（SKIN-R2 signed ledger passed；App.tsx 高水位 2245/2245，本票零触碰 App.tsx） |
 | 零泄漏静态门 `assert-vertical-isolation.mjs` | 绿（受检 217 份零垂类 import；包名闭集已扩员为 `legal\|pm\|generic`） |
