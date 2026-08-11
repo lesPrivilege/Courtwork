@@ -5518,3 +5518,113 @@ byFile: product-protocol 11, product-stdio 1, tools 14, workspace-write-env 4
 `561+4 = 565` 逐数吻合，净增全部落在守卫文件，既有用例零回归。按票面不跑 Playwright。
 
 复验期间创建的两枚临时探针文件已删除，`git status` 仅余本记录一处改动。
+
+## PI-JOURNAL-TIGHTEN-1 · 独立验收（2026-08-11，PASS）
+
+验收对象为实现 tip `5f1ab0f9c45f5ed33cbdc07d227ad1daf52389a2`，基线
+`main@31533d3742d8b1cd717387bbcc0dd7cb3a954083`；独立 clone、分支
+`codex/accept-pi-journal-tighten-1`。本席不采信实现回执数字，依次现读 `CLAUDE.md`、本票、
+`docs/engineering/workflow.md` 后，从空依赖/空 Rust target 起自行安装、构建、实跑和变异。
+
+**结论：PASS（放行）。** 四段生产行为均达到票面判据，所有要求的撤修复/变异均有区分力；
+段③的 `Some(inf)`、crash fold 裸 `usd:inf` 与 bootstrap encode-before-effect 错归因路径均被本席
+独立复现；段④能把 `budget_unknown` 与真达上限分成不同的用户可见文案。wire schema、journal
+十九型闭集、limits 漂移门、`App.tsx` 与④甲支均无越线。未发现决定性拒因。
+
+### 一 · 环境、构建与门禁
+
+| 门 | 本席独立读数 |
+|---|---|
+| `pnpm install` | EXIT 0，15 workspace projects，1157 packages；2m41.8s |
+| `pnpm -r build` | EXIT 0，14/15 workspace projects；desktop `tsc -b && vite build` 完成 |
+| `cargo test`（`apps/desktop/src-tauri`） | EXIT 0，**259 passed / 0 failed / 1 ignored**；最终恢复后再跑同数 |
+| `pnpm --filter @courtwork/pi-lane test` | EXIT 0，**18 files / 565 tests** |
+| `pnpm lint` | EXIT 0，零诊断 |
+| root `pnpm test` | EXIT 0，**174 files / 2171 tests** |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0，**97 files / 849 tests** |
+| `pnpm --filter @courtwork/desktop lint:voice` | EXIT 0，扫描 **171** 个 UI 源文件 |
+| `pnpm --filter @courtwork/desktop lint:app-highwater` | EXIT 0，`App.tsx` **2245/2245** |
+
+新 clone 首次 `cargo test` 在 **257 passed / 2 failed / 1 ignored** 后 EXIT 101；两红逐字均为
+`缺 headless bundle .../dist/headless-sidecar/headless-sidecar.cjs——先跑 build:headless-sidecar`。
+这是前置制品缺失而非源码断言红。本席从本树执行 `build:headless-sidecar`（555314 B，
+`061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`，可复现）后完整重跑，
+取得上表 259/0/1；所有变异恢复后又完整跑一轮，仍为 259/0/1。
+
+Playwright 完整链按票面让位排程律，**未跑**；未取锁、未连接任何共享 dev server。desktop 包级
+849、段④定向 2/2、voice 与 App 高水位门构成本票文案面的等价链。
+
+### 二 · 逐点变异复红
+
+每轮均以 `apply_patch` 只改一处，单独取得被测命令的退出码；观察后用反向 patch 恢复。
+最初一条缺全限定名的 Rust `--exact` 命令实际 `running 0 tests`，本席当场作废，不计证据；其后
+全部用完整测试名重跑。最终 `git diff --exit-code` 为 0，证明变异未残留。
+
+| 段 / 变异 | 实跑测试 | 红形（原始关键信息） | 区分力 |
+|---|---|---|---|
+| ① `tool_proposed` 单点 `read_logical_path`→`read_string` | `effect_family_rejects_empty_logical_path_in_all_three_types` | EXIT 101；`tool_proposed：空 logicalPath 必须被拒: JournalRecord {... logical_path: "" ...}` | 有，且只点名该型 |
+| ① `effect_started` 同形单点回退 | 同上 | EXIT 101；`effect_started：空 logicalPath 必须被拒: JournalRecord {... logical_path: "" ...}` | 有，且只点名该型 |
+| ① `effect_succeeded` 同形单点回退 | 同上 | EXIT 101；`effect_succeeded：空 logicalPath 必须被拒: JournalRecord {... logical_path: "" ...}` | 有，且只点名该型 |
+| ② 仅 fold 侧改回 usage `.max()` | `validate_records_compares_resume_prior_turns_with_the_same_cursor_as_fold` | EXIT 101；`StructureProblem("session_resumed 的 prior 三值必须逐值等于前序 fold")` | 有，耦合守卫红 |
+| ② 仅 `validate_records` 侧改回 usage `.max()` | 同上 | EXIT 101；同一 `StructureProblem` | 有，反向耦合守卫亦红 |
+| ③ 仅撤 fold 侧 `is_finite` 降级 | `cost_accumulation_overflow_degrades_to_unknown_instead_of_infinity` | EXIT 101；`left: Some(inf)` / `right: None` | 有，直接复现 `Some(inf)` |
+| ③ 同一 fold 变异 | `overflowed_cost_never_reaches_the_durable_ledger_through_crash_fold` | EXIT 101；耐久行实见 `"budget":{"turns":2,"usd":inf,...}`，`prompt_budget_stopped` 与 `session_budget_stopped` 各一行 | 有，裸 `usd:inf` 真落盘 |
+| ③ 仅撤 `validate_records` 侧降级 | `validate_records_degrades_overflowed_cost_the_same_way_as_fold` | EXIT 101；同一 prior 三值 `StructureProblem` | 有，两累加处不可单改 |
+| ③ 再撤 fold 降级走 resume | `overflowed_cost_history_refuses_resume_instead_of_writing_infinity` | EXIT 101；`实得 Err(InvalidConfig("配置无法编成 bootstrap packet"))` | 有，坐实回执路径订正 |
+| ④ 把 `detail:'budget_unknown'` 撤回 `budgetStopped` 文案 | `maxUsd 开启而某回合费用未知...` | EXIT 1；Expected 具名未知费用句，Received **`已达本段上限 · 请另起一段继续`** | 有，禁形原样复现 |
+
+恢复后段④两枚定向测试另跑 **2 passed / 19 skipped**，Rust 全门恢复 259/0/1。
+
+### 三 · sidecar 身份独立复核
+
+先精确清除 `packages/pi-lane/dist/product-sidecar`，再从本树 `product-main.ts` 执行
+`pnpm --filter @courtwork/pi-lane build:product-sidecar`。构建器报告正式 snapshot 为新建、双次
+bundle 可复现；随后不用构建回执，另以 `wc -c` 与 `shasum -a 256` 直接读落地文件：
+
+```
+bytes  = 547893
+sha256 = 951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c
+```
+
+与实现回执和 tracked route manifest 逐字一致，身份未迁移。
+
+### 四 · 红线与逐文件 diff 核查
+
+实现相对基线只触 10 文件：Rust `pi_loop.rs` / `pi_loop_journal.rs` / `pi_loop_protocol.rs`，desktop
+`PiLanePanel.tsx` / `pi-copy.ts` / `pi-projection.test.ts` / `pi-projection.ts` /
+`SettingsPage.tsx`，本票 SPEC 与 `product-stdio.ts`。逐文件结论：
+
+1. **wire schema 零改**：`packages/schemas/**`、`packages/pi-lane/src/product-protocol.ts`、
+   `fixtures/product-wire-v1.jsonl` 均零 diff；`pi_loop_protocol.rs` 唯一生产变化是把既有
+   `read_logical_path` 放到 `pub(crate)` 并加说明，没有字段、枚举或编码形状变化。
+2. **journal 十九型闭集零变化**：TS `pi-journal.ts` 整文件零 diff；Rust `closed_enum!(JournalType)`
+   与基线逐行同为 19 项。新增内容均为既有型测试/推进臂，不含扩员。
+3. **limits 漂移门未动**：基线与 tip 均为
+   `historic.max_turns != config.max_turns || historic.max_usd != config.max_usd` 即
+   `ResumeRefused("limits 漂移")`，逐字相同。
+4. **`App.tsx` 零触碰**：路径 diff 为空；高水位仍为 2245/2245，未升门。
+5. **④甲支未实现**：`resolveTerminal` 的 `budget_unknown` 生产分支仅新增严格模式说明，代码仍是
+   `failedTerminal('budget_unknown', false, budget)`；Rust `plan_close_with_budget_unknown` 生产逻辑
+   未变。没有“只关 prompt”、确认动作或 journal 扩员。
+6. 票面外观感的触碰均有必要且不扩契约：`pi-projection.ts` 从它所指的 `prompt_failed` 取成因码，
+   `PiLanePanel` 统一调用三档文案选择器，`SettingsPage` 在开启 maxUsd 处说明严格代价；
+   `StructureProblem: Debug` 与 import 下沉只服务测面/零告警。未发现影响放行的偏离。
+
+### 五 · 实现回执三项自报复核
+
+1. **段③路径订正属实。** `start` 先由 fold 得 `projection.prior_usd`，构造 bootstrap 后调用
+   `encode_outbound_line`；它经 `encode_packet_line` 先写 `priorUsd`、再把 body 回灌同一 decoder，
+   全过程发生在 `planned.apply()`、journal append 与 spawn **之前**。未修复时
+   `format_js_number(inf)` 产 `inf`，回灌 JSON decoder 拒绝，映射为
+   `InvalidConfig("配置无法编成 bootstrap packet")`；本席变异实跑得到同一结果。因此
+   “`session_resumed` 把 inf 写入耐久账本”在 resume 路不成立；真正落盘路径是 crash fold，已由
+   上表两行裸 `usd:inf` 坐实。
+2. **段②零区分力登记如实。** 对任何能通过现行结构门的完整既有档，usage `.max()` 与
+   `turn_finished` 连续游标逐值相同；新测试本身在两侧同为旧口径时不会红。区分力来自任一侧单改
+   后的 prior 三值耦合，两向变异均红，回执没有把结构收敛冒充既有档行为修复。
+3. **待拍板措辞按架构裁定接受。** TS `TERMINAL_MESSAGES.budget_unknown`、Rust
+   `TerminalFailureCode::BudgetUnknown` 与 wire golden 仍逐字为「已启用金额限额，但存在费用未知的
+   回合」；本席不据此拒收。用户可见 UI 已按 `sessionTerminal.detail` 分到独立
+   `PI_COPY.budgetUnknown`，与 `budgetStopped`/通用关闭三句互不相等，voice 门与复红均通过。
+
+本席未新增永久探针文件；所有探针均为临时源变异且已逐枚恢复。本节是本次验收唯一提交内容。
