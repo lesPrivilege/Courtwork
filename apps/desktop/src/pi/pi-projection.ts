@@ -187,6 +187,8 @@ export function foldPiRecords(
   const draftsByPath = new Map<string, PiDraftEntry>();
   /** `toolCallId → operationId`：提案是唯一带 operationId 的那一枚记录。 */
   const pendingByToolCall = new Map<string, PiWriteProposal>();
+  /** `promptEventId → 失败码`：`session_failed{cause.kind:'prompt'}` 的成因住这里。 */
+  const promptFailureCodes = new Map<string, string | undefined>();
   let openBlock: MutableBlock | undefined;
 
   for (let index = 0; index < lines.length; index += 1) {
@@ -306,13 +308,17 @@ export function foldPiRecords(
         };
         const target = blocks.find((block) => block.requestId === (record.requestId ?? ''));
         if (target) target.terminal = terminal;
+        promptFailureCodes.set(record.eventId, terminal.error?.code);
         openBlock = undefined;
         break;
       }
       case 'session_completed':
       case 'session_budget_stopped':
       case 'session_failed': {
-        sessionTerminal = { type: record.type, ...readSessionDetail(record) };
+        sessionTerminal = {
+          type: record.type,
+          ...readSessionDetail(record, promptFailureCodes),
+        };
         break;
       }
       case 'session_interrupted': {
@@ -443,11 +449,22 @@ function readError(record: PiJournalRecord): PiTerminalView['error'] | undefined
   return { code, message, retryable };
 }
 
-function readSessionDetail(record: PiJournalRecord): { detail?: string } {
+function readSessionDetail(
+  record: PiJournalRecord,
+  promptFailureCodes: Map<string, string | undefined>,
+): { detail?: string } {
   const cause = readObject(record.payload, 'cause');
   if (cause) {
     const code = readString(cause, 'code');
     const kind = readString(cause, 'kind');
+    // `kind:'prompt'` 的成因码不在 session 记录里，而在它指名的那一枚 prompt terminal 上
+    // （`PI-JOURNAL-TIGHTEN-1` 段④）。不取它，`budget_unknown` 关段就与任何其他失败关段
+    // 同源，用户看不出成因是「有一回合没拿到计费数据」。
+    if (!code && kind === 'prompt') {
+      const promptEventId = readString(cause, 'promptEventId');
+      const promptCode = promptEventId ? promptFailureCodes.get(promptEventId) : undefined;
+      if (promptCode) return { detail: promptCode };
+    }
     return { detail: code ?? kind ?? undefined };
   }
   const reason = readString(record.payload, 'reason');

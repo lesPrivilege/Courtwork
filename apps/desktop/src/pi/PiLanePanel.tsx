@@ -12,7 +12,7 @@ import {
 import { ChatMarkdown } from '../chat/ChatMarkdown';
 import { PiDraftViewer, type PiViewerState } from './PiDraftViewer';
 import { PiToolCard } from './PiToolCard';
-import { PI_COPY } from './pi-copy';
+import { PI_COPY, piSessionClosedCopy } from './pi-copy';
 import type { PiHistorySession } from './pi-history';
 import type { PiSessionView, PiToolCallView } from './pi-projection';
 import type { PiLaneSession } from './use-pi-lane';
@@ -343,9 +343,7 @@ function PiStatusBar({
       )}
       {view.sessionTerminal && (
         <span className="pi-status-note pi-status-closed" data-testid="pi-session-closed">
-          {view.sessionTerminal.type === 'session_budget_stopped'
-            ? PI_COPY.budgetStopped
-            : PI_COPY.sessionClosed}
+          {piSessionClosedCopy(view.sessionTerminal)}
         </span>
       )}
       {/* 另起一段：收摊这一条，回到未开工态；上一段的工作稿仍在只读入口里。 */}

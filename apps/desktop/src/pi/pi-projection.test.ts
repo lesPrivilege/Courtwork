@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import goldenJournal from '../../../../packages/pi-lane/fixtures/write-session-journal-v1.jsonl?raw';
 
+import { PI_COPY, piSessionClosedCopy } from './pi-copy';
 import { decodePiJournalRecord, PI_JOURNAL_TYPES } from './pi-journal';
 import { foldPiRecords } from './pi-projection';
 
@@ -374,5 +375,65 @@ describe('foldPiRecords', () => {
     ]);
     expect(unknownCost.budget?.usd).toBeNull();
     expect(unknownCost.budget?.usdLimit).toBe('unknown');
+  });
+
+  /**
+   * `PI-JOURNAL-TIGHTEN-1` 段④：`budget_unknown` 与「真达上限」是两件事，文案必须分流。
+   *
+   * 真缺陷面：maxUsd 开启时单回合 `costUsd:null` 使累计 usd 永久置 null → `budget_unknown`
+   * → `retryable:false` → 本段关闭且 resume 拒绝。瞬时 provider 行为换来不可逆惩罚，
+   * 用户却只看到一句与其他关闭同源的「这一段工作已经结束」，看不出成因是「有一回合没拿到
+   * 计费数据」。成因在账本里（`prompt_failed.error.code`），界面必须把它取出来。
+   */
+  it('maxUsd 开启而某回合费用未知：终态成因具名到 budget_unknown，文案与真达上限分流', () => {
+    const startedWithLimit = JSON.parse(GOLDEN[0]) as {
+      payload: { limits: { maxUsd: number | null } };
+    };
+    startedWithLimit.payload.limits.maxUsd = 5;
+    const view = foldPiRecords('cnt-1', 'sess-1', [
+      JSON.stringify(startedWithLimit),
+      PROMPT,
+      line(3, 'turn_usage_recorded', {
+        turn: 1,
+        countedTowardTurnLimit: true,
+        usage: {
+          inputTokens: 120,
+          outputTokens: 42,
+          cacheReadTokens: null,
+          cacheWriteTokens: null,
+          costUsd: null,
+        },
+        stopReason: 'stop',
+      }),
+      line(4, 'prompt_failed', {
+        status: 'failed',
+        error: {
+          code: 'budget_unknown',
+          message: '已启用金额限额，但存在费用未知的回合',
+          retryable: false,
+        },
+        budget: { turns: 1, usd: null, turnLimit: 'open', usdLimit: 'unknown' },
+      }),
+      line(5, 'session_failed', { cause: { kind: 'prompt', promptEventId: 'event_4' } }, {
+        requestId: null,
+      }),
+    ]);
+
+    expect(view.maxUsd).toBe(5);
+    expect(view.sessionTerminal).toEqual({ type: 'session_failed', detail: 'budget_unknown' });
+    expect(piSessionClosedCopy(view.sessionTerminal)).toBe(PI_COPY.budgetUnknown);
+    // 禁形：不得复用「已达本段上限」，也不得塌回不说成因的通用关闭句。
+    expect(piSessionClosedCopy(view.sessionTerminal)).not.toBe(PI_COPY.budgetStopped);
+    expect(piSessionClosedCopy(view.sessionTerminal)).not.toBe(PI_COPY.sessionClosed);
+  });
+
+  it('真达上限仍走 budgetStopped；其余关闭走通用句——三档互不相等', () => {
+    expect(piSessionClosedCopy({ type: 'session_budget_stopped' })).toBe(PI_COPY.budgetStopped);
+    expect(piSessionClosedCopy({ type: 'session_failed', detail: 'sidecar_exit' })).toBe(
+      PI_COPY.sessionClosed,
+    );
+    expect(piSessionClosedCopy({ type: 'session_completed' })).toBe(PI_COPY.sessionClosed);
+    const three = new Set([PI_COPY.budgetStopped, PI_COPY.budgetUnknown, PI_COPY.sessionClosed]);
+    expect(three.size).toBe(3);
   });
 });
