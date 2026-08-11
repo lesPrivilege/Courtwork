@@ -33,6 +33,7 @@ import type { CitationStats } from '../events/types.js';
 import type { TurnRunnerPort } from '../turn/turn-runner.js';
 import type { PersistedTurn } from '../turn/types.js';
 import type { WorkModelRoute, WorkRuntimeBudget } from '../work-state/envelope.js';
+import { UnknownToolError } from './unknown-tool-error.js';
 
 export interface WorkTurnIdentity {
   turnId: string;
@@ -109,12 +110,7 @@ export type ScenarioRunResult =
   | { status: 'paused'; sessionId: string; requestId: string }
   | { status: 'failed'; sessionId: string; reason: ScenarioFailureReason; message: string; retryable: false };
 
-export class UnknownToolError extends Error {
-  constructor(scenarioId: string, toolId: string) {
-    super(`场景 ${scenarioId} 引用了未在工具注册表中登记的工具 "${toolId}"`);
-    this.name = 'UnknownToolError';
-  }
-}
+export { UnknownToolError } from './unknown-tool-error.js';
 
 export class UnknownArtifactTypeError extends Error {
   constructor(scenarioId: string, artifactType: string) {

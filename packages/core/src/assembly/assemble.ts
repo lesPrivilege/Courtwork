@@ -13,6 +13,7 @@ import {
   type PromptSegment,
   type ViewMappingInput,
 } from './segments.js';
+import { buildRequestToolClosedSet } from '../scenario-executor/tool-request.js';
 
 export interface AssembleScenarioRequestInput {
   scenario: ScenarioRuntime;
@@ -41,14 +42,23 @@ export interface AssembledRequest {
 /**
  * 寻址信封（四知条款·知输出/知回填的机器形态）：模型输出必须携目标地址，
  * 地址以 literal 锁死——错址在 schema 校验层即拒收，回填靠地址不靠位置。
+ *
+ * TOOL-READ-1（ADR-011 修订二）：场景声明了可请求只读工具时，信封多一支 `request_tool` 分支，
+ * 其 `toolId` 由**系统当次注入**为 `z.literal` 闭集。闭集外的取值是普通不可信文本，校验层拒收。
+ * 白名单为空时不产出该分支——既有场景的 responseSchema 逐字节不变，模型也不可发现该通道。
  */
-export function buildEnvelopeSchema(stepId: string, artifactType: string, artifactSchema: z.ZodTypeAny): z.ZodTypeAny {
-  return z
-    .object({
-      target: z.object({ stepId: z.literal(stepId), artifactType: z.literal(artifactType) }).strict(),
-      artifact: artifactSchema,
-    })
-    .strict();
+export function buildEnvelopeSchema(
+  stepId: string,
+  artifactType: string,
+  artifactSchema: z.ZodTypeAny,
+  requestableToolIds: readonly string[] = [],
+): z.ZodTypeAny {
+  const target = z.object({ stepId: z.literal(stepId), artifactType: z.literal(artifactType) }).strict();
+  const artifactEnvelope = z.object({ target, artifact: artifactSchema }).strict();
+  const requestTool = buildRequestToolClosedSet(requestableToolIds);
+  if (requestTool === undefined) return artifactEnvelope;
+  // strict 两支的联合：artifact 与 request_tool 同现时两支都拒——一个 turn 只做一件事。
+  return z.union([artifactEnvelope, z.object({ target, request_tool: requestTool }).strict()]);
 }
 
 /**
@@ -70,7 +80,12 @@ export function assembleScenarioRequest(input: AssembleScenarioRequestInput): As
   const request: GenerationRequest = {
     systemPrompt: [contract.body, declaration.body, tenant.body, projection.body].join('\n\n'),
     messages: [{ role: 'user', content: `${sessionCorpus.body}\n\n${viewMapping.body}` }],
-    responseSchema: buildEnvelopeSchema(input.stepId, input.artifactType, input.modelSchema),
+    responseSchema: buildEnvelopeSchema(
+      input.stepId,
+      input.artifactType,
+      input.modelSchema,
+      input.scenario.requestableToolIds ?? [],
+    ),
   };
 
   return { segments, request, envelopeSchema: request.responseSchema! };

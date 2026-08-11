@@ -30,6 +30,8 @@ export interface ScenarioRuntime {
   trigger: PackageScenario['trigger'];
   inputArtifacts: ArtifactTypeId[];
   toolIds: string[];
+  /** 模型可请求的只读工具白名单（TOOL-READ-1 裁定二）；缺席＝零可请求工具（与空清单同义）。 */
+  requestableToolIds?: string[];
   outputArtifacts: ArtifactTypeId[];
   uiTemplateId: string;
   confirmationPolicy: PackageScenario['confirmationPolicy'];

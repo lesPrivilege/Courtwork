@@ -155,6 +155,22 @@ const PackageScenarioObjectSchema = z
     trigger: PackageTriggerSchema,
     inputArtifacts: z.array(ArtifactTypeIdSchema).default([]),
     toolIds: z.array(z.string().min(1)).default([]),
+    /**
+     * 模型可请求的只读工具白名单（TOOL-READ-1 裁定二 · ADR-011 修订二条件 1 的静态声明面）。
+     *
+     * 与 `toolIds` 的分工：`toolIds` 是**声明期**工具——产出序列开始前一次性执行完毕；
+     * 本键是**turn 间**可被模型点名请求的闭集，系统每次 model 步按此清单当次注入 `z.literal`
+     * 闭集，闭集外取值是普通不可信文本、校验层拒收。缺省空清单＝该场景零可请求工具，
+     * 模型既看不到清单也进不了执行路径（ADR-011 决定三「已注册但未被 Scenario 点名的工具不得执行」）。
+     *
+     * 「引用必解析」与「仅 pure_read」由 core 侧 `resolveRequestableTools` 在场景执行准入判定
+     * ——工具的 sideEffect 分级住 core ToolRegistry 装配点，包描述面结构上不持有该事实。
+     *
+     * 取 `.optional()` 而非 `toolIds` 的 `.default([])`：默认值会让**每一份**既有场景声明被迫
+     * 补一个恒空的键（TOOL-READ-1 裁定五划定的消费者边界之外，含 legal/pm 禁区面）。
+     * 缺席与空清单在本通道语义完全同一——都是「零可请求工具」，故不需要默认值把它们区分开。
+     */
+    requestableToolIds: z.array(z.string().min(1)).optional(),
     outputArtifacts: z.array(ArtifactTypeIdSchema).default([]),
     /** 场景级面板模板；artifact 级模板在各 descriptor 上。 */
     uiTemplateId: z.string().min(1),
@@ -171,6 +187,10 @@ export const PackageScenarioSchema = PackageScenarioObjectSchema.refine(
   (value) => unique(value.toolIds),
   { message: 'toolIds 数组内存在重复的工具 id', path: ['toolIds'] },
 )
+  .refine((value) => unique(value.requestableToolIds ?? []), {
+    message: 'requestableToolIds 数组内存在重复的工具 id',
+    path: ['requestableToolIds'],
+  })
   .refine(
     (value) =>
       value.confirmationPolicy.mode !== 'gates' ||

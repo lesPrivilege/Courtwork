@@ -177,4 +177,62 @@ describe('寻址信封 schema（按址收货）', () => {
       }).success,
     ).toBe(false);
   });
+
+  it('无可请求白名单时信封里根本没有 request_tool 分支（既有场景字节不变）', () => {
+    expect(
+      schema.safeParse({ target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' }, request_tool: { toolId: 'dossier-list' } })
+        .success,
+    ).toBe(false);
+  });
+});
+
+describe('request_tool 信封分支（TOOL-READ-1 · ADR-011 修订二红证一）', () => {
+  const schema = buildEnvelopeSchema('produce-test.Risk', 'test.Risk', RISK_SCHEMA, ['material-read', 'dossier-list']);
+
+  it('白名单内的 toolId 收', () => {
+    expect(
+      schema.safeParse({
+        target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' },
+        request_tool: { toolId: 'material-read', input: { materialId: 'm-1' } },
+      }).success,
+    ).toBe(true);
+  });
+
+  it('闭集外 toolId 取值被消费即拒收——它是普通不可信文本，结构上进不了执行路径', () => {
+    for (const toolId of ['party-verify', 'system-open', 'copy-file', 'material-read ', 'MATERIAL-READ']) {
+      expect(
+        schema.safeParse({
+          target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' },
+          request_tool: { toolId },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it('请求分支仍受地址锁约束：错址与 artifact 分支同层拒收', () => {
+    expect(
+      schema.safeParse({ target: { stepId: 'x', artifactType: 'test.Risk' }, request_tool: { toolId: 'dossier-list' } }).success,
+    ).toBe(false);
+  });
+
+  it('artifact 与 request_tool 不得同现（一个 turn 只做一件事）', () => {
+    expect(
+      schema.safeParse({
+        target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' },
+        artifact: { caseId: 'c1' },
+        request_tool: { toolId: 'dossier-list' },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('artifact 分支在白名单在场时照常收（通道是加法，不夺走产出路径）', () => {
+    expect(
+      schema.safeParse({ target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' }, artifact: { caseId: 'c1' } }).success,
+    ).toBe(true);
+  });
+
+  it('可 toJSONSchema（DeepSeek json_object 档位靠它把闭集写进 prompt）', () => {
+    expect(() => z.toJSONSchema(schema)).not.toThrow();
+    expect(JSON.stringify(z.toJSONSchema(schema))).toContain('material-read');
+  });
 });
