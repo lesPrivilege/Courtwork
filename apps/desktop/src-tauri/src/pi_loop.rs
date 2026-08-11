@@ -3488,6 +3488,110 @@ mod tests {
         assert_eq!(spawns, 1);
     }
 
+    /// `PI-JOURNAL-TIGHTEN-1` 段③ 的 resume 语义变化（架构明示接受的**唯一**一处）。
+    ///
+    /// 溢出档在 `maxUsd = Some` 时命中既有的「历史费用未知」门 → `ResumeRefused`。
+    /// 换掉的是这条真实路径：无上界的合法大额 `costUsd` 若干枚 → 累加 `+inf` →
+    /// `session_resumed` 把 `inf` 写进耐久账本（`format_js_number` 出的是非 JSON 的 `inf`）
+    /// → 下次载入解码失败 → 整份 quarantine → UI 整段会话塌 decodeFailure。
+    /// 以显式拒绝换不可解释的 `inf`，方向合不变量四。
+    #[test]
+    fn overflowed_cost_history_refuses_resume_instead_of_writing_infinity() {
+        let mut h = harness("cost-overflow-resume");
+        h.config.max_usd = Some(1000.0);
+        let mut loaded = pi_loop_journal::load_session(
+            &h.app_data,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("建种子 journal");
+        let journal = &mut loaded.journal;
+        journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(seeded_started(Some(1000.0))),
+            )
+            .expect("session_started");
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            )
+            .expect("user_prompted");
+        // 两枚 `f64::MAX`：各自都是 wire 合法的 `costUsd`（该字段无上界），相加即 `+inf`。
+        for turn in 1..=2 {
+            journal
+                .append(
+                    Some("req-1"),
+                    None,
+                    JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                        turn,
+                        counted_toward_turn_limit: true,
+                        usage: known_usage(f64::MAX),
+                        stop_reason: TurnStopReason::Stop,
+                    }),
+                )
+                .expect("turn_finished");
+            journal
+                .append(
+                    Some("req-1"),
+                    None,
+                    JournalPayload::TurnUsageRecorded {
+                        turn,
+                        counted_toward_turn_limit: true,
+                        usage: known_usage(f64::MAX),
+                        stop_reason: TurnStopReason::Stop,
+                    },
+                )
+                .expect("turn_usage_recorded");
+        }
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::PromptCompleted {
+                    budget: open_budget(2, None),
+                },
+            )
+            .expect("prompt_completed");
+        journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionInterrupted {
+                    reason: SessionInterruptReason::SidecarEnded,
+                    cost_coverage: pi_loop_journal::CostCoverage::Known,
+                },
+            )
+            .expect("session_interrupted");
+        drop(loaded);
+
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read_to_string(&path).expect("读种子 journal");
+        assert!(
+            before.contains("1.7976931348623157e+308"),
+            "对照：两枚合法大额 costUsd 确实已 durable"
+        );
+
+        let (result, _, spawns) = start_with(&h, Vec::new());
+        assert!(
+            matches!(
+                result,
+                Err(HostError::ResumeRefused("maxUsd 已启用而历史费用未知"))
+            ),
+            "溢出档必须显式拒绝 resume，实得 {result:?}"
+        );
+        assert_eq!(spawns, 0, "必须在 spawn 之前拒");
+        let after = fs::read_to_string(&path).expect("读拒绝后的 journal");
+        assert!(!after.contains("inf"), "耐久账本不得出现 inf");
+        assert_eq!(before, after, "被拒的一轮零 journal 变化");
+    }
+
     #[test]
     fn shutdown_writes_session_completed_after_terminal_and_eof() {
         let h = harness("shutdown");

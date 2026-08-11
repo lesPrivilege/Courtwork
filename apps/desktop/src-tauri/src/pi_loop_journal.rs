@@ -3482,6 +3482,76 @@ mod tests {
         );
     }
 
+    /// 段③ 的落地面：溢出值不得经 **crash fold** 进耐久账本。
+    ///
+    /// 这是 `inf` 真正够得着 journal 的那条路——`prompt_budget_stopped` 的 `budget.usd`
+    /// 直接取自 fold 的累计值，中间没有 wire 编码这道关（bootstrap 那条路被
+    /// encode-before-effect 挡下，但挡出来的是归因错的 `invalid_config`，见 `pi_loop.rs`
+    /// 的 `overflowed_cost_history_refuses_resume_instead_of_writing_infinity`）。
+    /// `format_js_number(inf)` 出的是非 JSON 的裸 `inf`：落一次账，下次载入整份 quarantine，
+    /// UI 整段会话塌 decodeFailure。
+    #[test]
+    fn overflowed_cost_never_reaches_the_durable_ledger_through_crash_fold() {
+        let root = temp_root("cost-overflow-crash-fold");
+        let mut loaded = open(&root);
+        let mut started = started_payload();
+        started.max_turns = 2;
+        started.max_usd = None;
+        let journal = &mut loaded.journal;
+        journal
+            .append(None, None, JournalPayload::SessionStarted(started))
+            .expect("session_started");
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "读一下备忘".to_string(),
+                },
+            )
+            .expect("user_prompted");
+        for turn in 1..=2 {
+            journal
+                .append(Some("req-1"), None, turn_finished(turn, Some(f64::MAX)))
+                .expect("turn_finished");
+            journal
+                .append(Some("req-1"), None, turn_usage(turn, Some(f64::MAX)))
+                .expect("turn_usage_recorded");
+        }
+        // prompt 仍 active 且 counted turns 已达 maxTurns：下一次载入的 crash fold 走步骤 3，
+        // 落一枚 `prompt_budget_stopped{budget}`——`budget.usd` 就是那枚累计值。
+        drop(loaded);
+
+        let reloaded = open(&root);
+        assert!(
+            matches!(
+                reloaded
+                    .records
+                    .iter()
+                    .find(|record| record.journal_type() == JournalType::PromptBudgetStopped)
+                    .map(|record| &record.payload),
+                Some(JournalPayload::PromptBudgetStopped { .. })
+            ),
+            "对照：crash fold 确实落了 prompt_budget_stopped"
+        );
+        drop(reloaded);
+
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let text = fs::read_to_string(&path).expect("读 journal");
+        assert!(
+            !text.contains("\"usd\":inf"),
+            "耐久账本不得出现裸 inf（非 JSON），实得 {text}"
+        );
+        // 回读必须成立：落过 `inf` 的档在这里整份 quarantine。
+        load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("crash fold 落下的账必须能回读");
+    }
+
     /// 段③ 的另一处（`validate_records`）：读侧累加必须与 `fold` 同口径地降级。
     #[test]
     fn validate_records_degrades_overflowed_cost_the_same_way_as_fold() {
