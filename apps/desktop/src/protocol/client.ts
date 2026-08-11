@@ -53,6 +53,18 @@ export interface StartWorkCommand {
   scenarioId: string;
   materialRefs: string[];
   modelRoute: WorkModelRoute;
+  /**
+   * 用户预检提交值的冻结快照（GENERIC-SCENARIOS-1 二批裁定一 · ADR-016 填格协议同族）。
+   *
+   * 通用槽：宿主按该场景 `launch.formFields` 声明收成 `Record<fieldId, string>`。缺省即空对象，
+   * 空对象不进模型请求。fieldId 集必须是该场景声明 id 集的**子集**，越集在任何 effect 之前
+   * fail-closed 拒（`rejected/invalid_scope`）。
+   *
+   * 本字段是进程内 callback 契约（ADR-009：非 IPC/HTTP/wire），不进 case store / journal /
+   * 持久信封。S3 的垂类专属入口 `startWithPreflight` 当期保留不迁（过手即拆挂账），
+   * 新场景一律走本槽——不得出现第三条预检值路径。
+   */
+  startParams?: Readonly<Record<string, string>>;
 }
 
 export interface ResumeWorkCommand extends WorkSessionRef {

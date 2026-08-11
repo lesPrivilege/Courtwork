@@ -20,20 +20,13 @@ export const BASELINE_DECLARED_SCENARIO_IDS: readonly string[] = GENERIC_PACKAGE
   .map((scenario) => scenario.id);
 
 /**
- * **起跑链未接通的基线场景**（GENERIC-SCENARIOS-1 如实登记，非豁免）。
+ * 当期可启动的基线场景。
  *
- * `generic.draft` 声明了一枚必填 `text` 预检字段，而 production 命令端口当前**没有通用的
- * 预检值槽位**——`StartWorkCommand` 无 preflight slot，S3 的主体输入走的是垂类专属入口
- * `startWithPreflight`。槽位形制属跨层拍板（SPEC §7.4 拍板项一），实现会话不自裁。
- *
- * 在槽位定谳前把它放进可启动闭集，产品上就多一枚**点了什么也不会发生**的按钮——那正是
- * LEGAL-FIVE-FACES-1 要消灭的死钮。故当期显式排除；拍板落地后从本表删行即自动在册。
+ * 曾因 production 命令端口无通用预检值槽而临时排除 `generic.draft`（放进闭集即多一枚点了
+ * 什么也不会发生的死钮）；票面 §六 二批裁定一落地通用槽 `startParams` 后，该临时收口**解除**，
+ * 声明面与可启动面自此逐字相等（反向红证在 `baseline-scenario-run.test.ts`）。
  */
-const LAUNCH_CHAIN_PENDING_SCENARIO_IDS: readonly string[] = ['generic.draft'];
-
-/** 当期真正可启动的基线场景＝声明面减去起跑链未接通者。 */
-export const BASELINE_SCENARIO_IDS: readonly string[] = BASELINE_DECLARED_SCENARIO_IDS
-  .filter((id) => !LAUNCH_CHAIN_PENDING_SCENARIO_IDS.includes(id));
+export const BASELINE_SCENARIO_IDS: readonly string[] = BASELINE_DECLARED_SCENARIO_IDS;
 
 /**
  * 垂类可启动子集。**续行侧的 fail-closed 判据只认这一枚**：基线恒在生效 registry 内，

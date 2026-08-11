@@ -184,6 +184,8 @@ type StartPayload = {
   materialRefs: string[];
   modelRoute: WorkModelRoute;
   subject: ContractPartySubject | null;
+  /** 通用预检值槽（二批裁定一）；无预检场景恒空对象。 */
+  startParams: Readonly<Record<string, string>>;
 };
 
 type ResolveReviewPayload = {
@@ -238,6 +240,8 @@ function normalizeStartPayload(payload: StartPayload): StartPayload {
           partyName: payload.subject.partyName.trim(),
         }
       : null,
+    // 冻结快照：调用方之后改自己那份对象，动不了本次命令的取值（也不动 first-wins 键）。
+    startParams: Object.freeze({ ...payload.startParams }),
   };
 }
 
@@ -250,6 +254,7 @@ function stableKey(payload: CommandPayload): string {
       materialRefs: [...payload.materialRefs],
       modelRoute: { ...payload.modelRoute },
       subject: payload.subject ? { ...payload.subject } : null,
+      startParams: { ...payload.startParams },
     });
   }
   return JSON.stringify({
@@ -472,6 +477,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
           scenario,
           materials: materialInputs,
           ...(needsCaseFile ? { caseFile: deriveCaseFileFromMaterials(input.caseId, materials) } : {}),
+          startParams: input.startParams,
         });
       }
     } catch (error) {
@@ -510,6 +516,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: [],
         modelRoute: { providerId: '', modelId: '', reasoning: 'standard' },
         subject: null,
+        startParams: {},
       },
       ref.sessionId,
       { limits: {}, costBasis: { currency: 'USD', assumptions: [] }, consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' } },
@@ -613,6 +620,22 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
       commands.set(commandId, { sessionId, payloadKey, done });
       return { sessionId, done };
     }
+    // 二批裁定一：fieldId 越集在**任何 effect 之前** fail-closed 拒。判据取该场景声明的
+    // `launch.formFields` id 集——无 formFields 的场景（无预检直启）收到任何提交值即越集。
+    const declaredFieldIds = new Set(
+      (deps.registriesForCase(payload.caseId).scenarios.get(payload.scenarioId)?.launch?.formFields ?? [])
+        .map((field) => field.id),
+    );
+    const outOfScopeFieldIds = Object.keys(payload.startParams).filter((id) => !declaredFieldIds.has(id));
+    if (outOfScopeFieldIds.length > 0) {
+      const done = Promise.resolve<WorkCommandOutcome>({
+        status: 'rejected',
+        reason: 'invalid_scope',
+        message: '起跑信息与本场景的填写项不一致，请重新打开起跑面填写',
+      });
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
     // ADR-010 决定一：production composition 未装配时返回闭集中的 not_configured。
     // 拒绝结果仍进入 process-local first-wins 表，同 id 不得在配置变化后变成第二个命令。
     if (deps.isConfigured && !deps.isConfigured()) {
@@ -648,6 +671,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: input.materialRefs,
         modelRoute: input.modelRoute,
         subject: input.subject,
+        startParams: {},
       }, publish);
     },
 
@@ -660,6 +684,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         materialRefs: command.materialRefs,
         modelRoute: command.modelRoute,
         subject: null,
+        startParams: command.startParams ?? {},
       }, publish);
     },
 

@@ -43,23 +43,28 @@ function material(materialId: string, fileName: string): StoredMaterial {
 
 const MATERIALS = [material('mat-1', '周会纪要.md'), material('mat-2', '进度说明.md')];
 
-function harness(options: { packBinding: readonly string[]; batchItems: unknown }) {
+function harness(options: { packBinding: readonly string[]; batchItems?: unknown; assistant?: unknown }) {
   const runtime = createDesktopPackageRuntime();
   const hooks = installWorkTestHooks();
-  hooks.setTurnStub(({ turnId, providerRequestId }): PersistedTurn => ({
-    status: 'completed',
-    turnId,
-    providerRequestId,
-    providerId: 'test-provider',
-    modelId: 'test-model',
-    reasoning: { status: 'absent' },
-    assistantMessage: JSON.stringify({
-      target: { stepId: 'produce-batch-report', artifactType: 'generic.BatchReport' },
-      artifact: { items: options.batchItems },
-    }),
-    finishReason: 'stop',
-    completedAt: '2026-08-11T00:00:00.000Z',
-  }));
+  /** 樁看见的模型请求：`startParams` 是否真的进了 task 段，只能由这一面作证。 */
+  const requests: unknown[] = [];
+  hooks.setTurnStub(({ turnId, providerRequestId, request }): PersistedTurn => {
+    requests.push(request);
+    return {
+      status: 'completed',
+      turnId,
+      providerRequestId,
+      providerId: 'test-provider',
+      modelId: 'test-model',
+      reasoning: { status: 'absent' },
+      assistantMessage: JSON.stringify(options.assistant ?? {
+        target: { stepId: 'produce-batch-report', artifactType: 'generic.BatchReport' },
+        artifact: { items: options.batchItems ?? [] },
+      }),
+      finishReason: 'stop',
+      completedAt: '2026-08-11T00:00:00.000Z',
+    };
+  });
   const byId = new Map(MATERIALS.map((item) => [item.materialId, item] as const));
   const host = createInMemoryWorkStateHost();
   const command = createDesktopWorkCommand({
@@ -82,27 +87,20 @@ function harness(options: { packBinding: readonly string[]; batchItems: unknown 
     loadRuntimeLimits: () => ({}),
     host,
   });
-  return { runtime, command, host, hooks };
+  return { runtime, command, host, hooks, requests };
 }
 
 describe('受信组合根：production 可启动场景闭集', () => {
-  it('基线声明面两枚，当期可启动面一枚——起跑链未接通者显式排除，不留死钮', () => {
+  /**
+   * 票面 §六 二批裁定三：通用预检值槽 `startParams` 落地后，临时排除解除——
+   * 原「排除断言」在此**翻转为在场断言**（反向红证）。声明面与可启动面自此逐字相等。
+   */
+  it('基线声明面两枚，当期可启动面同为两枚——临时排除已随预检值通道解除', () => {
     expect([...BASELINE_DECLARED_SCENARIO_IDS]).toEqual(['generic.draft', 'generic.batch']);
-    // generic.draft 声明了必填预检字段，而命令端口当前无通用预检值槽位（SPEC §7.4 拍板项一）。
-    // 放进闭集就等于在场景条上多一枚点了什么也不会发生的按钮。
-    expect([...BASELINE_SCENARIO_IDS]).toEqual(['generic.batch']);
+    expect([...BASELINE_SCENARIO_IDS]).toEqual(['generic.draft', 'generic.batch']);
     expect([...PRODUCTION_LAUNCHABLE_SCENARIO_IDS]).toEqual([
-      'legal.S1', 'legal.S2', 'legal.S3', 'generic.batch',
+      'legal.S1', 'legal.S2', 'legal.S3', 'generic.draft', 'generic.batch',
     ]);
-  });
-
-  it('排除是显式而非遗漏：generic.draft 起跑即闭集外显式拒绝（不静默当作别的场景）', async () => {
-    const { command } = harness({ packBinding: [], batchItems: [] });
-    const outcome = await command.start(
-      { commandId: 'draft-1', caseId: 'case-x', scenarioId: 'generic.draft', materialRefs: ['mat-1'], modelRoute: MODEL_ROUTE },
-      () => {},
-    ).done;
-    expect(outcome).toMatchObject({ status: 'rejected', reason: 'invalid_scope' });
   });
 });
 
@@ -195,5 +193,77 @@ describe('零垂类绑定 matter 上的 generic.batch 全链', () => {
       () => {},
     ).done;
     expect(outcome).toMatchObject({ status: 'rejected', reason: 'invalid_scope' });
+  });
+});
+
+/**
+ * 票面 §六 二批裁定一：通用预检值槽 `startParams`。三条语义边界各带用例——
+ * ①提交值随 task 段进请求（用户填格进请求，模型只读不改址）；②fieldId 越集在 effect 之前
+ * fail-closed 拒；③缺省空对象不进请求（不给模型一个恒空字段去解读，也不动既有场景的请求字节）。
+ */
+describe('startParams · 通用预检值槽', () => {
+  const DRAFT_ARTIFACT = {
+    target: { stepId: 'produce-draft', artifactType: 'generic.DraftDocument' },
+    artifact: { title: '季度工作说明', paragraphs: ['进度已到七成。', '下一步先补齐验收口径。'] },
+  };
+
+  it('提交值随 task 段进请求，且 generic.draft 全链产出 DraftDocument', async () => {
+    const { command, requests } = harness({ packBinding: [], assistant: DRAFT_ARTIFACT });
+    const events: SessionEvent[] = [];
+    const outcome = await command.start(
+      {
+        commandId: 'd1', caseId: 'case-x', scenarioId: 'generic.draft',
+        materialRefs: ['mat-1'], modelRoute: MODEL_ROUTE,
+        startParams: { requirement: '写一份三段的季度工作说明' },
+      },
+      (event) => events.push(event),
+    ).done;
+    expect(outcome.status).toBe('completed');
+    expect(events.some((e) => e.type === 'artifact_produced' && e.artifactType === 'generic.DraftDocument')).toBe(true);
+    expect(JSON.stringify(requests)).toContain('写一份三段的季度工作说明');
+    expect(JSON.stringify(requests)).toContain('startParams');
+  });
+
+  it('fieldId 越出该场景声明的 formFields id 集 → effect 前 fail-closed 拒（零 turn、零事件）', async () => {
+    const { command, requests } = harness({ packBinding: [], assistant: DRAFT_ARTIFACT });
+    const events: SessionEvent[] = [];
+    const outcome = await command.start(
+      {
+        commandId: 'd2', caseId: 'case-x', scenarioId: 'generic.draft',
+        materialRefs: ['mat-1'], modelRoute: MODEL_ROUTE,
+        startParams: { requirement: '正常值', smuggled: '越集字段' },
+      },
+      (event) => events.push(event),
+    ).done;
+    expect(outcome).toMatchObject({ status: 'rejected', reason: 'invalid_scope' });
+    expect(requests).toEqual([]);
+    expect(events).toEqual([]);
+  });
+
+  it('无 formFields 的场景收到任何提交值即越集拒（generic.batch 是无预检直启）', async () => {
+    const { command, requests } = harness({ packBinding: [], assistant: DRAFT_ARTIFACT });
+    const outcome = await command.start(
+      {
+        commandId: 'd3', caseId: 'case-x', scenarioId: 'generic.batch',
+        materialRefs: ['mat-1'], modelRoute: MODEL_ROUTE,
+        startParams: { requirement: '不该有的值' },
+      },
+      () => {},
+    ).done;
+    expect(outcome).toMatchObject({ status: 'rejected', reason: 'invalid_scope' });
+    expect(requests).toEqual([]);
+  });
+
+  it('缺省空对象：不带 startParams 的场景请求里零 startParams 键', async () => {
+    const { command, requests } = harness({
+      packBinding: [],
+      batchItems: [{ materialId: 'mat-1', summary: 'a', status: 'summarized' }, { materialId: 'mat-2', summary: 'b', status: 'summarized' }],
+    });
+    const outcome = await command.start(
+      { commandId: 'd4', caseId: 'case-x', scenarioId: 'generic.batch', materialRefs: ['mat-1', 'mat-2'], modelRoute: MODEL_ROUTE },
+      () => {},
+    ).done;
+    expect(outcome.status).toBe('completed');
+    expect(JSON.stringify(requests)).not.toContain('startParams');
   });
 });

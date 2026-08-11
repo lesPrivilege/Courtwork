@@ -174,12 +174,17 @@ export function buildIntakeRunInput(input: {
   scenario: ScenarioRuntime;
   materials: MaterialInput[];
   caseFile?: unknown;
+  /** 通用预检值槽（GENERIC-SCENARIOS-1 二批裁定一）：空对象不进请求。 */
+  startParams?: Readonly<Record<string, string>>;
 }): ScenarioRunInput {
   assertScenarioToolInputsComplete(input.scenario, {});
   return {
     inputArtifacts: input.caseFile !== undefined ? { 'legal.CaseFile': input.caseFile } : {},
     toolInputs: {},
     materials: input.materials,
+    ...(input.startParams !== undefined && Object.keys(input.startParams).length > 0
+      ? { startParams: input.startParams }
+      : {}),
   };
 }
 

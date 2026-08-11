@@ -67,14 +67,14 @@
 
 ---
 
-## 七 · 实现回执（实现会话 2026-08-11，分支 `claude/generic-scenarios-1`，基线 main@31533d3）
+## 八 · 实现回执（实现会话 2026-08-11，分支 `claude/generic-scenarios-1`，基线 main@31533d3）
 
 **总状态：部分交付。** 票面三件中「基线包成立」与「场景③ 多文件批处理」已全链闭合并带红证；
-「场景① 通用起草」的**包侧声明已落地**，但其起跑链卡在一处结构性缺口（见 §7.4 拍板项一），
+「场景① 通用起草」的**包侧声明已落地**，但其起跑链卡在一处结构性缺口（见 §8.4 拍板项一），
 未接入可启动闭集——故当期产品面上**不渲染 `generic.draft` 的场景按钮**（不留死钮）。
 顺带清偿两项（`DRAFT_OUTPUT_FILE`、draft 路径 `overwrite:true`）**未动**，随场景①一并转出。
 
-### 7.1 逐段红证（测试名 ＋ 红形）
+### 8.1 逐段红证（测试名 ＋ 红形）
 
 | # | 段 | 先红项 | 实测红形 |
 | --- | --- | --- | --- |
@@ -90,7 +90,7 @@
 漂移到非数组即整包拒载」两条反例上；desktop 侧的 `projectArtifactTable` 消费面因场景③产物已能
 真实落账而首次有真生产者。
 
-### 7.2 新增概念对账（票面登记三枚 ＋ 本单实增一枚）
+### 8.2 新增概念对账（票面登记三枚 ＋ 本单实增一枚）
 
 1. **`PackageAvailability` 第三枚 `baseline`** — 票面登记，已落 `composition/package-catalog.ts`。
 2. **`packages/generic` 包实体** — 票面登记，已落。
@@ -111,9 +111,9 @@
 
 零新依赖、零新步骤种类、零新 renderer 注册机制、零新持久化格式（与票面一致）。
 
-### 7.3 偏离清单
+### 8.3 偏离清单
 
-1. **场景① 未接入可启动闭集**（见 §7.4 拍板项一）。包侧声明（schema/scenario/launch/prompt 段）
+1. **场景① 未接入可启动闭集**（见 §8.4 拍板项一）。包侧声明（schema/scenario/launch/prompt 段）
    已随基线包落地并过准入与中性门；`generic.draft` 在**声明面**在册
    （`BASELINE_DECLARED_SCENARIO_IDS`），但被 `production-scenarios.ts` 的
    `LAUNCH_CHAIN_PENDING_SCENARIO_IDS` **显式排除**出当期可启动面——预检值送不到命令端口，
@@ -142,7 +142,7 @@
 7. **`LegalWorkCommandDeps` 新增三枚必填 dep**（`launchableScenarioIds` / `verticalScenarioIds` /
    `packageIdentities`）而非给缺省值：缺省会让装配缺陷静默通过。六处既有测试装配点随之补齐。
 
-### 7.4 `[需架构拍板]`
+### 8.4 `[需架构拍板]`（已由票面 §六 二批裁定定谳，执行对账见 §8.7）
 
 **一 · 预检值没有送达 production 命令端口的通用槽位（阻断场景①）。**
 `StartWorkCommand`（`apps/desktop/src/protocol/client.ts`）无 preflight slot；S3 的主体输入走的是
@@ -172,7 +172,7 @@
 （`起草文稿-<UTC YYYYMMDD-HHmmss-SSS>.docx`，复用已导出的 `formatUtcStamp`），与 draft 路径改
 atomic no-replace 同批——固定名 ＋ no-replace 会让第二次编译恒 `exists`，两项必须同批改。
 
-### 7.5 门数（本会话实跑）
+### 8.5 门数（本会话实跑）
 
 | 门 | 结果 |
 | --- | --- |
@@ -191,7 +191,7 @@ atomic no-replace 同批——固定名 ＋ no-replace 会让第二次编译恒 
 `verticals/legal/{work-command,legal-s3-binding,legal-work-surface}`、`work/work-runtime`），
 但**这不能替代实跑**——卸载态冒烟 e2e（票面五第三条）同样未写。验收会话须补跑并补票。
 
-### 7.6 续行入口
+### 8.6 续行入口
 
 1. 先定谳 §7.4 拍板项一（预检值槽位），再依次收口拍板项二、三；
 2. 场景① 起跑链接通后：`generic.draft` 进产品可达路径 → 「送入起草画布」动作 → 顺带清偿两项同批；
