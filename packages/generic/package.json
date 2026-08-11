@@ -1,0 +1,35 @@
+{
+  "name": "@courtwork/generic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package": {
+      "types": "./dist/package/index.d.ts",
+      "default": "./dist/package/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "default": "./dist/schemas/index.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run --root ../.. packages/generic/src",
+    "lint": "eslint .",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@courtwork/registry": "workspace:*",
+    "@courtwork/schemas": "workspace:*",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}
