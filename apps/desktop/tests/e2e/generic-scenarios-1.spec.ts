@@ -168,7 +168,7 @@ test('① generic.draft 全链：宿主起跑面 → 产出席位 → 送入起�
   await precheck.getByRole('button', { name: '开始起草' }).click();
 
   // 产出席位：产物到来即多一张页签（如实登记：活动面不自动跳过去，页签由用户选——
-  // 见 SPEC §10.3 的登记项）。段落逐条成行，标题由页签身份承载、不入列。
+  // 见 SPEC §10.5 的登记项）。段落逐条成行，标题由页签身份承载、不入列。
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });
   await expect(tabs.getByRole('tab', { name: '起草文稿' })).toBeVisible({ timeout: 15000 });
   await tabs.getByRole('tab', { name: '起草文稿' }).click();
