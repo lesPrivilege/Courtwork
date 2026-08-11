@@ -1,0 +1,60 @@
+# GENERIC-SCENARIOS-1 · 通用基线包与首批两场景
+
+状态：票面冻结（2026-08-11 架构会话），待实现。实现与验收须为不同会话；验收由 Codex 独立会话执行。
+
+权威：`docs/decisions/ADR-023-generic-baseline-package.md`（Accepted，本票开工依据）；ADR-015（成品律/零泄漏/激活真源）、ADR-016（填格协议与 launch 同族）、ADR-012 决定四（blueprint 分层）、ADR-014（tab＝schema 表）、ADR-009 决定二（步骤闭集）、ADR-004（文档与文件边界）。`docs/architecture/implementation-readiness.md:293` 的 2026-07 期素材行由本票面取代其排产效力，该行保留作历史真值。
+
+---
+
+## 一 · 票面范围
+
+三件，同一实现分支交付：
+
+1. **通用基线包成立**：`packages/generic`（npm `@courtwork/generic`，packageId `generic`），按 ADR-023 决定一至四接入——descriptor/bindings 双平面、`admitPackages` 数组加员、`PACKAGE_PRESENTATION` 加 `baseline` 条目、`PackageAvailability` 闭集扩员、`registriesForCase` 改并集语义、`assert-vertical-isolation.mjs` 正则扩员、场景词零命中断言扩覆基线 prompt 段与词表。
+2. **场景① 通用起草**（场景 id `generic.draft`）：用户经预检表单给出起草要求（`text` 字段，必填），模型回合产出 artifact `generic.DraftDocument`（形制 `{title: string; paragraphs: string[]}`，与 `compileDraftToDocx` 输入同构）；产物按 ADR-014 动态 tab 以只读结构化视图呈现，并提供「送入起草画布」显式动作——用户确认后进入可编辑工作稿，编译落盘走既有 `confirmDraftCompile` 确认流。
+3. **场景③ 多文件批处理**（场景 id `generic.batch`）：无表单直启（循 `LEGAL-FIVE-FACES-1` 无预检直启路由）；启动前由装配点现读该 matter 就绪材料列表，零就绪即显式 blocked 不起跑（预检闸精神的宿主判定，不动 ABI，见裁定 B1）；模型回合产出 artifact `generic.BatchReport`——单枚 artifact 携数组 payload，每项 `{materialId, summary, status}`，`materialId` 取值域为系统注入的就绪材料闭集（ADR-016 决定二同族，模型不选择地址）；系统确定性校验逐项完整性：每份就绪材料恰一行，缺行以显式 `missing` 状态落格，不伪造。渲染走 `courtwork.artifact-table.v1` ＋ `presentation.collectionPointer`。
+
+场景② md↔docx 可编辑往返**不在本票**，另立 `GENERIC-SCENARIOS-2`（见裁定 A2/A4）。
+
+### 顺带清偿（复杂度清偿，不扩票面）
+
+- `App.tsx` 内 `DRAFT_OUTPUT_FILE = '答辩意见.docx'` 硬编码：通用壳内垂类文案，随场景①改为版本化中性产物名（循 `CONTRACT-OUTPUT-TRUTH-1` persisted createdAt＋session hash 命名先例，或最小中性化——实现会话按改动面择一并留痕）。
+- `case-output-client.ts` draft 路径残留的 `overwrite: true`：改 atomic no-replace，与 production 落盘纪律对齐。
+
+## 二 · 架构裁定集（票面冻结时定谳）
+
+- **A1（通用包形制）**：见 ADR-023。乙读法成立：`baseline` 成熟度、恒在生效 registry、不占 `packBinding` 席位。
+- **A2（场景②与 ADR-004）**：往返只住工作稿轨，定稿 docx 不回转，上传原件只读；细则随 `GENERIC-SCENARIOS-2` 冻结，该票开工前置为 Word/WPS 真机核验会话（`packages/output/verification-checklist.md` 22 项现况 0 勾选，未核验不得宣称往返成立）。`remark-stringify`/`mdast-util-to-markdown` 提为显式直接依赖的结论随该票执行，本票不动依赖。
+- **A3（fan-out 形制）**：单 artifact 数组 payload＋`collectionPointer`＋逐项状态，步骤闭集不扩（ADR-023 决定六）。`collectionPointer` 此前零生产消费者、零 desktop 投影测试——本票是首个实操者，须自带投影测试与拒载反例。
+- **A4（拆票）**：①③＋基线包成立合为本票；②单独成票。依据：②卡外部真机核验与工作稿轨细则，①③的 OOXML 工作面与之不相交；排程律下拆票使本票不被外部阻塞拖住。
+- **A5（验收用例范围）**：Socmdia Slop kit 字面全流水不作当期验收判据——其 S0（网络采集）、S3（浏览器自动化取证）、S4（headless 渲染）三段所需能力在当期产品面内不可达（隔离等级 `none`、`web-fetch` 未接线、无浏览器自动化），显式登记不冒进；可编为声明式场景的 S1/S2/S5 形状作设计参照。验收语料**新造中性件**入 `packages/demo-data`（语料墙细则适用：外部 kit 实物零入仓，卷宗类实物同禁）。
+- **B1（预检元素集）**：launch 元素集（`select`｜`text`）当期不扩员；③的批处理范围为「该 matter 全部就绪材料」的声明式全集，不做用户多选；多选需求实证后另票扩 ABI。零就绪的显式 blocked 由装配点现读判定，属宿主逻辑非契约扩员。
+- **B2（凡例表所指）**：`docs/design/schema-exemplar.md` ＋ `courtwork.artifact-table.v1`。`generic.BatchReport` 即凡例的第二个消费者；`schema-exemplar.sources.json` 十枚封存哈希如被触碰须同批重封（改在册来源须同批重封哈希，判例在案）。
+- **B3（门禁覆盖）**：`assert-vertical-isolation.mjs` 正则 `(legal|pm)` 扩员为 `(legal|pm|generic)`；基线包 import 只许受信组合根、demo 与准入机器既有族。
+- **B4（工作面驱动）**：`App` 单数 `verticalWorkSurface` 形制维持；基线场景经同一 production work command 链接入可启动场景闭集（装配点声明，循 FIVE-FACES 闭集先例）。驱动内如遇 Legal 语义硬编码阻断基线场景，做最小中性化并逐处留痕；改动越出「最小中性化」即停手 `[需架构拍板]`，不得自行改 schema 语义或第二驱动通道。
+- **不变量二边界**：`generic.BatchReport` 为零锚点设计（summary 纯文本、无引语无坐标），不触发 citationBinding 义务；实现中若引语需求出现，停手上报，不得让模型出坐标。
+
+## 三 · OSS 成熟件复核结论（工程纪律条）
+
+本票**零新增依赖**。场景①复用自研 `compileDraftToDocx`（中性直出链已在册）；场景③零新领域机制。候选逐核结论（一手取证 2026-08-11，registry/源码证据见架构调研）：`remark-stringify`＋`mdast-util-to-markdown` **直接依赖**（结论转 `GENERIC-SCENARIOS-2` 执行）；mammoth **借行为**（诊断通道形状与命名空间判据；其 `w:ins`/`w:del` 静默策略与不变量四冲突，不直接依赖）；dolanmiu/docx **保留自研**（第二套 zip/XML 著录撞确定性 ZIP 与 OPC 签名阻断）；html-to-docx、turndown、remark-docx、docx-preview、pandoc **删除当期动作**（停更/体积/问题域不合/GPL 已拒不复议）。
+
+## 四 · 新增概念登记（复杂度节制条）
+
+1. `PackageAvailability` 第三枚 `baseline`——ADR-023 决定二已批，为何非加不可：通用场景必须住包（ADR-015 决定一），而绑定席位恒一使垂类同形接入自相矛盾；`baseline` 是唯一不破坏绑定语义的居所。
+2. `packages/generic` 包实体——验收律「只装通用包时产品是合格 work agent」的承载体。
+3. `BatchReport` 逐项完整性校验——系统裁决「每份就绪材料恰一行」，失败显式的机器形态；不加则批处理的「逐项报告与失败显式」退化为模型自证。
+
+此外零新概念：不新增步骤种类、不新增 renderer 注册机制、不新增持久化格式。
+
+## 五 · TDD 与验收要求
+
+- 先证红后实现：`baseline` 扩员前 `loadablePackages` 对第三枚成熟度的排除断言、零绑定 matter 场景条零条目的现状断言（翻转为基线场景在场）、`collectionPointer` 投影缺测试的补齐、`registriesForCase` 并集语义反例（垂类 fail-closed 判据零削弱——他包绑定仍拒）。
+- 逐项完整性校验须能注入反例触红（模型漏行→`missing` 显式；模型多行/编造 materialId→整面拒）。
+- 卸载态冒烟 e2e：零垂类绑定 matter 上起 `generic.draft` 与 `generic.batch` 全链（E2E 樁承载模型回合，循既有先例）；全程零垂类词表泄漏断言。
+- 完工门：`pnpm -r build`、`pnpm lint`、root 全量、desktop `--filter`、cargo、Playwright 完整链（独占端口＋`/private/tmp/courtwork-pw-lock` 原子锁；全仓同刻至多一条）、`site:guard`；floor 只升不降（现行 386）。
+- 语料墙：新造中性语料，外部 kit 与卷宗实物零入仓。
+- 实现会话在本 SPEC 追加实现回执（偏离、红证、门数）；验收由 Codex 独立会话在 clean worktree 执行并写 ACCEPTANCE，验收逐字复跑 SPEC 自查命令。
+
+## 六 · 禁区
+
+不触 pi lane 与 `src-tauri` pi 循环；不改 ADR-009 步骤闭集；不扩 launch 元素集；不动 legal/pm descriptor 语义；xlsx/pptx/定时触发/通道均不夹带；不做动态装载；不宣称 external-validated（模型回合由樁承载，真 key 面另账）。
