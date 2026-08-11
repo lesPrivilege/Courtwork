@@ -239,7 +239,10 @@ describe('production execution seam · 按 matter fail-closed', () => {
       availablePackageIds: runtime.packageIds,
       registriesFor: runtime.registriesFor,
     });
-    expect(resolve('case-x').scenarios.list()).toEqual([]);
+    // ADR-023 决定三：零绑定得到的是基线 registry；垂类授权面仍恒空（判据收窄为「零垂类场景」）。
+    const registries = resolve('case-x');
+    expect(registries.scenarios.list().every((scenario) => scenario.packageId === 'generic')).toBe(true);
+    expect(registries.scenarios.get('legal.S3')).toBeUndefined();
     // 每次调用都现读——绑定可变，缓存一份就等于把授权停在卸载之前的世界。
     resolve('case-x');
     expect(readCases).toHaveBeenCalledTimes(2);

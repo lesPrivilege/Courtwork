@@ -38,6 +38,9 @@ importers:
       '@courtwork/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@courtwork/generic':
+        specifier: workspace:*
+        version: link:../../packages/generic
       '@courtwork/legal':
         specifier: workspace:*
         version: link:../../packages/legal

@@ -67,7 +67,11 @@ describe('逐 matter registry 派生', () => {
     expect(legalOnly).toContain('legal.RiskList');
     expect(legalOnly.some((typeId) => typeId.startsWith('pm.'))).toBe(false);
 
-    expect(runtime.registriesFor([]).artifactSchemas.list()).toEqual([]);
+    // ADR-023 决定三：零绑定的生效 registry ＝ 基线 registry 本身。判据由「一枚也没有」收窄为
+    // 「一枚**垂类**也没有」——基线恒在不是垂类泄漏，它是产品本体。
+    const unbound = runtime.registriesFor([]).artifactSchemas.list();
+    expect(unbound.every((entry) => entry.packageId === 'generic')).toBe(true);
+    expect(unbound.some((entry) => entry.packageId === 'legal' || entry.packageId === 'pm')).toBe(false);
   });
 
   it('全局可用集与「绑定全部」同集——未声明态与今日行为逐字一致', () => {
