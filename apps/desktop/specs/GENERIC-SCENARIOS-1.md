@@ -197,3 +197,99 @@ atomic no-replace 同批——固定名 ＋ no-replace 会让第二次编译恒 
 2. 场景① 起跑链接通后：`generic.draft` 进产品可达路径 → 「送入起草画布」动作 → 顺带清偿两项同批；
 3. 补写卸载态冒烟 e2e（零垂类绑定 matter 上起 `generic.draft` 与 `generic.batch` 全链，E2E 樁承载
    模型回合，全程零垂类词表泄漏断言），跑 Playwright 完整链并把 floor 从 386 上抬。
+
+---
+
+## 九 · 二批裁定执行对账（同一实现会话续行段，2026-08-11）
+
+**总状态：裁定一、二已全链落地；裁定三落地过半。** 场景①现已可在零垂类绑定 matter 上起跑并
+产出 `generic.DraftDocument`；顺带清偿两项已交付。**未完成**：「送入起草画布」显式动作、
+卸载态冒烟 e2e、Playwright 完整链实跑。
+
+### 9.1 裁定一 · 预检值通道 `startParams`
+
+落地面：`packages/core` 的 `ScenarioRunInput.startParams` → task 段结构化输入随 `taskInstruction`
+注入；`apps/desktop` 的 `StartWorkCommand.startParams?`（进程内 callback 契约，不进 case store /
+journal / 持久信封）；`normalizeStartPayload` 冻结快照并进 first-wins 键。
+
+三条语义边界逐条对账：
+
+| 裁定原文 | 落地形态 | 红证 |
+| --- | --- | --- |
+| executor 作为 task 段结构化输入随 `taskInstruction` 注入 | `generateArtifact` 的 `task` 对象加键；**空/缺省不进请求** | 「提交值随 task 段进请求」red=`expected 'rejected' to be 'completed'`；「缺省空对象…零 startParams 键」 |
+| fieldId 集须为该场景 `formFields` id 集的子集，越集在 effect 前 fail-closed 拒 | `beginStart` 内、matter 授权之后、`isConfigured`/`case_busy` 之前判定 | 「fieldId 越出…」red 前为 false-green（当时 `generic.draft` 尚被排除），落地后同时断言零 turn、零事件；「无 formFields 的场景收到任何提交值即越集拒」red=`expected {status:'failed'} to match {status:'rejected'}` |
+| S3 `startWithPreflight` 当期保留不迁；不得出现第三条预检值路径 | `startWithPreflight` 逐字保留并显式传 `startParams: {}`；通用 `start` 是新场景唯一入口 | 判据落在类型上：`StartPayload.startParams` 必填，两处入口各自显式给值 |
+
+**「空对象不进请求」的取舍留痕**：裁定写「缺省空对象」。实现取「缺省即不出现该键」而非「恒出现
+空对象」，两条理由：①不给模型一个恒空的字段去解读；②既有五枚场景的请求字节零变化，
+assembled request 的确定性判据不因本票漂移。判据由「缺省空对象…零 startParams 键」用例把守。
+
+### 9.2 裁定二 · 预检承载面
+
+`resolveSceneLaunchRoute`（`workbench/scene-strip.tsx`）把起跑路由定成三态闭集纯函数：
+`start`（无表单直启）｜`renderer`（有表单且目标 blueprint 自声明 `handlesEmpty`——当期唯一是
+S3 修订预览面）｜`host-form`（有表单但没有面收留 → 宿主通用容器）。判据取 blueprint **既有**的
+`handlesEmpty` 声明，不新立第二处开关：产物到来前那一格是不是场景起跑面，本来就由它说了算。
+
+承载件住 `workbench/scene-precheck-host.tsx`：零垂类语义（标题/说明/字段文案全部取自 registry
+冻结的 `launch`；`select` 选项按声明的 `source`/`mediaType` 做领域无关材料查询），产出席位维持
+既有显式指引空态。S3 自渲路径当期不迁，同挂过手即拆。
+
+**零就绪材料的显式 blocked**（票面 B1）判据随之收窄为「这枚场景还有没有别的任务来源」：携预检
+提交值者（用户已显式给出任务定义）可在空工作区起跑；无提交值者其工作**就是**定义在材料上的，
+零材料即拒。该判据对现行五枚场景逐一成立（S1/S2/generic.batch 拒、generic.draft 放、S3 走
+preflight 另一路径）。
+
+### 9.3 裁定三 · 场景①与顺带清偿
+
+- **临时排除已解除**：`BASELINE_SCENARIO_IDS` 与声明面逐字相等，反向红证在
+  `baseline-scenario-run.test.ts` >「基线声明面两枚，当期可启动面同为两枚」
+  （red=`expected ['generic.batch'] to deeply equal ['generic.draft','generic.batch']`）。
+- **顺带清偿两项已交付**，且二者互为前提：
+  - `DRAFT_OUTPUT_FILE` 由垂类文案 `答辩意见.docx` 改中性 `起草文稿.docx`。**取「最小中性化」
+    而非版本化命名**（票面给了二选一）：版本化名会让 `caseOutputClient.exists` 的挂载期存在性
+    探测失去可问的对象（同 `contract-review-file-name` 的 grant 路径注释「固定名只对样板案
+    提问」），而起草画布的**定稿冻结**正是靠那次探测跨重启成立——为一次中性化牺牲冻结的
+    持久性不划算。
+  - draft 路径 `overwrite: true` 退役，改既有 `writeDocxNoReplace`。固定名 ＋ no-replace 自洽：
+    编译成功即画布冻结转只读，产品路径上第二次编译不可达；真出现同名文件（用户在访达手放
+    一份）时 no-replace **显式**报出，而不是把用户的文件悄悄盖掉。
+- **未完成**：`generic.DraftDocument` 产物 tab 上的「送入起草画布」显式动作。当前产物以只读
+  结构化视图呈现（`courtwork.artifact-table.v1`，段落逐条成行），但把它送进可编辑工作稿的那枚
+  动作尚未接线，故 `compileDraftToCaseOutput` 当期仍只被 Legal 起草画布消费。续行只需在产出席位
+  的 `generic.DraftDocument` 面上加一枚动作，把 `{title, paragraphs}` 写进 `draft` 状态。
+
+### 9.4 「过手即拆」外提对账（App.tsx 高水位 2245 → 2229，只降不升）
+
+本票触碰 App.tsx，故按纪律外提两件，净增由外提抵消有余：
+
+1. **宿主通用起跑面**（预检承载 JSX ＋ 选项解析 ＋ 起跑三态路由接线）→
+   `src/workbench/scene-precheck-host.tsx`；
+2. **起草画布编译落盘与案件产出目录存在性**（`confirmDraftCompile` 的 async 体 ＋ 整块
+   `useEffect` 存在性探测与两枚状态）→ `src/output/draft-compile.ts` ＋
+   `src/output/use-case-output-existence.ts`。语义逐字不变（固定名提问、demo 专属合同产物名、
+   focus 重问、请求版本号 ＋ cancelled 双闸）。
+
+门禁常量已下调至 2229 并在 `scripts/assert-app-highwater.mjs` 内留痕。
+
+### 9.5 续行段门数（本会话实跑）
+
+| 门 | 结果 |
+| --- | --- |
+| `pnpm -r build` | 绿 |
+| `pnpm lint` | 绿 |
+| desktop `--filter` | **870/870 绿**（本票起点 847 → +23） |
+| 零泄漏静态门 | 绿（受检 220 份） |
+| App.tsx 高水位 | 绿（2229/2229，已下调） |
+| root `pnpm test` | 上一段末轮 **2191/2191 绿**；本段新增用例只落 desktop 面，root 面未再跑 |
+| `cargo test` | 上一段 **250/250 绿**；本段零 Rust 改动，未再跑 |
+| Playwright 完整链 | **仍未跑**，floor 386 仍未复核 |
+
+### 9.6 续行入口（剩余三件）
+
+1. `generic.DraftDocument` 产出面加「送入起草画布」显式动作 → 写入 `draft` 状态 → 既有
+   `confirmDraftCompile` 确认流落盘（落盘链本身已就绪）；
+2. 卸载态冒烟 e2e：零垂类绑定 matter 上起 `generic.draft`（经宿主通用起跑面填「起草要求」）
+   与 `generic.batch` 全链，E2E 樁承载模型回合，全程零垂类词表泄漏断言；
+3. Playwright 完整链实跑（独占端口 ＋ `/private/tmp/courtwork-pw-lock` 原子锁、前台阻塞等完整
+   退出码），floor 由 386 上抬。
