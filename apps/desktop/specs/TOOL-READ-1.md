@@ -1,6 +1,6 @@
 # TOOL-READ-1 · Work 场景回合的受控只读工具请求通道
 
-状态：票面冻结（2026-08-11 架构会话），待实现。**派单前置：`GENERIC-SCENARIOS-1` 清账释放 App 槽**（本票触 `App.tsx`＝视 trace 呈现落点而定，按互斥模型排队）。实现与验收须为不同会话；验收由 Codex 独立会话执行。
+状态：票面冻结（2026-08-11 架构会话），**派单前置已解除**——`GENERIC-SCENARIOS-1` 已清账（合入 `9eef484`），App 槽释放，本票为队列首位；触 `App.tsx`＝是（裁定十，demo 分支约 10–20 行）。实现与验收须为不同会话；验收由 Codex 独立会话执行。
 
 权威：ADR-011 修订二（2026-07-20，`request_tool` 扩集条款——扩集四条件、红证要求、四知文本 golden 同步；契约真源在彼，本票不复述）；ADR-009 决定二（步骤闭集不扩）；ADR-016 决定二（地址闭集机制）；ADR-017 决定八（reading 走既有工具契约，不套三段式）；就绪图 `TOOL-READ-1` 行为素材。
 
@@ -10,7 +10,7 @@
 
 **通道**（循 ADR-011 修订二逐条）：场景线 model 步回合可经结构化输出携带 `request_tool` 意图——本 turn 终结，系统解析意图，落既有 `deterministic_tool` 步执行（`sideEffect` 门强制 `pure_read`），结果回喂下一 turn。**回合内不循环**：不给 `runTurn` 加多请求流，provider 层零 tools 字段（其类型注释的显式判断维持）；`request_tool` 是 turn 间模式，与 interaction/confirmation 同族。
 
-**裁定一 · toolResult 居所＝Work EventLog 账本条目族，Turn journal 两族闭集不扩**。Turn journal（`PersistedTurn | InteractionEvent`）不新增第三条目族；工具请求、执行与结果按既有 `deterministic_tool` 账本形状（executor 现行 `deps.ledger` 链）落 Work 侧 `SessionEvent` 账本，补「模型请求发起」的来源标记；结果内容经 `assembleScenarioRequest` 语料段缝以折叠文本喂下一 turn。既有账本 schema 扩员按 additive-default 键不升版先例办（`LEGAL-ANCHOR-BINDING-1` 裁定在案）；超出 additive 形态即停手 `[需架构拍板]`。
+**裁定一 · toolResult 居所＝Work EventLog 账本条目族，Turn journal 两族闭集不扩**。Turn journal（`PersistedTurn | InteractionEvent`）不新增第三条目族；工具请求、执行与结果按既有 `deterministic_tool` 账本形状（executor 现行 `deps.ledger` 链）落 Work 侧 `SessionEvent` 账本，补「模型请求发起」的来源标记；结果内容经 `assembleScenarioRequest` 语料段缝以折叠文本喂下一 turn。既有账本扩员的先例援引**以裁定七为准**（本句原指的 `LEGAL-ANCHOR-BINDING-1` additive-default 先例经侦察证为不同类，已废止援引，勿再据以开工）。
 
 **裁定二 · 白名单声明形制**：场景 descriptor 新增可选键 `requestableToolIds: string[]`（比照 `toolIds`，registry 准入校验：引用必解析、仅 `pure_read`、去重）；每次 model 步请求前系统按该清单当次注入 `z.literal` 闭集，闭集外取值是普通不可信文本，校验层拒收。模型不可发现清单外工具（prompt 不列、schema 不收）。
 
@@ -33,10 +33,28 @@
 ## 三 · 工序与门
 
 - TDD 先红；分批提交；只做票面。`resolveForProvider`/`MaterialStore`/`ScenarioRuntime` 既有链复用，不造第二读取路径。
-- 新增概念登记（复杂度节制）：预期两枚——`requestableToolIds` 声明键（为何非加不可：ADR-011 修订二条件 1 的静态声明面）与轮次上界判据；多于两枚须逐枚说明。
+- 新增概念登记（复杂度节制）：预期**四枚**——`requestableToolIds` 声明键（ADR-011 修订二条件 1 的静态声明面）、轮次上界判据（裁定四）、`SessionEvent` 工具结果成员（裁定七）、单枚结果字节上界与截断标记（裁定九）。两处读侧穷举收口（裁定七）**不计新概念**——它消灭分支而非新增。多于四枚须逐枚说明「为何非加不可」。
 - 完工门：`pnpm -r build`、`pnpm lint`、root、desktop `--filter`、cargo（应零涉、跑通即证）、Playwright 完整链（届时按排程律与锁规程）、`site:guard`；floor 只升。
 - 禁区：不触 pi lane；不改 provider `GenerationRequest`/流归一（零 tools 字段）；不扩 Turn journal 条目族；不触 chat 自由回合（chat 面工具化属 ADR-016 决定四空位，另票）；不动 legal/pm 场景声明。
 
-## 四 · 待实现侦察项（开工首日完成，回执登记）
+## 四 · 侦察定谳（2026-08-11 架构会话预跑，三项已闭；实现会话直接消费，不必重跑）
 
-现行 `SessionEvent`/ledger 工具条目精确形状与 JSON Schema 落点；`assembleScenarioRequest` 语料段回喂的具体拼装位（含 token 预算影响）；trace 组件族落点是否可避开 `App.tsx`。三项侦察结论写入本 SPEC 回执后再动手，形状超出裁定一 additive 边界即停手上报。
+侦察结论与由此产生的四项补充裁定如下。原「开工首日侦察」义务随之解除。
+
+**侦察事实**：①`SessionEvent`（`packages/core/src/events/types.ts`）是纯 TS 判别联合，九枚分支，**无 zod schema、无运行时校验、无 JSON Schema、无版本号**，JSONL 持久只做类型断言；工具相关**只有失败态** `step_failed{scope:'tool'}`，成功态零条目——`runTools` 的成功分支只写内存 `EvidenceLedger` 的等级累加，工具结果原文从未进账本。②工具结果经 `context.toolResults` 进 `taskInstruction`，而该值在 `runScenario` 只赋一次、**贯穿整条 `produceSequence` 反复注入**；`assemble.ts`/`segments.ts` 全篇**无长度上限、无截断**，`RuntimeGuard` 四件套只管步数/秒数/工具调用数/金额，且金额是调用后事后估算。③trace 链 `SessionEvent→projectSession→SessionProjection→processTraceFromWorkProjection→ProcessTrace`，`App.tsx:1657` 以 `{...session}` 展开传参故新字段自动透传；但逐事件卡片列表内联在 `App.tsx` 的 demo 分支内，非 demo 分支根本没有逐事件 trace 列表。④知交互行现原文未列 `request_tool`，字节级 golden 在 `packages/core/src/assembly/__golden__/assembled-request.golden.txt`，由 `assemble.test.ts` 的 golden 用例把守，`COURTWORK_UPDATE_GOLDEN=1` 重铸。
+
+**裁定七 · 扩员循裁定A，且读侧通配须同批闭口**。toolResult 落账是给闭集**加新成员**，不是给既有 object 补默认键——故先例不是 `outOfCoverage`（additive-default 不升版），而是 pi journal **裁定A**（扩员成立、旧档续 valid、**读侧闭集非通配**）。第三项条件现被两处读侧结构性违反：`replaySession` 的 if/else 链无 else、`projectSession` 的 `default: return base`，未识别条目静默跳过——正是 `PI-HOST-LOOP-1` 定谳的「unknown→跳过」病根在 Work 账本面的同族形态。故：**扩员成立，但同批闭口两处读侧**，形状取「编译期穷举 + 运行期显式登记」两层：
+
+- 编译期：两处读侧改穷举（`const _exhaustive: never = event` 或等价），`SessionEvent` 加员即编译失败——结构性杜绝缺口再生（循 `PI-READ-TOOLCALL-1` 的 `closed_enum!`＋穷举 match 先例）。
+- 运行期：真正未识别的 type（外来/损坏行）**不得静默返回原状态**，须落显式「未识别账本条目」登记并可在 trace 面看见；**不取整份 fail-closed**——该通道现无任何运行时校验，硬失败会把既有档一次性变成不可读，与「旧档续 valid」相悖。
+- 红证：新增 `SessionEvent` 成员而漏改任一读侧 → 编译失败（先证）；注入一枚未识别 type 的记录 → 显式登记在场（撤登记即静默跳过，复红）。
+
+闭口是本裁定援引裁定A 的**前提**，不是范围外的顺带清偿；不闭口则工具证据自落地第一天就住在一条会静默丢弃自己的通道里（触不变量四）。
+
+**裁定八 · 回喂复用既有 `toolResults` 通道，不新增短生命周期载体**。模型请求所得结果与场景声明期工具结果同属**会话作用域事实**，合并进 `context.toolResults` 即可（改动落 `executor.ts` 的 task 对象拼装点，`assemble.ts`/`segments.ts` 零改）。不为「只喂下一 turn」另造状态槽——那是新概念且无需求实证；后续 artifact 看见前序工具结果是正确语义，不是泄漏。
+
+**裁定九 · 回喂须带显式字节上界**。现行链路零截断，而 `material-read` 可拉入整份材料正文、轮次上界 3、且结果贯穿后续每一次请求——无界会让 prompt 随轮次线性膨胀。定：**单枚工具结果上界 20000 字符**（系统常量，非 descriptor 可调项），超限尾部截断并附系统标记，标记同时进账本条目与 trace 呈现，**不静默截断**。红证：超限用例见截断标记；撤标记即复红。
+
+**裁定十 · trace 取结构化呈现**。复用既有 `ToolCallRow`/`TurnCard` 原语，改动落投影层 ＋ `App.tsx` demo 分支约 10–20 行，不新造组件（`App.tsx` 槽已随 `GENERIC-SCENARIOS-1` 清账释放，本票即队列首位）。不取「折成文本塞进 `progress: string[]`」的极简方案——工具结果是进过 prompt 的证据面，折成通用文本行会丢结构与来源标记，与裁定六「界面事件面就是账本本身」相悖。非 demo 分支无逐事件 trace 列表属既有缺口，裁定五已把消费者边界圈在 demo/acceptance，不在本票扩。
+
+**golden 环节**：`CONTRACT_SEGMENT_BODY` 知交互行扩 `request_tool` 后，先跑一次红（未重铸即 DIFF 失败），再 `COURTWORK_UPDATE_GOLDEN=1` 重铸 `assembled-request.golden.txt` 显式过账。
