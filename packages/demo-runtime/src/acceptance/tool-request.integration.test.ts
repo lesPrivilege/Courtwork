@@ -5,11 +5,11 @@
  * 脚本 provider 只提供「模型这一轮说了什么」，其余每一环都是生产件。
  */
 import { describe, expect, it } from 'vitest';
-import * as z from 'zod';
 import {
   admitPackages,
   buildPackageRegistries,
   PackageScenarioSchema,
+  PromptSegmentSchema,
   type VerticalPackageManifest,
 } from '@courtwork/registry';
 import { createToolExecutor } from '@courtwork/tools';
@@ -28,7 +28,11 @@ import { createScriptedProvider } from '@courtwork/provider/scripted';
 import type { GenerationResponse } from '@courtwork/provider/types';
 import { buildRequestableToolRegistry, loadDemoS3Materials } from '../composition/demo-assembly.js';
 
-const NOTE_SCHEMA = z.object({ summary: z.string().min(1) }).strict();
+// R2 架构裁定四：不复用/新增 zod 直接依赖——复用 demo-runtime 已有直接依赖 @courtwork/registry
+// 导出的 PromptSegmentSchema（registry 提供真实 ZodType 身份），只挑出同名 summary 字段。
+const NOTE_SCHEMA = PromptSegmentSchema
+  .extend({ summary: PromptSegmentSchema.shape.body })
+  .pick({ summary: true });
 const STEP_ID = 'produce-toolstake.ToolNote';
 
 /** 樁包：只为消费本通道而存在，随 demo/acceptance 族走，不进任何生产垂类包。 */
@@ -59,7 +63,7 @@ function stakePackage(): VerticalPackageManifest {
     promptSegments: [{ id: 'toolstake.body', body: '先看清单，再读需要的那一件，然后交货。' }],
     renderers: [{ uiTemplateId: 'toolstake.panel', kind: 'workspace', title: '樁面板' }],
     vocabulary: { 'container.noun': '工作区', 'stage.noun': '阶段', 'material.noun': '资料' },
-    bindings: { schemas: new Map<string, z.ZodType>([['toolstake.ToolNote', NOTE_SCHEMA]]) },
+    bindings: { schemas: new Map([['toolstake.ToolNote', NOTE_SCHEMA]]) },
   } as unknown as VerticalPackageManifest;
 }
 
