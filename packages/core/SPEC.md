@@ -2,7 +2,7 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
-## TOOL-READ-1 · 受控只读工具请求通道（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+## TOOL-READ-1 · 受控只读工具请求通道（2026-08-11/13，已独立验收放行）
 
 权威：`apps/desktop/specs/TOOL-READ-1.md`（票面唯一真值）＋ ADR-011 修订二（`request_tool` 扩集四条件与红证要求）。本层承担通道、账本扩员与字节上界；白名单声明键住 `packages/registry`，工具本体住 `packages/tools`，trace 呈现住 `apps/desktop`。
 
@@ -21,6 +21,8 @@
 ### OSS 四选一（R1-3，本票统一裁定）
 
 **借行为或源码范式，零新增直接依赖**：借 pi/opencode 已验证的显式 tool-result 配对、截断内联告知模型、fail-closed 权限形态；`z.literal` 请求闭集、`SessionEvent`、runtime guard 与 EventLog 继续为本仓唯一真源。
+
+验收坐标：R2 目标 `b5a8302`，独立 PASS `332e0f5`；首轮 `c04be88` 与 R1 `ac20b209` 两份 REJECT 报告均在同一追加型验收账本保全。
 
 ## AUDIT-SEAL-3 · ToolRegistry 自声明信任边界（实现完成，待独立验收）
 

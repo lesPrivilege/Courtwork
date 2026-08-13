@@ -1,6 +1,6 @@
 # 当前基线
 
-更新时间：随清账滚动（以提交史为准；本轮至 2026-08-07）
+更新时间：随清账滚动（以提交史为准；本轮至 2026-08-13）
 
 文档重整输入基线：`f03e742`
 
@@ -57,6 +57,7 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 
 ## Demo / fixture 集成
 
+- `TOOL-READ-1` 已清账：Work 场景获得声明式 `requestableToolIds`、当次 `z.literal` 请求闭集、仅 `pure_read` 的准入/运行时双判、最多三轮请求、`model_tool_result` EventLog/trace 投影与 UTF-8 总包 20,000 bytes 显式截断；两枚领域无关工具 `dossier-list`/`material-read` 在 demo/acceptance 真链通过。实现目标 `b5a8302`，独立验收 PASS `332e0f5`，首轮/R1 两份 REJECT 原样保全，no-ff 合入 `8d6f3b9`。**成立边界仍只到通用内核＋demo/acceptance 消费面**：production generic/legal 场景未声明 `requestableToolIds`，desktop MaterialStore 生产 adapter 未接，不得宣称生产 Work 已可由模型读卷宗。
 - demo-runtime 已穿越样板材料、Legal artifacts、引用、gate、revision 与 output bundle，只证明包间契约和确定性 fixture 自洽。
 - Work UI 的 recording、paced replay、demo gate、demo party adapter 与 demo 原文仍只属于
   fixture/demo mode；非 demo grant 案另有真实 production 路径并已在第六轮试点到达 docx。

@@ -2,7 +2,7 @@
 
 状态：已完成
 
-## TOOL-READ-1 · 两枚可请求只读工具（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+## TOOL-READ-1 · 两枚可请求只读工具（2026-08-11/13，已独立验收放行）
 
 权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定三＋ ADR-017 决定八（reading 走既有 `ToolDefinition`/`ToolEnvelope` 契约，不套三段式）。
 
@@ -20,6 +20,8 @@
 ### OSS 四选一（R1-3，本票统一裁定）
 
 **借行为或源码范式，零新增直接依赖**：显式 tool-result 配对与截断告知形态借自 pi/opencode 一手源码；工具契约、`sideEffect` 门与复验链继续自持。
+
+验收坐标：R2 目标 `b5a8302`，独立 PASS `332e0f5`；放行范围仅为两枚领域无关 `pure_read` 工具及 demo/acceptance 装配，不代表 production 场景已接线。
 
 ## AUDIT-SEAL-3 · 工具契约去垂类语义（实现完成，待独立验收）
 

@@ -2,7 +2,7 @@
 
 状态：`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行。
 
-## TOOL-READ-1 · demo/acceptance 消费面（2026-08-11/13，实现留痕；R2 返修完成，待新的独立 Luna 验收）
+## TOOL-READ-1 · demo/acceptance 消费面（2026-08-11/13，R2 已独立验收放行）
 
 权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定五（消费者边界圈在 demo/acceptance 族）＋ R1 独立 REJECT `ac20b209` 后的五条架构裁定。R1 验收唯一决定性阻断＝本包新增直接 devDependency `zod`；R2 已撤除并立永久回归守卫。
 
@@ -20,6 +20,8 @@ demo/acceptance 樁只在 demo 双向隔离内消费通道；production generic/
 ### OSS 四选一（R1-3，本票统一裁定；R2 恢复为真实兑现）
 
 **借行为或源码范式，零新增直接依赖**：显式 tool-result 配对与内联截断告知借自 pi/opencode；demo 装配、schema 复用与 golden 继续自持。R1 曾以直接 devDependency zod 违背本条，已由 R2 撤除。
+
+独立验收闭环：首轮 REJECT `c04be88`、R1 REJECT `ac20b209`、R2 PASS `332e0f5` 依次保全；最终目标 `b5a8302`。R2 独立确认 manifest/source 两面 direct-zod mutation 分别触红，正式树零直接 zod 依赖。
 
 ## AUDIT-SEAL-3 · Legal 绑定投影同步（实现完成，待独立验收）
 

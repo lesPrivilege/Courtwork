@@ -220,7 +220,7 @@ R1 独立复验（报告提交 `ac20b209`，目标 `9c5e476`）结论 **REJECT**
 本提交   docs(spec)：R2 回执与精确既有提交链
 ```
 
-状态：**R2 返修完成，待新的独立 Luna clean-clone 验收**。`current.md`/`implementation-readiness` 不动，只有独立 PASS 后由架构会话更新。
+状态：**R2 已由新的独立 Luna clean-clone 验收 PASS**。最终实现目标 `b5a8302597c07574fc970a7415a158d692c0dd91`；首轮 REJECT `c04be88`、R1 REJECT `ac20b209` 与 R2 PASS `332e0f5` 均在追加型 `apps/desktop/ACCEPTANCE.md` 原样保全。实现与验收链由 no-ff 清账合入 `8d6f3b9`；production generic/legal 场景声明与 MaterialStore adapter 仍属后续各自票面，本票不外推。
 
 ### 7.5 R2 全量门实测（tip `37a34ce`，无并发）
 

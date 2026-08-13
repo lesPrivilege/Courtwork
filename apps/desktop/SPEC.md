@@ -4,7 +4,7 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
-## TOOL-READ-1 · Work 回合受控只读工具请求通道（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+## TOOL-READ-1 · Work 回合受控只读工具请求通道（2026-08-11/13，已独立验收放行）
 
 权威：`specs/TOOL-READ-1.md`（票面唯一真值）＋ `docs/decisions/ADR-011-minimal-harness-kernel.md` 修订二。desktop 只承担**消费者边界内**的三块：demo trace 结构化呈现、三道门读取面迁移、e2e 适配。通道本体、白名单、上界与账本扩员住 `packages/core`，两枚只读工具住 `packages/tools`。
 
@@ -22,6 +22,8 @@
 ### OSS 四选一（R1-3，本票统一裁定）
 
 **借行为或源码范式，零新增直接依赖**：借 pi/opencode 一手源码已验证的三条形态——显式 tool-result 配对、截断必须内联告知模型、权限/闭集 fail-closed。不接上游 runtime、session 格式、permission 默认或状态机；本仓 `z.literal` 请求闭集、`SessionEvent`、runtime guard、MaterialStore 复验、EventLog 与 trace 投影继续自持。
+
+独立验收闭环：首轮 REJECT `c04be88`、R1 REJECT `ac20b209` 均原样保全；R2 目标 `b5a8302` 由全新 clean clone 验收 PASS `332e0f5`。唯一观察为在册 `E2E-FLAKY-HOVER-1`，不归责本票；生产 generic/legal 场景仍未声明 `requestableToolIds`，不得把本节外推为 production 已启用。
 
 ## CHAT-MD-TABLE-2 · chat 表格体未成表：整表全有或全无（实现完成，待独立验收）
 
