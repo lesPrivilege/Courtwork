@@ -53,7 +53,7 @@
 
 **裁定八 · 回喂复用既有 `toolResults` 通道，不新增短生命周期载体**。模型请求所得结果与场景声明期工具结果同属**会话作用域事实**，合并进 `context.toolResults` 即可（改动落 `executor.ts` 的 task 对象拼装点，`assemble.ts`/`segments.ts` 零改）。不为「只喂下一 turn」另造状态槽——那是新概念且无需求实证；后续 artifact 看见前序工具结果是正确语义，不是泄漏。
 
-**裁定九 · 回喂须带显式字节上界**。现行链路零截断，而 `material-read` 可拉入整份材料正文、轮次上界 3、且结果贯穿后续每一次请求——无界会让 prompt 随轮次线性膨胀。定：**单枚工具结果上界 20000 字符**（系统常量，非 descriptor 可调项），超限尾部截断并附系统标记，标记同时进账本条目与 trace 呈现，**不静默截断**。红证：超限用例见截断标记；撤标记即复红。
+**裁定九 · 回喂须带显式字节上界**。现行链路零截断，而 `material-read` 可拉入整份材料正文、轮次上界 3、且结果贯穿后续每一次请求——无界会让 prompt 随轮次线性膨胀。定：**单枚工具结果上界 20000 UTF-8 字节**（系统常量，非 descriptor 可调项），超限尾部截断并附系统标记，标记同时进账本条目与 trace 呈现，**不静默截断**。原「字符」口径已由 §五 R1-2 定谳作废，本票内外一律只认 BYTES 口径。红证：超限用例见截断标记；撤标记即复红。
 
 **裁定十 · trace 取结构化呈现**。复用既有 `ToolCallRow`/`TurnCard` 原语，改动落投影层 ＋ `App.tsx` demo 分支约 10–20 行，不新造组件（`App.tsx` 槽已随 `GENERIC-SCENARIOS-1` 清账释放，本票即队列首位）。不取「折成文本塞进 `progress: string[]`」的极简方案——工具结果是进过 prompt 的证据面，折成通用文本行会丢结构与来源标记，与裁定六「界面事件面就是账本本身」相悖。非 demo 分支无逐事件 trace 列表属既有缺口，裁定五已把消费者边界圈在 demo/acceptance，不在本票扩。
 
@@ -95,3 +95,99 @@
 实现会话须在本票补“实施回执”：精确提交链、逐段 born-red、四枚新增概念的最终落点、两处读侧闭口、golden 重铸、门数与所有偏离；同时在 `packages/core`、`packages/tools`、`packages/registry`、`packages/demo-runtime`、`apps/desktop` 各层 SPEC 只写本层新增公开契约/模块职责与消费边界。新生产模块 `DemoTurnStream`、`tool-request`、`unknown-tool-error`、`dossier-read` 产生当刻未入册的偏差随 R1 前进式补齐，不改写历史。
 
 R1 禁止扩张：不接 production generic/legal 场景，不改 provider/Turn journal/chat/pi，不新增依赖，不重做主体通道。R1 完成后必须由**新的独立 Luna clean clone**复验；首轮 REJECT 报告保留，不覆盖。
+
+## 六 · R1 实现回执（2026-08-13，实现者 Motto）
+
+### 6.1 精确提交链
+
+分支 `claude/tool-read-1`（隔离 worktree 施工；基线 `main@80f0d15`）：
+
+```text
+80f0d15 基线（main；侦察定谳与补充裁定）
+9b10939 裁定七：SessionEvent 扩员 model_tool_result，两处读侧同批闭口
+f1fa33e 裁定二＋红证一/三/五：requestableToolIds 白名单、request_tool 闭集信封、四知文本（第一份 golden 重铸）
+7df426f 裁定四/八/九：executor 的 turn 间工具请求通道、轮次上界、回喂与字节上界
+247d8a4 裁定三/五/六/十：两枚只读工具、demo/acceptance 樁与 trace 结构化呈现
+e644afd 门修：核心 browser-safe 边界回退、第二份 golden 重铸、App.tsx 过手即拆（首轮验收目标）
+5b6f77c cherry-pick a9aa6cd（R1 返修裁定，只改本票 SPEC）
+<本票返修> test/feat：UTF-8 字节上界与三道门同步（本节所记）
+<本票返修> docs(spec)：各层留痕与实现回执
+```
+
+### 6.2 R1-2 born-red 与 mutation 原始结果
+
+**born-red**（先写测试、实跑于 `string.length` 旧口径实现；原始输出见会话日志）：
+
+```text
+packages/core/src/scenario-executor/tool-request.test.ts (17 tests | 3 failed)
+  × CJK：多字节内容越界必须截——UTF-16 长度口径在此假绿
+  × emoji：不得从 surrogate pair 中间截断，输出不含 U+FFFD 或孤立 surrogate
+  × 截断后「保留正文 + 标记」的 UTF-8 总字节数仍 ≤ 上界（标记自身计入上界）
+packages/core/src/scenario-executor/tool-request-loop.test.ts (12 tests | 1 failed)
+  × 超上界尾部截断并附系统标记，标记同时进账本条目
+      AssertionError: expected 20083 to be less than or equal to 20000
+Test Files  2 failed | 34 passed (36)   Tests  4 failed | 408 passed (412)
+```
+
+旧口径三处假绿坐实：CJK 7000 字（≈21000 UTF-8 bytes）不截、emoji 5000 枚（≈20000 bytes＋信封开销）不截、ASCII 截断后「正文＋标记」20083 bytes 越界。修复后同套件 **412/412** 全绿。
+
+**mutation 红证**（全部恢复后 `diff` 与原稿逐字节一致，树内无残留）：
+
+| 变异 | 红形 |
+|---|---|
+| `toolIdSchema` 放宽为 `z.string()` | 4 failed / 408 passed：assemble 两枚（闭集外 toolId 被消费即拒收、toJSONSchema 闭集写进 prompt）＋tool-request 两枚（闭集内收外拒、单枚白名单也是闭集） |
+| 撤除截断标记拼接 | 4 failed / 408 passed：ASCII 越界、CJK、总字节、loop 标记同时进账本 |
+| 计量退回 `raw.length` | 3 failed / 409 passed：CJK、emoji、总字节（`string.length` 口径三处全红） |
+| 三道门读取面退回只看 App.tsx | 三门各自 exit 1：`Failed or canceled Work may not render a completed event`；`App must declare the event turn-card route`；`demo 进行态须在 settle 后收敛，失败后静止（不永久闪烁）` |
+| App 高水位 2218→2217 | `App.tsx 高水位门失败：当前 2218 行 > 上限 2217 行（净增 1）` exit 1 |
+
+### 6.3 四枚新增概念最终落点（不多于预期四枚）
+
+1. **`requestableToolIds` 声明键**（ADR-011 修订二条件 1 的静态声明面）→ `packages/registry/src/package-manifest.ts`（`z.array(z.string().min(1)).optional()`＋去重 refine）、`package-registries.ts` 的 `ScenarioRuntime`。
+2. **轮次上界判据**（裁定四）→ `packages/core/src/scenario-executor/tool-request.ts` 的 `REQUEST_TOOL_MAX_ROUNDS = 3`，executor 达界写死显式 `step_failed`。
+3. **`SessionEvent` 工具结果成员**（裁定七）→ `packages/core/src/events/types.ts` 的 `model_tool_result`（stepId/artifactType/round/toolId/verified/content/truncated）。
+4. **单枚结果字节上界与截断标记**（裁定九＋R1-2）→ 同文件的 `MODEL_TOOL_RESULT_MAX_BYTES = 20_000` 与 `MODEL_TOOL_RESULT_TRUNCATION_MARK`（「20000 字节上界」文案）。
+
+两处读侧穷举收口不计新概念（消灭分支而非新增）。
+
+### 6.4 replaySession / projectSession 两处读侧闭口（裁定七）
+
+- `packages/core/src/events/event-log.ts` 的 `replaySession`：switch 穷举（`default` 内 `const _exhaustive: never = event`）＋ `unrecognizedEntries` 运行期登记（`describeUnrecognized` 携 seq/type，缺 type 显式记「(缺 type 字段)」）。
+- `apps/desktop/src/protocol/client.ts` 的 `projectSession`：同形穷举＋登记；`SessionProjection.modelToolResults`/`unrecognizedEntries` 随同派生。
+- 红证：`SessionEvent` 加员漏改任一读侧即编译失败；注入未识别 type 记录显式登记在场。
+
+### 6.5 两份 golden 重铸
+
+1. `packages/core/src/assembly/__golden__/assembled-request.golden.txt`（`f1fa33e`）：知交互行扩 `request_tool`，先红后 `COURTWORK_UPDATE_GOLDEN=1` 重铸显式过账；`assemble.test.ts` golden 对照把守（定向 7 passed / 9 skipped）。
+2. `packages/demo-runtime/src/acceptance/__golden__/s3-assembly.golden.txt`（`e644afd`）：同一处四知文本的第二份 golden，同法重铸；`s3-assembly-golden.test.ts` 3/3。
+
+### 6.6 R1-2 UTF-8 字节裁定的实现
+
+`foldToolResult` 计量对象改为 `JSON.stringify(envelope)` 的 UTF-8 字节（`TextEncoder`，web 平台标准 API，browser-safe）；超限先按「20000 − 标记字节」算出正文预算，再以 `for...of` 逐 code point 累加字节截取前缀——截点必在完整 code point 边界，`JSON.stringify` 输出恒 well-formed（孤立 surrogate 被转义）故结果不含 U+FFFD 或孤立 surrogate。`MODEL_TOOL_RESULT_MAX_CHARS` 退役，仓内源码/测试零残留。EventLog `content` 与 `context.toolResults` 消费同一 `foldToolResult` 产物，逐字同源；`truncated:true` 与标记恒同场（定向断言在案）。
+
+### 6.7 三道门迁移（R1-1）
+
+共享 worktree 三份未提交 diff 经逐份读核，与 R1-1 一致后随本票提交：`assert-process-trace.mjs`（stopped 不渲染 completed 判据保持＋新增 `workStopped={workStopped}` 消费锁）、`assert-rp28-contracts.mjs`（event/artifact/file/gate 四路由与 ToolCallRow 判据保持，取样面取两份并）、`assert-rp210-contracts.mjs`（settle 收敛/失败静止判据保持，同法取样）。只迁读取面：零删判据、零放宽错误文案、零 CSS/视觉语义改动。
+
+### 6.8 全量门命令与实测数字（本票 tip 实测，无并发）
+
+| 门 | 实测 |
+|---|---|
+| `pnpm -r build` | EXIT 0（15/16 workspace；desktop Vite 完成，仅既有 chunk 警告） |
+| `pnpm lint` | EXIT 0 |
+| `pnpm test` | **183 files / 2249 passed** |
+| `pnpm --filter @courtwork/desktop test` | **100 files / 888 passed** |
+| `pnpm site:guard` | EXIT 0（release-truth/deslop PASS；App 高水位 **2218/2218**） |
+| `pnpm --filter @courtwork/pi-lane build:product-sidecar` | **547,893 B / `951acf8e…`** reused-identical（零漂移） |
+| `pnpm --filter @courtwork/pi-lane build:headless-sidecar` | 555,314 B / `061248fa…` reproducible |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | **259 passed / 0 failed / 1 ignored** |
+| `COURTWORK_E2E_PORT=19513 pnpm --filter @courtwork/desktop test:e2e` | 完整静态前链＋Playwright **388/388 passed**（6.7m，独占端口 19513） |
+
+TOOL-READ 定向：core 五文件（assemble/segments/tool-request/tool-request-loop/event-log）**70 passed**；tools `dossier-read`＋`contract` **34 passed**；registry **123 passed**（7 文件）；demo-runtime（`tool-request.integration`＋`demo-assembly`）**5 passed**；`s3-assembly-golden` **3 passed**；desktop `session-event.contract` **9 passed**；core `tool-registration-boundary` **4 passed**。
+
+### 6.9 偏离登记
+
+1. **`rp28.spec.ts` e2e 适配**：demo 回合现同时有旧 Ran command 行与本票新增的模型请求投影行，同用 `ToolCallRow` 原语致 `tool-call-row` 双元素、strict mode 红。行为断言改 `.first()`——与同仓 `goal2.spec.ts`/`button-fixes.spec.ts` 既有写法一致，断言意图（默认折叠→展开 mono details）零放宽；全量轮 388/388 后该例定向复跑通过。
+2. **`E2E-FLAKY-HOVER-1` 观察**（非本票引入）：`global-verbs.spec.ts`「data-card 复制按钮悬停」例在本票门轮与定向复跑期间以负载相关形态出现（opacity 收到 0，无负载隔离跑绿）；已独立归因——clean `e644afd` 与 `main@80f0d15` 同形复现（同负载下 2/6 红），与票面无因果；最终无负载全量轮该例通过。在册票 `E2E-FLAKY-HOVER-1` 维持，不在本票处置。
+
+除上述两项（一为本票 trace 呈现的必要消费面适配、一为在册环境抖动观察）外，**零偏离**；票面禁区（pi lane、provider、Turn journal、chat 自由回合、legal/pm 声明、新依赖）零触碰。

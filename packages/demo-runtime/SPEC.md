@@ -2,6 +2,24 @@
 
 状态：`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行。
 
+## TOOL-READ-1 · demo/acceptance 消费面（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+
+权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定五（消费者边界圈在 demo/acceptance 族）。
+
+### 本层职责与公开契约
+
+- **`composition/demo-assembly.ts` 新增两枚装配件**：`createDemoReadySource(materials)`（样板材料→`ReadySourcePort`）与 `buildRequestableToolRegistry(materials)`（两枚只读工具入 registry）——与 S3 装配各自一份 registry，互不夹带。
+- **集成测试 `acceptance/tool-request.integration.test.ts`**：整条真链（ABI 准入 → registries → 真 executor → 真工具 → 真材料）；闭集外工具被点名不执行不入账本、材料读不到时拒因进下一轮 prompt。
+- **第二份 golden**：`acceptance/__golden__/s3-assembly.golden.txt` 随四知文本扩 `request_tool` 重铸（`COURTWORK_UPDATE_GOLDEN=1` 显式过账），由 `s3-assembly-golden.test.ts` 把守。
+
+### 消费边界
+
+demo/acceptance 樁只在 demo 双向隔离内消费通道；production generic/legal 场景接线随各自票面后续声明 `requestableToolIds`，本票不夹带。
+
+### OSS 四选一（R1-3，本票统一裁定）
+
+**借行为或源码范式，零新增直接依赖**：显式 tool-result 配对与内联截断告知借自 pi/opencode；demo 装配与 golden 继续自持。
+
 ## AUDIT-SEAL-3 · Legal 绑定投影同步（实现完成，待独立验收）
 
 `demo-assembly.ts` 继续是受信 Legal/demo 组合根：富语料的 `litigationSummary` 在此投影为 tools 中性 `relatedRecords[{reference,summary}]`，Legal 样板案号仅存在于绑定层；工具 verified/source/grade 与 S3 流程不回退。cite-check 当前无 production Legal 注册消费面；其 demo corpus lookup 仍在绑定测试先判 `citationType==='statute'`，证明开放 tools discriminator 没有取消垂类自己的闭集规则。零新依赖、状态、抽象或执行步骤。
