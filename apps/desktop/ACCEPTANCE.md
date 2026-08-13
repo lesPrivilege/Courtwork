@@ -6786,3 +6786,65 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 ## 结论
 
 **PASS，放行 `65700cd`。** ADR-023 与 A1–A5／B1–B4 九项裁定逐条成立：baseline 不占绑定席、运行时并集与垂类 fail-closed 同时成立，launch／step 闭集零扩员，BatchReport 零锚点且逐项完整性与首个 `collectionPointer` 消费均有真红证。十二枚对抗变异全部触红并恢复，其中三处原判据缝由本验收补成独立探针；两处 baseline 代理判据顶穿与 WORK-LIVE 静态追修均回退复红。实现回执的 223／2225／388／883 四数逐项复现，两枚架构追认与实现行为一致，「产物到来不自动跳页签」由显式 `aria-selected=false` 产品断言坐实。全量门最终绿：根 **2192/2192**、desktop **884/884**、cargo **250/0/1**、静态门链全绿；Playwright 正式完整轮的十枚环境超时已在低负载下逐项 **10/10** 精确复绿，票面两链在定向与完整轮均双绿。**决定性拒因：无。**
+# TOOL-READ-1 独立验收（2026-08-13，REJECT）
+
+**验收角色：独立 Codex 验收会话。** 目标精确 SHA `e644afd7133049027a8f3db360618666d0eab027`（`claude/tool-read-1`），独立 clean clone `/private/tmp/courtwork-tool-read-1-accept-luna`，分支 `codex/accept-tool-read-1-luna`；验收树工作结束时 clean，未修改实现、schema、ADR 或测试。目标基线为 `80f0d15`（本轮 `main`），直接父提交为 `247d8a4`；祖先关系由 `git merge-base --is-ancestor 80f0d15 e644afd` 核实成立。共享主仓的 PNG 与未提交门脚本变化不在本验收对象内。
+
+## 一、结论与决定性阻断
+
+**REJECT，放行拒绝；目标 SHA 不得清账。**
+
+1. **提交 tip 的三枚 desktop 静态门未随 `DemoTurnStream` 外提同步。** 目标提交只改了 `assert-app-highwater.mjs`、`App.tsx`、`DemoTurnStream.tsx`、core executor 与一份 demo golden；目标树中的门脚本仍按外提前的读取面扫描。按票面完整 `COURTWORK_E2E_PORT=19471 pnpm --filter @courtwork/desktop test:e2e`，静态前链即红，尚未启动 Playwright：
+
+   | 目标树门 | 原始红输出 |
+   |---|---|
+   | `scripts/assert-process-trace.mjs` | `Failed or canceled Work may not render a completed event` |
+   | `scripts/assert-rp28-contracts.mjs` | `App must declare the event turn-card route` |
+   | `scripts/assert-rp210-contracts.mjs` | `demo 进行态须在 settle 后收敛，失败后静止（不永久闪烁）` |
+
+   这三份脚本的同步改动若只存在共享 worktree 未提交 diff，不能冒充 `e644afd` 的验收产物；本轮没有把它们带入 clean tree，也没有代修。
+
+2. **OSS 四选一没有在本票及涉及层 SPEC 留痕。** `apps/desktop/specs/TOOL-READ-1.md`、`packages/core/SPEC.md`、`packages/tools/SPEC.md`、`packages/registry/SPEC.md`、`packages/demo-runtime/SPEC.md` 均未记录本票应有的「借行为或源码范式」（pi/opencode 的显式 tool-result、显式截断、fail-closed 权限）与「零新直接依赖、项目真源自持」结论。该清账项阻断放行，不能以实现注释或提交消息替代；需架构/文档角色补齐权威落痕。
+
+3. **[需架构拍板] “20000 字节”与“20000 字符”语义冲突。** 票面裁定九同时称“字节上界”与“20000 字符”；实现 `foldToolResult` 以 `JSON.stringify(envelope).length` 截断（JavaScript UTF-16 code units），不是 UTF-8 byte length。独立构造（固定 envelope 开销为 49 个 code units）实测：
+
+   | 输入 | `content.length` | UTF-8 bytes | `truncated` |
+   |---|---:|---:|---|
+   | `'汉'.repeat(10000)` | 10049 | 30049 | `false` |
+   | `'😀'.repeat(5000)` | 10049 | 20049 | `false` |
+   | `'a'.repeat(10000)` | 10049 | 10049 | `false` |
+
+   若“字节”是契约真义，前两例越过 20000 仍未截断；若“字符”是契约真义，则 SPEC/代码注释中的“字节”必须订正。验收不替架构选择，也未修改实现。
+
+## 二、已通过的独立门
+
+| 门 | 实测结果 |
+|---|---|
+| `pnpm install --frozen-lockfile` | EXIT 0；16 workspace，lockfile 未漂移 |
+| `pnpm -r build` | EXIT 0；15/16 workspace，desktop Vite build 完成（仅既有 chunk warning） |
+| `pnpm lint` | EXIT 0 |
+| root `pnpm test` | sandbox 首轮因 sidecar 测试 `listen 127.0.0.1` EPERM 失败（环境红）；升权、独立复跑 **183 files / 2244 passed** |
+| desktop `pnpm --filter @courtwork/desktop test` | **100 files / 888 passed** |
+| TOOL 定向 core | **5 files / 65 passed**（assembly、request loop、request、event-log、segments） |
+| `@courtwork/tools` 定向 | **20 files / 238 passed** |
+| registry 定向 | **2 files / 11 passed** |
+| demo-runtime 定向 | **2 files / 6 passed** |
+| desktop TOOL 定向 | **2 files / 11 passed** |
+| `pnpm site:guard` | EXIT 0；node 子门 **103/103 passed**；App 高水位 **2218/2218** |
+| Playwright | 未进入行为运行；三枚静态前链在上述位置先红，故不虚报完整用例数字 |
+| cargo | 未运行；本票改动无 Rust 文件，且静态前链已决定性阻断 |
+
+## 三、反例注入红证（均已恢复，最终树 clean）
+
+| 变异 | 目标树红形 | 恢复后 |
+|---|---|---|
+| 在 `assembled-request.golden.txt` 的 WIRE messages 插入 `[验收漂移探针]` | `assemble.test.ts -t 'golden 对照'` **1 failed / 15 skipped**，DIFF 明确指出 golden 漂移 | 恢复，原定向门绿 |
+| 将 `buildRequestToolClosedSet` 的 `toolIdSchema` 暂换为 `z.string()` | assembly/request 定向 **4 failed / 7 passed / 18 skipped**；闭集外 toolId 被放行且 JSON Schema 丢失 literal | 恢复，原定向门绿 |
+| 移除 `MODEL_TOOL_RESULT_TRUNCATION_MARK` 拼接 | request 定向 **2 failed / 5 passed / 17 skipped**；账本与回喂均缺显式截断标记 | 恢复，原定向门绿 |
+| 将 `HIGH_WATER_LINES` 暂降至 2217 | `App.tsx 高水位门失败：当前 2218 行 > 上限 2217 行（净增 1）`，EXIT 1 | 恢复为 2218，`site:guard` 绿 |
+
+## 四、范围与交接
+
+- 白名单闭集、`pure_read` 准入/运行时双判、请求轮次 3 上界、EventLog `model_tool_result` 与两处读侧未知条目登记、结果截断标记、demo/acceptance 真链均由定向测试实际覆盖；本轮未发现这些实现级行为的独立拒因。
+- 未提交的 `assert-process-trace.mjs` / `assert-rp28-contracts.mjs` / `assert-rp210-contracts.mjs` 同步改动不属于目标 SHA，不能纳入本报告的放行证据。
+- 本会话没有 `fix-by-acceptance` 提交；需先由实现会话提交三门同步，再由新的独立 clean 验收会话复验；架构角色另需裁定字节/字符上界并补 OSS 四选一权威记录。
