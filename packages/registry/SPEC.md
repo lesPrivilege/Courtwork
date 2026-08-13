@@ -2,6 +2,24 @@
 
 状态：既有 PACKAGE-ABI/INTERACTION、`ABI-2A` 与跨包工单 `ABI-2B` 均已独立验收放行
 
+## TOOL-READ-1 · 可请求工具白名单声明键（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+
+权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定二＋ ADR-011 修订二条件 1（参数闭集由系统当次注入）。
+
+### 本层职责与公开契约
+
+- **`PackageScenarioSchema` 新增可选键 `requestableToolIds: z.array(z.string().min(1)).optional()`**：比照 `toolIds` 的声明形制；`refine` 去重（重复即拒载）。
+- 与 `toolIds` 分工：`toolIds` 是声明期工具（产出序列开始前一次性执行）；`requestableToolIds` 是 turn 间可被模型点名请求的闭集，每次 model 步由 core 按此清单当次注入 `z.literal`。缺席与空清单语义同一（零可请求工具，模型不可发现该通道），故取 `.optional()` 而非 `.default([])`——默认值会迫使每份既有场景声明补恒空键。
+- 「引用必解析」与「仅 `pure_read`」由 core `resolveRequestableTools` 在执行准入判定——sideEffect 分级住 core ToolRegistry 装配点，包描述面结构上不持有该事实。
+
+### 消费边界
+
+本层只冻结声明形状；执行链、闭集注入与上界全在 `packages/core`。既有 legal/pm 场景声明零改动（缺席键照常准入）。
+
+### OSS 四选一（R1-3，本票统一裁定）
+
+**借行为或源码范式，零新增直接依赖**：闭集 fail-closed 形态借自 pi/opencode；地址闭集机制照 ADR-016 决定二自持。
+
 ## 现行架构工单（2026-07-14）
 
 ### [提案，需架构拍板] VPKG bindings 真只读快照

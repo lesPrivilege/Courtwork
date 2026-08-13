@@ -116,3 +116,22 @@ describe('@courtwork/demo-runtime dependency boundary', () => {
     expect(findCycles(new Map([['a', ['b']], ['b', ['a']]]))).toEqual([['a', 'b', 'a']]);
   });
 });
+
+describe('TOOL-READ-1 R2 · demo-runtime 直接依赖守卫（R1-3 零新增直接依赖；zod 只借行为不接依赖）', () => {
+  // 本票只守 demo-runtime 的直接依赖面（manifest 与源码 import 两面），不是新的全仓依赖治理框架；
+  // 依赖图环检测等既有守卫在上方 describe 内，本 describe 只增不减。
+
+  it('packages/demo-runtime 的直接 dependencies/devDependencies 不得声明 zod', () => {
+    const manifest = JSON.parse(readFileSync(join(PACKAGES_ROOT, 'demo-runtime', 'package.json'), 'utf-8')) as PackageJson;
+    const direct = { ...manifest.dependencies, ...manifest.devDependencies };
+    expect(Object.keys(direct)).not.toContain('zod');
+  });
+
+  it('acceptance/tool-request.integration.test.ts 不得直接 import zod', () => {
+    const source = readFileSync(
+      join(PACKAGES_ROOT, 'demo-runtime', 'src', 'acceptance', 'tool-request.integration.test.ts'),
+      'utf-8',
+    );
+    expect(source).not.toMatch(/from\s+['"]zod['"]/);
+  });
+});

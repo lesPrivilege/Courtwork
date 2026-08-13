@@ -33,6 +33,16 @@ import type { CitationStats } from '../events/types.js';
 import type { TurnRunnerPort } from '../turn/turn-runner.js';
 import type { PersistedTurn } from '../turn/types.js';
 import type { WorkModelRoute, WorkRuntimeBudget } from '../work-state/envelope.js';
+import { UnknownToolError } from './unknown-tool-error.js';
+import {
+  foldToolResult,
+  modelToolResultKey,
+  REQUEST_TOOL_MAX_ROUNDS,
+  RequestableToolPolicyError,
+  resolveRequestableTools,
+  TOOL_REQUEST_LIMIT_REASON,
+  ToolRequestLimitExceededError,
+} from './tool-request.js';
 
 export interface WorkTurnIdentity {
   turnId: string;
@@ -109,12 +119,7 @@ export type ScenarioRunResult =
   | { status: 'paused'; sessionId: string; requestId: string }
   | { status: 'failed'; sessionId: string; reason: ScenarioFailureReason; message: string; retryable: false };
 
-export class UnknownToolError extends Error {
-  constructor(scenarioId: string, toolId: string) {
-    super(`场景 ${scenarioId} 引用了未在工具注册表中登记的工具 "${toolId}"`);
-    this.name = 'UnknownToolError';
-  }
-}
+export { UnknownToolError } from './unknown-tool-error.js';
 
 export class UnknownArtifactTypeError extends Error {
   constructor(scenarioId: string, artifactType: string) {
@@ -208,6 +213,93 @@ async function runTools(
     }
   }
   return results;
+}
+
+/** 模型点名的一次工具请求（信封 `request_tool` 分支的解析结果）。 */
+interface ModelToolRequest {
+  toolId: string;
+  input?: unknown;
+}
+
+/**
+ * 执行一次模型点名的只读工具（TOOL-READ-1 裁定一/四/八/九）。
+ *
+ * 它就是既有 `deterministic_tool` 步：同一个 `ToolExecutor` 端口、同一个 `guard.checkToolCall()`
+ * 预算、同一条 `deps.ledger` 等级链、同一个 durable-before-effect 屏障顺序——ADR-009 的步骤闭集
+ * 一枚不扩，变的只是「谁点的名」。
+ */
+async function runRequestedTool(
+  scenario: ScenarioRuntime,
+  address: { stepId: string; artifactType: string },
+  round: number,
+  request: ModelToolRequest,
+  toolResults: Record<string, unknown>,
+  deps: ScenarioExecutorDeps,
+  guard: RuntimeGuard,
+  now: () => string,
+): Promise<void> {
+  if (round > REQUEST_TOOL_MAX_ROUNDS) {
+    // 达界显式失败：既不静默截断（假装没请求过）也不无界循环。
+    deps.eventLog.append({
+      type: 'step_failed',
+      scope: 'tool',
+      toolId: request.toolId,
+      reason: TOOL_REQUEST_LIMIT_REASON,
+      message: `本件产出的工具请求已达 ${REQUEST_TOOL_MAX_ROUNDS} 轮上界，第 ${round} 轮请求 "${request.toolId}" 不予执行`,
+    });
+    await deps.persistBarrier?.();
+    throw new ToolRequestLimitExceededError(scenario.id, address.artifactType, request.toolId);
+  }
+
+  // 运行时侧再判一次（红证义务二的第二侧）：准入判定发生在开跑前，binding 在其后被换掉
+  // 仍不得放行——effect 边界只认 effect 发生那一刻的事实。
+  const binding = deps.tools.get(request.toolId);
+  if (!binding) throw new UnknownToolError(scenario.id, request.toolId);
+  const sideEffect = binding.sideEffect ?? 'pure_read';
+  if (sideEffect !== 'pure_read') throw new RequestableToolPolicyError(scenario.id, request.toolId, sideEffect);
+
+  guard.checkToolCall();
+  // 屏障：prospective tool call 已获准并 stage 后，须先随 whole-envelope CAS 落账才可发生 effect
+  // （与 runTools 同一条顺序律）。
+  await deps.persistBarrier?.();
+
+  // 模型给的入参先过该工具自己的 inputSchema：不合格就根本不递给执行器（`ToolExecutor` 对
+  // 非法入参是抛错，而模型给错参数不是场景故障）。落一枚失败结果回喂，让下一 turn 自己修正。
+  // reason 只活在这份「喂回模型的折叠文本」里，不进 ToolEnvelope 类型的失败枚举。
+  const parsedInput = binding.tool.inputSchema.safeParse(request.input);
+  const envelope: unknown = parsedInput.success
+    ? await deps.toolExecutor.execute(binding.tool, parsedInput.data)
+    : {
+        verified: false,
+        reason: 'invalid_tool_input',
+        message: `工具 ${request.toolId} 的入参未通过该工具的输入 schema：`
+          + parsedInput.error.issues.map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`).join('；'),
+        checkedAt: now(),
+      };
+  guard.checkTime();
+
+  const verified = (envelope as { verified?: unknown }).verified === true;
+  if (verified) {
+    deps.ledger.record(request.toolId, {
+      grade: binding.grade,
+      sourceId: String((envelope as { source?: unknown }).source ?? binding.tool.sourceId),
+      confirmed: false,
+    });
+  }
+  const folded = foldToolResult(envelope);
+  deps.eventLog.append({
+    type: 'model_tool_result',
+    stepId: address.stepId,
+    artifactType: address.artifactType,
+    round,
+    toolId: request.toolId,
+    verified,
+    content: folded.content,
+    truncated: folded.truncated,
+  });
+  // 裁定八：合并进既有会话作用域 toolResults，不为「只喂下一 turn」另造短生命周期状态槽。
+  // 轮次入键——同一工具的不同轮是不同事实，不得互相顶替。
+  toolResults[modelToolResultKey(request.toolId, round)] = folded.content;
 }
 
 /** 本次产出对应的声明步 id（寻址制地址源）；声明未给步的类型走确定性缺省。 */
@@ -547,11 +639,46 @@ async function generateArtifact(
       const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
       throw new GenerationValidationError(scenario.id, artifactType, issues);
     }
-    const envelope = result.data as { target: { stepId: string; artifactType: string }; artifact: unknown };
-    return { draft: envelope.artifact, usage: turn.usage, notices: turn.notices };
+    const envelope = result.data as
+      | { target: { stepId: string; artifactType: string }; artifact: unknown }
+      | { target: { stepId: string; artifactType: string }; request_tool: ModelToolRequest };
+    if ('request_tool' in envelope) {
+      // turn 间模式：本 turn 到此终结，系统解析意图后落 deterministic_tool 步执行。
+      return { kind: 'request' as const, request: envelope.request_tool, usage: turn.usage, notices: turn.notices };
+    }
+    return { kind: 'artifact' as const, draft: envelope.artifact, usage: turn.usage, notices: turn.notices };
   };
 
-  const first = await generateOnce(1);
+  /**
+   * 一件产出的完整 model 步序列：请求轮（0..REQUEST_TOOL_MAX_ROUNDS）后必须交货。
+   * 计量沿途累加——每一轮请求都是一次 paid Turn，不得只记最后一轮。
+   */
+  const generateUntilArtifact = async (attempt: number, repairFailures?: CitationFailure[]) => {
+    let usage: ProviderUsage | undefined;
+    const notices: GenerationNotice[] = [];
+    let round = 0;
+    for (;;) {
+      const outcome = await generateOnce(attempt, repairFailures);
+      usage = sumUsage(usage, outcome.usage);
+      if (outcome.notices) notices.push(...outcome.notices);
+      if (outcome.kind === 'artifact') {
+        return { draft: outcome.draft, usage, notices: notices.length > 0 ? notices : undefined };
+      }
+      round += 1;
+      await runRequestedTool(
+        scenario,
+        { stepId, artifactType },
+        round,
+        outcome.request,
+        context.toolResults,
+        deps,
+        guard,
+        deps.now ?? (() => new Date().toISOString()),
+      );
+    }
+  };
+
+  const first = await generateUntilArtifact(1);
   const binding = entry.descriptor.citationBinding;
   if (!binding) {
     return { artifact: first.draft, usage: first.usage, notices: first.notices };
@@ -580,7 +707,7 @@ async function generateArtifact(
     };
   }
 
-  const second = await generateOnce(2, firstPass.failures);
+  const second = await generateUntilArtifact(2, firstPass.failures);
   const pruned = resolveDraftArtifactWithPruning({ draft: second.draft, binding, layers });
   const final = entry.descriptor.schema.safeParse(pruned.artifact);
   if (!final.success) {
@@ -778,6 +905,9 @@ export async function runScenario(
 ): Promise<ScenarioRunResult> {
   try {
     const guard = createGuardForCall(deps);
+    // 可请求白名单准入（TOOL-READ-1 裁定二）：引用必解析、仅 pure_read。判定在任何 effect
+    // 与 provider 调用之前——不合规的白名单结构上进不了执行路径，而非等模型点名了才发现。
+    resolveRequestableTools(scenario, deps.tools);
     // 屏障①（ADR-010 决定二第 1 条）：session header 成功持久后才能执行工具或调用 provider。
     await deps.persistBarrier?.();
     const toolResults = await runTools(scenario, input.toolInputs, deps, guard);
@@ -951,6 +1081,8 @@ export async function resumeScenario(
 
   try {
     const guard = createGuardForCall(deps);
+    // 续行同样过白名单准入：停门期间装配被换掉不得由 resume 绕过（与 runScenario 同一道门）。
+    resolveRequestableTools(scenario, deps.tools);
     if (response.decision === 'reject') {
       deps.eventLog.append({ type: 'scenario_completed' });
       // 屏障⑤（ADR-010 决定二第 5 条）：条件消费与 confirmation_resolved（含 reject 终态）同一次 CAS 落盘。

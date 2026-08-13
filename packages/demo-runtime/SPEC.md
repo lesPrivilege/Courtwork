@@ -2,6 +2,25 @@
 
 状态：`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行。
 
+## TOOL-READ-1 · demo/acceptance 消费面（2026-08-11/13，实现留痕；R2 返修完成，待新的独立 Luna 验收）
+
+权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定五（消费者边界圈在 demo/acceptance 族）＋ R1 独立 REJECT `ac20b209` 后的五条架构裁定。R1 验收唯一决定性阻断＝本包新增直接 devDependency `zod`；R2 已撤除并立永久回归守卫。
+
+### 本层职责与公开契约
+
+- **`composition/demo-assembly.ts` 新增两枚装配件**：`createDemoReadySource(materials)`（样板材料→`ReadySourcePort`）与 `buildRequestableToolRegistry(materials)`（两枚只读工具入 registry）——与 S3 装配各自一份 registry，互不夹带。
+- **集成测试 `acceptance/tool-request.integration.test.ts`**：整条真链（ABI 准入 → registries → 真 executor → 真工具 → 真材料）；闭集外工具被点名不执行不入账本、材料读不到时拒因进下一轮 prompt。**R2**：樁包产出 schema 复用本包已有直接依赖 `@courtwork/registry` 根导出的 `PromptSegmentSchema`（`extend({summary}).pick({summary:true})`，registry 提供真实 ZodType 身份）——本包零新增 zod 依赖，deliver `{summary}` 与投影 `/summary` 断言逐字未改。
+- **第二份 golden**：`acceptance/__golden__/s3-assembly.golden.txt` 随四知文本扩 `request_tool` 重铸（`COURTWORK_UPDATE_GOLDEN=1` 显式过账），由 `s3-assembly-golden.test.ts` 把守。
+- **直接依赖守卫**（`src/package-boundary.test.ts` 新增 describe，永久回归门）：本包 `package.json` 的 dependencies/devDependencies 不得声明 zod、`tool-request.integration.test.ts` 不得直接 import zod——born-red 2 failed/6 passed，重加 direct zod 变异再红后逐字恢复。只守本包直接依赖面，不是全仓依赖治理框架。
+
+### 消费边界
+
+demo/acceptance 樁只在 demo 双向隔离内消费通道；production generic/legal 场景接线随各自票面后续声明 `requestableToolIds`，本票不夹带。
+
+### OSS 四选一（R1-3，本票统一裁定；R2 恢复为真实兑现）
+
+**借行为或源码范式，零新增直接依赖**：显式 tool-result 配对与内联截断告知借自 pi/opencode；demo 装配、schema 复用与 golden 继续自持。R1 曾以直接 devDependency zod 违背本条，已由 R2 撤除。
+
 ## AUDIT-SEAL-3 · Legal 绑定投影同步（实现完成，待独立验收）
 
 `demo-assembly.ts` 继续是受信 Legal/demo 组合根：富语料的 `litigationSummary` 在此投影为 tools 中性 `relatedRecords[{reference,summary}]`，Legal 样板案号仅存在于绑定层；工具 verified/source/grade 与 S3 流程不回退。cite-check 当前无 production Legal 注册消费面；其 demo corpus lookup 仍在绑定测试先判 `citationType==='statute'`，证明开放 tools discriminator 没有取消垂类自己的闭集规则。零新依赖、状态、抽象或执行步骤。

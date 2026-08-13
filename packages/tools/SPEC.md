@@ -2,6 +2,25 @@
 
 状态：已完成
 
+## TOOL-READ-1 · 两枚可请求只读工具（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+
+权威：`apps/desktop/specs/TOOL-READ-1.md` 裁定三＋ ADR-017 决定八（reading 走既有 `ToolDefinition`/`ToolEnvelope` 契约，不套三段式）。
+
+### 本层职责与公开契约
+
+- **新生产模块 `src/dossier-read.ts`**：`dossier-list`（列该容器就绪材料清单）与 `material-read`（读某件就绪材料正文）两枚，`sideEffect: 'pure_read'`，超时 3000ms/8000ms。
+- **领域无关**：数据源以 `ReadySourcePort` 注入（装配点闭合容器身份），拒因词表归宿主所有，tools 只转述不解读；清单只报系统投影字段（`materialId`/`fileName`/`mediaType`）——零正文、零宿主路径、零内部哈希；空清单如实报空，不伪造。
+- **失败态**：blocked/缺件等六种拒因经 `verified:false` 信封**原样透出为工具失败**，逐字带拒因，不降级成空结果；错入参在契约层被拒，不进适配器。
+- 两枚均不声明 `cacheTtlMs`——原件只读复验链每次重跑，缓存会把漂移/吊销吃掉。
+
+### 消费边界
+
+工具本体不接场景声明；`requestableToolIds` 声明与 registry 装配在 `packages/registry`/宿主组合根。本层零垂类词汇（package-boundary 门在案）。
+
+### OSS 四选一（R1-3，本票统一裁定）
+
+**借行为或源码范式，零新增直接依赖**：显式 tool-result 配对与截断告知形态借自 pi/opencode 一手源码；工具契约、`sideEffect` 门与复验链继续自持。
+
 ## AUDIT-SEAL-3 · 工具契约去垂类语义（实现完成，待独立验收）
 
 权威：[实现就绪图 `AUDIT-SEAL-3` 行](../../docs/architecture/implementation-readiness.md) + [ADR-001](../../docs/decisions/ADR-001-package-abi.md)；基线 `main @ 92d1fd4`，分支 `impl/audit-seal-2-3`。

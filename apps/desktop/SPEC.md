@@ -4,6 +4,25 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
+## TOOL-READ-1 · Work 回合受控只读工具请求通道（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+
+权威：`specs/TOOL-READ-1.md`（票面唯一真值）＋ `docs/decisions/ADR-011-minimal-harness-kernel.md` 修订二。desktop 只承担**消费者边界内**的三块：demo trace 结构化呈现、三道门读取面迁移、e2e 适配。通道本体、白名单、上界与账本扩员住 `packages/core`，两枚只读工具住 `packages/tools`。
+
+### 本层职责与公开契约
+
+- **新生产模块 `DemoTurnStream`**（`src/demo/DemoTurnStream.tsx`）：样板案助手回合事件流，自 `App.tsx` demo 分支「过手即拆」外提。只做既有 `TurnCard`/`ToolCallRow` 原语的编排，不新造 UI 原语；`App.tsx` 只留一次调用并把 `workStopped` 真传入（`workStopped={workStopped}`）。
+- **trace 结构化呈现**（裁定六/十）：`SessionProjection` 增 `modelToolResults` / `unrecognizedEntries` 两枚派生成员（真源仍是 EventLog 账本，`src/protocol/client.ts` 的 `projectSession` 穷举收口）；`DemoTurnStream` 以 `ToolCallRow` 逐条呈现工具结果、以具名段落（`unrecognized-ledger-entries`）呈现未识别账本条目。
+- **三道门读取面迁移**（R1-1）：`assert-process-trace.mjs`（新增 `workStopped` 消费锁）、`assert-rp28-contracts.mjs`、`assert-rp210-contracts.mjs` 的取样面由「只读 App.tsx」机械迁为「App.tsx ∪ DemoTurnStream」；判据与错误文案一字未改、CSS/视觉语义零动。
+- **e2e 适配**：demo 回合现有两枚 `tool-call-row`（旧 Ran command 行＋新模型请求行），`rp28.spec.ts` 行为断言改 `.first()`（与 `goal2`/`button-fixes` 既有写法一致），断言意图不变。
+
+### 消费边界
+
+本层是裁定五划定的 demo/acceptance 消费面；production generic/legal 场景接线（`requestableToolIds` 声明）不在本票。`App.tsx` 高水位随外提下调至 **2218**（只降不升门内留痕）。
+
+### OSS 四选一（R1-3，本票统一裁定）
+
+**借行为或源码范式，零新增直接依赖**：借 pi/opencode 一手源码已验证的三条形态——显式 tool-result 配对、截断必须内联告知模型、权限/闭集 fail-closed。不接上游 runtime、session 格式、permission 默认或状态机；本仓 `z.literal` 请求闭集、`SessionEvent`、runtime guard、MaterialStore 复验、EventLog 与 trace 投影继续自持。
+
 ## CHAT-MD-TABLE-2 · chat 表格体未成表：整表全有或全无（实现完成，待独立验收）
 
 权威：[实现就绪图 `CHAT-MD-TABLE-2` 行](../../docs/architecture/implementation-readiness.md) + 架构裁定「CHAT-MD-TABLE-2 三则一注」（2026-08-07）。基线 `main @ 6865463`。分支 `claude/chat-md-table-2`，隔离 worktree 施工。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**、未动 journal。

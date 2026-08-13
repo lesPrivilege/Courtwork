@@ -28,7 +28,9 @@ test('artifact turn card is a light summary route back to Preview', async ({ pag
 
 test('tool call row is collapsed by default and expands auditable mono details', async ({ page }) => {
   await openWorkbench(page);
-  const tool = page.getByTestId('tool-call-row');
+  // TOOL-READ-1：demo 回合现在同时有一枚旧命令行（Ran command）与一枚模型请求的只读查询
+  // 投影行，两条同用 ToolCallRow 原语；行为断言取首枚（与 goal2/button-fixes 同法）。
+  const tool = page.getByTestId('tool-call-row').first();
   await expect(tool).toBeVisible();
   await expect(tool).not.toHaveAttribute('open', '');
   await expect(page.getByTestId('tool-call-details')).toHaveCount(0);

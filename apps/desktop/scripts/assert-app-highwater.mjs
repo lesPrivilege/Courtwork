@@ -135,7 +135,12 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // compilePending 两枚 state ＋ `confirmDraftCompile` 本体 ＋ 弹层 JSX）→ `src/output/use-draft-compile.ts`
 // 与 `src/output/DraftCompileDialog.tsx`——本票改了这条链的两端（中性产物名、原子 no-replace），
 // 按「过手即拆」随手搬出。本票新增的移交处理器、移交声明与卸载态判据由这两件抵消并再收紧 4。
-const HIGH_WATER_LINES = 2225;
+// TOOL-READ-1（2026-08-11）再下调至 2218：外提物一件——样板案助手回合的整条事件流
+// （既有 `turn-event-stream` 事件卡列表 ＋ 本票新增的模型工具请求结果行与未识别账本条目行）
+// → `src/demo/DemoTurnStream.tsx`。裁定十只要求「复用既有 ToolCallRow/TurnCard 原语、不新造
+// UI 原语」，外提出去的是这些原语的编排而非新原语，两条纪律不冲突。本票在 App 净增的
+// 只有一次组件调用与一行 import，由这件外提抵消并再收紧 7。
+const HIGH_WATER_LINES = 2218;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

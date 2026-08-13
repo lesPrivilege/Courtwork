@@ -23,6 +23,7 @@ import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import { createArtifactReader } from './work/session-artifacts';
 import { demoArtifactCardCopy } from './demo/demo-artifact-card';
+import { DemoTurnStream } from './demo/DemoTurnStream';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
@@ -1803,15 +1804,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                           : 'risk-list=6 gate=awaiting-review'
                         : 'timeline=47 parties=14 conflicts=4'}
                     />
-                    <div className="turn-event-stream" data-testid="event-stream">
-                      <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已启动'} status="success" testId="turn-event-start" />
-                      {session.progress.map((message, index) => (
-                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status={workStopped ? 'idle' : session.confirmation ? 'success' : 'active'} testId={`turn-event-progress-${index}`} />
-                      ))}
-                      {!workStopped && (session.confirmation || session.completed) && (
-                        <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
-                      )}
-                    </div>
+                    <DemoTurnStream session={session} flow={flow} workStopped={workStopped} />
                     <TurnCard
                       kind="artifact"
                       icon="package"

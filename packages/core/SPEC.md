@@ -2,6 +2,26 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
+## TOOL-READ-1 · 受控只读工具请求通道（2026-08-11/13，实现留痕；R1 返修已提交，待独立验收）
+
+权威：`apps/desktop/specs/TOOL-READ-1.md`（票面唯一真值）＋ ADR-011 修订二（`request_tool` 扩集四条件与红证要求）。本层承担通道、账本扩员与字节上界；白名单声明键住 `packages/registry`，工具本体住 `packages/tools`，trace 呈现住 `apps/desktop`。
+
+### 本层职责与公开契约
+
+- **新生产模块 `scenario-executor/tool-request.ts`**：turn 间工具请求通道原语——`buildRequestToolClosedSet`（当次注入 `z.literal` 闭集，空白名单返 undefined）、`resolveRequestableTools`（准入判定：引用必解析、仅 `pure_read`）、`foldToolResult`（信封→回喂折叠文本）、`modelToolResultKey`（`<toolId>#request-<round>` 回喂键）。
+- **系统常量**：`REQUEST_TOOL_MAX_ROUNDS = 3`（裁定四，轮次上界）；`MODEL_TOOL_RESULT_MAX_BYTES = 20_000` 与 `MODEL_TOOL_RESULT_TRUNCATION_MARK`（裁定九＋R1-2：**UTF-8 字节**口径——计量对象为 `JSON.stringify(envelope)` 的 UTF-8 字节序列，截断在完整 code point 边界，「保留正文＋标记」总字节 ≤ 20000 且标记计入上界，输出不含 U+FFFD 或孤立 surrogate；`MODEL_TOOL_RESULT_MAX_CHARS` 已退役，仓内零残留）。
+- **新生产模块 `scenario-executor/unknown-tool-error.ts`**：唯一错误族 `UnknownToolError`（「引用必解析」）——声明期 `toolIds` 与可请求 `requestableToolIds` 共用，独立成文件只为 executor 与 tool-request 双向引用不成环。
+- **账本扩员（裁定七）**：`SessionEvent` 新增 `model_tool_result` 成员（stepId/artifactType/round/toolId/verified/content/truncated）；两处读侧同批闭口——`replaySession` 与 desktop `projectSession` 均改「编译期穷举（`_exhaustive: never`）＋运行期显式登记（`unrecognizedEntries`）」，`SessionEvent` 加员漏改读侧即编译失败，外来/损坏行不静默跳过。
+- **回喂（裁定八）**：执行结果合并进既有会话作用域 `context.toolResults`，不为「只喂下一 turn」另造状态槽；EventLog `content` 与回喂逐字同源（同一 `foldToolResult` 产物两侧消费）。
+
+### 消费边界
+
+改动限于 `scenario-executor` 执行链与 EventLog 读侧；provider `GenerationRequest`/流归一零 tools 字段、Turn journal 两族闭集零扩员、chat 自由回合零触碰。既有场景零声明时 `responseSchema` 与四知文本逐字节不变。
+
+### OSS 四选一（R1-3，本票统一裁定）
+
+**借行为或源码范式，零新增直接依赖**：借 pi/opencode 已验证的显式 tool-result 配对、截断内联告知模型、fail-closed 权限形态；`z.literal` 请求闭集、`SessionEvent`、runtime guard 与 EventLog 继续为本仓唯一真源。
+
 ## AUDIT-SEAL-3 · ToolRegistry 自声明信任边界（实现完成，待独立验收）
 
 权威：[实现就绪图 `AUDIT-SEAL-3` 行](../../docs/architecture/implementation-readiness.md) + ADR-001/004；基线 `main @ 92d1fd4`。不改变 `ToolRegistry` 接口与运行契约。

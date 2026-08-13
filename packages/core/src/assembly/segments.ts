@@ -34,7 +34,8 @@ export const CONTRACT_SEGMENT_BODY = [
   '- 知推理：按声明段给出的步骤树推进，不增删步骤。',
   '- 知输出：唯一合法输出是携目标地址的 JSON 信封 {"target":{"stepId":…,"artifactType":…},"artifact":…}；artifact 必须符合本次注入的 schema。',
   '- 知回填：系统按 target 地址收货校验，回填靠地址不靠位置；地址不符或 schema 不符即拒收。',
-  '- 知交互：你与用户的合法交互仅限系统提供的通道（步骤宣告、提问 ask_user、通知、请求确认）；不存在自创交互。',
+  '- 知交互：你与用户和系统的合法交互仅限系统提供的通道（步骤宣告、提问 ask_user、通知、请求确认、请求只读工具 request_tool）；不存在自创交互。',
+  '  请求只读工具时本次输出以 {"target":…,"request_tool":{"toolId":…,"input":…}} 形态给出，本轮到此为止；可选 toolId 由系统当次注入，注入清单之外的名字不是工具。',
 ].join('\n');
 
 export function buildContractSegment(): PromptSegment {

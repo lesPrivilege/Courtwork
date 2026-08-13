@@ -210,6 +210,10 @@ export interface SessionProjection {
   todo: Array<{ stepId: string; artifactType?: string; status: string }>;
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
   failures: Extract<SessionEvent, { type: 'step_failed' }>[];
+  /** 模型请求的只读工具结果（TOOL-READ-1 裁定六：界面事件面就是账本本身，逐条投影不折叠）。 */
+  modelToolResults: Extract<SessionEvent, { type: 'model_tool_result' }>[];
+  /** 未识别账本条目（TOOL-READ-1 裁定七 · 运行期层）：外来/损坏行须可在 trace 面看见。 */
+  unrecognizedEntries: { seq: number; type: string }[];
   completed: boolean;
   /** 场景级终局失败（ADR-010 决定三）：与 completed 互斥的终态，镜像 core replaySession 的 scenarioFailure。 */
   scenarioFailure?: { reason: Extract<SessionEvent, { type: 'scenario_failed' }>['reason']; message: string };
@@ -223,6 +227,8 @@ export const EMPTY_SESSION: SessionProjection = {
   progress: [],
   todo: [],
   failures: [],
+  modelToolResults: [],
+  unrecognizedEntries: [],
   completed: false,
   lastSeq: 0,
 };
@@ -254,6 +260,10 @@ export function resetSessionForNewRun(state: SessionProjection): SessionProjecti
 
 /**
  * 事件投影只做协议字段到界面状态的机械映射，不解释风险、信源或门禁语义。
+ *
+ * TOOL-READ-1 裁定七：本函数是 Work 账本两处读侧之二，与 core `replaySession` 同批收口，
+ * 取「编译期穷举 + 运行期显式登记」两层——原 `default: return base` 会把未识别条目静默吞掉
+ * （`PI-HOST-LOOP-1` 定谳的「unknown→跳过」病根在 Work 账本面的同族形态）。
  */
 export function projectSession(state: SessionProjection, event: SessionEvent): SessionProjection {
   const base = { ...state, lastSeq: event.seq };
@@ -281,7 +291,25 @@ export function projectSession(state: SessionProjection, event: SessionEvent): S
       return { ...base, completed: true, confirmation: undefined };
     case 'scenario_failed':
       return { ...base, scenarioFailure: { reason: event.reason, message: event.message }, confirmation: undefined };
-    default:
+    case 'model_tool_result':
+      return { ...base, modelToolResults: [...state.modelToolResults, event] };
+    // 以下两族本投影不消费（Turn 身份与修正记录各有自己的读面）——显式列出而非落 default，
+    // 才能让 default 只剩「真正未识别」这一种含义。
+    case 'turn_linked':
       return base;
+    case 'revision_recorded':
+      return base;
+    default: {
+      // 编译期穷举：闭集加员而漏改本处，此行立即编译失败。
+      const unrecognized: never = event;
+      const raw = unrecognized as { seq?: unknown; type?: unknown };
+      return {
+        ...base,
+        unrecognizedEntries: [...state.unrecognizedEntries, {
+          seq: typeof raw.seq === 'number' ? raw.seq : -1,
+          type: typeof raw.type === 'string' ? raw.type : '(缺 type 字段)',
+        }],
+      };
+    }
   }
 }

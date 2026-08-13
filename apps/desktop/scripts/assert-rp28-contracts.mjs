@@ -2,14 +2,18 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-const [turnCard, interactionProjection, composer, utility, app, css] = await Promise.all([
+const [turnCard, interactionProjection, composer, utility, appSource, demoStream, css] = await Promise.all([
   readFile(path.join(root, 'src/chat/TurnCard.tsx'), 'utf8'),
   readFile(path.join(root, 'src/preview/projection/interaction.ts'), 'utf8'),
   readFile(path.join(root, 'src/composer/Composer.tsx'), 'utf8'),
   readFile(path.join(root, 'src/rail/RightRailModules.tsx'), 'utf8'),
   readFile(path.join(root, 'src/App.tsx'), 'utf8'),
+  readFile(path.join(root, 'src/demo/DemoTurnStream.tsx'), 'utf8'),
   readFile(path.join(root, 'src/styles.css'), 'utf8'),
 ]);
+// TOOL-READ-1「过手即拆」：event 路由的卡片列表自 App.tsx 外提至 `demo/DemoTurnStream.tsx`。
+// 判据一字未改（四条路由都必须被真正声明），只是取样面随代码迁移，取两份的并。
+const app = `${appSource}\n${demoStream}`;
 
 const failures = [];
 if (!turnCard.includes("'event' | 'artifact' | 'file' | 'gate'")) failures.push('TurnCard route vocabulary must remain closed to event/artifact/file/gate');
