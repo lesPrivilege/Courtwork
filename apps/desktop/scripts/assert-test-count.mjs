@@ -1,5 +1,16 @@
 import { spawnSync } from 'node:child_process';
 
+for (const args of [
+  ['scripts/assert-work-agent-gui-contracts.mjs'],
+  ['--test', 'scripts/assert-work-agent-gui-contracts.test.mjs'],
+]) {
+  const guard = spawnSync('node', args, { encoding: 'utf8' });
+  if (guard.status !== 0) {
+    globalThis.process.stderr.write(guard.stderr || guard.stdout);
+    globalThis.process.exit(guard.status ?? 1);
+  }
+}
+
 const result = spawnSync('pnpm', ['exec', 'playwright', 'test', '--list'], { encoding: 'utf8' });
 if (result.status !== 0) {
   globalThis.process.stderr.write(result.stderr || result.stdout);
@@ -89,7 +100,9 @@ const count = match ? Number(match[1]) : 0;
 // GENERIC-SCENARIOS-1：卸载态冒烟两例——①`generic.draft` 全链（宿主通用起跑面填「起草要求」
 // → 产出席位 → 送入起草画布 → 画布里就是模型那份文稿）、②`generic.batch` 全链（无表单直启 →
 // 逐份材料成行，模型漏行由系统补 `缺行·系统补记`）——386 + 2 → 388。数字由 `--list` 实跑核。
-const minimum = 388;
+// WORK-AGENT-GUI-1：顶层 Chat | Work | Scenes、未加载 CTA 与 Working folders 均落 Pi Work
+// 三条 scripted-route 回归锁 +3 → 391；旧伪 WorkDraft E2E 被同意图 Pi 路由断言原位置换，不计增量。
+const minimum = 391;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

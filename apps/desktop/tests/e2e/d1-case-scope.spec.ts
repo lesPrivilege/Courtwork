@@ -145,6 +145,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
 
     // 回到 demo（等浏览器态 preview 落定确认切回）
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('preview-host')).toBeVisible();
     await expect(page.getByTestId('demo-case-badge')).toBeVisible();
     await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
@@ -154,6 +155,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     // 再进 B
     const bCard = page.locator('.case-card').filter({ hasText: '案件乙' });
     await bCard.getByRole('button').first().click();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
     await expect(page.getByTestId('queued-message')).toHaveCount(0);

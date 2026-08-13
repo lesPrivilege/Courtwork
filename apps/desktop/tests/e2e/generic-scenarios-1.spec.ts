@@ -152,13 +152,15 @@ async function prepareUnboundCase(page: Page) {
   await resetHooks(page);
   await setScriptedTurnStub(page);
   await createUnboundGrantCase(page);
+  await page.getByTestId('segment-work').click();
   await ingestNotes(page);
   // 卸载态判据（收尾追修）：基线场景在册**不等于**加载了垂类能力——起手引导与基线按钮同框。
   await expect(page.getByTestId('scene-unloaded-hint')).toBeVisible();
   await expect(page.getByTestId('scene-generic.draft')).toBeVisible();
-  // 独立验收探针：基线按钮在册不能把卸载态起草席位顶回垂类画布；默认仍须落通用工作稿轨。
-  await page.getByTestId('scene-unloaded-draft').click();
-  await expect(page.getByTestId('work-draft-panel')).toBeVisible();
+  // WORK-AGENT-GUI-1：Scenes 内 CTA 只切 Pi Work，不再进入 renderer 内存稿。
+  await page.getByTestId('scene-unloaded-work').click();
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
+  await page.getByTestId('segment-work').click();
 }
 
 test('① generic.draft 全链：宿主起跑面 → 产出席位 → 送入起草画布', async ({ page }) => {

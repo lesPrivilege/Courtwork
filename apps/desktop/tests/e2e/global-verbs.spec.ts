@@ -50,6 +50,7 @@ test.describe('新建案件', () => {
     await nameInput.fill('张三诉李四买卖合同纠纷');
     await dialog.getByRole('button', { name: '创建案件' }).click();
     await expect(dialog).toHaveCount(0);
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('preview-back')).toHaveCount(0);
     await expect(page.locator('.case-card.selected')).toContainText('张三诉李四买卖合同纠纷');
     // 十四章：非 demo 空案右列=四模块列（Preview 大纲引导点开）,无 demo 数据
@@ -226,6 +227,7 @@ test.describe('命令面板', () => {
     await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
     await dialog.getByRole('textbox', { name: '案件名称' }).fill('周七诉吴八借款纠纷');
     await dialog.getByRole('button', { name: '创建案件' }).click();
+    await page.getByTestId('segment-work').click();
     await page.keyboard.press('Meta+K');
     await page.getByRole('option', { name: '临江精铸', exact: false }).click();
     await expect(page.locator('.case-card.selected')).toContainText('临江精铸');

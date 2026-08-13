@@ -60,6 +60,7 @@ async function createGrantCase(page: Page) {
   await page.getByTestId('new-case-authorize').click();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);
 }
 

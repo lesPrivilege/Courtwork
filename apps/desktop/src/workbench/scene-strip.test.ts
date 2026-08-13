@@ -14,7 +14,7 @@ import {
 /**
  * GENERIC-PACK-1 裁定二：场景条改 registry 派生——按钮/预检表单由包 descriptor 声明、
  * registry 冻结、宿主以有限元素集通用渲染；加载态四钮零视觉回归为证，卸载态起手引导
- * 为通用开场（matter 规范文件提示＋Draft 入口）零垂类兜底。
+ * 为通用开场（Pi Work 入口）零垂类兜底。
  */
 
 const runtime = createDesktopPackageRuntime();
@@ -74,7 +74,7 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
       runningControlLabel: undefined,
       onLaunch: () => undefined,
       onCancelRun: () => undefined,
-      onOpenDraft: () => undefined,
+      onOpenWork: () => undefined,
       ...props,
     }));
   }
@@ -106,7 +106,8 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
   it('卸载态＋基线场景在册：起手引导与基线按钮同框（引导不因基线到场消失）', () => {
     const html = render({ entries: BASELINE_ENTRIES });
     expect(html).toContain('data-testid="scene-unloaded-hint"');
-    expect(html).toContain('data-testid="scene-unloaded-draft"');
+    expect(html).toContain('data-testid="scene-unloaded-work"');
+    expect(html).toContain('通用 Work 可用，专业 Scenes 未加载');
     expect(html).toContain('data-testid="scene-generic.draft"');
     expect(html).toContain('data-testid="scene-generic.batch"');
     for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '合同']) {
@@ -117,15 +118,15 @@ describe('SceneStrip（宿主有限元素集通用渲染）', () => {
   it('加载态：起手引导不出现（垂类在册即非卸载态）', () => {
     const html = render({ entries: [...LEGAL_ENTRIES, ...BASELINE_ENTRIES] });
     expect(html).not.toContain('data-testid="scene-unloaded-hint"');
-    expect(html).not.toContain('data-testid="scene-unloaded-draft"');
+    expect(html).not.toContain('data-testid="scene-unloaded-work"');
   });
 
-  it('卸载态：起手引导＝matter 规范文件提示＋Draft 入口，零垂类文案、无更多', () => {
+  it('卸载态：起手引导＝Pi Work 入口，零垂类文案、无更多', () => {
     const html = render({ entries: [] });
     expect(html).toContain('data-testid="scene-unloaded-hint"');
-    expect(html).toContain('《场景规范.md》');
-    expect(html).toContain('data-testid="scene-unloaded-draft"');
-    expect(html).toContain('起草画布');
+    expect(html).toContain('通用 Work 可用，专业 Scenes 未加载');
+    expect(html).toContain('data-testid="scene-unloaded-work"');
+    expect(html).toContain('进入 Work');
     expect(html).not.toContain('data-testid="scene-more"');
     for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '合同']) {
       expect(html).not.toContain(legalCopy);

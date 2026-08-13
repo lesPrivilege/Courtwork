@@ -50,7 +50,9 @@ test.describe('RP-1 最终重排', () => {
     await expect(popover).toBeVisible();
     await page.getByTestId('store-chat-case').click();
     await expect(popover).toHaveCount(0);
-    // 存入后切 work 面，新容器标题居顶栏
+    await expect(page.getByTestId('pi-panel')).toBeVisible();
+    await page.getByTestId('segment-work').click();
+    // 显式进入 Scenes 后，新容器标题居顶栏。
     await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
   });
 
@@ -64,6 +66,8 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('store-chat-popover')).toBeVisible();
     await page.getByTestId('store-chat-workspace').click();
     await expect(page.getByTestId('store-chat-popover')).toHaveCount(0);
+    await expect(page.getByTestId('pi-panel')).toBeVisible();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('titlebar-case-title')).toContainText('项目');
     // 工作区行图标
     await expect(page.getByTestId('rail-icon-workspace').first()).toBeVisible();
@@ -149,6 +153,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('user-menu-trigger')).not.toContainText('林律师');
 
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await page.getByTestId('segment-work').click();
     await connectProvider(page);
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-close')).toHaveText('Close');

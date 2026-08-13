@@ -23,6 +23,7 @@ async function createCaseWithLegal(page: Page, name: string) {
   await dialog.getByRole('textbox', { name: '案件名称' }).fill(name);
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await dialog.waitFor({ state: 'hidden' }).catch(() => undefined);
+  await page.getByTestId('segment-work').click();
 }
 
 /** 打开当前选中案的包设置弹层（matter 设置处，展开区「管理包」）。 */
@@ -82,6 +83,7 @@ test('③ 准入失败 fail-closed 显式：绑定非准入包 → 显式失效�
   const setup = page.getByTestId('provider-setup');
   if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
   await page.getByTestId('case-card-invalid-bound').getByRole('button', { name: '失效绑定案', exact: true }).click();
+  await page.getByTestId('segment-work').click();
 
   // 显式失效面（发生了什么＋下一步），场景条被替换（零入口、零卸载起手引导伪装）。
   const failure = page.getByTestId('matter-binding-failure');
@@ -172,6 +174,7 @@ async function createGrantCaseWithLegal(page: Page) {
   await dialog.getByTestId('new-case-pack-legal').check();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
 }
 
 async function ingestContract(page: Page) {
@@ -385,6 +388,7 @@ test('④ PM 分层：目录诚实标注、两处选择面均不可选、历史 
 
   // 历史 PM 绑定：诚实显示「已绑定 · 仅目录与既有产物可用」，不判未准入、不冒充完整加载。
   await page.getByTestId('case-card-pm-bound').getByRole('button', { name: '产品管理绑定案', exact: true }).click();
+  await page.getByTestId('segment-work').click();
   const stateRow = page.getByTestId('rail-pack-state-pm-bound');
   await expect(stateRow).toContainText('已绑定：产品管理包 · 仅目录与既有产物可用');
   await expect(stateRow).not.toContainText('已加载');

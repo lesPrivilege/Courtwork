@@ -150,6 +150,7 @@ async function prepareCase(page: Page, options: { bogusFileId?: boolean } = {}) 
   await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
 
   const bytes = Array.from(new Uint8Array(compileDraftToDocx({
     title: '设备采购合同',

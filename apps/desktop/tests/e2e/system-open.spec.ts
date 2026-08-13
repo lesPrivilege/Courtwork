@@ -51,27 +51,14 @@ test('确认编译后产出目录存在 docx，起草画布才进入冻结态', 
   await expect(draft.getByRole('button', { name: '编译为 Word 文档' })).toBeEnabled();
 });
 
-test('新建工作稿进入编辑面且自动保存', async ({ page }) => {
+test('Working folders 工作稿入口进入 Pi Work', async ({ page }) => {
   await openWorkbench(page);
   await openWorkingFolders(page);
-  await page.getByTestId('wf-open-work-drafts').click();
+  await page.getByTestId('wf-open-pi-work').click();
   // 十四章：无 L2 popover（大纲目录即二级）——旧断言退役为恒真占位
   await expect(page.getByTestId('utility-dock-popover')).toHaveCount(0);
-  await expect(page.getByTestId('work-draft-panel')).toBeVisible();
-  const createDraft = page.getByTestId('new-work-draft');
-  const hitTarget = await createDraft.evaluate((button) => {
-    const rect = button.getBoundingClientRect();
-    return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)?.closest('[data-testid]')?.getAttribute('data-testid');
-  });
-  expect(hitTarget).toBe('new-work-draft');
-  await createDraft.click();
-  await expect(page.getByTestId('work-draft-editor')).toBeVisible();
-  await expect(page.getByTestId('work-draft-list').locator('button')).toHaveCount(1);
-  const editor = page.getByTestId('work-draft-editor');
-  await editor.locator('p').first().click();
-  await page.keyboard.type('核对验收异议期限');
-  await editor.blur();
-  await expect(editor).toContainText('核对验收异议期限');
+  await expect(page.getByTestId('segment-draft')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
 });
 
 test('卷宗原件区只读：无 contentEditable、无编辑入口', async ({ page }) => {

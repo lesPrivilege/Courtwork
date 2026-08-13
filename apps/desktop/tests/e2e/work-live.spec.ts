@@ -136,6 +136,7 @@ async function createGrantCase(page: Page) {
   await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);
 }
 
@@ -227,6 +228,7 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
 async function switchAwayAndBack(page: Page, grantCaseId: string) {
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${grantCaseId}`).locator('button.case-card-main').click();
+  await page.getByTestId('segment-work').click();
   // 重新打开审查工作面（切案后 grant 案 preview 关闭）——恢复入口据持久指针在此重现。
   await page.getByTestId('scene-legal.S3').click();
 }

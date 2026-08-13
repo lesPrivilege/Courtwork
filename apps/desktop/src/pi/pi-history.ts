@@ -104,6 +104,24 @@ export function writePiHistory(
   return trimmed;
 }
 
+/**
+ * 授权身份变化时删除该容器的 GUI 索引缓存。
+ *
+ * journal 与 workspace 都仍由旧授权身份的宿主持有；这里删除的只是可重建索引，避免没有 grantId
+ * 字段的 v1 缓存被新授权面误认。信封形状不变，不新增 durable schema。
+ */
+export function clearPiHistoryForContainer(
+  backend: PiHistoryBackend,
+  containerId: string,
+): PiHistorySession[] {
+  const next = readPiHistory(backend).filter((session) => session.containerId !== containerId);
+  backend.setItem(
+    PI_HISTORY_STORAGE_KEY,
+    JSON.stringify({ version: PI_HISTORY_SCHEMA_VERSION, sessions: next }),
+  );
+  return next;
+}
+
 function trimPerContainer(sessions: readonly PiHistorySession[]): PiHistorySession[] {
   const counted = new Map<string, number>();
   const kept: PiHistorySession[] = [];

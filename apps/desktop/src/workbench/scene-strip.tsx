@@ -6,7 +6,7 @@ import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 /**
  * 场景条（GENERIC-PACK-1 裁定二）：场景按钮由包 descriptor 的 `launch` 声明、registry 冻结、
  * 宿主以有限元素集通用渲染。壳零场景按钮字面量——文案/变体/启动目标全部来自冻结声明；
- * 卸载态（零条目）起手引导＝通用开场（matter 规范文件提示＋Draft 入口），零垂类兜底。
+ * 卸载态起手引导＝通用开场（Pi Work 入口），零垂类兜底。
  */
 
 export interface SceneStripEntry {
@@ -120,12 +120,12 @@ export interface SceneStripProps {
   readonly runningControlLabel?: string;
   readonly onLaunch: (entry: SceneStripEntry) => void;
   readonly onCancelRun: () => void;
-  /** 卸载态起手引导的 Draft 入口（通用开场）。 */
-  readonly onOpenDraft: () => void;
+  /** 卸载态起手引导的 Pi Work 入口（通用开场）。 */
+  readonly onOpenWork: () => void;
 }
 
 export function SceneStrip(props: SceneStripProps) {
-  const { entries, running, runningControlLabel, onLaunch, onCancelRun, onOpenDraft } = props;
+  const { entries, running, runningControlLabel, onLaunch, onCancelRun, onOpenWork } = props;
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   useDismissOnOutside(moreOpen, () => setMoreOpen(false), moreRef);
@@ -136,15 +136,15 @@ export function SceneStrip(props: SceneStripProps) {
 
   return (
     <div className="scene-strip" data-testid="scene-strip">
-      {/* 卸载态起手引导（裁定二）：通用开场——matter 规范文件提示＋Draft 入口，零垂类兜底。
+      {/* WORK-AGENT-GUI-1：通用 Work 恒可用；缺席的是专业 Scenes，不再引向 renderer 内存稿。
           基线场景到场后引导**不再顶替**按钮而是与之同框：两者说的是两件事，一件是这枚 matter
           缺什么能力，一件是它此刻能起什么活。 */}
       {isVerticalCapabilityUnloaded(entries) && (
         <>
           <p className="scene-unloaded-hint" data-testid="scene-unloaded-hint">
-            本工作区未加载垂类能力。可在工作区根目录撰写《场景规范.md》描述任务目标与材料分工，模型跨会话遵循；或直接进入起草画布开始工作。
+            通用 Work 可用，专业 Scenes 未加载。
           </p>
-          <button type="button" className="scene-primary" data-testid="scene-unloaded-draft" onClick={onOpenDraft}>起草画布</button>
+          <button type="button" className="scene-primary" data-testid="scene-unloaded-work" onClick={onOpenWork}>进入 Work</button>
         </>
       )}
       {running && runningControlLabel !== undefined ? (

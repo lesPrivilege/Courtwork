@@ -24,24 +24,16 @@ test('卸载态：未绑定 matter 页签集零垂类（effective registry 派�
   const setup = page.getByTestId('provider-setup');
   if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
   await page.getByTestId('case-card-unbound-1').getByRole('button', { name: '未绑定案', exact: true }).click();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('scene-strip')).toBeVisible();
   // 卸载态起手引导（裁定二）：matter 规范文件提示＋Draft 入口，零垂类兜底——条内无任何垂类按钮。
   await expect(page.getByTestId('scene-unloaded-hint')).toBeVisible();
-  await expect(page.getByTestId('scene-unloaded-hint')).toContainText('《场景规范.md》');
+  await expect(page.getByTestId('scene-unloaded-hint')).toHaveText('通用 Work 可用，专业 Scenes 未加载。');
   for (const legalCopy of ['整理卷宗', '审查合同', '卷宗整理', '起草答辩状', '停止审查']) {
     await expect(page.getByTestId('scene-strip').getByRole('button', { name: legalCopy, exact: true })).toHaveCount(0);
   }
-  // Draft 入口打开工作面预览（壳内通用起草画布，卸载态仍可用）。
-  await page.getByTestId('scene-unloaded-draft').click();
-  const tabs = page.getByRole('tablist', { name: '结构化工作面' });
-  await expect(tabs).toBeVisible();
-  // 四枚垂类页签标题一个都不许出现；通用起草画布在。
-  for (const legalTab of ['时间线', '关系图谱', '矩阵审阅', '修订预览']) {
-    await expect(tabs.getByRole('tab', { name: legalTab })).toHaveCount(0);
-  }
-  await expect(tabs.getByRole('tab', { name: '起草画布' })).toHaveCount(1);
-  // 非 grant 卸载案的工作面是中性空态（1491 门）；grant 卸载案的起草面＝通用工作稿轨
-  // 的断言随③全链谱（matter 创建→work→产物→回看）同批取证。
+  await page.getByTestId('scene-unloaded-work').click();
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
 });
 
 test('过渡默认已销：新建 matter 持久携 packBinding []（PACK-INTERACT-1 ⑤）', async ({ page }) => {
@@ -103,6 +95,7 @@ test('③ 卸载态成品全链：未绑定 matter 创建→work→产物→回�
 
   // ① matter 创建（测试构造点：持久面显式零绑定 + grant 文件夹）——选中即 Work 面。
   await page.getByTestId('case-card-unbound-chain').getByRole('button', { name: '卸载全链案', exact: true }).click();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('scene-strip')).toBeVisible();
   // 起手引导＝通用开场（matter 规范文件提示＋Draft 入口），零垂类兜底。
   await expect(page.getByTestId('scene-unloaded-hint')).toBeVisible();

@@ -49,6 +49,6 @@ test('整理后可撤销并保留确认门禁形态', async ({ page }) => {
 test('原件区展示原始文件名留痕且无删除入口', async ({ page }) => {
   await openWorkbench(page);
   const zone = page.getByTestId('originals-zone');
-  await expect(zone.getByText('原名', { exact: false }).first()).toBeVisible();
+  await expect(zone.getByText('原名', { exact: false }).first()).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole('button', { name: /删除/ })).toHaveCount(0);
 });

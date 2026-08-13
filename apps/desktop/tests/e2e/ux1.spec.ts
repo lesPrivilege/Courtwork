@@ -20,9 +20,11 @@ test.describe('UX-1 批次一', () => {
 
     // 回 demo 再进 B，容器名只在案件头切换。
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('titlebar-case-title')).toContainText('临江');
     const bCard = page.locator('.case-card').filter({ hasText: 'UX一号案' });
     await bCard.getByRole('button').first().click();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('titlebar-case-title')).toContainText('UX一号案');
     await expect(page.getByTestId('composer-case')).toHaveCount(0);
   });
@@ -54,6 +56,8 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('containerize-popover')).toBeVisible();
     await page.getByTestId('containerize-case').click();
     await expect(page.getByTestId('containerize-popover')).toHaveCount(0);
+    await expect(page.getByTestId('pi-panel')).toBeVisible();
+    await page.getByTestId('segment-work').click();
     await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
   });
 

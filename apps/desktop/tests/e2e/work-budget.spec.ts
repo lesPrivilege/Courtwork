@@ -101,6 +101,7 @@ async function prepare(page: Page, maxUsd: number, mode: 'known' | 'mismatch' | 
   // PACK-INTERACT-1 ⑤：过渡默认已销，需 legal 场景的 grant 案在建案时显式选包。
   await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
+  await page.getByTestId('segment-work').click();
   await page.evaluate(({ grantId, fileName, data }) => {
     (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost
       .setFile(grantId, fileName, new Uint8Array(data));
@@ -134,6 +135,7 @@ async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   const ref = await persistedRef(page);
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${ref.caseId}`).locator('button.case-card-main').click();
+  await page.getByTestId('segment-work').click();
   await page.getByTestId('scene-legal.S3').click();
   await expect(page.getByTestId('precheck-recover')).toBeVisible();
   await page.getByTestId('precheck-recover-run').click();

@@ -16,17 +16,17 @@ test('chat 建案 → 切 work 并选中新案', async ({ page }) => {
   await expect(page.getByTestId('chat-case-title')).toContainText('路由律甲案');
 });
 
-test('chat 内点左栏既有案件 → 隐式切 work', async ({ page }) => {
+test('chat 内点左栏既有案件 → 隐式切 Pi Work', async ({ page }) => {
   await enterChatSegment(page);
   await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'work');
-  await expect(page.getByTestId('demo-case-badge')).toBeVisible();
+  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'draft');
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
 });
 
 test('chat 内点阶段行 → 隐式切 work 且右列挂载', async ({ page }) => {
   await enterChatSegment(page);
   await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'work');
+  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'draft');
   // 回 chat 再点阶段，验证阶段行独立触发切面
   await page.getByTestId('segment-chat').click();
   await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'chat');
@@ -45,7 +45,9 @@ test('chat 建案隐式存入：话题带入 work 面且 chat 对话保留', asy
   await expect(page.getByTestId('chat-assistant-message')).toBeVisible();
   await page.getByTestId('store-chat').click();
   await page.getByTestId('store-chat-case').click();
-  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'work');
+  await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'draft');
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('local-user-message')).toContainText('存入桥话题验证');
   await page.getByTestId('segment-chat').click();
   await expect(page.getByTestId('chat-user-message')).toContainText('存入桥话题验证');

@@ -729,23 +729,25 @@
       "target": "apps/desktop/src/styles.css#.work-draft-toolbar|all",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N053",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "WORK-AGENT-GUI-1",
       "hairline": false,
-      "fragmentKind": "selector"
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-draft-body|all",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N054",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "WORK-AGENT-GUI-1",
       "hairline": false,
-      "fragmentKind": "selector"
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-memory-item|all",
@@ -1284,12 +1286,13 @@
       "target": "apps/desktop/src/styles.css#.work-draft-list|right",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N103",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "WORK-AGENT-GUI-1",
       "hairline": false,
-      "fragmentKind": "selector"
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-nav|right",

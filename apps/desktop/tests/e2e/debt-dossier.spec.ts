@@ -50,6 +50,7 @@ async function createGrantCase(page: Page) {
   await page.getByTestId('new-case-authorize').click();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
+  await page.getByTestId('segment-work').click();
 }
 
 async function captureChatRequests(page: Page) {
@@ -203,6 +204,7 @@ test('件二：多案件数分格——甲案入库不改乙案件数，两案�
   await page.getByTestId('new-case-authorize').click();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
+  await page.getByTestId('segment-work').click();
 
   // 两案件数各自成立：非选中案的件数此前恒为 0（只有选中案查过 store），本断言即那条缺口的红证。
   const counts = page.getByTestId('case-file-count');

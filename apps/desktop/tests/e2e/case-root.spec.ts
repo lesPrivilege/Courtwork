@@ -67,8 +67,9 @@ test('新建案件：授权成立 → 绑定文件夹并建案；renderer 只见
 
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
-  // 建成真实案（非 demo），标题即案名
-  await expect(page.getByTestId('titlebar-case-title')).toHaveText('设备采购案卷');
+  // 建成真实案（非 demo），默认落 Pi Work；Scenes 标题带不越面冒充。
+  await expect(page.getByTestId('segment-draft')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
   await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);
 });
 

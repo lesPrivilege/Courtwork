@@ -19,7 +19,7 @@ test('chat|work 段控真路由：work=工作台 / chat=轻画布（右栏退场
   await expect(page.getByTestId('right-module-stack')).toBeVisible();
 });
 
-test('chat 面内存态会话：发送即入会话；存入桥接容器化仪式后切 work', async ({ page }) => {
+test('chat 面内存态会话：发送即入会话；存入桥接容器化仪式后切 Pi Work', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('segment-chat').click();
   await expect(page.getByTestId('chat-empty')).toBeVisible();
@@ -32,8 +32,8 @@ test('chat 面内存态会话：发送即入会话；存入桥接容器化仪式
   await expect(page.getByTestId('store-chat-popover')).toBeVisible();
   await page.getByTestId('store-chat-case').click();
   await expect(page.getByTestId('store-chat-popover')).toHaveCount(0);
-  await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
-  await expect(page.getByTestId('right-module-stack')).toBeVisible();
+  await expect(page.getByTestId('segment-draft')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
 });
 
 test('① 案件标题居顶栏（与红绿灯同排），不在 chat 头，且可编辑持久化', async ({ page }) => {

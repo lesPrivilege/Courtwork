@@ -86,8 +86,6 @@ const MINOR = {
   '.work-output-result|all': '内层容器',
   '.nonapplied-confirm|all': '内层容器',
   '.draft-panel > header|all': '内层容器（文书工作面·头）',
-  '.work-draft-toolbar|all': '内层容器',
-  '.work-draft-body|all': '内层容器（工作稿面）',
   '.settings-fields fieldset|all': '内层容器',
   '.settings-path|all': '内层容器',
   '.settings-credential-embed|all': '内层容器',
@@ -134,7 +132,6 @@ const MINOR = {
   '.relation-list|top': '面内分栏（窄容器覆写）',
   '.risk-list|right': '面内分栏',
   '.risk-list|bottom': '面内分栏（窄容器覆写）',
-  '.work-draft-list|right': '面内分栏',
   '.settings-nav|right': '面内分栏（判据 b/c：竖分归界行，且自身为滚动容器）',
   '.view-tabs|bottom': '段内分隔（判据 c：overflow-x 滚动容器，细线会随 tab 卷走）',
 };
@@ -158,6 +155,9 @@ const RETIRED = {
   '.draft-editor, .draft-reading|all': 'VL2-L02',
   '.document-preview header|bottom': 'VL2-L02',
   '.paste-block .collapse-toggle|top': 'VL2-L02',
+  '.work-draft-toolbar|all': 'WORK-AGENT-GUI-1',
+  '.work-draft-body|all': 'WORK-AGENT-GUI-1',
+  '.work-draft-list|right': 'WORK-AGENT-GUI-1',
 };
 
 // ── 不换：答不出「此界为何是主/次」的线 ────────────────────────────────────
@@ -297,11 +297,11 @@ for (let index = 1; index <= 105; index += 1) {
 if (p1Rows.length !== 113) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 113`);
 // VERSIONAL-LANG-2 的五条 routine 线经覆议从 P1「留/minor」迁为「退/none」；
 // 行数仍是 113，统计随逐行旧账迁移更新，不靠删除旧 P1 行掩盖历史。
-if (classCounts.major !== 4 || classCounts.minor !== 93 || classCounts.none !== 16) {
-  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/93 · 退 ${classCounts.none}/16`);
+if (classCounts.major !== 4 || classCounts.minor !== 90 || classCounts.none !== 19) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/90 · 退 ${classCounts.none}/19`);
 }
-if (decisionCounts['留'] !== 84 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 16) {
-  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/84 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/16`);
+if (decisionCounts['留'] !== 81 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 19) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/81 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/19`);
 }
 for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR), ...Object.keys(RETIRED)]) {
   if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);

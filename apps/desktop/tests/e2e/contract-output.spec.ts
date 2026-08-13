@@ -120,6 +120,7 @@ async function createCaseWithMaterials(page: Page, files: [string, number[]][]) 
   await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
 
   for (const [name, bytes] of files) await seedFile(page, name, bytes);
   await setNextAuthorize(page);

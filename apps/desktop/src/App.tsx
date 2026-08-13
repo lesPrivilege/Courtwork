@@ -122,14 +122,14 @@ import { workContextSegmentFor } from './work/work-context';
 import { useModelConfig } from './provider/use-model-config';
 import { FileOpsPlanPanel } from './verticals/legal/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
-// CASE-ROOT-1：样板案的虚拟根仅供 demo 呈现（原件区/工作稿/在访达显示，皆浏览器 mock），
+// CASE-ROOT-1：样板案的虚拟根仅供 demo 呈现（原件区/在访达显示，皆浏览器 mock），
 // 非 wire 字段、非真实授权路径；真实案件根一律经 grantId 在宿主侧解析，不入 renderer。
 import { DEMO_CASE_ROOT } from './system/demo-case-layout';
 import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import { INITIAL_DRAFT, type DraftDocument } from './workbench/Panels';
 import { DraftSeat } from './workbench/draft-seat';
-import { isVerticalCapabilityUnloaded, resolveSceneStripEntries, SceneStrip, type SceneStripEntry } from './workbench/scene-strip';
+import { resolveSceneStripEntries, SceneStrip, type SceneStripEntry } from './workbench/scene-strip';
 import { routeSceneLaunch, ScenePrecheckHost } from './workbench/scene-precheck-host';
 import { describeViewProducer, resolveLaunchTargetView } from './preview/view-producer';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
@@ -275,8 +275,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
    */
   // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条待用户确认后才落盘。
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
-  /** 用户已显式把产出送进起草画布（本案会话内，粘着到切案为止）。 */
-  const [draftCanvasOpen, setDraftCanvasOpen] = useState(false);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
   const [credentialProbed, setCredentialProbed] = useState(false);
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
@@ -307,18 +305,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   // PI-LANE-UI-1：pi 线一条工作绑一枚容器（＝当前案件），案件根经既有 grantId 解析。
+  const selectedGrantId = selectedCase?.grantId ?? null;
   const piSession = usePiLaneSession({
     port: piLane,
     containerId: selectedCaseId,
-    grantId: cases.find((item) => item.id === selectedCaseId)?.grantId ?? null,
+    grantId: selectedGrantId,
     modelId: modelConfig.modelId,
     maxTurns: 12,
     maxUsd: null,
   });
   const [settingsAutoCredential, setSettingsAutoCredential] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
-  /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
-  const [workDraftMode, setWorkDraftMode] = useState(false);
   /** 宿主通用起跑面正在承载的场景 id（GENERIC-SCENARIOS-1 二批裁定二）；null＝未在起跑面。 */
   const [precheckScenarioId, setPrecheckScenarioId] = useState<string | null>(null);
   /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
@@ -351,7 +348,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
    * 自动标题**归 `C3-2`，那是「让已有的会话可被找回」，与「把画布本身持久化」是两件事。
    * 册内**没有** chat 画布持久化工单；未来要做须另立票，不得据本行推定已在计划内。
    */
-  const [viewSegment, setViewSegment] = useState<'chat' | 'work' | 'draft'>('work');
+  const [viewSegment, setViewSegment] = useState<'chat' | 'work' | 'draft'>(initialCaseId.current ? 'draft' : 'work');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   /** chat 面在途请求（真 API）；运行态经 ProcessTrace 渲染 BrandThinking（与 work thought process 同源动画）。 */
   const [chatPending, setChatPending] = useState(false);
@@ -701,7 +698,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     if (handoff.length) chatHandoff.current = { caseId: newId, messages: handoff };
     // chatspace 侧原对话照单例语义保留（不清空）——切回 chat 面仍可续
     setStoreChatOpen(false);
-    setViewSegment('work');
+    setViewSegment('draft');
   };
 
   const switchSegment = (next: 'chat' | 'work' | 'draft') => {
@@ -784,7 +781,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     } else {
       setLocalMessages([]);
     }
-    setWorkDraftMode(false);
     setFileOpsMode(false);
     // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
     //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
@@ -797,7 +793,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setDraftOutputExists(false);
     setDemoContractOutputExists(false);
     setDraft(INITIAL_DRAFT);
-    setDraftCanvasOpen(false);
     draftCompile.reset();
     verticalSurface.resetForContextSwitch();
     setSecondaryView(undefined);
@@ -915,7 +910,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
 
   // CASE-ROOT-1：案件根改为 opaque 绑定。真实案件根绝对路径只在宿主侧按 grantId 解析，
   // renderer 只见 binding（demo|grant|unbound）。`demoCaseRoot` 是样板案的虚拟根，仅供 demo
-  // 浏览器 mock 呈现（原件区/工作稿/在访达显示），真实案永不在 renderer 暴露绝对路径。
+  // 浏览器 mock 呈现（原件区/在访达显示），真实案永不在 renderer 暴露绝对路径。
   const caseBinding = useMemo<CaseBinding>(
     () => (selectedCase ? resolveCaseBinding(selectedCase) : { kind: 'unbound' }),
     [selectedCase],
@@ -1059,7 +1054,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     productionScenarioIds: verticalWorkSurface.productionScenarioIds,
   }, isDemoCase ? 'demo' : 'production');
   // 卸载态判据（收尾追修）：基线恒在后「零条目」不再等价卸载，改问有没有非基线包在册。
-  const verticalUnloaded = isVerticalCapabilityUnloaded(sceneEntries);
   const onLaunchScenario = (entry: SceneStripEntry) => {
     if (isDemoCase) {
       const route = workFixture.scenarioLaunch(entry.scenarioId);
@@ -1150,8 +1144,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setSelectedCaseId(newId);
     if (kind === 'case') setExpandedCaseId(newId);
     setNewCaseOpen(false);
-    // 路由律（批次七④）：案件对象住 work 面——建案即切面选中，chat 内建案不再留在原地
-    switchSegment('work');
+    // WORK-AGENT-GUI-1：容器建成即落 Pi Work；未授权由 StartGate 诚实阻断。
+    switchSegment('draft');
     return newId;
   };
 
@@ -1387,7 +1381,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setFlow(next);
     setReplayEpoch((epoch) => epoch + 1);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
-    setWorkDraftMode(false);
     setFileOpsMode(false);
     verticalSurface.resetForContextSwitch();
     setContinued(false);
@@ -1399,7 +1392,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     if (requestedSecondaryView === view && activeView !== view) setSecondaryView(activeView);
     manualPreviewSelected.current = true;
     setActiveView(view);
-    if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
     // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
     //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
@@ -1416,23 +1408,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     const plan = planDraftHandoff({ payload: session.artifacts[DRAFT_HANDOFF_ARTIFACT_TYPE], frozen: draftFrozen });
     if (plan.status === 'blocked') { showSystemFeedback(plan.message, false); return; }
     setDraft(plan.document);
-    setDraftCanvasOpen(true); setWorkDraftMode(false);
     choosePrimaryView('draft');
   };
 
-  const openWorkDrafts = () => {
-    manualPreviewSelected.current = true;
-    setWorkDraftMode(true);
-    setFileOpsMode(false);
-    setActiveView('draft');
-    setPreviewOpen(true);
-    previewDismissedContext.current = null;
-  };
+  const openPiWork = () => switchSegment('draft');
 
   const openFileOps = () => {
     manualPreviewSelected.current = true;
     setFileOpsMode(true);
-    setWorkDraftMode(false);
     setSecondaryView(undefined);
     setPreviewOpen(true);
     previewDismissedContext.current = null;
@@ -1500,13 +1483,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       </WorkbenchRenderProvider>;
     }
     if (view === 'draft') {
-      // 落轨判据（收尾追修）：显式进入工作稿轨，或未加载垂类的默认落座；用户一旦显式把产出
-      // 送进画布，画布就是他要的那张面。「零场景条目」这个卸载态代理判据已被基线恒在顶穿。
       return <DraftSeat
-        workTrack={workDraftMode || (verticalUnloaded && !draftCanvasOpen)}
-        caseId={selectedCase.id}
-        caseRoot={demoCaseRoot ?? ''}
-        onFeedback={showSystemFeedback}
         draft={draft}
         onDraftChange={setDraft}
         frozen={draftFrozen}
@@ -1550,7 +1527,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     selectedCase,
     focusMode,
     onLaunchScenario,
-    onSelectCase: (id) => { setSelectedCaseId(id); switchSegment('work'); }, // 路由律：⌘K 跳案即切面
+    onSelectCase: (id) => { setSelectedCaseId(id); switchSegment('draft'); },
     onNewCase: () => setNewCaseOpen(true),
     onArchiveTrigger: setArchiveConfirmCaseId,
     onToggleFocus: toggleFocusMode,
@@ -1588,7 +1565,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       status: (isDemoCase ? 'active' : 'idle') as 'active' | 'idle',
       open: moduleOpen['working-folders'],
       onToggle: () => toggleModule('working-folders'),
-      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCaseMaterialCount} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
+      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCaseMaterialCount} onFocusOriginals={focusOriginalsZone} onOpenWork={openPiWork} onOpenFileOps={openFileOps} fileOpsSelected={fileOpsMode} />,
     },
     {
       id: 'context' as const,
@@ -1705,7 +1682,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）
               const kind = cases.find((c) => c.id === id)?.kind ?? 'case';
               if (kind === 'case') setExpandedCaseId(id);
-              switchSegment('work'); // 路由律（批次七④）：左栏点案隐式切 work
+              switchSegment('draft');
             }}
             onToggleExpand={(id) => setExpandedCaseId((current) => (current === id ? null : id))}
             onNewCase={() => setNewCaseOpen(true)}
@@ -1764,7 +1741,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                       <span className="welcome-idea-icon"><Icon name="panels-top-left" /></span>
                       <span>{CHROME_COPY.welcome.sample}</span>
                     </button>
-                    <button type="button" className="welcome-idea-row" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); setSampleTourOpen(true); }}>
+                    <button type="button" className="welcome-idea-row" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); switchSegment('work'); setSampleTourOpen(true); }}>
                       <span className="welcome-idea-icon"><Icon name="folder-open" /></span>
                       <span className="welcome-idea-main"><strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small></span>
                     </button>
@@ -1918,7 +1895,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                 runningControlLabel={verticalSurface.runningControlCopy}
                 onLaunch={onLaunchScenario}
                 onCancelRun={verticalSurface.cancelRun}
-                onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
+                onOpenWork={openPiWork}
               />
             ))}
             <ScenePrecheckHost
@@ -1944,8 +1921,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               <strong className="chat-titlebar-label">{CHROME_COPY.segment.draft}</strong>
             </div>
             <PiLanePanel
+              key={`${selectedCaseId ?? ''}:${selectedGrantId ?? ''}`}
               session={piSession}
-              bound={Boolean(cases.find((item) => item.id === selectedCaseId)?.grantId)}
+              bound={Boolean(selectedGrantId)}
             />
           </section>
         )}
@@ -2173,7 +2151,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
           window.localStorage.setItem('courtwork.onboarding.seen', 'true');
           setProviderSetupOpen(false);
           setSelectedCaseId(DEMO_CASE_ID);
-          setExpandedCaseId(DEMO_CASE_ID);
+          setExpandedCaseId(DEMO_CASE_ID); switchSegment('work');
           setSampleTourOpen(true);
         }}
       />
@@ -2215,4 +2193,3 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     </main>
   );
 }
-

@@ -25,9 +25,8 @@ need(!/padding-left:\s*152px/.test(css), '收拢态不得用固定 152px 避让�
 need(/chat-titlebar[\s\S]*?\{selectedCase &&/.test(app), '① 顶栏标题仅有容器时出现（chat-titlebar 内 selectedCase 门控）');
 
 // —— chat|work 二段真路由 ——
-// PI-LANE-UI-1：段值扩为三枚（Draft 面）。判据保持「有一枚显式的段状态且默认落 work」，
-// 不锁成员数——锁成员数会让下一次扩段变成改门而不是改设计。
-need(app.includes("useState<'chat' | 'work' | 'draft'>('work')"), 'chat|work|draft viewSegment 状态须存在');
+// WORK-AGENT-GUI-1：内部段值维持三枚，但默认授权入口已改为 draft id 承载的 Pi Work。
+need(app.includes("useState<'chat' | 'work' | 'draft'>(") && app.includes("initialCaseId.current ? 'draft' : 'work'"), 'chat|work|draft viewSegment 须存在；已选容器默认落 Pi Work，welcome 保持 Scenes');
 need(app.includes('data-testid="draft-canvas"') && app.includes("viewSegment === 'draft'"), 'Draft 面须真路由');
 need(/data-testid="view-segment"[\s\S]*segment-chat[\s\S]*segment-work/.test(rail), '段控须落左栏（segment-chat/work）');
 need(app.includes('data-testid="chat-canvas"') && app.includes("viewSegment === 'chat'"), 'chat 面轻画布须真路由');

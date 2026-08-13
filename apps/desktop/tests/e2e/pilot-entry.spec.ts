@@ -108,6 +108,7 @@ test('C2：NewCaseDialog 授权建案 → 材料随建案自动入库，无需�
   await page.getByTestId('new-case-authorize').click();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
+  await page.getByTestId('segment-work').click();
 
   // 未点 composer-plus-folder，material-item 应直接 ready。
   await expect(page.getByTestId('material-item').filter({ hasText: '委托合同.md' }))
@@ -127,7 +128,9 @@ test('C2：welcome 态 composer-plus-folder 授权 → 自动建案 + 选中 + �
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
 
-  // 新案入栏并选中（案名取 grant label），不再是"只 toast、grant 悬空"。
+  // 新案入栏并选中，产品默认先落 Pi Work；本用例再显式进入 Scenes 核对案名与入库。
+  await expect(page.getByTestId('pi-panel')).toBeVisible();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('titlebar-case-title')).toContainText('欢迎态案卷');
   await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);
   await expect(page.getByTestId('material-item').filter({ hasText: '委托合同.md' }))

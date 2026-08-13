@@ -5,10 +5,10 @@
 export const CHROME_COPY = {
   segment: {
     chat: 'Chat',
-    work: 'Work',
-    // PI-LANE-UI-1: the generic Markdown working-draft surface. Deliberately NOT
-    // "Agent" — the agent-naming gate (PI-BASE-GUI-ACCEPT) has not been cleared.
-    draft: 'Draft',
+    work: 'Scenes',
+    // WORK-AGENT-GUI-1 keeps the internal draft id while presenting the Pi entry as Work.
+    // Deliberately NOT "Agent" — PI-BASE-GUI-ACCEPT has not cleared that naming gate.
+    draft: 'Work',
   },
   storeChat: {
     action: 'Save to a case',

@@ -5489,3 +5489,21 @@ provider 清单或把诊断正文持久化。`UI-TOAST-1`、`CHAT-QUEUE-1` 与 C
 `tests/e2e/legal-anchor-binding-1.spec.ts`（3 例：三面真跑回跳 + 跨案 fileId 伪锚 fail-closed）。
 `schema-polish.spec.ts`／`workbench.spec.ts` 各一处把 disabled 死态固化成的断言按本意改写，
 旧判据转具名反向锁（面上不再出现「尚未接通」）。
+
+## WORK-AGENT-GUI-1 · 通用 Work 主入口（2026-08-13，实现完成待独立验收）
+
+实现回执详见 `apps/desktop/specs/WORK-AGENT-GUI-1.md` §八。desktop 已将顶层信息架构收敛为
+`Chat | Work | Scenes`：Work 是既有 Pi lane，Scenes 是声明式场景工作台；真实授权容器的默认入口、
+零垂类 CTA 与 Working folders 工作稿入口均落 Pi Work。旧 renderer-only WorkDraft panel/store、
+对应 producer/testid 与 `DraftSeat.workTrack` 已删除；generic `DraftDocument` 显式 handoff →
+`DraftPanel` → no-replace compile 交付轨保留。
+
+Pi reset 身份现为 `{containerId, grantId}`；同 matter 换授权时立即清 projection/history/viewer/pending，
+旧授权的异步结果与命令不可进入新面，durable journal schema 未改。永久守卫覆盖旧 producer/import/
+testid 与 `caseRoot=''` 工作稿伪写回流，四枚源码 mutation 均 exit 1；grant reset、标签路由与
+DraftPanel 删除三类 mutation 均 1/1 failed 后恢复。
+
+最终门：App **2195** 行（原 2218，上限同步降至 2195）；desktop **100 files / 884 tests**，root
+**183 / 2251 tests**，site guard **103/103**，cargo **259 passed / 0 failed / 1 ignored**，独立端口
+Playwright **391/391**。browser 全链只记 scripted route evidence，不取得 Tauri/product-live 或
+Agent 称谓；OSS 按冻结结论执行“删除当期动作”，零新依赖，新增概念仅 `Scenes`。

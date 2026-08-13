@@ -55,6 +55,7 @@ test('样板案时间线：回到原件按坐标打开卷宗并恰一处高亮',
 test('样板案关系图谱：关系依据回到原件按坐标高亮', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('flow-s1').click();
+  await expect(page.getByTestId('timeline-panel')).toBeVisible();
   await page.getByTestId('view-graph').click();
   const graph = page.getByTestId('graph-panel');
   await expect(graph).toBeVisible();

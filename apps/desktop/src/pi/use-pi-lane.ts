@@ -8,6 +8,7 @@ import {
   type PiWorkspaceResult,
 } from './pi-lane-port';
 import {
+  clearPiHistoryForContainer,
   priorSessionsFor,
   readPiHistory,
   writePiHistory,
@@ -90,6 +91,13 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [lines, setLines] = useState<readonly string[]>([]);
   const [history, setHistory] = useState<readonly PiHistorySession[]>(() => readPiHistory(backend));
+  const identityKey = `${containerId ?? ''}\u0000${grantId ?? ''}`;
+  const identityRef = useRef(identityKey);
+  const [stateIdentity, setStateIdentity] = useState(identityKey);
+  if (identityRef.current !== identityKey) identityRef.current = identityKey;
+  const identityOwnsState = stateIdentity === identityKey;
+  const previousIdentity = useRef({ containerId, grantId, key: identityKey });
+  const activeSession = useRef<{ containerId: string; sessionId: string; identityKey: string } | null>(null);
   const requestCounter = useRef(0);
   const coalescer = useRef<ReturnType<typeof createRecordCoalescer> | null>(null);
 
@@ -100,15 +108,33 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
     };
   }, []);
 
-  // 切容器即换一条工作：旧段的界面状态不许漏到新容器上。
+  // container 与 grant 共同定义授权身份；任一变化都先收旧段，再清投影与 GUI 历史缓存。
   useEffect(() => {
+    const previous = previousIdentity.current;
+    const active = activeSession.current;
+    if (active && active.identityKey !== identityKey) {
+      void port.teardown({ containerId: active.containerId, sessionId: active.sessionId });
+      activeSession.current = null;
+    }
     coalescer.current?.dispose();
     coalescer.current = null;
+    requestCounter.current = 0;
+    setStateIdentity(identityKey);
     setStatus('idle');
     setFailure(null);
     setSessionId(null);
     setLines([]);
-  }, [containerId]);
+    if (
+      containerId &&
+      previous.containerId === containerId &&
+      previous.grantId !== grantId
+    ) {
+      setHistory(clearPiHistoryForContainer(backend, containerId));
+    } else {
+      setHistory(readPiHistory(backend));
+    }
+    previousIdentity.current = { containerId, grantId, key: identityKey };
+  }, [backend, containerId, grantId, identityKey, port]);
 
   const view = useMemo(
     () => foldPiRecords(containerId ?? '', sessionId ?? '', [...lines]),
@@ -142,11 +168,16 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
       return;
     }
     const nextSessionId = mint();
+    const startIdentity = identityKey;
+    setStateIdentity(startIdentity);
     setStatus('starting');
     setFailure(null);
     setLines([]);
     const sink = createRecordCoalescer({
-      deliver: (batch) => setLines((previous) => [...previous, ...batch]),
+      deliver: (batch) => {
+        if (identityRef.current !== startIdentity) return;
+        setLines((previous) => [...previous, ...batch]);
+      },
       schedule: (callback) => window.requestAnimationFrame(callback),
       cancel: (handle) => window.cancelAnimationFrame(handle),
     });
@@ -163,21 +194,28 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
         },
         (line) => sink.push(line),
       );
+      if (identityRef.current !== startIdentity) {
+        sink.dispose();
+        await port.teardown({ containerId, sessionId: nextSessionId }).catch(() => undefined);
+        return;
+      }
       // 起步补齐与后续流不重叠：宿主在装 sink 之前落的那几枚由 `records` 一次性交出。
+      activeSession.current = { containerId, sessionId: nextSessionId, identityKey: startIdentity };
       setSessionId(nextSessionId);
       setLines([...reply.records]);
       setStatus('ready');
     } catch (error) {
       sink.dispose();
-      coalescer.current = null;
+      if (identityRef.current !== startIdentity) return;
+      if (coalescer.current === sink) coalescer.current = null;
       setFailure(asPiLaneFailure(error));
       setStatus('unavailable');
     }
-  }, [containerId, grantId, maxTurns, maxUsd, mint, modelId, port]);
+  }, [containerId, grantId, identityKey, maxTurns, maxUsd, mint, modelId, port]);
 
   const send = useCallback(
     async (text: string) => {
-      if (!containerId || !sessionId) return;
+      if (!containerId || !sessionId || !identityOwnsState) return;
       requestCounter.current += 1;
       try {
         await port.prompt({
@@ -190,17 +228,17 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
         setFailure(asPiLaneFailure(error));
       }
     },
-    [containerId, port, sessionId],
+    [containerId, identityOwnsState, port, sessionId],
   );
 
   const stop = useCallback(async () => {
-    if (!containerId || !sessionId) return;
+    if (!containerId || !sessionId || !identityOwnsState) return;
     try {
       await port.cancel({ containerId, sessionId });
     } catch (error) {
       setFailure(asPiLaneFailure(error));
     }
-  }, [containerId, port, sessionId]);
+  }, [containerId, identityOwnsState, port, sessionId]);
 
   /**
    * 审批按钮的**全部**作用。界面状态一动不动——它等 `authorization_decided` 落账
@@ -208,22 +246,26 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
    */
   const decide = useCallback(
     async (operationId: string, verdict: PiLaneVerdict) => {
-      if (!containerId || !sessionId) return;
+      if (!containerId || !sessionId || !identityOwnsState) return;
       try {
         await port.decision({ containerId, sessionId, operationId, verdict });
       } catch (error) {
         setFailure(asPiLaneFailure(error));
       }
     },
-    [containerId, port, sessionId],
+    [containerId, identityOwnsState, port, sessionId],
   );
 
   const open = useCallback(
     async (targetSessionId: string, logicalPath: string): Promise<PiWorkspaceResult> => {
-      if (!containerId) {
+      const allowed = identityOwnsState && (
+        targetSessionId === sessionId ||
+        history.some((entry) => entry.containerId === containerId && entry.sessionId === targetSessionId)
+      );
+      if (!containerId || !allowed) {
         return {
           ok: false,
-          failure: { code: 'session_missing', message: '没有可查看的工作稿 · 请先开始一段工作' },
+          failure: { code: 'invalid_scope', message: '这份工作稿不属于当前授权 · 请在原授权工作区查看' },
         };
       }
       return port.openWorkspaceMarkdown({
@@ -232,7 +274,7 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
         logicalPath,
       });
     },
-    [containerId, port],
+    [containerId, history, identityOwnsState, port, sessionId],
   );
 
   /**
@@ -251,6 +293,7 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
         // 收摊失败不该拦住用户另起一段：宿主侧那一条要么已经收了，要么随进程退出收。
       }
     }
+    activeSession.current = null;
     coalescer.current?.dispose();
     coalescer.current = null;
     setSessionId(null);
@@ -260,15 +303,20 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
   }, [containerId, port, sessionId]);
 
   const priorSessions = useMemo(
-    () => (containerId ? priorSessionsFor(history, containerId, sessionId) : []),
-    [containerId, history, sessionId],
+    () => (containerId && identityOwnsState ? priorSessionsFor(history, containerId, sessionId) : []),
+    [containerId, history, identityOwnsState, sessionId],
   );
 
+  const exposedSessionId = identityOwnsState ? sessionId : null;
+  const exposedView = exposedSessionId
+    ? view
+    : emptySessionView(containerId ?? '', '');
+
   return {
-    status,
-    failure,
-    sessionId,
-    view: sessionId ? view : emptySessionView(containerId ?? '', ''),
+    status: identityOwnsState ? status : 'idle',
+    failure: identityOwnsState ? failure : null,
+    sessionId: exposedSessionId,
+    view: exposedView,
     priorSessions,
     start,
     send,

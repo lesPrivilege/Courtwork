@@ -20,6 +20,7 @@ async function createGrantCase(page: Page, name: string) {
   await dialog.getByTestId('new-case-authorize').click();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
+  await page.getByTestId('segment-work').click();
 }
 
 async function installStream(page: Page) {

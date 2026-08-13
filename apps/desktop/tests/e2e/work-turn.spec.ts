@@ -79,6 +79,7 @@ async function createGrantCaseNamed(page: Page, label: string, grantId = GRANT_I
   await dialog.getByTestId('new-case-pack-legal').check();
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await expect(dialog).toBeHidden();
+  await page.getByTestId('segment-work').click();
 }
 
 async function setSuccessTurnStub(page: Page, quote: string) {
@@ -182,6 +183,7 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
 
   // 选中存量旧 id 案（标题仍中文展示），入库材料后尝试运行场景。
   await page.getByTestId(`case-card-${legacyId}`).locator('button.case-card-main').click();
+  await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('titlebar-case-title')).toContainText('合成卷宗案');
   await ingestViaAddFolder(page, '合成卷宗');
   await page.getByTestId('scene-legal.S3').click();

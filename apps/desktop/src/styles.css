@@ -1420,21 +1420,6 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .originals-list li:hover .original-badge, .originals-list li:hover .original-open,
 .originals-list li:focus-within .original-badge, .originals-list li:focus-within .original-open { opacity: 1; }
 
-.work-draft-panel { min-height: 100%; display: flex; flex-direction: column; background: var(--bg-surface); }
-.work-draft-toolbar { height: 42px; display: flex; align-items: center; padding: 0 12px; border: var(--rule-minor) solid var(--border); border-bottom: 0; background: var(--bg-raised); }
-.work-draft-toolbar div { display: flex; flex-direction: column; }
-.work-draft-toolbar strong { font-weight: 510; }
-.work-draft-toolbar span { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.work-draft-toolbar button { margin-left: auto; }
-.work-draft-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 180px 1fr; border: var(--rule-minor) solid var(--border); background: var(--bg-raised); }
-.work-draft-list { list-style: none; margin: 0; padding: 6px; border-right: var(--rule-minor) solid var(--border); overflow: auto; background: var(--bg-surface); }
-.work-draft-list li { margin: 0; }
-.work-draft-list button { width: 100%; display: grid; gap: 2px; padding: 6px 8px; border: 0; border-radius: 4px; background: transparent; text-align: left; cursor: pointer; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
-.work-draft-list button:hover { background: var(--control-hover); }
-.work-draft-list button.selected { background: var(--bg-selected); color: var(--text-primary); }
-.work-draft-list button strong { font-weight: 510; font-size: var(--type-dense-body-size); color: var(--text-primary); }
-.work-draft-empty { padding: 8px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
-.work-draft-editor { min-height: 480px; border: 0; }
 .usage-button { display: flex; align-items: center; gap: 7px; padding: 0; border: 0; background: transparent; cursor: pointer; font-size: var(--type-dense-meta-size); }
 .usage-ring { --usage: 41%; width: 14px; height: 14px; border-radius: 50%; background: conic-gradient(var(--slate-graphic) var(--usage), var(--border) 0); mask: radial-gradient(circle, transparent 45%, var(--text-primary) 48%); }
 .usage-ring.critical { background: conic-gradient(var(--red-graphic) var(--usage), var(--border) 0); }

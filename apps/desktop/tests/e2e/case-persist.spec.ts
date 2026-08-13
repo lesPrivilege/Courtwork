@@ -114,6 +114,7 @@ async function createGrantCase(page: Page): Promise<string> {
   await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
+  await page.getByTestId('segment-work').click();
   const caseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
   expect(caseId).toBeTruthy();
   return caseId as string;
@@ -164,6 +165,7 @@ test('CASE-TITLE-CONVERGE-1：旧键存量标题一次性迁入 case-list，启�
 
   // 迁移完成后的改名只沿 cases → case-list.v1 整表 effect 持久，旧键不得复活。
   await card.locator('button.case-card-main').click();
+  await page.getByTestId('segment-work').click();
   await page.getByTestId('chat-case-title').dblclick();
   await page.getByTestId('chat-case-title-input').fill('列表单真源改名');
   await page.getByTestId('chat-case-title-input').press('Enter');
@@ -220,6 +222,7 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
 
   // 选中该案。
   await card.locator('button.case-card-main').click();
+  await page.getByTestId('segment-work').click();
   // 层二：caseBinding 重建为 grant（宿主授权仍在 → 非失效态；grantId 解析成立）。
   await expect(card).toHaveAttribute('data-grant-invalid', 'false');
 

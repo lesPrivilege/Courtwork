@@ -1,6 +1,6 @@
 # WORK-AGENT-GUI-1 · 通用 Work Agent GUI 主入口与真源对齐
 
-状态：票面冻结（2026-08-13 架构会话），待实现。实现与验收必须为不同会话。
+状态：实现完成（2026-08-13 Motto 会话），待新的独立 Luna clean-clone 验收。实现与验收必须为不同会话。
 
 权威：`CLAUDE.md`；ADR-022「2026-08-13 产品中心修订」；ADR-023「2026-08-13 口径订正」；
 `docs/product/vision.md`；本票。能力状态只认 `docs/status/current.md`。
@@ -109,3 +109,31 @@ external-validated blocked，不得再用 scripted 绿证代替。
 per-run adapter、生产 registry、descriptor IDs 与 production trace。Pi Work 已有自己的四工具，
 不得为了复用 TOOL-READ 把两条 runtime/journal 混写。generic durable resume、Legal-named command
 中性化、docx 真机 write/readback 均为独立票，不得夹带。
+
+## 八 · 实现回执（2026-08-13 · Motto）
+
+- born-red（修复前原始实跑）：真实 grant 的 `scene-unloaded-draft` 与 `wf-open-work-drafts` 共
+  **2/2 failed**；两入口各得到 renderer Map 成功行与伪 `/工作稿/*.md`，reload 后均为 0 行，
+  Tauri/Pi host 调用均为 0。同 matter 从 `grant-old` 换 `grant-new` 的 DOM 用例 **1/1 failed**：
+  仍见 `session-current`、`op-old`、prior history 1，且旧 decision/open 各被调用 1 次。
+- 实现：用户可见顺序收敛为 `Chat | Work | Scenes`；选中/创建已授权容器默认进入 Pi Work；
+  零垂类 CTA 与 Working folders 工作稿入口只切 Pi；旧 `WorkDraftPanel`、renderer Map store、
+  `DraftSeat.workTrack` 与生产状态/入口全部删除。`DraftSeat` 仅保留显式 artifact handoff 到
+  `DraftPanel` 的 no-replace 交付轨。`usePiLaneSession` reset 身份改为 `{containerId, grantId}`，
+  授权变化立即清 projection/history/viewer/pending，并拒绝旧异步结果与旧授权动作；durable journal
+  schema 未改。
+- 永久守卫：新增生产源码/入口/标签守卫及其 Node mutation 测试；向真实生产文件逐项注入
+  `workDraftStore` producer、`WorkDraftPanel` import、旧 `scene-unloaded-draft` testid、
+  `caseRoot=''` + `工作稿` 写法，四次均 **exit 1 / 1 issue**，逐项恢复。grant reset 身份退回只看
+  container 后 DOM 用例 **1/1 failed**；标签退回 `Chat | Draft | Work` 后 E2E **1/1 failed**；
+  删除 `DraftPanel` 后 generic.draft E2E **1/1 failed**。守卫恢复后 Node **2/2 passed**、
+  定向 DOM **17/17 passed**。
+- 回归证据：desktop 单测 **100 files / 884 tests passed**；root **183 / 2251 passed**；完整
+  Playwright（独立端口 15458，`reuseExistingServer:false`）**391/391 passed**，其中 browser 证据
+  只归类为 scripted route，不宣称 Tauri/product-live；generic.draft、generic.batch 与 Legal S1
+  均在该轮通过。`pnpm -r build` 15 个 workspace project 通过；`pnpm lint` 通过；
+  `pnpm site:guard` **103/103 passed**；cargo **259 passed / 0 failed / 1 ignored**。
+- 预算与偏离：`App.tsx` 从 2218 降至 **2195**，门上限同步下调；Playwright floor 从 388 升至
+  **391**。OSS 结论按票执行“删除当期动作”，零新依赖，新增概念仅 `Scenes`。为维持旧场景测试的
+  显式语义，E2E helper/相关用例在需要 Scenes 时显式点选；设计线级账把三个已删除 WorkDraft
+  consumer 前向记为 retired。无 schema、wire、journal、runtime、Package ABI 或垂类契约偏离。

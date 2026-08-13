@@ -187,11 +187,6 @@ function legalLeaks(html: string): string[] {
   return [...hits];
 }
 
-/** 首帧的活动面标题（预览宿主的 h2）。垂类面被 matter 收窄掉时它取不到词，渲成空串。 */
-function activeViewTitle(html: string): string {
-  return (html.match(/<h2[^>]*>([^<]*)<\/h2>/) ?? ['', ''])[1];
-}
-
 const LEGAL_CASE = { id: 'case-legal', title: '已加载法律包案', kind: 'case', packBinding: ['legal'] };
 
 const TARGETS: Array<[string, Record<string, unknown>]> = [
@@ -206,6 +201,7 @@ describe('切 matter 的首个 committed render 零垂类泄漏', () => {
 
     // 前提：先真的把 Legal 面点成活动态（否则「切过去没有 Legal」是空判据）。
     click(host, 'case-card-case-legal');
+    click(host, 'segment-work');
     click(host, 'outline-revision');
     expect(host.querySelector('[data-testid="view-revision"]')).not.toBeNull();
     expect(host.innerHTML).toContain('修订预览');
@@ -214,15 +210,13 @@ describe('切 matter 的首个 committed render 零垂类泄漏', () => {
     const frames = await switchCaseRecordingFrames(host, 'case-card-case-target');
     expect(frames.length, '切案须真的引起提交，否则本判据没被验到').toBeGreaterThan(0);
     for (const frame of frames) expect(legalLeaks(frame)).toEqual([]);
-    // 且首帧的活动面是**说得出名字的通用面**——不是一张连标题都取不到词的空壳。
-    expect(activeViewTitle(frames[0])).toBe('起草画布');
+    // WORK-AGENT-GUI-1：切案第一帧落 Pi Work，不再把通用起草画布当默认工作稿轨。
+    expect(frames[0]).toContain('data-testid="pi-panel"');
+    expect(frames[0]).toContain('>Work<');
 
-    // 稳定态同样零垂类，页签只剩通用起草面（同步收口不是把泄漏挪到后面一帧）。
+    // 稳定态同样零垂类，Pi Work 仍在（同步收口不是把泄漏挪到后面一帧）。
     act(() => {});
-    expect(
-      host.querySelector('[data-testid="view-draft"]') ?? host.querySelector('[data-testid="outline-draft"]'),
-      '稳定态须留下通用起草面的入口',
-    ).not.toBeNull();
+    expect(host.querySelector('[data-testid="pi-panel"]'), '稳定态须留下 Pi Work 入口').not.toBeNull();
     expect(legalLeaks(host.innerHTML)).toEqual([]);
   // 首例要冷装配整张 App（模块图 + 组合根端口）；并行满载下 5s 缺省超时不够用，
   // 与判据无关，故只放宽时限本身。GENERIC-SCENARIOS-1：基线包入准入后冷装配再涨一档

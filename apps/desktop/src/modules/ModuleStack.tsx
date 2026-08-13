@@ -65,9 +65,8 @@ interface WorkingFoldersTreeProps {
   /** DEBT-DOSSIER-1 件二：与模块头徽标、CaseRail 行内件数同一份派生结果；未读取态如实呈现，不显 0。 */
   originalCount: MaterialCount;
   onFocusOriginals: () => void;
-  onOpenWorkDrafts: () => void;
+  onOpenWork: () => void;
   onOpenFileOps: () => void;
-  workDraftSelected: boolean;
   fileOpsSelected: boolean;
 }
 
@@ -79,9 +78,8 @@ export function WorkingFoldersTree({
   isDemo,
   originalCount,
   onFocusOriginals,
-  onOpenWorkDrafts,
+  onOpenWork,
   onOpenFileOps,
-  workDraftSelected,
   fileOpsSelected,
 }: WorkingFoldersTreeProps) {
   return (
@@ -109,9 +107,9 @@ export function WorkingFoldersTree({
         <p className="wf-zone-label">Work drafts</p>
         <button
           type="button"
-          className={`stage-row ${workDraftSelected ? 'selected' : ''}`}
-          data-testid="wf-open-work-drafts"
-          onClick={onOpenWorkDrafts}
+          className="stage-row"
+          data-testid="wf-open-pi-work"
+          onClick={onOpenWork}
         >
           <Icon name="file-text" />
           <span className="truncate">Notes and drafts</span>

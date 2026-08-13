@@ -19,6 +19,13 @@ export async function openWorkbench(page: Page) {
     if (await onboarding.isVisible()) await page.getByTestId('provider-skip').click();
     await page.getByTestId('event-stream').waitFor();
   }
+  // 测试助手的 demo 语义是「打开声明式样板 Scenes」；产品真实案默认仍由
+  // WORK-AGENT-GUI-1 落 Pi Work。需要测 Pi 的用例随后显式点 segment-draft。
+  const demoScenes = page.getByTestId('segment-work');
+  if (await demoScenes.isVisible().catch(() => false)) {
+    await demoScenes.click();
+    await expect(demoScenes).toHaveAttribute('aria-selected', 'true');
+  }
   // 加固：点击后光标可能仍悬在中心区域
   await page.mouse.move(0, 0);
 }
@@ -106,6 +113,8 @@ export async function createNamedCase(page: Page, name: string) {
   await dialog.getByRole('textbox', { name: '案件名称' }).fill(name);
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await dialog.waitFor({ state: 'hidden' }).catch(() => undefined);
+  // Legacy scenario/composer helpers exercise Scenes explicitly. Product creation itself defaults to Pi Work.
+  await page.getByTestId('segment-work').click();
 }
 
 /** 需要真实发送/model-config 的旧回归须先显式授权；冷启动本身保持安静。 */
@@ -113,6 +122,7 @@ export async function connectProvider(page: Page) {
   const trigger = page.getByTestId('composer-provider');
   if (await trigger.getAttribute('data-phase') === 'ready') return;
   // 2026-07-12 connect 路由：非首启一律 Settings 内嵌凭证面（首启引导卡另测于 rp29/goal1）
+  await page.evaluate(() => localStorage.setItem('courtwork.onboarding.seen', '1'));
   await trigger.click();
   const embed = page.getByTestId('settings-credential-embed');
   await embed.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');

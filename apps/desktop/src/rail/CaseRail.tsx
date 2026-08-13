@@ -50,7 +50,7 @@ interface CaseRailProps {
   onRemoveCase: (id: string) => void;
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
-  /** RP-2.11 chat|work 二段（段控落左栏顶 Cowork 位） */
+  /** 顶层信息架构；内部 id 保持兼容，用户可见顺序为 Chat | Work | Scenes。 */
   viewSegment: 'chat' | 'work' | 'draft';
   onSegmentChange: (next: 'chat' | 'work' | 'draft') => void;
   onSelectCase: (id: string) => void;
@@ -390,22 +390,22 @@ export function CaseRail({
           <button
             type="button"
             role="tab"
-            data-testid="segment-work"
-            className={`rail-segment-tab ${viewSegment === 'work' ? 'is-active' : ''}`}
-            aria-selected={viewSegment === 'work'}
-            onClick={() => onSegmentChange('work')}
-          >
-            {CHROME_COPY.segment.work}
-          </button>
-          <button
-            type="button"
-            role="tab"
             data-testid="segment-draft"
             className={`rail-segment-tab ${viewSegment === 'draft' ? 'is-active' : ''}`}
             aria-selected={viewSegment === 'draft'}
             onClick={() => onSegmentChange('draft')}
           >
             {CHROME_COPY.segment.draft}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-testid="segment-work"
+            className={`rail-segment-tab ${viewSegment === 'work' ? 'is-active' : ''}`}
+            aria-selected={viewSegment === 'work'}
+            onClick={() => onSegmentChange('work')}
+          >
+            {CHROME_COPY.segment.work}
           </button>
         </div>
 
