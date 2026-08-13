@@ -15,7 +15,7 @@ import { createScriptedProvider } from '@courtwork/provider/scripted';
 import type { GenerationResponse } from '@courtwork/provider/types';
 import { GenerationValidationError, runScenario, UnknownToolError, type ScenarioExecutorDeps } from './executor.js';
 import {
-  MODEL_TOOL_RESULT_MAX_CHARS,
+  MODEL_TOOL_RESULT_MAX_BYTES,
   MODEL_TOOL_RESULT_TRUNCATION_MARK,
   REQUEST_TOOL_MAX_ROUNDS,
   RequestableToolPolicyError,
@@ -233,21 +233,39 @@ describe('步骤闭集不扩（TOOL-READ-1 红证义务三 · 执行面）', () 
   });
 });
 
-describe('字节上界（TOOL-READ-1 裁定九）', () => {
+describe('字节上界（TOOL-READ-1 裁定九 · R1-2 统一 UTF-8 字节）', () => {
   it('超上界尾部截断并附系统标记，标记同时进账本条目', async () => {
     const harness = buildHarness({
       script: [{ content: requestEnvelope('echo-read', { q: 'x'.repeat(1000) }) }, { content: artifactEnvelope() }],
-      payloadLength: 40, // 40 * 1000 = 40000 字符 > 20000 上界
+      payloadLength: 40, // 40 * 1000 = 40000 字符 > 20000 字节上界
     });
     await run(harness);
     const entry = harness.deps.eventLog.list().find((e) => e.type === 'model_tool_result');
     expect(entry).toMatchObject({ type: 'model_tool_result', truncated: true });
     if (entry?.type === 'model_tool_result') {
       expect(entry.content.endsWith(MODEL_TOOL_RESULT_TRUNCATION_MARK)).toBe(true);
-      expect(entry.content.length).toBe(MODEL_TOOL_RESULT_MAX_CHARS + MODEL_TOOL_RESULT_TRUNCATION_MARK.length);
+      // 「保留正文 + 标记」的 UTF-8 总字节数不得越过上界——string.length 口径在此必红。
+      expect(new TextEncoder().encode(entry.content).byteLength).toBeLessThanOrEqual(MODEL_TOOL_RESULT_MAX_BYTES);
+      expect(entry.content).not.toContain('\uFFFD');
     }
     // 回喂给下一 turn 的字节与账本同源：界面事件面就是账本本身。
     expect(harness.requests[1]).toContain(MODEL_TOOL_RESULT_TRUNCATION_MARK.trim());
+  });
+
+  it('账本 content 与下一轮 prompt 回喂逐字同源（裁定八/九）', async () => {
+    const harness = buildHarness({
+      script: [{ content: requestEnvelope('echo-read', { q: 'x'.repeat(1000) }) }, { content: artifactEnvelope() }],
+      payloadLength: 40,
+    });
+    await run(harness);
+    const entry = harness.deps.eventLog.list().find((e) => e.type === 'model_tool_result');
+    expect(entry?.type === 'model_tool_result').toBe(true);
+    if (entry?.type === 'model_tool_result') {
+      expect(entry.truncated).toBe(true);
+      // taskInstruction = JSON.stringify(task)，task.toolResults[key] 必须逐字等于账本 content；
+      // 断言其 JSON 转义形态逐字在场——账本与回喂任一字节漂移都立即失守。
+      expect(harness.requests[1]).toContain(JSON.stringify(entry.content).slice(1, -1));
+    }
   });
 });
 

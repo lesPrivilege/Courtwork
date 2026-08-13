@@ -20,17 +20,21 @@ import { UnknownToolError } from './unknown-tool-error.js';
 export const REQUEST_TOOL_MAX_ROUNDS = 3;
 
 /**
- * 单枚工具结果回喂字节上界（裁定九）。
+ * 单枚工具结果回喂字节上界（裁定九；R1-2 定谳：统一为 UTF-8 字节）。
+ *
+ * 计量对象是 `JSON.stringify(envelope)` 的 **UTF-8 字节序列**（不是 UTF-16 长度）；超限时
+ * 尾部截断并附系统标记，且「保留正文 + 截断标记」的 UTF-8 总字节数不超过本上界——标记自身
+ * 计入上界。截取必须在完整 Unicode code point 边界进行，输出不得含 U+FFFD 或孤立 surrogate。
  *
  * 现行链路零截断，而 `material-read` 可拉入整份材料正文、轮次上界 3、且结果经
  * `context.toolResults` 贯穿后续每一次请求——无界会让 prompt 随轮次线性膨胀。
  * 同为系统常量，非 descriptor 可调项。
  */
-export const MODEL_TOOL_RESULT_MAX_CHARS = 20_000;
+export const MODEL_TOOL_RESULT_MAX_BYTES = 20_000;
 
-/** 截断标记：同时进账本条目与 trace 呈现——截断这件事本身必须可见（不变量四）。 */
+/** 截断标记：同时进账本条目与 trace 呈现——截断这件事本身必须可见（不变量四）。其字节数计入上界。 */
 export const MODEL_TOOL_RESULT_TRUNCATION_MARK =
-  '\n〔系统截断：本次工具结果超过 20000 字符上界，尾部已丢弃〕';
+  '\n〔系统截断：本次工具结果超过 20000 字节上界，尾部已丢弃〕';
 
 /**
  * 可请求白名单违反 `pure_read` 约束（ADR-011 修订二条件 3）。
@@ -110,16 +114,45 @@ export function buildRequestToolClosedSet(toolIds: readonly string[]): z.ZodType
 }
 
 /**
- * 工具信封 → 回喂折叠文本（裁定一/九）。
+ * UTF-8 编码字节数。`TextEncoder` 是 web 平台标准 API（browser-safe，不引入 `node:*`），
+ * 与包内既有字节计量（work-state/envelope.ts）同口径。
+ */
+function utf8ByteLength(text: string): number {
+  return new TextEncoder().encode(text).byteLength;
+}
+
+/**
+ * 按 UTF-8 字节预算在完整 code point 边界截取前缀。
+ *
+ * `for...of` 逐 code point 推进、逐枚累加其 UTF-8 字节数，装不下即止——既不从 surrogate pair
+ * 中间截断，也不会在多字节序列中途停下。`JSON.stringify` 输出恒为 well-formed（孤立 surrogate
+ * 被转义为 `\uXXXX`），故截取结果不含 U+FFFD 或孤立 surrogate。
+ */
+function truncateToUtf8Bytes(text: string, maxBytes: number): string {
+  let budget = maxBytes;
+  let codeUnits = 0;
+  for (const char of text) {
+    const size = utf8ByteLength(char);
+    if (size > budget) break;
+    budget -= size;
+    codeUnits += char.length;
+  }
+  return text.slice(0, codeUnits);
+}
+
+/**
+ * 工具信封 → 回喂折叠文本（裁定一/九 · R1-2 UTF-8 字节）。
  *
  * 失败信封**原样透出**（verified:false + reason + message），不降级成空结果、不改写成成功态；
  * 超上界者尾部截断并附系统标记，标记同时进账本条目与 trace 呈现。
  */
 export function foldToolResult(envelope: unknown): { content: string; truncated: boolean } {
   const raw = JSON.stringify(envelope) ?? 'null';
-  if (raw.length <= MODEL_TOOL_RESULT_MAX_CHARS) return { content: raw, truncated: false };
+  if (utf8ByteLength(raw) <= MODEL_TOOL_RESULT_MAX_BYTES) return { content: raw, truncated: false };
+  // 上界先给标记腾出空间：标记字节计入 20000 预算，正文只拿剩下的。
+  const budget = MODEL_TOOL_RESULT_MAX_BYTES - utf8ByteLength(MODEL_TOOL_RESULT_TRUNCATION_MARK);
   return {
-    content: raw.slice(0, MODEL_TOOL_RESULT_MAX_CHARS) + MODEL_TOOL_RESULT_TRUNCATION_MARK,
+    content: truncateToUtf8Bytes(raw, budget) + MODEL_TOOL_RESULT_TRUNCATION_MARK,
     truncated: true,
   };
 }

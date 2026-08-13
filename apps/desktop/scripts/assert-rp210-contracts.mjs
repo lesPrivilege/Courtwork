@@ -3,11 +3,15 @@ import path from 'node:path';
 
 // RP-2.10 三卡一纸 + 线影凡例 + chat 卡片清算（docs/decisions/ADR-006-ui-host.md）
 const root = path.resolve(import.meta.dirname, '..');
-const [css, app, utility] = await Promise.all([
+const [css, appSource, demoStream, utility] = await Promise.all([
   readFile(path.join(root, 'src/styles.css'), 'utf8'),
   readFile(path.join(root, 'src/App.tsx'), 'utf8'),
+  readFile(path.join(root, 'src/demo/DemoTurnStream.tsx'), 'utf8'),
   readFile(path.join(root, 'src/rail/RightRailModules.tsx'), 'utf8'),
 ]);
+// TOOL-READ-1「过手即拆」：demo 事件卡列表自 App.tsx 外提至 `demo/DemoTurnStream.tsx`；
+// 判据一字未改，取样面取两份的并。
+const app = `${appSource}\n${demoStream}`;
 
 const failures = [];
 const has = (re, message) => { if (!re.test(css)) failures.push(message); };

@@ -5,7 +5,7 @@ import type { ScenarioRuntime } from '@courtwork/registry';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { defineTool } from '@courtwork/tools';
 import {
-  MODEL_TOOL_RESULT_MAX_CHARS,
+  MODEL_TOOL_RESULT_MAX_BYTES,
   MODEL_TOOL_RESULT_TRUNCATION_MARK,
   REQUEST_TOOL_MAX_ROUNDS,
   RequestableToolPolicyError,
@@ -94,7 +94,19 @@ describe('buildRequestToolClosedSet（ADR-011 修订二条件 1 · z.literal 闭
   });
 });
 
-describe('foldToolResult（TOOL-READ-1 裁定九 · 单枚结果字节上界）', () => {
+/** UTF-8 字节数（测试与实现同口径——TextEncoder 是 web 平台标准 API，browser-safe）。 */
+const utf8Bytes = (text: string): number => new TextEncoder().encode(text).byteLength;
+
+/** 可调正文长的信封：空白 text 的 JSON 字节数即开销，ASCII 填充每加一字符恰加一字节。 */
+const envelopeWithText = (text: string) => ({ verified: true, data: { text }, source: 'stub', checkedAt: 't' });
+const envelopeBaseBytes = utf8Bytes(JSON.stringify(envelopeWithText('')));
+/** 恰令 JSON.stringify(envelope) 的 UTF-8 总字节数等于上界的 ASCII 正文。 */
+const asciiExactFit = 'x'.repeat(MODEL_TOOL_RESULT_MAX_BYTES - envelopeBaseBytes);
+
+/** 孤立 surrogate 检测：成对的合法 surrogate 不算，只剩半边才算。 */
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+
+describe('foldToolResult（TOOL-READ-1 裁定九 · R1-2 统一 UTF-8 字节上界）', () => {
   it('上界内原样折叠，不标截断', () => {
     const folded = foldToolResult({ verified: true, data: { a: 1 }, source: 'stub', checkedAt: 't' });
     expect(folded.truncated).toBe(false);
@@ -102,12 +114,47 @@ describe('foldToolResult（TOOL-READ-1 裁定九 · 单枚结果字节上界）'
     expect(folded.content).not.toContain(MODEL_TOOL_RESULT_TRUNCATION_MARK);
   });
 
-  it('超上界尾部截断并附系统标记——不静默截断', () => {
-    const huge = { verified: true, data: { text: 'x'.repeat(MODEL_TOOL_RESULT_MAX_CHARS * 2) }, source: 'stub', checkedAt: 't' };
-    const folded = foldToolResult(huge);
+  it('ASCII：总字节恰等上界不截', () => {
+    const raw = JSON.stringify(envelopeWithText(asciiExactFit));
+    expect(utf8Bytes(raw)).toBe(MODEL_TOOL_RESULT_MAX_BYTES);
+    const folded = foldToolResult(envelopeWithText(asciiExactFit));
+    expect(folded.truncated).toBe(false);
+    expect(folded.content).toBe(raw);
+    expect(folded.content).not.toContain(MODEL_TOOL_RESULT_TRUNCATION_MARK);
+  });
+
+  it('ASCII：越界即截，truncated:true 与标记必须同时在场', () => {
+    const folded = foldToolResult(envelopeWithText('x'.repeat(MODEL_TOOL_RESULT_MAX_BYTES * 2)));
     expect(folded.truncated).toBe(true);
     expect(folded.content.endsWith(MODEL_TOOL_RESULT_TRUNCATION_MARK)).toBe(true);
-    expect(folded.content.length).toBe(MODEL_TOOL_RESULT_MAX_CHARS + MODEL_TOOL_RESULT_TRUNCATION_MARK.length);
+  });
+
+  it('CJK：多字节内容越界必须截——UTF-16 长度口径在此假绿', () => {
+    // '汉' 一枚 3 UTF-8 字节；7000 枚 ≈ 21000 字节 > 20000，而 UTF-16 长度只有 7000。
+    const folded = foldToolResult(envelopeWithText('汉'.repeat(7000)));
+    expect(folded.truncated).toBe(true);
+    expect(folded.content.endsWith(MODEL_TOOL_RESULT_TRUNCATION_MARK)).toBe(true);
+  });
+
+  it('emoji：不得从 surrogate pair 中间截断，输出不含 U+FFFD 或孤立 surrogate', () => {
+    // '😀' 一枚 4 UTF-8 字节；5000 枚 ≈ 20000 字节 + 信封开销 > 上界，必截。
+    const raw = JSON.stringify(envelopeWithText('😀'.repeat(5000)));
+    const folded = foldToolResult(envelopeWithText('😀'.repeat(5000)));
+    expect(folded.truncated).toBe(true);
+    const kept = folded.content.slice(0, -MODEL_TOOL_RESULT_TRUNCATION_MARK.length);
+    // 保留正文必须是原文的 code point 对齐前缀——从 surrogate pair 中间截断会在此失守。
+    expect(raw.startsWith(kept)).toBe(true);
+    expect(folded.content).not.toContain('\uFFFD');
+    expect(LONE_SURROGATE.test(folded.content)).toBe(false);
+  });
+
+  it('截断后「保留正文 + 标记」的 UTF-8 总字节数仍 ≤ 上界（标记自身计入上界）', () => {
+    for (const text of ['x'.repeat(MODEL_TOOL_RESULT_MAX_BYTES * 2), '汉'.repeat(7000), '😀'.repeat(5000)]) {
+      const folded = foldToolResult(envelopeWithText(text));
+      expect(folded.truncated).toBe(true);
+      expect(utf8Bytes(folded.content)).toBeLessThanOrEqual(MODEL_TOOL_RESULT_MAX_BYTES);
+      expect(folded.content.endsWith(MODEL_TOOL_RESULT_TRUNCATION_MARK)).toBe(true);
+    }
   });
 
   it('失败信封原样透出为工具失败，不降级成空结果', () => {
