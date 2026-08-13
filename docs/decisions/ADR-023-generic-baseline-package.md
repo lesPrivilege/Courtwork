@@ -42,6 +42,18 @@ ADR-015 决定三（2026-08-08 补记）「matter 当前绑定是垂类执行授
 
 「只装通用包时产品是合格 work agent」自本 ADR 起与 ADR-015 成品律合一：验收态即**零垂类绑定态**。GENERIC-SCENARIOS 各票按此验收——零绑定 matter 上，基线场景可启动、产物可呈现、docx 可落盘、账本可回看，全程零垂类词表与文案泄漏。
 
+### 2026-08-13 口径订正：基线包不是 agent 身份
+
+上句是 2026-08-11 场景线验收律，不再用来定义产品本体。通用 Work Agent 的身份与称谓门只认
+ADR-022 的 Pi runtime＋宿主容器＋GUI 链；generic 基线包证明的是“零垂类态仍有结构化快捷场景”，
+不是“有两枚场景就成为 agent”。零垂类产品态必须同时满足两条互不替代的事实：
+
+1. `Work` 主入口是 Pi GUI，能在授权容器上完成受控读写、停止、恢复与 journal/file 核验；
+2. `Scenes` 可呈现 generic 基线场景，加载垂类包只向该面增加能力。
+
+垂类包可缺席；generic 场景也不得接管 Pi journal、workspace 或 agent 授权真源。本订正不改变
+`baseline` 的 ABI/发行语义，不要求动态装载，也不改本 ADR 既有场景验收结果。
+
 ## 决定六 · 场景线边界
 
 基线场景属场景线：经声明式场景执行器与 Turn Engine 运行，不借 ADR-022 pi 线的任何例外，不把 pi workspace 当产出目录。ADR-009 决定二的步骤闭集（`model | deterministic_tool | interaction | projection | confirmation`）不因基线场景扩员。两条派生裁定：

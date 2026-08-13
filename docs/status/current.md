@@ -8,6 +8,22 @@
 
 当前产品阶段：`Stage 0 — 真实 MVP`，尚未满足[产品路线图](../product/roadmap.md)的退出证据。
 
+## 当下定位与能力边界
+
+- **产品定位/施工主线**：与垂类解耦的通用 Work Agent GUI。默认 Work 主体是 ADR-022 Pi lane；
+  generic 基线场景与 Legal/PM 等垂类包是 `Scenes` 面的加法，不定义 agent 身份。垂类长尾由相应
+  领域维护者承担，个人维护者只维护通用 GUI、容器、授权、账本、受控工具与包 ABI。
+- **当前能力事实**：Pi 的 Tauri/Rust/sidecar/journal 与 React GUI plumbing 已装配，但现有行为证据
+  仍以 scripted/faux 为主；真实 WKWebView＋真实 DeepSeek 的 `PI-BASE-GUI-ACCEPT` 未放行。因此
+  当下可以写“Work Agent GUI 是产品定位和正在闭合的主线”，不能写“Work Agent 已 product-live”。
+- **已发现的产品真值漂移**：零垂类 Work 面的旧 `WorkDraftPanel` 实为 browser 内存 store，非授权
+  容器或 Pi workspace 的耐久写入；`Draft` 顶层标签才承载真实 Pi GUI。`WORK-AGENT-GUI-1` 已冻结，
+  负责把主入口、命名与工作稿入口对齐到 Pi lane 并删除伪真源，随后再跑 GUI 称谓门。
+- **提交归因订正**：TOOL-READ 源码链是 `f1fa33e→7df426f→247d8a4→e644afd→05ad0f8`，
+  `b5a8302` 只是最终 SPEC 回执；GENERIC-SCENARIOS 源码链是
+  `4e5e08d→bea529e→e013dbd→f2816a8→a213fe9→7d67fab`，`65700cd` 只是最终 SPEC/E2E 回执。
+  下方历史长表若保留“实现 tip”字样，一律按本段读作回执 tip，不得用 docs-only SHA 证明消费。
+
 ## 发布真值
 
 - 发布版本：`v0.1.2`；annotated tag object `0c998d45bcc892ac56c8800902659b5ecc78f084`，解引用到 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`。
@@ -57,7 +73,7 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 
 ## Demo / fixture 集成
 
-- `TOOL-READ-1` 已清账：Work 场景获得声明式 `requestableToolIds`、当次 `z.literal` 请求闭集、仅 `pure_read` 的准入/运行时双判、最多三轮请求、`model_tool_result` EventLog/trace 投影与 UTF-8 总包 20,000 bytes 显式截断；两枚领域无关工具 `dossier-list`/`material-read` 在 demo/acceptance 真链通过。实现目标 `b5a8302`，独立验收 PASS `332e0f5`，首轮/R1 两份 REJECT 原样保全，no-ff 合入 `8d6f3b9`。**成立边界仍只到通用内核＋demo/acceptance 消费面**：production generic/legal 场景未声明 `requestableToolIds`，desktop MaterialStore 生产 adapter 未接，不得宣称生产 Work 已可由模型读卷宗。
+- `TOOL-READ-1` 已清账：Work 场景获得声明式 `requestableToolIds`、当次 `z.literal` 请求闭集、仅 `pure_read` 的准入/运行时双判、最多三轮请求、`model_tool_result` EventLog/trace 投影与 UTF-8 总包 20,000 bytes 显式截断；两枚领域无关工具 `dossier-list`/`material-read` 在 demo/acceptance 真链通过。源码实现链 `f1fa33e→7df426f→247d8a4→e644afd→05ad0f8`；R2 `37a34ce` 只修 demo dependency/test 边界，`b5a8302` 是最终 SPEC 回执；独立验收 PASS `332e0f5`，首轮/R1 两份 REJECT 原样保全，no-ff 合入 `8d6f3b9`。**成立边界仍只到通用内核＋demo/acceptance 消费面**：production generic/legal 场景未声明 `requestableToolIds`，desktop MaterialStore 生产 adapter 未接，不得宣称 production Work 已可由场景模型读卷宗。
 - demo-runtime 已穿越样板材料、Legal artifacts、引用、gate、revision 与 output bundle，只证明包间契约和确定性 fixture 自洽。
 - Work UI 的 recording、paced replay、demo gate、demo party adapter 与 demo 原文仍只属于
   fixture/demo mode；非 demo grant 案另有真实 production 路径并已在第六轮试点到达 docx。
@@ -155,6 +171,9 @@ Legal 单品真机回归均未闭合，不据工程绿自动晋级成熟度。
 - **`PI-LANE` 真 key 端到端复核仍未执行**，责任方为产品负责人（持 key 者），复核步骤见 `packages/pi-lane/SPEC.md` 第七节六步，结果另行登记。本条与本文件通用 loop 线行的「真 key 端到端未验」、就绪图 `PI-LANE-1` 行与 `PI-BASE-HEADLESS-ACCEPT` / `PI-BASE-GUI-ACCEPT` 两票的真 key 前置是同一笔债，此处登记以免其唯一来路随交接件归档而失落。
 
 ## 分支与清账纪律
+
+2026-08-13 订正：下方历史长段内的“当前在途：无实现票”是其写作时点快照，现已失效；当前唯一
+已冻结实现票为 `WORK-AGENT-GUI-1`，待 Motto 实现与异会话 Luna 验收。
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
 

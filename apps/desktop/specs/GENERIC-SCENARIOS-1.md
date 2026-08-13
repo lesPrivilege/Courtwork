@@ -1,6 +1,6 @@
 # GENERIC-SCENARIOS-1 · 通用基线包与首批两场景
 
-状态：票面冻结（2026-08-11 架构会话），待实现。实现与验收须为不同会话；验收由 Codex 独立会话执行。
+状态：已清账（源码实现链 `4e5e08d→bea529e→e013dbd→f2816a8→a213fe9→7d67fab`；最终回执 `65700cd`；独立验收 PASS `02b65bc`；no-ff 合入 `9eef484`）。§8–§9 为历史中间态；§10.3/§10.6 的旧工作稿默认落轨自 2026-08-13 起由 `WORK-AGENT-GUI-1` 取代。
 
 权威：`docs/decisions/ADR-023-generic-baseline-package.md`（Accepted，本票开工依据）；ADR-015（成品律/零泄漏/激活真源）、ADR-016（填格协议与 launch 同族）、ADR-012 决定四（blueprint 分层）、ADR-014（tab＝schema 表）、ADR-009 决定二（步骤闭集）、ADR-004（文档与文件边界）。`docs/architecture/implementation-readiness.md:293` 的 2026-07 期素材行由本票面取代其排产效力，该行保留作历史真值。
 
@@ -11,7 +11,7 @@
 三件，同一实现分支交付：
 
 1. **通用基线包成立**：`packages/generic`（npm `@courtwork/generic`，packageId `generic`），按 ADR-023 决定一至四接入——descriptor/bindings 双平面、`admitPackages` 数组加员、`PACKAGE_PRESENTATION` 加 `baseline` 条目、`PackageAvailability` 闭集扩员、`registriesForCase` 改并集语义、`assert-vertical-isolation.mjs` 正则扩员、场景词零命中断言扩覆基线 prompt 段与词表。
-2. **场景① 通用起草**（场景 id `generic.draft`）：用户经预检表单给出起草要求（`text` 字段，必填），模型回合产出 artifact `generic.DraftDocument`（形制 `{title: string; paragraphs: string[]}`，与 `compileDraftToDocx` 输入同构）；产物按 ADR-014 动态 tab 以只读结构化视图呈现，并提供「送入起草画布」显式动作——用户确认后进入可编辑工作稿，编译落盘走既有 `confirmDraftCompile` 确认流。
+2. **场景① 通用起草**（场景 id `generic.draft`）：用户经预检表单给出起草要求（`requirement` 字段，必填），模型回合产出 artifact `generic.DraftDocument`（形制 `{title: string; paragraphs: string[]}`，与 `compileDraftToDocx` 输入同构）；产物按 ADR-014 动态 tab 以只读结构化视图呈现，并提供「送入起草画布」显式动作——用户确认后进入可编辑工作稿，编译落盘走既有确认流。
 3. **场景③ 多文件批处理**（场景 id `generic.batch`）：无表单直启（循 `LEGAL-FIVE-FACES-1` 无预检直启路由）；启动前由装配点现读该 matter 就绪材料列表，零就绪即显式 blocked 不起跑（预检闸精神的宿主判定，不动 ABI，见裁定 B1）；模型回合产出 artifact `generic.BatchReport`——单枚 artifact 携数组 payload，每项 `{materialId, summary, status}`，`materialId` 取值域为系统注入的就绪材料闭集（ADR-016 决定二同族，模型不选择地址）；系统确定性校验逐项完整性：每份就绪材料恰一行，缺行以显式 `missing` 状态落格，不伪造。渲染走 `courtwork.artifact-table.v1` ＋ `presentation.collectionPointer`。
 
 场景② md↔docx 可编辑往返**不在本票**，另立 `GENERIC-SCENARIOS-2`（见裁定 A2/A4）。
@@ -339,9 +339,10 @@ preflight 另一路径）。
 
 **为何不是「把画布挡回去」**：件一要求把产物送进可编辑工作稿，而 `generic.draft` 正是零垂类
 matter 上的场景——若卸载态一律落工作稿轨，移交就永远落在一张不显示的面上（静默无事发生，
-不变量四）。故取「默认仍落工作稿轨，用户**显式**送入后落画布」：新增一枚会话内粘着的
+不变量四）。故当时取「默认仍落工作稿轨，用户**显式**送入后落画布」：新增一枚会话内粘着的
 `draftCanvasOpen`（切案归零），判据成为 `workDraftMode || (verticalUnloaded && !draftCanvasOpen)`。
-pi 线的工作稿轨一字未动（票面七节禁区）。
+该判据与“pi 线工作稿轨一字未动”只记录 2026-08-11 的实现历史；后续审计证实默认轨是 renderer
+内存 `Map` 而非 Pi workspace，已由 2026-08-13 架构修订与 `WORK-AGENT-GUI-1` 显式取代。
 
 ### 10.4 顺带坐实的第三处：静态门自本分支中段起即红
 
@@ -398,10 +399,11 @@ schema → 显式拒绝，不半份塞进画布。席位件 `ArtifactTabPanes` �
 
 零新依赖、零新步骤种类、零新 renderer 注册机制、零新持久化格式（与票面一致）。新增概念一枚：
 
-1. **`draftCanvasOpen`（会话内粘着的一枚壳态）** — 为何非加不可：卸载态起草面默认落工作稿轨
-   （GENERIC-PACK-1 ⑧ 的显式诚实呈现分支，本段不推翻），而件一要求把产物送进**画布**；没有
+1. **`draftCanvasOpen`（会话内粘着的一枚壳态，历史）** — 当时的理由：卸载态起草面默认落工作稿轨
+   （GENERIC-PACK-1 ⑧ 的显式诚实呈现分支），而件一要求把产物送进**画布**；没有
    这枚状态，移交就落在一张不显示的面上，等于静默无事发生。它只影响「同一张通用工作面此刻
-   渲哪条轨」，不进 case store、不进 journal、不进任何持久信封，切案即归零。
+   渲哪条轨」，不进 case store、不进 journal、不进任何持久信封，切案即归零。2026-08-13 票面
+   取代该默认落轨并删除内存轨后，此状态随之退役；generic artifact 的显式交付画布保留。
 
 `composition/draft-handoff.ts` 与两件外提模组不计新概念：前者是既有「受信组合根做跨域绑定」
 的又一处落点，后两者是既有代码的搬家（语义逐字不变）。

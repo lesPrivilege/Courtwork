@@ -13,6 +13,27 @@
 
 ## 产品称谓与本阶段出口（2026-07-28 补充）
 
+### 2026-08-13 产品中心修订：方向先定，成熟度不偷跑
+
+当下阶段的**产品定位与施工中心**是通用 Work Agent GUI；这句话回答“产品是什么、下一步先做
+什么”，不是把尚未跑完的验收写成能力事实。agent 身份只属于本 ADR 的 Pi loop＋宿主容器＋GUI
+链，不属于 generic 基线包、任一垂类包或声明式场景数量。
+
+两线的产品关系自本修订起冻结：
+
+- Pi lane 是默认 Work 主体；零垂类绑定也必须可进入、读 `/case`、受控写 `/workspace`、停止、
+  恢复并核验 journal 与文件；
+- 声明式场景线是可选快捷能力。generic 基线场景随产品提供，Legal/PM 等垂类场景随包加载，
+  加载只增加 schema/scenario/renderer，不得替换 Pi runtime、journal 或授权真源；
+- 垂类长尾不由个人维护者兜底。通用宿主维护 Package ABI 与 fail-closed 装配，专业语义、评测和
+  场景维护归相应领域包维护者；无人维护的专业能力宁可缺席，不在 core/desktop 写死；
+- Work Agent 继续从 coding agent 做减法：六-0 的四工具与禁区是产品边界，不是临时欠功能。
+
+UI 信息架构须反映该关系：`Work` 指 Pi GUI 主体；声明式场景另以 `Scenes` 呈现。旧 `Draft`
+标签与 Work 面内的 browser-only `WorkDraftPanel` 不得继续冒充 agent 工作稿真源；迁移由
+`WORK-AGENT-GUI-1` 完成。`Agent` 字样的现在时能力宣称仍锁下述称谓门，迁移期间可用 `Work`
+而不得提前写“Agent 已成立”。
+
 合同审查窄链已经跑通，但场景执行、结构化 preview 与 docx 产出本身不构成通用 agent：
 缺 Pi 时用户不能在同一 work 面发起任意 `.md` 需求、观察 tool loop、逐次授权 write、停止、
 续行并核验 workspace。故 A0/A1、单独合同审查、build 全绿或只过 headless 均不得把 Courtwork

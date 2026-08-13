@@ -16,7 +16,7 @@ npm `@courtwork/generic`、`identity.packageId` 为 `generic` 三者一致（ADR
 | 面 | 内容 |
 | --- | --- |
 | artifacts | `generic.DraftDocument`（起草文稿）、`generic.BatchReport`（批处理报告） |
-| scenarios | `generic.draft`（通用起草，一枚必填 `text` 预检字段）、`generic.batch`（多文件批处理，无预检直启） |
+| scenarios | `generic.draft`（通用起草，一枚必填 `requirement` 预检字段）、`generic.batch`（多文件批处理，无预检直启） |
 | renderers | 只声明既有宿主 blueprint `courtwork.artifact-table.v1`——ADR-023 决定六「不新增第二套 renderer 注册或命名空间机制」 |
 | vocabulary | 逐字取底座中性供词（`NEUTRAL_VOCABULARY`）：基线包不给容器着色，着色是垂类加载带来的加法 |
 

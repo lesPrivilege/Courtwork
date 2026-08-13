@@ -1,8 +1,12 @@
 # Courtwork 工程总纲
 
-Courtwork 当前是面向中国律所与企业法务的本地优先法律工作台；通用 work agent 是
-`PI-BASE-GUI-ACCEPT` 独立放行后的产品称谓，不是合同审查窄链或现行 dev-only pi 骨架可以
-提前取得的成熟度。产品与文档入口见 `docs/README.md`。
+Courtwork 当下阶段的产品定位与施工主线是**与垂类解耦的本地优先通用 Work Agent GUI**：
+默认产品本体不依赖任何垂类包；Legal、PM 及后续细分场景只以可加载能力包作加法。垂类长尾由
+领域团队或生态维护，个人维护者只维护通用 GUI、容器、授权、账本、受控工具与包 ABI。
+
+这一定向不改成熟度纪律：`PI-BASE-GUI-ACCEPT` 独立放行前，只能写“产品定位/施工主线”，不得把
+通用 work agent 写成已经 external-validated 或 product-live 的现在时能力。合同审查窄链、
+generic 场景、build 全绿或 scripted GUI 都不能顶替该门。产品与文档入口见 `docs/README.md`。
 
 本文件是仓库最高工程说明；跨层语义由 `docs/decisions/` 的 Accepted ADR 展开。开工前必须阅读：本文件、相关 ADR、认领层的 `SPEC.md`。
 

@@ -10,7 +10,7 @@
 
 ### 本层职责与公开契约
 
-- **新生产模块 `DemoTurnStream`**（`src/demo/DemoTurnStream.tsx`）：样板案助手回合事件流，自 `App.tsx` demo 分支「过手即拆」外提。只做既有 `TurnCard`/`ToolCallRow` 原语的编排，不新造 UI 原语；`App.tsx` 只留一次调用并把 `workStopped` 真传入（`workStopped={workStopped}`）。
+- **desktop demo 模块 `DemoTurnStream`**（`src/demo/DemoTurnStream.tsx`）：样板案助手回合事件流，自 `App.tsx` demo 分支「过手即拆」外提。它随产品源码编译但 runtime 只在 `isDemoCase` 分支消费，不是 production Work trace。只做既有 `TurnCard`/`ToolCallRow` 原语的编排，不新造 UI 原语；`App.tsx` 只留一次调用并把 `workStopped` 真传入（`workStopped={workStopped}`）。
 - **trace 结构化呈现**（裁定六/十）：`SessionProjection` 增 `modelToolResults` / `unrecognizedEntries` 两枚派生成员（真源仍是 EventLog 账本，`src/protocol/client.ts` 的 `projectSession` 穷举收口）；`DemoTurnStream` 以 `ToolCallRow` 逐条呈现工具结果、以具名段落（`unrecognized-ledger-entries`）呈现未识别账本条目。
 - **三道门读取面迁移**（R1-1）：`assert-process-trace.mjs`（新增 `workStopped` 消费锁）、`assert-rp28-contracts.mjs`、`assert-rp210-contracts.mjs` 的取样面由「只读 App.tsx」机械迁为「App.tsx ∪ DemoTurnStream」；判据与错误文案一字未改、CSS/视觉语义零动。
 - **e2e 适配**：demo 回合现有两枚 `tool-call-row`（旧 Ran command 行＋新模型请求行），`rp28.spec.ts` 行为断言改 `.first()`（与 `goal2`/`button-fixes` 既有写法一致），断言意图不变。
