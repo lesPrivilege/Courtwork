@@ -58,3 +58,40 @@
 **裁定十 · trace 取结构化呈现**。复用既有 `ToolCallRow`/`TurnCard` 原语，改动落投影层 ＋ `App.tsx` demo 分支约 10–20 行，不新造组件（`App.tsx` 槽已随 `GENERIC-SCENARIOS-1` 清账释放，本票即队列首位）。不取「折成文本塞进 `progress: string[]`」的极简方案——工具结果是进过 prompt 的证据面，折成通用文本行会丢结构与来源标记，与裁定六「界面事件面就是账本本身」相悖。非 demo 分支无逐事件 trace 列表属既有缺口，裁定五已把消费者边界圈在 demo/acceptance，不在本票扩。
 
 **golden 环节**：`CONTRACT_SEGMENT_BODY` 知交互行扩 `request_tool` 后，先跑一次红（未重铸即 DIFF 失败），再 `COURTWORK_UPDATE_GOLDEN=1` 重铸 `assembled-request.golden.txt` 显式过账。
+
+## 五 · R1 架构裁定（2026-08-13，消费独立验收 REJECT）
+
+独立验收在 clean clone 对目标 `e644afd` 作结，报告提交 `c04be88`，结论 **REJECT**。主体实现的 build、lint、root/desktop 定向测试与四类变异证据成立，但完整 desktop `test:e2e` 在 Playwright 启动前被三道静态门驳回；拒因与下列返修合同一一对应。
+
+### R1-1 · 外提方案保留，三道门的读取面须同批迁移
+
+保留 `DemoTurnStream` 外提（它兑现本票「过手即拆」且把 `App.tsx` 高水位降至 2218），不回退内联。实现会话须把下列三道既有判据的读取面机械迁到 `App.tsx + DemoTurnStream`，不得删判据、放宽文案或依赖后续提交补门：
+
+- `assert-process-trace.mjs`：继续锁 stopped work 不得渲染完成事件，并新增 `workStopped` 从 App 真传入外提组件的消费锁；
+- `assert-rp28-contracts.mjs`：四枚 `event | artifact | file | gate` route 与 `ToolCallRow` 判据继续成立；
+- `assert-rp210-contracts.mjs`：demo settle 后须收敛、失败后静止的判据继续成立。
+
+共享实现 worktree 现有三份未提交 diff 只可作为返修输入，未进入目标 SHA，不构成已交付事实。R1 完工须在**自身 tip**跑完整 `pnpm --filter @courtwork/desktop test:e2e` 前链与 Playwright；不得只跑 `npx playwright test`。
+
+### R1-2 · 裁定九真义统一为 UTF-8 20000 字节
+
+裁定九的安全目标是限制送入 prompt、EventLog 与 trace 的实际编码体积，故“字节上界”取真，统一为：**单枚工具结果的 UTF-8 编码最多 20000 bytes**。原文“20000 字符”作废，不得再据以实现或写文案。
+
+- 计量对象为 `JSON.stringify(envelope)` 的 UTF-8 字节序列；
+- 超限时须在不产生破损 Unicode 的边界截取，使「保留正文 + 系统截断标记」的 UTF-8 总字节数**不超过 20000**；标记自身计入上界；
+- 账本 `content` 与回喂 `context.toolResults` 继续逐字同源，`truncated:true` 与显式系统标记同时在场；
+- ASCII、CJK、emoji 三组边界反例必备：恰等于上界不截，越一字节/一个完整码点须截，输出不得含 U+FFFD 或孤立 surrogate；独立验收已证 `string.length` 会让 10000 个汉字约 30049 UTF-8 bytes 仍假绿，现形态必须退役。
+
+常量、错误文案与测试名称须改为 `BYTES` 口径；不得保留 `MAX_CHARS` 第二真值。
+
+### R1-3 · OSS 四选一裁定
+
+本票选择 **「借行为或源码范式」**：借 pi/opencode 一手源码已经验证的显式 tool-result 配对、截断必须内联告知模型、权限/闭集 fail-closed 形态；**零新增直接依赖**。Courtwork 的 `z.literal` 请求闭集、`SessionEvent`、runtime guard、MaterialStore 复验、EventLog 与 trace 投影仍为本仓唯一真源，不接上游 runtime、session 格式、permission 默认或状态机。
+
+本结论须进入本票实现回执，并在所触及层 SPEC 以最窄职责留痕；不得用提交消息、实现注释或归档报告替代权威 SPEC。
+
+### R1-4 · 实现回执与清账证据
+
+实现会话须在本票补“实施回执”：精确提交链、逐段 born-red、四枚新增概念的最终落点、两处读侧闭口、golden 重铸、门数与所有偏离；同时在 `packages/core`、`packages/tools`、`packages/registry`、`packages/demo-runtime`、`apps/desktop` 各层 SPEC 只写本层新增公开契约/模块职责与消费边界。新生产模块 `DemoTurnStream`、`tool-request`、`unknown-tool-error`、`dossier-read` 产生当刻未入册的偏差随 R1 前进式补齐，不改写历史。
+
+R1 禁止扩张：不接 production generic/legal 场景，不改 provider/Turn journal/chat/pi，不新增依赖，不重做主体通道。R1 完成后必须由**新的独立 Luna clean clone**复验；首轮 REJECT 报告保留，不覆盖。
