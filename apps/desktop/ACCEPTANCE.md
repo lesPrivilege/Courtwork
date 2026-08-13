@@ -6917,3 +6917,62 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 反例撤回后 `git status --short --branch` clean（仅目标分支，无实现代码改动）。本报告为首轮报告之后追加，未改写历史；仅显式暂存 `apps/desktop/ACCEPTANCE.md`，提交前检查 `git diff --cached --name-only` 与 `git diff --cached --check`。无 `fix-by-acceptance`，无合并、push 或删除 clone。
 
 **最终裁决：REJECT（决定性契约项：`packages/demo-runtime` 新增 zod 直接依赖，需架构拍板/实现返修后由新的独立验收会话复验）。**
+
+---
+
+# TOOL-READ-1 R2 独立 clean-clone 验收（2026-08-13，Luna）
+
+**验收角色与对象。** 本会话为实现者 Motto 之外的全新独立验收会话；目标精确 SHA `b5a8302597c07574fc970a7415a158d692c0dd91`（分支 `claude/tool-read-1`），基线 `main@80f0d15`，祖先关系由 `git merge-base --is-ancestor 80f0d15 b5a8302597c07574fc970a7415a158d692c0dd91` 核实成立。验收 clone 为 `/private/tmp/courtwork-tool-read-1-r2-accept-luna`，验收分支 `codex/recheck-tool-read-1-r2-luna`；Playwright 独占端口 `19651`，未复用共享 dev server。首轮 REJECT 报告 `c04be88cf36751e45e8037b48a131d63d0a45968` 与 R1 REJECT 报告 `ac20b2095119d57bfbbc6912b3a53fef98990b48` 均先行保全：本 clone 分别以 `ce681381`、`a3f37c50` 追加，逐枚只改 `apps/desktop/ACCEPTANCE.md`，历史未覆盖、未压缩。
+
+## 一、R2 diff、依赖与 schema 核验
+
+`git diff 9c5e4762793b60a2276e5f5eca1ef3207f944023..b5a8302597c07574fc970a7415a158d692c0dd91 --name-only` 精确为六文件：`apps/desktop/specs/TOOL-READ-1.md`、`packages/demo-runtime/SPEC.md`、`packages/demo-runtime/package.json`、`packages/demo-runtime/src/acceptance/tool-request.integration.test.ts`、`packages/demo-runtime/src/package-boundary.test.ts`、`pnpm-lock.yaml`；非文档生产树无漂移。
+
+- `packages/demo-runtime/package.json` 的 `devDependencies` 恢复仅有既有 `@types/node`；无新增替代依赖。
+- `pnpm-lock.yaml` 只删除 demo-runtime importer 的 zod `specifier/version` 三行；全局 zod resolution 与其他 importer（含 registry/tools/core/provider 等）字节不漂移。
+- integration 测试无 zod import；`NOTE_SCHEMA = PromptSegmentSchema.extend({ summary: PromptSegmentSchema.shape.body }).pick({ summary: true })`，复用 registry 根导出真实 `ZodType`，未新增 Registry/testing export、schema 或 API；bindings 去显式 `z.ZodType` 类型标注。`/summary`、`deliver {summary}`、`requestableToolIds`、闭集外拒收、blocked 回喂、事件顺序和三枚业务断言逐字保留。
+- schema 独立探针：合法 `{summary:'ok'}` 通过；空 summary 因 `min(1)` 拒收；extra key 因 strict 拒收；旧 body-only 拒收；`NOTE_SCHEMA instanceof z.ZodType === true`。完整 synthetic manifest admission → registries → executor → tools → materials 真链通过。
+- 永久 package-boundary 两枚守卫正式树 **2 files / 11 passed**；demo-runtime 全包 **10 files / 43 passed**。
+- R2 direct-zod 变异：同时重加 manifest direct zod＋源码 direct import，守卫 **2 failed / 6 passed**；只加 manifest **1 failed / 7 passed**；只加源码 import **1 failed / 7 passed**。逐字恢复后 clean。
+
+## 二、前两轮关键面与主动 mutation 红证
+
+TOOL 定向链（core assembly/segments/tool-request/tool-loop/event-log/tool-registration-boundary、tools dossier-read/contract、registry 全测试、demo acceptance/golden）**18 files / 239 passed**；desktop session-event/projection 定向 **2 files / 11 passed**。
+
+- `toolIdSchema` 从 literal 闭集放宽为 `z.string()`：core 定向 **4 failed / 29 passed**，闭集外 toolId 与 JSON Schema 反例触红。
+- 移除结果截断标记：**4 failed / 25 passed**；账本与回喂均要求显式 marker。
+- UTF-8 计量退回 `string.length`：**3 failed / 26 passed**（CJK、emoji、总字节边界）；目标实现保持 envelope `JSON.stringify` UTF-8 总包 ≤20,000 bytes、marker 计入、完整 code point、EventLog/prompt 同源。
+- core read-side unknown registration 移除：**1 failed / 8 passed**；desktop `projectSession` 同类移除：**1 failed / 1 passed**。
+- golden `assembled-request.golden.txt` 注入 `[验收漂移探针]`：`assemble.test.ts -t 'golden 对照'` **1 failed / 15 skipped**；恢复后定向绿。
+- `HIGH_WATER_LINES 2218→2217`：`lint:app-highwater` 明确红（当前 2218 > 上限 2217）；恢复后 **2218/2218**。所有 mutation 均逐字恢复，未残留探针。
+
+`pure_read` admission/runtime 双判、round4 先落精确 `step_failed` 且不多执行、ADR-009 step 闭集、两处 read-side unknown 登记、三门读取面、rp28 `.first()`（仍命中原首行，默认折叠→展开 mono details 意图未放宽）均由定向测试/静态门覆盖。
+
+## 三、全量门（本 clone 原始实跑数字）
+
+| 门 | 独立实测 |
+|---|---|
+| `pnpm install --frozen-lockfile` | sandbox 首轮网络/权限 EPERM；同命令升权复跑 EXIT 0，`Lockfile is up to date`，1157 packages |
+| `pnpm -r build` | EXIT 0（workspace build 全绿，仅既有 Vite chunk/dynamic-import warning） |
+| `pnpm lint` | EXIT 0 |
+| root `pnpm test` | sandbox sidecar listen EPERM 环境红；同命令升权复跑 **183 files / 2251 passed** |
+| `pnpm --filter @courtwork/desktop test` | **100 files / 888 passed** |
+| `pnpm site:guard` | EXIT 0；node 子门 **103/103 passed**，release/deslop PASS（deslop 1177 active text files），App highwater **2218/2218** |
+| product sidecar identity/repro | 两次 `build:product-sidecar`：**547,893 B**，SHA `951acf8e…`，第二次 `reused-identical`，零漂移 |
+| headless sidecar reproducibility | 两次构建同产物：**555,314 B**，SHA `061248fa…`，`reproducible:true` |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | sandbox mock listen EPERM 环境红；同命令升权复跑 **259 passed / 0 failed / 1 ignored** |
+| 完整 `COURTWORK_E2E_PORT=19651 pnpm --filter @courtwork/desktop test:e2e` | 静态前链全绿；Playwright **387 passed / 1 failed**（5.7m，独占端口，自起服务） |
+
+## 四、E2E 偏离归类
+
+唯一 Playwright 红为 `tests/e2e/global-verbs.spec.ts:7`「data-card 复制按钮悬停显现并写入含来源标记的纯文本」：`toHaveCSS(opacity,'1')` 实得 `0`（期间一次 `0.590551`）。该形态与在册 **E2E-FLAKY-HOVER-1** 完全一致；该用例及其消费面不在 R1/R2 diff，历史独立证据已在 clean `e644afd` 与 `main@80f0d15` 同负载复现，归因是负载相关 hover 抖动，非本票引入。按原始证据分类，本轮不反复重跑以掩盖红，也不把它改写为实现失败；静态链及 TOOL 相关谱均通过。该观察不构成 R2 决定性拒因。
+
+## 五、禁区、SPEC 与工作树
+
+逐读治理文档、ADR-009/011/016/017、desktop/core/tools/registry/demo-runtime SPEC/ACCEPTANCE；目标 diff 与生产树未新增 provider、Turn journal、chat、pi、production generic/legal/pm 声明、ADR-009 新 step 类型、新依赖或隐藏 transitive/undeclared zod import。`apps/desktop/specs/TOOL-READ-1.md` 与 `packages/demo-runtime/SPEC.md` 已留 R1 REJECT `ac20b209`、R2 代码 `37a34ce`、既有 `05ad0f8`/`9c5e476` 精确链，`<本票返修>` 占位为零；目标文档状态在提交前仍写「待新的独立 Luna clean-clone 验收」，与本报告形成闭环。
+
+E2E 生成的 18 张 tracked evidence PNG 均按精确路径恢复为目标字节；反例撤回后 `git diff --check` 通过，除本报告待提交的 `apps/desktop/ACCEPTANCE.md` 外工作树 clean。未修改实现、schema、ADR 或测试；无 `fix-by-acceptance`，无 merge、push、checkout/stash 共享树、删除 clone。
+
+## 结论
+
+**PASS（非阻断观察：E2E-FLAKY-HOVER-1；无新的契约级拒因）。** 目标 `b5a8302597c07574fc970a7415a158d692c0dd91` 的 R2 最小返修在独立 clean clone 上通过依赖边界、真实 registry schema、全量门与前两轮关键面复验；唯一完整 E2E 红按既有负载相关 hover 证据归类，不归责本票。
