@@ -6848,3 +6848,72 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 - 白名单闭集、`pure_read` 准入/运行时双判、请求轮次 3 上界、EventLog `model_tool_result` 与两处读侧未知条目登记、结果截断标记、demo/acceptance 真链均由定向测试实际覆盖；本轮未发现这些实现级行为的独立拒因。
 - 未提交的 `assert-process-trace.mjs` / `assert-rp28-contracts.mjs` / `assert-rp210-contracts.mjs` 同步改动不属于目标 SHA，不能纳入本报告的放行证据。
 - 本会话没有 `fix-by-acceptance` 提交；需先由实现会话提交三门同步，再由新的独立 clean 验收会话复验；架构角色另需裁定字节/字符上界并补 OSS 四选一权威记录。
+
+# TOOL-READ-1 R1 独立复验（2026-08-13，REJECT）
+
+**验收角色：独立 Codex 验收会话。** 目标精确 SHA `9c5e4762793b60a2276e5f5eca1ef3207f944023`，基线 `main@80f0d15`；全新 clean clone `/private/tmp/courtwork-tool-read-1-r1-accept-luna`，分支 `codex/recheck-tool-read-1-r1-luna`。目标祖先关系成立。首轮 REJECT `c04be88`（旧 clone `/private/tmp/courtwork-tool-read-1-accept-luna`）仅有 `apps/desktop/ACCEPTANCE.md` 追加；已在本 clone 先 cherry-pick，保全提交 `366c6d1e`，未覆盖首轮报告或目标代码。
+
+## 结论与决定性阻断
+
+**REJECT；不得清账。** 目标 `80f0d15..9c5e476` 新增 `packages/demo-runtime/package.json` 的直接 `devDependencies.zod` 与 `pnpm-lock.yaml` 对应 importer（仅为 `tool-request.integration.test.ts` 的 `import * as z from 'zod'`）。权威 `apps/desktop/specs/TOOL-READ-1.md` R1-3/R1 禁止扩张与 `packages/demo-runtime/SPEC.md` OSS 四选一均明确「借行为或源码范式，零新增直接依赖/零新依赖」。这是契约级冲突，不能由验收会话代修，标记 **[需架构拍板]**。实现缺陷之外无其他决定性红证。
+
+## 完整门（本树独立实跑）
+
+| 门 | 原始结果 |
+|---|---|
+| `pnpm install --frozen-lockfile` | EXIT 0，16 workspace，lockfile up to date；首轮 sandbox listen/权限限制后升权复跑 |
+| `pnpm -r build` | EXIT 0，15/16 workspace，desktop Vite 完成（仅既有 chunk warning） |
+| `pnpm lint` | EXIT 0 |
+| 根 `pnpm test` | EXIT 0，**183 files / 2249 passed**；sandbox EPERM 后升权复跑 |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0，**100 files / 888 passed** |
+| `pnpm site:guard` | EXIT 0；node 子门 **103 passed / 0 failed**，App highwater **2218/2218** |
+| product sidecar identity/repro | 两次 `build:product-sidecar` EXIT 0，bundle **547,893 B**, SHA `951acf8e…`, 第二次 `reused-identical`；arm/x64 runtime hash/SHASUMS 与产物核对通过 |
+| headless sidecar identity/repro | `build:headless-sidecar` EXIT 0，**555,314 B**, SHA `061248fa…`, reproducible true |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | EXIT 0，**259 passed / 0 failed / 1 ignored**；sandbox mock listen EPERM 后升权复跑 |
+| `COURTWORK_E2E_PORT=19631 pnpm --filter @courtwork/desktop test:e2e` | 独立端口、未复用 server；静态前链全绿，Playwright **388 passed / 0 failed**，6.8m |
+
+没有未跑的必需门。所有权限/监听导致的 sandbox 首轮红均在升权环境以同一命令复跑，不把环境红误记为实现红。
+
+## R1 三门与高水位复验、回退红证
+
+正式目标树前链逐一通过：`ProcessTrace shared lifecycle boundaries: OK`、`RP-2.8 turn-card/dock/composer boundaries: OK`、`RP-2.10 三卡一纸/线影凡例/卡片清算 boundaries: OK`，以及 App highwater 2218/2218。独立把三门读取面逐一退回只读 `App.tsx` 后各自变红并恢复：
+
+| 变异 | 原始红 |
+|---|---|
+| `assert-process-trace.mjs` 不读 `DemoTurnStream` | `Failed or canceled Work may not render a completed event`，EXIT 1 |
+| `assert-rp28-contracts.mjs` 不并入 `DemoTurnStream` | `App must declare the event turn-card route`，EXIT 1 |
+| `assert-rp210-contracts.mjs` 不并入 `DemoTurnStream` | `demo 进行态须在 settle 后收敛，失败后静止（不永久闪烁）`，EXIT 1 |
+| `HIGH_WATER_LINES 2218→2217` | `当前 2218 行 > 上限 2217 行`，EXIT 1 |
+
+三门与高水位的反例都用 `apply_patch` 注入、观察红、原样逆补；最终目标代码与脚本无残留差异。
+
+## UTF-8 20000 bytes 独立边界与 mutation
+
+定向 core request/tool-loop/event-log/registry/demo 链 **11 files / 98 passed**。直接调用 `foldToolResult` 构造 ASCII/CJK/emoji 精确边界（固定 envelope 开销 68 bytes）：三组 exact 均 **20000 bytes、truncated=false**；越界一字符/完整码点三组均 **20000 bytes、truncated=true**，保留正文按完整 code point，`MODEL_TOOL_RESULT_TRUNCATION_MARK` 在场，零 U+FFFD/孤立 surrogate。EventLog `content` 与下一 turn prompt 同源断言 **3 passed**。
+
+独立反例（每枚均恢复）如下：
+
+- `utf8ByteLength` 改回 `string.length`：CJK、emoji、总字节、loop 标记断言共 **4 failed**（红）；
+- 撤除截断标记拼接：ASCII/CJK/总字节/loop 标记共 **4 failed**；
+- golden `assembled-request.golden.txt` 注入 `[验收漂移探针]`：目标 clone `assemble.test.ts` golden **1 failed / 6 passed / 9 skipped**，恢复后绿；
+- request-tool 字节/回喂定向恢复后 **3 passed / 20 skipped**，实际 UTF-8 计量而非实现自述。
+
+## request_tool 主体与闭集
+
+静态与定向检查确认：`z.literal` 闭集外拒收且 strict envelope 拒夹带键；`resolveRequestableTools` 准入与 `runRequestedTool` runtime 双判仅 `pure_read`；第 4 轮先落 `step_failed(scope=tool, reason=工具请求超限)` 且工具调用次数仍 3；ADR-009 五种 step 闭集未扩；`model_tool_result` 在 core `replaySession` 与 desktop `projectSession` 两侧均穷举并对未知行显式登记；material-read/dossier-list blocked/invalid 输入诚实失败；core 与 demo 两份 golden 均通过。
+
+独立 mutation 红证：`toolIdSchema` 暂换 `z.string()` → 闭集单元 **2 failed**；移除 runtime `pure_read` 判定 → TOCTOU 用例 **1 failed**；放宽轮次上界 → 第 4 轮判据 **1 failed**。全部撤回。
+
+## OSS、职责与禁区核验
+
+五份触及层 SPEC（desktop/core/tools/registry/demo-runtime）均已写 R1 OSS 四选一、四概念落点、职责/消费边界、实现链与门数；但 demo-runtime 的实际 `zod` 直接 devDependency 与「零新增直接依赖」逐字冲突，故上方决定性拒绝仍成立。`git diff --name-only 80f0d15 9c5e476` 未触 provider、Turn journal、chat、pi、legal、pm 生产路径；禁区 grep 零生产路径扩张（测试/既有 `ToolCallRow` 依赖除外）。无新生产 third-party runtime 依赖，冲突仅是 SPEC 禁止的 devDependency。
+
+## rp28 `.first()` 偏离与 Playwright
+
+`apps/desktop/src/chat/TurnCard.tsx` 是唯一 `ToolCallRow` 原语；旧 `Ran command` 与新增模型请求行均真实复用同一组件。`apps/desktop/tests/e2e/rp28.spec.ts` 的 `.first()` 仍命中首枚、即原断言目标，默认折叠→展开→mono details 的断言意图未放宽；目标树完整 388/388 与 rp28 定向均通过。此次独立轮未出现 hover 红；不以重跑掩盖任何红。
+
+## 工作树与提交纪律
+
+反例撤回后 `git status --short --branch` clean（仅目标分支，无实现代码改动）。本报告为首轮报告之后追加，未改写历史；仅显式暂存 `apps/desktop/ACCEPTANCE.md`，提交前检查 `git diff --cached --name-only` 与 `git diff --cached --check`。无 `fix-by-acceptance`，无合并、push 或删除 clone。
+
+**最终裁决：REJECT（决定性契约项：`packages/demo-runtime` 新增 zod 直接依赖，需架构拍板/实现返修后由新的独立验收会话复验）。**
