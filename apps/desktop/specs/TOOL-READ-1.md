@@ -110,9 +110,11 @@ f1fa33e 裁定二＋红证一/三/五：requestableToolIds 白名单、request_t
 247d8a4 裁定三/五/六/十：两枚只读工具、demo/acceptance 樁与 trace 结构化呈现
 e644afd 门修：核心 browser-safe 边界回退、第二份 golden 重铸、App.tsx 过手即拆（首轮验收目标）
 5b6f77c cherry-pick a9aa6cd（R1 返修裁定，只改本票 SPEC）
-<本票返修> test/feat：UTF-8 字节上界与三道门同步（本节所记）
-<本票返修> docs(spec)：各层留痕与实现回执
+05ad0f8 test/feat：UTF-8 字节上界与三道门同步（本节所记）
+9c5e476 docs(spec)：各层留痕与实现回执（R1 验收目标）
 ```
+
+R1 独立复验（2026-08-13，报告提交 `ac20b209`）结论 **REJECT**：唯一决定性阻断＝`packages/demo-runtime` 新增直接 devDependency `zod` 与 pnpm-lock importer，与 R1-3/R1 禁区/demo-runtime SPEC「零新增直接依赖」逐字冲突；完整门、388/388 E2E、UTF-8、三门、闭集、pure_read、round4 与 golden mutation 均通过。返修见 §七。
 
 ### 6.2 R1-2 born-red 与 mutation 原始结果
 
@@ -191,3 +193,48 @@ TOOL-READ 定向：core 五文件（assemble/segments/tool-request/tool-request-
 2. **`E2E-FLAKY-HOVER-1` 观察**（非本票引入）：`global-verbs.spec.ts`「data-card 复制按钮悬停」例在本票门轮与定向复跑期间以负载相关形态出现（opacity 收到 0，无负载隔离跑绿）；已独立归因——clean `e644afd` 与 `main@80f0d15` 同形复现（同负载下 2/6 红），与票面无因果；最终无负载全量轮该例通过。在册票 `E2E-FLAKY-HOVER-1` 维持，不在本票处置。
 
 除上述两项（一为本票 trace 呈现的必要消费面适配、一为在册环境抖动观察）外，**零偏离**；票面禁区（pi lane、provider、Turn journal、chat 自由回合、legal/pm 声明、新依赖）零触碰。
+
+## 七 · R2 最小返修回执（2026-08-13，实现者 Motto）
+
+### 7.1 R1 独立 REJECT 与五条架构裁定的消费
+
+R1 独立复验（报告提交 `ac20b209`，目标 `9c5e476`）结论 **REJECT**，**唯一决定性阻断**：`packages/demo-runtime` 新增直接 devDependency `zod` 与 pnpm-lock importer（仅为一个测试的 `import * as z from 'zod'`），与 R1-3/R1 禁区/本票 demo-runtime SPEC「零新增直接依赖」逐字冲突；其余完整门、388/388 E2E、UTF-8 20000 bytes、三门、闭集、pure_read、round4、golden 全部 mutation 均通过。五条架构裁定逐条落实：①「零新增直接依赖」同覆 dependencies 与 devDependencies，不改 SPEC/措辞；②不搬 fixture 到 Legal /testing、不给 Registry 新增 testing export、不新增 schema/API；③integration 真链与原 artifact `{summary}`、投影 `/summary`、deliver payload、事件与 prompt 断言保留；④复用 demo-runtime 已有直接依赖 `@courtwork/registry` 根导出的 `PromptSegmentSchema`（registry 提供真实 ZodType 身份）；⑤不触 provider、Turn journal、chat、pi、production generic/legal/pm、ADR-009 步骤闭集。
+
+### 7.2 实现（代码提交 `37a34ce`）
+
+- `packages/demo-runtime/src/acceptance/tool-request.integration.test.ts`：删 `import * as z from 'zod'`；`NOTE_SCHEMA = PromptSegmentSchema.extend({ summary: PromptSegmentSchema.shape.body }).pick({ summary: true })`（summary 字段与原 schema 同形）；bindings 去显式 `z.ZodType` 标注。三枚用例的 `/summary` 投影、`deliver {summary}`、`requestableToolIds`、真 executor/tools/materials、闭集外拒收、blocked 回喂与事件顺序断言**逐字未改**。
+- `packages/demo-runtime/package.json`：devDependencies 恢复为仅有既有 `@types/node`；不新增替代依赖。
+- `pnpm-lock.yaml`：只删 `packages/demo-runtime` importer 下 zod 的 specifier/version；全局 `zod@4.4.3` resolution 与其余 importer（core/legal/output/provider/reading-view/registry/tools 等）零漂移。
+- `packages/demo-runtime/src/package-boundary.test.ts`：新增永久回归守卫（direct dependencies/devDependencies 不含 zod ＋ 源码无 direct import 两枚断言），只守本包直接依赖面，不扩为全仓依赖治理框架。
+
+### 7.3 born-red 与 mutation 原始数字
+
+- **born-red**（旧 `9c5e476` 状态实跑）：`package-boundary.test.ts` **2 failed / 6 passed**——manifest 含 zod（`expected [ '@courtwork/core', …(9) ] to not include 'zod'`）；源码命中 `/from\s+['"]zod['"]/`（`import * as z from 'zod'`）。
+- 修复后：守卫＋integration 真链 **2 files / 11 passed**；`@courtwork/demo-runtime` 全包 **10 files / 43 passed**。
+- 临时重加 direct zod（manifest 与源码 import 双形态）→ **2 failed / 6 passed** 再次变红，逐字恢复（`diff` 零残留）。
+
+### 7.4 R2 提交链与状态
+
+```text
+37a34ce test/fix：去掉 zod 直接 devDependency，复用 registry PromptSegmentSchema（本节所记）
+本提交   docs(spec)：R2 回执与精确既有提交链
+```
+
+状态：**R2 返修完成，待新的独立 Luna clean-clone 验收**。`current.md`/`implementation-readiness` 不动，只有独立 PASS 后由架构会话更新。
+
+### 7.5 R2 全量门实测（tip `37a34ce`，无并发）
+
+| 门 | 实测 |
+|---|---|
+| `pnpm install --frozen-lockfile` | EXIT 0，Lockfile is up to date |
+| 守卫＋integration 定向 | **2 files / 11 passed** |
+| `pnpm --filter @courtwork/demo-runtime test` | **10 files / 43 passed** |
+| `pnpm -r build` | EXIT 0（15/16 workspace；仅既有 chunk 警告） |
+| `pnpm lint` | EXIT 0 |
+| `pnpm test` | **183 files / 2251 passed**（R1 2249 ＋ 守卫 2） |
+| `pnpm --filter @courtwork/desktop test` | **100 files / 888 passed** |
+| `pnpm site:guard` | EXIT 0（release-truth/deslop PASS；App 高水位 2218/2218） |
+| product sidecar identity/repro | **547,893 B / `951acf8e…`** reproducible，第二次 `reused-identical`（零漂移） |
+| headless sidecar identity/repro | 555,314 B / `061248fa…` reproducible，landedSha256 同值 |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | **259 passed / 0 failed / 1 ignored** |
+| `COURTWORK_E2E_PORT=19641 pnpm --filter @courtwork/desktop test:e2e` | 完整静态前链＋Playwright **388 passed / 0 failed**（6.7m，独立新端口 19641，未复用共享 dev server） |
