@@ -1,6 +1,7 @@
 # WORK-AGENT-GUI-1 · 通用 Work Agent GUI 主入口与真源对齐
 
-状态：实现完成（2026-08-13 Motto 会话），待新的独立 Luna clean-clone 验收。实现与验收必须为不同会话。
+状态：R1 返修契约已冻结（2026-08-18 架构会话）。首轮 Motto 实现 `8f93e7a`
+经独立 Luna 验收 `d742b30` **REJECT**；实现与 R1 复验必须继续为不同会话。
 
 权威：`CLAUDE.md`；ADR-022「2026-08-13 产品中心修订」；ADR-023「2026-08-13 口径订正」；
 `docs/product/vision.md`；本票。能力状态只认 `docs/status/current.md`。
@@ -137,3 +138,70 @@ per-run adapter、生产 registry、descriptor IDs 与 production trace。Pi Wor
   **391**。OSS 结论按票执行“删除当期动作”，零新依赖，新增概念仅 `Scenes`。为维持旧场景测试的
   显式语义，E2E helper/相关用例在需要 Scenes 时显式点选；设计线级账把三个已删除 WorkDraft
   consumer 前向记为 retired。无 schema、wire、journal、runtime、Package ABI 或垂类契约偏离。
+
+## 九 · R1 返修冻结（2026-08-18 · 架构）
+
+### 9.1 拒绝证据与裁决
+
+独立 Luna 在 `8f93e7a` 上完整实跑 build/lint/root **183 files / 2251 tests**、desktop
+**100 / 884**、cargo **259 passed / 1 ignored**、site guard **103/103** 与独占端口 Playwright
+**391/391**，并确认 work-agent 静态门经 `assert-test-count.mjs` 真正进入完整
+`test:e2e` 链。常规门全绿不抵消下述两枚生产反例：
+
+1. v1 GUI 历史索引只存 `{containerId, sessionId}`。`grant-old` 写入的历史在应用
+   remount/reload 后，同 container 直接以 `grant-new` 初始挂载时仍会进入 prior list，
+   `openWorkspaceMarkdown` 亦真收到旧 session。首轮只测同挂载 rerender，没有
+   证成跨重载授权隔离。
+2. 被持有的 `grant-old` `start` closure 在 rerender 到 `grant-new` 后仍能调用
+   `port.start({grantId:'grant-old', ...})`。回复后 teardown 只是事后收摊，不能追认已发出的旧
+   授权命令。
+
+架构裁决：两枚都是本票已冻结的“case/grant 变化 fail-closed；后续命令只使用新 grant”
+的实现缺口，不新立 wire 语义。R1 只收窄 GUI 索引缓存与命令前置门；不扩 Tauri
+command、Pi journal/host/wire、workspace 物理格式或 Package ABI。
+
+### 9.2 历史索引 v2 精确契约
+
+`pi-history` 是可丢弃的 GUI 索引缓存，不是 journal 或文件真源。本轮准予把其现有版本化
+格式升为 v2，**不计新增持久概念**：
+
+- storage key 与 envelope version 同步升 v2；`PiHistorySession` 必填非空 `grantId`，写入值
+  必须是生成该 fold 的当前 grant；
+- v1 记录无法证明属于哪个 grant，**禁止迁移或猜测归属**。v2 reader 不读 v1 key，旧缓存
+  当空处理；不为清理一枚可丢弃缓存新增 `removeItem` 宿主能力；
+- 覆盖唯一性、prior 派生与 viewer `open` 放行一律同时比对
+  `{containerId, grantId, sessionId}`；仅 container 相等不得放行；
+- 历史容量仍是每 container 最多 3 段，不因 grant 数放大本地缓存；同挂载 grant 变更可继续
+  删掉该 container 的旧 GUI 索引，但正确性不得依赖此 effect 曾在本次进程发生；
+- 当前活动 session 仍由 `{containerId, grantId}` identity 控制；无须、也禁止为本票给
+  `openWorkspaceMarkdown` 新增 grant 字段或改 Rust 命令契约。
+
+### 9.3 stale start 前置门
+
+`start` closure 必须在 mint sessionId、任何 React state 变化、建 coalescer 与调用
+`port.start` **之前**，把该 closure 捕获的 identity key 与当前 `identityRef.current`
+同步比对；不等即零副作用返回。不得用 closure 自己捕获的 `identityOwnsState` 布尔值代替
+当刻 ref，也不得依赖 reply 后 teardown 作前置授权门。identity 在请求已发出后才变化的
+race 继续沿现行 reply 身份复核＋teardown 收束，不改 host 协议。
+
+### 9.4 R1 TDD、边界与验收
+
+新的实现会话必须从 `d742b30` 顶端先把 Luna 临时探针收为永久测试，在未改生产码时
+记录两枚稳定红，再做最小修复：
+
+1. v1 old-grant 缓存＋全新 remount/reload＋同 container/new grant：prior 必为 0，
+   `openWorkspaceMarkdown` 必为 0；
+2. v2 中 old grant 与 current grant 同时存在：只当前 grant 可见、可 open；撤掉任一
+   `grantId` validator/filter/open 比对必红；
+3. 持有 old-grant `start`，rerender 到 new grant 后调用：mint/state/coalescer/port 全部零 effect；
+   撤掉调用开头的 ref 门必红；
+4. 新 grant 正常 `start`、同 grant 历史跨 reload 仍可见/可 open，不得为防泄漏把全部
+   历史功能恒空；
+5. 首轮全部路由、伪真源退役、generic/Legal handoff、App highwater 2195 与
+   Playwright floor 391 门全保留，只升不退。
+
+R1 允许改动仅：`pi/pi-history.ts` 及定向测试、`pi/use-pi-lane.ts`、
+`pi/use-pi-lane.dom.test.ts`、work-agent 静态门/门测试、本票实现回执。禁止再改 `App.tsx`、
+视觉/route、Tauri/Rust、journal/wire、Package ABI、垂类或全局文档；不加依赖、新存储 backend
+或通用授权抽象。完工重跑本票全部门；只交实现与 SPEC 回执，停在待新的独立 Luna
+clean-clone 复验，不自行合并或更新 `current.md`。
