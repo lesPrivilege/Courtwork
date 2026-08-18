@@ -7036,3 +7036,90 @@ E2E 生成的 18 张 tracked evidence PNG 均按精确路径恢复为目标字�
 完整 E2E 生成的 tracked release evidence PNG 已按目标 tree 精确恢复；所有临时 mutation/probe 已撤回或删除。提交前 `git diff --check` 通过，工作树除本报告外无差异。仅显式暂存 `apps/desktop/ACCEPTANCE.md`；提交前 `git diff --cached --name-only` 必须且实际仅列该文件，未使用 `git add .`/`git add -A`。本报告提交 message 前缀为 `test(acceptance)`，无实现修复、merge、push 或共享树 checkout/stash。
 
 **最终裁决：REJECT（决定性 A/B grant 隔离反例；均需架构拍板，目标树不得放行）。**
+
+# WORK-AGENT-GUI-1 R1 独立复验（2026-08-18，Luna）
+
+## 对象、独立性与结论
+
+本轮由实现者 Motto 之外的新 Luna 会话执行，目标精确为
+`94d568281028507b5f3041a8b28db5c36a69c180`，父提交为
+`834ff6f0d4056b3c2294978f5f2fa5320951a5b0`，首轮拒绝为
+`d742b30efb8abdf8e59a0ef8020aa01988cba9c6`；目标为父提交的直接子提交，祖先检查通过。
+验收使用全新 clone `/private/tmp/courtwork-accept-work-agent-gui-1-r1.mbZNGq/repo`，分支
+`luna/accept-work-agent-gui-1-r1`，没有复用实现 clone、首轮验收 clone 或共享 `main`；初始
+`git status --short --branch` clean。实现 diff 仅有 R1 允许的 7 个文件（4 个 pi/guard 源码或
+测试文件、1 个新增 `pi-history.test.ts`、本票 SPEC 回执），未触碰 App/视觉 route、Tauri/Rust、
+journal/wire、Package ABI、垂类、依赖或 lockfile。
+
+结论：**PASS，放行 `94d568281028507b5f3041a8b28db5c36a69c180` 的 WORK-AGENT-GUI-1 R1**。
+本票只证明 grant 隔离索引与 stale `start` 前置门；browser Playwright 仍是 scripted route
+证据，不宣称真实 Tauri/WKWebView、真实 DeepSeek、宿主持久化字节/hash、Stop/恢复、键盘/读屏或
+`PI-BASE-GUI-ACCEPT` 已成立。
+
+## A/B 重放与正例
+
+定向命令：
+
+```text
+pnpm --filter @courtwork/desktop exec vitest run src/pi/pi-history.test.ts src/pi/use-pi-lane.dom.test.ts
+```
+
+结果 **2 files / 12 tests passed**（`pi-history` 7、DOM 5）。真实测试重放如下：
+
+- A1：v1 旧 key 的 old-grant 缓存，在全新挂载/reload 后直接以同 container/new grant 读取，
+  `priorSessions` 为 0；尝试 `open('session-prior', ...)` 未调用 `openWorkspaceMarkdown`（0 次）。
+- A2：v2 同时放入 old/new grant 段，仅 new grant 的段进入 prior；old 段 open 为 0 次，current
+  grant 段 open 为 1 次。
+- A3：同 grant 的历史在全新挂载/reload 后仍可见、可 open（1 次），新 grant 的 `start` 正常
+  mint `session-current` 并调用 `port.start`（1 次），没有把历史功能恒空。
+- B：先捕获 old-grant `start` closure，再 rerender 到 new grant 后调用旧 closure；`mint`、
+  `port.start`、session state、view/coalescer 路径均为零副作用，sessionId 仍为 `null`、status
+  仍为 `idle`、view blocks 为 0。新 grant 正例由 A3 同时覆盖。
+
+## R1 永久门与 mutation 区分力
+
+`node apps/desktop/scripts/assert-work-agent-gui-contracts.mjs` 报告 **179 production files**、
+旧伪真源零残留；`node --test apps/desktop/scripts/assert-work-agent-gui-contracts.test.mjs`
+结果 **4/4 passed**。每枚下列 mutation 均在独立树注入后观察到真实红证，再立即恢复原字节：
+
+| 注入 | 实际红证 |
+|---|---|
+| storage key 回退 `courtwork.pi-drafts.v1` | 静态门 exit 1；key/v2 定向测试失败（received v1, expected v2） |
+| envelope version 回退为 1 | 静态门 exit 1；key/version 定向测试失败（received 1, expected 2） |
+| 移除 `grantId` 类型校验 | 静态门 exit 1；缺/空 grantId 测试以 `TypeError` 失败，不能读入坏帧 |
+| 移除 `grantId.length > 0` 非空校验 | 静态门 exit 1；空 grantId 被读入，fail-closed 断言失败 |
+| write 唯一性移除 grant 比较 | 定向测试失败：同 container+session 的 old/new 只剩 1 段而非 2 段 |
+| prior 派生移除 grant filter | 定向测试失败：old grant 的 `s-old` 泄漏进 `['s-new']` 期望 |
+| viewer open 移除 grant 比较 | DOM 测试失败：old grant open 实际调用 1 次而非 0 次 |
+| `start` 顶部移除 `identityRef` 门 | 静态门 exit 1；stale closure 测试失败，`mint` 实际调用 1 次 |
+
+恢复后定向套件再次为 **12/12 passed**，静态门重新通过，`git diff --check` 无输出。静态门
+通过 `apps/desktop/scripts/assert-test-count.mjs` 接入完整 `test:e2e` 链；本轮完整链实际输出
+`Playwright 假绿防护通过：391 条用例（下限 391）`，不是只跑 `test:e2e:list`。
+
+## 全量门禁实跑
+
+| 命令 | 独立实测结果 |
+|---|---|
+| `pnpm -r build` | EXIT 0；15/16 workspace project build 通过 |
+| `pnpm lint` | EXIT 0 |
+| `pnpm test` | 升权复跑 EXIT 0；**183 files / 2251 tests passed** |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0；**101 files / 895 tests passed** |
+| `pnpm site:guard` | EXIT 0；**103/103 passed**；App highwater **2195/2195** |
+| `pnpm --filter @courtwork/pi-lane build:product-sidecar` | EXIT 0；product **547,893 B**，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`，`reproducible: true` |
+| `pnpm --filter @courtwork/pi-lane build:headless-sidecar` | EXIT 0；headless **555,314 B**，SHA-256 `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`，`reproducible: true` |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | 升权复跑 EXIT 0；**259 passed / 0 failed / 1 ignored** |
+| `cd apps/desktop && COURTWORK_E2E_PORT=18441 pnpm test:e2e` | 独占端口，配置 `reuseExistingServer:false`；静态前链通过，**391/391 passed（6.8m）** |
+
+root test、cargo 与 product sidecar 首次 sandbox 尝试分别出现既有 loopback `EPERM`／下载网络
+权限红；按权限机制用相同命令升权复跑后均通过，不属于目标 diff 缺陷。完整 E2E 生成的 18 枚
+tracked evidence PNG 已逐文件恢复为目标 tree；最终工作树 clean，除本验收报告追加前无其他差异。
+
+## 范围与清账
+
+目标 diff 统计为 7 files、434 insertions、46 deletions；验收提交只追加本文件，显式检查
+`git diff --cached --name-only` 后才提交，未使用 `git add .`/`git add -A`，不含截图、lockfile、
+依赖或越界源码。
+
+**最终裁决：PASS（R1 两项首轮 grant 隔离阻断均闭合，所有指定 mutation 真实复红且恢复，
+全量门禁与 391 floor 通过；目标可进入架构清账，随后仍须独立派发 `PI-BASE-GUI-ACCEPT`）。**
