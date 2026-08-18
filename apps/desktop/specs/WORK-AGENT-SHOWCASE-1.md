@@ -173,3 +173,38 @@ reduced-motion 与 WCAG AA 定向验证。
 
 本票不新增产品概念。新增的仅是既有事实的可见投影（matter context、绑定／模型恢复动作、运行详情
 折叠）与展示期 chrome 减法。
+
+---
+
+## 实现回执（WORK-AGENT-SHOWCASE-1）
+
+- 实现 SHA：`f3a854f94f813165d88ab77cf57a66555b13cd87`（writable clone
+  `/Users/lesprivilege/Projects/Motto/courtwork-work`，基线 `f77e3af`）。
+- born-red：`release/evidence/work-agent-showcase-1/born-red/README.md`；
+  实现前截图同目录 `pre/`（1440×900 light，12 状态 normal/text-mask/squint 共 36 帧）。
+- 测试数字（全量门）：
+  - `pnpm -r build`：pass。
+  - `pnpm lint`：pass。
+  - root `pnpm test`：183 files / 2251 tests passed。
+  - desktop `vitest run`：103 files / 906 tests passed。
+  - `pnpm site:guard`：pass。
+  - cargo test：259 passed / 0 failed / 1 ignored。
+  - Playwright：391 passed / 0 failed（`reuseExistingServer:false`，独立端口 1420）。
+  - `git diff --check`：pass。
+- 截图 manifest：`release/evidence/work-agent-showcase-1/README.md`（scripted matrix；
+  implementation 180 帧：light 1180×720 / 1440×900 / 1600×900，dark 1440×900，
+  15 状态 × normal/text-mask/squint）。
+- 偏离：
+  1. 本执行环境对原始仓库 `/Users/lesprivilege/Projects/Courtwork` 只读
+     （git update-ref/index.lock 与文件创建均 EPERM），故实现、全量门与提交均在
+     writable clone 完成；原始仓库工作树可由文件编辑工具同步，但 ref 未能在原仓更新。
+  2. 为保持现有 token 守卫与版本学契约门全绿，允许文件清单外同步了
+     `site/styles.css`、`site/og.html`、`docs/design/icon-*.svg`、
+     `apps/desktop/src/icons/icon-audit.css`、`apps/desktop/src/workbench/graph-theme.ts`、
+     `apps/desktop/scripts/assert-rp211-contracts.mjs` 与 site 侧契约测试/lib 的浅宗值。
+  3. 既有 e2e 断言按票面更新：`pi-lane.spec.ts` 未绑定主行动作、
+     `rp1.spec.ts`/`rp27.spec.ts` 四枚 rail 控件零出现、
+     `settings.spec.ts`/`versional-language.spec.ts`/`visual-gallery.spec.ts` 主题默认回退 light。
+- 剩余阻断：`PI-BASE-GUI-ACCEPT` 未重跑（需新 tip 干净 clone 与真实 DeepSeek key/model）；
+  真实 WKWebView/DeepSeek/Stop/AX 外部证据仍按 current.md 保持 external-validated blocked。
+  本票不宣称 Agent/product-live，也未更新 `docs/status/current.md`。
