@@ -16,6 +16,9 @@
 - **当前能力事实**：Pi 的 Tauri/Rust/sidecar/journal 与 React GUI plumbing 已装配，但现有行为证据
   仍以 scripted/faux 为主；真实 WKWebView＋真实 DeepSeek 的 `PI-BASE-GUI-ACCEPT` 未放行。因此
   当下可以写“Work Agent GUI 是产品定位和正在闭合的主线”，不能写“Work Agent 已 product-live”。
+  2026-08-18 两条独立总验均实跑后如实停在 `external-validated blocked`：headless 报告 `52e5636`
+  因无可用真实 DeepSeek key/model 未跑六格；GUI 报告 `6391381` 虽证明隔离 Tauri bundle 可注册运行，
+  但产品入口真实 provider 与 AX/读屏/焦点等真机证据未成立。确定性 harness/全仓绿不抵消该阻塞。
 - **产品真值漂移已闭合**：`WORK-AGENT-GUI-1` 已删除 browser-only `WorkDraftPanel`/store，把
   `Chat | Work | Scenes`、默认入口、零垂类 CTA 与 Working folders 统一到 Pi Work；R1 又把可丢弃
   history 升为 grant-isolated v2，并在所有副作用前拦截 stale `start`。实现 `8f93e7a→94d5682`，

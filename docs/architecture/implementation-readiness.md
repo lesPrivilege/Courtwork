@@ -401,7 +401,10 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 `17f6822` 独立验收并合入 `0c59911`；`PI-LANE-UI-1` 已实现/验收并合入 `e3d587d`；
 `WORK-AGENT-GUI-1` 经首轮 REJECT `d742b30`、架构 R1 `834ff6f`、返修 `94d5682` 与独立 PASS
 `a779545` 清账，已释放 App 槽。当前可派收敛节点是 `PI-BASE-HEADLESS-ACCEPT` 与
-`PI-BASE-GUI-ACCEPT`；真 key 缺席须报 `external-validated blocked`，不得取得 Agent 称谓。
+`PI-BASE-GUI-ACCEPT`。两者已于 2026-08-18 独立实跑并分别以 `52e5636`、`6391381` 登记
+`external-validated blocked`：前者缺真实 DeepSeek key/model 六格，后者缺产品入口 provider 与
+AX/读屏/焦点等真实 WKWebView 证据；这不是 PASS，也不取得 Agent 称谓。外部前置变化后应基于
+上述报告续验，不重做已绿的确定性 plumbing。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
