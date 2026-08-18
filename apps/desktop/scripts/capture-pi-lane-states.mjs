@@ -10,6 +10,8 @@ import { chromium } from '@playwright/test';
 const port = process.env.PORT ?? '1470';
 const base = `http://127.0.0.1:${port}`;
 const OUT = process.env.OUT ?? '/tmp/pishots';
+const VIEWPORT = { width: Number(process.env.VIEWPORT_W ?? 1440), height: Number(process.env.VIEWPORT_H ?? 900) };
+const SETUP_VIEWPORT = { width: Math.max(VIEWPORT.width, 1240), height: Math.max(VIEWPORT.height, 800) };
 import { mkdirSync } from 'node:fs';
 mkdirSync(OUT, { recursive: true });
 
@@ -29,8 +31,11 @@ const WRITE_SCRIPT = [
 
 const browser = await chromium.launch();
 async function fresh(theme) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({ viewport: SETUP_VIEWPORT });
   const page = await context.newPage();
+  await page.addInitScript(() => {
+    localStorage.setItem('courtwork.onboarding.seen', 'true');
+  });
   await page.goto(base);
   if (theme === 'dark') {
     await page.evaluate(() => {
@@ -53,20 +58,31 @@ async function fresh(theme) {
   return { context, page };
 }
 
-async function bindCase(page) {
+async function bindCase(page, label = '设备采购案卷') {
   await page.evaluate(() => window.__courtworkPiLane.reset());
   await page.getByTestId('new-case-open').click();
-  await page.evaluate(() => window.__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId: 'grant-pi-shot', label: '设备采购案卷' } }));
+  await page.evaluate((label) => window.__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId: 'grant-pi-shot', label } }), label);
   await page.getByTestId('new-case-authorize').click();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await page.getByTestId('segment-draft').click();
 }
 
+
 async function shot(page, name) {
+  await page.setViewportSize(VIEWPORT);
   await page.waitForTimeout(220);
   await page.screenshot({ path: `${OUT}/${name}.png` });
+  await page.evaluate(() => {
+    const style = document.createElement('style');
+    style.id = '__courtwork_text_mask__';
+    style.textContent = '* { color: transparent !important; -webkit-text-fill-color: transparent !important; text-shadow: none !important; }';
+    document.head.appendChild(style);
+  });
+  await page.screenshot({ path: `${OUT}/${name}-text-mask.png` });
+  await page.evaluate(() => document.getElementById('__courtwork_text_mask__')?.remove());
   console.log('shot', name);
 }
+
 
 const themes = (process.env.THEMES ?? 'light').split(',');
 for (const theme of themes) {
@@ -153,6 +169,32 @@ for (const theme of themes) {
     await page.getByTestId('pi-send').click();
     await page.getByTestId('pi-decode-failure').waitFor();
     await shot(page, `12-fail-closed${suffix}`);
+    await context.close();
+  }
+  // 13 unavailable：已绑定但模型/凭据不可用，恢复动作直达既有模型设置
+  {
+    const { context, page } = await fresh(theme);
+    await bindCase(page);
+    await page.evaluate(() => window.__courtworkPiLane.setStartFailure({ code: 'model_unavailable', message: '模型或凭据不可用 · 请先打开模型设置恢复连接' }));
+    await page.getByTestId('pi-start').click();
+    await page.getByTestId('pi-open-model-settings').waitFor();
+    await shot(page, `13-unavailable${suffix}`);
+    await context.close();
+  }
+  // 14 长中文 matter 名
+  {
+    const { context, page } = await fresh(theme);
+    await bindCase(page, '北京至臻精密设备进出口有限公司二〇二六年度采购合同履行与争议整理专案');
+    await page.getByTestId('pi-work-head').waitFor();
+    await shot(page, `14-long-matter-zh${suffix}`);
+    await context.close();
+  }
+  // 15 CJK/Latin 混排 matter 名
+  {
+    const { context, page } = await fresh(theme);
+    await bindCase(page, 'M&A 跨境并购 · Project Sunrise 2026 Q3 交割文件组');
+    await page.getByTestId('pi-work-head').waitFor();
+    await shot(page, `15-matter-cjk-latin${suffix}`);
     await context.close();
   }
 }

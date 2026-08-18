@@ -55,15 +55,15 @@
 /* VERSIONAL-LANG-3 · Agent／Pages 同源双宗。浅宗是参考稿冷白三级台阶；深宗是磁青纸阶。
    --important-title 浅宗仍取冷墨，深宗才换泥金；正文与数据永不消费该别名。 */
 :root {
-  --bg-app: #F7F8FA;
-  --bg-surface: #F2F4F7;
+  --bg-app: #FBFCFE;
+  --bg-surface: #F6F8FB;
   --bg-raised: #FFFFFF;
   --text-primary: #232B38;
   --text-secondary: #55617A;
   --text-tertiary: #637083;
-  --text-inverse: #F7F8FA;
-  --border-hairline: #D5DAE3;
-  --border-strong: #C3CAD6;
+  --text-inverse: #FBFCFE;
+  --border-hairline: #DFE5EE;
+  --border-strong: #C9D3E1;
   --border-focus: #2563EB;
   --red-fg: #A83226;
   --zhu-graphic: #BE4B2F;
@@ -81,7 +81,7 @@
      经 unicode-range 钉死——**不依赖宿主装没装西文体**，原「三兜底全缺则数字落仿宋」的残留至此闭合
      （红证见 craft-evidence B8）。Charter 一组留在其后只服务分段外的西文字母；CJK 落朱雀。 */
   --font-doc: "Courtwork Doc Numerals", Charter, "Bitstream Charter", Georgia, "Times New Roman", "Zhuque Fangsong", "STFangsong", "FangSong", serif;
-  --bg-hover: #E6E8EC;
+  --bg-hover: #EEF2F7;
   --motion-press: 120ms;
   --ease-out: cubic-bezier(.23, 1, .32, 1);
   --page-max: 1440px;

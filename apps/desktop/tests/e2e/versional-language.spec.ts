@@ -87,6 +87,10 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
   expect(values.badgeBackground).toBe('rgba(0, 0, 0, 0)');
 
   await page.emulateMedia({ colorScheme: 'dark' });
+  await page.evaluate(() => {
+    localStorage.setItem('courtwork.settings.v1', JSON.stringify({ appearance: { themeMode: 'system' } }));
+    window.dispatchEvent(new Event('courtwork:settings-changed'));
+  });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const dark = await page.evaluate(() => {
     const title = getComputedStyle(document.querySelector<HTMLElement>('.chat-case-title')!);

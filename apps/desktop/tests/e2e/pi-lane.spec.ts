@@ -97,12 +97,13 @@ async function startAndSend(page: Page, text = '把合同编号整理成一份�
   await page.getByTestId('pi-send').click();
 }
 
-test('未绑定文件夹：诚实拦在开始之前，不假装可以开工', async ({ page }) => {
+test('未绑定文件夹：绑定文件夹是主动作，不假装可以开工', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('segment-draft').click();
   const empty = page.getByTestId('pi-empty');
   await expect(empty).toContainText('还没有绑定文件夹');
-  await expect(page.getByTestId('pi-start')).toBeDisabled();
+  await expect(page.getByTestId('pi-start')).toHaveCount(0);
+  await expect(page.getByTestId('pi-bind-folder')).toBeVisible();
 });
 
 test('全链：提案 → 允许 → 已写入 → 索引 → 只读查看（hash 相符）', async ({ page }) => {

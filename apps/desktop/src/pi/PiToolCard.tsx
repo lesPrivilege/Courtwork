@@ -37,6 +37,14 @@ export function PiToolCard({
       data-state={state}
       data-tool-call-id={call.toolCallId}
     >
+      {call.proposal && (
+        <p className="pi-tool-request" data-testid="pi-tool-request">
+          {call.proposal.action === 'overwritten' ? PI_COPY.wroteOverwritten : PI_COPY.wroteCreated}
+          <span aria-hidden="true"> · </span>
+          <b>{call.proposal.logicalPath}</b>
+        </p>
+      )}
+
       <header className="pi-tool-head">
         <span className="pi-tool-name">{call.toolName}</span>
         {call.proposal && <span className="pi-tool-path">{call.proposal.logicalPath}</span>}
@@ -44,20 +52,23 @@ export function PiToolCard({
       </header>
 
       {call.proposal && (
-        <dl className="pi-tool-facts">
-          <div>
-            <dt>动作</dt>
-            <dd>{call.proposal.action === 'overwritten' ? '覆盖既有' : '新建'}</dd>
-          </div>
-          <div>
-            <dt>字节</dt>
-            <dd className="pi-mono">{call.proposal.byteLength}</dd>
-          </div>
-          <div>
-            <dt>内容校验</dt>
-            <dd className="pi-mono">{call.proposal.contentSha256.slice(0, 12)}</dd>
-          </div>
-        </dl>
+        <details className="pi-tool-details" data-testid="pi-tool-details">
+          <summary>{PI_COPY.runDetails}</summary>
+          <dl className="pi-tool-facts">
+            <div>
+              <dt>动作</dt>
+              <dd>{call.proposal.action === 'overwritten' ? '覆盖既有' : '新建'}</dd>
+            </div>
+            <div>
+              <dt>字节</dt>
+              <dd className="pi-mono">{call.proposal.byteLength}</dd>
+            </div>
+            <div>
+              <dt>内容校验</dt>
+              <dd className="pi-mono">{call.proposal.contentSha256.slice(0, 12)}</dd>
+            </div>
+          </dl>
+        </details>
       )}
 
       {pending && (

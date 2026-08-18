@@ -159,15 +159,13 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('model-config-close')).toHaveText('Close');
   });
 
-  test('导航骨架：产出真路由；定时/派发禁用+tooltip', async ({ page }) => {
+  test('导航骨架：产出真路由；四枚未接线 chrome 零出现', async ({ page }) => {
     await openWorkbench(page);
     await expect(page.getByTestId('nav-artifacts')).toBeVisible();
-    const scheduled = page.getByTestId('nav-scheduled');
-    await expect(scheduled).toHaveAttribute('aria-disabled', 'true');
-    await expect(scheduled).toHaveAttribute('title', /Coming soon/);
-    const dispatch = page.getByTestId('nav-dispatch');
-    await expect(dispatch).toHaveAttribute('aria-disabled', 'true');
-    await expect(dispatch).toHaveAttribute('title', /Coming soon/);
+    await expect(page.getByTestId('nav-scheduled')).toHaveCount(0);
+    await expect(page.getByTestId('nav-dispatch')).toHaveCount(0);
+    await expect(page.getByTestId('pinned-filter')).toHaveCount(0);
+    await expect(page.getByTestId('pinned-more')).toHaveCount(0);
   });
 
   test('#18′：context/状态条撤模型，仅 composer 保留唯一 model-config', async ({ page }) => {

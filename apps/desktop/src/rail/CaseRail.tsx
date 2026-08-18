@@ -414,28 +414,6 @@ export function CaseRail({
             <Icon name="package" />
             <span>{CHROME_COPY.navigation.output}</span>
           </button>
-          <button
-            type="button"
-            className="rail-nav-item is-disabled-feature"
-            data-testid="nav-scheduled"
-            aria-disabled="true"
-            title="Coming soon · Scheduled tasks"
-            onClick={(event) => event.preventDefault()}
-          >
-            <Icon name="calendar-clock" />
-            <span>{CHROME_COPY.navigation.scheduled}</span>
-          </button>
-          <button
-            type="button"
-            className="rail-nav-item is-disabled-feature"
-            data-testid="nav-dispatch"
-            aria-disabled="true"
-            title="Coming soon · Dispatch"
-            onClick={(event) => event.preventDefault()}
-          >
-            <Icon name="send" />
-            <span>{CHROME_COPY.navigation.dispatch}</span>
-          </button>
         </nav>
 
         <div className="case-scroll">
@@ -444,10 +422,6 @@ export function CaseRail({
               {/* ④分区标题右侧操作钮（lucide，层级对齐标题；功能后置占位） */}
               <div className="rail-section-head">
                 <p className="rail-label">{CHROME_COPY.navigation.pinned}</p>
-                <div className="rail-section-actions">
-                  <button type="button" className="icon-button is-disabled-feature" data-testid="pinned-filter" aria-disabled="true" title="排序与筛选（即将上线）"><Icon name="sliders-horizontal" /></button>
-                  <button type="button" className="icon-button is-disabled-feature" data-testid="pinned-more" aria-disabled="true" title="更多（即将上线）"><Icon name="more-horizontal" /></button>
-                </div>
               </div>
               {pinnedRows.map(renderRow)}
             </div>

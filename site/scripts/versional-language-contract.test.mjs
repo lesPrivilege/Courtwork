@@ -34,7 +34,7 @@ test('注入眉批退回四周卡框时定点失败', () => {
 });
 
 test('注入参考浅宗色阶漂移时定点失败', () => {
-  const mutated = css.replace('--bg-app: #F7F8FA;', '--bg-app: #F7F8FB;');
+  const mutated = css.replace('--bg-app: #FBFCFE;', '--bg-app: #FBFCFB;');
   assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL2-C01 Pages 浅宗色阶漂移/);
 });
 

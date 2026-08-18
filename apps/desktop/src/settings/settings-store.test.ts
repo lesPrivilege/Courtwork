@@ -19,7 +19,7 @@ describe('settings-store', () => {
     expect(loadSettings().runtimeGuard.maxUsd).toBe(DEFAULT_SETTINGS.runtimeGuard.maxUsd);
     expect(loadSettings().privacy.telemetryEnabled).toBe(true);
     expect(loadSettings().privacy.behaviorDataOptIn).toBe(false);
-    expect(loadSettings().appearance.themeMode).toBe('system');
+    expect(loadSettings().appearance.themeMode).toBe('light');
   });
 
   it('persists maxUsd as RuntimeGuard config', () => {
@@ -119,7 +119,7 @@ describe('settings-store', () => {
     expect(next.privacy.telemetryEnabled).toBe(false);
   });
 
-  it('persists themeMode inside the versioned settings key and falls malformed values back to system', () => {
+  it('persists themeMode inside the versioned settings key and falls malformed values back to light', () => {
     const writes: Array<[string, string]> = [];
     let stored = JSON.stringify({ appearance: { themeMode: 'sepia' } });
     __setSettingsStoreForTests({
@@ -130,7 +130,7 @@ describe('settings-store', () => {
       },
     });
 
-    expect(loadSettings().appearance.themeMode).toBe('system');
+    expect(loadSettings().appearance.themeMode).toBe('light');
     const next = setThemeMode(loadSettings(), 'dark');
     expect(next.appearance.themeMode).toBe('dark');
     expect(loadSettings().appearance.themeMode).toBe('dark');

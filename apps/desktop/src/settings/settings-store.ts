@@ -38,7 +38,7 @@ export const DEFAULT_SETTINGS: SettingsSnapshot = {
     telemetryEnabled: true,
     behaviorDataOptIn: false,
   },
-  appearance: { themeMode: 'system' },
+  appearance: { themeMode: 'light' },
 };
 
 const STORAGE_KEY = 'courtwork.settings.v1';
@@ -104,7 +104,7 @@ function hasOwn(value: object, key: PropertyKey): boolean {
 }
 
 function normalizeThemeMode(value: unknown): ThemeMode {
-  return value === 'light' || value === 'dark' || value === 'system' ? value : 'system';
+  return value === 'light' || value === 'dark' || value === 'system' ? value : 'light';
 }
 
 export function loadSettings(): SettingsSnapshot {

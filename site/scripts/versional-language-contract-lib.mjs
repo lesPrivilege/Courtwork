@@ -25,14 +25,14 @@ export function validateVersionalSite({ html, css, desktopCss }) {
   const desktopDarkRoot = ruleBody(desktopCss ?? '', ":root[data-theme='dark']");
 
   for (const [property, value] of [
-    ['--bg-app', '#F7F8FA'],
-    ['--bg-surface', '#F2F4F7'],
+    ['--bg-app', '#FBFCFE'],
+    ['--bg-surface', '#F6F8FB'],
     ['--bg-raised', '#FFFFFF'],
     ['--text-primary', '#232B38'],
     ['--text-secondary', '#55617A'],
     ['--text-tertiary', '#637083'],
-    ['--border-hairline', '#D5DAE3'],
-    ['--border-strong', '#C3CAD6'],
+    ['--border-hairline', '#DFE5EE'],
+    ['--border-strong', '#C9D3E1'],
     ['--border-focus', '#2563EB'],
   ]) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(root)) failures.push(`VL2-C01 Pages 浅宗色阶漂移：${property}`);

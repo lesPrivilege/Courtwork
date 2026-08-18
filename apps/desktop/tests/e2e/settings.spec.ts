@@ -111,16 +111,19 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-model-config-notice')).toHaveCount(0);
   });
 
-  test('themeMode 同键持久化：system 随 OS，显式宗不随，根只暴露解析后的 data-theme', async ({ page }) => {
+  test('themeMode 同键持久化：新装回退 light，显式 system 随 OS，根只暴露解析后的 data-theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await openWorkbench(page);
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    // 无已存偏好：深色 OS 也不抢跑，默认冷白主宗。
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     await expect(page.locator('html')).not.toHaveAttribute('data-theme-mode');
 
     await openSettings(page);
     await page.getByTestId('settings-nav-appearance').click();
     const mode = page.getByTestId('settings-theme-mode');
-    await expect(mode).toHaveValue('system');
+    await expect(mode).toHaveValue('light');
+    await mode.selectOption('system');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await mode.selectOption('light');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     await page.emulateMedia({ colorScheme: 'dark' });

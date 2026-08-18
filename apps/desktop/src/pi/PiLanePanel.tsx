@@ -102,9 +102,24 @@ export interface PiLanePanelProps {
   readonly session: PiLaneSession;
   /** 当前容器有没有绑定文件夹。没绑就没有案件根可读，诚实拦在开始之前。 */
   readonly bound: boolean;
+  /** 当前 matter 标题；仅投影既有 `selectedCase.title`，不新建状态。 */
+  readonly matterTitle: string;
+  /** 已绑定授权文件夹的人类可读标签；未绑定为 `undefined`。 */
+  readonly bindingLabel?: string;
+  /** 调用 App 既有 `authorizeCaseFolder`，不得复制授权／入库逻辑。 */
+  onBindFolder(): void;
+  /** 调用 App 既有凭据／模型设置入口，不得新增 provider 路由或自动重试。 */
+  onOpenModelSettings(): void;
 }
 
-export function PiLanePanel({ session, bound }: PiLanePanelProps) {
+export function PiLanePanel({
+  session,
+  bound,
+  matterTitle,
+  bindingLabel,
+  onBindFolder,
+  onOpenModelSettings,
+}: PiLanePanelProps) {
   const { view } = session;
   const [decidingOperationId, setDeciding] = useState<string | null>(null);
   const [viewer, setViewer] = useState<PiViewerState | null>(null);
@@ -191,6 +206,10 @@ export function PiLanePanel({ session, bound }: PiLanePanelProps) {
       <PiStartGate
         session={session}
         bound={bound}
+        matterTitle={matterTitle}
+        bindingLabel={bindingLabel}
+        onBindFolder={onBindFolder}
+        onOpenModelSettings={onOpenModelSettings}
         priorSessions={session.priorSessions}
         onOpenPrior={(sessionId, logicalPath, recordedSha256) =>
           void openDraft(sessionId, logicalPath, { verify: false, recordedSha256 })
@@ -205,6 +224,7 @@ export function PiLanePanel({ session, bound }: PiLanePanelProps) {
     <CardContext.Provider value={cardContext}>
       <AssistantRuntimeProvider runtime={runtime}>
         <section className="pi-panel" data-testid="pi-panel" data-status={session.status}>
+          <PiWorkHead matterTitle={matterTitle} bindingLabel={bindingLabel} />
           <PiStatusBar view={view} sessionId={session.sessionId} onRestart={session.restart} />
 
           {view.decodeFailure && (
@@ -310,7 +330,7 @@ function PiPlainText({ text }: { text: string }) {
   return <p className="pi-user-text">{text}</p>;
 }
 
-/** 目录学式状态条：段号、回合、开销。数字走等宽核验体（设计凡例 §4）。 */
+/** 运行状态条：matter 身份已上提，这里只放运行摘要与折叠的会话细节。 */
 function PiStatusBar({
   view,
   sessionId,
@@ -321,10 +341,8 @@ function PiStatusBar({
   onRestart(): void;
 }) {
   const usd = view.budget?.usd;
-  // 面头复用既有已签署的 `.panel-head`（文武线在册），本面因此零新增线消费点。
   return (
     <header className="panel-head pi-status" data-testid="pi-status">
-      <span className="pi-status-ident pi-mono">{sessionId ?? '—'}</span>
       <span className="pi-status-slot">
         {PI_COPY.turnsLabel}
         <b className="pi-mono">
@@ -346,6 +364,15 @@ function PiStatusBar({
           {piSessionClosedCopy(view.sessionTerminal)}
         </span>
       )}
+      <details className="pi-run-details" data-testid="pi-run-details">
+        <summary>{PI_COPY.runDetails}</summary>
+        <dl className="pi-run-facts">
+          <div>
+            <dt>{PI_COPY.sessionIdLabel}</dt>
+            <dd className="pi-mono">{sessionId ?? '—'}</dd>
+          </div>
+        </dl>
+      </details>
       {/* 另起一段：收摊这一条，回到未开工态；上一段的工作稿仍在只读入口里。 */}
       {!view.running && (
         <button
@@ -425,10 +452,14 @@ function PiDraftIndex({
   );
 }
 
-/** 未开工时的门面：空态、失败态与历史工作稿入口——三者都不假装有一段工作在跑。 */
+/** 未开工时的门面：matter 上下文、空态、失败恢复与历史工作稿入口——不假装有工作在跑。 */
 function PiStartGate({
   session,
   bound,
+  matterTitle,
+  bindingLabel,
+  onBindFolder,
+  onOpenModelSettings,
   priorSessions,
   onOpenPrior,
   viewer,
@@ -436,31 +467,63 @@ function PiStartGate({
 }: {
   session: PiLaneSession;
   bound: boolean;
+  matterTitle: string;
+  bindingLabel?: string;
+  onBindFolder(): void;
+  onOpenModelSettings(): void;
   priorSessions: readonly PiHistorySession[];
   onOpenPrior(sessionId: string, logicalPath: string, recordedSha256: string): void;
   viewer: PiViewerState | null;
   onCloseViewer(): void;
 }) {
   const prior = priorSessions[0];
+  const unavailable = session.status === 'unavailable';
   return (
     <section className="pi-panel pi-panel-gate" data-testid="pi-panel" data-status={session.status}>
+      <PiWorkHead matterTitle={matterTitle} bindingLabel={bindingLabel} />
       <div className="pi-empty" data-testid="pi-empty">
         <p className="pi-empty-title">{PI_COPY.emptyTitle}</p>
-        <p className="pi-empty-body">{bound ? PI_COPY.emptyBody : PI_COPY.emptyUnbound}</p>
+        <p className="pi-empty-body">
+          {!bound
+            ? PI_COPY.emptyUnbound
+            : unavailable
+              ? PI_COPY.unavailableBody
+              : PI_COPY.emptyBody}
+        </p>
         {session.failure && (
           <p className="pi-alert" data-testid="pi-failure">
             {session.failure.message}
           </p>
         )}
-        <button
-          type="button"
-          className="pi-button pi-button-primary"
-          data-testid="pi-start"
-          disabled={!bound || session.status === 'starting'}
-          onClick={() => void session.start()}
-        >
-          {PI_COPY.startAction}
-        </button>
+        {!bound ? (
+          <button
+            type="button"
+            className="pi-button pi-button-primary"
+            data-testid="pi-bind-folder"
+            onClick={onBindFolder}
+          >
+            {PI_COPY.bindFolderAction}
+          </button>
+        ) : unavailable ? (
+          <button
+            type="button"
+            className="pi-button pi-button-primary"
+            data-testid="pi-open-model-settings"
+            onClick={onOpenModelSettings}
+          >
+            {PI_COPY.openModelSettingsAction}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="pi-button pi-button-primary"
+            data-testid="pi-start"
+            disabled={session.status === 'starting'}
+            onClick={() => void session.start()}
+          >
+            {PI_COPY.startAction}
+          </button>
+        )}
       </div>
 
       {prior && (
@@ -487,5 +550,28 @@ function PiStartGate({
 
       {viewer && <PiDraftViewer state={viewer} onClose={onCloseViewer} />}
     </section>
+  );
+}
+
+/** Work 面主层 matter 上下文：标题 + 授权文件夹标签。不另造右栏。 */
+function PiWorkHead({
+  matterTitle,
+  bindingLabel,
+}: {
+  matterTitle: string;
+  bindingLabel?: string;
+}) {
+  return (
+    <header className="pi-work-head" data-testid="pi-work-head">
+      <div className="pi-work-head-ident">
+        <p className="pi-work-head-label">{PI_COPY.matterContextLabel}</p>
+        <h2 className="pi-work-head-title">{matterTitle}</h2>
+      </div>
+      {bindingLabel ? (
+        <span className="pi-work-head-binding" data-testid="pi-binding-label">
+          {bindingLabel}
+        </span>
+      ) : null}
+    </header>
   );
 }

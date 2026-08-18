@@ -1921,9 +1921,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               <strong className="chat-titlebar-label">{CHROME_COPY.segment.draft}</strong>
             </div>
             <PiLanePanel
-              key={`${selectedCaseId ?? ''}:${selectedGrantId ?? ''}`}
-              session={piSession}
-              bound={Boolean(selectedGrantId)}
+              key={`${selectedCaseId ?? ''}:${selectedGrantId ?? ''}`} session={piSession} bound={Boolean(selectedGrantId)}
+              matterTitle={selectedCase?.title ?? ''} bindingLabel={selectedCase?.label}
+              onBindFolder={authorizeCaseFolder} onOpenModelSettings={openCredentialSurface}
             />
           </section>
         )}

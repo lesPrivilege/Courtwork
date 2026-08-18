@@ -21,6 +21,9 @@ test('VISUAL-KIT gallery 在四档视口原生绘制十二族并保留真实 fix
 });
 
 test('VERSIONAL-LANG-3 gallery 自然解析深宗，图谱总题泥金而正文保持冷白', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('courtwork.settings.v1', JSON.stringify({ appearance: { themeMode: 'system' } }));
+  });
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/visual-gallery.html');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

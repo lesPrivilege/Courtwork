@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "f6a0bc483314bebf265fe31d307711100d44ce8e7efd951579fc868e878a7540"
+      sha256: "cd2aeeb07b77947a9890784b4cc2c6fe0e6deafaef4812455a4060186178fc0c"
     "docs/design/principles.md":
       sha256: "fdd9e0d768394c2422bceaf181d63d40628696681dfdc7399213db9e829574bb"
   tokenSet:
@@ -19,17 +19,17 @@ tokens:
   color:
     bg:
       app:
-        value: "#F7F8FA"
+        value: "#FBFCFE"
       surface:
-        value: "#F2F4F7"
+        value: "#F6F8FB"
       raised:
         value: "#FFFFFF"
       hover:
-        value: "#E6E8EC"
+        value: "#EEF2F7"
       controlHover:
-        value: "#DDE0E4"
+        value: "#E7ECF3"
       selected:
-        value: "#D9E3F6"
+        value: "#E7EEF9"
     text:
       primary:
         value: "#232B38"
@@ -40,12 +40,12 @@ tokens:
       disabled:
         value: "#8A94A8"
       inverse:
-        value: "#F7F8FA"
+        value: "#FBFCFE"
     border:
       hairline:
-        value: "#D5DAE3"
+        value: "#DFE5EE"
       strong:
-        value: "#C3CAD6"
+        value: "#C9D3E1"
       focus:
         value: "#2563EB"
     action:
@@ -122,7 +122,7 @@ tokens:
         generatedFont:
           value: "ui"
         generatedBg:
-          value: "#F7F8FA"
+          value: "#FBFCFE"
         verifiedBg:
           value: "#F0F4FE"
         verifiedFont:
@@ -660,19 +660,19 @@ tokens:
 
 ## 三、token 用法语义（tokens.json 描述派生）
 
-- `color.bg.app` = `#F7F8FA` — 底纸（L0 画布/chat 地）：冷白纸，三级台阶最浅。新锚 #232B38 H≈217° 派生；原型明文「中性偏冷·禁米黄」
-- `color.bg.surface` = `#F2F4F7` — 竖栏容器底（左栏/右栏收敛条）：三级台阶中层，比底纸略深
+- `color.bg.app` = `#FBFCFE` — 底纸（L0 画布/chat 地）：冷白纸，三级台阶最浅。新锚 #232B38 H≈217° 派生；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
+- `color.bg.surface` = `#F6F8FB` — 竖栏容器底（左栏/右栏收敛条）：三级台阶中层，比底纸略深；WORK-AGENT-SHOWCASE-1 由 #F2F4F7 抬为 #F6F8FB
 - `color.bg.raised` = `#FFFFFF` — 白卡最亮：内容卡片/文书纸面/composer 输入纸
-- `color.bg.hover` = `#E6E8EC` — 行/项悬停底：冷调，在 surface 与 raised 上均可辨。出处 color-mix(in srgb, text.primary 6%, bg.surface)——B1 实测覆核修正 B0 自拟 Q6：G6 图主题渲染到 canvas 无法消费 CSS color-mix，且 assert-graph-theme 读 .value 字面量，故派生式降为出处记录、解析值为真值
-- `color.bg.controlHover` = `#DDE0E4` — 扁平按钮 hover 深色块，与 selected 分离；CSS --control-hover。出处 color-mix(in srgb, text.primary 10%, bg.surface)
-- `color.bg.selected` = `#D9E3F6` — 选中项底：蓝感强于 hover 族（B−R=29，hover 为 6），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)
+- `color.bg.hover` = `#EEF2F7` — 行/项悬停底：冷调，在 surface 与 raised 上均可辨。出处 color-mix(in srgb, text.primary 6%, bg.surface)——B1 实测覆核修正 B0 自拟 Q6：G6 图主题渲染到 canvas 无法消费 CSS color-mix，且 assert-graph-theme 读 .value 字面量，故派生式降为出处记录、解析值为真值。WORK-AGENT-SHOWCASE-1 由 #E6E8EC 抬为 #EEF2F7
+- `color.bg.controlHover` = `#E7ECF3` — 扁平按钮 hover 深色块，与 selected 分离；CSS --control-hover。出处 color-mix(in srgb, text.primary 10%, bg.surface)。WORK-AGENT-SHOWCASE-1 由 #DDE0E4 抬为 #E7ECF3
+- `color.bg.selected` = `#E7EEF9` — 选中项底：蓝感强于 hover 族（B−R=18，hover 为 9），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)。WORK-AGENT-SHOWCASE-1 由 #D9E3F6 抬为 #E7EEF9
 - `color.text.primary` = `#232B38` — 正文与标题。刻本墨色，拒纯黑与暖灰（docs/design/principles.md 采纳）
-- `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.raised #FFFFFF 6.22:1 / 对 bg.surface #F2F4F7 5.64:1，最严面达 AA 正文档
-- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 5.0288 / 4.7324 / 4.5640（raised / app / surface），**最严面 4.5640 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 当时保持其原值，双宗共用中性就此拆分。**事实订正（2026-08-09 SKIN-DYSTOPIA-1 项 A，同 Q8 族）**：「不随动」的依据是当时自述的深宗无缺口，该前提已被宗×面二维门实测证否，深宗此位已随槽收口为 #8B99B0；拆分本身不变（两宗各按本宗最严面复算）
+- `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.app #FBFCFE 6.06:1 / 对 bg.surface #F6F8FB 5.84:1 / 对 bg.raised #FFFFFF 6.22:1，三面均达 AA 正文档
+- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 4.8988 / 4.7267 / 5.0288（app / surface / raised），**最严面 surface 4.7267 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 当时保持其原值，双宗共用中性就此拆分。**事实订正（2026-08-09 SKIN-DYSTOPIA-1 项 A，同 Q8 族）**：「不随动」的依据是当时自述的深宗无缺口，该前提已被宗×面二维门实测证否，深宗此位已随槽收口为 #8B99B0；拆分本身不变（两宗各按本宗最严面复算）
 - `color.text.disabled` = `#8A94A8` — 禁用态文字。H≈217° 同源
-- `color.text.inverse` = `#F7F8FA` — 深底（主按钮）上的文字：冷白（=bg.app）
-- `color.border.hairline` = `#D5DAE3` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源
-- `color.border.strong` = `#C3CAD6` — 输入框、需要更强边界的容器。H≈217° 同源
+- `color.text.inverse` = `#FBFCFE` — 深底（主按钮）上的文字：冷白（=bg.app）；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
+- `color.border.hairline` = `#DFE5EE` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源；WORK-AGENT-SHOWCASE-1 由 #D5DAE3 抬为 #DFE5EE
+- `color.border.strong` = `#C9D3E1` — 输入框、需要更强边界的容器。H≈217° 同源；WORK-AGENT-SHOWCASE-1 由 #C3CAD6 抬为 #C9D3E1
 - `color.border.focus` = `#2563EB` — 键盘焦点环，复用 revision.insert 色相（预算内复用）
 - `color.action.primaryBg` = `#232B38` — 主按钮底 = ink。主操作不占语义色预算（vercel 黑按钮范式）
 - `color.action.link` = `#2563EB` — 链接/溯源跳转。与 revision.insert 同色相，蓝 = 可点击/新增，符合 Word 心智
@@ -696,7 +696,7 @@ tokens:
 - `color.semantic.usage.critical` = `graphic #A83226 · fg #A83226` — 红色态直接接一键续行按钮，文案用办案阶段心智
 - `color.semantic.provenance` — 生成与确定的视觉区隔（docs/design/principles.md）：AI 生成的解释性文字 = sans 字族 + generated 冷灰底；工具核验结果/原文引语/结构化引用 = mono 字族 + verified 冷灰蓝底。两条通道的样式恒定，不得混用，不得用彩色表达（彩色预算属于语义状态）
 - `color.semantic.provenance.generatedFont` = `ui` — AI 解释文字：功能轨（工具字）+ text.secondary，搭配 generatedBg。B2-0 前称 sans
-- `color.semantic.provenance.generatedBg` = `#F7F8FA` — AI callout 无线底纹：复用 bg.app 底纸值（白卡上的微差底），不占语义色预算
+- `color.semantic.provenance.generatedBg` = `#FBFCFE` — AI callout 无线底纹：复用 bg.app 底纸值（白卡上的微差底），不占语义色预算；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
 - `color.semantic.provenance.verifiedBg` = `#F0F4FE` — 核验内容底纹：冷灰蓝（蓝感强于 generatedBg，双轨可辨），叠于 bg.raised 之上，radius.sm
 - `color.semantic.provenance.verifiedFont` = `mono` — 核验内容（引语、编号、核验结果值）用 mono；伴随的文件名链接保持功能轨
 - `color.line` — 签名动作「法理之线」专用图形色（完整规格见 signature-line.md）。文字不得消费本组值，须消费 semantic.*.fg。封闭集六色（2026-07-19 拍板由五扩六）——封闭是设计法，基数不是：封闭集保护的是「每色有语义」，不是「恰好五个」；经拍板的语义扩容是封闭集的正常演化，无语义的加色才是它要挡的。机器门：assert-signature-line.mjs

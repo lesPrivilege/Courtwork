@@ -1,3 +1,4 @@
+import caseRailSource from './CaseRail.tsx?raw';
 import { describe, expect, it } from 'vitest';
 import type { CaseSummary } from '../case/types';
 import {
@@ -50,5 +51,14 @@ describe('rail mixed list (docs/decisions/ADR-005-data-security.md)', () => {
   it('#17 主办律师仅 demo persona', () => {
     expect(showLeadAttorney(true)).toBe(true);
     expect(showLeadAttorney(false)).toBe(false);
+  });
+});
+
+describe('WORK-AGENT-SHOWCASE-1 · rail chrome 减法', () => {
+  it('四枚未接线 rail testid 在生产源码零出现', () => {
+    const source = caseRailSource;
+    for (const testid of ['nav-scheduled', 'nav-dispatch', 'pinned-filter', 'pinned-more']) {
+      expect(source).not.toContain(`data-testid="${testid}"`);
+    }
   });
 });

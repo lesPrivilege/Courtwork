@@ -60,7 +60,7 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
 
 test('raw colors are tied to an exact token consumer, including icon audit', () => {
   assert.deepEqual(rules([source('apps/desktop/src/icons/icon-audit.css',
-    ':root { color: #232b38; background: #f7f8fa; }\n.icon-audit-card { background: #fff; }')]), []);
+    ':root { color: #232b38; background: #fbfcfe; }\n.icon-audit-card { background: #fff; }')]), []);
   assert.ok(rules([source('apps/desktop/src/icons/icon-audit.css',
     '.icon-audit-card { color: #ff00ff; }')]).includes('raw-color'));
   assert.ok(rules([source('site/rogue.css', ':root { --rogue-neon: #ff00ff; }')]).includes('raw-color'));

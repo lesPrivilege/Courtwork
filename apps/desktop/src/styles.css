@@ -26,22 +26,22 @@
 :root {
   font-family: var(--font-ui);
   color: #232b38;
-  background: #f7f8fa;
+  background: #fbfcfe;
   font-synthesis: none;
   /* 中性色单源律（docs/design/tokens.json）：H=210° 藏青锚派生，三级明度台阶 底纸→竖栏→白卡 */
-  --bg-app: #f7f8fa;
-  --bg-surface: #f2f4f7;
+  --bg-app: #fbfcfe;
+  --bg-surface: #f6f8fb;
   --bg-raised: #fff;
-  --bg-hover: #e6e8ec;
+  --bg-hover: #eef2f7;
   /* RP-2.11 ⑦：扁平按钮 hover 深色块——与 selected 蓝分离（两语义两色） */
-  --control-hover: #dde0e4;
-  --bg-selected: #d9e3f6;
+  --control-hover: #e7ecf3;
+  --bg-selected: #e7eef9;
   --text-primary: #232b38;
   --text-secondary: #55617a;
   --text-tertiary: #637083;
   --text-disabled: #8a94a8;
-  --border: #d5dae3;
-  --border-strong: #c3cad6;
+  --border: #dfe5ee;
+  --border-strong: #c9d3e1;
   --border-focus: #2563eb;
   /* 线级语法（docs/design/tokens.json rule.*）：线重即层级语义，替换均一 1px 单线。
      主界＝文武线（major 粗线在外 + gap + minor 细线在内），次界＝乌丝细线（minor）。
@@ -51,7 +51,7 @@
   --rule-gap: 2px;
   --rule-ink: var(--border-strong);
   --action-primary-hover: #3a4658;
-  --generated: #f7f8fa;
+  --generated: #fbfcfe;
   --verified: #f0f4fe;
   --red-graphic: #a83226;
   --red-fg: #a83226;
@@ -62,7 +62,7 @@
   /* VERSIONAL-LANG-3：重要标题的双宗语义别名。浅宗仍是冷墨；泥金只在深宗进入
      欢迎题、案件题、设置总题与图谱总题，不进入正文、功能标签、schema 或数据。 */
   --important-title: #232b38;
-  --text-inverse: #f7f8fa;
+  --text-inverse: #fbfcfe;
   --blue-graphic: #2563eb;
   --blue-fg: #1d4ed8;
   --blue-bg: #eff6ff;
@@ -1942,6 +1942,16 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 .pi-panel-gate { justify-content: center; gap: 20px; padding: 0 16px 24px; }
 
+/* Work 面主层 matter 上下文：标题是这段工作面的身份，文件夹标签是授权事实。 */
+.pi-work-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 14px 16px 0; }
+.pi-panel-gate .pi-work-head { justify-content: center; }
+.pi-work-head-ident { min-width: 0; display: grid; gap: 2px; }
+.pi-panel-gate .pi-work-head-ident { justify-items: center; }
+.pi-work-head-label { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-work-head-title { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-size: var(--type-body-size); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 52ch; }
+.pi-work-head-binding { flex: none; max-width: 34ch; padding: 3px 8px; border-radius: 4px; background: var(--bg-surface); color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi-panel-gate .pi-work-head-binding { justify-self: center; }
+
 /* 状态条＝面头（复用签署过的 .panel-head 文武线）。这里只排版，不画线。 */
 .pi-status { justify-content: flex-start; gap: 16px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-status-ident { color: var(--text-secondary); letter-spacing: .02em; }
@@ -1950,6 +1960,13 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-status-note { color: var(--text-tertiary); }
 .pi-status-closed { color: var(--text-secondary); }
 .pi-status-restart { margin-left: auto; }
+.pi-run-details { position: relative; }
+.pi-run-details summary { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+.pi-run-details summary:hover { color: var(--text-primary); }
+.pi-run-facts { margin: 6px 0 0; display: grid; gap: 2px 14px; }
+.pi-run-facts > div { display: flex; align-items: baseline; gap: 8px; }
+.pi-run-facts dt { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-run-facts dd { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 
 /* 核验类文字（编号、字节、hash、索引标题）一律走 secondary 而非 tertiary：
    深宗的 `text.tertiary` 在三种底面上分别是 4.28 / 3.87 / 3.14，均低于 AA 4.5——那是
@@ -1975,6 +1992,12 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 /* 工具卡：一级底色台阶（白纸浮于画布），零边框零阴影。 */
 .pi-tool-card { display: grid; gap: 8px; padding: 10px 12px; background: var(--bg-raised); }
+/* proposal 主阅读层先说人话：动作 + 目标文件。 */
+.pi-tool-request { margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); }
+.pi-tool-request b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); }
+.pi-tool-details { display: grid; gap: 6px; }
+.pi-tool-details summary { justify-self: start; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+.pi-tool-details summary:hover { color: var(--text-primary); }
 /* 待决定：底色退到竖栏档并加深标题墨色——需要人做决定的那一枚在扫读时先被看见。 */
 .pi-tool-card[data-state="proposed"] { background: var(--bg-surface); }
 .pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
@@ -2004,6 +2027,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular);
 }
 .pi-button:hover { background: var(--control-hover); }
+.pi-button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
 .pi-button:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); cursor: not-allowed; }
 .pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
 .pi-button-primary:hover { background: var(--action-primary-hover); }
