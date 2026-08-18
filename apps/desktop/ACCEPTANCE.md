@@ -6976,3 +6976,63 @@ E2E 生成的 18 张 tracked evidence PNG 均按精确路径恢复为目标字�
 ## 结论
 
 **PASS（非阻断观察：E2E-FLAKY-HOVER-1；无新的契约级拒因）。** 目标 `b5a8302597c07574fc970a7415a158d692c0dd91` 的 R2 最小返修在独立 clean clone 上通过依赖边界、真实 registry schema、全量门与前两轮关键面复验；唯一完整 E2E 红按既有负载相关 hover 证据归类，不归责本票。
+
+# WORK-AGENT-GUI-1 独立验收（2026-08-18，Luna）
+
+## 对象、隔离与结论
+
+本轮是实现者之外的独立 clean-clone 验收。目标精确为 `8f93e7a032dff949d080e85fcf2bfc6cbb67c92b`，父提交为 `b5ae65cc2e7e173f4efc2299181c060f7bfcd358`，目标 tree 为 `4bbf80d3c2686f55730eb357b62e70c3a2b5cb85`；`git merge-base --is-ancestor b5ae65c 8f93e7a` 通过，反向关系不成立。验收分支为 `accept-work-agent-gui-1-luna-20260818`，独立 clone 为 `/private/tmp/courtwork-accept-work-agent-gui-1.YNfb5N`，目标检出前后均未触碰共享工作树。完整 E2E 使用独占 `COURTWORK_E2E_PORT=18433`，Playwright 配置 `reuseExistingServer:false`。
+
+票面路由证据明确限定为 scripted browser route evidence：不宣称 Tauri/WKWebView、真实 DeepSeek/远端 provider、宿主持久化字节/hash、Stop/恢复、键盘/读屏或真机行为已由本轮证明。结论为 **REJECT**：下述 A/B 是实现级可复现的 grant 隔离契约阻断，均标 `[需架构拍板]`；本会话未修改实现、schema、SPEC 或测试。
+
+## 目标静态基线与 mutation 红证
+
+目标静态门基线：`node scripts/assert-work-agent-gui-contracts.mjs` 通过，报告 **179 production files，旧伪真源零残留**；其 Node 测试 **2/2 passed**；`git diff --check HEAD^ HEAD` 无输出。每枚探针均用 `apply_patch` 注入、实跑观察变红、按原字节撤回并复跑恢复：
+
+| 门/探针 | 独立红证 | 恢复后 |
+|---|---|---|
+| production `App.tsx` 注入 `WorkDraftPanel` | `assert-work-agent-gui-contracts.mjs` EXIT 1：`旧工作稿 producer/import/testid 回流：WorkDraftPanel` | 静态门通过 |
+| production `App.tsx` 注入 `caseRoot=''` 与 `工作稿/${name}` | EXIT 1：`caseRoot='' 工作稿假写回流` | 静态门通过 |
+| production `use-pi-lane.ts` 将 `previous.grantId !== grantId` 改为 `false` | `use-pi-lane.dom.test.ts` **1 failed**，旧历史/open 重新出现（`opens:1, prior:1`） | **1/1 passed** |
+| `copy.ts` 将 `draft:'Work'` 改为 `draft:'Scenes'` | route Playwright **1 failed / 2 passed**：顶层 tabs 收到 `['Chat','Scenes','Scenes']` 而非 `['Chat','Work','Scenes']` | **3/3 passed** |
+| `scene-strip.tsx` 将 `scene-unloaded-work` 改为 `scene-unloaded-draft` | route Playwright **1 failed / 2 passed**：第二用例等待 `scene-unloaded-work` 超时 | **3/3 passed** |
+| `ModuleStack.tsx` 将 `wf-open-pi-work` 改为 `wf-open-work-drafts` | route Playwright **1 failed / 2 passed**：第三用例等待 `wf-open-pi-work` 超时 | **3/3 passed** |
+
+架构要求的生产链路证明也已实测：临时把 `App.tsx` 既有注释中的 `WORK-TURN-2` 改为 `WorkDraftPanel mutation probe`，执行 `cd apps/desktop && pnpm test:e2e`（独占端口）时，命令先通过 `assert-test-count.mjs` 的前置链，随后实际唤起 `assert-work-agent-gui-contracts.mjs` 并以 `EXIT 1` 报 `src/App.tsx: 旧工作稿 producer/import/testid 回流：WorkDraftPanel`，未进入 Playwright；撤回后同一链恢复。故静态门不是只在 `test:e2e:list` 或单独 lint 下生效，而是由 `assert-test-count.mjs` 间接进入生产 `pnpm test:e2e`。
+
+## Born-red 与 scripted route 证据
+
+在另一份独立 clean parent clone `/private/tmp/courtwork-born-red-parent-work-agent-gui-1.QTucMy`（`b5ae65c`，独占端口 `18432`）临时增加的 browser probe 对旧实现的两个真实入口 **2/2 passed**：zero-vertical CTA 与 Working folders 均进入 renderer-only `WorkDraftPanel`，点击新建后内容进入编辑器；旧 source 同时可见 `workDraftStore` browser singleton `Map`、`scene-unloaded-draft` 与 `wf-open-work-drafts`。临时 probe 已删除，parent clone clean。该结果只作为 born-red 对照，不冒充目标树通过。
+
+目标树 scripted route `COURTWORK_E2E_PORT=18427 pnpm exec playwright test tests/e2e/work-agent-gui-1.spec.ts --workers=1`（独立端口、`reuseExistingServer:false`）**3/3 passed**：顶层 `Chat | Work | Scenes` 默认入口落 Pi Work；零垂类 CTA 切 Pi Work；Working folders 切 Pi Work。独立完整 `cd apps/desktop && COURTWORK_E2E_PORT=18433 pnpm test:e2e` 前链通过，Playwright **391 passed / 0 failed（7.2m）**。
+
+## 决定性 grant 隔离反例（REJECT）
+
+为避免把 rerender 测试当作持久化证明，临时 JSdom acceptance probe 实例化真实 `PiHistoryBackend`/`usePiLaneSession` 与 mocked port，随后删除 probe 文件；它不改变目标实现。两枚票面反例均稳定变红：
+
+1. **A：grant-old 历史跨 remount/reload 泄漏。** 新 grant 初始挂载后，旧 v1 history（无 `grantId`）仍允许 viewer；`openWorkspaceMarkdown` 实际收到 `{containerId:"matter-1", logicalPath:"上一段.md", sessionId:"session-prior"}`，而规范要求旧 journal/viewer/pending 不得在新 grant 可见或可操作。该行为是实现/契约级阻断，标 `[需架构拍板]`。
+2. **B：旧 start closure 可在 grant 变更后发旧 grant 请求。** 捕获 grant-old 的 `start` closure，rerender 同 container 为 grant-new 后仍调用旧 closure；反例断言变红（`expected true to be false`）。sentinel 记录的 `port.start` 请求含 `grantId:"grant-old"`、`sessionId:"session-current"`、`containerId:"matter-1"`，违反后续命令只使用新 grant。该行为是实现/契约级阻断，标 `[需架构拍板]`。
+
+因此即便三条目标路由 scripted E2E、静态门和完整全仓门均为绿，本轮不得放行；不修复、不扩 schema，由架构角色拍板后重新派发独立验收。
+
+## 全量门与精确数字
+
+| 门 | 本轮实跑结果 |
+|---|---|
+| `pnpm -r build` | EXIT 0，workspace build 全绿（仅既有 Vite chunk warning） |
+| `pnpm lint` | EXIT 0 |
+| root `pnpm test` | EXIT 0，**183 files / 2251 tests passed** |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0，**100 files / 884 tests passed** |
+| `pnpm site:guard` | EXIT 0；Node 子门 **103 passed / 0 failed**；App highwater **2195/2195** |
+| `pnpm --filter @courtwork/pi-lane build:product-sidecar` | EXIT 0；product bundle **547,893 B**，SHA `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`，reproducible true |
+| `pnpm --filter @courtwork/pi-lane build:headless-sidecar` | EXIT 0；headless bundle **555,314 B**，SHA `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`，reproducible true |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | EXIT 0，**259 passed / 0 failed / 1 ignored**；5 个既有 NSOpenPanel unnecessary-unsafe warning |
+| `cd apps/desktop && COURTWORK_E2E_PORT=18433 pnpm test:e2e` | EXIT 0；静态前链通过，Playwright **391 passed / 0 failed（7.2m）** |
+
+首轮 sandbox 因 loopback listen `EPERM` 使 root test/Playwright 失败，cargo 首轮因 sidecar 快照缺失；按同一命令在升级权限、独占端口并先构建 product/headless sidecar 后复跑均通过。这些是环境前置阻塞，非目标实现红。
+
+## 清洁与提交证据
+
+完整 E2E 生成的 tracked release evidence PNG 已按目标 tree 精确恢复；所有临时 mutation/probe 已撤回或删除。提交前 `git diff --check` 通过，工作树除本报告外无差异。仅显式暂存 `apps/desktop/ACCEPTANCE.md`；提交前 `git diff --cached --name-only` 必须且实际仅列该文件，未使用 `git add .`/`git add -A`。本报告提交 message 前缀为 `test(acceptance)`，无实现修复、merge、push 或共享树 checkout/stash。
+
+**最终裁决：REJECT（决定性 A/B grant 隔离反例；均需架构拍板，目标树不得放行）。**
