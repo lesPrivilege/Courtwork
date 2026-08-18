@@ -5628,3 +5628,86 @@ sha256 = 951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c
    `PI_COPY.budgetUnknown`，与 `budgetStopped`/通用关闭三句互不相等，voice 门与复红均通过。
 
 本席未新增永久探针文件；所有探针均为临时源变异且已逐枚恢复。本节是本次验收唯一提交内容。
+
+## PI-BASE-HEADLESS-ACCEPT · Luna 独立验收（2026-08-18，external-validated blocked）
+
+验收对象是精确 target `998b58b96db09594837de116e410dec186b5d8c0`（验收 clone 的 HEAD 与
+main 同 SHA），分支 `luna/accept-pi-base-headless`。本席使用了与实现、首轮验收、GUI
+验收均不同的独立 clean clone；独立端口与临时 app-data 由测试 harness 自己创建。除本节外，
+没有保留实现、契约、依赖或测试产物改动。
+
+### 一 · 环境与真实 DeepSeek 前置
+
+环境为 Darwin arm64 26.5.2，Node v25.9.0，pnpm 9.15.0，cargo/rustc 1.97.0。
+`DEEPSEEK_API_KEY` 未设置；既有 Keychain credential 槽未发现可用值。探测过程未读取、
+打印或写入明文 secret，也未把 faux/scripted provider 冒充真实 DeepSeek。
+
+因此真实 DeepSeek model、六格真实 Agent transcript 以及每格同源 Agent events →
+host request/result → journal → final bytes/hash 证据包均未成立。最终结论必须是
+**external-validated blocked**；不能用“harness 非瓶颈”替代外部模型验证，也不能 PASS
+六格。以下 faux/确定性结果只用于区分已覆盖的产品路径与外部阻断。
+
+### 二 · 六格事实
+
+| 格 | 本席实际覆盖 | 结论 |
+|---|---|---|
+| 1 单文件问答 | package session/product-runtime 的 read 与 journal golden 通过；真 DeepSeek 未运行 | external-validated blocked |
+| 2 多 md 定位汇总 | glob/grep 双根、路径投影、截断与失败面测试通过；真 DeepSeek 未运行 | external-validated blocked |
+| 3 case → 新 Markdown | `headless_smoke_write_approve_readback_then_restart_readback` 以真 Agent 进程、真 stdio wire、真 `WorkspaceFsHost`、显式 `ScriptedDecision` 批准和真磁盘验证写入、四段 journal、字节回读/hash；provider 仍为 faux | external-validated blocked |
+| 4 workspace 全量改写 | `headless_workspace_readback_succeeds_after_read_toolcall_fix` 真实 read tool 经 `workspace_read` host op 回读已写字节；package write/read 及 100/100 workspace env 通过；非 DeepSeek | external-validated blocked |
+| 5 嵌套 Unicode 路径 + 重启回读 | Rust real read/write arm 与 package nested Unicode/path grammar 通过；headless smoke 另实际走新 leg 的 interrupted → resumed 与字节回读；未形成 DeepSeek 六格证据包 | external-validated blocked |
+| 6 拒绝/失败面 | 真 `WorkspaceFsHost` 无 decision driver 的拒写、路径/非 md/symlink/oversize/uncertain/crash/cancel 反例通过；没有真实模型驱动的拒绝/失败六格 | external-validated blocked |
+
+headless smoke 明确断言了真 sidecar/wire/host/disk、四段账顺序、journal 不携正文与物理根、
+重启后字节相同以及 resumed prompt/capability 事实；这是一条确定性 faux smoke，不是
+DeepSeek 结果。未把该有限 smoke 扩写成六格 PASS。
+
+### 三 · 实际机械反例与变异复红
+
+本席确实注入并观察到红，再逐枚恢复，恢复后实现文件 `git diff --exit-code` 为零：
+
+| 反例 | 实际红证 |
+|---|---|
+| read tool 的 active-call arm 改回 write-only | 真 `/workspace` readback 测试红为 `StateViolation` |
+| Rust tool → capability 映射把 read/glob/grep 改成 write | 同一真 readback 测试红为 `StateViolation` |
+| resume model drift gate 暂时禁用 | `counterexample_resume_refuses_every_drift_class_before_spawn` 红，错误落为 `Process(UnexpectedEof)`；恢复后通过 |
+
+永久反例集也实际执行：pi_loop counterexample 26 项、journal 18 项、workspace 12 项、
+protocol 5 项、process 5 项；其中包含未知工具/闭集、tool-capability 与 operation
+互洽、路径越界/非 md/symlink、oversize/truncation、wire fail-closed、reject effect=0、
+journal-before-effect、uncertain、cancel/terminal race、crash partial tail、prompt/
+capability/grant/container/model/limits resume drift、两容器隔离与累计预算。另有：
+
+- cancel 定向 2/2，teardown 1/1；
+- 真 child crash → interrupted → 新 leg resume 1/1，crash-fold 落盘 1/1；
+- 累计预算相关 3/3；
+- 两容器/邻居隔离定向 2/2；
+- `real_write_host_without_a_decision_driver_denies_and_writes_nothing` 1/1；
+- package `product-runtime` 44/44、workspace-write-env 100/100、write-session-golden 6/6、
+  session 8/8。
+
+### 四 · sidecar 与全仓入场门
+
+| 门 | 独立实跑事实 |
+|---|---|
+| 依赖 | `pnpm install --frozen-lockfile` 成功；首次 sandbox registry EPERM 后按同命令 escalated 重跑 |
+| headless sidecar | 555314 bytes，SHA-256 `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`，二次构建 `reproducible:true` |
+| product sidecar | route `node22-runtime-sealed-cjs-v1`，Node 22.23.1；bundle 547893 bytes，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`；arm64 runtime SHA-256 `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，`reproducible:true` |
+| pi-lane | typecheck:headless/build/lint 通过；18 files / 565 tests；product-sidecar 18/18；verified-node gate 8/8；verified-node production gate 通过 |
+| Rust | `cargo test --lib --offline` 259 passed / 0 failed / 1 ignored；默认 ignored 的 real verified-node snapshot 另跑 1 passed；clippy 退出 0（7 条既有 warning） |
+| root/desktop | `pnpm -r build`、`pnpm lint`、root `pnpm test` 183 files / 2251 tests、desktop test 101 files / 895 tests 均通过 |
+| site | `pnpm site:guard` 通过；App 高水位 2195 / cap 2195 |
+| Playwright | 独占 `COURTWORK_E2E_PORT=4519`，配置明确 `reuseExistingServer:false`；app + residue 全量 `391 passed (8.2m)`，floor 391 |
+
+`cargo fmt --all -- --check` 在该 target 既有源码上报告大量格式差异；本席未借验收权限
+格式化实现，亦未将该既有 hygiene 问题伪装成 headless 六格结果。Playwright 曾生成 18
+枚 tracked 视觉证据图片，本席已按 target SHA 精确恢复；最终工作树仅保留本 ACCEPTANCE
+追加。
+
+### 五 · 最终裁定
+
+确定性 faux harness、真实 wire/WorkspaceFsHost、磁盘耐久、restart/resume、反例和全仓
+入场门均取得上述可复核读数；但真实 DeepSeek credential/model 不存在，真实六格所需的
+同源证据链没有执行。故本席不放行、不宣称 harness PASS，最终裁定为：
+
+**external-validated blocked**
