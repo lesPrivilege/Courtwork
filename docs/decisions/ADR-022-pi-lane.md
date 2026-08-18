@@ -770,7 +770,8 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   bytes/hash 都如实显示并标 `unverified`，绝不把核验结果补写成 succeeded。打开 succeeded
   索引项时若当前 hash 与该项已落账 hash 不同，也必须显示“当前内容已不同于已确认版本”，不能
   用当前内容冒充历史成功版本。
-- 实现前锚定当时 exact version（2026-07-28 npm latest 核实为 0.14.28）、复核 MIT/传递依赖并实测
+- 实现前锚定当时 exact version（2026-07-28 npm latest 核实为 0.14.28）；实际施工经复核 exact pin
+  `@assistant-ui/react@0.15.4`（2026-08-05，MIT），现行依赖与门禁以 0.15.4 为准。继续复核传递依赖并实测
   bundle delta 与 Tauri WKWebView；只用稳定公开 API，`unstable_*` 禁入。首版最大回合仍为 12，
   不为假想长列表先加虚拟化；达到有测卡顿/节点量阈值后再评 `react-virtuoso`。现行
   `@tanstack` 禁令不为 assistant-ui 官方 virtualization 示例开例外。

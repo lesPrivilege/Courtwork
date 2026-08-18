@@ -202,8 +202,9 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
 `SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。未来若重启公开发布，候选仍须
 明确区分“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。现阶段唯一收敛节点是
-`PI-BASE-HEADLESS-ACCEPT → PI-LANE-UI-1 → WORK-AGENT-GUI-1 → PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
-前三节点赋予 agent 称谓所需的产品能力，最后一节点只证明维护者个人安装形态。
+`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
+双向箭头保留 2026-08-05 “GUI 与真 key 六格并行”的产品重排。只有 `PI-BASE-GUI-ACCEPT` 放行才
+取得 agent 称谓；最后一节点只证明维护者个人安装形态。
 
 **收敛节点前置新立票 `PI-HEADLESS-HARNESS-1`（2026-08-05 侦察定谳，协调立票）**：`PI-BASE-HEADLESS-ACCEPT`
 是纯验收（「不实施契约修补，只写 ACCEPTANCE.md」），但其六格矩阵要求跑一条 real-Agent↔real-stdio-wire↔
@@ -393,6 +394,14 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 产品再裁：pi 覆盖式 `write` 以 Rust host-mediated app-data workspace 进入，不把写权授给 Node；
 `bash` 仍锁隔离与真实需求。ADR-011 修订三随批落痕。叙事口径反转与 `OSS-SUBTRACT-1`
 重定向见 ADR-022「两处反转」节。
+
+**现行状态覆写（2026-08-18）**：下表早期长票面保留历史契约，不再以其中“待实现／当前 App
+票／前向债”字样判定当前状态。`PI-WRITE-HOST-1` 已由 `c2b395d` 实现、`4bd2628` 独立验收并
+合入 `66862ef`；`PI-WORKSPACE-READ-1` 已由 `1117569→06e777b→dbf4d4f→8af1db9` 实现、
+`17f6822` 独立验收并合入 `0c59911`；`PI-LANE-UI-1` 已实现/验收并合入 `e3d587d`；
+`WORK-AGENT-GUI-1` 经首轮 REJECT `d742b30`、架构 R1 `834ff6f`、返修 `94d5682` 与独立 PASS
+`a779545` 清账，已释放 App 槽。当前可派收敛节点是 `PI-BASE-HEADLESS-ACCEPT` 与
+`PI-BASE-GUI-ACCEPT`；真 key 缺席须报 `external-validated blocked`，不得取得 Agent 称谓。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|

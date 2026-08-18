@@ -1,6 +1,6 @@
 # 当前基线
 
-更新时间：随清账滚动（以提交史为准；本轮至 2026-08-13）
+更新时间：随清账滚动（以提交史为准；本轮至 2026-08-18）
 
 文档重整输入基线：`f03e742`
 
@@ -16,9 +16,11 @@
 - **当前能力事实**：Pi 的 Tauri/Rust/sidecar/journal 与 React GUI plumbing 已装配，但现有行为证据
   仍以 scripted/faux 为主；真实 WKWebView＋真实 DeepSeek 的 `PI-BASE-GUI-ACCEPT` 未放行。因此
   当下可以写“Work Agent GUI 是产品定位和正在闭合的主线”，不能写“Work Agent 已 product-live”。
-- **已发现的产品真值漂移**：零垂类 Work 面的旧 `WorkDraftPanel` 实为 browser 内存 store，非授权
-  容器或 Pi workspace 的耐久写入；`Draft` 顶层标签才承载真实 Pi GUI。`WORK-AGENT-GUI-1` 已冻结，
-  负责把主入口、命名与工作稿入口对齐到 Pi lane 并删除伪真源，随后再跑 GUI 称谓门。
+- **产品真值漂移已闭合**：`WORK-AGENT-GUI-1` 已删除 browser-only `WorkDraftPanel`/store，把
+  `Chat | Work | Scenes`、默认入口、零垂类 CTA 与 Working folders 统一到 Pi Work；R1 又把可丢弃
+  history 升为 grant-isolated v2，并在所有副作用前拦截 stale `start`。实现 `8f93e7a→94d5682`，
+  首轮独立验收 REJECT `d742b30`，架构冻结 `834ff6f`，复验 PASS `a779545`。这只清账主入口与
+  grant 隔离；真实 WKWebView/DeepSeek/Stop/无障碍仍由 `PI-BASE-GUI-ACCEPT` 决定 Agent 称谓。
 - **提交归因订正**：TOOL-READ 源码链是 `f1fa33e→7df426f→247d8a4→e644afd→05ad0f8`，
   `b5a8302` 只是最终 SPEC 回执；GENERIC-SCENARIOS 源码链是
   `4e5e08d→bea529e→e013dbd→f2816a8→a213fe9→7d67fab`，`65700cd` 只是最终 SPEC/E2E 回执。

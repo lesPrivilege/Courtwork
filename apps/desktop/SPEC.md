@@ -5381,18 +5381,21 @@ provider 清单或把诊断正文持久化。`UI-TOAST-1`、`CHAT-QUEUE-1` 与 C
 验收会话须在 clean worktree 实际注入 402、超时、length、cancel race、跨 case abort 与证据泄漏
 反例；build 全绿本身不构成放行。
 
-## PI-LANE-UI-1 · 通用 agent 基础成熟 GUI 薄投影（依赖底层总验，尚未开工）
+## PI-LANE-UI-1 · 通用 agent 基础成熟 GUI 薄投影（2026-08-05 已实现并独立验收）
 
 权威：ADR-009 决定七 2026-07-28 窄修订、ADR-022 决定六-D、实现就绪图同名行。
 
+现行状态：实现 `d64e2ea`（四提交）、独立验收 PASS `d8ce78a`、合入 `e3d587d`；其 Pi GUI 已由
+`WORK-AGENT-GUI-1` 路由为顶层 `Work`。以下开工门与首版五面保留为已兑现的历史合同，不再表示
+“尚未开工”。真实 Tauri/DeepSeek/Stop/无障碍仍由 `PI-BASE-GUI-ACCEPT` 独立总验。
+
 ### 开工门与 OSS 选型
 
-- `PI-BASE-HEADLESS-ACCEPT` 未由独立 clean worktree 放行，本节不得施工；write proof、build
-  绿或 sidecar 能启动均不能代替底层功能闭环。
-- 本票是 A2 放行后的唯一当前产品票；不与 `CONTEXT-PROFILE-1`/`DOSSIER-FLOW-1`、C3、plan/source
-  或其他 UI 巧思并行。完成后另由 `PI-BASE-GUI-ACCEPT` 独立验收，不能自己放行自己。
-- 直接依赖 implementation 时复核并 exact pin 的 `@assistant-ui/react`（2026-07-28 一手版本
-  0.14.28，MIT，React 18/19）：只用 headless primitives 与公共
+- 历史开工重排允许本票与真 key headless 六格并行；该例外不曾放宽 `PI-BASE-GUI-ACCEPT` 的
+  真 key 与真实 WKWebView 称谓门。
+- 本票施工时独占 App 槽，未与 `CONTEXT-PROFILE-1`/`DOSSIER-FLOW-1`、C3、plan/source 或其他
+  UI 巧思并行；实现与验收保持分离。
+- 实装 exact pin `@assistant-ui/react@0.15.4`（MIT，React 18/19），只用 headless primitives 与公共
   `useExternalStoreRuntime` hook。不得装 stock Tailwind/shadcn 皮层，不复制其组件源码另养一份，
   也不得 import 包内 private/internal 路径。
 - Courtwork 的 Rust JSONL projection 是唯一 message/run/tool/authorization 真源。
@@ -5490,20 +5493,24 @@ provider 清单或把诊断正文持久化。`UI-TOAST-1`、`CHAT-QUEUE-1` 与 C
 `schema-polish.spec.ts`／`workbench.spec.ts` 各一处把 disabled 死态固化成的断言按本意改写，
 旧判据转具名反向锁（面上不再出现「尚未接通」）。
 
-## WORK-AGENT-GUI-1 · 通用 Work 主入口（2026-08-13，实现完成待独立验收）
+## WORK-AGENT-GUI-1 · 通用 Work 主入口（2026-08-18，已独立验收清账）
 
-实现回执详见 `apps/desktop/specs/WORK-AGENT-GUI-1.md` §八。desktop 已将顶层信息架构收敛为
+实现与 R1 回执详见 `apps/desktop/specs/WORK-AGENT-GUI-1.md` §八、§十；独立验收先于
+`d742b30` 因 grant 泄漏与 stale start REJECT，架构冻结 `834ff6f` 后由 `94d5682` 闭合，复验
+PASS `a779545`。desktop 已将顶层信息架构收敛为
 `Chat | Work | Scenes`：Work 是既有 Pi lane，Scenes 是声明式场景工作台；真实授权容器的默认入口、
 零垂类 CTA 与 Working folders 工作稿入口均落 Pi Work。旧 renderer-only WorkDraft panel/store、
 对应 producer/testid 与 `DraftSeat.workTrack` 已删除；generic `DraftDocument` 显式 handoff →
 `DraftPanel` → no-replace compile 交付轨保留。
 
 Pi reset 身份现为 `{containerId, grantId}`；同 matter 换授权时立即清 projection/history/viewer/pending，
-旧授权的异步结果与命令不可进入新面，durable journal schema 未改。永久守卫覆盖旧 producer/import/
-testid 与 `caseRoot=''` 工作稿伪写回流，四枚源码 mutation 均 exit 1；grant reset、标签路由与
-DraftPanel 删除三类 mutation 均 1/1 failed 后恢复。
+旧授权的异步结果与命令不可进入新面，durable journal schema 未改。可丢弃 GUI history 的 key/envelope
+升为 v2，记录必带非空 `grantId`，v1 不迁移、不猜属；write/prior/open 都按
+`{containerId, grantId, sessionId}`，旧 `start` closure 在 mint/state/coalescer/port 前零副作用返回。
+永久守卫覆盖旧 producer/import/testid、`caseRoot=''` 伪写、v2/grant 与 stale-start 门。
 
-最终门：App **2195** 行（原 2218，上限同步降至 2195）；desktop **100 files / 884 tests**，root
+R1 最终门：App **2195** 行；desktop **101 files / 895 tests**，root
 **183 / 2251 tests**，site guard **103/103**，cargo **259 passed / 0 failed / 1 ignored**，独立端口
-Playwright **391/391**。browser 全链只记 scripted route evidence，不取得 Tauri/product-live 或
-Agent 称谓；OSS 按冻结结论执行“删除当期动作”，零新依赖，新增概念仅 `Scenes`。
+Playwright **391/391**；A/B 定向 **12/12**，8 枚 mutation 全部独立复红。browser 全链只记
+scripted route evidence，不取得 Tauri/product-live 或 Agent 称谓；OSS 按冻结结论执行“删除当期动作”，
+零新依赖，新增概念仅 `Scenes`，R1 只复用既有版本化 GUI 缓存与授权身份。

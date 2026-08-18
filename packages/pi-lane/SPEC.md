@@ -9,9 +9,10 @@
 两处自相矛盾）。产品装配的模型工具**恰四件**：`read`／`glob`／`grep`（经双根容器）＋ `write`
 （`workspace_write` host request，Rust 落盘、逐次授权、durable-before-effect）；dev 装配仍只三件读。
 `edit`／`delete`／`rename`／`bash` 两线都**从不构造**，属未实现而非被开关关掉——模型请求它们得到
-内核的 `Tool X not found`（详见 §三.1）。**尚未成立**的是：GUI（`PI-LANE-UI-1` 未开工）、
-真 key 端到端、`PI-BASE-HEADLESS-ACCEPT` 六格总验（代码层可跑，卡真 DeepSeek key）；能力成熟度
-一律只认 `docs/status/current.md`。
+内核的 `Tool X not found`（详见 §三.1）。`PI-LANE-UI-1` 已于 2026-08-05 实现/验收，且
+`WORK-AGENT-GUI-1` 于 2026-08-18 把它收敛为顶层 `Work`（复验 PASS `a779545`）；**尚未成立**的是
+真实 Tauri/DeepSeek GUI 总验与真 key headless 六格：`PI-BASE-GUI-ACCEPT`、
+`PI-BASE-HEADLESS-ACCEPT` 均未放行。能力成熟度一律只认 `docs/status/current.md`。
 
 排序理由（历史，保留出处）：2026-07-28 产品将“coding-agent 基本能力先行、底层闭合后再做巧思与
 GUI”定为下一序，并进一步裁定“先复用 pi 覆盖式 write，修订后置”。同日续裁把当时的完整里程碑冻结为
