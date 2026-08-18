@@ -7123,3 +7123,82 @@ tracked evidence PNG 已逐文件恢复为目标 tree；最终工作树 clean，
 
 **最终裁决：PASS（R1 两项首轮 grant 隔离阻断均闭合，所有指定 mutation 真实复红且恢复，
 全量门禁与 391 floor 通过；目标可进入架构清账，随后仍须独立派发 `PI-BASE-GUI-ACCEPT`）。**
+
+# PI-BASE-GUI-ACCEPT 独立验收（2026-08-18，Luna）
+
+## 对象、独立性与裁决
+
+本轮验收对象为精确 SHA 998b58b96db09594837de116e410dec186b5d8c0（目标分支 codex/accept-pi-base-gui-luna）。验收使用全新独立 clone /private/tmp/courtwork-accept-pi-base-gui-luna，未复用实现 clone、共享 main 或既有 courtwork-*work-agent* clone；入场与收口均以 git status --short --branch 核对，目标实现未修改。唯一持久修改是本节追加。
+
+**最终裁决：external-validated blocked。** 全仓与 scripted/browser 矩阵通过，但本轮没有“产品入口确认的可用真实 DeepSeek key + model”证据，也没有可采信的真实 AX 树/读屏焦点证据。因此不取得 Agent 称谓、不宣称 PI-BASE-GUI-ACCEPT PASS，也不把 browser-only 结果冒充真实 Tauri/WKWebView。未观察到一个可由本轮确定性证据直接归因于目标实现的新增产品缺陷，故不是 REJECT。
+
+## 环境与真实 Tauri 证据
+
+| 项目 | 实测环境 |
+|---|---|
+| macOS | 26.5.2 (25F84) |
+| Xcode / WebKit | Xcode 26.6 (17F113)；系统 WebKit 21624 |
+| Tauri | Cargo tauri 2.11.5 / wry 0.55.1；API 2.11.1 |
+| Node / pnpm | Node v25.9.0 / pnpm 9.15.0 |
+| Rust | rustc 1.97.0 / cargo 1.97.0 |
+| DeepSeek | 产品 catalog 目标为 deepseek-v4-flash；本轮真实 model 未验证、未运行真模型六格 |
+
+真实 Tauri 路径执行过：
+
+- pnpm tauri dev --no-watch 在独立 clone 编译并运行 Tauri WKWebView binary；进程 cwd 指向该 clone 的 src-tauri，不是共享树。
+- 为排除 macOS LaunchServices 把 AX 请求误交给已安装旧版，临时仅在 clone 内把 productName/identifier 改为 Courtwork Acceptance Luna / cn.courtwork.accept.pi-base.gui.luna，执行 pnpm tauri build --bundles app 并打开唯一 bundle。sky.list_apps() 实测登记：id=cn.courtwork.accept.pi.base.gui.luna, displayName=Courtwork Acceptance Luna, isRunning=true。这证明 clean clone 的 bundle 已注册并起进程；该临时配置之后已恢复为目标 Courtwork / cn.courtwork.desktop，未进入提交。
+- 针对唯一 bundle 的 sky.get_app_state AX 读取调用未在有界验收窗口内返回，随后按收口要求中止；没有把它的截图、焦点、读屏树或 UI 交互当作证据。隔离进程 PID 96083 与 98661 均为本轮 bundle，已显式关闭；收口后无该 clone 的 Tauri 进程。
+
+## credential / provider 前置
+
+只做存在性探测，输出全部丢弃，未调用 -w，未读取、打印或写入 secret：
+
+- security find-generic-password -s cn.courtwork.desktop.provider -a credential >/dev/null 2>&1 返回 exit 0，只能证明 production service/account 存在一个钥匙串 item，不能证明它是可用 DeepSeek key，也不能证明 endpoint/model smoke 已成功。
+- security find-generic-password -s cn.courtwork.desktop.provider.dev -a credential >/dev/null 2>&1 返回 exit 44。
+
+因为唯一 Tauri AX/产品入口状态读取未返回，本轮没有将 production item 存在性升级为 connected/ready，没有取得真实 model 名、provider smoke、账单或真实 DeepSeek 六格证据。这正是本轮 external-validated blocked 的阻断，不是对 key 内容的推测。
+
+## 确定性与 scripted 矩阵
+
+| 面 | 实测结果 | 证据边界 |
+|---|---|---|
+| pi-lane package tests | 18 files / 565 tests passed；升权后 loopback 通过 | deterministic/dev harness，非真实 Tauri provider |
+| desktop Pi 定向 | pi-stream/pi-history/pi-projection/use-pi-lane.dom 4 files / 39 tests passed | DOM/state contract，非 AX/WKWebView |
+| Rust host | cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml 259 passed / 0 failed / 1 ignored | 含授权、路径、hash、journal、Stop/uncertain 等 fail-closed 单测；不替代真机 |
+| browser scripted PI lane | full Playwright 中 proposal allow/deny、not-found/hash drift、effect failed/uncertain、unknown record、Stop、上滚不夺回、viewer focus/escape 等目标用例通过 | browser stub/scripted route；不宣称真实 Tauri |
+| 真 Tauri deterministic provider | 未覆盖 | production branch 没有可安全注入 faux provider 的入口；无真实 key/model 不能运行 |
+| DeepSeek 六格 | 未执行 | 缺产品入口确认的真实 key/model；不能 PASS |
+
+Rust 输出同时包含 headless_workspace_readback_succeeds_after_read_toolcall_fix 通过；这是当前自动化 host 修复的证据，不是运行真实 Agent/DeepSeek 的证据。
+
+## 六格与真机票面覆盖边界
+
+下列 scripted/自动化证据存在，但本轮没有把它们升级成真实 WKWebView 票面：顶层 Chat | Work | Scenes、已授权/零垂类/Working folders 入口映射；workspace proposal allow/deny；viewer/hash drift/not-found/oversize/non-md/cross-session；高频 delta+terminal、Stop、effect failed/uncertain、unknown/incompatible；reduced-motion、滚动不夺回、overlay 与 retry 静态/浏览器检查。
+
+以下要求在真实 Tauri/真实 provider 上未取得证据：原生 folder picker 从现有授权入口选真实文件夹；真实 .md stream/read/glob/grep/write 的 bytes/hash 与只读 viewer；journal→projection→workspace 同源；stream/tool-pending/terminal 同帧 Stop 竞态及恢复稿；grant 换代后旧 history/viewer/pending 不可操作的实际 reload；WKWebView 键盘全程、VoiceOver/AX 读屏语义、焦点归还、reduced-motion 与 scroll ownership 的真窗行为；真实失败/重试 overlay；DeepSeek headless 六格及 Agent 称谓门。
+
+## 全仓入场门
+
+以下命令在本独立 clone 实跑，所有最终命令均为升权后独占环境结果；首次 sandbox loopback EPERM 的尝试未计为产品失败，按相同命令复跑：
+
+| 命令 | 实测结果 |
+|---|---|
+| pnpm -r build | EXIT 0；15/16 workspace 项目通过（仅既有 Vite chunk warning） |
+| pnpm lint | EXIT 0 |
+| pnpm test | EXIT 0；183 files / 2251 tests passed |
+| pnpm --filter @courtwork/desktop test | EXIT 0；101 files / 895 tests passed |
+| pnpm site:guard | EXIT 0；Node 子门 103 passed / 0 failed；App highwater 2195/2195 |
+| pnpm --filter @courtwork/pi-lane build:product-sidecar | EXIT 0；547,893 bytes；SHA-256 951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c；reproducible true |
+| pnpm --filter @courtwork/pi-lane build:headless-sidecar | EXIT 0；555,314 bytes；SHA-256 061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea；reproducible true |
+| cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml | EXIT 0；259 passed / 0 failed / 1 ignored；5 个既有 unnecessary-unsafe warning |
+| cd apps/desktop && COURTWORK_E2E_PORT=18473 pnpm test:e2e | 独占端口，reuseExistingServer:false；静态前链通过，floor 391；Playwright 391/391 passed（4.5m） |
+
+完整 Playwright 期间生成的 18 枚 tracked release-evidence PNG 已逐文件恢复为 target tree；没有把测试截图或用户正文加入本报告。
+
+## 收口
+
+tauri.conf.json 已恢复 target 字节：productName: Courtwork、identifier: cn.courtwork.desktop。git diff --check 通过；提交前工作树除本报告追加外 clean。没有修实现、改 schema、改 SPEC、改全局文档、merge、push 或共享树 checkout/stash。按纪律只显式暂存 apps/desktop/ACCEPTANCE.md，提交 message 为：
+
+test(acceptance): PI-BASE-GUI-ACCEPT Luna blocked
+
+**最终裁决：external-validated blocked。**
