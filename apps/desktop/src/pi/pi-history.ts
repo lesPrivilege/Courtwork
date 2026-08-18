@@ -17,16 +17,23 @@
  * 存储沿 [[case-store]] 的**版本化单键 localStorage 先例**（第四次复用，零新增存储概念）：
  * 单键、schema version、fail-closed 读入（未知版本／坏 JSON／畸形记录 ⇒ 整库不可读，当作空）。
  * 只存逻辑路径、字节数、hash 与时间——**零正文**、零绝对路径。
+ *
+ * **R1（2026-08-18）升 v2**：`PiHistorySession` 必填非空 `grantId`，写入值必须是生成该 fold 的
+ * 当前 grant。storage key 与 envelope version 同步升 v2，v1 记录无法证明属于哪个 grant——
+ * **不迁移、不猜测归属**；v2 reader 不读 v1 key，旧缓存整库当空。覆盖唯一性、prior 派生与
+ * viewer `open` 放行一律同时比对 `{containerId, grantId, sessionId}`。
  */
 import type { PiDraftEntry } from './pi-projection';
 
-export const PI_HISTORY_STORAGE_KEY = 'courtwork.pi-drafts.v1';
-export const PI_HISTORY_SCHEMA_VERSION = 1 as const;
+export const PI_HISTORY_STORAGE_KEY = 'courtwork.pi-drafts.v2';
+export const PI_HISTORY_SCHEMA_VERSION = 2 as const;
 /** 每个容器最多留几段。首版 3 段：入口叫「上一段」，留几段是为了 Stop/失败后仍找得回来。 */
 export const PI_HISTORY_MAX_SESSIONS = 3;
 
 export interface PiHistorySession {
   readonly containerId: string;
+  /** 生成该 fold 的当前 grant。非空必填；v1 记录因缺此字段被拒读。 */
+  readonly grantId: string;
   readonly sessionId: string;
   readonly recordedAt: number;
   readonly drafts: readonly PiDraftEntry[];
@@ -59,6 +66,8 @@ function isSession(value: unknown): value is PiHistorySession {
   const session = value as Record<string, unknown>;
   return (
     typeof session.containerId === 'string' &&
+    typeof session.grantId === 'string' &&
+    session.grantId.length > 0 &&
     typeof session.sessionId === 'string' &&
     typeof session.recordedAt === 'number' &&
     Array.isArray(session.drafts) &&
@@ -84,7 +93,7 @@ export function readPiHistory(backend: PiHistoryBackend): PiHistorySession[] {
 }
 
 /**
- * 记一段的索引。同 `(container, session)` 覆盖；**零工作稿的段不入册**——
+ * 记一段的索引。同 `(container, grant, session)` 三元组覆盖；**零工作稿的段不入册**——
  * 空入口只会让人点开一个空列表。
  */
 export function writePiHistory(
@@ -93,7 +102,11 @@ export function writePiHistory(
 ): PiHistorySession[] {
   const others = readPiHistory(backend).filter(
     (session) =>
-      !(session.containerId === entry.containerId && session.sessionId === entry.sessionId),
+      !(
+        session.containerId === entry.containerId &&
+        session.grantId === entry.grantId &&
+        session.sessionId === entry.sessionId
+      ),
   );
   const next = entry.drafts.length > 0 ? [entry, ...others] : others;
   const trimmed = trimPerContainer(next);
@@ -105,10 +118,10 @@ export function writePiHistory(
 }
 
 /**
- * 授权身份变化时删除该容器的 GUI 索引缓存。
+ * 授权身份变化时删除该容器的 GUI 索引缓存（同挂载清理，允许但不依赖）。
  *
- * journal 与 workspace 都仍由旧授权身份的宿主持有；这里删除的只是可重建索引，避免没有 grantId
- * 字段的 v1 缓存被新授权面误认。信封形状不变，不新增 durable schema。
+ * journal 与 workspace 都仍由旧授权身份的宿主持有；这里删除的只是可重建索引。正确性不依赖
+ * 此 effect 曾在本次进程发生——v2 reader 本来就按 grantId 分流，跨重载后旧 grant 段不可见。
  */
 export function clearPiHistoryForContainer(
   backend: PiHistoryBackend,
@@ -134,15 +147,19 @@ function trimPerContainer(sessions: readonly PiHistorySession[]): PiHistorySessi
   return kept;
 }
 
-/** 同容器、**排除当前段**的历史段，最近的在前。 */
+/** 同容器、**同 grant**、排除当前段的历史段，最近的在前。 */
 export function priorSessionsFor(
   sessions: readonly PiHistorySession[],
   containerId: string,
+  grantId: string,
   currentSessionId: string | null,
 ): PiHistorySession[] {
   return sessions
     .filter(
-      (session) => session.containerId === containerId && session.sessionId !== currentSessionId,
+      (session) =>
+        session.containerId === containerId &&
+        session.grantId === grantId &&
+        session.sessionId !== currentSessionId,
     )
     .sort((left, right) => right.recordedAt - left.recordedAt);
 }

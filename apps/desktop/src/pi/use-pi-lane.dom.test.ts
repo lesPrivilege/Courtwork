@@ -4,7 +4,7 @@ import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PiHistoryBackend } from './pi-history';
-import { PI_HISTORY_STORAGE_KEY } from './pi-history';
+import { PI_HISTORY_SCHEMA_VERSION, PI_HISTORY_STORAGE_KEY } from './pi-history';
 import type { PiLanePort } from './pi-lane-port';
 import { usePiLaneSession, type PiLaneSession } from './use-pi-lane';
 
@@ -70,35 +70,69 @@ const PENDING_RECORDS = [
   }, { operationId: 'op-old' }),
 ];
 
-function memoryHistory(): PiHistoryBackend {
-  const values = new Map<string, string>([[
-    PI_HISTORY_STORAGE_KEY,
-    JSON.stringify({
-      version: 1,
-      sessions: [{
-        containerId: 'matter-1',
-        sessionId: 'session-prior',
-        recordedAt: 1,
-        drafts: [{
-          logicalPath: '上一段.md',
-          byteLength: 12,
-          contentSha256: 'c'.repeat(64),
-          disposition: 'created',
-          recordedAt: 1,
-        }],
-      }],
-    }),
-  ]]);
+function historyBackend(store: Map<string, string>): PiHistoryBackend {
   return {
-    getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => void values.set(key, value),
+    getItem: (key) => store.get(key) ?? null,
+    setItem: (key, value) => void store.set(key, value),
   };
 }
 
-function Harness({ port, grantId, historyBackend }: {
+function draft(logicalPath: string) {
+  return {
+    logicalPath,
+    byteLength: 12,
+    contentSha256: 'c'.repeat(64),
+    disposition: 'created',
+    recordedAt: 1,
+  };
+}
+
+/** v1 旧缓存（无 `grantId` 字段）：升级后不得迁移、不得猜测归属，整库当空。 */
+function v1History(): PiHistoryBackend {
+  return historyBackend(
+    new Map([[
+      'courtwork.pi-drafts.v1',
+      JSON.stringify({
+        version: 1,
+        sessions: [{
+          containerId: 'matter-1',
+          sessionId: 'session-prior',
+          recordedAt: 1,
+          drafts: [draft('上一段.md')],
+        }],
+      }),
+    ]]),
+  );
+}
+
+function v2History(sessions: unknown[]): PiHistoryBackend {
+  return historyBackend(
+    new Map([[
+      PI_HISTORY_STORAGE_KEY,
+      JSON.stringify({ version: PI_HISTORY_SCHEMA_VERSION, sessions }),
+    ]]),
+  );
+}
+
+function makePort(): PiLanePort {
+  return {
+    start: vi.fn(async () => ({ capabilities: [], leg: 1, records: [] })),
+    prompt: vi.fn(async () => undefined),
+    cancel: vi.fn(async () => undefined),
+    decision: vi.fn(async () => undefined),
+    teardown: vi.fn(async () => undefined),
+    openWorkspaceMarkdown: vi.fn(async () => ({
+      ok: true as const,
+      view: { logicalPath: '上一段.md', content: '# 旧授权', contentSha256: 'c'.repeat(64), byteLength: 12 },
+    })),
+  };
+}
+
+function Harness({ port, grantId, historyBackend, mintSessionId }: {
   port: PiLanePort;
   grantId: string;
   historyBackend: PiHistoryBackend;
+  mintSessionId?: () => string;
 }) {
   currentSession = usePiLaneSession({
     port,
@@ -107,10 +141,17 @@ function Harness({ port, grantId, historyBackend }: {
     modelId: 'deepseek-v4-flash',
     maxTurns: 12,
     maxUsd: null,
-    mintSessionId: () => 'session-current',
+    mintSessionId,
     historyBackend,
   });
   return null;
+}
+
+function mount(grantId: string, historyBackend: PiHistoryBackend, port: PiLanePort, mintSessionId?: () => string) {
+  container = document.createElement('div');
+  document.body.append(container);
+  root = createRoot(container);
+  act(() => root?.render(createElement(Harness, { port, grantId, historyBackend, mintSessionId })));
 }
 
 describe('WORK-AGENT-GUI-1 · Pi session 授权身份', () => {
@@ -126,12 +167,14 @@ describe('WORK-AGENT-GUI-1 · Pi session 授权身份', () => {
         view: { logicalPath: '上一段.md', content: '# 旧授权', contentSha256: 'c'.repeat(64), byteLength: 12 },
       })),
     };
-    const historyBackend = memoryHistory();
-    container = document.createElement('div');
-    document.body.append(container);
-    root = createRoot(container);
-
-    act(() => root?.render(createElement(Harness, { port, grantId: 'grant-old', historyBackend })));
+    const historyBackend = v2History([{
+      containerId: 'matter-1',
+      grantId: 'grant-old',
+      sessionId: 'session-prior',
+      recordedAt: 1,
+      drafts: [draft('上一段.md')],
+    }]);
+    mount('grant-old', historyBackend, port);
     await act(async () => { await currentSession?.start(); });
     expect(currentSession?.view.pendingProposal?.operationId).toBe('op-old');
     expect(currentSession?.priorSessions).toHaveLength(1);
@@ -150,5 +193,95 @@ describe('WORK-AGENT-GUI-1 · Pi session 授权身份', () => {
       decisions: vi.mocked(port.decision).mock.calls.length,
       opens: vi.mocked(port.openWorkspaceMarkdown).mock.calls.length,
     }).toEqual({ sessionId: null, pending: null, prior: 0, decisions: 0, opens: 0 });
+  });
+
+  it('R1 · v1 旧授权缓存＋全新挂载/reload＋同 container new grant：prior 为 0、open 为 0', async () => {
+    const port = makePort();
+    // 全新挂载直接用 grant-new 初始渲染，模拟「reload 后以新 grant 首挂」：
+    // 正确性不得依赖「本次进程里清过缓存」这个 effect 发生过。
+    mount('grant-new', v1History(), port);
+    await act(async () => undefined);
+
+    expect({ prior: currentSession?.priorSessions.length }).toEqual({ prior: 0 });
+
+    await act(async () => {
+      await currentSession?.open('session-prior', '上一段.md');
+    });
+    expect(vi.mocked(port.openWorkspaceMarkdown).mock.calls.length).toBe(0);
+  });
+
+  it('R1 · 持有旧 grant 的 start closure 在换 grant 后调用：mint/state/coalescer/port 全部零 effect', async () => {
+    const port = makePort();
+    const mint = vi.fn(() => 'session-current');
+    mount('grant-old', historyBackend(new Map()), port, mint);
+    // 捕获 grant-old 这一轮的 start closure，再切到 grant-new。
+    const staleStart = currentSession!.start;
+    act(() => root?.render(createElement(Harness, { port, grantId: 'grant-new', historyBackend: historyBackend(new Map()), mintSessionId: mint })));
+
+    await act(async () => { await staleStart(); });
+
+    expect(mint).not.toHaveBeenCalled();
+    expect(vi.mocked(port.start)).not.toHaveBeenCalled();
+    expect(currentSession?.sessionId).toBeNull();
+    expect(currentSession?.status).toBe('idle');
+    expect(currentSession?.view.blocks).toHaveLength(0);
+  });
+
+  it('R1 · v2 中旧 grant 与当前 grant 并存：只当前 grant 可见、可 open', async () => {
+    const port = makePort();
+    const historyBackend = v2History([
+      {
+        containerId: 'matter-1',
+        grantId: 'grant-old',
+        sessionId: 'session-prior',
+        recordedAt: 1,
+        drafts: [draft('旧段.md')],
+      },
+      {
+        containerId: 'matter-1',
+        grantId: 'grant-new',
+        sessionId: 'session-new',
+        recordedAt: 2,
+        drafts: [draft('新段.md')],
+      },
+    ]);
+    mount('grant-new', historyBackend, port);
+    await act(async () => undefined);
+
+    expect(currentSession?.priorSessions.map((s) => s.sessionId)).toEqual(['session-new']);
+
+    await act(async () => {
+      await currentSession?.open('session-prior', '旧段.md');
+    });
+    expect(vi.mocked(port.openWorkspaceMarkdown).mock.calls.length).toBe(0);
+
+    await act(async () => {
+      await currentSession?.open('session-new', '新段.md');
+    });
+    expect(vi.mocked(port.openWorkspaceMarkdown).mock.calls.length).toBe(1);
+  });
+
+  it('R1 · 同 grant 历史跨 reload 仍可见可 open；新 grant start 正常', async () => {
+    const port = makePort();
+    const historyBackend = v2History([{
+      containerId: 'matter-1',
+      grantId: 'grant-new',
+      sessionId: 'session-prior',
+      recordedAt: 1,
+      drafts: [draft('上一段.md')],
+    }]);
+    mount('grant-new', historyBackend, port, () => 'session-current');
+    await act(async () => undefined);
+
+    expect(currentSession?.priorSessions.map((s) => s.sessionId)).toEqual(['session-prior']);
+
+    await act(async () => {
+      await currentSession?.open('session-prior', '上一段.md');
+    });
+    expect(vi.mocked(port.openWorkspaceMarkdown).mock.calls.length).toBe(1);
+
+    await act(async () => { await currentSession?.start(); });
+    expect(currentSession?.sessionId).toBe('session-current');
+    expect(vi.mocked(port.start).mock.calls.length).toBe(1);
   });
 });

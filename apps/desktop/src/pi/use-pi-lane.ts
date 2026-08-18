@@ -146,19 +146,26 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
     .map((draft) => `${draft.logicalPath}:${draft.contentSha256}`)
     .join('|');
   useEffect(() => {
-    if (!containerId || !sessionId || view.drafts.length === 0) return;
+    if (!containerId || !grantId || !sessionId || view.drafts.length === 0) return;
     setHistory(
       writePiHistory(backend, {
         containerId,
+        grantId,
         sessionId,
         recordedAt: Date.now(),
         drafts: view.drafts,
       }),
     );
     // `draftSignature` 是 drafts 的取值摘要：内容没变就不写盘。
-  }, [backend, containerId, sessionId, draftSignature, view.drafts]);
+  }, [backend, containerId, grantId, sessionId, draftSignature, view.drafts]);
 
   const start = useCallback(async () => {
+    // R1 前置门（WORK-AGENT-GUI-1 §9.3）：closure 捕获的 identity 与当刻 ref 同步比对，
+    // 不等即**零副作用**返回——必须在 mint / 任何 setState / 建 coalescer / port.start 之前。
+    // 不得用 closure 自己捕获的 identityOwnsState 布尔值代替当刻 ref，也不得依赖 reply 后
+    // teardown 作前置授权门（身份在请求已发出后才变化的 race 仍沿 reply 复核＋teardown 收束）。
+    const startIdentity = identityKey;
+    if (identityRef.current !== startIdentity) return;
     if (!containerId || !grantId) {
       setFailure({
         code: 'unbound_case',
@@ -168,7 +175,6 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
       return;
     }
     const nextSessionId = mint();
-    const startIdentity = identityKey;
     setStateIdentity(startIdentity);
     setStatus('starting');
     setFailure(null);
@@ -258,9 +264,15 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
 
   const open = useCallback(
     async (targetSessionId: string, logicalPath: string): Promise<PiWorkspaceResult> => {
+      // 放行一律同时比对 {containerId, grantId, sessionId}：仅 container 相等不放行。
       const allowed = identityOwnsState && (
-        targetSessionId === sessionId ||
-        history.some((entry) => entry.containerId === containerId && entry.sessionId === targetSessionId)
+        (containerId !== null && grantId !== null && targetSessionId === sessionId) ||
+        history.some(
+          (entry) =>
+            entry.containerId === containerId &&
+            entry.grantId === grantId &&
+            entry.sessionId === targetSessionId,
+        )
       );
       if (!containerId || !allowed) {
         return {
@@ -274,7 +286,7 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
         logicalPath,
       });
     },
-    [containerId, history, identityOwnsState, port, sessionId],
+    [containerId, grantId, history, identityOwnsState, port, sessionId],
   );
 
   /**
@@ -303,8 +315,11 @@ export function usePiLaneSession(options: PiLaneSessionOptions): PiLaneSession {
   }, [containerId, port, sessionId]);
 
   const priorSessions = useMemo(
-    () => (containerId && identityOwnsState ? priorSessionsFor(history, containerId, sessionId) : []),
-    [containerId, history, identityOwnsState, sessionId],
+    () =>
+      containerId && grantId && identityOwnsState
+        ? priorSessionsFor(history, containerId, grantId, sessionId)
+        : [],
+    [containerId, grantId, history, identityOwnsState, sessionId],
   );
 
   const exposedSessionId = identityOwnsState ? sessionId : null;

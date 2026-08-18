@@ -205,3 +205,49 @@ R1 允许改动仅：`pi/pi-history.ts` 及定向测试、`pi/use-pi-lane.ts`、
 视觉/route、Tauri/Rust、journal/wire、Package ABI、垂类或全局文档；不加依赖、新存储 backend
 或通用授权抽象。完工重跑本票全部门；只交实现与 SPEC 回执，停在待新的独立 Luna
 clean-clone 复验，不自行合并或更新 `current.md`。
+
+## 十 · R1 实现回执（2026-08-18 · Motto）
+
+基线 `834ff6f0`；父链含首轮实现 `8f93e7a` 与独立 Luna REJECT `d742b30`。本回执由被终止
+会话续行完成：全部实现与永久测试从 dropped stash `e878259f` 逐文件恢复并与工作树比对一致
+（`refs/stash` 已空），Playwright 生成的 18 张 release/evidence 截图等测试生成物全部恢复为
+HEAD；最终工作树 clean、stash 为空，提交只含 R1 允许文件。
+
+- born-red（未改生产码基线实测，本轮复跑）：Luna 两枚临时探针收为永久测试后，生产码
+  回退 HEAD 实跑 **8 failed / 4 passed（12）**。pi-history 5 枚红：storage key 未升 v2、
+  v2 reader 仍读 v1 key、写唯一性缺 grantId 维度、缺/空 grantId 未拒读、prior 派生缺 grant
+  过滤；DOM 3 枚红——v1 old-grant 缓存＋全新挂载/reload＋同 container new grant 时
+  prior 为 1 且 open 放行、stale start closure 在换 grant 后 mint 与 port.start 均被调用、
+  v2 新旧 grant 并存时旧 grant 仍可见。
+- 实现：`pi-history.ts` 升 v2——`PI_HISTORY_STORAGE_KEY='courtwork.pi-drafts.v2'`、
+  `PI_HISTORY_SCHEMA_VERSION=2`、`PiHistorySession` 必填非空 `grantId`、`isSession`
+  fail-closed 拒读缺/空 grantId；写唯一性、`priorSessionsFor` 与 viewer `open` 放行一律同时
+  比对 `{containerId, grantId, sessionId}`；容量仍每 container 最多 3 段；v1 不迁移、不猜
+  归属，v2 reader 不读 v1 key；`openWorkspaceMarkdown`/Tauri/Rust wire 零改动。
+  `use-pi-lane.ts` `start` closure 在 mint、任何 setState、建 coalescer、`port.start` 之前，
+  把 closure 捕获的 identity key 与当刻 `identityRef.current` 同步比对，不等即零副作用返回；
+  不用 closure 捕获的 `identityOwnsState` 布尔代替当刻 ref，也不依赖 reply 后 teardown 作
+  前置门（请求已发出后才变的 race 仍沿现行 reply 身份复核＋teardown 收束）。
+- 永久测试与门：新增 `src/pi/pi-history.test.ts`（7 例）；`use-pi-lane.dom.test.ts` 增 4 例
+  R1 用例（v1 旧缓存全新挂载 zero prior/zero open、stale start 零 effect、v2 新旧 grant 并存
+  只 current 可见可 open、同 grant 跨 reload 可见可 open＋新 grant start 正常），文件共 5 例。
+  work-agent 静态门新增 `scanWorkAgentR1Contracts`（storage key v2、version 2、非空 grantId
+  校验、open 比对 grantId、start 前置门先于 mint），并接入门测试 2 例；`assert-test-count.mjs`
+  已确认该门与门测试进入完整 `test:e2e` 链。
+- mutation（逐枚注入必红、逐枚恢复）：撤 start 顶部 ref 门→静态门 exit 1；撤 open
+  `entry.grantId === grantId`→静态门 exit 1；v2 key 退回 v1→静态门 exit 1；撤 grantId
+  `length > 0` 校验→静态门 exit 1；撤 `session.grantId === 'string'` 类型校验→
+  pi-history「缺/空 grantId」1 failed；撤 `priorSessionsFor` 的 grant 过滤→
+  pi-history「prior 派生」1 failed；撤 open 的 grantId 比对→dom「v2 并存」1 failed。
+  全部恢复后定向 **12/12 passed**、门测试 **4/4 passed**、静态门通过。
+- 全门数字（本轮实跑）：`pnpm -r build` **15/16** workspace project 通过；`pnpm lint`
+  通过；root `pnpm test` **183 files / 2251 tests**；desktop `pnpm test` **101 files /
+  895 tests**（R1 新增 pi-history.test.ts）；`pnpm site:guard` **103/103**；product/headless
+  sidecar 构建 reproducible 通过；cargo **259 passed / 0 failed / 1 ignored**；
+  `assert-test-count.mjs` Playwright **391** 条（floor 391，不降）；App highwater **2195**
+  （上限 2195，不升）。完整 Playwright **391/391** 复用前序已完成全门结果（该状态与本次提交
+  完全同源，18 张 release/evidence 截图即该轮生成物，已恢复为 HEAD 不入提交）。
+- 偏离/新增概念：零新增持久概念（v2 沿既有版本化单键先例，不计新概念）；零新依赖、零新
+  backend、零通用授权抽象；未改 App.tsx、视觉/route、Tauri/Rust、journal/wire、Package
+  ABI、垂类或全局文档。唯一差异是恢复/续行过程的提交方式：先恢复被终止会话的 stash 对象，
+  与任务正文一致，不构成契约偏离。

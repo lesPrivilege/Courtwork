@@ -43,6 +43,30 @@ export function scanWorkAgentGuiContracts(files) {
   return issues;
 }
 
+/** R1 冻结契约（WORK-AGENT-GUI-1 §9.2/§9.3）的机器门。入参为两文件原文。 */
+export function scanWorkAgentR1Contracts(history, lane) {
+  const issues = [];
+  if (!/PI_HISTORY_STORAGE_KEY\s*=\s*'courtwork\.pi-drafts\.v2'/.test(history)) {
+    issues.push('src/pi/pi-history.ts: storage key 必须升 v2（courtwork.pi-drafts.v2）');
+  }
+  if (!/PI_HISTORY_SCHEMA_VERSION\s*=\s*2\s+as\s+const/.test(history)) {
+    issues.push('src/pi/pi-history.ts: envelope version 必须为 2');
+  }
+  if (!/session\.grantId\s*===\s*'string'/.test(history) || !/session\.grantId\.length\s*>\s*0/.test(history)) {
+    issues.push('src/pi/pi-history.ts: isSession 必须校验非空 grantId');
+  }
+  if (!/entry\.grantId\s*===\s*grantId/.test(lane)) {
+    issues.push('src/pi/use-pi-lane.ts: open 放行必须比对 grantId');
+  }
+  const start = lane.indexOf('const start = useCallback(async () => {');
+  const gate = lane.indexOf('if (identityRef.current !== startIdentity) return;');
+  const mint = lane.indexOf('const nextSessionId = mint();');
+  if (!(start >= 0 && gate > start && mint > gate)) {
+    issues.push('src/pi/use-pi-lane.ts: start 必须在 mint 之前有 identityRef 前置门');
+  }
+  return issues;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const retired = [
     path.join(sourceRoot, 'system', 'WorkDraftPanel.tsx'),
@@ -63,6 +87,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (!scene.includes('scene-unloaded-work') || !scene.includes('通用 Work 可用，专业 Scenes 未加载')) {
     issues.push('src/workbench/scene-strip.tsx: 零垂类 Work CTA/诚实文案缺席');
   }
+
+  const history = readFileSync(path.join(sourceRoot, 'pi', 'pi-history.ts'), 'utf8');
+  const lane = readFileSync(path.join(sourceRoot, 'pi', 'use-pi-lane.ts'), 'utf8');
+  issues.push(...scanWorkAgentR1Contracts(history, lane));
 
   if (issues.length > 0) {
     console.error(`WORK-AGENT-GUI-1 守卫失败（${issues.length}）:\n${issues.join('\n')}`);
