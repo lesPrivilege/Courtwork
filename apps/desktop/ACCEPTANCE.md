@@ -7415,3 +7415,142 @@ hash-diff/not-found 路径在 Pi 定向套件中未见回退。由于全量门�
 将只显式暂存 `apps/desktop/ACCEPTANCE.md`，检查 cached 文件名与 `git diff --cached --check`，
 不使用 `git add .`/`git add -A`。本目标因证据不完整**拒绝放行**，需后续独立会话补齐上述门后
 重新验收。
+## F 独立端口完整链与中止事实
+
+完整链命令为：
+
+```text
+COURTWORK_E2E_PORT=19676 pnpm --filter @courtwork/desktop test:e2e
+```
+
+该命令使用 `apps/desktop/playwright.config.ts` 的 `reuseExistingServer:false`，但在进入
+Playwright 前被目标树静态门阻断：
+
+```text
+styles.css:1970 线消费点未归一分类（主/次/不换须且只须占其一）：.pi-run-facts|all
+EXIT 1
+```
+
+为区分静态前链与真实 UI 行为，随后在同一独立端口以 fresh server 直接启动完整 Playwright：
+
+```text
+cd apps/desktop
+COURTWORK_E2E_PORT=19676 pnpm exec playwright test
+```
+
+真实输出为 `Running 391 tests using 4 workers`；用户中止前观察到 **346 passed / 0 failed** 的
+连续通过记录，仍有至少 45 枚未完成。进程收到 SIGINT，**EXIT 130**。因此这不是完整
+391/391 证据，也不抵消 `test:e2e` 前置门的 EXIT 1。
+
+该中途 Playwright 曾重生成 17 个既有 tracked `release/evidence` PNG；本轮已按精确路径恢复到
+目标 SHA，最终未留下 release/evidence diff。`git diff --check` 最终 EXIT 0。
+
+## 截图与证据矩阵
+
+本轮在用户要求停止前尚未启动 scripted capture，故没有生成或声称生成：
+
+```text
+acceptance-UX-POLISH-1-406def475ee4ef854f9c4e4287c8db6ec0e1cba1/
+```
+
+因此下列硬要求均记为 **未执行/无证据**：light `1180x720`、`1440x900`、`1600x900` 与约
+`390x844`；dark empty/running/proposal/succeeded/viewer 五态；normal/text-mask/squint；
+多工具、多稿、长中文/CJK-Latin 压力矩阵；manifest；截图视觉复核；完整键盘、focus-visible、
+reduced-motion、scroll ownership 与 viewer close focus 的 scripted screenshot matrix。此前
+脚本化 Pi/Playwright 行为证据不能替代这些缺失截图，也不能替代真实 provider、WKWebView 或
+AX；后者仍属 `PI-BASE-GUI-ACCEPT` 的 external-validated blocked 范围。
+
+## 最终裁决
+
+`pnpm lint` EXIT 1、完整 `test:e2e` 静态前链 EXIT 1、Playwright 仅完成部分后被 SIGINT、
+截图/manifest 未执行，故本轮不能满足 PASS 条件。
+
+**最终裁决：REJECT / blocked。**
+
+**fix-by-acceptance：无。** 契约级/范围外问题未修改；目标实现树在本报告提交后保持 clean。
+
+# UX-POLISH-1 R3 收尾验收（Luna，2026-08-19）
+
+## fix-by-acceptance 与范围
+
+架构确认该项为实现级小缺陷。本轮只修改并提交：
+
+```text
+apps/desktop/scripts/assert-rule-grammar.mjs
+```
+
+新增唯一 EXEMPT 浮面描边登记 `.pi-run-facts|all`，未改规则语义、门阈值或其他实现文件。
+fix commit：`db54bd2fe90627d4d74372fcfaecae4e15ee7281`，message：
+`fix-by-acceptance: classify Pi run facts surface`。
+
+## 真实反例红绿
+
+同一独立 worktree、同一目标树实跑：
+
+| 操作 | 真实结果 |
+|---|---|
+| 登记 `.pi-run-facts|all` | `pnpm --filter @courtwork/desktop lint:rule-grammar` EXIT 0；169 sites |
+| 移除该登记 | EXIT 1；`styles.css:1970 线消费点未归一分类... .pi-run-facts|all` |
+| 恢复唯一登记 | `lint:rule-grammar` EXIT 0；169 sites |
+
+这枚反例证明登记不是恒绿；反例文件已复原，最终 fix diff 只有一行。
+
+## 全量门真实数字
+
+R2 已通过且本轮按要求消费的数字：
+
+| 门 | 实测结果 |
+|---|---|
+| `pnpm -r build` | EXIT 0；Scope 15/16 |
+| `pnpm lint` | EXIT 1；**仅**既有越界 `release/evidence/work-agent-showcase-1/acceptance-2026-08-19/capture-script.mjs` 的 **18 `no-undef`**（base pre-existing，未修改） |
+| `pnpm test` | EXIT 0；183 files / **2251 passed** |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0；103 files / **910 passed** |
+| `pnpm site:guard` | EXIT 0；**103/103**，App highwater 2195/2195 |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | EXIT 0；**259 passed / 0 failed / 1 ignored** |
+| 完整链第一次 `COURTWORK_E2E_PORT=19678 ... test:e2e` | EXIT 1；390 passed / 1 failed（既有复制按钮 computed transition-duration 瞬时 flake） |
+| 该失败独立复跑 `COURTWORK_E2E_PORT=19679 ... global-verbs ...` | EXIT 0；1/1 passed |
+| 完整链最终 `COURTWORK_E2E_PORT=19680 pnpm --filter @courtwork/desktop test:e2e` | fresh server、`reuseExistingServer:false`；**391/391 passed，EXIT 0（7.0m）** |
+
+完整链前置静态门全部通过，含修复后的 rule grammar 与 `Playwright 假绿防护通过：391 条用例`。
+
+## Scripted capture / manifest
+
+证据目录（未覆盖既有 release/evidence PNG）：
+
+```text
+/private/tmp/acceptance-UX-POLISH-1-406def4/
+```
+
+manifest：
+
+```text
+/private/tmp/acceptance-UX-POLISH-1-406def4/manifest.json
+```
+
+manifest 标记 `scripted:true`、target `406def475ee4ef854f9c4e4287c8db6ec0e1cba1`、
+HEAD `db54bd2fe90627d4d74372fcfaecae4e15ee7281`、base `c46d2bf`、fixture 为
+`window.__courtworkPiLane` browser scripted harness、theme、viewport、状态、独立端口
+`19681`、fresh server、`reuseExistingServer:false` 与 reduced-motion（capture 未强制，完整
+e2e reduced-motion 用例覆盖）。
+
+实际清单为 **243 PNG**：81 normal、81 text-mask、81 10% squint；其中：
+
+- light：`light-1180x720`、`light-1440x900`、`light-1600x900` 各 15 状态，`light-390x844` 窄宽 smoke 15 状态；
+- dark：`dark-1440x900` 15 状态，含 empty/running/proposal/succeeded/viewer 五态；
+- 压力：`pressure-1440x900` 的 running-real、stopped、resumed、multi-cards-proposal、multi-drafts、viewer-hash-differs，各 normal/text-mask/squint。
+
+基础状态覆盖 empty、bound、composed、running、proposal、succeeded、viewer、resume-prior、
+denied、failed、uncertain、fail-closed、unavailable、长中文 matter、CJK/Latin；完整文件路径、
+字节数与 SHA-256 均在 manifest。capture 使用 scripted fixture，不宣称真实 provider、Tauri/
+WKWebView 或 AX 证据。
+
+## R3 裁决
+
+实现范围、fix 红绿、Pi 定向证据、截图矩阵、manifest、最终完整 e2e 与 diff hygiene 均有证据；
+但根 `pnpm lint` 仍 EXIT 1，虽已确认仅为 base pre-existing 的 18 个越界 `capture-script.mjs`
+问题，完整全量 lint 门并未 EXIT 0。因此按验收纪律不能善意放行：
+
+**最终裁决：REJECT / blocked（base lint pre-existing）。**
+
+**fix-by-acceptance：已提交** `db54bd2fe90627d4d74372fcfaecae4e15ee7281`；R3 报告提交后
+再核对目标 worktree clean。
