@@ -1953,20 +1953,24 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-panel-gate .pi-work-head-binding { justify-self: center; }
 
 /* 状态条＝面头（复用签署过的 .panel-head 文武线）。这里只排版，不画线。 */
-.pi-status { justify-content: flex-start; gap: 16px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-status { height: auto; min-height: 40px; flex-wrap: wrap; justify-content: flex-start; gap: 8px 16px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-status-summary { min-width: 0; display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .pi-status-ident { color: var(--text-secondary); letter-spacing: .02em; }
 .pi-status-slot { display: inline-flex; align-items: baseline; gap: 6px; }
 .pi-status-slot b { color: var(--text-primary); font-weight: var(--control-weight-regular); }
 .pi-status-note { color: var(--text-tertiary); }
 .pi-status-closed { color: var(--text-secondary); }
 .pi-status-restart { margin-left: auto; }
-.pi-run-details { position: relative; }
+.pi-run-details { position: relative; min-width: 0; }
 .pi-run-details summary { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
 .pi-run-details summary:hover { color: var(--text-primary); }
-.pi-run-facts { margin: 6px 0 0; display: grid; gap: 2px 14px; }
+.pi-run-details summary:focus-visible,
+.pi-tool-details summary:focus-visible,
+.pi-viewer-details summary:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.pi-run-facts { position: absolute; z-index: 7; top: calc(100% + 6px); left: 0; min-width: min(320px, calc(100vw - 32px)); max-width: calc(100vw - 32px); margin: 0; padding: 8px 10px; display: grid; gap: 4px 14px; border: 1px solid var(--border-strong); background: var(--bg-raised); }
 .pi-run-facts > div { display: flex; align-items: baseline; gap: 8px; }
 .pi-run-facts dt { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
-.pi-run-facts dd { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-run-facts dd { min-width: 0; margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow-wrap: anywhere; }
 
 /* 核验类文字（编号、字节、hash、索引标题）一律走 secondary 而非 tertiary：
    深宗的 `text.tertiary` 在三种底面上分别是 4.28 / 3.87 / 3.14，均低于 AA 4.5——那是
@@ -1991,18 +1995,17 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-running { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 
 /* 工具卡：一级底色台阶（白纸浮于画布），零边框零阴影。 */
-.pi-tool-card { display: grid; gap: 8px; padding: 10px 12px; background: var(--bg-raised); }
+.pi-tool-card { min-width: 0; display: grid; gap: 8px; padding: 10px 12px; background: var(--bg-raised); }
 /* proposal 主阅读层先说人话：动作 + 目标文件。 */
-.pi-tool-request { margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); }
-.pi-tool-request b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); }
-.pi-tool-details { display: grid; gap: 6px; }
+.pi-tool-request, .pi-tool-action { min-width: 0; margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); line-height: 1.5; }
+.pi-tool-request b, .pi-tool-action b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); overflow-wrap: anywhere; }
+.pi-tool-details { min-width: 0; display: grid; gap: 6px; }
 .pi-tool-details summary { justify-self: start; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
 .pi-tool-details summary:hover { color: var(--text-primary); }
 /* 待决定：底色退到竖栏档并加深标题墨色——需要人做决定的那一枚在扫读时先被看见。 */
 .pi-tool-card[data-state="proposed"] { background: var(--bg-surface); }
 .pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
 .pi-tool-name { font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
-.pi-tool-path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-primary); }
 .pi-tool-state { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 /* 朱砂只在这三态在场。 */
 .pi-tool-card[data-state="denied"] .pi-tool-state,
@@ -2012,13 +2015,13 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-tool-facts { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; }
 .pi-tool-facts > div { display: flex; align-items: baseline; gap: 6px; }
 .pi-tool-facts dt { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
-.pi-tool-facts dd { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-tool-facts dd { min-width: 0; margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow-wrap: anywhere; }
 
 .pi-tool-decision { display: grid; gap: 4px; padding-top: 6px; }
 .pi-tool-ask { margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
 .pi-tool-hint { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-tool-alert { color: var(--red-fg); }
-.pi-tool-actions { display: flex; gap: 8px; padding-top: 4px; }
+.pi-tool-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
 
 .pi-button {
   min-height: var(--control-height-sm); padding: 4px 12px;
@@ -2073,7 +2076,13 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-viewer-note { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-flag { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-alert { color: var(--red-fg); }
-.pi-viewer-meta { margin: 0 0 8px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-details { min-width: 0; }
+.pi-viewer-details summary { display: inline-flex; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+.pi-viewer-details summary:hover { color: var(--text-primary); }
+.pi-viewer-meta { margin: 8px 0 0; display: grid; gap: 4px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-meta > div { display: flex; align-items: baseline; gap: 8px; }
+.pi-viewer-meta dt { color: var(--text-secondary); }
+.pi-viewer-meta dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .pi-viewer-body { min-height: 0; }
 
 /* 正文按测宽居中，与 chat/work 两面同一 `--content-measure`，不随视口全宽漂移。
@@ -2081,3 +2090,20 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-thread-viewport,
 .pi-drafts,
 .pi-composer { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
+
+/* 390px smoke：窄宽只收 Pi Work 面，不改变 chat/schema 的桌面断点契约。 */
+@media (max-width: 760px) {
+  .app-shell:has(.workspace.draft-segment) { min-width: 0; }
+  .workspace.draft-segment,
+  .workspace.draft-segment.left-collapsed { grid-template-columns: minmax(0, 1fr); gap: 0; padding-inline: 0; }
+  .workspace.draft-segment > .case-rail { display: none; }
+  .workspace.draft-segment > .conversation { min-width: 0; }
+  .pi-work-head { flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; }
+  .pi-work-head-ident { flex: 1 1 100%; }
+  .pi-work-head-title, .pi-work-head-binding { max-width: 100%; }
+  .pi-status { padding-inline: 16px; }
+  .pi-status-summary { flex-basis: 100%; }
+  .pi-status-restart { margin-left: 0; }
+  .pi-run-facts { min-width: min(280px, calc(100vw - 32px)); }
+  .pi-viewer { width: 100%; }
+}

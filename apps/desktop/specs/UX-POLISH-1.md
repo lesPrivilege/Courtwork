@@ -134,3 +134,23 @@ README、官网、公开 release 文案或 `docs/status/current.md`。
 本票不引入依赖。beUI motion 只借单件 reduced-motion/可中断处理范式，不消费 Motion/Tailwind 或
 整包组件；Lody/OpenWork/DeepSeek Harness/Pi 只借“一条工作线、即时状态、上下文决定、结果可回看”
 的成熟行为，不借品牌、布局源码、runtime 或 coding-agent 专属能力。参考页不是真源，不产生隐含契约。
+
+## 九、实现回执（实现会话）
+
+- 变更文件：`apps/desktop/src/pi/PiLanePanel.tsx`、`PiToolCard.tsx`、`PiDraftViewer.tsx`、
+  `pi-copy.ts`、`apps/desktop/src/styles.css`，以及对应的
+  `apps/desktop/src/pi/PiLanePanel.dom.test.ts`。未修改 `App.tsx`，因为既有 Pi props/回调
+  呈现接线已足够。
+- 复杂度/概念：无新产品概念、store、port、command、状态机或第二真源。实现只把既有运行、
+  工具和 viewer 事实投影为原生 `details` 渐进披露、终态 composer 分流和窄宽布局约束；既有
+  session/view/callback、testid、入口和滚动归属保留。
+- born-red：基线执行
+  `pnpm --filter @courtwork/desktop test -- src/pi/PiLanePanel.dom.test.ts`，真实结果为
+  `9 tests | 3 failed | 6 passed`；三枚红断言分别覆盖未知 cost 不折 0、终态不保留可提交
+  composer、工具卡默认人类动作优先。实现后同一命令真实结果为 `9 passed | 0 failed`。
+- 已完成门：`git diff --check` 通过；上述 Pi DOM 定向门为 `9/9`。
+- 未完成门：按本次收尾指令未再启动独立端口 Playwright、脚本化截图 capture、root/desktop
+  全量测试、`pnpm -r build`、`pnpm lint`、`pnpm site:guard` 或 `cargo test`。因此本票没有
+  新生成的截图证据目录/manifest，也不宣称视觉矩阵或 product-live。
+- 证据/偏离：未触碰既有 `release/evidence` PNG；因停止耗时操作，独立端口证据矩阵是明确
+  未执行项。提交 SHA 以本票提交后的 `git rev-parse HEAD` 交接值为准。

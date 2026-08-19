@@ -40,42 +40,53 @@ export function PiToolCard({
       data-tool-call-id={call.toolCallId}
     >
       {call.proposal && (
-        <p className="pi-tool-request" data-testid="pi-tool-request">
-          {completedWrite
-            ? call.proposal.action === 'overwritten'
-              ? PI_COPY.wroteOverwritten
-              : PI_COPY.wroteCreated
-            : writeRequest}
-          <span aria-hidden="true"> · </span>
-          <b>{call.proposal.logicalPath}</b>
+        <p className="pi-tool-request pi-tool-action" data-testid="pi-tool-request">
+          <span data-testid="pi-tool-action">
+            {completedWrite
+              ? call.proposal.action === 'overwritten'
+                ? PI_COPY.wroteOverwritten
+                : PI_COPY.wroteCreated
+              : writeRequest}
+            <span aria-hidden="true"> · </span>
+            <b>{call.proposal.logicalPath}</b>
+          </span>
+        </p>
+      )}
+      {!call.proposal && (
+        <p className="pi-tool-action" data-testid="pi-tool-action">
+          {toolActionLabel(call)}
         </p>
       )}
 
       <header className="pi-tool-head">
-        <span className="pi-tool-name">{call.toolName}</span>
-        {call.proposal && <span className="pi-tool-path">{call.proposal.logicalPath}</span>}
         <span className="pi-tool-state">{stateLabel(call, state)}</span>
       </header>
 
-      {call.proposal && (
-        <details className="pi-tool-details" data-testid="pi-tool-details">
-          <summary>{PI_COPY.runDetails}</summary>
-          <dl className="pi-tool-facts">
-            <div>
-              <dt>动作</dt>
-              <dd>{call.proposal.action === 'overwritten' ? '覆盖既有' : '新建'}</dd>
-            </div>
-            <div>
-              <dt>字节</dt>
-              <dd className="pi-mono">{call.proposal.byteLength}</dd>
-            </div>
-            <div>
-              <dt>内容校验</dt>
-              <dd className="pi-mono">{call.proposal.contentSha256.slice(0, 12)}</dd>
-            </div>
-          </dl>
-        </details>
-      )}
+      <details className="pi-tool-details" data-testid="pi-tool-details">
+        <summary>{PI_COPY.runDetails}</summary>
+        <dl className="pi-tool-facts">
+          <div>
+            <dt>{PI_COPY.toolLabel}</dt>
+            <dd><span className="pi-tool-name">{call.toolName}</span></dd>
+          </div>
+          {call.proposal && (
+            <>
+              <div>
+                <dt>{PI_COPY.actionLabel}</dt>
+                <dd>{call.proposal.action === 'overwritten' ? '覆盖既有' : '新建'}</dd>
+              </div>
+              <div>
+                <dt>{PI_COPY.bytesLabel}</dt>
+                <dd className="pi-mono">{call.proposal.byteLength}</dd>
+              </div>
+              <div>
+                <dt>{PI_COPY.hashLabel}</dt>
+                <dd className="pi-mono">{call.proposal.contentSha256}</dd>
+              </div>
+            </>
+          )}
+        </dl>
+      </details>
 
       {pending && (
         <div className="pi-tool-decision" data-testid="pi-proposal">
@@ -150,6 +161,21 @@ export function toolState(call: PiToolCallView): string {
   if (call.decision?.decision === 'approved') return 'approved';
   if (call.proposal) return 'proposed';
   return call.running ? 'running' : 'finished';
+}
+
+function toolActionLabel(call: PiToolCallView): string {
+  switch (call.toolName) {
+    case 'read':
+      return PI_COPY.readAction;
+    case 'glob':
+      return PI_COPY.globAction;
+    case 'grep':
+      return PI_COPY.grepAction;
+    case 'write':
+      return PI_COPY.writeAction;
+    default:
+      return PI_COPY.writeAction;
+  }
 }
 
 function stateLabel(call: PiToolCallView, state: string): string {

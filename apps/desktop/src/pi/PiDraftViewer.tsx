@@ -89,7 +89,7 @@ export function PiDraftViewer({
         </p>
       )}
 
-      {state.loading && <p className="pi-viewer-note">{PI_COPY.running}</p>}
+      {state.loading && <p className="pi-viewer-note">{PI_COPY.viewerLoading}</p>}
 
       {state.failure && (
         <p className="pi-viewer-flag pi-viewer-alert" data-testid="pi-viewer-failure">
@@ -99,9 +99,19 @@ export function PiDraftViewer({
 
       {state.view && (
         <div className="pi-viewer-body" data-testid="pi-viewer-body">
-          <p className="pi-viewer-meta pi-mono">
-            {state.view.byteLength} · {state.view.contentSha256.slice(0, 12)}
-          </p>
+          <details className="pi-viewer-details" data-testid="pi-viewer-details">
+            <summary>{PI_COPY.viewerDetails}</summary>
+            <dl className="pi-viewer-meta">
+              <div>
+                <dt>{PI_COPY.bytesLabel}</dt>
+                <dd className="pi-mono">{state.view.byteLength}</dd>
+              </div>
+              <div>
+                <dt>{PI_COPY.hashLabel}</dt>
+                <dd className="pi-mono">{state.view.contentSha256}</dd>
+              </div>
+            </dl>
+          </details>
           <ChatMarkdown text={state.view.content} />
         </div>
       )}

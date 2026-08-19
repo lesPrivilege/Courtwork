@@ -267,31 +267,33 @@ export function PiLanePanel({
               }
             />
 
-            <ComposerPrimitive.Root className="pi-composer" data-testid="pi-composer">
-              <ComposerPrimitive.Input
-                className="pi-composer-input"
-                data-testid="pi-composer-input"
-                aria-label={PI_COPY.inputLabel}
-                placeholder={PI_COPY.inputPlaceholder}
-                submitOnEnter
-              />
-              <ThreadPrimitive.If running={false}>
-                <ComposerPrimitive.Send
-                  className="pi-button pi-button-primary"
-                  data-testid="pi-send"
-                >
-                  {PI_COPY.sendAction}
-                </ComposerPrimitive.Send>
-              </ThreadPrimitive.If>
-              <ThreadPrimitive.If running>
-                <ComposerPrimitive.Cancel
-                  className="pi-button pi-button-quiet"
-                  data-testid="pi-stop"
-                >
-                  {PI_COPY.stopAction}
-                </ComposerPrimitive.Cancel>
-              </ThreadPrimitive.If>
-            </ComposerPrimitive.Root>
+            {!view.sessionTerminal && (
+              <ComposerPrimitive.Root className="pi-composer" data-testid="pi-composer">
+                <ComposerPrimitive.Input
+                  className="pi-composer-input"
+                  data-testid="pi-composer-input"
+                  aria-label={PI_COPY.inputLabel}
+                  placeholder={PI_COPY.inputPlaceholder}
+                  submitOnEnter
+                />
+                <ThreadPrimitive.If running={false}>
+                  <ComposerPrimitive.Send
+                    className="pi-button pi-button-primary"
+                    data-testid="pi-send"
+                  >
+                    {PI_COPY.sendAction}
+                  </ComposerPrimitive.Send>
+                </ThreadPrimitive.If>
+                <ThreadPrimitive.If running>
+                  <ComposerPrimitive.Cancel
+                    className="pi-button pi-button-quiet"
+                    data-testid="pi-stop"
+                  >
+                    {PI_COPY.stopAction}
+                  </ComposerPrimitive.Cancel>
+                </ThreadPrimitive.If>
+              </ComposerPrimitive.Root>
+            )}
           </ThreadPrimitive.Root>
 
           {viewer && <PiDraftViewer state={viewer} onClose={() => setViewer(null)} />}
@@ -343,36 +345,40 @@ function PiStatusBar({
   const usd = view.budget?.usd;
   return (
     <header className="panel-head pi-status" data-testid="pi-status">
-      <span className="pi-status-slot">
-        {PI_COPY.turnsLabel}
-        <b className="pi-mono">
-          {view.turns}
-          {view.maxTurns ? ` / ${view.maxTurns}` : ''}
-        </b>
-      </span>
-      <span className="pi-status-slot">
-        {PI_COPY.costLabel}
-        <b className="pi-mono">{usd === null || usd === undefined ? PI_COPY.costUnknown : usd.toFixed(4)}</b>
-      </span>
-      {view.interrupted && (
-        <span className="pi-status-note" data-testid="pi-resumed">
-          {PI_COPY.interrupted}
-        </span>
-      )}
-      {view.sessionTerminal && (
-        <span className="pi-status-note pi-status-closed" data-testid="pi-session-closed">
-          {piSessionClosedCopy(view.sessionTerminal)}
-        </span>
-      )}
-      <details className="pi-run-details" data-testid="pi-run-details">
-        <summary>{PI_COPY.runDetails}</summary>
-        <dl className="pi-run-facts">
-          <div>
-            <dt>{PI_COPY.sessionIdLabel}</dt>
-            <dd className="pi-mono">{sessionId ?? '—'}</dd>
-          </div>
-        </dl>
-      </details>
+      <div className="pi-status-summary">
+        {view.interrupted && (
+          <span className="pi-status-note" data-testid="pi-resumed">
+            {PI_COPY.interrupted}
+          </span>
+        )}
+        {view.sessionTerminal && (
+          <span className="pi-status-note pi-status-closed" data-testid="pi-session-closed">
+            {piSessionClosedCopy(view.sessionTerminal)}
+          </span>
+        )}
+        <details className="pi-run-details" data-testid="pi-run-details">
+          <summary>{PI_COPY.runDetails}</summary>
+          <dl className="pi-run-facts">
+            <div>
+              <dt>{PI_COPY.turnsLabel}</dt>
+              <dd className="pi-mono" data-testid="pi-runtime-turns">
+                {view.turns}
+                {view.maxTurns ? ` / ${view.maxTurns}` : ''}
+              </dd>
+            </div>
+            <div>
+              <dt>{PI_COPY.costLabel}</dt>
+              <dd className="pi-mono" data-testid="pi-runtime-cost">
+                {usd === null || usd === undefined ? PI_COPY.costUnknown : usd.toFixed(4)}
+              </dd>
+            </div>
+            <div>
+              <dt>{PI_COPY.sessionIdLabel}</dt>
+              <dd className="pi-mono">{sessionId ?? '—'}</dd>
+            </div>
+          </dl>
+        </details>
+      </div>
       {/* 另起一段：收摊这一条，回到未开工态；上一段的工作稿仍在只读入口里。 */}
       {!view.running && (
         <button

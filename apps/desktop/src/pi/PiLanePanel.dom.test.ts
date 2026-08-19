@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { emptySessionView, type PiToolCallView } from './pi-projection';
 import { PiLanePanel } from './PiLanePanel';
 import { PiToolCard } from './PiToolCard';
+import { PI_COPY } from './pi-copy';
 import type { PiLaneSession } from './use-pi-lane';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -209,5 +210,93 @@ describe('WORK-AGENT-SHOWCASE-1 · Work 纵切 born-red', () => {
     expect(request!.textContent).toContain('纪要.md');
     expect(request!.textContent).not.toContain('已新建');
     expect(container!.querySelector('[data-testid="pi-proposal"]')?.textContent).toContain('待你决定');
+  });
+
+  it('运行详情默认收起：未知开销仍在详情中明确显示，不折成 0', () => {
+    render(
+      createElement(PiLanePanel, {
+        session: makeSession({
+          status: 'ready',
+          sessionId: 'session-unknown-cost',
+          view: emptySessionView('matter-1', 'session-unknown-cost'),
+        }),
+        bound: true,
+        matterTitle: '设备采购案',
+        onBindFolder: vi.fn(),
+        onOpenModelSettings: vi.fn(),
+      }),
+    );
+
+    const details = container!.querySelector('[data-testid="pi-run-details"]');
+    expect(details).not.toBeNull();
+    expect(details!.hasAttribute('open')).toBe(false);
+    expect(details!.querySelector('[data-testid="pi-runtime-cost"]')?.textContent).toBe(PI_COPY.costUnknown);
+    expect(container!.querySelector('.pi-status-slot:nth-of-type(2)')).toBeNull();
+  });
+
+  it('终态只留下工作稿查看或另起一段：不再显示可提交的当前段 composer', () => {
+    const view = emptySessionView('matter-1', 'session-terminal');
+    render(
+      createElement(PiLanePanel, {
+        session: makeSession({
+          status: 'ready',
+          sessionId: 'session-terminal',
+          view: {
+            ...view,
+            sessionTerminal: { type: 'session_completed' },
+            drafts: [{
+              logicalPath: '纪要.md',
+              byteLength: 12,
+              contentSha256: 'c'.repeat(64),
+              disposition: 'created',
+              recordedAt: 1,
+            }],
+          },
+        }),
+        bound: true,
+        matterTitle: '设备采购案',
+        onBindFolder: vi.fn(),
+        onOpenModelSettings: vi.fn(),
+      }),
+    );
+
+    expect(container!.querySelector('[data-testid="pi-send"]')).toBeNull();
+    expect(container!.querySelector('[data-testid="pi-composer-input"]')).toBeNull();
+    expect(container!.querySelector('[data-testid="pi-draft-open"]')).not.toBeNull();
+    expect(container!.querySelector('[data-testid="pi-restart"]')).not.toBeNull();
+  });
+
+  it('工具卡默认先说人类动作与目标：工具名和 bytes/hash 只在收起的详情中出现', () => {
+    const call: PiToolCallView = {
+      toolCallId: 'tc-human-first',
+      toolName: 'write',
+      running: false,
+      proposal: {
+        operationId: 'op-human-first',
+        logicalPath: '长中文纪要.md',
+        byteLength: 137,
+        contentSha256: 'a'.repeat(64),
+        action: 'created',
+      },
+    };
+    render(
+      createElement(PiToolCard, {
+        call,
+        pending: true,
+        busy: false,
+        onDecide: vi.fn(),
+        onOpen: vi.fn(),
+      }),
+    );
+
+    expect(container!.querySelector('[data-testid="pi-tool-action"]')?.textContent).toContain('新建工作稿');
+    expect(container!.querySelector('[data-testid="pi-tool-action"]')?.textContent).toContain('长中文纪要.md');
+    expect(container!.querySelector('.pi-tool-head .pi-tool-name')).toBeNull();
+    const details = container!.querySelector('[data-testid="pi-tool-details"]');
+    expect(details).not.toBeNull();
+    expect(details!.hasAttribute('open')).toBe(false);
+    expect(details!.querySelector('.pi-tool-name')?.textContent).toBe('write');
+    expect(details!.textContent).toContain('137');
+    expect(details!.textContent).toContain('a'.repeat(12));
   });
 });
