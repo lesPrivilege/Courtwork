@@ -51,6 +51,8 @@ export const BUNDLE_BASENAME = 'sidecar.cjs';
 /** 装包后 CJS 的 resource 前缀。与 tracked manifest、tauri.conf mapping、Rust `RESOURCE_DIR_NAME` 同源。 */
 export const RESOURCE_DIR_BASENAME = 'pi-loop-resources';
 export const USE_CODE_CACHE = false;
+/** Tauri macOS externalBin 的现行 ad-hoc signing 选项；必须与 bundler 实际调用逐项相同。 */
+export const TAURI_SIGNING_ARGS = ['--force', '--sign', '-', '--options', 'runtime'];
 
 export const TARGETS = [
   {
@@ -63,9 +65,15 @@ export const TARGETS = [
       bytes: 50_067_502,
       sha256: 'ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953',
     },
-    runtime: {
+    /** 官方归档解出的、签名前 runtime 身份；只用于 source/archive 三重校验。 */
+    sourceRuntime: {
       bytes: 112_928_848,
       sha256: '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d',
+    },
+    /** 最终 Tauri externalBin sibling 的签后物理身份；由同名 pre-sign 实测并冻结。 */
+    runtime: {
+      bytes: 112_271_136,
+      sha256: '54600689d8bce010c2c336ca320d016018fb5d4af6ea74f38c7ad786492ff51f',
     },
   },
   {
@@ -78,9 +86,15 @@ export const TARGETS = [
       bytes: 51_245_086,
       sha256: 'b8da981b8a0b1241b70249204916da76c63573ddf5814dbd2d1e41069105cb81',
     },
-    runtime: {
+    /** 官方归档解出的、签名前 runtime 身份；只用于 source/archive 三重校验。 */
+    sourceRuntime: {
       bytes: 115_447_952,
       sha256: '03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b',
+    },
+    /** 最终 Tauri externalBin sibling 的签后物理身份；由同名 pre-sign 实测并冻结。 */
+    runtime: {
+      bytes: 115_446_688,
+      sha256: 'd2cde31d078b01fb5244db4539ea63d84200349434fa68aee60655f316404371',
     },
   },
 ];
@@ -103,6 +117,10 @@ export const ARCHIVE_DIR = path.join(DIST_DIR, 'runtime');
 export const BUILD_DIR = path.join(DIST_DIR, 'product-sidecar-build');
 export const PRODUCT_ENTRY = path.join(PACKAGE_ROOT, 'src', 'product-main.ts');
 export const REPORT_FILE = path.join(DIST_DIR, 'product-sidecar-build.json');
+export const ROUTE_MANIFEST_FILE = path.resolve(
+  PACKAGE_ROOT,
+  '../../apps/desktop/src-tauri/pi-sidecar/route-manifest.json',
+);
 
 /** wire 与 stage 目录共用的 SafeToken 形状。 */
 export const SAFE_TOKEN_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
@@ -233,13 +251,61 @@ export function archiveProblems(observed, target) {
 
 /** 解出来的 runtime 的三项判据。 */
 export function runtimeProblems(observed, target) {
+  const expected = target.sourceRuntime ?? target.runtime;
   return [
-    observed.bytes === target.runtime.bytes ? null : `runtime 字节 ${observed.bytes} ≠ ${target.runtime.bytes}`,
-    observed.sha256 === target.runtime.sha256
+    observed.bytes === expected.bytes ? null : `runtime 字节 ${observed.bytes} ≠ ${expected.bytes}`,
+    observed.sha256 === expected.sha256
       ? null
-      : `runtime SHA-256 ${observed.sha256} ≠ ${target.runtime.sha256}`,
+      : `runtime SHA-256 ${observed.sha256} ≠ ${expected.sha256}`,
     observed.machoArch === target.machoArch ? null : `Mach-O 架构 ${observed.machoArch} ≠ ${target.machoArch}`,
   ].filter(Boolean);
+}
+
+/** 签后 staged runtime 的三项判据；与 source/archive 身份门分开，禁止两种 digest 混用。 */
+export function packagedRuntimeProblems(observed, target) {
+  return [
+    observed.bytes === target.runtime.bytes ? null : `packaged runtime 字节 ${observed.bytes} ≠ ${target.runtime.bytes}`,
+    observed.sha256 === target.runtime.sha256
+      ? null
+      : `packaged runtime SHA-256 ${observed.sha256} ≠ ${target.runtime.sha256}`,
+    observed.machoArch === target.machoArch ? null : `Mach-O 架构 ${observed.machoArch} ≠ ${target.machoArch}`,
+  ].filter(Boolean);
+}
+
+/**
+ * route manifest 的唯一生成形状。runtime bytes/SHA 只接受 staged signed sibling 的实测值；
+ * schema、routeId、Node 版本、source archive、targetTriple 与 machoArch 均由冻结输入带入。
+ */
+export function renderRouteManifest({ targets, bundle }) {
+  return {
+    schemaVersion: 1,
+    routeId: ROUTE_ID,
+    nodeVersion: NODE_VERSION,
+    useCodeCache: USE_CODE_CACHE,
+    bundle: {
+      resourceRelativePath: `${RESOURCE_DIR_BASENAME}/${BUNDLE_BASENAME}`,
+      bytes: bundle.bytes,
+      sha256: bundle.sha256,
+    },
+    targets: targets.map((target) => ({
+      targetTriple: target.targetTriple,
+      machoArch: target.machoArch,
+      sourceArchive: {
+        filename: target.archive.filename,
+        bytes: target.archive.bytes,
+        sha256: target.archive.sha256,
+      },
+      runtime: {
+        externalBinBasename: SIDECAR_BASENAME,
+        bytes: target.runtime.bytes,
+        sha256: target.runtime.sha256,
+      },
+    })),
+  };
+}
+
+export function routeManifestBytes(input) {
+  return Buffer.from(`${JSON.stringify(renderRouteManifest(input), null, 2)}\n`, 'utf8');
 }
 
 /**
@@ -310,6 +376,42 @@ function syncDir(directory) {
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8' });
   return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
+}
+
+/**
+ * 先以 Tauri 最终使用的 basename `pi-sidecar` 对官方 runtime 做同参数 ad-hoc signing，
+ * 再把签后实物移入 target-triple stage 名。Tauri 随后会在 `.app/Contents/MacOS/pi-sidecar`
+ * 上重复同一 signing；macOS codesign 的结果因此保持 byte-identical，而 manifest 记录的是
+ * 这枚签后 sibling 的物理 bytes/SHA，不是签名前 runtime 的 digest。
+ */
+export function signRuntimeForTauri(runtimeFile, target, stageDir) {
+  const signingPath = path.join(stageDir, SIDECAR_BASENAME);
+  const staged = path.join(stageDir, `${SIDECAR_BASENAME}-${target.targetTriple}`);
+  if (fs.existsSync(signingPath) || fs.existsSync(staged)) {
+    throw new Error(`${target.targetTriple} signing stage 已有同名实物，拒绝覆盖`);
+  }
+
+  fs.copyFileSync(runtimeFile, signingPath);
+  fs.chmodSync(signingPath, 0o755);
+  const signing = run('codesign', [...TAURI_SIGNING_ARGS, signingPath]);
+  if (signing.status !== 0) {
+    const detail = (signing.stderr || signing.stdout).trim().slice(0, 500);
+    throw new Error(`${target.targetTriple} runtime ad-hoc signing 失败：${detail}`);
+  }
+
+  const observed = {
+    bytes: fs.statSync(signingPath).size,
+    sha256: sha256File(signingPath),
+    machoArch: readMachoArchOfFile(signingPath),
+  };
+  const problems = packagedRuntimeProblems(observed, target);
+  if (problems.length > 0) {
+    throw new Error(`${target.targetTriple} 签后 runtime 不合冻结身份：${problems.join('；')}`);
+  }
+
+  fs.renameSync(signingPath, staged);
+  fs.chmodSync(staged, 0o755);
+  return observed;
 }
 
 /**
@@ -520,13 +622,13 @@ export async function main() {
       if (problems.length > 0) throw new Error(`${target.targetTriple} runtime 不合冻结身份：${problems.join('；')}`);
       const version = probeRuntimeVersion(runtimeFile, target);
 
-      const staged = path.join(stageDir, `${SIDECAR_BASENAME}-${target.targetTriple}`);
-      writeSynced(staged, fs.readFileSync(runtimeFile), 0o755);
+      const signed = signRuntimeForTauri(runtimeFile, target, stageDir);
       report.targets.push({
         targetTriple: target.targetTriple,
         machoArch: target.machoArch,
         archive: { ...target.archive, origin: archive.origin },
-        runtime: { ...observed, versionProbe: version },
+        sourceRuntime: { ...observed, versionProbe: version },
+        runtime: signed,
       });
     }
 
@@ -547,8 +649,14 @@ export async function main() {
     if (stageProblems.length > 0) throw new Error(`stage inventory 不合冻结三件：${stageProblems.join('；')}`);
     for (const target of TARGETS) {
       const staged = path.join(stageDir, `${SIDECAR_BASENAME}-${target.targetTriple}`);
-      if (sha256File(staged) !== target.runtime.sha256) {
-        throw new Error(`${target.targetTriple} 落盘后 SHA 漂移，拒绝落名`);
+      const stagedObserved = {
+        bytes: fs.statSync(staged).size,
+        sha256: sha256File(staged),
+        machoArch: readMachoArchOfFile(staged),
+      };
+      const stagedProblems = packagedRuntimeProblems(stagedObserved, target);
+      if (stagedProblems.length > 0) {
+        throw new Error(`${target.targetTriple} 落盘后签后 runtime 漂移，拒绝落名：${stagedProblems.join('；')}`);
       }
     }
     if (sha256File(path.join(stageDir, BUNDLE_BASENAME)) !== bundle.sha256) {
@@ -568,6 +676,14 @@ export async function main() {
       if (!parentSync.synced) throw new Error(`dist 父目录 fsync 失败：${parentSync.reason}`);
       report.snapshot = { dir: SNAPSHOT_DIR, action: 'created' };
     }
+
+    const manifestBytes = routeManifestBytes({ targets: report.targets, bundle: report.bundle });
+    writeSynced(ROUTE_MANIFEST_FILE, manifestBytes, 0o644);
+    report.routeManifest = {
+      file: ROUTE_MANIFEST_FILE,
+      bytes: manifestBytes.byteLength,
+      sha256: sha256Of(manifestBytes),
+    };
   } catch (cause) {
     fs.rmSync(stageDir, { recursive: true, force: true });
     report.snapshot = { dir: SNAPSHOT_DIR, action: 'failed', reason: cause instanceof Error ? cause.message : String(cause) };

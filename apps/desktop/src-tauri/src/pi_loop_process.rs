@@ -990,10 +990,10 @@ mod tests {
             arm.source_archive.sha256,
             "ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953"
         );
-        assert_eq!(arm.runtime.bytes, 112_928_848);
+        assert_eq!(arm.runtime.bytes, 112_271_136);
         assert_eq!(
             arm.runtime.sha256,
-            "2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d"
+            "54600689d8bce010c2c336ca320d016018fb5d4af6ea74f38c7ad786492ff51f"
         );
 
         let intel = manifest
@@ -1009,10 +1009,10 @@ mod tests {
             intel.source_archive.sha256,
             "b8da981b8a0b1241b70249204916da76c63573ddf5814dbd2d1e41069105cb81"
         );
-        assert_eq!(intel.runtime.bytes, 115_447_952);
+        assert_eq!(intel.runtime.bytes, 115_446_688);
         assert_eq!(
             intel.runtime.sha256,
-            "03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b"
+            "d2cde31d078b01fb5244db4539ea63d84200349434fa68aee60655f316404371"
         );
         assert!(
             manifest.targets[0].target_triple.as_str() < manifest.targets[1].target_triple.as_str(),

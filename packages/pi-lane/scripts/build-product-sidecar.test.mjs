@@ -35,6 +35,7 @@ import {
   ROUTE_ID,
   SIDECAR_BASENAME,
   SNAPSHOT_INVENTORY,
+  TAURI_SIGNING_ARGS,
   TARGETS,
   USE_CODE_CACHE,
   archiveProblems,
@@ -44,7 +45,10 @@ import {
   fetchWithTimeoutRetry,
   inventoryOf,
   inventoryProblems,
+  packagedRuntimeProblems,
   readMachoArch,
+  renderRouteManifest,
+  routeManifestBytes,
   runtimeProblems,
   snapshotReuseProblems,
   stageDirPath,
@@ -81,6 +85,8 @@ test('冻结表逐值等于票面 §二.4 的 Route A 真值', () => {
       target.archive.filename,
       target.archive.bytes,
       target.archive.sha256,
+      target.sourceRuntime.bytes,
+      target.sourceRuntime.sha256,
       target.runtime.bytes,
       target.runtime.sha256,
     ]),
@@ -93,6 +99,8 @@ test('冻结表逐值等于票面 §二.4 的 Route A 真值', () => {
         'ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953',
         112928848,
         '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d',
+        112271136,
+        '54600689d8bce010c2c336ca320d016018fb5d4af6ea74f38c7ad786492ff51f',
       ],
       [
         'x86_64-apple-darwin',
@@ -102,6 +110,8 @@ test('冻结表逐值等于票面 §二.4 的 Route A 真值', () => {
         'b8da981b8a0b1241b70249204916da76c63573ddf5814dbd2d1e41069105cb81',
         115447952,
         '03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b',
+        115446688,
+        'd2cde31d078b01fb5244db4539ea63d84200349434fa68aee60655f316404371',
       ],
     ],
   );
@@ -206,13 +216,61 @@ test('archive 五项判据逐条带区分力', () => {
 
 test('runtime 三项判据逐条带区分力', () => {
   const target = TARGETS[1];
-  const good = { bytes: target.runtime.bytes, sha256: target.runtime.sha256, machoArch: target.machoArch };
+  const sourceGood = {
+    bytes: target.sourceRuntime.bytes,
+    sha256: target.sourceRuntime.sha256,
+    machoArch: target.machoArch,
+  };
+  const packagedGood = {
+    bytes: target.runtime.bytes,
+    sha256: target.runtime.sha256,
+    machoArch: target.machoArch,
+  };
+  const good = sourceGood;
   assert.deepEqual(runtimeProblems(good, target), []);
   assert.equal(runtimeProblems({ ...good, bytes: 0 }, target).length, 1);
   assert.equal(runtimeProblems({ ...good, sha256: '0'.repeat(64) }, target).length, 1);
   // 双件交换：arm64 的实物落到 x86_64 那一格，Mach-O 判据必须抓住。
   assert.equal(runtimeProblems({ ...good, machoArch: 'arm64' }, target).length, 1);
   assert.equal(runtimeProblems({ ...good, machoArch: null }, target).length, 1);
+  assert.deepEqual(packagedRuntimeProblems(packagedGood, target), []);
+  assert.equal(packagedRuntimeProblems({ ...packagedGood, bytes: 0 }, target).length, 1);
+  assert.equal(packagedRuntimeProblems({ ...packagedGood, sha256: '0'.repeat(64) }, target).length, 1);
+});
+
+test('manifest 只把签后 runtime 实测 digest 带入 schema，source archive 语义不变', () => {
+  const target = TARGETS[0];
+  const bundle = { bytes: 123, sha256: '1'.repeat(64) };
+  const manifest = renderRouteManifest({ targets: [target], bundle });
+  assert.deepEqual(manifest, {
+    schemaVersion: 1,
+    routeId: 'node22-runtime-sealed-cjs-v1',
+    nodeVersion: '22.23.1',
+    useCodeCache: false,
+    bundle: {
+      resourceRelativePath: 'pi-loop-resources/sidecar.cjs',
+      bytes: 123,
+      sha256: '1'.repeat(64),
+    },
+    targets: [
+      {
+        targetTriple: target.targetTriple,
+        machoArch: target.machoArch,
+        sourceArchive: {
+          filename: target.archive.filename,
+          bytes: target.archive.bytes,
+          sha256: target.archive.sha256,
+        },
+        runtime: {
+          externalBinBasename: 'pi-sidecar',
+          bytes: target.runtime.bytes,
+          sha256: target.runtime.sha256,
+        },
+      },
+    ],
+  });
+  assert.equal(routeManifestBytes({ targets: [target], bundle }).toString('utf8').endsWith('\n'), true);
+  assert.ok(TAURI_SIGNING_ARGS.includes('--options'));
 });
 
 test('bundle 选项是冻结值，且不开 code cache / sourcemap', () => {

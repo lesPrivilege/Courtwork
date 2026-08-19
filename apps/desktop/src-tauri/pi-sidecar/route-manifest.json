@@ -19,8 +19,8 @@
       },
       "runtime": {
         "externalBinBasename": "pi-sidecar",
-        "bytes": 112928848,
-        "sha256": "2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d"
+        "bytes": 112271136,
+        "sha256": "54600689d8bce010c2c336ca320d016018fb5d4af6ea74f38c7ad786492ff51f"
       }
     },
     {
@@ -33,8 +33,8 @@
       },
       "runtime": {
         "externalBinBasename": "pi-sidecar",
-        "bytes": 115447952,
-        "sha256": "03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b"
+        "bytes": 115446688,
+        "sha256": "d2cde31d078b01fb5244db4539ea63d84200349434fa68aee60655f316404371"
       }
     }
   ]
