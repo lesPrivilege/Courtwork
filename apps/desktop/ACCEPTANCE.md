@@ -7554,3 +7554,96 @@ WKWebView 或 AX 证据。
 
 **fix-by-acceptance：已提交** `db54bd2fe90627d4d74372fcfaecae4e15ee7281`；R3 报告提交后
 再核对目标 worktree clean。
+
+# UX-POLISH-1-LINT-CLEAR 独立验收（Luna，2026-08-19）
+
+## 对象、独立性与裁决
+
+本轮是全新的独立 Luna 验收会话，不是实现会话，也不是此前 UX 验收会话。验收对象为
+`721e4ee13a9021f26491f4314ebab860486fbca5`，在独立临时 clone
+`/private/tmp/courtwork-acceptance-q6vmtT` 的 detached clean worktree 中执行；入场
+`git status --short --branch` 为 `## HEAD (no branch)`，`git rev-parse HEAD` 与对象精确相等。
+未使用实现者未提交树、未 checkout/stash 共享 worktree，Pi E2E 使用独立端口并由配置启动
+fresh server（`reuseExistingServer:false`）。
+
+**最终裁决：PASS（仅 `UX-POLISH-1-LINT-CLEAR` gate-only 微票）。** 本结论只解除该
+evidence script 的 root lint 阻断，不放行 `UX-POLISH-1` 原票，不放行 `WORK-AGENT-SHOWCASE-1`
+之外的产品能力，也不改变 `PI-BASE-GUI-ACCEPT` 的 external-validated blocked、Agent 或
+product-live 口径。
+
+## A · no-undef 反例红绿
+
+目标树先实跑：
+
+```text
+pnpm lint
+```
+
+结果：EXIT 0。
+
+仅在该临时 clone 用补丁移除
+`release/evidence/work-agent-showcase-1/acceptance-2026-08-19/capture-script.mjs`
+首行文件级 global 声明，再实跑同一命令：EXIT 1，**18 errors / 0 warnings**，全部来自该
+文件：`process`×2、`localStorage`×1、`window`×11、`document`×3、`console`×1；错误类型均为
+`no-undef`。恢复原声明后再次实跑：
+
+```text
+pnpm lint
+```
+
+结果：EXIT 0。临时反例只改该 clone，已还原，未进入提交。
+
+## B · 语法与差异卫生
+
+```text
+node --check release/evidence/work-agent-showcase-1/acceptance-2026-08-19/capture-script.mjs
+git diff --check
+git diff --check HEAD^ HEAD
+```
+
+三条命令均 EXIT 0。目标提交相对父提交的文件清单为：
+
+```text
+A  apps/desktop/specs/UX-POLISH-1-LINT-CLEAR.md
+M  release/evidence/work-agent-showcase-1/acceptance-2026-08-19/capture-script.mjs
+```
+
+脚本 diff 只有文件级 global 声明和空行；未改脚本运行逻辑、ESLint 配置或目录豁免。
+
+## D · 与风险匹配的 Pi 回归
+
+目标树亲跑结果：
+
+| 命令 | 实测结果 |
+|---|---|
+| `pnpm -r build` | EXIT 0；Scope **15/16**，desktop build 完成 |
+| `pnpm --filter @courtwork/desktop test -- src/pi/PiLanePanel.dom.test.ts` | EXIT 0；**1 file / 9 tests passed** |
+| `pnpm --filter @courtwork/desktop test -- src/pi` | EXIT 0；**5 files / 48 tests passed** |
+| `COURTWORK_E2E_PORT=19674 pnpm --filter @courtwork/desktop exec playwright test tests/e2e/pi-lane.spec.ts --project=app --workers=1` | EXIT 0；独立 fresh server、独占端口、`reuseExistingServer:false`；**13/13 passed（19.1s）** |
+
+## E · root lint 与诚实边界
+
+恢复声明后的最终复核命令：
+
+```text
+pnpm lint
+node --check release/evidence/work-agent-showcase-1/acceptance-2026-08-19/capture-script.mjs
+git diff --check
+```
+
+结果均 EXIT 0；root lint 不再被该脚本阻断。未将 scripted Pi 回归、构建或 Playwright
+结果改写为真实 DeepSeek、真实 WKWebView、AX/读屏/焦点或 Agent 证据；这些缺口仍由
+`PI-BASE-GUI-ACCEPT` 独立处理，原 UX-POLISH-1 的成熟度结论不在本微票内改写。
+
+## 非阻断观察
+
+- 沙箱内首次以端口 `19674` 启动 Playwright fresh server 被系统 `listen EPERM` 拒绝，未进入测试；按同一命令提升验收环境权限后得到上表 **13/13**，该次是环境权限事实，不是断言失败。
+- 本微票没有重跑 UX 原票的完整 243 枚截图矩阵、完整 desktop/root test、site:guard、cargo 或真实 provider/WKWebView/无障碍总验；这些不是本 gate-only diff 的放行替代物，故不作 PASS 宣称。
+
+## C · 范围与目标提交后续对账
+
+验收回执只追加本文件。目标提交本身没有产品、Pages、README、`docs/status/current.md`、
+runtime、schema 或 ABI 文件变更；产品源码（`apps/desktop/src`）、Rust/Tauri
+（`apps/desktop/src-tauri`）、`packages`、`site` 与 README/current 路径均无目标 diff。
+提交回执后将以 `git diff --name-status 721e4ee13a9021f26491f4314ebab860486fbca5..tip`
+和受检路径 diff 复核，确保最终 tip 仅新增本验收账本内容。
