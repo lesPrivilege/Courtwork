@@ -7664,3 +7664,29 @@ git status --short --branch
 ```
 
 因此 `721e4ee..tip` 未扩张产品、Pages、README、current、runtime、schema 或 ABI；最终只新增本验收账本内容。
+
+## PI-BASE-GUI-ACCEPT-PACKAGE-1 · signed Route A artifact（2737c98）
+
+独立 Luna 在 clean detached worktree `/private/tmp/courtwork-luna-package-accept-2737c98`
+复核 exact target `2737c985a632004e98755c987630fafcd5c6a443`；目标树 clean，main
+为其祖先。仓外候选制品为
+`/private/tmp/courtwork-gui-accept-2737c98/`。
+
+独立实测结果：
+
+- packaged route assertion：**1/1 PASS**；包内 manifest 与 tracked manifest
+  byte-identical，signed runtime 与 manifest exact-match，sealed sidecar.cjs
+  bytes/SHA exact-match。
+- App 与 sidecar：均 arm64、regular、非 symlink；app/sidecar strict signing
+  与 app deep/strict verify：**PASS**。
+- DMG：SHA-256
+  `3bf8edbb480027fa7b8677f6c5c5bd130429b103493214addf990737d8ce1651`；
+  独立 Luna 实跑 `hdiutil verify`：**VALID / exit 0**。
+- 构建会话在 exact target 上实跑 `pnpm -r build`、`pnpm lint` 与 Tauri
+  app/dmg；Rust `pi_loop_process` 定向测试为 **16/16**。旧的 signed-runtime
+  mismatch（112928848/2e3f… 对 112271136/546006…）已由 direct assertion
+  变为绿。
+
+本回执只放行 packaging artifact，不放行 `PI-BASE-GUI-ACCEPT`：独立真实
+DeepSeek 六格、Stop/恢复、AX/读屏/焦点、reduced-motion 与 Agent/product-live
+称谓门仍未成立。未读取或记录 API key，未启动 App 作为本票的真实 provider 证据。
