@@ -7335,3 +7335,83 @@ product sidecar 首次下载被网络权限阻断，升权下载 pinned Node 22.
 
 **最终裁决：PASS（fix-by-acceptance 后）；后继 `PI-BASE-GUI-ACCEPT` 仍为
 external-validated blocked，不能由本票 scripted 证据替代。**
+
+# UX-POLISH-1 独立 clean-worktree 验收（2026-08-19，Luna）
+
+## 对象、独立性与判定
+
+本轮为实现会话之外的独立验收会话，worktree 为
+`/Users/lesprivilege/.codex/worktrees/c57c/Courtwork`，分支
+`codex/ux-polish-1`，目标精确为 `406def475ee4ef854f9c4e4287c8db6ec0e1cba1`，架构基线为
+`c46d2bf`。入场 `git status --short --branch` clean，`git merge-base --is-ancestor
+c46d2bf HEAD` exit 0；未 checkout/stash/回退/重写共享树，也未修改实现代码。目标 diff 的
+`git diff --name-status c46d2bf..406def4` 仅为本票允许的
+`apps/desktop/specs/UX-POLISH-1.md`、三个 Pi 展示组件、`pi-copy.ts`、Pi DOM 测试与
+`styles.css`；未触及 Pi wire/journal/projection/runtime、Rust/Tauri、provider/ABI、垂类、Pages、
+README 或 `docs/status/current.md`。目标 diff `git diff --check` exit 0。
+
+**最终裁决：REJECT / blocked。** 定向反例、Pi 单测和 Pi 定向 Playwright 已通过，但强制的
+独立截图矩阵、完整全量门与完整 Playwright 未完成，不能善意放行。没有 `fix-by-acceptance`。
+本票不取得 Agent/product-live 称谓；真实 DeepSeek、WKWebView/AX/读屏仍属于后继
+`PI-BASE-GUI-ACCEPT` 外部门。
+
+## Born-red 反例（目标树临时注入后均复原）
+
+命令均为：
+`pnpm --filter @courtwork/desktop test -- src/pi/PiLanePanel.dom.test.ts`。
+
+| 反例 | 实际红证 | 恢复后 |
+|---|---|---|
+| `PiLanePanel.tsx` 将未知 cost 的 `PI_COPY.costUnknown` 改为 `0.0000` | `9 tests / 1 failed`；期望 `未知`，收到 `0.0000` | `9/9 passed` |
+| `PiLanePanel.tsx` 将 `!view.sessionTerminal` 改为恒真 | `9 tests / 1 failed`；终态仍出现 `pi-send`/composer，期望 `null` | `9/9 passed` |
+| `PiToolCard.tsx` 将 pending write 的人类动作改为 `write` | `9 tests / 2 failed`；两枚断言期望 `新建工作稿`，收到 `write` | `9/9 passed` |
+
+三枚反例均实际观察到 exit 1/失败断言后逐字恢复；收口未留下临时 mutation。
+
+## 定向行为与测试
+
+- `pnpm --filter @courtwork/desktop test -- src/pi/PiLanePanel.dom.test.ts`：**1 file / 9 tests passed**。
+- `pnpm --filter @courtwork/desktop test -- src/pi`：**5 files / 48 tests passed**。
+- `COURTWORK_E2E_PORT=19674 pnpm --filter @courtwork/desktop exec playwright test
+  tests/e2e/pi-lane.spec.ts --project=app --workers=1`：独立端口、fresh server、配置
+  `reuseExistingServer:false`，**13/13 passed（19.9s）**。覆盖绑定/未绑定、model settings 恢复、
+  proposal allow/deny、approved/denied/failed/uncertain、Stop、fail-closed、当前/上一段工作稿、
+  hash-diff/not-found、滚动 ownership 与 Escape/打开 viewer close focus。
+- 先在独立端口 `19673` 启动 fresh server 时，workspace `dist/` 尚未存在，Vite 解析 `@courtwork/*`
+  失败，**13/13 在 harness 注入前失败**；该次不归因本票。随后 build 输出完成后以新端口
+  `19674` 重跑，得到上项 `13/13`。
+
+## 必要门与证据矩阵
+
+| 门 | 独立实测结果 |
+|---|---|
+| `pnpm -r build` | 已启动并输出至 `apps/desktop build: Done`；工具会话未返回可核对的最终 exit code，按验收纪律**不计 PASS** |
+| `pnpm lint` | 未执行 |
+| root 全测 `pnpm test` | 未执行 |
+| desktop 全测 `pnpm --filter @courtwork/desktop test` | 未执行（仅 Pi 定向 48/48） |
+| `pnpm site:guard` | 未执行 |
+| `cargo test` | 未执行 |
+| 独立端口完整 Playwright | 未执行（仅 Pi 定向 13/13） |
+| `git diff --check` | exit 0 |
+
+因用户中止长耗时检查，本轮没有生成新的 `acceptance-UX-POLISH-1-<sha>/` 截图目录或
+manifest，也没有读取既有 `release/evidence` PNG 作为本票证据。以下强制维度因此无可采信证据：
+light 全矩阵、1180×720/1440×900/1600×900/约 390 窄宽、dark empty/running/proposal/
+succeeded/viewer smoke、normal/text-mask/squint、多工具/多稿/长中文/CJK-Latin、Tab/Shift+Tab/
+Enter 全程、reduced-motion 专项截图与 viewer 关闭后的焦点回归。
+
+## 功能与成熟度结论
+
+定向行为证明本票三项核心呈现成立：未知开销不会折为 0；终态移除当前段 composer；工具卡
+优先展示人类动作与目标，工具名/动作/字节/hash 仍可在折叠详情到达。既有 matter header、
+binding/start/settings callback、proposal 决策、Stop、结果分流、当前/上一段工作稿与 viewer
+hash-diff/not-found 路径在 Pi 定向套件中未见回退。由于全量门、截图矩阵和完整键盘/响应式/主题
+证据未执行，信息层级、密度、冷白/深宗、动效/reduced-motion、scroll ownership 与可操作焦点
+不能完成本票验收闭环。
+
+## 收口
+
+未修改实现、SPEC 契约或 `current.md`，无 `fix-by-acceptance`。本节是唯一新增持久内容；提交前
+将只显式暂存 `apps/desktop/ACCEPTANCE.md`，检查 cached 文件名与 `git diff --cached --check`，
+不使用 `git add .`/`git add -A`。本目标因证据不完整**拒绝放行**，需后续独立会话补齐上述门后
+重新验收。
