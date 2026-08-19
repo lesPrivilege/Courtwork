@@ -83,7 +83,7 @@ test(
     );
 
     assert.equal(manifest.bundle.resourceRelativePath, 'pi-loop-resources/sidecar.cjs');
-    const bundlePath = path.join(app, 'Contents', 'Resources', RESOURCE_RELATIVE_DIR, 'sidecar.cjs');
+    const bundlePath = path.join(app, RESOURCE_RELATIVE_DIR, 'sidecar.cjs');
     const bundleStat = requireRegularFile(bundlePath, '包内 sidecar.cjs');
     assert.equal(bundleStat.size, manifest.bundle.bytes);
     assert.equal(sha256File(bundlePath), manifest.bundle.sha256);
