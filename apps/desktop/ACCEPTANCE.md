@@ -7647,3 +7647,20 @@ runtime、schema 或 ABI 文件变更；产品源码（`apps/desktop/src`）、R
 （`apps/desktop/src-tauri`）、`packages`、`site` 与 README/current 路径均无目标 diff。
 提交回执后将以 `git diff --name-status 721e4ee13a9021f26491f4314ebab860486fbca5..tip`
 和受检路径 diff 复核，确保最终 tip 仅新增本验收账本内容。
+
+## 收口对账
+
+首份验收回执提交为 `685cadc62063f57cc0b4bbbff8ac50a291d4498e`。提交后实跑：
+
+```text
+git diff --name-status 721e4ee13a9021f26491f4314ebab860486fbca5..HEAD
+M  apps/desktop/ACCEPTANCE.md
+git diff --name-only 721e4ee13a9021f26491f4314ebab860486fbca5..HEAD -- apps/desktop/src apps/desktop/src-tauri packages site README.md docs/status/current.md
+(无输出)
+git diff --check 721e4ee13a9021f26491f4314ebab860486fbca5..HEAD
+EXIT 0
+git status --short --branch
+## HEAD (no branch)
+```
+
+因此 `721e4ee..tip` 未扩张产品、Pages、README、current、runtime、schema 或 ABI；最终只新增本验收账本内容。
