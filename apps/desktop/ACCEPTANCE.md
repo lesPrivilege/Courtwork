@@ -7202,3 +7202,136 @@ tauri.conf.json 已恢复 target 字节：productName: Courtwork、identifier: c
 test(acceptance): PI-BASE-GUI-ACCEPT Luna blocked
 
 **最终裁决：external-validated blocked。**
+
+# WORK-AGENT-SHOWCASE-1 独立验收（Luna，2026-08-19）
+
+## 对象、独立性与裁决
+
+本轮验收对象为 receipt tip `78550b59ee648c061bbae8c8ca6c35c85f5abb57`，其 product
+implementation 为 `f3a854f94f813165d88ab77cf57a66555b13cd87`，基线为
+`f77e3afd9483721d8ca7e44114613234c7e7ea27`。验收从该 receipt 在
+`/private/tmp/work-agent-showcase-accept` 新建 clean clone 和独立分支
+`acceptance/work-agent-showcase-1`，没有 checkout/stash/复用共享 Courtwork 工作树，
+也没有复用实现截图或共享 dev server。
+
+本轮提交一枚 implementation-level `fix-by-acceptance`：
+`9446438494e90f75bf98b2bde4ffde7b5e931c11`。它只修 `PiToolCard` 的呈现时态并补 DOM
+回归：pending proposal 保留“新建/覆盖工作稿 · 目标路径”请求，但不提前宣称“已新建/已覆盖”；
+只有 `effect.state=succeeded` 才显示完成态文案。没有修改 wire、journal、runtime、schema、
+ADR、SPEC、`current.md` 或主仓 ref。
+
+**最终裁决：PASS（含上述 fix-by-acceptance；真实 DeepSeek/WKWebView/AX 仍不在本票，
+后继 `PI-BASE-GUI-ACCEPT` 仍按当前状态单独处理）。**
+
+## 入场核对与源码复核
+
+- `HEAD` 为 receipt tip，且 product SHA、基线均在 ancestry 中；receipt 是 product 的直接
+  子孙，工作树入场 clean。
+- 按治理顺序读取 `CLAUDE.md`、`docs/README.md`、`docs/status/current.md`、
+  `docs/architecture/implementation-readiness.md`、本 SPEC、设计原则/tokens、ADR-022
+  与 `WORK-AGENT-GUI-1`。
+- 改面符合 SPEC 允许范围；额外浅宗同步文件属于 token/generated/site 守卫消费面，未见
+  新 runtime/schema/ABI/port/command/dependency。代码复核确认 proposal 账本事实没有被
+  UI 完成态提前冒充。
+
+## Born-red 与实现级修复
+
+在接受分支先加入 pending proposal 断言，再不改实现运行：
+
+```text
+pnpm --filter @courtwork/desktop test -- src/pi/PiLanePanel.dom.test.ts
+6 tests | 1 failed
+received: <p data-testid="pi-tool-request">已新建工作稿 · 纪要.md</p>
+```
+
+这枚真实红证证明未决定的 proposal 会提前说成完成。随后 `PiToolCard` 改为未然动作文案，
+并让已成功的 fixture 显式携带 succeeded effect；修后同一 DOM 文件为 **6/6 passed**，
+目标定向套件为 **6 files / 65 tests passed**。
+
+## 真实注入反例与恢复
+
+每项均在独立 clone 临时注入、实际观察 exit 1/失败断言，再逐字恢复；收口 `git diff --check`
+无输出。
+
+| 面 | 注入 | 实际红证 | 恢复后 |
+|---|---|---|---|
+| theme fallback | `DEFAULT_SETTINGS.themeMode: light → system` | theme fallback：**5 tests / 1 failed**，期望 light、收到 system | 主题定向套件回绿 |
+| rail chrome | 暂加 `data-testid="nav-scheduled"` | rail：**5 tests / 1 failed**，源码零出现断言命中 | 四枚 testid 仍零出现 |
+| token 单源 | `styles.css --bg-app: #123456` | `lint:neutral` exit 1，明确报组件色未在 tokens 声明集 | `lint:neutral` 通过 |
+| GUI guard | 运行 `lint:work-agent-gui` 的生产扫描与注入测试 | 4 枚 guard 注入反例逐一红（旧 producer/key/version/grant/stale closure） | 179 production files，4/4 guard tests passed |
+| proposal 时态 | pending proposal 先显示 `已新建` | 上述 6/1 DOM 红证 | `新建工作稿 · 纪要.md` 且不含 `已新建` |
+
+完整 Playwright 链还实际执行了 residue mutation：孤儿 dialog、焦点不归还、无限动画三枚
+反例均在其测试内先要求变红，再恢复后随整链通过。
+
+## 功能与行为
+
+以独立 port 1422、fresh server、`reuseExistingServer:false` 运行完整 Playwright，包含：
+
+- **391/391 passed（5.7m）**，静态前链含 `Playwright 假绿防护通过：391 条用例`；
+- proposal allow/deny、逐次 write、Stop 收束 pending 为 denied、failed/uncertain 不入索引；
+- restart/resume-prior、当前/历史工作稿、viewer hash differs/not-found、只读零编辑/保存/删除；
+- 运行中滚动不夺回、viewer Escape、焦点归还、focus-visible、reduced-motion、响应式三视口；
+- 未绑定主动作、unavailable 恢复动作、主题默认/fallback、四枚 rail testid 零 DOM。
+
+独立 scripted capture 还补验了真实可达的 `running`、`stopped`、`resumed`、多工具卡、双工作稿
+和 hash-diff viewer（证据见 `release/evidence/work-agent-showcase-1/acceptance-2026-08-19/`）。
+
+## 全量门禁
+
+| 门 | 独立实测结果 |
+|---|---|
+| `pnpm -r build` | EXIT 0；15/16 workspace projects |
+| `pnpm lint` | EXIT 0 |
+| `pnpm test` | EXIT 0；**183 files / 2251 tests passed** |
+| `pnpm --filter @courtwork/desktop test` | EXIT 0；**103 files / 907 tests passed** |
+| `pnpm site:guard` | EXIT 0；**103/103 passed**；App highwater **2195/2195** |
+| product sidecar | EXIT 0；547,893 B；SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`；reproducible |
+| headless sidecar | EXIT 0；555,314 B；SHA-256 `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`；reproducible |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | EXIT 0；**259 passed / 0 failed / 1 ignored** |
+| `COURTWORK_E2E_PORT=1422 pnpm --filter @courtwork/desktop test:e2e` | 独占 port，`reuseExistingServer:false`；**391/391 passed** |
+| `git diff --check` | EXIT 0 |
+
+root/desktop/cargo 首次在 sandbox 下遇到既有 loopback `EPERM`，均按同一命令升权重跑并通过；
+product sidecar 首次下载被网络权限阻断，升权下载 pinned Node 22.23.1 后产物可复现。它们是
+验收环境权限事实，不是目标 diff 失败。
+
+## 视觉证据与发现
+
+验收会话在独立 port 1421 自启 server、自己重摄 light/dark 15 状态矩阵（normal、text-mask），
+并由 `sips` 生成 10% squint；共 108 枚独立 PNG，未拿 implementation 帧当验收截图。覆盖冷白
+默认未绑定、bound、unavailable、proposal、succeeded、viewer、长中文、CJK/Latin、dark smoke；
+补帧覆盖 running/stopped/resumed、多工具卡、双工作稿、hash differs。视觉复核结论：
+
+- `#FBFCFE` 冷白底在 1440×900 成立，藏青只承担文字、结构和主操作；未见暖灰回流；
+- proposal 的决定区单焦点清楚，pending 请求现在是未然动作；succeeded 才出现“已新建工作稿”；
+- long matter 保持省略，不挤掉 Stop/决定动作；viewer 是右侧 in-panel 只读面；dark smoke 结构
+  与文字层级稳定；
+- 空态留白仍然宽松，但主动作和 Work 纵向重心可读，没有本票范围内的作品级阻断。
+
+### receipt manifest 的证据缺口（已补证，不再引用原帧放行）
+
+独立核对发现实现 receipt 的 `capture-pi-lane-states.mjs` 在 `pi-tool-card.first().waitFor()`
+后只等待 220ms；脚本每步是 0ms event-loop yield，因此 `04-running` 已经推进到 proposal，
+并非独立 running。receipt implementation 帧的 `light-1180x720` 中：
+
+- `04-running-squint.png` 与 `05-proposal-squint.png` SHA-256 均为
+  `525256725519fd7e0f097afb49e9028154047145cf5ba53ea560cdfc2c9b548e`；
+- `04-running-text-mask.png` 与 `05-proposal-text-mask.png` SHA-256 均为
+  `57c648964ed959d8795f920bfaf7a469f0dbc721a3f86c28031ee87873b0b992`；
+- 同一生成器只有 read+write 两枚工具卡与一枚工作稿，原 manifest 的“运行中、多工具卡、多稿
+  压力态”叙述不能作为证据。
+
+这是证据生成器/票面回执问题，不是 wire/schema 契约问题；本轮没有改它。独立补帧
+`16-running-real`、`17-stopped`、`18-resumed`、`19-multi-cards-proposal`、
+`20-multi-drafts`、`21-viewer-hash-differs` 已把这些要求实际闭合，且仍明确标 scripted，
+不扩张为 Agent/product-live。
+
+## 收口
+
+验收分支只包含：一枚 `fix-by-acceptance` 实现/测试提交、本报告与独立证据目录。未更新
+`current.md`、readiness、SPEC/ADR、主仓 ref，未 merge/push。最终验收提交 SHA 由交接时
+`git rev-parse HEAD` 精确给出；收口 `git status --short --branch` clean。
+
+**最终裁决：PASS（fix-by-acceptance 后）；后继 `PI-BASE-GUI-ACCEPT` 仍为
+external-validated blocked，不能由本票 scripted 证据替代。**
