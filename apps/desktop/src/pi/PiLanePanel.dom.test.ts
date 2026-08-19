@@ -154,6 +154,12 @@ describe('WORK-AGENT-SHOWCASE-1 · Work 纵切 born-red', () => {
         contentSha256: 'a'.repeat(64),
         action: 'created',
       },
+      effect: {
+        state: 'succeeded',
+        logicalPath: '纪要.md',
+        contentSha256: 'a'.repeat(64),
+        byteLength: 137,
+      },
     };
     render(
       createElement(PiToolCard, {
@@ -173,5 +179,35 @@ describe('WORK-AGENT-SHOWCASE-1 · Work 纵切 born-red', () => {
     expect(details).not.toBeNull();
     expect(details!.textContent).toContain('137');
     expect(details!.textContent).toContain('a'.repeat(12));
+  });
+
+  it('未决定的 proposal 不得先显示已新建工作稿', () => {
+    const call: PiToolCallView = {
+      toolCallId: 'tc-pending',
+      toolName: 'write',
+      running: true,
+      proposal: {
+        operationId: 'op-pending',
+        logicalPath: '纪要.md',
+        byteLength: 137,
+        contentSha256: 'a'.repeat(64),
+        action: 'created',
+      },
+    };
+    render(
+      createElement(PiToolCard, {
+        call,
+        pending: true,
+        busy: false,
+        onDecide: vi.fn(),
+        onOpen: vi.fn(),
+      }),
+    );
+    const request = container!.querySelector('[data-testid="pi-tool-request"]');
+    expect(request).not.toBeNull();
+    expect(request!.textContent).toContain('新建工作稿');
+    expect(request!.textContent).toContain('纪要.md');
+    expect(request!.textContent).not.toContain('已新建');
+    expect(container!.querySelector('[data-testid="pi-proposal"]')?.textContent).toContain('待你决定');
   });
 });

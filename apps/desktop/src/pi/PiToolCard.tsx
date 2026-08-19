@@ -29,6 +29,8 @@ export function PiToolCard({
   onOpen(logicalPath: string, options: { verify: boolean }): void;
 }) {
   const state = toolState(call);
+  const completedWrite = call.effect?.state === 'succeeded';
+  const writeRequest = call.proposal?.action === 'overwritten' ? '覆盖工作稿' : '新建工作稿';
   return (
     <section
       className="pi-tool-card"
@@ -39,7 +41,11 @@ export function PiToolCard({
     >
       {call.proposal && (
         <p className="pi-tool-request" data-testid="pi-tool-request">
-          {call.proposal.action === 'overwritten' ? PI_COPY.wroteOverwritten : PI_COPY.wroteCreated}
+          {completedWrite
+            ? call.proposal.action === 'overwritten'
+              ? PI_COPY.wroteOverwritten
+              : PI_COPY.wroteCreated
+            : writeRequest}
           <span aria-hidden="true"> · </span>
           <b>{call.proposal.logicalPath}</b>
         </p>
