@@ -62,4 +62,4 @@ blocked 边界仍原样保留。验收 REJECT 时只追加 ACCEPTANCE 留痕，�
   本文件 `apps/desktop/specs/UX-POLISH-1-LINT-CLEAR.md`（仅追加本回执）。
 - 禁止范围保持未触碰：产品 renderer、Rust/Tauri、provider、journal、schema、ABI、测试断言语义、
   PNG/manifest 证据、Pages、README、官网、`docs/status/current.md`、公开成熟度叙事，以及任何 UX/runtime 行为。
-- 精确提交：实现提交 `721e4ee`（`fix(lint): declare evidence capture globals`）；本回执不等同于独立验收通过。
+- 精确提交：实现提交 `721e4ee13a9021f26491f4314ebab860486fbca5`（`fix(lint): declare evidence capture globals`）；本回执不等同于独立验收通过。
