@@ -223,6 +223,7 @@ const EXEMPT = {
   '.cell-peek|all': '浮面描边',
   '.surface-float|all': '浮面描边（elevation 单点供给）',
   '.surface-card|all': '浮面描边（elevation 单点供给）',
+  '.pi-run-facts|all': '浮面描边（运行事实浮面）',
   '.utility-dock|all': '浮面描边（elevation 单点供给）',
   '.rail-module|all': '浮面描边（elevation 单点供给）',
   // 语义色标线：色即语义，线宽不参与层级
