@@ -1,3 +1,5 @@
+/* global process:readonly, localStorage:readonly, window:readonly, document:readonly, console:readonly */
+
 import { chromium } from '/private/tmp/work-agent-showcase-accept/apps/desktop/node_modules/@playwright/test/index.mjs';
 import { mkdirSync } from 'node:fs';
 
