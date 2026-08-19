@@ -1,7 +1,7 @@
 # WORK-AGENT-SHOWCASE-1 · 作品级 Work 纵切与冷白主宗
 
-状态：契约已冻结，待独立 Claude／Motto 实现会话领取（2026-08-18 架构裁定）。实现者不得验收
-本票；独立验收仍由新的 Luna clean clone 执行。
+状态：已清账（实现 `f3a854f`、回执 `78550b5`、验收修复 `9446438`、独立 PASS `a755b7e`，
+2026-08-19 架构消费）。实现与验收由不同会话执行；独立验收由新的 Luna clean clone 完成。
 
 权威：`CLAUDE.md`；`docs/product/vision.md`；`docs/design/principles.md`；
 `docs/design/tokens.json`；ADR-022；`WORK-AGENT-GUI-1`；本票。能力状态只认
@@ -208,3 +208,18 @@ reduced-motion 与 WCAG AA 定向验证。
 - 剩余阻断：`PI-BASE-GUI-ACCEPT` 未重跑（需新 tip 干净 clone 与真实 DeepSeek key/model）；
   真实 WKWebView/DeepSeek/Stop/AX 外部证据仍按 current.md 保持 external-validated blocked。
   本票不宣称 Agent/product-live，也未更新 `docs/status/current.md`。
+
+---
+
+## 架构清账（2026-08-19）
+
+- 原仓 `main` 已精确快进消费
+  `f77e3af → f3a854f → 78550b5 → 9446438 → a755b7e`；目标实现、回执、验收修复与 PASS
+  报告均已成为 `main` 祖先。
+- 独立 Luna 验收在 clean clone、独立端口与 fresh server 上实跑；最终为 PASS。验收修复仅校准
+  pending write proposal 的未然文案，并补 DOM 回归，未改 runtime/schema/ABI。
+- 实现回执所称 running／多工具／多稿截图存在生成器证据缺口，不能引用原帧放行；独立验收以
+  `release/evidence/work-agent-showcase-1/acceptance-2026-08-19/` 的补帧闭合并在
+  `apps/desktop/ACCEPTANCE.md` 留痕。
+- 本票据此释放 App 实现槽；`PI-BASE-GUI-ACCEPT` 仍须基于此新 tip，在真实 DeepSeek、WKWebView、
+  Stop 与 AX 条件具备后续验。此次不取得 Agent/product-live 称谓，不更新 `docs/status/current.md`。
