@@ -856,3 +856,100 @@ clone 复验；本轮不得据为放行。
 完整隔离、mutation 与命令记录见
 [`craft-evidence/VERSIONAL-LANG-3/reacceptance-39f1b15/README.md`](craft-evidence/VERSIONAL-LANG-3/reacceptance-39f1b15/README.md)。
 本轮只解除 `d32985f` 的 gallery 第四消费者拒绝，不扩大为后续批次、one-shot、push 或部署授权。
+
+---
+
+## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化独立验收（2026-08-20）— ❌ 阻断
+
+### 1. 对象、隔离与裁决
+
+- **验收角色**：独立验收会话，未参与实现；未采信实现自述；未修改产品、契约、schema、runtime、release 或 `current.md`。
+- **被验实现／权威 tip**：`productSha=5187c797c6ced84188c0b4e8ae7b00ecb8e50922`（`main` merge tip）。
+- **独立环境**：clean worktree `/private/tmp/courtwork-public-surface-real-1-accept`，分支
+  `codex/accept-public-surface-real-1`；Pages 静态服务独立绑定 `127.0.0.1:19475`，未复用共享服务。
+- **本轮结果**：公开定位、成熟度口径、三段 Work 结构、无假成员／样板常驻、真实 SHA、构建门与六项 mutation
+  均完成独立核验；但证据 provenance 的 `productSha` 与权威 tip 不一致，故本轮不放行。
+
+### 2. 阻断与观察项
+
+1. `site/craft-evidence/PUBLIC-SURFACE-REAL-1/screenshot-manifest.json:3` 和同目录
+   `README.md:3` 将三张源帧声明为 `3a4a90e8a2cd43362ecfce09135bb637496f6b36`，而本票权威验收 tip 是
+   `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`。现有机器门只验证 manifest 中是 40 位 hex，并未验证它等于被验
+   product tip；因此测试全绿不能证明“三张图从本票实现 tip 重摄”。这是公开证据来源边界问题，需架构角色决定
+   将 manifest／README provenance 修订到权威 tip，或明确批准架构基线作为该字段语义后，另起 clean clone 复验。
+2. Hero 的可见字面是 `本地工作面。`，完整定位只出现在 heading `aria-label`（`本地优先的通用 Work Agent GUI。`）。
+   现有 contract 明确锁定这两个层次且语义可解释，本轮记为非阻断观察项；若要求可见 H1 与页面 title 同字面，需架构
+   角色修订契约后再验收。
+
+### 3. 机器门（独立实跑）
+
+| 门禁 | 结果 |
+|---|---|
+| `node --test site/scripts/versional-language-contract.test.mjs site/scripts/deslop-scan.test.mjs` | **66/66 passed** |
+| `pnpm site:guard` | **106/106 passed**；release-truth PASS；deslop 1196 active files；neutral/elevation/signature/motion/design/schema/skin/app-highwater 全绿 |
+| `pnpm site:build` | exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm -r build` | exit 0；15/16 workspace projects；desktop Vite **4316 modules**；仅既有 dynamic-import/chunk-size advisory |
+| `git diff --check` | clean |
+
+本票零 Rust/Tauri 产品触面，未跑 Cargo；capture 只证明 browser scripted evidence，不外推真实 DeepSeek、Tauri/WKWebView、AX、
+键盘、读屏或发布制品。
+
+### 4. 资产 bytes／SHA 独立复核
+
+使用 Node `fs.readFileSync` 与 `crypto.createHash('sha256')` 逐文件重算，另以 `file` 检查尺寸；没有只信 manifest。
+
+| 文件 | bytes | SHA-256 |
+|---|---:|---|
+| `frames/PUBLIC-SURFACE-REAL-1-bound-1440x900.png` | 49,759 | `f05a3de1e662064d83d7b59a54e2c960e50b2d093aae01c0e72d87ca7f859215` |
+| `frames/PUBLIC-SURFACE-REAL-1-proposal-1440x900.png` | 105,527 | `b55f50c010390dc917b1c52bce8ce2595b756bc989c9a5482dfb008a5dae9c20` |
+| `frames/PUBLIC-SURFACE-REAL-1-viewer-1440x900.png` | 123,160 | `56fcf9c8c3d69313f7e53dba3763b22a9b9a0e0a06759321340159e98a6b6168` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-bound-1440.webp` | 15,174 | `ab9e8213f5e064df1d1a51af825a53e8505184f0d798a540b5543f0c8efd6cd7` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-bound-720.webp` | 4,990 | `9b73cd84c521d64378d0de090683ba6f376c747871b619d5c31a2f9f51dcea31` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-proposal-1440.webp` | 34,852 | `0894773946eadcaab3bcda8b539cff81e86a44900827c887872ef57a28215a6d` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-proposal-720.webp` | 11,804 | `c236b3cca21c8ae1f7858919593b3727dbef32dba3e919b27e595c7cb166417d` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-viewer-1440.webp` | 41,814 | `c9412b7aadcead26da03f5f5cd659ddba7df54238bc57dc1a28ddca8beb58aa6` |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-viewer-720.webp` | 14,272 | `54e3807bbf23fd6a54a72602ff063e175f82027d9414f1264fd2280e5dbdca0d` |
+| `assets/og.png` | 53,305 | `8e8e5da1bd49b9aa024a98f84ada9b2d8933fda359a8b243f493112ebc5fa25` |
+
+Dimensions independently confirmed: three PNGs `1440×900`; Work WebP pairs `1440×900` and `720×450`; OG `1200×630`.
+`site/assets/og-manifest.json` matches the rendered `og.html` source and landed `og.png` bytes.
+
+### 5. Pages visual matrix and evidence frames
+
+The independent service was `python3 -m http.server 19475 --bind 127.0.0.1 --directory site-dist`.
+
+- **1440×900 light**: no horizontal overflow (`scrollWidth === clientWidth`), one `.mac-window`, one page disclaimer,
+  three Work rows, all images complete, two hero CTAs and one visible secondary path; no page text `Pinned`, `Owner` or
+  `Sample lead`.
+- **375×812 light**: no horizontal overflow (`scrollWidth=375`), responsive header/hero/release facts and CTA copy remain
+  readable; evidence Work section is single-column with no clipping.
+- **375×812 JS-off**: generated `site-dist/main.js` was moved out temporarily and restored exactly; one window, one disclaimer,
+  three complete Work images, heading and v0.1.2 boundary remained readable with no overflow.
+- **Three source frames**: independently opened and visually reviewed bound / proposal / viewer. They show a real local
+  container, human `允许写入`／`拒绝写入`, and read-only result with source／bytes／hash／outcome; no Pinned, sample, Owner,
+  Sample lead or fake member, and bottom chrome is `Local workspace`.
+- **dark／reduced-motion**: `site/styles.css` contains explicit dark (`:93`) and reduced-motion (`:386`, `:509`) branches;
+  `site/main.js:3` reads the reduced-motion media query, and static guard/tests passed. The in-app browser capability used for
+  the independent local run exposed no media emulation; its observed state was `dark=false` and `reduce=false`, so no dark or
+  reduced screenshot is claimed. This is an evidence limitation, not a fabricated PASS.
+
+### 6. Required mutation red/restore evidence
+
+Each mutation was applied in this clean worktree, the named gate was observed red, then the exact file/byte was restored; the
+focused contract returned **18/18 green** after every restoration, and the final focused run returned **66/66 green**.
+
+| mutation command / target | observed red result |
+|---|---|
+| `perl -pi -e 's/scripted//g' README.md site/index.html site/og.html` | focused contract: 3 failures (R-13 OG source hash drift; public positioning missing `scripted`; Work row scripted binding missing) |
+| `perl -pi -e 's/external-validated blocked/external-validated/g' README.md site/index.html` | focused contract: PUBLIC positioning test failed (`PI-BASE-GUI-ACCEPT.*external-validated blocked`) |
+| replace `历史开发版，不含当前 main 的 Work Agent 主线` with `历史开发版，包含当前 main 的 Work Agent 主线` | focused contract: PUBLIC historical-boundary test failed |
+| replace the signed page disclaimer with the retired “试点跑通不等于产品全面上线” sentence; run `node site/scripts/deslop-scan.mjs` | deslop red with 3 maturity failures: unhedged `全面上线`, missing page-level signed disclaimer, and unconsumed signed hedge |
+| convert the archived Owner/Pinned sample frame with `cwebp -q 85`, copy over `PUBLIC-SURFACE-REAL-1-bound-1440.webp` | focused contract: Work asset SHA mismatch (`c7b3b34a…` vs expected `ab9e8213…`) |
+| flip one byte at offset 64 in `PUBLIC-SURFACE-REAL-1-proposal-1440.webp` | focused contract: proposal WebP SHA mismatch (`9fc7ebe…` vs expected `08947739…`) |
+
+### 7. 决定
+
+> **PUBLIC-SURFACE-REAL-1 不放行 ❌。** 所有已实跑门禁与画面／资产复核证据均保留，但 manifest provenance
+> `3a4a90e…` 未能证明来自被验 `productSha=5187c797…`。架构角色需先裁决该字段语义，或在实现 tip 上修订并重摄／重绑
+> 资产；之后必须由新的 clean worktree 重做本票验收。未 merge、未 push、未部署。
