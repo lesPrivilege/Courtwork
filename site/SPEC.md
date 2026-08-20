@@ -2,7 +2,7 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
-## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（架构冻结）
+## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
 减法式产品化：Hero 改由既有 provenance 绑定的 Work proposal 帧承载；当前 Work 流程／源码成为
@@ -36,6 +36,21 @@ Luna 会话完成。实现禁止写 `site/ACCEPTANCE.md`，验收禁止改契约
   `button-primary` 的门，旧 closing 以 **67/68** 通过、1 项失败；随后将 closing 主 CTA 改为
   GitHub“查看源码与本地运行”，历史 v0.1.2 DMG 降为文本次级动作，保留同一 URL、SHA 与“不含当前
   Work”边界。补正后 focused **68/68**、release 联合 **78/78**、`site:guard` **108/108**。
+
+### SITE-PUBLIC-SURFACE-PROOF-1 · 独立验收与清账回执（2026-08-20，已放行）
+
+- 架构冻结 `16c9171`；Luna 实现 `9c68c4e` 与前进式 CTA 补正 `adc239c`；另一新 Luna 在独立 clean
+  worktree 从精确 `adc239c1cca11e592e854ef983b250d6611e87ff` 验收，PASS `6f58602`；整链 no-ff
+  合入 main 为 `75b1fac`。
+- 独立验收六类 mutation 均实红并恢复：DMG primary／冒充当前、删除 scripted、未登记 Hero asset、
+  删除 external gate、恢复假控件壳、删除任一 Work evidence link。focused **68/68**、release 联合
+  **78/78**、`site:guard` **108/108**，site build、lint 与全仓 build 均 exit 0。
+- 六枚 WebP bytes/SHA 与 manifest 独立复算一致；完整 productSha `5187c797…` 为被验 tip 与 main
+  祖先。1440×900／375×812 的 light、dark、JS-off、reduced-motion 八 context 均无溢出、破图或
+  浏览器错误，23/23 链接可聚焦，零假控件，历史 DMG 零 primary。
+- main 合入 tip `75b1fac` 再跑 `site:guard` **108/108**、site build、lint、全仓 build全绿。放行只
+  覆盖 Pages 产品路径与证据语义；Stage 0、PI external gate、v0.1.2/tag/Release/current 与真实
+  Tauri／DeepSeek／AX 总验均不变。
 
 ## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（已清账）
 
