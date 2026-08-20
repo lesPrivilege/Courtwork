@@ -28,7 +28,8 @@
 - **born-red**：同一组定向门在实现前运行 `pnpm --filter @courtwork/desktop test -- src/modules/module-stack.test.ts src/protocol/session-reset.test.ts src/demo/session-event.contract.test.ts`，结果 **1 个文件失败、2 个通过；23 tests 中 21 passed / 2 failed**。失败分别证明旧 `progressHeadCount(undefined)` 产出 `NaN/undefined`，以及旧 `ProgressModuleBody` 缺少 `progress-work-plan`/`progress-plan-list`。
 - 定向单测绿：同一命令 **3 files / 23 tests passed**；覆盖 projection 字段逐字保留、reset 清空、录制事件同源、三态顺序/状态文案、plan+progress+failure 并存与真空态。
 - 独立端口 `COURTWORK_E2E_PORT=1437 pnpm exec playwright test tests/e2e/generic-scenarios-1.spec.ts --project=app`：**2 passed**；generic.draft 运行产出的 snapshot 在产品面显示 `1/1`、`产出文稿`、`已完成`，且沿用卸载态零垂类词表门。
-- `pnpm -r build` 未放行：基线在票外已有 `packages/core/src/assembly/assemble.ts` 与 `packages/core/src/scenario-executor/tool-request.ts` 对 `ScenarioRuntime.requestableToolIds` 的类型漂移（另 desktop 基线缺 `model_tool_result` 联合成员）导致构建失败；本票未修复这些契约外问题。
+- `pnpm -r build`：架构补正 `main @ a5c783b` 合入后，在依赖按 workspace 顺序解析的独立 worktree 实跑 **EXIT 0**（15/16 workspace projects，desktop Vite build 成功）；此前隔离 worktree 的红形来自依赖/构建产物未同步，不是本票或基线契约漂移。
+- 架构补正后，`rp1.spec.ts` 的 S3 断言改为录制 snapshot 同源 `1/2`；`workbench.spec.ts` 的 S1 断言改为 `1/3`。S1 E2E 先回到模块列等待 paced replay 到达 `1/3`，再恢复 Preview 执行原 `view-timeline` 导航，并在导航后再次确认 `1/3`。早导航截断 replay 的生命周期问题另挂架构债，本票不改 App。
 
 ### 边界
 
