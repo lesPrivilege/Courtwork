@@ -23,7 +23,7 @@ test('#2 Choose case 下拉：点外部收敛', async ({ page }) => {
   // Choose case chip 只在未绑容器面（欢迎态 composer）存在——不进样板案
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
   await page.getByTestId('composer-case').click();
   await expect(page.getByTestId('composer-case-menu')).toBeVisible();
   await page.mouse.click(400, 200);

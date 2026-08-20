@@ -5,13 +5,11 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
-test('cold start is probe-free and routes welcome → provider guide → Skip → sample tour', async ({ page }) => {
+test('cold start is probe-free and sample opens only by explicit choice', async ({ page }) => {
   await expect(page.getByTestId('welcome-state')).toBeVisible();
   await expect(page.getByTestId('workbench')).toHaveAttribute('data-credential-probed', 'false');
-  await page.getByTestId('welcome-demo-start').click();
-  await expect(page.getByTestId('provider-setup')).toBeVisible();
-  await expect(page.getByTestId('provider-security-note')).toContainText('安全凭证库');
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
+  await expect(page.getByTestId('provider-setup')).toHaveCount(0);
   await expect(page.getByTestId('demo-case-badge')).toBeVisible();
   await expect(page.getByTestId('sample-tour')).toBeVisible();
 });
@@ -27,8 +25,7 @@ test('home density tokens stay on welcome and rail while schema remains dense', 
   const welcome = page.getByTestId('welcome-state');
   await expect(welcome.locator('.welcome-slogan')).toBeVisible();
   await expect(welcome.getByTestId('composer')).toBeVisible();
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
   await expect(page.getByTestId('case-rail')).toHaveCSS('--home-row-height', '36px');
   await expect(page.getByTestId('preview-host')).not.toHaveCSS('border-radius', '16px');
 });
@@ -53,8 +50,7 @@ test('welcome continuation rows route explicitly without sticky default scope', 
 });
 
 test('message actions freeze absolute time and record thumbs feedback locally', async ({ page }) => {
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
   const actions = page.getByTestId('message-actions-assistant-demo');
   await expect(actions.getByTestId('message-relative-time')).toHaveAttribute('datetime', /T/);
   await actions.getByRole('button', { name: 'Helpful', exact: true }).click();

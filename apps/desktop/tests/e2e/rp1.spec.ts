@@ -11,9 +11,10 @@ type ForcedReadinessWindow = typeof window & {
 test.describe('RP-1 最终重排', () => {
   test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
     await openWorkbench(page);
-    // RP-2.11：Recents 纯容器——mixed-list 只承非置顶容器，唯一 demo 置顶时为空（存在但无高度）。
+    // DEMO-REAL-SHELL-1：样板只在显式 Sample 分区，真实 Recents 不承样板。
     await expect(page.getByTestId('rail-mixed-list')).toHaveCount(1);
-    await expect(page.getByTestId('rail-pinned')).toBeVisible();
+    await expect(page.getByTestId('rail-sample')).toBeVisible();
+    await expect(page.getByTestId('rail-pinned')).toHaveCount(0);
     await expect(page.getByTestId('rail-icon-case').first()).toBeVisible();
     // RP-2.11：气泡行退场，Recents 纯容器（docs/decisions/ADR-005-data-security.md 修正二）——不再有 unfiled 行图标。
     await expect(page.getByTestId('rail-icon-unfiled')).toHaveCount(0);
@@ -101,7 +102,7 @@ test.describe('RP-1 最终重排', () => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) {
-      await setup.getByRole('button', { name: '先查看演示' }).click();
+      await setup.getByTestId('provider-skip').click();
     }
     await page.mouse.move(0, 0);
     await expect(page.getByTestId('composer-provider')).toHaveText('Connect');
@@ -112,7 +113,7 @@ test.describe('RP-1 最终重排', () => {
     await page.goto('/');
     const setup2 = page.getByTestId('provider-setup');
     if (await setup2.isVisible()) {
-      await setup2.getByRole('button', { name: '先查看演示' }).click();
+      await setup2.getByTestId('provider-skip').click();
     }
     await page.mouse.move(0, 0);
     // 需重新探针 failed：通过自定义事件或直接 force
@@ -144,16 +145,14 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('case-rail')).toHaveAttribute('data-collapsed', 'false');
   });
 
-  test('#17/#25 demo persona 只在用户位；#16 model-config 关闭动词', async ({ page }) => {
+  test('样板与真实案共用本地工作区账户壳；#16 model-config 关闭动词', async ({ page }) => {
     await openWorkbench(page);
-    await expect(page.getByTestId('user-menu-trigger')).toContainText('林律师 · Sample lead');
+    await expect(page.getByTestId('user-menu-trigger')).toContainText('Local workspace');
 
     await createNamedCase(page, 'RP非演示案');
-    await expect(page.getByTestId('user-menu-trigger')).toContainText('Owner');
-    await expect(page.getByTestId('user-menu-trigger')).not.toContainText('林律师');
+    await expect(page.getByTestId('user-menu-trigger')).toContainText('Local workspace');
+    await expect(page.getByTestId('user-menu-trigger')).not.toContainText(/Owner|Sample lead|林律师/);
 
-    await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-    await page.getByTestId('segment-work').click();
     await connectProvider(page);
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-close')).toHaveText('Close');
@@ -172,11 +171,11 @@ test.describe('RP-1 最终重排', () => {
     await page.addInitScript(() => {
       (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'ready' } };
     });
-    // connected 态 allowSkip=false，无「先查看演示」——关引导用取消
+    // connected 态 allowSkip=false，无 Skip——关引导用取消
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) {
-      const skip = setup.getByRole('button', { name: '先查看演示' });
+      const skip = setup.getByTestId('provider-skip');
       if (await skip.isVisible().catch(() => false)) await skip.click();
       else await setup.getByRole('button', { name: '取消' }).click();
     }

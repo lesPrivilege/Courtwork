@@ -307,7 +307,7 @@ test.describe('开合闭合门 · 疊层清单', () => {
   test('composer-case-menu · Dropdown（popover 锚定·未绑容器面）', async ({ page }) => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     const trigger = page.getByTestId('composer-case');
     await expect(trigger).toBeVisible();
     await runClosureGate(page, {
@@ -352,17 +352,18 @@ test.describe('开合闭合门 · 疊层清单', () => {
   });
 
   test('provider-setup · Modal（首启凭证·sheet 模态）', async ({ page }) => {
-    // 基线 A=安静欢迎面；welcome-demo-start 开 provider-setup；Escape→onClose 退回欢迎面（非 skip 起演示）。
+    // 基线 A=安静欢迎面；首次发送打开 provider-setup；Escape→onClose 仍回到原上下文。
     await page.goto('/');
     await expect(page.getByTestId('welcome-state')).toBeVisible();
-    const trigger = page.getByTestId('welcome-demo-start');
+    const trigger = page.getByTestId('composer-send');
+    const input = page.getByTestId('composer-input');
     await runClosureGate(page, {
       label: 'provider-setup',
       overlay: page.getByTestId('provider-setup'),
       role: 'dialog',
       focus: trigger,
-      open: () => trigger.click(),
-      close: () => page.keyboard.press('Escape'),
+      open: async () => { await input.fill('开始处理'); await trigger.click(); },
+      close: async () => { await page.keyboard.press('Escape'); await input.fill(''); await trigger.focus(); },
     });
   });
 });
@@ -371,7 +372,7 @@ test.describe('疊层清单 · 一次性链式仪式（无对称基线，dismiss
   test('containerize-popover · Popover（先聊后建·一次性链式·dismiss 无残留）', async ({ page }) => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     await expect(page.getByTestId('composer-case')).toBeVisible();
     await page.getByTestId('composer-file-input').setInputFiles(fixtureMd);
     const chip = page.locator('[data-testid^="attachment-chip-"]').first();

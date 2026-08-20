@@ -7,20 +7,21 @@ test('cold install stays on the quiet welcome surface', async ({ page }) => {
   await expect(page.getByTestId('provider-setup')).toHaveCount(0);
   await expect(page.getByTestId('event-stream')).toHaveCount(0);
   await expect(page.getByTestId('preview-host')).toHaveCount(0);
-  await expect(page.getByTestId('welcome-demo-start')).toBeVisible();
+  await expect(page.getByTestId('welcome-sample-open')).toBeVisible();
 });
 
 test('demo identity is inline, data-driven, and opens only by choice', async ({ page }) => {
   await page.goto('/');
   const demo = page.locator('[data-demo="true"]');
 
+  await page.getByTestId('welcome-sample-open').click();
+  await expect(page.getByTestId('event-stream')).toBeVisible();
+
   await expect(demo.getByTestId('demo-origin-label')).toHaveText('样板案');
   await expect(demo.getByTestId('demo-package-icon')).toBeVisible();
   await expect(demo.locator('.case-demo-badge')).toHaveCount(0);
   await expect(demo.locator('.unread-count')).toHaveCount(0);
 
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
   await expect(page.getByTestId('event-stream')).toBeVisible();
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
@@ -35,8 +36,7 @@ test('pending credentials surface only on an explicit send attempt', async ({ pa
 
 test('preview owns one read-only scroll progress interface', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
 
   const progress = page.getByTestId('preview-scroll-progress');
   await expect(progress).toHaveCount(1);
@@ -46,8 +46,7 @@ test('preview owns one read-only scroll progress interface', async ({ page }) =>
 
 test('schema 语义区与面板本体左对齐贯通（⑫用户拍板，撤 master-detail gutter）', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
 
   // CONFIRM-GRANULARITY-1：批量确认入口 feature-off 后 .batch-bar 不再渲染，锚点改为
   // 面板本体（revision-layout 零 padding，risk-master-detail 无左 margin，语义仍等价：
@@ -62,8 +61,7 @@ test('schema 语义区与面板本体左对齐贯通（⑫用户拍板，撤 mas
 
 test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('welcome-demo-start').click();
-  await page.getByTestId('provider-skip').click();
+  await page.getByTestId('welcome-sample-open').click();
 
   // 十四章：demo 进浏览器态,back 回四模块列——模块头行 40（与 chat title 带同线）
   await page.getByTestId('preview-back').click();

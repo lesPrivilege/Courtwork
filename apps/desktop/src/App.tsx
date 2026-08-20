@@ -200,11 +200,12 @@ function readableError(error: unknown, fallback: string): string {
 const DEMO_CASE = createDemoCaseSummary();
 
 /**
- * CASE-PERSIST-1：从持久层水合非 demo 案件列表（fail-closed：不可读 → 空列表）。demo 恒挂案由 App 固定注入
- * DEMO_CASE，永不入持久。件数不在案件摘要上——它是 `listForCase` 的清单长度，水合时尚未读取（见 material-count）。
+ * CASE-PERSIST-1：从持久层水合真实案件列表（fail-closed：不可读 → 空列表）。样板案是显式试用入口，
+ * 不是生产案件列表成员；即使旧版本曾写入其 id，也在水合边界丢弃。件数不在案件摘要上——它是
+ * `listForCase` 的清单长度，水合时尚未读取（见 material-count）。
  */
 function hydratePersistedCases(): CaseSummary[] {
-  return readCaseList().map((record) => ({
+  return readCaseList().filter((record) => !isDemoCaseId(record.id)).map((record) => ({
     id: record.id,
     title: record.title,
     grantId: record.grantId,
@@ -281,11 +282,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }>>([]);
-  // CASE-PERSIST-1：demo 恒挂案固定注入，其后水合持久的非 demo 案件列表（重载后 grant 案回侧栏）。
-  const [cases, setCases] = useState<CaseSummary[]>(() => [DEMO_CASE, ...hydratePersistedCases()]);
+  const [cases, setCases] = useState<CaseSummary[]>(hydratePersistedCases);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
 
-  const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
+  const selectedCase = selectedCaseId === DEMO_CASE_ID
+    ? DEMO_CASE
+    : selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
   // GENERIC-PACK-1 ⑧：生效 registry 按 matter 绑定现算；未声明取全局可用集，welcome 落全局。
   // PACK-INTERACT-1 ③：绑定非准入包 → `registriesFor` throw 收进显式态（fail-closed 落零垂类，
@@ -294,6 +296,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     selectedCase, availablePackageIds, registriesFor, packageRegistries,
   );
   const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
+  const railCases = isDemoCase ? [DEMO_CASE, ...cases]
+    : cases;
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
@@ -329,7 +333,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   ]);
   /** F-1.1：左栏未归档存入 → containerize-popover 锚定行 */
   const [containerizeUnfiledId, setContainerizeUnfiledId] = useState<string | null>(null);
-  const [pinnedIds] = useState(() => new Set<string>([DEMO_CASE_ID]));
+  const [pinnedIds] = useState(() => new Set<string>());
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>(initialCaseId.current);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
@@ -757,9 +761,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     else window.localStorage.removeItem('courtwork.selected-case-id');
   }, [selectedCaseId]);
 
-  // CASE-PERSIST-1：案件列表元数据跨重启持久——每次列表变化以可持久投影整表重写。
+  // CASE-PERSIST-1：真实案件列表元数据跨重启持久——每次列表变化以可持久投影整表重写。
   // 创建/授权/改名 → 写入；归档/移除 → 从投影剔除即清出（创建写入与归档清除对称）。
-  // demo 恒挂案与已归档案由 projectPersistableCases 剔除；案件内容/密钥不入（只 id/title/grantId/label/kind）。
+  // 样板案只在活动投影中出现，且与已归档案一道由 projectPersistableCases 防御性剔除；案件内容/密钥不入（只 id/title/grantId/label/kind）。
   useEffect(() => {
     writeCaseList(projectPersistableCases(cases));
   }, [cases]);
@@ -1175,7 +1179,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const exitCompactLeft = () => setLeftCollapsed(false);
 
   const commitCaseTitle = () => {
-    if (!selectedCaseId) {
+    if (!selectedCaseId || isDemoCaseId(selectedCaseId)) {
       setEditingCaseTitle(false);
       return;
     }
@@ -1599,7 +1603,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       {/* 2026-07-12 修：外卡退役（双层框收一层），框只在 shell 整卡 */}
       <div className="composer-float">
         <Composer
-          cases={cases.map((item) => ({ id: item.id, name: item.title, kind: item.kind ?? 'case' }))}
+          cases={railCases.map((item) => ({ id: item.id, name: item.title, kind: item.kind ?? 'case' }))}
           activeCaseId={selectedCaseId ?? undefined}
           onSend={onSend}
           onContainerize={handleContainerize}
@@ -1657,12 +1661,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         {/* chatbot 形态：收敛即撤卡（不留窄条），展开钮驻 chrome 同位——与红绿灯零冲突 */}
         {!focusMode && !effectiveLeftCollapsed && (
           <CaseRail
-            cases={cases}
+            cases={railCases}
             unfiled={[]}
             pinnedIds={pinnedIds}
             selectedCaseId={selectedCaseId}
             expandedCaseId={expandedCaseId}
-            isDemoCase={isDemoCase}
             flow={flow}
             dispositionsCount={verticalSurface.decisionCount}
             caseRoot={demoCaseRoot}
@@ -1678,7 +1681,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
             onSelectCase={(id) => {
               setSelectedCaseId(id);
               // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）
-              const kind = cases.find((c) => c.id === id)?.kind ?? 'case';
+              const kind = railCases.find((c) => c.id === id)?.kind ?? 'case';
               if (kind === 'case') setExpandedCaseId(id);
               switchSegment('draft');
             }}
@@ -1714,9 +1717,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                 onChange={(event) => setCaseTitleDraft(event.target.value)}
                 onBlur={commitCaseTitle}
                 onKeyDown={(event) => { if (event.key === 'Enter') commitCaseTitle(); if (event.key === 'Escape') setEditingCaseTitle(false); }}
-              /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title={`${selectedCase.title} · 双击编辑案件名称`} onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
-                {selectedCase.title}
-              </button></span>)}
+              /> : <span data-testid="titlebar-case-title">{isDemoCase
+                ? <span className="chat-case-title" data-testid="chat-case-title" title="样板案只读演示">{selectedCase.title}</span>
+                : <button type="button" className="chat-case-title" data-testid="chat-case-title" title={`${selectedCase.title} · 双击编辑案件名称`} onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>{selectedCase.title}</button>}</span>)}
               {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">{containerOriginLabel(true)}</span>}
               {selectedCase && <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>}
               {isWelcome && <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong>}
@@ -1735,13 +1738,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
                   {renderComposer(handleComposerSend)}
                   <div className="welcome-ideas" data-testid="welcome-continuations">
                     <span className="welcome-ideas-label">{CHROME_COPY.welcome.ideasLabel}</span>
-                    <button type="button" className="welcome-idea-row welcome-demo-start" data-testid="welcome-demo-start" onClick={() => setProviderSetupOpen(true)}>
-                      <span className="welcome-idea-icon"><Icon name="panels-top-left" /></span>
-                      <span>{CHROME_COPY.welcome.sample}</span>
+                    <button type="button" className="welcome-idea-row welcome-new-case" data-testid="welcome-new-case" onClick={() => setNewCaseOpen(true)}>
+                      <span className="welcome-idea-icon"><Icon name="plus" /></span>
+                      <span>{CHROME_COPY.welcome.createCase}</span>
                     </button>
-                    <button type="button" className="welcome-idea-row" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); switchSegment('work'); setSampleTourOpen(true); }}>
+                    <button type="button" className="welcome-idea-row welcome-sample-open" data-testid="welcome-sample-open" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); switchSegment('work'); setSampleTourOpen(true); }}>
                       <span className="welcome-idea-icon"><Icon name="folder-open" /></span>
-                      <span className="welcome-idea-main"><strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small></span>
+                      <span>{CHROME_COPY.welcome.sample}</span>
                     </button>
                   </div>
                 </section>
@@ -2148,9 +2151,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         onSkip={() => {
           window.localStorage.setItem('courtwork.onboarding.seen', 'true');
           setProviderSetupOpen(false);
-          setSelectedCaseId(DEMO_CASE_ID);
-          setExpandedCaseId(DEMO_CASE_ID); switchSegment('work');
-          setSampleTourOpen(true);
         }}
       />
       <NewCaseDialog

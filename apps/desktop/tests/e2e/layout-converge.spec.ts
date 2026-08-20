@@ -13,7 +13,7 @@ test.describe('LAYOUT-CONVERGE-1 收拢无残余', () => {
   test('窄轨（左收 + 模块全折）：撤卡后正文列不被 48px 幽灵列挤压', async ({ page }) => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     await page.mouse.move(0, 0);
     await createNamedCase(page, '布局收敛非演示案');
 

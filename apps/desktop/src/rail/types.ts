@@ -67,8 +67,4 @@ export function canExpandRailRow(kind: RailRowKind): boolean {
   return kind === 'case';
 }
 
-export function showLeadAttorney(isDemoCase: boolean): boolean {
-  return isDemoCase;
-}
-
 export type { ContainerKind };

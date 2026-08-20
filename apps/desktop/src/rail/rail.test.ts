@@ -5,7 +5,6 @@ import {
   buildMixedRailRows,
   canExpandRailRow,
   railIconName,
-  showLeadAttorney,
   type UnfiledSession,
 } from './types';
 
@@ -48,10 +47,6 @@ describe('rail mixed list (docs/decisions/ADR-005-data-security.md)', () => {
     expect(canExpandRailRow('unfiled')).toBe(false);
   });
 
-  it('#17 主办律师仅 demo persona', () => {
-    expect(showLeadAttorney(true)).toBe(true);
-    expect(showLeadAttorney(false)).toBe(false);
-  });
 });
 
 describe('WORK-AGENT-SHOWCASE-1 · rail chrome 减法', () => {
@@ -60,5 +55,11 @@ describe('WORK-AGENT-SHOWCASE-1 · rail chrome 减法', () => {
     for (const testid of ['nav-scheduled', 'nav-dispatch', 'pinned-filter', 'pinned-more']) {
       expect(source).not.toContain(`data-testid="${testid}"`);
     }
+  });
+
+  it('样板不得回到人物账户壳或可写归档路径', () => {
+    expect(caseRailSource).not.toContain('林律师');
+    expect(caseRailSource).not.toContain('Sample lead');
+    expect(caseRailSource).not.toContain('CHROME_COPY.account.owner');
   });
 });
