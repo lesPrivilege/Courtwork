@@ -81,7 +81,7 @@ test('③ 准入失败 fail-closed 显式：绑定非准入包 → 显式失效�
   });
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
   await page.getByTestId('case-card-invalid-bound').getByRole('button', { name: '失效绑定案', exact: true }).click();
   await page.getByTestId('segment-work').click();
 
@@ -363,7 +363,7 @@ test('④ PM 分层：目录诚实标注、两处选择面均不可选、历史 
   });
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
 
   // 全局目录：两枚准入包都在册，但发行成熟度诚实可区分。
   await page.getByRole('button', { name: 'Search' }).click();

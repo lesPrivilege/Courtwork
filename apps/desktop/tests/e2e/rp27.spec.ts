@@ -9,7 +9,8 @@ test('generic chrome is English on the first-run surface', async ({ page }) => {
   await expect(page.getByTestId('nav-scheduled')).toHaveCount(0);
   await expect(page.getByTestId('nav-dispatch')).toHaveCount(0);
   await expect(page.getByTestId('welcome-state')).toContainText('Ideas for you');
-  await expect(page.getByTestId('welcome-demo-start')).toHaveText('Get started with the sample case');
+  await expect(page.getByTestId('welcome-new-case')).toHaveText('Create a case');
+  await expect(page.getByTestId('welcome-sample-open')).toHaveText('Explore the sample case');
   await expect(page.getByTestId('composer-input')).toHaveAttribute('placeholder', 'Describe a task or ask anything…');
   await expect(page.getByTestId('composer-send')).toHaveAttribute('aria-label', 'Send');
 });

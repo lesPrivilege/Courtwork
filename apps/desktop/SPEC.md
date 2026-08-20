@@ -4,16 +4,33 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
-## DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界（架构冻结，待实现）
+## DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界（实现完成，待独立验收）
 
-权威：`specs/DEMO-REAL-SHELL-1.md`。当前 `main @ b154b2b` 的 demo runtime 已双向隔离，
-但产品壳仍把样板案固定注入、固定 Pinned，并以 `林律师 · Sample lead` 污染账户位；欢迎页两条
-建议均通向样板，其中 provider Skip 还会劫持入 demo。本票只修 desktop shell：真实 Recent、
-诚实 fresh 空态、显式且瞬时的 Sample 分区、样例只读、`Local workspace` 本机设置入口、
-provider Skip 留在原上下文。
-Skip 按钮自身同步从误导性的「先查看演示」收敛为「暂不连接」；凭证状态机与验证语义不改。
-不改 demo fixture／binding、真实持久契约、runtime/schema/provider，不新增成员、权限或团队协作。
-实现与测试数字待实现会话在本节续写；独立验收只写 `ACCEPTANCE.md`。
+权威：`specs/DEMO-REAL-SHELL-1.md`。实现基线为 `eaf604f`（provider Skip 架构补正），
+实现分支 `codex/demo-real-shell-1`，隔离 worktree `/private/tmp/courtwork-demo-real-shell-1-impl-85315`。
+本票已将案件 rail 收敛为真实 Recent + 诚实 fresh 空态；样板案只由欢迎页显式入口打开，进入临时
+`Sample · 只读演示` 分区，离开/重载即消失，不进入 Pinned/Recent；底部恒为 `Local workspace`。
+provider Skip 固定为「暂不连接」且关闭后保留原上下文。凭证状态机、demo fixture／binding、真实持久
+契约与 runtime/schema/provider 均未改；不新增成员、权限或团队协作。
+
+### 实现回执（非独立验收）
+
+- **born-red**：实现前在独立端口 `1457` 实跑新票 4 条 E2E，4/4 变红：fresh 可见固定样板、无
+  `welcome-sample-open`、Skip 仍为旧文案、真实样例路径均不成立；此前端口 `1442` 被环境占用，未采信为业务证据。
+- **定向单测绿**：`src/rail/rail.test.ts`、`src/case/case-store.test.ts`、`src/case/case-scope.test.ts`，
+  **3 files / 34 tests passed**。
+- **票面 E2E 绿**：独立端口 `1466` 的新票 **4/4 passed**；独立端口 `1467` 的锁定回归
+  `rp1 + rp2 + rp26 + rp27 + rp29 + case-persist + ui-residue` **39/39 passed**；独立端口 `1464`
+  的 `d1-case-scope + rp28` **13/13 passed**。
+- **构建与全仓门**：`pnpm -r build` **EXIT 0**（15/16 workspace projects）；`pnpm lint` **EXIT 0**；
+  `pnpm site:guard` **EXIT 0**（site/guard tests **103 passed**，含 App highwater `2193/2193`）。
+- **实现边界**：App 只持真实 `cases`，并在水合边界过滤旧样板 id；样板通过活动选择派生 rail/composer
+  投影；既有 case-store `isDemo` 投影防御保持不变；CaseRail 将样板隔离至 Sample 并禁归档；标题对样板渲染为非按钮。
+  E2E 仅做现有入口的机械改名与语义同步，未放宽等待或断言。
+- **mutation**：临时将 CaseRail 的 sampleRows 派生替换为空数组，独立端口 `1465` 的样例 E2E 在
+  `rail-sample` 可见性断言处变红；mutation 已恢复，当前工作树未保留注入。
+- **独立验收**：本会话不写 `ACCEPTANCE.md`、不作放行结论；独立验收需复核 fresh/sample/real/reload、
+  390px/暗色与 mutation 门。
 
 ## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（已独立验收放行）
 

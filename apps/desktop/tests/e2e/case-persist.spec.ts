@@ -129,11 +129,11 @@ async function ingestContract(page: Page) {
   await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
 }
 
-/** 重载后落回欢迎态并等侧栏就绪（不点 welcome-demo-start，避免选中 demo 案）。 */
+/** 重载后落回欢迎态并等侧栏就绪（样板不自动注入）。 */
 async function settleAfterReload(page: Page) {
   const setup = page.getByTestId('provider-setup');
   if (await setup.isVisible().catch(() => false)) {
-    await setup.getByRole('button', { name: '先查看演示' }).click().catch(() => undefined);
+    await setup.getByTestId('provider-skip').click().catch(() => undefined);
   }
   await page.getByTestId('case-rail').waitFor();
   await page.mouse.move(0, 0);
@@ -218,7 +218,7 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
   // 层一：grant 案回侧栏（案件列表元数据持久，非恒挂 demo）。
   const card = page.getByTestId(`case-card-${grantCaseId}`);
   await expect(card).toBeVisible();
-  await expect(page.getByTestId('case-card-demo-linjiang')).toBeVisible();
+  await expect(page.getByTestId('case-card-demo-linjiang')).toHaveCount(0);
 
   // 选中该案。
   await card.locator('button.case-card-main').click();
@@ -260,7 +260,7 @@ test('失效 grant 显式态：重载后宿主查无授权 → 案不静默消�
   expect(persisted).not.toContain(grantCaseId);
 });
 
-test('demo 恒挂不入持久 + 归档即清除：重载后归档案不回侧栏，仅 demo 恒在', async ({ page }) => {
+test('样板不入真实持久列表 + 归档即清除：重载后两者都不伪装成历史', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
   const grantCaseId = await createGrantCase(page);
@@ -275,10 +275,10 @@ test('demo 恒挂不入持久 + 归档即清除：重载后归档案不回侧栏
   await page.reload();
   await settleAfterReload(page);
 
-  // 归档案不回侧栏（持久层已清）；demo 恒挂案由 App 固定注入（非来自持久层），始终在场。
+  // 归档案不回侧栏（持久层已清）；样板也不在真实案件列表，必须保持冷启动空态边界。
   await expect(page.getByTestId(`case-card-${grantCaseId}`)).toHaveCount(0);
-  await expect(page.getByTestId('case-card-demo-linjiang')).toBeVisible();
-  // 持久层不含 demo（恒挂语义不变），也不含已归档案。
+  await expect(page.getByTestId('case-card-demo-linjiang')).toHaveCount(0);
+  // 持久层不含样板，也不含已归档案。
   const persisted = await page.evaluate((key) => localStorage.getItem(key) ?? '', CASE_LIST_KEY);
   expect(persisted).not.toContain(grantCaseId);
   expect(persisted).not.toContain('demo-linjiang');

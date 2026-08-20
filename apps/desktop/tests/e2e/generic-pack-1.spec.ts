@@ -22,7 +22,7 @@ test('卸载态：未绑定 matter 页签集零垂类（effective registry 派�
   });
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
   await page.getByTestId('case-card-unbound-1').getByRole('button', { name: '未绑定案', exact: true }).click();
   await page.getByTestId('segment-work').click();
   await expect(page.getByTestId('scene-strip')).toBeVisible();
@@ -91,7 +91,7 @@ test('③ 卸载态成品全链：未绑定 matter 创建→work→产物→回�
   });
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
 
   // ① matter 创建（测试构造点：持久面显式零绑定 + grant 文件夹）——选中即 Work 面。
   await page.getByTestId('case-card-unbound-chain').getByRole('button', { name: '卸载全链案', exact: true }).click();

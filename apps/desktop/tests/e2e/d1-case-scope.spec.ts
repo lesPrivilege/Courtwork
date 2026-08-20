@@ -19,7 +19,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'unverified');
     await expect(button).toContainText('Connect');
@@ -32,7 +32,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     const button = page.getByTestId('composer-provider');
     await button.click();
     await expect(button).toHaveAttribute('data-phase', 'failed');
@@ -45,7 +45,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
     const button = page.getByTestId('composer-provider');
     await button.click();
     await expect(button).toHaveAttribute('data-phase', 'failed');
@@ -80,7 +80,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(page.getByTestId('provider-setup-error')).toBeVisible();
     await expect(dialog).toBeVisible();
     // 关闭后看状态条
-    await dialog.getByRole('button', { name: '先查看演示' }).click();
+    await dialog.getByTestId('provider-skip').click();
     await expect(page.getByTestId('composer-provider')).not.toContainText(/DeepSeek/);
   });
 });
@@ -117,7 +117,7 @@ test.describe('D-1 demo 容器隔离与新建空态', () => {
 });
 
 test.describe('D-1 容器切换矩阵（防状态继承）', () => {
-  test('案件 A 有 demo 状态 → 案件 B 零继承 → 回到 A 恢复 demo', async ({ page }) => {
+  test('样板离开后不回真实 rail；案件 B 零继承 demo 状态', async ({ page }) => {
     await skipProvider(page);
     // A = demo，已有 S3 状态
     await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
@@ -143,16 +143,11 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(bProgress).toHaveAttribute('data-open', 'true');
     await expect(page.getByTestId('progress-module-body-list')).toContainText('尚无任务进展 · 开始一项工作后在此查看');
 
-    // 回到 demo（等浏览器态 preview 落定确认切回）
-    await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-    await page.getByTestId('segment-work').click();
-    await expect(page.getByTestId('preview-host')).toBeVisible();
-    await expect(page.getByTestId('demo-case-badge')).toBeVisible();
-    await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
-    await expect(page.getByText('发现 6 项合同风险')).toBeVisible();
-    await expect(page.getByTestId('queued-message')).toHaveCount(0);
+    // 样板离开后即为 transient sample，不再回到真实列表或伪造历史。
+    await expect(page.getByTestId('case-card-demo-linjiang')).toHaveCount(0);
+    await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);
 
-    // 再进 B
+    // B 仍保持真实空案态，不继承样板回放。
     const bCard = page.locator('.case-card').filter({ hasText: '案件乙' });
     await bCard.getByRole('button').first().click();
     await page.getByTestId('segment-work').click();

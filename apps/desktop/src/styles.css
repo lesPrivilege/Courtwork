@@ -434,8 +434,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .case-card.archived { opacity: .6; }
 /* 归档 popover 打开时抬升卡片，避免后续混排行拦截点击 */
 .case-card:has(.archive-popover) { z-index: 50; }
-.rail-pinned, .rail-mixed-list { position: relative; }
+.rail-pinned, .rail-mixed-list, .rail-sample { position: relative; }
 .case-scroll { position: relative; }
+.rail-sample { margin-bottom: 4px; }
+.sample-readonly-label { padding: 8px 6px 4px 0; color: var(--text-tertiary); font: 11px/1.5 var(--mono); }
+.rail-empty-state { margin: 0; padding: 18px 10px; color: var(--text-tertiary); font-size: var(--type-dense-body-size); }
 .case-card-select { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 6px 28px 6px 8px; text-align: left; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .case-card-main { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 0; border: 0; background: transparent; cursor: pointer; text-align: left; font: inherit; color: inherit; }
 .case-card-select strong, .case-card-main strong { color: var(--text-primary); font-size: var(--type-dense-body-size); font-weight: 510; line-height: 1.5; }

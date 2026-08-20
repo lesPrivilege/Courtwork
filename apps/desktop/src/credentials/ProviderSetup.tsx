@@ -54,7 +54,7 @@ export function ProviderSetup({
       />
       <div className="security-note" data-testid="provider-security-note"><span aria-hidden="true">⌑</span><p>凭证只保存到电脑的安全凭证库；Courtwork 不会查找其他应用的设置。连接状态只以真实请求成功为准，读取到钥匙串不代表服务可用。</p></div>
       <footer>
-        {!verified && allowSkip && <button className="quiet-button" data-testid="provider-skip" onClick={onSkip ?? onClose}>先查看演示</button>}
+        {!verified && allowSkip && <button className="quiet-button" data-testid="provider-skip" onClick={onSkip ?? onClose}>暂不连接</button>}
         {!verified && !allowSkip && <button className="quiet-button" onClick={onClose}>取消</button>}
         {verified && <button className="primary-button" data-testid="provider-setup-done" onClick={onClose}>开始使用</button>}
       </footer>

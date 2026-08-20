@@ -199,15 +199,15 @@ export interface PersistableCaseInput {
   kind?: ContainerKind;
   /** matter ↔ 垂类包绑定；缺席即未声明（见 {@link PersistedCase.packBinding}）。 */
   packBinding?: readonly string[];
-  /** demo 恒挂案永不入持久（双向隔离，恒挂语义不变）。 */
+  /** 样板案只在显式试用态出现，永不入真实案件列表（双向隔离）。 */
   isDemo?: boolean;
   /** 已归档案不入持久（归档即清除，与创建写入对称）。 */
   archived?: boolean;
 }
 
 /**
- * 纯投影：从活动案件列表取可持久子集——剔除 demo 与已归档，剥离到 {@link PersistedCase} 的字段集。
- * demo 案恒挂（App 侧固定注入 DEMO_CASE），永不落持久；归档案退出持久（与创建写入对称）。
+ * 纯投影：从活动案件列表取可持久子集——剔除样板与已归档，剥离到 {@link PersistedCase} 的字段集。
+ * 样板案不属于真实列表，仍在此处按 isDemo 标记做防御性隔离；归档案退出持久（与创建写入对称）。
  */
 export function projectPersistableCases(cases: PersistableCaseInput[]): PersistedCase[] {
   const out: PersistedCase[] = [];

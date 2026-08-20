@@ -244,7 +244,7 @@ test.describe('SET-1 设置页', () => {
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
-    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
 
     await openSettings(page);
     await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'failed');

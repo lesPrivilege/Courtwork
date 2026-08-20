@@ -3,7 +3,10 @@ import { expect, test, type Page } from '@playwright/test';
 async function openGuide(page: Page) {
   await page.goto('/');
   const guide = page.getByTestId('provider-setup');
-  if (!await guide.isVisible()) await page.getByTestId('welcome-demo-start').click();
+  if (!await guide.isVisible()) {
+    await page.getByTestId('composer-input').fill('开始配置');
+    await page.getByTestId('composer-send').click();
+  }
   await expect(guide).toBeVisible();
   return guide;
 }

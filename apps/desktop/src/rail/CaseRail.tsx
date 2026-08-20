@@ -21,7 +21,6 @@ import {
   canExpandRailRow,
   railIconName,
   railKindLabel,
-  showLeadAttorney,
   type UnfiledSession,
 } from './types';
 
@@ -31,7 +30,6 @@ interface CaseRailProps {
   pinnedIds: ReadonlySet<string>;
   selectedCaseId: string | null;
   expandedCaseId: string | null;
-  isDemoCase: boolean;
   flow: ScenarioFlow | null;
   dispositionsCount: number;
   caseRoot: string | undefined;
@@ -81,7 +79,6 @@ export function CaseRail({
   pinnedIds,
   selectedCaseId,
   expandedCaseId,
-  isDemoCase,
   flow,
   dispositionsCount,
   caseRoot,
@@ -115,11 +112,13 @@ export function CaseRail({
 }: CaseRailProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  // 批次七 #5 连带：Owner 菜单补收敛纪律（点外/Esc 即收——此前与 +菜单/case 下拉同为孤立缺口）
+  // 菜单补收敛纪律（点外/Esc 即收，保持底部工作区入口轻量）。
   useDismissOnOutside(userMenuOpen, () => setUserMenuOpen(false), userMenuRef);
   const rows = buildMixedRailRows(cases, unfiled, pinnedIds);
-  const pinnedRows = rows.filter((r) => r.pinned);
-  const restRows = rows.filter((r) => !r.pinned);
+  const sampleRows = rows.filter((r) => r.caseSummary && (r.caseSummary.isDemo || isDemoCaseId(r.caseSummary.id)));
+  const realRows = rows.filter((r) => !r.caseSummary || !(r.caseSummary.isDemo || isDemoCaseId(r.caseSummary.id)));
+  const pinnedRows = realRows.filter((r) => r.pinned);
+  const restRows = realRows.filter((r) => !r.pinned);
 
   const renderRow = (row: (typeof rows)[number]) => {
     const item = row.caseSummary;
@@ -214,7 +213,7 @@ export function CaseRail({
               存入
             </button>
           )}
-          {item && (
+          {item && !demo && (
             <button
               className="case-archive-button"
               onClick={() => onArchiveTrigger(item.id)}
@@ -417,6 +416,15 @@ export function CaseRail({
         </nav>
 
         <div className="case-scroll">
+          {sampleRows.length > 0 && (
+            <div className="rail-sample" data-testid="rail-sample">
+              <div className="rail-section-head">
+                <p className="rail-label">Sample</p>
+                <span className="sample-readonly-label" data-testid="sample-readonly-label">只读演示</span>
+              </div>
+              {sampleRows.map(renderRow)}
+            </div>
+          )}
           {pinnedRows.length > 0 && (
             <div className="rail-pinned" data-testid="rail-pinned">
               {/* ④分区标题右侧操作钮（lucide，层级对齐标题；功能后置占位） */}
@@ -427,15 +435,16 @@ export function CaseRail({
             </div>
           )}
           <div className="rail-mixed-list" data-testid="rail-mixed-list">
-            {pinnedRows.length > 0 && restRows.length > 0 && <p className="rail-label">{CHROME_COPY.navigation.recent}</p>}
+            {restRows.length > 0 && <p className="rail-label">{CHROME_COPY.navigation.recent}</p>}
+            {restRows.length === 0 && <p className="rail-empty-state" data-testid="rail-empty-state">No recent work</p>}
             {restRows.map(renderRow)}
           </div>
         </div>
 
         <div className="rail-user-wrap" ref={userMenuRef}>
           <button type="button" className="rail-user" data-testid="user-menu-trigger" aria-expanded={userMenuOpen} onClick={() => setUserMenuOpen((open) => !open)}>
-            <span className="user-avatar">{showLeadAttorney(isDemoCase) ? '林' : '我'}</span>
-            <span>{showLeadAttorney(isDemoCase) ? `林律师 · ${CHROME_COPY.account.sampleLead}` : CHROME_COPY.account.owner}</span>
+            <span className="user-avatar" aria-hidden="true"><Icon name="briefcase-business" /></span>
+            <span>{CHROME_COPY.account.localWorkspace}</span>
             <span aria-hidden="true">⌃</span>
           </button>
           {userMenuOpen && <div className="rail-user-menu" data-testid="user-menu" role="menu">

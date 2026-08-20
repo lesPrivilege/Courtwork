@@ -10,21 +10,15 @@ test.describe('UX-1 批次一', () => {
   test('0a：composer folder 仅在未绑定新对话出现', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('composer-case')).toContainText('Choose case');
-    await page.getByTestId('welcome-demo-start').click();
-    await page.getByTestId('provider-skip').click();
+    await page.getByTestId('welcome-sample-open').click();
     await expect(page.getByTestId('composer-case')).toHaveCount(0);
 
     await createNamedCase(page, 'UX一号案·买卖合同');
     await expect(page.getByTestId('titlebar-case-title')).toHaveText('UX一号案·买卖合同');
     await expect(page.getByTestId('composer-case')).toHaveCount(0);
 
-    // 回 demo 再进 B，容器名只在案件头切换。
-    await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-    await page.getByTestId('segment-work').click();
-    await expect(page.getByTestId('titlebar-case-title')).toContainText('临江');
-    const bCard = page.locator('.case-card').filter({ hasText: 'UX一号案' });
-    await bCard.getByRole('button').first().click();
-    await page.getByTestId('segment-work').click();
+    // 样板是 transient sample：离开后不回真实 rail；真实案仍保持绑定态。
+    await expect(page.getByTestId('case-card-demo-linjiang')).toHaveCount(0);
     await expect(page.getByTestId('titlebar-case-title')).toContainText('UX一号案');
     await expect(page.getByTestId('composer-case')).toHaveCount(0);
   });

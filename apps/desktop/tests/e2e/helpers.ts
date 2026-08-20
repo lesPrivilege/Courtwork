@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 
 /**
  * 打开工作台并移开光标。
- * D-1 验收根因：openWorkbench 点「先查看演示」后光标停在面板中心，
+ * D-1 验收根因：openWorkbench 点「Explore the sample case」后光标停在面板中心，
  * 后续打开的浮层（命令面板等）若带 onMouseEnter 高亮，会抢占初始选中态。
  * 凡依赖键盘导航 / 初始 aria-selected 的用例，必须先 mouse.move(0,0)。
  */
@@ -10,13 +10,11 @@ export async function openWorkbench(page: Page) {
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
   if (await setup.isVisible()) {
-    await setup.getByRole('button', { name: '先查看演示' }).click();
+    await setup.getByTestId('provider-skip').click();
   }
-  const welcomeDemo = page.getByTestId('welcome-demo-start');
-  if (await welcomeDemo.isVisible()) {
-    await welcomeDemo.click();
-    const onboarding = page.getByTestId('provider-setup');
-    if (await onboarding.isVisible()) await page.getByTestId('provider-skip').click();
+  const welcomeSample = page.getByTestId('welcome-sample-open');
+  if (await welcomeSample.isVisible()) {
+    await welcomeSample.click();
     await page.getByTestId('event-stream').waitFor();
   }
   // 测试助手的 demo 语义是「打开声明式样板 Scenes」；产品真实案默认仍由

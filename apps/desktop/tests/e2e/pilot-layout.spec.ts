@@ -38,7 +38,7 @@ function expectMeasured(target: Box, mainArea: Box, measure: number) {
 async function freshNonDemoCase(page: Page, name: string) {
   await page.goto('/');
   const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+  if (await setup.isVisible()) await setup.getByTestId('provider-skip').click();
   await page.mouse.move(0, 0);
   await createNamedCase(page, name);
   await expect(page.getByTestId('workspace')).toHaveAttribute('data-view-segment', 'work');
