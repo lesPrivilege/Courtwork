@@ -7690,3 +7690,87 @@ git status --short --branch
 本回执只放行 packaging artifact，不放行 `PI-BASE-GUI-ACCEPT`：独立真实
 DeepSeek 六格、Stop/恢复、AX/读屏/焦点、reduced-motion 与 Agent/product-live
 称谓门仍未成立。未读取或记录 API key，未启动 App 作为本票的真实 provider 证据。
+
+# PI-BASE-GUI-ACCEPT 独立复验（Luna，2026-08-20；package productSha 2737c98）
+
+## 对象、独立性与裁决
+
+本轮验收对象为产品实现精确 SHA `2737c985a632004e98755c987630fafcd5c6a443`。
+验收在独立 detached worktree `/private/tmp/courtwork-luna-package-accept-2737c98`
+起步，随后仅创建本验收分支 `accept/pi-base-gui-2737c98-luna`；共享主树未 checkout、未
+stash、未清理，主树现有用户证据改动未触碰。入场 `git status --short --branch` 仅显示
+detached clean worktree，产品 SHA 是 `main` 的祖先（`git merge-base --is-ancestor`
+exit 0）。本轮没有修改产品代码、Rust/Tauri、schema、wire、SPEC 或 current；只追加本节
+验收账本。
+
+**最终裁决：`external-validated blocked`。** 现成制品的 route manifest、arm64 runtime
+bytes/SHA 与 sealed sidecar bytes/SHA 已独立核对；但真实 Tauri/WKWebView 的 AX/键盘/焦点
+状态读取在有界工具窗口内未返回，因而没有可采信的 AX/读屏/焦点/滚动证据；本轮也没有取得
+产品入口确认的可用真实 DeepSeek key + model。不能将 package-ready 或 browser/scripted
+证据升级为 PI-BASE-GUI-ACCEPT PASS，也不取得 Agent/product-live 称谓。
+
+## 制品身份与确定性核对
+
+唯一消费制品为 `/private/tmp/courtwork-gui-accept-2737c98/Courtwork.app`（不从其他
+DMG 或后置 worktree 任选）。`Info.plist` 实测为 bundle executable `courtwork-desktop`、
+identifier `cn.courtwork.desktop`、version `0.1.2`，主程序为 arm64 Mach-O。
+
+`Contents/Resources/pi-loop-resources/route-manifest.json` 的实测摘要如下；输出只含尺寸、
+路径与 digest，不含 key、Authorization、raw prompt 或 workspace 正文：
+
+| 项目 | 实测值 |
+|---|---|
+| sealed sidecar bytes / SHA-256 | `547893` / `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c` |
+| packaged arm64 runtime bytes / SHA-256 | `112271136` / `54600689d8bce010c2c336ca320d016018fb5d4af6ea74f38c7ad786492ff51f` |
+| package route manifest SHA-256 | `0cf9152bed7e0ee32468e194ec8d9ad30680734e733fae26905ce780dd4139de` |
+| DMG SHA-256 | `3bf8edbb480027fa7b8677f6c5b5bd130429b103493214addf990737d8ce1651` |
+
+架构移植复核补注：父会话在解决纯追加冲突时对唯一 DMG 重跑 `shasum -a 256`，上表为
+实测值；上一节旧 package 回执中的 `...c5c5...` 是历史转录笔误，保留原文而不静默改史。
+
+核对命令：
+
+```text
+git status --short --branch
+git rev-parse HEAD
+git merge-base --is-ancestor 2737c98 <current-main>; exit 0
+plutil -p Courtwork.app/Contents/Info.plist
+file Courtwork.app/Contents/MacOS/courtwork-desktop Courtwork.app/Contents/MacOS/pi-sidecar
+shasum -a 256 Courtwork.app/Contents/MacOS/courtwork-desktop \
+  Courtwork.app/Contents/MacOS/pi-sidecar \
+  Courtwork.app/Contents/Resources/pi-loop-resources/sidecar.cjs \
+  Courtwork.app/Contents/Resources/pi-loop-resources/route-manifest.json \
+  Courtwork_0.1.2_aarch64.dmg
+```
+
+manifest 的 arm64 runtime 项与包内 `Contents/MacOS/pi-sidecar` 的实际 bytes/SHA 一致；
+sealed CJS 项与 `Contents/Resources/pi-loop-resources/sidecar.cjs` 的实际 bytes/SHA 一致。
+本段只证明本轮选定制品的静态身份与 package seam 对齐，不替代真实执行矩阵。
+
+## 真 Tauri/WKWebView 与外部前置
+
+本轮尝试以 Computer Use 的 `@oai/sky` 读取唯一制品路径的 app state：
+
+```text
+sky.get_app_state({
+  app: "/private/tmp/courtwork-gui-accept-2737c98/Courtwork.app",
+  disableDiff: true
+})
+```
+
+该调用在有界工具窗口内未返回并被中止；没有获得可复核的 AX tree、截图、焦点元素、窗口
+状态或可操作控件索引。因此本轮不把“尝试启动”写成“真实 Tauri 交互通过”，也没有继续
+等待外部条件。没有读取、打印、输入或传输任何 credential、原始 prompt 或 workspace
+正文；没有做真实模型请求。
+
+以下要求因此仍未取得本轮真机证据：现有授权入口→真实文件夹、真实 `.md` read/glob/grep
+stream、proposal allow/deny→write bytes/hash、Stop race、终态预算与恢复、workspace viewer
+bytes/hash、键盘完整路径、VoiceOver/AX 读屏语义、焦点归还、reduced-motion、scroll ownership。
+这些缺口属于外部验证条件缺失，不构成对目标实现的确定性 REJECT。
+
+## 收口
+
+本轮没有独立可采信的真实 key/model 或 AX 证据，故按 `PI-BASE-GUI-ACCEPT` 票面记
+`external-validated blocked`，不更新 `docs/status/current.md`，不扩大产品成熟度，不修实现，
+不修改契约，不推送。提交前只暂存 `apps/desktop/ACCEPTANCE.md`；提交后由父会话复核
+`git diff --cached --name-only`、`git diff --check` 与产品路径零 diff。
