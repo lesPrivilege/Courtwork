@@ -232,6 +232,10 @@ test('SITE-PUBLIC-SURFACE-PROOF-1 页面入口、主路径与证据出口闭合'
     assert.match(label, /历史 v0\.1\.2/);
     assert.match(label, /不含当前 Work/);
   }
+  const dmgAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>/gi)].map(([anchor]) => anchor);
+  for (const anchor of dmgAnchors) {
+    assert.doesNotMatch(anchor, /class="[^"]*\bbutton-primary\b[^"]*"/, '历史 DMG 不得作为主产品行动');
+  }
   assert.equal((html.match(/class="[^"]*\bdesign-boundary\b[^"]*"/g) ?? []).length, 1);
   const designBoundary = html.match(/<aside\b[^>]*\bclass="[^"]*\bdesign-boundary\b[^"]*"[^>]*>[\s\S]*?<\/aside>/)?.[0] ?? '';
   assert.equal((designBoundary.match(/<p\b/g) ?? []).length, 1, '设计边界应压成一句');

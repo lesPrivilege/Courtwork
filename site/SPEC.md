@@ -32,6 +32,10 @@ Luna 会话完成。实现禁止写 `site/ACCEPTANCE.md`，验收禁止改契约
 - 当前实现门证据：`pnpm site:guard` **108/108**、`pnpm site:build`、`pnpm lint`、
   `pnpm -r build`（15/16 workspace projects，exit 0）与 `git diff --check` 均通过；独立验收仍待
   另一 Luna 会话，不以本回执替代放行结论。
+- 继 `9c68c4e` 的架构复核前进式补正：先为所有 `.dmg` anchor 加入不得携带
+  `button-primary` 的门，旧 closing 以 **67/68** 通过、1 项失败；随后将 closing 主 CTA 改为
+  GitHub“查看源码与本地运行”，历史 v0.1.2 DMG 降为文本次级动作，保留同一 URL、SHA 与“不含当前
+  Work”边界。补正后 focused **68/68**、release 联合 **78/78**、`site:guard` **108/108**。
 
 ## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（已清账）
 

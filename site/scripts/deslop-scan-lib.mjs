@@ -1671,6 +1671,10 @@ export function checkPublicSurfaceContract({ html, css = '' }) {
       fail(`every historical DMG link needs the v0.1.2 / current Work boundary: ${label}`);
     }
   }
+  const dmgAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>/gi)].map(([anchor]) => anchor);
+  for (const anchor of dmgAnchors) {
+    if (/\bbutton-primary\b/.test(anchor)) fail('historical DMG must remain a secondary/text action, never a primary button');
+  }
 
   const boundary = html.match(/<aside\b[^>]*\bclass="[^"]*\bdesign-boundary\b[^"]*"[^>]*>[\s\S]*?<\/aside>/)?.[0] ?? '';
   if ((boundary.match(/<p\b/g) ?? []).length !== 1) fail('design boundary must be compressed to one paragraph');

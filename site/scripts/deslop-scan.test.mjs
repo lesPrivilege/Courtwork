@@ -237,6 +237,7 @@ test('SITE-PUBLIC-SURFACE-PROOF-1 public contract is fail-closed at the semantic
   assert.ok(run({ html: html.replace('external-validated blocked', '') }).includes('public-surface'));
   assert.ok(run({ html: html.replace('href="https://github.com/lesPrivilege/Courtwork">查看源码与本地运行', 'href="https://example.com">查看源码与本地运行') }).includes('public-surface'));
   assert.ok(run({ html: html.replace('历史 v0.1.2', '当前版本') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('class="release-history"', 'class="button button-primary release-history"') }).includes('public-surface'));
   assert.ok(run({ css: `${css}\n@media (max-width: 760px) { nav a:nth-child(2) { display: none; } }` }).includes('public-surface'));
 });
 
