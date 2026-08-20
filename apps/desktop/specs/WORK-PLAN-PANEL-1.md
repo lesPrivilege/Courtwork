@@ -1,6 +1,9 @@
 # WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面
 
-状态：架构冻结，待独立 Luna 实现；实现与验收必须为不同会话。
+状态：已清账（架构冻结 `9a9cf15`、范围补正 `a5c783b`；实现链 `3ab6900`/
+`28f946a`/`7968f97`，合入 `4d7b843`；独立 Luna 初验 `76863d9`，验收修复
+`8ea6264`，R1 PASS `8da24a4`，合入 `a571571`）。本票只放行 scripted Work Plan
+消费面，不改变 `PI-BASE-GUI-ACCEPT`、Agent、AX 或 product-live 口径。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/architecture/implementation-readiness.md`、
 `docs/design/principles.md`、`docs/design/tokens.json`、`packages/core/SPEC.md`、

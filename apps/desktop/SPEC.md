@@ -4,7 +4,7 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
-## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（实现完成，待独立验收）
+## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（已独立验收放行）
 
 权威：`specs/WORK-PLAN-PANEL-1.md`（票面唯一工单）及其列明的 `CLAUDE.md`、架构/设计文档；实现基线 `main @ 9a9cf15`，分支 `codex/work-plan-panel-1`，隔离 worktree 施工。未修改 `docs/status/current.md`，未触 core event、schema、wire、journal、runtime、provider、Pi lane、workspace 或授权语义。
 
@@ -34,6 +34,12 @@
 ### 边界
 
 实现会话不写 `apps/desktop/ACCEPTANCE.md`，不作独立验收或放行结论。真实 WKWebView、真实 provider、无障碍真机证据与产品 live 口径仍由既有独立门决定。
+
+独立 Luna 在 product `4d7b843` 上实跑 build、23/23 定向单测、独立端口 43/43 E2E
+与五类 mutation；首轮仅因 App 高水位 2195 未随真实 2193 下调而 REJECT（`76863d9`）。
+验收会话以实现级小修 `8ea6264` 收紧 floor，`site:guard` 103/103 后由 `8da24a4`
+最终 PASS；验收链合入 `a571571`。该 PASS 只覆盖 scripted product scope，真实
+Tauri/WKWebView AX、VoiceOver 与原生焦点仍未取得，不得外推。
 
 ## TOOL-READ-1 · Work 回合受控只读工具请求通道（2026-08-11/13，已独立验收放行）
 
