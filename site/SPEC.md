@@ -2,6 +2,31 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
+## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（架构冻结）
+
+权威：`site/specs/PUBLIC-SURFACE-REAL-1.md`。当前唯一公开面槽：把 README／Pages 从“法律工作台”
+唯一身份校准为“通用 Work Agent GUI 是定位与正在闭合的主线”，同时把 scripted 已验收事实、
+`PI-BASE-GUI-ACCEPT = external-validated blocked`、Stage 0、v0.1.2 历史下载边界逐层分开。
+
+本票复用既有 Pages 骨架与设计 token，只重摄三张当前 main 的 scripted Work 帧并更新 OG；不重做
+视觉系统，不改产品源码/schema/runtime/identity/ACL，不新增 team/member/RBAC/dashboard，不改版本、
+tag、Release 或下载真值。实现与独立验收的精确文件面、mutation 和线上复核见票面。
+
+### PUBLIC-SURFACE-REAL-1 · 实现回执（2026-08-20，待独立验收）
+
+- README 与 Pages 已改为 Courtwork 的本地优先通用 Work Agent GUI 定位；Hero 明确 Legal 第一垂类
+  scripted 微演示、正在闭合与人工决定，FAQ 与发布事实分开说明 `PI-BASE-GUI-ACCEPT =
+  external-validated blocked`、Stage 0 和 `v0.1.2` 历史制品边界。
+- Work 公开面固定为三行：真实本地容器、写入提案先由人决定、结果只读核验。三张新帧来自独立
+  Vite 端口的 `capture-pi-lane-states.mjs`，fresh shell 直接创建真实案卷；帧中不出现 Pinned、样板、
+  Owner、Sample lead 或假成员，底部为 `Local workspace`。
+- 三枚 1440×900 PNG 与六枚 1440/720 WebP 由同源帧派生，逐字节 SHA 及 `productSha` 见
+  `craft-evidence/PUBLIC-SURFACE-REAL-1/screenshot-manifest.json`；OG 已由 `og.html` 重渲并绑定
+  `assets/og-manifest.json`。
+- 实现自检已通过：`node --test site/scripts/versional-language-contract.test.mjs site/scripts/deslop-scan.test.mjs`
+  **66/66**。`site:guard`、`site:build`、全仓 lint/build 与独立验收仍由后续门禁运行；本回执不构成放行，
+  也不替代 `site/ACCEPTANCE.md`。
+
 ## VERSIONAL-LANG-2 · 参考浅宗与二次减线（实现待独立验收）
 
 - Pages 颜色逐槽接回两版产品参考稿共用的冷白浅宗；机器门仍按名绑定 `docs/design/tokens.json color.*`，不复制第二色源。desktop 既有浅宗本来已逐值相同，故不做无效换值；深宗 opt-in 契约原样保留。

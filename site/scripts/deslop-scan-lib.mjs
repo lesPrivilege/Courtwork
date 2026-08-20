@@ -1379,7 +1379,7 @@ const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可
 //   ② 退役句零出现：旧两句从签名表退出后必须真的消失。只把它们从白名单删掉是不够的——
 //      那样它们会变成「裸断言」而触红，看似同效，但**红的理由错了**（报「未对冲」而非
 //      「已退役」），下一次有人照旧文改写时读到的诊断是错的。故单立反向锁具名登记。
-const PAGE_LEVEL_DISCLAIMER = '本页演示与数字来自同一份合成卷宗的试点运行；试点跑通不等于产品全面上线。';
+const PAGE_LEVEL_DISCLAIMER = '本页通用 Work 画面来自 scripted 验收，法律引语与数字来自同一份合成卷宗；两类证据都不等于产品全面上线。';
 const SIGNED_MATURITY_HEDGES = [PAGE_LEVEL_DISCLAIMER];
 const RETIRED_MATURITY_HEDGES = [
   '不等同于产品已全面上线',

@@ -501,10 +501,14 @@ test('SITE-CRAFT-2 keeps titles in the Song track and editorial body copy in the
   assert.match(html, /<h1 class="zh-title"/);
   assert.match(html, /<h2 class="zh-title">签字之前/);
   assert.doesNotMatch(html, /<h1 class="zh-display"/);
-  // 站面叙事正文是文书轨，工具位（导航、按钮、元信息）仍由 --sans 承担。
-  for (const selector of ['hero-lead', 'section-body', 'evidence-body', 'work-body', 'scenario-body', 'boundary-body', 'footer-body']) {
+  // 站面叙事正文是文书轨，Hero/Work 的通用 Work 说明使用既有系统正文轨；
+  // 工具位（导航、按钮、元信息）同样由 --sans 承担。
+  // PUBLIC-SURFACE-REAL-1 的通用 Work 证据 copy 使用系统正文轨：它同时承载
+  // scripted、hash、allow/deny 等工作台术语，避免把新增通用词硬塞进法律文书子集。
+  for (const selector of ['section-body', 'evidence-body', 'scenario-body', 'boundary-body', 'footer-body']) {
     assert.match(html, new RegExp(`class="[^"]*${selector}[^"]*zh-doc|class="[^"]*zh-doc[^"]*${selector}`));
   }
+  assert.match(html, /class="[^"]*work-body[^"]*"/);
   assert.match(css, /\.zh-title \{ font-family: var\(--font-title\); font-synthesis: none; \}/);
   assert.match(css, /\.zh-doc \{ font-family: var\(--font-doc\); font-weight: 400; font-synthesis: none;/);
 });
@@ -720,7 +724,7 @@ test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/
 // N2 裁决二把形态从「逐处对冲」换成「页级总声明 + 局部收窄」：签名表收敛为一句页级声明，
 // 旧两句转零出现反向锁。下列断言分三组——① 新形态的正例与两条锁；② 退役句回潮逐条触红；
 // ③ 旧形态时期六类＋三类假阴的回归例原样保留（判据换了形态，假阴不许复活）。
-const N2_PAGE_DISCLAIMER = '本页演示与数字来自同一份合成卷宗的试点运行；试点跑通不等于产品全面上线。';
+const N2_PAGE_DISCLAIMER = '本页通用 Work 画面来自 scripted 验收，法律引语与数字来自同一份合成卷宗；两类证据都不等于产品全面上线。';
 test('R-12 maturity gate: signed hedges pass, everything else reds', () => {
   // 陪跑件：页级声明恰一处且须落在 site/index.html——故被测片段若不是页面文件，
   // 声明单独喂进页面文件；若是页面文件，声明与片段同文件分行（分行才使区间判定各自独立）。
