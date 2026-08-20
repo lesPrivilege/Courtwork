@@ -73,9 +73,9 @@ test('S1 摄取事件回放可进入时间线', async ({ page }) => {
   // 运行事实进入事件流（chat 面）
   await expect(page.getByTestId('event-stream')).toContainText('正在');
   await expect(page.getByText('双方签订《精密铸造生产线设备采购合同》', { exact: false })).toBeVisible();
-  // 阶段进度 N/M 在 Progress 模块（十四章：back 回四模块列后可见）
+  // 阶段进度 N/M 在 Progress 模块（S1 录制 snapshot 为 1/3；十四章：back 回四模块列后可见）
   await openModuleList(page);
-  await expect(page.getByTestId('progress-module-count')).toHaveText('16/20');
+  await expect(page.getByTestId('progress-module-count')).toHaveText('1/3');
 });
 
 test('时间线只消费 markers 高亮矛盾事件', async ({ page }) => {
