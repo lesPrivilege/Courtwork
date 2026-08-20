@@ -4,7 +4,7 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
-## DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界（实现完成，待独立验收）
+## DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界（已独立验收放行）
 
 权威：`specs/DEMO-REAL-SHELL-1.md`。实现基线为 `eaf604f`（provider Skip 架构补正），
 实现分支 `codex/demo-real-shell-1`，隔离 worktree `/private/tmp/courtwork-demo-real-shell-1-impl-85315`。
@@ -13,7 +13,7 @@
 provider Skip 固定为「暂不连接」且关闭后保留原上下文。凭证状态机、demo fixture／binding、真实持久
 契约与 runtime/schema/provider 均未改；不新增成员、权限或团队协作。
 
-### 实现回执（非独立验收）
+### 实现回执
 
 - **born-red**：实现前在独立端口 `1457` 实跑新票 4 条 E2E，4/4 变红：fresh 可见固定样板、无
   `welcome-sample-open`、Skip 仍为旧文案、真实样例路径均不成立；此前端口 `1442` 被环境占用，未采信为业务证据。
@@ -29,8 +29,12 @@ provider Skip 固定为「暂不连接」且关闭后保留原上下文。凭证
   E2E 仅做现有入口的机械改名与语义同步，未放宽等待或断言。
 - **mutation**：临时将 CaseRail 的 sampleRows 派生替换为空数组，独立端口 `1465` 的样例 E2E 在
   `rail-sample` 可见性断言处变红；mutation 已恢复，当前工作树未保留注入。
-- **独立验收**：本会话不写 `ACCEPTANCE.md`、不作放行结论；独立验收需复核 fresh/sample/real/reload、
-  390px/暗色与 mutation 门。
+- **独立验收**：产品 `725f992` 上由另一 Luna clean worktree 实跑 34/34 定向单测、新票 4/4、
+  锁定回归 61/61、build/lint/site guard 全绿，并取 1440/390、light/dark、fresh/sample/real/reload
+  与键盘 smoke。七类 mutation 均实际观察变红后恢复。验收级小修 `8c7edcf` 只校正两处旧 residue
+  E2E 的真实入口与焦点语义；`75678cc` 最终 PASS，验收链合入 `0272e25`。
+- **放行边界**：只放行 scripted desktop shell。真实 WKWebView/AX、真实 provider 与
+  `PI-BASE-GUI-ACCEPT` 仍未放行；不更新 `current.md`，不得外推 Agent/team/product-live。
 
 ## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（已独立验收放行）
 

@@ -1,8 +1,9 @@
 # DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界
 
-状态：架构冻结，待独立 Luna 实现与另一 Luna 验收。基线 `main @ b154b2b`。本票只收敛
-scripted desktop shell 的首开叙事与样例驻留，不改变 `PI-BASE-GUI-ACCEPT`、Agent、AX、
-真实 provider 或 product-live 口径。
+状态：**已清账**。架构冻结 `a240e57`／补正 `eaf604f`；独立 Luna 实现 `20caeb9`，
+合入 `725f992`；另一 Luna 以验收级小修 `8c7edcf` 后在 `75678cc` 独立 PASS，验收链合入
+`0272e25`。本票只收敛 scripted desktop shell 的首开叙事与样例驻留，不改变
+`PI-BASE-GUI-ACCEPT`、Agent、AX、真实 provider 或 product-live 口径。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/product/roadmap.md`、
 `docs/architecture/implementation-readiness.md`、`docs/design/principles.md`、
@@ -128,3 +129,16 @@ worktree 与独立端口，实际注入至少上述六类 mutation，并逐帧�
   驻留与入口；
 - 不更新 `docs/status/current.md`、版本、release/site/README 口径，不宣称 Agent、team product、
   `PI-BASE-GUI-ACCEPT` 或 product-live。
+
+## 六、清账证据（2026-08-20）
+
+- 实现会话：3 files / 34 tests；新票 E2E 4/4；锁定回归 39/39，另有 D1/RP28 13/13；
+  `pnpm -r build`、root lint、`site:guard` 均 EXIT 0。
+- 独立验收：定向单测 34/34；新票 E2E 4/4；锁定回归 61/61；build、lint、site guard 均
+  EXIT 0；1440/390、light/dark、fresh/sample/real/reload 与键盘 smoke 1/1。
+- 验收实际注入并观察七类反例变红：demo 初始化常驻、demo 回 Recent、sample 打开 provider、
+  Skip 劫持 demo、恢复 Owner、恢复样例改名、恢复样例归档；全部撤回。
+- `8c7edcf` 只修两处旧 E2E：归档残留门先创建真实案件；provider modal 由真实 Connect 入口打开，
+  Escape 后验证自然焦点归还。完整独立报告见 `apps/desktop/ACCEPTANCE.md`。
+- 未跑 Cargo：本票产品与验收修缮均零 Rust/Tauri 触面。真实 WKWebView/AX 与 provider 仍归
+  `PI-BASE-GUI-ACCEPT`，其 external-validated blocked 状态不变。
