@@ -1012,3 +1012,97 @@ focused contract returned **18/18 green** after every restoration, and the final
 > **PUBLIC-SURFACE-REAL-1 不放行 ❌。** 所有已实跑门禁与画面／资产复核证据均保留，但 manifest provenance
 > `3a4a90e…` 未能证明来自被验 `productSha=5187c797…`。架构角色需先裁决该字段语义，或在实现 tip 上修订并重摄／重绑
 > 资产；之后必须由新的 clean worktree 重做本票验收。未 merge、未 push、未部署。
+
+---
+
+## PUBLIC-SURFACE-REAL-1-PROVENANCE-R1-ACCEPT · `28ebe19` 独立复验（2026-08-20）— ✅ PASS / 放行
+
+### 1. 对象、冲突裁定与票面范围
+
+- **独立性与隔离**：本轮为新的验收会话，clean worktree
+  `/private/tmp/courtwork-public-surface-provenance-r1-accept`，branch
+  `codex/accept-public-surface-provenance-r1`；验收期间未复用共享服务，未 merge、未 push。
+- **被验对象**：产品精确补正 merge `28ebe19fc64d5eed9839c7af6e1159f888999e9c`；其一父
+  `144702b7f2640e29d10f484cbd09edcedc2cd614` 到该 merge 的 diff 只有四个票面文件：
+  `site/SPEC.md`、证据 README、`screenshot-manifest.json`、
+  `site/scripts/versional-language-contract.test.mjs`。未改产品源、capture script、资产、契约边界、
+  `current.md` 或 release。
+- **旧结论处理**：`3707f94` 的 provenance REJECT 已由本轮精确 SHA 锁与三枚 provenance
+  mutation 关闭；`703e042` 的旧 PASS 记录 `3a4a90e…`，与本轮权威 product tip 不同，故不作为本轮依据。
+
+### 2. Provenance、重摄记录与实物复算
+
+产品／捕摄绑定均为完整 SHA
+`5187c797c6ced84188c0b4e8ae7b00ecb8e50922`。`git merge-base --is-ancestor` 证明该 SHA 是
+`28ebe19` 的祖先；`apps/desktop/scripts/capture-pi-lane-states.mjs` 在现行树与该 tip 的 blob
+均为 `64a59fcb2e540f06936766e91355a691ac4c6b1f`，Work shell `apps/desktop/src/App.tsx` 两处
+均为 `550e9fe314a15b977169a62a5ecc8cbd631e39a4`。manifest 与 evidence README 均逐字为上述
+40 位 SHA。README 的重摄命令与 landed capture script 路径一致：
+
+```sh
+VITE_COURTWORK_E2E=1 pnpm --filter @courtwork/desktop dev --port 1578
+PORT=1578 OUT=/private/tmp/courtwork-public-surface-provenance-r1-capture-output THEMES=light \
+  node apps/desktop/scripts/capture-pi-lane-states.mjs
+```
+
+README 所记录的旧／新 `cmp` 逐字节 identical 结果与当前 landed bytes/SHA 完全相符；重摄临时
+detached worktree 已按实现流程清理，放行依据是可复算的仓内实物、manifest 与产品 tip tree，
+不是临时目录仍存在的自述。
+
+| 实物 | bytes | 独立 SHA-256 | 尺寸 |
+|---|---:|---|---|
+| `frames/PUBLIC-SURFACE-REAL-1-bound-1440x900.png` | 49,759 | `f05a3de1e662064d83d7b59a54e2c960e50b2d093aae01c0e72d87ca7f859215` | 1440×900 |
+| `frames/PUBLIC-SURFACE-REAL-1-proposal-1440x900.png` | 105,527 | `b55f50c010390dc917b1c52bce8ce2595b756bc989c9a5482dfb008a5dae9c20` | 1440×900 |
+| `frames/PUBLIC-SURFACE-REAL-1-viewer-1440x900.png` | 123,160 | `56fcf9c8c3d69313f7e53dba3763b22a9b9a0e0a06759321340159e98a6b6168` | 1440×900 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-bound-1440.webp` | 15,174 | `ab9e8213f5e064df1d1a51af825a53e8505184f0d798a540b5543f0c8efd6cd7` | 1440×900 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-bound-720.webp` | 4,990 | `9b73cd84c521d64378d0de090683ba6f376c747871b619d5c31a2f9f51dcea31` | 720×450 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-proposal-1440.webp` | 34,852 | `0894773946eadcaab3bcda8b539cff81e86a44900827c887872ef57a28215a6d` | 1440×900 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-proposal-720.webp` | 11,804 | `c236b3cca21c8ae1f7858919593b3727dbef32dba3e919b27e595c7cb166417d` | 720×450 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-viewer-1440.webp` | 41,814 | `c9412b7aadcead26da03f5f5cd659ddba7df54238bc57dc1a28ddca8beb58aa6` | 1440×900 |
+| `assets/screenshots/PUBLIC-SURFACE-REAL-1-viewer-720.webp` | 14,272 | `54e3807bbf23fd6a54a72602ff063e175f82027d9414f1264fd2280e5dbdca0d` | 720×450 |
+| `assets/og.png` | 53,305 | `8e8e5da1bd49b9aa024a98f84ada9b2d8933fda359a8b243f493112ebc5fa25` | 1200×630 |
+
+OG `sourceSha256` 亦复算为 `89af380ae1dc3ea591c3793eb971bd411f7f5086b0bcfbf6b785dca3ddc8f3ee`；
+`og-manifest.json` 的 source、bytes 与 landed PNG 三向相等。
+
+### 3. 九枚 mutation（每枚先红、精确恢复）
+
+| mutation | 最小门红证 |
+|---|---|
+| manifest 单独换为另一合法 40 位 SHA（全 `0`） | focused 65/66；`productSha` 必须等于本票精确 tip |
+| README 单独换为另一合法 40 位 SHA（全 `0`） | focused 65/66；README 必须逐字绑定同一精确 tip |
+| manifest 与 README 同时换为同一合法错误 SHA（全 `1`） | focused 65/66；manifest 仍被要求等于 `5187c797…`，证明不是“二者相等”即可 |
+| 删除 `scripted` 公开标记 | focused contract 红（定位／Work scripted 绑定；同时按注入目标触发 OG source 绑定） |
+| 删除 `external-validated blocked` | focused 65/66，PI 外部阻断边界红 |
+| 将 v0.1.2 改称包含 current main | focused 65/66，历史制品边界红 |
+| 恢复旧页级 disclaimer | `node site/scripts/deslop-scan.mjs` 红，3 个 maturity assertion 同时命中 |
+| 用 Owner/Pinned sample 资产替换 bound-1440 WebP | focused 65/66，实际 SHA `45a07d926e…` 与 manifest `ab9e8213…` 不等 |
+| 翻转 proposal-1440 WebP 一个 byte | focused 65/66，实际 SHA `4884bc361e…` 与 manifest `08947739…` 不等 |
+
+九枚均在本 worktree 内恢复；最终 focused Node **66/66**，`git diff --check` clean，未将反例
+带入验收提交。
+
+### 4. 门禁、Pages 矩阵与三帧
+
+- `node --test site/scripts/versional-language-contract.test.mjs site/scripts/deslop-scan.test.mjs`：**66/66**。
+- `pnpm site:guard`：**106/106**；release-truth PASS（v0.1.2／DMG SHA `f4af2a44…`）、deslop
+  1196 active files、所有 neutral/elevation/signature/motion/design-md/schema/skin/app-highwater 门通过。
+- `pnpm site:build`、`pnpm lint`、`pnpm -r build`：均 exit 0；全仓 scope **15/16**，desktop Vite
+  **4316 modules**。仅保留既有 dynamic-import/chunk-size advisory；本票无 Rust/Tauri 产品触面，按契约不跑 Cargo。
+- 独立静态服务：`python3 -m http.server 19873 --bind 127.0.0.1 --directory site-dist`；仓库锁定
+  Chromium 8 个 context（1440×900、375×812；light、dark、JS-off、reduced-motion）实测：每档
+  `document/body scrollWidth === viewport.width`、越界元素 `[]`、4/4 图片 complete 且 broken=0、无
+  console/page error。dark 两档 computed `--bg-app=#0F1622`、`--text-primary=#E4E9F1`；reduced 两档
+  仅 3 个既有 `ghosty-reduced-fade`，演示层 3/3 `animation-name:none`，scroll behavior 为 `auto`；
+  JS-off 两档仍保留静态定位、三段 Work、发布边界与所有图片。
+- 独立目检三枚 source PNG：bound 为真实本地容器，proposal 为人决定的 allow/deny 写入提案，viewer
+  为只读来源／结果／回执；三帧底部均为 `Local workspace`，无 Pinned、sample、Owner、Sample lead
+  或假成员视觉残影。
+
+### 5. 公开边界与最终裁定
+
+README 仍为 `Stage 0 — 真实 MVP`；页面仍明确 v0.1.2 是 Apple Silicon、ad-hoc、未公证的历史开发版，
+不含当前 main Work Agent 主线；`PI-BASE-GUI-ACCEPT` 仍为 `external-validated blocked`，没有 team、
+member、RBAC 或 `product-live` 正向宣称。故 `3707f94` 的唯一 provenance blocker 已关闭，旧 `703e042`
+不被恢复为本轮依据；**PUBLIC-SURFACE-REAL-1-PROVENANCE-R1 放行 ✅**。本结论不授权真实 Tauri／DeepSeek／AX
+总验、tag、Release、Pages deploy 或任何产品成熟度升级。
