@@ -1242,11 +1242,10 @@ export function checkFontProvenance(records) {
 //   ② 白名单条目必须真有消费面；登记了却没人用＝允许面虚增，同样触红（防白名单烂掉）。
 const zhuConsumers = new Set([
   '.settle-seal', // 落定章：人工落定的印记
-  '.demo-actions span', // 处置动作：确认此项 / 驳回 / 修正
 ]);
-// 朱的帧边界（架构定谳「不作环境色」）：处置动作的朱只许活在这枚幕二 keyframe 里，
-// 基态是中性墨。故白名单条目的「有消费面」既可由声明满足，也可由其所属 keyframe 满足。
-const zhuKeyframes = new Map([['demo-zhu-b', '.demo-actions span']]);
+// 页面 Hero 已改为 provenance 绑定的 Work 帧，旧 Legal 微演示与其朱色帧一并退役；
+// 现行页面的朱只保留在人工落定章这一真实语义面。
+const zhuKeyframes = new Map();
 const goldConsumers = new Set([
   '.tc',
   'h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title',
@@ -1621,6 +1620,66 @@ export function checkRepoTreeLinks({ html, exists }) {
       push(failures, 'repo-link', 'site/index.html', line, `repo link target missing from the tree: ${path}`);
     }
   }
+  return failures;
+}
+
+// SITE-PUBLIC-SURFACE-PROOF-1：公开入口的结构门。视觉可以沿用已有 tokens，但产品入口、
+// 主 CTA、历史制品边界与证据出处必须在页面字节里闭合；否则「看起来成熟」仍可能是静态展台。
+// 这里不解析 DOM/CSSOM，只锁公开契约的最小语义面，避免把静态站引入第二套构建依赖。
+export function checkPublicSurfaceContract({ html, css = '' }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'public-surface', 'site/index.html', 1, message);
+  const provenanceHref = 'https://github.com/lesPrivilege/Courtwork/blob/main/site/craft-evidence/PUBLIC-SURFACE-REAL-1/README.md';
+  const stripTags = (value) => value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  const hero = html.match(/<section class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+  const heroActions = hero.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1] ?? '';
+  const workRows = [...html.matchAll(/<article class="work-row"[\s\S]*?<\/article>/g)].map(([row]) => row);
+
+  if (!hero) fail('hero section is missing');
+  if (!/<nav\s+aria-label="主导航">[\s\S]*href="#top"[^>]*>产品<\/a>[\s\S]*href="#work"[^>]*>工作方式<\/a>[\s\S]*href="#evidence"[^>]*>证据<\/a>[\s\S]*href="#facts"[^>]*>发布状态<\/a>[\s\S]*GitHub/.test(html)) {
+    fail('main navigation must expose 产品 / 工作方式 / 证据 / 发布状态 / GitHub');
+  }
+  for (const target of ['id="work"', 'id="evidence"', 'id="facts"']) {
+    if (!html.includes(target)) fail(`navigation target missing: ${target}`);
+  }
+
+  if (!/src="assets\/screenshots\/PUBLIC-SURFACE-REAL-1-proposal-1440\.webp"/.test(hero)) {
+    fail('hero must show the provenance-bound Work proposal frame');
+  }
+  if (!/<img[^>]*alt="[^"]*scripted[^"]*"/.test(hero)) fail('hero product frame must disclose scripted evidence in alt text');
+  if (!hero.includes(provenanceHref)) fail('hero product frame needs a nearby provenance archive link');
+  if (/schema-demo|demo-actions|\brole="button"|\btabindex=/.test(hero)) fail('hero must not contain a fake demo control shell');
+
+  if (!/href="#work"[^>]*>查看已验收 Work 流程<\/a>/.test(heroActions)) fail('hero primary CTA must point to the verified Work flow');
+  if (/\.dmg/i.test(heroActions)) fail('hero primary CTA must not be the historical DMG');
+  if (!/href="https:\/\/github\.com\/lesPrivilege\/Courtwork"[^>]*>/.test(heroActions)) fail('hero secondary CTA must point to the source repository');
+
+  for (const phrase of ['Stage 0', '本地优先 · 单人工作区', '当前 main · scripted GUI', 'PI 总验 · external-validated blocked']) {
+    if (!html.includes(phrase)) fail(`public status strip missing: ${phrase}`);
+  }
+
+  if (workRows.length !== 3) fail(`Work ledger must contain exactly 3 evidence rows, got ${workRows.length}`);
+  for (const [index, row] of workRows.entries()) {
+    if (!row.includes('scripted')) fail(`Work row ${index + 1} must retain the scripted disclosure`);
+    if (!row.includes('查看证据档案') || !row.includes(provenanceHref)) fail(`Work row ${index + 1} must link its provenance archive`);
+  }
+
+  const dmgLabels = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>([\s\S]*?)<\/a>/gi)].map(([, label]) => stripTags(label));
+  if (dmgLabels.length === 0) fail('historical DMG entry disappeared without an explicit replacement');
+  for (const label of dmgLabels) {
+    if (!/历史 v0\.1\.2/.test(label) || !/不含当前 Work/.test(label)) {
+      fail(`every historical DMG link needs the v0.1.2 / current Work boundary: ${label}`);
+    }
+  }
+  const dmgAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>/gi)].map(([anchor]) => anchor);
+  for (const anchor of dmgAnchors) {
+    if (/\bbutton-primary\b/.test(anchor)) fail('historical DMG must remain a secondary/text action, never a primary button');
+  }
+
+  const boundary = html.match(/<aside\b[^>]*\bclass="[^"]*\bdesign-boundary\b[^"]*"[^>]*>[\s\S]*?<\/aside>/)?.[0] ?? '';
+  if ((boundary.match(/<p\b/g) ?? []).length !== 1) fail('design boundary must be compressed to one paragraph');
+  if (!/设计门禁与证据/.test(boundary)) fail('design boundary must retain its evidence gate link');
+  if (/nav\s+a[^{}]*\{[^}]*display\s*:\s*none/i.test(css)) fail('mobile CSS must not hide public navigation entries');
   return failures;
 }
 

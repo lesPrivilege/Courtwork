@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkPublicSurfaceContract, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -225,6 +225,22 @@ test('Pages deploy executes the complete root guard instead of the scanner alone
   assert.doesNotMatch(workflow, /run:\s*node site\/scripts\/deslop-scan\.mjs/);
 });
 
+test('SITE-PUBLIC-SURFACE-PROOF-1 public contract is fail-closed at the semantic seam', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const run = (overrides = {}) => checkPublicSurfaceContract({ html, css, ...overrides }).map((failure) => failure.rule);
+
+  assert.deepEqual(run(), []);
+
+  assert.ok(run({ html: html.replace('href="#work"', 'href="#missing"') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('Stage 0', '') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('external-validated blocked', '') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('href="https://github.com/lesPrivilege/Courtwork">查看源码与本地运行', 'href="https://example.com">查看源码与本地运行') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('历史 v0.1.2', '当前版本') }).includes('public-surface'));
+  assert.ok(run({ html: html.replace('class="release-history"', 'class="button button-primary release-history"') }).includes('public-surface'));
+  assert.ok(run({ css: `${css}\n@media (max-width: 760px) { nav a:nth-child(2) { display: none; } }` }).includes('public-surface'));
+});
+
 const GOOD_DISPLAY_MANIFEST = {
   family: 'Zhuque Fangsong (technical preview)',
   upstreamVersion: '0.212',
@@ -381,10 +397,7 @@ const GOOD_GRAMMAR_CSS = String.raw`
 .tc { color: var(--important-title); }
 h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title { color: var(--important-title); }
 .settle-seal { color: var(--zhu-graphic); }
-.demo-actions span { border: 1px solid var(--border-strong); color: var(--text-primary); animation: demo-zhu-b 12s linear infinite; }
-@keyframes demo-zhu-b { 0%, 35% { border-color: var(--border-strong); } 38%, 60% { border-color: var(--zhu-graphic); } 63%, 100% { border-color: var(--border-strong); } }
 @keyframes typer-develop { 40% { background-color: var(--important-title); } }
-@keyframes demo-attn-a { 5% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); } }
 `;
 const grammarRules = (css) => checkColorGrammar(css).map((failure) => failure.rule);
 
@@ -394,24 +407,19 @@ test('VERSIONAL-LANG-3 colour grammar keeps 朱 on adjudication and 泥金 in im
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.hero-lead { color: var(--zhu-fg); }`).includes('color-grammar'));
   // 泥金离开 hero（当成第二强调色铺开）→ 「唯一强调」破口，触红。
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.promise-ledger dt { color: var(--important-title); }`).includes('color-grammar'));
-  // 动效层是声明层之外的逃逸通道：keyframe 里夹带同样触红。
-  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);', 'background-color: var(--important-title);')).includes('color-grammar'));
+  // 动效层是声明层之外的逃逸通道：未登记 keyframe 里夹带同样触红。
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes rogue-title { to { color: var(--important-title); } }`).includes('color-grammar'));
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { color: var(--zhu-graphic); } }`).includes('color-grammar'));
   // 白名单不许烂掉：登记了却零消费＝允许面虚增，同样触红。
   assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.settle-seal { color: var(--zhu-graphic); }', '')).includes('color-grammar'));
   assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.tc { color: var(--important-title); }', '')).includes('color-grammar'));
 });
 
-// 架构定谳：朱＝人工裁决之痕，**不作环境色**——描边只在人工处置那一幕现形（与 line.settled
-// 前向守卫同语义）。裁定若只写在文档里，下一次顺手把朱写回基态就恒亮了，故写成门。
-test('SITE-CRAFT-2 朱 stays inside the adjudication frame instead of becoming ambient', () => {
+// SITE-PUBLIC-SURFACE-PROOF-1 退役 Hero 微演示后，朱只保留在人工落定章这一语义面。
+test('SITE-CRAFT-2 朱 stays on the settled mark instead of escaping into the page', () => {
   assert.deepEqual(grammarRules(GOOD_GRAMMAR_CSS), []);
-  // 朱写回基态声明 → 恒亮＝环境色，帧边界落空，触红。
-  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace(
-    '.demo-actions span { border: 1px solid var(--border-strong);',
-    '.demo-actions span { border: 1px solid var(--zhu-graphic);')).includes('color-grammar'));
-  // 帧 keyframe 声明了却没人跑 → 该面的朱整个消失，同样触红（双向守）。
-  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('animation: demo-zhu-b 12s linear infinite; ', '')).includes('color-grammar'));
+  // 朱移出落定章 → 彩色跑到普通正文，触红。
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.hero-lead { color: var(--zhu-fg); }`).includes('color-grammar'));
   // 朱借未登记的 keyframe 逃逸 → 触红。
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { border-color: var(--zhu-graphic); } }`).includes('color-grammar'));
 });

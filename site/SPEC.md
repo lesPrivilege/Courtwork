@@ -2,6 +2,41 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
+## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（架构冻结）
+
+权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
+减法式产品化：Hero 改由既有 provenance 绑定的 Work proposal 帧承载；当前 Work 流程／源码成为
+主路径；v0.1.2 保留为明确“不含当前 Work”的历史下载；导航、状态条与三行证据出口闭合。
+
+视觉系统、截图 bytes、productSha、OG、产品源码、版本与成熟度均不变；实现与独立验收必须由不同
+Luna 会话完成。实现禁止写 `site/ACCEPTANCE.md`，验收禁止改契约。
+
+### SITE-PUBLIC-SURFACE-PROOF-1 · 实现回执（待独立验收）
+
+- 本实现从架构冻结 `16c91716a6d520a1151b879fdeaea37b3cfcc89c` 创建独立 worktree
+  `/private/tmp/courtwork-site-public-surface-proof-1-impl` 与分支
+  `codex/site-public-surface-proof-1`；不在共享 `main` 工作树修改，不 merge、不 push。
+- 先补页面结构契约测试：冻结旧页面以 **67/68** 通过、1 项失败完成 born-red；实现后 focused
+  Node tests **68/68**，联合 release contract tests **78/78**。
+- Hero 现在以既有 provenance 绑定的 Work proposal WebP 为唯一产品帧，保留 scripted alt、证据档案
+  出口与源码入口；主 CTA 指向已验收 Work 流程。公开状态明确写出 Stage 0、本地优先单人工作区、
+  当前 main scripted GUI 与 `PI 总验 · external-validated blocked`。
+- 三行 Work 台账各自提供 scripted 证据档案出口；两条且仅两条历史 v0.1.2 DMG canonical URL
+  继续保留，并逐条标明“不含当前 Work”。未改资产 bytes、productSha、版本、schema、runtime、
+  identity、ACL 或依赖。
+- 移除已退役的 Hero schema demo、假控制与其无消费者样式/keyframe；保留既有色彩、字体、动效和
+  responsive 约束，导航在窄屏不隐藏入口。公开契约 helper 留在本票允许的 lib/test 文件中。
+- 仅触及本票允许的 `site/index.html`、`site/styles.css`、`site/scripts/deslop-scan-lib.mjs`、
+  `site/scripts/deslop-scan.test.mjs`、`site/scripts/versional-language-contract.test.mjs` 与本回执；
+  未写 `site/ACCEPTANCE.md`、README、docs、assets/craft-evidence、desktop/packages/release。
+- 当前实现门证据：`pnpm site:guard` **108/108**、`pnpm site:build`、`pnpm lint`、
+  `pnpm -r build`（15/16 workspace projects，exit 0）与 `git diff --check` 均通过；独立验收仍待
+  另一 Luna 会话，不以本回执替代放行结论。
+- 继 `9c68c4e` 的架构复核前进式补正：先为所有 `.dmg` anchor 加入不得携带
+  `button-primary` 的门，旧 closing 以 **67/68** 通过、1 项失败；随后将 closing 主 CTA 改为
+  GitHub“查看源码与本地运行”，历史 v0.1.2 DMG 降为文本次级动作，保留同一 URL、SHA 与“不含当前
+  Work”边界。补正后 focused **68/68**、release 联合 **78/78**、`site:guard` **108/108**。
+
 ## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（已清账）
 
 权威：`site/specs/PUBLIC-SURFACE-REAL-1.md`。当前唯一公开面槽：把 README／Pages 从“法律工作台”

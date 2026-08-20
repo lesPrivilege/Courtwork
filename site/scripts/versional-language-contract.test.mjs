@@ -157,8 +157,8 @@ test('PUBLIC-SURFACE-REAL-1 公开定位、成熟度与历史制品边界相邻�
   assert.match(html, /<h1[^>]*aria-label="[^"]*本地优先[^"通用]*通用 Work Agent GUI/);
   assert.match(html, /<p class="eyebrow">本地优先 · Work Agent GUI<\/p>/);
   assert.match(html, /<span class="tc" style="--i:0">本<\/span>[\s\S]*<span class="tc" style="--i:4">面<\/span>/);
-  assert.match(html, /Legal 第一垂类 · scripted 验收微演示/);
-  assert.match(html, /aria-label="Legal 第一垂类的 scripted 微演示/);
+  assert.match(html, /Work · 写入提案 · scripted 验收帧 · 当前 main/);
+  assert.match(html, /alt="scripted 验收帧：当前 main 的 Work 写入提案/);
   assert.match(html, /正在闭合/);
   assert.match(html, /由人逐条确认|人工决定/);
   assert.match(html, /历史开发版，不含当前 main 的 Work Agent 主线/);
@@ -197,6 +197,49 @@ test('PUBLIC-SURFACE-REAL-1 Work 三段与当前 scripted 证据资产均有机�
   assert.equal(manifest.productSha, PUBLIC_SURFACE_PRODUCT_SHA, 'productSha 必须锁定本票精确产品 tip');
   const productShaLine = publicSurfaceEvidenceReadme.split('\n').find((line) => line.startsWith('productSha:'));
   assert.equal(productShaLine, 'productSha: `' + PUBLIC_SURFACE_PRODUCT_SHA + '`', '证据 README 必须逐字绑定同一精确 productSha');
+});
+
+test('SITE-PUBLIC-SURFACE-PROOF-1 页面入口、主路径与证据出口闭合', () => {
+  const hero = html.match(/<section class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+  const heroActions = hero.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1] ?? '';
+  const workRows = [...html.matchAll(/<article class="work-row"[\s\S]*?<\/article>/g)].map(([row]) => row);
+  const provenanceHref = 'https://github.com/lesPrivilege/Courtwork/blob/main/site/craft-evidence/PUBLIC-SURFACE-REAL-1/README.md';
+  assert.match(html, /<nav aria-label="主导航">[\s\S]*href="#top"[^>]*>产品<\/a>[\s\S]*href="#work"[^>]*>工作方式<\/a>[\s\S]*href="#evidence"[^>]*>证据<\/a>[\s\S]*href="#facts"[^>]*>发布状态<\/a>[\s\S]*GitHub/);
+  assert.match(html, /id="work"/);
+  for (const target of ['id="work"', 'id="evidence"', 'id="facts"']) assert.match(html, new RegExp(target));
+
+  assert.match(hero, /assets\/screenshots\/PUBLIC-SURFACE-REAL-1-proposal-1440\.webp/);
+  assert.match(hero, /alt="[^"]*scripted[^"]*"/);
+  assert.match(hero, new RegExp(provenanceHref.replaceAll('/', '\\/')));
+  assert.doesNotMatch(hero, /schema-demo|demo-actions|role="button"|tabindex=/);
+  assert.match(heroActions, /href="#work"[^>]*>查看已验收 Work 流程<\/a>/);
+  assert.doesNotMatch(heroActions, /\.dmg/);
+  assert.match(heroActions, /href="https:\/\/github\.com\/lesPrivilege\/Courtwork"[^>]*>/);
+
+  for (const phrase of ['Stage 0', '本地优先 · 单人工作区', '当前 main · scripted GUI', 'PI 总验 · external-validated blocked']) {
+    assert.match(html, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+
+  assert.equal(workRows.length, 3);
+  for (const row of workRows) {
+    assert.match(row, /scripted[\s\S]{0,500}查看证据档案/);
+    assert.match(row, new RegExp(provenanceHref.replaceAll('/', '\\/')));
+  }
+
+  const dmgLinks = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>([\s\S]*?)<\/a>/gi)].map(([, label]) => label.replace(/<[^>]*>/g, ''));
+  assert.ok(dmgLinks.length > 0, '历史 DMG 入口不得静默消失');
+  for (const label of dmgLinks) {
+    assert.match(label, /历史 v0\.1\.2/);
+    assert.match(label, /不含当前 Work/);
+  }
+  const dmgAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]+\.dmg"[^>]*>/gi)].map(([anchor]) => anchor);
+  for (const anchor of dmgAnchors) {
+    assert.doesNotMatch(anchor, /class="[^"]*\bbutton-primary\b[^"]*"/, '历史 DMG 不得作为主产品行动');
+  }
+  assert.equal((html.match(/class="[^"]*\bdesign-boundary\b[^"]*"/g) ?? []).length, 1);
+  const designBoundary = html.match(/<aside\b[^>]*\bclass="[^"]*\bdesign-boundary\b[^"]*"[^>]*>[\s\S]*?<\/aside>/)?.[0] ?? '';
+  assert.equal((designBoundary.match(/<p\b/g) ?? []).length, 1, '设计边界应压成一句');
+  assert.match(designBoundary, /设计门禁与证据/);
 });
 
 test('PUBLIC-SURFACE-REAL-1 capture 从真实容器起步，不再引导样板或 provider', () => {
