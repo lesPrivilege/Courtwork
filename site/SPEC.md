@@ -2,6 +2,15 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
+## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（架构冻结）
+
+权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
+减法式产品化：Hero 改由既有 provenance 绑定的 Work proposal 帧承载；当前 Work 流程／源码成为
+主路径；v0.1.2 保留为明确“不含当前 Work”的历史下载；导航、状态条与三行证据出口闭合。
+
+视觉系统、截图 bytes、productSha、OG、产品源码、版本与成熟度均不变；实现与独立验收必须由不同
+Luna 会话完成。实现禁止写 `site/ACCEPTANCE.md`，验收禁止改契约。
+
 ## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（已清账）
 
 权威：`site/specs/PUBLIC-SURFACE-REAL-1.md`。当前唯一公开面槽：把 README／Pages 从“法律工作台”

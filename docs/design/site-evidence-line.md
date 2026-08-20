@@ -2,9 +2,10 @@
 
 状态：现行规范。SITE-2 及后续官网修改以本文件、`tokens.json` 与 `principles.md` 为准。
 
-## 首页只讲一条因果链
+## 首页先讲产品路径，再讲一条材料因果链
 
-Courtwork 的首页不是功能卡片目录，而是一个结论如何被证明：
+Courtwork 的首页不是功能卡片目录。首要路径是通用 Work 的真实容器、逐次授权与只读结果；Legal
+作为第一垂类，在其后解释一个结论如何被证明：
 
 ```text
 原件 → 引语 → 结论 → 人工确认
@@ -14,12 +15,12 @@ Courtwork 的首页不是功能卡片目录，而是一个结论如何被证明�
 
 ## 信息结构
 
-1. 首屏为定义句 H1「本地运行的案件工作台。」+ 眉部立场行「模型只生成，不裁决」（N2 hero 换岗案，2026-07-26 产品拍板）；副标题为审阅两动作句。
-2. 首屏工作窗为活的 schema 工作面微演示（2026-07-18，SITE-CRAFT-2 拍板）：以页面既有已验 fixture 文本诚实重建，mac-bar 明确标注「微演示重建 · 合成数据试点」，不冒充真机截图；后续台账仍只使用真实局部裁片承载真机证据，不重复套多张浏览器或 Mac 窗口。完整真实工作台帧保留于 craft-evidence 与发布证据资产。
-3. 主演示按“原件 / 引语 / 结论 / 确认”四个语义节点连续展开。滚动揭示只可帮助解释先后关系；关闭动效或启用 reduced motion 后，全部关系仍完整可读。
+1. 首屏定义 Courtwork 为本地优先的通用 Work Agent GUI；定位、当前 scripted 证据、Stage 0 与 PI external gate 必须同屏可辨，不把施工主线写成 product-live。
+2. 首屏工作窗只使用已由 manifest 与完整 product SHA 绑定的 Work scripted 验收帧，caption／alt 就近明示证据边界并链接 provenance 档案；不得用看似可点的静态 span 重建产品按钮。Legal schema 微演示退出 Hero，其因果链仍由卷一 Evidence Line 讲解。
+3. 首要产品路径按“绑定真实容器 / 人决定写入提案 / 只读核验结果”连续展开；随后 Legal 按“原件 / 引语 / 结论 / 确认”四个语义节点展开。滚动揭示只可帮助解释先后关系；关闭动效或启用 reduced motion 后，全部关系仍完整可读。
 4. 三段能力说明使用连续台账与分割线：从模型到条款、从风险到逐条处置、从建议到确认。不得改成三张等权 feature card。
 5. 可信承诺固定为可验证的产品边界：不改原件、不自动送出、不把无锚引语落格、不替用户确认。
-6. 最终 CTA 必须显示真实版本、真实制品 SHA、真实 GitHub 与 macOS 下载；没有制品时不得出现伪下载。
+6. 主 CTA 必须进入页面所展示的当前 Work scripted 证据或当前源码／本地运行路径。历史制品可以下载，但文案必须就地写明版本及“不含当前 Work”；真实 SHA、GitHub、Apple Silicon、ad-hoc 与未公证边界继续可核验。没有制品时不得出现伪下载。
 7. 卷五 · 发布事实——可核验发布事实台账四行，链接即声称（`repo-link` 门），SHA 指回卷首刊记单一在页真源。
 8. 卷六 · 有问有答——常问六则静态问答，全部展开不折叠，成熟度边界由页级总声明承载（`checkMaturityClaims` 页级形态）。
 
@@ -37,9 +38,9 @@ Courtwork 的首页不是功能卡片目录，而是一个结论如何被证明�
 - 页面 wordmark 使用 `icon.md` 规定的透明核心标记，位于 `Courtwork` 左侧；无底盘、阴影或入场动画。
 - 不使用 glow、渐变、3D 设备、glitch、随机编号、装饰坐标和 `01/02/03` 脚手架。
 - 展示站动效例外（2026-07-15 架构裁定，SITE-CRAFT-1）：标题逐字显影（动 `color`）与截图显影（动 `mask-position`）两类媒体层巧思允许超出 principles.md §5 四属性白名单，边界为——色彩全落站面现行色宗的登记 token、必须实现 `prefers-reduced-motion` 退化与 JS 关闭内容完整、数据区与卷宗数字保持绝对静止、效果不回迁产品壳；具体实现由 `deslop-scan` 的站点动效 AST 锁精确圈定，锁外新增动效需重新拍板。色宗表述随 VERSIONAL-LANG-3 修订：登记面由 `raw-color`（按名绑定浅宗 `color.*`／深宗 `themes.dark.*`）与 `color-grammar`（朱仅裁决 / 泥金只进 Hero 与卷级大标题）双门圈定；正文、功能标签与数据区零泥金。
-- 微演示动效契约（2026-07-18 留痕，SITE-CRAFT-2）：hero 微演示的注意力循环只动 `background-color` / `border-color` / `opacity`——在 §5 白名单之内，登记为契约而非破例。数据字形绝对静止（逐帧采样证据入 `site/craft-evidence/SITE-CRAFT-2/B2/`）；reduced-motion 整体全灭为定格全景；JS 关闭不受影响（纯 CSS，`site/main.js` 与其 AST 锁零扩展）。属性边界由 `deslop-scan` 的 `demo-motion` 门锁定，keyframe 越界属性即触红；演示文本只可取页面既有已验 fixture 字串，不得另造数据。
+- Hero 微演示退役（2026-08-20，SITE-PUBLIC-SURFACE-PROOF-1）：2026-07-18 登记的 Legal 注意力循环与 `demo-motion` 消费点随旧 Hero 一并删除；历史逐帧证据保留在 `site/craft-evidence/SITE-CRAFT-2/B2/`，不再构成现行页面动效授权。Hero 产品帧可继续消费既有 Ghosty 媒体显影，但不得新增动效属性、重建假控件或迁移旧 keyframe。
 - 不重复全大写 eyebrow；只保留帮助定位的少量标签。
-- chrome 用完整中文产品语言：`下载 macOS 版`、`查看真实工作台`。领域内容保持中文，不随机混入英文按钮。
+- chrome 用完整中文产品语言：`查看已验收 Work 流程`、`查看源码与本地运行`、`下载历史 v0.1.2（不含当前 Work）`。领域内容保持中文，不随机混入英文按钮。
 - 数据行、证据裁片和台账零投影；官网不得以卡中卡代替信息层级。
 
 ## 验收
