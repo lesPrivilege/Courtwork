@@ -79,6 +79,7 @@ import {
   applyModuleAutoExpand,
   DEFAULT_MODULE_OPEN,
   progressHeadCount,
+  progressModuleStatus,
   toggleModuleManual,
   type ModuleId,
   type ModuleOpenMap,
@@ -1085,10 +1086,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     resolveNamedComponentView(view, artifactPayload, matterRegistries, hostRenderers).status === 'ready';
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
-  const progressDone =
-    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : verticalSurface.decisionCount;
-  const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
-  const progressCount = progressHeadCount(progressDone, progressTotal);
+  const progressCount = progressHeadCount(session.todo);
   const attachmentSources = localMessages.flatMap((message) => message.files);
   // PILOT-LIVE-2 E：最新助手回复豁免折叠（裁定：最新默认全文展开；折叠仅限历史轮次）。
   // 取最后一条已结束的助手消息而非末位消息：发送在途窗口内新投影会先插入 running assistant，
@@ -1552,7 +1550,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       id: 'progress' as const,
       title: CHROME_COPY.utility.progress,
       count: progressCount,
-      status: (isDemoCase ? (progressDone >= progressTotal ? 'done' : 'active') : 'idle') as 'done' | 'active' | 'idle',
+      status: progressModuleStatus(session),
       open: moduleOpen.progress,
       onToggle: () => toggleModule('progress'),
       body: <ProgressModuleBody projection={session} />,

@@ -1,3 +1,5 @@
+import type { SessionProjection } from '../protocol/client';
+
 /**
  * 右栏模块栈状态机（docs/decisions/ADR-006-ui-host.md 三章）。
  * 用户手动折叠/展开优先于 artifact 自动展开。
@@ -58,10 +60,21 @@ export function applyModuleAutoExpand(
   return { ...open, [target]: true, progress: open.progress || true };
 }
 
-/** frontier 形制：`3/6` */
-export function progressHeadCount(done: number, total: number): string {
-  const safeDone = Math.max(0, Math.min(done, total));
-  return `${safeDone}/${total}`;
+/** Work Plan frontier 形制：有 snapshot 时 `done/total`，没有 snapshot 时诚实显示 `—`。 */
+export function progressHeadCount(todo: SessionProjection['todo']): string {
+  if (todo === undefined) return '—';
+  const done = todo.filter((step) => step.status === 'done').length;
+  return `${done}/${todo.length}`;
+}
+
+/** Progress 面板头状态只从同一份 session projection 派生，不读取演示计数。 */
+export function progressModuleStatus(
+  projection: Pick<SessionProjection, 'todo' | 'progress' | 'scenarioFailure'>,
+): 'idle' | 'active' | 'done' | 'warn' {
+  if (projection.scenarioFailure) return 'warn';
+  if (projection.todo !== undefined && projection.todo.length > 0 && projection.todo.every((step) => step.status === 'done')) return 'done';
+  if (projection.todo !== undefined || projection.progress.length > 0) return 'active';
+  return 'idle';
 }
 
 /** 右栏全折（收缩态）：仅保留面板头，内容全关 */

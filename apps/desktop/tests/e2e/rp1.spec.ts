@@ -78,11 +78,11 @@ test.describe('RP-1 最终重排', () => {
     // 运行态归事件流（chat 面）
     await expect(page.getByTestId('event-stream')).toContainText('正在核对');
     await expect(page.getByTestId('nav-artifacts')).toBeVisible();
-    // 计数权威位 = Progress 模块；用量归 Context（十四章四模块列）
+    // 计数权威位 = Progress 模块；S3 录制 snapshot 为 1/2；用量归 Context（十四章四模块列）
     await openModuleList(page);
     const count = page.getByTestId('progress-module-count');
     await expect(count).toBeVisible();
-    await expect(count).toHaveText('0/6');
+    await expect(count).toHaveText('1/2');
     await expect(page.getByTestId('module-context')).toContainText('91%');
   });
 

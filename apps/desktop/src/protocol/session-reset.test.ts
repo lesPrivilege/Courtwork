@@ -20,7 +20,7 @@ function afterFirstScenario() {
   let state = EMPTY_SESSION;
   state = projectSession(state, event('s1', 1, {
     type: 'todo_snapshot',
-    steps: [{ stepId: 'build-timeline', artifactType: 'legal.Timeline', status: 'running' }],
+    steps: [{ stepId: 'build-timeline', artifactType: 'legal.Timeline', label: '生成时间线', status: 'pending' }],
   }));
   state = projectSession(state, event('s1', 2, { type: 'progress', message: '正在整理卷宗' }));
   state = projectSession(state, event('s1', 3, {
@@ -47,7 +47,7 @@ describe('resetSessionForNewRun：起新场景不再清空已产出物', () => {
     const next = resetSessionForNewRun(previous);
 
     expect(next.progress).toEqual([]);
-    expect(next.todo).toEqual([]);
+    expect(next.todo).toBeUndefined();
     expect(next.completed).toBe(false);
     expect(next.failures).toEqual([]);
     expect(next.confirmation).toBeUndefined();
@@ -69,5 +69,16 @@ describe('resetSessionForNewRun：起新场景不再清空已产出物', () => {
   it('离开 matter 仍是整本清空——`EMPTY_SESSION` 与本函数是两件事', () => {
     expect(EMPTY_SESSION.artifacts).toEqual({});
     expect(resetSessionForNewRun(afterFirstScenario())).not.toEqual(EMPTY_SESSION);
+  });
+
+  it('todo snapshot 逐字保留稳定身份、标签、产物类型与闭集状态', () => {
+    const steps = [
+      { stepId: 'read-materials', label: '读取材料', status: 'done' as const },
+      { stepId: 'write-draft', artifactType: 'generic.DraftDocument', label: '产出文稿', status: 'awaiting_confirmation' as const },
+    ];
+    const projected = projectSession(EMPTY_SESSION, event('s1', 1, { type: 'todo_snapshot', steps }));
+
+    expect(projected.todo).toEqual(steps);
+    expect(projected.todo?.map(({ stepId, artifactType, label, status }) => ({ stepId, artifactType, label, status }))).toEqual(steps);
   });
 });

@@ -102,10 +102,13 @@ describe('core 事件录制回放契约', () => {
 
   it('机械投影器只按事件字段重建界面状态', () => {
     const projected = S3_RECORDING.reduce(projectSession, EMPTY_SESSION);
+    const todo = S3_RECORDING.find((event) => event.type === 'todo_snapshot');
     expect(projected.artifacts['legal.RiskList']).toBeDefined();
     expect(projected.confirmation?.requestId).toBe('demo-s3-risk-gate');
     expect(projected.evidenceGrades).toHaveLength(2);
     expect(projected.lastSeq).toBe(5);
+    expect(todo?.type).toBe('todo_snapshot');
+    if (todo?.type === 'todo_snapshot') expect(projected.todo).toEqual(todo.steps);
     // TOOL-READ-1：工具结果进 trace 投影，未识别登记恒空（录制全在闭集内）。
     expect(projected.modelToolResults.map((entry) => entry.toolId)).toEqual(['material-read']);
     expect(projected.unrecognizedEntries).toEqual([]);

@@ -68,14 +68,22 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
 test('S1 摄取事件回放可进入时间线', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('flow-s1').click();
+  // 先回到四模块列，让 paced replay 把 S1 的 todo_snapshot（seq=3）送达；此动作不改 primary view。
+  await openModuleList(page);
+  const planCount = page.getByTestId('progress-module-count');
+  await expect(planCount).toHaveText('1/3');
+  // 恢复 Preview 后再执行原有 view-timeline 导航；此时 snapshot 已在 projection 内，不会被早导航截断。
+  const previewOutline = page.getByTestId('preview-outline');
+  if (!(await previewOutline.isVisible())) await page.getByTestId('module-preview-toggle').click();
+  await page.getByTestId('outline-timeline').click();
   await page.getByTestId('view-timeline').click();
   await expect(page.getByTestId('timeline-panel')).toBeVisible();
   // 运行事实进入事件流（chat 面）
   await expect(page.getByTestId('event-stream')).toContainText('正在');
   await expect(page.getByText('双方签订《精密铸造生产线设备采购合同》', { exact: false })).toBeVisible();
-  // 阶段进度 N/M 在 Progress 模块（十四章：back 回四模块列后可见）
+  // 阶段进度 N/M 在 Progress 模块（S1 录制 snapshot 为 1/3；十四章：back 回四模块列后可见）
   await openModuleList(page);
-  await expect(page.getByTestId('progress-module-count')).toHaveText('16/20');
+  await expect(planCount).toHaveText('1/3');
 });
 
 test('时间线只消费 markers 高亮矛盾事件', async ({ page }) => {

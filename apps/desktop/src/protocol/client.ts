@@ -9,6 +9,11 @@ import type {
 export type ScenarioFlow = 'S1' | 'S3';
 export type ReviewDisposition = 'confirm' | 'reject' | 'revise';
 export type ReviewDispositionState = 'confirmed' | 'rejected' | 'revision';
+/**
+ * Work Plan 的唯一行类型：直接从 journal 的 `todo_snapshot.steps` 取出，避免 desktop
+ * 维护一份会漏掉 label/status 的弱化副本。
+ */
+export type SessionTodo = Extract<SessionEvent, { type: 'todo_snapshot' }>['steps'];
 
 export interface ReviewGateItemProjection {
   itemRef: string;
@@ -207,7 +212,8 @@ export interface SessionProjection {
   /** 引用闭环公证观测（LEGAL-DEMO-RUN ③：观测字段随 artifact_produced 机械透传，不解读）。 */
   citationStats?: CitationStats;
   progress: string[];
-  todo: Array<{ stepId: string; artifactType?: string; status: string }>;
+  /** 最近一枚 `todo_snapshot.steps`；未见 snapshot 时保持 undefined，不能伪造空计划。 */
+  todo?: SessionTodo;
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
   failures: Extract<SessionEvent, { type: 'step_failed' }>[];
   /** 模型请求的只读工具结果（TOOL-READ-1 裁定六：界面事件面就是账本本身，逐条投影不折叠）。 */
@@ -225,7 +231,6 @@ export const EMPTY_SESSION: SessionProjection = {
   evidenceGrades: [],
   providerNotices: [],
   progress: [],
-  todo: [],
   failures: [],
   modelToolResults: [],
   unrecognizedEntries: [],
