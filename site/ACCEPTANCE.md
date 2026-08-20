@@ -856,3 +856,63 @@ clone 复验；本轮不得据为放行。
 完整隔离、mutation 与命令记录见
 [`craft-evidence/VERSIONAL-LANG-3/reacceptance-39f1b15/README.md`](craft-evidence/VERSIONAL-LANG-3/reacceptance-39f1b15/README.md)。
 本轮只解除 `d32985f` 的 gallery 第四消费者拒绝，不扩大为后续批次、one-shot、push 或部署授权。
+
+---
+
+## PUBLIC-SURFACE-REAL-1-ACCEPT-3 · `5187c797` 独立验收（2026-08-20）— ✅ PASS / 放行
+
+- **对象与隔离**：产品 tip `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`，`productSha`
+  `3a4a90e8a2cd43362ecfce09135bb637496f6b36`；clean worktree
+  `/private/tmp/courtwork-public-surface-real-1-accept3`，branch
+  `codex/accept-public-surface-real-1-v3`。验收会话未参与实现，未改实现或契约，未 merge/push。
+- **门禁**：focused Node（versional + deslop）**66/66**，复原后 versional **18/18**；
+  `pnpm site:guard` **106/106**；`pnpm site:build`、`pnpm lint`、`pnpm -r build`
+  全部 exit 0（workspace **15/16** build projects）。本票零 Rust/Tauri 产品触面，按契约
+  **Cargo 不跑**。
+- **OG／证据资产复算**（逐文件 bytes 与 SHA-256 均与 manifest 相等；OG source SHA 亦相等）：
+
+  | asset | bytes | SHA-256 |
+  |---|---:|---|
+  | `assets/og.png` | 53305 | `8e8e5da1bd49b9aa024a98f84ada9b2d8933fda359a8b243f493112ebc5fa25a` |
+  | `craft-evidence/.../bound-1440x900.png` | 49759 | `f05a3de1e662064d83d7b59a54e2c960e50b2d093aae01c0e72d87ca7f859215` |
+  | `craft-evidence/.../proposal-1440x900.png` | 105527 | `b55f50c010390dc917b1c52bce8ce2595b756bc989c9a5482dfb008a5dae9c20` |
+  | `craft-evidence/.../viewer-1440x900.png` | 123160 | `56fcf9c8c3d69313f7e53dba3763b22a9b9a0e0a06759321340159e98a6b6168` |
+  | `assets/screenshots/...-bound-1440.webp` | 15174 | `ab9e8213f5e064df1d1a51af825a53e8505184f0d798a540b5543f0c8efd6cd7` |
+  | `assets/screenshots/...-bound-720.webp` | 4990 | `9b73cd84c521d64378d0de090683ba6f376c747871b619d5c31a2f9f51dcea31` |
+  | `assets/screenshots/...-proposal-1440.webp` | 34852 | `0894773946eadcaab3bcda8b539cff81e86a44900827c887872ef57a28215a6d` |
+  | `assets/screenshots/...-proposal-720.webp` | 11804 | `c236b3cca21c8ae1f7858919593b3727dbef32dba3e919b27e595c7cb166417d` |
+  | `assets/screenshots/...-viewer-1440.webp` | 41814 | `c9412b7aadcead26da03f5f5cd659ddba7df54238bc57dc1a28ddca8beb58aa6` |
+  | `assets/screenshots/...-viewer-720.webp` | 14272 | `54e3807bbf23fd6a54a72602ff063e175f82027d9414f1264fd2280e5dbdca0d` |
+
+  `site/og.html` source SHA-256: `89af380ae1dc3ea591c3793eb971bd411f7f5086b0bcfbf6b785dca3ddc8f3ee`.
+
+- **独立 Pages 浏览矩阵**：独立端口 `127.0.0.1:18773` 的 built `site-dist` 由 in-app
+  Browser/Playwright 检查；1440×900 与 375×900 light 均 `scrollWidth === viewport.width`，
+  所有 lazy 图滚入视口后 broken **0**、未加载 **0**。dark 在临时副本强制 built
+  `prefers-color-scheme: dark` 分支（computed `--bg-app=#0F1622`、`--text-primary=#E4E9F1`）
+  复摄 1440/375，两尺寸同样无溢出、broken **0**；dark 1440 肉眼核对通过。JS-off 由
+  `site-dist` 去除 `main.js` 的副本复摄 1440/375，静态定位、发布真值、证据文案和三图仍可读，
+  无溢出、broken **0**。`assert-reduced-motion.mjs`（`reducedMotion: reduce`）实跑：运行中
+  动画 **3** 条且全在名册，演示层 computed animation **8/8 none**，四相位描边零朱，**PASS**。
+- **公开边界／CTA**：README `Stage 0 — 真实 MVP` 可见；Pages 有 scripted 验收与
+  `PI-BASE-GUI-ACCEPT` **external-validated blocked**，页级声明为唯一当前免责声明。
+  主 CTA 为 `https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg`，
+  次 CTA 为 GitHub 源码；`v0.1.2`、Apple Silicon、ad-hoc、未公证、SHA
+  `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d` 与“历史开发版，不含当前
+  main 的 Work Agent 主线”均在页上成立。未发现 team/member/Owner/RBAC/product-live 的
+  正向产品声明；FAQ 的否定边界与 PM 合成卷宗中的成员／负责人原文属于契约要求，不是能力宣称。
+- **三帧肉眼核对**：source PNG 的 bound / proposal / viewer 均显示真实本地容器、allow/deny
+  写入提案、只读 viewer 与底部 `Local workspace`；画面没有 Pinned、sample、Owner、Sample
+  lead 视觉残影。alt 中“未显示”仅为机器边界说明；三帧 caption/alt 均保留 scripted 边界。
+- **六项真实反例（均先红后精确复原）**：
+
+  1. 删除 `scripted` caption：versional 最小门 **17 pass / 1 fail**；复原。
+  2. 删除 external gate：versional **17/1**（缺失边界）；复原。
+  3. 声称 v0.1.2 含 current main：versional **17/1**；复原。
+  4. 恢复旧页级 disclaimer：deslop **47 pass / 1 fail**，R-12 maturity gate 命中；复原。
+  5. 恢复 Owner/Pinned sample 入口：versional **17/1**；复原。
+  6. 篡改 bound-1440 WebP 首字节：versional **17/1**，实际 SHA `f649b500...` 与 manifest
+     `ab9e8213...` 不等；从精确备份复原。
+
+ 六项复原后 focused versional **18/18**、`git diff --check`、完整门禁均重新为绿；仅追加本段，
+ 并按验收规则提交，未发布或部署。
