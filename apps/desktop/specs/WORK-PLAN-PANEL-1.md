@@ -51,10 +51,16 @@
 - `apps/desktop/src/App.tsx`（仅 Progress module 的 count/status 接线）
 - `apps/desktop/src/styles.css`（仅 Work Plan/运行记录的现行 token 皮层）
 - `apps/desktop/tests/e2e/generic-scenarios-1.spec.ts`
+- `apps/desktop/tests/e2e/rp1.spec.ts`（仅把旧 `0/6` 断言改为 S3 snapshot 同源值）
+- `apps/desktop/tests/e2e/workbench.spec.ts`（仅把旧 `16/20` 断言改为 S1 snapshot 同源值）
 - `apps/desktop/SPEC.md`（实现回执）
 
 实现会话先写失败测试再做最小实现。若现有测试夹具已能覆盖某条语义，应扩写既有夹具，
 不得为本票建立第二套 event/store/runtime。
+
+2026-08-20 架构范围补正：首轮实现回执发现上列两枚既有 Playwright 仍锁演示硬编码；它们
+正是本票改动契约的直接消费点，故纳入同一实现票前进式修正。S3 录制快照为 `1/2`，S1
+录制快照为 `1/3`；不得借改测试去修饰录制内容或另造完成度。
 
 ## 四、验收证据与反例
 
