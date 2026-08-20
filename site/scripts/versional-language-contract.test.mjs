@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { validateVersionalSite } from './versional-language-contract-lib.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+const readme = readFileSync(new URL('../../README.md', import.meta.url), 'utf8');
+const ogHtml = readFileSync(new URL('../og.html', import.meta.url), 'utf8');
+const captureScript = readFileSync(new URL('../../apps/desktop/scripts/capture-pi-lane-states.mjs', import.meta.url), 'utf8');
 const desktopCss = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
 const galleryHtml = readFileSync(new URL('../../apps/desktop/visual-gallery.html', import.meta.url), 'utf8');
 const galleryMain = readFileSync(new URL('../../apps/desktop/src/preview/gallery/main.tsx', import.meta.url), 'utf8');
@@ -136,4 +139,64 @@ test('R-13 og 卡与 manifest 逐字节绑定，且承载当期成熟度口径',
   assert.ok(!ogHtml.includes('案件内容永不训练'), 'og 卡不得断言第三方数据处理政策——本项目无验证手段');
   assert.ok(ogHtml.includes('未公证'), 'og 卡须与 index.html 同样携带制品边界');
   assert.ok(ogHtml.includes('合成数据试点'), 'og 卡须携成熟度限定词，不得是零对冲面');
+});
+
+test('PUBLIC-SURFACE-REAL-1 公开定位、成熟度与历史制品边界相邻且不回退', () => {
+  assert.match(readme, /^# Courtwork\n\nCourtwork 是与垂类解耦的本地优先通用 Work Agent GUI[：。]/);
+  assert.doesNotMatch(readme, /案件文件夹级协作|现行称谓只到“法律工作台”/);
+  assert.match(readme, /scripted/);
+  assert.match(readme, /PI-BASE-GUI-ACCEPT.*external-validated blocked/s);
+  assert.match(readme, /Stage 0 — 真实 MVP/);
+  assert.match(readme, /packages\/pi-lane[^\n]*已装配/);
+  assert.match(readme, /apps\/desktop/);
+  assert.match(readme, /当前 main 的\s+scripted GUI 不在 `?v0\.1\.2/);
+  assert.match(html, /<title>[^<]*本地优先[^<]*通用 Work Agent GUI/);
+  assert.match(html, /<meta property="og:title" content="[^"]*本地优先[^"通用]*通用 Work Agent GUI/);
+  assert.match(html, /<h1[^>]*aria-label="[^"]*本地优先[^"通用]*通用 Work Agent GUI/);
+  assert.match(html, /<p class="eyebrow">本地优先 · Work Agent GUI<\/p>/);
+  assert.match(html, /<span class="tc" style="--i:0">本<\/span>[\s\S]*<span class="tc" style="--i:4">面<\/span>/);
+  assert.match(html, /Legal 第一垂类 · scripted 验收微演示/);
+  assert.match(html, /aria-label="Legal 第一垂类的 scripted 微演示/);
+  assert.match(html, /正在闭合/);
+  assert.match(html, /由人逐条确认|人工决定/);
+  assert.match(html, /历史开发版，不含当前 main 的 Work Agent 主线/);
+  assert.match(ogHtml, /本地优先/);
+  assert.match(ogHtml, /通用 Work Agent GUI/);
+  assert.match(ogHtml, /未公证/);
+});
+
+test('PUBLIC-SURFACE-REAL-1 Work 三段与当前 scripted 证据资产均有机器绑定', () => {
+  for (const phrase of ['真实本地容器', '写入提案先由人决定', '结果只读核验']) assert.match(html, new RegExp(phrase));
+  const workRows = [...html.matchAll(/<article class="work-row"[\s\S]*?<\/article>/g)].map(([row]) => row);
+  assert.equal(workRows.length, 3);
+  for (const row of workRows) {
+    assert.match(row, /scripted|脚本化验收/);
+    assert.match(row, /assets\/screenshots\/PUBLIC-SURFACE-REAL-1-[^" ]+-(?:1440|720)\.webp/);
+    assert.match(row, /alt="[^"]*(?:scripted|脚本化验收)/);
+    assert.match(row, /<figcaption>[^<]*(?:scripted|脚本化验收)/);
+  }
+  const manifestPath = '../craft-evidence/PUBLIC-SURFACE-REAL-1/screenshot-manifest.json';
+  assert.ok(existsSync(new URL(manifestPath, import.meta.url)), '本票资产 manifest 缺失');
+  const manifest = JSON.parse(readFileSync(new URL(manifestPath, import.meta.url), 'utf8'));
+  assert.equal(manifest.schemaVersion, 'courtwork.public-surface-screenshot-manifest.v1');
+  assert.equal(Object.keys(manifest.sourceFrames).length, 3);
+  assert.equal(Object.keys(manifest.pagesAssets).length, 6);
+  for (const [name, expected] of Object.entries({ ...manifest.sourceFrames, ...manifest.pagesAssets })) {
+    const assetPath = name.endsWith('.png')
+      ? `../craft-evidence/PUBLIC-SURFACE-REAL-1/frames/${name}`
+      : `../assets/screenshots/${name}`;
+    const assetUrl = new URL(assetPath, import.meta.url);
+    assert.ok(existsSync(assetUrl), `${name} 缺失`);
+    assert.match(expected, /^[0-9a-f]{64}$/);
+    assert.equal(createHash('sha256').update(readFileSync(assetUrl)).digest('hex'), expected, `${name} SHA 与实物脱钩`);
+  }
+  assert.equal(manifest.viewport.width, 1440);
+  assert.equal(manifest.viewport.height, 900);
+  assert.match(manifest.productSha, /^[0-9a-f]{40}$/);
+});
+
+test('PUBLIC-SURFACE-REAL-1 capture 从真实容器起步，不再引导样板或 provider', () => {
+  assert.match(captureScript, /new-case-open/);
+  assert.match(captureScript, /setNextAuthorize/);
+  assert.doesNotMatch(captureScript, /welcome-demo-start|welcome-sample-open|先查看演示|provider-skip/);
 });

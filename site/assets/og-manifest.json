@@ -2,7 +2,7 @@
   "schemaVersion": "courtwork.og-card.v2",
   "note": "og.html 从不发布，读者只经本 png 看到这张卡。改 og.html 文案后必须跑 site/scripts/render-og.mjs 重渲，否则改动对外零效力。绑定由 versional-language-contract.test.mjs 守，锁两头：sourceSha256 锁「源变了产物没跟上」，sha256 锁「产物被人动过」——只锁后者时改标语不重渲可全链绿（v1 的实测缺口，独立验收坐实）。",
   "source": "site/og.html",
-  "sourceSha256": "4a1b8772a1f88240007842420420e460ee22d0bd3ec022df731c49b98b6cf13c",
+  "sourceSha256": "89af380ae1dc3ea591c3793eb971bd411f7f5086b0bcfbf6b785dca3ddc8f3ee",
   "renderer": "site/scripts/render-og.mjs",
   "viewport": {
     "width": 1200,
@@ -10,6 +10,6 @@
     "deviceScaleFactor": 1
   },
   "asset": "site/assets/og.png",
-  "bytes": 43849,
-  "sha256": "e03245bcda6d346143164583a42fd34c9e346fdacd727c101c2bd13f7f211669"
+  "bytes": 53305,
+  "sha256": "8e8e5da1bd49b9aa024a98f84ada9b2d8933fda359a8b243f493112ebc5fa25a"
 }

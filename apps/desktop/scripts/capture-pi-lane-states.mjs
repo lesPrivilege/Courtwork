@@ -1,11 +1,11 @@
-// PI-LANE-UI-1 · 通用工作稿面（Draft）全状态摄制。
+// PUBLIC-SURFACE-REAL-1 · 通用 Work scripted 公开帧摄制。
 //
 // 用法：先起 dev server（`VITE_COURTWORK_E2E=1 pnpm dev --port <port>`），再
 //   PORT=<port> OUT=<dir> THEMES=light,dark node scripts/capture-pi-lane-states.mjs
 //
-// 它驱动的是 `browser-pi-lane` 的 scripted 樁（ADR-022 六-C harness 注入面）：产的是账本形状
+// 它驱动的是 `browser-pi-lane` 的 scripted 桩（ADR-022 六-C harness 注入面）：产的是账本形状
 // 的记录，没有真 sidecar／真模型／真落盘。摄下来的是**界面对账本的投影**，不是产品运行事实。
-// 证据与逐枚 SHA-256 见 `release/evidence/pi-lane-ui-1-2026-08-05/README.md`。
+// 本票只从 fresh shell 创建真实容器；样板与 provider onboarding 不属于公开 Work 帧。
 import { chromium } from '@playwright/test';
 const port = process.env.PORT ?? '1470';
 const base = `http://127.0.0.1:${port}`;
@@ -43,15 +43,6 @@ async function fresh(theme) {
     });
     await page.reload();
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
-  }
-  const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-  const welcomeDemo = page.getByTestId('welcome-demo-start');
-  if (await welcomeDemo.isVisible()) {
-    await welcomeDemo.click();
-    const onboarding = page.getByTestId('provider-setup');
-    if (await onboarding.isVisible()) await page.getByTestId('provider-skip').click();
-    await page.getByTestId('event-stream').waitFor();
   }
   await page.mouse.move(0, 0);
   if (theme === 'dark') await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
@@ -111,12 +102,16 @@ for (const theme of themes) {
     await page.getByTestId('pi-tool-card').first().waitFor();
     await shot(page, `04-running${suffix}`);
     await page.getByTestId('pi-proposal').waitFor();
+    await page.getByTestId('pi-proposal').evaluate((proposal) => {
+      proposal.closest('[data-testid="pi-tool-card"]')?.querySelector('[data-testid="pi-tool-details"]')?.setAttribute('open', '');
+    });
     await shot(page, `05-proposal${suffix}`);
     await page.getByTestId('pi-approve').click();
     await page.getByTestId('pi-draft-open').first().waitFor();
     await shot(page, `06-succeeded${suffix}`);
     await page.getByTestId('pi-drafts').getByTestId('pi-draft-open').click();
     await page.getByTestId('pi-viewer-body').waitFor();
+    await page.getByTestId('pi-viewer-details').evaluate((details) => details.setAttribute('open', ''));
     await shot(page, `07-viewer${suffix}`);
     await page.getByTestId('pi-viewer-close').click();
     await page.getByTestId('pi-restart').click();

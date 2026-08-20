@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "courtwork.public-surface-screenshot-manifest.v1",
+  "productSha": "3a4a90e8a2cd43362ecfce09135bb637496f6b36",
+  "captureScript": "apps/desktop/scripts/capture-pi-lane-states.mjs",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "sourceFrames": {
+    "PUBLIC-SURFACE-REAL-1-bound-1440x900.png": "f05a3de1e662064d83d7b59a54e2c960e50b2d093aae01c0e72d87ca7f859215",
+    "PUBLIC-SURFACE-REAL-1-proposal-1440x900.png": "b55f50c010390dc917b1c52bce8ce2595b756bc989c9a5482dfb008a5dae9c20",
+    "PUBLIC-SURFACE-REAL-1-viewer-1440x900.png": "56fcf9c8c3d69313f7e53dba3763b22a9b9a0e0a06759321340159e98a6b6168"
+  },
+  "pagesAssets": {
+    "PUBLIC-SURFACE-REAL-1-bound-1440.webp": "ab9e8213f5e064df1d1a51af825a53e8505184f0d798a540b5543f0c8efd6cd7",
+    "PUBLIC-SURFACE-REAL-1-bound-720.webp": "9b73cd84c521d64378d0de090683ba6f376c747871b619d5c31a2f9f51dcea31",
+    "PUBLIC-SURFACE-REAL-1-proposal-1440.webp": "0894773946eadcaab3bcda8b539cff81e86a44900827c887872ef57a28215a6d",
+    "PUBLIC-SURFACE-REAL-1-proposal-720.webp": "c236b3cca21c8ae1f7858919593b3727dbef32dba3e919b27e595c7cb166417d",
+    "PUBLIC-SURFACE-REAL-1-viewer-1440.webp": "c9412b7aadcead26da03f5f5cd659ddba7df54238bc57dc1a28ddca8beb58aa6",
+    "PUBLIC-SURFACE-REAL-1-viewer-720.webp": "54e3807bbf23fd6a54a72602ff063e175f82027d9414f1264fd2280e5dbdca0d"
+  }
+}
