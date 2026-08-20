@@ -1,7 +1,8 @@
 # PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化
 
-状态：**已清账**。架构冻结 `a237230`；独立 Luna 实现 `381e206`，产品合入
-`5187c797`；另一 Luna 独立验收 PASS `703e042`，验收合入 `c8d3292`。基线
+状态：**补正中，未清账**。架构冻结 `a237230`；独立 Luna 实现 `381e206`，产品合入
+`5187c797`；验收 `703e042` 曾给出 PASS，但此前独立验收 `3707f94` 的 provenance REJECT 后被
+发现且成立，故 `c8d3292`／`70ea976` 的放行与清账结论由本补正前进式撤回。基线
 `main @ 3a4a90e`。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/status/current.md`、
@@ -136,6 +137,22 @@ background/schedule、统计 dashboard 或通知中心。
 - 去 scripted、去 external gate、伪称 v0.1.2 含 current main、恢复旧免责声明、恢复 Owner/Pinned
   sample、篡改 WebP 六类反例均实际触红并复原。完整证据见 `site/ACCEPTANCE.md` 的
   `PUBLIC-SURFACE-REAL-1-ACCEPT-3`。
-- 本票只放行 README／Pages 的真实化表达，不改变 `PI-BASE-GUI-ACCEPT = external-validated
-  blocked`、Stage 0、能力成熟度或 v0.1.2 历史开发制品事实。README/Pages 独占槽释放；fresh push
-  与线上 Pages 复核是发布动作，不再改变本票产品契约。
+- 原清账结论已由下节 provenance 补正撤回；本节保留为发生过的提交事实，不再构成放行依据。
+
+## 七、provenance 补正 R1（2026-08-20）
+
+`3707f94` 指出的阻断成立：manifest 与 evidence README 将 `productSha` 写成实现前基线
+`3a4a90e…`，且机器门只校验 40 位 hex，不能证明公开帧来自被验产品 tip。架构裁决如下：
+
+1. 本票 `productSha` 的语义固定为**实际执行 capture 的完整 git tip**，该 tip 必须同时包含现行
+   Work shell、capture script 与 DEMO/REAL 边界；不得用父提交、口头等价或实现前基线代替。
+2. 补正实现必须在精确产品 merge `5187c797c6ced84188c0b4e8ae7b00ecb8e50922` 的 clean worktree
+   重跑 capture；即使 PNG/WebP 字节与旧帧相同，也必须记录重摄命令与新 provenance。manifest 与
+   evidence README 同步写入该完整 SHA。
+3. 机器门必须锁定 manifest `productSha === 5187c797…`，并锁定 evidence README 出现同一完整
+   SHA；把字段换回任意其他 40 位 SHA 必须变红，不能只测格式。
+4. Hero 可见短句“本地工作面。”是既有层级选择，不是本轮阻断；完整定位已在 title、eyebrow、
+   aria 与首段成立，本补正不扩张为视觉重排。
+5. 补正由原实现 Luna 执行，只改 evidence README／manifest、确需重摄的三 PNG/六 WebP、精确
+   provenance 门与 `site/SPEC.md` 回执；另一 Luna 必须从 clean worktree 复验 provenance mutation、
+   资产 bytes/SHA 与原全门。新 PASS 前 README/Pages 槽保持占用，不得 push/deploy。
