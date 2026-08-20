@@ -160,7 +160,7 @@ a { -webkit-tap-highlight-color: transparent; }
   letter-spacing: .025em;
 }
 .wordmark img { width: 18px; height: 18px; flex: none; }
-nav { display: flex; gap: 24px; }
+nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 18px; }
 nav a { color: var(--text-secondary); font-size: 13px; text-decoration: none; transition: color 120ms var(--ease-out); }
 nav a:focus-visible, nav a:hover { color: var(--text-primary); }
 
@@ -192,8 +192,6 @@ h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title { color: var(--i
 /* 文书轨消费面（编排义务①·仿宋字号/行高补偿）：仿宋视觉偏小偏窄，故较同级 sans
    升 1px 字号并放宽行高与字距，令文书面与说明文字在视觉上等重而非等号。 */
 .zh-doc { font-family: var(--font-doc); font-weight: 400; font-synthesis: none; letter-spacing: .01em; }
-.demo-clause.zh-doc { font-size: 15px; line-height: 2.2; }
-.demo-suggestion.zh-doc { font-size: 15px; line-height: 1.85; }
 .evidence-step blockquote.zh-doc { font-size: 15px; line-height: 1.9; }
 .scenario-proof blockquote.zh-doc { font-size: 15px; line-height: 1.8; }
 h1 { margin-top: 12px; max-width: 760px; font-size: clamp(48px, 7vw, 88px); line-height: 1.04; }
@@ -237,6 +235,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .release-fact { display: flex; flex-wrap: wrap; gap: 0; margin: 20px 0 0; color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .release-fact span + span::before { content: "·"; padding: 0 10px; }
 .release-fact code { overflow-wrap: anywhere; color: var(--text-secondary); font: inherit; }
+.release-fact .release-history { color: var(--text-secondary); }
 .publication-colophon { width: fit-content; max-width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); background: transparent; }
 /* SITE-CRAFT-2 N2 · 页级总声明（恰一处，门内逐字签入）：逐卷复读的对冲整句退役后，
    试点边界由这一行统一承载。小注体例沿 .release-pending，零动效零新色。 */
@@ -250,70 +249,19 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .traffic i:nth-child(2) { background: var(--mac-minimize); }
 .traffic i:nth-child(3) { background: var(--mac-zoom); }
 .mac-window img { width: 100%; height: auto; background: var(--bg-app); }
+.hero-window-note { margin: 0; padding: 10px 14px; display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid var(--border-hairline); color: var(--meta); background: var(--bg-surface); font-family: var(--mono); font-size: 11px; }
+.hero-window-note a { color: var(--text-secondary); }
+
+.status-strip { grid-column: 1 / -1; margin: 12px 0 0; padding: 14px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; border-top: 1px solid var(--border-strong); list-style: none; }
+.status-strip li { min-width: 0; display: grid; gap: 4px; }
+.status-strip span { color: var(--meta); font-family: var(--mono); font-size: 11px; }
+.status-strip strong { color: var(--text-primary); font-size: 13px; font-weight: 510; line-height: 1.45; }
 
 @media (min-width: 1100px) {
   .hero { min-height: min(820px, calc(100vh - 72px)); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(48px, 5vw, 96px); align-items: center; }
   .hero-copy { max-width: none; }
   .hero h1 { font-size: clamp(48px, 5vw, 80px); }
   .hero-window { margin: 0; }
-}
-
-/* SITE-CRAFT-2 B2 · hero 微演示：活的 schema 工作面（锚点跳转/逐条确认/修订对照三幕回放）。
-   诚实重建，不冒充截图（mac-bar 标注「微演示重建」）；全部文本取自页面既有已验字串。
-   动效契约（deslop demo-motion 门锁定）：demo-* keyframe 只动 background-color/border-color/opacity
-   ——注意力底纹与刻线循环，数据字形绝对静止、零位移零变形；reduced-motion 整体全灭为定格全景；
-   JS 关闭不受影响（纯 CSS，main.js 零触碰）。 */
-.schema-demo { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); background: var(--bg-raised); }
-.schema-demo p { margin: 0; }
-.demo-meta { color: var(--meta); font-family: var(--mono); font-size: 11px; }
-.demo-doc { padding: 24px 26px 26px; border-right: 1px solid var(--border-hairline); background: var(--bg-app); }
-.demo-clause { margin-top: 14px; color: var(--text-primary); font-size: 14px; line-height: 2.1; text-align: justify; line-break: strict; }
-.demo-anchor { background-color: transparent; border-bottom: 1px solid color-mix(in srgb, var(--border-focus) 45%, transparent); color: inherit; animation: demo-anchor-a 12s linear infinite; }
-.demo-judgment { padding: 24px 26px 26px; display: flex; flex-direction: column; gap: 12px; }
-.demo-entry-head { display: flex; align-items: baseline; gap: 10px; font-size: 15px; }
-.demo-entry-head strong { font-weight: 510; }
-.demo-level { color: var(--red-fg); font-family: var(--mono); font-size: 11px; }
-.demo-basis { padding: 8px 10px; border: 1px solid var(--border-hairline); border-radius: 4px; color: var(--text-secondary); font-family: var(--mono); font-size: 11px; animation: demo-attn-a 12s linear infinite; }
-.demo-gate { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-b 12s linear infinite; }
-.demo-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
-/* 朱＝人工裁决之痕（架构定谳：朱印/朱批皆属），落在微演示里唯一由人落定的一格。
-   **朱不作环境色**（与 line.settled 前向守卫同语义）：描边只在幕二「逐条确认」那一段现形，
-   幕外回中性墨——朱的出现即「此刻有人在裁决」，恒亮就退化成装饰色了。
-   字色恒中性：朱只走描边不铺到文字层，既守「痕」的语义，也把动的属性限在
-   demo-motion 白名单内的 border-color。刻意不做朱填充——填充会把静态描绘读成可点控件。
-   reduced-motion 下 `.schema-demo * { animation: none }` 使描边定格在中性基态，朱不残留。 */
-.demo-actions span { padding: 3px 10px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-primary); font-size: 12px; animation: demo-zhu-b 12s linear infinite; }
-@keyframes demo-zhu-b {
-  0%, 35% { border-color: var(--border-strong); }
-  38%, 60% { border-color: var(--zhu-graphic); }
-  63%, 100% { border-color: var(--border-strong); }
-}
-.demo-compare { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-c 12s linear infinite; }
-.demo-suggestion { margin-top: 6px; color: var(--text-primary); font-size: 14px; }
-.demo-phases { grid-column: 1 / -1; margin: 0; padding: 0 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; list-style: none; }
-.demo-phases li { padding: 10px 0 12px; border-top: 1px solid var(--border-hairline); color: var(--meta); font-family: var(--mono); font-size: 11px; }
-.demo-phase-a { animation: demo-attn-a 12s linear infinite; }
-.demo-phase-b { animation: demo-attn-b 12s linear infinite; }
-.demo-phase-c { animation: demo-attn-c 12s linear infinite; }
-@keyframes demo-attn-a {
-  0%, 2% { background-color: transparent; border-color: var(--border-hairline); }
-  5%, 27% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
-  30%, 100% { background-color: transparent; border-color: var(--border-hairline); }
-}
-@keyframes demo-attn-b {
-  0%, 35% { background-color: transparent; border-color: var(--border-hairline); }
-  38%, 60% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
-  63%, 100% { background-color: transparent; border-color: var(--border-hairline); }
-}
-@keyframes demo-attn-c {
-  0%, 68% { background-color: transparent; border-color: var(--border-hairline); }
-  71%, 93% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
-  96%, 100% { background-color: transparent; border-color: var(--border-hairline); }
-}
-@keyframes demo-anchor-a {
-  0%, 2% { background-color: transparent; }
-  5%, 27% { background-color: color-mix(in srgb, var(--border-focus) 15%, transparent); }
-  30%, 100% { background-color: transparent; }
 }
 
 /* SITE-CRAFT-2 磁青宗批 · 文书记号系（SchemaParts 件库消费面）。件本身零色值（一律 currentColor），
@@ -357,6 +305,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .work-copy span { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .work-copy h3 { margin-top: 10px; }
 .work-copy p { max-width: 30rem; margin: 16px 0 0; color: var(--text-secondary); font-size: 16px; }
+.work-provenance { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; color: var(--meta); font-family: var(--mono); font-size: 11px; }
+.work-provenance a { color: var(--text-secondary); }
 .work-crop { margin: 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
 .work-crop img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: contain; }
 .work-crop figcaption { padding: 8px 12px; border-top: 1px solid var(--border-hairline); color: var(--meta); font-family: var(--mono); font-size: 11px; }
@@ -483,11 +433,9 @@ footer p { margin: 0; }
 @media (max-width: 760px) {
   :root { --page-gutter: 24px; }
   .site-header { min-height: 64px; }
-  nav { gap: 14px; }
-  nav a:nth-child(2) { display: none; }
+  nav { gap: 10px 14px; }
   .hero { padding-top: 72px; }
-  .schema-demo { grid-template-columns: 1fr; }
-  .demo-doc { border-right: 0; border-bottom: 1px solid var(--border-hairline); }
+  .status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
   .settle-seal { position: static; margin-top: 20px; }
   .work-row { grid-template-columns: 1fr; gap: 24px; }
   .work-crop img { aspect-ratio: 16 / 9; }
@@ -502,6 +450,7 @@ footer p { margin: 0; }
   .evidence-step { border-right: 0; }
   .release-fact { display: grid; }
   .release-fact span + span::before { content: none; }
+  .status-strip { grid-template-columns: 1fr; }
   .scenario-proof { grid-template-columns: 1fr; }
   .scenario-proof li { border-right: 0; border-top: 0; }
 }
@@ -513,9 +462,4 @@ footer p { margin: 0; }
   .evidence-step { background: var(--bg-app); }
   .evidence-step::before { background: var(--text-primary); }
   .evidence-step[data-stage="conclusion"]::before { background: var(--red-fg); }
-  /* 微演示定格全景：注意力循环整体全灭，信息因数据恒静而完整。 */
-  /* 归零必须**赢过**任何更高特异性的消费点，否则只是「分支在场」而非「分支胜出」：
-     `.demo-actions span`(0,1,1) 曾压过本行的 `.schema-demo *`(0,1,0)，令朱在 reduce 下照常
-     走完幕二而无人察觉。blanket 归零用 !important 才是真归零。 */
-  .schema-demo *, .schema-demo *::before, .schema-demo *::after { animation: none !important; }
 }
