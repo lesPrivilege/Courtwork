@@ -141,7 +141,9 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // UI 原语」，外提出去的是这些原语的编排而非新原语，两条纪律不冲突。本票在 App 净增的
 // 只有一次组件调用与一行 import，由这件外提抵消并再收紧 7。
 // WORK-AGENT-GUI-1：删除 renderer-only 工作稿状态、落轨分支与三入口编排，2218 → 2195。
-const HIGH_WATER_LINES = 2195;
+// WORK-PLAN-PANEL-1（2026-08-20，独立验收前进式收口）：2195 → 2193；Work Plan 的
+// projection wiring 已完成并经外提抵消，精确收紧 floor，不放宽后续票空间。
+const HIGH_WATER_LINES = 2193;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。
