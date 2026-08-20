@@ -223,7 +223,16 @@ test.describe('开合闭合门 · 疊层清单', () => {
 
   test('archive-popover · Popover（popover 锚定·显式）', async ({ page }) => {
     await enterSettledDemo(page);
-    const card = page.locator('.case-card').first();
+    // DEMO-REAL-SHELL-1：样板案在 Sample 分区中只读，不再提供归档控件；
+    // 归档闭合门必须锚定真实案件，避免用样板展品测试生产动作。
+    const realCaseTitle = 'residue-archive-case';
+    await page.getByTestId('new-case-open').click();
+    const dialog = page.getByTestId('new-case-dialog');
+    await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
+    await dialog.getByRole('textbox', { name: '案件名称' }).fill(realCaseTitle);
+    await dialog.getByRole('button', { name: '创建案件' }).click();
+    await dialog.waitFor({ state: 'hidden' }).catch(() => undefined);
+    const card = page.locator('.case-card').filter({ hasText: realCaseTitle }).first();
     await runClosureGate(page, {
       label: 'archive',
       overlay: page.locator('.archive-popover'),
@@ -352,18 +361,17 @@ test.describe('开合闭合门 · 疊层清单', () => {
   });
 
   test('provider-setup · Modal（首启凭证·sheet 模态）', async ({ page }) => {
-    // 基线 A=安静欢迎面；首次发送打开 provider-setup；Escape→onClose 仍回到原上下文。
+    // 基线 A=安静欢迎面；Connect 打开 provider-setup；Escape→onClose 仍回到原上下文。
     await page.goto('/');
     await expect(page.getByTestId('welcome-state')).toBeVisible();
-    const trigger = page.getByTestId('composer-send');
-    const input = page.getByTestId('composer-input');
+    const trigger = page.getByTestId('model-config-trigger');
     await runClosureGate(page, {
       label: 'provider-setup',
       overlay: page.getByTestId('provider-setup'),
       role: 'dialog',
       focus: trigger,
-      open: async () => { await input.fill('开始处理'); await trigger.click(); },
-      close: async () => { await page.keyboard.press('Escape'); await input.fill(''); await trigger.focus(); },
+      open: () => trigger.click(),
+      close: async () => { await page.keyboard.press('Escape'); },
     });
   });
 });
