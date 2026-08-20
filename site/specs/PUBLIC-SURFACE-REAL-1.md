@@ -1,9 +1,9 @@
 # PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化
 
-状态：**补正中，未清账**。架构冻结 `a237230`；独立 Luna 实现 `381e206`，产品合入
-`5187c797`；验收 `703e042` 曾给出 PASS，但此前独立验收 `3707f94` 的 provenance REJECT 后被
-发现且成立，故 `c8d3292`／`70ea976` 的放行与清账结论由本补正前进式撤回。基线
-`main @ 3a4a90e`。
+状态：**已清账**。架构冻结 `a237230`；独立 Luna 实现 `381e206`，产品合入 `5187c797`；
+`703e042` 曾给出 PASS，但独立验收 `3707f94` 的 provenance REJECT 后发现且成立；架构补正
+`b317dd1`，原实现 Luna R1 `6f9a60b`／合入 `28ebe19`，新独立 Luna PASS `dcac0e2`／合入
+`ed0c2a2`。基线 `main @ 3a4a90e`。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/status/current.md`、
 `docs/product/roadmap.md`、`docs/architecture/implementation-readiness.md`、
@@ -156,3 +156,17 @@ background/schedule、统计 dashboard 或通知中心。
 5. 补正由原实现 Luna 执行，只改 evidence README／manifest、确需重摄的三 PNG/六 WebP、精确
    provenance 门与 `site/SPEC.md` 回执；另一 Luna 必须从 clean worktree 复验 provenance mutation、
    资产 bytes/SHA 与原全门。新 PASS 前 README/Pages 槽保持占用，不得 push/deploy。
+
+### R1 清账结果
+
+- 实现从 detached `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`、独立端口 1578 实际重摄
+  三 PNG 并重派生六 WebP；新旧实物逐字节相同，因此只更新 manifest／evidence README 与精确门，
+  没有制造二进制 diff。
+- 新门同时锁 manifest 与 README 的完整 product SHA；manifest 单改、README 单改、两者同改为
+  同一个错误 40 位 SHA 三种 mutation 均实际触红，关闭 `3707f94` 的唯一阻断。
+- 新独立验收以补正 merge `28ebe19` 为对象：focused **66/66**、site guard **106/106**、site
+  build/lint/全仓 build、3 provenance＋原 6 mutation、1440/375 light/dark/JS-off/reduced-motion
+  八 context 与三帧目检全部通过；`703e042` 旧 PASS 不作为 R1 放行依据。
+- 本票至此清账并释放 README/Pages 槽。Stage 0、`PI-BASE-GUI-ACCEPT = external-validated blocked`、
+  v0.1.2 历史开发制品、tag/Release 与 `docs/status/current.md` 均不变；只有 fresh push 与线上 Pages
+  复核完成后，本轮发布动作才结束。
