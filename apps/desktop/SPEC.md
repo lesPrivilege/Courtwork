@@ -4,6 +4,16 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
+## DEMO-REAL-SHELL-1 · 发布态真实工作／样例边界（架构冻结，待实现）
+
+权威：`specs/DEMO-REAL-SHELL-1.md`。当前 `main @ b154b2b` 的 demo runtime 已双向隔离，
+但产品壳仍把样板案固定注入、固定 Pinned，并以 `林律师 · Sample lead` 污染账户位；欢迎页两条
+建议均通向样板，其中 provider Skip 还会劫持入 demo。本票只修 desktop shell：真实 Recent、
+诚实 fresh 空态、显式且瞬时的 Sample 分区、样例只读、`Local workspace` 本机设置入口、
+provider Skip 留在原上下文。
+不改 demo fixture／binding、真实持久契约、runtime/schema/provider，不新增成员、权限或团队协作。
+实现与测试数字待实现会话在本节续写；独立验收只写 `ACCEPTANCE.md`。
+
 ## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（已独立验收放行）
 
 权威：`specs/WORK-PLAN-PANEL-1.md`（票面唯一工单）及其列明的 `CLAUDE.md`、架构/设计文档；实现基线 `main @ 9a9cf15`，分支 `codex/work-plan-panel-1`，隔离 worktree 施工。未修改 `docs/status/current.md`，未触 core event、schema、wire、journal、runtime、provider、Pi lane、workspace 或授权语义。
