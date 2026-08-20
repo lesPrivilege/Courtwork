@@ -1,6 +1,6 @@
 {
   "schemaVersion": "courtwork.public-surface-screenshot-manifest.v1",
-  "productSha": "3a4a90e8a2cd43362ecfce09135bb637496f6b36",
+  "productSha": "5187c797c6ced84188c0b4e8ae7b00ecb8e50922",
   "captureScript": "apps/desktop/scripts/capture-pi-lane-states.mjs",
   "viewport": {
     "width": 1440,
