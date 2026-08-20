@@ -7774,3 +7774,54 @@ bytes/hash、键盘完整路径、VoiceOver/AX 读屏语义、焦点归还、red
 `external-validated blocked`，不更新 `docs/status/current.md`，不扩大产品成熟度，不修实现，
 不修改契约，不推送。提交前只暂存 `apps/desktop/ACCEPTANCE.md`；提交后由父会话复核
 `git diff --cached --name-only`、`git diff --check` 与产品路径零 diff。
+
+## WORK-PLAN-PANEL-1 · 独立验收（product `4d7b843db253862e41e04c71e0384ed7a8f9a957`）
+
+验收会话在独立 clean worktree `/private/tmp/courtwork-work-plan-panel-accept-4d7b843-luna`
+从目标 product SHA 起步；共享主树未 checkout、stash、清理或还原。入场状态为
+`## HEAD (no branch)`、无工作树改动；本节只追加本文件，未修改 product、SPEC、contract、
+current 或 Rust/Tauri。最终裁决：**`REJECT`（确定性产品门禁未通过；WKWebView AX 为未取得的
+外部证据，不冒充通过）**。
+
+### 实跑证据
+
+| 项目 | 命令/结果 |
+|---|---|
+| product 身份 | `git rev-parse HEAD` = `4d7b843db253862e41e04c71e0384ed7a8f9a957` |
+| 全仓构建 | `pnpm -r build` PASS（15/16 workspace packages；desktop `tsc -b && vite build` PASS；仅保留既有 chunk size warning） |
+| Work Plan/协议单测 | `pnpm --filter @courtwork/desktop test -- src/modules/module-stack.test.ts src/protocol/session-reset.test.ts src/demo/session-event.contract.test.ts` PASS，3 files / 23 tests |
+| 独立三组 E2E | `COURTWORK_E2E_PORT=19477 pnpm --filter @courtwork/desktop exec playwright test tests/e2e/rp1.spec.ts tests/e2e/workbench.spec.ts tests/e2e/generic-scenarios-1.spec.ts --project=app` PASS，43/43（43.7s）；未复用共享 server |
+| relevant guards | `lint:work-agent-gui`, `lint:icons`, `lint:motion`, `lint:visual-kit`, `lint:neutral`, `lint:elevation`, `lint:rule-grammar`, `lint:typography`, `work-port`, `work-live`, `work-safe-case-id-parity`, `ui-surface`, `material`, `layout-converge`, `schema-parts` 全 PASS |
+| 确定性门禁 | `pnpm --filter @courtwork/desktop exec node scripts/assert-app-highwater.mjs` **FAIL**：`App.tsx` 当前 2193 行，门禁上限仍为 2195；脚本明确要求把常量下调到 2193。本验收按父会话“只追加 ACCEPTANCE”约束未修改该脚本，故不能记 PASS。 |
+
+### 反例注入（每次均恢复，未留产品 diff）
+
+- 把 `App.tsx` 计数输入改成 `session.progress`：generic.draft E2E 在
+  `progress-module-count` 期望 `1/1`、实得 `0/0`，红。
+- 把计数输入改成 `Object.keys(session.artifacts)`：同一 E2E 期望 `1/1`、实得 `0/1`，红。
+- 把 `progressHeadCount` 改成硬编码 `0/6`：module-stack 单测期望 `—`、实得 `0/6`，红。
+- 把 `awaiting_confirmation` 映射成 `待开始`：module-stack 单测缺失 `等待确认`，红。
+- 在只读 Work Plan 加入 `<button>编辑计划</button>`：module-stack 单测的无
+  `checkbox/input/textarea/button` 守门红。
+
+这些反例覆盖了“只看旁白/产物/硬编码计数”、丢失 awaiting 语义及引入编辑入口三类漂移；
+每次随后以 apply-patch 恢复，验收 worktree 最终无 product diff。
+
+### 视觉、键盘与可访问性边界
+
+真实浏览器脚本已取得 1280px S3 Work Plan 截图：
+`/private/tmp/courtwork-work-plan-panel-accept-4d7b843-luna-evidence/work-plan-1280-s3.png`。
+三组 E2E 中既有 Workbench reduced-motion 用例（按压、anchor motion、reduced-motion）均通过；
+临时视觉脚本也实际触发了 keyboard Enter 折叠/展开与 `:focus-visible` 检查，但在继续等待
+S1 回放由 `—` 收敛为 `1/3` 时未完成，故本轮不把窄宽/200%/完整截图矩阵宣称为通过。
+三态文本/顺序/运行记录+failure 并存由 module-stack 单测与三组 E2E 覆盖；空态由单测覆盖。
+
+本轮没有取得真实 Tauri/WKWebView AX tree、VoiceOver/读屏、原生焦点或窗口级键盘证据；
+上述 browser/DOM 证据只证明 scripted DOM 行为，**不等同 AX PASS**。因此 AX 维度记为外部
+证据缺席，不升级为真实桌面可访问性通过，也不把它作为本次确定性 `REJECT` 的伪证。
+
+### 收口
+
+未修复 `app-highwater`，未修改任何契约或产品代码；本节是唯一改动。父会话应复核：
+`git diff --cached --name-only` 仅为 `apps/desktop/ACCEPTANCE.md`、`git diff --check`、
+以及产品路径零 diff。验收提交 SHA 由本提交后的 `git rev-parse HEAD` 记录并回报。
