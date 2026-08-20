@@ -1,6 +1,8 @@
 # PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化
 
-状态：架构冻结，待独立 Luna 实现与另一 Luna 验收。基线 `main @ 3a4a90e`。
+状态：**已清账**。架构冻结 `a237230`；独立 Luna 实现 `381e206`，产品合入
+`5187c797`；另一 Luna 独立验收 PASS `703e042`，验收合入 `c8d3292`。基线
+`main @ 3a4a90e`。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/status/current.md`、
 `docs/product/roadmap.md`、`docs/architecture/implementation-readiness.md`、
@@ -122,3 +124,18 @@ background/schedule、统计 dashboard 或通知中心。
 验收只追加 `site/ACCEPTANCE.md`；实现级测试小缺陷可用 `fix-by-acceptance` 单独提交。放行后由架构
 角色合入、清账，再在 main 上执行 fresh fetch/push；push 不创建 tag/Release。Pages workflow 成功且
 线上首页／OG／截图／v0.1.2 链接复核通过后，才算本轮完成。
+
+## 六、清账事实（2026-08-20）
+
+- 实现严格落在票面文件面：README／Pages／OG 完成公开口径校准；三枚当前 shell 源 PNG 与六枚
+  WebP 逐字节入 manifest；产品源码、schema/runtime/identity/ACL、依赖、版本、tag、Release 与
+  `docs/status/current.md` 均未修改。
+- 独立验收对象为产品 merge `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`。focused Node
+  **66/66**、`site:guard` **106/106**、site build、lint、全仓 build 均绿；1440/375、light/dark、
+  JS-off、reduced-motion 与三帧肉眼复核通过。
+- 去 scripted、去 external gate、伪称 v0.1.2 含 current main、恢复旧免责声明、恢复 Owner/Pinned
+  sample、篡改 WebP 六类反例均实际触红并复原。完整证据见 `site/ACCEPTANCE.md` 的
+  `PUBLIC-SURFACE-REAL-1-ACCEPT-3`。
+- 本票只放行 README／Pages 的真实化表达，不改变 `PI-BASE-GUI-ACCEPT = external-validated
+  blocked`、Stage 0、能力成熟度或 v0.1.2 历史开发制品事实。README/Pages 独占槽释放；fresh push
+  与线上 Pages 复核是发布动作，不再改变本票产品契约。

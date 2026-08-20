@@ -2,7 +2,7 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
-## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（架构冻结）
+## PUBLIC-SURFACE-REAL-1 · README／Pages 公开面真实化（已清账）
 
 权威：`site/specs/PUBLIC-SURFACE-REAL-1.md`。当前唯一公开面槽：把 README／Pages 从“法律工作台”
 唯一身份校准为“通用 Work Agent GUI 是定位与正在闭合的主线”，同时把 scripted 已验收事实、
@@ -12,7 +12,7 @@
 视觉系统，不改产品源码/schema/runtime/identity/ACL，不新增 team/member/RBAC/dashboard，不改版本、
 tag、Release 或下载真值。实现与独立验收的精确文件面、mutation 和线上复核见票面。
 
-### PUBLIC-SURFACE-REAL-1 · 实现回执（2026-08-20，待独立验收）
+### PUBLIC-SURFACE-REAL-1 · 实现与验收回执（2026-08-20，已放行）
 
 - README 与 Pages 已改为 Courtwork 的本地优先通用 Work Agent GUI 定位；Hero 明确 Legal 第一垂类
   scripted 微演示、正在闭合与人工决定，FAQ 与发布事实分开说明 `PI-BASE-GUI-ACCEPT =
@@ -23,9 +23,12 @@ tag、Release 或下载真值。实现与独立验收的精确文件面、mutati
 - 三枚 1440×900 PNG 与六枚 1440/720 WebP 由同源帧派生，逐字节 SHA 及 `productSha` 见
   `craft-evidence/PUBLIC-SURFACE-REAL-1/screenshot-manifest.json`；OG 已由 `og.html` 重渲并绑定
   `assets/og-manifest.json`。
-- 实现自检已通过：`node --test site/scripts/versional-language-contract.test.mjs site/scripts/deslop-scan.test.mjs`
-  **66/66**。`site:guard`、`site:build`、全仓 lint/build 与独立验收仍由后续门禁运行；本回执不构成放行，
-  也不替代 `site/ACCEPTANCE.md`。
+- 架构冻结 `a237230`，独立 Luna 实现 `381e206`，产品合入 `5187c797`；另一 Luna 以该精确产品
+  merge 独立验收并以 `703e042` PASS，验收合入 `c8d3292`。focused Node **66/66**、
+  `site:guard` **106/106**、site build、lint、全仓 build、1440/375 light/dark/JS-off/reduced-motion
+  与六类 mutation 全部通过；完整数字与资产 SHA 见 `site/ACCEPTANCE.md`。
+- 本次放行只覆盖 scripted 公开叙事与 Pages 资产，不升级 Stage 0，不改变 `PI-BASE-GUI-ACCEPT =
+  external-validated blocked`，不创建新 tag/Release，也不把当前 main GUI 写入 v0.1.2 历史制品。
 
 ## VERSIONAL-LANG-2 · 参考浅宗与二次减线（实现待独立验收）
 
