@@ -7857,3 +7857,81 @@ S1 回放由 `—` 收敛为 `1/3` 时未完成，故本轮不把窄宽/200%/完
 
 本 R1 之后只追加本文件；提交前后应核对 `git diff --cached --name-only` 仅含
 `apps/desktop/ACCEPTANCE.md`、`git diff --check` 通过，且除 fix commit 外产品路径零 diff。
+
+## DEMO-REAL-SHELL-1 · 独立验收（2026-08-20）
+
+独立验收结论：**`PASS`（仅放行本票 scripted desktop shell 范围）**。
+这不是 `PI-BASE-GUI-ACCEPT`、真实 WKWebView/AX、真实 provider 或 product-live 放行。
+
+### 身份与范围
+
+| 项目 | 实际值 |
+|---|---|
+| product SHA | `725f9921011e2e16628899c202c3938d8da53549`（实现 `20caeb968512965ea8b59b646337123e840c0dcc`） |
+| acceptance tip | `8c7edcfe7c18ec0892e1858536060243ffb057fb`，`fix-by-acceptance(desktop): align residue gates with real shell` |
+| 独立分支/worktree | `codex/accept-demo-real-shell-1` / `/private/tmp/courtwork-demo-real-shell-1-accept-3ZHjDO/worktree` |
+| ancestry/卫生 | product SHA 是 acceptance tip 祖先；最终 `git status --short --branch` clean；`git diff --cached --name-only` 为空（报告提交前仅追加本文件） |
+
+实现者只改了票面允许的 desktop shell、文案、rail、样例隔离注记和既有 E2E 语义同步；未改
+schema、core/runtime、provider、identity/ACL、依赖、Morphicons、Rust/Tauri、`current.md`、
+`release/` 或公开成熟度口径。验收级小修只改 `apps/desktop/tests/e2e/ui-residue.spec.ts`：
+归档闭合门创建真实案件后再测试归档；provider modal 改由真实可聚焦的
+`model-config-trigger` 打开，Escape 后验证自然焦点归还，未手工 `focus()`。
+
+### 实跑门
+
+| 面 | 独立命令与实测结果 |
+|---|---|
+| 定向单测 | `pnpm --filter @courtwork/desktop test -- src/rail/rail.test.ts src/case/case-store.test.ts src/case/case-scope.test.ts`：3 files / **34 passed** |
+| 新票 E2E | `COURTWORK_E2E_PORT=1510 ... playwright test tests/e2e/demo-real-shell-1.spec.ts --project=app --workers=1`：**4/4 passed** |
+| 锁定回归 | `COURTWORK_E2E_PORT=1511 ... playwright test rp1 rp2 rp26 rp27 rp29 case-persist ui-residue --workers=1`：**61/61 passed**，含 residue 两 project |
+| 构建 | `pnpm -r build`：**EXIT 0**，15/16 workspace；desktop `tsc -b`、Vite 4316 modules built；仅既有 chunk-size/dynamic-import advisory |
+| 根 lint | `pnpm lint`：**EXIT 0** |
+| 发布/设计守卫 | `pnpm site:guard`：**EXIT 0**；Node guard **103/103**，App highwater **2193/2193** |
+| Cargo | 未跑；本票实现与验收修缮零 Rust/Tauri 文件触面，故不虚报 Cargo 证据 |
+
+`reuseExistingServer=false` 由 `apps/desktop/playwright.config.ts` 固定；所有 Playwright 均以
+独立端口自起 Vite，未复用共享 server。
+
+### fresh / sample / real / reload 与视觉核对
+
+- fresh：`welcome-state` 可见；`case-card-demo-linjiang`、`rail-pinned` 为 0；`No recent work`、
+  `Local workspace`、`Create a case`、`Explore the sample case` 可见；provider 未被样例入口打开。
+- sample opt-in：只由 `welcome-sample-open` 进入；`rail-sample` 与 `只读演示` 可见，样例不在
+  Recent/Pinned；归档按钮为 0，标题双击不产生编辑输入；`case-list.v1` 不含 `demo-linjiang`。
+- reload：样例选择后重载回 welcome，Sample 分区消失；真实案件列表、grant 失效显式移除、
+  归档清除和跨重载绑定恢复由锁定 `case-persist` 5 格实跑覆盖。
+- real：新建 `真实工作案` 后只进入 Recent；从样例切入真实案时 Sample 消失，Local workspace 不变，
+  持久列表含真实案而不含样例。
+- provider：Skip 文案为 `暂不连接`；Skip 后仍在原 welcome 上下文，不选择样例、不打开 tour。
+
+临时视觉/DOM/键盘 smoke（`COURTWORK_E2E_PORT=1509`，1/1 passed）实际取得：
+
+- 1440 light fresh：`/private/tmp/courtwork-demo-real-shell-1-fresh-1440-light.png`；
+  1440 light sample：`/private/tmp/courtwork-demo-real-shell-1-sample-1440-light.png`；
+- 390 real light/dark：`/private/tmp/courtwork-demo-real-shell-1-real-390-light.png`、
+  `/private/tmp/courtwork-demo-real-shell-1-real-390-dark.png`；390 真实案件名与本地工作面空态可见，
+  深宗背景与 ink 主操作同构；
+- DOM/键盘：fresh DOM 核对样例零驻留、空态与文案；从 `welcome-new-case` 以 `Tab` 实测到
+  `welcome-sample-open`；sample DOM 核对只读、无归档/改名路径；dark smoke 核对 `html[data-theme="dark"]`。
+
+### mutation 反例（每类均观察目标门变红，随后恢复）
+
+| mutation | 实际红证 |
+|---|---|
+| 恢复初始化 `[DEMO_CASE, ...hydratePersistedCases()]` | fresh 门 `case-card-demo-linjiang` 期望 0、实得 1，红 |
+| 把样例重新送进 Recent（`railCases = [DEMO_CASE, ...cases]`） | fresh 同一样例驻留断言红 |
+| sample click 重新 `setProviderSetupOpen(true)` | sample 门 provider setup 期望 0、实得 1，红 |
+| Skip 重新选择 `DEMO_CASE_ID` | Skip 门 `welcome-state` 期望可见但缺失，红 |
+| Local workspace 恢复 `Owner` | fresh 门期望 `Local workspace`、实得 `Owner⌃`，红 |
+| 样例标题恢复可编辑按钮 | sample 门 `chat-case-title-input` 期望 0、实得 1，红 |
+| 样例恢复 archive trigger | sample 门归档按钮期望 0、实得 1，红 |
+
+上述注入均用 apply-patch 临时完成并撤回；产品源文件最终相对 product SHA 零残留 diff。
+
+### 边界与放行语义
+
+本票只证明真实 Recent/诚实空态/显式样例/样例只读/本地工作区账户壳及 provider Skip 的
+scripted shell 边界；不新增 workspace、成员、角色、权限、ACL、团队协作、后台调度、分享、审计
+或统计 dashboard。`PI-BASE-GUI-ACCEPT` 当前仍是 external-validated blocked；不能据本票称
+Work Agent 已 product-live。
