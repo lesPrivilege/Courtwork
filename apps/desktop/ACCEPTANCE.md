@@ -7825,3 +7825,35 @@ S1 回放由 `—` 收敛为 `1/3` 时未完成，故本轮不把窄宽/200%/完
 未修复 `app-highwater`，未修改任何契约或产品代码；本节是唯一改动。父会话应复核：
 `git diff --cached --name-only` 仅为 `apps/desktop/ACCEPTANCE.md`、`git diff --check`、
 以及产品路径零 diff。验收提交 SHA 由本提交后的 `git rev-parse HEAD` 记录并回报。
+
+## WORK-PLAN-PANEL-1 · R1 前进式小缺陷收口
+
+本节承接上一节的 product `4d7b843db253862e41e04c71e0384ed7a8f9a957`，并记录独立验收
+授权的小缺陷修复。初始 born-red 已实跑：旧 `HIGH_WATER_LINES = 2195` 下，
+`pnpm --filter @courtwork/desktop lint:app-highwater` 报“当前 2193 行 < 上限 2195 行”。
+仅修改 `apps/desktop/scripts/assert-app-highwater.mjs`，将 floor 精确收紧为 `2193`，并在
+相邻注释登记 `WORK-PLAN-PANEL-1`；未修改产品组件、SPEC、contract、current 或其他门。
+
+### Fix 与门证据
+
+- fix commit：`8ea6264ce799a6d4bd7db909e5c6465b64cd3a77`
+- fix commit 的 exact product 基线：`4d7b843db253862e41e04c71e0384ed7a8f9a957`
+- `pnpm --filter @courtwork/desktop lint:app-highwater`：PASS，`2193 行（上限 2193，只降不升）`
+- `pnpm site:guard`：PASS，Node guard `103/103`，并包含 neutral/elevation/signature/motion/design-md/schema/skin/app-highwater 全链
+- `pnpm --filter @courtwork/desktop build`：PASS，`tsc -b && vite build`
+- `pnpm --filter @courtwork/desktop test -- src/modules/module-stack.test.ts src/protocol/session-reset.test.ts src/demo/session-event.contract.test.ts`：PASS，`3 files / 23 tests`
+
+此前独立端口 `19477` 的 `rp1 + workbench + generic` E2E `43/43` 与上一节五类 mutation
+红测沿用：本 R1 只改静态门禁 floor，未改 React/projection/DOM 行为，故不重复运行无关矩阵，
+也不扩大既有证据含义。反例仍包括 progress/artifact/硬编码计数、awaiting 丢失和编辑入口，
+均已在上一节观察到目标守门变红并恢复。
+
+### R1 裁决与 AX 边界
+
+确定性 scripted product scope 现为 **`PASS`**：此前唯一确定性门禁已通过，且 fix 提交只
+收紧真实 floor。真实 Tauri/WKWebView AX tree、VoiceOver/读屏、原生焦点与窗口级键盘证据
+仍未取得；浏览器/DOM、reduced-motion 与截图证据不升级为 AX PASS。故本 R1 只宣称 scripted
+范围 PASS，不宣称真实桌面 AX/原生可访问性通过。
+
+本 R1 之后只追加本文件；提交前后应核对 `git diff --cached --name-only` 仅含
+`apps/desktop/ACCEPTANCE.md`、`git diff --check` 通过，且除 fix commit 外产品路径零 diff。
