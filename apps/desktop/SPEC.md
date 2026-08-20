@@ -11,6 +11,7 @@
 建议均通向样板，其中 provider Skip 还会劫持入 demo。本票只修 desktop shell：真实 Recent、
 诚实 fresh 空态、显式且瞬时的 Sample 分区、样例只读、`Local workspace` 本机设置入口、
 provider Skip 留在原上下文。
+Skip 按钮自身同步从误导性的「先查看演示」收敛为「暂不连接」；凭证状态机与验证语义不改。
 不改 demo fixture／binding、真实持久契约、runtime/schema/provider，不新增成员、权限或团队协作。
 实现与测试数字待实现会话在本节续写；独立验收只写 `ACCEPTANCE.md`。
 

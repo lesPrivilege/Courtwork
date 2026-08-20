@@ -46,8 +46,8 @@ Skip 再把用户劫持进样板。于是首屏同时暗示了并不存在的历
   `Explore the sample case`。不得同时放两条指向同一 demo 的建议。
 - 探索样例是显式 opt-in：点击后直接进入既有 `DEMO_CASE_ID`／fixture／tour，不先打开 provider
   引导，也不触发 credential probe。样例不需要真实 provider 才能浏览。
-- provider 引导只由既有 Connect／model config／真实发送路径打开。其 `Skip` 只记录 onboarding
-  已看并关闭引导，必须留在原上下文；不得再把用户转入样板案。
+- provider 引导只由既有 Connect／model config／真实发送路径打开。其 `Skip` 文案冻结为
+  `暂不连接`，只记录 onboarding 已看并关闭引导，必须留在原上下文；不得再把用户转入样板案。
 - 产品测试选择器同步改为语义真实的 `welcome-sample-open`／`welcome-new-case`；不得保留
   `welcome-demo-start` 这种既开凭证又开样板的混合命名。
 
@@ -75,6 +75,7 @@ Skip 再把用户劫持进样板。于是首屏同时暗示了并不存在的历
 
 - `apps/desktop/src/App.tsx`
 - `apps/desktop/src/chrome/copy.ts`
+- `apps/desktop/src/credentials/ProviderSetup.tsx`（只改 Skip 的误导文案，不改凭证状态机）
 - `apps/desktop/src/rail/CaseRail.tsx`
 - `apps/desktop/src/rail/types.ts`
 - `apps/desktop/src/rail/rail.test.ts`
@@ -88,8 +89,9 @@ Skip 再把用户劫持进样板。于是首屏同时暗示了并不存在的历
 - 新增 `apps/desktop/tests/e2e/demo-real-shell-1.spec.ts`
 - `apps/desktop/SPEC.md`（实现回执）
 
-实现会话先写失败测试，再做最小实现。若其他 E2E 只因测试助手选择器改名而失败，允许在对应文件
-做机械改名；不得借机改它们的产品断言、wait 策略或扩大功能。
+实现会话先写失败测试，再做最小实现。若其他 E2E 只因测试助手选择器改名或 provider Skip 的
+`先查看演示`→`暂不连接`文案收敛而失败，允许在对应文件做机械改名；不得借机改它们的产品断言、
+wait 策略或扩大功能。
 
 ## 四、验收证据与反例
 
