@@ -194,6 +194,13 @@ test('① generic.draft 全链：宿主起跑面 → 产出席位 → 送入起�
   await expect(draft.getByRole('textbox', { name: '文书起草画布' })).toBeVisible();
   await expect(draft.getByRole('button', { name: '编译为 Word 文档' })).toBeVisible();
   await expectNoVerticalVocabulary(page);
+
+  // Work Plan 消费同一条运行产生的 todo_snapshot，不以进度旁白或 artifact 数量猜计数。
+  await page.getByTestId('preview-back').click();
+  await expect(page.getByTestId('progress-module-count')).toHaveText('1/1');
+  const plan = page.getByTestId('progress-work-plan');
+  await expect(plan).toContainText('产出文稿');
+  await expect(plan).toContainText('已完成');
 });
 
 test('② generic.batch 全链：无表单直启 → 逐份材料成行，漏行由系统补记', async ({ page }) => {

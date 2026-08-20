@@ -226,19 +226,53 @@ export function ContextModuleBody({
 }
 
 export function ProgressModuleBody({ projection }: { projection: SessionProjection }) {
+  const todo = projection.todo;
+  const hasRunLog = projection.progress.length > 0;
+  const hasFailure = projection.scenarioFailure !== undefined;
+  const hasEmptyState = todo === undefined && !hasRunLog && !hasFailure;
+
   return (
-    <ul className="progress-module-list" data-testid="progress-module-body-list">
-      {projection.scenarioFailure && (
-        <li role="alert" data-testid="progress-scenario-failure">
-          {workScenarioFailureDisplayCopy(projection.scenarioFailure)}
-        </li>
+    <div className="progress-module-list" data-testid="progress-module-body-list">
+      {todo !== undefined && (
+        <section className="progress-work-plan" data-testid="progress-work-plan" aria-labelledby="progress-work-plan-label">
+          <p className="progress-section-label" id="progress-work-plan-label">工作计划</p>
+          <ol className="progress-plan-list" data-testid="progress-plan-list">
+            {todo.map((step) => (
+              <li
+                key={step.stepId}
+                className="progress-plan-row"
+                data-step-id={step.stepId}
+                data-status={step.status}
+              >
+                <span className="progress-plan-label">{step.label}</span>
+                <span className="progress-plan-status">{todoStatusCopy[step.status]}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
-      {projection.progress.length === 0 && (
-        <li className="wf-empty">尚无任务进展 · 开始一项工作后在此查看</li>
+      {hasRunLog && (
+        <section className="progress-run-log" data-testid="progress-run-log" aria-labelledby="progress-run-log-label">
+          {todo !== undefined && <p className="progress-section-label" id="progress-run-log-label">运行记录</p>}
+          <ul className="progress-run-log-list">
+            {projection.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
+          </ul>
+        </section>
       )}
-      {projection.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
-    </ul>
+      {hasFailure && (
+        <p role="alert" data-testid="progress-scenario-failure">
+          {workScenarioFailureDisplayCopy(projection.scenarioFailure!)}
+        </p>
+      )}
+      {hasEmptyState && <p className="wf-empty">尚无任务进展 · 开始一项工作后在此查看</p>}
+    </div>
   );
 }
+
+const todoStatusCopy: Record<NonNullable<SessionProjection['todo']>[number]['status'], string> = {
+  pending: '待开始',
+  awaiting_confirmation: '等待确认',
+  done: '已完成',
+};
 
 export type { ModuleOpenMap };

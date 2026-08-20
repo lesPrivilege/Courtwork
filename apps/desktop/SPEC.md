@@ -4,6 +4,36 @@
 
 > **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
 
+## WORK-PLAN-PANEL-1 · Work Plan 只读生产消费面（实现完成，待独立验收）
+
+权威：`specs/WORK-PLAN-PANEL-1.md`（票面唯一工单）及其列明的 `CLAUDE.md`、架构/设计文档；实现基线 `main @ 9a9cf15`，分支 `codex/work-plan-panel-1`，隔离 worktree 施工。未修改 `docs/status/current.md`，未触 core event、schema、wire、journal、runtime、provider、Pi lane、workspace 或授权语义。
+
+### 变更
+
+- `SessionProjection.todo` 改为可缺席的 `SessionTodo`，类型直接复用 `Extract<SessionEvent, { type: 'todo_snapshot' }>['steps']`；未见 snapshot 保持 `undefined`，reset 新 session 不伪造空计划。
+- `ProgressModuleBody` 新增只读 Work Plan：严格按最新 `todo_snapshot.steps` 的顺序逐行显示 `label` 与 `待开始`／`等待确认`／`已完成`；状态名不依赖颜色。已有 `progress` 作为次级「运行记录」区，`scenarioFailure` alert 与计划/运行记录并存；没有三者时保留明确空态。
+- `Progress` 模块头计数与状态均由 `session.todo`／同一 projection 派生；`awaiting_confirmation` 不计完成；无 snapshot 显示 `—`。删除 App 内按 demo flow、artifact 或生产常量硬编码的 `0/6`、`16/20` 等计数。
+- CSS 只复用现行冷白/冷灰、文字与结构 token；无新颜色、阴影、渐变、glow、动效、图标或编辑入口。
+
+### 本单新增了什么概念、为何非加不可
+
+新增一个只读消费面：`ProgressModuleBody` 内的 Work Plan 区。它不是第二份计划或状态机，而是 journal 最新快照的直接投影；`SessionTodo` 只是既有事件联合的机器等价类型。未新增依赖、store、持久字段、schema、wire、命令、状态机或视觉概念。
+
+### 成熟开源复核（四选一）
+
+**借行为或源码范式，零新增直接依赖。** 参考 [assistant-ui Tool UI](https://www.assistant-ui.com/docs/tools/tool-ui) 的审批/结果渐进披露、[Vercel Geist Colors](https://vercel.com/geist/colors) 的中性层级与稀疏语义色、Linear 的[当前焦点命令分组](https://linear.app/changelog/2019-12-18-new-command-menu)；本票只采用「计划在前、运行记录次级、状态文字可读、无 snapshot 不猜数据」的行为，不接入 assistant-ui thread/store、Vercel runtime 或任何新依赖。journal→projection 仍是 Courtwork 唯一真源。
+
+### 测试与证据
+
+- **born-red**：同一组定向门在实现前运行 `pnpm --filter @courtwork/desktop test -- src/modules/module-stack.test.ts src/protocol/session-reset.test.ts src/demo/session-event.contract.test.ts`，结果 **1 个文件失败、2 个通过；23 tests 中 21 passed / 2 failed**。失败分别证明旧 `progressHeadCount(undefined)` 产出 `NaN/undefined`，以及旧 `ProgressModuleBody` 缺少 `progress-work-plan`/`progress-plan-list`。
+- 定向单测绿：同一命令 **3 files / 23 tests passed**；覆盖 projection 字段逐字保留、reset 清空、录制事件同源、三态顺序/状态文案、plan+progress+failure 并存与真空态。
+- 独立端口 `COURTWORK_E2E_PORT=1437 pnpm exec playwright test tests/e2e/generic-scenarios-1.spec.ts --project=app`：**2 passed**；generic.draft 运行产出的 snapshot 在产品面显示 `1/1`、`产出文稿`、`已完成`，且沿用卸载态零垂类词表门。
+- `pnpm -r build` 未放行：基线在票外已有 `packages/core/src/assembly/assemble.ts` 与 `packages/core/src/scenario-executor/tool-request.ts` 对 `ScenarioRuntime.requestableToolIds` 的类型漂移（另 desktop 基线缺 `model_tool_result` 联合成员）导致构建失败；本票未修复这些契约外问题。
+
+### 边界
+
+实现会话不写 `apps/desktop/ACCEPTANCE.md`，不作独立验收或放行结论。真实 WKWebView、真实 provider、无障碍真机证据与产品 live 口径仍由既有独立门决定。
+
 ## TOOL-READ-1 · Work 回合受控只读工具请求通道（2026-08-11/13，已独立验收放行）
 
 权威：`specs/TOOL-READ-1.md`（票面唯一真值）＋ `docs/decisions/ADR-011-minimal-harness-kernel.md` 修订二。desktop 只承担**消费者边界内**的三块：demo trace 结构化呈现、三道门读取面迁移、e2e 适配。通道本体、白名单、上界与账本扩员住 `packages/core`，两枚只读工具住 `packages/tools`。

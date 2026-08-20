@@ -13,9 +13,17 @@ import {
 
 describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
   it('progress 面板头计数 frontier 形制 N/M', () => {
-    expect(progressHeadCount(0, 6)).toBe('0/6');
-    expect(progressHeadCount(3, 6)).toBe('3/6');
-    expect(progressHeadCount(9, 6)).toBe('6/6');
+    expect(progressHeadCount(undefined)).toBe('—');
+    expect(progressHeadCount([])).toBe('0/0');
+    expect(progressHeadCount([
+      { stepId: 'one', label: '第一步', status: 'done' },
+      { stepId: 'two', label: '第二步', status: 'awaiting_confirmation' },
+      { stepId: 'three', label: '第三步', status: 'pending' },
+    ])).toBe('1/3');
+    expect(progressHeadCount([
+      { stepId: 'one', label: '第一步', status: 'done' },
+      { stepId: 'two', label: '第二步', status: 'done' },
+    ])).toBe('2/2');
   });
 
   it('宿主 renderer 提供的 module target 自动展开对应模块', () => {
@@ -73,5 +81,40 @@ describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
     expect(html).toContain('已完成材料复验');
     expect(html).toContain('本次审查已达到运行上限');
     expect(html).not.toMatch(/Turn terminal|maxSeconds/);
+  });
+
+  it('只读 Work Plan 逐条展示顺序、标签与非颜色状态，运行记录和失败并存', () => {
+    const html = renderToStaticMarkup(
+      createElement(ProgressModuleBody, {
+        projection: {
+          ...EMPTY_SESSION,
+          todo: [
+            { stepId: 'read-materials', label: '读取材料', status: 'done' },
+            { stepId: 'write-draft', artifactType: 'generic.DraftDocument', label: '产出文稿', status: 'awaiting_confirmation' },
+            { stepId: 'review', label: '回看结果', status: 'pending' },
+          ],
+          progress: ['已读取材料'],
+          scenarioFailure: { reason: 'runtime_limit', message: 'Turn terminal exceeded maxSeconds' },
+        },
+      }),
+    );
+
+    expect(html).toContain('data-testid="progress-work-plan"');
+    expect(html).toContain('data-testid="progress-plan-list"');
+    expect(html).toContain('已完成');
+    expect(html).toContain('等待确认');
+    expect(html).toContain('待开始');
+    expect(html.indexOf('读取材料')).toBeLessThan(html.indexOf('产出文稿'));
+    expect(html.indexOf('产出文稿')).toBeLessThan(html.indexOf('回看结果'));
+    expect(html).toContain('运行记录');
+    expect(html).toContain('已读取材料');
+    expect(html).toContain('本次审查已达到运行上限');
+    expect(html).not.toMatch(/type="checkbox"|<input|<textarea|<button/);
+  });
+
+  it('无 snapshot 且无运行记录/失败时显示明确空态', () => {
+    const html = renderToStaticMarkup(createElement(ProgressModuleBody, { projection: EMPTY_SESSION }));
+    expect(html).toContain('尚无任务进展 · 开始一项工作后在此查看');
+    expect(html).not.toContain('progress-work-plan');
   });
 });
