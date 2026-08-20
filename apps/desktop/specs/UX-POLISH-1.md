@@ -1,6 +1,8 @@
 # UX-POLISH-1 · Work 单焦点状态编排与成熟 GUI 收口
 
-状态：架构冻结，待独立实现会话；实现与验收必须为不同会话。
+状态：已清账（架构 `c46d2bf`；实现 `406def4`；独立验收修复 `25dbf05`；
+lint 清偿实现 `721e4ee`、独立 Luna PASS `e4915ad`/`6c4804f`；架构消费 `e5ca354`）。
+本票只放行 scripted UX polish，不改变 `PI-BASE-GUI-ACCEPT`、Agent 或 product-live 口径。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/README.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、ADR-022、`apps/desktop/SPEC.md`、本票。能力状态只认

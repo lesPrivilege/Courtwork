@@ -1,5 +1,9 @@
 # PI-BASE-GUI-ACCEPT-PACKAGE-1
 
+状态：已清账（架构 `cb8aeb3`；实现 `4273f4f`；package assertion 修复 `2737c98`；
+独立 Luna PASS `831bcee`）。只放行 signed Route A packaging seam，不放行
+`PI-BASE-GUI-ACCEPT`、Agent 或 product-live。
+
 ## 架构冻结
 
 目标是修复 PI-BASE-GUI-ACCEPT 本机 Tauri 制品的 packaging seam：Tauri 对

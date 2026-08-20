@@ -1,6 +1,7 @@
 # UX-POLISH-1-LINT-CLEAR · 既有 evidence script lint 门清偿
 
-状态：架构冻结，待独立 Luna 实现；实现与验收必须是不同会话。
+状态：已清账（实现 `721e4ee`；独立 Luna PASS `e4915ad`，收口账本 `6c4804f`；
+架构消费 `e5ca354`）。本微票只解除 UX-POLISH-1 的 root-lint 阻断。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`apps/desktop/specs/UX-POLISH-1.md`、
 `apps/desktop/ACCEPTANCE.md`、本票。它是 UX-POLISH-1 的 gate-only 清偿微票，
