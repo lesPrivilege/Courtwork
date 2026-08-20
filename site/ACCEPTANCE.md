@@ -1106,3 +1106,79 @@ README 仍为 `Stage 0 — 真实 MVP`；页面仍明确 v0.1.2 是 Apple Silico
 member、RBAC 或 `product-live` 正向宣称。故 `3707f94` 的唯一 provenance blocker 已关闭，旧 `703e042`
 不被恢复为本轮依据；**PUBLIC-SURFACE-REAL-1-PROVENANCE-R1 放行 ✅**。本结论不授权真实 Tauri／DeepSeek／AX
 总验、tag、Release、Pages deploy 或任何产品成熟度升级。
+
+---
+
+## SITE-PUBLIC-SURFACE-PROOF-1 · 独立验收 R2（2026-08-20）— ✅ 放行
+
+- **验收角色**：全新独立验收会话；未参与实现，不采信实现回执数字。
+- **被验实现**：`adc239c1cca11e592e854ef983b250d6611e87ff`（`codex/site-public-surface-proof-1`）。
+- **验收分支／worktree**：`codex/accept-site-public-surface-proof-1-r2`；
+  `/private/tmp/courtwork-site-public-surface-proof-1-accept-r2`；从被验 tip 新建 clean worktree，未复用旧验收树或旧服务。
+- **最终服务**：独立 `127.0.0.1:19987` 静态服务；验收截图及矩阵 JSON 仅落
+  `/private/tmp/courtwork-site-public-surface-proof-1-r2-screens/`，未进入仓库。
+- **实现级修复**：无；没有修改契约、源码或资产，仅追加本验收记录。
+
+### 1. 六类 mutation：每枚先红、逐枚恢复
+
+以下反例均直接注入真实活动文件，观察指定门禁非零后用最小反向补丁恢复；源码反例恢复后、追加本记录前 `git status` clean，且 `git diff --check` clean。
+
+| 类别 | 实际注入 | 红灯证据（注入态） |
+|---|---|---|
+| DMG primary／冒充当前 | Hero 历史 DMG anchor 加 `button-primary`；另将其文案改为“下载当前版本” | focused `versional-language-contract` **18/19**；分别命中“历史 DMG 不得作为主产品行动”与 v0.1.2／不含当前 Work 边界 |
+| 删除 scripted | Hero proposal `alt` 删除 `scripted` | focused Node **17/19**；PUBLIC-SURFACE-REAL-1 与本票 Hero scripted 断言同时失败 |
+| 未登记 Hero asset | Hero `src` 换为既有但未登记的 `assets/screenshots/02-timeline-1440.webp` | `pnpm site:guard` **107/108**；`public-surface` semantic seam 失败 |
+| 删除 external gate | 从状态条及 FAQ 删除 `PI 总验 · external-validated blocked` | `pnpm site:guard` **106/108**；本票 public contract 与 versional contract 同时失败 |
+| 恢复假控件壳 | Hero 注入 `.schema-demo`，含 `role="button"` 与 `tabindex="0"` | `pnpm site:guard` **106/108**；假控件壳两处结构门均失败 |
+| 删除 Work evidence link | 第二行 Work provenance link 换成无链接文本 | `pnpm site:guard` **106/108**；该行 scripted→`查看证据档案` 与 provenance 出口断言失败 |
+
+恢复后独立复跑 `node --test site/scripts/deslop-scan.test.mjs site/scripts/versional-language-contract.test.mjs`：**68/68**；联合 release contract：**78/78**。
+
+### 2. Hero／Work WebP 实物与 provenance 复算
+
+脚本以 SHA-256 读取 landed bytes，不采信 README 数字；六枚 `pagesAssets` 均与 manifest 逐字匹配（`match=true`）。
+
+| WebP | bytes | 独立 SHA-256 |
+|---|---:|---|
+| `PUBLIC-SURFACE-REAL-1-bound-1440.webp` | 15,174 | `ab9e8213f5e064df1d1a51af825a53e8505184f0d798a540b5543f0c8efd6cd7` |
+| `PUBLIC-SURFACE-REAL-1-bound-720.webp` | 4,990 | `9b73cd84c521d64378d0de090683ba6f376c747871b619d5c31a2f9f51dcea31` |
+| `PUBLIC-SURFACE-REAL-1-proposal-1440.webp` | 34,852 | `0894773946eadcaab3bcda8b539cff81e86a44900827c887872ef57a28215a6d` |
+| `PUBLIC-SURFACE-REAL-1-proposal-720.webp` | 11,804 | `c236b3cca21c8ae1f7858919593b3727dbef32dba3e919b27e595c7cb166417d` |
+| `PUBLIC-SURFACE-REAL-1-viewer-1440.webp` | 41,814 | `c9412b7aadcead26da03f5f5cd659ddba7df54238bc57dc1a28ddca8beb58aa6` |
+| `PUBLIC-SURFACE-REAL-1-viewer-720.webp` | 14,272 | `54e3807bbf23fd6a54a72602ff063e175f82027d9414f1264fd2280e5dbdca0d` |
+
+`screenshot-manifest.json.productSha` 与 evidence README 均为
+`5187c797c6ced84188c0b4e8ae7b00ecb8e50922`；`git merge-base --is-ancestor` 对被验 tip 与当前 `main` 均 exit **0**。
+资产、manifest、productSha 与截图文件均未改动。
+
+### 3. 独立 Chromium／Playwright 八 context
+
+八档为 `1440×900`／`375×812` × `light`／`dark` × `JS-off`／`prefers-reduced-motion`，均从独立 `:19987` 读取 built `site-dist`。
+每档均通过：5/5 图片 `complete` 且 natural size 非零；root/body 无横向溢出；越界元素 `[]`；console、page、request error 均为 **0**；
+23/23 anchors 按 DOM 顺序获得键盘焦点，`:focus-visible` outline 非零；无 `button`、表单控件、`role="button"` 或显式 `tabindex`；所有 DMG anchor 均非 `button-primary`。
+
+| viewport | theme | JS-off | reduced-motion | 结果 |
+|---|---|---|---|---|
+| 1440×900 | light | PASS | PASS（3×既有 `ghosty-reduced-fade`，scroll `auto`，许可过渡为 `0s`） | PASS |
+| 1440×900 | dark | PASS | PASS（同上） | PASS |
+| 375×812 | light | PASS | PASS（同上） | PASS |
+| 375×812 | dark | PASS | PASS（同上） | PASS |
+
+导航五入口均可见，移动端未隐藏 `工作方式`／`证据`／`发布状态`；`#top`、`#work`、`#evidence`、`#facts` 均存在且内容可见。
+Hero、Work 三行、证据链与发布事实均在 JS-off／双主题下保留；目检 wide/mobile light/dark 全页帧无破图、遮挡或假控件，
+主路径与历史 DMG 边界清楚。
+
+### 4. 最终门禁与结论
+
+| 门禁 | 实跑结果 |
+|---|---|
+| focused Node | **68/68** |
+| release 联合 contract | **78/78** |
+| `pnpm site:guard` | **108/108**；release-truth、deslop **1197 active text files**、neutral/elevation/signature/motion/design-md/schema/skin/app-highwater 全绿 |
+| `pnpm site:build` | exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm -r build` | exit 0；scope **15/16**，desktop Vite **4316 modules**；仅既有 dynamic-import/chunk-size advisory |
+| `git diff --check` | clean |
+
+> **SITE-PUBLIC-SURFACE-PROOF-1 放行 ✅。** 被验 tip 的 Pages 产品入口、Work→证据出口、历史制品边界与 external gate 均由实物、
+> mutation、独立浏览矩阵和全量门禁闭合。此结论不升级 Stage 0，不放行真实 Tauri／DeepSeek／AX 总验，不授权 merge、push、tag、Release 或部署。
