@@ -7,11 +7,13 @@ import { validateVersionalSite } from './versional-language-contract-lib.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const readme = readFileSync(new URL('../../README.md', import.meta.url), 'utf8');
+const publicSurfaceEvidenceReadme = readFileSync(new URL('../craft-evidence/PUBLIC-SURFACE-REAL-1/README.md', import.meta.url), 'utf8');
 const ogHtml = readFileSync(new URL('../og.html', import.meta.url), 'utf8');
 const captureScript = readFileSync(new URL('../../apps/desktop/scripts/capture-pi-lane-states.mjs', import.meta.url), 'utf8');
 const desktopCss = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
 const galleryHtml = readFileSync(new URL('../../apps/desktop/visual-gallery.html', import.meta.url), 'utf8');
 const galleryMain = readFileSync(new URL('../../apps/desktop/src/preview/gallery/main.tsx', import.meta.url), 'utf8');
+const PUBLIC_SURFACE_PRODUCT_SHA = '5187c797c6ced84188c0b4e8ae7b00ecb8e50922';
 const screenshotManifest = JSON.parse(readFileSync(new URL('../craft-evidence/VERSIONAL-LANG-3/screenshot-manifest.json', import.meta.url), 'utf8'));
 const screenshotSha = (name, source = readFileSync(new URL(`../assets/screenshots/${name}`, import.meta.url))) =>
   createHash('sha256').update(source).digest('hex');
@@ -192,7 +194,9 @@ test('PUBLIC-SURFACE-REAL-1 Work 三段与当前 scripted 证据资产均有机�
   }
   assert.equal(manifest.viewport.width, 1440);
   assert.equal(manifest.viewport.height, 900);
-  assert.match(manifest.productSha, /^[0-9a-f]{40}$/);
+  assert.equal(manifest.productSha, PUBLIC_SURFACE_PRODUCT_SHA, 'productSha 必须锁定本票精确产品 tip');
+  const productShaLine = publicSurfaceEvidenceReadme.split('\n').find((line) => line.startsWith('productSha:'));
+  assert.equal(productShaLine, 'productSha: `' + PUBLIC_SURFACE_PRODUCT_SHA + '`', '证据 README 必须逐字绑定同一精确 productSha');
 });
 
 test('PUBLIC-SURFACE-REAL-1 capture 从真实容器起步，不再引导样板或 provider', () => {

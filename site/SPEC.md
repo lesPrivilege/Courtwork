@@ -33,6 +33,23 @@ tag、Release 或下载真值。实现与独立验收的精确文件面、mutati
   `3a4a90e…`，机器门只验 40 位格式。`703e042` 的 PASS 与后续清账不能覆盖该 provenance 缺口，
   因而前进式撤回；补正语义与重验要求见票面第七节，新 PASS 前不得 push/deploy。
 
+### PUBLIC-SURFACE-REAL-1 · provenance R1 实现回执（2026-08-20，待独立验收）
+
+- `productSha` 已由旧的实现前基线改为票面指定完整产品 merge tip
+  `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`；manifest 与 evidence README 均由精确门绑定该值。
+- 在 detached capture worktree `/private/tmp/courtwork-public-surface-provenance-r1-capture`（固定
+  `5187c797c6ced84188c0b4e8ae7b00ecb8e50922`）以独立 Vite `1578` 实际重跑
+  `apps/desktop/scripts/capture-pi-lane-states.mjs`，并从新 PNG 派生六枚 WebP。三 PNG、六 WebP
+  均与原入库实物逐字节相同，未制造二进制 diff；旧／新 SHA、bytes、命令与临时输出位置详见
+  `craft-evidence/PUBLIC-SURFACE-REAL-1/README.md`。
+- 本 R1 仅触及 evidence README／manifest、精确 provenance versional contract 与本回执；不改产品
+  源码、schema/runtime/provider/identity/ACL、票面/readiness/current、release/tag/Release，且不写
+  `site/ACCEPTANCE.md`。
+- 实跑证据：新增精确门先以旧值 **17/18、exit 1** born-red；manifest 与 README 各替换为合法全零
+  40 位 SHA 时均分别 **17/18、exit 1**；恢复后 focused versional **18/18**。随后
+  `pnpm site:guard` **106/106**、`pnpm site:build`、`pnpm lint`、`pnpm -r build` 全部 exit 0
+  （后者 15/16 workspace projects、desktop Vite 4316 modules；仅既有 chunk/dynamic-import advisory）。
+
 ## VERSIONAL-LANG-2 · 参考浅宗与二次减线（实现待独立验收）
 
 - Pages 颜色逐槽接回两版产品参考稿共用的冷白浅宗；机器门仍按名绑定 `docs/design/tokens.json color.*`，不复制第二色源。desktop 既有浅宗本来已逐值相同，故不做无效换值；深宗 opt-in 契约原样保留。
