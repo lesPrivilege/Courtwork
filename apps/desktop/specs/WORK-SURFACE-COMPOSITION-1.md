@@ -145,4 +145,70 @@
 
 ## 八、独立验收（验收 Luna 填）
 
-待填：目标 SHA、clean worktree、独立端口、实际门数、反例注入、视觉矩阵、PASS/FAIL 与验收提交。
+独立验收结论：**`FAIL / REJECT`**。定向 DOM、lint、build 与视觉矩阵通过，
+但完整 Pi E2E 仍为 8/13；5 个既有断言要求非 `sessionTerminal` 的 prompt outcome
+显示 `pi-drafts-empty`，与本票「非终态无空 draft index」契约冲突。未修改产品实现，
+也未以 focused 子集替代完整相关 E2E 的失败。
+
+### 身份、卫生与端口
+
+| 项目 | 实际值 |
+|---|---|
+| target SHA | `d21aa6d062b32052507f6b96ea7bf8da0eccb602` |
+| 独立 clone / branch | `/private/tmp/work-surface-composition-1-acceptance-Ojf5dh/repo` / `acceptance/work-surface-composition-1-2026-08-21` |
+| checkout 卫生 | checkout 后 `git status --short --branch` clean；产品源路径在验收后相对 target 零 diff |
+| scripted browser port | `127.0.0.1:18741`，`reuseExistingServer=false` |
+| e2e ports | full Pi E2E `18732`；contract-focused 8-case subset `18742` |
+| fixture | `acceptance-write-script`；`纪要.md`；SHA-256 `e80ddeb170a3513e335ada586bec6f0068e8be8c66ab0845b38ec541edb888ba` |
+
+### 实跑门
+
+| 门 | 独立命令结果 |
+|---|---|
+| Pi DOM | `pnpm --filter @courtwork/desktop exec vitest run src/pi/PiLanePanel.dom.test.ts --reporter=verbose`：1 file / **17 passed, 0 failed** |
+| Pi unit | `pnpm --filter @courtwork/desktop exec vitest run src/pi --reporter=verbose`：5 files / **56 passed, 0 failed** |
+| Pi E2E（完整相关文件） | `COURTWORK_E2E_PORT=18732 ... playwright test tests/e2e/pi-lane.spec.ts --project=app`：**13 total / 8 passed / 5 failed** |
+| Pi E2E（契约相关 focused subset） | fresh port `18742`：**8 passed, 0 failed** |
+| lint | `pnpm lint`：**EXIT 0** |
+| workspace build | `pnpm -r build`：**EXIT 0**；15/16 workspace scope，desktop `tsc -b` + Vite 4316 modules；仅既有 advisory warnings |
+| diff check | `git diff --check`：**EXIT 0** |
+
+完整 E2E 的 5 个失败均为旧 `pi-drafts-empty` 可见性期望，出现在拒绝写入、无法确认、
+未能写入、Stop、用户上滚场景；不是浏览器启动或端口复用错误。一次 build 前的端口
+`18731` 运行因 clean clone 尚未生成 workspace build outputs 而未计入结果；build 后的
+`18732` 是完整实跑数字。
+
+### 视觉矩阵与真实检查
+
+证据目录：
+`release/evidence/work-surface-composition-1/acceptance-2026-08-21/`；索引为
+`manifest.json`，脚本为 `capture-script.mjs`，共 **31 PNG**。脚本对每个状态实测
+`document.documentElement.scrollWidth` 与 `document.body.scrollWidth` 不超过
+`window.innerWidth`，manifest 记录均为 `overflow: "0"`。
+
+| theme / viewport | states |
+|---|---|
+| light 1180×720 | running / proposal / succeeded（normal + text-mask） |
+| light 1440×900 | running / proposal / succeeded（normal + text-mask）；succeeded 另有 10% squint `144×90` |
+| light 1600×900 | running / proposal / succeeded（normal + text-mask） |
+| dark 1440×900 | running / proposal / succeeded（normal + text-mask） |
+| light 390×844 | running / proposal / succeeded（normal + text-mask）；任务、决定按钮、composer、result smoke targets 均存在 |
+
+用 `view_image` 检查了 light 1440 running/proposal/succeeded、dark 1440 succeeded、
+light 390 proposal/succeeded、light 1440 text-mask 与 10% squint：matter → task →
+work/result 是主声部；proposal 是唯一 raised decision block；ledger 保持低声；
+succeeded 只保留一个 current draft index 入口且没有 `pi-open-from-card`；390 任务和
+控件换行但不横溢。视觉未发现阻断。
+
+### 反例注入与复原
+
+两枚反例均在上述 clean clone 用 `apply_patch` 临时注入，跑同一 Pi DOM 门观察变红，
+随后精确还原并复跑 **17/17**：
+
+| 类别 | 临时变更 | 红证 |
+|---|---|---|
+| DOM | 在 `apps/desktop/src/pi/PiToolCard.tsx` 的 succeeded write 分支加入重复 `data-testid="pi-open-from-card"` 按钮 | **16 passed / 1 failed**；`成功写入只保留工作稿索引入口；uncertain 仍保留核验入口` 断言期望 null，实际得到重复入口 |
+| CSS | 在 `apps/desktop/src/styles.css` 将 `--pi-content-measure: 760px` 改为 `640px` | **16 passed / 1 failed**；静态版心门期望 `760px`，实际源为 `640px` |
+
+验收只追加本报告、票面 §八与本目录 evidence；未改 product implementation。验收提交
+（若提交）须逐文件核对 cached names，且 `git diff --check` 通过。
