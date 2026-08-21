@@ -231,3 +231,54 @@ succeeded 只保留一个 current draft index 入口且没有 `pi-open-from-card
 
 验收只追加本报告、票面 §八与本目录 evidence；未改 product implementation。验收提交
 （若提交）须逐文件核对 cached names，且 `git diff --check` 通过。
+
+### 八-A、二次独立验收（2026-08-21，驳回）
+
+独立复验结论：**`FAIL / REJECT`**。目标 `c26ff1514226a13e9707bf0d8e368eddc4cef2cb` 已修复
+第一轮完整 Pi E2E 的测试契约漂移，完整文件实跑 **13/13**；但目标树现有第一轮 evidence 的
+`capture-script.mjs` 不在 ESLint 的 `**/scripts/**/*.mjs` Node globals 覆盖面，故
+`pnpm lint` 实际为 **EXIT 1（8 个 `no-undef`）**。未修改产品实现或该既有 evidence 脚本，
+不能把其余门禁全绿写成 PASS。
+
+#### 身份、范围与源不变量
+
+| 项目 | 实际值 |
+|---|---|
+| target / HEAD | `c26ff1514226a13e9707bf0d8e368eddc4cef2cb`，checkout 后精确匹配 |
+| 独立 clone / branch | `/private/tmp/work-surface-composition-1-reaccept-qYeDEO/repo` / `acceptance/work-surface-composition-1-reaccept-2026-08-21` |
+| checkout 卫生 | 初始 clean；验收结束产品源相对 target 零 diff；未在共享树 checkout/stash |
+| `d21aa6d→target` | 产品源 `PiLanePanel.tsx`、`PiToolCard.tsx`、`styles.css` 零 diff；两端 SHA-256 分别为 `88b24cc9…610a`、`3a2b05bf…11ae`、`572d0bd3…8c0` |
+| 第一轮 evidence | 原 `acceptance-2026-08-21/manifest.json` 仍为 target `d21aa6d…b602`、**31 PNG**、port `18741`；本轮未覆盖 |
+
+#### 实跑门禁
+
+| 门 | 独立实测 |
+|---|---|
+| Pi E2E（完整 `pi-lane.spec.ts`） | fresh port `29642`，`COURTWORK_E2E_PORT=29642 pnpm --filter @courtwork/desktop exec playwright test tests/e2e/pi-lane.spec.ts --project=app`：**13 total / 13 passed / 0 failed**（21.5s，1 worker） |
+| Pi DOM | `vitest run src/pi/PiLanePanel.dom.test.ts --reporter=verbose`：1 file / **17 passed / 0 failed**；CSS 反例复原后再次 17/17 |
+| Pi unit | `vitest run src/pi --reporter=verbose`：5 files / **56 passed / 0 failed** |
+| workspace build | `pnpm -r build`：**EXIT 0**；15/16 workspace scope，desktop Vite **4316 modules**，仅既有 advisory warning |
+| lint | `pnpm lint`：**EXIT 1**；`release/evidence/work-surface-composition-1/acceptance-2026-08-21/capture-script.mjs` 的 `process` 5 处、`console` 3 处，共 **8 `no-undef`** |
+| diff check | `git diff --check`：**EXIT 0** |
+
+#### 二次 smoke evidence
+
+仅在 fresh target-tip port `29643` 补取两枚 normal frame，未复用或覆盖第一轮目录：
+`release/evidence/work-surface-composition-1/reacceptance-2026-08-21/manifest.json`、
+`light-1440-succeeded.png`（1440×900）与 `light-390-proposal.png`（390×844）。manifest
+记录 target、port、fixture `acceptance-write-script` / `纪要.md` / SHA-256
+`e80ddeb170a3513e335ada586bec6f0068e8be8c66ab0845b38ec541edb888ba`、viewport 与
+`scripted: true`；两帧实测 horizontal overflow 均为 **0**，并已用 `view_image` 检查。
+1440 succeeded 保持 matter→task→work/result→draft 主序且只有一枚 draft 入口；390 proposal
+的任务、allow/deny 与 composer 均可见、无横溢。
+
+#### 反例与复原
+
+| 反例 | 红证 | 复原绿证 |
+|---|---|---|
+| `apps/desktop/tests/e2e/pi-lane.spec.ts:158` 临时把 proposal 非终态 `expectNoDraftIndex` 改回 `pi-drafts-empty` | fresh port `29644` 的拒绝写入用例 **1 failed**：`pi-drafts-empty` 不存在 | 精确复原后 fresh port `29645` 同用例 **1 passed** |
+| `apps/desktop/src/styles.css:161` 临时将 `--pi-content-measure: 760px` 改为 `640px` | DOM 门 **16 passed / 1 failed**，静态版心断言收到 `640px` | 精确复原后 DOM **17/17 passed** |
+
+两枚反例均用 `apply_patch` 注入并恢复；最终产品源相对 target 零 diff。本轮只追加本节、
+`apps/desktop/ACCEPTANCE.md` 与 `reacceptance-2026-08-21/` 三个 evidence 文件，不改
+产品实现、第一轮 evidence、wire/journal 或契约语义。因 lint 失败，本票仍不放行。
