@@ -1,7 +1,9 @@
 # WORK-SURFACE-COMPOSITION-1 · 冷调工作面的构图去 Demo 化
 
-状态：架构冻结，待实现与独立验收。实现者与验收者必须为不同 Luna 会话；Main sol 只负责契约、
-边界与最终消费。本票完成不改变 `PI-BASE-GUI-ACCEPT`、Agent 或 product-live 口径。
+状态：**已清账**（架构 `2102aff`；实现 `11c65cb`，构图注释 `d21aa6d`；E2E 契约修正
+`d0f36b3`/`c26ff15`；evidence lint 清偿 `a085185`；前两轮独立 FAIL `dc0e0af`/`a65d3ec`；
+最终独立 PASS `5be13fa`）。实现、修正与三轮验收均为不同 Luna 会话；Main sol 只消费契约、
+边界与证据。本票清账不改变 `PI-BASE-GUI-ACCEPT`、Agent 或 product-live 口径。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/README.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、ADR-022、`WORK-AGENT-SHOWCASE-1`、`UX-POLISH-1`、本票。能力状态只认
