@@ -2,7 +2,7 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
-## SITE-MOTION-NATURAL-GROWTH-1 · Pages 自然生长动效（架构冻结，待实现）
+## SITE-MOTION-NATURAL-GROWTH-1 · Pages 自然生长动效（已清账）
 
 权威：`site/specs/SITE-MOTION-NATURAL-GROWTH-1.md`。本票不改 GUI、产品事实或 Pages 信息结构，
 只把 `record → compare → decide → seal` 登记为 Pages 的受控运动母语；首批串行小单为 A Evidence
@@ -12,6 +12,23 @@ causal advance、B Seal settlement、C runtime proof repair。三单复用现有
 实施纪律：A→B→C 串行，由 Luna 实现；另一 Luna 在独立 clean worktree 验收。实现会话不得写
 `site/ACCEPTANCE.md`，验收不得改本票契约。Stage 0、PI external gate、v0.1.2、tag/Release、
 product-live 与 GUI 回迁授权均不变。
+
+### SITE-MOTION-NATURAL-GROWTH-1 · 独立验收与清账回执（2026-08-21，已放行）
+
+- 架构冻结 `9b392c5`；A Evidence causal advance `7151c20`；B Seal settlement `919dc77`；
+  C runtime proof `e4bc151`；Main sol 逐帧复核后以 A-R1 `6393eba` 撤掉整块背景变色并令
+  tertiary connector 真正可辨，C-R1 `dc3da86` 重绑最终帧证；另一独立 Luna 验收 PASS
+  `7788e67`，整链 fast-forward 合入本地 `main`。
+- 独立验收实注 duration、easing、删 reduce、高特异性恢复运动、窄屏 connector、delay、seal
+  overshoot、data motion、删／复制 seal、JS-off 隐藏与 `main.js` 字节漂移反例，全部观察红灯并恢复。
+  focused **71/71**、motion contract **2/2**、`site:guard` **111/111**、site build、lint、全仓
+  build 与 diff check 全绿。
+- no-preference 双宗 × 六宽 **12/12**、JS-off 双宗 × 1280/375 **4/4**、reduced computed、
+  no-replay、data-static **9 nodes identical** 均 PASS；`site/main.js` 682 bytes，SHA-256
+  `f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620` 与 A/C/final 逐字节相同。
+- 放行只覆盖 Pages 的 `record` 因果线推进与 `seal` 一次性落定；`compare/decide` 未因本票造假
+  交互。Stage 0、PI external gate、GUI、产品事实、v0.1.2、tag/Release、push/deploy 与 GUI 回迁
+  授权均不变；`docs/status/current.md` 不更新。
 
 ### SITE-MOTION-NATURAL-GROWTH-1A · 实现回执（待独立验收）
 
