@@ -1,6 +1,6 @@
 {
-  "targetSha": "919dc773c055ddfeac17fc9bb6d582de15c4c571",
-  "baseUrl": "http://127.0.0.1:18931/",
+  "targetSha": "6393eba375d913cc5437d3df3ca4ed0fd41bb1df",
+  "baseUrl": "http://127.0.0.1:18932/",
   "allowedActions": [
     "typer-develop",
     "ghosty-reduced-fade",
@@ -116,12 +116,6 @@
     "evidence": {
       "items": [
         {
-          "property": "background-color",
-          "delay": 0,
-          "duration": 160,
-          "endTime": 160
-        },
-        {
           "property": "opacity",
           "delay": 0,
           "duration": 240,
@@ -138,12 +132,6 @@
           "delay": 0,
           "duration": 360,
           "endTime": 360
-        },
-        {
-          "property": "background-color",
-          "delay": 0,
-          "duration": 160,
-          "endTime": 160
         },
         {
           "property": "opacity",
@@ -164,12 +152,6 @@
           "endTime": 430
         },
         {
-          "property": "background-color",
-          "delay": 0,
-          "duration": 160,
-          "endTime": 160
-        },
-        {
           "property": "opacity",
           "delay": 0,
           "duration": 240,
@@ -188,12 +170,6 @@
           "endTime": 500
         },
         {
-          "property": "background-color",
-          "delay": 0,
-          "duration": 160,
-          "endTime": 160
-        },
-        {
           "property": "opacity",
           "delay": 0,
           "duration": 240,
@@ -206,7 +182,7 @@
           "endTime": 240
         }
       ],
-      "pausedCount": 15
+      "pausedCount": 11
     },
     "seal": {
       "items": [

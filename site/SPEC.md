@@ -73,6 +73,20 @@ product-live 与 GUI 回迁授权均不变。
   **15/2** 条，data-static **9 nodes identical**。报告 target SHA 为 B tip。
 - C 只证明运行时证据闭合，独立验收仍待另一 Luna；本回执不构成放行或发布结论。
 
+### SITE-MOTION-NATURAL-GROWTH-1C-R1 · 证据刷新回执（待独立验收）
+
+- 以 A-R1 final tip `6393eba375d913cc5437d3df3ca4ed0fd41bb1df` 建立独立 worktree/分支
+  `codex/site-motion-natural-growth-1-cr1`；本轮未改视觉、契约、`main.js`、runtime probe、capture
+  脚本或既有证据结构，只刷新本目录生成物与本回执。
+- 独立端口 `18932` 重跑 reduced runtime probe 与 capture：PASS；`REPORT.json` 的 `targetSha`
+  已刷新为 `6393eba375d913cc5437d3df3ca4ed0fd41bb1df`，双宗 × 六档 **12/12** 无溢出／破图，
+  no-preference 仅 `typer-develop`、reduce 仅 `ghosty-reduced-fade`，Evidence/seal 暂停真实
+  transition 分别 **11/2** 条，data-static **9 nodes identical**。
+- phase 帧目检结论：Evidence before/mid/settled 的父背景保持同一静态底色；mid/settled 的
+  `var(--text-tertiary)` connector 在既有强边界线上可辨，未再被同色 overlay 淹没。Seal before
+  保持空白，mid/settled 呈现同一枚朱印从小幅预态到 `rotate(-2deg)` 静止终态，无重复或溢出。
+- C-R1 只刷新证据，不替代另一 Luna 的独立验收或放行结论。
+
 ## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
