@@ -1031,6 +1031,134 @@ export function checkDemoMotion(css) {
   return failures;
 }
 
+// SITE-MOTION-NATURAL-GROWTH-1A：Evidence Line 的 record 因果动作只许消费既有
+// `.evidence-step.is-visible`。这道门把动作的选择器、媒体边界、终态与时间参数锁在同一
+// 个可解析契约里；不能靠在 reduce 分支外再塞一条更高特异性的 transform 绕过。
+export function checkEvidenceCausalMotion(css) {
+  const failures = [];
+  const fail = (message, line = 1) => push(failures, 'evidence-causal-motion', 'site/styles.css', line, message);
+  const declarations = parseCss(css);
+  const keyFor = (selector, context = []) => `${context.join('|')}|${selector}`;
+  const rules = new Map();
+  for (const declaration of declarations) {
+    const key = keyFor(declaration.selector, declaration.context);
+    if (!rules.has(key)) {
+      rules.set(key, {
+        selector: declaration.selector,
+        context: declaration.context,
+        declarations: new Map(),
+        line: declaration.line,
+      });
+    }
+    rules.get(key).declarations.set(declaration.property, declaration.value);
+  }
+
+  const findRule = (selector, context = []) => rules.get(keyFor(selector, context));
+  const requireRule = (selector, context, expected) => {
+    const rule = findRule(selector, context);
+    if (!rule) {
+      fail(`missing ${selector} in ${context.join(' / ') || 'base stylesheet'}`);
+      return null;
+    }
+    for (const [property, expectedValue] of Object.entries(expected)) {
+      const actualValue = rule.declarations.get(property);
+      if (normalizeCssValue(actualValue ?? '') !== normalizeCssValue(expectedValue)) {
+        fail(`${selector} ${property} must be ${expectedValue}, got ${actualValue ?? '(missing)'}`, rule.line);
+      }
+    }
+    return rule;
+  };
+
+  const base = [];
+  const desktop = ['@media (min-width: 901px)'];
+  const reduced = ['@media (prefers-reduced-motion: reduce)'];
+  const desktopReduced = ['@media (min-width: 901px) and (prefers-reduced-motion: reduce)'];
+  const markerInitial = '.js .evidence-step::before';
+  const markerSettled = '.js .evidence-step.is-visible::before';
+  const connector = '.evidence-step:not(:last-child)::after';
+  const connectorInitial = '.js .evidence-step:not(:last-child)::after';
+  const connectorSettled = '.js .evidence-step.is-visible:not(:last-child)::after';
+
+  requireRule(markerInitial, base, {
+    opacity: '0',
+    transform: 'scale(.82)',
+    transition: 'transform 240ms var(--ease-out), opacity 240ms var(--ease-out)',
+    'transition-delay': '0ms',
+  });
+  requireRule(markerSettled, base, { opacity: '1', transform: 'scale(1)' });
+  requireRule(markerInitial, reduced, {
+    opacity: '1',
+    transform: 'none',
+    transition: 'none',
+    'transition-delay': '0ms',
+  });
+
+  requireRule(connector, desktop, {
+    content: '""',
+    position: 'absolute',
+    top: '-1px',
+    left: '36px',
+    right: '-24px',
+    height: '1px',
+    background: 'var(--border-strong)',
+    'transform-origin': 'left center',
+    transform: 'scaleX(1)',
+    'pointer-events': 'none',
+  });
+  requireRule(connectorInitial, desktop, {
+    transform: 'scaleX(0)',
+    transition: 'transform 360ms var(--ease-out)',
+  });
+  requireRule(connectorSettled, desktop, { transform: 'scaleX(1)' });
+  requireRule(connectorInitial, desktopReduced, {
+    transform: 'scaleX(1)',
+    transition: 'none',
+  });
+  for (const [index, delay] of [0, 70, 140].entries()) {
+    requireRule(`.js .evidence-step:nth-child(${index + 1})::after`, desktop, {
+      'transition-delay': `${delay}ms`,
+    });
+  }
+
+  const motionProperties = new Set([
+    'animation', 'animation-delay', 'animation-duration', 'animation-name', 'animation-timing-function',
+    'opacity', 'transform', 'transition', 'transition-delay', 'transition-duration', 'transition-property',
+    'transition-timing-function', 'translate', 'scale', 'rotate',
+  ]);
+  const registered = new Map([
+    [keyFor(markerInitial, base), new Set(['opacity', 'transform', 'transition', 'transition-delay'])],
+    [keyFor(markerSettled, base), new Set(['opacity', 'transform'])],
+    [keyFor(markerInitial, reduced), new Set(['opacity', 'transform', 'transition', 'transition-delay'])],
+    [keyFor(connector, desktop), new Set(['transform'])],
+    [keyFor(connectorInitial, desktop), new Set(['transform', 'transition'])],
+    [keyFor(connectorSettled, desktop), new Set(['transform'])],
+    [keyFor(connectorInitial, desktopReduced), new Set(['transform', 'transition'])],
+    ...[1, 2, 3].map((index) => [keyFor(`.js .evidence-step:nth-child(${index})::after`, desktop), new Set(['transition-delay'])]),
+  ]);
+  for (const declaration of declarations) {
+    const targetsEvidencePseudo = declaration.selector.includes('.evidence-step')
+      && /::(?:before|after)\b/.test(declaration.selector)
+      && motionProperties.has(declaration.property);
+    if (!targetsEvidencePseudo) continue;
+    const allowed = registered.get(keyFor(declaration.selector, declaration.context));
+    if (!allowed?.has(declaration.property)) {
+      fail(`unregistered evidence motion: ${declaration.selector} ${declaration.property}`, declaration.line);
+    }
+  }
+
+  for (const rule of rules.values()) {
+    if (!rule.selector.includes('.evidence-step') || !rule.selector.includes('::after')) continue;
+    if (!rule.context.some((entry) => entry === '@media (min-width: 901px)'
+      || entry === '@media (min-width: 901px) and (prefers-reduced-motion: reduce)')) {
+      fail(`evidence connector must be desktop-only: ${rule.selector}`, rule.line);
+    }
+  }
+  if (/@keyframes\s+(?:evidence|record)-/i.test(withoutComments(css))) {
+    fail('Evidence causal motion must use transitions, not a new keyframe');
+  }
+  return failures;
+}
+
 // CSS 特异性 (a,b,c)：a=ID，b=类/属性/伪类，c=类型/伪元素；`*` 计 0。
 // 只用于判断 reduce blanket 与消费点谁胜，故按最坏分支（逗号组里最高的一支）取值。
 function specificity(selector) {
@@ -1694,7 +1822,10 @@ export function scanSources(sources, options = {}) {
   for (const item of sources) {
     const file = normalizePath(item.path);
     if (file === 'archive' || file.startsWith('archive/')) continue;
-    if (file.endsWith('.css')) scanCss(file, item.content, failures, { repository });
+    if (file.endsWith('.css')) {
+      scanCss(file, item.content, failures, { repository });
+      if (repository && file === 'site/styles.css') failures.push(...checkEvidenceCausalMotion(item.content));
+    }
     if (file.endsWith('.html')) {
       for (const style of item.content.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) scanCss(file, style[1], failures, { repository });
     }

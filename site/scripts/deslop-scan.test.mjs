@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkPublicSurfaceContract, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkEvidenceCausalMotion, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkPublicSurfaceContract, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -297,6 +297,20 @@ const REDUCE_DEMO_CSS = String.raw`
 }
 `;
 const demoRules = (css) => checkDemoMotion(css).map((failure) => failure.rule);
+
+test('SITE-MOTION-NATURAL-GROWTH-1A Evidence causal motion is an exact, reduced-safe contract', () => {
+  const css = readFileSync(new URL('site/styles.css', repoRoot), 'utf8');
+  assert.deepEqual(checkEvidenceCausalMotion(css), []);
+  const red = (mutated) => checkEvidenceCausalMotion(mutated).map((failure) => failure.rule);
+  assert.ok(red(css.replace('transform 240ms var(--ease-out)', 'transform 260ms var(--ease-out)')).includes('evidence-causal-motion'));
+  assert.ok(red(css.replace(
+    '.js .evidence-step::before { opacity: 1; transform: none; transition: none; transition-delay: 0ms; }',
+    '',
+  )).includes('evidence-causal-motion'));
+  assert.ok(red(`${css}\n.js .evidence-step.is-visible[data-stage="quote"]::before { transform: scale(.9); }`).includes('evidence-causal-motion'));
+  assert.ok(red(`${css}\n@media (max-width: 900px) { .js .evidence-step::after { transform: scaleX(1); } }`).includes('evidence-causal-motion'));
+  assert.ok(red(css.replace('transition-delay: 70ms;', 'transition-delay: 80ms;')).includes('evidence-causal-motion'));
+});
 
 test('SITE-CRAFT-2 reduced-motion assertion resolves the cascade, not literal presence', () => {
   assert.deepEqual(demoRules(REDUCE_DEMO_CSS), []);

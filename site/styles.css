@@ -291,6 +291,18 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .evidence-step.is-visible { background: var(--bg-app); }
 .evidence-step.is-visible::before { background: var(--text-primary); }
 .evidence-step[data-stage="conclusion"].is-visible::before { background: var(--red-fg); }
+/* SITE-MOTION-NATURAL-GROWTH-1A · record：材料进入既有四节点后，记号先显影，桌面接缝再按
+   DOM 顺序向下一节点推进。js 才武装隐藏预态；无 JS 保持上方完整静态终态。 */
+.js .evidence-step::before { opacity: 0; transform: scale(.82); transition: transform 240ms var(--ease-out), opacity 240ms var(--ease-out); transition-delay: 0ms; }
+.js .evidence-step.is-visible::before { opacity: 1; transform: scale(1); }
+@media (min-width: 901px) {
+  .evidence-step:not(:last-child)::after { content: ""; position: absolute; top: -1px; left: 36px; right: -24px; height: 1px; background: var(--border-strong); transform-origin: left center; transform: scaleX(1); pointer-events: none; }
+  .js .evidence-step:not(:last-child)::after { transform: scaleX(0); transition: transform 360ms var(--ease-out); }
+  .js .evidence-step.is-visible:not(:last-child)::after { transform: scaleX(1); }
+  .js .evidence-step:nth-child(1)::after { transition-delay: 0ms; }
+  .js .evidence-step:nth-child(2)::after { transition-delay: 70ms; }
+  .js .evidence-step:nth-child(3)::after { transition-delay: 140ms; }
+}
 .stage-label { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .evidence-step h3 { margin-top: 10px; font-size: 20px; }
 .evidence-step p, .evidence-step blockquote { margin: 18px 0 0; color: var(--text-secondary); font-size: 14px; line-height: 1.75; }
@@ -463,4 +475,9 @@ footer p { margin: 0; }
   .evidence-step { background: var(--bg-app); }
   .evidence-step::before { background: var(--text-primary); }
   .evidence-step[data-stage="conclusion"]::before { background: var(--red-fg); }
+  .js .evidence-step::before { opacity: 1; transform: none; transition: none; transition-delay: 0ms; }
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .js .evidence-step:not(:last-child)::after { transform: scaleX(1); transition: none; }
 }

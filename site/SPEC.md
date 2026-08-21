@@ -13,6 +13,17 @@ causal advance、B Seal settlement、C runtime proof repair。三单复用现有
 `site/ACCEPTANCE.md`，验收不得改本票契约。Stage 0、PI external gate、v0.1.2、tag/Release、
 product-live 与 GUI 回迁授权均不变。
 
+### SITE-MOTION-NATURAL-GROWTH-1A · 实现回执（待独立验收）
+
+- 以架构基线 `main@9b392c5` 建立独立 worktree 与分支 `codex/site-motion-natural-growth-1a`；
+  未改 `site/main.js`、HTML、docs、assets、`site/ACCEPTANCE.md`、desktop/packages/release。
+- 先加 Evidence causal motion 精确门并实跑 **49/50、1 fail、exit 1**（缺少节点／桌面线／reduce
+  契约）；随后只在既有 `.evidence-step.is-visible` 接入节点显影与桌面相邻覆盖线，补 5 类
+  duration／reduce／高特异性／窄屏跨格／delay 反例，focused Node tests **50/50**。
+- 门锁定 JS-off 静态终态、`prefers-reduced-motion` 0ms／零缩放、桌面 `240ms` 节点与 `360ms`
+  连接线、DOM 顺序 `0/70/140ms` 错时及 `>900px` 连接线边界；窄屏不产生跨格伪线。
+  独立验收与全票门禁仍待另一 Luna，不以本回执替代放行结论。
+
 ## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
