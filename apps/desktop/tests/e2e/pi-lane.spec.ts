@@ -97,6 +97,11 @@ async function startAndSend(page: Page, text = '把合同编号整理成一份�
   await page.getByTestId('pi-send').click();
 }
 
+/** A prompt decision must not manufacture an empty draft index. */
+async function expectNoDraftIndex(page: Page) {
+  await expect(page.getByTestId('pi-drafts')).toHaveCount(0);
+}
+
 test('未绑定文件夹：绑定文件夹是主动作，不假装可以开工', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('segment-draft').click();
@@ -150,12 +155,13 @@ test('拒绝写入：账上留驳回，索引与 effect 都不出现', async ({ 
   await startAndSend(page);
 
   await expect(page.getByTestId('pi-proposal')).toBeVisible();
+  await expectNoDraftIndex(page);
   await page.getByTestId('pi-deny').click();
 
   const card = page.getByTestId('pi-tool-card').filter({ hasText: '纪要.md' });
   await expect(card).toHaveAttribute('data-state', 'denied');
   await expect(card).toContainText('已拒绝写入');
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
 });
 
 test('无法确认：不进索引、可核验当前文件，且核验结果不补写成成功', async ({ page }) => {
@@ -179,18 +185,20 @@ test('无法确认：不进索引、可核验当前文件，且核验结果不�
     byteLength: 12,
   });
   await startAndSend(page);
+  await expect(page.getByTestId('pi-proposal')).toBeVisible();
+  await expectNoDraftIndex(page);
   await page.getByTestId('pi-approve').click();
 
   const card = page.getByTestId('pi-tool-card').filter({ hasText: '纪要.md' });
   await expect(card).toHaveAttribute('data-state', 'uncertain');
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
 
   await page.getByTestId('pi-verify-uncertain').click();
   const viewer = page.getByTestId('pi-viewer');
   await expect(viewer).toHaveAttribute('data-verify', 'true');
   await expect(viewer.getByTestId('pi-viewer-unverified')).toBeVisible();
   // 核验之后索引仍然是空的——核验不是补写。
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
 });
 
 test('未能写入：朱砂现形，索引不收', async ({ page }) => {
@@ -210,11 +218,13 @@ test('未能写入：朱砂现形，索引不收', async ({ page }) => {
     { kind: 'terminal', status: 'completed' },
   ]);
   await startAndSend(page);
+  await expect(page.getByTestId('pi-proposal')).toBeVisible();
+  await expectNoDraftIndex(page);
   await page.getByTestId('pi-approve').click();
 
   const card = page.getByTestId('pi-tool-card').filter({ hasText: '纪要.md' });
   await expect(card).toHaveAttribute('data-state', 'failed');
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
 });
 
 test('当前内容与已确认版本不同：明说，不拿当前内容冒充历史成功版本', async ({ page }) => {
@@ -249,11 +259,12 @@ test('Stop：运行中停止，悬置提案随之收束为拒绝', async ({ page
   await startAndSend(page);
 
   await expect(page.getByTestId('pi-proposal')).toBeVisible();
+  await expectNoDraftIndex(page);
   await page.getByTestId('pi-stop').click();
 
   const card = page.getByTestId('pi-tool-card').filter({ hasText: '纪要.md' });
   await expect(card).toHaveAttribute('data-state', 'denied');
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
   await expect(page.getByTestId('pi-running')).toHaveCount(0);
 });
 
@@ -325,6 +336,8 @@ test('用户上滚读史后，流态与终态都不夺回视口', async ({ page 
   }));
   await setScript(page, [...long, { kind: 'usage', costUsd: 0.001 }, { kind: 'terminal', status: 'completed' }]);
   await startAndSend(page);
+  await expect(page.getByTestId('pi-running')).toBeVisible();
+  await expectNoDraftIndex(page);
   await expect(page.getByTestId('pi-assistant-turn')).toBeVisible();
 
   // 真滚轮：程序化 scrollTo 未必被自动跟随判为「用户在读史」，滚轮才是这条判据的真形。
@@ -361,7 +374,8 @@ test('用户上滚读史后，流态与终态都不夺回视口', async ({ page 
 
   // 其余记录继续到达并以终态收束——视口一格都不许被夺回去。
   await expect(page.getByTestId('pi-running')).toHaveCount(0);
-  await expect(page.getByTestId('pi-drafts')).toBeVisible();
+  await expect(page.getByTestId('pi-session-closed')).toBeVisible();
+  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
   const after = await viewport.evaluate((node) => node.scrollTop);
   expect(after).toBe(before!.top);
 });
