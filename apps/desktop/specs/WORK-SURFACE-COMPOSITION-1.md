@@ -146,19 +146,21 @@
 ### 七-A、实现回执追加：独立验收 TEST-DRIFT 窄修
 
 - 仅改 `apps/desktop/tests/e2e/pi-lane.spec.ts`：拒绝、uncertain、failed、Stop 在当前
-  prompt 阶段均断言 `pi-drafts` 不存在；uncertain 在核验前后都保持该断言；上滚在运行
-  收束后按票面先等待 `pi-session-closed`，再断言终态空索引并核对 `scrollTop` 不变。
+  prompt 阶段均断言 `pi-drafts` 不存在；uncertain 在核验前后都保持该断言；上滚在
+  `pi-running` 归零后断言 `pi-drafts` 不存在，再核对 `scrollTop` 不变。browser harness
+  的 `kind:'terminal'` 只结束当前 prompt（发 `prompt_completed`），同一 session 仍可继续
+  下一 prompt，因此这里不等待 `pi-session-closed` 或 `pi-drafts-empty`；真实
+  `session_completed`/`session_failed` 的 sessionTerminal 无稿空索引由 DOM 17/17 覆盖。
   未改产品源、runtime、copy、ACCEPTANCE 或 evidence。
-- fresh 独立端口 `127.0.0.1:19875` 的 5-case 相关筛选实际为 **4 passed / 1 failed**（14.8s）：
-  拒绝、uncertain、failed、Stop 均通过；上滚在 `pi-running` 归零后等待
-  `pi-session-closed` 于 `pi-lane.spec.ts:377` 超时（5 秒，元素从未投影）。源码复核确认
-  browser harness 只发 `prompt_completed`/`prompt_canceled`，不发 `session_completed`/
-  `session_failed`；该缺口标记为 **[需架构拍板]**，没有以生产改动绕过。
-- DOM 定向门：`pnpm exec vitest run src/pi/PiLanePanel.dom.test.ts --reporter=verbose`，
-  **1 file / 17 passed / 0 failed**；`git diff --check`：**EXIT 0**。因上滚的架构阻塞，
-  本轮未重跑完整 13-case E2E，未宣称 full green。
-- 提交：本次 follow-up 由 `test(desktop): align pi draft visibility e2e` 提交；最终 SHA
-  以提交后 `git rev-parse HEAD` 核验为准。
+- fresh 独立端口 `127.0.0.1:19876` 的 5-case 相关筛选实际为 **5 passed / 0 failed**（9.5s）：
+  拒绝、uncertain、failed、Stop、用户上滚均通过。
+- fresh 独立端口 `127.0.0.1:19877` 的完整 `pi-lane.spec.ts` 实际为 **13 passed / 0 failed**
+  （19.7s，1 worker）。
+- DOM 定向门：`pnpm --filter @courtwork/desktop exec vitest run
+  src/pi/PiLanePanel.dom.test.ts --reporter=verbose`，**1 file / 17 passed / 0 failed**；
+  `git diff --check`：**EXIT 0**。
+- 提交：本次 follow-up 由 `test(desktop): distinguish prompt from session terminal` 提交；
+  最终 SHA 以提交后 `git rev-parse HEAD` 核验为准。
 
 ## 八、独立验收（验收 Luna 填）
 

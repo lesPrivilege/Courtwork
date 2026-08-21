@@ -374,8 +374,7 @@ test('用户上滚读史后，流态与终态都不夺回视口', async ({ page 
 
   // 其余记录继续到达并以终态收束——视口一格都不许被夺回去。
   await expect(page.getByTestId('pi-running')).toHaveCount(0);
-  await expect(page.getByTestId('pi-session-closed')).toBeVisible();
-  await expect(page.getByTestId('pi-drafts-empty')).toBeVisible();
+  await expectNoDraftIndex(page);
   const after = await viewport.evaluate((node) => node.scrollTop);
   expect(after).toBe(before!.top);
 });
