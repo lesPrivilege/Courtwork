@@ -2,6 +2,8 @@
 
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
+// @ts-expect-error Node built-in is available to Vitest; the desktop app tsconfig intentionally omits node typings.
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { emptySessionView, type PiToolCallView } from './pi-projection';
 import { PiLanePanel } from './PiLanePanel';
@@ -33,6 +35,13 @@ function render(node: React.ReactNode) {
   document.body.append(container);
   root = createRoot(container);
   act(() => root?.render(node));
+}
+
+function clearRender() {
+  if (root) act(() => root?.unmount());
+  container?.remove();
+  root = undefined;
+  container = undefined;
 }
 
 function makeSession(overrides: Partial<PiLaneSession> = {}): PiLaneSession {
@@ -298,5 +307,312 @@ describe('WORK-AGENT-SHOWCASE-1 · Work 纵切 born-red', () => {
     expect(details!.querySelector('.pi-tool-name')?.textContent).toBe('write');
     expect(details!.textContent).toContain('137');
     expect(details!.textContent).toContain('a'.repeat(12));
+  });
+});
+
+describe('WORK-SURFACE-COMPOSITION-1 · 冷调工作面 born-red', () => {
+  it('无当前工作稿时，非终态不渲染索引；终态诚实显示空结果', () => {
+    render(
+      createElement(PiLanePanel, {
+        session: makeSession({
+          status: 'ready',
+          sessionId: 'session-running',
+          view: emptySessionView('matter-1', 'session-running'),
+        }),
+        bound: true,
+        matterTitle: '设备采购案',
+        onBindFolder: vi.fn(),
+        onOpenModelSettings: vi.fn(),
+      }),
+    );
+    expect(container!.querySelector('[data-testid="pi-drafts"]')).toBeNull();
+
+    clearRender();
+    const terminal = emptySessionView('matter-1', 'session-terminal');
+    render(
+      createElement(PiLanePanel, {
+        session: makeSession({
+          status: 'ready',
+          sessionId: 'session-terminal',
+          view: { ...terminal, sessionTerminal: { type: 'session_completed' } },
+        }),
+        bound: true,
+        matterTitle: '设备采购案',
+        onBindFolder: vi.fn(),
+        onOpenModelSettings: vi.fn(),
+      }),
+    );
+    expect(container!.querySelector('[data-testid="pi-drafts-empty"]')).not.toBeNull();
+  });
+
+  it('当前工作稿索引位于 viewport 内，并排在消息/工具投影之后', () => {
+    const view = emptySessionView('matter-1', 'session-terminal');
+    render(
+      createElement(PiLanePanel, {
+        session: makeSession({
+          status: 'ready',
+          sessionId: 'session-terminal',
+          view: {
+            ...view,
+            sessionTerminal: { type: 'session_completed' },
+            blocks: [{
+              requestId: 'request-1',
+              prompt: '整理材料并写成工作稿',
+              reasoning: '',
+              text: '已完成',
+              parts: [{ kind: 'text', text: '已完成' }],
+              toolCallIds: [],
+              terminal: { status: 'completed' },
+            }],
+            drafts: [{
+              logicalPath: '纪要.md',
+              byteLength: 12,
+              contentSha256: 'c'.repeat(64),
+              disposition: 'created',
+              recordedAt: 1,
+            }],
+          },
+        }),
+        bound: true,
+        matterTitle: '设备采购案',
+        onBindFolder: vi.fn(),
+        onOpenModelSettings: vi.fn(),
+      }),
+    );
+    const viewport = container!.querySelector('[data-testid="pi-viewport"]');
+    const drafts = viewport?.querySelector('[data-testid="pi-drafts"]');
+    const assistant = viewport?.querySelector('[data-testid="pi-assistant-turn"]');
+    expect(drafts).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(viewport!.contains(drafts!)).toBe(true);
+    expect(assistant).not.toBeNull();
+    expect(assistant!.compareDocumentPosition(drafts!) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+  });
+
+  it('成功写入只保留工作稿索引入口；uncertain 仍保留核验入口', () => {
+    const call: PiToolCallView = {
+      toolCallId: 'tc-success-single-entry',
+      toolName: 'write',
+      running: false,
+      proposal: {
+        operationId: 'op-success-single-entry',
+        logicalPath: '纪要.md',
+        byteLength: 12,
+        contentSha256: 'c'.repeat(64),
+        action: 'created',
+      },
+      effect: {
+        state: 'succeeded',
+        logicalPath: '纪要.md',
+        contentSha256: 'c'.repeat(64),
+        byteLength: 12,
+      },
+    };
+    render(createElement(PiToolCard, {
+      call,
+      pending: false,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-open-from-card"]')).toBeNull();
+
+    clearRender();
+    render(createElement(PiToolCard, {
+      call: { ...call, toolCallId: 'tc-uncertain', effect: { ...call.effect!, state: 'uncertain' } },
+      pending: false,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-verify-uncertain"]')).not.toBeNull();
+  });
+
+  it('非终态不显示 prior draft；终态与 restart 后的 StartGate 仍可到达', () => {
+    const prior = {
+      containerId: 'matter-1',
+      grantId: 'grant-1',
+      sessionId: 'session-prior',
+      recordedAt: 1,
+      drafts: [{
+        logicalPath: '上一段.md',
+        byteLength: 8,
+        contentSha256: 'p'.repeat(64),
+        disposition: 'created',
+        recordedAt: 1,
+      }],
+    };
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-current',
+        view: emptySessionView('matter-1', 'session-current'),
+        priorSessions: [prior],
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-prior-drafts"]')).toBeNull();
+
+    clearRender();
+    const terminal = emptySessionView('matter-1', 'session-current');
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-current',
+        view: { ...terminal, sessionTerminal: { type: 'session_completed' } },
+        priorSessions: [prior],
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-prior-drafts"]')).not.toBeNull();
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({ status: 'idle', priorSessions: [prior] }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-prior-drafts"]')).not.toBeNull();
+  });
+
+  it('静态构图门锁定 Pi 私有版心、既有字阶消费与工具声部', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toContain('--pi-content-measure: 760px;');
+    expect(source).toContain('--type-title-sm-size: 16px;');
+    expect(source).toContain('--type-title-sm-line-height: 1.45;');
+    expect(source).toContain('--type-title-size: 18px;');
+    expect(source).toContain('--type-title-line-height: 1.4;');
+    expect(source).toContain('--type-display-size: 20px;');
+    expect(source).toContain('--type-display-line-height: 1.35;');
+    expect(source).toMatch(/\.pi-work-head-title\s*\{[^}]*font-size:\s*var\(--type-display-size\)/s);
+    expect(source).toMatch(/\.pi-user-text\s*\{[^}]*font-size:\s*var\(--type-title-size\)/s);
+    expect(source).toMatch(/\.pi-turn-assistant \.chat-markdown\s*\{[^}]*font-size:\s*var\(--type-reading-size\)/s);
+    expect(source).toMatch(/\.pi-drafts-title\s*\{[^}]*font-size:\s*var\(--type-title-sm-size\)/s);
+    expect(source).toMatch(/\.pi-work-head,\s*\.pi-status,\s*\.pi-thread-viewport,\s*\.pi-composer\s*\{[^}]*var\(--pi-content-measure\)/s);
+    expect(source).toMatch(/\.pi-thread-viewport > \.pi-drafts\s*\{[^}]*padding-inline:\s*0/s);
+    expect(source).toContain('--content-measure: 640px;');
+    expect(source).not.toMatch(/\.pi-thread-viewport,\n\.pi-drafts,\n\.pi-composer \{[^}]*var\(--content-measure\)/s);
+    expect(source).toMatch(/\.pi-tool-card:not\(\[data-state="proposed"\]\)\s*\{[^}]*border-top:\s*var\(--rule-minor\) solid var\(--border\)/s);
+    expect(source).toMatch(/\.pi-tool-card\[data-state="proposed"\]\s*\{[^}]*background:\s*var\(--bg-surface\)/s);
+    expect(source).not.toMatch(/\.pi-tool-card\s*\{[^}]*background:/s);
+  });
+
+  it('status/details、proposal 决定、Stop、restart 与 viewer 入口保持可达', () => {
+    const onDecide = vi.fn();
+    const call: PiToolCallView = {
+      toolCallId: 'tc-guardrails',
+      toolName: 'write',
+      running: true,
+      proposal: {
+        operationId: 'op-guardrails',
+        logicalPath: '纪要.md',
+        byteLength: 12,
+        contentSha256: 'c'.repeat(64),
+        action: 'created',
+      },
+    };
+    render(createElement(PiToolCard, {
+      call,
+      pending: true,
+      busy: false,
+      onDecide,
+      onOpen: vi.fn(),
+    }));
+    act(() => container!.querySelector('[data-testid="pi-approve"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    act(() => container!.querySelector('[data-testid="pi-deny"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(onDecide).toHaveBeenNthCalledWith(1, 'op-guardrails', 'approve');
+    expect(onDecide).toHaveBeenNthCalledWith(2, 'op-guardrails', 'deny');
+  });
+
+  it('Stop 与 restart 继续只回调既有 session port', () => {
+    const stop = vi.fn(async () => undefined);
+    const running = emptySessionView('matter-1', 'session-running');
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-running',
+        view: { ...running, running: true },
+        stop,
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    const stopButton = container!.querySelector('[data-testid="pi-stop"]');
+    expect(stopButton).not.toBeNull();
+    act(() => stopButton!.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(stop).toHaveBeenCalledTimes(1);
+
+    clearRender();
+    const restart = vi.fn(async () => undefined);
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-ready',
+        restart,
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    const restartButton = container!.querySelector('[data-testid="pi-restart"]');
+    expect(restartButton).not.toBeNull();
+    act(() => restartButton!.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    expect(restart).toHaveBeenCalledTimes(1);
+  });
+
+  it('工作稿 viewer 继续走 open 回调并诚实显示 hash 漂移', async () => {
+    const draftHash = 'c'.repeat(64);
+    const open = vi.fn(async () => ({
+      ok: true as const,
+      view: {
+        logicalPath: '纪要.md',
+        content: '# 当前内容',
+        contentSha256: 'd'.repeat(64),
+        byteLength: 15,
+      },
+    }));
+    const view = emptySessionView('matter-1', 'session-terminal');
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-terminal',
+        view: {
+          ...view,
+          sessionTerminal: { type: 'session_completed' },
+          drafts: [{
+            logicalPath: '纪要.md',
+            byteLength: 12,
+            contentSha256: draftHash,
+            disposition: 'created',
+            recordedAt: 1,
+          }],
+        },
+        open,
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    const openButton = container!.querySelector('[data-testid="pi-draft-open"]');
+    expect(openButton).not.toBeNull();
+    await act(async () => {
+      openButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+    expect(open).toHaveBeenCalledWith('session-terminal', '纪要.md');
+    expect(container!.querySelector('[data-testid="pi-viewer"]')).not.toBeNull();
+    expect(container!.querySelector('[data-testid="pi-viewer-hash-differs"]')).not.toBeNull();
   });
 });

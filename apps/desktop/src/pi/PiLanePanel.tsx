@@ -257,15 +257,16 @@ export function PiLanePanel({
                   {PI_COPY.running}
                 </p>
               </ThreadPrimitive.If>
+              {(view.sessionTerminal || view.drafts.length > 0) && (
+                <PiDraftIndex
+                  view={view}
+                  priorSessions={session.priorSessions}
+                  onOpen={(sessionId, logicalPath, recordedSha256) =>
+                    void openDraft(sessionId, logicalPath, { verify: false, recordedSha256 })
+                  }
+                />
+              )}
             </ThreadPrimitive.Viewport>
-
-            <PiDraftIndex
-              view={view}
-              priorSessions={session.priorSessions}
-              onOpen={(sessionId, logicalPath, recordedSha256) =>
-                void openDraft(sessionId, logicalPath, { verify: false, recordedSha256 })
-              }
-            />
 
             {!view.sessionTerminal && (
               <ComposerPrimitive.Root className="pi-composer" data-testid="pi-composer">
@@ -403,7 +404,7 @@ function PiDraftIndex({
   priorSessions: readonly PiHistorySession[];
   onOpen(sessionId: string, logicalPath: string, recordedSha256: string): void;
 }) {
-  const prior = priorSessions[0];
+  const prior = view.sessionTerminal ? priorSessions[0] : undefined;
   return (
     <section className="pi-drafts" data-testid="pi-drafts">
       <h3 className="pi-drafts-title">{PI_COPY.draftsTitle}</h3>

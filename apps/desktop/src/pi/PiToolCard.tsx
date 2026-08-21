@@ -125,19 +125,6 @@ export function PiToolCard({
         </p>
       )}
 
-      {call.effect?.state === 'succeeded' && call.effect.logicalPath && (
-        <button
-          type="button"
-          className="pi-button pi-button-quiet"
-          data-testid="pi-open-from-card"
-          onClick={() =>
-            onOpen(call.effect?.logicalPath ?? '', { verify: false })
-          }
-        >
-          {PI_COPY.openDraft}
-        </button>
-      )}
-
       {state === 'uncertain' && call.proposal && (
         <button
           type="button"

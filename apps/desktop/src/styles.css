@@ -157,6 +157,18 @@
   --home-surface-radius: 16px;
   --home-welcome-measure: 560px;
   --content-measure: 640px; /* COMPOSER-FLOW-COMPACT-1：chat 内容列与 composer 收至窄阅读测宽，welcome 560 保持梯度 */
+  /* WORK-SURFACE-COMPOSITION-1 / WS-C01：Pi Work 独立版心；chat 继续使用 640px。 */
+  --pi-content-measure: 760px;
+  /* 仅暴露 tokens.json 已有的 titleSm/title/display 槽，消费面不散落数值。 */
+  --type-title-sm-size: 16px;
+  --type-title-sm-line-height: 1.45;
+  --type-title-sm-weight: 510;
+  --type-title-size: 18px;
+  --type-title-line-height: 1.4;
+  --type-title-weight: 510;
+  --type-display-size: 20px;
+  --type-display-line-height: 1.35;
+  --type-display-weight: 510;
 }
 
 :root[data-theme='dark'] {
@@ -1958,7 +1970,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-work-head-ident { min-width: 0; display: grid; gap: 2px; }
 .pi-panel-gate .pi-work-head-ident { justify-items: center; }
 .pi-work-head-label { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.pi-work-head-title { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-size: var(--type-body-size); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 52ch; }
+.pi-work-head-title { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-size: var(--type-display-size); line-height: var(--type-display-line-height); font-weight: var(--type-display-weight); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 52ch; }
 .pi-work-head-binding { flex: none; max-width: 34ch; padding: 3px 8px; border-radius: 4px; background: var(--bg-surface); color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-panel-gate .pi-work-head-binding { justify-self: center; }
 
@@ -2000,20 +2012,21 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* 问与答的分野只靠明度与缩进：用户话次级、模型正文正级。 */
 .pi-turn { display: grid; gap: 8px; }
 .pi-turn-user { padding-left: 14px; }
-.pi-user-text { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-body-size); white-space: pre-wrap; }
+.pi-user-text { margin: 0; color: var(--text-secondary); font-size: var(--type-title-size); line-height: var(--type-title-line-height); font-weight: var(--type-title-weight); white-space: pre-wrap; }
 .pi-turn-assistant .chat-markdown { font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
 .pi-running { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 
-/* 工具卡：一级底色台阶（白纸浮于画布），零边框零阴影。 */
-.pi-tool-card { min-width: 0; display: grid; gap: 8px; padding: 10px 12px; background: var(--bg-raised); }
+/* 工具记录：非决策态退为低声部 ledger row；只用一次既有乌丝细线分隔。 */
+.pi-tool-card { min-width: 0; display: grid; gap: 8px; padding: 8px 0; }
+.pi-tool-card:not([data-state="proposed"]) { border-top: var(--rule-minor) solid var(--border); }
 /* proposal 主阅读层先说人话：动作 + 目标文件。 */
 .pi-tool-request, .pi-tool-action { min-width: 0; margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); line-height: 1.5; }
 .pi-tool-request b, .pi-tool-action b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); overflow-wrap: anywhere; }
 .pi-tool-details { min-width: 0; display: grid; gap: 6px; }
 .pi-tool-details summary { justify-self: start; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
 .pi-tool-details summary:hover { color: var(--text-primary); }
-/* 待决定：底色退到竖栏档并加深标题墨色——需要人做决定的那一枚在扫读时先被看见。 */
-.pi-tool-card[data-state="proposed"] { background: var(--bg-surface); }
+/* 待决定：保留唯一 raised/surface 声部——需要人做决定的那一枚在扫读时先被看见。 */
+.pi-tool-card[data-state="proposed"] { padding: 10px 0; background: var(--bg-surface); }
 .pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
 .pi-tool-name { font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
 .pi-tool-state { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
@@ -2057,7 +2070,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-drafts { flex: none; display: grid; gap: 8px; padding: 12px 16px; background: var(--bg-surface); }
 /* 空索引不占一条色带：被动数据位只述状态，不该在视觉上先声夺人。 */
 .pi-drafts:not(:has(.pi-draft-row)) { background: transparent; padding-block: 8px; }
-.pi-drafts-title { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-regular); letter-spacing: .04em; }
+.pi-drafts-title { margin: 0; color: var(--text-secondary); font-size: var(--type-title-sm-size); line-height: var(--type-title-sm-line-height); font-weight: var(--type-title-sm-weight); letter-spacing: .04em; }
 .pi-drafts-empty { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
 .pi-draft-row { display: flex; align-items: baseline; gap: 10px; }
@@ -2066,7 +2079,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-draft-open:hover { text-decoration: underline; }
 .pi-draft-bytes { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-prior { display: grid; gap: 8px; padding-top: 10px; }
-.pi-panel-gate .pi-drafts-prior { width: 100%; max-width: var(--content-measure); margin-inline: auto; }
+.pi-panel-gate .pi-drafts-prior { width: 100%; max-width: var(--pi-content-measure); margin-inline: auto; }
 
 .pi-composer { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 16px; background: var(--bg-raised); }
 .pi-composer-input { flex: 1; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
@@ -2095,11 +2108,16 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-viewer-meta dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .pi-viewer-body { min-height: 0; }
 
-/* 正文按测宽居中，与 chat/work 两面同一 `--content-measure`，不随视口全宽漂移。
-   置于本节末尾：三处各自的 padding 简写在上面，简写不覆盖后来的 padding-inline。 */
+/* Pi Work 正文按私有版心居中，不随视口全宽漂移；760px 以下退回既有 16px 安全边距。
+    置于本节末尾：三处各自的 padding 简写在上面，简写不覆盖后来的 padding-inline。 */
+.pi-work-head,
+.pi-status,
 .pi-thread-viewport,
-.pi-drafts,
-.pi-composer { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
+.pi-composer { padding-inline: max(16px, calc((100% - var(--pi-content-measure)) / 2)); }
+
+/* Draft index is already a child of the measured viewport; keep its rows on that same text axis
+   instead of centering a second time inside the viewport content box. */
+.pi-thread-viewport > .pi-drafts { padding-inline: 0; }
 
 /* 390px smoke：窄宽只收 Pi Work 面，不改变 chat/schema 的桌面断点契约。 */
 @media (max-width: 760px) {

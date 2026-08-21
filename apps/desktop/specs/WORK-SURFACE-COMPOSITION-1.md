@@ -126,7 +126,22 @@
 
 ## 七、实现回执（实现 Luna 填）
 
-待填：变更文件、born-red/green、完整门、视觉证据、复杂度、偏离与提交 SHA。
+实现回执（本会话）：
+
+- 变更文件：`apps/desktop/src/pi/PiLanePanel.tsx`、`PiToolCard.tsx`、`PiLanePanel.dom.test.ts`、
+  `apps/desktop/src/styles.css`；本票仅补本节回执。
+- born-red：首次定向运行 `pnpm exec vitest run src/pi/PiLanePanel.dom.test.ts --reporter=verbose`
+  时 14/15 通过，静态构图门因缺失 `--pi-content-measure: 760px` 实际触红；随后补实现并新增
+  Stop/restart/viewer hash-diff 与 nested draft 轴守卫。
+- green：同命令最终 1 个文件、17/17 tests 通过；`pnpm lint`、`pnpm -r build`、`git diff --check`
+  全部通过。构建仅保留既有 Vite chunk-size/dynamic-import 警告。
+- 视觉证据：按票面实现边界未运行截图或完整 Playwright；由独立验收 Luna 在 clean worktree
+  负责视觉矩阵与反例证据，本回执不自验收。
+- 复杂度：未新增产品概念、store、port、command 或依赖；仅新增一个 Pi 私有版心别名、三组
+  既有排印槽别名，以及 nested draft 零 inline padding 的布局守卫。
+- 偏离：`PiDraftIndex` 已在 viewport 内，故其 inline padding 归零，避免对 760px 版心二次居中；
+  其余 UI/runtime/copy/token 数值均未改动。
+- 提交 SHA：待本会话提交后补录。
 
 ## 八、独立验收（验收 Luna 填）
 
