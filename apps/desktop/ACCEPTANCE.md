@@ -8059,3 +8059,62 @@ succeeded 只有一个 current draft index 入口且无 `pi-open-from-card`；39
 两枚反例均用 `apply_patch` 注入并恢复；最终产品源相对 target 零 diff。本轮只追加本节、
 本票与 `reacceptance-2026-08-21/` 三个 evidence 文件，不改产品实现、第一轮 evidence、
 wire/journal 或契约语义。因 lint 失败，本票仍不放行。
+
+### 最终独立复验（2026-08-21，PASS）
+
+具名验收者：未参与实现与前两轮验收的独立验收 Luna。本轮在全新 clean clone
+`/private/tmp/courtwork-final-4GkQTp/repo` 完成，checkout 后 `HEAD` 精确为
+`a0851857ca683e6a28bdceb1cf4787379af8c11a0`，未在共享树 checkout/stash。前两轮
+`FAIL / REJECT` 原样保留；本节是第三轮最终 gate/reconciliation，不替代
+`PI-BASE-GUI-ACCEPT`，不宣称真实 WKWebView/AX、provider 或 product-live 放行。
+
+**最终判定：`PASS`（仅放行本票 scripted work-surface composition 范围）。**
+
+#### 源与证据不变量
+
+`d21aa6d0→a0851857` 的三份产品源逐字节不变；以下为两端 SHA-256（`git diff --quiet`
+逐路径确认）：
+
+| 路径 | SHA-256 |
+|---|---|
+| `apps/desktop/src/pi/PiLanePanel.tsx` | `88b24cc9a11373396c1522bb8c521d71ea66a54019ed8641e7781b77c0ba610a` |
+| `apps/desktop/src/pi/PiToolCard.tsx` | `3a2b05bfd66ec4fa3a0c1d5ef70ccd5c180f039c22814eab7c1ce2f8f59611ae` |
+| `apps/desktop/src/styles.css` | `572d0bd33d4c01b03f7bed32c80d336356e063f9b553456b9b782ee19b4428c0` |
+
+最终恢复后的第一轮 capture source `capture-script.mjs` 也相对目标零 diff，SHA-256 为
+`a2dc8d915f80852d41e3e8b68a827eac6c57c78b`。既有 evidence 未覆盖或新增截图：
+
+- `acceptance-2026-08-21/` 保留 **31 PNG**；manifest target 为
+  `d21aa6d062b32052507f6b96ea7bf8da0eccb602`，五组
+  viewport 的 `overflow` 均为 `"0"`，fixture `纪要.md` SHA-256 为
+  `e80ddeb170a3513e335ada586bec6f0068e8be8c66ab0845b38ec541edb888ba`。
+- `reacceptance-2026-08-21/` 保留 **2 PNG**；manifest target 为二轮 capture 的
+  `c26ff1514226a13e9707bf0d8e368eddc4cef2cb`、port `29643`，两枚 `horizontalOverflow` 均为 `0`，且 manifest
+  SHA-256 与文件逐一相符：`light-1440-succeeded.png` =
+  `255f6b5e73260a55d39eba26574abfb0df314d202bd51aa7266943eeddaf3172`；
+  `light-390-proposal.png` =
+  `ae37a25f78bf37f53216cd7f8a11c31e850087d15f100e9d84a07aed17820564`。
+- 随机复核既有 `acceptance-2026-08-21/light-1440/succeeded.png` 与
+  `reacceptance-2026-08-21/light-390-proposal.png`；未新增、覆盖或修改截图。
+
+#### 冷 clone 实跑门
+
+| 门 | 本轮实测 |
+|---|---|
+| 完整 Pi E2E | `COURTWORK_E2E_PORT=30872 ... playwright test tests/e2e/pi-lane.spec.ts --project=app`：fresh unique port，**13 total / 13 passed / 0 failed**（21.2s，1 worker） |
+| Pi DOM | `PiLanePanel.dom.test.ts`：1 file / **17 passed / 0 failed** |
+| Pi unit | `vitest run src/pi`：5 files / **56 passed / 0 failed** |
+| root lint | `pnpm lint`：**EXIT 0** |
+| workspace build | `pnpm -r build`：**EXIT 0**；15/16 workspace scope，desktop Vite **4316 modules**；仅既有 advisory warnings |
+| diff check | `git diff --check`：**EXIT 0** |
+
+#### 反例、复原与最终卫生
+
+临时移除 `release/evidence/work-surface-composition-1/acceptance-2026-08-21/capture-script.mjs`
+的 `node:console` 与 `node:process` imports 后，定向 ESLint 实际 **EXIT 1，8 个
+`no-undef`**（`process` 5 处、`console` 3 处）。用精确补丁恢复后，同一脚本定向 ESLint
+**EXIT 0**，root `pnpm lint` **EXIT 0**；产品三源与 capture source 相对 target 均零 diff。
+`git status --short --branch` 最终 clean；本轮未改实现、wire/journal/projection、第一/二轮
+evidence 或契约语义。
+
+本票最终仅在前两轮 FAIL 之后追加本 PASS；其余成熟度边界不变。

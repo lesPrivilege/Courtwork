@@ -289,3 +289,42 @@ succeeded 只保留一个 current draft index 入口且没有 `pi-open-from-card
 两枚反例均用 `apply_patch` 注入并恢复；最终产品源相对 target 零 diff。本轮只追加本节、
 `apps/desktop/ACCEPTANCE.md` 与 `reacceptance-2026-08-21/` 三个 evidence 文件，不改
 产品实现、第一轮 evidence、wire/journal 或契约语义。因 lint 失败，本票仍不放行。
+
+### 八-B、最终独立复验（2026-08-21，PASS）
+
+本轮由未参与实现与前两轮验收的独立 Luna 在全新 clean clone
+`/private/tmp/courtwork-final-4GkQTp/repo` 完成，checkout 后 `HEAD` 精确为目标
+`a0851857ca683e6a28bdceb1cf4787379af8c11a0`；前两轮 `FAIL / REJECT` 不删除、不改写。
+最终判定：**`PASS`（仅本票 scripted work-surface composition 范围）**；不替代
+`PI-BASE-GUI-ACCEPT`，不升级真实 WKWebView/AX、provider 或 product-live 口径。
+
+#### 源、证据与视觉不变量
+
+`d21aa6d0→a0851857` 的 `PiLanePanel.tsx`、`PiToolCard.tsx`、`styles.css` 均经逐路径
+`git diff --quiet` 确认字节不变，SHA-256 分别为
+`88b24cc9a11373396c1522bb8c521d71ea66a54019ed8641e7781b77c0ba610a`、
+`3a2b05bfd66ec4fa3a0c1d5ef70ccd5c180f039c22814eab7c1ce2f8f59611ae`、
+`572d0bd33d4c01b03f7bed32c80d336356e063f9b553456b9b782ee19b4428c0`。恢复后的
+`acceptance-2026-08-21/capture-script.mjs` 相对目标亦零 diff，SHA-256 为
+`a2dc8d915f80852d41e3e8b68a827eac6c57c78b`。
+
+首轮 evidence 保留 31 PNG，manifest target 为 `d21aa6d062b32052507f6b96ea7bf8da0eccb602`，五组 viewport
+`overflow` 均为 `"0"`；二轮 evidence 保留 2 PNG，manifest target 为
+`c26ff1514226a13e9707bf0d8e368eddc4cef2cb`、port `29643`，两枚 `horizontalOverflow` 均为 `0`，manifest 与
+文件 SHA-256 相符（1440 succeeded：`255f6b5e73260a55d39eba26574abfb0df314d202bd51aa7266943eeddaf3172`；
+390 proposal：`ae37a25f78bf37f53216cd7f8a11c31e850087d15f100e9d84a07aed17820564`）。
+本轮用 `view_image` 随机检查首轮 light/1440 succeeded 与二轮 light/390 proposal，未新增
+或覆盖截图。
+
+#### 最终实跑与反例
+
+- fresh unique port `30872` 的完整 `pi-lane.spec.ts`：**13/13 passed**（1 worker）；
+  Pi DOM **1 file / 17/17**；`src/pi` unit **5 files / 56/56**。
+- `pnpm lint` **EXIT 0**；`pnpm -r build` **EXIT 0**（15/16 scope，desktop 4316 modules，
+  仅既有 advisory warnings）；`git diff --check` **EXIT 0**。
+- 临时删除 capture script 的 `node:console`/`node:process` imports，定向 ESLint 实际
+  **8 个 no-undef（process 5、console 3）/ EXIT 1**；精确复原后定向 ESLint 与 root
+  lint 均 EXIT 0。最终 `git status --short --branch` clean，产品与 evidence source
+  相对目标零 diff。
+
+本 PASS 仅闭合本票最终独立 gate；不改变本票成熟度与外部验证边界。
