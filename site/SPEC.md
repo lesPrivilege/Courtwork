@@ -39,6 +39,22 @@ product-live 与 GUI 回迁授权均不变。
   五类反例；focused Node tests **51/51**。
 - B 只证明实现门与静态契约成立，独立验收与 C runtime proof 仍待另一 Luna，不以本回执替代放行结论。
 
+### SITE-MOTION-NATURAL-GROWTH-1C · 实现回执（待独立验收）
+
+- 以 B 精确 tip `919dc773c055ddfeac17fc9bb6d582de15c4c571` 继续施工；未改
+  `site/main.js`、docs、assets、既有 craft-evidence、`site/ACCEPTANCE.md`、desktop/packages/release。
+- 先在 B tip 实跑旧 reduced probe，已退役节点使其以 `null.style` 崩溃；再加 C contract test，旧
+  probe 在缺 Typer/现行数据/transition computed 断言时 **0 pass、1 fail、exit 1**。实现后 C
+  contract tests **2/2**。
+- `assert-reduced-motion.mjs` 现验 Typer、Ghosty、Evidence marker/connector、settle seal 与
+  `.scenario-proof-stats strong`、fixture/PM 属性槽；按 computed `animationName`、`transform`、
+  `opacity`、`transitionDuration` 与数据 text/bbox/transform 双采样判定，完全移除退役演示消费点。
+- `SITE-MOTION-NATURAL-GROWTH-1/` 采集器与结构说明、报告及新帧已落地。独立端口 `18931` 实跑：
+  reduced runtime probe PASS；capture **12/12** 双宗宽度无溢出／破图，no-preference 仅
+  `typer-develop`、reduce 仅 `ghosty-reduced-fade`，Evidence/seal 实际暂停 transition 分别
+  **15/2** 条，data-static **9 nodes identical**。报告 target SHA 为 B tip。
+- C 只证明运行时证据闭合，独立验收仍待另一 Luna；本回执不构成放行或发布结论。
+
 ## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做

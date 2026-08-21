@@ -1,16 +1,9 @@
-// SITE-CRAFT-2 · reduced-motion 计算态实测（P0 驳回的回炉件）。
+// SITE-MOTION-NATURAL-GROWTH-1C · Pages reduced-motion 计算态实测。
 //
-// 判例：**分支在场 ≠ 分支胜出**。静态门只能看到 reduce 分支写没写，看不到它是否被更高特异性的
-// 消费点压掉——`.demo-actions span`(0,1,1) 曾压过 blanket `.schema-demo *`(0,1,0)，
-// 令朱在 reduce 下照常走完幕二。`deslop-scan-lib` 的 checkDemoMotion 已升级为层叠解析（静态侧），
-// 本脚本是运行侧的对应实测：直接读 computed animation-name 与四相位计算色。
-//
-// 不挂 site:guard——site 构建面保持零依赖零浏览器；本脚本按需运行（验收清单项）：
-//   (cd site && python3 -m http.server 18902 --bind 127.0.0.1) &
-//   node site/scripts/assert-reduced-motion.mjs http://127.0.0.1:18902/ apps/desktop
-// `page.evaluate` 的回调体在**浏览器页面上下文**里执行，不在本 Node 进程里——
-// 故此处显式声明这两个浏览器全局，而不是把整份脚本标成 browser 环境（它主体仍是 Node）。
-/* global document, getComputedStyle */
+// 该脚本只消费现行 Pages DOM：Typer、Ghosty、Evidence causal advance、seal settlement 与
+// 真实数据槽。它同时读取 animation 与 transition 的 computed style，避免只看 CSS 字面分支而
+// 漏掉高特异性覆盖；它不为页面增加任何运行时行为。
+/* global document, window, getComputedStyle */
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
@@ -18,67 +11,159 @@ const [, , url = 'http://127.0.0.1:18902/', desktopDir = 'apps/desktop'] = proce
 const require = createRequire(resolve(process.cwd(), desktopDir, 'package.json'));
 const { chromium } = require('@playwright/test');
 
-// reduce 下唯一许可的动画**按名**登记，不按条数：条数是计数不是白名单，
-// 少跑一条就能把新混进来的一条吃掉。ghosty-reduced-fade 是 SITE-CRAFT-1-FADE 契约里
-// reduce **专用**的 opacity 淡入（不是常规态动画漏出），故许可。
-const ALLOWED_UNDER_REDUCE = new Set(['ghosty-reduced-fade']);
-const ZHU = 'rgb(215, 90, 60)';
+const REDUCE_ALLOWED_ANIMATIONS = new Set(['ghosty-reduced-fade']);
+const DATA_SELECTORS = [
+  '.scenario-proof-stats strong',
+  '[data-fixture-count]',
+  '[data-pm-finding-id]',
+  '[data-pm-clause]',
+  '[data-pm-defect-label]',
+  '[data-pm-suggestion]',
+  '[data-pm-disposition]',
+];
 const failures = [];
 
+const readMatrix = (value) => {
+  if (value === 'none') return { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 };
+  const match = value.match(/^matrix\(([^)]+)\)$/);
+  if (!match) return null;
+  const values = match[1].split(',').map(Number);
+  if (values.length !== 6 || values.some((part) => Number.isNaN(part))) return null;
+  return { a: values[0], b: values[1], c: values[2], d: values[3], e: values[4], f: values[5] };
+};
+
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
-const page = await context.newPage();
-await page.goto(url, { waitUntil: 'networkidle' });
-await page.waitForTimeout(600);
+try {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.waitForFunction(
+    () => [...document.images].every((image) => image.complete),
+    null,
+    { timeout: 3000 },
+  ).catch(() => failures.push('reduced probe image load did not settle within 3s'));
+  await page.waitForTimeout(600);
+  await page.evaluate(() => window.scrollTo(0, 0));
 
-// ① 运行时动画普查：按名核，不按条数核
-const census = await page.evaluate(() => document.getAnimations().map((a) => ({
-  name: a.animationName ?? a.constructor.name,
-  target: a.effect?.target?.tagName?.toLowerCase() ?? '?',
-})));
-for (const entry of census) {
-  if (!ALLOWED_UNDER_REDUCE.has(entry.name)) {
-    failures.push(`reduce 下有未登记动画在跑：${entry.name} @ ${entry.target}`);
+  const imageState = await page.evaluate(() => [...document.images].map((image) => ({
+    src: image.currentSrc || image.src,
+    complete: image.complete,
+    naturalWidth: image.naturalWidth,
+  })));
+  for (const image of imageState) {
+    if (!image.complete || image.naturalWidth === 0) failures.push(`broken image: ${image.src}`);
   }
+
+  const census = await page.evaluate(() => document.getAnimations().map((animation) => ({
+    name: animation.animationName ?? animation.constructor.name,
+    target: animation.effect?.target?.tagName?.toLowerCase() ?? '?',
+  })));
+  for (const entry of census) {
+    if (!REDUCE_ALLOWED_ANIMATIONS.has(entry.name)) {
+      failures.push(`reduce has an unregistered animation: ${entry.name} @ ${entry.target}`);
+    }
+  }
+
+  const computed = await page.evaluate(() => {
+    const style = (selector, pseudo = undefined) => {
+      const element = document.querySelector(selector);
+      if (!element) return null;
+      const computedStyle = getComputedStyle(element, pseudo);
+      return {
+        animationName: computedStyle.animationName,
+        opacity: computedStyle.opacity,
+        transform: computedStyle.transform,
+        transitionDuration: computedStyle.transitionDuration,
+        transitionProperty: computedStyle.transitionProperty,
+        maskImage: computedStyle.maskImage,
+        webkitMaskImage: computedStyle.webkitMaskImage,
+      };
+    };
+    return {
+      typer: style('.tc'),
+      ghosty: style('.work-crop[data-reveal] img'),
+      marker: style('.evidence-step', '::before'),
+      connector: style('.evidence-step:not(:last-child)', '::after'),
+      seal: style('.settle-seal'),
+      counts: document.querySelectorAll('[data-fixture-count]').length,
+      evidence: document.querySelectorAll('.evidence-step').length,
+    };
+  });
+
+  if (!computed.typer) failures.push('Typer target missing');
+  else if (computed.typer.animationName !== 'none') failures.push(`Typer animation-name is ${computed.typer.animationName}`);
+
+  if (!computed.ghosty) failures.push('Ghosty target missing');
+  else {
+    if (computed.ghosty.maskImage !== 'none' && computed.ghosty.webkitMaskImage !== 'none') failures.push('Ghosty mask was not removed under reduce');
+    if (computed.ghosty.transitionDuration !== '0s') failures.push(`Ghosty transition is ${computed.ghosty.transitionDuration}`);
+  }
+
+  if (computed.evidence !== 4) failures.push(`Evidence node count is ${computed.evidence}, expected 4`);
+  if (!computed.marker) failures.push('Evidence marker pseudo-element missing');
+  else {
+    if (computed.marker.opacity !== '1') failures.push(`Evidence marker opacity is ${computed.marker.opacity}`);
+    const markerMatrix = readMatrix(computed.marker.transform);
+    if (!markerMatrix || markerMatrix.a !== 1 || markerMatrix.b !== 0 || markerMatrix.c !== 0
+      || markerMatrix.d !== 1 || markerMatrix.e !== 0 || markerMatrix.f !== 0) {
+      failures.push(`Evidence marker transform is ${computed.marker.transform}`);
+    }
+    if (computed.marker.transitionDuration !== '0s') failures.push(`Evidence marker transition is ${computed.marker.transitionDuration}`);
+  }
+  if (!computed.connector) failures.push('Evidence desktop connector pseudo-element missing');
+  else {
+    const matrix = readMatrix(computed.connector.transform);
+    if (!matrix || matrix.a < 0.99 || Math.abs(matrix.e) > 0.01) failures.push(`Evidence connector is not settled: ${computed.connector.transform}`);
+    if (computed.connector.transitionDuration !== '0s') failures.push(`Evidence connector transition is ${computed.connector.transitionDuration}`);
+  }
+
+  if (!computed.seal) failures.push('settle seal missing');
+  else {
+    const matrix = readMatrix(computed.seal.transform);
+    if (computed.seal.opacity !== '1') failures.push(`settle seal opacity is ${computed.seal.opacity}`);
+    if (!matrix || Math.abs(matrix.e) > 0.01 || Math.abs(matrix.f) > 0.01 || matrix.a < 0.98 || matrix.d < 0.98) {
+      failures.push(`settle seal transform is not its static final matrix: ${computed.seal.transform}`);
+    }
+    if (computed.seal.transitionDuration !== '0s') failures.push(`settle seal transition is ${computed.seal.transitionDuration}`);
+    if (computed.seal.animationName !== 'none') failures.push(`settle seal animation-name is ${computed.seal.animationName}`);
+  }
+
+  const sample = () => page.evaluate((selectors) => {
+    const nodes = [...new Set(selectors.flatMap((selector) => [...document.querySelectorAll(selector)]))];
+    return nodes.map((node) => {
+      const box = node.getBoundingClientRect();
+      const computedStyle = getComputedStyle(node);
+      return {
+        selector: selectors.find((selector) => node.matches(selector)),
+        text: node.textContent,
+        rect: [box.x, box.y, box.width, box.height],
+        transform: computedStyle.transform,
+        animationName: computedStyle.animationName,
+        transitionDuration: computedStyle.transitionDuration,
+      };
+    });
+  }, DATA_SELECTORS);
+  const firstData = await sample();
+  await page.waitForTimeout(1000);
+  const secondData = await sample();
+  if (!firstData.length) failures.push('protected data selectors matched no nodes');
+  if (JSON.stringify(firstData) !== JSON.stringify(secondData)) failures.push('protected data text/bbox/transform drifted between samples');
+  for (const entry of firstData) {
+    if (entry.transform !== 'none' || entry.animationName !== 'none' || entry.transitionDuration !== '0s') {
+      failures.push(`protected data gained motion: ${entry.selector}`);
+    }
+  }
+
+  await context.close();
+  console.log('reduce animation census:', JSON.stringify(census));
+  console.log('reduce computed state:', JSON.stringify(computed));
+  console.log('protected data samples:', JSON.stringify({ nodes: firstData.length, identical: JSON.stringify(firstData) === JSON.stringify(secondData) }));
+} finally {
+  await browser.close();
 }
 
-// ② 演示层逐点 computed animation-name 必须真的归零
-const computed = await page.evaluate(() => Object.fromEntries(
-  ['.demo-actions span', '.demo-basis', '.demo-gate', '.demo-compare', '.demo-phase-a', '.demo-phase-b', '.demo-phase-c', '.demo-anchor']
-    .map((sel) => {
-      const el = document.querySelector(sel);
-      return [sel, el ? getComputedStyle(el).animationName : 'MISSING'];
-    })));
-for (const [sel, name] of Object.entries(computed)) {
-  if (name === 'MISSING') failures.push(`演示消费点缺席：${sel}`);
-  else if (name !== 'none') failures.push(`reduce 下 ${sel} 的 animation-name 未归零：${name}`);
-}
-
-// ③ 四相位朱检测：把相位推到幕二也不得现朱（裁定「朱不作环境色」在 reduce 下更须成立）
-const phases = {};
-for (const [label, pct] of [['幕一', 15], ['幕二', 48], ['幕三', 80], ['循环末', 97]]) {
-  phases[`${label}@${pct}%`] = await page.evaluate((p) => {
-    const el = document.querySelector('.demo-actions span');
-    el.style.animationDelay = `${-(12 * p / 100)}s`;
-    el.style.animationPlayState = 'paused';
-    void el.offsetWidth;
-    const colour = getComputedStyle(el).borderTopColor;
-    el.style.animationDelay = '';
-    el.style.animationPlayState = '';
-    return colour;
-  }, pct);
-}
-for (const [label, colour] of Object.entries(phases)) {
-  if (colour === ZHU) failures.push(`reduce 下 ${label} 处置格仍现朱（${colour}）`);
-}
-
-await browser.close();
-
-console.log('reduce 运行动画：', JSON.stringify(census));
-console.log('演示层 computed animation-name：', JSON.stringify(computed));
-console.log('四相位处置格描边：', JSON.stringify(phases));
 if (failures.length) {
-  console.error(`\nreduced-motion 计算态实测失败：\n${failures.map((f) => `  - ${f}`).join('\n')}`);
+  console.error(`\nreduced-motion runtime probe failed:\n${failures.map((failure) => `  - ${failure}`).join('\n')}`);
   process.exit(1);
 }
-console.log(`\nreduced-motion: PASS（运行动画 ${census.length} 条全部在名册内；演示层 8 点全归零；四相位零朱）`);
+console.log(`\nreduced-motion: PASS (${DATA_SELECTORS.length} protected selector groups; no unregistered animations)`);

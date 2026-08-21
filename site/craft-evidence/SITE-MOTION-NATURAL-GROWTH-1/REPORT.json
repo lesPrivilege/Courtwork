@@ -1,0 +1,234 @@
+{
+  "targetSha": "919dc773c055ddfeac17fc9bb6d582de15c4c571",
+  "baseUrl": "http://127.0.0.1:18931/",
+  "allowedActions": [
+    "typer-develop",
+    "ghosty-reduced-fade",
+    "evidence-marker-transition",
+    "evidence-connector-transition",
+    "seal-settlement-transition"
+  ],
+  "protectedSelectors": [
+    ".scenario-proof-stats strong",
+    "[data-fixture-count]",
+    "[data-pm-finding-id]",
+    "[data-pm-clause]",
+    "[data-pm-defect-label]",
+    "[data-pm-suggestion]",
+    "[data-pm-disposition]"
+  ],
+  "frames": [
+    "matrix-light-375.png",
+    "matrix-light-1280.png",
+    "matrix-dark-375.png",
+    "matrix-dark-1280.png",
+    "nojs-dark-1280.png",
+    "evidence-before.png",
+    "evidence-mid.png",
+    "evidence-settled.png",
+    "seal-before.png",
+    "seal-mid.png",
+    "seal-settled.png"
+  ],
+  "overflow": [
+    {
+      "colorScheme": "light",
+      "width": 375,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 768,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1180,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1280,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1440,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1600,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 375,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 768,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1180,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1280,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1440,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1600,
+      "overflow": 0,
+      "brokenImages": 0
+    }
+  ],
+  "animations": {
+    "no-preference": [
+      "typer-develop"
+    ],
+    "reduce": [
+      "ghosty-reduced-fade"
+    ]
+  },
+  "transitions": {
+    "evidence": {
+      "items": [
+        {
+          "property": "background-color",
+          "delay": 0,
+          "duration": 160,
+          "endTime": 160
+        },
+        {
+          "property": "opacity",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 360,
+          "endTime": 360
+        },
+        {
+          "property": "background-color",
+          "delay": 0,
+          "duration": 160,
+          "endTime": 160
+        },
+        {
+          "property": "opacity",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 70,
+          "duration": 360,
+          "endTime": 430
+        },
+        {
+          "property": "background-color",
+          "delay": 0,
+          "duration": 160,
+          "endTime": 160
+        },
+        {
+          "property": "opacity",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 140,
+          "duration": 360,
+          "endTime": 500
+        },
+        {
+          "property": "background-color",
+          "delay": 0,
+          "duration": 160,
+          "endTime": 160
+        },
+        {
+          "property": "opacity",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        }
+      ],
+      "pausedCount": 15
+    },
+    "seal": {
+      "items": [
+        {
+          "property": "opacity",
+          "delay": 0,
+          "duration": 240,
+          "endTime": 240
+        },
+        {
+          "property": "transform",
+          "delay": 0,
+          "duration": 320,
+          "endTime": 320
+        }
+      ],
+      "pausedCount": 2
+    }
+  },
+  "dataStatic": {
+    "identical": true,
+    "nodes": 9
+  },
+  "failures": []
+}
