@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkEvidenceCausalMotion, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkPublicSurfaceContract, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkEvidenceCausalMotion, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkPublicSurfaceContract, checkRepoTreeLinks, checkSchemaParts, checkSealSettlement, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -310,6 +310,24 @@ test('SITE-MOTION-NATURAL-GROWTH-1A Evidence causal motion is an exact, reduced-
   assert.ok(red(`${css}\n.js .evidence-step.is-visible[data-stage="quote"]::before { transform: scale(.9); }`).includes('evidence-causal-motion'));
   assert.ok(red(`${css}\n@media (max-width: 900px) { .js .evidence-step::after { transform: scaleX(1); } }`).includes('evidence-causal-motion'));
   assert.ok(red(css.replace('transition-delay: 70ms;', 'transition-delay: 80ms;')).includes('evidence-causal-motion'));
+});
+
+test('SITE-MOTION-NATURAL-GROWTH-1B seal settlement is an exact, static-safe contract', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.match(html, /<svg\b[^>]*class="settle-seal zh-display"[^>]*\bdata-reveal\b/);
+  assert.deepEqual(rules([source('site/index.html', html)]).filter((rule) => rule === 'seal-settlement'), []);
+  assert.ok(rules([source('site/index.html', html.replace('aria-hidden="true" data-reveal', 'aria-hidden="true"'))]).includes('seal-settlement'));
+  assert.deepEqual(checkSealSettlement(css), []);
+  const red = (mutated) => checkSealSettlement(mutated).map((failure) => failure.rule);
+  assert.ok(red(css.replace('translate(0, 6px) scale(.92) rotate(-6deg)', 'translate(0, 8px) scale(.92) rotate(-6deg)')).includes('seal-settlement'));
+  assert.ok(red(css.replace(
+    '.js .settle-seal[data-reveal] { opacity: 1; transform: translate(0, 0) scale(1) rotate(-2deg); transition: none; transition-delay: 0ms; }',
+    '',
+  )).includes('seal-settlement'));
+  assert.ok(red(`${css}\n.js .settle-seal[data-reveal].is-visible[aria-hidden="true"] { transform: translate(0, 4px) scale(1) rotate(-2deg); }`).includes('seal-settlement'));
+  assert.ok(red(`${css}\n.js .settle-seal[data-reveal].is-visible { filter: blur(1px); }`).includes('seal-settlement'));
+  assert.ok(red(css.replace('transition: transform 320ms var(--ease-out), opacity 240ms var(--ease-out)', 'transition: all 320ms var(--ease-out)')).includes('seal-settlement'));
 });
 
 test('SITE-CRAFT-2 reduced-motion assertion resolves the cascade, not literal presence', () => {

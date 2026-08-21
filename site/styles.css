@@ -403,6 +403,10 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    （朱＝人工落定/裁决），落定章正是该语义的原型件，于是归位为朱印——这是补上当时缺的
    token，不是放宽红的预算：红（--red-fg）与朱（--zhu-*）在门内是两族，各有专属消费面。 */
 .settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--zhu-graphic); transform: rotate(-2deg); }
+/* SITE-MOTION-NATURAL-GROWTH-1B · seal：承诺账进入视口后只从一枚小幅未落定的印记回到
+   既有静态终态。JS 才隐藏预态；无 JS 与 reduced-motion 都直接保留完整印面。 */
+.js .settle-seal[data-reveal] { opacity: 0; transform: translate(0, 6px) scale(.92) rotate(-6deg); transition: transform 320ms var(--ease-out), opacity 240ms var(--ease-out); transition-delay: 0ms; }
+.js .settle-seal[data-reveal].is-visible { opacity: 1; transform: translate(0, 0) scale(1) rotate(-2deg); }
 .settle-seal text { fill: currentColor; font-size: 28px; text-anchor: middle; }
 .design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 4px; border: 0; border-block: 0; background: transparent; color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
 .design-boundary p { margin: 0; }
@@ -476,6 +480,7 @@ footer p { margin: 0; }
   .evidence-step::before { background: var(--text-primary); }
   .evidence-step[data-stage="conclusion"]::before { background: var(--red-fg); }
   .js .evidence-step::before { opacity: 1; transform: none; transition: none; transition-delay: 0ms; }
+  .js .settle-seal[data-reveal] { opacity: 1; transform: translate(0, 0) scale(1) rotate(-2deg); transition: none; transition-delay: 0ms; }
 }
 
 @media (min-width: 901px) and (prefers-reduced-motion: reduce) {

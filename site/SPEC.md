@@ -24,6 +24,21 @@ product-live 与 GUI 回迁授权均不变。
   连接线、DOM 顺序 `0/70/140ms` 错时及 `>900px` 连接线边界；窄屏不产生跨格伪线。
   独立验收与全票门禁仍待另一 Luna，不以本回执替代放行结论。
 
+### SITE-MOTION-NATURAL-GROWTH-1B · 实现回执（待独立验收）
+
+- 以 1A 精确 tip `7151c20b706f986e8fdf36d75da955e9a79029b3` 建立独立 worktree 与分支
+  `codex/site-motion-natural-growth-1bc`；未改 `site/main.js`、docs、assets、
+  `site/ACCEPTANCE.md`、desktop/packages/release。
+- 先接入 B focused test 并观察 **0 pass、1 fail、exit 1**（缺少
+  `checkSealSettlement` 导出）；随后给既有 `.settle-seal` SVG 增加唯一 `data-reveal`，复用
+  observer，接入 `320ms/240ms var(--ease-out)` 的 `transform/opacity` settlement 与
+  `prefers-reduced-motion` 静态终态。
+- `checkSealSettlement` 锁定 JS armed 初态 `translate(0, 6px) scale(.92) rotate(-6deg)`、
+  最终 `translate(0, 0) scale(1) rotate(-2deg)`、0ms delay、无滤镜／阴影／keyframe；markup
+  gate 锁定唯一既有 seal 与唯一 `data-reveal`。补位移、缺 reduce、高特异性、blur、`transition: all`
+  五类反例；focused Node tests **51/51**。
+- B 只证明实现门与静态契约成立，独立验收与 C runtime proof 仍待另一 Luna，不以本回执替代放行结论。
+
 ## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做

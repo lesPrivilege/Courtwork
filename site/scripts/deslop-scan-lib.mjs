@@ -671,6 +671,16 @@ function scanCopy(file, content, failures) {
   for (const phrase of ['一站式', '赋能', '革命性', '颠覆性', '无缝体验', '未来已来']) {
     if (content.includes(phrase)) push(failures, 'generic-copy', file, 1, `generic marketing phrase: ${phrase}`);
   }
+  const seals = [...content.matchAll(/<svg\b[^>]*\bclass="settle-seal zh-display"[^>]*>/gi)];
+  if (seals.length !== 1) {
+    push(failures, 'seal-settlement', file, 1, `settle seal markup must contain exactly one existing SVG, got ${seals.length}`);
+  } else {
+    const [seal] = seals;
+    const revealCount = seal[0].match(/\bdata-reveal\b/gi)?.length ?? 0;
+    if (revealCount !== 1) {
+      push(failures, 'seal-settlement', file, content.slice(0, seal.index).split('\n').length, 'existing settle seal SVG must carry exactly one data-reveal hook');
+    }
+  }
 }
 
 function scanSvg(file, content, failures) {
@@ -1155,6 +1165,92 @@ export function checkEvidenceCausalMotion(css) {
   }
   if (/@keyframes\s+(?:evidence|record)-/i.test(withoutComments(css))) {
     fail('Evidence causal motion must use transitions, not a new keyframe');
+  }
+  return failures;
+}
+
+// SITE-MOTION-NATURAL-GROWTH-1B：承诺账落定章只在 JS 武装后从一个很小的预态落回既有静态
+// 终态。该门锁住选择器、位移、缩放、旋转、时长、曲线与 reduce 覆盖，并拒绝通过更高特异性
+// 规则把印章重新变成弹跳、滤镜或循环动画。
+export function checkSealSettlement(css) {
+  const failures = [];
+  const fail = (message, line = 1) => push(failures, 'seal-settlement', 'site/styles.css', line, message);
+  const declarations = parseCss(css);
+  const keyFor = (selector, context = []) => `${context.join('|')}|${selector}`;
+  const rules = new Map();
+  for (const declaration of declarations) {
+    const key = keyFor(declaration.selector, declaration.context);
+    if (!rules.has(key)) {
+      rules.set(key, {
+        selector: declaration.selector,
+        context: declaration.context,
+        declarations: new Map(),
+        line: declaration.line,
+      });
+    }
+    rules.get(key).declarations.set(declaration.property, declaration.value);
+  }
+
+  const findRule = (selector, context = []) => rules.get(keyFor(selector, context));
+  const requireRule = (selector, context, expected) => {
+    const rule = findRule(selector, context);
+    if (!rule) {
+      fail(`missing ${selector} in ${context.join(' / ') || 'base stylesheet'}`);
+      return null;
+    }
+    for (const [property, expectedValue] of Object.entries(expected)) {
+      const actualValue = rule.declarations.get(property);
+      if (normalizeCssValue(actualValue ?? '') !== normalizeCssValue(expectedValue)) {
+        fail(`${selector} ${property} must be ${expectedValue}, got ${actualValue ?? '(missing)'}`, rule.line);
+      }
+    }
+    return rule;
+  };
+
+  const base = [];
+  const reduced = ['@media (prefers-reduced-motion: reduce)'];
+  const staticSeal = '.settle-seal';
+  const initial = '.js .settle-seal[data-reveal]';
+  const settled = '.js .settle-seal[data-reveal].is-visible';
+  const finalTransform = 'translate(0, 0) scale(1) rotate(-2deg)';
+
+  requireRule(staticSeal, base, { transform: 'rotate(-2deg)' });
+  requireRule(initial, base, {
+    opacity: '0',
+    transform: 'translate(0, 6px) scale(.92) rotate(-6deg)',
+    transition: 'transform 320ms var(--ease-out), opacity 240ms var(--ease-out)',
+    'transition-delay': '0ms',
+  });
+  requireRule(settled, base, { opacity: '1', transform: finalTransform });
+  requireRule(initial, reduced, {
+    opacity: '1',
+    transform: finalTransform,
+    transition: 'none',
+    'transition-delay': '0ms',
+  });
+
+  const motionProperties = new Set([
+    'animation', 'animation-delay', 'animation-duration', 'animation-name', 'animation-timing-function',
+    'background-color', 'backdrop-filter', 'box-shadow', 'clip-path', 'filter', 'opacity', 'rotate',
+    'scale', 'transform', 'transition', 'transition-delay', 'transition-duration', 'transition-property',
+    'transition-timing-function', 'translate',
+  ]);
+  const registered = new Map([
+    [keyFor(staticSeal, base), new Set(['transform'])],
+    [keyFor(initial, base), new Set(['opacity', 'transform', 'transition', 'transition-delay'])],
+    [keyFor(settled, base), new Set(['opacity', 'transform'])],
+    [keyFor(initial, reduced), new Set(['opacity', 'transform', 'transition', 'transition-delay'])],
+  ]);
+  for (const declaration of declarations) {
+    if (!declaration.selector.includes('.settle-seal') || !motionProperties.has(declaration.property)) continue;
+    const allowed = registered.get(keyFor(declaration.selector, declaration.context));
+    if (!allowed?.has(declaration.property)) {
+      fail(`unregistered seal motion: ${declaration.selector} ${declaration.property}`, declaration.line);
+    }
+  }
+
+  if (/@keyframes\s+(?:seal|settle)-/i.test(withoutComments(css))) {
+    fail('seal settlement must use the existing transition language, not a new keyframe');
   }
   return failures;
 }
@@ -1824,7 +1920,10 @@ export function scanSources(sources, options = {}) {
     if (file === 'archive' || file.startsWith('archive/')) continue;
     if (file.endsWith('.css')) {
       scanCss(file, item.content, failures, { repository });
-      if (repository && file === 'site/styles.css') failures.push(...checkEvidenceCausalMotion(item.content));
+      if (repository && file === 'site/styles.css') {
+        failures.push(...checkEvidenceCausalMotion(item.content));
+        failures.push(...checkSealSettlement(item.content));
+      }
     }
     if (file.endsWith('.html')) {
       for (const style of item.content.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) scanCss(file, style[1], failures, { repository });
