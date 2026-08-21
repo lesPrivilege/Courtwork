@@ -1182,3 +1182,78 @@ Hero、Work 三行、证据链与发布事实均在 JS-off／双主题下保留�
 
 > **SITE-PUBLIC-SURFACE-PROOF-1 放行 ✅。** 被验 tip 的 Pages 产品入口、Work→证据出口、历史制品边界与 external gate 均由实物、
 > mutation、独立浏览矩阵和全量门禁闭合。此结论不升级 Stage 0，不放行真实 Tauri／DeepSeek／AX 总验，不授权 merge、push、tag、Release 或部署。
+
+## SITE-MOTION-NATURAL-GROWTH-1 · 独立验收（2026-08-21）— ✅ 放行
+
+- **验收角色**：全新独立验收会话；未参与 A/B/C 实现，不采信实现者的 `REPORT.json`、截图或回执数字。
+- **被验实现／证据 tip**：`dc3da8639a02f4b9224c4f61a5503d3fb9beca8f`；页面实现 target 为
+  `6393eba375d913cc5437d3df3ca4ed0fd41bb1df`。
+- **验收分支／worktree**：`codex/accept-site-motion-natural-growth-1`；
+  `/private/tmp/courtwork-site-motion-natural-growth-1-accept`；从 final tip 新建 clean worktree。
+- **独立服务**：`127.0.0.1:19073`，未复用 `18931`、`18932` 或共享服务。浏览器实测完成后已停止服务。
+- **范围纪律**：无 `fix-by-acceptance`；实现源码、SPEC、实现 evidence 与 `site/main.js` 均未改，只追加本记录。
+  实现树的 `site/craft-evidence/SITE-MOTION-NATURAL-GROWTH-1/REPORT.json` 已恢复为被验 tip 的 landed bytes；临时
+  `node_modules` symlink 已清理。独立报告／帧只保留在 `/private/tmp/courtwork-site-motion-natural-growth-1-evidence/`。
+
+### 1. Mutation：逐枚注入、观察同一门变红，再恢复
+
+以下反例均在 clean tip 的实际 CSS/HTML 内容上独立注入，逐枚观察非零诊断；注入态不进入提交，恢复后
+`git status` clean。`M11` 是独立字节等同性反例，不假称由 CSS gate 报错。
+
+| 类别 | 注入 | 独立红灯诊断 |
+|---|---|---|
+| M1 duration | Evidence marker `transform 240ms` → `260ms` | `evidence-causal-motion`：必须为 `transform 240ms ...`，实际 `260ms` |
+| M2 easing | Evidence marker `var(--ease-out)` → `linear` | `evidence-causal-motion`：必须为 `transform 240ms var(--ease-out), opacity 240ms var(--ease-out)` |
+| M3 删除 reduce | 删除 `.js .evidence-step::before` 的 reduce 分支 | `evidence-causal-motion`：缺少 `@media (prefers-reduced-motion: reduce)` 规则 |
+| M4 高特异性恢复运动 | reduce 内追加带 `data-stage` 的 marker `transform: scale(.9)` | `evidence-causal-motion`：`unregistered evidence motion ... transform` |
+| M5 窄屏跨格线 | `max-width:900px` 下恢复 `.evidence-step::after { transform:scaleX(1) }` | `evidence-causal-motion`：2 条 `unregistered ... ::after transform` |
+| M6 delay 漂移 | 第二 connector `70ms` → `80ms` | `evidence-causal-motion`：必须为 `70ms`，实际 `80ms` |
+| M7 seal overshoot | seal 初始 `translate(0,6px)` → `translate(0,8px)` | `seal-settlement`：初始 transform 与冻结值不相等 |
+| M8 data motion | `.scenario-proof-stats strong { transform:translateX(1px) }` | `p5-data-static`：`data node gained motion` |
+| M9 删除 data-reveal | 删除现有 seal 的唯一 `data-reveal` | `seal-settlement`：existing settle seal SVG 必须恰有一个 hook |
+| M10 重复 seal | 追加第二个 `.settle-seal` SVG | `seal-settlement`：settle seal markup 计数为 2，不是 1 |
+| M11 JS-off 隐藏 | marker `opacity:0`；另测 seal `.settle-seal { opacity:0 }` | 分别由 `evidence-causal-motion`／`seal-settlement` 报 `unregistered ... opacity` |
+| M12 main.js drift | 内存中首字节翻转 | SHA equality **false**：目标 `f0f036e7…ba9620`，变体 `5e725adb…75c4e3` |
+
+### 2. Runtime／视觉复算
+
+- 独立 capture（`COURTWORK_TARGET_SHA=dc3da...`）返回 `failures:[]`；双宗 × 六宽 **12/12** 的
+  `overflow=0`、`brokenImages=0`。no-preference CSSAnimation 仅 `typer-develop`；reduce 仅既有
+  `ghosty-reduced-fade`。Evidence transition 实测 **11** 条（marker/connector，connector delay 0/70/140），
+  Seal **2** 条（opacity/transform）；两者均在捕获时暂停并核到冻结 duration。数据静止为 **9 nodes identical**。
+- `assert-reduced-motion.mjs` 独立实跑 PASS：4 个 Evidence 节点、seal、marker、connector 的 computed
+  animation/transition 均为静态终态；仅 3 个既有 Ghosty `ghosty-reduced-fade` 被允许，未出现本票新增动画。
+- JS-off **4/4**（light/dark × 1280/375）通过：Evidence **4/4** 文本节点、seal opacity/display/静态
+  rotate(-2deg) 均存在；overflow **0**、broken image **0**；375 下 connector 按契约为 `none`，内容仍完整。
+- no-preference **12/12**（light/dark × `375/768/1180/1280/1440/1600`）通过：Evidence **4**、seal
+  可见、overflow／broken image 均为 **0**。Evidence 滚出再回到视口的 `transitionrun` 为 **0**；seal
+  同样为 **0**，证明一次性落定、不重播。Evidence／Seal before、mid、settled 独立 PNG 均在上述临时目录。
+- A-R1 目检：Evidence 三帧 parent 背景无闪变；settled 帧 tertiary connector line 可辨；Seal 三帧不遮挡
+  Promise 标题或正文，窄屏回文流后无越界。
+
+### 3. 字节与仓级门禁
+
+独立复算 `site/main.js`（682 bytes）SHA-256：`7151c20`、`e4bc151`、被验 `HEAD` 与 worktree
+均为 `f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620`；没有改动 JS。
+
+| 门禁 | 独立实跑结果 |
+|---|---|
+| focused Node | **71/71** |
+| motion contract | **2/2** |
+| `pnpm site:guard` | **111/111**；release-truth、deslop 与 motion/design/schema/skin 门均绿 |
+| `pnpm site:build` | exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm -r build` | exit 0；scope **15/16**，desktop Vite **4316 modules**；仅既有 dynamic-import/chunk-size advisory |
+| `git diff --check` | clean |
+
+### 4. 未覆盖边界与裁定
+
+额外 adversarial probe 发现，任意追加 `.evidence-step { display:none !important }` 不会被当前
+`checkEvidenceCausalMotion` 捕获，且现行 capture 的 JS-off 内容指标不专门读取 `display`。这不是 landed
+动作（票面允许集合仅为 `transform`／`opacity`／既有色），也未被用于通过本票：实际 JS-off baseline 保持
+完整，marker 与 seal 的 `opacity:0` 隐藏变体均已实红。该边界不在验收会话中扩张契约或修改 guard，留给
+架构角色另行决定。
+
+> **SITE-MOTION-NATURAL-GROWTH-1 独立验收放行 ✅。** `record` 的证据线推进与 `seal` 的一次性落定均在
+> 双宗、六宽、JS-off、reduced、no-replay、数据静止、字节恒等和 mutation 矩阵下闭合。本结论不改变
+> Stage 0、GUI、产品事实、Release 或部署边界，不授权 merge、push、tag、Pages deploy 或 GUI 回迁。
