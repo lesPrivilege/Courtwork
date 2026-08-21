@@ -24,6 +24,24 @@ product-live 与 GUI 回迁授权均不变。
   连接线、DOM 顺序 `0/70/140ms` 错时及 `>900px` 连接线边界；窄屏不产生跨格伪线。
   独立验收与全票门禁仍待另一 Luna，不以本回执替代放行结论。
 
+### SITE-MOTION-NATURAL-GROWTH-1A-R1 · 架构复核补正回执（待独立验收）
+
+- Main sol 在 C 逐帧证据中发现：A 的 connector overlay 与既有基线同取 `var(--border-strong)` 且
+  位于同一轨道，推进动作肉眼几乎不可辨；真正主导画面的反而是既有整块
+  `.evidence-step` background transition，不符合本票「一段一个主动作」与 pseudo-element
+  causal advance 的裁定。该问题属于实现级补正，不改变冻结契约。
+- 从 C tip `e4bc1512010098d4f185ae94fd82d39e46470f14` 建独立 worktree 与分支
+  `codex/site-motion-natural-growth-1-r1`：Evidence parent 直接落静态 `var(--bg-app)`，删除其
+  background transition／`.is-visible` 背景切换；connector overlay 改用既有
+  `var(--text-tertiary)`，在 `var(--border-strong)` 基线上可辨但不新增色相。
+- 精确门新增 parent 静止与 overlay 色阶约束，并对恢复 parent transition、overlay 退回同色、
+  `.is-visible` 背景切换及 reduce 重复覆写四类反例触红。born-red **51/52**，补正后 focused
+  **52/52**；`site:guard` **111/111**、`site:build`、lint、`pnpm -r build` 与
+  `git diff --check` 全绿。
+- 本补正只触及 `site/styles.css`、两份 deslop scan 实现／测试与本回执；未改 index、
+  `site/main.js`、runtime probe、craft-evidence、`site/ACCEPTANCE.md` 或其他层。C 逐帧证据须在
+  本 tip 上重新采集，独立验收仍待另一 Luna。
+
 ### SITE-MOTION-NATURAL-GROWTH-1B · 实现回执（待独立验收）
 
 - 以 1A 精确 tip `7151c20b706f986e8fdf36d75da955e9a79029b3` 建立独立 worktree 与分支

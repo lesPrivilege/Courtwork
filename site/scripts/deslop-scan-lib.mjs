@@ -1083,12 +1083,14 @@ export function checkEvidenceCausalMotion(css) {
   const desktop = ['@media (min-width: 901px)'];
   const reduced = ['@media (prefers-reduced-motion: reduce)'];
   const desktopReduced = ['@media (min-width: 901px) and (prefers-reduced-motion: reduce)'];
+  const evidenceStep = '.evidence-step';
   const markerInitial = '.js .evidence-step::before';
   const markerSettled = '.js .evidence-step.is-visible::before';
   const connector = '.evidence-step:not(:last-child)::after';
   const connectorInitial = '.js .evidence-step:not(:last-child)::after';
   const connectorSettled = '.js .evidence-step.is-visible:not(:last-child)::after';
 
+  requireRule(evidenceStep, base, { background: 'var(--bg-app)' });
   requireRule(markerInitial, base, {
     opacity: '0',
     transform: 'scale(.82)',
@@ -1110,7 +1112,7 @@ export function checkEvidenceCausalMotion(css) {
     left: '36px',
     right: '-24px',
     height: '1px',
-    background: 'var(--border-strong)',
+    background: 'var(--text-tertiary)',
     'transform-origin': 'left center',
     transform: 'scaleX(1)',
     'pointer-events': 'none',
@@ -1146,6 +1148,24 @@ export function checkEvidenceCausalMotion(css) {
     ...[1, 2, 3].map((index) => [keyFor(`.js .evidence-step:nth-child(${index})::after`, desktop), new Set(['transition-delay'])]),
   ]);
   for (const declaration of declarations) {
+    const parentBranches = declaration.selector.split(',').map((branch) => branch.trim())
+      .filter((branch) => branch.includes('.evidence-step') && !/::(?:before|after)\b/.test(branch));
+    const isEvidenceParent = parentBranches.length > 0;
+    if (isEvidenceParent && /^(?:transition|transition-[a-z-]+)$/.test(declaration.property)) {
+      fail(`evidence parent must not transition: ${parentBranches.join(', ')} ${declaration.property}`, declaration.line);
+    }
+    if (isEvidenceParent && declaration.property === 'background-color') {
+      fail(`evidence parent must use its static background token: ${parentBranches.join(', ')}`, declaration.line);
+    }
+    if (isEvidenceParent && declaration.property === 'background'
+      && (parentBranches.length !== 1 || parentBranches[0] !== evidenceStep
+        || declaration.context.length > 0
+        || normalizeCssValue(declaration.value) !== 'var(--bg-app)')) {
+      fail(`evidence parent background drifted: ${parentBranches.join(', ')}`, declaration.line);
+    }
+    if (isEvidenceParent && parentBranches.some((branch) => branch.includes('.is-visible')) && declaration.property === 'background') {
+      fail(`evidence visible state must not switch parent background: ${parentBranches.join(', ')}`, declaration.line);
+    }
     const targetsEvidencePseudo = declaration.selector.includes('.evidence-step')
       && /::(?:before|after)\b/.test(declaration.selector)
       && motionProperties.has(declaration.property);

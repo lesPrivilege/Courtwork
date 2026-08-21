@@ -312,6 +312,19 @@ test('SITE-MOTION-NATURAL-GROWTH-1A Evidence causal motion is an exact, reduced-
   assert.ok(red(css.replace('transition-delay: 70ms;', 'transition-delay: 80ms;')).includes('evidence-causal-motion'));
 });
 
+test('SITE-MOTION-NATURAL-GROWTH-1A-R1 keeps the evidence parent static and the overlay legible', () => {
+  const css = readFileSync(new URL('site/styles.css', repoRoot), 'utf8');
+  assert.match(css, /\.evidence-step\s*\{[^}]*background:\s*var\(--bg-app\)/s);
+  assert.doesNotMatch(css, /\.evidence-step\s*\{[^}]*transition\s*:/s);
+  assert.doesNotMatch(css, /\.evidence-step\.is-visible\s*\{[^}]*background(?:-color)?\s*:/s);
+  assert.match(css, /\.evidence-step:not\(:last-child\)::after\s*\{[^}]*background:\s*var\(--text-tertiary\)/s);
+  const red = (mutated) => checkEvidenceCausalMotion(mutated).map((failure) => failure.rule);
+  assert.ok(red(`${css}\n.evidence-step { transition: background-color 160ms var(--ease-out); }`).includes('evidence-causal-motion'));
+  assert.ok(red(css.replace('background: var(--text-tertiary);', 'background: var(--border-strong);')).includes('evidence-causal-motion'));
+  assert.ok(red(`${css}\n.evidence-step.is-visible { background: var(--bg-app); }`).includes('evidence-causal-motion'));
+  assert.ok(red(`${css}\n@media (prefers-reduced-motion: reduce) { .evidence-step { background: var(--bg-app); } }`).includes('evidence-causal-motion'));
+});
+
 test('SITE-MOTION-NATURAL-GROWTH-1B seal settlement is an exact, static-safe contract', () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
