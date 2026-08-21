@@ -141,7 +141,7 @@
   既有排印槽别名，以及 nested draft 零 inline padding 的布局守卫。
 - 偏离：`PiDraftIndex` 已在 viewport 内，故其 inline padding 归零，避免对 760px 版心二次居中；
   其余 UI/runtime/copy/token 数值均未改动。
-- 提交 SHA：待本会话提交后补录。
+- 提交 SHA：`11c65cb`（`feat(desktop): compose pi work surface`）。
 
 ## 八、独立验收（验收 Luna 填）
 
