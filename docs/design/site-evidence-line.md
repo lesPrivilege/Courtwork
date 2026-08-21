@@ -37,8 +37,9 @@ Courtwork 的首页不是功能卡片目录。首要路径是通用 Work 的真�
 
 - 页面 wordmark 使用 `icon.md` 规定的透明核心标记，位于 `Courtwork` 左侧；无底盘、阴影或入场动画。
 - 不使用 glow、渐变、3D 设备、glitch、随机编号、装饰坐标和 `01/02/03` 脚手架。
-- 展示站动效例外（2026-07-15 架构裁定，SITE-CRAFT-1）：标题逐字显影（动 `color`）与截图显影（动 `mask-position`）两类媒体层巧思允许超出 principles.md §5 四属性白名单，边界为——色彩全落站面现行色宗的登记 token、必须实现 `prefers-reduced-motion` 退化与 JS 关闭内容完整、数据区与卷宗数字保持绝对静止、效果不回迁产品壳；具体实现由 `deslop-scan` 的站点动效 AST 锁精确圈定，锁外新增动效需重新拍板。色宗表述随 VERSIONAL-LANG-3 修订：登记面由 `raw-color`（按名绑定浅宗 `color.*`／深宗 `themes.dark.*`）与 `color-grammar`（朱仅裁决 / 泥金只进 Hero 与卷级大标题）双门圈定；正文、功能标签与数据区零泥金。
+- 展示站动效例外（2026-07-15 架构裁定，SITE-CRAFT-1；2026-08-21 `SITE-MOTION-NATURAL-GROWTH-1` 扩写）：标题逐字显影（动 `color`）与截图显影（动 `mask-position`）两类媒体层巧思继续保留；新增词汇只准从 `record → compare → decide → seal` 生长，并服从「一页一个运动命题、一段一个主动作、一个动作对应一项材料因果、封存后静止」。首批只登记 Evidence Line 因果线推进（pseudo-element 的 `transform/opacity`）与落定章一次性落定（`transform/opacity`）；它们没有扩大 principles.md §5 四属性白名单。色彩全落站面现行色宗的登记 token，必须实现 `prefers-reduced-motion` 零运动终态与 JS 关闭内容完整，数据区、正文、fixture、卷宗数字与发布事实绝对静止，效果不回迁产品壳；具体 selector／数值与反例见 `site/specs/SITE-MOTION-NATURAL-GROWTH-1.md`，并由站点机器门精确圈定。锁外新增动效仍须重新拍板。色宗登记面继续由 `raw-color`（按名绑定浅宗 `color.*`／深宗 `themes.dark.*`）与 `color-grammar`（朱仅裁决 / 泥金只进 Hero 与卷级大标题）双门圈定；正文、功能标签与数据区零泥金。
 - Hero 微演示退役（2026-08-20，SITE-PUBLIC-SURFACE-PROOF-1）：2026-07-18 登记的 Legal 注意力循环与 `demo-motion` 消费点随旧 Hero 一并删除；历史逐帧证据保留在 `site/craft-evidence/SITE-CRAFT-2/B2/`，不再构成现行页面动效授权。Hero 产品帧可继续消费既有 Ghosty 媒体显影，但不得新增动效属性、重建假控件或迁移旧 keyframe。
+- 明确拒绝把实验感做成 scanline、noise、glitch、发光 HUD、marquee、漂浮 cursor/avatar、loop video、无限 pulse、整页 fade-up 或持续滚动插值。Cuvii Motion 只借「命名且有边界的局部 specimen」，Banas 只借「按语义层级、一次进入视口、轻微错时」；两者视觉表皮均非 Courtwork 授权。
 - 不重复全大写 eyebrow；只保留帮助定位的少量标签。
 - chrome 用完整中文产品语言：`查看已验收 Work 流程`、`查看源码与本地运行`、`下载历史 v0.1.2（不含当前 Work）`。领域内容保持中文，不随机混入英文按钮。
 - 数据行、证据裁片和台账零投影；官网不得以卡中卡代替信息层级。

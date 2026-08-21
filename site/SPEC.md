@@ -2,6 +2,17 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
+## SITE-MOTION-NATURAL-GROWTH-1 · Pages 自然生长动效（架构冻结，待实现）
+
+权威：`site/specs/SITE-MOTION-NATURAL-GROWTH-1.md`。本票不改 GUI、产品事实或 Pages 信息结构，
+只把 `record → compare → decide → seal` 登记为 Pages 的受控运动母语；首批串行小单为 A Evidence
+causal advance、B Seal settlement、C runtime proof repair。三单复用现有 observer，`site/main.js`
+字节不动，新增动作只消费 `transform/opacity` 与既有色，reduce／JS-off 直接静态终态。
+
+实施纪律：A→B→C 串行，由 Luna 实现；另一 Luna 在独立 clean worktree 验收。实现会话不得写
+`site/ACCEPTANCE.md`，验收不得改本票契约。Stage 0、PI external gate、v0.1.2、tag/Release、
+product-live 与 GUI 回迁授权均不变。
+
 ## SITE-PUBLIC-SURFACE-PROOF-1 · Pages 产品入口与证据路径收束（已清账）
 
 权威：`site/specs/SITE-PUBLIC-SURFACE-PROOF-1.md`。本票在 `PUBLIC-SURFACE-REAL-1` 已清账事实上做
