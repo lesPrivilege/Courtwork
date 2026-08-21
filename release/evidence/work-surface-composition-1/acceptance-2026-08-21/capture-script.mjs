@@ -1,7 +1,9 @@
 /* global document, localStorage, window */
 
 import { chromium } from '../../../../apps/desktop/node_modules/@playwright/test/index.mjs';
+import console from 'node:console';
 import { mkdirSync } from 'node:fs';
+import process from 'node:process';
 
 const port = process.env.PORT ?? '18741';
 const base = `http://127.0.0.1:${port}`;

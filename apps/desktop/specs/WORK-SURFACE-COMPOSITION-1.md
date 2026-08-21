@@ -162,6 +162,13 @@
 - 提交：本次 follow-up 由 `test(desktop): distinguish prompt from session terminal` 提交；
   最终 SHA 以提交后 `git rev-parse HEAD` 核验为准。
 
+### 七-B、实现回执追加：capture script Node globals 窄修（2026-08-21）
+
+- 初始红证：`pnpm exec eslint release/evidence/work-surface-composition-1/acceptance-2026-08-21/capture-script.mjs` 实测 **EXIT 1**，`process` 5 处、`console` 3 处，共 **8 个 `no-undef`**；该 evidence 路径不在 ESLint 的 Node globals 覆盖面。
+- 最小修复：仅在 `capture-script.mjs` 的 import 区显式引入 `node:console` 与 `node:process`；未移动脚本，未改变 capture 行为、fixture、截图、manifest、产品源或 `ACCEPTANCE.md`。
+- 绿证：同一脚本定向 ESLint **EXIT 0**；根 `pnpm lint` **EXIT 0**；`git diff --check` **EXIT 0**。未重新生成或覆盖任何 evidence PNG/manifest，也未进行验收。
+- 本次 gate-only 变更随提交 `fix(desktop): declare capture script node globals` 交付；独立验收结论与既有验收留痕保持不变。
+
 ## 八、独立验收（验收 Luna 填）
 
 独立验收结论：**`FAIL / REJECT`**。定向 DOM、lint、build 与视觉矩阵通过，
