@@ -1,6 +1,6 @@
 # GUI-PAPER-THEMES-1 · 冷白藏青墨／铅黑冷灰双宗
 
-状态：**实现完成，等待独立验收；本会话未做独立验收。**
+状态：**已由不同 Luna 会话在 clean clone 独立验收放行，已清账。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-LEAD-WHITE-1`、`SKIN-DYSTOPIA-1`、本票。
@@ -166,3 +166,18 @@ R1 仅将该既有 gallery E2E 消费点同步为 `rgb(232, 236, 239)`，未改�
 `/private/tmp/courtwork-paper-themes-r1-e2e-P8yUm8/repo` 在端口 `19955`、`reuseExistingServer=false`、
 single worker 完整实跑 desktop **407/407**（`7.9m`），故本 R1 将该消费点的全链结果从 **406/407**
 校正为 **407/407**。
+
+## 六、独立验收与清账（2026-08-23）
+
+不同 Luna 验收会话以 `deb8074` 为目标，在新 clean clone、独立端口 `19961`、
+`reuseExistingServer=false` 与日志明确的 **1 worker** 下放行；验收回执为 `d0777af`（原独立
+提交 `4268cf6`），仅追加 `apps/desktop/ACCEPTANCE.md`。
+
+最终实数：desktop E2E **407/407**（`7.9m`）、root **183 files / 2251 tests**、site guard
+**116/116**、lint 与 build 全绿。旧 light ink、旧磁青 dark surface、旧 blue selected、
+ordinary chrome 借 semantic blue、dark geometry branch 五类 mutation 均实际变红并复原。验收者
+新摄 **26 帧**，`horizontalOverflowFree=true`、`allBoundingBoxesIsomorphic=true`，13 组双宗
+geometry 比较零 mismatch。详见 `apps/desktop/ACCEPTANCE.md`。
+
+本票因此清账；不更新 `docs/status/current.md`，不赋予 Agent、product-live 或外部验证口径，
+也不替代 `PI-BASE-GUI-ACCEPT`。

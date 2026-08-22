@@ -203,7 +203,7 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
 `SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。未来若重启公开发布，候选仍须
 明确区分“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。现阶段唯一收敛节点是
-`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（架构已冻结，下一 App 槽）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
+`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（已清账）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
 双向箭头保留 2026-08-05 “GUI 与真 key 六格并行”的产品重排。只有 `PI-BASE-GUI-ACCEPT` 放行才
 取得 agent 称谓；最后一节点只证明维护者个人安装形态。
 
@@ -236,8 +236,8 @@ dystopia，目标是相对 AI slop 的陌生化。Pages 与 Desktop 已消费相
 
 **双宗工作面与 Work diff 语义（2026-08-23 产品定向）**：用户要求浅宗“冷白＋低饱和藏青墨”、
 深宗“铅黑＋冷灰阶”，并以砖红承 Work diff；同时明确开源 GUI agent 只作成熟机制参考，竞争力仍在
-产品理念。`GUI-PAPER-THEMES-1` 因此成为 `GUI-HIERARCHY-1` 独立放行后的唯一 App 视觉槽：只换
-现有 token 与同源消费，不改组件、布局、runtime 或语义蓝角色。`WORK-DIFF-SEMANTICS-1` 已冻结
+产品理念。`GUI-PAPER-THEMES-1` 已在 `GUI-HIERARCHY-1` 独立放行后完成唯一 App 视觉槽并由
+不同 Luna clean-clone 验收清账：只换现有 token 与同源消费，不改组件、布局、runtime 或语义蓝角色。`WORK-DIFF-SEMANTICS-1` 已冻结
 Work diff／Legal revision／severity／human-settled Zhu 的边界与候选值，但生产仓尚无真实 Work diff
 producer/schema；在真实 artifact diff 契约另票冻结前，禁止为展示感预铸 token、DOM 或 fixture。
 UI Skills 继续只消费证据协议；OpenHands、Cline、bolt.diy 只借 task／ledger／result-seat 结构，零
@@ -327,7 +327,7 @@ notices；两账、图审计与候选直接启动任一未放行，`v0.2.0` 均�
 | `GUI-LEAD-WHITE-1` | **已清账**（实现 `01b6b57`；独立 PASS `0316269`；no-ff 合入 `d557daa`）。只置换浅宗中性阶及其既有消费面：冷白 L0、铅灰 L1/hover/selected/border、白纸 L2、近黑铅墨；蓝退出普通 chrome，只保留既有交互／修订／核验语义。Dark、布局、copy、runtime、provider、schema 与 Pages 版式零改；不更新 `current.md`。 | clean worktree：定向 E2E 17/17、root 183 files / 2251 tests、site guard 112/112、lint/build 全绿；6 帧 fresh 视觉矩阵目检，palette 真源与消费面两类 mutation 均实际红后复原。完整证据见本票与 `apps/desktop/ACCEPTANCE.md`。 |
 | `GUI-COMPOSITION-1` | **已清账**（实现 `bd6b916`；独立 PASS `2f7eeb4`；no-ff 合入 `f8845d8`）。在 760px 正文轴与颜色零改下完成空场收拢、工具卡降账行、同名去重、中性语料、折叠符归一、rail 空态合并与授权主次。 | clean worktree：ticket lints 全绿、Pi DOM 17/17、ticket E2E 7/7、root 183/2251、site guard 112/112、官方 Playwright 402/402；13 帧 fresh 矩阵目检，两类 mutation 实红复绿。732/760 proposal surface 与 composer 下方余白按票面登记为后继观察，不作本票扩约。 |
 | `GUI-HIERARCHY-1` | **已清账。** 实现 `a1e25d4`；独立 REJECT `a2ff28d` 发现旧 P1-N096 契约漂移；架构裁定后 R1 `fd8533b` 只同步 rule grammar 与历史账；最终不同 Luna clean-clone PASS `af4e8fe`。 | 定向 5/5、完整 Playwright 407/407、root 183/2251、site guard 112/112、lint/build 全绿；P1-N096 与 rail 左连接线两枚 R1 mutation 实红，fresh 13 帧、squint、390 零横溢。精确证据见本票与 `apps/desktop/ACCEPTANCE.md`；不替代 `PI-BASE-GUI-ACCEPT`。 |
-| `GUI-PAPER-THEMES-1` | **实现完成，等待不同会话独立验收；本会话未做独立验收。** 依赖 `GUI-HIERARCHY-1` 已独立放行。浅宗保留冷白三面、墨迁低饱和藏青；深宗由磁青迁铅黑冷灰。只改 token 真源与既有同源消费，普通 chrome 不借语义蓝，双宗组件与布局零分支。 | exact token born-red（23/1 → 24/24）；双宗×三面 AA 定向 Playwright 9/9；light/dark 各 1180/1440/390 四态共 24 帧、两枚 240px squint、横溢与 bounding-box 同构报告；旧磁青／旧浅墨／蓝 selected／semantic blue 普通 chrome／几何分支五类 mutation 实红；root 183/2251、site guard 116 项、lint/build 全绿。完整 desktop `test:e2e` 与 clean-worktree 独立验收仍待不同会话，见 `apps/desktop/specs/GUI-PAPER-THEMES-1.md` 与新 evidence 目录。 |
+| `GUI-PAPER-THEMES-1` | **已清账。** 实现 `202484f`，gallery 消费点 R1 `a4a44b1`，完整 E2E 回执 `deb8074`；不同 Luna clean-clone 验收 PASS `d0777af`。浅宗保留冷白三面、墨迁低饱和藏青；深宗由磁青迁铅黑冷灰。只改 token 真源与既有同源消费，普通 chrome 不借语义蓝，双宗组件与布局零分支。 | 最终 fresh port `19961`、日志明确 1 worker 的 desktop E2E 407/407；root 183/2251、site guard 116/116、lint/build 全绿。五类 mutation 独立实红，fresh 26 帧零横溢，13 组 light/dark bounding-box 零 mismatch。精确证据见本票与 `apps/desktop/ACCEPTANCE.md`；不替代 `PI-BASE-GUI-ACCEPT`。 |
 | `WORK-DIFF-SEMANTICS-1` | **语义与候选值已冻结，未就绪。** 砖红只表达真实 Work artifact 的可审阅变化；与 Legal revision、severity red、human-settled Zhu 分离，以标签＋`+/-/↺` 双编码。当前无真实 producer/schema，禁止 UI、fixture 或空 token 开工。 | 先由另票冻结 artifact diff producer/schema/hash/授权/review 生命周期；其后才可落 `workDiff.graphic/fg`，并以 AA、ΔE00≥10、四族同屏、form-only、真实三操作与 clean-worktree 独立验收退出。见 `apps/desktop/specs/WORK-DIFF-SEMANTICS-1.md`。 |
 | `PI-BASE-GUI-ACCEPT-PACKAGE-1` | **已清账**（架构 `cb8aeb3`；实现 `4273f4f`；断言路径修复 `2737c98`；独立 Luna PASS `831bcee`）。最终 signed Route A sibling 与 tracked/package manifest、sealed CJS 逐字节同源，App/sidecar strict signing 与 DMG verify 通过；只清 packaging seam，不替代真实 DeepSeek、WKWebView、Stop、AX/焦点或 reduced-motion 总验。 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration；**顺带（2026-07-18 登记）**：凡例 OOC/Estimate 显式件（score=null 出格态/点值/区间三态）设计缺口随本单一并拍板 | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |

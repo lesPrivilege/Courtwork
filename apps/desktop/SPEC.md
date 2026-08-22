@@ -5641,7 +5641,7 @@ GUI-HIERARCHY 5/5、完整 desktop Playwright 407/407（single worker、fresh po
 
 ## GUI-PAPER-THEMES-1 · 冷白藏青墨／铅黑冷灰双宗（实现回执）
 
-本票实现会话状态：**实现完成，等待不同会话独立验收；本会话未做独立验收。** 权威冻结值与边界见
+本票实现会话状态：**实现已由不同 Luna 会话在 clean clone 独立放行，已清账。** 权威冻结值与边界见
 `specs/GUI-PAPER-THEMES-1.md`。本次只同步既有 token 真源与既有同源消费：浅宗保留冷白三面并把
 primary／secondary／tertiary 迁为 `#24303C/#53616E/#626E78`，主操作 hover 为 `#344353`；深宗
 落实票面 13 槽铅黑／冷灰值。focus 与 semantic blue 保持原角色，普通 chrome 不借蓝；组件、DOM、
@@ -5684,3 +5684,11 @@ token／其他测试期望。
 `a4a44b1` 后新 clean clone `/private/tmp/courtwork-paper-themes-r1-e2e-P8yUm8/repo` 在端口 `19955`、
 `reuseExistingServer=false`、single worker 完整实跑 desktop **407/407**（`7.9m`），将 R1 结果由
 旧期望的 **406/407** 校正为 **407/407**。本实现会话仍不宣称独立验收或清账。
+
+### GUI-PAPER-THEMES-1 · 独立验收放行（2026-08-23）
+
+不同 Luna 验收会话对 `deb8074` 在新 clean clone 独立放行；主线验收提交 `d0777af`
+仅追加 `ACCEPTANCE.md`。最终 fresh port `19961`、`reuseExistingServer=false`、日志明确
+**1 worker** 的 desktop E2E **407/407**；root **183 files / 2251 tests**、site guard **116/116**、
+lint/build 全绿。五类主题反例全部实红；fresh 26 帧零横溢，13 组 light/dark bounding-box
+对照全部同构。本票清账但不更新 `current.md`，不替代 `PI-BASE-GUI-ACCEPT`。
