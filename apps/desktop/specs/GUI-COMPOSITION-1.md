@@ -97,8 +97,148 @@
 
 ## 六、实现回执
 
-（待实现会话填写：角色、TDD 红证、mutation 命中、逐条 `GC-C01-a…h` 的取舍与实测值、
-全门绿证与实际读数、视觉矩阵 manifest、提交 SHA。）
+**状态：WIP，未完成、未跑全门、未验收。** 实现会话（Claude Sonnet 5，worktree
+`.cw-gui-composition-1`，分支 `gui-composition-1`）在跑完全套门与 Playwright 全链之前被产品侧
+改派移交，故本节是**交接回执**而非完工回执。以下逐项如实登记走到哪一步，供接手会话定位。
+
+### 1 · 逐条 `GC-C01-a…h` 当前状态
+
+| 条目 | 状态 | 落点 |
+|---|---|---|
+| `GC-C01-a` | 不适用（已撤销） | `--pi-content-measure` 维持 `760px` 未动；另加一枚守位断言锁定该定值 |
+| `GC-C01-b` | 已实现 | `styles.css` `.pi-thread` 由 `flex: 1` 改 `flex: 0 1 auto`——thread 按内容收拢，composer 紧随正文；内容长过可用高度时仍由 viewport 自身滚动、composer 归位底部 |
+| `GC-C01-c` | 已实现（形态见 §3 存疑） | `styles.css` `.pi-tool-card` 去 `border-top`，改 `margin-left/right: 14px` ＋ `padding-left: 12px` ＋ `border-left: var(--rule-minor) solid var(--border)`；`[data-state="proposed"]` 保留 `var(--bg-surface)` 但只覆内缩后的账行。同批更新 `PiLanePanel.dom.test.ts` 的构图静态门与 `assert-rule-grammar.mjs` 三分类账 |
+| `GC-C01-d` | 已实现 | `PiLanePanel.tsx` `PiWorkHead`：删 `pi-work-head-label`（「当前工作区」），binding pill 仅在 `bindingLabel !== matterTitle` 时渲染；`pi-copy.ts` 删 `matterContextLabel`；`styles.css` 删 `.pi-work-head-label` 规则 |
+| `GC-C01-e` | 已实现 | `pi-copy.ts`：`inputPlaceholder` → `说清这一段要做完的事`；`running` → `工作中`（去省略号） |
+| `GC-C01-f` | 已实现 | `PiToolCard.tsx` / `PiLanePanel.tsx` / `PiDraftViewer.tsx` 三处 `<summary>` 各加既有 `<Icon name="chevron-right" scope="turn" />`；`styles.css` 为 `.pi-run-details`／`.pi-tool-details`／`.pi-viewer-details` 的 summary 抑制 `list-style` 与 `::-webkit-details-marker`，`[open]` 转 90°，与 `.tool-call-row summary` 同一处理 |
+| `GC-C01-g` | 已实现 | `CaseRail.tsx` 新增 `railEmptyMerged()`：本案已读取且 0 件原件 ＋ 未加载垂类包时，展开区两条空态并作一条「尚无卷宗原件 · 未加载垂类包，通用能力可用」（testid 仍为 `rail-pack-state-<id>`，`管理包` 动作保留），MaterialsZone 该态不再另出一行。**取舍依据**：行内 `卷宗 0 件` 是常驻元数据（件数非零时同样在场），不属空态，故按架构 2026-08-22 裁定保留不并入；`materials === undefined` 是「尚未读取」而非 0 件，不并 |
+| `GC-C01-h` | 已实现 | `PiToolCard.tsx` 拒绝按钮改 `pi-button pi-button-quiet pi-button-deny`；`styles.css` 把 `.pi-button-deny` 移到 `.pi-button-quiet` 之后并只留 `color: var(--red-fg)` 与 hover 底，去实心去围合；高度与点击面积仍走 `.pi-button` 既有值，`:focus-visible` 未动 |
+
+### 2 · TDD 红证（**已实跑**，基线 `ee7bbd1` 未含实现）
+
+新增 `apps/desktop/tests/e2e/gui-composition-1.spec.ts` 七枚断言。基线上实跑
+`COURTWORK_E2E_PORT=19887 pnpm exec playwright test --project=app tests/e2e/gui-composition-1.spec.ts`
+＝ **6 failed / 1 passed**，红的原始读数逐条如下（第七枚是 `GC-C01-a` 撤销守位，基线本就该绿）：
+
+```
+✘ GC-C01-d  expect(locator).toHaveCount(expected) failed   Expected: 0        Received: 1
+✘ GC-C01-c  expect(received).toBeLessThan(expected)        Expected: < 752    Received: 760
+✘ GC-C01-e  expect(received).not.toBe(expected)            Expected: not "例如：把案件材料里的合同编号与金额整理成一份纪要"
+✘ GC-C01-h  expect(received).toContain(expected)           Expected substring: "pi-button-quiet"
+                                                            Received string:    "pi-button pi-button-deny"
+✘ GC-C01-b  expect(received).toBeLessThanOrEqual(expected) Expected: <= 20    Received: 297.8125
+✘ GC-C01-f  expect(received).toBe(expected)                Expected: "none"   Received: "disclosure-closed"
+✓ GC-C01-a 撤销守位：正文轴维持 760px 定值
+```
+
+实现后同一命令（端口 19889）＝ **7 passed**。
+
+`GC-C01-b` 的靶换过一次并如实登记：初版量「最后一枚工具卡 → composer」得 49px（未过 28px 线），
+探针实测该 49px 由 viewport 行距 16 ＋ 运行状态行 17 ＋ 下内距 16 组成，**其中并无空场**——
+是靶取错了（工具卡之后还有内容）。改量「viewport 最后一个内容子元素 → composer」，上限同时
+收紧到 20px（＝一个 `--home-section-gap`），基线复跑仍红（297.8px），实现后绿（16px）。
+
+### 3 · mutation（**两枚都已实跑并复原**）
+
+| mutation | 结果 |
+|---|---|
+| `.pi-tool-card` 注回满版心色块（恢复 `border-top` + 去内缩） | **红 1 枚**：`GC-C01-c` `Expected: < 752  Received: 760`；其余 6 枚仍绿 |
+| placeholder 注回旧示范句 | **红 1 枚**：`GC-C01-e` `Expected: not "例如：把案件材料里的合同编号与金额整理成一份纪要"`；其余 6 枚仍绿 |
+
+两枚均非 0 红，无需换靶；改完即以备份文件逐字复原并复验。
+
+### 4 · 门的真实读数（**已跑的**）
+
+| 门 | 读数 |
+|---|---|
+| `pnpm install`（worktree 首次） | Done in 6.9s |
+| `pnpm -r build` | 全包通过，desktop `✓ built in 4.24s` |
+| `apps/desktop` `npx tsc -b` | exit 0 |
+| `apps/desktop` `vitest run` | **103 files / 921 tests 全绿**（含改后的构图静态门） |
+| `lint:design-md` | exit 0 |
+| `lint:neutral` | exit 0 · 「src 284 文件全部色值 ∈ tokens 声明集」 |
+| `lint:rp211` | exit 0 |
+| `lint:elevation` | exit 0 |
+| `lint:graph` | exit 0 |
+| `lint:typography` | exit 0 |
+| `lint:layout-converge` | exit 0 |
+| `lint:ui-surface` | exit 0 |
+| `lint:voice` | exit 0 · 扫描 179 个 UI 源文件 |
+| `lint:work-agent-gui` | exit 0 · todo 0 |
+| `site:guard` | exit 0 |
+| `pnpm lint`（仓根 eslint） | **exit 1 · 7 errors**，全部落在新增的 `scripts/capture-gui-composition-1.mjs`（`no-undef`：localStorage/window/document）——`eslint.config.js` 对 `**/scripts/**/*.mjs` 用 node globals，既有 `capture-pi-lane-states.mjs` 是逐名豁免的。**未修，留给接手会话**：把新脚本按同一方式加进豁免名单即可 |
+| `lint:rule-grammar` | **exit 1 · `P1 档位账漏消费点：.pi-tool-card|left`**，见 §5 |
+| **`pnpm test:e2e` 全链** | **未跑**（改派时未开始） |
+| `git diff --check` | **未跑** |
+| 颜色零改验证 `git diff … \| grep -E '#[0-9a-f]{3,8}\|rgb\(\|hsl\('` | **未跑**（但全程未触碰任何色值字面量与 `--color-*`／`--bg-*`／`--text-*`／`--border-*` 定义，`lint:neutral` 已绿） |
+
+### 5 · 存疑与自认不妥之处
+
+1. **`lint:rule-grammar` 红，且这条红先于本票就在。** 基线 `ee7bbd1` 上该门即红
+   （`.pi-tool-card:not([data-state="proposed"])|top` 未归一分类，线由 `11c65cb`
+   `WORK-SURFACE-COMPOSITION-1` 引入却从未入账）。本票把该线从 top 移到 left，红随之变成
+   `.pi-tool-card|left`。我已把它登记进三分类账的 MINOR（「账行界行」），但 **P1 档位账
+   （`docs/design/r2-tier-ledger.json`）是 113 行封闭签署账、三分类计数被硬编在门里
+   （主 4／次 90／退 19），新增一枚消费点必须有一条新的已批提案行**——实现会话无权自批，
+   故此门无法由本层弄绿。**需架构拍板**：要么给 `.pi-tool-card|left` 批一条 P1 提案行，
+   要么裁定工具账行不用细界线（那样 `GC-C01-c` 的「细界线」一句要一并改）。
+2. **线级语法门有一处静默缝**：`scripts/rule-grammar-lib.mjs` 的 BORDER 正则只认物理边
+   （`border-top/bottom/left/right`），`border-inline-start` 一类逻辑边**完全不进普查**。
+   我最初用逻辑边写这条线时门直接变绿——那是漏检不是通过。已改回物理边以受检。此缝与本票
+   无关但确实存在，建议另立微票。
+3. **`GC-C01-b` 把空场从 composer 之上搬到了 composer 之下。** 票面判据（正文块与 composer
+   间距 ≤ 一个 section 间距）已达成，但短会话与空态下屏幕仍有大片纯底，只是位置改到 composer
+   下方（1440 空态实测约 570px）。票面禁止用插画／卡片／占位块去填，`GC-F2` 的真解已转出
+   `GUI-WORK-RAIL-1`，故本层不再动。**这一点请接手会话与架构确认是否接受**。
+4. **`GC-C01-c` 的灰块仍占正文轴的绝大部分。** 内缩后宽 732／760（96%），断言（< axis−8）过，
+   「不再以满版心色块承担」的字面也过，但肉眼仍近似一条带。更强的读法是把 `bg.surface`
+   收到决定簇（`.pi-tool-decision`）而非整张卡上、按内容宽度铺——我**没有**这么做，因为票面
+   点名的是 `.pi-tool-card`，且那会改动「唯一 surface 声部先被看见」的既签语义。若验收认为
+   内缩力度不足，这是现成的下一手。
+5. **`GC-C01-f` 我做到了三处 pi summary（工具卡／运行详情／只读查看面），不止票面点名的一处。**
+   理由是票面写的是「pi 的 `<details> summary` 与 `.tool-call-row summary` 取同一处理」，
+   只改一处会留下另两处仍是默认 `▶`。如判为越界，删掉 `PiLanePanel.tsx` 与 `PiDraftViewer.tsx`
+   两处 `<Icon>` 及对应 CSS 选择器即可。
+
+### 6 · 视觉证据
+
+`release/evidence/gui-composition-1/implementation-2026-08-22/`：light 1180／1440／390 ×
+empty／running／proposal／succeeded 十二帧 ＋ dark 1440 proposal smoke 一帧 ＋ `manifest.json`
+（逐帧 sha256）。摄制脚本 `apps/desktop/scripts/capture-gui-composition-1.mjs`：**每帧落盘前实测
+`data-theme` 已写实，不符即抛不摄**（`GUI-LEAD-WHITE-1` 首帧失真判例）。顺带发现既有
+`capture-pi-lane-states.mjs` 的深宗写法有误——它往 `courtwork.settings.v1` 写
+`{version, settings:{…}}`，而 `settings-store.ts` 存的就是 settings 本体，故它实际靠加载后
+手写 `data-theme` 属性补救；新脚本改为首帧之前就把 `{"appearance":{"themeMode":…}}` 写进真源。
+
+目检（四帧）结论：一屏无同名重复（案件名只出现一次、无 pill、无「当前工作区」）；工具行已是
+缩进 ＋ 左界行的账行、交替灰块消失；折叠符为既有 chevron；390 零横溢、rail 按既有断点隐去；
+dark 1440 与浅宗改动同构、色相未动。
+
+### 7 · 剩余待办（接手清单）
+
+1. `pnpm lint` 的 7 条 `no-undef`：把 `apps/desktop/scripts/capture-gui-composition-1.mjs`
+   加进 `eslint.config.js` 第 33 行附近的既有豁免名单（与 `capture-pi-lane-states.mjs` 同列）。
+2. `lint:rule-grammar`：按 §5-1 请架构裁定后再动，实现层不得自批提案行。
+3. 未跑的门：独立端口 `pnpm test:e2e` 全链、`git diff --check`、颜色零改的 grep 验证。
+   **注意**：跑全链会把 `release/evidence/` 下四个历史证据包写脏（见 §8），跑完须
+   `git checkout --` 还原，不得随本票提交。
+4. 全链跑完后据实补 §4 的读数与用例数，并把本节从「WIP」改写为完工回执。
+5. 本票仍**不得自验收**，独立 PASS 前不清账。
+
+### 8 · 附：`release/evidence/` 历史包被写脏的归因（本轮实证）
+
+`tests/e2e/demo-anchor-2.spec.ts`、`generic-pack-1.spec.ts`、`legal-anchor-binding-1.spec.ts`、
+`legal-five-faces-1.spec.ts` 四谱把截图直接写进 `../../release/evidence/<包名>/`，
+`work-live.spec.ts:183` 另单独覆写 `legal-five-faces-1-2026-08-07/04-revision-live.png`。
+故**任何一次跑满 app project 的 Playwright（含 `pnpm test:e2e`）都会覆写这四个已提交的证据包**，
+与本票改动无关。本轮的触发命令是红证轮的
+`COURTWORK_E2E_PORT=19881 pnpm exec playwright test gui-composition-1 --project=app`——
+该位置参数没有生效为过滤（实跑了全部 380 枚），于是四包被重摄。已 `git checkout --` 逐包还原。
+
+### 9 · 提交
+
+见本票分支 `gui-composition-1` 的 WIP 提交（SHA 随提交写入 commit message 与交接报告）。
+本会话未 push、未 rebase、未改基线、未自验收、未写 `ACCEPTANCE.md`。
 
 ## 七、架构裁定 · `GC-C01-a` 撤销与 `GC-F2` 转出（2026-08-22）
 

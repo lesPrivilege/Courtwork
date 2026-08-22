@@ -47,6 +47,8 @@ const MINOR = {
   '.originals-list li|bottom': '行分隔',
   '.gallery-ledger li|bottom': '行分隔',
   '.gallery-timeline li|left': '行分隔（时间轴轨）',
+  // GUI-COMPOSITION-1 GC-C01-c：工具记录退为账行——竖界只标「这几行是同一笔账」，属段内分隔。
+  '.pi-tool-card|left': '账行界行（同一笔工具记录的段内分隔）',
   '.interaction-anchor|bottom': '行分隔',
   '.relation-list button|bottom': '行分隔',
   '.file-ops-table th, .file-ops-table td|bottom': '单元格网格',

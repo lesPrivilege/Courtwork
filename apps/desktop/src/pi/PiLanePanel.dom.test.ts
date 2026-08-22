@@ -500,7 +500,9 @@ describe('WORK-SURFACE-COMPOSITION-1 · 冷调工作面 born-red', () => {
     expect(source).toMatch(/\.pi-thread-viewport > \.pi-drafts\s*\{[^}]*padding-inline:\s*0/s);
     expect(source).toContain('--content-measure: 640px;');
     expect(source).not.toMatch(/\.pi-thread-viewport,\n\.pi-drafts,\n\.pi-composer \{[^}]*var\(--content-measure\)/s);
-    expect(source).toMatch(/\.pi-tool-card:not\(\[data-state="proposed"\]\)\s*\{[^}]*border-top:\s*var\(--rule-minor\) solid var\(--border\)/s);
+    // GUI-COMPOSITION-1 GC-C01-c：工具记录降为账行——分隔由横界（满版心的带）改为竖界（缩进 + 界行）。
+    expect(source).toMatch(/\.pi-tool-card\s*\{[^}]*margin-left:\s*14px;\s*margin-right:\s*14px[^}]*border-left:\s*var\(--rule-minor\) solid var\(--border\)/s);
+    expect(source).not.toMatch(/\.pi-tool-card:not\(\[data-state="proposed"\]\)/s);
     expect(source).toMatch(/\.pi-tool-card\[data-state="proposed"\]\s*\{[^}]*background:\s*var\(--bg-surface\)/s);
     expect(source).not.toMatch(/\.pi-tool-card\s*\{[^}]*background:/s);
   });

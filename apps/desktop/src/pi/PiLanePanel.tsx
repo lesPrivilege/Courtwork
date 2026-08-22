@@ -10,6 +10,7 @@ import {
 } from '@assistant-ui/react';
 
 import { ChatMarkdown } from '../chat/ChatMarkdown';
+import { Icon } from '../workbench/Icon';
 import { PiDraftViewer, type PiViewerState } from './PiDraftViewer';
 import { PiToolCard } from './PiToolCard';
 import { PI_COPY, piSessionClosedCopy } from './pi-copy';
@@ -358,7 +359,10 @@ function PiStatusBar({
           </span>
         )}
         <details className="pi-run-details" data-testid="pi-run-details">
-          <summary>{PI_COPY.runDetails}</summary>
+          <summary>
+            <Icon name="chevron-right" scope="turn" />
+            {PI_COPY.runDetails}
+          </summary>
           <dl className="pi-run-facts">
             <div>
               <dt>{PI_COPY.turnsLabel}</dt>
@@ -560,7 +564,13 @@ function PiStartGate({
   );
 }
 
-/** Work 面主层 matter 上下文：标题 + 授权文件夹标签。不另造右栏。 */
+/**
+ * Work 面主层 matter 上下文：标题 + 授权文件夹标签。不另造右栏。
+ *
+ * `GUI-COMPOSITION-1` GC-C01-d：同名标识一屏只出现一次。
+ * 「当前工作区」这一层已由左上常驻段名 `Work` 承担，head 的职分是标识**本案**而非复述段名，
+ * 故此处不再另起一行标签；授权文件夹标签与案件名同名时也不再第二次出现（同名即无新信息）。
+ */
 function PiWorkHead({
   matterTitle,
   bindingLabel,
@@ -568,13 +578,13 @@ function PiWorkHead({
   matterTitle: string;
   bindingLabel?: string;
 }) {
+  const showBinding = Boolean(bindingLabel) && bindingLabel !== matterTitle;
   return (
     <header className="pi-work-head" data-testid="pi-work-head">
       <div className="pi-work-head-ident">
-        <p className="pi-work-head-label">{PI_COPY.matterContextLabel}</p>
         <h2 className="pi-work-head-title">{matterTitle}</h2>
       </div>
-      {bindingLabel ? (
+      {showBinding ? (
         <span className="pi-work-head-binding" data-testid="pi-binding-label">
           {bindingLabel}
         </span>

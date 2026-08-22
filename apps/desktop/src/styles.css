@@ -1968,7 +1968,6 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-panel-gate .pi-work-head { justify-content: center; }
 .pi-work-head-ident { min-width: 0; display: grid; gap: 2px; }
 .pi-panel-gate .pi-work-head-ident { justify-items: center; }
-.pi-work-head-label { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-work-head-title { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-size: var(--type-display-size); line-height: var(--type-display-line-height); font-weight: var(--type-display-weight); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 52ch; }
 .pi-work-head-binding { flex: none; max-width: 34ch; padding: 3px 8px; border-radius: 4px; background: var(--bg-surface); color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-panel-gate .pi-work-head-binding { justify-self: center; }
@@ -1984,6 +1983,20 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-status-restart { margin-left: auto; }
 .pi-run-details { position: relative; min-width: 0; }
 .pi-run-details summary { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+/* GUI-COMPOSITION-1 GC-C01-f：pi 的 summary 与 `.tool-call-row summary` 取同一处理——抑制浏览器
+   默认 marker，折叠符改用既有图标集的 chevron-right（转 90° 表展开），不另画图标。 */
+.pi-run-details summary,
+.pi-tool-details summary,
+.pi-viewer-details summary { list-style: none; }
+.pi-run-details summary::-webkit-details-marker,
+.pi-tool-details summary::-webkit-details-marker,
+.pi-viewer-details summary::-webkit-details-marker { display: none; }
+.pi-run-details summary .turn-icon,
+.pi-tool-details summary .turn-icon,
+.pi-viewer-details summary .turn-icon { width: 13px; height: 13px; color: var(--text-tertiary); transition: transform var(--motion-hover) ease-out; }
+.pi-run-details[open] summary .turn-icon,
+.pi-tool-details[open] summary .turn-icon,
+.pi-viewer-details[open] summary .turn-icon { transform: rotate(90deg); }
 .pi-run-details summary:hover { color: var(--text-primary); }
 .pi-run-details summary:focus-visible,
 .pi-tool-details summary:focus-visible,
@@ -2000,7 +2013,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
    深宗 tertiary 的 AA 属另单 [需架构拍板]。 */
 .pi-mono { font-family: var(--type-dense-mono); font-variant-numeric: tabular-nums; }
 
-.pi-thread { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+/* GUI-COMPOSITION-1 GC-C01-b：未成文区不留成屏空场——thread 按内容收拢（`flex: 0 1 auto`），
+   composer 紧随正文而非独悬底部；内容长过可用高度时仍由 viewport 自身滚动，composer 归位底部。 */
+.pi-thread { min-height: 0; flex: 0 1 auto; display: flex; flex-direction: column; }
 .pi-thread-viewport { min-height: 0; flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px; overflow: auto; }
 
 .pi-empty { display: grid; gap: 6px; justify-items: start; padding: 24px 0; }
@@ -2015,17 +2030,18 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-turn-assistant .chat-markdown { font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
 .pi-running { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 
-/* 工具记录：非决策态退为低声部 ledger row；只用一次既有乌丝细线分隔。 */
-.pi-tool-card { min-width: 0; display: grid; gap: 8px; padding: 8px 0; }
-.pi-tool-card:not([data-state="proposed"]) { border-top: var(--rule-minor) solid var(--border); }
+/* 工具记录：账行（GUI-COMPOSITION-1 GC-C01-c）。分隔改由界行承担——横界会把卡切成一段段
+   满版心的带，竖界只标「这几行是同一笔账」，故工具行退到正文轴内缩一格、左侧一条乌丝细线。 */
+.pi-tool-card { min-width: 0; display: grid; gap: 8px; margin-left: 14px; margin-right: 14px; padding: 8px 0 8px 12px; border-left: var(--rule-minor) solid var(--border); }
 /* proposal 主阅读层先说人话：动作 + 目标文件。 */
 .pi-tool-request, .pi-tool-action { min-width: 0; margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); line-height: 1.5; }
 .pi-tool-request b, .pi-tool-action b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); overflow-wrap: anywhere; }
 .pi-tool-details { min-width: 0; display: grid; gap: 6px; }
-.pi-tool-details summary { justify-self: start; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+.pi-tool-details summary { justify-self: start; display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
 .pi-tool-details summary:hover { color: var(--text-primary); }
-/* 待决定：保留唯一 raised/surface 声部——需要人做决定的那一枚在扫读时先被看见。 */
-.pi-tool-card[data-state="proposed"] { padding: 10px 0; background: var(--bg-surface); }
+/* 待决定：保留唯一 raised/surface 声部——需要人做决定的那一枚在扫读时先被看见。
+   GC-C01-c：底色只覆内缩后的账行，不再是一块拉满版心的灰带。 */
+.pi-tool-card[data-state="proposed"] { padding: 10px 0 10px 12px; background: var(--bg-surface); }
 .pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
 .pi-tool-name { font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
 .pi-tool-state { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
@@ -2057,11 +2073,13 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
 .pi-button-primary:hover { background: var(--action-primary-hover); }
 .pi-button-primary:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); }
-/* 驳回是朱砂在交互上的唯一落点（§12：朱只随真实风险、不可逆动作与驳回）。 */
-.pi-button-deny { border-color: var(--red-graphic); color: var(--red-fg); }
-.pi-button-deny:hover { background: var(--red-bg); }
 .pi-button-quiet { border-color: transparent; background: transparent; color: var(--text-secondary); justify-self: start; }
 .pi-button-quiet:hover { background: var(--control-hover); }
+/* 驳回是朱砂在交互上的唯一落点（§12：朱只随真实风险、不可逆动作与驳回）。
+   GUI-COMPOSITION-1 GC-C01-h：它降为次级动作——走 `.pi-button-quiet` 的既有次级语汇（无实心底、
+   无围合描边），红只留在语义（字色与 hover 底）上，不加不减；高度与点击面积仍是 `.pi-button` 的既有值。 */
+.pi-button-deny { color: var(--red-fg); }
+.pi-button-deny:hover { background: var(--red-bg); }
 
 .pi-alert { margin: 12px 16px 0; padding: 8px 12px; border: 1px solid var(--red-graphic); background: var(--red-bg); color: var(--red-fg); font-size: var(--type-dense-body-size); }
 
@@ -2099,7 +2117,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-viewer-flag { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-alert { color: var(--red-fg); }
 .pi-viewer-details { min-width: 0; }
-.pi-viewer-details summary { display: inline-flex; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
+.pi-viewer-details summary { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); user-select: none; }
 .pi-viewer-details summary:hover { color: var(--text-primary); }
 .pi-viewer-meta { margin: 8px 0 0; display: grid; gap: 4px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-meta > div { display: flex; align-items: baseline; gap: 8px; }
