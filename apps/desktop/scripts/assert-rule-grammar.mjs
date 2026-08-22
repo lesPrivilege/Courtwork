@@ -127,7 +127,6 @@ const MINOR = {
   '.gallery-specimen > footer|top': '段内分隔',
   '.gallery-ledger|top': '段内分隔',
   // 面内分栏
-  '.rail-case-expand|left': '面内分栏（树形缩进轨）',
   '.utility-dock-item|right': '面内分栏',
   '.preview-scroll-progress|left': '面内分栏',
   '.relation-list|left': '面内分栏',
@@ -138,8 +137,8 @@ const MINOR = {
   '.view-tabs|bottom': '段内分隔（判据 c：overflow-x 滚动容器，细线会随 tab 卷走）',
 };
 
-// VERSIONAL-LANG-1：签署范围里的 routine 线从活分类退场。旧 P1 行仍在账中，但以
-// `decision=退 + supersededBy=VL-*` 前向记账；这里是唯一退役消费点闭集，复活任一声明即红。
+// 退役消费点闭集：旧 P1 行仍在账中，但以 `decision=退 + supersededBy=<票>` 前向记账；
+// 复活任一声明即红。VERSIONAL-LANG-1 的 routine 退役与 GUI-HIERARCHY-1 的树形连接线退役共用此账。
 const RETIRED = {
   '.pane-head|bottom': 'VL-L02',
   '.scene-strip|top': 'VL-L02',
@@ -160,6 +159,7 @@ const RETIRED = {
   '.work-draft-toolbar|all': 'WORK-AGENT-GUI-1',
   '.work-draft-body|all': 'WORK-AGENT-GUI-1',
   '.work-draft-list|right': 'WORK-AGENT-GUI-1',
+  '.rail-case-expand|left': 'GUI-HIERARCHY-1',
 };
 
 // ── 不换：答不出「此界为何是主/次」的线 ────────────────────────────────────
@@ -300,11 +300,11 @@ for (let index = 1; index <= 106; index += 1) {
 if (p1Rows.length !== 114) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 114`);
 // VERSIONAL-LANG-2 的五条 routine 线经覆议从 P1「留/minor」迁为「退/none」；
 // 行数仍是封闭签署账，统计随逐行旧账迁移更新，不靠删除旧 P1 行掩盖历史。
-if (classCounts.major !== 4 || classCounts.minor !== 91 || classCounts.none !== 19) {
-  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/91 · 退 ${classCounts.none}/19`);
+if (classCounts.major !== 4 || classCounts.minor !== 90 || classCounts.none !== 20) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/90 · 退 ${classCounts.none}/20`);
 }
-if (decisionCounts['留'] !== 82 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 19) {
-  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/82 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/19`);
+if (decisionCounts['留'] !== 81 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 20) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/81 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/20`);
 }
 for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR), ...Object.keys(RETIRED)]) {
   if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);
@@ -406,5 +406,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · routine 退 ${Object.keys(RETIRED).length} 条 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处 · P1 留 ${decisionCounts['留']}/减薄 ${decisionCounts['减薄']}/回单线 ${decisionCounts['回单线']}/退 ${decisionCounts['退']}`,
+  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · 退役 ${Object.keys(RETIRED).length} 条 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处 · P1 留 ${decisionCounts['留']}/减薄 ${decisionCounts['减薄']}/回单线 ${decisionCounts['回单线']}/退 ${decisionCounts['退']}`,
 );

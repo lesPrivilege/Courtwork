@@ -158,6 +158,22 @@ elevation 正常通过。最小实现后同一票谱 `5 passed`。结构门 `nod
 临时 240px squint 复核。该目录只证明 scripted browser projection，不替代独立验收的 clean-worktree
 复跑、真实 Tauri/WKWebView 或 product-live 证据。
 
+#### R1 契约同步回执（2026-08-23）
+
+首轮独立验收在完整 E2E 前被权威线级账阻断：旧 `assert-rule-grammar.mjs` 实跑为
+`次界清单有陈项，styles.css 已无此消费点：.rail-case-expand|left`，exit 1。架构拍板确认
+`GH-C01-a` 已退役树形连接线，故本 R1 只做契约账同步，不改产品实现：
+
+- 从 `MINOR` 移除 `.rail-case-expand|left`，加入 `RETIRED`，去向为 `GUI-HIERARCHY-1`；
+- 保留 `docs/design/r2-tier-ledger.json` 的历史 `P1-N096` 行，只改为
+  `decision=退`、`ruleClass=none`、`expectedWidth=0`、`expectedColor=transparent`，并加
+  `supersededBy=GUI-HIERARCHY-1`；
+- P1 统计随一条历史行迁移为主 4／次 90／退 20，判词为留 81／减薄 11／回单线 2／退 20。
+
+同步后 `assert-rule-grammar.mjs` 通过（主界 4、次界 90、退役 20、共 169 处），且本 R1 未改
+`styles.css`、tokens、组件、runtime、state/store/port/command、共享 dirty evidence 或
+`current.md`。本回执仍等待新的独立 clean-clone 407 条完整 desktop E2E；本会话不做独立验收。
+
 ## 七、架构复裁 · 回归本源（2026-08-22）
 
 产品输入「回归本源，Linear」。Linear 在本仓不是新参考，已是既有真源的一部分：

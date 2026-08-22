@@ -5615,3 +5615,20 @@ GUI-HIERARCHY-1 在既有 CaseRail、PiToolCard 与 PiLanePanel 上建立结构�
 `playwright test --list` 实测 Total 407，floor 由既有 402 基线升至 407（不沿用陈旧的 391）。
 实现会话回执与待独立验收范围见 `specs/GUI-HIERARCHY-1.md` §六；独立验收须在
 clean worktree 重跑 mutation、全套门与指定视觉矩阵，本节不宣称已放行。
+
+### GUI-HIERARCHY-1 R1 · 连接线契约账同步（2026-08-23）
+
+首轮独立验收在完整 desktop E2E 前被静态线级门阻断：旧 `assert-rule-grammar.mjs` 实跑为
+`次界清单有陈项，styles.css 已无此消费点：.rail-case-expand|left`，exit 1。架构裁定确认
+`GH-C01-a` 的 CaseRail 树形连接线已退役；R1 仅同步权威账，不回改产品 CSS：
+
+- `assert-rule-grammar.mjs` 将 `.rail-case-expand|left` 从 `MINOR` 移入 `RETIRED`，去向
+  `GUI-HIERARCHY-1`；
+- `r2-tier-ledger.json` 保留历史 `P1-N096`，改为 `decision=退`、`ruleClass=none`、
+  `expectedWidth=0`、`expectedColor=transparent`，新增 `supersededBy=GUI-HIERARCHY-1`；
+- P1 统计更新为主 4／次 90／退 20，判词留 81／减薄 11／回单线 2／退 20；未改
+  `styles.css`、tokens、组件、runtime、state/store/port/command、`current.md` 或共享 dirty
+  evidence。
+
+R1 静态同步后线级语法门通过（主界 4、次界 90、退役 20、共 169 处）。新的独立 clean clone
+ 仍须以独立端口实跑完整 407 条 desktop `test:e2e`，本实现会话不宣称验收放行。

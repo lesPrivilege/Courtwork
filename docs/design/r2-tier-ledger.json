@@ -1209,12 +1209,13 @@
       "target": "apps/desktop/src/styles.css#.rail-case-expand|left",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N096",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
       "hairline": false,
-      "fragmentKind": "selector"
+      "fragmentKind": "selector",
+      "supersededBy": "GUI-HIERARCHY-1"
     },
     {
       "target": "apps/desktop/src/styles.css#.utility-dock-item|right",
