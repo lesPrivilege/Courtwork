@@ -162,5 +162,7 @@ failed**；唯一失败在 `visual-gallery.spec.ts:34`，旧断言期望 `rgb(22
 
 R1 仅将该既有 gallery E2E 消费点同步为 `rgb(232, 236, 239)`，未改产品、门、token 或其他
 主题值。修改后 gallery＋主题定向谱（visual-gallery、typography、versional-language）在独立端口
-`19954`、fresh server、single worker 实跑 **11/11**；完整 desktop `test:e2e` 的 clean clone
-复跑留待本 R1 提交后执行。
+`19954`、fresh server、single worker 实跑 **11/11**。提交 `a4a44b1` 后新 clean clone
+`/private/tmp/courtwork-paper-themes-r1-e2e-P8yUm8/repo` 在端口 `19955`、`reuseExistingServer=false`、
+single worker 完整实跑 desktop **407/407**（`7.9m`），故本 R1 将该消费点的全链结果从 **406/407**
+校正为 **407/407**。

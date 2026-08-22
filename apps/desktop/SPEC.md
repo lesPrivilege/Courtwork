@@ -5680,6 +5680,7 @@ PASS、不清账。
 实际渲染 `rgb(232, 236, 239)`。R1 仅同步该测试消费点至 `rgb(232, 236, 239)`，不改产品／门／
 token／其他测试期望。
 
-修后在独立端口 `19954`、fresh server、single worker 跑 gallery＋主题定向谱 **11/11**；提交后将
-在新 clean clone、`reuseExistingServer=false`、single worker 重跑完整 desktop **407** 条 E2E，
-以实跑结果补记 `406/407 → 407/407` 回执。本实现会话仍不宣称独立验收或清账。
+修后在独立端口 `19954`、fresh server、single worker 跑 gallery＋主题定向谱 **11/11**。提交
+`a4a44b1` 后新 clean clone `/private/tmp/courtwork-paper-themes-r1-e2e-P8yUm8/repo` 在端口 `19955`、
+`reuseExistingServer=false`、single worker 完整实跑 desktop **407/407**（`7.9m`），将 R1 结果由
+旧期望的 **406/407** 校正为 **407/407**。本实现会话仍不宣称独立验收或清账。
