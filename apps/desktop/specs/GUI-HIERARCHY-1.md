@@ -1,6 +1,6 @@
 # GUI-HIERARCHY-1 · 结构性层级（去扁平）
 
-状态：**架构已冻结，待实现**。产品基线 `f8845d8`。
+状态：**实现完成，待独立验收**。产品基线 `f8845d8`。
 前置：`GUI-COMPOSITION-1` 已清账（实现 `bd6b916`、独立验收 `2f7eeb4`、no-ff
 合入 `f8845d8`）——本票是加法，前票是减法，已按顺序闭合。
 
@@ -118,7 +118,45 @@ token 的**消费面**扩用；相关静态门、E2E 断言、截图脚本、本
 
 ## 六、实现回执
 
-（待实现会话填写。）
+### 实现会话回执（GUI-HIERARCHY-1）
+
+状态：**实现完成，等待独立验收；本会话未做独立验收。** 实现只消费既有组件与既有 token，未改
+`tokens.json`、颜色字面量、runtime／schema／ABI、state/store/port/command、图标或依赖。
+
+变更面：
+
+- `src/styles.css`：CaseRail 父级消费 `--control-weight-emphasized`（510），子级消费
+  `--control-weight-regular`（400），展开区以可数缩进表达且移除连接线；Pi Work 使用既有
+  `--home-section-gap`（20px）与 `--control-gap`（6px），事实集合改为语义列宽 grid；非提案
+  账行压缩为「动作同头、详情跨列」，提案保留唯一既有 `--bg-surface` 主面；移动端事实列只在
+  760px 断点收为两列。
+- `tests/e2e/gui-hierarchy-1.spec.ts`：5 枚真跑结构断言（GH-C01-a…e）。
+- `scripts/assert-gui-hierarchy.mjs`：锁父子字重／缩进、节间节内 token、事实列／无竖线、唯一
+  elevation；已接入 `lint:hierarchy` 与 `test:e2e` 静态链。
+- `scripts/assert-test-count.mjs`：按现行 `playwright test --list` 的 Total 407，将既有 402 基线
+  floor 升至 407（新增 5 例；不沿用陈旧的 391）。
+
+UI Skills 窄审计的 source trace：route 为 `App → Work → PiLanePanel`，layout 为
+`PiLanePanel .pi-thread-viewport → .pi-turn → .pi-tool-card`，component 为既有
+`CaseRail`／`PiToolCard`／`PiLanePanel`，style source 为 `styles.css`，token source 为既有
+`--control-weight-*`、`--control-gap`、`--home-section-gap` 与 `--elevation-shadow`；没有安装或
+引入第三方 UI 依赖。
+
+TDD／门证据：首轮基线定向跑为 `4 failed / 1 passed`：GH-C01-a 实得连接线 `1px`、GH-C01-b
+节间／节内比值 `2`、GH-C01-c 实得 `flex`、GH-C01-e 视口内仅 `6` 行；GH-C01-d 的既有唯一
+elevation 正常通过。最小实现后同一票谱 `5 passed`。结构门 `node scripts/assert-gui-hierarchy.mjs`
+通过。1440×900 密度断言为视口内至少 `8` 行真实工作信息。
+
+本票四类 mutation 均须在实现后单独注入并记录红证，再复原：第二档 `box-shadow`、色值字面量、
+等宽 `repeat(4, …)` 事实列、展开区连接线；独立验收会话仍需在 clean worktree 重跑并补视觉矩阵
+（light 1180／1440／390 × empty／running／proposal／succeeded、dark 1440 smoke 与 squint）。
+
+实现会话已实际完成上述四类 mutation 的红证并复原：第二档 shadow 使 GH-C01-d 结构门退出 1，
+`#123456` 使 `lint:neutral` 以未声明色退出 1，等宽 `repeat(4, …)` 使 GH-C01-c 退出 1，连接线
+使 GH-C01-a 退出 1。视觉矩阵已在独立端口生成 13 帧，留在
+`release/evidence/gui-hierarchy-1-2026-08-23/`（不覆盖历史 evidence），并对 1440 proposal 帧做了
+临时 240px squint 复核。该目录只证明 scripted browser projection，不替代独立验收的 clean-worktree
+复跑、真实 Tauri/WKWebView 或 product-live 证据。
 
 ## 七、架构复裁 · 回归本源（2026-08-22）
 

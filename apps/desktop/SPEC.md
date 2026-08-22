@@ -5600,3 +5600,18 @@ site guard **112/112**、官方 Playwright **402/402** 全绿；light 三视口�
 E2E 7/7、root 183 files / 2251 tests、site guard 112/112、官方 Playwright 402/402，两枚
 mutation 均实际红后复原；no-ff 清账锚为 `f8845d8`。本票不更新 `current.md`，不替代
 `PI-BASE-GUI-ACCEPT`。
+
+## GUI-HIERARCHY-1 · Pi Work 与 CaseRail 结构层级
+
+GUI-HIERARCHY-1 在既有 CaseRail、PiToolCard 与 PiLanePanel 上建立结构层级：父级消费既有
+`--control-weight-emphasized`（510），子级消费 `--control-weight-regular`（400），父子以可数
+缩进区分且展开区不画连接线；Pi Work 的节间距消费既有 `--home-section-gap`，节内行距消费
+`--control-gap`；多事实集合沿 `.file-ops-table` 的列对齐方式改为无边框 grid；非提案工具账行
+压缩为动作同头、详情跨列，提案继续消费唯一既有 `--bg-surface`。本票不增加颜色、图标、组件、
+依赖、状态／端口／命令或第二档 elevation。
+
+实现层静态门为 `scripts/assert-gui-hierarchy.mjs`（亦由 `lint:hierarchy` 与 `test:e2e` 调用），
+真跑结构锁为 `tests/e2e/gui-hierarchy-1.spec.ts` 的 GH-C01-a…e 五例；按现行
+`playwright test --list` 实测 Total 407，floor 由既有 402 基线升至 407（不沿用陈旧的 391）。
+实现会话回执与待独立验收范围见 `specs/GUI-HIERARCHY-1.md` §六；独立验收须在
+clean worktree 重跑 mutation、全套门与指定视觉矩阵，本节不宣称已放行。

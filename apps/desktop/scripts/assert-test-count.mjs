@@ -102,7 +102,9 @@ const count = match ? Number(match[1]) : 0;
 // 逐份材料成行，模型漏行由系统补 `缺行·系统补记`）——386 + 2 → 388。数字由 `--list` 实跑核。
 // WORK-AGENT-GUI-1：顶层 Chat | Work | Scenes、未加载 CTA 与 Working folders 均落 Pi Work
 // 三条 scripted-route 回归锁 +3 → 391；旧伪 WorkDraft E2E 被同意图 Pi 路由断言原位置换，不计增量。
-const minimum = 391;
+// GUI-HIERARCHY-1：在现行 `playwright test --list` 的 composition 基线 402 上新增
+// CaseRail 层级 / Pi 节奏 / 事实列 / elevation / 密度 +5；当前实测 Total 407。
+const minimum = 407;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
