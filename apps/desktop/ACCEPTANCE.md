@@ -8348,3 +8348,79 @@ product-live 证据。
 恢复；定向 **5/5**、完整 **407/407**、root **2251/2251**、lint、build 与 site guard 全部通过。
 因此本 R1 **PASS**。本回执不更新 `current.md`，不扩张真实 provider、Tauri 或 product-live 成熟度
 声明。
+
+---
+
+## GUI-PAPER-THEMES-1 · 独立验收（2026-08-23，PASS）
+
+独立验收结论：**`PASS`，放行目标 `deb8074cb78a75afd466c4eecc5b90aa0025ad85`**。
+验收在全新 clean clone
+`/private/tmp/courtwork-gui-paper-themes-accept.5UiPYz/repo` 完成；未在共享主树 checkout、stash、restore
+或写入。本回执只追加本文件，不修改 `current.md`、SPEC、readiness 或产品实现。
+
+### Source boundary
+
+- 目标链为 `202484f9ca4fb79a2d0986a09ba11fc826b8977b` →
+  `a4a44b1e840dfbd1ed4ba578fd8dc6b18d2fa5b9` →
+  `deb8074cb78a75afd466c4eecc5b90aa0025ad85`。
+- `0857499..deb8074` 的变更审计限于 paper-theme token/style、既有 icon/graph/site consumer、生成/契约
+  测试、capture/evidence 与 SPEC/readiness/receipt 文档；无组件 DOM/layout、runtime/store/schema/
+  provider、dependency/package/lock、Work diff 或 `current.md` 扩张。禁区路径扫描：**无命中**。
+- 本票冻结的双宗事实保持：同一 DOM/layout；深宗只切换 root token map；无第二 design system、无新
+  semantic slot、无暗宗 geometry branch。
+
+### 实跑门
+
+| 门 | 独立实测 |
+|---|---|
+| theme/contract + de-slop | ticket 静态前链全部通过；neutral/elevation/signature/motion/design-md/schema/skin/app-highwater 全绿；`deslop: PASS`（1216 active text files） |
+| Pages/site guard | `pnpm site:guard`：**116 tests / 116 pass / 0 fail**；release-truth、VERSIONAL-LANG 全绿 |
+| root tests | `pnpm test`（提升权限复跑）：**183 files / 2251 tests passed**，EXIT 0 |
+| root lint | `pnpm lint`：EXIT 0 |
+| workspace build | `pnpm -r build`：EXIT 0，15/16 workspace scope；desktop Vite **4316 modules**，仅既有 dynamic-import/large-chunk advisory |
+| 完整 desktop E2E | 静态 prechain 通过；fresh port `19961`、Playwright `reuseExistingServer:false`，直接 `pnpm exec playwright test --workers=1`：日志明确 **Running 407 tests using 1 worker**，**407 passed（7.9m）**，EXIT 0 |
+
+此前 `pnpm test:e2e -- --workers=1` 因 package script 参数拼接实际启动 4 workers，虽得 407/407，已单列为辅助证据；最终放行只计入上方直接 Playwright 的 1-worker fresh run。
+
+### Mutation 红证、复原与反例
+
+五枚反例均在 clean clone 以 `apply_patch` 临时注入，观察 guard 变红后逐项精确复原；日志目录为
+`/private/tmp/courtwork-gui-paper-themes-accept.5UiPYz/`。
+
+| 类别 | 实际红证 | 复原 |
+|---|---|---|
+| 旧 light ink | `--text-primary: #272c31` → `GLW-C01 ... --text-primary`，EXIT 1 | 恢复 `#24303C` |
+| 旧 magnetic-navy dark surface | `--bg-surface: #16202f` → `GUI-PAPER-C01 ... --bg-surface`，EXIT 1 | 恢复 `#1C2024` |
+| 旧 blue dark selected | `--bg-selected: #233965` → `GUI-PAPER-C01 ... --bg-selected`，EXIT 1 | 恢复 `#313941` |
+| ordinary chrome 借 semantic blue | `--control-hover: #2563eb` → `GUI-PAPER-C01 ... --control-hover`，EXIT 1 | 恢复 `#30363C` |
+| dark theme geometry/layout branch | 注入 dark root `grid-template-columns`；deslop theme-boundary **2 errors**，EXIT 1 | 移除 branch，deslop 恢复 PASS |
+
+此前要求的 decorated/card regression 也实际注入并验证：在普通 card 加第二层 shadow 后 elevation/de-slop guard
+变红，移除后恢复；该反例未改变最终源树。
+
+### Fresh 26-frame evidence
+
+独立 port `19970` 的 fresh Vite server 驱动 `capture-gui-paper-themes-1.mjs`，未采信实现者截图；覆盖
+light/dark × 1180/1440/390 × empty/running/proposal/succeeded，加 light/dark 240px proposal squint，
+共 **26 PNG**。证据目录：
+`/private/tmp/courtwork-gui-paper-themes-accept.5UiPYz/fresh-evidence/`；机器记录：
+`matrix.json`。
+
+- `screenshots=26`；尺寸为 1180×860、1440×900、390×844，squint 为 240×520。
+- `horizontalOverflowFree=true`；390 帧逐帧无横溢。
+- `allBoundingBoxesIsomorphic=true`：13 组 light/dark 比较、零 mismatch，证明两宗共用同一 DOM/layout。
+- 人工 squint/代表帧复核：铅黑深宗、冷白浅宗的层级/密度/工具账/提案席可辨，未见 Demo 卡片堆叠或暗宗另起几何。
+
+E2E 期间仓内既有 release evidence PNG 被测试重采为 18 个 unstaged 工作树改动；它们未暂存、未纳入本验收提交，
+fresh 26 帧均保留在上述临时证据目录；共享主树仍未触碰。
+
+### AA 与放行裁定
+
+fresh 1-worker E2E 的双宗三 surface AA 读数均通过：light `--text-primary` 最严面 **12.2004**、
+`--text-secondary` **5.7737**、`--text-tertiary` **4.7426**；dark `--text-primary` **11.8558**、
+`--text-secondary` **8.0403**、`--text-tertiary` **5.4220**。dark semantic foreground 使用既定 neutral
+fg，不把 ordinary chrome 借为 blue；semantic blue 仅留给既有 focus/semantic 使用。
+
+source boundary、exact theme/de-slop contract、五枚 mutation、decorated/card 回归、fresh 26 帧矩阵、
+root 2251、site guard 116、build、lint 与最终 **407/407（1 worker）** 全部通过。因此本票 **PASS**。
+本回执不宣称真实 Tauri/WKWebView、provider 或 product-live 成熟度，也不更新 `current.md`。
