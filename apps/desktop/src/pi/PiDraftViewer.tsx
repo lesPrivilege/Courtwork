@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { ChatMarkdown } from '../chat/ChatMarkdown';
+import { Icon } from '../workbench/Icon';
 import { PI_COPY } from './pi-copy';
 import type { PiLaneFailure, PiWorkspaceMarkdown } from './pi-lane-port';
 
@@ -100,7 +101,10 @@ export function PiDraftViewer({
       {state.view && (
         <div className="pi-viewer-body" data-testid="pi-viewer-body">
           <details className="pi-viewer-details" data-testid="pi-viewer-details">
-            <summary>{PI_COPY.viewerDetails}</summary>
+            <summary>
+              <Icon name="chevron-right" scope="turn" />
+              {PI_COPY.viewerDetails}
+            </summary>
             <dl className="pi-viewer-meta">
               <div>
                 <dt>{PI_COPY.bytesLabel}</dt>

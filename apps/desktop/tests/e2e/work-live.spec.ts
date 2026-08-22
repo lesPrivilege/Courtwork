@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { compileDraftToDocx } from '@courtwork/output';
-import { openWorkbench } from './helpers';
+import { createNamedCase, openWorkbench } from './helpers';
 
 /**
  * WORK-LIVE-1：grant（真实）案的 production 合同审查全链——run → 真实 RiskList → live gate 逐条审阅
@@ -226,7 +226,8 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
 
 /** 切到演示案再切回目标 grant 案：清空 workSessionId（React 态），持久指针（localStorage）与会话内宿主信封存活。 */
 async function switchAwayAndBack(page: Page, grantCaseId: string) {
-  await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
+  // Sample 是只读、只在真实案出现前提供的瞬态入口；显式创建真实中转案完成同一切案动作。
+  await createNamedCase(page, '合同切换中转案');
   await page.getByTestId(`case-card-${grantCaseId}`).locator('button.case-card-main').click();
   await page.getByTestId('segment-work').click();
   // 重新打开审查工作面（切案后 grant 案 preview 关闭）——恢复入口据持久指针在此重现。

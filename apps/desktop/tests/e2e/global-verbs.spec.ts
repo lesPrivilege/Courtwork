@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { createNamedCase, openWorkbench } from './helpers';
 
 test.describe('AI 消息复制', () => {
   test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
@@ -9,7 +9,7 @@ test.describe('AI 消息复制', () => {
     const card = page.locator('.data-card').first();
     const copyButton = card.locator('.copy-button');
     await expect(copyButton).toHaveCSS('opacity', '0');
-    await card.hover();
+    await copyButton.hover({ force: true });
     await expect(copyButton).toHaveCSS('opacity', '1');
     await copyButton.click();
     await expect(copyButton).toContainText('已复制');
@@ -91,6 +91,7 @@ test.describe('新建案件', () => {
 test.describe('归档案件', () => {
   test('popover 轻确认归档并可逆', async ({ page }) => {
     await openWorkbench(page);
+    await createNamedCase(page, '可归档真实案');
     const card = page.locator('.case-card').first();
     await card.hover();
     await card.getByTestId('archive-trigger').click();
@@ -105,6 +106,7 @@ test.describe('归档案件', () => {
 
   test('取消不改变归档状态', async ({ page }) => {
     await openWorkbench(page);
+    await createNamedCase(page, '取消归档真实案');
     const card = page.locator('.case-card').first();
     await card.hover();
     await card.getByTestId('archive-trigger').click();
@@ -228,6 +230,7 @@ test.describe('命令面板', () => {
     await dialog.getByRole('textbox', { name: '案件名称' }).fill('周七诉吴八借款纠纷');
     await dialog.getByRole('button', { name: '创建案件' }).click();
     await page.getByTestId('segment-work').click();
+    await createNamedCase(page, '临江精铸');
     await page.keyboard.press('Meta+K');
     await page.getByRole('option', { name: '临江精铸', exact: false }).click();
     await expect(page.locator('.case-card.selected')).toContainText('临江精铸');

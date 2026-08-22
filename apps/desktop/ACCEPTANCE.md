@@ -8160,3 +8160,55 @@ fresh `19972` 实跑通过。
 
 最终只追加本验收记录；未修改实现、token、消费面、截图资产、runtime/schema/ABI/provider、
 `docs/status/current.md` 或成熟度口径。
+
+---
+
+## GUI-COMPOSITION-1 · 独立验收（2026-08-22，PASS）
+
+独立验收结论：**`PASS`**，仅放行 `GUI-COMPOSITION-1` 冻结的 scripted Pi Work 构图、密度与
+语料纠偏范围。验收者未参与实现；在独立 clean worktree
+`/private/tmp/courtwork-gui-bounded-accept` 对 target
+`bd6b9166d7ae93d5a305f4b0c968046679b85c5d` 实跑，未在共享脏树 checkout／stash。本票不替代
+`PI-BASE-GUI-ACCEPT`，不证明真实 WKWebView／DeepSeek／AX 或 product-live。
+
+### 实跑门
+
+| 门 | 独立实测 |
+|---|---|
+| ticket lints | `lint:design-md/neutral/rp211/elevation/graph/typography/layout-converge/ui-surface/voice/work-agent-gui/rule-grammar` 全绿；线级账读数为主界 4、次界 91、routine 退 19、具名不换 73 |
+| Pi DOM | `PiLanePanel.dom.test.ts`：**17/17** |
+| ticket E2E | fresh port `19973`：`gui-composition-1.spec.ts` **7/7** |
+| root tests | `pnpm test`：**183 files / 2251 tests passed** |
+| root lint / build | `pnpm lint` EXIT 0；`pnpm -r build` EXIT 0，15/16 workspace scope，desktop Vite 4503 modules，仅既有 advisory warning |
+| Pages 同源门 | `pnpm site:guard`：**112 passed / 0 failed**，后续串联门全部 PASS |
+| 完整 Playwright | 官方 `test:e2e`，fresh port `19981`：前置静态链全绿，**402/402 passed（4.5m）** |
+| hygiene | `git diff --check` EXIT 0；full E2E 按既有副作用覆写的四个历史 evidence 目录已精确还原，tracked 产品树相对 target 零 diff |
+
+颜色硬边界另以 `git diff ee7bbd1 -U0` 独立扫描：新增／删除行中的 `#RRGGBB`、`rgb(`、`hsl(`
+为零；`--color-* / --bg-* / --text-* / --border-*` 定义增删同为零。`--pi-content-measure`
+仍为 `760px`。
+
+### 视觉矩阵
+
+fresh port `19976` 驱动仓内 `capture-gui-composition-1.mjs`，验收侧在 `/private/tmp` 重摄完整
+**13 帧**：light 1180／1440／390 × empty／running／proposal／succeeded，加 dark 1440 proposal
+smoke。每帧落盘前均实测 `data-theme` 等于预期；验收侧用 `view_image` 检查代表帧：案件名无重复
+pill／「当前工作区」，summary 消费既有 chevron，placeholder 中性，拒绝写入为无围合次级动作，
+390 任务／决定／composer／结果均可见且零横溢，dark 与 light 构图同构。
+
+两项实现回执已主动上报的观感继续登记为**非阻断观察**：短会话空白移到 composer 下方（1440
+empty 约 570px），proposal surface 仍为 732/760px。冻结票 §4 已把本票精确判据限定为「最后正文
+内容到 composer ≤20px」与「工具行小于正文轴且有内缩＋minor line」，本轮实测分别通过；更强的
+右栏／空场架构与更窄决定簇不得由验收改契约，仍交后继 `GUI-WORK-RAIL-1`／架构票判断。
+
+### 反例注入与复原
+
+两枚反例均用 `apply_patch` 临时注入、在 fresh 端口实际变红后精确恢复：
+
+| 反例 | 红证 | 恢复绿证 |
+|---|---|---|
+| `.pi-tool-card` 左右 margin 归零，恢复满正文轴色块 | port `19974` 的 `GC-C01-c` **1 failed**：期望 `<752`，实得 `760` | full E2E 内该枚及 ticket 7 格全绿 |
+| `inputPlaceholder` 注回旧示范句 | port `19975` 的 `GC-C01-e` **1 failed**：收到逐字旧句 | full E2E 内该枚及 ticket 7 格全绿 |
+
+最终只追加本验收记录；未修改实现、SPEC、token、截图资产、runtime/schema/ABI/provider、
+`docs/status/current.md` 或成熟度口径。

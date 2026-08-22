@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { connectProvider, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, openWorkbench } from './helpers';
 
 // —— RP-2.11 chat|work 二段 + 顶栏秩序 + 字符推理（docs/decisions/ADR-005-data-security.md 修正二 · 中间档） ——
 
@@ -38,6 +38,7 @@ test('chat 面内存态会话：发送即入会话；存入桥接容器化仪式
 
 test('① 案件标题居顶栏（与红绿灯同排），不在 chat 头，且可编辑持久化', async ({ page }) => {
   await openWorkbench(page);
+  await createNamedCase(page, '可编辑真实案');
   await expect(page.getByTestId('chat-titlebar').getByTestId('chat-case-title')).toBeVisible();
   await expect(page.getByTestId('chat-case-head').getByTestId('chat-case-title')).toHaveCount(0);
   await page.getByTestId('chat-case-title').dblclick();

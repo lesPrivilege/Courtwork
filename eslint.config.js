@@ -30,6 +30,7 @@ export default tseslint.config(
     // 截图脚本中的 page.evaluate 回调在浏览器上下文执行。
     files: [
       'apps/desktop/scripts/capture-finale-audit.mjs',
+      'apps/desktop/scripts/capture-gui-composition-1.mjs',
       'apps/desktop/scripts/capture-pi-lane-states.mjs',
     ],
     languageOptions: {

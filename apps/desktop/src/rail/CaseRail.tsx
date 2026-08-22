@@ -11,6 +11,7 @@ import { CONTAINERIZE_COPY } from '../composer';
 import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { MaterialsZone } from '../system/MaterialsZone';
+import type { StoredMaterial } from '../material/material-ref';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
 import { BrandMarkIcon } from '../icons/custom-icons.generated';
@@ -308,12 +309,17 @@ export function CaseRail({
               </>
             )}
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
-            {/* PACK-INTERACT-1 ①：matter 设置处的加载动作——垂类包节（状态 + 管理入口）。 */}
+            {/* PACK-INTERACT-1 ①：matter 设置处的加载动作——垂类包节（状态 + 管理入口）。
+                GUI-COMPOSITION-1 GC-C01-g：本案一件原件都没有、且未加载垂类包时，两条空态并作
+                一条——三项事实（无原件 / 未加载垂类包 / 通用能力可用）一项不丢，只改其呈现为一处。
+                行内件数是常驻元数据（件数非零时同样在场），不属空态，故不并入。 */}
             {!demo && packState && (
               <div className="rail-pack-section" data-testid={`rail-pack-${item.id}`}>
-                <p className="rail-label">垂类包</p>
+                {!railEmptyMerged(packState, materialsByCase[item.id]) && <p className="rail-label">垂类包</p>}
                 <p className="rail-pack-state" data-testid={`rail-pack-state-${item.id}`}>
-                  {packState.loadedIds.length === 0
+                  {railEmptyMerged(packState, materialsByCase[item.id])
+                    ? '尚无卷宗原件 · 未加载垂类包，通用能力可用'
+                    : packState.loadedIds.length === 0
                     ? '未加载垂类包 · 通用能力可用'
                     : packState.invalidId !== undefined
                       // 缺宿主目录条目：不得说「已加载」——那是把装配缺陷伪装成正常态。
@@ -335,7 +341,7 @@ export function CaseRail({
             )}
             {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）。DEBT-DOSSIER-1 件二：清单按本行 caseId
                 取用（不再只有选中案有数），空列表与「尚未读取」由 MaterialsZone 分别如实呈现。 */}
-            {!demo && (
+            {!demo && !(packState && railEmptyMerged(packState, materialsByCase[item.id])) && (
               <MaterialsZone materials={materialsByCase[item.id]} onVerify={onVerifyMaterial} onRead={onReadMaterial} />
             )}
           </div>
@@ -455,4 +461,17 @@ export function CaseRail({
       </div>
     </aside>
   );
+}
+
+/**
+ * `GUI-COMPOSITION-1` GC-C01-g：展开区两条空态是否并作一条。
+ *
+ * 判据是「本案确已读取且一件原件都没有」＋「未加载任何垂类包」——`materials === undefined`
+ * 是「尚未读取」而非「0 件」（DEBT-DOSSIER-1 件二），故不并、由 MaterialsZone 照实说未读取。
+ */
+function railEmptyMerged(
+  packState: { loadedIds: readonly string[] },
+  materials: StoredMaterial[] | undefined,
+): boolean {
+  return packState.loadedIds.length === 0 && materials !== undefined && materials.length === 0;
 }

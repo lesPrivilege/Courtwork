@@ -16,7 +16,6 @@ export const PI_COPY = {
   unavailableBody: '模型或凭据不可用 · 请先打开模型设置恢复连接',
   bindFolderAction: '绑定文件夹',
   openModelSettingsAction: '打开模型设置',
-  matterContextLabel: '当前工作区',
   runDetails: '运行详情',
   toolLabel: '工具',
   actionLabel: '动作',
@@ -30,11 +29,11 @@ export const PI_COPY = {
   startAction: '开始一段工作',
   restartAction: '另起一段工作',
   starting: '正在准备运行环境…',
-  running: '工作中…',
+  running: '工作中',
   stopAction: '停止本次运行',
   sendAction: '发起工作',
   inputLabel: '要整理什么',
-  inputPlaceholder: '例如：把案件材料里的合同编号与金额整理成一份纪要',
+  inputPlaceholder: '说清这一段要做完的事',
 
   /** 逐次授权（§1 动词+名词；不用裸「确认」）。 */
   proposalTitle: '待你决定：写入工作稿',

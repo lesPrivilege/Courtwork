@@ -1,3 +1,4 @@
+import { Icon } from '../workbench/Icon';
 import { PI_COPY } from './pi-copy';
 import type { PiToolCallView } from './pi-projection';
 
@@ -12,6 +13,8 @@ import type { PiToolCallView } from './pi-projection';
  *    核验结果照实显示，永不补写成成功（ADR-022 六-D）。
  * 3. **朱砂稀缺**（设计凡例 §12）：只有拒绝／失败／无法确认三态带红记号；
  *    运行中与已写入都是冷中性，无风险即整屏无红。
+ * 4. **主次分级**（`GUI-COMPOSITION-1` GC-C01-h）：允许写入是主动作，拒绝写入走既有次级语汇
+ *    （`.pi-button-quiet`），不再与主动作对称成两枚等权 CTA；红只留在拒绝语义上，不加不减。
  */
 export function PiToolCard({
   call,
@@ -63,7 +66,10 @@ export function PiToolCard({
       </header>
 
       <details className="pi-tool-details" data-testid="pi-tool-details">
-        <summary>{PI_COPY.runDetails}</summary>
+        <summary>
+          <Icon name="chevron-right" scope="turn" />
+          {PI_COPY.runDetails}
+        </summary>
         <dl className="pi-tool-facts">
           <div>
             <dt>{PI_COPY.toolLabel}</dt>
@@ -108,7 +114,7 @@ export function PiToolCard({
               </button>
               <button
                 type="button"
-                className="pi-button pi-button-deny"
+                className="pi-button pi-button-quiet pi-button-deny"
                 data-testid="pi-deny"
                 onClick={() => call.proposal && onDecide(call.proposal.operationId, 'deny')}
               >

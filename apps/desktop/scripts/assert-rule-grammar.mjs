@@ -47,6 +47,8 @@ const MINOR = {
   '.originals-list li|bottom': '行分隔',
   '.gallery-ledger li|bottom': '行分隔',
   '.gallery-timeline li|left': '行分隔（时间轴轨）',
+  // GUI-COMPOSITION-1 GC-C01-c：工具记录退为账行——竖界只标「这几行是同一笔账」，属段内分隔。
+  '.pi-tool-card|left': '账行界行（同一笔工具记录的段内分隔）',
   '.interaction-anchor|bottom': '行分隔',
   '.relation-list button|bottom': '行分隔',
   '.file-ops-table th, .file-ops-table td|bottom': '单元格网格',
@@ -249,8 +251,8 @@ const EXEMPT = {
 
 const failures = [];
 
-// ── P1 签署账：113 行逐界提案必须完整、唯一并与三分类账逐项同构 ──────────────
-// 这里仍是已批准的平铺映射：不引入新分类或状态机，只把 M01–M08 / N001–N105
+// ── P1 签署账：114 行逐界提案必须完整、唯一并与三分类账逐项同构 ──────────────
+// 这里仍是已批准的平铺映射：不引入新分类或状态机，只把 M01–M08 / N001–N106
 // 与唯一消费点、档位、判词及批准后的精确消费值绑定。
 const P1_TARGET_PREFIX = 'apps/desktop/src/styles.css#';
 const p1Rows = (tierLedger.entries ?? []).filter((row) => /^P1-[MN]\d+$/.test(row.approvedProposalLine ?? ''));
@@ -291,18 +293,18 @@ for (let index = 1; index <= 8; index += 1) {
   const line = `P1-M${String(index).padStart(2, '0')}`;
   if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
 }
-for (let index = 1; index <= 105; index += 1) {
+for (let index = 1; index <= 106; index += 1) {
   const line = `P1-N${String(index).padStart(3, '0')}`;
   if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
 }
-if (p1Rows.length !== 113) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 113`);
+if (p1Rows.length !== 114) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 114`);
 // VERSIONAL-LANG-2 的五条 routine 线经覆议从 P1「留/minor」迁为「退/none」；
-// 行数仍是 113，统计随逐行旧账迁移更新，不靠删除旧 P1 行掩盖历史。
-if (classCounts.major !== 4 || classCounts.minor !== 90 || classCounts.none !== 19) {
-  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/90 · 退 ${classCounts.none}/19`);
+// 行数仍是封闭签署账，统计随逐行旧账迁移更新，不靠删除旧 P1 行掩盖历史。
+if (classCounts.major !== 4 || classCounts.minor !== 91 || classCounts.none !== 19) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/91 · 退 ${classCounts.none}/19`);
 }
-if (decisionCounts['留'] !== 81 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 19) {
-  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/81 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/19`);
+if (decisionCounts['留'] !== 82 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 19) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/82 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/19`);
 }
 for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR), ...Object.keys(RETIRED)]) {
   if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);
