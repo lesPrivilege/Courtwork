@@ -8212,3 +8212,65 @@ empty 约 570px），proposal surface 仍为 732/760px。冻结票 §4 已把本
 
 最终只追加本验收记录；未修改实现、SPEC、token、截图资产、runtime/schema/ABI/provider、
 `docs/status/current.md` 或成熟度口径。
+
+---
+
+## GUI-HIERARCHY-1 · 独立验收（2026-08-23，REJECT）
+
+独立验收结论：**`REJECT`，不放行 `a1e25d483c525507e54617cc744801cbe4d2da63`**。验收者未参与
+实现；在 clean clone `/private/tmp/courtwork-gui-hierarchy-accept.rrw5xA/repo` 对目标 SHA 实跑，
+共享主树未 checkout、stash、restore 或写入。本票没有 `fix-by-acceptance`：唯一阻塞是权威线级账本
+与实现的契约级漂移，验收会话不得自行改写。
+
+### 实跑门
+
+| 门 | 独立实测 |
+|---|---|
+| 结构静态门 | `lint:hierarchy`：PASS；`assert-gui-hierarchy.mjs`：PASS |
+| Playwright 列举 | `playwright test --list`：**407 tests / 77 files**；`assert-test-count` floor 407 通过 |
+| 定向 GUI-HIERARCHY | fresh port `19851`、`reuseExistingServer:false`、**5/5 passed**（7.7s） |
+| root tests | sandbox 首轮因 sidecar loopback `EPERM` 为 182/183 files、2241/2251 passed；提升权限复跑 **183 files / 2251 tests passed**（EXIT 0） |
+| root lint | `pnpm lint`：**EXIT 0** |
+| workspace build | `pnpm -r build`：**EXIT 0**，15/16 workspace scope；desktop Vite 4316 modules，仅既有 chunk advisory |
+| Pages/site guard | `pnpm site:guard`：**112 passed / 0 failed**；neutral/elevation/skin/app-highwater 全绿 |
+| 完整 desktop E2E | **未进入 Playwright**：静态前链在 `assert-rule-grammar.mjs` 先 EXIT 1，不能虚报 407/407 |
+
+完整 E2E 的唯一目标相关红证为：`apps/desktop/scripts/assert-rule-grammar.mjs` 的 MINOR 清单仍含
+`.rail-case-expand|left`（约 `:130`），而实现按 `GUI-HIERARCHY-1` `GH-C01-a` 已将其改为
+`border-left: 0`。同一消费点在 `docs/design/r2-tier-ledger.json`（约 `:1209`）仍登记为
+`P1-N096 / decision=留 / ruleClass=minor / var(--rule-minor)`。输出为：
+`次界清单有陈项，styles.css 已无此消费点：.rail-case-expand|left`。这是契约/权威账本漂移，
+不是 sandbox 环境红；因此阻断放行。
+
+### 视觉矩阵
+
+验收侧没有采信实现提交中的截图。独立端口 `19860` fresh Vite server 驱动仓内
+`capture-gui-composition-1.mjs`，重新生成 light 1180／1440／390 × empty／running／proposal／
+succeeded 与 dark 1440 proposal smoke 共 **13 帧**，逐帧核对 `data-theme`。临时证据位于：
+`/private/tmp/courtwork-gui-hierarchy-accept.rrw5xA/fresh-evidence/`。
+
+人工查看代表帧及 240px squint：1180/1440/390 的标题—分组—工具账—composer 层次可辨，dark
+构图同构且无横溢；squint 临时缩图位于
+`/private/tmp/courtwork-gui-hierarchy-accept.rrw5xA/squint/`。这些是 scripted browser projection，
+不替代真实 Tauri/WKWebView、DeepSeek、AX 或 product-live 证据。
+
+### 反例注入、红证与复原
+
+以下 mutation 均在 clean clone 以 `apply_patch` 临时注入，实际观察变红后逐项复原；最终实现树
+`git status --short --branch` 恢复 clean。
+
+| 类别 | 实际注入与红证 | 复原结果 |
+|---|---|---|
+| 第二档 elevation | `styles.css` 加 `box-shadow: 0 0 1px var(--border)`；`lint:elevation` EXIT 1，GH-C01-d 结构门 EXIT 1 | 结构门、elevation 门恢复 PASS |
+| 任一颜色字面量 | `styles.css` 加 `color: #123456`；`lint:neutral` EXIT 1，报 tokens 未声明色 | neutral 门恢复 PASS |
+| 等宽 facts grid | `.pi-tool-facts` 注入 `repeat(4, minmax(0, 1fr))`；结构门 EXIT 1，报语义列宽缺失 | 原四列语义宽度恢复 PASS；运行时 GH-C01-c 单例本身仍 PASS，已如实记录其静态门区分力 |
+| rail 连接线 | `.rail-case-expand` 恢复 minor 左线；结构门 EXIT 1，独占 port `19853` 的 GH-C01-a **1 failed**（期望 `0px`，实得 `1px`） | 连接线移除后定向 PASS |
+| decorated/card regression | `.case-card.rail-row` 加 `box-shadow: var(--elevation-shadow)`；`lint:elevation` EXIT 1（消费白名单漂移），独占 port `19854` 的既有 de-slop E2E **1 failed**（期望 `none`，实得 rgba shadow） | card 装饰移除后 elevation/de-slop 恢复 PASS |
+
+### 放行裁定
+
+`GUI-HIERARCHY-1` 的五枚结构断言、四类 mutation、装饰回归和独立视觉矩阵均有证据；但目标提交
+不能通过仓库要求的完整 desktop 静态门。验收尝试用 `fix-by-acceptance` 同步 P1-N096 时，工具拒绝
+修改 `docs/design/r2-tier-ledger.json` 与 `assert-rule-grammar.mjs`，因为两者是权威规则账本/契约门，
+需要架构角色拍板。后续应由实现/架构会话在不改变 `GH-C01-a` 语义的前提下，同步该消费点的 retired/
+none 账与计数，再由新的独立验收会话复跑完整 Playwright；本报告不更新 `current.md`。
