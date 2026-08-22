@@ -17,7 +17,7 @@
 | 编号 | 帧上事实 | 代码锚点 |
 |---|---|---|
 | `GC-F1` | 1440×900 下内容止于 y≈540，其下约 360px 为纯底；composer 独立悬于底部 | `.pi-thread-viewport` 无内容时的纵向分布 |
-| `GC-F2` | rail 260 + 正文 `--pi-content-measure: 760px` 居中，1440 视口左右各余约 190／200px 死白，且 pi work 态无右栏 | `styles.css:161`、`styles.css:2112-2116` |
+| `GC-F2` | rail 260 + 正文 `--pi-content-measure: 760px` 居中，1440 视口左右各余约 190／200px 死白，且 pi work 态无右栏 | `styles.css:161`、`styles.css:2112-2116`。**本票不解，转出，见第七节** |
 | `GC-F3` | 工具卡灰底块与裸文本行齐平交替，块宽拉满版心，形态与骨架屏同构 | `.pi-tool-card`（`styles.css:2019`） |
 | `GC-F4` | 一屏三处同名：左上 `Work`、`当前工作区／设备采购案卷`、右上 binding pill | `pi-copy.ts:19`、`.pi-work-head-binding` |
 | `GC-F5` | placeholder 与首条用户消息逐字相同，均为「例如：…」示范句 | `pi-copy.ts:37` |
@@ -59,10 +59,8 @@
 
 实现者对每条给出最小改动，不得越出该条：
 
-- `GC-C01-a`（对 F2／F1）：`--pi-content-measure` 由定值 760px 改为**有上界的分档**——
-  正文轴 `min(100% - 2×安全边距, 上界)`，上界在 ≥1280px 视口取值须显著大于 760 且不超过 960，
-  精确值由实现者以 1180／1440／1600 三视口实测定，并在回执写明判准（每行字符数落在 40–52 个
-  中文字符区间）。760px 以下退回既有 16px 安全边距的行为不变。
+- `GC-C01-a`：**已撤销**（2026-08-22 架构裁定，见第七节）。`--pi-content-measure` 维持定值
+  760px，实现不得改动它。
 - `GC-C01-b`（对 F1）：thread 未成文区不得留成屏空场——运行中与待决态下，正文块与 composer
   之间的空隙不得超过一个既有 section 间距；空场以既有节奏收拢，**不得**用新增插画、卡片或占位块填充。
 - `GC-C01-c`（对 F3）：`.pi-tool-card` 退出满宽灰块形态，降为账行：保留既有 `bg.surface` 值，
@@ -80,19 +78,18 @@
 
 ## 五、TDD、视觉与验收
 
-实现者先写红：至少四枚断言须在 `01b6b57` 上实际红——正文轴宽度分档（`GC-C01-a`）、
+实现者先写红：至少四枚断言须在 `6b67857` 上实际红——同名标识一屏只现一次（`GC-C01-d`）、
 工具卡非满宽色块（`GC-C01-c`）、placeholder 中性（`GC-C01-e`）、拒绝动作为次级（`GC-C01-h`）。
 最小实现后运行：`lint:design-md`、`lint:neutral`、`lint:rp211`、`lint:elevation`、`lint:graph`、
 `lint:typography`、`lint:layout-converge`、`lint:ui-surface`、`lint:voice`、`lint:work-agent-gui`、
 `site:guard`、定向 Vitest、`pnpm lint`、`pnpm -r build`、独立端口 Playwright 全链、`git diff --check`。
 
-至少保留两枚 mutation：把 `--pi-content-measure` 注回定值 760px 必须红；把 placeholder 注回
-旧示范句必须红。
+至少保留两枚 mutation：把 `.pi-tool-card` 注回满版心色块必须红；把 placeholder 注回旧示范句
+（`例如：把案件材料里的合同编号与金额整理成一份纪要`）必须红。
 
-视觉证据：light 1180／1440／1600／390 四视口 × empty／running／proposal／succeeded 状态矩阵，
+视觉证据：light 1180／1440／390 三视口 × empty／running／proposal／succeeded 状态矩阵，
 另补一枚 dark 1440 smoke 证明深宗未动；截图前须确认测试页已写 `data-theme`（`GUI-LEAD-WHITE-1`
-的首帧失真判例）。核对：无成屏空场、正文轴随视口展开且不越上界、工具行非灰块、一屏无同名重复、
-零横溢。
+的首帧失真判例）。核对：无成屏空场、工具行非灰块、一屏无同名重复、零横溢。正文轴宽度须与基线逐像素相同。
 
 独立验收必须由不同会话在 clean worktree、fresh 端口复跑机器门与同视口矩阵，实际注入构图与
 语料反例并复原；另须实跑颜色零改的验证（本票 diff 中无色值增删）。只可追加
@@ -102,3 +99,23 @@
 
 （待实现会话填写：角色、TDD 红证、mutation 命中、逐条 `GC-C01-a…h` 的取舍与实测值、
 全门绿证与实际读数、视觉矩阵 manifest、提交 SHA。）
+
+## 七、架构裁定 · `GC-C01-a` 撤销与 `GC-F2` 转出（2026-08-22）
+
+实现会话在写红测前先算了 `GC-C01-a` 的可满足性，报回互斥并停手。复核其实测成立：
+`--type-reading-size: 15px`（`styles.css:99`）是 Pi Work 正文轴（`.pi-turn-assistant .chat-markdown`，
+`styles.css:2015`），`--type-title-size: 18px` 只管用户话（`.pi-user-text`，`styles.css:2014`）；
+CJK advance 实测为 1em，故正文轴每行字符数 = 版心 ÷ 15。
+
+由此：40–52 字对应 600–780px，与「显著大于 760 且不超过 960」的交集只剩 (760, 780]。
+**该互斥是本票起草之误**——「显著大于 760」一句预设了一个并不存在的更大正文字号。
+
+裁定：**判准二存，判准一废**。现行 760px 已等于 50.7 字，本就落在 40–52 的舒适区内；把正文轴
+推到 900px 会使每行达 60 字，是排印上的退步。故 `GC-C01-a` 不是让步而是**撤销**：正文轴维持
+760px，实现不得改动 `--pi-content-measure`。
+
+`GC-F2` 的死白因此在本票内不解。它的真解须先判 Progress／Preview／Working folders／Context
+右栏在 pi work 态的存废，属布局架构变更，超出本票「构图＋密度＋语料，零新组件」的边界，
+**转出为后继票 `GUI-WORK-RAIL-1`**，须由架构以 ADR 级判断另立，不得借本票夹带。
+
+本裁定不改动 `GC-C01-b` 至 `h`，不改动第二节的允许／禁止范围，不放宽任何硬约束。
