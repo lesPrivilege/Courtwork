@@ -48,6 +48,26 @@ test('注入旧淡蓝 selected 时定点失败', () => {
   assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GLW-C01 Agent 冷白／铅灰浅宗漂移：--bg-selected/);
 });
 
+test('注入旧浅墨 primary 时定点失败', () => {
+  const mutated = desktopCss.replace('--text-primary: #24303c;', '--text-primary: #272c31;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GLW-C01 Agent 冷白／铅灰浅宗漂移：--text-primary/);
+});
+
+test('注入旧磁青 surface 时定点失败', () => {
+  const mutated = desktopCss.replace('--bg-surface: #1c2024;', '--bg-surface: #16202f;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GUI-PAPER-C01 Agent 铅黑／冷灰深宗漂移：--bg-surface/);
+});
+
+test('注入旧蓝 selected 时定点失败', () => {
+  const mutated = desktopCss.replace('--bg-selected: #313941;', '--bg-selected: #233965;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GUI-PAPER-C01 Agent 铅黑／冷灰深宗漂移：--bg-selected/);
+});
+
+test('把 semantic blue 挪作普通 chrome 时定点失败', () => {
+  const mutated = desktopCss.replace('--control-hover: #30363c;', '--control-hover: #2563eb;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GUI-PAPER-C01 Agent 铅黑／冷灰深宗漂移：--control-hover/);
+});
+
 test('注入 hero 宋体退回轻端时定点失败', () => {
   const mutated = css.replace('h1.zh-title { font-weight: 700; }', 'h1.zh-title { font-weight: 400; }');
   assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL2-T01 hero 标题/);
@@ -71,9 +91,9 @@ test('注入 composer focus 强边界透明时定点失败', () => {
   assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /composer focus 强边界退场/);
 });
 
-test('注入 Pages 磁青宗 token 漂移时定点失败', () => {
-  const mutated = css.replace('--bg-app: #0F1622;', '--bg-app: #101722;');
-  assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL3-C01 Pages 磁青宗色阶漂移/);
+test('注入 Pages 铅黑／冷灰深宗 token 漂移时定点失败', () => {
+  const mutated = css.replace('--bg-app: #121416;', '--bg-app: #131516;');
+  assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /GUI-PAPER-C01 Pages 铅黑／冷灰深宗色阶漂移/);
 });
 
 test('注入 Agent 重要标题 token 不同源时定点失败', () => {

@@ -25,20 +25,20 @@
 
 :root {
   font-family: var(--font-ui);
-  color: #272c31;
+  color: #24303c;
   background: #fafbfb;
   font-synthesis: none;
-  /* GUI-LEAD-WHITE-1：H=210° 低饱和铅墨派生，三级明度台阶 冷白底纸→铅灰竖栏→白纸 */
+  /* GUI-PAPER-THEMES-1：冷白纸面与藏青墨，三级明度台阶 冷白底纸→铅灰竖栏→白纸 */
   --bg-app: #fafbfb;
   --bg-surface: #f3f4f5;
   --bg-raised: #fff;
   --bg-hover: #eceeef;
-  /* GUI-LEAD-WHITE-1：hover / selected 以铅灰明度分档；普通 chrome 不借 semantic blue。 */
+  /* GUI-PAPER-THEMES-1：hover / selected 以铅灰明度分档；普通 chrome 不借 semantic blue。 */
   --control-hover: #e5e8e9;
   --bg-selected: #dde2e4;
-  --text-primary: #272c31;
-  --text-secondary: #586168;
-  --text-tertiary: #667078;
+  --text-primary: #24303c;
+  --text-secondary: #53616e;
+  --text-tertiary: #626e78;
   --text-disabled: #90989e;
   --border: #dce0e2;
   --border-strong: #c8ced1;
@@ -50,7 +50,7 @@
   --rule-minor: 1px;
   --rule-gap: 2px;
   --rule-ink: var(--border-strong);
-  --action-primary-hover: #3b4247;
+  --action-primary-hover: #344353;
   --generated: #fafbfb;
   --verified: #f0f4fe;
   --red-graphic: #a83226;
@@ -59,9 +59,9 @@
   --amber-graphic: #8f6420;
   --amber-fg: #8f6420;
   --amber-bg: #faf3e6;
-  /* VERSIONAL-LANG-3：重要标题的双宗语义别名。浅宗仍是冷墨；泥金只在深宗进入
+  /* VERSIONAL-LANG-3：重要标题的双宗语义别名。浅宗是藏青墨；泥金只在深宗进入
      欢迎题、案件题、设置总题与图谱总题，不进入正文、功能标签、schema 或数据。 */
-  --important-title: #272c31;
+  --important-title: #24303c;
   --text-inverse: #fafbfb;
   --blue-graphic: #2563eb;
   --blue-fg: #1d4ed8;
@@ -69,16 +69,15 @@
   --green-graphic: #16a34a;
   --green-fg: #15803d;
   --green-bg: #f0fdf4;
-  --slate-graphic: #586168;
-  --slate-fg: #586168;
+  --slate-graphic: #53616e;
+  --slate-fg: #53616e;
   --slate-bg: #f3f4f5;
   /* 朱＝印记色非状态色（2026-07-19 拍板）：绿保持全部既有语义位，朱只出现在人工裁决留下印记之处。
      绿答「它处于什么态」，朱答「谁把它按下去的」。法理之线封闭集由此五扩六 */
   --zhu-graphic: #be4b2f;
   /* 轨位切分（SKIN-DYSTOPIA-1 项 D）：graphic＝记号轨（线体/印记），fg＝文字轨。
-     §2「图形色与文字色分轨，文字必须使用满足对比度的 *.fg」——朱此前双宗都只有 graphic 一轨，
-     深宗的文字轨因此无处可取，只能借记号色，而记号色在深宗浮卡上只有 3.42:1。
-     浅宗 fg==graphic（循浅宗 red/amber/slate 三族先例，非新色）。 */
+     §2「图形色与文字色分轨，文字必须使用满足对比度的 *.fg」——朱在深宗使用独立 fg，
+     以新 raised 面重算；浅宗 fg==graphic（循浅宗 red/amber/slate 三族先例，非新色）。 */
   --zhu-fg: #be4b2f;
   /* —— 三轨字栈（docs/design/typography-density.md 发凡一；值单源于 tokens.json，排印门逐字锁）——
      标题轨＝思源宋 SC 双字重 / 文书轨＝朱雀仿宋 GBK / 功能轨＝系统栈（工具字，显式声明非默认继承）。
@@ -143,7 +142,7 @@
   /* detached chrome 次序照 macOS/Codex：交通灯 → sidebar/search → 内容；80px = 2×28px
      应用按钮 + 2×8px 组内 gap + 8px 内容净距。标题从该安全区之后起排。 */
   --window-chrome-detached-title-safe-inline: calc(max(0px, calc(var(--elevation-float-radius) - var(--mac-window-control-size) / 2)) + var(--mac-window-controls-group-width) + 80px);
-  --elevation-shadow: 0 1px 2px rgba(39,44,49,0.045), 0 4px 12px rgba(39,44,49,0.035);
+  --elevation-shadow: 0 1px 2px rgba(36,48,60,0.045), 0 4px 12px rgba(36,48,60,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
   --elevation-warn-fg: var(--amber-fg);
@@ -172,24 +171,24 @@
 }
 
 :root[data-theme='dark'] {
-  color: #e4e9f1;
-  background: #0f1622;
-  --bg-app: #0f1622;
-  --bg-surface: #16202f;
-  --bg-raised: #223047;
-  --bg-hover: #404d63;
-  --control-hover: #4b586d;
-  --bg-selected: #233965;
-  --text-primary: #e4e9f1;
-  --text-secondary: #a9b4c6;
-  --text-tertiary: #8b99b0;
-  --text-disabled: #4c5a70;
-  --text-inverse: #0f1622;
-  --border: #2a3a52;
-  --border-strong: #3e5270;
+  color: #e8ecef;
+  background: #121416;
+  --bg-app: #121416;
+  --bg-surface: #1c2024;
+  --bg-raised: #272c31;
+  --bg-hover: #2b3035;
+  --control-hover: #30363c;
+  --bg-selected: #313941;
+  --text-primary: #e8ecef;
+  --text-secondary: #bcc5cb;
+  --text-tertiary: #98a2aa;
+  --text-disabled: #626c73;
+  --text-inverse: #121416;
+  --border: #343b41;
+  --border-strong: #465058;
   --border-focus: #6a94f1;
   --action-primary-hover: color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised));
-  --generated: #0f1622;
+  --generated: #121416;
   --verified: color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised));
   --red-graphic: #b5382f;
   --red-fg: #de8881;
@@ -2006,11 +2005,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-run-facts dt { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-run-facts dd { min-width: 0; margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); overflow-wrap: anywhere; }
 
-/* 核验类文字（编号、字节、hash、索引标题）一律走 secondary 而非 tertiary：
-   深宗的 `text.tertiary` 在三种底面上分别是 4.28 / 3.87 / 3.14，均低于 AA 4.5——那是
-   token 层的既有事实（浅宗已闭合，深宗按 tokens.json 保留原值），不是本面能单方面改的。
-   本面因此把「要读来核对的数字」移出 tertiary，只把补充性提示留在那一档；
-   深宗 tertiary 的 AA 属另单 [需架构拍板]。 */
+/* 核验类文字（编号、字节、hash、索引标题）优先走 secondary；补充性提示可走 tertiary。
+   GUI-PAPER-THEMES-1 按本宗唯一 raised 面复算：light tertiary 三面为 5.038 / 4.743 / 5.223，
+   dark tertiary 三面为 7.107 / 6.308 / 5.422，均闭合 AA 正文目标；数字仍可按信息重要度选择 secondary。 */
 .pi-mono { font-family: var(--type-dense-mono); font-variant-numeric: tabular-nums; }
 
 /* GUI-COMPOSITION-1 GC-C01-b：未成文区不留成屏空场——thread 按内容收拢（`flex: 0 1 auto`），

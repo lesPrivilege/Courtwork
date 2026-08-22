@@ -8,11 +8,11 @@ export const graphTokens = {
   surface: '#F3F4F5',
   hover: '#ECEEEF',
   selected: '#DDE2E4',
-  ink: '#272C31',
-  textSecondary: '#586168',
+  ink: '#24303C',
+  textSecondary: '#53616E',
   border: '#DCE0E2',
   borderStrong: '#C8CED1',
-  slate: '#586168',
+  slate: '#53616E',
   amber: '#8F6420',
 } as const;
 

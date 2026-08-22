@@ -28,9 +28,9 @@ export function validateVersionalSite({ html, css, desktopCss }) {
     ['--bg-app', '#FAFBFB'],
     ['--bg-surface', '#F3F4F5'],
     ['--bg-raised', '#FFFFFF'],
-    ['--text-primary', '#272C31'],
-    ['--text-secondary', '#586168'],
-    ['--text-tertiary', '#667078'],
+    ['--text-primary', '#24303C'],
+    ['--text-secondary', '#53616E'],
+    ['--text-tertiary', '#626E78'],
     ['--border-hairline', '#DCE0E2'],
     ['--border-strong', '#C8CED1'],
     ['--border-focus', '#2563EB'],
@@ -38,22 +38,23 @@ export function validateVersionalSite({ html, css, desktopCss }) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(root)) failures.push(`VL2-C01 Pages 浅宗色阶漂移：${property}`);
   }
   if (!/font-weight:\s*700/.test(heroTitle)) failures.push('VL2-T01 hero 标题未与四栏标题同用宋体 700 重端');
+  // VL3-C01|dark-tertiary: GUI-PAPER-1 keeps Pages on the exact lead-black/cool-gray slots.
   for (const [property, value] of [
-    ['--bg-app', '#0F1622'],
-    ['--bg-surface', '#16202F'],
-    ['--bg-raised', '#223047'],
-    ['--text-primary', '#E4E9F1'],
-    ['--text-secondary', '#A9B4C6'],
-    ['--text-tertiary', '#8B99B0'],
-    ['--border-hairline', '#2A3A52'],
-    ['--border-strong', '#3E5270'],
+    ['--bg-app', '#121416'],
+    ['--bg-surface', '#1C2024'],
+    ['--bg-raised', '#272C31'],
+    ['--text-primary', '#E8ECEF'],
+    ['--text-secondary', '#BCC5CB'],
+    ['--text-tertiary', '#98A2AA'],
+    ['--border-hairline', '#343B41'],
+    ['--border-strong', '#465058'],
     ['--border-focus', '#6A94F1'],
     ['--important-title', '#D9AE6A'],
   ]) {
-    if (!new RegExp(`${property}:\\s*${value}`, 'i').test(siteDark)) failures.push(`VL3-C01 Pages 磁青宗色阶漂移：${property}`);
+    if (!new RegExp(`${property}:\\s*${value}`, 'i').test(siteDark)) failures.push(`GUI-PAPER-C01 Pages 铅黑／冷灰深宗色阶漂移：${property}`);
   }
-  if (!/--important-title:\s*#272C31/i.test(root)
-      || !/--important-title:\s*#272c31/i.test(desktopLightRoot)
+  if (!/--important-title:\s*#24303C/i.test(root)
+      || !/--important-title:\s*#24303c/i.test(desktopLightRoot)
       || !/--important-title:\s*#d9ae6a/i.test(desktopDarkRoot)) {
     failures.push('VL3-C02 Agent／Pages 重要标题双宗 token 未同源');
   }
@@ -65,15 +66,49 @@ export function validateVersionalSite({ html, css, desktopCss }) {
     ['--bg-hover', '#eceeef'],
     ['--control-hover', '#e5e8e9'],
     ['--bg-selected', '#dde2e4'],
-    ['--text-primary', '#272c31'],
-    ['--text-secondary', '#586168'],
-    ['--text-tertiary', '#667078'],
+    ['--text-primary', '#24303c'],
+    ['--text-secondary', '#53616e'],
+    ['--text-tertiary', '#626e78'],
     ['--text-disabled', '#90989e'],
     ['--border', '#dce0e2'],
     ['--border-strong', '#c8ced1'],
+    ['--action-primary-hover', '#344353'],
   ]) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(desktopLightRoot)) {
       failures.push(`GLW-C01 Agent 冷白／铅灰浅宗漂移：${property}`);
+    }
+  }
+  if (!/--important-title:\s*#24303c/i.test(desktopLightRoot)) {
+    failures.push('GUI-PAPER-C01 Agent 浅宗重要标题未跟随藏青墨');
+  }
+
+  for (const [property, value] of [
+    ['--bg-app', '#121416'],
+    ['--bg-surface', '#1c2024'],
+    ['--bg-raised', '#272c31'],
+    ['--bg-hover', '#2b3035'],
+    ['--control-hover', '#30363c'],
+    ['--bg-selected', '#313941'],
+    ['--text-primary', '#e8ecef'],
+    ['--text-secondary', '#bcc5cb'],
+    ['--text-tertiary', '#98a2aa'],
+    ['--text-disabled', '#626c73'],
+    ['--text-inverse', '#121416'],
+    ['--border', '#343b41'],
+    ['--border-strong', '#465058'],
+  ]) {
+    if (!new RegExp(`${property}:\\s*${value}`, 'i').test(desktopDarkRoot)) {
+      failures.push(`GUI-PAPER-C01 Agent 铅黑／冷灰深宗漂移：${property}`);
+    }
+  }
+  for (const [rootName, root, expected] of [
+    ['light', desktopLightRoot, [['--border-focus', '#2563eb'], ['--blue-graphic', '#2563eb'], ['--blue-fg', '#1d4ed8']]],
+    ['dark', desktopDarkRoot, [['--border-focus', '#6a94f1'], ['--blue-graphic', '#2563eb'], ['--blue-fg', '#779ef3']]],
+  ]) {
+    for (const [property, value] of expected) {
+      if (!new RegExp(`${property}:\\s*${value}`, 'i').test(root)) {
+        failures.push(`GUI-PAPER-C02 ${rootName} semantic blue/focus role drifted: ${property}`);
+      }
     }
   }
   const siteImportant = ruleBody(css, 'h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title');

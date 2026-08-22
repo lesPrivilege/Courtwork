@@ -60,7 +60,7 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
 
 test('raw colors are tied to an exact token consumer, including icon audit', () => {
   assert.deepEqual(rules([source('apps/desktop/src/icons/icon-audit.css',
-    ':root { color: #272c31; background: #fafbfb; }\n.icon-audit-card { background: #fff; }')]), []);
+    ':root { color: #24303c; background: #fafbfb; }\n.icon-audit-card { background: #fff; }')]), []);
   assert.ok(rules([source('apps/desktop/src/icons/icon-audit.css',
     '.icon-audit-card { color: #ff00ff; }')]).includes('raw-color'));
   assert.ok(rules([source('site/rogue.css', ':root { --rogue-neon: #ff00ff; }')]).includes('raw-color'));
@@ -764,9 +764,9 @@ test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/
   assert.ok(run(`${rootMap}\n[data-theme='dark'] .risk-detail { color: inherit; }`).includes('theme-boundary'));
   assert.ok(run(`${rootMap}\n:root[data-theme='dark'] { grid-template-columns: 1fr; }`).includes('theme-boundary'));
   assert.ok(run(`${rootMap}\n@media (prefers-color-scheme: dark) { :root { --bg-app:#000; } }`).includes('theme-boundary'));
-  assert.ok(run(rootMap.replace('--bg-app: #0f1622;', '--bg-app: var(--text-primary);')).includes('theme-boundary'));
-  assert.ok(run(rootMap.replace('  --bg-app: #0f1622;\n', '')).includes('theme-boundary'));
-  assert.ok(run(rootMap.replace('  --bg-app: #0f1622;', '  --bg-app: #0f1622;\n  --rogue-paper: var(--bg-app);')).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('--bg-app: #121416;', '--bg-app: var(--text-primary);')).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('  --bg-app: #121416;\n', '')).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('  --bg-app: #121416;', '  --bg-app: #121416;\n  --rogue-paper: var(--bg-app);')).includes('theme-boundary'));
 });
 
 // R-12（ARCH-SCOPE-2026-07-20，独立验收驳回后回炉）：成熟度断言白名单门。

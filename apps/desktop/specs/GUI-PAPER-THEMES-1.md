@@ -1,6 +1,6 @@
 # GUI-PAPER-THEMES-1 · 冷白藏青墨／铅黑冷灰双宗
 
-状态：**架构已冻结，依赖 GUI-HIERARCHY-1 独立放行；未开工。**
+状态：**实现完成，等待独立验收；本会话未做独立验收。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-LEAD-WHITE-1`、`SKIN-DYSTOPIA-1`、本票。
@@ -88,3 +88,68 @@ fg 必须以新 raised 为最严面重新计算，未通过不得以旧验收数
 
 直接依赖：**无**。开源 Agent GUI 只借稳定 task/ledger/result-seat 信息架构，本票不复制 OpenHands、
 Cline 或 bolt.diy 的 skin、runtime、VS Code chrome、WebContainer 或 coding-agent 语义。
+
+## 五、实现回执（实现会话）
+
+本会话按冻结值完成 token 真源与既有消费面同步；未改组件树、DOM、布局、字阶、copy、状态／store／
+port／command、runtime／schema／ABI／provider、Work diff、第二 elevation、`docs/status/current.md`、
+历史验收或共享 dirty evidence。新增的摄制器只用于本票新 evidence，不进入产品运行时。
+
+### 1. 变更面
+
+- `docs/design/tokens.json`、`docs/design/principles.md` 与生成的 `docs/design/courtwork-design.md`：
+  冷白藏青墨浅宗、铅黑冷灰深宗、既有同源 neutral followers 与 dark semantic AA 描述同步。
+- `apps/desktop/src/styles.css`、`src/icons/icon-audit.css`、`src/workbench/graph-theme.ts`、
+  `site/styles.css`、`site/og.html`、品牌 SVG／OG 生成物：只同步既有 token consumer；focus 与 semantic
+  blue 角色保持原值。
+- `site/scripts/versional-language-contract-lib.mjs` 与其测试：新增 exact light/dark、普通 chrome
+  semantic-blue 反例及旧值漂移反例；补回 `VL3-C01|dark-tertiary` 的既有 ledger selector 锚点。
+- `apps/desktop/scripts/assert-elevation-shadow.mjs`、`site/scripts/deslop-scan-lib.mjs` 与测试、
+  `apps/desktop/tests/e2e/versional-language.spec.ts`：同步既有门与测试取值，不扩契约面。
+- `apps/desktop/scripts/capture-gui-paper-themes-1.mjs`：本票专用 scripted projection 摄制器。
+
+### 2. TDD 与 mutation
+
+旧实现上的 exact contract born-red 已实际实跑：**23 pass / 1 fail**，失败为本表浅宗 primary／
+secondary／tertiary、深宗 13 槽及 Pages／Agent 同源值漂移；实现后同一 contract **24/24**。
+实现后的 `deslop-scan` **52/52** 含宗切换几何分支反例。
+
+以下五类反例均实际注入、观察红灯并复原：
+
+| 反例 | 红证 | 复原后 |
+|---|---|---|
+| 浅宗 primary 退回旧铅墨 | versional contract 定点失败 | 通过 |
+| 深宗 surface 退回旧磁青 | versional contract 定点失败 | 通过 |
+| 深宗 selected 复活旧蓝 | versional contract 定点失败 | 通过 |
+| semantic blue 挪作普通 chrome | versional contract 定点失败 | 通过 |
+| 宗切换引入组件／布局几何分支 | deslop `SKIN-R2-P4` 结构反例失败 | 通过 |
+
+### 3. AA、视觉与门禁
+
+主题 AA 定向 Playwright 在独立端口 `19873`、fresh server、single worker 实跑 **9/9**。三面实测
+最严 raised 值为：浅宗 primary/secondary/tertiary **13.4353/6.3582/5.2227**；深宗
+primary/secondary/tertiary **11.8558/8.0403/5.4220**。深宗 semantic fg 以新 raised 重算：
+朱 **5.2786**、red **5.3288**、amber **6.8504**、blue **5.3452**、green **5.3250**、slate
+**6.7276**，均达既有目标；focus／semantic blue 未改。
+
+新 evidence 目录为
+`release/evidence/gui-paper-themes-1-2026-08-23/`：主矩阵 **24 帧**（light/dark ×
+1180/1440/390 × empty/running/proposal/succeeded）＋两宗各一枚 **240px squint**，共 **26 帧**，
+另有 `matrix.json`。机器报告为 `horizontalOverflowFree=true`、
+`allBoundingBoxesIsomorphic=true`（13 个同 viewport/state 对照）；目检抽查 light/dark 1440 proposal、
+390 succeeded 与 240 squint，未见新增装饰或结构分支。
+
+已实跑并通过：定向 versional contract **24/24**、deslop **52/52**、`lint:neutral`、
+`lint:design-md`、`lint:elevation`、`lint:graph`、`lint:signature`、`lint:hierarchy`、
+`lint:icons`、`lint:rule-grammar`、`lint:typography`、`lint:skin-r2-ledger`；根
+`pnpm site:guard` **116 项测试全绿**、`pnpm lint`、`pnpm test` **183 files / 2251 tests**、
+`pnpm -r build` 全包通过。
+
+### 4. 复杂度与交接
+
+本票新增概念只有一个本票专用摄制脚本／evidence manifest：若不将状态矩阵、横溢与双宗同构记录成
+机器可核的产物，视觉主张无法复现；脚本不进入运行时、不新增依赖、不造第二设计系统。触碰范围内
+未发现可安全删除且属于本票的偶然复杂度，未越权清理。
+
+完整 desktop `test:e2e`、independent clean-worktree mutation 与验收回执留给不同会话；本实现会话
+**未做独立验收，不宣称 PASS 或清账**。

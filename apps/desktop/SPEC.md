@@ -5638,3 +5638,37 @@ GUI-HIERARCHY 5/5、完整 desktop Playwright 407/407（single worker、fresh po
 183 files / 2251 tests、site guard 112/112、lint/build 全绿；P1-N096 复活与 rail 左连接线恢复两枚
 反例均实际红后复原，fresh 13 帧、240px squint 与 390 零横溢重采。完整数字见 `ACCEPTANCE.md`。
 本票清账不更新 `current.md`，也不替代 `PI-BASE-GUI-ACCEPT`。
+
+## GUI-PAPER-THEMES-1 · 冷白藏青墨／铅黑冷灰双宗（实现回执）
+
+本票实现会话状态：**实现完成，等待不同会话独立验收；本会话未做独立验收。** 权威冻结值与边界见
+`specs/GUI-PAPER-THEMES-1.md`。本次只同步既有 token 真源与既有同源消费：浅宗保留冷白三面并把
+primary／secondary／tertiary 迁为 `#24303C/#53616E/#626E78`，主操作 hover 为 `#344353`；深宗
+落实票面 13 槽铅黑／冷灰值。focus 与 semantic blue 保持原角色，普通 chrome 不借蓝；组件、DOM、
+布局、字阶、copy、Work diff、runtime／schema／ABI／provider、状态／store／port／command、第二
+elevation、`current.md` 与历史验收均未改。
+
+变更 trace：`tokens.json` → `principles.md` → 生成 `courtwork-design.md` →
+`apps/desktop/src/styles.css`／`site/styles.css`／既有品牌 SVG、OG、graph consumer；契约同步在
+`site/scripts/versional-language-contract-lib.mjs` 及测试，门同步在既有 elevation／deslop／neutral／
+graph／signature／hierarchy／skin ledger。新增 `capture-gui-paper-themes-1.mjs` 只摄 scripted
+browser projection，不进入运行时。
+
+TDD 证据：旧实现 exact contract **23 pass / 1 fail** born-red；实现后 **24/24**。旧浅墨、旧磁青
+surface、旧蓝 selected、semantic blue 普通 chrome、宗切换几何分支五类 mutation 均实际红后复原；
+`deslop-scan` 结构套件 **52/52**。主题 AA 定向 Playwright 在独立端口 fresh server、single worker
+**9/9**：light raised primary／secondary／tertiary `13.4353/6.3582/5.2227`，dark raised
+`11.8558/8.0403/5.4220`；dark semantic fg 以新 raised 重算均达目标。
+
+视觉证据只写入新目录
+`release/evidence/gui-paper-themes-1-2026-08-23/`：两宗 × 1180/1440/390 ×
+empty/running/proposal/succeeded **24 帧**，加 light/dark 各一枚 240px squint，共 **26 帧**；
+`matrix.json` 报告 `horizontalOverflowFree=true`、`allBoundingBoxesIsomorphic=true`，13 组同
+viewport/state bounding-box 对照无差异。该目录只证明 scripted projection，不替代真实 Tauri/WKWebView、
+product-live 或独立验收。
+
+本会话已实跑：定向 contract **24/24**、deslop **52/52**、`pnpm site:guard` **116 项测试**、
+root `pnpm lint`、`pnpm test` **183 files / 2251 tests**、`pnpm -r build`，以及 ticket lints
+`neutral/design-md/elevation/graph/signature/hierarchy/icons/rule-grammar/typography/skin-r2-ledger`
+全绿。完整 desktop `test:e2e` 与 clean-worktree 独立 mutation／验收由不同会话执行；本实现会话不写
+PASS、不清账。

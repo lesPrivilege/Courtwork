@@ -175,7 +175,7 @@ const siteDarkColors = {
 
 const siteDarkDeclarations = new Map([
   ...Object.entries(siteDarkColors).map(([property, path]) => [property, tokenAt(path)]),
-  ['--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'],
+  ['--bg-hover', tokenAt('themes.dark.bg.hover.value')],
 ]);
 
 const siteOgColors = {
@@ -689,14 +689,8 @@ function scanSvg(file, content, failures) {
     ['site/assets/icon.svg|g|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|2|fill', tokenAt('color.bg.app.value')],
-    // B2-0 收口重绑（2026-07-19）：浅宗 tertiary 随 AA 闭合压暗，深宗此位定谳不随动——
-    // 双宗共用中性就此拆分。深底品牌标的次要色条本就该跟深宗：若跟着浅宗压暗，
-    // 对 #232B38 深底的对比会由 3.3655 掉到 2.8328（-15.8%），品牌标反而更糊。
-    // 故此三处改绑 themes.dark.text.tertiary；SVG 字节一字未动。
-    // SKIN-DYSTOPIA-1 项 A（2026-08-09）：深宗 tertiary 随槽收口 #6E7C92 → #8B99B0，本绑定
-    // 如设计般把变更拖到品牌标——三处 fill 同批跟值（票面点名的「四处同值」实为五处，
-    // 第五处正是本门拖出来的）。对 #232B38 深底的对比由 3.3655 升到 4.9394，方向与上段
-    // 「跟深宗才不糊」的理由一致；几何与比例零改动。
+    // GUI-PAPER-THEMES-1：深宗 tertiary 迁为 #98A2AA，本绑定把变更拖到品牌标——
+    // 三处 fill 同批跟值；几何与比例零改动。
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|4|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|5|fill', tokenAt('themes.dark.text.tertiary.value')],
@@ -1479,8 +1473,8 @@ export function checkFontProvenance(records) {
   return failures;
 }
 
-// SITE-CRAFT-2 磁青宗批 · 色彩语法四位的机器封口。
-// 「磁青为底 / 墨为记」是默认（除下列两族外全站只有中性阶）；「朱仅裁决 / 泥金只进重要标题」
+// GUI-PAPER-THEMES-1 双宗批 · 色彩语法四位的机器封口。
+// 「冷纸为底 / 墨为记」是默认（除下列两族外全站只有中性阶）；「朱仅裁决 / 泥金只进重要标题」
 // 是**稀缺性宣告**——而被宣告的克制若没有门，就只是文案。故此门双向锁：
 //   ① 朱（--zhu-*）只许落在人做决定处，泥金（--important-title）只许落在 hero 与卷级大标题；越界即触红。
 //   ② 白名单条目必须真有消费面；登记了却没人用＝允许面虚增，同样触红（防白名单烂掉）。
@@ -1791,7 +1785,7 @@ export function checkColorGrammar(css) {
   return failures;
 }
 
-// SITE-CRAFT-2 磁青宗批 · SchemaParts 件库的三条解耦预留（就绪图「SVG 记号解耦预留」随两线同装）。
+// GUI-PAPER-THEMES-1 双宗批 · SchemaParts 件库的三条解耦预留（就绪图「SVG 记号解耦预留」随两线同装）。
 // 这三条就是「回迁 R2 时零重绘」的机器可验形态——件若带了值、或几何被抄成第二份、
 // 或某件根本没人用，回迁时就必须重画，预留即告失效。故逐条设门：
 //   ① 单源：页面里每一处记号都是 <use>，几何只此一份——件库外零 path/rect/circle/polygon；

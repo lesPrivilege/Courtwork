@@ -80,8 +80,8 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
 
   expect(values.titleFamily).toContain('Source Han Serif SC');
   expect(values.titleWeight).toBe('600');
-  expect(values.titleColor).toBe('rgb(39, 44, 49)');
-  expect(values.importantTitle).toBe('#272c31');
+  expect(values.titleColor).toBe('rgb(36, 48, 60)');
+  expect(values.importantTitle).toBe('#24303c');
   expect(values.badgeFamily).toContain('SF Mono');
   expect(values.badgeBorder).toBe(0);
   expect(values.badgeBackground).toBe('rgba(0, 0, 0, 0)');
@@ -100,7 +100,7 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
       importantTitle: getComputedStyle(document.documentElement).getPropertyValue('--important-title').trim(),
     };
   });
-  expect(dark).toEqual({ titleColor: 'rgb(217, 174, 106)', bodyColor: 'rgb(228, 233, 241)', importantTitle: '#d9ae6a' });
+  expect(dark).toEqual({ titleColor: 'rgb(217, 174, 106)', bodyColor: 'rgb(232, 236, 239)', importantTitle: '#d9ae6a' });
 });
 
 test('VERSIONAL-LANG · Settings 靠组距分段，真实输入边界不退', async ({ page }) => {
