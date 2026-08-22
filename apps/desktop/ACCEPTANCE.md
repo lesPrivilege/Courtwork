@@ -8274,3 +8274,77 @@ succeeded 与 dark 1440 proposal smoke 共 **13 帧**，逐帧核对 `data-theme
 修改 `docs/design/r2-tier-ledger.json` 与 `assert-rule-grammar.mjs`，因为两者是权威规则账本/契约门，
 需要架构角色拍板。后续应由实现/架构会话在不改变 `GH-C01-a` 语义的前提下，同步该消费点的 retired/
 none 账与计数，再由新的独立验收会话复跑完整 Playwright；本报告不更新 `current.md`。
+
+---
+
+## GUI-HIERARCHY-1 · R1 独立复验（2026-08-23，PASS）
+
+独立验收结论：**`PASS`，放行目标 `0857499ce7a11c8eca076e89ac9e189959c74e75`**。
+验收者未参与实现；在全新 clean clone
+`/private/tmp/courtwork-gui-hierarchy-r1.hR81fI/repo` 复验，未在共享主树 checkout、stash、restore
+或写入。本 R1 只向本文件追加回执，不修改 `docs/status/current.md`、
+`docs/architecture/implementation-readiness.md`、SPEC 或产品实现。
+
+### 目标与实现字节核对
+
+- 基线产品实现为 `a1e25d483c525507e54617cc744801cbe4d2da63`；目标链为
+  `a1e25d4 → a2ff28d（首轮 REJECT）→ fd8533b（R1 账本同步）→ 0857499（架构文档冻结）`。
+- `git diff --quiet a1e25d4 0857499 -- apps/desktop/src apps/desktop/tests/e2e/gui-hierarchy-1.spec.ts
+  apps/desktop/scripts/assert-gui-hierarchy.mjs apps/desktop/package.json apps/desktop/playwright.config.ts`
+  实得 **exit 0**：GUI-HIERARCHY-1 产品 CSS、五枚 E2E、结构门、package 与 Playwright 配置字节未变。
+- `fd8533b` 的 4 个文件变更为 `apps/desktop/SPEC.md`、`apps/desktop/specs/GUI-HIERARCHY-1.md`、
+  `apps/desktop/scripts/assert-rule-grammar.mjs` 与 `docs/design/r2-tier-ledger.json`；实质是把已退场
+  的树形连接线从 `MINOR`/`留` 同步为 `RETIRED`/`退`，并更新计数。
+- 后续 `0857499` 只增加/调整 `GUI-PAPER-THEMES-1`、`WORK-DIFF-SEMANTICS-1` 与
+  `implementation-readiness`；没有产品实现漂移。`apps/desktop/ACCEPTANCE.md` 的前段差异仅是
+  `a2ff28d` 已存在的首轮 REJECT 回执。
+
+### 实跑门
+
+| 门 | R1 独立实测 |
+|---|---|
+| 线级/结构门 | `node scripts/assert-rule-grammar.mjs`：主界 **4**、次界 **90**、退役 **20**、具名不换 **73**、共 **169**、P1 留/减薄/回单线/退 **81/11/2/20**；`assert-gui-hierarchy.mjs`：PASS |
+| Playwright 列举 | `playwright test --list`：**407 tests / 77 files** |
+| 定向 GUI-HIERARCHY | fresh port `19902`、`reuseExistingServer:false`、单 worker：**5/5 passed** |
+| 完整 desktop E2E | fresh port `19903`、`pnpm test:e2e -- --workers=1`：静态前链全绿，**407/407 passed（5.2m）**；无 server crash、无重跑 |
+| root tests | sandbox 首轮因 sidecar loopback `EPERM` 为 **182/183 files、2241/2251 tests**；提升权限复跑 **183/183 files、2251/2251 tests passed** |
+| root lint | `pnpm lint`：**EXIT 0** |
+| workspace build | `pnpm -r build`：**EXIT 0**，15/16 workspace scope；desktop Vite **4316 modules**，仅既有动态导入/大 chunk advisory |
+| Pages/site guard | `pnpm site:guard`：**112 passed / 0 failed**；release-truth/deslop、neutral、elevation、skin、app-highwater 串联门全绿 |
+
+### R1 契约 mutation、红证与复原
+
+以下两枚 R1 mutation 均在 clean clone 以 `apply_patch` 注入，实际变红后精确恢复；恢复后的线级门、
+结构门及完整 E2E 均通过。
+
+| 类别 | 实际注入与红证 | 复原绿证 |
+|---|---|---|
+| P1-N096 账本复活 | 将 `docs/design/r2-tier-ledger.json` 的 `P1-N096` 改回 `decision=留`、`ruleClass=minor`、`expectedWidth=var(--rule-minor)`、`expectedColor=var(--border)`并移除 `supersededBy`；`assert-rule-grammar.mjs` **EXIT 1**，实际报 6 项：`minor/none` 分类漂移、宽度 `var(--rule-minor)/0` 漂移、`var(--border)` 非法色槽、退役去向缺失，以及次/退 **91/90、19/20** 与判词 **82/81、19/20** 计数漂移 | 恢复 `退/none/0/transparent + supersededBy=GUI-HIERARCHY-1`；线级门恢复 **主4/次90/退役20/169** |
+| GH-C01-a 连接线 | `styles.css` 将 `.rail-case-expand` 的 `border-left: 0` 改为 `var(--rule-minor) solid var(--border)`；fresh port `19901` 单 worker 运行 GH-C01-a：**1 failed**，`Expected: 0px / Received: 1px` | 恢复 `border-left: 0`；port `19902` 定向套件 **5/5**，结构门恢复 PASS |
+
+首轮已在上方 REJECT 回执中登记的第二档 elevation、颜色字面量、等宽 facts grid、连接线与 decorated/card
+regression 不在本 R1 重报为新证；本轮新增的两枚契约 mutation 已独立复现并恢复。
+
+### Fresh 视觉证据
+
+fresh port `19910` 驱动 `capture-gui-composition-1.mjs`，全新生成完整 **13 帧**：
+light 1180／1440／390 × empty／running／proposal／succeeded，加 dark 1440 proposal smoke；每帧
+落盘前均实测 `data-theme` 与预期一致。证据目录：
+`/private/tmp/courtwork-gui-hierarchy-r1.hR81fI/fresh-evidence/`；采集日志：
+`/private/tmp/courtwork-gui-hierarchy-r1.hR81fI/visual-capture.log`；240px squint：
+`/private/tmp/courtwork-gui-hierarchy-r1.hR81fI/fresh-evidence/squint/`。
+
+实测 PNG 尺寸为 1180×860（4 帧）、1440×900（8 帧，含 dark smoke）与 390×844（4 帧）。代表帧及
+squint 复核确认 light/dark 构图同构、标题—分组—工具账—composer 层次成立；390 proposal 的
+fresh DOM 溢出证据在 `/private/tmp/courtwork-gui-hierarchy-r1.hR81fI/overflow-check.log`：
+`viewport=[390,844]`、root/body `390/390`、`badCount=0`，无横向溢出。
+
+这些仍是 scripted browser projection 的视觉证据，不替代真实 Tauri/WKWebView、DeepSeek、AX 或
+product-live 证据。
+
+### 放行裁定
+
+产品实现字节相对 `a1e25d4` 未漂移；R1 权威线级账同步可机验，契约复活与连接线反例均按要求变红并
+恢复；定向 **5/5**、完整 **407/407**、root **2251/2251**、lint、build 与 site guard 全部通过。
+因此本 R1 **PASS**。本回执不更新 `current.md`，不扩张真实 provider、Tauri 或 product-live 成熟度
+声明。
