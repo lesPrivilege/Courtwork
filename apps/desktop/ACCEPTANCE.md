@@ -8118,3 +8118,45 @@ wire/journal 或契约语义。因 lint 失败，本票仍不放行。
 evidence 或契约语义。
 
 本票最终仅在前两轮 FAIL 之后追加本 PASS；其余成熟度边界不变。
+
+---
+
+## GUI-LEAD-WHITE-1 · 独立验收（2026-08-22，PASS）
+
+独立验收结论：**`PASS`**，仅放行 `GUI-LEAD-WHITE-1` 的冷白／铅灰浅宗置换范围。验收者未参与
+实现；在新建 clean detached worktree `/private/tmp/courtwork-gui-bounded-accept` 对 target
+`01b6b57ccadf18bfd63f12de6bf564aad06f8a59` 实跑。共享 `gui-hierarchy-1` 脏树未 checkout、
+stash 或写入。本票不替代 `PI-BASE-GUI-ACCEPT`，不证明真实 WKWebView／DeepSeek／AX 或
+product-live。
+
+### 实跑门与视觉矩阵
+
+| 门 | 独立实测 |
+|---|---|
+| 浅宗定向门 | `lint:design-md`、`lint:neutral`、`lint:elevation`、`lint:rp211`、`lint:graph`、`lint:icons` 全绿 |
+| Pages 同源门 | `pnpm site:guard`：**112 passed / 0 failed**，后续串联门全部 PASS |
+| 定向 E2E | fresh 独立端口 `19972`：`versional-language.spec.ts` **4/4**＋`pi-lane.spec.ts` **13/13**，合计 **17/17** |
+| root tests | `pnpm test`：**183 files / 2251 tests passed** |
+| root lint | `pnpm lint`：**EXIT 0** |
+| workspace build | `pnpm -r build`：**EXIT 0**，15/16 workspace scope；desktop Vite 4326 modules，仅既有 advisory warning |
+| hygiene | mutation 复原后 `git diff --check` EXIT 0；产品 tracked 路径相对 target 零 diff |
+
+fresh 独立端口 `19971` 驱动仓内 scripted Pi capture，验收侧在 `/private/tmp` 重摄并用
+`view_image` 目检 light 1440×900 的 empty/running/proposal/succeeded、light 390×844 proposal、
+dark 1440×900 proposal。浅宗 L0 冷白、rail/selected 铅灰、raised 白纸、近黑正文分层成立；
+普通选中无淡蓝回流，390 任务／决定按钮／composer 均在视口内且无横溢；深宗仍为原磁青。
+重摄文件仅作临时验收证据，未写入仓库。capture helper 在完成本票要求的前八状态后，其票外 denied
+状态仍等待已退役的 `pi-drafts-empty` 而超时；该段不作为本 PASS 证据，定向 `pi-lane` 拒绝场景已在
+fresh `19972` 实跑通过。
+
+### 反例注入与复原
+
+两枚反例均用 `apply_patch` 临时注入并精确恢复：
+
+| 类别 | 注入 | 实际红证 | 恢复绿证 |
+|---|---|---|---|
+| palette 真源 | `docs/design/tokens.json` 的 light `bg.selected` 从 `#DDE2E4` 注回旧 `#E7EEF9` | `lint:design-md` EXIT 1，报告 tokens 与生成设计册漂移 | `lint:design-md` PASS |
+| 消费面 | `apps/desktop/src/styles.css` 的 light `--bg-selected` 注回 `#e7eef9` | `lint:neutral` EXIT 1，定点报告“使用废除值 #e7eef9” | `lint:neutral` PASS |
+
+最终只追加本验收记录；未修改实现、token、消费面、截图资产、runtime/schema/ABI/provider、
+`docs/status/current.md` 或成熟度口径。

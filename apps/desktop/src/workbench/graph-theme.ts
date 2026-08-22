@@ -5,14 +5,14 @@ export const COURTWORK_GRAPH_THEME = 'courtwork-light';
 // Mirrors docs/design/tokens.json. G6 receives no library palette defaults.
 export const graphTokens = {
   background: '#FFFFFF',
-  surface: '#F6F8FB',
-  hover: '#EEF2F7',
-  selected: '#E7EEF9',
-  ink: '#232B38',
-  textSecondary: '#55617A',
-  border: '#DFE5EE',
-  borderStrong: '#C9D3E1',
-  slate: '#55617A',
+  surface: '#F3F4F5',
+  hover: '#ECEEEF',
+  selected: '#DDE2E4',
+  ink: '#272C31',
+  textSecondary: '#586168',
+  border: '#DCE0E2',
+  borderStrong: '#C8CED1',
+  slate: '#586168',
   amber: '#8F6420',
 } as const;
 

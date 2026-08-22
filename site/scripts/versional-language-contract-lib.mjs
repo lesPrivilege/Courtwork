@@ -25,14 +25,14 @@ export function validateVersionalSite({ html, css, desktopCss }) {
   const desktopDarkRoot = ruleBody(desktopCss ?? '', ":root[data-theme='dark']");
 
   for (const [property, value] of [
-    ['--bg-app', '#FBFCFE'],
-    ['--bg-surface', '#F6F8FB'],
+    ['--bg-app', '#FAFBFB'],
+    ['--bg-surface', '#F3F4F5'],
     ['--bg-raised', '#FFFFFF'],
-    ['--text-primary', '#232B38'],
-    ['--text-secondary', '#55617A'],
-    ['--text-tertiary', '#637083'],
-    ['--border-hairline', '#DFE5EE'],
-    ['--border-strong', '#C9D3E1'],
+    ['--text-primary', '#272C31'],
+    ['--text-secondary', '#586168'],
+    ['--text-tertiary', '#667078'],
+    ['--border-hairline', '#DCE0E2'],
+    ['--border-strong', '#C8CED1'],
     ['--border-focus', '#2563EB'],
   ]) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(root)) failures.push(`VL2-C01 Pages 浅宗色阶漂移：${property}`);
@@ -52,10 +52,29 @@ export function validateVersionalSite({ html, css, desktopCss }) {
   ]) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(siteDark)) failures.push(`VL3-C01 Pages 磁青宗色阶漂移：${property}`);
   }
-  if (!/--important-title:\s*#232B38/i.test(root)
-      || !/--important-title:\s*#232b38/i.test(desktopLightRoot)
+  if (!/--important-title:\s*#272C31/i.test(root)
+      || !/--important-title:\s*#272c31/i.test(desktopLightRoot)
       || !/--important-title:\s*#d9ae6a/i.test(desktopDarkRoot)) {
     failures.push('VL3-C02 Agent／Pages 重要标题双宗 token 未同源');
+  }
+
+  for (const [property, value] of [
+    ['--bg-app', '#fafbfb'],
+    ['--bg-surface', '#f3f4f5'],
+    ['--bg-raised', '#fff'],
+    ['--bg-hover', '#eceeef'],
+    ['--control-hover', '#e5e8e9'],
+    ['--bg-selected', '#dde2e4'],
+    ['--text-primary', '#272c31'],
+    ['--text-secondary', '#586168'],
+    ['--text-tertiary', '#667078'],
+    ['--text-disabled', '#90989e'],
+    ['--border', '#dce0e2'],
+    ['--border-strong', '#c8ced1'],
+  ]) {
+    if (!new RegExp(`${property}:\\s*${value}`, 'i').test(desktopLightRoot)) {
+      failures.push(`GLW-C01 Agent 冷白／铅灰浅宗漂移：${property}`);
+    }
   }
   const siteImportant = ruleBody(css, 'h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title');
   if (!/color:\s*var\(--important-title\)/.test(siteImportant)

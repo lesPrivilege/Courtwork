@@ -62,6 +62,9 @@ const banned = new Set([
   '#fafaf9', '#f5f5f4', '#e7e5e4', '#d6d3d1', '#a8a29e', // Tailwind stone(暖灰)
   '#f4f4f5', '#e4e4e7', '#d4d4d8', '#a1a1aa', // Tailwind zinc
   '#f5f5f5', '#e5e5e5', '#d4d4d4', '#a3a3a3', // Tailwind neutral
+  // —— GUI-LEAD-WHITE-1 退役的偏蓝浅宗 ——
+  '#fbfcfe', '#f6f8fb', '#eef2f7', '#e7ecf3', '#e7eef9',
+  '#232b38', '#55617a', '#637083', '#8a94a8', '#dfe5ee', '#c9d3e1', '#f2f4f7', '#3a4658',
   // —— B1 色阶批退役族（2026-07-19，锚 #0A2540/H=210° → #232B38/H≈217°）——
   // 验收缺陷二：本门原只验「消费值 ∈ 当前声明集」，故 tokens 自身可把旧锚重新声明为合法，
   // 「原子性」不成立。退役值入黑名单后，回注任一旧值即红（含 tokens 声明侧与 src 消费侧）。

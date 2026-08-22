@@ -80,8 +80,8 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
 
   expect(values.titleFamily).toContain('Source Han Serif SC');
   expect(values.titleWeight).toBe('600');
-  expect(values.titleColor).toBe('rgb(35, 43, 56)');
-  expect(values.importantTitle).toBe('#232b38');
+  expect(values.titleColor).toBe('rgb(39, 44, 49)');
+  expect(values.importantTitle).toBe('#272c31');
   expect(values.badgeFamily).toContain('SF Mono');
   expect(values.badgeBorder).toBe(0);
   expect(values.badgeBackground).toBe('rgba(0, 0, 0, 0)');

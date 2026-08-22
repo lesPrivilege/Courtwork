@@ -1,0 +1,44 @@
+{
+  "ticket": "GUI-LEAD-WHITE-1",
+  "base": "http://127.0.0.1:19862",
+  "scripted": true,
+  "palette": {
+    "--bg-app": "#fafbfb",
+    "--bg-surface": "#f3f4f5",
+    "--bg-raised": "#fff",
+    "--bg-hover": "#eceeef",
+    "--control-hover": "#e5e8e9",
+    "--bg-selected": "#dde2e4",
+    "--text-primary": "#272c31",
+    "--text-secondary": "#586168",
+    "--text-tertiary": "#667078",
+    "--border": "#dce0e2",
+    "--border-strong": "#c8ced1"
+  },
+  "files": [
+    {
+      "name": "01-empty-light.png",
+      "sha256": "dce674a6e4ec8558a16d20fc0116e4e12ec292995ae255b5eb931ecb8af485f5"
+    },
+    {
+      "name": "02-running-light.png",
+      "sha256": "0e74cdeec93e5616f206c2c9234bd85c4e633dc09b893ca8fab14bbccd670025"
+    },
+    {
+      "name": "03-proposal-light.png",
+      "sha256": "3e35d2abc201a76bf0b09314ad73696bae6ac7d8fb9f424db87df3225fac77b6"
+    },
+    {
+      "name": "04-proposal-mobile-light.png",
+      "sha256": "2a90e683b9bd421f6d59b24860a3dac9af5f31d688740471cd337169f8bfbd31"
+    },
+    {
+      "name": "05-succeeded-light.png",
+      "sha256": "28f04f4ea01065b875576832bccfe8ba9c2956c63fae952548c3a6ccab63c0cc"
+    },
+    {
+      "name": "06-proposal-dark-smoke.png",
+      "sha256": "8e75745f87c679e383b0f4dc9d3cdede0ddea931b49ef96443530d2118161d4b"
+    }
+  ]
+}
