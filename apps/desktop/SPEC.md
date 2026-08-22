@@ -5584,7 +5584,7 @@ Playwright **391/391**；A/B 定向 **12/12**，8 枚 mutation 全部独立复�
 scripted route evidence，不取得 Tauri/product-live 或 Agent 称谓；OSS 按冻结结论执行“删除当期动作”，
 零新依赖，新增概念仅 `Scenes`，R1 只复用既有版本化 GUI 缓存与授权身份。
 
-## GUI-COMPOSITION-1 · Pi Work 构图减法（2026-08-22，实现完成待独立验收）
+## GUI-COMPOSITION-1 · Pi Work 构图减法（2026-08-22，已清账）
 
 权威与逐条回执见 `apps/desktop/specs/GUI-COMPOSITION-1.md`。本票在冻结颜色与 760px 正文轴的
 前提下闭合 `GC-C01-b…h`：未成文区收拢，工具卡降为带次界线的账行，同名标识去重，默认语料
@@ -5596,4 +5596,7 @@ scripted route evidence，不取得 Tauri/product-live 或 Agent 称谓；OSS �
 基线复跑确认同红。五份同层 E2E 改用既有 `createNamedCase` 建真实案件，另把并发易漂移的父卡
 hover 改为直接 hover 目标复制按钮，产品代码与契约不变。最终 root **183 files / 2251 tests**、
 site guard **112/112**、官方 Playwright **402/402** 全绿；light 三视口四状态 + dark smoke 共
-13 帧已留证。实现会话不写验收 PASS，本票仍待不同会话在 clean worktree 独立验收。
+13 帧已留证。不同会话在 clean worktree 独立复跑后以 `2f7eeb4` 放行：Pi DOM 17/17、ticket
+E2E 7/7、root 183 files / 2251 tests、site guard 112/112、官方 Playwright 402/402，两枚
+mutation 均实际红后复原；no-ff 清账锚为 `f8845d8`。本票不更新 `current.md`，不替代
+`PI-BASE-GUI-ACCEPT`。

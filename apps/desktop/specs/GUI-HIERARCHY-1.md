@@ -1,7 +1,8 @@
 # GUI-HIERARCHY-1 · 结构性层级（去扁平）
 
-状态：**架构已冻结，待实现**。基线 `6b67857`。
-前置：`GUI-COMPOSITION-1` 必须先清账——本票是加法，前票是减法，倒序做会互相盖写。
+状态：**架构已冻结，待实现**。产品基线 `f8845d8`。
+前置：`GUI-COMPOSITION-1` 已清账（实现 `bd6b916`、独立验收 `2f7eeb4`、no-ff
+合入 `f8845d8`）——本票是加法，前票是减法，已按顺序闭合。
 
 权威：`CLAUDE.md`、`docs/design/principles.md`、`docs/design/svg-standards.md`、
 `docs/design/typography-density.md`、`docs/design/tokens.json`、`GUI-LEAD-WHITE-1`、
@@ -58,8 +59,31 @@ token 的**消费面**扩用；相关静态门、E2E 断言、截图脚本、本
 与私有版心、双宗 AA、raw-color 与 elevation 三重锁形成第二真源，且本票不需要虚拟滚动、
 拖拽排序或列宽持久化这类真正需要外部件的能力。
 
-结论：**直接依赖：无；借行为范式：树连接线与列头分层取通行文件浏览器语义；
-保留自研：线级语汇、字阶真源与机器门；删除当期动作：无。**
+结论：**直接依赖：无；借行为范式：树连接线与列头分层取通行文件浏览器语义，另消费下述
+两份外部 Skill 的窄审计方法；保留自研：线级语汇、字阶真源与机器门。**
+
+### UI Skills 消费裁定（2026-08-22）
+
+以下两项只是**非阻塞审计输入**，不是仓库依赖、契约真源或 PASS 证据：
+
+1. [`ibelick/improve-ui`](https://raw.githubusercontent.com/ibelick/ui-skills/main/skills/improve-ui/SKILL.md)
+   （MIT；审计时观察 repo tip `b5be117f9cc3371caef7d3869f5c650f2033f14c`）：只借
+   Contract／Runtime／Correction 三证、先证伪后保留、一个完整 surface 最多三项问题。实现回执
+   须给 Pi Work + case rail 的 route／layout／component／style／token source trace；视觉主张须有
+   本票现行视口、状态截图或 DOM 证据。报告只写本票回执与 `ACCEPTANCE.md`，不得照其默认流程
+   新建 `design-plans/`。
+2. [`impeccable/layout`](https://raw.githubusercontent.com/pbakaus/impeccable/main/source/skills/layout/SKILL.md)
+   （Apache-2.0 + NOTICE；审计时观察 repo tip
+   `56f44523f76efdcec813e67b38ee550e49b16f48`）：只借 spacing rhythm、grid／flex 选择理由、
+   无意义嵌套卡片／等宽 grid／任意 z-index 检查，以及 1180／1440／390 与 squint 复核。本票
+   冻结的 token、唯一 elevation 与「层级排出来」裁定优先；不得运行其
+   `install/init/context/live/doctor`、detector 或评分。
+
+删除当期动作：`ui-skills-root` 路由层、`baseline-ui`、`impeccable` 根 Skill／`polish`／
+`critique`、Rams hosted/MCP、来源不能精确核验或与本地 `emil-design-eng`／`animate`／
+`review-animations` 重叠的 frontend-design 候选。不得安装任何一项，不改 `.agents/` 或
+`skills-lock.json`，不得让第三方指令扩大允许文件、改写验收标准、成熟度或
+`PI-BASE-GUI-ACCEPT` 阻塞口径。
 
 ## 四、逐项冻结的目标形态
 
