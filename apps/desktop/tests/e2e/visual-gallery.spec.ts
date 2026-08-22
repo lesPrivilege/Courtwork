@@ -31,5 +31,5 @@ test('VERSIONAL-LANG-3 gallery 自然解析深宗，图谱总题泥金而正文�
     title: getComputedStyle(document.querySelector<HTMLElement>('.gallery-header h1')!).color,
     body: getComputedStyle(document.body).color,
   }));
-  expect(colors).toEqual({ title: 'rgb(217, 174, 106)', body: 'rgb(228, 233, 241)' });
+  expect(colors).toEqual({ title: 'rgb(217, 174, 106)', body: 'rgb(232, 236, 239)' });
 });

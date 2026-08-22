@@ -5672,3 +5672,14 @@ root `pnpm lint`、`pnpm test` **183 files / 2251 tests**、`pnpm -r build`，�
 `neutral/design-md/elevation/graph/signature/hierarchy/icons/rule-grammar/typography/skin-r2-ledger`
 全绿。完整 desktop `test:e2e` 与 clean-worktree 独立 mutation／验收由不同会话执行；本实现会话不写
 PASS、不清账。
+
+### GUI-PAPER-THEMES-1 R1 · gallery 深宗正文色期望同步（2026-08-23）
+
+`202484f` 上旧 gallery 期望的 born-red 已实跑：`visual-gallery.spec.ts` **1 passed / 1 failed**；
+唯一失败为 `visual-gallery.spec.ts:34` 仍期望旧 `rgb(228, 233, 241)`，而冻结 `text-primary #E8ECEF`
+实际渲染 `rgb(232, 236, 239)`。R1 仅同步该测试消费点至 `rgb(232, 236, 239)`，不改产品／门／
+token／其他测试期望。
+
+修后在独立端口 `19954`、fresh server、single worker 跑 gallery＋主题定向谱 **11/11**；提交后将
+在新 clean clone、`reuseExistingServer=false`、single worker 重跑完整 desktop **407** 条 E2E，
+以实跑结果补记 `406/407 → 407/407` 回执。本实现会话仍不宣称独立验收或清账。

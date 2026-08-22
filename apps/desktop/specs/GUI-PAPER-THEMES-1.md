@@ -153,3 +153,14 @@ primary/secondary/tertiary **11.8558/8.0403/5.4220**。深宗 semantic fg 以新
 
 完整 desktop `test:e2e`、independent clean-worktree mutation 与验收回执留给不同会话；本实现会话
 **未做独立验收，不宣称 PASS 或清账**。
+
+### 5. R1 · gallery 深宗正文色消费点同步（2026-08-23）
+
+在实现提交 `202484f` 上保留旧期望实跑红证：`visual-gallery.spec.ts` 定向谱为 **1 passed / 1
+failed**；唯一失败在 `visual-gallery.spec.ts:34`，旧断言期望 `rgb(228, 233, 241)`，实际冻结
+`text-primary #E8ECEF` 渲染为 `rgb(232, 236, 239)`，标题泥金值不变。
+
+R1 仅将该既有 gallery E2E 消费点同步为 `rgb(232, 236, 239)`，未改产品、门、token 或其他
+主题值。修改后 gallery＋主题定向谱（visual-gallery、typography、versional-language）在独立端口
+`19954`、fresh server、single worker 实跑 **11/11**；完整 desktop `test:e2e` 的 clean clone
+复跑留待本 R1 提交后执行。
