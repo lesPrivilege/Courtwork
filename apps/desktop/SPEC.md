@@ -5631,4 +5631,10 @@ clean worktree 重跑 mutation、全套门与指定视觉矩阵，本节不宣�
   evidence。
 
 R1 静态同步后线级语法门通过（主界 4、次界 90、退役 20、共 169 处）。新的独立 clean clone
- 仍须以独立端口实跑完整 407 条 desktop `test:e2e`，本实现会话不宣称验收放行。
+仍须以独立端口实跑完整 407 条 desktop `test:e2e`，本实现会话不宣称验收放行。
+
+R1 已由不同 Luna 会话在全新 clean clone 对目标 `0857499` 放行，验收提交 `af4e8fe`：定向
+GUI-HIERARCHY 5/5、完整 desktop Playwright 407/407（single worker、fresh port）、root
+183 files / 2251 tests、site guard 112/112、lint/build 全绿；P1-N096 复活与 rail 左连接线恢复两枚
+反例均实际红后复原，fresh 13 帧、240px squint 与 390 零横溢重采。完整数字见 `ACCEPTANCE.md`。
+本票清账不更新 `current.md`，也不替代 `PI-BASE-GUI-ACCEPT`。
