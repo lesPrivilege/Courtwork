@@ -1,6 +1,7 @@
 # GUI-COMPOSITION-1 · Pi Work 面构图、密度与语料纠偏
 
-状态：**架构已冻结，待实现**。基线 `01b6b57`（`GUI-LEAD-WHITE-1` 实现提交，未清账）。
+状态：**实现完成，待独立验收**。产品基线 `01b6b57`（`GUI-LEAD-WHITE-1` 实现提交，未清账）；
+本票冻结提交 `ee7bbd1`，实现分支 `gui-composition-1`。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、`docs/design/tokens.json`、
 `WORK-SURFACE-COMPOSITION-1`、`WORK-AGENT-SHOWCASE-1`、`GUI-LEAD-WHITE-1`、本票。
@@ -97,9 +98,10 @@
 
 ## 六、实现回执
 
-**状态：WIP，未完成、未跑全门、未验收。** 实现会话（Claude Sonnet 5，worktree
-`.cw-gui-composition-1`，分支 `gui-composition-1`）在跑完全套门与 Playwright 全链之前被产品侧
-改派移交，故本节是**交接回执**而非完工回执。以下逐项如实登记走到哪一步，供接手会话定位。
+**状态：实现完成、全门已跑，待不同会话独立验收。** 前实现会话（Claude Sonnet 5）完成红测、
+最小实现、mutation 与视觉矩阵；接手实现会话（Codex，获准使用 Luna 协作）在同一 worktree
+`.cw-gui-composition-1`、分支 `gui-composition-1` 完成架构裁定落账、历史 E2E 夹具清障与全门。
+本节是完工回执，不构成验收或清账。
 
 ### 1 · 逐条 `GC-C01-a…h` 当前状态
 
@@ -152,7 +154,7 @@
 | 门 | 读数 |
 |---|---|
 | `pnpm install`（worktree 首次） | Done in 6.9s |
-| `pnpm -r build` | 全包通过，desktop `✓ built in 4.24s` |
+| `pnpm -r build` | 全包通过；接手后复跑 desktop `✓ built in 5.06s` |
 | `apps/desktop` `npx tsc -b` | exit 0 |
 | `apps/desktop` `vitest run` | **103 files / 921 tests 全绿**（含改后的构图静态门） |
 | `lint:design-md` | exit 0 |
@@ -165,23 +167,22 @@
 | `lint:ui-surface` | exit 0 |
 | `lint:voice` | exit 0 · 扫描 179 个 UI 源文件 |
 | `lint:work-agent-gui` | exit 0 · todo 0 |
-| `site:guard` | exit 0 |
-| `pnpm lint`（仓根 eslint） | **exit 1 · 7 errors**，全部落在新增的 `scripts/capture-gui-composition-1.mjs`（`no-undef`：localStorage/window/document）——`eslint.config.js` 对 `**/scripts/**/*.mjs` 用 node globals，既有 `capture-pi-lane-states.mjs` 是逐名豁免的。**未修，留给接手会话**：把新脚本按同一方式加进豁免名单即可 |
-| `lint:rule-grammar` | **exit 1 · `P1 档位账漏消费点：.pi-tool-card|left`**，见 §5 |
-| **`pnpm test:e2e` 全链** | **未跑**（改派时未开始） |
-| `git diff --check` | **未跑** |
-| 颜色零改验证 `git diff … \| grep -E '#[0-9a-f]{3,8}\|rgb\(\|hsl\('` | **未跑**（但全程未触碰任何色值字面量与 `--color-*`／`--bg-*`／`--text-*`／`--border-*` 定义，`lint:neutral` 已绿） |
+| `site:guard` | exit 0 · **112/112** |
+| `pnpm lint`（仓根 eslint） | exit 0；`eslint.config.js` 按既有 capture 脚本模式为新摄制脚本声明 browser globals |
+| `lint:rule-grammar` | exit 0；P1-N106 落账后：主界 4、次界 91、routine 退 19、具名不换 73，共 170 处；P1 留 82／减薄 11／回单线 2／退 19 |
+| 仓根 `pnpm test` | **183 files / 2251 tests** 全绿 |
+| 定向 E2E（五份受 stale Sample 阻塞的 spec） | **69/69**；`global-verbs.spec.ts` hover 稳定性修正后单文件 **21/21** |
+| **`pnpm test:e2e` 全链** | 独立端口 `19898`，官方脚本（含完整静态前置链）**402/402 passed**，8.8m |
+| `git diff --check` | exit 0 |
+| 颜色零改验证（相对冻结提交 `ee7bbd1`） | `git diff ee7bbd1 -U0` 的新增／删除行中匹配 raw-color 字面量 **无输出**；零 token 色变量定义改动 |
 
-### 5 · 存疑与自认不妥之处
+### 5 · 架构裁定与留给独立验收的观察
 
-1. **`lint:rule-grammar` 红，且这条红先于本票就在。** 基线 `ee7bbd1` 上该门即红
-   （`.pi-tool-card:not([data-state="proposed"])|top` 未归一分类，线由 `11c65cb`
-   `WORK-SURFACE-COMPOSITION-1` 引入却从未入账）。本票把该线从 top 移到 left，红随之变成
-   `.pi-tool-card|left`。我已把它登记进三分类账的 MINOR（「账行界行」），但 **P1 档位账
-   （`docs/design/r2-tier-ledger.json`）是 113 行封闭签署账、三分类计数被硬编在门里
-   （主 4／次 90／退 19），新增一枚消费点必须有一条新的已批提案行**——实现会话无权自批，
-   故此门无法由本层弄绿。**需架构拍板**：要么给 `.pi-tool-card|left` 批一条 P1 提案行，
-   要么裁定工具账行不用细界线（那样 `GC-C01-c` 的「细界线」一句要一并改）。
+1. **`lint:rule-grammar` 已按架构裁定闭合。** 用户以架构角色批准新增 `P1-N106`：目标
+   `.pi-tool-card|left`，tier `agent-interface`，decision `留`，role `minor`，width
+   `var(--rule-minor)`，color `var(--border)`，`hairline: false`。`docs/design/r2-tier-ledger.json`
+   现为 114 行封闭签署账，`assert-rule-grammar.mjs` 同步把 MINOR 计数由 90 调为 91、P1 `留`
+   由 81 调为 82；静态门与两枚 rule-grammar E2E 均绿。
 2. **线级语法门有一处静默缝**：`scripts/rule-grammar-lib.mjs` 的 BORDER 正则只认物理边
    （`border-top/bottom/left/right`），`border-inline-start` 一类逻辑边**完全不进普查**。
    我最初用逻辑边写这条线时门直接变绿——那是漏检不是通过。已改回物理边以受检。此缝与本票
@@ -214,16 +215,22 @@ empty／running／proposal／succeeded 十二帧 ＋ dark 1440 proposal smoke �
 缩进 ＋ 左界行的账行、交替灰块消失；折叠符为既有 chevron；390 零横溢、rail 按既有断点隐去；
 dark 1440 与浅宗改动同构、色相未动。
 
-### 7 · 剩余待办（接手清单）
+### 7 · 接手收口与待独立验收项
 
-1. `pnpm lint` 的 7 条 `no-undef`：把 `apps/desktop/scripts/capture-gui-composition-1.mjs`
-   加进 `eslint.config.js` 第 33 行附近的既有豁免名单（与 `capture-pi-lane-states.mjs` 同列）。
-2. `lint:rule-grammar`：按 §5-1 请架构裁定后再动，实现层不得自批提案行。
-3. 未跑的门：独立端口 `pnpm test:e2e` 全链、`git diff --check`、颜色零改的 grep 验证。
-   **注意**：跑全链会把 `release/evidence/` 下四个历史证据包写脏（见 §8），跑完须
-   `git checkout --` 还原，不得随本票提交。
-4. 全链跑完后据实补 §4 的读数与用例数，并把本节从「WIP」改写为完工回执。
-5. 本票仍**不得自验收**，独立 PASS 前不清账。
+1. ESLint 只按既有 capture 脚本模式补 browser globals；P1-N106 只按用户架构裁定落账，均未扩
+   runtime、schema、ABI、状态机、组件文件或依赖。
+2. 首轮全量 E2E 为 **391/402**：本票新增七枚全绿；十枚确定性红来自旧用例继续把瞬态只读
+   Sample 当作可归档、可编辑或可持久切换的真实案件，一枚为并发 hover 指针漂移。为证明非本票
+   回归，在冻结提交 `ee7bbd1` 的临时 detached worktree 复跑 `global-verbs.spec.ts:92` 与
+   `work-live.spec.ts:236`，两枚同样 **2/2 红**；临时 worktree 已删除，未形成基线改动。
+3. 同层最小修复仅改五份 E2E：`global-verbs`／`rp211`／`work-budget`／`work-live`／`workbench`
+   通过既有 `createNamedCase` 建真实案件，保持原归档、编辑、跨案与 motion 语义；复制按钮用例
+   改为直接 hover 目标按钮（父卡 `:hover` 仍是真触发），消除并发布局位移后指针离卡的抖动。
+   未改产品 CSS、helper 导出或任何契约。定向 **69/69**，最终全量 **402/402**。
+4. 全量 E2E 覆写的四个历史证据包均按 §8 精确还原，`git status` 无历史 PNG；视觉矩阵仍只保留
+   本票自己的 13 帧与 manifest。
+5. **剩余动作仅为不同会话独立验收。** 独立验收须在 clean worktree、fresh 端口复跑机器门、
+   mutation 与视觉矩阵，并在 `apps/desktop/ACCEPTANCE.md` 留痕；本实现会话不写 PASS、不清账。
 
 ### 8 · 附：`release/evidence/` 历史包被写脏的归因（本轮实证）
 
@@ -237,8 +244,8 @@ dark 1440 与浅宗改动同构、色相未动。
 
 ### 9 · 提交
 
-见本票分支 `gui-composition-1` 的 WIP 提交（SHA 随提交写入 commit message 与交接报告）。
-本会话未 push、未 rebase、未改基线、未自验收、未写 `ACCEPTANCE.md`。
+见本票分支 `gui-composition-1` 的实现提交；最终 SHA 随交接报告回传。
+实现会话未 push、未 rebase、未改基线、未自验收、未写 `ACCEPTANCE.md`。
 
 ## 七、架构裁定 · `GC-C01-a` 撤销与 `GC-F2` 转出（2026-08-22）
 

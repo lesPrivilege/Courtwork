@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openModuleList, openWorkbench, submitDemoReview, tokenColor, waitForDemoReviewGate } from './helpers';
+import { createNamedCase, openModuleList, openWorkbench, submitDemoReview, tokenColor, waitForDemoReviewGate } from './helpers';
 
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await openWorkbench(page);
@@ -375,6 +375,7 @@ test('键盘触发与 reduced-motion 指针按压都不缩放', async ({ page })
 
 test('popover computed motion follows real anchor geometry and reduced-motion', async ({ page }) => {
   await openWorkbench(page);
+  await createNamedCase(page, '动效归档真实案');
 
   const plusTrigger = page.getByTestId('composer-plus');
   await plusTrigger.click();

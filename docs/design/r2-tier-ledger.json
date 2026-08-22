@@ -1317,6 +1317,17 @@
       "fragmentKind": "selector"
     },
     {
+      "target": "apps/desktop/src/styles.css#.pi-tool-card|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N106",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false,
+      "fragmentKind": "selector"
+    },
+    {
       "target": "docs/design/tokens.json#typography.family.ui",
       "tier": "agent-interface",
       "approvedProposalLine": "P2-T01",

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { compileDraftToDocx } from '@courtwork/output';
-import { openWorkbench } from './helpers';
+import { createNamedCase, openWorkbench } from './helpers';
 
 const GRANT_ID = 'grant-budget';
 /**
@@ -133,7 +133,8 @@ async function persistedRef(page: Page) {
 
 async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   const ref = await persistedRef(page);
-  await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
+  // Sample 是只读、瞬态入口；真实案出现后它退出，因此切案必须显式创建第二个真实案。
+  await createNamedCase(page, '预算切换中转案');
   await page.getByTestId(`case-card-${ref.caseId}`).locator('button.case-card-main').click();
   await page.getByTestId('segment-work').click();
   await page.getByTestId('scene-legal.S3').click();
