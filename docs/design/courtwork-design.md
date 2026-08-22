@@ -8,53 +8,53 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "cd2aeeb07b77947a9890784b4cc2c6fe0e6deafaef4812455a4060186178fc0c"
+      sha256: "228f01af2b4fa86f09ef28e9b3956c12ffde41ef9c53baadbc7756dcd15eaaeb"
     "docs/design/principles.md":
-      sha256: "fdd9e0d768394c2422bceaf181d63d40628696681dfdc7399213db9e829574bb"
+      sha256: "b12b354f7aa303dbd2a118e7fe2705ce6514c06f0173bfb470c02a8904f87794"
   tokenSet:
     name: "courtwork-design-tokens"
-    version: "1.3.0"
-    date: "2026-07-18"
+    version: "1.4.0"
+    date: "2026-08-22"
 tokens:
   color:
     bg:
       app:
-        value: "#FBFCFE"
+        value: "#FAFBFB"
       surface:
-        value: "#F6F8FB"
+        value: "#F3F4F5"
       raised:
         value: "#FFFFFF"
       hover:
-        value: "#EEF2F7"
+        value: "#ECEEEF"
       controlHover:
-        value: "#E7ECF3"
+        value: "#E5E8E9"
       selected:
-        value: "#E7EEF9"
+        value: "#DDE2E4"
     text:
       primary:
-        value: "#232B38"
+        value: "#272C31"
       secondary:
-        value: "#55617A"
+        value: "#586168"
       tertiary:
-        value: "#637083"
+        value: "#667078"
       disabled:
-        value: "#8A94A8"
+        value: "#90989E"
       inverse:
-        value: "#FBFCFE"
+        value: "#FAFBFB"
     border:
       hairline:
-        value: "#DFE5EE"
+        value: "#DCE0E2"
       strong:
-        value: "#C9D3E1"
+        value: "#C8CED1"
       focus:
         value: "#2563EB"
     action:
       primaryBg:
-        value: "#232B38"
+        value: "#272C31"
       primaryFg:
-        value: "#F7F8FA"
+        value: "#FAFBFB"
       primaryHoverBg:
-        value: "#3A4658"
+        value: "#3B4247"
       link:
         value: "#2563EB"
     semantic:
@@ -64,9 +64,9 @@ tokens:
           fg: "#15803D"
           bg: "#F0FDF4"
         b:
-          graphic: "#55617A"
-          fg: "#55617A"
-          bg: "#F2F4F7"
+          graphic: "#586168"
+          fg: "#586168"
+          bg: "#F3F4F5"
         c:
           graphic: "#8F6420"
           fg: "#8F6420"
@@ -81,9 +81,9 @@ tokens:
           fg: "#8F6420"
           bg: "#FAF3E6"
         low:
-          graphic: "#55617A"
-          fg: "#55617A"
-          bg: "#F2F4F7"
+          graphic: "#586168"
+          fg: "#586168"
+          bg: "#F3F4F5"
       revision:
         insert:
           graphic: "#2563EB"
@@ -105,13 +105,13 @@ tokens:
           fg: "#15803D"
           bg: "#F0FDF4"
         rejected:
-          graphic: "#55617A"
-          fg: "#55617A"
-          bg: "#F2F4F7"
+          graphic: "#586168"
+          fg: "#586168"
+          bg: "#F3F4F5"
       usage:
         normal:
-          graphic: "#55617A"
-          fg: "#55617A"
+          graphic: "#586168"
+          fg: "#586168"
         warn:
           graphic: "#8F6420"
           fg: "#8F6420"
@@ -122,7 +122,7 @@ tokens:
         generatedFont:
           value: "ui"
         generatedBg:
-          value: "#FBFCFE"
+          value: "#FAFBFB"
         verifiedBg:
           value: "#F0F4FE"
         verifiedFont:
@@ -137,7 +137,7 @@ tokens:
       attention:
         value: "#8F6420"
       neutral:
-        value: "#55617A"
+        value: "#586168"
       settled:
         value: "#BE4B2F"
   themes:
@@ -386,16 +386,16 @@ tokens:
   elevation:
     canvas:
       value: "{color.bg.app}"
-      resolved: "#F7F8FA"
+      resolved: "#FAFBFB"
     rail:
       value: "{color.bg.surface}"
-      resolved: "#F2F4F7"
+      resolved: "#F3F4F5"
     float:
       value: "{color.bg.raised}"
       resolved: "#FFFFFF"
     floatBorder:
       value: "{color.border.hairline}"
-      resolved: "#D5DAE3"
+      resolved: "#DCE0E2"
     floatRadius:
       value: 12
     floatInset:
@@ -403,7 +403,7 @@ tokens:
     shellGap:
       value: 28
     shadow:
-      value: "0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035)"
+      value: "0 1px 2px rgba(39,44,49,0.045), 0 4px 12px rgba(39,44,49,0.035)"
     titlebar:
       value: "transparent"
     warnBg:
@@ -463,7 +463,7 @@ tokens:
       value: "1800ms"
       easing: "linear"
       iteration: "infinite"
-      color: "rgba(35, 43, 56, 0.55)"
+      color: "rgba(39, 44, 49, 0.55)"
     longTaskBreath:
       value: "2000ms"
       easing: "ease-in-out"
@@ -499,16 +499,16 @@ tokens:
       paddingY: 1
       radius: 4
       bg: "#FFFFFF"
-      border: "#C3CAD6"
+      border: "#C8CED1"
       borderBottomWidth: 2
-      fg: "#55617A"
+      fg: "#586168"
     tierBadge:
       size: 12
       font: "mono"
       box: 16
       radius: 4
     gridline:
-      color: "#D5DAE3"
+      color: "#DCE0E2"
       width: 1
     listRow:
       height: 30
@@ -536,13 +536,13 @@ tokens:
 ## 一、token 集元信息
 
 - **name**：courtwork-design-tokens
-- **version**：1.3.0
-- **date**：2026-07-18
-- **status**：现行设计 token 唯一机器真值。color.* = 刻本印页宗（浅，B1 已置换并接线消费面）；themes.dark = 磁青宗（深，已由 SKIN-R2 P4 上身接线，见 theme 条）
+- **version**：1.4.0
+- **date**：2026-08-22
+- **status**：现行设计 token 唯一机器真值。color.* = 冷白／铅灰浅宗（GUI-LEAD-WHITE-1 已置换）；themes.dark = 磁青宗（深，值面不随本批）
 - **naming**：领域无关（docs/decisions/ADR-001-package-abi.md 纪律）：tier / severity / revision / gate / usage 均无法律语义，法律语义只存在于消费方的数据与文案中
-- **sources**：锚色 #232B38（B1 由 #0A2540 迁入，缘由见 themes.$anchor）；中性阶由锚色派生；字重按轨分档（B2-0 三轨制）：功能轨 400/510、标题轨 400/600、文书轨单 400（零粗体律）；语义线与文字使用图形/前景双轨
-- **neutralSource**：整条中性阶由锚色 #232B38（H≈217°）降饱和升明度派生，双宗冷调中性 33 值实测落 214.3°–222.9°（两端为 bg.controlHover 与 semantic.provenance.verifiedBg）。禁无色相灰（白卡豁免）与暖调中性（B≥R）。机器门：assert-neutral-source.mjs——**门只验无色相灰与暖调两条，不含色相带约束**：本行的带宽是实测记述而非准入条件，勿当门读。**订正注记（2026-07-19 B2-0 期逐值复算）**：原自述「收敛于 216–220°」与实测不符，两端值均 B1 前既有、非任何后续批次引入；本次只更正记述以合实测，不新增带约束（加带即新概念，复杂度节制条挡；后批若要收带，另立议题并带测据）
-- **theme**：双主题（2026-07-19 拍板：深色模式随皮层迁移顺带交付）。color.* 即刻本印页宗（浅），B1 已置换；themes.dark（磁青宗）已由 SKIN-R2 P4 上身——置换发生在单个 :root[data-theme='dark'] 块内，纯 token 换值、零组件分支、零几何声明，边界由 deslop 的 theme-boundary 门锁三类逃逸（组件级 [data-theme] selector / prefers-color-scheme / 暗宗根内布局声明）。原「浅色唯一·深色不进 MVP（principles.md 硬性）」自述已废止——principles.md 从未载有该硬性条款，属陈旧引用（迁移 Plan C-2 定谳）。D-2 更正 2026-07-20：本条与 $meta.status 原写「B5 目标值·零消费面·届时置换」，在 P4 落地后即失效，此次改为现状表述
+- **sources**：浅宗铅墨锚 #272C31（H=210°、S≈11%），由 GUI-LEAD-WHITE-1 以用户实帧反馈从偏蓝刻本墨迁入；中性阶由该低饱和铅墨派生；深宗磁青值面独立保留。字重按轨分档：功能轨 400/510、标题轨 400/600、文书轨单 400；语义线与文字使用图形/前景双轨
+- **neutralSource**：浅宗中性阶由低饱和铅墨 #272C31 派生：L0 冷白、L1 铅灰、L2 白纸；普通 hover／selected／border 不借 semantic blue。禁暖调中性（B≥R），白卡豁免无色相规则。深宗继续使用磁青阶。机器门 assert-neutral-source 负责色温与单源，versional contract 负责 GUI-LEAD-WHITE-1 精确值和旧淡蓝 selected 反例
+- **theme**：双主题。color.* 是 GUI-LEAD-WHITE-1 冷白／铅灰浅宗；themes.dark 是磁青深宗。主题置换只发生在单个 :root[data-theme='dark'] token 块内，零组件分支、零几何声明；deslop theme-boundary 门锁组件级 selector、prefers-color-scheme 与暗宗根内布局声明三类逃逸
 
 ## 二、交互与视觉原则（principles.md 要点）
 
@@ -639,7 +639,7 @@ tokens:
 
 - 陌生化只许经三条通道：**色温**（唯一冷中性阶，§2 现法）、**记录性排印**（版本目录学：编号、等宽核验体、目录学标题，§4/§10 现法）、**语义红的稀缺在场**。不得经新增装饰元素、新增彩色或第二套气质表达。
 - 稀缺律：朱砂（`semantic.severity.high`）是界面唯一强彩声部，只随真实风险、不可逆动作与驳回在场；无风险即整屏无红——红的缺席本身是信息。chrome、空态、导航零彩色。
-- 冷的承担者是中性阶与纸温，不是彩色：蓝紫青不作气质强调；cool 由 H≈217° 派生阶与磁青宗承担。交互语义色（链接/焦点蓝、修订绿）按 §2「记号色古、交互语义色今」维持，不入气质预算。
+- 冷的承担者是中性阶与纸温，不是彩色：蓝紫青不作气质强调。浅宗由低饱和铅墨阶承担，深宗由磁青承担；链接／焦点／修订／核验蓝按 §2 维持既有语义，但普通导航选中、hover、边框与 chrome 不得借蓝营造气质。
 - 反乌托邦的界：制度纸感、冷光、档案记录性；禁霓虹、辉光、glitch、扫描线、CRT/终端绿、渐变彩带、dark-first cyberpunk。克制审计条款照常：新增视觉元素必须指认业务语义。
 - 数值零新增：本节不引入新 token、不加新门；「Dystopia」六格参照系已在册（severity.high／bg.app／surface／border 阶／text 阶／锚色）。
   - 辖面澄清（2026-08-09 架构裁定，随 `SKIN-DYSTOPIA-1` 落痕）：「零新增」辖**为表达气质而新增**的 token 与门；既有语义槽在另一宗的真源对称补格（值取现行解析结果、像素零变）与既有判据门的取样面扩宽（宗×面）不在此禁内——两者属已挂账欠账的兑现，须逐项绑定实现就绪图已挂账行，且不得借道引入新色族或新判据。
@@ -648,9 +648,9 @@ tokens:
 
 - 当前 desktop 首先是一件面向外界的作品，不是成熟产品宣称。功能纵切与观感／品味并重：前者
   提供真实状态和动作，后者组织注意力、节奏和默认值；不得把视觉长期降为“功能完成后的换肤”。
-- 默认主宗是**明亮冷白**：L0 接近白而保留可辨冷调，L1 只比 L0 稍深，L2 为白卡；藏青只作
-  ink、结构与主操作，不作默认大面积画布。精确值只认 `tokens.json`，当期置换票为
-  `WORK-AGENT-SHOWCASE-1`。
+- 默认主宗是**冷白／铅灰**：L0 接近白，L1 是低饱和铅灰，L2 为白纸；正文与主操作用近黑铅墨，
+  蓝只作链接、焦点、修订与核验等显式语义，不作普通选中或大面积 chrome。精确值只认
+  `tokens.json`；`GUI-LEAD-WHITE-1` 以用户实帧反馈覆盖 `WORK-AGENT-SHOWCASE-1` 的偏蓝浅宗值。
 - 成熟感来自一条任务的完整因果线、单一主焦点、默认可用动作、渐进披露和边缘态闭合，不来自
   卡片数量、重阴影或动效数量。session id、hash、bytes 等审计信息必须可达，但默认退居运行详情。
 - matter 级作者性只从真实上下文长出：案件／工作区、授权文件夹、材料、决定、账本、工作稿与
@@ -660,48 +660,48 @@ tokens:
 
 ## 三、token 用法语义（tokens.json 描述派生）
 
-- `color.bg.app` = `#FBFCFE` — 底纸（L0 画布/chat 地）：冷白纸，三级台阶最浅。新锚 #232B38 H≈217° 派生；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
-- `color.bg.surface` = `#F6F8FB` — 竖栏容器底（左栏/右栏收敛条）：三级台阶中层，比底纸略深；WORK-AGENT-SHOWCASE-1 由 #F2F4F7 抬为 #F6F8FB
+- `color.bg.app` = `#FAFBFB` — 底纸（L0 画布/chat 地）：接近白的冷白纸；GUI-LEAD-WHITE-1 去除淡蓝 Demo 感
+- `color.bg.surface` = `#F3F4F5` — 竖栏容器底（左栏/右栏收敛条）：低饱和铅灰，比底纸略深
 - `color.bg.raised` = `#FFFFFF` — 白卡最亮：内容卡片/文书纸面/composer 输入纸
-- `color.bg.hover` = `#EEF2F7` — 行/项悬停底：冷调，在 surface 与 raised 上均可辨。出处 color-mix(in srgb, text.primary 6%, bg.surface)——B1 实测覆核修正 B0 自拟 Q6：G6 图主题渲染到 canvas 无法消费 CSS color-mix，且 assert-graph-theme 读 .value 字面量，故派生式降为出处记录、解析值为真值。WORK-AGENT-SHOWCASE-1 由 #E6E8EC 抬为 #EEF2F7
-- `color.bg.controlHover` = `#E7ECF3` — 扁平按钮 hover 深色块，与 selected 分离；CSS --control-hover。出处 color-mix(in srgb, text.primary 10%, bg.surface)。WORK-AGENT-SHOWCASE-1 由 #DDE0E4 抬为 #E7ECF3
-- `color.bg.selected` = `#E7EEF9` — 选中项底：蓝感强于 hover 族（B−R=18，hover 为 9），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)。WORK-AGENT-SHOWCASE-1 由 #D9E3F6 抬为 #E7EEF9
-- `color.text.primary` = `#232B38` — 正文与标题。刻本墨色，拒纯黑与暖灰（docs/design/principles.md 采纳）
-- `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.app #FBFCFE 6.06:1 / 对 bg.surface #F6F8FB 5.84:1 / 对 bg.raised #FFFFFF 6.22:1，三面均达 AA 正文档
-- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 4.8988 / 4.7267 / 5.0288（app / surface / raised），**最严面 surface 4.7267 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 当时保持其原值，双宗共用中性就此拆分。**事实订正（2026-08-09 SKIN-DYSTOPIA-1 项 A，同 Q8 族）**：「不随动」的依据是当时自述的深宗无缺口，该前提已被宗×面二维门实测证否，深宗此位已随槽收口为 #8B99B0；拆分本身不变（两宗各按本宗最严面复算）
-- `color.text.disabled` = `#8A94A8` — 禁用态文字。H≈217° 同源
-- `color.text.inverse` = `#FBFCFE` — 深底（主按钮）上的文字：冷白（=bg.app）；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
-- `color.border.hairline` = `#DFE5EE` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源；WORK-AGENT-SHOWCASE-1 由 #D5DAE3 抬为 #DFE5EE
-- `color.border.strong` = `#C9D3E1` — 输入框、需要更强边界的容器。H≈217° 同源；WORK-AGENT-SHOWCASE-1 由 #C3CAD6 抬为 #C9D3E1
+- `color.bg.hover` = `#ECEEEF` — 行/项悬停底：铅灰浅档，在 surface 与 raised 上均可辨；canvas 消费解析值而非 CSS color-mix
+- `color.bg.controlHover` = `#E5E8E9` — 扁平按钮 hover 铅灰块，与 selected 以明度分离；CSS --control-hover
+- `color.bg.selected` = `#DDE2E4` — 选中项底：铅灰深档，不借 semantic blue；链接／焦点／修订蓝仍按原语义出现
+- `color.text.primary` = `#272C31` — 正文与标题。近黑铅墨，拒纯黑、暖灰与偏蓝 navy chrome
+- `color.text.secondary` = `#586168` — 次级说明、标签。对 bg.app / bg.surface / bg.raised 为 6.09 / 5.74 / 6.32，三面均达 AA 正文档
+- `color.text.tertiary` = `#667078` — 元信息、占位符。对 bg.app / bg.surface / bg.raised 为 4.88 / 4.59 / 5.06，最严 surface 仍过 AA 正文 4.5；深宗 tertiary 独立保持
+- `color.text.disabled` = `#90989E` — 禁用态文字。低饱和铅灰；不承担正文信息
+- `color.text.inverse` = `#FAFBFB` — 深底（主按钮）上的文字：冷白（=bg.app）
+- `color.border.hairline` = `#DCE0E2` — 全站默认描边与网格线：1px 低饱和铅灰，无影
+- `color.border.strong` = `#C8CED1` — 输入框、需要更强边界的容器。铅灰强档
 - `color.border.focus` = `#2563EB` — 键盘焦点环，复用 revision.insert 色相（预算内复用）
-- `color.action.primaryBg` = `#232B38` — 主按钮底 = ink。主操作不占语义色预算（vercel 黑按钮范式）
+- `color.action.primaryBg` = `#272C31` — 主按钮底 = ink。主操作不占语义色预算（vercel 黑按钮范式）
 - `color.action.link` = `#2563EB` — 链接/溯源跳转。与 revision.insert 同色相，蓝 = 可点击/新增，符合 Word 心智
 - `color.semantic` — 语义色预算全表。每项拆为 graphic（线体/图形，保留高纯度原色）与 fg（12px 文本，按对应 bg 复算至 WCAG AA）双轨；色相总数仍为 4（红/琥珀/蓝/绿）+ 中性板岩灰。tint（*.bg 浅底）只许用于徽章/chip/角标/修订字符底纹/AI callout，禁止作任何数据卡片或列行的背景——数据容器永远纯白底，状态由法理之线表达（划界见本节 tint 条款与 principles.md §2）
 - `color.semantic.tier` — 信源分级角标（docs/decisions/ADR-003-evidence-and-anchors.md：A 官方权威 / B 私域维护库 / C 开放网络参考）
 - `color.semantic.tier.a` = `graphic #16A34A · fg #15803D · bg #F0FDF4` — 已核验权威源
-- `color.semantic.tier.b` = `graphic #55617A · fg #55617A · bg #F2F4F7` — 库内维护源，可信中性
+- `color.semantic.tier.b` = `graphic #586168 · fg #586168 · bg #F3F4F5` — 库内维护源，可信中性
 - `color.semantic.tier.c` = `graphic #8F6420 · fg #8F6420 · bg #FAF3E6` — 网络参考，未经核验须人工确认
 - `color.semantic.severity` — 风险/问题等级
 - `color.semantic.severity.high` = `graphic #A83226 · fg #A83226 · bg #FBEBE9` — 高危。法理之线保留拍板红
 - `color.semantic.severity.medium` = `graphic #8F6420 · fg #8F6420 · bg #FAF3E6` — 中危
-- `color.semantic.severity.low` = `graphic #55617A · fg #55617A · bg #F2F4F7` — 低危 = 中性灰，刻意不占彩色预算
+- `color.semantic.severity.low` = `graphic #586168 · fg #586168 · bg #F3F4F5` — 低危 = 中性灰，刻意不占彩色预算
 - `color.semantic.revision` — 修订痕迹。忠实 Word 修订心智：红删蓝增（docs/design/principles.md 裁定，Loom-Diff 半透明方案已否决）
 - `color.semantic.revision.insert` = `graphic #2563EB · fg #1D4ED8 · bg #EFF6FF` — 新增文字：蓝 + 下划线。法理之线保留拍板蓝
 - `color.semantic.revision.delete` = `graphic #A83226 · fg #A83226 · bg #FBEBE9` — 删除文字：红 + 删除线，字形保留可核对
 - `color.semantic.gate` — 确认门禁三态，与 schema DispositionStatus 枚举一一对应（pending/confirmed/rejected）
 - `color.semantic.gate.pending` = `graphic #8F6420 · fg #8F6420 · bg #FAF3E6` — 待确认
 - `color.semantic.gate.confirmed` = `graphic #16A34A · fg #15803D · bg #F0FDF4` — 已确认。法理之线保留拍板绿
-- `color.semantic.gate.rejected` = `graphic #55617A · fg #55617A · bg #F2F4F7` — 已驳回 = 退出视觉舞台，中性灰非红（驳回是处置不是错误）
+- `color.semantic.gate.rejected` = `graphic #586168 · fg #586168 · bg #F3F4F5` — 已驳回 = 退出视觉舞台，中性灰非红（驳回是处置不是错误）
 - `color.semantic.usage` — 状态条用量圆盘三态（docs/design/principles.md）
 - `color.semantic.usage.critical` = `graphic #A83226 · fg #A83226` — 红色态直接接一键续行按钮，文案用办案阶段心智
 - `color.semantic.provenance` — 生成与确定的视觉区隔（docs/design/principles.md）：AI 生成的解释性文字 = sans 字族 + generated 冷灰底；工具核验结果/原文引语/结构化引用 = mono 字族 + verified 冷灰蓝底。两条通道的样式恒定，不得混用，不得用彩色表达（彩色预算属于语义状态）
 - `color.semantic.provenance.generatedFont` = `ui` — AI 解释文字：功能轨（工具字）+ text.secondary，搭配 generatedBg。B2-0 前称 sans
-- `color.semantic.provenance.generatedBg` = `#FBFCFE` — AI callout 无线底纹：复用 bg.app 底纸值（白卡上的微差底），不占语义色预算；WORK-AGENT-SHOWCASE-1 由 #F7F8FA 抬为 #FBFCFE
+- `color.semantic.provenance.generatedBg` = `#FAFBFB` — AI callout 无线底纹：复用 bg.app 冷白底纸，不占语义色预算
 - `color.semantic.provenance.verifiedBg` = `#F0F4FE` — 核验内容底纹：冷灰蓝（蓝感强于 generatedBg，双轨可辨），叠于 bg.raised 之上，radius.sm
 - `color.semantic.provenance.verifiedFont` = `mono` — 核验内容（引语、编号、核验结果值）用 mono；伴随的文件名链接保持功能轨
 - `color.line` — 签名动作「法理之线」专用图形色（完整规格见 signature-line.md）。文字不得消费本组值，须消费 semantic.*.fg。封闭集六色（2026-07-19 拍板由五扩六）——封闭是设计法，基数不是：封闭集保护的是「每色有语义」，不是「恰好五个」；经拍板的语义扩容是封闭集的正常演化，无语义的加色才是它要挡的。机器门：assert-signature-line.mjs
 - `color.line.attention` = `#8F6420` — 补全态：待人处理/未核验
-- `color.line.neutral` = `#55617A` — 处置态：已驳回 = 退出工作集；低危待处理无线，严重度由等级徽章表达
+- `color.line.neutral` = `#586168` — 处置态：已驳回 = 退出工作集；低危待处理无线，严重度由等级徽章表达
 - `color.line.settled` = `#BE4B2F` — 朱＝印记色，非状态色（2026-07-19 拍板）。绿保持全部既有语义位（gate.confirmed/tier.a——系统与权威的确认「状态」），朱只出现在人工裁决留下印记之处：法理之线的落定态与落定章。分工而非竞争——绿答「它处于什么态」，朱答「谁把它按下去的」。出现处必须绑定已落定处置数据态，无落定数据的朱即违例
 - `themes.dark` — 磁青宗 · 产品壳 dark theme（与站同源）。写经传统的深靛蓝纸，冷色古典脉
 - `themes.dark.bg.app` = `#0F1622` — 底纸。原型最高频底（18×）
@@ -712,7 +712,7 @@ tokens:
 - `themes.dark.bg.selected` = `#233965` — 选中项底：蓝感强于 hover 族，不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 18%, bg.raised)——派生式降为出处记录、解析值为真值。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：同上，像素零变
 - `themes.dark.text.primary` = `#E4E9F1` — 正文与标题。对底纸 14.87:1
 - `themes.dark.text.secondary` = `#A9B4C6` — 次级。对底纸 8.66:1
-- `themes.dark.text.tertiary` = `#8B99B0` — 元信息。三面 6.2868 / 5.6806 / 4.6032（app / surface / raised），**最严面 raised 4.6032 过 AA 正文 4.5**。**订正（2026-08-09 SKIN-DYSTOPIA-1 Q8，只改事实陈述不改判据）**：原描述「深底上本值对比充裕，无缺口可闭」经宗×面二维门实测证否——旧值三面实测 4.2836 / 3.8705 / 3.1364，三面全不达 4.5；缺口一直是真的，只是原门单宗单面从未取样到它。本次随槽收口（readiness `PI-LANE-UI-1` 行第三条后置条款兑现），取值法循浅宗 c636b1c 贴阈先例：沿本宗中性阶等比提亮，H 与锚色同源、B≥R 冷调律不破。代价如实登记——与 secondary #A9B4C6 的明度间距收窄，中性阶第三、四档自此贴近（与浅宗闭合时同族的代价）。**双宗此位仍拆分**（2026-07-19 定谳的这一半不变）：浅宗 #637083、深宗本值，各按本宗最严面复算。旧值 #6E7C92 仍是本宗活值（themes.dark.semantic.slate.graphic 在用），不入退役黑名单
+- `themes.dark.text.tertiary` = `#8B99B0` — themes.dark.text.tertiary 元信息。三面 6.2868 / 5.6806 / 4.6032（app / surface / raised），最严面 raised 过 AA 正文 4.5。2026-08-09 随槽收口后与 secondary 的明度间距收窄；双宗此位保持拆分，浅宗现为 #667078，深宗取本值，各按本宗最严面复算。#6E7C92 仍是深宗 semantic.slate.graphic 活值
 - `themes.dark.text.disabled` = `#4C5A70` — B0 自拟：禁用态，取自本宗中性阶
 - `themes.dark.text.inverse` = `#0F1622` — 浅底（主按钮）上的文字
 - `themes.dark.border.hairline` = `#2A3A52` — B0 自拟：默认描边。原型该值用于强边界，此处上移一档以避免与 bg.raised (#223047) 同值碰撞；对 raised ΔL≈3.7，属深色主题常规区间，层级由线重（rule.major）而非对比度承担
@@ -777,7 +777,7 @@ tokens:
 - `elevation.floatRadius` = `12` — L1 圆角。列表卡仍用 radius.md/sm；浮面外壳用 12（docs/decisions/ADR-006-ui-host.md）
 - `elevation.floatInset` = `8` — 左右 L1 浮卡相对 L0 画布的窗口外缘（px）。2026-07-13 macOS Overlay 真机纠偏：8px 外缘 + 12px 圆角使左上圆心落在 (20,20)，完整承托原生交通灯；CSS --elevation-float-inset
 - `elevation.shellGap` = `28` — 浮面之间的现行间距；CSS --elevation-shell-gap
-- `elevation.shadow` = `0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035)` — 藏青双层低透明短距投影；非零投影只可由此 token 单点供给
+- `elevation.shadow` = `0 1px 2px rgba(39,44,49,0.045), 0 4px 12px rgba(39,44,49,0.035)` — 铅墨双层低透明短距投影；非零投影只可由此 token 单点供给
 - `elevation.titlebar` = `transparent` — 标题栏融入红绿灯 chrome 层
 - `elevation.warnBg` = `{color.semantic.gate.pending.bg}` — 标题栏 failed 琥珀警示底（复用 gate.pending，不新增色）
 - `home` — 低密度主屏/左栏专用；schema dense 区禁止消费。iconSize=18 为光学尺寸豁免；surfaceRadius=16 仅主屏低密度大面。
@@ -798,7 +798,7 @@ tokens:
 - `component.control` — 按钮与工具控件只消费此组，不在组件内散落尺寸/字重
 - `component.preview` — Preview 宿主结构位：语义 gutter、只读滚动轨与右栏三区高度
 - `component.signatureLine` — 完整交互规格见 signature-line.md
-- `component.kbd` = `fg #55617A · bg #FFFFFF` — 常驻快捷键提示；键帽感由 border-bottom 2px 表达，不用 box-shadow。规格见 typography-density.md
+- `component.kbd` = `fg #586168 · bg #FFFFFF` — 常驻快捷键提示；键帽感由 border-bottom 2px 表达，不用 box-shadow。规格见 typography-density.md
 - `component.tierBadge` — 信源角标：16px 方格内 12px 等宽单字母 A/B/C，取 semantic.tier.* 配色
 - `component.gridline` — 标题栏、工具栏、面板头、状态条与列表的统一 1px 分隔线
 - `component.listRow` — 紧凑数据列表；单行截断，详情靠展开行

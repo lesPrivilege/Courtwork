@@ -39,8 +39,13 @@ test('注入眉批退回四周卡框时定点失败', () => {
 });
 
 test('注入参考浅宗色阶漂移时定点失败', () => {
-  const mutated = css.replace('--bg-app: #FBFCFE;', '--bg-app: #FBFCFB;');
+  const mutated = css.replace('--bg-app: #FAFBFB;', '--bg-app: #FAFBFC;');
   assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL2-C01 Pages 浅宗色阶漂移/);
+});
+
+test('注入旧淡蓝 selected 时定点失败', () => {
+  const mutated = desktopCss.replace('--bg-selected: #dde2e4;', '--bg-selected: #e7eef9;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /GLW-C01 Agent 冷白／铅灰浅宗漂移：--bg-selected/);
 });
 
 test('注入 hero 宋体退回轻端时定点失败', () => {

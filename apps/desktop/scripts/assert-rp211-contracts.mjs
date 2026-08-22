@@ -47,9 +47,9 @@ need(/--elevation-shell-gap:\s*28px/.test(css) && /--elevation-float-inset:\s*8p
 // —— ⑥ message 按钮缩档 ——
 need(/\.message-actions button\s*\{[^}]*width:\s*20px/.test(css), '⑥ message 按钮须缩至 20px');
 // —— ⑦ hover 深色块 token（hover 与 selected 分离） ——
-// WORK-AGENT-SHOWCASE-1：冷白主宗把 --control-hover 抬为 #e7ecf3。
-// 「hover 与 selected 两语义两色」的约束不变，只换值——两者可辨性实测 B−R：selected 18 / hover 9。
-need(/--control-hover:\s*#e7ecf3/.test(css), '⑦ --control-hover 须为 #e7ecf3');
+// GUI-LEAD-WHITE-1：普通 hover 与 selected 同属铅灰阶，蓝只保留链接／焦点／修订等语义。
+// 两语义仍用两档明度区分，不把导航选中误写成 semantic blue。
+need(/--control-hover:\s*#e5e8e9/.test(css), '⑦ --control-hover 须为 #e5e8e9');
 need(!/var\(--bg-hover\)/.test(css), '⑦ 扁平按钮 hover 须全迁 --control-hover（无残留 --bg-hover）');
 
 // —— ⑧ 长消息收敛：渐隐遮罩 + Show more/less（过渡而非硬切；纯呈现层） ——

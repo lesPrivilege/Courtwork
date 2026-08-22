@@ -25,23 +25,23 @@
 
 :root {
   font-family: var(--font-ui);
-  color: #232b38;
-  background: #fbfcfe;
+  color: #272c31;
+  background: #fafbfb;
   font-synthesis: none;
-  /* 中性色单源律（docs/design/tokens.json）：H=210° 藏青锚派生，三级明度台阶 底纸→竖栏→白卡 */
-  --bg-app: #fbfcfe;
-  --bg-surface: #f6f8fb;
+  /* GUI-LEAD-WHITE-1：H=210° 低饱和铅墨派生，三级明度台阶 冷白底纸→铅灰竖栏→白纸 */
+  --bg-app: #fafbfb;
+  --bg-surface: #f3f4f5;
   --bg-raised: #fff;
-  --bg-hover: #eef2f7;
-  /* RP-2.11 ⑦：扁平按钮 hover 深色块——与 selected 蓝分离（两语义两色） */
-  --control-hover: #e7ecf3;
-  --bg-selected: #e7eef9;
-  --text-primary: #232b38;
-  --text-secondary: #55617a;
-  --text-tertiary: #637083;
-  --text-disabled: #8a94a8;
-  --border: #dfe5ee;
-  --border-strong: #c9d3e1;
+  --bg-hover: #eceeef;
+  /* GUI-LEAD-WHITE-1：hover / selected 以铅灰明度分档；普通 chrome 不借 semantic blue。 */
+  --control-hover: #e5e8e9;
+  --bg-selected: #dde2e4;
+  --text-primary: #272c31;
+  --text-secondary: #586168;
+  --text-tertiary: #667078;
+  --text-disabled: #90989e;
+  --border: #dce0e2;
+  --border-strong: #c8ced1;
   --border-focus: #2563eb;
   /* 线级语法（docs/design/tokens.json rule.*）：线重即层级语义，替换均一 1px 单线。
      主界＝文武线（major 粗线在外 + gap + minor 细线在内），次界＝乌丝细线（minor）。
@@ -50,8 +50,8 @@
   --rule-minor: 1px;
   --rule-gap: 2px;
   --rule-ink: var(--border-strong);
-  --action-primary-hover: #3a4658;
-  --generated: #fbfcfe;
+  --action-primary-hover: #3b4247;
+  --generated: #fafbfb;
   --verified: #f0f4fe;
   --red-graphic: #a83226;
   --red-fg: #a83226;
@@ -61,17 +61,17 @@
   --amber-bg: #faf3e6;
   /* VERSIONAL-LANG-3：重要标题的双宗语义别名。浅宗仍是冷墨；泥金只在深宗进入
      欢迎题、案件题、设置总题与图谱总题，不进入正文、功能标签、schema 或数据。 */
-  --important-title: #232b38;
-  --text-inverse: #fbfcfe;
+  --important-title: #272c31;
+  --text-inverse: #fafbfb;
   --blue-graphic: #2563eb;
   --blue-fg: #1d4ed8;
   --blue-bg: #eff6ff;
   --green-graphic: #16a34a;
   --green-fg: #15803d;
   --green-bg: #f0fdf4;
-  --slate-graphic: #55617a;
-  --slate-fg: #55617a;
-  --slate-bg: #f2f4f7;
+  --slate-graphic: #586168;
+  --slate-fg: #586168;
+  --slate-bg: #f3f4f5;
   /* 朱＝印记色非状态色（2026-07-19 拍板）：绿保持全部既有语义位，朱只出现在人工裁决留下印记之处。
      绿答「它处于什么态」，朱答「谁把它按下去的」。法理之线封闭集由此五扩六 */
   --zhu-graphic: #be4b2f;
@@ -143,7 +143,7 @@
   /* detached chrome 次序照 macOS/Codex：交通灯 → sidebar/search → 内容；80px = 2×28px
      应用按钮 + 2×8px 组内 gap + 8px 内容净距。标题从该安全区之后起排。 */
   --window-chrome-detached-title-safe-inline: calc(max(0px, calc(var(--elevation-float-radius) - var(--mac-window-control-size) / 2)) + var(--mac-window-controls-group-width) + 80px);
-  --elevation-shadow: 0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035);
+  --elevation-shadow: 0 1px 2px rgba(39,44,49,0.045), 0 4px 12px rgba(39,44,49,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
   --elevation-warn-fg: var(--amber-fg);
