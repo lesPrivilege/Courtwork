@@ -8424,3 +8424,60 @@ fg，不把 ordinary chrome 借为 blue；semantic blue 仅留给既有 focus/se
 source boundary、exact theme/de-slop contract、五枚 mutation、decorated/card 回归、fresh 26 帧矩阵、
 root 2251、site guard 116、build、lint 与最终 **407/407（1 worker）** 全部通过。因此本票 **PASS**。
 本回执不宣称真实 Tauri/WKWebView、provider 或 product-live 成熟度，也不更新 `current.md`。
+
+## GUI-OPTICAL-POLISH-1 · GOP-C02 独立验收（2026-08-23，PASS）
+
+独立验收结论：**`PASS`，放行目标 `92e35d36faa04f11bc24610c860dd3bcddcca63b`**。
+验收者未参与实现；在全新 clean clone
+`/private/tmp/courtwork-gop-c02-accept.Xs9zb6/repo` 完成，未在共享主树 checkout、stash、restore 或写入。
+本回执只追加本文件与本轮独立证据目录，不修改 `SPEC`、`current.md` 或 `implementation-readiness.md`。
+
+### C02 contract and source boundary
+
+- `.pi-thread` 为 `flex: 1 1 auto`，viewport 独立 `overflow: auto`；composer 是 viewport 后的正常 flex sibling，
+  `flex: 0 0 auto`、`margin-bottom: 16px`，未使用 absolute/fixed/sticky。
+- 12 类 Agent/Pi Work chrome（绑定文件夹、模型设置、开始、重开、发送、停止、拒绝、允许、核验、打开工作稿、
+  关闭查看面、rail 管理）均有 32×32 button、18px custom SVG、非空 `aria-label`/`title`；button 内无可见文字，
+  每枚恰有一个 `aria-hidden` SVG。工作稿逻辑路径保留在 `.pi-draft-path` sibling 数据列。
+- `deny` 使用 `split-gate-slash`、位于 `approve` 前；`approve` 使用 `split-gate-check` 收尾。6 枚新增 SVG
+  `agent-{send,stop,restart,settings,close,open}` 均存在于 source → manifest → generated → verifier 链，
+  verifier 实测 26 具名／24 概念，C02 `addedInSpec` 闭集恰为 6 枚。
+
+### 独立实跑门
+
+| 门 | 独立实测 |
+|---|---|
+| 测试清单 | `playwright test --list`：**414 tests / 78 files**；test floor：414 |
+| C02 DOM/static | PiLanePanel C02 **5/5**，rail C02 **1/1**；optical、icons、hierarchy、elevation、motion、neutral 全绿 |
+| C02 fresh browser | port `19982`、`reuseExistingServer:false`、单 worker：**7/7 passed（12.6s）** |
+| 完整 desktop E2E | port `19984`、`reuseExistingServer:false`、单 worker：**414/414 passed（8.1m）** |
+| root tests | `pnpm test`：**183 files / 2251 tests passed** |
+| root lint | `pnpm lint`：EXIT 0 |
+| workspace build | `pnpm -r build`：EXIT 0，15/16 workspace scope；desktop Vite 4317 modules |
+| Pages/site guard | `pnpm site:guard`：**117 tests / 117 pass / 0 fail** |
+
+完整 E2E 的静态前链也逐项通过，包含 SVG verifier `26/24`、GOP-C01/C02 structural boundaries、App 高水位、
+isolation binding 与 playwright 假绿防护。端口监听在沙箱中的一次 EPERM 不计为测试结果；最终实跑均在独立
+端口、提升权限、单 worker 下完成。
+
+### Mutation 红证
+
+8 个 C02 反例逐一在 clean clone 注入、观察退出码 `1` 后精确复原：thread content-sized、composer absolute、
+可见 deny 文本、缺 accessible name、TSX inline SVG、Lucide 替代、丢失 draft path、交换 deny/approve 图形。
+每枚反例的具体命令与门禁报错写入
+`release/evidence/gui-optical-polish-1-gop-c02-acceptance-2026-08-23/mutation-red.txt`；最终源树
+`git diff --check` 通过且实现文件无差异。
+
+### Fresh visual evidence
+
+本轮独立生成 **42 个文件**（38 PNG、3 个矩阵 JSON、1 份 mutation red log），目录为
+`release/evidence/gui-optical-polish-1-gop-c02-acceptance-2026-08-23/`，未复用实现回执目录。矩阵含
+light/dark × 1180/1440/390 × empty/running/proposal/succeeded 共 **24** 条记录；独立机器读数为：
+`composerBottomGap=16`（24/24）、`viewportBottom=composerTop`（24/24）、`documentOverflow=false`（24/24）、
+提案按钮 `32×32`。另有 start gate、viewer、240px proposal squint 帧。
+
+人工目检 fresh light/dark 1440 proposal、dark running、390 proposal、start gate 与 viewer 帧：composer 沉底且
+不遮挡末项，提案红 slash／primary check 的位置与图形可辨，发送／停止／打开／关闭均为原生线框 SVG，窄宽无横溢。
+
+因此 GOP-C02 **PASS**。本回执仍只证明 scripted browser projection 与仓内门禁，不扩张真实 Tauri/WKWebView、
+DeepSeek、AX 或 product-live 成熟度声明，也不更新 `current.md`。

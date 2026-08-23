@@ -1,0 +1,37 @@
+GOP-C02 independent acceptance mutation audit
+Target: 92e35d36faa04f11bc24610c860dd3bcddcca63b
+All mutations were injected one at a time in this clean clone, observed red, and exactly restored before the next mutation.
+
+1. Thread content-sized: `.pi-thread flex: 1 1 auto` -> `0 0 auto`.
+   Gate: `pnpm --filter @courtwork/desktop run lint:optical-polish`
+   Red: exit 1 — `GOP-C02：pi thread 必须占据剩余高度并允许收缩`.
+
+2. Composer positioned: added `position: absolute` to `.pi-composer`.
+   Gate: `pnpm --filter @courtwork/desktop run lint:optical-polish`
+   Red: exit 1 — `GOP-C02：composer 不得用 absolute/fixed/sticky 覆盖 viewport`.
+
+3. Visible action text: appended `{PI_COPY.denyAction}` inside the deny button.
+   Gate: `pnpm --filter @courtwork/desktop test -- PiLanePanel.dom.test.ts -t 'GOP-C02'`
+   Red: exit 1 — 2 failures (source icon-only assertion and rendered textContent assertion).
+
+4. Missing accessible name: removed `aria-label` from `pi-deny`.
+   Gate: `pnpm --filter @courtwork/desktop test -- PiLanePanel.dom.test.ts -t 'GOP-C02'`
+   Red: exit 1 — rendered action chrome accessible-name assertion failed (`null`).
+
+5. Inline SVG: appended an inline `<svg>` to `PiActionIcon.tsx`.
+   Gate: `pnpm --filter @courtwork/desktop run lint:icons`
+   Red: exit 1 — `src/pi/PiActionIcon.tsx: 禁止 TSX 内联 SVG`.
+
+6. Lucide replacement: replaced the generated custom adapter with a direct `lucide-react` Settings icon.
+   Gate: `pnpm --filter @courtwork/desktop run lint:optical-polish`
+   Red: exit 1 — `GOP-C02：PiActionIcon 必须只消费 generated custom SVG，不得替换为 Lucide`.
+
+7. Draft path loss: removed `.pi-draft-path` from both draft path spans.
+   Gate: `pnpm --filter @courtwork/desktop run lint:optical-polish`
+   Red: exit 1 — `GOP-C02：draft path 必须是按钮外的 sibling 数据列`.
+
+8. Deny/approve graphic swap: exchanged `split-gate-slash` and `split-gate-check`.
+   Gate: `pnpm --filter @courtwork/desktop test -- PiLanePanel.dom.test.ts -t 'GOP-C02'`
+   Red: exit 1 — rendered mapping expected `split-gate-slash`, received `split-gate-check`.
+
+After each red observation the exact source line was restored. Final `git diff --check` and `git status --short` were clean before evidence capture.
