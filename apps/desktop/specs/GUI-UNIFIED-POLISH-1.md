@@ -226,9 +226,11 @@ mutation、视觉矩阵或独立验收门。仓根现存未跟踪的 `skills-loc
 1. 通过测试宿主的 `__courtworkHostAuth.setNextAuthorize` 注入 `status: 'granted'` 的 opaque grant，
    打开「新建案件」并完成文件夹授权；
 2. 在命名步选择 `data-testid="new-case-pack-legal"`，填写案件名并创建；
-3. 切到 `segment-work`，等待 `view-timeline`、`view-graph`、`view-matrix`、`view-revision` 与
-   `view-draft` 五枚面入口出现；不启动场景，不注入材料，不制造 artifact；
-4. 逐一打开五面，在浅／深两宗与 1440／390 两宽取空态帧。
+3. 切到 `segment-work`，若 `preview-outline` 尚未出现，先点击 `module-preview-toggle` 展开
+   Preview 大纲；等待 `outline-timeline`、`outline-graph`、`outline-matrix`、`outline-revision` 与
+   `outline-draft` 五枚大纲入口出现；不启动场景，不注入材料，不制造 artifact；
+4. 逐一点击五枚 `outline-*` 入口进入浏览器态，再确认对应的 `view-*` 标签出现；在浅／深两宗与
+   1440／390 两宽取空态帧。
 
 「不使用文件夹，直接命名」且保持零垂类绑定的案件**不是**本矩阵夹具：按
 `PACK-INTERACT-1` 的现行契约，它只展示通用 `draft`，具名垂类工作面应当不存在。用该状态寻找
