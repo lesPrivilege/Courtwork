@@ -1,6 +1,6 @@
 # GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口
 
-状态：**`GOP-C01` 与 R1 已实现；用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）已冻结，等待 Luna 实现；本会话不宣称 PASS。**
+状态：**`GOP-C01`、R1 与用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）实现已提交，等待另一 Luna 独立验收；本会话不宣称 PASS。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
@@ -215,3 +215,30 @@ proposal squint；核对底部 16px、正文不遮挡、图标辨识、focus/dis
 完整 desktop E2E（fresh port、`reuseExistingServer=false`、1 worker）、site guard、root lint/test、`pnpm -r build`
 与 icon/optical/hierarchy/elevation/motion/neutral 定向门。完成后必须由另一 Luna 在 clean clone 独立重摄、重注
 mutation，只追加 `ACCEPTANCE.md`；实现者不得自验。
+
+### GOP-C02 实现回执（implementation session）
+
+- TDD：旧实现上新增 GOP-C02 定向断言先实红 `5` 项（PiLanePanel `4`、CaseRail `1`）；复原后 Pi/rail DOM 全量
+  `33/33`，C02 定向 `6/6`。断言覆盖 thread flex 尾项／16px 底距、实际渲染 icon-only chrome、draft path sibling、
+  动态 rail testid 与 SVG 闭集。
+- 生产实现：`.pi-thread` 为 `flex:1 1 auto`，viewport 独立滚动，composer 正常流末项并保留 `margin-bottom:16px`；
+  12 类 Agent/Pi Work button 改为 32×32、单一 `aria-hidden` SVG、非空 `aria-label/title`。路径保留在
+  `.pi-draft-path` sibling，打开动作可访问名包含路径；`agent-send` 采用向上提交箭头。六枚新增源稿均经
+  optimize → manifest → generated → verifier，icon verifier 实测 `26` 具名／`24` 概念，C02 `addedInSpec` 闭集为六枚。
+- mutation：八类反例逐一注入、观察退出码 `1` 后复原（thread content-sized、composer absolute、可见文字、缺 accessible
+  name、TSX inline SVG、Lucide 替代、丢 draft path、交换 deny/approve 图形），红证见新目录
+  `release/evidence/gui-optical-polish-1-gop-c02-2026-08-23/mutation-red.txt`。
+- 浏览器／视觉：fresh `COURTWORK_E2E_PORT=1473`、`reuseExistingServer=false`、single worker，C02 Playwright
+  `7/7`，`12.6s`；三宽双宗 × empty/running/proposal/succeeded 共 `24` 个矩阵格，实测 composer 底距全部 `16px`、
+  viewport bottom 与 composer top 对齐，并另摄 gate/viewer/squint。证据目录为
+  `release/evidence/gui-optical-polish-1-gop-c02-2026-08-23/`（`42` 个新文件）。
+- source trace：参考 [UI Skills](http://www.ui-skills.com/) better-ui 与
+  [Shadcnuikit changelog](https://shadcnuikit.com/changelog) 的 radius/spacing 双宗、Chat V2 单焦点、modal actions；
+  仅作支持证据，未引入 shadcn/Tailwind、依赖、token/theme/copy/runtime/schema/provider。
+- 受前向覆盖影响的既有 E2E 断言已按新契约更新：3 处 draft-open 断言改验 sibling `.pi-draft-path`／`data-logical-path`，
+  `GC-C01-b` 改验流布局不遮挡与 16px 底边；fresh port `1476`、single worker 定向 `4/4`（`7.6s`）。
+- 长门回执：`pnpm site:guard` `117/117`、root `pnpm lint`、root `pnpm test` `183/183` files / `2251/2251`、
+  `pnpm -r build` 均完成；完整 desktop `test:e2e` fresh port `1477`、`reuseExistingServer=false`、single worker
+  `11.9m` 实跑 `412/414`，剩余 2 项为既有 `settings.spec.ts:68` 的模型配置 notice 持续性与
+  `system-open.spec.ts:25` 的 draft frozen 状态，未触及本票文件／契约。实现回执不替代另一 Luna clean-clone
+  独立验收，不宣称 PASS 或清账。

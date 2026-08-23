@@ -5739,3 +5739,18 @@ Agent UI 的绑定、设置、开始、重开、发送、停止、拒绝、允�
 相邻数据列，不得消失。复用 5 枚既有 custom SVG，只补 `agent-send/stop/restart/settings/close/open` 六枚源稿；
 必须走 manifest→generated module→verifier，禁止 TSX 内联 SVG、Lucide 替代、依赖或运行契约扩张。精确文件
 范围、八类 mutation、三宽双宗矩阵与独立 Luna 验收只认 `specs/GUI-OPTICAL-POLISH-1.md` 第七节。
+
+GOP-C02 实现回执（implementation session）：旧实现新增定向断言先实红 `5` 项；复原后 Pi/rail DOM 全量 `33/33`、
+C02 定向 `6/6`。实现把 `.pi-thread` 收为 `flex:1 1 auto`，viewport 独立滚动，composer 正常 flex 末项并保留
+`16px` 底边；12 类 Agent/Pi Work button 均为 32×32 icon-only，单一 `aria-hidden` SVG 与非空 `aria-label/title`，
+工作稿路径拆为 sibling `.pi-draft-path` 数据列且进入打开按钮 accessible name。新增六枚 custom source 经
+optimize → manifest → generated → verifier，icon verifier `26` 具名／`24` 概念；`agent-send` 为向上提交箭头。
+八类 mutation 均实际退出 `1` 后复原，红证与新 evidence 见
+`release/evidence/gui-optical-polish-1-gop-c02-2026-08-23/`；fresh port `1473`、single worker 的 C02 browser
+spec `7/7`（`12.6s`），24 格三宽双宗矩阵底距均为 `16px`，另摄 gate/viewer/squint。Shadcnuikit changelog 仅作
+radius/spacing 双宗、Chat V2 单焦点、modal actions 的 source trace，未引入 shadcn/Tailwind 或依赖。
+为适配本节对 `GC-C01-b`「紧随正文」的前向覆盖，3 处既有 draft-open E2E 断言改验 sibling path，GC-C01-b 改验
+不遮挡／16px 底边；fresh port `1476` 定向 `4/4`（`7.6s`）。长门已完成：site guard `117/117`、root lint、root
+test `183/183` files / `2251/2251`、`pnpm -r build` 均完成；完整 desktop `test:e2e` fresh port `1477`、single
+worker `11.9m` 实跑 `412/414`，2 项既有失败为 `settings.spec.ts:68` notice 持续性与 `system-open.spec.ts:25`
+draft frozen 状态。仍待另一 Luna clean-clone 独立验收；本回执不宣称 PASS 或清账。
