@@ -217,3 +217,20 @@ mutation、视觉矩阵或独立验收门。仓根现存未跟踪的 `skills-loc
   修订预览／起草画布）各一帧。
 - 本票不改主题色、copy、runtime、schema、provider、成熟度或 Work diff；不替代
   `PI-BASE-GUI-ACCEPT`，不赋予 Agent、product-live 或 external-validated 口径。
+
+### 8.1 · 空态矩阵的有效验收夹具
+
+空态矩阵必须使用**有 opaque grant、已绑定 Legal 包、但没有材料与产出**的 production 案件。
+固定入口如下：
+
+1. 通过测试宿主的 `__courtworkHostAuth.setNextAuthorize` 注入 `status: 'granted'` 的 opaque grant，
+   打开「新建案件」并完成文件夹授权；
+2. 在命名步选择 `data-testid="new-case-pack-legal"`，填写案件名并创建；
+3. 切到 `segment-work`，等待 `view-timeline`、`view-graph`、`view-matrix`、`view-revision` 与
+   `view-draft` 五枚面入口出现；不启动场景，不注入材料，不制造 artifact；
+4. 逐一打开五面，在浅／深两宗与 1440／390 两宽取空态帧。
+
+「不使用文件夹，直接命名」且保持零垂类绑定的案件**不是**本矩阵夹具：按
+`PACK-INTERACT-1` 的现行契约，它只展示通用 `draft`，具名垂类工作面应当不存在。用该状态寻找
+`view-timeline` 属验收入口错误，不是本票实现缺口。本节只校正验收路径，不改变生产路由、零绑定语义
+或新增任何产品 hook。
