@@ -5715,4 +5715,8 @@ desktop E2E 与全仓最低门；独立验收会话须新 clean clone、独立�
 （full-width composer、错误圆角、普通账行投影、proposal 顺序／对齐、rail 独立行、`transition: all`）逐一红后复原，
 红证与 fresh scripted visual matrix（light/dark × 1180/1440/390 × empty/proposal/succeeded + 240 squint）见
 `release/evidence/gui-optical-polish-1-2026-08-23/`；本实现不替代独立验收，另一会话须自行重摄并只追加
-`ACCEPTANCE.md`。参考 UI Skills better-ui 与 shadcn/ui changelog 仅作支持证据，未引入依赖、token 或第二设计系统。
+`ACCEPTANCE.md`。参考 [UI Skills](http://www.ui-skills.com/) better-ui 与 [Shadcnuikit changelog](https://shadcnuikit.com/changelog)
+仅作支持证据，未引入依赖、token 或第二设计系统。`pnpm -r build`、root `pnpm lint`、root `pnpm test`（183/2251）已绿；完整
+desktop `test:e2e` 曾以 fresh `COURTWORK_E2E_PORT=1444`、single worker 启动，但在既有 `assert-schema-parts` 的
+`apps/desktop/src/styles.css:2102 .pi-composer|all` 分类 gate 退出，未进入 Playwright。`site:guard` 在其余 116 项通过后仍受票面外
+deslop radius/press 登记契约阻断，故留待架构拍板与独立验收重跑。

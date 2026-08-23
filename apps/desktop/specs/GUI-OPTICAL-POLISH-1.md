@@ -116,6 +116,7 @@ mutation 至少六枚并逐一复红：
 - 定向门：最终 Pi DOM `22/22`，本票 `lint:optical-polish`、`lint:hierarchy`、`lint:elevation`、`lint:neutral`、`lint:motion`、`lint:icons` 全绿；Playwright `--list` 实跑 `413`，`assert-test-count` floor 同步为 `413`。
 - E2E／视觉：本票 6 项 GUI E2E 以 fresh port、`--workers=1` 实跑；视觉矩阵为 light/dark × 1180/1440/390 × empty/proposal/succeeded（18 帧）及 240px proposal squint，产物见 `release/evidence/gui-optical-polish-1-2026-08-23/`。实现截图只作实现证据，独立验收须另摄。
 - mutation：六类反例逐一注入、观察 gate 退出码 `1` 后复原，逐项与红句见 `release/evidence/gui-optical-polish-1-2026-08-23/mutation-red.txt`：full-width composer、错误 12/6 radius、普通账行 shadow、动作顺序／左对齐、rail 独立行、`transition: all`。
-- 参考溯源：UI Skills `better-ui` 的同心圆角、optical alignment、pressed feedback 与 shadcnuikit changelog 的 radius/spacing 双宗可调、Chat V2 单一内容焦点／modal actions 仅作现有 GOP-C01 的支持证据；未安装、未引入 Tailwind/shadcn、未形成第二设计系统。
+- 参考溯源：UI Skills `better-ui`（[ui-skills.com](http://www.ui-skills.com/)）的同心圆角、optical alignment、pressed feedback，与 [Shadcnuikit changelog](https://shadcnuikit.com/changelog) 的 radius/spacing 双宗可调、Chat V2 单一内容焦点／modal actions，仅作现有 GOP-C01 的支持证据；未安装、未引入 Tailwind/shadcn、未形成第二设计系统。
 - 复杂度增量：新增 1 个静态门脚本、6 个 Playwright 用例组与新的 evidence 目录；生产组件／依赖／token 数量增量为 0。
-- 实现提交：见本票实现提交记录；独立验收会话须在另一 clean clone 重新运行全部门禁并只追加 `ACCEPTANCE.md`。
+- 长门回执：`pnpm -r build` 全 workspace 通过；root `pnpm lint` 与 `pnpm test`（183/2251）通过。已用 fresh port `1444`、`reuseExistingServer=false`、single-worker 启动完整 desktop `test:e2e`，但完整静态前链在既有 `assert-schema-parts` 分类门于 `apps/desktop/src/styles.css:2102` 报 `.pi-composer|all` 后退出，未进入 Playwright，故不计 E2E 通过数；`pnpm site:guard` 亦在其余 116 项通过后被票面外 deslop 契约阻断：`.pi-composer` 的 L1 radius 登记，以及 `.pi-button-primary` press whitelist／reduced-motion 分支登记。票面禁止修改 `site/scripts/*`，留待架构拍板及独立验收重跑。
+- 实现提交：`ee4addc`；独立验收会话须在另一 clean clone 重新运行全部门禁并只追加 `ACCEPTANCE.md`。
