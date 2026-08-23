@@ -1,6 +1,6 @@
 # GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口
 
-状态：**`GOP-C01`、R1 与用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）实现已提交，等待另一 Luna 独立验收；本会话不宣称 PASS。**
+状态：**已清账。** `GOP-C01`、R1 与用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）均已实现；`GOP-C02` 已由不同 Luna 在 clean clone 独立验收 PASS，验收提交带回主线为 `2326ade`。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
@@ -242,3 +242,16 @@ mutation，只追加 `ACCEPTANCE.md`；实现者不得自验。
   `11.9m` 实跑 `412/414`，剩余 2 项为既有 `settings.spec.ts:68` 的模型配置 notice 持续性与
   `system-open.spec.ts:25` 的 draft frozen 状态，未触及本票文件／契约。实现回执不替代另一 Luna clean-clone
   独立验收，不宣称 PASS 或清账。
+
+### GOP-C02 独立验收与架构清账
+
+- 不同 Luna 对精确目标 `92e35d3` 建立 clean clone，使用独立端口 `19984`、`reuseExistingServer:false`、single
+  worker 实跑完整 desktop E2E `414/414`；root test `183/183` files / `2251/2251`、site guard `117/117`、lint、
+  build 全绿。主会话另以 fresh port `1474`、single worker 复跑完整 E2E 亦为 `414/414`，实现回执中的两项偶发红
+  在两轮消费验证中均通过，不形成 GOP-C02 拒因。
+- 验收者重新注入八类 mutation，均观察门禁退出 `1` 后复原；另生成 42 份独立证据，24 个双宗／三宽／四状态
+  矩阵格均实测 composer 底距 `16px`、viewport bottom 等于 composer top、零横溢。详细报告见
+  `apps/desktop/ACCEPTANCE.md`「GOP-C02 独立验收」及
+  `release/evidence/gui-optical-polish-1-gop-c02-acceptance-2026-08-23/`。
+- 验收原提交 `941c112`，带回主线为 `2326ade`；验收 clone 在测试副产物精确恢复后 clean。本票只清 scripted
+  browser projection 与仓内门禁，不替代真实 Tauri/WKWebView、provider、AX 或 product-live 成熟度。

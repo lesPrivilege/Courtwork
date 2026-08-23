@@ -5753,4 +5753,8 @@ radius/spacing 双宗、Chat V2 单焦点、modal actions 的 source trace，未
 不遮挡／16px 底边；fresh port `1476` 定向 `4/4`（`7.6s`）。长门已完成：site guard `117/117`、root lint、root
 test `183/183` files / `2251/2251`、`pnpm -r build` 均完成；完整 desktop `test:e2e` fresh port `1477`、single
 worker `11.9m` 实跑 `412/414`，2 项既有失败为 `settings.spec.ts:68` notice 持续性与 `system-open.spec.ts:25`
-draft frozen 状态。仍待另一 Luna clean-clone 独立验收；本回执不宣称 PASS 或清账。
+draft frozen 状态。随后主会话 fresh port `1474`、single worker 完整复跑 `414/414`；不同 Luna 又在 clean clone、
+独立 port `19984`、`reuseExistingServer:false`、single worker 独立实跑 `414/414`，root `183/2251`、site guard
+`117/117`、lint/build 全绿。验收者重做八类 mutation 并另摄 42 份证据，24 个矩阵格底距均为 `16px`、零横溢；
+报告提交带回主线为 `2326ade`。因此 `GOP-C02` 已清账；结论只覆盖 scripted browser projection 与仓内门禁，
+不升级真实 Tauri/WKWebView、provider、AX 或 product-live 成熟度。
