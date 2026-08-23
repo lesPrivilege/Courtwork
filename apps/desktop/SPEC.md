@@ -5692,3 +5692,20 @@ token／其他测试期望。
 **1 worker** 的 desktop E2E **407/407**；root **183 files / 2251 tests**、site guard **116/116**、
 lint/build 全绿。五类主题反例全部实红；fresh 26 帧零横溢，13 组 light/dark bounding-box
 对照全部同构。本票清账但不更新 `current.md`，不替代 `PI-BASE-GUI-ACCEPT`。
+
+## GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口（架构冻结）
+
+状态：**等待 Luna 实现，且须由另一 Luna 会话独立验收。** 精确契约见
+`specs/GUI-OPTICAL-POLISH-1.md`，唯一批准行 `GOP-C01`。
+
+本票只收口现行 Agent／Pi Work 的几何关系：composer 使用既有唯一 L1 `12px` 外壳并在 760px 版心
+内居中，内部输入 `6px`，唯一需人工决定的 proposal 卡 `6px`，按钮维持 `4px`；普通工具账行、工作稿
+索引、数据列与文书面不得借票加圆角或投影。proposal 动作按「拒绝在前、允许收尾」排到 trailing edge，
+CaseRail 的包状态与「管理包」同排；primary pointer press 只用既有 `scale(.98)`／120ms 白名单，并在
+键盘、focus-visible 与 reduced motion 下禁用。
+
+允许源码面限 `styles.css`、`PiToolCard.tsx`、对应 DOM／E2E／静态门、test floor 与本票新 evidence；
+禁止 token／主题／copy、App.tsx、state/store/port/command、journal、runtime/provider、schema/ABI、Pages、
+依赖、Work diff、第二 elevation、历史验收与 `current.md`。实现必须先红、实际注入六类 mutation、跑完整
+desktop E2E 与全仓最低门；独立验收会话须新 clean clone、独立端口、自摄视觉矩阵并只追加
+`ACCEPTANCE.md`。本节不赋予 Agent、product-live 或 external-validated 口径。
