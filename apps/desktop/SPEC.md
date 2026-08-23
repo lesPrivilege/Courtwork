@@ -5720,3 +5720,9 @@ desktop E2E 与全仓最低门；独立验收会话须新 clean clone、独立�
 desktop `test:e2e` 曾以 fresh `COURTWORK_E2E_PORT=1444`、single worker 启动，但在既有 `assert-schema-parts` 的
 `apps/desktop/src/styles.css:2102 .pi-composer|all` 分类 gate 退出，未进入 Playwright。`site:guard` 在其余 116 项通过后仍受票面外
 deslop radius/press 登记契约阻断，故留待架构拍板与独立验收重跑。
+
+R1 架构裁定：上述阻断均为既有机器门的精确消费者清单未同步。只允许在
+`assert-rule-grammar.mjs` 登记 `.pi-composer|all = 浮面描边`，并在 `deslop-scan-lib.mjs` 精确登记
+`.pi-composer` 的 `var(--elevation-float-radius)` 与把 `.pi-button-primary` 纳入既有 desktop press selector；
+同步补真消费者绿证、错 selector／错值／漏 reduced-motion 红证。R1 禁止再改生产 UI、token、主题、copy 或
+运行语义；修后须完整重跑 site guard、desktop E2E、root lint/test/build，再进入不同 Luna clean-clone 验收。

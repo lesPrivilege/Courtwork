@@ -1,6 +1,6 @@
 # GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口
 
-状态：**实现已提交，等待另一 Luna 会话独立验收；本会话不宣称 PASS。**
+状态：**实现已提交；R1 机器门登记同步已获架构批准，完成后再交另一 Luna 会话独立验收；本会话不宣称 PASS。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
@@ -120,3 +120,21 @@ mutation 至少六枚并逐一复红：
 - 复杂度增量：新增 1 个静态门脚本、6 个 Playwright 用例组与新的 evidence 目录；生产组件／依赖／token 数量增量为 0。
 - 长门回执：`pnpm -r build` 全 workspace 通过；root `pnpm lint` 与 `pnpm test`（183/2251）通过。已用 fresh port `1444`、`reuseExistingServer=false`、single-worker 启动完整 desktop `test:e2e`，但完整静态前链在既有 `assert-schema-parts` 分类门于 `apps/desktop/src/styles.css:2102` 报 `.pi-composer|all` 后退出，未进入 Playwright，故不计 E2E 通过数；`pnpm site:guard` 亦在其余 116 项通过后被票面外 deslop 契约阻断：`.pi-composer` 的 L1 radius 登记，以及 `.pi-button-primary` press whitelist／reduced-motion 分支登记。票面禁止修改 `site/scripts/*`，留待架构拍板及独立验收重跑。
 - 实现提交：`ee4addc`；独立验收会话须在另一 clean clone 重新运行全部门禁并只追加 `ACCEPTANCE.md`。
+
+## 六、R1 · 机器门精确消费者同步（架构批准）
+
+实现长门暴露的三条红均来自既有 fail-closed 清单未随 `GOP-C01` 更新，不是产品视觉或运行语义缺陷：
+
+1. `assert-rule-grammar.mjs` 尚未把 `.pi-composer` 的 1px 外描边登记为「浮面描边」；
+2. `deslop-scan-lib.mjs` 的高半径精确消费者尚无
+   `apps/desktop/src/styles.css|.pi-composer|border-radius = var(--elevation-float-radius)`；
+3. desktop press 的精确 selector 尚未把 `.pi-button-primary` 纳入常态与 reduced-motion 同一闭集。
+
+R1 只批准修改 `apps/desktop/scripts/assert-rule-grammar.mjs`、`site/scripts/deslop-scan-lib.mjs`、
+`site/scripts/deslop-scan.test.mjs` 及票内回执：前两项做逐 selector／property／value 精确登记，测试补齐真
+`.pi-composer` 绿证、错高半径消费者反例，以及包含 `.pi-button-primary` 的常态／reduced-motion 绿证和漏登记／漏
+reduced-motion 红证。不得借 R1 修改 `styles.css`、TSX、token、主题、copy、产品行为或扩大 press/radius 通行域。
+
+R1 实现会话必须重跑 `pnpm site:guard`、完整 desktop `test:e2e`（fresh port、
+`reuseExistingServer=false`、single worker）、root lint/test 与 `pnpm -r build`，并提交独立回执；只有这些门全绿后
+才能派另一 Luna 会话在 clean clone 独立验收。
