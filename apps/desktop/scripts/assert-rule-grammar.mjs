@@ -202,6 +202,7 @@ const EXEMPT = {
   '.attachment-chip.is-uploading::after|all': '控件边（上传态描边）',
   '.composer-drop-card|all': '控件边（拖放靶区）',
   '.composer-shell|all': '控件边（输入外壳——composer 是控件不是区段）',
+  '.pi-composer|all': '浮面描边（GOP-C01 bounded composer 外壳）',
   '.gallery-revision del, .gallery-revision ins|left': '记号（修订对照引导条）',
   // 浮面描边：「浮＝影、有影必描边」由 elevation 门管辖，边界感来自影与面，不是层级线
   '.rail-containerize-popover|all': '浮面描边',

@@ -110,6 +110,19 @@ test('8/12/16 radius values remain inside exact approved domains', () => {
     '.feature-card { border-radius: 24px; }')]).includes('radius'));
 });
 
+test('GUI-OPTICAL-POLISH-1 R1 binds the real composer radius and rejects a wrong high-radius consumer', () => {
+  const path = 'apps/desktop/src/styles.css';
+  const real = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
+  const composer = real.match(/\.pi-composer\s*\{[\s\S]*?\n\}/)?.[0];
+  assert.ok(composer, 'the real .pi-composer rule must remain discoverable');
+  assert.deepEqual(rules([source(path, real)]), []);
+  const wrong = real.replace(composer, composer.replace(
+    'border-radius: var(--elevation-float-radius)',
+    'border-radius: var(--home-control-radius)',
+  ));
+  assert.ok(rules([source(path, wrong)]).includes('radius'));
+});
+
 test('gradient allowlist checks the complete value, including internal colors', () => {
   assert.deepEqual(rules([source('apps/desktop/src/styles.css',
     '.usage-ring { background: conic-gradient(var(--slate-graphic) var(--usage), var(--border) 0); }')]), []);
@@ -186,13 +199,17 @@ test('SITE-CRAFT-1 reduced Ghosty uses a real opacity keyframe without phantom t
 });
 
 test('press feedback is restricted, tactile, keyboard-visible, and reduced-motion safe', () => {
+  const selector = ':is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger, .pi-button-primary):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature)';
+  const reducedBranch = `@media (prefers-reduced-motion: reduce) { ${selector} { transform: none; } }`;
   const good = source('apps/desktop/src/styles.css', String.raw`
 :root { --motion-press: 120ms; }
 button:focus-visible { outline: 2px solid var(--blue-graphic); }
-:is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: scale(.98); transition-duration: var(--motion-press); }
-@media (prefers-reduced-motion: reduce) { :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; } }
+${selector} { transform: scale(.98); transition-duration: var(--motion-press); }
+${reducedBranch}
 `);
   assert.deepEqual(rules([good]), []);
+  assert.ok(rules([source('apps/desktop/src/styles.css', good.content.replace(', .pi-button-primary', ''))]).includes('press-feedback'));
+  assert.ok(rules([source('apps/desktop/src/styles.css', good.content.replace(reducedBranch, ''))]).includes('press-feedback'));
   assert.ok(rules([source('apps/desktop/src/styles.css',
     '.data-row:active { transform: scale(.98); transition-duration: 120ms; }')]).includes('press-feedback'));
   assert.ok(rules([source('apps/desktop/src/styles.css',

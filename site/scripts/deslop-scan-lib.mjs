@@ -231,6 +231,7 @@ const exactRadiusConsumers = new Map([
   ['apps/desktop/src/styles.css|:root|--home-surface-radius', '16px'],
   ['apps/desktop/src/styles.css|.surface-float|border-radius', 'var(--elevation-float-radius)'],
   ['apps/desktop/src/styles.css|.surface-card|border-radius', 'var(--elevation-float-radius)'],
+  ['apps/desktop/src/styles.css|.pi-composer|border-radius', 'var(--elevation-float-radius)'],
   ['apps/desktop/src/styles.css|.rail-nav-item|border-radius', 'var(--home-control-radius)'],
   ['apps/desktop/src/styles.css|.case-card > .rail-row-main|border-radius', 'var(--home-control-radius)'],
   ['apps/desktop/src/styles.css|.case-card.is-expanded > .rail-row-main|border-radius', 'var(--home-control-radius)'],
@@ -272,7 +273,7 @@ const graphColorTokens = {
   amber: 'color.semantic.severity.medium.graphic',
 };
 
-const desktopPressSelector = ':is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature)';
+const desktopPressSelector = ':is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger, .pi-button-primary):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature)';
 const sitePressSelector = '.button-primary:active:not(:focus-visible)';
 const approvedPressSelectors = new Set([desktopPressSelector, sitePressSelector]);
 
