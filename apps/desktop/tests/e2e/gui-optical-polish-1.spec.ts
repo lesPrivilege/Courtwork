@@ -328,7 +328,10 @@ async function runVisualMatrix(page: Page, width: number) {
   }
 }
 
-test('GOP-C02 gate/viewer：start gate 与只读查看面保留 icon-only chrome', async ({ page }) => {
+// GOP-C02-b 于 2026-08-23 受裁窄化（见 specs/GUI-OPTICAL-POLISH-1.md 第八节）：
+// 空态三枚主动作让出 icon-only 律改带可见标签，其余闭集成员照旧。
+// 故 start gate 改断「带标签且标签与无障碍名同词」，只读查看面的关闭钮仍断 icon-only。
+test('GOP-C02 gate/viewer：start gate 带受裁标签，只读查看面保留 icon-only chrome', async ({ page }) => {
   await openDraftFace(page, '光学 gate/viewer 案');
   for (const width of [1180, 1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
@@ -339,10 +342,12 @@ test('GOP-C02 gate/viewer：start gate 与只读查看面保留 icon-only chrome
       await expect(page.getByTestId('pi-panel')).toBeVisible();
       await expect(page.getByTestId('pi-composer')).toHaveCount(0);
       const gateButton = page.getByTestId('pi-start');
-      await expect(gateButton).toHaveText('');
+      await expect(gateButton).toHaveClass(/pi-empty-action/);
+      const gateLabel = ((await gateButton.textContent()) ?? '').trim();
+      expect(gateLabel).not.toBe('');
       await expect(gateButton.locator('svg')).toHaveCount(1);
-      await expect(gateButton).toHaveAttribute('aria-label', /.+/);
-      await expect(gateButton).toHaveAttribute('title', /.+/);
+      await expect(gateButton).toHaveAttribute('aria-label', gateLabel);
+      await expect(gateButton).toHaveAttribute('title', gateLabel);
       if (CAPTURE) {
         await mkdir(OUT_DIR, { recursive: true });
         await page.screenshot({ path: path.join(OUT_DIR, `w${width}-${theme}-gate.png`), fullPage: true });

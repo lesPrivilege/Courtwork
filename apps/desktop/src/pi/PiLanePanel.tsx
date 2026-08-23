@@ -526,29 +526,31 @@ function PiStartGate({
         {!bound ? (
           <button
             type="button"
-            className="pi-button pi-button-primary pi-button-icon"
+            className="pi-button pi-button-primary pi-empty-action"
             data-testid="pi-bind-folder"
             aria-label={PI_COPY.bindFolderAction}
             title={PI_COPY.bindFolderAction}
             onClick={onBindFolder}
           >
             <PiActionIcon name="bound-folder" />
+            <span>{PI_COPY.bindFolderAction}</span>
           </button>
         ) : unavailable ? (
           <button
             type="button"
-            className="pi-button pi-button-primary pi-button-icon"
+            className="pi-button pi-button-primary pi-empty-action"
             data-testid="pi-open-model-settings"
             aria-label={PI_COPY.openModelSettingsAction}
             title={PI_COPY.openModelSettingsAction}
             onClick={onOpenModelSettings}
           >
             <PiActionIcon name="agent-settings" />
+            <span>{PI_COPY.openModelSettingsAction}</span>
           </button>
         ) : (
           <button
             type="button"
-            className="pi-button pi-button-primary pi-button-icon"
+            className="pi-button pi-button-primary pi-empty-action"
             data-testid="pi-start"
             aria-label={PI_COPY.startAction}
             title={PI_COPY.startAction}
@@ -556,6 +558,7 @@ function PiStartGate({
             onClick={() => void session.start()}
           >
             <PiActionIcon name="cards-play" />
+            <span>{PI_COPY.startAction}</span>
           </button>
         )}
       </div>

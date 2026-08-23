@@ -2,9 +2,10 @@
 // 权威：apps/desktop/specs/GUI-UNIFIED-POLISH-1.md、docs/design/tokens.json。
 //
 // 排印字阶与行高由排印门④（assert-typography.mjs）承担，本门不重复。
-// 本门只锁本票独有的结构事实（A01-③ 因契约冲突挂拍板，见下）：
+// 本门只锁本票独有的结构事实：
 //   A01-① 对话列不小于检视栏——双栏权重必须同值，`.9fr / 1.25fr` 那种把主面压小的配比触红；
 //   A01-② 场景线层级接线——案件题走 title 档且不再以 60% 截断，面题走 titleSm 档；
+//   A01-③ 空态三枚主动作带可见标签（GOP-C02 icon-only 律的受裁窄化）；
 //   S01-① 数据面量度由内容定——矩阵 max-content + 标识列不截断，时间线来源列给足量度、事件列折行；
 //   S01-② 图谱可读下限——label 字栈同功能轨，自动适配不得把字缩到 12px 以下。
 // 另附一道通用守卫：CSS 自定义属性不得引用未声明的名字（未声明即整条声明失效，静默无边无底）。
@@ -18,6 +19,9 @@ const tokens = JSON.parse(readFileSync(path.resolve(root, '..', '..', 'docs', 'd
 const css = readFileSync(path.join(root, 'src/styles.css'), 'utf8');
 const graphTheme = readFileSync(path.join(root, 'src/workbench/graph-theme.ts'), 'utf8');
 const graphPanel = readFileSync(path.join(root, 'src/verticals/legal/GraphPanel.tsx'), 'utf8');
+const piPanel = readFileSync(path.join(root, 'src/pi/PiLanePanel.tsx'), 'utf8');
+// GOP-C02 icon-only 律的窄化名单，与 PiLanePanel.dom.test.ts 同名同序。
+const EMPTY_STATE_ACTIONS = ['pi-bind-folder', 'pi-open-model-settings', 'pi-start'];
 const failures = [];
 
 const ruleBody = (selector) => {
@@ -59,11 +63,25 @@ else if (!/font-size:\s*var\(--type-title-sm-size\)/.test(panelHeadTitle)) {
   failures.push('A01-②面题：.panel-head h2 未走 --type-title-sm-size');
 }
 
-// ── A01-③ 空态主动作带可见标签 —— 本轮不设门 ──────────────────────────────
-// 该条与已清账的 GOP-C02「12 类 Agent/Pi Work button chrome 一律 icon-only」正面冲突：
-// PiLanePanel.dom.test.ts 逐名断言 pi-bind-folder / pi-open-model-settings / pi-start
-// 无可见文本且恰一枚 SVG。两条批准行相互排斥，取舍属契约拍板，实现会话不得自行翻案。
-// 现状保留 GOP-C02，本条挂 [需架构拍板]，裁决前不立门也不改实现。
+// ── A01-③ 空态主动作带可见标签 ────────────────────────────────────────────
+// 与 GOP-C02 的冲突已由架构角色于 2026-08-23 裁定：GOP-C02 的 icon-only 律**窄化**——
+// 继续管辖密集 chrome，让出空态三枚。窄化边界同时锁在两处：本门锁「这三枚必须带标签」，
+// PiLanePanel.dom.test.ts 锁「除带 .pi-empty-action 者外一律不得渲文字」。
+// 两门反向咬合，任一枚新按钮想渲文字都得先自证是空态动作。
+for (const testId of EMPTY_STATE_ACTIONS) {
+  const block = piPanel.match(new RegExp(`<button[\\s\\S]{0,400}?data-testid="${testId}"[\\s\\S]{0,600}?</button>`));
+  if (!block) { failures.push(`A01-③：找不到空态主动作 ${testId}`); continue; }
+  if (/pi-button-icon/.test(block[0])) {
+    failures.push(`A01-③空态标签：${testId} 仍是 pi-button-icon 裸图标钮`);
+  }
+  if (!/pi-empty-action/.test(block[0])) {
+    failures.push(`A01-③空态标签：${testId} 未接 .pi-empty-action——豁免按 class 认，不接即不在窄化范围内`);
+  }
+  if (!/\{PI_COPY\.\w+Action\}<\/span>/.test(block[0])) {
+    failures.push(`A01-③空态标签：${testId} 未渲染可见动作标签（须为 PI_COPY 既有词条，不新铸文案）`);
+  }
+}
+if (!ruleBody('.pi-empty-action')) failures.push('A01-③：styles.css 缺 .pi-empty-action 规则');
 
 // ── S01-① 数据面量度由内容定 ──────────────────────────────────────────────
 const matrixTable = ruleBody('.matrix-wrap table');
@@ -161,5 +179,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `GUI-UNIFIED-POLISH 门通过：A01 两条（列量度 · 层级接线；空态标签挂拍板）· S01 两条（数据面量度 · 图谱可读下限）· 悬空变量 0（运行时注入具名登记 ${RUNTIME_INJECTED.size} 枚）`,
+  `GUI-UNIFIED-POLISH 门通过：A01 三条（列量度 · 层级接线 · 空态标签）· S01 两条（数据面量度 · 图谱可读下限）· 悬空变量 0（运行时注入具名登记 ${RUNTIME_INJECTED.size} 枚）`,
 );

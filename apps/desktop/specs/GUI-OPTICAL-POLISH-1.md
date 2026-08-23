@@ -2,6 +2,9 @@
 
 状态：**已清账。** `GOP-C01`、R1 与用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）均已实现；`GOP-C02` 已由不同 Luna 在 clean clone 独立验收 PASS，验收提交带回主线为 `2326ade`。
 
+**后票窄化（2026-08-23）**：`GOP-C02-b` 的 icon-only 律经架构角色裁定让出空态三枚，
+见本文第八节。清账事实不因此翻案，其余闭集成员照旧。
+
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
 `GUI-PAPER-THEMES-1`、本票。成熟度仍只认 `docs/status/current.md`；本票不替代
@@ -255,3 +258,26 @@ mutation，只追加 `ACCEPTANCE.md`；实现者不得自验。
   `release/evidence/gui-optical-polish-1-gop-c02-acceptance-2026-08-23/`。
 - 验收原提交 `941c112`，带回主线为 `2326ade`；验收 clone 在测试副产物精确恢复后 clean。本票只清 scripted
   browser projection 与仓内门禁，不替代真实 Tauri/WKWebView、provider、AX 或 product-live 成熟度。
+
+## 八、`GOP-C02-b` 受裁窄化（2026-08-23，由 `GUI-UNIFIED-POLISH-1` 触发）
+
+`GUI-UNIFIED-POLISH-1` 的批准行 `GUP-A01` 含「空态补齐动作标签，不留裸图标」，与 `GOP-C02-b`
+「每枚按钮恰有一枚 SVG、button 自身沿用 `PI_COPY` 的 `aria-label` 与 `title`」所隐含的 icon-only
+形态正面冲突——本票 DOM 门逐名断言 `pi-bind-folder`／`pi-open-model-settings`／`pi-start`
+无可见文本。实现会话按纪律停手上报，架构角色 2026-08-23 裁定：**`GOP-C02-b` 窄化，不推翻。**
+
+窄化后的边界：
+
+- icon-only 律继续管辖密集 chrome，闭集其余九员（重开、发送、停止、拒绝、允许、核验、打开工作稿、
+  关闭查看面、rail 管理包）一字不改。
+- 让出的只有空态三枚主动作。它们改带可见标签：文字取 `PI_COPY` 既有词条，与 `aria-label`、`title`
+  同词，仍恰有一枚 SVG。理由是空态是用户最缺线索的一刻，裸图标在那里读作未完成；密集 chrome
+  不适用该理由。
+- 豁免按 class 认不按 testid 认：只有接 `.pi-empty-action` 者准渲文字。新增一枚空态动作必须同时
+  接上该 class 才在窄化范围内，接不上即回落 icon-only 律。
+- 两门反向咬合：`PiLanePanel.dom.test.ts` 锁「除带 `.pi-empty-action` 者外一律不得渲文字」，
+  `assert-gui-unified-polish.mjs` A01-③ 锁「这三枚必须带 class 且必须渲词条」。四枚变异实测转红：
+  空态钮改回裸图标 ／ 密集 chrome 的 `pi-send` 偷渲文字 ／ 接了 class 却不渲文字 ／ 撤除
+  `.pi-empty-action` 规则。
+- 本节不改本票其余任何条款、闭集计数、SVG 源稿或已清账事实；`GUI-UNIFIED-POLISH-1` 的独立验收
+  一并复核本节。

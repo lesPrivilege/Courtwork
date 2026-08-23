@@ -2098,6 +2098,10 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
 .pi-button:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); cursor: not-allowed; }
 .pi-button-icon { width: 32px; height: 32px; min-width: 32px; min-height: 32px; flex: 0 0 32px; padding: 0; }
+/* GUP-A01（2026-08-23 架构裁定窄化 GOP-C02）：空态三枚主动作带可见标签。
+   icon-only 律继续管辖密集 chrome；空态是用户最缺线索的一刻，裸图标在那里读作未完成。
+   文字取 PI_COPY 既有词条，与 aria-label／title 同词——同一词条三处消费，不铸第二套说法。 */
+.pi-empty-action { min-height: var(--control-height-md); display: inline-flex; align-items: center; gap: var(--control-gap); padding: 0 12px; }
 .pi-action-icon { width: 18px; height: 18px; flex: none; }
 .pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
 .pi-button-primary:hover { background: var(--action-primary-hover); }

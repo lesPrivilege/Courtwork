@@ -155,6 +155,7 @@ mutation、视觉矩阵或独立验收门。仓根现存未跟踪的 `skills-loc
 | `.file-ops-table` | 自带横滚壳；`width:100%` → `max-content`，工具条与报告不再随表横移 |
 | `graph-theme.ts` | label 字栈由 `Inter,…` 改同功能轨；字号 16→14、行高 16→18；新增 `graphMinFitZoom` |
 | `GraphPanel.tsx` | 两处 `fitView` 后夹住可读下限 |
+| `PiLanePanel.tsx` | 空态三枚主动作接 `.pi-empty-action` 并渲 `PI_COPY` 词条（`GOP-C02-b` 受裁窄化） |
 | 悬空变量 | `--border-subtle` / `--bg-elevated` / `--bg-secondary` / `--action-primary` 四枚改指在册 token |
 
 ### 实测对照（同一装置：1440×900、浅宗、样板案载入后停在 Scenes 面）
@@ -179,23 +180,23 @@ mutation、视觉矩阵或独立验收门。仓根现存未跟踪的 `skills-loc
 - 新立 `assert-gui-unified-polish.mjs`（`lint:unified-polish`，已入 `test:e2e`），十枚变异逐一转红：
   列权重回退 `.9fr/1.25fr` ／ 案件题降回 dense 档 ／ 案件题恢复 60% 截断 ／ 矩阵回 `table-layout: fixed`
   ／ 来源列缩回 64px ／ 事件列起量退回 260px ／ 图谱字栈换回 Inter ／ 撤除 fit 可读下限
-  ／ 空态钮改回裸图标（该枚随条款挂拍板后撤门） ／ 重新引入悬空变量。
+  ／ 空态钮改回裸图标 ／ 重新引入悬空变量。
+- `GOP-C02-b` 窄化的双向咬合另四枚变异转红：空态钮改回裸图标（门与 DOM 测同红） ／
+  密集 chrome 的 `pi-send` 偷渲文字（DOM 测红，证窄化不会外溢） ／ 接了 class 却不渲文字 ／
+  撤除 `.pi-empty-action` 规则。
 - 门集实跑：root `pnpm -r build` 绿 · `pnpm lint` 绿 · `pnpm test` 2251/2251 ·
   desktop `vitest` 932/932 · `pnpm test:e2e` 全静态门 ＋ Playwright 414/414（独占端口 1431、独占锁）。
 
 ## 七、未了项与余量冲突
 
-三项如实列出，不并入完成面。
+两项如实列出，不并入完成面。（原第 1 项「与 `GOP-C02` 冲突」已于 2026-08-23 由架构角色裁定
+并实施，移入第六节；裁定与窄化边界见 `GUI-OPTICAL-POLISH-1` 第八节。）
 
-1. **`GUP-A01` 空态标签条与 `GOP-C02` 正面冲突〔需架构拍板〕**。已清账的 `GOP-C02` 冻结
-   「12 类 Agent/Pi Work button chrome 一律 icon-only」，`PiLanePanel.dom.test.ts` 逐名断言
-   `pi-bind-folder` ／ `pi-open-model-settings` ／ `pi-start` 无可见文本且恰一枚 SVG。
-   两条批准行相互排斥。本轮保留 `GOP-C02` 现状，不改实现、不立门；取舍属契约拍板。
-2. **`GUP-S01` 描边收敛条的前提被实测否证**。提案称同屏 88 处描边为盒中盒，逐类计数后：
+1. **`GUP-S01` 描边收敛条的前提被实测否证**。提案称同屏 88 处描边为盒中盒，逐类计数后：
    66 处是表格格线（线级语法所规定的数据栅格，非盒）、8 处是控件、14 处是容器，
    其中嵌套于另一容器者 8 处，且多为面头单线与 tab 条单线。无盒中盒可收敛，故本条不实施。
    前提既否，不以「已优化」记账。
-3. **散文列在密度律与不截断之间无两全**。`de-slop` 基线锁 `.risk-list .dense-row` 高 28–34px，
+2. **散文列在密度律与不截断之间无两全**。`de-slop` 基线锁 `.risk-list .dense-row` 高 28–34px，
    风险摘要与时间线事件列一旦折行即破此律（实测 51px ／ 71px）；而逐行 grid 的
    `max-content` 不能跨行对齐列宽，量度到内容需把事件列钉死 856px。本轮取「密度律优先，
    把宽度尽量还给散文列」：风险摘要单行但多得 50px、事件列起量 260→420px，
@@ -203,7 +204,7 @@ mutation、视觉矩阵或独立验收门。仓根现存未跟踪的 `skills-loc
    要同时满足两律，须把时间线与风险列表从逐行 grid 改为单一栅格——属结构改造，另票。
    随之的代价须一并记明：时间线整行 722px 而面宽 546px，来源列默认落在可视区外，
    需横滚 176px 才见。截断为零而位置后移，是本轮所取之案的直接后果，不作已优化记。
-4. **量度实测法在 `font:` 简写元素上不可靠**。以 `getComputedStyle(el).font` 复制字体度量时，
+3. **量度实测法在 `font:` 简写元素上不可靠**。以 `getComputedStyle(el).font` 复制字体度量时，
    自定义字栈（`var(--mono)` 等）不能逐字序列化，副本会落到更宽的回退字体，读数偏大。
    时间线日期列据此法算得需 116px 而实测 98px 零截断即为一例。凡以该法取的量度，
    须以「实际是否截断」复核后方可入册；本票所有已入册量度均经此复核。

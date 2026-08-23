@@ -713,7 +713,12 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
     expect(source).toMatch(/\.pi-composer\s*\{[^}]*flex:\s*0\s+0\s+auto[^}]*margin-bottom:\s*16px/s);
   });
 
-  it('the twelve Agent/Pi Work action buttons are icon-only with names and titles', () => {
+  // GUP-A01 于 2026-08-23 由架构角色裁定**窄化**本条：GOP-C02 的 icon-only 律继续管辖密集
+  // chrome，但空态三枚主动作（.pi-empty-action）改带可见标签——空态是用户最缺线索的一刻，
+  // 裸图标在那里读作未完成。窄化只及这三枚，其余一律仍是 icon-only。
+  const EMPTY_STATE_ACTIONS = ['pi-bind-folder', 'pi-open-model-settings', 'pi-start'];
+
+  it('Agent/Pi Work action chrome stays icon-only except the labeled empty-state actions', () => {
     const panel = readFileSync('src/pi/PiLanePanel.tsx', 'utf8');
     const card = readFileSync('src/pi/PiToolCard.tsx', 'utf8');
     const viewer = readFileSync('src/pi/PiDraftViewer.tsx', 'utf8');
@@ -721,11 +726,22 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
     const sources = [panel, card, viewer, rail];
     for (const source of sources) {
       for (const button of source.match(/<button\b[\s\S]*?<\/button>/g) ?? []) {
+        // 豁免按 class 认，不按 testid 认：带 .pi-empty-action 才准渲文字，
+        // 新加一枚空态动作必须同时接上该 class 才逃得过本条，逃不出「空态才豁免」的范围。
+        if (/pi-empty-action/.test(button)) continue;
         expect(button).not.toMatch(/>\s*\{PI_COPY\.[A-Za-z]+\}/);
       }
     }
+    // 反向锁：三枚空态动作必须**确实**带该 class，否则豁免形同虚设。
+    for (const name of EMPTY_STATE_ACTIONS) {
+      const button = panel.match(new RegExp(`<button[^>]*[\\s\\S]{0,400}?data-testid="${name}"[\\s\\S]{0,600}?</button>`))
+        ?? panel.match(new RegExp(`<button[\\s\\S]{0,400}?data-testid="${name}"[\\s\\S]{0,600}?</button>`));
+      expect(button, `空态动作 ${name} 未找到`).not.toBeNull();
+      expect(button![0], `空态动作 ${name} 未接 .pi-empty-action`).toMatch(/pi-empty-action/);
+      expect(button![0], `空态动作 ${name} 未渲染 PI_COPY 词条`).toMatch(/\{PI_COPY\.\w+Action\}/);
+    }
     for (const name of [
-      'pi-bind-folder', 'pi-open-model-settings', 'pi-start', 'pi-restart', 'pi-send', 'pi-stop',
+      ...EMPTY_STATE_ACTIONS, 'pi-restart', 'pi-send', 'pi-stop',
       'pi-deny', 'pi-approve', 'pi-verify-uncertain', 'pi-draft-open', 'pi-viewer-close',
     ]) {
       expect(sources.join('\n')).toMatch(new RegExp(`data-testid="${name}"`));
@@ -744,6 +760,18 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
       expect(button!.getAttribute('aria-label')).toBeTruthy();
       expect(button!.getAttribute('title')).toBeTruthy();
     };
+    // 空态三枚走窄化后的形态：图标照旧一枚、无障碍名照旧齐备，但**须**有可见文字，
+    // 且该文字必须与 aria-label 同词（同一词条两处消费，不许两套说法）。
+    const assertLabeledEmptyAction = (testid: string) => {
+      const button = container!.querySelector<HTMLButtonElement>(`[data-testid="${testid}"]`);
+      expect(button).not.toBeNull();
+      expect(button!.className, `${testid} 未接 .pi-empty-action`).toMatch(/pi-empty-action/);
+      const label = button!.textContent?.trim() ?? '';
+      expect(label, `${testid} 空态主动作须带可见标签`).not.toBe('');
+      expect(button!.querySelectorAll('svg')).toHaveLength(1);
+      expect(button!.getAttribute('aria-label')).toBe(label);
+      expect(button!.getAttribute('title')).toBe(label);
+    };
     render(createElement(PiLanePanel, {
       session: makeSession(),
       bound: false,
@@ -751,7 +779,7 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
       onBindFolder: vi.fn(),
       onOpenModelSettings: vi.fn(),
     }));
-    assertIconButton('pi-bind-folder');
+    assertLabeledEmptyAction('pi-bind-folder');
 
     clearRender();
     render(createElement(PiLanePanel, {
@@ -761,7 +789,7 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
       onBindFolder: vi.fn(),
       onOpenModelSettings: vi.fn(),
     }));
-    assertIconButton('pi-open-model-settings');
+    assertLabeledEmptyAction('pi-open-model-settings');
 
     clearRender();
     render(createElement(PiLanePanel, {
@@ -771,7 +799,7 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
       onBindFolder: vi.fn(),
       onOpenModelSettings: vi.fn(),
     }));
-    assertIconButton('pi-start');
+    assertLabeledEmptyAction('pi-start');
 
     clearRender();
     render(createElement(PiLanePanel, {
