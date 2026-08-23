@@ -1,6 +1,8 @@
 # GUI-UNIFIED-POLISH-1 · 工作态排印层级与数据面可读性收口
 
-状态：**实现在途。** 批准行 `GUP-A01`／`GUP-S01` 已由架构角色于 2026-08-23 同票批准并冻结。
+状态：**已清账。** 批准行 `GUP-A01`／`GUP-S01` 已由架构角色于 2026-08-23 同票批准并冻结；
+实现提交 `9abc0e3`／`dd3a81b`／`2f7246f`，空态验收入口修正提交 `ed819f3`／`db4b790`，
+独立验收 R4 以 `414/414` 放行（报告见 `apps/desktop/ACCEPTANCE.md`）。
 本票不改主题色、copy、runtime、schema、provider、成熟度或 Work diff。
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、`docs/design/tokens.json`、
