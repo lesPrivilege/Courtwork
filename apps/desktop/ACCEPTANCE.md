@@ -8481,3 +8481,60 @@ light/dark × 1180/1440/390 × empty/running/proposal/succeeded 共 **24** 条�
 
 因此 GOP-C02 **PASS**。本回执仍只证明 scripted browser projection 与仓内门禁，不扩张真实 Tauri/WKWebView、
 DeepSeek、AX 或 product-live 成熟度声明，也不更新 `current.md`。
+
+## GUI-UNIFIED-POLISH-1 · R3 独立续验（2026-08-23，REJECT）
+
+### 对象、隔离与完整 E2E
+
+目标 tip：`db4b790780e5b7633d48625a9b9539b400d9a9f8`。验收在全新 clean clone
+`/tmp/gup-accept-r3`、detached HEAD、独立端口 `19993` 完成；`playwright.config.ts`
+的 `reuseExistingServer: false` 生效，命令显式 `--workers=1`。本轮未修改实现、未 merge、未
+checkout 共享树。
+
+静态前链全部通过，`assert-test-count` 实测清单为 **414**。完整 Playwright 实跑结果：
+**412 passed / 2 failed（7.7m，exit 1）**，未达到本票放行所需的 414/414。
+
+两枚失败均在本票外既有用例：
+
+1. `tests/e2e/demo-anchor-2.spec.ts:55`：点击 `view-graph` 后 `graph-panel` 在 5 秒内未出现；
+2. `tests/e2e/file-ops.spec.ts:26`：`file-ops-undo-confirm` 点击期间元素持续不稳定并被 detach，最终 30 秒超时。
+
+### §8.1 空态矩阵交叉证据
+
+本会话已在同一目标 tip 以真实路径完成 **20/20**：opaque grant → `new-case-pack-legal` →
+`segment-work` →（按需）`module-preview-toggle` → 五枚 `outline-*` → 对应五枚 `view-*`。
+没有材料、没有 artifact、没有启动场景。每帧的 URL、DOM 入口、截图路径以及
+`materials=0/artifacts=0` 记录在：
+`/tmp/gup-accept-r3-evidence/empty-matrix/manifest.json`；20 枚新截图同目录，未使用历史截图。
+
+### 反例与门禁
+
+- 排印门④：**5/5** mutation 各自实际 exit 1，逐枚恢复；
+- GUI Unified 门：**10/10** mutation 各自实际 exit 1，逐枚恢复；
+- GOP-C02-b：**4/4** mutation 各自实际 exit 1，逐枚恢复；
+- root Vitest：**183 files / 2251 tests passed**；
+- desktop Vitest：**103 files / 932 tests passed**；
+- `pnpm lint`、`pnpm -r build`、`pnpm site:guard`：通过；site guard **117/117**。
+
+逐枚 mutation 日志保存在本轮临时证据目录 `/tmp/gup-accept-r3-evidence/`；实现 tracked diff
+在收口时为零。
+
+### E2E 历史 PNG 污染与恢复
+
+完整 E2E 预期写入的历史 release evidence 共 18 枚。实际重写 **17/18**；
+`release/evidence/demo-anchor-2-2026-08-09/02-demo-graph-goto-source.png` 因对应测试在截图前失败，
+未被改写。实际重写集合为：
+
+- `release/evidence/demo-anchor-2-2026-08-09/`：01、03、04；
+- `release/evidence/generic-pack-1-unloaded-2026-08-06/`：01–05；
+- `release/evidence/legal-anchor-binding-1-2026-08-09/`：01–03；
+- `release/evidence/legal-five-faces-1-2026-08-07/`：01、02、03、04-empty、04-revision、05。
+
+已按目标 tip 逐文件 `git restore` 恢复；恢复后 `git status --short --branch` 仅显示 clean detached
+HEAD，`git diff --check` exit 0。GUI-OPTICAL 目录中指定的 18 枚 `w{1180,1440,390}` ×
+`light/dark` × `empty/proposal/succeeded` PNG 本轮 SHA 未变化。
+
+### 裁决
+
+完整 desktop E2E 未达到 414/414，故本续验 **REJECT**；20/20 空态、19 枚 mutation、静态门禁及
+其他单测证据均保留，不以它们替代失败的完整 E2E 门。未修改实现或契约，未更新 `current.md`。
