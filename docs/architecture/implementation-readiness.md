@@ -203,7 +203,7 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
 `SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。未来若重启公开发布，候选仍须
 明确区分“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。现阶段唯一收敛节点是
-`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（已清账）→ GUI-OPTICAL-POLISH-1（架构已冻结）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
+`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（已清账）→ GUI-OPTICAL-POLISH-1（已清账）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
 双向箭头保留 2026-08-05 “GUI 与真 key 六格并行”的产品重排。只有 `PI-BASE-GUI-ACCEPT` 放行才
 取得 agent 称谓；最后一节点只证明维护者个人安装形态。
 
@@ -244,12 +244,13 @@ UI Skills 继续只消费证据协议；OpenHands、Cline、bolt.diy 只借 task
 runtime、skin 或依赖迁入。本段不更新 `current.md`，不替代 `PI-BASE-GUI-ACCEPT`。
 
 **Agent UI 几何与光学收口（2026-08-23 产品定向）**：用户要求在整体评估后收口必要圆角、按钮
-摆放、卡片层级及文本／视觉元素对齐，并指定优先参考 UI Skills。`GUI-OPTICAL-POLISH-1` 因此成为
-`PI-BASE-GUI-ACCEPT` 前唯一 App 视觉槽：只把现有 Pi composer 收成版心内 L1 浮面、给唯一需决定的
+摆放、卡片层级及文本／视觉元素对齐，并指定优先参考 UI Skills。`GUI-OPTICAL-POLISH-1` 已作为
+`PI-BASE-GUI-ACCEPT` 前最后一个 App 视觉槽清账：先把现有 Pi composer 收成版心内 L1 浮面、给唯一需决定的
 proposal 卡必要圆角、把决定主动作置于 trailing 末端、把 rail 管理入口与状态同排，并给现有 primary
-按钮补合规 press feedback。普通账行、数据列、工作稿索引与文书面保持零圆角增量／零投影；不改主题、
+按钮补合规 press feedback；用户追加 C02 再把 composer 作为 normal flex sibling 沉底，并把 12 类 Agent/Pi
+Work button chrome 换成仓内原生 SVG。普通账行、数据列、工作稿索引与文书面保持零圆角增量／零投影；不改主题、
 copy、runtime、schema、provider、成熟度或 Work diff。唯一批准行 `GOP-C01`、精确值、TDD、mutation、
-视觉矩阵与独立 Luna 验收边界只认 `apps/desktop/specs/GUI-OPTICAL-POLISH-1.md`。
+视觉矩阵与独立 Luna 验收边界，以及 C02 前向覆盖，均只认 `apps/desktop/specs/GUI-OPTICAL-POLISH-1.md`。
 
 **收敛节点前置新立票 `PI-HEADLESS-HARNESS-1`（2026-08-05 侦察定谳，协调立票）**：`PI-BASE-HEADLESS-ACCEPT`
 是纯验收（「不实施契约修补，只写 ACCEPTANCE.md」），但其六格矩阵要求跑一条 real-Agent↔real-stdio-wire↔
