@@ -496,7 +496,7 @@ describe('WORK-SURFACE-COMPOSITION-1 · 冷调工作面 born-red', () => {
     expect(source).toMatch(/\.pi-user-text\s*\{[^}]*font-size:\s*var\(--type-title-size\)/s);
     expect(source).toMatch(/\.pi-turn-assistant \.chat-markdown\s*\{[^}]*font-size:\s*var\(--type-reading-size\)/s);
     expect(source).toMatch(/\.pi-drafts-title\s*\{[^}]*font-size:\s*var\(--type-title-sm-size\)/s);
-    expect(source).toMatch(/\.pi-work-head,\s*\.pi-status,\s*\.pi-thread-viewport,\s*\.pi-composer\s*\{[^}]*var\(--pi-content-measure\)/s);
+    expect(source).toMatch(/\.pi-work-head,\s*\.pi-status,\s*\.pi-thread-viewport\s*\{[^}]*var\(--pi-content-measure\)/s);
     expect(source).toMatch(/\.pi-thread-viewport > \.pi-drafts\s*\{[^}]*padding-inline:\s*0/s);
     expect(source).toContain('--content-measure: 640px;');
     expect(source).not.toMatch(/\.pi-thread-viewport,\n\.pi-drafts,\n\.pi-composer \{[^}]*var\(--content-measure\)/s);
@@ -616,5 +616,89 @@ describe('WORK-SURFACE-COMPOSITION-1 · 冷调工作面 born-red', () => {
     expect(open).toHaveBeenCalledWith('session-terminal', '纪要.md');
     expect(container!.querySelector('[data-testid="pi-viewer"]')).not.toBeNull();
     expect(container!.querySelector('[data-testid="pi-viewer-hash-differs"]')).not.toBeNull();
+  });
+});
+
+describe('GUI-OPTICAL-POLISH-1 · GOP-C01 born-red', () => {
+  it('composer 是版心内唯一 L1 浮面，并与输入形成同心圆角', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(
+      /\.pi-composer\s*\{[^}]*width:\s*min\(calc\(100% - 32px\),\s*var\(--pi-content-measure\)\)[^}]*margin-inline:\s*auto/s,
+    );
+    expect(source).toMatch(/\.pi-composer\s*\{[^}]*border:\s*1px solid var\(--elevation-float-border\)/s);
+    expect(source).toMatch(/\.pi-composer\s*\{[^}]*border-radius:\s*var\(--elevation-float-radius\)/s);
+    expect(source).toMatch(/\.pi-composer-input\s*\{[^}]*border-radius:\s*6px/s);
+  });
+
+  it('proposal 只获得必要的 6px 卡片圆角，普通账行维持直角', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(/\.pi-tool-card\[data-state="proposed"\]\s*\{[^}]*border-radius:\s*6px/s);
+    expect(source).toMatch(/\.pi-tool-card\s*\{[^}]*border-radius:\s*0/s);
+    const shadowProperty = ['box', 'shadow'].join('-');
+    expect(source).not.toMatch(new RegExp(`\\.pi-tool-card\\s*\\{[^}]*${shadowProperty}:`, 's'));
+  });
+
+  it('proposal 决定按拒绝在前、允许收尾，并把主动作推到 trailing edge', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(/\.pi-tool-actions\s*\{[^}]*justify-content:\s*flex-end/s);
+    const call: PiToolCallView = {
+      toolCallId: 'tc-optical-order',
+      toolName: 'write',
+      running: true,
+      proposal: {
+        operationId: 'op-optical-order',
+        logicalPath: '纪要.md',
+        byteLength: 12,
+        contentSha256: 'a'.repeat(64),
+        action: 'created',
+      },
+    };
+    render(createElement(PiToolCard, {
+      call,
+      pending: true,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    const actions = [...container!.querySelectorAll<HTMLButtonElement>('[data-testid^="pi-"]')]
+      .filter((button) => button.dataset.testid === 'pi-deny' || button.dataset.testid === 'pi-approve');
+    expect(actions.map((button) => button.dataset.testid)).toEqual(['pi-deny', 'pi-approve']);
+  });
+
+  it('rail 包状态与管理入口使用同一行网格', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(/\.rail-pack-section\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\) auto/s);
+    expect(source).toMatch(/\.rail-pack-section \.rail-label\s*\{[^}]*grid-column:\s*1 \/ -1/s);
+    expect(source).toMatch(/\.rail-pack-state\s*\{[^}]*grid-column:\s*1/s);
+    expect(source).toMatch(/\.rail-pack-manage\s*\{[^}]*grid-column:\s*2/s);
+  });
+
+  it('proposal 不渲染空的 tool header，并且 primary button 仅按指针按压缩放', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(/\.pi-button\s*\{[^}]*display:\s*inline-flex[^}]*align-items:\s*center/s);
+    expect(source).toMatch(/\.pi-tool-actions\s+\.pi-button-primary\s*\{[^}]*min-height:\s*var\(--control-height-md\)/s);
+    expect(source).toMatch(/:is\([^)]*\.pi-button-primary[^)]*\):active:not\(:focus-visible\)/s);
+    expect(source).not.toMatch(/:is\([^)]*\.pi-button-primary[^)]*\)\s*\{[^}]*transition:\s*all/s);
+
+    const call: PiToolCallView = {
+      toolCallId: 'tc-optical-head',
+      toolName: 'write',
+      running: true,
+      proposal: {
+        operationId: 'op-optical-head',
+        logicalPath: '纪要.md',
+        byteLength: 12,
+        contentSha256: 'a'.repeat(64),
+        action: 'created',
+      },
+    };
+    render(createElement(PiToolCard, {
+      call,
+      pending: true,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    expect(container!.querySelector('[data-testid="pi-tool-card"][data-state="proposed"] .pi-tool-head')).toBeNull();
   });
 });

@@ -61,9 +61,11 @@ export function PiToolCard({
         </p>
       )}
 
-      <header className="pi-tool-head">
-        <span className="pi-tool-state">{stateLabel(call, state)}</span>
-      </header>
+      {state !== 'proposed' && (
+        <header className="pi-tool-head">
+          <span className="pi-tool-state">{stateLabel(call, state)}</span>
+        </header>
+      )}
 
       <details className="pi-tool-details" data-testid="pi-tool-details">
         <summary>
@@ -106,19 +108,19 @@ export function PiToolCard({
             <div className="pi-tool-actions">
               <button
                 type="button"
-                className="pi-button pi-button-primary"
-                data-testid="pi-approve"
-                onClick={() => call.proposal && onDecide(call.proposal.operationId, 'approve')}
-              >
-                {PI_COPY.approveAction}
-              </button>
-              <button
-                type="button"
                 className="pi-button pi-button-quiet pi-button-deny"
                 data-testid="pi-deny"
                 onClick={() => call.proposal && onDecide(call.proposal.operationId, 'deny')}
               >
                 {PI_COPY.denyAction}
+              </button>
+              <button
+                type="button"
+                className="pi-button pi-button-primary"
+                data-testid="pi-approve"
+                onClick={() => call.proposal && onDecide(call.proposal.operationId, 'approve')}
+              >
+                {PI_COPY.approveAction}
               </button>
             </div>
           )}

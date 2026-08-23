@@ -1,6 +1,6 @@
 # GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口
 
-状态：**架构已冻结，等待 Luna 实现；独立验收必须由另一 Luna 会话执行。**
+状态：**实现已提交，等待另一 Luna 会话独立验收；本会话不宣称 PASS。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
@@ -105,3 +105,17 @@ mutation 至少六枚并逐一复红：
 
 独立验收由不同 Luna 会话在新 clean clone／worktree、独立端口、`reuseExistingServer=false` 下执行；不得采信
 实现截图，须自行重摄、重注 mutation，并只把报告追加到 `apps/desktop/ACCEPTANCE.md`。同一会话不得实现兼验收。
+
+## 五、实现回执（implementation session）
+
+本回执只记录实现证据，不替代独立验收，也不把 scripted browser projection 升格为真实 Tauri／Agent
+或 product-live 事实。
+
+- 实现范围：`styles.css` 收口 bounded composer（12px L1 / 6px input / 6px padding）、proposal 卡与普通账行的必要层级；`PiToolCard.tsx` 移除 proposed 空 header、按「拒绝→允许」排 DOM；rail 状态／管理入口改 `minmax(0, 1fr) auto`；primary 纳入既有 `.98` press whitelist。未改 token、主题、copy、runtime、state/store/port/command、schema、provider、Pages、依赖或 Work diff。
+- born-red：旧实现上 `PiLanePanel.dom.test.ts` 的 5 项 `GUI-OPTICAL-POLISH-1 · GOP-C01` 断言全部实红（composer L1／同心圆角、proposal radius、动作顺序／trailing、rail 同排、空 header／press）；同轮亦暴露既有 composition 选择器断言与旧 `:not([data-state="proposed"])` 漂移，随后用等价 base／proposed 规则收口。
+- 定向门：最终 Pi DOM `22/22`，本票 `lint:optical-polish`、`lint:hierarchy`、`lint:elevation`、`lint:neutral`、`lint:motion`、`lint:icons` 全绿；Playwright `--list` 实跑 `413`，`assert-test-count` floor 同步为 `413`。
+- E2E／视觉：本票 6 项 GUI E2E 以 fresh port、`--workers=1` 实跑；视觉矩阵为 light/dark × 1180/1440/390 × empty/proposal/succeeded（18 帧）及 240px proposal squint，产物见 `release/evidence/gui-optical-polish-1-2026-08-23/`。实现截图只作实现证据，独立验收须另摄。
+- mutation：六类反例逐一注入、观察 gate 退出码 `1` 后复原，逐项与红句见 `release/evidence/gui-optical-polish-1-2026-08-23/mutation-red.txt`：full-width composer、错误 12/6 radius、普通账行 shadow、动作顺序／左对齐、rail 独立行、`transition: all`。
+- 参考溯源：UI Skills `better-ui` 的同心圆角、optical alignment、pressed feedback 与 shadcnuikit changelog 的 radius/spacing 双宗可调、Chat V2 单一内容焦点／modal actions 仅作现有 GOP-C01 的支持证据；未安装、未引入 Tailwind/shadcn、未形成第二设计系统。
+- 复杂度增量：新增 1 个静态门脚本、6 个 Playwright 用例组与新的 evidence 目录；生产组件／依赖／token 数量增量为 0。
+- 实现提交：见本票实现提交记录；独立验收会话须在另一 clean clone 重新运行全部门禁并只追加 `ACCEPTANCE.md`。

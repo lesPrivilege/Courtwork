@@ -5695,7 +5695,7 @@ lint/build 全绿。五类主题反例全部实红；fresh 26 帧零横溢，13 
 
 ## GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口（架构冻结）
 
-状态：**等待 Luna 实现，且须由另一 Luna 会话独立验收。** 精确契约见
+状态：**实现已提交，等待另一 Luna 会话独立验收；本会话不宣称 PASS。** 精确契约见
 `specs/GUI-OPTICAL-POLISH-1.md`，唯一批准行 `GOP-C01`。
 
 本票只收口现行 Agent／Pi Work 的几何关系：composer 使用既有唯一 L1 `12px` 外壳并在 760px 版心
@@ -5709,3 +5709,10 @@ CaseRail 的包状态与「管理包」同排；primary pointer press 只用既�
 依赖、Work diff、第二 elevation、历史验收与 `current.md`。实现必须先红、实际注入六类 mutation、跑完整
 desktop E2E 与全仓最低门；独立验收会话须新 clean clone、独立端口、自摄视觉矩阵并只追加
 `ACCEPTANCE.md`。本节不赋予 Agent、product-live 或 external-validated 口径。
+
+实现回执（implementation session）：旧实现上本票 5 项 GOP-C01 DOM 断言先实红；最终 Pi DOM `22/22`、
+光学静态门与 hierarchy/elevation/neutral/motion/icons 门全绿，Playwright `--list` 为 `413`。6 类 mutation
+（full-width composer、错误圆角、普通账行投影、proposal 顺序／对齐、rail 独立行、`transition: all`）逐一红后复原，
+红证与 fresh scripted visual matrix（light/dark × 1180/1440/390 × empty/proposal/succeeded + 240 squint）见
+`release/evidence/gui-optical-polish-1-2026-08-23/`；本实现不替代独立验收，另一会话须自行重摄并只追加
+`ACCEPTANCE.md`。参考 UI Skills better-ui 与 shadcn/ui changelog 仅作支持证据，未引入依赖、token 或第二设计系统。

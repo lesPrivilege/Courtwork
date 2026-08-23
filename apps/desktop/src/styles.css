@@ -524,10 +524,10 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .originals-list li { grid-template-columns: 1fr auto auto; }
 .rail-case-expand { margin-left: 18px; padding: 0 0 6px 18px; border-left: 0; background: transparent; border-radius: 0; }
 /* PACK-INTERACT-1 ①：matter 设置处的垂类包节（状态行 + 管理入口，中间档零新增色）。 */
-.rail-pack-section { display: grid; gap: 6px; padding: 0 10px 8px; }
-.rail-pack-section .rail-label { padding: 8px 0 0; }
-.rail-pack-state { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
-.rail-pack-manage { justify-self: start; border: 1px solid var(--border-strong); }
+.rail-pack-section { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 6px 8px; padding: 0 10px 8px; }
+.rail-pack-section .rail-label { grid-column: 1 / -1; padding: 8px 0 0; }
+.rail-pack-state { grid-column: 1; min-width: 0; margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.rail-pack-manage { grid-column: 2; justify-self: end; align-self: start; border: 1px solid var(--border-strong); }
 .rail-label { margin: 0; padding: 6px 10px 3px; border-top: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-emphasized); letter-spacing: .01em; }
 /* ④分区标题行：标题左、操作钮右，基线层级对齐（右侧钮 hover 才现，静时轻淡） */
 .rail-section-head { display: flex; align-items: center; justify-content: space-between; padding-right: 6px; }
@@ -1841,10 +1841,10 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .composer-disabled-reason { margin: 0 0 6px; padding: 6px 10px; border: 0; border-radius: 4px; background: var(--bg-app); color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 
 /* DESLOP-GATE-2：按压只属于主操作、图标与 popover trigger；键盘触发不进入 :active。 */
-:is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger) {
+:is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger, .pi-button-primary) {
   transition: transform var(--motion-press) ease-out, background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out, opacity var(--motion-hover) ease-out;
 }
-:is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: scale(.98); transition-duration: var(--motion-press); }
+:is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger, .pi-button-primary):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: scale(.98); transition-duration: var(--motion-press); }
 /* popover 只沿触发器方向移动 4px；每个 consumer 独立登记，避免类名级通行证。 */
 .case-card .archive-popover { animation: popover-from-top var(--motion-overlay) var(--motion-overlay-ease) both; transform-origin: top right; }
 .file-ops-undo-popover { animation: popover-from-top var(--motion-overlay) var(--motion-overlay-ease) both; transform-origin: top right; }
@@ -1859,7 +1859,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 @keyframes popover-from-bottom { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; }
+  :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger, .pi-button-primary):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; }
   .case-card .archive-popover { animation: none; transform: none; }
   /* 仪式可以被完全关掉——全局 .01ms 兜底只是把它压快，显式停摆才是真的不演。
      印仍在（它是处置留痕，不是动效产物），只是不再钤下来。 */
@@ -2029,10 +2029,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 /* 工具记录：账行（GUI-COMPOSITION-1 GC-C01-c）。分隔改由界行承担——横界会把卡切成一段段
    满版心的带，竖界只标「这几行是同一笔账」，故工具行退到正文轴内缩一格、左侧一条乌丝细线。 */
-.pi-tool-card { min-width: 0; display: grid; gap: var(--control-gap); margin-left: 14px; margin-right: 14px; padding: 4px 0 4px 12px; border-left: var(--rule-minor) solid var(--border); }
-.pi-tool-card:not([data-state="proposed"]) { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; }
-.pi-tool-card:not([data-state="proposed"]) .pi-tool-head { grid-column: 2; }
-.pi-tool-card:not([data-state="proposed"]) .pi-tool-details { grid-column: 1 / -1; }
+.pi-tool-card { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: var(--control-gap); margin-left: 14px; margin-right: 14px; padding: 4px 0 4px 12px; border-left: var(--rule-minor) solid var(--border); border-radius: 0; }
+.pi-tool-card .pi-tool-head { grid-column: 2; }
+.pi-tool-card .pi-tool-details { grid-column: 1 / -1; }
 /* proposal 主阅读层先说人话：动作 + 目标文件。 */
 .pi-tool-request, .pi-tool-action { min-width: 0; margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); line-height: 1.5; }
 .pi-tool-request b, .pi-tool-action b { font-family: var(--type-dense-mono); font-weight: var(--control-weight-regular); overflow-wrap: anywhere; }
@@ -2041,7 +2040,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-tool-details summary:hover { color: var(--text-primary); }
 /* 待决定：保留唯一 raised/surface 声部——需要人做决定的那一枚在扫读时先被看见。
    GC-C01-c：底色只覆内缩后的账行，不再是一块拉满版心的灰带。 */
-.pi-tool-card[data-state="proposed"] { padding: 8px 0 8px 12px; background: var(--bg-surface); }
+.pi-tool-card[data-state="proposed"] { grid-template-columns: minmax(0, 1fr); align-items: stretch; padding: 8px 0 8px 12px; border-radius: 6px; background: var(--bg-surface); }
 .pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
 .pi-tool-name { font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
 .pi-tool-state { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
@@ -2059,10 +2058,10 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-tool-ask { margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
 .pi-tool-hint { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-tool-alert { color: var(--red-fg); }
-.pi-tool-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+.pi-tool-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-top: 4px; }
 
 .pi-button {
-  min-height: var(--control-height-sm); padding: 4px 12px;
+  display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-height-sm); padding: 4px 12px;
   border: 1px solid var(--border-strong); border-radius: 4px;
   background: var(--bg-raised); color: var(--text-primary);
   cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular);
@@ -2073,6 +2072,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
 .pi-button-primary:hover { background: var(--action-primary-hover); }
 .pi-button-primary:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); }
+.pi-tool-actions .pi-button-primary { min-height: var(--control-height-md); }
+.pi-composer .pi-button-primary { min-height: var(--control-height-md); }
 .pi-button-quiet { border-color: transparent; background: transparent; color: var(--text-secondary); justify-self: start; }
 .pi-button-quiet:hover { background: var(--control-hover); }
 /* 驳回是朱砂在交互上的唯一落点（§12：朱只随真实风险、不可逆动作与驳回）。
@@ -2098,8 +2099,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-drafts-prior { display: grid; gap: 8px; padding-top: 10px; }
 .pi-panel-gate .pi-drafts-prior { width: 100%; max-width: var(--pi-content-measure); margin-inline: auto; }
 
-.pi-composer { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 16px; background: var(--bg-raised); }
-.pi-composer-input { flex: 1; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
+.pi-composer { width: min(calc(100% - 32px), var(--pi-content-measure)); flex: none; display: flex; align-items: flex-end; gap: var(--control-gap); margin-inline: auto; padding: 6px; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--bg-raised); }
+.pi-composer-input { flex: 1; min-width: 0; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
 .pi-composer-input:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
 
 /* 只读查看面：面内右侧片，不进 portal（残留门按 DOM 层直接可验）。 */
@@ -2129,8 +2130,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
     置于本节末尾：三处各自的 padding 简写在上面，简写不覆盖后来的 padding-inline。 */
 .pi-work-head,
 .pi-status,
-.pi-thread-viewport,
-.pi-composer { padding-inline: max(16px, calc((100% - var(--pi-content-measure)) / 2)); }
+.pi-thread-viewport { padding-inline: max(16px, calc((100% - var(--pi-content-measure)) / 2)); }
 
 /* Draft index is already a child of the measured viewport; keep its rows on that same text axis
    instead of centering a second time inside the viewport content box. */
