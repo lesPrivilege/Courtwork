@@ -138,3 +138,19 @@ reduced-motion 红证。不得借 R1 修改 `styles.css`、TSX、token、主题�
 R1 实现会话必须重跑 `pnpm site:guard`、完整 desktop `test:e2e`（fresh port、
 `reuseExistingServer=false`、single worker）、root lint/test 与 `pnpm -r build`，并提交独立回执；只有这些门全绿后
 才能派另一 Luna 会话在 clean clone 独立验收。
+
+### R1 实现回执（machine-gate sync）
+
+- TDD：登记前新增 R1 测试在旧实现上 `53` 项中 `51` 通过、`2` 失败；真 `styles.css` 扫描同时报
+  `.pi-composer` radius 与 `.pi-button-primary` press contract。错高半径 consumer、漏 primary selector、漏
+  reduced-motion 分支均由反例断言保持实红。
+- 精确登记：`assert-rule-grammar.mjs` 增加 `.pi-composer|all` 浮面描边；`deslop-scan-lib.mjs` 增加
+  `apps/desktop/src/styles.css|.pi-composer|border-radius = var(--elevation-float-radius)`，并把
+  `.pi-button-primary` 纳入既有 desktop press selector 的常态／reduced-motion 闭集；未扩大任何 radius／press 通行域。
+- R1 定向：site deslop 单测 `53/53`，真实 rule grammar `170` 个消费点通过；`pnpm site:guard` 实跑
+  `117/117`，release-truth、deslop（`1243` active text files）、neutral/elevation/signature/motion/design-md/
+  schema-exemplar/skin-r2/app-highwater 全绿；root `pnpm lint` 绿、`pnpm test` `183/183` files / `2251/2251`、
+  `pnpm -r build` 全 workspace 绿。
+- 边界与未完成门：本 R1 未改 `styles.css`、TSX、token、theme、copy、runtime 或依赖；遵父会话指示未启动完整
+  desktop E2E，故仍须后续以 fresh 独立端口、`reuseExistingServer=false`、single worker 重跑后再交独立验收。
+- R1 提交：`fdb422e`；本回执不宣称独立验收、PASS 或清账。

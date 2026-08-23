@@ -5726,3 +5726,8 @@ R1 架构裁定：上述阻断均为既有机器门的精确消费者清单未�
 `.pi-composer` 的 `var(--elevation-float-radius)` 与把 `.pi-button-primary` 纳入既有 desktop press selector；
 同步补真消费者绿证、错 selector／错值／漏 reduced-motion 红证。R1 禁止再改生产 UI、token、主题、copy 或
 运行语义；修后须完整重跑 site guard、desktop E2E、root lint/test/build，再进入不同 Luna clean-clone 验收。
+
+R1 实现回执：登记前新增测试在旧实现上 `53` 项中 `51` 通过、`2` 失败；登记后 site deslop `53/53`、真实
+rule grammar `170` 消费点、`pnpm site:guard` `117/117`，root lint、test `183/183` files / `2251/2251` 与
+`pnpm -r build` 全绿。未改生产 UI；完整 desktop E2E 遵父会话指示暂未启动，仍由后续独立验收以 fresh
+port／`reuseExistingServer=false`／single worker 重跑。本回执不替代独立验收。
