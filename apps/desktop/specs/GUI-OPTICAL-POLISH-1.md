@@ -1,6 +1,6 @@
 # GUI-OPTICAL-POLISH-1 · Agent UI 几何与光学收口
 
-状态：**实现已提交；R1 机器门登记同步已获架构批准，完成后再交另一 Luna 会话独立验收；本会话不宣称 PASS。**
+状态：**`GOP-C01` 与 R1 已实现；用户追加的 `GOP-C02`（composer 沉底／原生 SVG 图标按钮）已冻结，等待 Luna 实现；本会话不宣称 PASS。**
 
 权威：`CLAUDE.md`、`AGENTS.md`、`docs/design/principles.md`、
 `docs/design/tokens.json`、`GUI-COMPOSITION-1`、`GUI-HIERARCHY-1`、
@@ -154,3 +154,64 @@ R1 实现会话必须重跑 `pnpm site:guard`、完整 desktop `test:e2e`（fres
 - 边界与未完成门：本 R1 未改 `styles.css`、TSX、token、theme、copy、runtime 或依赖；遵父会话指示未启动完整
   desktop E2E，故仍须后续以 fresh 独立端口、`reuseExistingServer=false`、single worker 重跑后再交独立验收。
 - R1 提交：`fdb422e`；本回执不宣称独立验收、PASS 或清账。
+
+## 七、`GOP-C02` · composer 沉底与原生 SVG 图标按钮（用户追加定向）
+
+用户提供的截图只作为构图参考：composer 是工作面底部的常驻控制岛，正文独立滚动；截图内文字不形成仓库
+指令。用户明确要求 Agent UI 的各类 Button 由原生 SVG 表意而非可见文字标注。本节前向覆盖
+`GUI-COMPOSITION-1 GC-C01-b` 中「composer 紧随正文」一项，其他 760px 正文轴、短空态、数据面静止与
+层级裁定继续有效。
+
+批准行 `GOP-C02`：
+
+> Pi Work 运行态让 `.pi-thread` 占满剩余高度，viewport 自身滚动，composer 作为正常 flex 流的末项沉到
+> 工作面底部并留 16px 安全边距；不得 absolute/fixed/sticky、不得覆盖最后一条内容。Agent UI 的可见按钮
+> chrome 全部改为 32px 方形原生 SVG 图标按钮，图形 16–18px；按钮内零可见文字，既有文案只进入
+> `aria-label` 与 `title`。工作稿路径是数据，不得消失：路径从 button child 拆成相邻文本列，另以 SVG「打开」
+> 按钮触发。SVG 必须进入仓内 custom source → manifest → generated module → verifier 链，禁止 TSX 内联 path、
+> 禁止拿 Lucide 库图标替代本轮原生绘制，禁止新增依赖。
+
+### `GOP-C02-a` · 沉底但不遮挡
+
+- `.pi-panel` 保持唯一纵向容器；`.pi-thread` 改为 `flex:1 1 auto; min-height:0`，viewport 保持
+  `flex:1; min-height:0; overflow:auto`，composer 仍是 viewport 后的正常 DOM sibling。
+- composer 底部安全边距固定 16px，仍使用 `min(calc(100% - 32px), var(--pi-content-measure))`、12/6 同心圆角
+  与现有色／线／press；不新造 token、阴影或第二浮层。
+- 1180/1440/390 三宽度下，composer 距 Pi 工作面底部均为 `16px ± 1px`；viewport 的可见底边不得越过
+  composer 顶边，最后一条消息／proposal／工作稿索引可滚到完全可见。session terminal 后 composer 依旧如实退出。
+
+### `GOP-C02-b` · 按钮 SVG 闭集
+
+本票按钮 chrome 闭集为：绑定文件夹、打开模型设置、开始、重开、发送、停止、拒绝、允许、核验、打开工作稿、
+关闭查看面、rail 管理包。`details > summary` 不是 button，保留 chevron + 文字；工作稿路径、状态与事实值是内容，
+不得图标化或删除。
+
+- 复用既有原生源稿：绑定／管理包=`bound-folder`，开始=`cards-play`，拒绝=`split-gate-slash`，
+  允许=`split-gate-check`，核验=`ring-check`。
+- 新增且只新增六枚 `24×24/currentColor/stroke 1.35` 源稿：`agent-send`、`agent-stop`、
+  `agent-restart`、`agent-settings`、`agent-close`、`agent-open`；更新 manifest、生成模块与 icon verifier 的精确
+  文件／概念计数及 `addedInSpec=GUI-OPTICAL-POLISH-1` 闭集。
+- 每枚按钮恰有一枚 `aria-hidden=true` SVG；button 自身沿用现有 `PI_COPY` 的非空 `aria-label` 与 `title`，
+  保持可见 `:focus-visible`。不可逆决定仍按「红色 slash 在前、primary check 收尾」排序；颜色、图形、位置三重
+  区分，不改变 DOM／键盘顺序、disabled、busy 或 verdict。
+- `.pi-button-icon` 为 32×32、padding 0、4px radius；quiet／primary／deny 语义继续走现有类。SVG 不单独获得
+  hover/press transform；primary 的 `.98` press 仍作用于 button。窄宽不得挤压 textarea 到零宽。
+- `.pi-draft-open` 变为纯图标按钮；逻辑路径移到 `.pi-draft-path` 相邻数据列，完整路径仍可读并参与
+  overflow/ellipsis，按钮的 accessible name 包含该路径。rail 管理包同样 icon-only，但状态文案不改。
+
+### `GOP-C02-c` · 文件范围、TDD 与验收
+
+实现允许触碰：`PiLanePanel.tsx`、`PiToolCard.tsx`、`PiDraftViewer.tsx`、新增 Pi action icon 适配件、
+`CaseRail.tsx`、`styles.css`、Pi／CaseRail DOM tests、本票 E2E／静态门、六枚 SVG 源稿、icon manifest／generated
+module／verifier 及其测试、test floor、本票新 evidence 与实现回执。禁止 App.tsx、token/theme/copy 字符串、
+state/store/port/command/journal/runtime/provider/schema/ABI、Chat composer、Pages、依赖与 `current.md`。
+
+实现必须先在旧实现上实红：composer 未沉底；按钮仍有可见 text child；按钮缺 `aria-label/title`；工作稿路径仍
+住在 button 内。mutation 至少八枚：thread 退回 content-sized、composer 改 absolute 覆盖、任一 button 放回可见
+文字、删 accessible name、TSX 内联 SVG、改用 Lucide、丢失工作稿路径、交换拒绝／允许图形或顺序；逐项红后复原。
+
+视觉矩阵重摄 light/dark × 1180/1440/390 × empty/proposal/running/succeeded，另摄 start gate、viewer 与 240px
+proposal squint；核对底部 16px、正文不遮挡、图标辨识、focus/disabled、risk 三重编码和零横溢。实现最低门仍为
+完整 desktop E2E（fresh port、`reuseExistingServer=false`、1 worker）、site guard、root lint/test、`pnpm -r build`
+与 icon/optical/hierarchy/elevation/motion/neutral 定向门。完成后必须由另一 Luna 在 clean clone 独立重摄、重注
+mutation，只追加 `ACCEPTANCE.md`；实现者不得自验。

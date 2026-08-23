@@ -5731,3 +5731,11 @@ R1 实现回执：登记前新增测试在旧实现上 `53` 项中 `51` 通过�
 rule grammar `170` 消费点、`pnpm site:guard` `117/117`，root lint、test `183/183` files / `2251/2251` 与
 `pnpm -r build` 全绿。未改生产 UI；完整 desktop E2E 遵父会话指示暂未启动，仍由后续独立验收以 fresh
 port／`reuseExistingServer=false`／single worker 重跑。本回执不替代独立验收。
+
+用户追加 `GOP-C02`：Pi Work composer 作为正常 flex 流末项沉到工作面底部并留 16px 安全边距，viewport
+独立滚动且不得遮挡内容；本项只前向覆盖 `GUI-COMPOSITION-1 GC-C01-b` 的「紧随内容」，不改 760px 轴。
+Agent UI 的绑定、设置、开始、重开、发送、停止、拒绝、允许、核验、打开工作稿、关闭 viewer 与 rail 管理包
+全部改为 32px 原生 SVG 图标按钮，button 内零可见文字，既有 copy 只作 `aria-label/title`。工作稿路径拆为
+相邻数据列，不得消失。复用 5 枚既有 custom SVG，只补 `agent-send/stop/restart/settings/close/open` 六枚源稿；
+必须走 manifest→generated module→verifier，禁止 TSX 内联 SVG、Lucide 替代、依赖或运行契约扩张。精确文件
+范围、八类 mutation、三宽双宗矩阵与独立 Luna 验收只认 `specs/GUI-OPTICAL-POLISH-1.md` 第七节。
