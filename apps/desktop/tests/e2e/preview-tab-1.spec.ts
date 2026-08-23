@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { compileDraftToDocx } from '@courtwork/output';
-import { openWorkbench } from './helpers';
+import { launchSceneByLabel, openWorkbench } from './helpers';
 
 /**
  * PREVIEW-TAB-1 专用 e2e（ADR-014 决定一/二）。
@@ -218,8 +218,7 @@ test('② D11：一个 matter 内多场景产物并存（跑完 S1 再跑 S2，�
 
   // 起第二个场景：此前这一步 dispatch `__clear__` 整本清空投影，S1 的产物随之从面上消失。
   // 工作面开着时场景条进窄态，宽态按钮收进「更多」——走弹层是这一刻真实可达的那条路。
-  await page.getByTestId('scene-more').click();
-  await page.getByTestId('scene-more-popover').getByRole('button', { name: '矩阵审阅' }).click();
+  await launchSceneByLabel(page, '矩阵审阅');
   await expect(page.getByTestId('matrix-panel')).toContainText(MATRIX_ANSWER, { timeout: 15000 });
 
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });

@@ -144,6 +144,9 @@ export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) 
         </div>
       </header>
 
+      {/* GUP-S01：表自带横滚壳。工具条与执行报告留在面宽内不随表移动——
+          否则表一溢出，锚在工具条右缘的撤销弹层就会把整面横向拉走，且关闭后不复位。 */}
+      <div className="file-ops-table-scroll">
       <table className="file-ops-table" data-testid="file-ops-table">
         <thead>
           <tr>
@@ -167,6 +170,7 @@ export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) 
           ))}
         </tbody>
       </table>
+      </div>
 
       {report && (
         <section className="file-ops-report" data-testid="file-ops-report" aria-label="执行报告">

@@ -55,7 +55,7 @@ export function TimelinePanel({ timeline, grade, onOpenSource }: {
 
   return <StaticViewport testId="timeline-static-viewport">
     <div className="timeline-layout" data-testid="timeline-panel">
-      <div className="table-head timeline-grid"><span>日期</span><span>编号</span><span>事件</span><span>来源</span></div>
+      <div className="table-head timeline-grid"><span>日期</span><span>编号</span><span className="timeline-event">事件</span><span>来源</span></div>
       <div className="dense-table timeline-events">
         {timeline.events.map((event) => {
           const contradiction = event.markers?.includes('contradiction') ?? false;
@@ -70,10 +70,10 @@ export function TimelinePanel({ timeline, grade, onOpenSource }: {
             <SignatureLine tone={contradiction ? 'attention' : undefined} />
             <time>{event.date.kind === 'exact' ? event.date.date : <span className="pending-field">日期待核</span>}</time>
             <span className="domain-badge">{event.id.replace('evt-', 'E')}</span>
-            <span>{event.description}</span>
+            <span className="timeline-event">{event.description}</span>
             {/* 零编码暴露律：来源列显示可读文件名（专业原生编码），不截 wire 前缀 */}
             <span
-              className="timeline-source truncate"
+              className="timeline-source"
               title={event.sourceAnchors[0]?.fileId}
               aria-label={`来源 ${sourceFileLabel(event.sourceAnchors[0]?.fileId) || '待补'}`}
             >{sourceFileLabel(event.sourceAnchors[0]?.fileId) || '来源待补'}</span>

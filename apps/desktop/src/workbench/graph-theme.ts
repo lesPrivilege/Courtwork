@@ -21,6 +21,21 @@ export const graphGeometry = {
   nodeHeight: 44,
 } as const;
 
+/* GUP-S01 图谱排印：字栈与功能轨同源（tokens.json typography.family.ui）。
+   此前取 'Inter, "Noto Sans SC", system-ui'——Inter 不在任一在册字栈内，也不随包，
+   实为第二套字栈在 canvas 上静默生效；排印门①只扫 CSS 的 font-family，扫不到 JS 属性。
+   labelMinPx 是可读下限，取 tokens.json scale.meta「12px 以下禁用」的同一值：
+   fitView 为把图塞进窄面会把 label 缩到 9px（实测 0.56x），缩到看不清不是适配而是静默降级，
+   故 fit 后按 labelMinPx / labelFontSize 抬回下限，溢出交既有 drag-canvas 与 minimap 承接。 */
+export const graphTypography = {
+  labelFontFamily: '-apple-system, "Segoe UI", "PingFang SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif',
+  labelFontSize: 14,
+  labelLineHeight: 18,
+  labelMinPx: 12,
+} as const;
+
+export const graphMinFitZoom = graphTypography.labelMinPx / graphTypography.labelFontSize;
+
 const courtworkTheme = {
   background: graphTokens.background,
   node: {
@@ -39,10 +54,10 @@ const courtworkTheme = {
       labelPlacement: 'center' as const,
       labelFill: graphTokens.ink,
       labelFillOpacity: 1,
-      labelFontFamily: 'Inter, "Noto Sans SC", system-ui, sans-serif',
-      labelFontSize: 16,
+      labelFontFamily: graphTypography.labelFontFamily,
+      labelFontSize: graphTypography.labelFontSize,
       labelFontWeight: 500,
-      labelLineHeight: 16,
+      labelLineHeight: graphTypography.labelLineHeight,
       labelMaxWidth: 144,
       labelWordWrap: true,
       labelWordWrapWidth: 144,

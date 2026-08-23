@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { connectProvider, installChatStream, openWorkbench } from './helpers';
+import { connectProvider, installChatStream, launchSceneByLabel, openWorkbench } from './helpers';
 import {
   captureAnimationBaseline,
   captureClosureShot,
@@ -248,8 +248,7 @@ test.describe('开合闭合门 · 疊层清单', () => {
 
   test('file-ops-undo-popover · Popover（popover 锚定·显式）', async ({ page }) => {
     await enterSettledDemo(page);
-    await page.getByTestId('scene-more').click();
-    await page.getByTestId('scene-more-popover').getByRole('button', { name: '卷宗整理' }).click();
+    await launchSceneByLabel(page, '卷宗整理');
     await page.getByTestId('file-ops-execute').click();
     await expect(page.getByTestId('file-ops-report')).toBeVisible();
     await runClosureGate(page, {

@@ -4,7 +4,7 @@ import type { SourceAnchor } from '@courtwork/schemas';
 import { Icon } from '../../workbench/Icon';
 import { EmptyState, sourceFileLabel, TierBadge } from '../../workbench/Panels';
 import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from '../../workbench/g6-runtime';
-import { COURTWORK_GRAPH_THEME, graphGeometry, graphTokens, registerCourtworkGraphTheme } from '../../workbench/graph-theme';
+import { COURTWORK_GRAPH_THEME, graphGeometry, graphMinFitZoom, graphTokens, registerCourtworkGraphTheme } from '../../workbench/graph-theme';
 
 const { nodeWidth: NODE_WIDTH, nodeHeight: NODE_HEIGHT } = graphGeometry;
 const MIN_ZOOM = 0.45;
@@ -158,6 +158,8 @@ export default function GraphPanel({ graph, grade, onOpenSource }: {
       void renderPromise.then(async () => {
         if (!active) return;
         await current.fitView({ when: 'always', direction: 'both' }, false);
+        // 可读下限只约束自动适配；用户显式缩小是主动选择，不在此拦。
+        if (current.getZoom() < graphMinFitZoom) await current.zoomTo(graphMinFitZoom, false);
         if (!active) return;
         setZoom(current.getZoom());
         setLayoutNodes(graph.nodes.map((node) => {
@@ -204,6 +206,7 @@ export default function GraphPanel({ graph, grade, onOpenSource }: {
     const instance = graphRef.current;
     if (!instance) return;
     await instance.fitView({ when: 'always', direction: 'both' }, false);
+    if (instance.getZoom() < graphMinFitZoom) await instance.zoomTo(graphMinFitZoom, false);
     setZoom(instance.getZoom());
   };
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {

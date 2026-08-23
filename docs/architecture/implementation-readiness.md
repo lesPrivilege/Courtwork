@@ -203,7 +203,7 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
 `SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。未来若重启公开发布，候选仍须
 明确区分“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。现阶段唯一收敛节点是
-`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（已清账）→ GUI-OPTICAL-POLISH-1（已清账）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
+`PI-BASE-HEADLESS-ACCEPT ⇄ PI-LANE-UI-1（已清账）→ WORK-AGENT-GUI-1（已清账）→ WORK-AGENT-SHOWCASE-1（已清账）→ UX-POLISH-1（已清账）→ WORK-SURFACE-COMPOSITION-1（已清账）→ GUI-LEAD-WHITE-1（已清账）→ GUI-COMPOSITION-1（已清账）→ GUI-HIERARCHY-1（已清账）→ GUI-PAPER-THEMES-1（已清账）→ GUI-OPTICAL-POLISH-1（已清账）→ GUI-UNIFIED-POLISH-1（实现待独立验收）→ PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
 双向箭头保留 2026-08-05 “GUI 与真 key 六格并行”的产品重排。只有 `PI-BASE-GUI-ACCEPT` 放行才
 取得 agent 称谓；最后一节点只证明维护者个人安装形态。
 
@@ -251,6 +251,21 @@ proposal 卡必要圆角、把决定主动作置于 trailing 末端、把 rail �
 Work button chrome 换成仓内原生 SVG。普通账行、数据列、工作稿索引与文书面保持零圆角增量／零投影；不改主题、
 copy、runtime、schema、provider、成熟度或 Work diff。唯一批准行 `GOP-C01`、精确值、TDD、mutation、
 视觉矩阵与独立 Luna 验收边界，以及 C02 前向覆盖，均只认 `apps/desktop/specs/GUI-OPTICAL-POLISH-1.md`。
+
+**工作态排印层级与数据面可读性（2026-08-23 产品定向，App 视觉槽重开）**：用户以现行实帧指出
+Design 仍不成立，本轮以 UI Skills 作非阻塞审计口径重审，实测定谳：缺陷不在 token 而在消费——
+`typography.scale` 七档俱在、上三档 `titleSm/title/display` 九个变量已暴露到 `:root`，
+消费点却恰三处且全在 pi 线，场景线零消费；同屏排印全落 10–15px 带内、45 处 px 字号字面量
+（27 处低于在册 12px 下限、3 处高于 20px 上限）从未触红，因为现行排印门只扫 `font-family`。
+故 `GUI-OPTICAL-POLISH-1` 之后重开一个 App 视觉槽 `GUI-UNIFIED-POLISH-1`，唯一批准行
+`GUP-A01`（agent-interface：字阶接线、行高基线、案件题与面题层级、对话列不小于检视栏）与
+`GUP-S01`（schema-workface：矩阵／时间线／风险／整理计划四面的列量度、图谱 label 可读下限）
+由架构角色同票批准。实现已落，全静态门＋Playwright 414/414 绿，待不同会话 clean clone 独立验收。
+本票不改主题、copy、runtime、schema、provider、成熟度或 Work diff，不替代 `PI-BASE-GUI-ACCEPT`。
+两项未了如实在票：`GUP-A01` 空态标签条与已清账 `GOP-C02` 的 icon-only 冻结正面冲突，
+挂〔需架构拍板〕未实施；`GUP-S01` 描边收敛分句的前提（88 处描边为盒中盒）被逐类计数否证
+（66 处系表格格线），该分句不实施亦不记账。精确值、门、反例与余量冲突只认
+`apps/desktop/specs/GUI-UNIFIED-POLISH-1.md`。
 
 **收敛节点前置新立票 `PI-HEADLESS-HARNESS-1`（2026-08-05 侦察定谳，协调立票）**：`PI-BASE-HEADLESS-ACCEPT`
 是纯验收（「不实施契约修补，只写 ACCEPTANCE.md」），但其六格矩阵要求跑一条 real-Agent↔real-stdio-wire↔

@@ -159,10 +159,139 @@ for (const slot of ['title', 'body']) {
   }
 }
 
+// ── 门④ 字阶在册与行高配对（GUI-UNIFIED-POLISH-1 / GUP-A01）──────────────────
+// 门①锁字栈，门④锁字阶。两者同构：要么按名消费已登记变量，要么触红；px 字面量无豁免。
+//
+// 变量名 → token 槽走**显式登记**而非按名推导（承门①附「推名必推错」判例）：
+// `--type-dense-meta-size` 对应槽 meta，`--type-dense-body-size` 对应槽 dense，名不同源。
+//
+// 行高分两治：12/13 两档行高同为 1.5，由 :root 基线一次承担，规则内不再重复声明；
+// 其余五档各自偏离基线，故凡消费其字号者须在同规则配对声明该档行高变量——
+// 不配对就意味着字号变了而行距没变，正是本票要消灭的形态。
+const SCALE_VARS = {
+  meta:    { size: '--type-dense-meta-size' },
+  dense:   { size: '--type-dense-body-size' },
+  body:    { size: '--type-body-size',       lh: '--type-body-line-height' },
+  reading: { size: '--type-reading-size',    lh: '--type-reading-line-height' },
+  titleSm: { size: '--type-title-sm-size',   lh: '--type-title-sm-line-height' },
+  title:   { size: '--type-title-size',      lh: '--type-title-line-height' },
+  display: { size: '--type-display-size',    lh: '--type-display-line-height' },
+};
+// 文书轨不在 scale 上（track.document 自带仿宋墨量补偿 16/1.75），单独登记单独校。
+const DOC_VARS = { size: '--type-document-size', lh: '--type-document-line-height' };
+// 控件字号是字阶的具名别名，不是第八第九档：控件轨要按控件高度成对取值，故另立名。
+// 别名同样受漂移校验——别名一旦与所指槽脱钩，「按名消费」就退化为又一处散落数值。
+const CONTROL_ALIASES = { '--control-font-sm': 'dense', '--control-font-md': 'body' };
+// 图标审计页是开发内页（icon-audit.html 独立入口，不随产品壳装配），其排印不承设计契约。
+// 具名登记而非静默跳过：新增开发内页须显式入册才能免门。
+const NON_PRODUCT_SURFACES = new Set(['src/icons/icon-audit.css']);
+
+const rootDecl = (name) => rootBlock.match(new RegExp(`${name}\\s*:\\s*([^;]+);`))?.[1]?.trim();
+
+// ④a 字阶变量不得与 tokens.json 漂移——按名消费的前提是名下值为真。
+for (const [slot, vars] of Object.entries(SCALE_VARS)) {
+  const step = typo.scale?.[slot];
+  if (!step) { failures.push(`门④字阶在册：tokens.json 缺 typography.scale.${slot}`); continue; }
+  const size = rootDecl(vars.size);
+  if (size !== `${step.size}px`) {
+    failures.push(`门④字阶漂移 ${vars.size}（槽 ${slot}）：css = ${size ?? '(缺)'}，token = ${step.size}px`);
+  }
+  if (!vars.lh) continue;
+  const lh = rootDecl(vars.lh);
+  if (lh !== String(step.lineHeight)) {
+    failures.push(`门④行高漂移 ${vars.lh}（槽 ${slot}）：css = ${lh ?? '(缺)'}，token = ${step.lineHeight}`);
+  }
+}
+{
+  const doc = typo.track?.document;
+  const size = rootDecl(DOC_VARS.size);
+  const lh = rootDecl(DOC_VARS.lh);
+  if (size !== `${doc?.readingSize}px`) {
+    failures.push(`门④字阶漂移 ${DOC_VARS.size}（文书轨）：css = ${size ?? '(缺)'}，token = ${doc?.readingSize}px`);
+  }
+  if (lh !== String(doc?.readingLineHeight)) {
+    failures.push(`门④行高漂移 ${DOC_VARS.lh}（文书轨）：css = ${lh ?? '(缺)'}，token = ${doc?.readingLineHeight}`);
+  }
+}
+
+// ④b :root 行高基线——缺此声明则 12/13 两档回落 `normal`，全站行距由字体度量决定而非设计决定。
+{
+  // 前置的负向断言不可省：`--type-*-line-height` 同样以 line-height 结尾，裸匹配会先命中变量声明。
+  const baseline = rootBlock.match(/(?<![-\w])line-height\s*:\s*([^;]+);/)?.[1]?.trim();
+  const metaLh = typo.scale?.meta?.lineHeight;
+  if (baseline !== String(metaLh)) {
+    failures.push(`门④行高基线：:root line-height = ${baseline ?? '(缺)'}，应为 scale.meta.lineHeight = ${metaLh}`);
+  }
+}
+
+// ④c 字号单源——`font-size` 与 `font` 简写一并扫。px 字面量一律触红，无登记豁免清单：
+// 字阶七档加文书轨已覆盖全部在册体裁，需要第八个尺寸即属改 token，不属改消费面。
+for (const [alias, slot] of Object.entries(CONTROL_ALIASES)) {
+  const declared = rootDecl(alias);
+  const expected = `${typo.scale?.[slot]?.size}px`;
+  if (declared !== expected) {
+    failures.push(`门④字阶别名漂移 ${alias}：css = ${declared ?? '(缺)'}，所指槽 ${slot} = ${expected}`);
+  }
+}
+
+const SIZE_VAR_NAMES = new Set([
+  ...Object.values(SCALE_VARS).map((v) => v.size),
+  DOC_VARS.size,
+  ...Object.keys(CONTROL_ALIASES),
+]);
+for (const file of sourceFiles(path.join(root, 'src'))) {
+  const rel = path.relative(root, file);
+  if (/\.test\.[tj]sx?$/.test(rel)) continue; // 测试内的字面量是断言标的，非消费面
+  if (NON_PRODUCT_SURFACES.has(rel)) continue;
+  const text = readFileSync(file, 'utf8');
+  for (const m of text.matchAll(/font-size\s*:\s*([^;}\n]+)/g)) {
+    const value = m[1].trim();
+    if (value === 'inherit') continue;
+    const name = value.match(/^var\(\s*(--[\w-]+)\s*\)$/)?.[1];
+    if (name && SIZE_VAR_NAMES.has(name)) continue;
+    failures.push(`门④字号单源：${rel} font-size 未按名消费字阶 —— ${value}`);
+  }
+  for (const m of text.matchAll(/(?:^|[;{]\s*)font\s*:\s*([^;}\n]+)/g)) {
+    const value = m[1].trim();
+    if (value === 'inherit') continue;
+    const name = value.match(/var\(\s*(--[\w-]+)\s*\)\s*\//)?.[1];
+    if (name && SIZE_VAR_NAMES.has(name)) continue;
+    failures.push(`门④字号单源：${rel} font 简写未按名消费字阶 —— ${value}`);
+  }
+}
+
+// ④d 行高配对——偏离基线的五档加文书轨，字号与行高必须同规则成对出现。
+const PAIRED = [...Object.values(SCALE_VARS).filter((v) => v.lh), DOC_VARS];
+for (const file of sourceFiles(path.join(root, 'src'))) {
+  const rel = path.relative(root, file);
+  if (/\.test\.[tj]sx?$/.test(rel)) continue;
+  if (NON_PRODUCT_SURFACES.has(rel)) continue;
+  const text = readFileSync(file, 'utf8');
+  for (const rule of text.matchAll(/\{([^{}]*)\}/g)) {
+    const body = rule[1];
+    for (const pair of PAIRED) {
+      if (!new RegExp(`font-size\\s*:\\s*var\\(\\s*${pair.size}\\s*\\)`).test(body)) continue;
+      if (new RegExp(`line-height\\s*:\\s*var\\(\\s*${pair.lh}\\s*\\)`).test(body)) continue;
+      // 单行控件按 `line-height: 1` 由控件高度定垂直居中，是显式取值不是缺省。
+      // 在册的只有「该档配对变量」与「1」两种；`normal` 与任意字面量仍红——
+      // 门④要消灭的是行距由字体度量决定，不是禁止 1。
+      if (/line-height\s*:\s*1\s*[;}]/.test(`${body};`)) continue;
+      failures.push(`门④行高配对：${rel} 规则消费 ${pair.size} 却未同规则声明 line-height: var(${pair.lh}) 或 1`);
+    }
+    // 简写形式自带行高，须逐字取该档配对值。
+    for (const pair of PAIRED) {
+      const m = body.match(new RegExp(`font\\s*:\\s*var\\(\\s*${pair.size}\\s*\\)\\s*/\\s*([^\\s;]+)`));
+      if (m && m[1] !== `var(${pair.lh})` && m[1] !== '1') {
+        failures.push(`门④行高配对：${rel} font 简写在 ${pair.size} 上取行高 ${m[1]}，应为 var(${pair.lh})`);
+      }
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
 console.log(
-  `排印门通过：门①字栈单源（${seenPending.size} 条 B2-1 待迁具名登记）· 门②伪粗体（synthesis 锁 + 文书轨 ${doc.weight} 单字重）· 门③数据字（tabular 单源 + 标题轨禁令）· 子集锚 ${manifest.fonts.length} 件`,
+  `排印门通过：门①字栈单源（${seenPending.size} 条 B2-1 待迁具名登记）· 门②伪粗体（synthesis 锁 + 文书轨 ${doc.weight} 单字重）· 门③数据字（tabular 单源 + 标题轨禁令）· 门④字阶在册（七档 + 文书轨，px 字面量零豁免）· 子集锚 ${manifest.fonts.length} 件`,
 );

@@ -211,3 +211,21 @@ export async function ruleScale(page: Page): Promise<{ major: number; minor: num
     return { major: read('--rule-major'), minor: read('--rule-minor'), gap: read('--rule-gap') };
   });
 }
+
+/**
+ * 按标签起一枚场景条目，不预设它此刻落在条上还是「更多」弹层里。
+ *
+ * GUI-UNIFIED-POLISH-1 判例：`.scene-strip` 是 container，`.scene-wide-only` 与
+ * `.scene-more-narrow-only` 以 520px 为界互换可见性。对话列量度一变（GUP-A01 把
+ * chat 从 .9fr 抬到与 schema 同权重），同一枚条目就从弹层挪回条上——把「经由更多」
+ * 写死进用例，锁住的是当时的列宽而非产品语义。故取「条上可见则直点，否则开弹层」。
+ */
+export async function launchSceneByLabel(page: Page, label: string): Promise<void> {
+  const inline = page.locator('.scene-strip > button').filter({ hasText: label }).first();
+  if (await inline.isVisible().catch(() => false)) {
+    await inline.click();
+    return;
+  }
+  await page.getByTestId('scene-more').click();
+  await page.getByTestId('scene-more-popover').getByRole('button', { name: label }).click();
+}
