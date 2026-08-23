@@ -267,6 +267,16 @@ Design 仍不成立，本轮以 UI Skills 作非阻塞审计口径重审，实�
 （66 处系表格格线），该分句不实施亦不记账。精确值、门、反例与余量冲突只认
 `apps/desktop/specs/GUI-UNIFIED-POLISH-1.md`。
 
+**数据面结构改造转出票 `DATA-FACE-GRID-1`（2026-08-23 冻结待批）**：`GUI-UNIFIED-POLISH-1`
+把矩阵与整理计划两面的截断清到零，时间线与风险两面只能逼近——两面是「每行各一个 grid」，
+CSS 的 `max-content` 跨行不通约，故密度律（`de-slop` 锁 `dense-row` 28–34px）与量度律
+（列宽由内容定、不截断）在该结构上不可兼得。结构不同是唯一变量：两张真 `<table>` 一次到位，
+两处逐行 grid 只能留残余。故转出 `DATA-FACE-GRID-1`，唯一提案行 `DFG-S01` 待架构角色批准，
+甲（改真 `<table>`）乙（整面 grid ＋ `subgrid`）两路待定，且以真实 WKWebView 的 `subgrid`
+可用性实测为开工前置。本票不改数据、列序、列语义或锚点链路，不进当期 App 视觉槽队列，
+排在 `PI-BASE-GUI-ACCEPT` 之后不阻塞该门。票面只认
+`apps/desktop/specs/DATA-FACE-GRID-1.md`。
+
 **收敛节点前置新立票 `PI-HEADLESS-HARNESS-1`（2026-08-05 侦察定谳，协调立票）**：`PI-BASE-HEADLESS-ACCEPT`
 是纯验收（「不实施契约修补，只写 ACCEPTANCE.md」），但其六格矩阵要求跑一条 real-Agent↔real-stdio-wire↔
 real `WorkspaceFsHost`(注入 Approve driver)↔real-disk＋restart 的合成链——现读实证该链**不存在**：Rust
