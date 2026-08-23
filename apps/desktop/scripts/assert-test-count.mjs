@@ -104,8 +104,9 @@ const count = match ? Number(match[1]) : 0;
 // 三条 scripted-route 回归锁 +3 → 391；旧伪 WorkDraft E2E 被同意图 Pi 路由断言原位置换，不计增量。
 // GUI-HIERARCHY-1：在现行 `playwright test --list` 的 composition 基线 402 上新增
 // CaseRail 层级 / Pi 节奏 / 事实列 / elevation / 密度 +5；当前实测 Total 407。
-// GUI-OPTICAL-POLISH-1：composer/proposal/rail/press 四组 runtime + 双宗三宽度视觉矩阵 +6；当前实测 Total 413。
-const minimum = 413;
+// GUI-OPTICAL-POLISH-1：composer/proposal/rail/press 四组 runtime + 双宗三宽度视觉矩阵 +6；当前实测 413。
+// GOP-C02：gate/viewer + running 状态视觉与 icon-only DOM 实证 +1；当前实测 Total 414。
+const minimum = 414;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

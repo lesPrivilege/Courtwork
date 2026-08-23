@@ -173,7 +173,11 @@ test('③ 卸载态成品全链：未绑定 matter 创建→work→产物→回�
   await page.getByTestId('pi-approve').click();
   const card = page.getByTestId('pi-tool-card').filter({ hasText: '工作纪要.md' });
   await expect(card).toHaveAttribute('data-state', 'succeeded');
-  await expect(page.getByTestId('pi-drafts').getByTestId('pi-draft-open')).toHaveText('工作纪要.md');
+  await expect(page.getByTestId('pi-drafts').getByTestId('pi-draft-open')).toHaveAttribute(
+    'data-logical-path',
+    '工作纪要.md',
+  );
+  await expect(page.getByTestId('pi-drafts').locator('.pi-draft-path')).toHaveText('工作纪要.md');
   await page.screenshot({ path: `${OUT_DIR}/04-product-written.png` });
 
   // ④ 回看：索引→只读查看（hash 相符、零编辑入口）。

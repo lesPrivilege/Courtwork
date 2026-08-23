@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { emptySessionView, type PiToolCallView } from './pi-projection';
 import { PiLanePanel } from './PiLanePanel';
+import { PiDraftViewer } from './PiDraftViewer';
 import { PiToolCard } from './PiToolCard';
 import { PI_COPY } from './pi-copy';
 import type { PiLaneSession } from './use-pi-lane';
@@ -700,5 +701,176 @@ describe('GUI-OPTICAL-POLISH-1 · GOP-C01 born-red', () => {
       onOpen: vi.fn(),
     }));
     expect(container!.querySelector('[data-testid="pi-tool-card"][data-state="proposed"] .pi-tool-head')).toBeNull();
+  });
+});
+
+describe('GUI-OPTICAL-POLISH-1 · GOP-C02 born-red', () => {
+  it('composer is the flex tail with a 16px bottom safety edge and an independently scrolling viewport', () => {
+    const source = readFileSync('src/styles.css', 'utf8');
+    expect(source).toMatch(/\.pi-panel\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s);
+    expect(source).toMatch(/\.pi-thread\s*\{[^}]*flex:\s*1\s+1\s+auto/s);
+    expect(source).toMatch(/\.pi-thread-viewport\s*\{[^}]*flex:\s*1[^}]*min-height:\s*0[^}]*overflow:\s*auto/s);
+    expect(source).toMatch(/\.pi-composer\s*\{[^}]*flex:\s*0\s+0\s+auto[^}]*margin-bottom:\s*16px/s);
+  });
+
+  it('the twelve Agent/Pi Work action buttons are icon-only with names and titles', () => {
+    const panel = readFileSync('src/pi/PiLanePanel.tsx', 'utf8');
+    const card = readFileSync('src/pi/PiToolCard.tsx', 'utf8');
+    const viewer = readFileSync('src/pi/PiDraftViewer.tsx', 'utf8');
+    const rail = readFileSync('src/rail/CaseRail.tsx', 'utf8');
+    const sources = [panel, card, viewer, rail];
+    for (const source of sources) {
+      for (const button of source.match(/<button\b[\s\S]*?<\/button>/g) ?? []) {
+        expect(button).not.toMatch(/>\s*\{PI_COPY\.[A-Za-z]+\}/);
+      }
+    }
+    for (const name of [
+      'pi-bind-folder', 'pi-open-model-settings', 'pi-start', 'pi-restart', 'pi-send', 'pi-stop',
+      'pi-deny', 'pi-approve', 'pi-verify-uncertain', 'pi-draft-open', 'pi-viewer-close',
+    ]) {
+      expect(sources.join('\n')).toMatch(new RegExp(`data-testid="${name}"`));
+    }
+    expect(rail).toMatch(/data-testid=\{`rail-pack-manage-\$\{item\.id\}`\}/);
+    expect(sources.join('\n')).toMatch(/<PiActionIcon[\s\S]*?aria-label=/);
+    expect(sources.join('\n')).toMatch(/title=\{[^}]+\}/);
+  });
+
+  it('rendered Pi action chrome has no visible text and exactly one accessible SVG', () => {
+    const assertIconButton = (testid: string) => {
+      const button = container!.querySelector<HTMLButtonElement>(`[data-testid="${testid}"]`);
+      expect(button).not.toBeNull();
+      expect(button!.textContent?.trim()).toBe('');
+      expect(button!.querySelectorAll('svg')).toHaveLength(1);
+      expect(button!.getAttribute('aria-label')).toBeTruthy();
+      expect(button!.getAttribute('title')).toBeTruthy();
+    };
+    render(createElement(PiLanePanel, {
+      session: makeSession(),
+      bound: false,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-bind-folder');
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({ status: 'unavailable' }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-open-model-settings');
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({ status: 'idle' }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-start');
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({ status: 'ready', sessionId: 'session-1' }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-send');
+    assertIconButton('pi-restart');
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-1',
+        view: { ...emptySessionView('matter-1', 'session-1'), running: true },
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-stop');
+
+    const proposal: PiToolCallView = {
+      toolCallId: 'tc-c02',
+      toolName: 'write',
+      running: true,
+      proposal: {
+        operationId: 'op-c02',
+        logicalPath: '纪要.md',
+        byteLength: 12,
+        contentSha256: 'a'.repeat(64),
+        action: 'created',
+      },
+    };
+    clearRender();
+    render(createElement(PiToolCard, {
+      call: proposal,
+      pending: true,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    assertIconButton('pi-deny');
+    assertIconButton('pi-approve');
+    expect(container!.querySelector('[data-testid="pi-deny"] svg')?.getAttribute('data-icon-name')).toBe('split-gate-slash');
+    expect(container!.querySelector('[data-testid="pi-approve"] svg')?.getAttribute('data-icon-name')).toBe('split-gate-check');
+
+    clearRender();
+    render(createElement(PiToolCard, {
+      call: { ...proposal, running: false, effect: { state: 'uncertain' } },
+      pending: false,
+      busy: false,
+      onDecide: vi.fn(),
+      onOpen: vi.fn(),
+    }));
+    assertIconButton('pi-verify-uncertain');
+
+    clearRender();
+    render(createElement(PiLanePanel, {
+      session: makeSession({
+        status: 'ready',
+        sessionId: 'session-1',
+        view: {
+          ...emptySessionView('matter-1', 'session-1'),
+          sessionTerminal: { type: 'completed' },
+          drafts: [{ logicalPath: '纪要.md', byteLength: 12, contentSha256: 'a'.repeat(64), disposition: 'created', recordedAt: 1 }],
+        },
+      }),
+      bound: true,
+      matterTitle: '设备采购案',
+      onBindFolder: vi.fn(),
+      onOpenModelSettings: vi.fn(),
+    }));
+    assertIconButton('pi-draft-open');
+    expect(container!.querySelector('.pi-draft-path')?.textContent).toBe('纪要.md');
+    expect(container!.querySelector('[data-testid="pi-draft-open"]')?.getAttribute('aria-label')).toContain('纪要.md');
+
+    clearRender();
+    render(createElement(PiDraftViewer, {
+      state: { logicalPath: '纪要.md', sessionId: 'session-1', loading: true, verify: false },
+      onClose: vi.fn(),
+    }));
+    assertIconButton('pi-viewer-close');
+  });
+
+  it('draft paths remain a sibling data column instead of button children', () => {
+    const source = readFileSync('src/pi/PiLanePanel.tsx', 'utf8');
+    expect(source).toMatch(/className="pi-draft-path"/);
+    expect(source).toMatch(/className="[^"]*pi-draft-open[^"]*"[\s\S]*?<PiActionIcon name="agent-open"/);
+    expect(source).not.toMatch(/<button[\s\S]*className="pi-draft-open"[\s\S]*>\s*\{draft\.logicalPath\}/);
+  });
+
+  it('custom icon manifest includes the six GOP-C02 source concepts', () => {
+    const manifest = JSON.parse(readFileSync('src/icons/manifest.json', 'utf8')) as Array<{ name: string; addedInSpec: string }>;
+    const c02 = manifest.filter((entry) => entry.addedInSpec === 'GUI-OPTICAL-POLISH-1').map((entry) => entry.name).sort();
+    expect(c02).toEqual(['agent-close', 'agent-open', 'agent-restart', 'agent-send', 'agent-settings', 'agent-stop']);
   });
 });

@@ -135,7 +135,8 @@ test('全链：提案 → 允许 → 已写入 → 索引 → 只读查看（has
 
   // 索引只从 succeeded fold。
   const drafts = page.getByTestId('pi-drafts');
-  await expect(drafts.getByTestId('pi-draft-open')).toHaveText('纪要.md');
+  await expect(drafts.getByTestId('pi-draft-open')).toHaveAttribute('data-logical-path', '纪要.md');
+  await expect(drafts.locator('.pi-draft-path')).toHaveText('纪要.md');
 
   await drafts.getByTestId('pi-draft-open').click();
   const viewer = page.getByTestId('pi-viewer');
@@ -317,7 +318,11 @@ test('上一段工作稿（只读）：新一段 workspace 为空，旧一段仍
   });
   await startAndSend(page);
   await page.getByTestId('pi-approve').click();
-  await expect(page.getByTestId('pi-drafts').getByTestId('pi-draft-open')).toHaveText('纪要.md');
+  await expect(page.getByTestId('pi-drafts').getByTestId('pi-draft-open')).toHaveAttribute(
+    'data-logical-path',
+    '纪要.md',
+  );
+  await expect(page.getByTestId('pi-drafts').locator('.pi-draft-path')).toHaveText('纪要.md');
 
   // 另起一段：这一条收摊、回到未开工态；上一段的工作稿仍在只读入口里。
   await page.getByTestId('pi-restart').click();

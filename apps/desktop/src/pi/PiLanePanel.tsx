@@ -12,6 +12,7 @@ import {
 import { ChatMarkdown } from '../chat/ChatMarkdown';
 import { Icon } from '../workbench/Icon';
 import { PiDraftViewer, type PiViewerState } from './PiDraftViewer';
+import { PiActionIcon } from './PiActionIcon';
 import { PiToolCard } from './PiToolCard';
 import { PI_COPY, piSessionClosedCopy } from './pi-copy';
 import type { PiHistorySession } from './pi-history';
@@ -280,18 +281,22 @@ export function PiLanePanel({
                 />
                 <ThreadPrimitive.If running={false}>
                   <ComposerPrimitive.Send
-                    className="pi-button pi-button-primary"
+                    className="pi-button pi-button-primary pi-button-icon"
                     data-testid="pi-send"
+                    aria-label={PI_COPY.sendAction}
+                    title={PI_COPY.sendAction}
                   >
-                    {PI_COPY.sendAction}
+                    <PiActionIcon name="agent-send" />
                   </ComposerPrimitive.Send>
                 </ThreadPrimitive.If>
                 <ThreadPrimitive.If running>
                   <ComposerPrimitive.Cancel
-                    className="pi-button pi-button-quiet"
+                    className="pi-button pi-button-quiet pi-button-icon"
                     data-testid="pi-stop"
+                    aria-label={PI_COPY.stopAction}
+                    title={PI_COPY.stopAction}
                   >
-                    {PI_COPY.stopAction}
+                    <PiActionIcon name="agent-stop" />
                   </ComposerPrimitive.Cancel>
                 </ThreadPrimitive.If>
               </ComposerPrimitive.Root>
@@ -388,11 +393,13 @@ function PiStatusBar({
       {!view.running && (
         <button
           type="button"
-          className="pi-button pi-button-quiet pi-status-restart"
+          className="pi-button pi-button-quiet pi-button-icon pi-status-restart"
           data-testid="pi-restart"
+          aria-label={PI_COPY.restartAction}
+          title={PI_COPY.restartAction}
           onClick={onRestart}
         >
-          {PI_COPY.restartAction}
+          <PiActionIcon name="agent-restart" />
         </button>
       )}
     </header>
@@ -423,14 +430,19 @@ function PiDraftIndex({
               <span className="pi-draft-index pi-mono">
                 {String(index + 1).padStart(3, '0')}
               </span>
+              <span className="pi-draft-path" title={draft.logicalPath}>
+                {draft.logicalPath}
+              </span>
               <button
                 type="button"
-                className="pi-draft-open"
+                className="pi-button pi-button-quiet pi-button-icon pi-draft-open"
                 data-testid="pi-draft-open"
                 data-logical-path={draft.logicalPath}
+                aria-label={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
+                title={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
                 onClick={() => onOpen(view.sessionId, draft.logicalPath, draft.contentSha256)}
               >
-                {draft.logicalPath}
+                <PiActionIcon name="agent-open" />
               </button>
               <span className="pi-draft-bytes pi-mono">{draft.byteLength}</span>
             </li>
@@ -444,14 +456,19 @@ function PiDraftIndex({
           <ol className="pi-drafts-list">
             {prior.drafts.map((draft) => (
               <li key={draft.logicalPath} className="pi-draft-row">
+                <span className="pi-draft-path" title={draft.logicalPath}>
+                  {draft.logicalPath}
+                </span>
                 <button
                   type="button"
-                  className="pi-draft-open"
+                  className="pi-button pi-button-quiet pi-button-icon pi-draft-open"
                   data-testid="pi-prior-draft-open"
                   data-logical-path={draft.logicalPath}
+                  aria-label={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
+                  title={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
                   onClick={() => onOpen(prior.sessionId, draft.logicalPath, draft.contentSha256)}
                 >
-                  {draft.logicalPath}
+                  <PiActionIcon name="agent-open" />
                 </button>
                 <span className="pi-draft-bytes pi-mono">{draft.byteLength}</span>
               </li>
@@ -509,30 +526,36 @@ function PiStartGate({
         {!bound ? (
           <button
             type="button"
-            className="pi-button pi-button-primary"
+            className="pi-button pi-button-primary pi-button-icon"
             data-testid="pi-bind-folder"
+            aria-label={PI_COPY.bindFolderAction}
+            title={PI_COPY.bindFolderAction}
             onClick={onBindFolder}
           >
-            {PI_COPY.bindFolderAction}
+            <PiActionIcon name="bound-folder" />
           </button>
         ) : unavailable ? (
           <button
             type="button"
-            className="pi-button pi-button-primary"
+            className="pi-button pi-button-primary pi-button-icon"
             data-testid="pi-open-model-settings"
+            aria-label={PI_COPY.openModelSettingsAction}
+            title={PI_COPY.openModelSettingsAction}
             onClick={onOpenModelSettings}
           >
-            {PI_COPY.openModelSettingsAction}
+            <PiActionIcon name="agent-settings" />
           </button>
         ) : (
           <button
             type="button"
-            className="pi-button pi-button-primary"
+            className="pi-button pi-button-primary pi-button-icon"
             data-testid="pi-start"
+            aria-label={PI_COPY.startAction}
+            title={PI_COPY.startAction}
             disabled={session.status === 'starting'}
             onClick={() => void session.start()}
           >
-            {PI_COPY.startAction}
+            <PiActionIcon name="cards-play" />
           </button>
         )}
       </div>
@@ -543,14 +566,19 @@ function PiStartGate({
           <ol className="pi-drafts-list">
             {prior.drafts.map((draft) => (
               <li key={draft.logicalPath} className="pi-draft-row">
+                <span className="pi-draft-path" title={draft.logicalPath}>
+                  {draft.logicalPath}
+                </span>
                 <button
                   type="button"
-                  className="pi-draft-open"
+                  className="pi-button pi-button-quiet pi-button-icon pi-draft-open"
                   data-testid="pi-prior-draft-open"
                   data-logical-path={draft.logicalPath}
+                  aria-label={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
+                  title={`${PI_COPY.openDraft}: ${draft.logicalPath}`}
                   onClick={() => onOpenPrior(prior.sessionId, draft.logicalPath, draft.contentSha256)}
                 >
-                  {draft.logicalPath}
+                  <PiActionIcon name="agent-open" />
                 </button>
                 <span className="pi-draft-bytes pi-mono">{draft.byteLength}</span>
               </li>

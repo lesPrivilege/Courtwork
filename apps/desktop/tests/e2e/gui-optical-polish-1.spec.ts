@@ -4,7 +4,7 @@ import path from 'node:path';
 import { openWorkbench } from './helpers';
 
 /**
- * `GUI-OPTICAL-POLISH-1` · GOP-C01 的 scripted browser projection。
+ * `GUI-OPTICAL-POLISH-1` · GOP-C01/GOP-C02 的 scripted browser projection。
  *
  * 这里只观察 Pi Work 的现有投影和 CaseRail 的现有包状态行，不引入新的产品 hook、copy
  * 或视觉值。截图链是实现回执的可复核材料，必须落在本票新目录，不能覆盖历史 release evidence。
@@ -20,10 +20,10 @@ type PiHooks = {
 };
 
 type Theme = 'light' | 'dark';
-type CaptureState = 'empty' | 'proposal' | 'succeeded';
+type CaptureState = 'empty' | 'proposal' | 'running' | 'succeeded';
 
 const SHA = 'e80ddeb170a3513e335ada586bec6f0068e8be8c66ab0845b38ec541edb888ba';
-const OUT_DIR = path.resolve(import.meta.dirname, '../../../..', 'release/evidence/gui-optical-polish-1-2026-08-23');
+const OUT_DIR = path.resolve(import.meta.dirname, '../../../..', 'release/evidence/gui-optical-polish-1-gop-c02-2026-08-23');
 const CAPTURE = process.env.GUI_OPTICAL_CAPTURE === '1';
 
 const WRITE_SCRIPT = [
@@ -84,6 +84,7 @@ async function runToProposal(page: Page) {
   }, SHA);
   await page.getByTestId('pi-composer-input').fill('整理一份光学核对记录');
   await page.getByTestId('pi-send').click();
+  await expect(page.getByTestId('pi-stop')).toBeVisible();
   await expect(page.getByTestId('pi-proposal')).toBeVisible();
 }
 
@@ -117,7 +118,11 @@ async function readOpticalGeometry(page: Page) {
       };
     };
     const viewport = document.querySelector('.pi-thread-viewport');
+    const panel = document.querySelector('.pi-panel');
     const viewportStyle = viewport instanceof HTMLElement ? getComputedStyle(viewport) : null;
+    const panelRect = panel instanceof HTMLElement ? panel.getBoundingClientRect() : null;
+    const viewportRect = viewport instanceof HTMLElement ? viewport.getBoundingClientRect() : null;
+    const composerRect = composer.getBoundingClientRect();
     return {
       viewportWidth: window.innerWidth,
       documentOverflow: document.documentElement.scrollWidth > window.innerWidth || document.body.scrollWidth > window.innerWidth,
@@ -129,6 +134,9 @@ async function readOpticalGeometry(page: Page) {
       approve: approve instanceof HTMLElement ? read(approve) : null,
       proposalHead: proposal?.querySelector('.pi-tool-head') !== null,
       viewportPadding: viewportStyle ? `${viewportStyle.paddingLeft} ${viewportStyle.paddingRight}` : null,
+      composerBottomGap: panelRect ? panelRect.bottom - composerRect.bottom : null,
+      viewportBottom: viewportRect?.bottom ?? null,
+      composerTop: composerRect.top,
     };
   });
 }
@@ -144,6 +152,9 @@ async function captureState(
   expect(geometry).not.toBeNull();
   expect(geometry!.documentOverflow).toBe(false);
   expect(geometry!.composer.width).toBeLessThanOrEqual(width - 32 + 1);
+  expect(geometry!.composerBottomGap).toBeGreaterThanOrEqual(15);
+  expect(geometry!.composerBottomGap).toBeLessThanOrEqual(17);
+  expect(geometry!.viewportBottom).toBeLessThanOrEqual(geometry!.composerTop + 1);
   expect(geometry!.composer.borderRadius).toBe('12px');
   expect(geometry!.input.borderRadius).toBe('6px');
   report.push({ theme, width, state, geometry });
@@ -277,7 +288,25 @@ async function runVisualMatrix(page: Page, width: number) {
     }, theme);
     await captureState(page, theme, width, 'empty', report);
   }
-  await runToProposal(page);
+  await page.evaluate((steps) => {
+    (window as unknown as { __courtworkPiLane: PiHooks }).__courtworkPiLane.setScript(steps);
+  }, WRITE_SCRIPT);
+  await page.evaluate((sha) => {
+    (window as unknown as { __courtworkPiLane: PiHooks }).__courtworkPiLane.setWorkspaceFile(
+      '光学核对.md',
+      { content: '# 光学核对\n', contentSha256: sha, byteLength: 37 },
+    );
+  }, SHA);
+  await page.getByTestId('pi-composer-input').fill('整理一份光学核对记录');
+  await page.getByTestId('pi-send').click();
+  await expect(page.getByTestId('pi-stop')).toBeVisible();
+  for (const theme of ['light', 'dark'] as const) {
+    await page.evaluate((nextTheme) => {
+      document.documentElement.dataset.theme = nextTheme;
+    }, theme);
+    await captureState(page, theme, width, 'running', report);
+  }
+  await expect(page.getByTestId('pi-proposal')).toBeVisible();
   for (const theme of ['light', 'dark'] as const) {
     await page.evaluate((nextTheme) => {
       document.documentElement.dataset.theme = nextTheme;
@@ -292,24 +321,69 @@ async function runVisualMatrix(page: Page, width: number) {
     }, theme);
     await captureState(page, theme, width, 'succeeded', report);
   }
-  expect(report).toHaveLength(6);
+  expect(report).toHaveLength(8);
   if (CAPTURE) {
     await mkdir(OUT_DIR, { recursive: true });
     await writeFile(path.join(OUT_DIR, `matrix-w${width}.json`), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
   }
 }
 
-test('GOP-C01 visual matrix：light/dark × 1180 × empty/proposal/succeeded', async ({ page }) => {
+test('GOP-C02 gate/viewer：start gate 与只读查看面保留 icon-only chrome', async ({ page }) => {
+  await openDraftFace(page, '光学 gate/viewer 案');
+  for (const width of [1180, 1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const theme of ['light', 'dark'] as const) {
+      await page.evaluate((nextTheme) => {
+        document.documentElement.dataset.theme = nextTheme;
+      }, theme);
+      await expect(page.getByTestId('pi-panel')).toBeVisible();
+      await expect(page.getByTestId('pi-composer')).toHaveCount(0);
+      const gateButton = page.getByTestId('pi-start');
+      await expect(gateButton).toHaveText('');
+      await expect(gateButton.locator('svg')).toHaveCount(1);
+      await expect(gateButton).toHaveAttribute('aria-label', /.+/);
+      await expect(gateButton).toHaveAttribute('title', /.+/);
+      if (CAPTURE) {
+        await mkdir(OUT_DIR, { recursive: true });
+        await page.screenshot({ path: path.join(OUT_DIR, `w${width}-${theme}-gate.png`), fullPage: true });
+      }
+    }
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await startComposer(page);
+  await runToProposal(page);
+  await page.getByTestId('pi-approve').click();
+  await expect(page.getByTestId('pi-draft-open')).toBeVisible();
+  await page.getByTestId('pi-draft-open').click();
+  await expect(page.getByTestId('pi-viewer')).toBeVisible();
+  const close = page.getByTestId('pi-viewer-close');
+  await expect(close).toHaveText('');
+  await expect(close.locator('svg')).toHaveCount(1);
+  await expect(close).toHaveAttribute('aria-label', /.+/);
+  await expect(close).toHaveAttribute('title', /.+/);
+  for (const theme of ['light', 'dark'] as const) {
+    await page.evaluate((nextTheme) => {
+      document.documentElement.dataset.theme = nextTheme;
+    }, theme);
+    if (CAPTURE) {
+      await mkdir(OUT_DIR, { recursive: true });
+      await page.screenshot({ path: path.join(OUT_DIR, `w1440-${theme}-viewer.png`), fullPage: true });
+    }
+  }
+});
+
+test('GOP-C02 visual matrix：light/dark × 1180 × empty/running/proposal/succeeded', async ({ page }) => {
   test.slow();
   await runVisualMatrix(page, 1180);
 });
 
-test('GOP-C01 visual matrix：light/dark × 1440 × empty/proposal/succeeded', async ({ page }) => {
+test('GOP-C02 visual matrix：light/dark × 1440 × empty/running/proposal/succeeded', async ({ page }) => {
   test.slow();
   await runVisualMatrix(page, 1440);
 });
 
-test('GOP-C01 visual matrix：light/dark × 390 × empty/proposal/succeeded', async ({ page }) => {
+test('GOP-C02 visual matrix：light/dark × 390 × empty/running/proposal/succeeded', async ({ page }) => {
   test.slow();
   await runVisualMatrix(page, 390);
 });

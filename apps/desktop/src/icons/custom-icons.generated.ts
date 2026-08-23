@@ -2,6 +2,12 @@
 import { createLucideIcon, type IconNode, type LucideIcon } from 'lucide-react';
 
 export const customIconNames = [
+  "agent-close",
+  "agent-open",
+  "agent-restart",
+  "agent-send",
+  "agent-settings",
+  "agent-stop",
   "anchor-link",
   "archive-lock",
   "bound-folder",
@@ -26,6 +32,73 @@ export const customIconNames = [
 export type CustomIconName = typeof customIconNames[number];
 
 const customIconNodes = {
+  "agent-close": [
+    [
+      "path",
+      {
+        "d": "m5 5 14 14m0-14L5 19",
+        "key": "agent-close-1"
+      }
+    ]
+  ],
+  "agent-open": [
+    [
+      "path",
+      {
+        "d": "M3 5h7l2 2h9v12H3zm9 7h8m-4-4 4 4-4 4",
+        "key": "agent-open-1"
+      }
+    ]
+  ],
+  "agent-restart": [
+    [
+      "path",
+      {
+        "d": "M20 11a8 8 0 1 0 1 4M20 4v7h-7",
+        "key": "agent-restart-1"
+      }
+    ]
+  ],
+  "agent-send": [
+    [
+      "path",
+      {
+        "d": "M12 21V4M7 9l5-5 5 5",
+        "key": "agent-send-1"
+      }
+    ]
+  ],
+  "agent-settings": [
+    [
+      "circle",
+      {
+        "cx": "12",
+        "cy": "12",
+        "r": "3",
+        "key": "agent-settings-1"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9 7 7m10 10 2.1 2.1m0-14.2L17 7M7 17l-2.1 2.1",
+        "key": "agent-settings-2"
+      }
+    ]
+  ],
+  "agent-stop": [
+    [
+      "rect",
+      {
+        "width": "12",
+        "height": "12",
+        "x": "6",
+        "y": "6",
+        "rx": "2",
+        "key": "agent-stop-1"
+      }
+    ]
+  ],
   "anchor-link": [
     [
       "path",
@@ -452,6 +525,12 @@ const customIconNodes = {
   ]
 } as unknown as Record<CustomIconName, IconNode>;
 
+export const AgentCloseIcon: LucideIcon = createLucideIcon('AgentClose', customIconNodes['agent-close']);
+export const AgentOpenIcon: LucideIcon = createLucideIcon('AgentOpen', customIconNodes['agent-open']);
+export const AgentRestartIcon: LucideIcon = createLucideIcon('AgentRestart', customIconNodes['agent-restart']);
+export const AgentSendIcon: LucideIcon = createLucideIcon('AgentSend', customIconNodes['agent-send']);
+export const AgentSettingsIcon: LucideIcon = createLucideIcon('AgentSettings', customIconNodes['agent-settings']);
+export const AgentStopIcon: LucideIcon = createLucideIcon('AgentStop', customIconNodes['agent-stop']);
 export const AnchorLinkIcon: LucideIcon = createLucideIcon('AnchorLink', customIconNodes['anchor-link']);
 export const ArchiveLockIcon: LucideIcon = createLucideIcon('ArchiveLock', customIconNodes['archive-lock']);
 export const BoundFolderIcon: LucideIcon = createLucideIcon('BoundFolder', customIconNodes['bound-folder']);
@@ -474,6 +553,12 @@ export const SteppedArrowIcon: LucideIcon = createLucideIcon('SteppedArrow', cus
 export const TabbedSheetIcon: LucideIcon = createLucideIcon('TabbedSheet', customIconNodes['tabbed-sheet']);
 
 export const customIcons: Record<CustomIconName, LucideIcon> = {
+  'agent-close': AgentCloseIcon,
+  'agent-open': AgentOpenIcon,
+  'agent-restart': AgentRestartIcon,
+  'agent-send': AgentSendIcon,
+  'agent-settings': AgentSettingsIcon,
+  'agent-stop': AgentStopIcon,
   'anchor-link': AnchorLinkIcon,
   'archive-lock': ArchiveLockIcon,
   'bound-folder': BoundFolderIcon,

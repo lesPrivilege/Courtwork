@@ -109,10 +109,19 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const manifestNames = manifest.map((entry) => entry.name).sort();
 if (new Set(manifestNames).size !== manifestNames.length) violations.push('manifest: name 重复');
 if (JSON.stringify(names) !== JSON.stringify(manifestNames)) violations.push('manifest: 与 SVG 文件不是一一对应');
-// P-4 起 17 概念 / 19 具名；RP-2.10 增 brand-mark（#26.3 推理指示锚）→ 20 具名。
-if (names.length !== 20) violations.push(`manifest: 应有 18 概念 / 20 具名 SVG，实际 ${names.length}`);
+// P-4 起 17 概念 / 19 具名；RP-2.10 增 brand-mark（#26.3 推理指示锚）→ 20 具名；
+// GUI-OPTICAL-POLISH-1 增 Agent/Pi Work 六枚动作记号 → 26 具名。
+if (names.length !== 26) violations.push(`manifest: 应有 24 概念 / 26 具名 SVG，实际 ${names.length}`);
 if (manifest.filter((entry) => entry.family === 'split-gate').length !== 3) violations.push('manifest: split-gate 必须恰有三态');
-const allowedSpecs = new Set(['P-4', 'RP-2.10']);
+const allowedSpecs = new Set(['P-4', 'RP-2.10', 'GUI-OPTICAL-POLISH-1']);
+const c02Names = ['agent-close', 'agent-open', 'agent-restart', 'agent-send', 'agent-settings', 'agent-stop'];
+const c02ManifestNames = manifest
+  .filter((entry) => entry.addedInSpec === 'GUI-OPTICAL-POLISH-1')
+  .map((entry) => entry.name)
+  .sort();
+if (JSON.stringify(c02ManifestNames) !== JSON.stringify(c02Names)) {
+  violations.push('manifest: GUI-OPTICAL-POLISH-1 必须恰有六枚 Agent/Pi Work 动作 SVG');
+}
 for (const entry of manifest) {
   if (!kebabCase.test(entry.name) || !kebabCase.test(entry.family)) violations.push(`manifest: ${entry.name} 名称或 family 非 kebab-case`);
   if (!Array.isArray(entry.tags) || !entry.tags.length || entry.tags.some((tag) => !kebabCase.test(tag))) violations.push(`manifest: ${entry.name} tags 无效`);
@@ -154,4 +163,4 @@ const actualGenerated = existsSync(generatedPath) ? readFileSync(generatedPath, 
 if (expectedGenerated !== actualGenerated) violations.push('custom-icons.generated.ts 与 SVG 源稿漂移，请运行 pnpm icons:generate');
 
 if (violations.length) throw new Error(`SVG 图标门禁失败：\n${violations.join('\n')}`);
-globalThis.process.stdout.write(`SVG 图标门禁通过：${names.length} 个具名 SVG（18 概念）+ Lucide 静态按需导入\n`);
+globalThis.process.stdout.write(`SVG 图标门禁通过：${names.length} 个具名 SVG（24 概念）+ Lucide 静态按需导入\n`);

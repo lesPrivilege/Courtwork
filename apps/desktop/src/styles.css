@@ -2010,10 +2010,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
    dark tertiary 三面为 7.107 / 6.308 / 5.422，均闭合 AA 正文目标；数字仍可按信息重要度选择 secondary。 */
 .pi-mono { font-family: var(--type-dense-mono); font-variant-numeric: tabular-nums; }
 
-/* GUI-COMPOSITION-1 GC-C01-b：未成文区不留成屏空场——thread 按内容收拢（`flex: 0 1 auto`），
-   composer 紧随正文而非独悬底部；内容长过可用高度时仍由 viewport 自身滚动，composer 归位底部。 */
-.pi-thread { min-height: 0; flex: 0 1 auto; display: flex; flex-direction: column; }
-.pi-thread-viewport { min-height: 0; flex: 1; display: flex; flex-direction: column; gap: var(--home-section-gap); padding: 16px; overflow: auto; }
+/* GOP-C02：thread 占满面内剩余高度；viewport 独立滚动，composer 是其后的正常 flex 末项。 */
+.pi-thread { min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; }
+.pi-thread-viewport { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--home-section-gap); padding: 16px; overflow: auto; }
 
 .pi-empty { display: grid; gap: 6px; justify-items: start; padding: 24px 0; }
 .pi-panel-gate .pi-empty { justify-items: center; text-align: center; }
@@ -2069,6 +2068,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-button:hover { background: var(--control-hover); }
 .pi-button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
 .pi-button:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); cursor: not-allowed; }
+.pi-button-icon { width: 32px; height: 32px; min-width: 32px; min-height: 32px; flex: 0 0 32px; padding: 0; }
+.pi-action-icon { width: 18px; height: 18px; flex: none; }
 .pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
 .pi-button-primary:hover { background: var(--action-primary-hover); }
 .pi-button-primary:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); }
@@ -2091,15 +2092,16 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-drafts-title { margin: 0; color: var(--text-secondary); font-size: var(--type-title-sm-size); line-height: var(--type-title-sm-line-height); font-weight: var(--type-title-sm-weight); letter-spacing: .04em; }
 .pi-drafts-empty { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
-.pi-draft-row { display: flex; align-items: baseline; gap: 10px; }
+.pi-draft-row { display: flex; align-items: center; gap: 10px; }
 .pi-draft-index { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
-.pi-draft-open { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--blue-fg); cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-body-size); }
-.pi-draft-open:hover { text-decoration: underline; }
+.pi-draft-path { flex: 1; min-width: 0; color: var(--blue-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-body-size); }
+.pi-draft-open { flex: 0 0 32px; }
+.pi-draft-open:hover + .pi-draft-bytes { text-decoration: none; }
 .pi-draft-bytes { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-prior { display: grid; gap: 8px; padding-top: 10px; }
 .pi-panel-gate .pi-drafts-prior { width: 100%; max-width: var(--pi-content-measure); margin-inline: auto; }
 
-.pi-composer { width: min(calc(100% - 32px), var(--pi-content-measure)); flex: none; display: flex; align-items: flex-end; gap: var(--control-gap); margin-inline: auto; padding: 6px; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--bg-raised); }
+.pi-composer { width: min(calc(100% - 32px), var(--pi-content-measure)); flex: 0 0 auto; display: flex; align-items: flex-end; gap: var(--control-gap); margin-inline: auto; margin-bottom: 16px; padding: 6px; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--bg-raised); }
 .pi-composer-input { flex: 1; min-width: 0; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
 .pi-composer-input:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
 

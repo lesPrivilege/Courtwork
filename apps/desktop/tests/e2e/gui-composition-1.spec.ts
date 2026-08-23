@@ -187,7 +187,7 @@ test('GC-C01-h：拒绝写入降为次级动作', async ({ page }) => {
   expect(parseFloat(focusOutline!)).toBeGreaterThan(0);
 });
 
-/** `GC-C01-b`：运行中与待决态不留成屏空场。 */
+/** `GC-C01-b`：GOP-C02 覆盖 composer 紧随正文，改验底部流布局不遮挡正文。 */
 test('GC-C01-b：未成文区正文块与 composer 之间不留成屏空场', async ({ page }) => {
   await openDraftFace(page);
   await runToProposal(page);
@@ -195,14 +195,26 @@ test('GC-C01-b：未成文区正文块与 composer 之间不留成屏空场', as
     const viewport = document.querySelector('.pi-thread-viewport');
     const composer = document.querySelector('.pi-composer');
     if (!(viewport instanceof HTMLElement) || !(composer instanceof HTMLElement)) return null;
-    // 正文区最后一块**内容**（工具账行之后还有运行状态行），量的是它与 composer 之间的净空。
+    // 正文区最后一块**内容**（工具账行之后还有运行状态行）；GOP-C02 将 composer
+    // 沉到工作面底部，允许中间保留可滚动空间，但不得让内容越过 composer 顶边。
     const last = viewport.lastElementChild;
     if (!(last instanceof HTMLElement)) return null;
-    return composer.getBoundingClientRect().top - last.getBoundingClientRect().bottom;
+    const viewportRect = viewport.getBoundingClientRect();
+    const composerRect = composer.getBoundingClientRect();
+    const lastRect = last.getBoundingClientRect();
+    const panel = document.querySelector('[data-testid="pi-panel"]');
+    const panelRect = panel instanceof HTMLElement ? panel.getBoundingClientRect() : null;
+    return {
+      contentToComposer: composerRect.top - lastRect.bottom,
+      viewportToComposer: composerRect.top - viewportRect.bottom,
+      composerBottomGap: panelRect ? panelRect.bottom - composerRect.bottom : null,
+    };
   });
   expect(gap).not.toBeNull();
-  // 上限＝一个既有 section 间距（--home-section-gap: 20px）；实测为 viewport 的 16px 下内距。
-  expect(gap!).toBeLessThanOrEqual(20);
+  expect(gap!.contentToComposer).toBeGreaterThanOrEqual(0);
+  expect(gap!.viewportToComposer).toBeGreaterThanOrEqual(-1);
+  expect(gap!.composerBottomGap).toBeGreaterThanOrEqual(15);
+  expect(gap!.composerBottomGap).toBeLessThanOrEqual(17);
 });
 
 /** `GC-C01-f`：pi 的 details summary 抑制默认 marker，改用既有图标。 */

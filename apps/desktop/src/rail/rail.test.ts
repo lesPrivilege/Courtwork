@@ -63,3 +63,17 @@ describe('WORK-AGENT-SHOWCASE-1 · rail chrome 减法', () => {
     expect(caseRailSource).not.toContain('CHROME_COPY.account.owner');
   });
 });
+
+describe('GUI-OPTICAL-POLISH-1 · GOP-C02 rail action chrome', () => {
+  it('管理包使用 native action adapter and remains icon-only', () => {
+    expect(caseRailSource).toMatch(/<PiActionIcon name="bound-folder"/);
+    expect(caseRailSource).toMatch(/data-testid=\{`rail-pack-manage-\$\{item\.id\}`\}/);
+    const manageButton = (caseRailSource.match(/<button\b[\s\S]*?<\/button>/g) ?? [])
+      .find((button) => button.includes('rail-pack-manage-${item.id}'));
+    expect(manageButton).toBeDefined();
+    expect(manageButton).toContain('aria-label="管理包"');
+    expect(manageButton).toContain('title="管理包"');
+    expect(manageButton).toContain('<PiActionIcon name="bound-folder"');
+    expect(manageButton?.slice(manageButton.indexOf('>') + 1)).not.toMatch(/^\s*管理包\s*</);
+  });
+});

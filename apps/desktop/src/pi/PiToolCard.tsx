@@ -1,4 +1,5 @@
 import { Icon } from '../workbench/Icon';
+import { PiActionIcon } from './PiActionIcon';
 import { PI_COPY } from './pi-copy';
 import type { PiToolCallView } from './pi-projection';
 
@@ -108,19 +109,23 @@ export function PiToolCard({
             <div className="pi-tool-actions">
               <button
                 type="button"
-                className="pi-button pi-button-quiet pi-button-deny"
+                className="pi-button pi-button-quiet pi-button-deny pi-button-icon"
                 data-testid="pi-deny"
+                aria-label={PI_COPY.denyAction}
+                title={PI_COPY.denyAction}
                 onClick={() => call.proposal && onDecide(call.proposal.operationId, 'deny')}
               >
-                {PI_COPY.denyAction}
+                <PiActionIcon name="split-gate-slash" />
               </button>
               <button
                 type="button"
-                className="pi-button pi-button-primary"
+                className="pi-button pi-button-primary pi-button-icon"
                 data-testid="pi-approve"
+                aria-label={PI_COPY.approveAction}
+                title={PI_COPY.approveAction}
                 onClick={() => call.proposal && onDecide(call.proposal.operationId, 'approve')}
               >
-                {PI_COPY.approveAction}
+                <PiActionIcon name="split-gate-check" />
               </button>
             </div>
           )}
@@ -136,11 +141,13 @@ export function PiToolCard({
       {state === 'uncertain' && call.proposal && (
         <button
           type="button"
-          className="pi-button pi-button-quiet"
+          className="pi-button pi-button-quiet pi-button-icon"
           data-testid="pi-verify-uncertain"
+          aria-label={PI_COPY.verifyDraft}
+          title={PI_COPY.verifyDraft}
           onClick={() => call.proposal && onOpen(call.proposal.logicalPath, { verify: true })}
         >
-          {PI_COPY.verifyDraft}
+          <PiActionIcon name="ring-check" />
         </button>
       )}
     </section>

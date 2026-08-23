@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { ChatMarkdown } from '../chat/ChatMarkdown';
 import { Icon } from '../workbench/Icon';
+import { PiActionIcon } from './PiActionIcon';
 import { PI_COPY } from './pi-copy';
 import type { PiLaneFailure, PiWorkspaceMarkdown } from './pi-lane-port';
 
@@ -71,11 +72,13 @@ export function PiDraftViewer({
         <button
           type="button"
           ref={closeRef}
-          className="pi-button pi-button-quiet"
+          className="pi-button pi-button-quiet pi-button-icon"
           data-testid="pi-viewer-close"
+          aria-label={PI_COPY.closeViewer}
+          title={PI_COPY.closeViewer}
           onClick={onClose}
         >
-          {PI_COPY.closeViewer}
+          <PiActionIcon name="agent-close" />
         </button>
       </header>
 

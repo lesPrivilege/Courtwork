@@ -15,6 +15,7 @@ import type { StoredMaterial } from '../material/material-ref';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
 import { BrandMarkIcon } from '../icons/custom-icons.generated';
+import { PiActionIcon } from '../pi/PiActionIcon';
 import { useRef, useState } from 'react';
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import {
@@ -331,11 +332,13 @@ export function CaseRail({
                 </p>
                 <button
                   type="button"
-                  className="quiet-button rail-pack-manage"
+                  className="quiet-button pi-button-icon rail-pack-manage"
                   data-testid={`rail-pack-manage-${item.id}`}
+                  aria-label="管理包"
+                  title="管理包"
                   onClick={() => onManagePack(item.id)}
                 >
-                  管理包
+                  <PiActionIcon name="bound-folder" />
                 </button>
               </div>
             )}

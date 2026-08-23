@@ -4,8 +4,11 @@ test('P-4 自绘图标在 16px/24px 审计板保持 1.35px 单色线框', async 
   await page.goto('/icon-audit.html');
   const audit = page.getByTestId('icon-audit');
   await expect(audit).toBeVisible();
-  await expect(page.locator('.icon-audit-card')).toHaveCount(20);
+  await expect(page.locator('.icon-audit-card')).toHaveCount(26);
   await expect(page.locator('.icon-audit-card[data-icon-name^="split-gate-"]')).toHaveCount(3);
+  for (const name of ['agent-send', 'agent-stop', 'agent-restart', 'agent-settings', 'agent-close', 'agent-open']) {
+    await expect(page.locator(`.icon-audit-card[data-icon-name="${name}"]`)).toHaveCount(1);
+  }
 
   const rootInk = await page.evaluate(() => getComputedStyle(document.documentElement).color);
   const geometry = await page.locator('.icon-audit-card').evaluateAll((cards) => cards.map((card) => {
