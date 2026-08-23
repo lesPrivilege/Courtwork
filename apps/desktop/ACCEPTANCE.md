@@ -8538,3 +8538,43 @@ HEAD，`git diff --check` exit 0。GUI-OPTICAL 目录中指定的 18 枚 `w{1180
 
 完整 desktop E2E 未达到 414/414，故本续验 **REJECT**；20/20 空态、19 枚 mutation、静态门禁及
 其他单测证据均保留，不以它们替代失败的完整 E2E 门。未修改实现或契约，未更新 `current.md`。
+
+## GUI-UNIFIED-POLISH-1 · R4 复验覆盖本次 REJECT（2026-08-23，PASS）
+
+目标仍为 `db4b790`；在同一独立 clean worktree `/tmp/gup-accept-r3`（detached HEAD）完成，未修改实现。
+先以新端口 `19994`、单 worker 定点复跑前次两枚失败用例：
+
+```text
+COURTWORK_E2E_PORT=19994 pnpm --filter @courtwork/desktop exec playwright test \
+  tests/e2e/demo-anchor-2.spec.ts:55 tests/e2e/file-ops.spec.ts:26 --project=app --workers=1
+2 passed (4.8s)
+```
+
+两枚失败均不可重复：`demo-anchor-2.spec.ts:55` 与 `file-ops.spec.ts:26` 本次均通过。
+
+随后使用新端口 `19995`、`reuseExistingServer=false`（`apps/desktop/playwright.config.ts`）及单 worker
+完成完整 desktop E2E；静态前链全部通过，测试计数门为 **414**，Playwright 实跑结果为：
+
+```text
+414 passed (8.3m), exit 0
+```
+
+完整运行日志：`/tmp/gup-accept-r3-evidence/full-e2e-r4.log`。前次两枚失败用例也包含在该完整运行中并通过。
+
+本续验同时覆盖并复核此前证据：§8.1 真实路径空态矩阵 **20/20**（入口与截图见
+`/tmp/gup-accept-r3-evidence/empty-matrix/manifest.json`）；排印 **5/5**、Unified **10/10**、
+GOP-C02-b **4/4** 变异均实际 exit 1 且逐枚恢复；root **2251/2251**、desktop **932/932**、
+site:guard **117/117**，lint/build 均通过。
+
+### R4 历史 PNG 污染与恢复
+
+本次完整 E2E 实际改写 release/evidence 历史 PNG **18/18**（包含前次未因失败而改写的
+`release/evidence/demo-anchor-2-2026-08-09/02-demo-graph-goto-source.png`）。逐枚 before/after
+SHA-256 记录在 `/tmp/gup-accept-r3-evidence/e2e-r4-png-pollution-18.tsv`；已对全部 18 枚执行
+`git restore`。恢复后 `git status --short --branch` 仅为 clean detached HEAD，`git diff --check`
+exit 0。
+
+### 裁决
+
+本次两枚定点用例通过，完整 desktop E2E 达到 **414/414**，故覆盖此前 REJECT，最终裁决 **PASS**。
+未修改实现、契约或 `current.md`；本提交仅追加本验收报告。
