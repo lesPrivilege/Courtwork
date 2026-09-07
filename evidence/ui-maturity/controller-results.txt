@@ -1,0 +1,16 @@
+✔ ordinary narrow sheet isolates background; closing makes retained content inert (2.796625ms)
+✔ keyboard wraps in both directions (0.611084ms)
+✔ one Escape restores expanded sheet; second closes it (1.260125ms)
+✔ desktop split is nonmodal; expanded desktop is modal (0.607041ms)
+✔ breakpoint transitions transfer focus only when entering modality (0.54025ms)
+✔ native dialog owns Escape and Tab; closing restores sheet focus (0.624083ms)
+✔ late surface read cannot steal focus after close or after user moves on (0.720208ms)
+✔ closing preserves renderer owner, local drafts, and run state (0.589333ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 95.933958

@@ -1,5 +1,6 @@
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
+const surfaceOverlayQuery = window.matchMedia("(max-width: 1060px)");
 
 const state = {
   token: null,
@@ -1702,11 +1703,25 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   if (focus) $("surface-expand-button")?.focus();
 }
 
+function surfaceIsModal() {
+  return state.surface.open && (surfaceOverlayQuery.matches || state.surface.expanded);
+}
+
+function closeSurface() {
+  state.surface.expanded = false;
+  state.surface.open = false;
+  writeUiState();
+  renderSurfaceVisibility();
+  $("show-surface-button")?.focus();
+}
+
 function renderSurfaceVisibility() {
   const shell = $("app-shell");
   const panel = $("surface-panel");
   const open = state.surface.open === true;
   const expanded = open && state.surface.expanded && Boolean(currentSession());
+  const modal = Boolean(open && (surfaceOverlayQuery.matches || expanded));
+  const wasModal = panel.getAttribute("aria-modal") === "true";
   const sidebar = shell?.querySelector(".sidebar");
   const chat = shell?.querySelector(".chat-panel");
   const content = $("surface-content");
@@ -1716,16 +1731,26 @@ function renderSurfaceVisibility() {
   panel.classList.toggle("is-open", open);
   panel.classList.toggle("is-expanded", expanded);
   panel.setAttribute("aria-hidden", String(!open));
+  panel.inert = !open;
+  if (modal) {
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-modal", "true");
+  } else {
+    panel.removeAttribute("role");
+    panel.removeAttribute("aria-modal");
+  }
+  $("surface-backdrop").hidden = !modal;
   tab.setAttribute("aria-selected", String(open));
   for (const root of [sidebar, chat]) {
     if (!root) continue;
-    root.inert = expanded;
-    root.setAttribute("aria-hidden", String(expanded));
+    root.inert = modal;
+    root.setAttribute("aria-hidden", String(modal));
   }
   const expandButton = $("surface-expand-button");
   if (expandButton) {
-    expandButton.textContent = expanded ? "Return to chat" : "Expand work surface";
-    expandButton.setAttribute("aria-label", expanded ? "Return to chat" : "Expand work surface");
+    const label = expanded ? (surfaceOverlayQuery.matches ? "Restore work surface" : "Return to chat") : "Expand work surface";
+    expandButton.textContent = label;
+    expandButton.setAttribute("aria-label", label);
     expandButton.setAttribute("aria-expanded", String(expanded));
   }
   // Closing remains available from both split and expanded layouts. In
@@ -1733,6 +1758,11 @@ function renderSurfaceVisibility() {
   // the expand control remains the layout-only return action.
   $("close-surface-button").hidden = false;
   $("show-surface-button").hidden = open;
+  // Enter the sheet synchronously. Loading content must never reclaim focus.
+  // A native dialog above us retains its own focus and Escape handling.
+  if (modal && !wasModal && !document.querySelector("dialog[open]") && !panel.contains(document.activeElement)) {
+    $("surface-preview-tab")?.focus();
+  }
 }
 
 function renderProjectionValue(value) {
@@ -2134,11 +2164,30 @@ function closeRuntimeDialog({ restoreFocus = true } = {}) {
 }
 
 function handleSurfaceEscape(event) {
-  if (event.key !== "Escape" || event.defaultPrevented) return;
-  if ([...document.querySelectorAll("dialog")].some((dialog) => dialog.open)) return;
-  if (!state.surface.expanded) return;
-  event.preventDefault();
-  setSurfaceExpanded(false);
+  if (event.defaultPrevented || document.querySelector("dialog[open]")) return;
+  if (event.key === "Escape") {
+    if (!state.surface.open) return;
+    if (state.surface.expanded) {
+      event.preventDefault();
+      setSurfaceExpanded(false);
+    } else if (surfaceOverlayQuery.matches) {
+      event.preventDefault();
+      closeSurface();
+    }
+    return;
+  }
+  if (event.key !== "Tab" || !surfaceIsModal()) return;
+  const panel = $("surface-panel");
+  const controls = [...panel.querySelectorAll("button, a[href], input, select, textarea, summary, [tabindex], [contenteditable=true]")]
+    .filter((control) => control.tabIndex >= 0 && !control.matches(":disabled") && !control.closest("[inert]") && control.getClientRects().length && getComputedStyle(control).visibility !== "hidden");
+  const first = controls[0];
+  const last = controls.at(-1);
+  if (!first) return;
+  const active = document.activeElement;
+  if (!panel.contains(active) || (event.shiftKey ? active === first : active === last)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus();
+  }
 }
 
 async function createProject(event) {
@@ -2215,21 +2264,24 @@ function wireEvents() {
     trigger?.focus?.();
   });
   document.addEventListener("keydown", handleSurfaceEscape);
+  for (const dialog of document.querySelectorAll("dialog")) {
+    dialog.addEventListener("close", () => {
+      if (surfaceIsModal() && !document.querySelector("dialog[open]") && !$("surface-panel").contains(document.activeElement)) {
+        $("surface-preview-tab")?.focus();
+      }
+    });
+  }
   $("refresh-extensions-button").addEventListener("click", () => void loadExtensions().catch((error) => showToast(error.message, "error")));
-  $("close-surface-button").addEventListener("click", () => {
-    state.surface.expanded = false;
-    state.surface.open = false;
-    writeUiState();
-    renderSurfaceVisibility();
-    $("show-surface-button")?.focus();
-  });
-  $("show-surface-button").addEventListener("click", async () => {
+  $("close-surface-button").addEventListener("click", closeSurface);
+  $("surface-backdrop").addEventListener("click", closeSurface);
+  surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
+  $("show-surface-button").addEventListener("click", () => {
     state.surface.expanded = false;
     state.surface.open = true;
     writeUiState();
     renderSurfaceVisibility();
-    await loadSurface(state.sessionEpoch);
     $("surface-preview-tab")?.focus();
+    void loadSurface(state.sessionEpoch);
   });
   $("surface-expand-button").addEventListener("click", () => setSurfaceExpanded(!state.surface.expanded));
   $("surface-preview-tab").addEventListener("click", () => {

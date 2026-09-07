@@ -298,3 +298,12 @@ input:focus, textarea:focus { border-color: var(--accent); outline: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Work surface overlay: the backdrop belongs to the shell, never the renderer. */
+.surface-backdrop { position: fixed; inset: 0; z-index: 9; background: rgba(37, 37, 34, .22); }
+.surface-backdrop[hidden] { display: none; }
+.surface-panel[aria-modal="true"] { position: fixed; z-index: 10; }
+.app-shell.surface-expanded > .surface-panel { inset: 0; width: 100%; }
+@media (pointer: coarse) {
+  .surface-header button { min-width: 44px; min-height: 44px; }
+}
