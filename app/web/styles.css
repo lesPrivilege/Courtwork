@@ -495,21 +495,43 @@ button {
   font-size: var(--text-caption);
   color: var(--muted-strong);
 }
-.sidebar-actions {
+/* WK-39 · The sidebar foot is an account-style row: initial, connection name,
+   then refresh and Settings as icon-only utilities. New session moved up to the
+   first navigation row (Claude / Codex desktop pattern). */
+.sidebar-account {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-.sidebar-utilities {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+  min-height: 44px;
 }
-.sidebar-utilities > button:first-child {
-  justify-content: flex-start;
+.account-avatar {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--selected);
+  color: var(--ink);
   font-size: var(--text-meta);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.account-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.account-tools {
+  flex: none;
+  display: inline-flex;
+  gap: var(--space-1);
 }
 .chat-panel {
   min-width: 0;

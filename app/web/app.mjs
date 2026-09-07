@@ -2730,6 +2730,10 @@ function renderChatHeader() {
       ? "Local test"
       : config?.model || "Model settings";
   $("model-settings-button").textContent = model;
+  // WK-39 · the sidebar foot names the connection the way an account row would;
+  // it is a label, not a menu: there is no user identity to open.
+  $("account-name").textContent = model;
+  $("account-avatar").textContent = model.trim().charAt(0).toUpperCase() || "·";
   $("capability-badge").textContent =
     providerLabels[config?.provider] || config?.provider || "Connection";
   $("permission-settings-button").textContent =
@@ -4470,9 +4474,7 @@ function wireEvents() {
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
-  setAction($("runtime-setup-button"), "settings-2", "Settings", {
-    visible: true,
-  });
+  setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New session", {
     visible: true,
   });

@@ -48,6 +48,13 @@
             ></button>
           </div>
         </header>
+        <button
+          id="new-session-button"
+          class="nav-home quiet-button"
+          type="button"
+        >
+          New session
+        </button>
         <button id="home-button" class="nav-home quiet-button" type="button">
           Home
         </button>
@@ -90,15 +97,16 @@
             aria-label="Project sessions"
           ></nav>
         </section>
-        <footer class="sidebar-actions">
-          <button
-            id="new-session-button"
-            class="secondary-button"
-            type="button"
-          >
-            New session
-          </button>
-          <div class="sidebar-utilities">
+        <footer class="sidebar-account" aria-label="Connection and settings">
+          <span id="account-avatar" class="account-avatar" aria-hidden="true"></span>
+          <span id="account-name" class="account-name"></span>
+          <span class="account-tools">
+            <button
+              id="refresh-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Refresh workspace"
+            ></button>
             <button
               id="runtime-setup-button"
               class="quiet-button"
@@ -107,13 +115,7 @@
             >
               Settings
             </button>
-            <button
-              id="refresh-button"
-              class="quiet-button"
-              type="button"
-              aria-label="Refresh workspace"
-            ></button>
-          </div>
+          </span>
         </footer>
       </aside>
       <main class="chat-panel" aria-label="Agent workspace">
