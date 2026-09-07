@@ -29,3 +29,7 @@
 ## WK-39 · 侧栏次序（2026-09-09，`dbea510`）
 
 New session 上移为导航首行（square-pen 图标 + 文字，与 Home 同一行式）；底部改为 account 式一行：首字母圆标 + 连接名（取自 provider 配置，"Local test" 或模型名；不虚构用户身份，仅为标签）+ 右侧 Refresh / Settings 两枚 icon-only 按钮（accessible name 不变）。8853 实测：侧栏可聚焦次序 wordmark → New project → Close nav → New session → Home → filter；底部 avatar "L" / "Local test" / 两工具按钮；无溢出；`npm test` 134 / 134。
+
+## WK-40 · chat title 与装饰文本（2026-09-09，`d67bd1e`）
+
+去 eyebrow；`#session-title` 内含 `#project-title`（前缀，仅侧栏折叠或 <1024 显示）与 `#session-title-text`；连接徽标 `#capability-badge` 经 `setCapabilityBadge()` 改 icon-only（accessible name "Connection · <连接名>"，四处赋值点统一）。8853 实测：Home 标题 "Home"、徽标 aria-label "Connection · Local test"；会话态标题 "Waiting on a write"、在场标记显示、`nav-collapsed` 时前缀 "Fixture project" 显示；`npm test` 134 / 134。
