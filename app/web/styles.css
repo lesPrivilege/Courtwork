@@ -27,7 +27,8 @@
   --danger-11: #9b3c35; /* 自定（PD-KIT） */
   --success-3: #e6f6eb; /* Radix green-3 */
   --success-11: #3e704e; /* 自定（PD-KIT） */
-  --paper: #fdfdfe; /* 冷白：panel 面，高于 canvas(slate-2) */
+  --paper: #fdfdfe; /* 冷白：L1 面 */
+  --float-s: #fdfdfe; /* L2 浮层：浅宗与 L1 同白，靠阴影与 line-strong 分层（WK-69） */
   --frame-s: #f0f0f3; /* = slate-3：应用框架（侧栏）退后一步（WK-52） */
   --ink-max: #000;
   --on-accent-s: #fdfdfe;
@@ -63,7 +64,8 @@
   --danger-11: #ff9592; /* Radix red-dark-11 */
   --success-3: #132d21; /* Radix green-dark-3 */
   --success-11: #3dd68c; /* Radix green-dark-11 */
-  --paper: #212225; /* = slate-3：panel 比 canvas(slate-2) 亮一步 */
+  --paper: #212225; /* = slate-3：L1 面比 L0 框架亮两步 */
+  --float-s: #272a2d; /* = slate-4：L2 浮层再亮一步（WK-69） */
   --frame-s: #111113; /* = slate-1：深宗框架最暗（WK-52） */
   --ink-max: #fff;
   --on-accent-s: #111113;
@@ -97,6 +99,7 @@
     --success-3: #132d21;
     --success-11: #3dd68c;
     --paper: #212225;
+    --float-s: #272a2d;
     --frame-s: #111113;
     --ink-max: #fff;
     --on-accent-s: #111113;
@@ -109,10 +112,15 @@
 }
 /* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
 :root {
-  --canvas: var(--gray-2);
+  /* WK-69 · 高度层级是唯一的取色规则：L0 frame（body、侧栏、抽屉底、留位条）、
+     L1 panel（主列与 header 带；panel-muted 只作 L1 内的内收区）、L2 float（composer、
+     popover、菜单、tooltip、悬浮卡）、L3 = float 置于 scrim 之上。区域背景只许引用这些
+     层 role，由 tools/lint-colors.mjs 的第二项检查执行；见 color-governance §7。 */
+  --frame: var(--frame-s);
   --panel: var(--paper);
-  --panel-muted: var(--gray-2); /* 内收面与 canvas 同步，深宗低于 panel */
-  --frame: var(--frame-s); /* 应用框架：侧栏；浅宗低于 canvas 一步，深宗最暗（WK-52 例外表） */
+  --panel-muted: var(--gray-2); /* L1 内的内收区；深宗低于 panel 一步 */
+  --float: var(--float-s);
+  --canvas: var(--frame); /* 退役（WK-69）：不再有第二个 L0，只留别名 */
   --hover: var(--gray-3);
   --selected: var(--gray-4);
   --pressed: var(--gray-5);
@@ -202,7 +210,7 @@ body {
   margin: 0;
 }
 body {
-  background: var(--panel);
+  background: var(--frame);
   color: var(--ink);
   overflow: hidden;
   accent-color: var(--accent);
@@ -390,7 +398,7 @@ button {
 .inline-notice,
 .renderer-error {
   padding: 12px;
-  background: var(--canvas);
+  background: var(--panel-muted);
   border-radius: var(--radius-control);
   line-height: 1.6;
 }
@@ -882,7 +890,7 @@ button {
   margin: 16px 0 0;
 }
 .user-message-content {
-  background: var(--canvas);
+  background: var(--panel-muted);
   padding: 12px 16px;
   border-radius: var(--radius-container);
 }
@@ -1012,7 +1020,7 @@ button {
   gap: 8px;
 }
 .permission-preview {
-  background: var(--canvas);
+  background: var(--panel-muted);
   padding: 12px;
   border-radius: var(--radius-small);
   margin: 0;
@@ -1072,7 +1080,8 @@ button {
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-container);
   padding: 12px;
-  background: var(--panel);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
 }
 .composer-form:focus-within {
   border-color: var(--ink);
@@ -1260,7 +1269,7 @@ button {
     display: none;
   }
   .surface-expanded .surface-panel {
-    background: var(--panel);
+    background: var(--float);
   }
 }
 .layer-backdrop {
@@ -1459,7 +1468,7 @@ button {
 }
 .markdown-body code {
   font: 12px/1.7 var(--font-mono);
-  background: var(--canvas);
+  background: var(--panel-muted);
   padding: 2px 4px;
   border-radius: var(--radius-small);
 }
@@ -1475,7 +1484,7 @@ button {
   background: none;
 }
 .code-block {
-  background: var(--canvas);
+  background: var(--panel-muted);
   border-radius: var(--radius-control);
   overflow: hidden;
   border: 1px solid var(--line);
@@ -1512,7 +1521,7 @@ dialog {
   border-radius: var(--radius-container);
   padding: 0;
   color: var(--ink);
-  background: var(--panel);
+  background: var(--float);
   box-shadow: var(--shadow);
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 48px);
@@ -1744,7 +1753,7 @@ select {
 .toast {
   padding: 10px 16px;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: var(--float);
   box-shadow: var(--shadow);
   border-radius: var(--radius-control);
   font-size: var(--text-meta);
@@ -1759,10 +1768,10 @@ select {
   margin: 0;
   max-width: min(260px, calc(100vw - 16px));
   padding: 6px 9px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-small);
-  background: var(--ink);
-  color: var(--on-accent);
+  background: var(--float);
+  color: var(--ink);
   font-size: var(--text-caption);
   line-height: 1.5;
   box-shadow: var(--shadow);
@@ -2217,8 +2226,8 @@ button[aria-disabled="true"] {
   border-color: var(--ink-strong);
 }
 #send-button:disabled {
-  background: var(--gray-8);
-  border-color: var(--gray-8);
+  background: var(--line-strong);
+  border-color: var(--line-strong);
   opacity: 1;
 }
 #send-button .ui-icon {
@@ -3074,7 +3083,7 @@ court-symbol {
   transform: translateX(12px);
 }
 .runtime-switch input:disabled::before {
-  background: var(--gray-4);
+  background: var(--selected);
   border-color: var(--line);
 }
 .runtime-switch input:disabled::after {
@@ -3191,19 +3200,19 @@ court-symbol {
 .context-bar-segment {
   flex: 1 1 0;
   min-width: 3px;
-  background: var(--gray-11);
+  background: var(--muted-strong);
 }
 .context-bar-segment[data-step="1"] {
-  background: var(--gray-9);
+  background: var(--muted);
 }
 .context-bar-segment[data-step="2"] {
-  background: var(--gray-8);
+  background: var(--line-strong);
 }
 .context-bar-segment[data-step="3"] {
-  background: var(--gray-7);
+  background: var(--line);
 }
 .context-bar-segment[data-step="4"] {
-  background: var(--gray-6);
+  background: var(--pressed);
 }
 .context-characters dd {
   font-variant-numeric: tabular-nums;
@@ -3347,8 +3356,8 @@ html[data-shell="desktop"] .shell-strip {
    rows are rows. SH-2: one boundary treatment — surface, 1px line and the
    floating shadow together mark the module, and nothing inside repeats them. */
 .rail-card {
-  background: var(--panel);
-  border: 1px solid var(--line);
+  background: var(--float);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-float);
   padding: var(--card-padding);
@@ -3528,14 +3537,6 @@ html[data-shell="desktop"] .shell-strip {
   }
   .home-active .home-view {
     padding-bottom: var(--space-4);
-  }
-  .composer-form {
-    background: var(--panel);
-    border-color: var(--line-strong);
-    box-shadow: var(--shadow-float);
-  }
-  .chat-header {
-    background: var(--frame);
   }
   .conversation-body {
     background: var(--panel);

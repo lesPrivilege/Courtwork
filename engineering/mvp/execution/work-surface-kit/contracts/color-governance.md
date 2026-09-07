@@ -47,3 +47,24 @@
 - 对比表：`tools/contrast-report.mjs`，每宗 × 每 skin 十七对角色 / 底面，全部 ≥ §2 门槛；输出 `evidence/wk7/contrast.md`。边线（line / line-strong）不设门槛：边线不是控件的唯一指示，输入以焦点环（≥ 3:1）指示。
 - `tests/color-governance.test.mjs` 把 lint 与对比表纳入 `npm --prefix app test`。
 - 四轴视觉判断留用户；本契约只保证兼容与门槛。
+
+## 7. 区域 → 高度层（WK-69，2026-09-09 冻结；WK10a-r2 实施）
+
+界面只有四个高度层，层级由"离观者的距离"定义，**取色由层级决定，区域不单独取色**。深宗层越高越亮，浅宗层越高越白、越靠阴影。
+
+| 层 | 角色 | 取值 | 区域 |
+|---|---|---|---|
+| L0 frame | `--frame` | 浅 slate-3 `#f0f0f3` / 深 slate-1 `#111113` | `body`、侧栏、抽屉底、桌面壳留位条、窄宗 composer 的底槽 |
+| L1 surface | `--panel` | 浅 `#fdfdfe` / 深 slate-3 `#212225` | 主列（Chat Flow）、header 带、展开面之外的一切工作面；相邻 L1 之间只用 1 px `--line` |
+| L1 内收 | `--panel-muted` | 浅 slate-2 / 深 slate-2 | L1 内的内收区：用户气泡、代码块、内联通知、权限预览、runtime banner、question 卡 |
+| L2 float | `--float` | 浅 `#fdfdfe` / 深 slate-4 `#272a2d`，加 `--shadow-float` 与 1 px `--line-strong` | composer、popover、菜单、tooltip、toast、工作面的悬浮模块卡与 glyph 竖条 |
+| L2 float（半透明） | `--glass` / `--glass-muted` | `--alpha-paper` × `--glass-alpha` | 只两处：连接 / 上下文 popover 与 "Back to latest" 药丸（WK-15 的 glass 名额） |
+| L3 overlay | `--float` 置于 `--scrim` 之上 | 同 L2 取色 + `--scrim` | dialog、展开态工作面 |
+
+规则：
+
+1. `--canvas` **退役**为 `--frame` 的别名（不再有第二个 L0）；组件不得再引用它。
+2. 区域背景只允许引用层 role、层内交互态（`--hover` / `--selected` / `--pressed`）、稀缺色的 soft 底、`--glass`、L3 的 `--scrim` / `--backdrop`，或不着色（`transparent` / `none` / `inherit` / `currentColor`）。
+3. 实心控件与数据标记不是"区域"（圆形 Send / Stop、开关滑块、用量数据条、`background-clip: text` 的渐变）；每一处逐条登记在 `tools/lint-colors.mjs` 的 `FILL` 表内，新增一处必须同时写下它是什么。
+4. `tools/lint-colors.mjs` 由此有两项检查：颜色字面量只出现在 `tier:S` 块内；`app/web/**/*.css|mjs` 的每一条 `background` / `background-color` 满足第 2 条或已登记。两项任一失败即退出码 1，`tests/color-governance.test.mjs` 纳入 `npm --prefix app test`。
+5. 对比表（§6）的底面集合随之改为 `panel` / `float` / `frame` 三个层 role，`canvas` 不再作为底面出现。
