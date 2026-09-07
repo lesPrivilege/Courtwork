@@ -22,12 +22,20 @@ import {
   validPermission,
 } from "./thread-projection.mjs";
 
+import {
+  renderWorkspaceFilesView,
+  renderSessionOverview,
+  renderRunHistory,
+} from "./workspace-view.mjs";
+import { renderUserMessage } from "./user-message.mjs";
+
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 
 const state = {
   token: null,
+  editMessageCandidate: null,
   view: "home",
   navigationOpen: false,
   sidebarCollapsed: false,
@@ -2110,26 +2118,41 @@ function renderMessageStream() {
     return;
   }
 
-  const list = element("div", { className: "message-list" });
-  let activityGroup = null;
+  const streamList = element("div", { className: "message-list" });
+  let list = streamList,
+    runtimeRunId = null,
+    activityGroup = null;
   for (const row of rows) {
+    if (row.kind === "user") {
+      list = streamList;
+      runtimeRunId = null;
+    } else if (runtimeRunId !== row.runId || list === streamList) {
+      list = element("section", {
+        className: "runtime-group",
+        attrs: { "aria-label": "Agent run" },
+      });
+      streamList.append(list);
+      runtimeRunId = row.runId;
+    }
     if (row.kind !== "tool" && !(row.kind === "assistant" && !row.text?.trim()))
       activityGroup = null;
     const status =
       runStatuses.get(row.runId) ||
       state.runs.find((run) => run.id === row.runId)?.status;
     if (row.kind === "user") {
-      const wrapper = element("article", { className: "message user" });
-      const header = element(
-        "div",
-        { className: "message-header" },
-        element("span", { className: "message-role", text: "You" }),
+      list.append(
+        renderUserMessage(row, {
+          onCopy: async (text) => {
+            try {
+              await navigator.clipboard.writeText(text);
+              showToast("Message copied.");
+            } catch {
+              showToast("Copy is unavailable.", "error");
+            }
+          },
+          onEdit: openMessageEditor,
+        }),
       );
-      wrapper.append(
-        header,
-        element("div", { className: "message-body", text: row.text }),
-      );
-      list.append(wrapper);
     } else if (row.kind === "assistant") {
       if (!row.text || !row.text.trim()) continue;
       const wrapper = element("article", {
@@ -2170,11 +2193,19 @@ function renderMessageStream() {
       details.open = state.toolOpen.has(key)
         ? state.toolOpen.get(key)
         : row.isError;
+      const toolStillActive = [
+        "created",
+        "running",
+        "waiting_user",
+        "stopping",
+      ].includes(status);
       const suffix = row.isError
         ? " · failed"
         : row.phase === "result"
           ? ""
-          : " · working";
+          : toolStillActive
+            ? " · working"
+            : " · interrupted";
       details.append(element("summary", { text: `${row.name}${suffix}` }));
       const detail = element("div", { className: "tool-detail-block" });
       appendToolDetails(detail, row);
@@ -2204,13 +2235,17 @@ function renderMessageStream() {
           count: 0,
           errors: 0,
           working: 0,
+          interrupted: 0,
         };
         list.append(group);
       }
       activityGroup.count++;
       activityGroup.errors += row.isError ? 1 : 0;
-      activityGroup.working += row.phase !== "result" ? 1 : 0;
-      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? " · working" : " · completed"}`;
+      activityGroup.working +=
+        row.phase !== "result" && toolStillActive ? 1 : 0;
+      activityGroup.interrupted +=
+        row.phase !== "result" && !toolStillActive ? 1 : 0;
+      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? " · working" : activityGroup.interrupted ? " · interrupted" : " · completed"}`;
       activityGroup.node.append(details);
     } else if (row.kind === "question") {
       if (
@@ -2457,8 +2492,8 @@ function renderMessageStream() {
       list.append(card);
     }
   }
-  if (!list.childElementCount) {
-    list.append(
+  if (!streamList.childElementCount) {
+    streamList.append(
       element(
         "div",
         { className: "empty-state compact" },
@@ -2467,7 +2502,7 @@ function renderMessageStream() {
       ),
     );
   }
-  stream.append(list);
+  stream.append(streamList);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
     if (
@@ -2565,7 +2600,12 @@ function renderComposer() {
     Boolean(pendingRun) ||
     state.unconfirmedRuns.has(session?.id) ||
     state.connectionLost;
+  const focusMovesWithPrimaryAction =
+    (Boolean(active) && document.activeElement === send) ||
+    ((!active || Boolean(pendingCancel)) && document.activeElement === cancel);
+  send.hidden = Boolean(active);
   cancel.hidden = !active;
+  if (focusMovesWithPrimaryAction && !textarea.disabled) textarea.focus();
   cancel.disabled = !active || Boolean(pendingCancel);
   if (runHint) runHint.hidden = !active;
   if (session) {
@@ -2745,6 +2785,7 @@ function renderInspector() {
   if (!state.surface.open || state.surface.kind !== "run") return;
   const run = state.runs.find((item) => item.id === state.surface.runId);
   renderRun($("run-content"), {
+    sessionTitle: currentSession()?.title,
     sessionId: state.activeSessionId,
     run,
     events: state.events,
@@ -2814,24 +2855,16 @@ async function renderWorkspaceFiles() {
       state.surface.info?.extension
     )
       return;
-    const files = result.tree || [];
-    content.replaceChildren(element("h3", { text: "Workspace files" }));
-    if (!files.length)
-      content.append(
-        element("p", {
-          className: "form-help",
-          text: "Add session material, or ask the agent to create a file.",
-        }),
-      );
-    for (const file of files)
-      content.append(
-        action(
-          "file-text",
-          file.path,
-          () => openFile({ kind: "current", sessionId, path: file.path }),
-          { visible: true, className: "workspace-file-row" },
-        ),
-      );
+    renderWorkspaceFilesView(content, {
+      files: result.tree || [],
+      onFile: (path) => openFile({ kind: "current", sessionId, path }),
+      onRefresh: renderWorkspaceFiles,
+      onMaterials: () => {
+        $("material-add").open = true;
+        openDialog("materials-dialog", "material-name");
+        materialsView.open();
+      },
+    });
   } catch (error) {
     if (
       own === state.surface.workspaceGeneration &&
@@ -3491,6 +3524,42 @@ async function cancelCurrentRun() {
   }
 }
 
+function openMessageEditor(row) {
+  const session = currentSession();
+  if (!session) return;
+  state.editMessageCandidate = { sessionId: session.id };
+  $("edit-message-input").value = row.text;
+  $("edit-message-draft-warning").hidden = !$("composer-input").value.trim();
+  openDialog("edit-message-dialog", "edit-message-input");
+}
+function useEditedMessage() {
+  const candidate = state.editMessageCandidate,
+    composer = $("composer-input");
+  if (
+    !candidate ||
+    candidate.sessionId !== state.activeSessionId ||
+    composer.disabled ||
+    composer.readOnly
+  ) {
+    showToast(
+      "The composer is unavailable. Your edit has not been applied.",
+      "error",
+    );
+    return;
+  }
+  composer.value = $("edit-message-input").value;
+  state.draftCache.set(candidate.sessionId, composer.value);
+  state.draftRevisions.set(
+    candidate.sessionId,
+    draftRevision(candidate.sessionId) + 1,
+  );
+  state.draftDirty.add(candidate.sessionId);
+  scheduleDraftSave();
+  closeDialog("edit-message-dialog");
+  composer.focus();
+  showToast("Draft ready. Send when you are ready.");
+}
+
 function openContextSummary() {
   const popover = $("context-popover");
   if (popover.matches(":popover-open")) {
@@ -3504,71 +3573,35 @@ function openContextSummary() {
     popover.hidePopover();
     fn();
   };
-  const header = element(
-    "div",
-    { className: "section-heading" },
-    element("h3", { text: "This session" }),
-    action("x", "Close session overview", () => popover.hidePopover()),
-  );
-  const group = element(
-    "section",
-    { className: "context-group" },
-    element("p", { className: "eyebrow", text: "Workspace" }),
-    action(
-      "folder",
-      "Session files",
-      go(() => {
-        openDialog("materials-dialog", "close-materials-button");
-        materialsView.open();
-      }),
-      { visible: true, className: "context-row" },
-    ),
-    action(
-      "panel-right",
-      session.extensionBinding?.extensionId
-        ? "Open work preview"
-        : "Browse workspace",
-      go(() => activateSurface("preview")),
-      { visible: true, className: "context-row" },
-    ),
-  );
-  popover.replaceChildren(header, group);
-  if (run) {
-    const inspect = action(
-      "activity",
-      runLabels[run.status] || run.status,
-      go(() => openRun(run.id)),
-      { visible: true, className: "context-row" },
-    );
-    inspect.append(icon("chevron-right"));
-    const section = element(
-      "section",
-      { className: "context-group" },
-      element("p", { className: "eyebrow", text: "Latest run" }),
-      inspect,
-    );
-    const count = run.artifacts?.length || 0;
-    section.append(
-      element("p", {
-        className: "context-meta",
-        text: `${count} recorded ${count === 1 ? "file" : "files"}${run.usage ? ` · ${run.usage.turns || 0} model turns` : ""}`,
-      }),
-    );
-    popover.append(section);
-  }
-  popover.append(
-    element(
-      "section",
-      { className: "context-group" },
-      element("p", { className: "eyebrow", text: "File permissions" }),
-      element("p", {
-        className: "context-meta",
-        text: permissionLabels[session.permissionMode],
-      }),
-    ),
-  );
+  const header = renderSessionOverview(popover, {
+    session,
+    run,
+    permissionLabel: permissionLabels[session.permissionMode],
+    onClose: () => popover.hidePopover(),
+    onMaterials: go(() => {
+      openDialog("materials-dialog", "close-materials-button");
+      materialsView.open();
+    }),
+    onWorkspace: go(() => activateSurface("preview")),
+    onRun: (id) => go(() => openRun(id))(),
+    onHistory: go(openRunHistory),
+    onPermissions: go(openRuntimeDialog),
+  });
   popover.showPopover();
   header.querySelector("button").focus();
+}
+function openRunHistory() {
+  const sessionId = state.activeSessionId;
+  renderRunHistory($("run-history-list"), {
+    runs: state.runs.filter((run) => run.sessionId === sessionId),
+    events: state.events,
+    onRun: (id) => {
+      if (state.activeSessionId !== sessionId) return;
+      closeDialog("run-history-dialog");
+      openRun(id);
+    },
+  });
+  openDialog("run-history-dialog", "close-run-history");
 }
 function renderHomeState() {
   renderHome($("message-stream"), {
@@ -3667,11 +3700,12 @@ function renderPermission(row) {
       ),
       element("p", {
         className: "intervention-scope",
-        text: row.decision === "allow"
-          ? "Permission recorded for this exact write. Review acceptance is not recorded here."
-          : row.decision === "deny"
-            ? "Permission denied for this exact write."
-            : "This request closed without a recorded decision.",
+        text:
+          row.decision === "allow"
+            ? "Permission recorded for this exact write. Review acceptance is not recorded here."
+            : row.decision === "deny"
+              ? "Permission denied for this exact write."
+              : "This request closed without a recorded decision.",
       }),
       element("pre", {
         className: "permission-preview",
@@ -4030,7 +4064,7 @@ function wireEvents() {
     visible: true,
   });
   setAction($("send-button"), "arrow-up", "Send");
-  setAction($("cancel-run-button"), "square", "Cancel run", { visible: true });
+  setAction($("cancel-run-button"), "square", "Cancel run");
   $("search-icon").append(icon("search"));
   $("toggle-nav-button").addEventListener("click", toggleNavigation);
   $("close-nav-button").addEventListener("click", () => closeNavigation());
@@ -4113,6 +4147,17 @@ function wireEvents() {
         $("runtime-dialog").contains(document.activeElement))
     )
       restoreLayerFocus(trigger);
+  });
+  setAction($("close-run-history"), "x", "Close run history");
+  $("close-run-history").addEventListener("click", () =>
+    closeDialog("run-history-dialog"),
+  );
+  $("cancel-edit-message").addEventListener("click", () =>
+    closeDialog("edit-message-dialog"),
+  );
+  $("use-edit-message").addEventListener("click", useEditedMessage);
+  $("edit-message-dialog").addEventListener("close", () => {
+    state.editMessageCandidate = null;
   });
   document.addEventListener("keydown", handleSurfaceEscape);
   for (const dialog of document.querySelectorAll("dialog")) {

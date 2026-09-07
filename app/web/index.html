@@ -331,6 +331,52 @@
         ></div>
       </aside>
     </div>
+    <dialog id="run-history-dialog" aria-labelledby="run-history-title">
+      <div class="run-history-inner">
+        <div class="section-heading">
+          <h2 id="run-history-title">Run history</h2>
+          <button
+            id="close-run-history"
+            class="quiet-button"
+            type="button"
+            aria-label="Close run history"
+          >
+            Close
+          </button>
+        </div>
+        <div id="run-history-list"></div>
+      </div>
+    </dialog>
+    <dialog id="edit-message-dialog" aria-labelledby="edit-message-title">
+      <div class="edit-message-inner">
+        <h2 id="edit-message-title">Edit as new message</h2>
+        <p class="form-help">
+          Prepare a new draft from this message. The original message and its
+          run remain in history.
+        </p>
+        <label for="edit-message-input" class="sr-only">Message draft</label>
+        <textarea
+          id="edit-message-input"
+          maxlength="100000"
+          rows="6"
+        ></textarea>
+        <p id="edit-message-draft-warning" class="form-help" hidden>
+          Using this draft will replace the text currently in your composer.
+        </p>
+        <div class="dialog-actions">
+          <button
+            id="cancel-edit-message"
+            type="button"
+            class="secondary-button"
+          >
+            Cancel
+          </button>
+          <button id="use-edit-message" type="button" class="primary-button">
+            Use as draft
+          </button>
+        </div>
+      </div>
+    </dialog>
     <div
       id="context-popover"
       class="context-popover"

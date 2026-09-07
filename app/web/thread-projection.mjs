@@ -22,6 +22,9 @@ export function projectThread(events, runs, sessionId) {
       rows.push({
         kind: "user",
         text: data.text || "",
+        startedAt:
+          runs.find((run) => run.id === runId && run.sessionId === sessionId)
+            ?.startedAt || null,
         runId,
         id: `user:${event.seq}`,
       });

@@ -31,7 +31,7 @@ function datum(dl, label, value, { copy = false, key = "" } = {}) {
 }
 export function renderRun(
   container,
-  { sessionId, run, events, onFile, onRefresh },
+  { sessionId, sessionTitle, run, events, onFile, onRefresh },
 ) {
   const opened = new Set(
     [...container.querySelectorAll("details[open]")].map(
@@ -61,6 +61,25 @@ export function renderRun(
       action("refresh-cw", "Refresh run details", onRefresh),
     ),
   );
+  const inputRecord = records.find((event) =>
+    ["user.message", "message/user"].includes(event.type),
+  );
+  const identity = el("div", { className: "run-identity" });
+  if (sessionTitle)
+    identity.append(el("p", { className: "eyebrow", text: sessionTitle }));
+  const started = new Date(run.startedAt || "");
+  if (Number.isFinite(started.valueOf()))
+    identity.append(
+      el("time", {
+        text: `Started ${started.toLocaleString()}`,
+        attrs: { datetime: started.toISOString() },
+      }),
+    );
+  if (inputRecord?.data?.text)
+    identity.append(
+      el("p", { className: "run-input-summary", text: inputRecord.data.text }),
+    );
+  container.append(identity);
   if (run.error)
     container.append(
       el("p", {
@@ -372,26 +391,44 @@ export function createFileView(container, { request }) {
         className: "reading-note",
         attrs: { "aria-label": "File provenance" },
       });
-      readingNote.append(el("p", {
-        text: next.kind === "content-version"
-          ? "Saved by this run. Review acceptance is not recorded here."
-          : "Workspace file at the time of loading.",
-      }));
+      readingNote.append(
+        el("p", {
+          text:
+            next.kind === "content-version"
+              ? "Saved by this run. Review acceptance is not recorded here."
+              : "Workspace file at the time of loading.",
+        }),
+      );
       if (next.kind === "current" && next.expectedSha256) {
         const matches = payload.sha256 === next.expectedSha256;
-        readingNote.append(el("p", {
-          className: "reading-relation",
-          text: matches
-            ? "Matches the recorded version."
-            : "Differs from the recorded version; both versions remain available from the run.",
-        }));
+        readingNote.append(
+          el("p", {
+            className: "reading-relation",
+            text: matches
+              ? "Matches the recorded version."
+              : "Differs from the recorded version; both versions remain available from the run.",
+          }),
+        );
         const comparison = el("dl", { className: "reading-versions" });
-        for (const [label, hash] of [["Recorded", next.expectedSha256], ["Current", payload.sha256]]) {
-          comparison.append(el("dt", { text: label }), el("dd", {}, el("code", { text: hash.slice(0, 12) })));
+        for (const [label, hash] of [
+          ["Recorded", next.expectedSha256],
+          ["Current", payload.sha256],
+        ]) {
+          comparison.append(
+            el("dt", { text: label }),
+            el("dd", {}, el("code", { text: hash.slice(0, 12) })),
+          );
         }
         readingNote.append(comparison);
-        version.append(el("p", { text: "Recorded version" }), el("div", { className: "version-line" },
-          el("code", { text: next.expectedSha256 }), copyAction(next.expectedSha256, "Copy recorded version hash")));
+        version.append(
+          el("p", { text: "Recorded version" }),
+          el(
+            "div",
+            { className: "version-line" },
+            el("code", { text: next.expectedSha256 }),
+            copyAction(next.expectedSha256, "Copy recorded version hash"),
+          ),
+        );
       }
       container.append(readingNote);
       container.append(view);
