@@ -30,12 +30,15 @@ export function renderSymbol(input={}) {
  if(!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(id)) throw new TypeError('idPrefix must be an SVG-safe identifier');
  const material = s.size<=24 && ['glass','depth','luminous'].includes(s.material)?'hierarchical':s.material;
  const dark=s.theme==='dark', expressive=['glass','depth','luminous'].includes(material);
+ // Public host tokens are inherited; defaults belong at use sites, not on svg.
+ const palette=dark?{ink:'#e0e8f1',record:'#b4c0ce',depth:'#273343',background:'#161b23',amend:'#d7b1a2'}:{ink:'#283849',record:'#6f8191',depth:'#172638',background:'#f9fafb',amend:'#865a4f'};
+ const color=role=>`var(--cw-${role},${palette[role]})`;
  const title=s.label||names[s.concept];
  const core=(part,i)=>{
-  const actor=i===0, name=actor?'actor':`line line-${i}`, ink=actor?'var(--cw-ink)':'var(--cw-record)';
+  const actor=i===0, name=actor?'actor':`line line-${i}`, ink=color(actor?'ink':'record');
   const layer = `<g data-layer="${name}" class="part ${actor?'actor':'record'}">`;
   const face=part.svg.replace('/>',` fill="${expressive?`url(#${id}-face)`:material==='mono'?'currentColor':ink}"${expressive?` stroke="url(#${id}-rim)" stroke-width=".65"`:''}/>`);
-  const body=expressive? `<g filter="url(#${id}-shadow)">${material==='depth'?`<g transform="translate(0 1.4)" fill="var(--cw-depth)">${part.svg}</g>`:''}${face}${part.svg.replace('/>',` fill="url(#${id}-light)" opacity="${material==='depth'?'.22':'.48'}"/>`)}</g>`:face;
+  const body=expressive? `<g filter="url(#${id}-shadow)">${material==='depth'?`<g transform="translate(0 1.4)" fill="${color('depth')}">${part.svg}</g>`:''}${face}${part.svg.replace('/>',` fill="url(#${id}-light)" opacity="${material==='depth'?'.22':'.48'}"/>`)}</g>`:face;
   return `${layer}${material==='luminous'?`<g data-layer="glow" fill="#94b9e1" opacity=".16" filter="url(#${id}-glow)">${part.svg}</g>`:''}${body}</g>`;
  };
  let under='',over='';
@@ -44,13 +47,13 @@ export function renderSymbol(input={}) {
  if(s.concept==='retrieve') {under='<path data-layer="route" class="hint" d="M61 9v19c0 9-6 15-15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 3"/>';over='<circle data-layer="signal" cx="60" cy="10" r="2.1" fill="currentColor"/>';}
  if(s.concept==='scope') over='<path data-layer="boundary" d="M22 2h38v57H22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>';
  if(s.concept==='commit') {under='<path data-layer="durable-base" d="M25 60h35" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>';over='<path data-layer="settled" d="m52 49 2.5 2.5 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';}
- if(s.concept==='review') {under='<rect data-layer="comparison" x="31" y="41" width="19.2" height="9.6" rx="2.8" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/>';over='<path data-layer="amendment" d="M28 59h19" fill="none" stroke="var(--cw-amend)" stroke-width="1.8" stroke-linecap="round"/>';}
+ if(s.concept==='review') {under='<rect data-layer="comparison" x="31" y="41" width="19.2" height="9.6" rx="2.8" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/>';over=`<path data-layer="amendment" d="M28 59h19" fill="none" stroke="${color('amend')}" stroke-width="1.8" stroke-linecap="round"/>`;}
  if(s.concept==='withdraw') under='<path data-layer="trace" d="M28 60h28" fill="none" stroke="currentColor" stroke-width="1" opacity=".38"/>';
- const authority=s.authority==='none'?'':`<g data-layer="authority" transform="translate(59 4)"><circle r="3.4" fill="var(--cw-background)" stroke="currentColor" stroke-width="1.2"/>${s.authority==='revoked'?'<path d="m-2 2 4-4" stroke="currentColor" stroke-width="1.2"/>':s.authority==='requested'?'<circle r="1" fill="currentColor"/>':'<path d="m-1.5 0 1 1 2-2" fill="none" stroke="currentColor" stroke-width="1"/>'}</g>`;
+ const authority=s.authority==='none'?'':`<g data-layer="authority" transform="translate(59 4)"><circle r="3.4" fill="${color('background')}" stroke="currentColor" stroke-width="1.2"/>${s.authority==='revoked'?'<path d="m-2 2 4-4" stroke="currentColor" stroke-width="1.2"/>':s.authority==='requested'?'<circle r="1" fill="currentColor"/>':'<path d="m-1.5 0 1 1 2-2" fill="none" stroke="currentColor" stroke-width="1"/>'}</g>`;
  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s.size}" height="${s.size}" viewBox="-3 -3 70 70" role="img" aria-labelledby="${id}-title" data-concept="${s.concept}" data-material="${material}" data-requested-material="${s.material}" data-presence="${s.presence}" data-authority="${s.authority}" data-activity="${s.activity}" data-theme="${s.theme}" data-geometry-sha256="${geometryHash}">
  <title id="${id}-title">${esc(title)}</title>
  <style>
- :root,svg{--cw-ink:${dark?'#e0e8f1':'#283849'};--cw-record:${dark?'#b4c0ce':'#6f8191'};--cw-depth:${dark?'#273343':'#172638'};--cw-background:${dark?'#161b23':'#f9fafb'};--cw-amend:${dark?'#d7b1a2':'#865a4f'};color:var(--cw-color,var(--cw-ink));overflow:visible}
+ svg{color:var(--cw-color,${color('ink')});overflow:visible}
  .hint{opacity:.28}.part{transform-box:fill-box;transform-origin:center}.record{transform-origin:left center}
  [data-presence="available"] .actor{opacity:.38}[data-presence="absent"] .actor{opacity:0}
  [data-concept="commit"] [data-layer="settled"]{opacity:0}[data-concept="commit"][data-activity="complete"] [data-layer="settled"]{opacity:1}

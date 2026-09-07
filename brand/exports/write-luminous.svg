@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="-3 -3 70 70" role="img" aria-labelledby="cw-write-luminous-title" data-concept="write" data-material="luminous" data-requested-material="luminous" data-presence="present" data-authority="none" data-activity="idle" data-theme="light" data-geometry-sha256="522d4303216259490fb501458391431e8329a6aff8cfa3b463be6573d4614556">
  <title id="cw-write-luminous-title">CourtWork write</title>
  <style>
- :root,svg{--cw-ink:#283849;--cw-record:#6f8191;--cw-depth:#172638;--cw-background:#f9fafb;--cw-amend:#865a4f;color:var(--cw-color,var(--cw-ink));overflow:visible}
+ svg{color:var(--cw-color,var(--cw-ink,#283849));overflow:visible}
  .hint{opacity:.28}.part{transform-box:fill-box;transform-origin:center}.record{transform-origin:left center}
  [data-presence="available"] .actor{opacity:.38}[data-presence="absent"] .actor{opacity:0}
  [data-concept="commit"] [data-layer="settled"]{opacity:0}[data-concept="commit"][data-activity="complete"] [data-layer="settled"]{opacity:1}

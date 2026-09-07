@@ -6,7 +6,7 @@
 
 五材质共享同一几何：mono 是单色；hierarchical 区分 actor 与 record；glass 使用线性面光、边缘高光及限定范围阴影；depth 加浅层偏移；luminous 在暗色品牌场景增加很薄的局部光晕。玻璃是 SVG 内部材质模拟，**不折射或模糊页面背后的 DOM**。本单不引入 displacement/WebGL/截图式玻璃。
 
-所有新作用域/检索/对照线是明确的关系层，不能变成第二套核心品牌几何。16–24 px 不使用材质滤镜；普通 wordmark 用 mono，日常信息区不自动循环，不让被阅读的内容随图形移动。
+所有新作用域/检索/对照线是明确的关系层，不能变成第二套核心品牌几何。16–24 px 不使用材质滤镜；wordmark 可由宿主选择 mono 或 hierarchical（CourtWork WK-38 的 16/20px 落点选 hierarchical），日常信息区不自动循环，不让被阅读的内容随图形移动。
 
 ## Host-owned state
 
@@ -46,3 +46,19 @@
 ## Compatibility
 
 目标为支持 Custom Elements、Shadow DOM、WAAPI 与SVG的现代浏览器；实际测试矩阵见 evidence。forced-colors 将复杂填色收敛至 CanvasText；静态SVG可独立使用。Motion/Rive/Figma API 只作为来源模型，不是本包依赖；当前 fresh 是原生JS，不依据旧React实现选型。
+
+## Host color tokens · BR-1
+
+`--cw-ink`（actor与关系线的默认color）、`--cw-record`（三行）、`--cw-background`（authority底）、`--cw-depth`（depth偏移层）、`--cw-amend`（review标记）从宿主继承，未提供时在实际使用点按显式theme回退至品牌默认值。`--cw-color`可单独覆盖mono与currentColor关系层；不会改变hierarchical的actor/record填色。组件不在内部svg上重新声明公共token，也不导入应用skin。
+
+```css
+court-symbol {
+  --cw-ink: var(--ink);
+  --cw-record: var(--muted-strong);
+  --cw-background: var(--panel);
+}
+```
+
+16/20px hierarchical是四枚实色几何，没有opacity混色或滤镜取色（presence状态仍可降低/隐藏actor）。用户切换skin时由CSS重新计算；theme属性继续负责未覆盖默认值和大尺寸表现材质。glass/depth/luminous的大尺寸渐变仍采用包内材质色，不由上述token整套重着色。外链SVG以img嵌入时不会继承页面CSS，需使用Web Component或inline SVG接宿主token。
+
+应用两处已在WK6候选切换hierarchical；只改material不能移除包默认蓝倾向。接入需一并消费本修复与宿主token映射。品牌包通过不代表应用两处已合流验收。
