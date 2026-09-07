@@ -3296,7 +3296,18 @@ court-symbol {
 }
 .composer-below .home-choice select:hover { background-color: var(--hover); }
 .composer-below .permission-mode { padding-left: 6px; }
-.composer-below:has(> [hidden]:only-child) { display: none; }
+.composer-below:not(:has(> *:not([hidden]))) { display: none; }
+/* WK-73 · the project a session writes into is a fact, not a control. */
+.composer-project {
+  margin: 0;
+  padding: 4px 6px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ============================================================================
    WO-WK10a · module rail, alignment band, composer layer (WK-41/42/13/58/60)

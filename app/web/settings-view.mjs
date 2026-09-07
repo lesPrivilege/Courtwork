@@ -40,6 +40,15 @@ export const permissionLabels = {
   draft: "Workspace writes allowed",
   read_only: "Read only",
 };
+/* WK-73 / WK-59 · in the quiet line below the composer the mode shows as one
+ * word; the sentence above stays the accessible name and the tooltip, because
+ * a permission scope is a consequence and must never be read as a state word
+ * alone (IC-1 "text first"). */
+export const permissionWords = {
+  ask: "Ask",
+  draft: "Write",
+  read_only: "Read",
+};
 export const providerLabels = {
   openai: "OpenAI",
   deepseek: "DeepSeek",

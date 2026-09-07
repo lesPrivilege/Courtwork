@@ -247,28 +247,31 @@
             </div>
             <p id="home-start-status" class="home-start-status" role="status" hidden></p>
           </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
           <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project" hidden></p>
+            <div id="home-composer-context" class="home-composer-context" hidden>
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for new session"></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button">New project</button>
+              <label class="home-choice">File writes
+                <select id="home-permission-input" aria-label="File writes for new session">
+                  <option value="ask" aria-label="Ask before writing">Ask</option>
+                  <option value="draft" aria-label="Workspace writes allowed">Write</option>
+                  <option value="read_only" aria-label="Read only">Read</option>
+                </select>
+              </label>
+            </div>
             <button
               id="permission-settings-button"
               class="permission-mode quiet-button"
               type="button"
               aria-haspopup="dialog"
             >
-              Ask before writing
+              Ask
             </button>
-            <div id="home-composer-context" class="home-composer-context" hidden>
-              <label class="home-choice">Project
-                <select id="home-project-input" aria-label="Project for new session"></select>
-              </label>
-              <label class="home-choice">File writes
-                <select id="home-permission-input" aria-label="File writes for new session">
-                  <option value="ask">Ask before writing</option>
-                  <option value="draft">Workspace writes allowed</option>
-                  <option value="read_only">Read only</option>
-                </select>
-              </label>
-              <button id="home-create-project" class="quiet-button" type="button">New project</button>
-            </div>
           </div>
         </footer>
         </div>

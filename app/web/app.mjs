@@ -20,6 +20,7 @@ import {
 import {
   createSettingsView,
   permissionLabels,
+  permissionWords,
   providerLabels,
   renderConnectionCard,
 } from "./settings-view.mjs";
@@ -2682,8 +2683,18 @@ function renderChatHeader() {
   $("account-name").textContent = model;
   $("account-avatar").textContent = model.trim().charAt(0).toUpperCase() || "·";
   setCapabilityBadge(providerLabels[config?.provider] || config?.provider || "Connection");
-  $("permission-settings-button").textContent =
-    permissionLabels[session?.permissionMode] || "File permissions";
+  /* WK-73 · the quiet line below the composer states the standing context of
+   * this session: which project it writes into, and what it may do to files.
+   * The word is visible, the sentence is the accessible name and the tooltip. */
+  const projectLine = $("composer-project");
+  projectLine.textContent = project?.name || "";
+  projectLine.hidden = home || !session || !project?.name;
+  const permission = $("permission-settings-button"),
+    mode = session?.permissionMode;
+  const permissionSentence = permissionLabels[mode] || "File permissions";
+  permission.textContent = permissionWords[mode] || "File writes";
+  permission.setAttribute("aria-label", `File writes: ${permissionSentence}`);
+  permission.dataset.tooltip = `File writes: ${permissionSentence}`;
   $("home-button").setAttribute(
     "aria-current",
     state.view === "home" ? "page" : "false",
@@ -4981,10 +4992,21 @@ async function init() {
     onOpenFile: openFile,
     notify: showToast,
   });
+  /* WK-73 · in the quiet line the option reads as one word and carries the
+   * sentence as its accessible name; inside the settings dialog the sentence is
+   * the label, because there the mode is the subject of the form. */
   for (const id of ["home-permission-input", "session-permission-input"]) {
     const select = $(id);
-    if (select) select.replaceChildren(...Object.entries(permissionLabels).map(([value, text]) =>
-      element("option", { text, attrs: { value } })));
+    if (!select) continue;
+    const short = id === "home-permission-input";
+    select.replaceChildren(
+      ...Object.entries(permissionLabels).map(([value, text]) =>
+        element("option", {
+          text: short ? permissionWords[value] : text,
+          attrs: short ? { value, "aria-label": text } : { value },
+        }),
+      ),
+    );
   }
   wireEvents();
   renderAll();
