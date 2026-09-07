@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WO-RC · planned capabilities, drawn as controls (fixture only)</title>
+    <!-- This file is a static mock. It is NOT linked from the product and is
+         NOT served: `app/server/index.mjs` has a closed STATIC allowlist and
+         this path is not in it. It exists so the architect can see what the
+         controls in runtime-ui-gaps.md §A would look like, and judge them,
+         without any of them existing in the shipped UI. The shipped UI shows
+         only the text rows at the bottom of this page (WK-27). -->
+    <style>
+      :root {
+        color-scheme: light;
+        --canvas: #f9f9f9;
+        --panel: #fff;
+        --panel-muted: #fcfcfc;
+        --line: #d9d9d9;
+        --line-strong: #bbb;
+        --ink: #202020;
+        --muted: #838383;
+        --muted-strong: #646464;
+        --accent: #315c8a;
+        --danger: #9b3c35;
+        --radius: 8px;
+        font:
+          14px/1.5 ui-sans-serif,
+          system-ui,
+          sans-serif;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+      h1 {
+        font-size: 25px;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 14px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted-strong);
+        margin: 32px 0 8px;
+      }
+      p.lede,
+      p.note {
+        color: var(--muted-strong);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .warning {
+        border: 1px solid var(--danger);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        color: var(--danger);
+        background: #feebec;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      section.card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 24px;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .row-title {
+        font-weight: 500;
+      }
+      .row-help {
+        font-size: 12px;
+        color: var(--muted-strong);
+        grid-column: 1;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        grid-row: span 2;
+      }
+      button {
+        font: inherit;
+        min-height: 32px;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line-strong);
+        background: var(--panel);
+        color: inherit;
+      }
+      button.text {
+        border-color: transparent;
+        color: var(--accent);
+        font-size: 12px;
+      }
+      .state {
+        font-size: 12px;
+        color: var(--muted-strong);
+      }
+      .switch {
+        appearance: none;
+        width: 30px;
+        height: 18px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: var(--panel);
+        position: relative;
+      }
+      .switch::after {
+        content: "";
+        position: absolute;
+        inset: 2px auto 2px 2px;
+        width: 12px;
+        border-radius: 999px;
+        background: var(--muted-strong);
+      }
+      .switch:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .switch:checked::after {
+        background: #fff;
+        transform: translateX(12px);
+      }
+      select,
+      input[type="text"] {
+        font: inherit;
+        min-height: 32px;
+        padding: 4px 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        background: var(--panel);
+        min-width: 200px;
+      }
+      .shipped {
+        background: var(--panel-muted);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 20px;
+      }
+      .shipped .row {
+        align-items: baseline;
+      }
+      .pending {
+        font-size: 12px;
+        color: var(--muted-strong);
+        white-space: nowrap;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px 12px 8px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        color: var(--muted-strong);
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Planned runtime capabilities, drawn as controls</h1>
+      <p class="lede">
+        WO-RC fixture, 2026-09-08. Every control below was designed for the
+        runtime module and then removed from the product, because the host has
+        no adapter behind it. This page is the only place the drawn version
+        exists. It is a static file: it is not linked from the product, and the
+        server's STATIC allowlist does not serve it.
+      </p>
+      <p class="warning">
+        Nothing on this page works. The switches, buttons and fields are inert
+        markup. Do not treat a control here as evidence that the capability
+        exists — the shipped surface for all of it is the text list at the
+        bottom of this page.
+      </p>
+
+      <h2>G-1 · MCP OAuth</h2>
+      <section class="card">
+        <div class="row">
+          <span class="row-title">Docs server</span>
+          <div class="actions">
+            <button type="button" class="text">Authenticate</button>
+            <button type="button" class="text">Clear authentication</button>
+          </div>
+          <span class="row-help"
+            >State: configured · needs authentication. The server answered 401
+            and asked for an authorization code.</span
+          >
+        </div>
+      </section>
+      <p class="note">
+        Needs <code>POST /mcp/:id/authorize</code>, a callback the host can
+        receive, <code>authentication: 'oauth'</code> in the descriptor, and a
+        health value that means “waiting for a person”. Today
+        <code>authentication</code> is fixed at
+        <code>'unauthenticated-only'</code>.
+      </p>
+
+      <h2>G-2 · MCP stdio transport</h2>
+      <section class="card">
+        <div class="row">
+          <span class="row-title">Transport</span>
+          <div class="actions">
+            <select>
+              <option>Streamable HTTP</option>
+              <option selected>Standard input/output</option>
+            </select>
+          </div>
+          <span class="row-help">How the host reaches this server.</span>
+        </div>
+        <div class="row">
+          <span class="row-title">Command</span>
+          <div class="actions">
+            <input type="text" value="npx -y @example/docs-mcp" />
+          </div>
+          <span class="row-help"
+            >Started as a child process of the host and stopped with it.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Process</span>
+          <div class="actions">
+            <button type="button" class="text">Stop process</button>
+            <button type="button" class="text">Restart</button>
+          </div>
+          <span class="row-help">Running · pid 40122 · started 12 min ago.</span>
+        </div>
+      </section>
+      <p class="note">
+        Needs <code>McpSource.transport: 'stdio'</code> and a supervised process
+        lifecycle, so that <code>running</code> means a live child process.
+        <code>architecture.md</code> currently rejects it outright.
+      </p>
+
+      <h2>G-3 · Third-party plugin isolation</h2>
+      <section class="card">
+        <div class="row">
+          <span class="row-title">Evidence memo</span>
+          <div class="actions">
+            <span class="state">in-process · host-trusted</span>
+            <input class="switch" type="checkbox" checked aria-label="Trusted" />
+          </div>
+          <span class="row-help"
+            >Trusted built-in code. Untrusting it would unload its
+            renderer.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Install a plugin</span>
+          <div class="actions">
+            <button type="button">Install from file…</button>
+          </div>
+          <span class="row-help"
+            >Signature and sandbox are checked before the first load.</span
+          >
+        </div>
+      </section>
+      <p class="note">
+        Needs an installer, a signature check and an execution sandbox. Today
+        <code>trust</code> is always <code>host-trusted</code> and
+        <code>isolation</code> always <code>in-process</code>; there is no
+        third-party code path at all.
+      </p>
+
+      <h2>G-4…G-7 · memory, workflow, hook, registry adapters</h2>
+      <section class="card">
+        <div class="row">
+          <span class="row-title">Memory provider</span>
+          <div class="actions">
+            <select>
+              <option>None</option>
+              <option>Local vector store</option>
+            </select>
+          </div>
+          <span class="row-help"
+            >Where recalled material is written and read between runs.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Nightly evidence sweep</span>
+          <div class="actions">
+            <span class="state">workflow · last run 2 days ago</span>
+            <button type="button" class="text">Run</button>
+          </div>
+          <span class="row-help">A saved sequence the host executes.</span>
+        </div>
+        <div class="row">
+          <span class="row-title">On run completed → index artifacts</span>
+          <div class="actions">
+            <input class="switch" type="checkbox" aria-label="Hook enabled" />
+          </div>
+          <span class="row-help">An executable hook bound to a host event.</span>
+        </div>
+        <div class="row">
+          <span class="row-title">Registry</span>
+          <div class="actions">
+            <input type="text" value="search skills…" />
+            <button type="button" class="text">Install</button>
+          </div>
+          <span class="row-help"
+            >Package resolution with signature verification.</span
+          >
+        </div>
+      </section>
+      <p class="note">
+        All four are <code>support: 'adapter-required'</code> in
+        <code>snapshot.kinds</code>. The product labels them as unavailable and
+        draws none of these.
+      </p>
+
+      <h2>G-8 · Token usage beside the character sizes</h2>
+      <section class="card">
+        <div class="row">
+          <span class="row-title">Next run · context</span>
+          <div class="actions"><span class="state">77 characters ≈ 21 tokens</span></div>
+          <span class="row-help"
+            >An estimate would need the host to report one; today
+            <code>tokenUsage</code> is <code>null</code> for
+            <code>effective-next-run</code>.</span
+          >
+        </div>
+      </section>
+      <p class="note">
+        The product says <strong>characters, not tokens</strong> and shows no
+        estimate at all. A wrong token number is worse than no token number.
+      </p>
+
+      <h2>What the product actually shows</h2>
+      <div class="shipped">
+        <div class="row">
+          <span class="row-title">MCP OAuth</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >Only unauthenticated Streamable HTTP servers can connect
+            today.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">MCP stdio transport</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >Local process servers cannot be launched or supervised.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Third-party plugin isolation</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >Only host-trusted extensions load; there is no sandbox for outside
+            code.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Memory providers</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >No adapter stores or retrieves memory between runs.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Workflows</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >No workflow runner exists to execute a saved sequence.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Hooks</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help">No executable hook point exists.</span>
+        </div>
+        <div class="row">
+          <span class="row-title">Registries</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >Package resolution and signature checks are not implemented.</span
+          >
+        </div>
+        <div class="row">
+          <span class="row-title">Token counts</span>
+          <span class="pending">Backend pending</span>
+          <span class="row-help"
+            >The host reports no token usage, so sizes stay in characters.</span
+          >
+        </div>
+      </div>
+      <p class="note">
+        Eight rows, text only, inside a collapsed “Planned” disclosure at the
+        bottom of Settings. Zero interactive descendants — asserted in
+        <code>evidence/rc/runtime-ui-checks.json</code>, row
+        <code>planned-inert</code>.
+      </p>
+
+      <h2>Where each one is recorded</h2>
+      <table>
+        <tr>
+          <th>Fixture section</th>
+          <th>Gap</th>
+          <th>Required API</th>
+        </tr>
+        <tr>
+          <td>G-1</td>
+          <td>MCP OAuth</td>
+          <td>authorize endpoint + callback + <code>authentication: 'oauth'</code></td>
+        </tr>
+        <tr>
+          <td>G-2</td>
+          <td>stdio transport</td>
+          <td><code>McpSource.transport: 'stdio'</code> + process lifecycle</td>
+        </tr>
+        <tr>
+          <td>G-3</td>
+          <td>plugin isolation</td>
+          <td>installer, signature check, sandbox</td>
+        </tr>
+        <tr>
+          <td>G-4…G-7</td>
+          <td>memory / workflow / hook / registry</td>
+          <td><code>kinds[].support: 'available'</code> plus each adapter</td>
+        </tr>
+        <tr>
+          <td>G-8</td>
+          <td>token usage</td>
+          <td>a non-null <code>tokenUsage</code> for effective-next-run</td>
+        </tr>
+      </table>
+      <p class="note">
+        Full text, with the contract-side gaps that are not about missing
+        capability, in
+        <code>engineering/mvp/execution/work-surface-kit/runtime-ui-gaps.md</code>.
+      </p>
+    </main>
+  </body>
+</html>

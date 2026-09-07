@@ -1,0 +1,48 @@
+{
+  "base": "9ef1710",
+  "branch": "claude/rc-runtime-ui",
+  "commits": [
+    "d6178ce",
+    "48e9505",
+    "37a05f3",
+    "de5756f"
+  ],
+  "node": "v25.9.0",
+  "app": "http://127.0.0.1:8850",
+  "realProvider": "not_run",
+  "source": {
+    "app/web/runtime-view.mjs": "13f28c1ddfe2064870299a042b844468775f606f49bd6915869bfb9bb6a587cd",
+    "app/web/app.mjs": "615c6195eb0e042e72c9bc99091b7a1d025684c38fe580193ff276dfaf73e587",
+    "app/web/index.html": "c4ef9b7dfbfe2815896eb14d06b0bbde0ce0fe3dfd4e1f4bc678e29dfdf9c6b9",
+    "app/web/styles.css": "f7fb374261561ba6b785196b1f62003a77a1489d6d2c233e0ca3d917cba1f3ab",
+    "app/web/settings-view.mjs": "25769fd6a5ae497d3365d892e9243f334cfabc4d761d6a74892b5db0e037f838",
+    "app/web/inspector.mjs": "5352ebe218901fc23dc9ab76cc3d136c96524341c4cf00650f43a916c2f8a12f",
+    "app/server/index.mjs": "c6836c7f8ab48e71eab3c391b689a37a31bb6c39a76bc68ebc575ea0206723fc"
+  },
+  "evidence": {
+    "evidence/rc/README.md": "c3588487a5aa43307b3f08a130c35a7cb89356e03ec622e42b9cdc03d6c8d144",
+    "evidence/rc/app-tests.txt": "270d7dd7ca4c0ec5b5efd8c9279a60cf93df8a891b212006f6e98344b4153829",
+    "evidence/rc/mcp-fixture.mjs": "6c8ebaf145b48e889ea403122be88422058c2c8e5c7f6e02f65ab7721685b3ba",
+    "evidence/rc/planned-fixture.html": "62a72b8a89b596b68684baa7356ab5a23e2d9df8b37a665ecf24989aec6c29a0",
+    "evidence/rc/run-recorded-context-1440-light.png": "72f2655ca4a5ce2f035fa714d616ee9f3d2eb5caf0e824b3c9725df26b23b52d",
+    "evidence/rc/runtime-mcp-1440-light.png": "6c71369e26d05745e628666c08f4ff5d59addfe46e5972ecc467abfa34e7aea3",
+    "evidence/rc/runtime-module-1440-dark.png": "2a1552004c6ef7f0d5d3191be6aa3276cb1027fb80c0ec8bcfc7bcbed29043ee",
+    "evidence/rc/runtime-module-1440-light.png": "07cb415fcf4b2892d620ab15494b3808c8ed6b98ce01367caed263c7744e306f",
+    "evidence/rc/runtime-module-390-dark.png": "9870f55edc9794e37467bf0967bbf3a6ecdf40bbf7e1af27495abb1cb6e4e893",
+    "evidence/rc/runtime-module-390-light.png": "9870f55edc9794e37467bf0967bbf3a6ecdf40bbf7e1af27495abb1cb6e4e893",
+    "evidence/rc/runtime-ui-checks.json": "cf27959783dae709526ef05d82592df425d83e4e420d0ed0afe3406a88cfac9d",
+    "evidence/rc/runtime-ui-checks.mjs": "1ae163c732b539912155712ab9e5bd6e1048427859e090d8f640b6405b3d2b82",
+    "evidence/rc/runtime-ui-counterexamples.json": "47b3c5909f73399fd94e783c911af53a4c927b61c2ef1fc4f6601fec10a8fdc5",
+    "evidence/rc/runtime-ui-counterexamples.mjs": "56d71fba691cc4c85d90c5c3125218fc5f5dce74aa34ceda786d568c96ea97f1",
+    "evidence/rc/runtime-ui-viewport.json": "5ed223f93c81f682bceb96fa03004e15028480df907f0f50c4df526d031fc153",
+    "evidence/rc/runtime-ui-viewport.mjs": "15b1e011aca7e6a6af3edcea21a3e52c7ea53a43e75d97f46d3fb9991b7aeca1",
+    "evidence/rc/seed-fixture.mjs": "c731372ae1ad6ad4c2b7ef31eeb7b2e6047f558e66797ece577d4c9cb4faa5f9",
+    "evidence/rc/settings-context-1440-dark.png": "07be239ebb63dd4ce4a6fc210c4de13626222fc25f0d2ab32ace2c4f5ed184ab",
+    "evidence/rc/settings-context-1440-light.png": "07be239ebb63dd4ce4a6fc210c4de13626222fc25f0d2ab32ace2c4f5ed184ab",
+    "evidence/rc/settings-context-390-dark.png": "d0393b8899bde23df8ef4c9eef6df5e42c04e13e55e194ed391069a75b9cfff3",
+    "evidence/rc/settings-context-390-light.png": "d0393b8899bde23df8ef4c9eef6df5e42c04e13e55e194ed391069a75b9cfff3",
+    "evidence/rc/settings-planned-1440-light.png": "a9b5c1e5a77dc74e9eba755f4647ade1ab3d446a2bc1bfd71d776108ddc54400",
+    "evidence/rc/shoot.mjs": "11e319318ff2d0ec81314c885bba30d80df38d47ecdb389faf70d73362309ec1",
+    "evidence/rc/verify.mjs": "69f8b651904e2edea34b78063b67b8473b9b7fb654f6227c15aed5b5a85a4cbc"
+  }
+}
