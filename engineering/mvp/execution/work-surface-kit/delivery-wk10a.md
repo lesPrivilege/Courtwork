@@ -16,7 +16,7 @@ schema 4），端口 8855。Node v25.9.0。**真实 provider：not_run**——�
 | `ec9ac6b` | web: three columns share one band and one gutter |
 | `919c0cb` | web: the composer is the top floating layer, docked below 768 |
 | `4d40019` | web: icon tiers and the site-wide text sweep |
-| （末次提交） | web: the ablation, the delivery record and the WK10a evidence |
+| `68939c5` | web: the ablation, the delivery record and the WK10a evidence |
 
 ## 2. 文件
 
