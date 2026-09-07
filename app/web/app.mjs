@@ -2251,6 +2251,10 @@ function renderMessageStream() {
       activityGroup.interrupted +=
         row.phase !== "result" && !toolStillActive ? 1 : 0;
       activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? " · working" : activityGroup.interrupted ? " · interrupted" : " · completed"}`;
+      activityGroup.node.classList.toggle(
+        "is-working",
+        !activityGroup.errors && activityGroup.working > 0,
+      );
       activityGroup.node.append(details);
     } else if (row.kind === "question") {
       if (
@@ -2584,6 +2588,49 @@ function renderChatHeader() {
   );
 }
 
+// The hint above the composer reads the run's recorded startedAt against the
+// local clock; it is an elapsed reading, not a server-reported duration.
+function formatElapsed(ms) {
+  const s = Math.max(0, Math.round(ms / 1000));
+  return s < 60
+    ? `${s}s`
+    : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`;
+}
+function paintWorkingClock() {
+  const run = currentRun();
+  const hint = $("composer-run-hint");
+  if (!run || !hint) {
+    stopWorkingClock();
+    return;
+  }
+  const started = Date.parse(run.startedAt || "");
+  const verb =
+    run.status === "waiting_user"
+      ? "Waiting for your answer"
+      : run.status === "stopping"
+        ? "Stopping"
+        : "Working";
+  const elapsed = Number.isFinite(started)
+    ? formatElapsed(Date.now() - started)
+    : "";
+  const lead =
+    run.status === "waiting_user"
+      ? `${verb}${elapsed ? ` · ${elapsed}` : ""}`
+      : `${verb}${elapsed ? ` for ${elapsed}` : ""}`;
+  hint.textContent = `${lead} · your input will not be sent automatically.`;
+  hint.classList?.toggle("is-waiting", run.status === "waiting_user");
+}
+function startWorkingClock() {
+  paintWorkingClock();
+  if (!state.workingClock && typeof setInterval === "function")
+    state.workingClock = setInterval(paintWorkingClock, 1000);
+}
+function stopWorkingClock() {
+  if (state.workingClock) {
+    clearInterval(state.workingClock);
+    state.workingClock = null;
+  }
+}
 function renderComposer() {
   const session = currentSession();
   const textarea = $("composer-input");
@@ -2612,7 +2659,11 @@ function renderComposer() {
   cancel.hidden = !active;
   if (focusMovesWithPrimaryAction && !textarea.disabled) textarea.focus();
   cancel.disabled = !active || Boolean(pendingCancel);
-  if (runHint) runHint.hidden = !active;
+  if (runHint) {
+    runHint.hidden = !active;
+    if (active) startWorkingClock();
+    else stopWorkingClock();
+  }
   if (session) {
     const cached = state.draftCache.has(session.id)
       ? state.draftCache.get(session.id)

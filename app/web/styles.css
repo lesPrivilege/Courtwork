@@ -966,9 +966,28 @@ button {
   padding: 0 6px;
 }
 .composer-run-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
   color: var(--muted-strong);
   padding: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.composer-run-hint::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  animation: se-pulse 1.6s var(--ease-out) infinite;
+}
+.composer-run-hint.is-waiting {
+  color: var(--accent);
+}
+.composer-run-hint.is-waiting::before {
+  animation: none;
 }
 .draft-status {
   font-size: 12px;
@@ -2334,7 +2353,6 @@ dialog[open]::backdrop {
 /* Inside the card the three options share the width and may wrap to two lines */
 .connection-popover .segmented {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   width: 100%;
 }
 .connection-popover .segment {
@@ -2346,7 +2364,10 @@ dialog[open]::backdrop {
 }
 /* Segmented control: native radios, one track, the checked segment lifts */
 .segmented {
-  display: inline-flex;
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 2px;
   margin: 0;
   padding: 2px;
@@ -2354,6 +2375,26 @@ dialog[open]::backdrop {
   border-radius: var(--radius-control);
   background: var(--hover);
   max-width: 100%;
+}
+/* The selected segment is a white thumb that slides, not a re-painted cell */
+.segmented::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 8px) / 3);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: 0 1px 2px rgba(32, 32, 32, 0.12);
+  transition: translate var(--duration) var(--ease-out);
+  pointer-events: none;
+}
+.segmented:has(.segment:nth-child(2) input:checked)::before {
+  translate: calc(100% + 2px) 0;
+}
+.segmented:has(.segment:nth-child(3) input:checked)::before {
+  translate: calc(200% + 4px) 0;
 }
 .segmented:disabled {
   opacity: 0.55;
@@ -2385,10 +2426,11 @@ dialog[open]::backdrop {
 .segment:hover {
   color: var(--ink);
 }
+.segment {
+  z-index: 1;
+}
 .segment:has(input:checked) {
-  background: var(--panel);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(32, 32, 32, 0.12);
 }
 .segment:has(input:focus-visible) {
   outline: 2px solid var(--accent);
@@ -2455,7 +2497,6 @@ dialog[open]::backdrop {
   }
   .segmented {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
   }
   .segment {
@@ -2470,5 +2511,38 @@ dialog[open]::backdrop {
   }
   .status-badge {
     display: none;
+  }
+}
+
+/* Working ledger title: a soft highlight travels across the words while tools run */
+.activity-group.is-working > summary > span {
+  background: linear-gradient(
+    90deg,
+    var(--muted-strong) 0 40%,
+    var(--ink) 50%,
+    var(--muted-strong) 60% 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: se-shimmer 1.8s linear infinite;
+}
+@keyframes se-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-group.is-working > summary > span {
+    animation: none;
+    background: none;
+    color: var(--muted-strong);
+  }
+  .composer-run-hint::before {
+    animation: none;
   }
 }
