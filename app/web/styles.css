@@ -2771,9 +2771,6 @@ html[data-shell="desktop"] .chat-header [tabindex] {
   color: var(--muted-strong);
   overflow-wrap: anywhere;
 }
-.runtime-catalog[data-frozen="true"] {
-  opacity: 0.72;
-}
 .runtime-kind {
   margin-top: var(--space-6);
 }
@@ -3019,6 +3016,12 @@ html[data-shell="desktop"] .chat-header [tabindex] {
 }
 .context-characters dd {
   font-variant-numeric: tabular-nums;
+}
+.runtime-context-summary > p + p {
+  margin-top: var(--space-2);
+}
+.runtime-context-summary .section-heading {
+  margin-bottom: 0;
 }
 .planned-section > summary {
   padding: 10px 0;

@@ -88,9 +88,9 @@ export function provenanceSentence(resource) {
   const winner = (resource.provenance || []).at(-1);
   if (!winner) return "Exposure: from the source default.";
   const where = SCOPE_LABELS[winner.scope.type] || winner.scope.type;
-  const why =
-    winner.reason === "source default" ? "the source default" : `your ${where} override`;
-  return `Exposure: from ${where} · ${why}.`;
+  return winner.reason === "source default"
+    ? "Exposure: the source default."
+    : `Exposure: from ${where} · your ${where} override.`;
 }
 /** RC-6: configured / connected / exposed / error are separate facts, so the
  * row states each one rather than collapsing them into a single status word. */
@@ -609,16 +609,16 @@ export function createRuntimeView(
       },
       chevron,
       el("span", { className: "runtime-row-name", text: resource.title }),
-      child
-        ? el("span", { className: "runtime-row-tag", text: "remote" })
-        : el("span", {
-            className: "runtime-row-tag",
-            text: sourceWord(resource.source),
-          }),
-      child && (resource.source?.hash || resource.mcp?.configHash)
+      el("span", {
+        className: "runtime-row-tag",
+        text: sourceWord(resource.source),
+      }),
+      // A remote capability carries the hash of the config it came from; a
+      // local child row (an extension's tool) has no remote identity to show.
+      child && resource.source?.type === "remote"
         ? el("code", {
             className: "runtime-row-hash",
-            text: shortHash(resource.source?.hash || resource.mcp?.configHash),
+            text: shortHash(resource.source.hash || resource.mcp?.configHash),
           })
         : null,
     );
@@ -683,7 +683,10 @@ export function createRuntimeView(
     const line = el("p", { className: "runtime-mcp-state" });
     line.append(
       el("span", { className: "runtime-dimension-label", text: "State" }),
-      el("span", { text: mcpStateWords(resource).join(" · ") }),
+      el("span", {
+        text: mcpStateWords(resource).join(" · "),
+        attrs: { "data-mcp-state": mcpStateWords(resource).join(" ") },
+      }),
     );
     const bar = el("div", { className: "runtime-row-actions" });
     for (const [act, label] of [
@@ -894,10 +897,9 @@ export function createRuntimeView(
         : null,
     );
     const body = el("div", { className: "runtime-catalog" }, ...catalog());
-    if (frozen()) {
-      body.inert = true;
-      body.setAttribute("data-frozen", "true");
-    }
+    // Read-only, not unreadable: a frozen module still opens every explanation,
+    // trace and source; only the controls that would submit a change are off.
+    if (frozen()) body.setAttribute("data-frozen", "true");
     container.append(body);
     container.scrollTop = scroll;
     if (focusKey && document.activeElement === document.body)
@@ -1111,8 +1113,10 @@ export function renderRecordedContext(payload) {
           text: "This run loaded no skill or reference body.",
         }),
   );
+  // The same rule the next-run bar uses: only `instructions` admission is
+  // measured, so the two halves of the context are counted the same way.
   const admitted = (binding?.context || []).reduce(
-    (sum, item) => sum + (item.admission === "catalog-only" ? 0 : item.characters || 0),
+    (sum, item) => sum + (item.admission === "instructions" ? item.characters || 0 : 0),
     0,
   );
   if (binding)
