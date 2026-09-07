@@ -3241,7 +3241,11 @@ court-symbol {
   gap: var(--space-1) var(--space-4);
   padding: var(--space-2) var(--space-3) 0;
   min-height: var(--control);
+  max-width: var(--column);
+  margin: 0 auto;
+  width: 100%;
 }
+
 .composer-below .home-composer-context { gap: var(--space-1) var(--space-4); }
 .composer-below .home-choice { font-size: var(--text-label); }
 .composer-below .home-choice select {
