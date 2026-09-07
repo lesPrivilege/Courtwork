@@ -1,0 +1,211 @@
+{
+  "origin": "http://127.0.0.1:8855",
+  "at": "2026-09-07T22:41:34.738Z",
+  "results": [
+    {
+      "name": "band · three column headers share one top",
+      "pass": true,
+      "actual": {
+        "sidebar": {
+          "top": 0,
+          "height": 56
+        },
+        "chat": {
+          "top": 0,
+          "height": 56
+        },
+        "rail": {
+          "top": 0,
+          "height": 56
+        },
+        "token": "56px"
+      }
+    },
+    {
+      "name": "band · three column headers share one height = --band-top",
+      "pass": true,
+      "actual": [
+        56,
+        56,
+        56,
+        "56px"
+      ]
+    },
+    {
+      "name": "gutter · card left edge = rail panel edge + one --col-gap",
+      "pass": true,
+      "actual": {
+        "cardLeft": 1085,
+        "railContentLeft": 1085,
+        "railPanelLeft": 1061,
+        "cardMargin": "0px 0px 0px",
+        "colGap": "24px"
+      }
+    },
+    {
+      "name": "gutter · a module card adds no outer margin",
+      "pass": true,
+      "actual": "0px 0px 0px"
+    },
+    {
+      "name": "column · chat header inner and the composer share the 740 column left edge",
+      "pass": true,
+      "actual": {
+        "header": 285,
+        "body": 285,
+        "composer": 285
+      }
+    },
+    {
+      "name": "collapsed · the rail shows cards, the tab strip and every pane are hidden",
+      "pass": true,
+      "actual": {
+        "railHidden": false,
+        "tabsHidden": true,
+        "modules": [
+          "preview",
+          "runtime"
+        ],
+        "panesHidden": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "nested": 0,
+        "progress": 0,
+        "percent": 0
+      }
+    },
+    {
+      "name": "collapsed · no nested card, no progress bar, no percentage",
+      "pass": true,
+      "actual": {
+        "railHidden": false,
+        "tabsHidden": true,
+        "modules": [
+          "preview",
+          "runtime"
+        ],
+        "panesHidden": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "nested": 0,
+        "progress": 0,
+        "percent": 0
+      }
+    },
+    {
+      "name": "expanded · the tab strip sits in the same band as the sidebar wordmark row",
+      "pass": true,
+      "actual": {
+        "shell": "app-shell surface-expanded",
+        "stripTop": 0,
+        "wordmarkTop": 0,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null,
+        "selectedTab": [
+          "surface-preview-tab"
+        ]
+      }
+    },
+    {
+      "name": "expanded · in-shell, not a modal: the sidebar stays operable, the chat column leaves the tree",
+      "pass": true,
+      "actual": {
+        "shell": "app-shell surface-expanded",
+        "stripTop": 0,
+        "wordmarkTop": 0,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null,
+        "selectedTab": [
+          "surface-preview-tab"
+        ]
+      }
+    },
+    {
+      "name": "escape · pane, then cards, then closed",
+      "pass": true,
+      "actual": [
+        {
+          "expanded": true,
+          "rail": false,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": true,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": false,
+          "open": false
+        }
+      ]
+    },
+    {
+      "name": "keyboard · ArrowRight / End / Home move the selected tab",
+      "pass": true,
+      "actual": [
+        "surface-preview-tab",
+        "surface-runtime-tab",
+        "surface-runtime-tab",
+        "surface-preview-tab"
+      ]
+    },
+    {
+      "name": "lifecycle · three collapse/expand toggles re-read nothing",
+      "pass": true,
+      "actual": {
+        "toggles": 3,
+        "workspaceReads": 0,
+        "runtimeReads": 0,
+        "total": 1
+      }
+    },
+    {
+      "name": "narrow 390 · no control under 44 with a coarse pointer",
+      "pass": true,
+      "actual": {
+        "controls": 8,
+        "small": [],
+        "overflow": 0,
+        "composerPosition": "sticky",
+        "composerShadow": true
+      }
+    },
+    {
+      "name": "narrow 390 · no horizontal overflow",
+      "pass": true,
+      "actual": 0
+    },
+    {
+      "name": "narrow 390 · the composer is a docked floating layer",
+      "pass": true,
+      "actual": {
+        "controls": 8,
+        "small": [],
+        "overflow": 0,
+        "composerPosition": "sticky",
+        "composerShadow": true
+      }
+    },
+    {
+      "name": "1440 · no horizontal overflow collapsed or expanded",
+      "pass": true,
+      "actual": {
+        "collapsed": 0,
+        "expanded": 0
+      }
+    }
+  ],
+  "failed": 0
+}
