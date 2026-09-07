@@ -2292,18 +2292,19 @@ dialog[open]::backdrop {
    message utilities appear when the message is pointed at or focused, the
    time stays; a chip opens a small card instead of the full settings dialog;
    settings are rows: title and meaning on the left, the control on the right. */
-.user-message-actions .icon-only,
+.user-message-actions,
 .message.assistant .message-header .icon-only {
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-out);
 }
-.message:hover .icon-only,
-.message:focus-within .icon-only,
-.message .icon-only:focus-visible {
+.message:hover .user-message-actions,
+.message:focus-within .user-message-actions,
+.message:hover .message-header .icon-only,
+.message:focus-within .message-header .icon-only {
   opacity: 1;
 }
 @media (hover: none) {
-  .user-message-actions .icon-only,
+  .user-message-actions,
   .message.assistant .message-header .icon-only {
     opacity: 1;
   }
