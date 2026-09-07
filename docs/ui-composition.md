@@ -43,3 +43,5 @@ Run 首次发送生成 `commandId`；网络/5xx 回执不明时保留原 input/I
 ## Restrained provenance treatment
 
 [Reading marks](reading-marks.md) records the local Critical Edition UI intake: confirmed response/permission rules and file provenance notes, with unchanged domain semantics and panel composition.
+
+[Typography refinement](typography-refinement.md) supersedes the visual side-rule treatment with type hierarchy, compact run metadata and balanced icon controls.

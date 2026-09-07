@@ -2222,7 +2222,7 @@ function renderMessageStream() {
         const questionKey = questionScopeKey(row.runId, row.id),
           openKey = `question-history:${questionKey}`;
         const history = element("details", {
-          className: `resolved-question${row.answer !== null ? " intervention-record" : ""}`,
+          className: "resolved-question",
         });
         history.open = state.toolOpen.get(openKey) || false;
         history.append(
@@ -2445,11 +2445,11 @@ function renderMessageStream() {
       const header = element(
         "div",
         { className: "message-header" },
-        element("span", { className: "message-role", text: "Run" }),
+        element("span", { className: "sr-only", text: "Run" }),
       );
       appendRunBadge(header, row.status || "unknown");
       header.append(
-        action("activity", "Inspect this run", () => openRun(row.runId), {
+        action("chevron-right", "Inspect this run", () => openRun(row.runId), {
           attrs: { "data-focus-key": row.id },
         }),
       );
@@ -3653,7 +3653,7 @@ function renderPermission(row) {
   if (!canAnswer(row, run) && validPermission(payload)) {
     const keyOpen = `permission-history:${key}`;
     const details = element("details", {
-      className: `resolved-permission${["allow", "deny"].includes(row.decision) ? " intervention-record" : ""}`,
+      className: "resolved-permission",
     });
     details.open = state.toolOpen.get(keyOpen) || false;
     details.append(
@@ -4029,7 +4029,7 @@ function wireEvents() {
   setAction($("new-session-button"), "square-pen", "New session", {
     visible: true,
   });
-  setAction($("send-button"), "arrow-up", "Send", { visible: true });
+  setAction($("send-button"), "arrow-up", "Send");
   setAction($("cancel-run-button"), "square", "Cancel run", { visible: true });
   $("search-icon").append(icon("search"));
   $("toggle-nav-button").addEventListener("click", toggleNavigation);

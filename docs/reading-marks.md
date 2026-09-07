@@ -1,6 +1,8 @@
 # Restrained reading marks
 
-2026-09-07 · selective intake of the user's Critical Edition UI reference.
+2026-09-07 · superseded visual treatment: see [Typography refinement](typography-refinement.md). The intervention rule and provenance side rule described below have been removed; provenance text and disclosure remain.
+
+Original selective intake of the user's Critical Edition UI reference.
 
 The useful transfer is to make provenance and recorded intervention easier to distinguish while preserving the existing Navigator / Work / Inspector composition. This is a small presentation change; it introduces no domain state or review authority.
 
