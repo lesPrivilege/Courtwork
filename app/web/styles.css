@@ -1,20 +1,52 @@
 :root {
   color-scheme: light;
-  --canvas: #f6f6f4;
+  /* Gray scale · Radix Colors v3.0.0 light, values verbatim from the L4r1
+     specimen (styles.css 739ce027…, PD-KIT). Only this scale and the four
+     scarce colours below may appear in the file; every other colour is an alias. */
+  --gray-1: #fcfcfc;
+  --gray-2: #f9f9f9;
+  --gray-3: #f0f0f0;
+  --gray-4: #e8e8e8;
+  --gray-5: #e0e0e0;
+  --gray-6: #d9d9d9;
+  --gray-7: #cecece;
+  --gray-8: #bbbbbb;
+  --gray-9: #8d8d8d;
+  --gray-10: #838383;
+  --gray-11: #646464;
+  --gray-12: #202020;
+  --blue-3: #e6f4fe;
+  --red-3: #feebec;
+  --green-3: #e6f6eb;
+  /* Semantic aliases keep the 8816 names (UP-2); the scale decides the values.
+     1–2 paper · 3–5 interaction · 6–8 lines · 11–12 text. */
+  --canvas: var(--gray-2);
   --panel: #fff;
-  --panel-muted: #fbfbfa;
-  --line: #dfdfda;
-  --line-strong: #c9c9c1;
-  --ink: #252522;
-  --muted: #77776f;
-  --muted-strong: #5d5d55;
-  --accent: #315c8a;
-  --accent-soft: #e8eef6;
+  --panel-muted: var(--gray-1);
+  --hover: var(--gray-3);
+  --selected: var(--gray-4);
+  --pressed: var(--gray-5);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-8);
+  --ink: var(--gray-12);
+  --ink-strong: #000; /* 自定：ink-filled controls when pressed */
+  --muted: var(--gray-10); /* non-text only: icons, hairlines, placeholders; 3.9:1 */
+  --muted-strong: var(--gray-11); /* every secondary text role; 5.9:1 on --panel */
+  --accent: #315c8a; /* 自定（PD-KIT）：white on it 6.59:1 */
+  --accent-strong: #29507a; /* 自定：hover/pressed of filled accent, 8.0:1 */
+  --accent-soft: var(--blue-3);
   --danger: #9b3c35;
-  --danger-soft: #f8e9e7;
+  --danger-soft: var(--red-3);
   --success: #3e704e;
-  --success-soft: #e8f2ea;
-  --shadow: 0 12px 30px #25252214;
+  --success-soft: var(--green-3);
+  --backdrop: rgba(32, 32, 32, 0.22);
+  --scrim: rgba(32, 32, 32, 0.52); /* L4-12: 3.41:1 against the layer it disables */
+  --shadow-float: 0 12px 30px rgba(32, 32, 32, 0.08); /* floating layers only */
+  --shadow: var(--shadow-float);
+  --shadow-pressed: inset 0 1px 2px rgba(32, 32, 32, 0.25); /* 自定：filled control pressed */
+  --glass: rgba(255, 255, 255, 0.86); /* 自定：translucent floating surface over blur */
+  --glass-muted: rgba(252, 252, 252, 0.86);
+  --rim: inset 0 0 0 1px rgba(255, 255, 255, 0.7); /* 自定：glass edge highlight, no refraction */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -30,6 +62,19 @@
   --radius-container: 16px;
   --radius-pill: 999px;
   --radius: var(--radius-control);
+  /* Type roles · Geist ladder (KIT-TYPE); body leading widened for CJK */
+  --text-title: 20px;
+  --text-section: 16px;
+  --text-body: 14px;
+  --text-meta: 12px;
+  --tracking-heading: -0.02em;
+  --tracking-caps: 0.06em;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  /* Motion · two durations, one exit curve; only opacity/transform/colour move */
+  --duration-fast: 120ms;
+  --duration: 180ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
   font:
     14px/1.5 ui-sans-serif,
     system-ui,
@@ -50,6 +95,17 @@ body {
   background: var(--panel);
   color: var(--ink);
   overflow: hidden;
+  accent-color: var(--accent);
+  text-wrap: pretty;
+}
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 button,
 input,
@@ -109,7 +165,14 @@ a,
 }
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .sr-only {
   position: absolute;
@@ -141,7 +204,11 @@ button {
 }
 .quiet-button:hover,
 .text-button:hover {
-  background: var(--canvas);
+  background: var(--hover);
+}
+.quiet-button:active,
+.text-button:active {
+  background: var(--pressed);
 }
 .icon-only {
   width: var(--control);
@@ -155,14 +222,23 @@ button {
   font-weight: 550;
 }
 .primary-button:hover {
-  filter: brightness(0.94);
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.primary-button:active {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  box-shadow: var(--shadow-pressed);
 }
 .secondary-button {
   background: var(--panel);
   border-color: var(--line-strong);
 }
 .secondary-button:hover {
-  background: var(--canvas);
+  background: var(--hover);
+}
+.secondary-button:active {
+  background: var(--selected);
 }
 .danger-button {
   color: var(--danger);
@@ -177,11 +253,16 @@ button {
   gap: 4px;
   align-items: center;
 }
-.eyebrow {
+.eyebrow,
+.section-heading h2,
+.message-role,
+.context-group h4 {
   font-size: 11px;
   line-height: 1.5;
+  font-weight: 500;
   color: var(--muted-strong);
-  letter-spacing: 0.03em;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
 }
 .form-help,
 .empty-list,
@@ -208,7 +289,7 @@ button {
 }
 .count-badge {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--muted-strong);
   font-variant-numeric: tabular-nums;
 }
 .section-heading {
@@ -218,9 +299,7 @@ button {
   gap: 12px;
 }
 .section-heading h2 {
-  font-size: 11px;
-  letter-spacing: 0.03em;
-  color: var(--muted-strong);
+  margin: 0;
 }
 .app-shell {
   height: 100dvh;
@@ -272,7 +351,7 @@ button {
   padding-left: 8px;
 }
 .nav-home[aria-current="page"] {
-  background: var(--line);
+  background: var(--selected);
   font-weight: 600;
 }
 .nav-filter-controls {
@@ -303,6 +382,10 @@ button {
 }
 .nav-filter input:focus {
   background: var(--panel);
+}
+.nav-filter input::placeholder,
+#composer-input::placeholder {
+  color: var(--muted);
 }
 #clear-nav-filter-button {
   position: absolute;
@@ -341,7 +424,10 @@ button {
   font-weight: 550;
 }
 .project-toggle:hover {
-  background: var(--line);
+  background: var(--hover);
+}
+.project-toggle:active {
+  background: var(--pressed);
 }
 .project-chevron {
   width: 16px;
@@ -377,12 +463,15 @@ button {
   border-radius: var(--radius-control);
 }
 .session-button:hover {
-  background: var(--line);
+  background: var(--hover);
+}
+.session-button:active {
+  background: var(--pressed);
 }
 .session-button.active,
 .session-button[aria-current="page"] {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--selected);
+  color: var(--ink);
 }
 .session-button-title,
 .session-title {
@@ -474,7 +563,9 @@ button {
 .extension-status.invalidated {
   color: var(--danger);
 }
-.run-badge.completed,
+.run-badge.completed {
+  color: var(--muted-strong);
+}
 .extension-status.loaded {
   color: var(--success);
 }
@@ -551,7 +642,10 @@ button {
   border-bottom: 1px solid var(--line);
 }
 .home-row:hover {
-  background: var(--panel-muted);
+  background: var(--hover);
+}
+.home-row:active {
+  background: var(--pressed);
 }
 .home-row > .ui-icon {
   color: var(--muted);
@@ -615,9 +709,7 @@ button {
   margin-bottom: 8px;
 }
 .message-role {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted-strong);
+  margin: 0;
 }
 .message-header > .icon-only {
   margin: -6px 0;
@@ -733,11 +825,7 @@ button {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-width: 100%;
-  font:
-    12px/1.6 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font: 12px/1.6 var(--font-mono);
   max-height: 320px;
   overflow: auto;
 }
@@ -800,9 +888,11 @@ button {
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--panel);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  box-shadow: var(--rim), var(--shadow-float);
   border-radius: var(--radius-pill);
   font-size: 12px;
   white-space: nowrap;
@@ -823,10 +913,9 @@ button {
   border-radius: var(--radius-container);
   padding: 12px;
   background: var(--panel);
-  box-shadow: 0 2px 6px #25252206;
 }
 .composer-form:focus-within {
-  border-color: var(--muted);
+  border-color: var(--ink);
 }
 #composer-input {
   display: block;
@@ -869,7 +958,7 @@ button {
 }
 .composer-hint {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--muted-strong);
   text-align: center;
   margin-top: 8px;
 }
@@ -942,6 +1031,10 @@ button {
   font-size: 12px;
   border-bottom: 2px solid transparent;
 }
+.surface-tab:hover {
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
 .surface-tab[aria-selected="true"] {
   border-bottom-color: var(--ink);
   color: var(--ink);
@@ -970,7 +1063,7 @@ button {
 .layer-backdrop {
   position: fixed;
   inset: 0;
-  background: #25252238;
+  background: var(--backdrop);
   z-index: 30;
 }
 .inspector-status {
@@ -1064,7 +1157,8 @@ button {
   font-size: 11px;
 }
 .event-row summary code {
-  color: var(--muted);
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
 }
 .file-heading {
   display: grid;
@@ -1106,11 +1200,7 @@ button {
 .file-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font:
-    12px/1.7 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font: 12px/1.7 var(--font-mono);
 }
 .workspace-file-row {
   width: 100%;
@@ -1122,7 +1212,7 @@ button {
 }
 .file-size {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--muted-strong);
   white-space: nowrap;
 }
 .workspace-files > .section-heading {
@@ -1165,11 +1255,7 @@ button {
   color: var(--muted-strong);
 }
 .markdown-body code {
-  font:
-    12px/1.7 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font: 12px/1.7 var(--font-mono);
   background: var(--canvas);
   padding: 2px 4px;
   border-radius: var(--radius-small);
@@ -1230,7 +1316,7 @@ dialog {
   overflow: auto;
 }
 dialog::backdrop {
-  background: #25252252;
+  background: var(--scrim);
 }
 .runtime-dialog {
   width: 600px;
@@ -1614,16 +1700,16 @@ select {
   }
   .composer-context {
     flex-wrap: wrap;
-    gap: 0;
+    gap: 0 2px;
     flex: 1;
   }
   .composer-model {
-    max-width: 130px;
+    max-width: min(130px, 100%);
   }
   .permission-mode {
-    max-width: 145px;
+    max-width: min(160px, 100%);
     min-height: 44px;
-    padding: 4px;
+    padding: 4px 6px;
   }
   .composer-buttons {
     align-self: flex-start;
@@ -1655,6 +1741,10 @@ select {
   }
   .question-card form {
     flex-direction: column;
+  }
+  .question-actions > button {
+    flex: 1;
+    min-height: 44px;
   }
   .artifact-thread-row > .form-help {
     font-size: 10px;
@@ -1733,6 +1823,7 @@ select {
   margin-left: 4px;
   transform: rotate(0deg);
   font-size: 17px;
+  transition: transform var(--duration) var(--ease-out);
 }
 .activity-group[open] > summary::after {
   transform: rotate(90deg);
@@ -1758,9 +1849,11 @@ select {
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-container);
-  background: var(--panel-muted);
+  background: var(--glass-muted);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
   color: var(--ink);
-  box-shadow: var(--shadow);
+  box-shadow: var(--rim), var(--shadow-float);
 }
 .context-group {
   border-top: 1px solid var(--line);
@@ -1777,7 +1870,10 @@ select {
   padding: 6px 4px;
 }
 .context-row:hover {
-  background: var(--canvas);
+  background: var(--hover);
+}
+.context-row:active {
+  background: var(--pressed);
 }
 .context-row > .ui-icon:last-child:not(:first-child) {
   margin-left: auto;
@@ -1911,6 +2007,18 @@ button[aria-disabled="true"] {
   background: var(--ink);
   border-color: var(--ink);
 }
+#send-button:hover,
+#cancel-run-button:hover,
+#send-button:active,
+#cancel-run-button:active {
+  background: var(--ink-strong);
+  border-color: var(--ink-strong);
+}
+#send-button:disabled {
+  background: var(--gray-8);
+  border-color: var(--gray-8);
+  opacity: 1;
+}
 #send-button .ui-icon {
   width: 18px;
   height: 18px;
@@ -1948,8 +2056,6 @@ button[aria-disabled="true"] {
 }
 .context-group h4 {
   margin-bottom: 8px;
-  color: var(--muted-strong);
-  font-size: 11px;
 }
 .run-history-inner {
   width: min(560px, calc(100vw - 34px));
@@ -1969,7 +2075,10 @@ button[aria-disabled="true"] {
   border-bottom: 1px solid var(--line);
 }
 .run-history-row:hover {
-  background: var(--canvas);
+  background: var(--hover);
+}
+.run-history-row:active {
+  background: var(--pressed);
 }
 .run-history-title {
   font-size: 13px;
@@ -2009,4 +2118,171 @@ button[aria-disabled="true"] {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ===== Polish layer (UP-4) · motion, entrances, feedback ===================
+   Every transition here has a cause: a pointer arriving, a key press, a layer
+   opening, a run that is still working. Only colour, opacity and transform
+   move; layout properties never do. The reduced-motion block above zeroes all
+   of it, and the running pulse is the one loop, paused for reduced motion. */
+button,
+a,
+summary,
+input,
+textarea,
+select,
+.surface-tab,
+.home-row,
+.session-button,
+.project-toggle {
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+summary {
+  transition: color var(--duration-fast) var(--ease-out);
+}
+summary:hover {
+  color: var(--ink);
+}
+/* Rows that open something: the trailing chevron leans toward the destination */
+.home-row .ui-icon:last-child,
+.run-history-row .ui-icon,
+.context-row > .ui-icon:last-child:not(:first-child),
+.artifact-open .ui-icon:last-child,
+.run-status-card .ui-icon:last-child {
+  transition: transform var(--duration) var(--ease-out);
+}
+.home-row:hover .ui-icon:last-child,
+.run-history-row:hover .ui-icon,
+.context-row:hover > .ui-icon:last-child:not(:first-child),
+.artifact-open:hover .ui-icon:last-child,
+.run-status-card button:hover .ui-icon:last-child {
+  transform: translateX(2px);
+}
+/* Working: a run that is still going carries a live dot beside its status */
+.run-badge.running::before,
+.run-badge.waiting_user::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.run-badge.running::before {
+  animation: se-pulse 1.6s var(--ease-out) infinite;
+}
+@keyframes se-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+/* Busy submit keeps its label and size; the cursor and a softer fill say "sent" */
+button[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: progress;
+}
+/* After a copy: the icon turns to the success colour for the 1.6 s the label reads Copied */
+button[aria-label="Copied"] {
+  color: var(--success);
+}
+/* Entrances: layers that appear rise 4px and fade in; leaving is immediate */
+.jump-latest-button:not([hidden]),
+.toast {
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+@starting-style {
+  .jump-latest-button:not([hidden]) {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  .toast {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+dialog[open],
+.context-popover:popover-open,
+.ui-tooltip:popover-open {
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+dialog[open]::backdrop {
+  transition: background-color var(--duration) var(--ease-out);
+}
+@starting-style {
+  dialog[open],
+  .context-popover:popover-open {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .ui-tooltip:popover-open {
+    opacity: 0;
+  }
+  dialog[open]::backdrop {
+    background-color: transparent;
+  }
+}
+@media (max-width: 1023px) {
+  .app-shell.nav-open .sidebar,
+  .surface-panel:not([inert]) {
+    transition:
+      transform var(--duration) var(--ease-out),
+      opacity var(--duration) var(--ease-out);
+  }
+  @starting-style {
+    .app-shell.nav-open .sidebar {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    .surface-panel:not([inert]) {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+  }
+}
+/* Scroll surfaces: content dissolves under the header instead of being cut */
+.message-stream {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px);
+  mask-image: linear-gradient(to bottom, transparent, #000 16px);
+}
+.message-stream,
+.surface-content,
+.project-list,
+.file-text,
+.tool-detail,
+.markdown-body pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-7) transparent;
+}
+/* Hover styles are pointer feedback; touch never inherits a sticky hover */
+@media (hover: none) {
+  .quiet-button:hover,
+  .text-button:hover,
+  .secondary-button:hover,
+  .project-toggle:hover,
+  .session-button:hover:not(.active),
+  .home-row:hover,
+  .context-row:hover,
+  .run-history-row:hover {
+    background: transparent;
+  }
+}
+/* Motion respects the system: transitions are removed above; the only loop pauses */
+@media (prefers-reduced-motion: reduce) {
+  .run-badge.running::before {
+    animation-play-state: paused;
+    opacity: 1;
+  }
 }

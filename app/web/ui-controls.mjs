@@ -219,6 +219,11 @@ export function installTooltips() {
       !target.getClientRects().length
     )
       return;
+    // A control whose label is already fully visible needs no tooltip (IC-3):
+    // navigation rows only explain themselves when their name is truncated.
+    const visibleLabel = target.querySelector(".session-name, .project-name");
+    if (visibleLabel && visibleLabel.scrollWidth <= visibleLabel.clientWidth)
+      return;
     hide();
     anchor = target;
     const own = ++generation;
