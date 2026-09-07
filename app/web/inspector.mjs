@@ -1,4 +1,5 @@
 import { el, icon, action, copyAction, markdown } from "./ui-controls.mjs";
+import { renderRecordedContext } from "./runtime-view.mjs";
 export const runLabels = {
   created: "Starting",
   running: "Running",
@@ -31,7 +32,7 @@ function datum(dl, label, value, { copy = false, key = "" } = {}) {
 }
 export function renderRun(
   container,
-  { sessionId, sessionTitle, run, events, onFile, onRefresh },
+  { sessionId, sessionTitle, run, events, onFile, onRefresh, runtimeContext },
 ) {
   const opened = new Set(
     [...container.querySelectorAll("details[open]")].map(
@@ -219,6 +220,11 @@ export function renderRun(
         list,
       ),
     );
+  }
+  const recorded = renderRecordedContext(runtimeContext);
+  if (recorded) {
+    recorded.open = opened.has("runtime-context");
+    container.append(recorded);
   }
   const details = el(
     "details",
