@@ -2607,6 +2607,7 @@ function renderChatHeader() {
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
+  if (!home) $("home-start-status").hidden = true;
   $("materials-button").hidden = home || !session;
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"), composer = $("composer-area");
@@ -3444,7 +3445,7 @@ function renderHomeComposerContext() {
     ? "Starting your session…"
     : state.homeStart?.error || (state.homeStart?.session
       ? "Your session is ready. Send to continue in it."
-      : !state.projects.length ? "Create a project to send. Your instruction is kept here." : "");
+      : !homeProjectId() ? "Choose or create a project to send." : "");
   status.textContent = message;
   status.hidden = !message;
   status.dataset.error = state.homeStart?.error ? "true" : "false";
@@ -3880,6 +3881,14 @@ function openRunHistory() {
   openDialog("run-history-dialog", "close-run-history");
 }
 function renderHomeState() {
+  const summary = state.home.data;
+  const rows = summary
+    ? ["pendingItems", "sessionCandidates", "inspectionCandidates"].reduce(
+        (total, key) => total + (summary[key]?.items?.length || 0),
+        0,
+      )
+    : 0;
+  $("app-shell").classList.toggle("home-empty", !rows && !state.home.error);
   renderHome($("message-stream"), {
     summary: state.home.data,
     error: state.home.error,
@@ -4354,6 +4363,7 @@ function wireEvents() {
   setAction($("new-session-button"), "square-pen", "New session", {
     visible: true,
   });
+  setAction($("home-create-project"), "plus", "New project", { visible: true });
   setAction($("send-button"), "arrow-up", "Send");
   setAction($("cancel-run-button"), "square", "Cancel run");
   $("search-icon").append(icon("search"));

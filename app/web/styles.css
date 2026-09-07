@@ -911,8 +911,7 @@ button {
   padding: 8px var(--page-gutter) 16px;
 }
 .composer-form,
-.draft-status,
-.composer-hint {
+.draft-status {
   max-width: var(--column);
   margin-left: auto;
   margin-right: auto;
@@ -964,15 +963,6 @@ button {
 }
 .permission-mode {
   color: var(--muted-strong);
-}
-.composer-hint {
-  font-size: var(--text-caption);
-  color: var(--muted-strong);
-  text-align: center;
-  margin-top: 8px;
-}
-.composer-hint span {
-  padding: 0 6px;
 }
 .composer-run-hint {
   display: flex;
@@ -1754,9 +1744,6 @@ select {
   #cancel-run-button {
     width: 44px;
     padding: 0;
-  }
-  .composer-hint {
-    display: none;
   }
   .message-list {
     gap: 12px;
@@ -2586,35 +2573,68 @@ dialog[open]::backdrop {
   min-height: 0;
   min-width: 0;
 }
-.home-active .conversation-body { overflow: auto; }
+.home-active .conversation-body { overflow: auto; min-height: 100%; }
 .home-active .message-stream-wrap { flex: none; }
 .home-active .message-stream { overflow: visible; padding-top: 0; }
 .home-active .home-view { padding-top: 0; }
-.home-active .composer-area { padding-top: clamp(32px, 9vh, 96px); }
+
+/* WK-11 · Home carries no title row of its own: the sidebar already names it,
+   and a second name is a divider without a fact. The nav toggle stays because a
+   collapsed sidebar has no other way back. */
+.home-active .chat-header {
+  min-height: 0;
+  padding: var(--space-2) var(--page-gutter) 0;
+  border-bottom: 0;
+}
+.home-active .chat-title-wrap,
+.home-active #capability-badge { display: none; }
+
+/* WK-11 · Vertical placement of the hero+composer group. Both offsets are
+   viewport-proportional so the group reflows with the window instead of being
+   pinned. Empty Home puts the group at about a third of the viewport; a Home
+   with rows to read keeps it near the top so the rows stay above the fold. */
+.home-active .composer-area { padding: clamp(20px, 9vh, 112px) var(--page-gutter) 0; }
+.home-active.home-empty .composer-area { padding-top: clamp(96px, 31vh, 640px); }
+
 .home-composer-intro {
   max-width: var(--column);
-  margin: 0 auto 24px;
-}
-.home-composer-intro .eyebrow { margin-bottom: 12px; }
-.home-composer-intro h2 { font-size: clamp(25px, 3vw, 32px); line-height: 1.25; }
-.home-active #composer-input { min-height: 100px; }
-.home-composer-context {
-  max-width: var(--column);
-  margin: 12px auto 0;
+  margin: 0 auto var(--section-gap);
   display: flex;
   align-items: center;
-  gap: 8px 16px;
+  gap: var(--space-3);
+}
+.home-composer-intro h2 {
+  font-size: clamp(26px, 2.2vw, 32px);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-heading);
+}
+.home-active #composer-input { min-height: 100px; }
+
+/* WK-12 · Project and file-writes scope join the model chip in the composer's
+   own bottom control row; Send stays at the trailing edge. */
+.home-composer-context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-width: 0;
   flex-wrap: wrap;
 }
 .home-choice { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
-.home-choice select { width: auto; max-width: 220px; min-width: 0; padding: 6px 24px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
-.home-start-status { flex-basis: 100%; margin: 0; font-size: var(--text-meta); color: var(--muted-strong); }
+.home-choice select { width: auto; max-width: 150px; min-width: 0; padding: 6px 22px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
+.home-start-status { margin: var(--space-2) var(--space-1) 0; font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
+
+/* WK-11 · One quiet section label --space-8 below the composer, no rule line:
+   the rows below already carry their own boundaries. */
+.home-active .home-section > .section-heading { border-bottom: 0; padding-bottom: var(--space-2); }
+.home-active .home-section > .section-heading h3 { font-weight: 500; color: var(--muted-strong); }
+
 @media (max-width: 600px) {
-  .home-active .composer-area { padding-top: 32px; }
-  .home-composer-context { gap: 8px; align-items: stretch; }
+  .home-composer-context { gap: var(--space-2); align-items: stretch; width: 100%; }
   .home-choice { width: 100%; justify-content: space-between; }
   .home-choice select { max-width: 75%; flex: 1; }
+  /* Send stays at the trailing bottom corner once the context row stacks. */
+  .home-active .composer-buttons { align-self: flex-end; }
 }
 
 /* Shared content rhythm: text growth and browser zoom must reflow controls. */
@@ -2622,8 +2642,8 @@ dialog[open]::backdrop {
 .settings-row-control { max-width: 100%; }
 .settings-row-control select, .settings-row-control input { min-width: min(200px, 100%); }
 .home-start-status, .settings-row-help, .form-help, .surface-note { overflow-wrap: anywhere; }
-.home-composer-intro { margin-bottom: var(--section-gap); }
 .home-section { margin-top: var(--space-8); }
+.home-section:first-child { margin-top: var(--space-8); }
 @media (max-width: 767px) {
   .runtime-dialog-inner { padding: 20px var(--page-gutter); }
   .dialog-actions > button { min-height: 44px; }
