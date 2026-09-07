@@ -286,12 +286,12 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
 // monopolize a JS thread, so execute it in a terminable worker rather than
 // relying on timers in that same thread. Termination is awaited before this
 // tool settles: "cancelled" must not leave the search running in the background.
-function searchInWorker({ workspaceReal, targets, pattern, signal }) {
+function searchInWorker({ workspaceReal, searchPath, pattern, signal }) {
   if (signal?.aborted) return Promise.reject(wsError("search was cancelled"));
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./grep-worker.mjs", import.meta.url), {
       execArgv: [],
-      workerData: { workspaceReal, targets, pattern, maxReadBytes: MAX_READ_BYTES, maxResults: MAX_GREP_RESULTS },
+      workerData: { workspaceReal, searchPath, pattern, maxReadBytes: MAX_READ_BYTES, maxResults: MAX_GREP_RESULTS },
     });
     let settled = false;
     let timer;
@@ -348,13 +348,7 @@ export function createWsGrepTool({ workspaceDir }) {
       } catch {
         throw wsError("path does not exist");
       }
-      const targets = [];
-      if (baseStat.isDirectory()) {
-        await listTree(workspaceReal, resolved.absolutePath, targets);
-      } else {
-        targets.push({ path: resolved.relativePath, bytes: baseStat.size });
-      }
-      const matches = await searchInWorker({ workspaceReal, targets, pattern: params.pattern, signal });
+      const matches = await searchInWorker({ workspaceReal, searchPath: resolved.absolutePath, pattern: params.pattern, signal });
       return { content: [{ type: "text", text: JSON.stringify(matches, null, 2) }], details: { matches } };
     },
   };

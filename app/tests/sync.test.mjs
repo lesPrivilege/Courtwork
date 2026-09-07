@@ -87,12 +87,31 @@ test("T-SYNC-2: repeating a request for the same seq is idempotent and the seque
 // duplicated event.
 test("T-SYNC-3: snapshot lastSeq joins the event stream with no gap and no overlap, 50x under concurrent writes", async () => {
   const { runtime, api, createSession, pollRun, scriptInput } = await boot();
+  let releaseWrite;
   try {
+    // Hold one real runtime event until the first snapshot is captured. This
+    // guarantees a boundary crossing without depending on scheduler speed.
+    let reachedWrite, committedWrite;
+    const reached = new Promise(resolve => { reachedWrite = resolve; });
+    const committed = new Promise(resolve => { committedWrite = resolve; });
+    const gate = new Promise(resolve => { releaseWrite = resolve; });
+    const append = runtime.store.appendEvent.bind(runtime.store);
+    let firstWrite = true;
+    runtime.store.appendEvent = async input => {
+      if (!firstWrite) return append(input);
+      firstWrite = false;
+      reachedWrite();
+      await gate;
+      const event = await append(input);
+      committedWrite();
+      return event;
+    };
     const session = await createSession();
     const calls = Array.from({ length: 14 }, (_, i) => ({ name: "ws_write", arguments: { path: `out/f${i}.md`, text: `body ${i}` } }));
     const created = await api("POST", `/sessions/${session.id}/runs`, { input: scriptInput(calls), commandId: "cmd-1" });
     const runId = created.json.run.id;
 
+    await reached;
     let sawGrowth = 0;
     for (let i = 0; i < 50; i += 1) {
       const snapshot = await api("GET", `/sessions/${session.id}`);
@@ -100,6 +119,7 @@ test("T-SYNC-3: snapshot lastSeq joins the event stream with no gap and no overl
       assert.equal(snapshotEvents.at(-1)?.seq ?? 0, lastSeq, "lastSeq must be the newest event in this very snapshot");
       assertContiguous(snapshotEvents, 0);
 
+      if (i === 0) { releaseWrite(); await committed; }
       const tail = await api("GET", `/sessions/${session.id}/events?afterSeq=${lastSeq}`);
       assert.equal(tail.status, 200, "a cursor taken from a snapshot is never ahead of the server");
       assertContiguous(tail.json.events, lastSeq);
@@ -122,6 +142,7 @@ test("T-SYNC-3: snapshot lastSeq joins the event stream with no gap and no overl
     assert.equal(finished.status, "completed");
     assert.equal(finished.artifacts.length, 14);
   } finally {
+    releaseWrite?.();
     await runtime.close();
   }
 });

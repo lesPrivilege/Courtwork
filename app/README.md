@@ -1,5 +1,9 @@
 # Fresh Work Agent — runtime and Web application
 
+The Runtime Control Plane backend and new-frontend handoff are documented in
+[the runtime index](../docs/runtime-control/INDEX.md). New control endpoints extend
+the existing API without editing `web/*`.
+
 This tree pairs the unchanged V7 frontend (`web/*`, byte-identical to the G2
 r2 archive) with a rebuilt backend execution core. The execution owner is
 still the single `/api/v5` service (`server/service.mjs`); what changed is
@@ -75,7 +79,9 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 3 store (see below)
+  runtime-state.json        # schemaVersion 4 store (see below)
+  runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
+  runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
   credentials.json          # {provider: apiKey}, 0600, never in the store
   workspaces/<sessionId>/
@@ -86,11 +92,13 @@ task.
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
 ```
 
-## Store schema (v3, no migration)
+## Store schema (v4, validated v3 upgrade)
 
-`schemaVersion` is `3`. A v1/v2 (or any other) `runtime-state.json` is rejected
-with a clear `INVALID_STATE` error on open, unmodified — there is no
-migration path; use a fresh data directory. Sessions no longer keep a private
+`schemaVersion` is `4`. A valid v3 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v4 instead of ignoring the
+control policy layer. v1/v2, malformed and future stores remain rejected with
+`INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
+ Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)
 is the only conversation journal, restored automatically into `AgentSession`
 on the next Run for that app session. New session fields: `workspaceDir`,

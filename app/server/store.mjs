@@ -1,6 +1,6 @@
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { acquireRuntimeLock } from "./runtime-lock.mjs";
 import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
@@ -16,7 +16,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration",
@@ -106,7 +106,7 @@ function validateArtifact(value, label) {
 
 function validateState(parsed) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === SCHEMA_VERSION, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; there is no migration path)`);
+  assert(parsed.schemaVersion === SCHEMA_VERSION, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 can be upgraded)`);
   exactKeys(parsed, STATE_KEYS, "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -276,7 +276,21 @@ export class RuntimeStore {
       if (textValue === null) { this.state = emptyState(); await this._persist(this.state); }
       else {
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        this.state = validateState(parsed);
+        if (parsed?.schemaVersion === 3) {
+          // Validate the entire old shape before touching it. Schema 4 keeps
+          // those fields but requires the runtime control execution boundary;
+          // old hosts reject it rather than silently ignoring new policies.
+          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION });
+          const digest = createHash('sha256').update(textValue).digest('hex');
+          const backup = path.join(this.dataDir, `runtime-state.schema3.${digest}.json`);
+          try { await writeFile(backup, textValue, { flag: 'wx', mode: 0o600 }); }
+          catch (error) {
+            if (error.code !== 'EEXIST' || await readFile(backup, 'utf8') !== textValue) throw error;
+          }
+          await this._persist(upgraded);
+          this.state = upgraded;
+          this.logger('store: upgraded schema 3 to 4; original state preserved in a content-addressed schema3 backup');
+        } else this.state = validateState(parsed);
       }
       this.opened = true; return this;
     } catch (error) { await this.#releaseLock(); throw error; }
@@ -381,7 +395,7 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null }) {
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input);
@@ -399,6 +413,7 @@ export class RuntimeStore {
       state.runs.push(run);
       appendEventToState(state, { runId: run.id, sessionId, type: "user.message", data: { text: input } });
       appendEventToState(state, { runId: run.id, sessionId, type: "run.status", data: { status: "running" } });
+      if (runtimeSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "runtime.bound", data: runtimeSnapshot });
       session.draft = "";
       return { run: publicRun(run), idempotent: false };
     });

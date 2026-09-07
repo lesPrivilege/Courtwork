@@ -111,6 +111,14 @@ function routeService(service, req, url) {
   if (tail.length === 2 && tail[0] === "runs" && method === "GET") return () => service.getRun(tail[1]);
   if (tail.length === 3 && tail[0] === "runs" && tail[2] === "cancel" && method === "POST") return async () => service.cancelRun(tail[1], await body(req));
   if (tail.length === 4 && tail[0] === "runs" && tail[2] === "questions" && method === "POST") return async () => service.answerQuestion(tail[1], tail[3], await body(req));
+  if (tail.length === 1 && tail[0] === "runtime-resources" && method === "GET") return () => service.listRuntimeResources(url.searchParams.get("sessionId"), url.searchParams.get("kind"));
+  if (tail.length === 3 && tail[0] === "runtime-resources" && tail[2] === "invoke" && method === "POST") return async () => service.invokeRuntimePrompt(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 1 && tail[0] === "runtime-context" && method === "GET") return () => service.getRuntimeContext(url.searchParams.get("sessionId"), url.searchParams.get("runId"));
+  if (tail.length === 2 && tail[0] === "runtime-permissions" && tail[1] === "evaluate" && method === "POST") return async () => service.evaluateRuntimePermission(url.searchParams.get("sessionId"), await body(req));
+  if (tail.length === 3 && tail[0] === "mcp" && tail[2] === "lifecycle" && method === "POST") return async () => service.mcpLifecycle(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 1 && tail[0] === "runtime-control" && method === "GET") return () => service.getRuntimeControl(url.searchParams.get("sessionId"));
+  if (tail.length === 1 && tail[0] === "runtime-control" && method === "PUT") return async () => service.changeRuntimeControl(url.searchParams.get("sessionId"), await body(req));
+  if (tail.length === 2 && tail[0] === "runtime-resources" && method === "GET") return () => service.getRuntimeResource(url.searchParams.get("sessionId"), tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo();
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-models") return () => service.getProviderModels();
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-config") return () => service.getProviderConfig();

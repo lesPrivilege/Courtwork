@@ -1,3 +1,4 @@
+import { MCPManager } from "../runtime/mcp-manager.mjs";
 import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
@@ -19,6 +20,8 @@ import {
   API_FORMATS,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
+import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
+import { createRuntimeLoadTool, governTools } from "../runtime/control-tools.mjs";
 import { ArtifactHistory, ArtifactHistoryError } from "../runtime/artifact-history.mjs";
 import { ACTIVE_STATUSES, PERMISSION_MODES } from "./store.mjs";
 import { readCredentialFile, setCredential, deleteCredential } from "./credential-file.mjs";
@@ -119,6 +122,8 @@ export class RuntimeService {
     this.fakeProvider = fakeProvider;
     this.extensionRegistry = extensionRegistry;
     this.dataDir = dataDir;
+    this.control = new RuntimeControlPlane({ dataDir });
+    this.mcp = new MCPManager();
     this.artifactHistory = new ArtifactHistory(dataDir);
     this.modelRuntime = modelRuntime;
     this.adapterId = adapterId;
@@ -144,6 +149,7 @@ export class RuntimeService {
   }
 
   async initialize() {
+    await this.control.initialize();
     const stored = this.store.getProviderConfig();
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
@@ -249,6 +255,88 @@ export class RuntimeService {
     };
   }
 
+  getRuntimeControl(sessionId = null) {
+    const session = sessionId ? this.store.getSession(sessionId) : null;
+    if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
+    return this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length });
+  }
+
+  changeRuntimeControl(sessionId, input) {
+    return this.#withConfiguration(async () => {
+      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      const snapshot = this.getRuntimeControl(sessionId);
+      const target = input?.scope ?? input?.resource?.scope;
+      if (target && !snapshot.scopes.some(s => s.type === target.type && s.id === target.id)) throw new ServiceError(400, "invalid_scope", "Scope does not belong to the selected session");
+      try { await this.control.change(input, snapshot.resources); }
+      catch (error) { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; }
+      if (['put', 'remove'].includes(input.operation)) await this.mcp.disconnect(input.id ?? input.resource.id);
+      return this.getRuntimeControl(sessionId);
+    });
+  }
+
+  mcpLifecycle(sessionId, id, input) {
+    return this.#withConfiguration(async () => {
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      assertKeys(requireObject(input, 'body'), new Set(['action', 'revision']));
+      const snapshot = this.getRuntimeControl(sessionId);
+      if (input.revision !== snapshot.revision) throw new ServiceError(409, 'runtime_conflict', 'Runtime changed; refresh before connecting');
+      if (this.store.hasActiveRun()) throw new ServiceError(409, 'active_run', 'MCP lifecycle is frozen while a run is active');
+      const descriptor = snapshot.resources.find(r => r.id === id && r.kind === 'mcp_server');
+      if (!descriptor) throw new ServiceError(404, 'not_found', 'MCP provider not found');
+      const resource = this.control.config.resources.find(r => r.id === id);
+      try {
+        if (input.action === 'disconnect') await this.mcp.disconnect(id);
+        else if (input.action === 'connect' || input.action === 'restart') await this.mcp.connect(resource);
+        else throw new ServiceError(400, 'invalid_input', 'Unsupported MCP lifecycle action');
+      } catch (error) { if (error instanceof ServiceError) throw error; throw new ServiceError(502, 'mcp_connection_failed', 'MCP connection failed; inspect provider diagnostics'); }
+      return this.getRuntimeControl(sessionId);
+    });
+  }
+
+  listRuntimeResources(sessionId, kind = null) {
+    const snapshot = this.getRuntimeControl(sessionId);
+    if (kind && !snapshot.kinds.some(entry => entry.kind === kind)) throw new ServiceError(400, 'invalid_kind', 'Unknown resource kind');
+    return { protocolVersion: snapshot.protocolVersion, revision: snapshot.revision, resources: snapshot.resources.filter(r => !kind || r.kind === kind) };
+  }
+
+  getRuntimeContext(sessionId, runId = null) {
+    const snapshot = this.getRuntimeControl(sessionId);
+    if (!runId) return { mode: 'effective-next-run', revision: snapshot.revision, composition: snapshot.composition, context: snapshot.context, tokenUsage: null };
+    const run = this.store.getRun(runId);
+    if (!run || run.sessionId !== sessionId) throw new ServiceError(404, 'not_found', 'run not found in this session');
+    const events = this.store.listEvents({ sessionId, runId });
+    const binding = events.find(e => e.type === 'runtime.bound');
+    return { mode: 'recorded-run', runId, binding: binding?.data ?? null, loaded: events.filter(e => e.type === 'runtime.context.loaded').map(e => ({ ...e.data, seq: e.seq })), tokenUsage: run.usage, legacyWithoutControlSnapshot: !binding };
+  }
+
+  evaluateRuntimePermission(sessionId, input) {
+    const value = requireObject(input, 'body');
+    assertKeys(value, new Set(['resourceId', 'resource']));
+    const snapshot = this.getRuntimeControl(sessionId);
+    const descriptor = snapshot.resources.find(r => r.id === value.resourceId && r.kind === 'tool');
+    if (!descriptor) throw new ServiceError(404, 'not_found', 'tool not found');
+    const resource = value.resource === undefined ? '*' : text(value.resource, 'resource', { max: 4000 });
+    if (!descriptor.exposed) return { revision: snapshot.revision, effect: 'deny', trace: [{ source: 'exposure', effect: 'deny' }], advisory: true };
+    const mode = sessionId ? this.store.getSession(sessionId).permissionMode : 'draft';
+    const ceiling = descriptor.id === 'tool:ws_write' ? mode === 'read_only' ? 'deny' : mode === 'ask' ? 'ask' : 'allow' : 'allow';
+    return { revision: snapshot.revision, ...evaluatePolicy(snapshot.policies, descriptor.action, resource, ceiling, descriptor.mcp ? 'ask' : 'allow'), advisory: true };
+  }
+
+  invokeRuntimePrompt(sessionId, id, input) {
+    assertKeys(requireObject(input, 'body'), new Set());
+    const result = this.getRuntimeResource(sessionId, id);
+    if (result.resource.kind !== 'prompt_template' || !result.resource.exposed) throw new ServiceError(409, 'prompt_unavailable', 'Prompt is not exposed in this scope');
+    return { resourceId: id, revision: result.revision, source: result.resource.source, text: result.content, disposition: 'draft-only' };
+  }
+
+  getRuntimeResource(sessionId, id) {
+    const snapshot = this.getRuntimeControl(sessionId);
+    const resource = snapshot.resources.find(r => r.id === id);
+    if (!resource) throw new ServiceError(404, "not_found", "runtime resource not found");
+    return { revision: snapshot.revision, resource, content: this.control.config.resources.find(r => r.id === id)?.content ?? null };
+  }
+
   getRuntimeInfo() {
     const model = this.#resolveModel(this.providerConfig);
     return {
@@ -342,7 +430,9 @@ export class RuntimeService {
     return { saved: true, session: await this.store.setDraft(id, text(value.text, "text", { max: 100000, allowEmpty: true })) };
   }
 
-  async setPermissionMode(id, input) {
+  setPermissionMode(id, input) { return this.#withConfiguration(() => this.#setPermissionMode(id, input)); }
+
+  async #setPermissionMode(id, input) {
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["permissionMode"]));
     const permissionMode = text(value.permissionMode, "permissionMode", { max: 20 });
@@ -521,7 +611,9 @@ export class RuntimeService {
     return { configured: false, provider };
   }
 
-  async createExtensionBinding(sessionId, input) {
+  createExtensionBinding(sessionId, input) { return this.#withConfiguration(() => this.#createExtensionBinding(sessionId, input)); }
+
+  async #createExtensionBinding(sessionId, input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "extension binding is frozen during a run");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["extensionId", "input"]));
@@ -625,6 +717,7 @@ export class RuntimeService {
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
+    await this.mcp.close();
     if (rejected.length) throw new AggregateError(rejected.map((result) => result.reason), "runtime shutdown did not settle every Run");
   }
 
@@ -677,6 +770,9 @@ export class RuntimeService {
     // the same commandId each construct their own SessionManager and race to
     // attach it — this ordering keeps run creation the only race-sensitive
     // step, exactly where store._mutate can serialize it.
+    const runtimeBinding = this.control.bind(this.getRuntimeControl(sessionId));
+    if (runtimeBinding.composition.status !== 'compatible') throw new ServiceError(409, 'profile_incompatible', 'Selected profile has missing or incompatible resources');
+    if (compileControlContext(runtimeBinding).length > 100000) throw new ServiceError(400, 'context_budget', 'Runtime instructions and catalog exceed the host context admission limit');
     let created;
     try {
       created = await this.store.createRun({
@@ -686,6 +782,7 @@ export class RuntimeService {
         provider,
         extension,
         commandId,
+        runtimeSnapshot: { revision: runtimeBinding.revision, hash: runtimeBinding.hash, composition: runtimeBinding.composition, resources: runtimeBinding.resources, content: runtimeBinding.content, policies: runtimeBinding.policies, context: runtimeBinding.context },
         workspaceHostSession: null,
         credentialGeneration: this.credentialGeneration,
       });
@@ -709,6 +806,7 @@ export class RuntimeService {
       sessionManager: null,
       workspaceDir: session.workspaceDir,
       permissionMode: session.permissionMode,
+      runtimeBinding,
     };
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
@@ -791,7 +889,7 @@ export class RuntimeService {
       const askUserTool = createAskUserTool(({ prompt, signal }) => this.#waitForDecision(run.id, entry, { kind: "ask_user", prompt, payload: null, signal }));
       const workspaceTools = createWorkspaceTools({
         workspaceDir: entry.workspaceDir,
-        permissionMode: entry.permissionMode,
+        permissionMode: "draft",
         requestPermission: ({ toolCallId, tool, path: relPath, bytes, contentSha256, preview, signal }) => this.#waitForDecision(run.id, entry, {
           kind: "permission",
           prompt: `permission requested for ${tool} on ${relPath}`,
@@ -809,12 +907,19 @@ export class RuntimeService {
         modelRuntime: this.modelRuntime,
         model,
         sessionManager: entry.sessionManager,
-        customTools: [askUserTool, ...workspaceTools, ...extensionTools],
+        customTools: governTools([askUserTool, ...workspaceTools, ...extensionTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+          entry.externalUnknown = true;
+          await this.#appendNotice(run.id, { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail });
+        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
+          binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
+          isOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested && !entry.externalUnknown,
+          requestPermission: ({ signal, ...payload }) => this.#waitForDecision(run.id, entry, { kind: "permission", prompt: `Permission requested for ${payload.tool}`, payload, signal }),
+        }),
         maxTurns: this.budget.maxTurns,
         compaction: this.compaction,
         input: instruction,
         systemPrompt: this.#runSystemPrompt(entry.permissionMode),
-        currentContext: extensionContext,
+        currentContext: [extensionContext, compileControlContext(entry.runtimeBinding)].filter(Boolean).join("\n\n"),
         onEvent: (event) => this.#onSessionEvent(run.id, event, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
       });
@@ -838,7 +943,7 @@ export class RuntimeService {
         await appendError("budget_exceeded", entry.budget.reason === "deadline" ? "run deadline exceeded" : "run turn budget exceeded");
       }
     } catch (error) {
-      extensionOutcome = entry.closeError || entry.budget.reason ? "unknown" : entry.cancelRequested ? "canceled" : "failed";
+      extensionOutcome = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "canceled" : "failed";
       await appendError(
         entry.closeError ? "extension_close_failed" : entry.budget.reason ? "budget_exceeded" : error?.code === "runtime_projection_failed" ? "runtime_projection_failed" : classifyRuntimeError(error?.message),
         entry.budget.reason === "deadline" ? "run deadline exceeded" : entry.budget.reason === "max_turns" ? "run turn budget exceeded" : redact(safeMessage(error, "runtime failed"), this.knownSecrets),
@@ -854,7 +959,7 @@ export class RuntimeService {
       ).catch(() => {});
       if (entry.extensionRun?.finish) {
         try {
-          const extensionStatus = entry.closeError || entry.budget.reason
+          const extensionStatus = entry.closeError || entry.budget.reason || entry.externalUnknown
             ? "unknown"
             : entry.cancelRequested
               ? "canceled"
@@ -874,8 +979,8 @@ export class RuntimeService {
       }
       const current = this.store.getRun(run.id);
       if (current && !terminal(current.status)) {
-        const finalStatus = entry.closeError || entry.budget.reason ? "unknown" : entry.cancelRequested ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
-        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? lastError : null }, {
+        const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
+        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? lastError ?? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : null) : null }, {
           type: "run.status",
           data: { status: finalStatus },
         });
