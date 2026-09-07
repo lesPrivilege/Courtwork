@@ -15,6 +15,8 @@
 - 纯浏览器：`data-shell` 为空，留位条 display none，无横向溢出。
 - `npm --prefix app test`：134 / 134。
 
+补充提交 `af7cf8b`：侧栏不在屏上时（桌面折叠或窄视口抽屉）主区 header 同样左让 `env(titlebar-area-x, 80px)` 并成为拖拽区；800 px 宽下 `elementFromPoint` 于 (10,10) / (40,26) / (79,51) 均为 header 本体，导航开关左缘 = 80。
+
 ## 未验证
 
 真实 Tauri / Electron 壳下的 env() 取值（fresh 尚无壳，WK-31）；Home 10 项脚本本次未重跑（改动不涉及其断言路径，留 Astra 独验）；390 桌面态捕获。
