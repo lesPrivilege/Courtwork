@@ -1,0 +1,2 @@
+# Preserve exact historical source bytes, including original blank-line whitespace.
+sources/legacy/*.svg -whitespace
