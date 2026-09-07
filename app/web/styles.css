@@ -2710,3 +2710,11 @@ html[data-shell="desktop"] .chat-header [tabindex] {
   app-region: no-drag;
   -webkit-app-region: no-drag;
 }
+/* WK-38 / BR-1 · The brand symbol takes the host's roles: the stem (actor) is
+   ink, the three record lines are the secondary-text grey, the badge ground is
+   the panel. Both schemes and any skin follow automatically. */
+court-symbol {
+  --cw-ink: var(--ink);
+  --cw-record: var(--muted-strong);
+  --cw-background: var(--panel);
+}
