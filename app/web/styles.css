@@ -2689,3 +2689,24 @@ html[data-shell="desktop"] .sidebar-header a {
   app-region: no-drag;
   -webkit-app-region: no-drag;
 }
+/* WK-30 · When the sidebar is not on screen (collapsed on desktop, drawer on
+   narrow widths) the main header is the top-left element; it takes the same
+   reservation so the nav toggle never sits under the traffic lights. */
+html[data-shell="desktop"] .app-shell.nav-collapsed .chat-header {
+  padding-left: env(titlebar-area-x, 80px);
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+@media (max-width: 1023px) {
+  html[data-shell="desktop"] .chat-header {
+    padding-left: env(titlebar-area-x, 80px);
+    app-region: drag;
+    -webkit-app-region: drag;
+  }
+}
+html[data-shell="desktop"] .chat-header button,
+html[data-shell="desktop"] .chat-header a,
+html[data-shell="desktop"] .chat-header [tabindex] {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
