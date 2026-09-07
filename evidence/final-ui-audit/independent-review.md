@@ -24,4 +24,3 @@ app/web/index.html       af72d43283e129499d4b994e4a00d02a58582c416298e4fafb00eb0
 app/web/settings-view.mjs 540ce9f0f4cadcf5815cdf238b3aae8a9da86dbb34c951697d64805bffd9e68f
 app/web/styles.css       5a9b7c0ba2e8635bde51ebf5cd4ec2615d60a8573a8a9b91e904ba7df7a2a26d
 ```
-
