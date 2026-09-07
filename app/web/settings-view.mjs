@@ -15,7 +15,8 @@ const permissionHelp = {
   read_only: "Materials can be read; nothing is written.",
 };
 /** Native radios styled as one segmented control. `onChange(value)` may
- * return a promise; the control is disabled until it settles. */
+ * return a promise; the control is disabled until it settles. `disabled` may
+ * be a getter so a run starting during a request keeps the control locked. */
 export function segmentedPermission({
   value,
   disabled = false,
@@ -27,7 +28,7 @@ export function segmentedPermission({
     className: "segmented",
     attrs: { "aria-label": label },
   });
-  fieldset.disabled = disabled;
+  fieldset.disabled = typeof disabled === "function" ? disabled() : disabled;
   for (const [option, text] of Object.entries(permissionLabels)) {
     const id = `${name}-${option}`;
     const input = el("input", {
@@ -40,7 +41,8 @@ export function segmentedPermission({
       try {
         await onChange(option);
       } finally {
-        if (fieldset.isConnected) fieldset.disabled = disabled;
+        if (fieldset.isConnected)
+          fieldset.disabled = typeof disabled === "function" ? disabled() : disabled;
       }
     });
     fieldset.append(
@@ -380,6 +382,18 @@ export function createSettingsView(
       lock();
     }
   });
+  function syncSessionPermission(control, sessionId) {
+    if (!control) return;
+    const latest = getSession();
+    const sameSession = latest?.session?.id === sessionId;
+    const pending = control.dataset.pending === "true";
+    control.disabled = !sameSession || Boolean(latest.active) || pending;
+    if (sameSession && !pending) {
+      const value = latest.session.permissionMode || "draft";
+      for (const input of control.querySelectorAll("input"))
+        input.checked = input.value === value;
+    }
+  }
   function sessionPanel() {
     const panel = document.getElementById("session-settings");
     const current = getSession();
@@ -389,8 +403,10 @@ export function createSettingsView(
     if (
       panel.dataset.session === session.id &&
       panel.contains(document.activeElement)
-    )
+    ) {
+      syncSessionPermission(panel.querySelector("fieldset"), session.id);
       return;
+    }
     panel.dataset.session = session.id;
     const modeError = el("p", {
       className: "inline-error",
@@ -398,9 +414,14 @@ export function createSettingsView(
     });
     const mode = segmentedPermission({
       value: session.permissionMode || "draft",
-      disabled: current.active,
+      disabled: () => {
+        const latest = getSession();
+        return latest?.session?.id !== session.id || Boolean(latest.active);
+      },
       name: "settings-permission",
       onChange: async (value) => {
+        mode.dataset.pending = "true";
+        modeError.textContent = "";
         try {
           const result = await request(
             `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
@@ -409,10 +430,9 @@ export function createSettingsView(
           onSession(result.session, session.id);
         } catch (err) {
           modeError.textContent = err.message;
-          const previous = mode.querySelector(
-            `input[value="${session.permissionMode || "draft"}"]`,
-          );
-          if (previous) previous.checked = true;
+        } finally {
+          mode.dataset.pending = "false";
+          syncSessionPermission(mode, session.id);
         }
       },
     });

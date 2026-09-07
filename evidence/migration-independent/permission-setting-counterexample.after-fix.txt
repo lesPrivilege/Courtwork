@@ -1,0 +1,10 @@
+✔ permission update while focused leaves a stale panel that resets the next failed change (3.520916ms)
+✔ focused permission control keeps its pending choice and stays locked when a run starts (1.311292ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.7095

@@ -3577,7 +3577,10 @@ function openConnectionCard(anchor) {
       config: state.providerConfig?.config || null,
       session: currentSession(),
       active: Boolean(currentRun()),
-      onClose: () => popover.hidePopover(),
+      onClose: () => {
+        popover.hidePopover();
+        state.connectionCardAnchor?.focus?.();
+      },
       onChangeConnection: () => {
         popover.hidePopover();
         openRuntimeDialog();
