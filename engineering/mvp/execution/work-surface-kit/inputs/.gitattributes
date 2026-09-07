@@ -1,0 +1,2 @@
+# Preserve the supplied research index byte-for-byte, including Markdown hard breaks.
+courtwork_se_gui_review_runtime_index_2026-09-08.md -whitespace

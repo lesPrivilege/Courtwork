@@ -1,0 +1,25 @@
+{
+  "sourceFreshCommit": "c0c4d811044b08d1982ebd6ad23d50658a05e300",
+  "importCandidateCommit": "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8",
+  "importTree": "b744e545801f55759d1a27057274bf26c9f5c108",
+  "remoteCloneCommit": "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8",
+  "remoteCloneTree": "b744e545801f55759d1a27057274bf26c9f5c108",
+  "legacyMain": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+  "install": "npm ci: 277 packages, audit 0 vulnerabilities",
+  "backendTests": {
+    "passed": 134,
+    "failed": 0
+  },
+  "runtimeSmoke": "passed: material read, tool write, artifacts, close/reopen, continuation, revision, historical bytes",
+  "realProvider": "not_run",
+  "ui": {
+    "home": 10,
+    "regression": 20,
+    "browser": "synthetic local provider; 1280/390/320 width; disconnect/restart preserves unsent draft"
+  },
+  "seRootEngineeringRelocation": {
+    "files": 43,
+    "sha256Matched": true
+  },
+  "postImportChanges": "migration receipt and byte-preserved Work Surface Kit preparation documents only; product files unchanged"
+}

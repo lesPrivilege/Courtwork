@@ -1,3 +1,5 @@
+> 迁移已完成：导入基线 `9f13ca3`；fresh archive `c0c4d81`；远端独立clone和134项后端测试/恢复 smoke通过。下文计划段保留过程，最终事实见本文末回执。
+
 # 2026-09-08 · Fresh integration 文档迁移记录
 
 状态：文档载荷已整理到 `codex/fresh-integration`，代码基线 `05c6947` 加本轮 Home/编排增量；候选仍不是 legacy `main` 的替换实现。本文只记录本次有界迁移，不声称 runtime UI、真实 provider 或最终产品验收完成。
@@ -42,3 +44,14 @@
 ## 本轮追加范围
 
 Home 改为 composer 主导；各级文本、卡片、Button、动作组和窄屏留白收敛至 [统一体例](../../design/ui-composition-standard.md)。运行等待不再呈现工作微光；本地重启恢复保留未发送草稿。Court Work 品牌语义注入留给用户在 merge 后交 Claude 的首轮工单。最新来源为 dd65d2b；更早SHA均为历史谱系，不再代表当前UI字节。
+
+## 完成回执
+
+- fresh 来源：`c0c4d811044b08d1982ebd6ad23d50658a05e300`，已推送 `archive/fresh-pre-courtwork`。
+- Courtwork 导入：`9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8`，文件树 `b744e545801f55759d1a27057274bf26c9f5c108` 与来源完全一致；已推送 `codex/fresh-courtwork`。
+- 新远端 clone 独立安装依赖，后端134/134与runtime恢复 smoke通过，见 [回执](../../../evidence/remote-recovery-20260908/README.md)。真实 provider未跑。
+- legacy `main` 保持 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`；本次没有发布/部署/默认分支接管。
+- SE根目录43份工程文件已与原33文件快照+新增10文件准备输入逐文件SHA核验后移至私有归档；SE根仅维护Paper。Continuation历史仍保留，不移动活跃作者旧预览。
+- Claude Work Surface Kit的10份准备文件原文迁入 `engineering/mvp/execution/work-surface-kit`；源指纹见 `work-surface-kit-source.json`。其中旧基线与排期是准备时快照，当前以本回执和用户品牌首单安排为准。本轮不自动派发准备工单。
+- 仍在同一SE任务空间协作，通过根AGENTS指向 sibling Courtwork-fresh，产品命令显式使用fresh cwd；未更改Codex项目设置，不声称自动载入全部聊天记忆。
+- Paper9.6既有未提交候选保持独立，未发布、未混入Courtwork提交。

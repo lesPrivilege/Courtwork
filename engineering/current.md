@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新时间：2026-09-08（Asia/Singapore）。当前载荷已合入 Claude UI `dd65d2b`（包含 `4fab4bd`、`f8e3c19`）、Runtime Control Plane `8722259`、Brand `faef241`，以及 Astra 权限修复 `787bf1c`、Home composer 和 UI 编排收敛。准备迁入 `codex/fresh-courtwork`；实际同步结果以 [迁移回执](migration/2026-09-08/README.md) 为准。Legacy `main` 仍冻结。
+更新时间：2026-09-08（Asia/Singapore）。当前载荷已合入 Claude UI `dd65d2b`（包含 `4fab4bd`、`f8e3c19`）、Runtime Control Plane `8722259`、Brand `faef241`，以及 Astra 权限修复 `787bf1c`、Home composer 和 UI 编排收敛。已迁入并推送 `codex/fresh-courtwork`，导入基线 `9f13ca3`，远端独立克隆134项与恢复 smoke通过；实际同步结果以 [迁移回执](migration/2026-09-08/README.md) 为准。Legacy `main` 仍冻结。
 
 ## 已交付与验证
 
@@ -16,7 +16,8 @@
 
 ## 后续施工
 
-1. 完成本次候选同步与独立远端 clone/恢复；结果登记迁移回执。
+1. 候选同步与远端恢复已完成，见 [远端恢复证据](../evidence/remote-recovery-20260908/README.md)。后续提交从当前候选 HEAD 开始。
+   Claude 新增的 [Work Surface Kit准备输入](mvp/execution/work-surface-kit/README.md) 已原文迁入；旧SHA/路径是准备时快照，未自动启动其中工单。品牌首单顺序以用户最新安排为准。
 2. 用户在 merge 后第一轮向 Claude 提交 Court Work 品牌语义注入；本轮已交付可复用的通用 UI 编排标准与品牌包。
 3. Runtime 基础配置/状态应属于第一层 GUI，按 [Astra范围裁定](migration/2026-09-08/runtime-control-frontend-intake.md) 消费真实后端契约；不虚构 MOE 或未接入能力。
 4. 用户在 Web UI 配置真实 provider 后补真实运行/tool/恢复链；Matter、完整工作纵切与 legacy distill 按既定边界推进。
