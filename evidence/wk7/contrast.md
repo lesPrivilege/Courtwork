@@ -8,6 +8,8 @@
 |---|---|---:|---:|---|
 | ink | panel | 16.12 | 4.5 | 通过 |
 | ink | canvas | 15.58 | 4.5 | 通过 |
+| ink | frame | 14.41 | 4.5 | 通过 |
+| muted-strong | frame | 5.22 | 4.5 | 通过 |
 | muted-strong | panel | 5.84 | 4.5 | 通过 |
 | muted-strong | canvas | 5.65 | 4.5 | 通过 |
 | muted | panel | 3.72 | 3 | 通过 |
@@ -30,6 +32,8 @@
 |---|---|---:|---:|---|
 | ink | panel | 13.70 | 4.5 | 通过 |
 | ink | canvas | 15.15 | 4.5 | 通过 |
+| ink | frame | 16.25 | 4.5 | 通过 |
+| muted-strong | frame | 9.06 | 4.5 | 通过 |
 | muted-strong | panel | 7.64 | 4.5 | 通过 |
 | muted-strong | canvas | 8.45 | 4.5 | 通过 |
 | muted | panel | 3.75 | 3 | 通过 |
@@ -52,6 +56,8 @@
 |---|---|---:|---:|---|
 | ink | panel | 16.29 | 4.5 | 通过 |
 | ink | canvas | 15.48 | 4.5 | 通过 |
+| ink | frame | 14.30 | 4.5 | 通过 |
+| muted-strong | frame | 5.19 | 4.5 | 通过 |
 | muted-strong | panel | 5.92 | 4.5 | 通过 |
 | muted-strong | canvas | 5.62 | 4.5 | 通过 |
 | muted | panel | 3.79 | 3 | 通过 |
@@ -74,6 +80,8 @@
 |---|---|---:|---:|---|
 | ink | panel | 13.71 | 4.5 | 通过 |
 | ink | canvas | 15.15 | 4.5 | 通过 |
+| ink | frame | 16.28 | 4.5 | 通过 |
+| muted-strong | frame | 9.11 | 4.5 | 通过 |
 | muted-strong | panel | 7.67 | 4.5 | 通过 |
 | muted-strong | canvas | 8.48 | 4.5 | 通过 |
 | muted | panel | 3.76 | 3 | 通过 |

@@ -27,7 +27,8 @@
   --danger-11: #9b3c35; /* 自定（PD-KIT） */
   --success-3: #e6f6eb; /* Radix green-3 */
   --success-11: #3e704e; /* 自定（PD-KIT） */
-  --paper: #fdfdfe; /* 冷白：panel 面，高于 canvas(slate-2) 与 panel-muted(slate-1) */
+  --paper: #fdfdfe; /* 冷白：panel 面，高于 canvas(slate-2) */
+  --frame-s: #f0f0f3; /* = slate-3：应用框架（侧栏）退后一步（WK-52） */
   --ink-max: #000;
   --on-accent-s: #fdfdfe;
   --alpha-ink: 28, 32, 36; /* rgba 基底：阴影、遮罩（slate-12） */
@@ -63,6 +64,7 @@
   --success-3: #132d21; /* Radix green-dark-3 */
   --success-11: #3dd68c; /* Radix green-dark-11 */
   --paper: #212225; /* = slate-3：panel 比 canvas(slate-2) 亮一步 */
+  --frame-s: #111113; /* = slate-1：深宗框架最暗（WK-52） */
   --ink-max: #fff;
   --on-accent-s: #111113;
   --alpha-ink: 0, 0, 0;
@@ -95,6 +97,7 @@
     --success-3: #132d21;
     --success-11: #3dd68c;
     --paper: #212225;
+    --frame-s: #111113;
     --ink-max: #fff;
     --on-accent-s: #111113;
     --alpha-ink: 0, 0, 0;
@@ -108,7 +111,8 @@
 :root {
   --canvas: var(--gray-2);
   --panel: var(--paper);
-  --panel-muted: var(--gray-1);
+  --panel-muted: var(--gray-2); /* 内收面与 canvas 同步，深宗低于 panel */
+  --frame: var(--frame-s); /* 应用框架：侧栏；浅宗低于 canvas 一步，深宗最暗（WK-52 例外表） */
   --hover: var(--gray-3);
   --selected: var(--gray-4);
   --pressed: var(--gray-5);
@@ -421,7 +425,7 @@ button {
 .sidebar {
   min-width: 0;
   min-height: 0;
-  background: var(--canvas);
+  background: var(--frame);
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -2690,15 +2694,13 @@ dialog[open]::backdrop {
 .home-active .message-stream { overflow: visible; padding-top: 0; }
 .home-active .home-view { padding-top: 0; }
 
-/* WK-13 / WK-32 · The brand symbol appears in exactly two places: the sidebar
-   wordmark (20, mono) and the session presence mark (16, mono). Home has no
-   hero symbol; its layout reproduces the geometry. */
+/* WK-51 · The brand symbol appears in exactly one place: the sidebar wordmark
+   (20, hierarchical, host colours). Home and the session header carry none. */
 .workspace-brand {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
 }
-.session-presence { flex: none; margin-right: var(--space-1); }
 
 /* WK-11 · Home carries no title row of its own: the sidebar already names it,
    and a second name is a divider without a fact. The nav toggle stays because a
@@ -2983,25 +2985,41 @@ court-symbol {
 }
 .runtime-switch input {
   appearance: none;
+  width: 44px;
+  height: var(--control);
+  flex: none;
+  margin: 0 -7px;
+  border: 0;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+}
+/* track */
+.runtime-switch input::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: calc(50% - 9px);
   width: 30px;
   height: 18px;
-  flex: none;
-  margin: 0;
+  box-sizing: border-box;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-pill);
   background: var(--panel);
-  position: relative;
 }
+/* thumb */
 .runtime-switch input::after {
   content: "";
   position: absolute;
-  inset: 2px auto 2px 2px;
+  left: 9px;
+  top: calc(50% - 6px);
   width: 12px;
+  height: 12px;
   border-radius: var(--radius-pill);
   background: var(--muted-strong);
   transition: transform var(--duration-fast) var(--ease-out);
 }
-.runtime-switch input:checked {
+.runtime-switch input:checked::before {
   background: var(--accent);
   border-color: var(--accent);
 }
@@ -3009,7 +3027,7 @@ court-symbol {
   background: var(--panel);
   transform: translateX(12px);
 }
-.runtime-switch input:disabled {
+.runtime-switch input:disabled::before {
   background: var(--gray-4);
   border-color: var(--line);
 }

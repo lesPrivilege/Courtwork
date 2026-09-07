@@ -16,7 +16,7 @@ function hex(c) { c = c.trim(); if (!/^#/.test(c)) return null; let h = c.slice(
 function lum([r, g, b]) { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); }
 function ratio(a, b) { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return (l1 + 0.05) / (l2 + 0.05); }
 const pairs = [
-  ["ink", "panel", 4.5], ["ink", "canvas", 4.5], ["muted-strong", "panel", 4.5], ["muted-strong", "canvas", 4.5],
+  ["ink", "panel", 4.5], ["ink", "canvas", 4.5], ["ink", "frame", 4.5], ["muted-strong", "frame", 4.5], ["muted-strong", "panel", 4.5], ["muted-strong", "canvas", 4.5],
   ["muted", "panel", 3], ["accent-ink", "panel", 4.5], ["accent-ink", "canvas", 4.5],
   ["on-accent", "accent", 4.5], ["on-accent", "accent-strong", 4.5], ["danger", "panel", 4.5], ["success", "panel", 4.5],
   ["focus", "panel", 3], ["focus", "canvas", 3], ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],

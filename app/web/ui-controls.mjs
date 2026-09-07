@@ -24,6 +24,7 @@ export function el(tag, { className, text, attrs } = {}, ...children) {
 }
 const icons = new Set([
   "panel-left",
+  "plug",
   "panel-right",
   "x",
   "plus",

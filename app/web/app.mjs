@@ -857,10 +857,6 @@ function mergeEvents(events) {
     state.lastSeq,
   );
   if (changed) bumpSessionMutation(state.activeSessionId);
-  // priorSeq 0 is the first snapshot of a session: replaying its whole history
-  // as motion would be a loop, so only later arrivals play.
-  if (priorSeq > 0)
-    brandPendingVerb = brandVerbForEvents(fresh) || brandPendingVerb;
   return changed;
 }
 
@@ -1007,8 +1003,6 @@ function setConnectionLost(isLost) {
   state.connectionEpoch += 1;
   renderConnectionStatus();
   renderComposer();
-  // WK-14: presence is the connection, so it moves on this transition too.
-  paintBrandPresence();
   if (isLost) startRecoveryProbe();
   else stopRecoveryProbe();
 }
@@ -1386,7 +1380,6 @@ async function selectSession(
   state.surface.expanded = false;
   state.recordedContext.clear();
   runtimeView?.pause();
-  brandWroteRuns.clear();
   renderAll();
   if (focus) restoreLayerFocus($("session-title"));
 
@@ -1411,7 +1404,6 @@ async function selectSession(
     )
       return;
     renderAll();
-    playBrandVerb("summon");
     await loadSurface(epoch);
     if (state.runs.some(isActiveRun)) {
       state.pollController = new AbortController();
@@ -1431,8 +1423,6 @@ async function selectSession(
 }
 
 function clearActiveSession() {
-  playBrandVerb("withdraw");
-  brandWroteRuns.clear();
   stopPolling();
   void disposeSurfaceRenderer();
   state.sessionEpoch += 1;
@@ -2058,7 +2048,7 @@ function focusBindingEntry() {
 // WK-40 · the header connection badge is icon-only; the connection name stays
 // visible in the composer's context row and in this control's accessible name.
 function setCapabilityBadge(label) {
-  setAction($("capability-badge"), "activity", `Connection · ${label}`);
+  setAction($("capability-badge"), "plug", `Connection · ${label}`);
 }
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
@@ -2633,89 +2623,8 @@ function renderMessageStream() {
 // writes it: no attribute here, and no verb played below, changes a run, a
 // question, a permission or a navigation, and `symbol-motion-end` is not
 // listened to anywhere in this file.
-const READ_LIKE_TOOLS = /^(ws_read|ws_grep|ws_list)$/;
-const brandWroteRuns = new Set();
-let brandHeroPlayed = false;
-let brandPendingVerb = null;
-
-// run eight-state → activity. `created` and `waiting_user` are deliberately
-// idle: waiting for a human is not the host thinking (ux-conventions §1).
-function brandActivity(run) {
-  if (!run) return "idle";
-  if (run.status === "running" || run.status === "stopping") return "thinking";
-  if (isTerminalRunStatus(run.status)) return "complete";
-  return "idle";
-}
-
-// question four-state → authority, permission-kind only. A free-text question
-// authorises nothing, so it leaves authority at none.
-function brandAuthority() {
-  let authority = "none";
-  for (const event of state.events) {
-    const type = normalizedType(event.type);
-    if (type === "permission/open") authority = "requested";
-    else if (type === "permission/resolved")
-      authority = (event.data || {}).decision === "allow" ? "scoped" : "revoked";
-  }
-  return authority;
-}
-
-function paintBrandPresence() {
-  const symbol = $("session-presence-symbol");
-  if (!symbol || typeof symbol.setAttribute !== "function") return;
-  const session = currentSession();
-  symbol.hidden = !session;
-  if (!session) {
-    brandPendingVerb = null;
-    return;
-  }
-  const fact = (name, value) => {
-    if (symbol.getAttribute(name) !== value) symbol.setAttribute(name, value);
-  };
-  fact("activity", brandActivity(currentRun() || state.runs.at(-1) || null));
-  fact("authority", brandAuthority());
-  fact("presence", state.connectionLost ? "absent" : "present");
-  fact("theme", "light");
-  fact("label", "Session presence mark");
-  // Facts first, motion after: a fact write re-renders the component and would
-  // otherwise cancel the play it belongs to.
-  const verb = brandPendingVerb;
-  brandPendingVerb = null;
-  playBrandVerb(verb);
-}
-
-// Presentation only, 140 ms, never looped, never on hover, never awaited.
-function playBrandVerb(verb, { target = "session-presence-symbol", explanatory = false } = {}) {
-  if (!verb) return;
-  const symbol = $(target);
-  if (!symbol || typeof symbol.play !== "function" || symbol.hidden) return;
-  void Promise.resolve(symbol.play(verb, { explanatory })).catch(() => {});
-}
-
-// WK-32 · Home carries no hero symbol: the layout itself reproduces the brand
-// geometry. The symbol lives only in the sidebar wordmark and the session mark.
-function paintBrandHero() {}
-
-// One operational verb per merged batch, chosen from the newest host facts.
-function brandVerbForEvents(fresh) {
-  let verb = null;
-  for (const event of fresh) {
-    const type = normalizedType(event.type);
-    const data = event.data || {};
-    if (type === "permission/open") verb = "scope";
-    else if (type === "tool/start" && READ_LIKE_TOOLS.test(String(data.name || "")))
-      verb = "retrieve";
-    else if (type === "assistant/delta" || type === "assistant/final") {
-      // "a run starts emitting output" is once per run, not once per delta:
-      // replaying it on every poll would be the loop WK-15 forbids.
-      if (event.runId && !brandWroteRuns.has(event.runId)) {
-        brandWroteRuns.add(event.runId);
-        verb = "write";
-      }
-    }
-  }
-  return verb;
-}
+// WK-51 · the brand symbol is restrained to the sidebar wordmark; the session
+// header carries the run state word instead of an animated mark.
 
 function renderChatHeader() {
   const session = currentSession(),
@@ -2760,8 +2669,6 @@ function renderChatHeader() {
     "aria-current",
     state.view === "home" ? "page" : "false",
   );
-  paintBrandPresence();
-  paintBrandHero();
 }
 
 // The hint above the composer reads the run's recorded startedAt against the
