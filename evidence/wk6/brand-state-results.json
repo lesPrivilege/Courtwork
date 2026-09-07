@@ -1,0 +1,235 @@
+{
+ "sessionId": "ea53425c-66f4-43c4-96c5-d3370604883a",
+ "results": [
+  {
+   "name": "no run · idle, no authority, present",
+   "expected": {
+    "activity": "idle",
+    "authority": "none",
+    "presence": "present",
+    "hidden": false,
+    "material": "mono",
+    "size": "16"
+   },
+   "actual": {
+    "activity": "idle",
+    "authority": "none",
+    "presence": "present",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "idle",
+     "authority": "none",
+     "presence": "present"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "pending permission · authority requested, waiting is not thinking",
+   "expected": {
+    "authority": "requested",
+    "activity": "idle",
+    "presence": "present"
+   },
+   "actual": {
+    "activity": "idle",
+    "authority": "requested",
+    "presence": "present",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "idle",
+     "authority": "requested",
+     "presence": "present"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "run running · activity thinking observed in the fact log",
+   "expected": {
+    "thinking": true
+   },
+   "actual": {
+    "thinking": true
+   },
+   "pass": true
+  },
+  {
+   "name": "session open plays summon; a permission card plays scope",
+   "expected": {
+    "summon": true,
+    "scope": true
+   },
+   "actual": {
+    "summon": true,
+    "scope": true,
+    "all": [
+     "summon",
+     "scope"
+    ]
+   },
+   "pass": true
+  },
+  {
+   "name": "allowed write, run finished · authority scoped, activity complete",
+   "expected": {
+    "authority": "scoped",
+    "activity": "complete",
+    "presence": "present"
+   },
+   "actual": {
+    "activity": "complete",
+    "authority": "scoped",
+    "presence": "present",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "complete",
+     "authority": "scoped",
+     "presence": "present"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "shadow SVG carries the same facts",
+   "expected": {
+    "authority": "scoped",
+    "activity": "complete",
+    "presence": "present"
+   },
+   "actual": {
+    "activity": "complete",
+    "authority": "scoped",
+    "presence": "present"
+   },
+   "pass": true
+  },
+  {
+   "name": "denied write · authority revoked",
+   "expected": {
+    "authority": "revoked"
+   },
+   "actual": {
+    "activity": "complete",
+    "authority": "revoked",
+    "presence": "present",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "complete",
+     "authority": "revoked",
+     "presence": "present"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "a run emitting output plays write once",
+   "expected": {
+    "write": 1
+   },
+   "actual": {
+    "write": 1,
+    "all": [
+     "write"
+    ]
+   },
+   "pass": true
+  },
+  {
+   "name": "a read-like tool.start plays retrieve",
+   "expected": {
+    "retrieve": true
+   },
+   "actual": {
+    "all": [
+     "retrieve"
+    ]
+   },
+   "pass": true
+  },
+  {
+   "name": "session close plays withdraw and hides the mark",
+   "expected": {
+    "withdraw": true,
+    "hidden": true
+   },
+   "actual": {
+    "withdraw": true,
+    "hidden": true,
+    "all": [
+     "withdraw"
+    ]
+   },
+   "pass": true
+  },
+  {
+   "name": "connection lost · presence absent while the run fact is unchanged",
+   "expected": {
+    "presence": "absent",
+    "authority": "requested"
+   },
+   "actual": {
+    "activity": "idle",
+    "authority": "requested",
+    "presence": "absent",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "idle",
+     "authority": "requested",
+     "presence": "absent"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "connection restored · presence present",
+   "expected": {
+    "presence": "present"
+   },
+   "actual": {
+    "activity": "idle",
+    "authority": "requested",
+    "presence": "present",
+    "hidden": false,
+    "label": "Session presence mark",
+    "material": "mono",
+    "size": "16",
+    "svg": {
+     "activity": "idle",
+     "authority": "requested",
+     "presence": "present"
+    }
+   },
+   "pass": true
+  },
+  {
+   "name": "no verb looped: every play is one of the five wired verbs",
+   "expected": {
+    "subsetOfFive": true
+   },
+   "actual": {
+    "plays": [
+     "withdraw",
+     "summon",
+     "scope"
+    ]
+   },
+   "pass": true
+  }
+ ]
+}

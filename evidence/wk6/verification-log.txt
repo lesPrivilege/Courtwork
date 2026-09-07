@@ -1,0 +1,69 @@
+=== node --test evidence/home-composer-independent/home-composer-counterexamples.mjs
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.397667
+
+=== node --test evidence/ui-maturity/{surface,run-receipt,message-edit}-counterexamples.mjs evidence/migration-independent/permission-setting-counterexample.mjs
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.284833
+
+=== npm --prefix app test
+ℹ tests 134
+ℹ suites 0
+ℹ pass 134
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37925.878084
+
+=== allowlist
+/brand/src/court-symbol.mjs            200 text/javascript; charset=utf-8
+/brand/src/symbol.mjs                  200 text/javascript; charset=utf-8
+/brand/src/geometry.generated.mjs      200 text/javascript; charset=utf-8
+/brand/CONTRACT.md                     404 application/json; charset=utf-8
+/brand/index.html                      404 application/json; charset=utf-8
+/brand/catalog.json                    404 application/json; charset=utf-8
+/brand/exports/manifest.json           404 application/json; charset=utf-8
+/brand/src/../CONTRACT.md              404 application/json; charset=utf-8
+PASS 13/13
+
+=== node evidence/wk6/brand-state-checks.mjs (13 assertions)
+PASS · no run · idle, no authority, present → {"activity": "idle", "authority": "none", "presence": "present", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "idle", "authority": "none", "presence": "present"}}
+PASS · pending permission · authority requested, waiting is not thinking → {"activity": "idle", "authority": "requested", "presence": "present", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "idle", "authority": "requested", "presence": "present"}}
+PASS · run running · activity thinking observed in the fact log → {"thinking": true}
+PASS · session open plays summon; a permission card plays scope → {"summon": true, "scope": true, "all": ["summon", "scope"]}
+PASS · allowed write, run finished · authority scoped, activity complete → {"activity": "complete", "authority": "scoped", "presence": "present", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "complete", "authority": "scoped", "presence": "present"}}
+PASS · shadow SVG carries the same facts → {"activity": "complete", "authority": "scoped", "presence": "present"}
+PASS · denied write · authority revoked → {"activity": "complete", "authority": "revoked", "presence": "present", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "complete", "authority": "revoked", "presence": "present"}}
+PASS · a run emitting output plays write once → {"write": 1, "all": ["write"]}
+PASS · a read-like tool.start plays retrieve → {"all": ["retrieve"]}
+PASS · session close plays withdraw and hides the mark → {"withdraw": true, "hidden": true, "all": ["withdraw"]}
+PASS · connection lost · presence absent while the run fact is unchanged → {"activity": "idle", "authority": "requested", "presence": "absent", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "idle", "authority": "requested", "presence": "absent"}}
+PASS · connection restored · presence present → {"activity": "idle", "authority": "requested", "presence": "present", "hidden": false, "label": "Session presence mark", "material": "mono", "size": "16", "svg": {"activity": "idle", "authority": "requested", "presence": "present"}}
+PASS · no verb looped: every play is one of the five wired verbs → {"plays": ["withdraw", "summon", "scope"]}
+
+=== node evidence/wk6/home-interaction-checks.mjs (7 assertions, run against a virgin data dir)
+PASS · no project · the conditional sentence is shown → {"projects": 0, "hidden": false, "text": "Choose or create a project to send."}
+PASS · a project exists · the sentence disappears → {"projects": 1, "hidden": true, "draft": "WK6 draft that must survive project creation"}
+PASS · draft retained across project creation → {"draft": "WK6 draft that must survive project creation"}
+PASS · Shift+Enter inserts a newline and sends nothing → {"value": "WK6 draft that must survive project creation\n", "runs": 0, "view": "home"}
+PASS · Enter sends: one session and one run were admitted → {"view": "session", "session": "ad101266-c2d2-4ebd-8103-09bc0d9e3942", "runs": ["running"]}
+PASS · Send is the last focusable control in the composer → {"order": ["composer-input", "model-settings-button", "home-project-input", "home-permission-input", "home-create-project", "send-button"]}
+PASS · Escape closes the topmost layer only → {"popoverOpen": true, "popoverClosed": true}
+
+=== capture probes (empty state, virgin data dir)
+list-1440 {"viewport": [1440, 900], "groupTop": 121, "groupTopPercent": 13.4, "columnWidth": 740, "sectionTopMinusComposerBottom": 32, "homeRows": 10, "horizontalOverflow": 0, "headerRowVisible": false, "killedText": {"eyebrow": false, "enterHint": false, "oldProjectSentence": false}, "reducedMotion": false}
+list-390 {"viewport": [390, 844], "groupTop": 128, "groupTopPercent": 15.2, "columnWidth": 358, "sectionTopMinusComposerBottom": 32, "homeRows": 10, "horizontalOverflow": 0, "headerRowVisible": false, "killedText": {"eyebrow": false, "enterHint": false, "oldProjectSentence": false}, "reducedMotion": false}
+list-1440-reduced-motion {"viewport": [1440, 900], "groupTop": 121, "groupTopPercent": 13.4, "columnWidth": 740, "sectionTopMinusComposerBottom": 32, "homeRows": 10, "horizontalOverflow": 0, "headerRowVisible": false, "killedText": {"eyebrow": false, "enterHint": false, "oldProjectSentence": false}, "reducedMotion": true}
