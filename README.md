@@ -1,57 +1,46 @@
-# Fresh Courtwork integration workspace
+# CourtWork · Fresh
 
-Runtime Control Plane backend increment: see [the current index](docs/runtime-control/INDEX.md)
-for protocol v1, resource adapters, schema 4 upgrade and acceptance. The baseline
-notes below describe the import; this backend branch supersedes its backend-freeze
-status. Frontend integration remains a separate change.
+A place for expert work to take form.
 
-This is the local **G1/C3 integration workspace**, restored from the independently
-reviewed C4-r1 source archive. It is not a release or the canonical replacement
-for legacy Courtwork. The executable application is in `app/`.
+本分支是 CourtWork 的 fresh 开发候选：通用 Agent Web UI、Pi AgentSession 运行底座、Runtime Control Plane 后端，以及独立品牌 SVG/动效包。开发在这里继续，Schema Engineering 专注论文。Legacy `main` 仍冻结，候选同步不代表产品接管或正式发布。
 
-## Baseline
+## 入口
 
-- Archive: `framework-v9-c4-r1-source.tar.gz`
-- SHA-256: `2e1d7718093319317d6370ec5abc140cc33cdcadd954a8bb785eafe942a29b90`
-- Frozen application/source members: 52, unchanged at import.
-- Backend: Pi AgentSession 0.85.1, with the existing service owning execution.
-- Frontend: G2 r2 (`app.mjs` SHA-256 `37fa90e47b5c826c85c11db17ebf73abea45decce9cc3c9d7b8d381f86b40bfb`).
+- [工程状态](engineering/current.md)：已交付能力、证据边界、下一单。
+- [工程索引](engineering/README.md)：架构、设计、RD 与工单。
+- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源与权限、MCP、上下文绑定、schema 4；新控制面 UI 待施工。
+- [UI 文本与编排体例](engineering/design/ui-composition-standard.md)：字阶、按钮、卡片、对齐、留白与窄屏重排。
+- [UI 组件契约](docs/interface-components.md)：布局、消息、工作面、焦点与状态 owner。
+- [品牌符号与动效](brand/README.md)：8 个语义样板、5 种材质与独立预览。
+- [Paper](PAPER.md)：SE 的固定语义基线、最新论文入口与反馈路径。
+- [迁移记录](engineering/migration/2026-09-08/README.md)：来源、Git 谱系、工作目录与回退边界。
 
-Core deterministic review passed 80 tests and targeted recovery, receipt and
-cancellation checks. The G1/C3 frontend functionality has **not** been implemented
-in this import. Real DeepSeek use through the UI has **not** been tested.
+## 本地运行
 
-## Start and stop
-
-Use Node.js >=22.19.0 and Python 3. From `app/`:
+需要 Node.js >=22.19.0、Python 3、Git >=2.36。
 
 ```sh
-npm ci --ignore-scripts
-SE_RUNTIME_DATA_DIR=/absolute/path/outside-this-repository PORT=8805 npm start
+npm --prefix app ci
+npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
 ```
 
-Use a different persistent data directory for each running instance. Stop with
-Ctrl-C. See `app/README.md` for the data layout and execution limitations and
-`app/docs/api-v6.md` for the frontend contract. The default provider is a local,
-deterministic fake. The user will configure a real key through the C3 UI once
-that UI is implemented; keys must not enter chat, Git, screenshots or fixtures.
+默认使用本地 deterministic provider。真实 provider 由用户在 UI 配置，密钥不进入聊天、版本库或截图。每个服务使用独立数据目录；旧 schema 3 数据由新 host 打开时会升级到 schema 4，先备份，不与仍运行旧 host 的实例共用目录。停止用 Ctrl-C。详见 [运行与数据说明](app/README.md)。
 
-## Regression
-
-From this repository root, after installing the app dependencies:
+## 验证
 
 ```sh
-node --test app/tests/*.test.mjs tests/*.test.mjs
+npm --prefix app test
+node evidence/ui-maturity/surface-counterexamples.mjs
+node evidence/ui-maturity/run-receipt-counterexamples.mjs
+node evidence/ui-maturity/message-edit-counterexamples.mjs
+node brand/evidence/independent/court-symbol.acceptance.test.mjs
+node brand/scripts/build.mjs
 ```
 
-## Ownership and next change
+品牌预览单独启动：
 
-The frontend owner implements G1 navigation/independent preview tab and the C3
-provider, materials, permission, artifacts and recovery surfaces. Backend runtime,
-service and store remain frozen unless an evidenced interface gap requires a
-separate architecture change. This local Git baseline lets the owner review the
-actual increment without overwriting other execution trees.
+```sh
+python3 -m http.server 8842 --bind 127.0.0.1 --directory brand
+```
 
-Repository promotion, a confirmed remote and a release package follow the
-self-sufficient integrated candidate. Legacy Courtwork remains frozen. Neither a
-local commit nor a passing fake run means takeover-ready or takeover-executed.
+Local/fake-provider 通过不等于真实模型验收；完整 Matter、专家编排、专业正确性和 main takeover 均不由此获得通过。

@@ -1,28 +1,10 @@
-import { el, icon, action } from "./ui-controls.mjs";
+import { el, icon } from "./ui-controls.mjs";
 import { runLabels } from "./inspector.mjs";
 export function renderHome(
   container,
-  { summary, error, loading, projects, onStart, onSession, onRetry, onMore },
+  { summary, error, loading, projects, onSession, onRetry, onMore },
 ) {
   const home = el("div", { className: "home-view" });
-  home.append(
-    el(
-      "div",
-      { className: "home-intro" },
-      el("p", { className: "eyebrow", text: "Your workspace" }),
-      el("h2", { text: "What would you like to work on?" }),
-      el("p", {
-        className: "home-description",
-        text: "Continue a session, or start with an instruction and the materials it needs.",
-      }),
-      action(
-        "square-pen",
-        projects.length ? "New session" : "Create a project",
-        onStart,
-        { visible: true, className: "primary-button" },
-      ),
-    ),
-  );
   if (error) {
     const retry = el("button", {
       className: "secondary-button",
@@ -107,7 +89,7 @@ export function renderHome(
             text:
               key === "pendingItems"
                 ? item.kind === "permission"
-                  ? "Write permission"
+                  ? "Write permission requested"
                   : "Answer requested"
                 : runLabels[item.status || item.latestRun?.status] || "",
           }),

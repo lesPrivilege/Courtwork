@@ -10,6 +10,7 @@ import {
 import {
   createSettingsView,
   permissionLabels,
+  providerLabels,
   renderConnectionCard,
 } from "./settings-view.mjs";
 import {
@@ -36,6 +37,7 @@ import { renderUserMessage } from "./user-message.mjs";
 
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
+const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 
 const state = {
@@ -45,6 +47,11 @@ const state = {
   navigationOpen: false,
   sidebarCollapsed: false,
   home: { data: null, error: null, loading: false, generation: 0, offsets: {} },
+  homeDraft: "",
+  homeProjectId: null,
+  homePermissionMode: "ask",
+  homeStart: null,
+  homeProjectRequest: false,
   sessionListErrors: new Map(),
   unconfirmedRuns: new Map(),
   createAttempts: new Map(),
@@ -207,6 +214,37 @@ function writeUiState() {
   } catch {
     // Storage is a convenience for UI markers. A blocked or malformed store must not block startup.
   }
+}
+
+function storeHomeDraft() {
+  try {
+    const start = state.homeStart;
+    window.sessionStorage?.setItem(HOME_DRAFT_KEY, JSON.stringify({
+      draft: state.homeDraft,
+      projectId: state.homeProjectId,
+      permissionMode: state.homePermissionMode,
+      start: start ? {
+        projectId: start.projectId, commandId: start.commandId,
+        session: start.session || null,
+        unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
+        error: start.error || "",
+      } : null,
+    }));
+  } catch { /* A blocked browser store must not block composing. */ }
+}
+function restoreHomeDraft() {
+  try {
+    const saved = JSON.parse(window.sessionStorage?.getItem(HOME_DRAFT_KEY) || "null");
+    if (typeof saved?.draft !== "string") return;
+    state.homeDraft = saved.draft.slice(0, 100000);
+    state.homeProjectId = typeof saved.projectId === "string" ? saved.projectId : null;
+    if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
+    if (saved.start && typeof saved.start.projectId === "string" && typeof saved.start.commandId === "string") {
+      state.homeStart = { ...saved.start, pending: false };
+      if (saved.start.unconfirmed)
+        state.homeStart.error = "Session creation is unconfirmed. Refresh and check recent sessions before trying again. Your instruction is kept.";
+    }
+  } catch { /* Ignore malformed tab-local state. */ }
 }
 
 function sessionScopeKey(...parts) {
@@ -1284,14 +1322,14 @@ function applySessionDetail(
 
 async function selectSession(
   sessionId,
-  { navigationEpoch: suppliedNavigationEpoch = null } = {},
+  { navigationEpoch: suppliedNavigationEpoch = null, focus = true } = {},
 ) {
   if (!sessionId) return;
   if (sessionId === state.activeSessionId) {
     state.view = "session";
     closeNavigation({ restoreFocus: false });
     renderAll();
-    restoreLayerFocus($("composer-input"));
+    if (focus) restoreLayerFocus($("composer-input"));
     return;
   }
   const navigationEpoch = suppliedNavigationEpoch ?? state.navigationEpoch + 1;
@@ -1323,7 +1361,7 @@ async function selectSession(
   state.bindingExtensionId = null;
   state.surface.expanded = false;
   renderAll();
-  restoreLayerFocus($("session-title"));
+  if (focus) restoreLayerFocus($("session-title"));
 
   let readToken;
   try {
@@ -1990,12 +2028,7 @@ function renderProviderPanel() {
   if (config) {
     $("model-settings-button").textContent =
       config.provider === "fake-openai-loopback" ? "Local test" : config.model;
-    $("capability-badge").textContent =
-      config.provider === "fake-openai-loopback"
-        ? "Local test"
-        : config.provider === "openai"
-          ? "OpenAI"
-          : "DeepSeek";
+    $("capability-badge").textContent = providerLabels[config.provider] || config.provider;
   }
 }
 
@@ -2209,7 +2242,7 @@ function renderMessageStream() {
         : row.phase === "result"
           ? ""
           : toolStillActive
-            ? " · working"
+            ? status === "waiting_user" ? " · waiting for you" : status === "stopping" ? " · stopping" : " · working"
             : " · interrupted";
       details.append(element("summary", { text: `${row.name}${suffix}` }));
       const detail = element("div", { className: "tool-detail-block" });
@@ -2250,10 +2283,10 @@ function renderMessageStream() {
         row.phase !== "result" && toolStillActive ? 1 : 0;
       activityGroup.interrupted +=
         row.phase !== "result" && !toolStillActive ? 1 : 0;
-      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? " · working" : activityGroup.interrupted ? " · interrupted" : " · completed"}`;
+      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? status === "waiting_user" ? " · waiting for you" : status === "stopping" ? " · stopping" : " · working" : activityGroup.interrupted ? " · interrupted" : " · completed"}`;
       activityGroup.node.classList.toggle(
         "is-working",
-        !activityGroup.errors && activityGroup.working > 0,
+        !activityGroup.errors && activityGroup.working > 0 && status === "running",
       );
       activityGroup.node.append(details);
     } else if (row.kind === "question") {
@@ -2304,7 +2337,7 @@ function renderMessageStream() {
         }`,
       });
       card.append(
-        element("strong", { text: "Input requested" }),
+        element("strong", { text: "Answer requested" }),
         element("p", { className: "question-prompt", text: row.prompt }),
       );
       const questionKey = questionScopeKey(row.runId, row.id);
@@ -2569,7 +2602,16 @@ function renderChatHeader() {
     appendRunBadge($("session-meta"), currentRun().status);
   $("show-surface-button").hidden = !session;
   $("show-run-button").hidden = !session;
-  $("composer-area").hidden = state.view !== "session" || !session;
+  const home = state.view === "home";
+  $("composer-area").hidden = !home && !session;
+  $("app-shell").classList.toggle("home-active", home);
+  $("home-composer-intro").hidden = !home;
+  $("home-composer-context").hidden = !home;
+  $("materials-button").hidden = home || !session;
+  $("permission-settings-button").hidden = home || !session;
+  const body = $("conversation-body"), composer = $("composer-area");
+  if (home && body.firstElementChild !== composer) body.prepend(composer);
+  else if (!home && body.lastElementChild !== composer) body.append(composer);
   const config = state.providerConfig?.config;
   const model =
     config?.provider === "fake-openai-loopback"
@@ -2577,9 +2619,7 @@ function renderChatHeader() {
       : config?.model || "Model settings";
   $("model-settings-button").textContent = model;
   $("capability-badge").textContent =
-    config?.provider === "fake-openai-loopback"
-      ? "Local test"
-      : config?.provider || "Runtime";
+    providerLabels[config?.provider] || config?.provider || "Connection";
   $("permission-settings-button").textContent =
     permissionLabels[session?.permissionMode] || "File permissions";
   $("home-button").setAttribute(
@@ -2606,7 +2646,7 @@ function paintWorkingClock() {
   const started = Date.parse(run.startedAt || "");
   const verb =
     run.status === "waiting_user"
-      ? "Waiting for your answer"
+      ? "Waiting for you"
       : run.status === "stopping"
         ? "Stopping"
         : "Working";
@@ -2640,6 +2680,20 @@ function renderComposer() {
   const active = currentRun();
   const pendingRun = session && state.pendingRuns.get(session.id);
   const pendingCancel = active && state.pendingCancels.get(active.id);
+  if (state.view === "home" && !session) {
+    textarea.disabled = false;
+    textarea.readOnly = Boolean(state.homeStart?.pending);
+    if (textarea.value !== state.homeDraft) textarea.value = state.homeDraft;
+    textarea.placeholder = "Describe the work you want to do…";
+    send.hidden = false;
+    send.disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) || !state.homeDraft.trim() || !homeProjectId();
+    cancel.hidden = true;
+    cancel.disabled = true;
+    if (runHint) runHint.hidden = true;
+    stopWorkingClock();
+    renderHomeComposerContext();
+    return;
+  }
   // WS-08: no session keeps the textarea disabled; a send pending for this
   // session makes it readonly instead, so focus and content survive the
   // in-flight command. An active run (no pending) leaves it fully editable
@@ -3364,8 +3418,123 @@ function isUncertainCommandError(error) {
   return !Number.isFinite(error?.status) || error.status >= 500;
 }
 
+function homeProjectId() {
+  const start = state.homeStart;
+  const fixedProject = start?.pending || start?.unconfirmed || start?.session;
+  const preferred = (fixedProject ? start.projectId : state.homeProjectId) || state.activeProjectId;
+  return state.projects.find((project) => project.id === preferred)?.id || state.projects[0]?.id || null;
+}
+function renderHomeComposerContext() {
+  const project = $("home-project-input");
+  const signature = JSON.stringify(state.projects.map(({ id, name }) => [id, name]));
+  if (project.dataset.options !== signature) {
+    project.replaceChildren(...(state.projects.length
+      ? state.projects.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
+      : [element("option", { text: "Create a project to begin", attrs: { value: "" } })]));
+    project.dataset.options = signature;
+  }
+  project.value = homeProjectId() || "";
+  const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session);
+  project.disabled = locked || !state.projects.length;
+  $("home-permission-input").value = state.homePermissionMode;
+  $("home-permission-input").disabled = locked;
+  $("home-create-project").disabled = locked;
+  const status = $("home-start-status");
+  const message = state.homeStart?.pending
+    ? "Starting your session…"
+    : state.homeStart?.error || (state.homeStart?.session
+      ? "Your session is ready. Send to continue in it."
+      : !state.projects.length ? "Create a project to send. Your instruction is kept here." : "");
+  status.textContent = message;
+  status.hidden = !message;
+  status.dataset.error = state.homeStart?.error ? "true" : "false";
+}
+async function submitHomeRun() {
+  if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) return;
+  const input = $("composer-input").value;
+  if (!input.trim()) return;
+  state.homeDraft = input;
+  const projectId = homeProjectId();
+  if (!projectId) {
+    storeHomeDraft();
+    state.homeProjectRequest = true;
+    state.startAfterProject = false;
+    openDialog("project-dialog", "project-name-input");
+    return;
+  }
+  const ticket = guardRegisterIntent();
+  const operation = state.homeStart?.session ? state.homeStart : {
+    projectId, commandId: crypto.randomUUID(), session: null,
+  };
+  operation.pending = true;
+  operation.error = "";
+  state.homeStart = operation;
+  // Persist a conservative creation marker before POST; refresh cannot silently
+  // issue a second non-idempotent create when the first receipt was lost.
+  storeHomeDraft();
+  renderComposer();
+  try {
+    if (!operation.session) {
+      const result = await request("/sessions", { method: "POST", body: {
+        projectId: operation.projectId,
+        title: input.trim().split(/\r?\n/)[0].slice(0, 100),
+        permissionMode: state.homePermissionMode,
+      } });
+      if (!result.session?.id || result.session.projectId !== operation.projectId)
+        throw new Error("Session creation returned no matching receipt.");
+      operation.session = result.session;
+      storeHomeDraft();
+    }
+    const session = operation.session;
+    const items = state.sessionsByProject.get(operation.projectId) || [];
+    state.sessionsByProject.set(operation.projectId, [...items.filter((item) => item.id !== session.id), session]);
+    const revision = draftRevision(session.id) + 1;
+    state.draftCache.set(session.id, input);
+    state.draftRevisions.set(session.id, revision);
+    state.draftDirty.add(session.id);
+    await persistDraftForSession(session.id, { revision, text: input });
+    if (!guardAdmitNavigation(ticket) || state.view !== "home") {
+      operation.error = "Session created; your instruction is saved there and has not been sent. Return Home to continue.";
+      renderProjectList();
+      return;
+    }
+    state.activeProjectId = operation.projectId;
+    state.openProjectIds.add(operation.projectId);
+    await selectSession(session.id, { focus: false });
+    if (state.navigationEpoch !== ticket.navEpoch + 1 || currentSession()?.id !== session.id) {
+      operation.error = "Session created; your instruction has not been sent. Return Home to continue.";
+      return;
+    }
+    state.homeDraft = "";
+    state.homeStart = null;
+    storeHomeDraft();
+    guardHandoffFocus(ticket, {
+      isTargetActive: () => currentSession()?.id === session.id,
+      targetControl: $("composer-input"), intentContainer: $("composer-form"),
+      perform: () => $("composer-input").focus(),
+    });
+    // Only the existing Run pipeline admits execution, preserving its receipt,
+    // draft revision, cancellation and recovery owners.
+    await submitSessionRun({ commandId: operation.commandId });
+    void loadHome();
+  } catch (error) {
+    operation.unconfirmed = !operation.session && isUncertainCommandError(error);
+    operation.error = operation.unconfirmed
+      ? "Session creation is unconfirmed. Refresh and check recent sessions before trying again. Your instruction is kept."
+      : `Could not start: ${error.message}. Your instruction is kept.`;
+  } finally {
+    operation.pending = false;
+    storeHomeDraft();
+    renderComposer();
+  }
+}
+
 async function submitRun(event) {
   event.preventDefault();
+  if (state.view === "home" && !currentSession()) return submitHomeRun();
+  return submitSessionRun();
+}
+async function submitSessionRun({ commandId = null } = {}) {
   const session = currentSession();
   if (
     !session ||
@@ -3421,7 +3590,7 @@ async function submitRun(event) {
   }
   const operation = {
     operationId: nextOperationId("run"),
-    commandId: crypto.randomUUID(),
+    commandId: commandId || crypto.randomUUID(),
     sessionId,
     input,
     revision,
@@ -3716,7 +3885,6 @@ function renderHomeState() {
     error: state.home.error,
     loading: state.home.loading,
     projects: state.projects,
-    onStart: startNewSession,
     onRetry: () => loadHome(),
     onMore: (key, offset) => loadHome(key, offset),
     onSession: async (item, { inspect }) => {
@@ -3770,10 +3938,11 @@ async function goHome() {
   if (own !== state.navigationEpoch) return;
   clearActiveSession();
   closeNavigation({ restoreFocus: false });
-  restoreLayerFocus($("session-title"));
+  restoreLayerFocus($("composer-input"));
   void loadHome();
 }
 function startNewSession({ projectId = null } = {}) {
+  state.homeProjectRequest = false;
   if (!state.projects.length) {
     state.startAfterProject = true;
     openDialog("project-dialog", "project-name-input");
@@ -4085,7 +4254,8 @@ async function createEntity(event, kind) {
   if (!value) return;
   const projectId = state.newSessionProjectId,
     nav = state.navigationEpoch,
-    startNext = state.startAfterProject;
+    startNext = state.startAfterProject,
+    homeRequest = state.homeProjectRequest;
   if (kind === "session" && !projectId) return;
   const attempt = nextOperationId(kind);
   state.createAttempts.set(kind, attempt);
@@ -4127,7 +4297,12 @@ async function createEntity(event, kind) {
       input.value = "";
       if (kind === "project") {
         await selectProject(entity.id);
-        if (startNext) startNewSession();
+        if (homeRequest) {
+          state.homeProjectRequest = false;
+          state.homeProjectId = entity.id;
+          storeHomeDraft();
+          await goHome();
+        } else if (startNext) startNewSession();
       } else await selectProject(projectId, { sessionId: entity.id });
     } else renderProjectList();
     void loadHome();
@@ -4155,8 +4330,9 @@ async function createSession(event) {
 }
 
 function wireEvents() {
+
   const actions = {
-    "new-project-button": ["plus", "Create project"],
+    "new-project-button": ["plus", "New project"],
     "close-nav-button": ["x", "Close navigation"],
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
     "refresh-button": ["refresh-cw", "Refresh workspace"],
@@ -4258,9 +4434,12 @@ function wireEvents() {
   // WS-12: the recovery probe (see scheduleRecoveryProbe above) must stop
   // when the page goes away, not just on recovery.
   window.addEventListener("beforeunload", stopRecoveryProbe);
-  $("new-project-button").addEventListener("click", () =>
-    openDialog("project-dialog", "project-name-input"),
-  );
+  $("new-project-button").addEventListener("click", () => {
+    state.homeProjectRequest = false;
+    state.startAfterProject = false;
+    openDialog("project-dialog", "project-name-input");
+  });
+  $("project-dialog").addEventListener("close", () => { state.homeProjectRequest = false; });
   $("new-session-button").addEventListener("click", startNewSession);
   $("refresh-button").addEventListener("click", async () => {
     try {
@@ -4275,7 +4454,12 @@ function wireEvents() {
             .querySelectorAll("button,input,select")
             .forEach((node) => (node.disabled = false));
         }
-      showToast("Workspace refreshed.");
+      if (state.homeStart?.unconfirmed) {
+        state.homeStart = null;
+        storeHomeDraft();
+        showToast("Workspace refreshed. Check recent sessions before sending the kept instruction again.");
+      } else showToast("Workspace refreshed.");
+      renderComposer();
     } catch (error) {
       showToast(`Refresh failed: ${error.message}`, "error");
     }
@@ -4392,6 +4576,12 @@ function wireEvents() {
   });
   $("composer-input").addEventListener("input", () => {
     const session = currentSession();
+    if (!session && state.view === "home") {
+      state.homeDraft = $("composer-input").value;
+      storeHomeDraft();
+      renderComposer();
+      return;
+    }
     if (!session) return;
     state.draftCache.set(session.id, $("composer-input").value);
     state.draftRevisions.set(session.id, draftRevision(session.id) + 1);
@@ -4409,11 +4599,27 @@ function wireEvents() {
     event.preventDefault();
     $("composer-form").requestSubmit();
   });
+  $("home-project-input").addEventListener("change", (event) => {
+    if (state.homeStart?.pending || state.homeStart?.session) return;
+    state.homeProjectId = event.target.value;
+    storeHomeDraft();
+    renderComposer();
+  });
+  $("home-permission-input").addEventListener("change", (event) => {
+    state.homePermissionMode = event.target.value;
+    storeHomeDraft();
+  });
+  $("home-create-project").addEventListener("click", () => {
+    state.homeProjectRequest = true;
+    state.startAfterProject = false;
+    openDialog("project-dialog", "project-name-input");
+  });
   $("project-form").addEventListener("submit", createProject);
   $("session-form").addEventListener("submit", createSession);
 }
 
 async function init() {
+  restoreHomeDraft();
   const savedUi = readUiState();
   state.activeProjectId =
     typeof savedUi.activeProjectId === "string"
@@ -4468,6 +4674,11 @@ async function init() {
     onOpenFile: openFile,
     notify: showToast,
   });
+  for (const id of ["home-permission-input", "session-permission-input"]) {
+    const select = $(id);
+    if (select) select.replaceChildren(...Object.entries(permissionLabels).map(([value, text]) =>
+      element("option", { text, attrs: { value } })));
+  }
   wireEvents();
   renderAll();
   try {
@@ -4476,7 +4687,7 @@ async function init() {
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
     $("capability-badge").textContent =
-      state.capabilities?.realProvider === false ? "Local fake" : "Runtime";
+      state.capabilities?.realProvider === false ? providerLabels["fake-openai-loopback"] : "Connection";
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
     await Promise.all(
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),

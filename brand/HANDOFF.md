@@ -2,6 +2,12 @@
 
 用户 2026-09-08 授权本品牌单施工，并指定：**等 Claude 当前 UI 回报与本单完成后，由 Astra 承担搬迁。** 本包只在 `codex/brand-symbols` 独立 worktree 新增 `brand/`，未合入活动 UI。
 
+## 2026-09-08 搬迁消费记录
+
+本包在独立集成树与 Claude UI、Runtime `8722259` 合流。先消费 `f8e3c19`，随后作者补交 `4fab4bd`（分段滑块、运行计时提示和 ledger 微光），交付文档更新且原树干净后再次合流；没有搬走作者的未提交文件。合流后的权限设置失败回滚问题由 Astra 在 `787bf1c` 修复并交独验，结果见 [集成验收](../evidence/migration-independent/README.md)。
+
+以下为原交接门，实际搬迁入口以 [工程当前状态](../engineering/current.md) 为准。
+
 ## 合流门
 
 1. Claude 提供最终 UI commit 与交付；确认无仍在写入的未提交增量。不能用早期 `891aa13` 替代后续活动成果。
@@ -18,3 +24,5 @@
 同一项目不等于完整聊天自动合并进新上下文，官方说明每个任务仍有各自 transcript。保留空间帮助继续查找历史；可依赖的工程续行由 fresh 的 `AGENTS.md → engineering/current.md → 本项工单/证据 → PAPER.md` 保证。旧Courtwork按frozen SHA显式召回，不能让旧CLAUDE.md、roadmap或旧实现重新取得当前治理权。
 
 本单没有修改 Codex 项目设置、移动任务或创建第二个产品仓。设置切换在搬迁收口时进行，届时记录真实主目录和附加目录。若项目配置无法自动修改，保留现有任务，并在每次开工显式绑定 fresh cwd 与新AGENTS，而非退回legacy checkout。
+
+2026-09-08 补充：候选另含 Home composer 与通用 UI 编排收敛，见 `engineering/current.md`。Court Work 品牌语义注入在 merge 后首轮工单由用户交 Claude。

@@ -4,13 +4,12 @@ The Runtime Control Plane backend and new-frontend handoff are documented in
 [the runtime index](../docs/runtime-control/INDEX.md). New control endpoints extend
 the existing API without editing `web/*`.
 
-This tree pairs the unchanged V7 frontend (`web/*`, byte-identical to the G2
-r2 archive) with a rebuilt backend execution core. The execution owner is
-still the single `/api/v5` service (`server/service.mjs`); what changed is
-what it runs on: `runtime/pi-session-runtime.mjs` drives Pi coding-agent v3's
-in-process `AgentSession` SDK (`@earendil-works/pi-coding-agent@0.85.1`)
-instead of the old bare `Agent` (`@earendil-works/pi-agent-core@0.83.0`). The
-old `runtime/pi-runtime.mjs` is deleted, not kept as a fallback.
+This tree combines the completed generic UI and polish delivery (`4fab4bd`)
+with the Runtime Control Plane backend (`8722259`). The new control-plane UI
+is still a subsequent assignment; ordinary provider/session/permission/workspace
+surfaces already exist. Execution remains owned by `server/service.mjs`, with
+`runtime/pi-session-runtime.mjs` driving the in-process Pi AgentSession SDK
+`@earendil-works/pi-coding-agent@0.85.1`. There is no parallel legacy runtime.
 
 The HTTP contract a client codes against — endpoints, fields, event types,
 error codes, and the "current file vs content version" distinction — is
@@ -134,16 +133,20 @@ that the numbers were reset — read it as "at least this much".
 
 ## Tools available to the model
 
-Only `ask_user` and four workspace tools scoped to `workspaceDir`: `ws_list`,
-`ws_read` (line-range, rejects binary/over-limit files), `ws_write` (whole-file
-overwrite, atomic temp-then-rename, absent in `read_only` mode, gated behind a
-persisted user decision in `ask` mode), `ws_grep`. There is no bash tool, no
-network tool, and no path outside the workspace — those capabilities do not
-exist in this build, they are not merely unconfigured. All default coding
-tools (`read`/`bash`/edit`/`write`) are disabled via `noTools: "builtin"`;
-resource/extension/skill/prompt-template discovery is disabled via a custom
-empty `ResourceLoader`, so `createAgentSession` never constructs
-`DefaultResourceLoader` and never reads `~/.pi/agent`.
+The baseline exposes `ask_user`, bounded workspace tools (`ws_list`, `ws_read`,
+`ws_write`, `ws_grep`), admitted domain-extension tools and explicit
+`runtime_load`. Configured MCP Streamable HTTP servers can supply remote tools
+under the control-plane exposure/permission contract. A network-capable MCP
+tool is different from the built-in filesystem tools; remote provenance,
+connection state, effect classification and unknown-result handling remain
+visible and enforced. There is no arbitrary shell/browser tool or package
+installer in this candidate.
+
+Default Pi coding tools and automatic home-directory/repository resource
+discovery stay disabled. Explicit host-registered skills/instructions/profiles
+are governed by the [control plane](../docs/runtime-control/architecture.md).
+Read-only/ask/deny and profile restrictions are checked at actual execution,
+not inferred from an icon or UI switch.
 
 ## Idempotent Run creation
 
@@ -259,3 +262,5 @@ or retried summary usage is explicitly incomplete. See [MX-R1 API](docs/api-runt
 
 This is a generic runtime increment. Orchestration remains an independent caller
 of public Run commands, receipts and queries; no scheduler or planner is added.
+
+2026-09-08 补充：候选另含 Home composer 与通用 UI 编排收敛，见 `engineering/current.md`。Court Work 品牌语义注入在 merge 后首轮工单由用户交 Claude。

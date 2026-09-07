@@ -29,7 +29,7 @@
               id="new-project-button"
               class="quiet-button"
               type="button"
-              aria-label="Create project"
+              aria-label="New project"
             ></button>
             <button
               id="close-nav-button"
@@ -137,7 +137,7 @@
               id="show-run-button"
               class="quiet-button"
               type="button"
-              aria-label="Run details"
+              aria-label="Session overview"
               hidden
             ></button>
             <button
@@ -158,6 +158,7 @@
           Connection lost. Reconnecting…
         </div>
         <div id="binding-panel" class="binding-panel" hidden></div>
+        <div id="conversation-body" class="conversation-body">
         <div class="message-stream-wrap">
           <section
             id="message-stream"
@@ -176,6 +177,10 @@
           </button>
         </div>
         <footer id="composer-area" class="composer-area" hidden>
+          <div id="home-composer-intro" class="home-composer-intro" hidden>
+            <p class="eyebrow">Your workspace</p>
+            <h2>What would you like to work on?</h2>
+          </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
           <form id="composer-form" class="composer-form">
             <label class="sr-only" for="composer-input">Message</label>
@@ -235,11 +240,26 @@
               </div>
             </div>
           </form>
+          <div id="home-composer-context" class="home-composer-context" hidden>
+            <label class="home-choice">Project
+              <select id="home-project-input" aria-label="Project for new session"></select>
+            </label>
+            <label class="home-choice">File writes
+              <select id="home-permission-input" aria-label="File writes for new session">
+                <option value="ask">Ask before writing</option>
+                <option value="draft">Workspace writes allowed</option>
+                <option value="read_only">Read only</option>
+              </select>
+            </label>
+            <button id="home-create-project" class="quiet-button" type="button">New project</button>
+            <p id="home-start-status" class="home-start-status" role="status" hidden></p>
+          </div>
           <p class="composer-hint">
             Enter to send <span aria-hidden="true">·</span> Shift+Enter for a
             new line
           </p>
         </footer>
+        </div>
       </main>
       <div
         id="surface-backdrop"
@@ -342,7 +362,7 @@
     </div>
     <dialog id="run-history-dialog" aria-labelledby="run-history-title">
       <div class="run-history-inner">
-        <div class="section-heading">
+        <div class="section-heading dialog-heading">
           <h2 id="run-history-title">Run history</h2>
           <button
             id="close-run-history"
@@ -376,7 +396,7 @@
           <button
             id="cancel-edit-message"
             type="button"
-            class="secondary-button"
+            class="quiet-button"
           >
             Cancel
           </button>
@@ -557,8 +577,8 @@
         />
         <label for="session-permission-input">File writes</label
         ><select id="session-permission-input">
-          <option value="ask">Ask before each write</option>
-          <option value="draft">Allow workspace writes</option>
+          <option value="ask">Ask before writing</option>
+          <option value="draft">Workspace writes allowed</option>
           <option value="read_only">Read only</option>
         </select>
         <p

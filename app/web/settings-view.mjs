@@ -4,7 +4,7 @@ export const permissionLabels = {
   draft: "Workspace writes allowed",
   read_only: "Read only",
 };
-const providerLabels = {
+export const providerLabels = {
   openai: "OpenAI",
   deepseek: "DeepSeek",
   "fake-openai-loopback": "Local test",
@@ -176,7 +176,7 @@ export function createSettingsView(
     attrs: { role: "alert", hidden: true },
   });
   const save = el("button", {
-    className: "secondary-button",
+    className: "primary-button",
     attrs: { type: "submit" },
     text: "Save connection",
   });
@@ -213,7 +213,7 @@ export function createSettingsView(
     el("h4", { text: "API key" }),
     credentialStatus,
     row("Key", "Stored on this device only.", key),
-    el("div", { className: "credential-actions" }, keySave, keyDelete),
+    el("div", { className: "credential-actions" }, keyDelete, keySave),
   );
   container.replaceChildren(form, credential);
   function availableModels() {
