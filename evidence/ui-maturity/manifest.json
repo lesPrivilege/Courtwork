@@ -1,9 +1,9 @@
 {
   "base": "2d8a26b263cb570b6adcc5d8cc866169c41174bd",
   "files": {
-    "app/web/app.mjs": "05f313512b67fae43ecfecaedbf6d85719c8ce9adfa5a689b839d18ab25d3824",
+    "app/web/app.mjs": "79810029fb532ce877fe6f7e0fd5978dece9e8b864ed28b0f727be07df86968e",
     "app/web/index.html": "79463b7b6c4931d3000ad06a69d6ffb977138c9ce9b61cd5fcac45ddbd83a9b6",
     "app/web/styles.css": "530c26578e6405d91d151a403f3db8cab8392d07defc6b399650bf078c2a66ec",
-    "evidence/ui-maturity/surface-counterexamples.mjs": "43758054337772cf48efbed7be7cae340ff8939ad43b1c768fa63251bb65b9d0"
+    "evidence/ui-maturity/surface-counterexamples.mjs": "6a0f64b6a6a5338620262907999b60de98a216c1414d024530fd534a857eafe5"
   }
 }

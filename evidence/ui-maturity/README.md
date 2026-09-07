@@ -13,7 +13,7 @@
 ## 验证
 
 - `node --test app/tests/*.test.mjs tests/*.test.mjs`：88/88。覆盖既有后端/renderer 底座；不是完整前端验收。
-- `node --test evidence/ui-maturity/surface-counterexamples.mjs`：8/8。作者 VM 控制器反例，使用 stub DOM 和挂起读取，不宣称浏览器网络竞态独验。
+- `node --test evidence/ui-maturity/surface-counterexamples.mjs`：9/9。作者 VM 控制器反例，使用 stub DOM 和挂起读取，不宣称浏览器网络竞态独验。
 - Codex 内置浏览器实际操作：390×844 初始页按 Tab，旧代码焦点进入被覆盖的 Create project；新代码从 Preview tab 开始，Shift+Tab 到 surface-content，Tab 回到 Preview。
 - 实际操作：普通 sheet Escape 关闭并聚焦 Show work surface；展开后一次 Escape 仅还原，下一次关闭；768×900 遮罩点击关闭并回焦点。
 - 实际操作：768↔1440 断点切换恢复/隔离背景；1440 打开 Runtime setup 后缩至 768，Escape 只关 dialog，修正后聚焦 Preview。作者首轮发现焦点落 body，修后重新走全路径通过。
@@ -33,3 +33,7 @@
 4. 接入 Dashboard 摘要与 run 内成果视图，依真实 API 逐字段验证。表格/事件/列表扁平化与 Claude 的最终视觉 token 合流单独审查。
 
 工作树 `/Users/lesprivilege/.codex/worktrees/se-ui-maturity-20260907`，分支 `codex/ui-maturity-surface`。本地验证端口8816，独立合成数据 `/private/tmp/se-ui-maturity-data-20260907`。从本目录向上两级为仓根。重启命令：`PORT=8816 SE_RUNTIME_DATA_DIR=/private/tmp/se-ui-maturity-data-20260907 node app/server/index.mjs`。源码以提交和相邻 manifest.json 绑定；UI实操记录为作者观察，未伪称自动化截图归档。
+
+Luna 独立运行首版控制器8/8与底座88/88，并复核指出 WS-10/D5 桌面第二次 Escape 必须关闭分栏。Astra已补修并增加组合输入防护反例；最终控制器9/9。Luna另指出默认落点/切会话后面板打开、1060实现断点与WS10的1024文档、隐藏面板的在途读取以及创建dialog opener统一策略尚需G1核对；这些未由本片关闭。新版最后一项IME仅是事件模拟，非真实IME实测。
+
+最终追加实操：1440桌面打开设置，第一次Escape只关设置并回Runtime setup入口，第二次Escape关闭工作面并聚焦Show work surface，实测通过。

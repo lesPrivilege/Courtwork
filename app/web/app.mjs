@@ -2164,13 +2164,13 @@ function closeRuntimeDialog({ restoreFocus = true } = {}) {
 }
 
 function handleSurfaceEscape(event) {
-  if (event.defaultPrevented || document.querySelector("dialog[open]")) return;
+  if (event.defaultPrevented || event.isComposing || document.querySelector("dialog[open]")) return;
   if (event.key === "Escape") {
     if (!state.surface.open) return;
     if (state.surface.expanded) {
       event.preventDefault();
       setSurfaceExpanded(false);
-    } else if (surfaceOverlayQuery.matches) {
+    } else {
       event.preventDefault();
       closeSurface();
     }

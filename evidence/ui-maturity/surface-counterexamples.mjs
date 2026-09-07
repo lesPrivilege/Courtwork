@@ -65,7 +65,9 @@ test('one Escape restores expanded sheet; second closes it', () => {
 });
 test('desktop split is nonmodal; expanded desktop is modal', () => {
   const f=fixture(); f.media.matches=false; f.api.renderSurfaceVisibility();
-  assert.equal(f.node('chat').inert,false); assert.equal(f.key('Escape').defaultPrevented,false);
+  assert.equal(f.node('chat').inert,false);
+  assert.equal(f.key('Escape').defaultPrevented,true); assert.equal(f.api.state.surface.open,false);
+  f.click('show-surface-button');
   f.api.setSurfaceExpanded(true); assert.equal(f.node('chat').inert,true);
   f.key('Escape'); assert.equal(f.node('chat').inert,false); assert.equal(f.api.state.surface.open,true);
 });
@@ -96,4 +98,10 @@ test('closing preserves renderer owner, local drafts, and run state', () => {
   f.api.state.runs=[{id:'run-a',status:'running'}]; f.api.closeSurface();
   assert.equal(f.api.state.surface.mounted,mounted); assert.equal(f.api.state.draftCache.get('session-a'),'unsent');
   assert.equal(f.api.state.runs[0].status,'running');
+});
+
+test('surface ignores Escape during IME composition', () => {
+  const f=fixture(); f.api.renderSurfaceVisibility();
+  const event={key:'Escape',isComposing:true,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};
+  f.api.handleSurfaceEscape(event); assert.equal(f.api.state.surface.open,true); assert.equal(event.defaultPrevented,false);
 });
