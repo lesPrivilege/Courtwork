@@ -2044,13 +2044,19 @@ function focusBindingEntry() {
   )?.focus();
 }
 
+
+// WK-40 · the header connection badge is icon-only; the connection name stays
+// visible in the composer's context row and in this control's accessible name.
+function setCapabilityBadge(label) {
+  setAction($("capability-badge"), "activity", `Connection · ${label}`);
+}
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
   const config = state.providerConfig?.config;
   if (config) {
     $("model-settings-button").textContent =
       config.provider === "fake-openai-loopback" ? "Local test" : config.model;
-    $("capability-badge").textContent = providerLabels[config.provider] || config.provider;
+    setCapabilityBadge(providerLabels[config.provider] || config.provider);
   }
 }
 
@@ -2704,9 +2710,12 @@ function brandVerbForEvents(fresh) {
 function renderChatHeader() {
   const session = currentSession(),
     project = currentProject();
-  $("project-title").textContent =
-    state.view === "home" ? "Workspace" : project?.name || "Project";
-  $("session-title").textContent =
+  // WK-40 · one title line: the project name is a prefix only when the sidebar
+  // cannot show it (collapsed or narrow); Home carries no eyebrow at all.
+  const projectTitle = $("project-title");
+  projectTitle.textContent = state.view === "home" ? "" : project?.name || "";
+  projectTitle.hidden = state.view === "home" || !project?.name;
+  $("session-title-text").textContent =
     state.view === "home" ? "Home" : session?.title || "Loading session…";
   $("session-meta").replaceChildren();
   if (session && currentRun())
@@ -2734,8 +2743,7 @@ function renderChatHeader() {
   // it is a label, not a menu: there is no user identity to open.
   $("account-name").textContent = model;
   $("account-avatar").textContent = model.trim().charAt(0).toUpperCase() || "·";
-  $("capability-badge").textContent =
-    providerLabels[config?.provider] || config?.provider || "Connection";
+  setCapabilityBadge(providerLabels[config?.provider] || config?.provider || "Connection");
   $("permission-settings-button").textContent =
     permissionLabels[session?.permissionMode] || "File permissions";
   $("home-button").setAttribute(
@@ -4811,8 +4819,9 @@ async function init() {
     state.token = bootstrap.sessionToken || null;
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
-    $("capability-badge").textContent =
-      state.capabilities?.realProvider === false ? providerLabels["fake-openai-loopback"] : "Connection";
+    setCapabilityBadge(
+      state.capabilities?.realProvider === false ? providerLabels["fake-openai-loopback"] : "Connection",
+    )
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
     await Promise.all(
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
@@ -4822,7 +4831,7 @@ async function init() {
 
     renderAll();
   } catch (error) {
-    $("capability-badge").textContent = "Runtime unavailable";
+    setCapabilityBadge("Runtime unavailable");
     showToast(`Could not start workspace: ${error.message}`, "error");
     const stream = $("message-stream");
     clear(stream);

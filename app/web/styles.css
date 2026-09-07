@@ -2740,3 +2740,11 @@ court-symbol {
   --cw-record: var(--muted-strong);
   --cw-background: var(--panel);
 }
+
+/* WK-40 · One title line. The project name is a muted prefix shown only when the
+   sidebar cannot carry it (collapsed on desktop, drawer below 1024). */
+.title-project { color: var(--muted-strong); font-weight: 400; }
+.title-project::after { content: " · "; }
+@media (min-width: 1024px) {
+  .app-shell:not(.nav-collapsed) .title-project { display: none; }
+}
