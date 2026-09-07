@@ -1,0 +1,424 @@
+{
+  "version": 1,
+  "accessed": "2026-09-08",
+  "owner": "CourtWork brand unit",
+  "policy": "metadata → first-party source → scope/license/compatibility → bounded admission; an index entry is not runtime support",
+  "entries": [
+    {
+      "id": "apple-sf-symbols",
+      "url": "https://developer.apple.com/videos/play/wwdc2025/337/",
+      "kind": "symbol-anatomy",
+      "surfaces": [
+        "icon",
+        "symbol",
+        "motion"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "Draw On/Off、按层/整体/逐个播放、符号指定绘制方向；不复制SF Symbols资产或UIKit实现。",
+      "consume_as": "pattern-only",
+      "version": "WWDC25 / SF Symbols 7",
+      "license": "Apple content; no code vendored",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "mdn-svg-filter",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/filter",
+      "kind": "svg-primitive",
+      "surfaces": [
+        "icon",
+        "material"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "原生filter组合、明确滤镜边界；本包使用gradient/drop-shadow/blur。",
+      "consume_as": "native-implementation",
+      "version": "Access snapshot",
+      "license": "Reference only",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [
+        "svg",
+        "css",
+        "waapi"
+      ],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "mdn-waapi",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API",
+      "kind": "browser-api",
+      "surfaces": [
+        "icon",
+        "motion"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "Element.animate、Animation取消与时间线；本包一次性动画，不创建永久循环。",
+      "consume_as": "native-implementation",
+      "version": "Access snapshot",
+      "license": "Reference only",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [
+        "svg",
+        "css",
+        "waapi"
+      ],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "mdn-reduced-motion",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
+      "kind": "accessibility",
+      "surfaces": [
+        "icon",
+        "motion"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "reduce偏好与减少位移；本包直接显示宿主最终静态状态。",
+      "consume_as": "native-implementation",
+      "version": "Access snapshot",
+      "license": "Reference only",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [
+        "svg",
+        "css",
+        "waapi"
+      ],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "aave-glass",
+      "url": "https://aave.com/design/building-glass-for-the-web",
+      "kind": "material-practice",
+      "surfaces": [
+        "icon",
+        "material",
+        "panel"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "同位移图适配SVG/WebGL、几何改变才重算；文章声明的浏览器能力未在本项目复现。",
+      "consume_as": "reference-only",
+      "version": "Not pinned",
+      "license": "No explicit reuse license verified",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "hyalite",
+      "url": "https://vii-cae.github.io/hyalite--liquid-glass/demo/index.html",
+      "kind": "material-playground",
+      "surfaces": [
+        "icon",
+        "material",
+        "panel"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "bevel/thickness/blur/dispersion/rim/light连续参数；页面声明Chromium-only。",
+      "consume_as": "experimental-reference",
+      "version": "No release verified",
+      "license": "Not verified; no vendoring",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "liquid-glass-js",
+      "url": "https://github.com/Amir-Abushanab/liquid-glass-js",
+      "kind": "material-library",
+      "surfaces": [
+        "icon",
+        "material"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "SVG-first mountGlassShape等API；alpha/位移边界；未做性能或兼容复验。",
+      "consume_as": "experimental-reference",
+      "version": "No release/commit pinned",
+      "license": "MIT (repository page verified); no source vendored",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "figma-properties",
+      "url": "https://help.figma.com/hc/en-us/articles/5579474826519-Explore-component-properties",
+      "kind": "design-schema",
+      "surfaces": [
+        "icon",
+        "symbol",
+        "design"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "boolean/instance swap/text/variant/slot；借独立属性命名模型，本单无Figma库产物。",
+      "consume_as": "pattern-only",
+      "version": "Access snapshot",
+      "license": "Reference only",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "motion",
+      "url": "https://motion.dev/docs/animate",
+      "kind": "animation-library",
+      "surfaces": [
+        "icon",
+        "motion"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "mini/hybrid、SVG绘制、序列、播放控制；现有WAAPI满足本单，无需新增包。",
+      "consume_as": "deferred-dependency",
+      "version": "No version pinned",
+      "license": "No vendoring; license not audited",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "rive",
+      "url": "https://rive.app/docs/runtimes/web/web-js",
+      "kind": "visual-runtime",
+      "surfaces": [
+        "scene",
+        "motion"
+      ],
+      "status": "verified",
+      "verification": "Luna Exa search + first-party page retrieval, 2026-09-08",
+      "supports": "JS/WASM、state machine/data binding、settle与cleanup；仅复杂作者图形再评估。",
+      "consume_as": "deferred-dependency",
+      "version": "Documentation examples only, no project pin",
+      "license": "No runtime/asset license admission",
+      "installed": false,
+      "browser_acceptance": "not-run for upstream",
+      "local_runtime": [],
+      "mcp": "not-installed"
+    },
+    {
+      "id": "rare-ui",
+      "url": "https://github.com/swamimalode07/rare-ui",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "react-bits",
+      "url": "https://reactbits.dev/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "magic-ui",
+      "url": "https://magicui.design/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "aceternity",
+      "url": "https://ui.aceternity.com/components",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "beui",
+      "url": "https://beui.dev/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "refinery",
+      "url": "https://github.com/mrap10/refinery",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "ns-ui",
+      "url": "https://github.com/nikolas-sapa/ns-ui",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "aurora-ui",
+      "url": "https://github.com/Rydaguy101/aurora-ui",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "liquefy",
+      "url": "https://github.com/liquefy-ui/liquefy-ui",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "paper-shaders",
+      "url": "https://paper-design-shaders.mintlify.app/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "shaders-com",
+      "url": "https://shaders.com/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "canvas-ui",
+      "url": "https://github.com/DavidHDev/canvas-ui",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "figma-motion",
+      "url": "https://www.figma.com/motion/",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    },
+    {
+      "id": "blinn-motion",
+      "url": "https://github.com/ismailyagci/blinn-motion",
+      "kind": "attachment-candidate",
+      "surfaces": [
+        "unverified"
+      ],
+      "status": "unverified",
+      "verification": "User attachment only; not independently fetched this unit",
+      "consume_as": "discover-on-demand",
+      "version": null,
+      "license": "unverified",
+      "installed": false,
+      "mcp": "unverified"
+    }
+  ]
+}

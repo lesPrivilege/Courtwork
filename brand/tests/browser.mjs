@@ -1,0 +1,22 @@
+import '../src/court-symbol.mjs';
+import {concepts} from '../src/symbol.mjs';
+const fixture=document.querySelector('#fixtures'), output=document.querySelector('#result');
+const assert=(v,m)=>{if(!v)throw Error(m)};
+function mount(attrs={}){const el=document.createElement('court-symbol');for(const [k,v] of Object.entries(attrs))el.setAttribute(k,v);fixture.append(el);return el;}
+const animations=el=>[...el.shadowRoot.querySelectorAll('*')].flatMap(n=>n.getAnimations());
+document.querySelector('#run').addEventListener('click',async()=>{
+ output.textContent='Running';fixture.replaceChildren();const checks=[];
+ const check=async(name,fn)=>{try{await fn();checks.push({name,status:'pass'})}catch(error){checks.push({name,status:'fail',message:error.message})}};
+ const s=mount({concept:'write',size:'64',material:'glass'});
+ await check('native SVG renders four canonical parts',()=>assert(s.shadowRoot.querySelectorAll('.part').length===4,'parts missing'));
+ await check('native write schedule is sequential and bounded',async()=>{const p=s.play('write');const a=animations(s);assert(a.length===3,'expected three native animations');assert(a.map(x=>x.effect.getTiming().delay).join(',')==='0,40,80','wrong write order');assert(Math.abs(Math.max(...a.map(x=>x.effect.getComputedTiming().endTime))-220)<.01,'timings outside 220ms ± .01ms: '+JSON.stringify(a.map(x=>x.effect.getComputedTiming().endTime)));assert((await p).status==='finished','not finished');assert(animations(s).length===0,'animations leaked');});
+ await check('rapid restart cancels the old native animations',async()=>{const a=s.play('write');const b=s.play('write');assert((await a).status==='interrupted','old motion won race');assert((await b).status==='finished','new motion lost');assert(!s.hasAttribute('data-playing'),'playing marker leaked');});
+ await check('attribute update cancels native animations',async()=>{const p=s.play('write');s.setAttribute('material','depth');assert((await p).status==='interrupted','attribute change did not cancel');assert(animations(s).length===0,'old animation survived render');});
+ await check('withdraw removes luminous actor and retains record',async()=>{s.setAttribute('concept','withdraw');s.setAttribute('material','luminous');s.setAttribute('presence','absent');await s.play('withdraw');assert(getComputedStyle(s.shadowRoot.querySelector('.actor')).opacity==='0','actor remains');assert([...s.shadowRoot.querySelectorAll('.record')].every(e=>getComputedStyle(e).opacity==='1'),'record faded');assert(!s.shadowRoot.querySelector('svg > [data-layer="glow"]'),'unowned glow remains');});
+ await check('commit motion does not grant authority or acceptance',async()=>{s.setAttribute('concept','commit');s.setAttribute('presence','present');s.setAttribute('activity','idle');s.setAttribute('authority','none');await s.play('commit');assert(s.getAttribute('activity')==='idle'&&s.getAttribute('authority')==='none','state mutated');assert(getComputedStyle(s.shadowRoot.querySelector('[data-layer="settled"]')).opacity==='0','false completion badge');});
+ await check('each semantic verb completes and leaves no native animation',async()=>{for(const concept of concepts){s.setAttribute('concept',concept);const r=await s.play(concept);assert(r.status==='finished',concept+' incomplete');assert(animations(s).length===0,concept+' leaked');}});
+ await check('disconnect cancels native animation',async()=>{s.setAttribute('concept','write');const p=s.play('write');s.remove();assert((await p).status==='interrupted','disconnect did not stop');fixture.append(s);});
+ await check('real SVG title and filter IDs are instance-local',()=>{const t=mount({material:'glass'});const ids=[...fixture.querySelectorAll('court-symbol')].flatMap(h=>[...h.shadowRoot.querySelectorAll('[id]')].map(e=>e.id));assert(new Set(ids).size===ids.length,'id collision');t.remove();});
+ await check('glyph fallback renders without active filter',()=>{const t=mount({size:'16',material:'glass'});assert(t.shadowRoot.querySelector('svg').dataset.material==='hierarchical','small material not downgraded');assert(!t.shadowRoot.querySelector('[filter]'),'small filter remains');t.remove();});
+ output.textContent=JSON.stringify({browser:navigator.userAgent,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,checks,passed:checks.filter(c=>c.status==='pass').length,failed:checks.filter(c=>c.status==='fail').length,notRun:['system preference toggle','forced-colors','screen reader','Safari','Firefox']},null,2);
+});

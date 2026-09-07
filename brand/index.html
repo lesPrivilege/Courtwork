@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>CourtWork — Symbol & Motion</title><link rel="stylesheet" href="lab.css"></head>
+<body>
+<header><a href="#" class="wordmark"><court-symbol size="24" concept="write" material="mono" label="CourtWork 标记"></court-symbol><span>CourtWork</span></a><span class="edition">Symbol & Motion · 01</span><button id="theme" class="quiet" aria-pressed="false">深色</button></header>
+<main>
+<section class="intro">
+ <div class="intro-copy"><p class="eyebrow">EXPERTS IN PRESENCE</p><h1>在场，成事。<br><span>留下可延续的工作。</span></h1><p class="lede">一条立定的线，三行渐次形成的记录。<br>参与者可以离场，工作不会随之消失。</p><div class="hero-controls"><button id="hero-play">重放书写 <span aria-hidden="true">↗</span></button><span id="motion-note">按需播放 · 不自动循环</span></div></div>
+ <div class="hero-art"><div class="orbit" aria-hidden="true"></div><court-symbol id="hero-symbol" size="216" concept="write" material="glass" label="CourtWork 线与文品牌标记"></court-symbol><span class="art-caption">LINE / RECORD</span></div>
+</section>
+<section class="section materials-section" aria-labelledby="materials-title"><div class="section-head"><div><p class="eyebrow">01 / MATERIAL</p><h2 id="materials-title">同一几何，不同材质。</h2></div><p>日常 glyph 保持清楚；品牌场景才展开光、影与厚度。</p></div><div id="materials" class="materials"></div></section>
+<section class="section" aria-labelledby="motion-title"><div class="section-head"><div><p class="eyebrow">02 / SEMANTICS</p><h2 id="motion-title">动的是关系，留下的是记录。</h2></div><label class="select-label">样板材质<select id="material" aria-label="样板材质"><option value="glass">Optical glass</option><option value="depth">Shallow depth</option><option value="hierarchical">Hierarchical</option><option value="mono">Monochrome</option><option value="luminous">Luminous edge</option></select></label></div><div id="specimens" class="specimens"></div><p class="fine">这里演示图形语义，不运行 Agent，也不授予权限或提交成果。播放总时长仅用于说明；产品反馈采用更短的一次性动效。</p></section>
+<section class="section" aria-labelledby="size-title"><div class="section-head"><div><p class="eyebrow">03 / OPTICAL SCALE</p><h2 id="size-title">小处清晰，大处有质。</h2></div><p>16–24 px 自动收敛为无滤镜的层级色；32 px 起保留材质。</p></div><div id="sizes" class="sizes"></div></section>
+<section class="section" aria-labelledby="state-title"><div class="section-head"><div><p class="eyebrow">04 / STATE CONTRACT</p><h2 id="state-title">状态由工作决定。</h2></div><p>光晕只表示关注；完成书写不代表正式接受。</p></div><div class="states"><div><court-symbol size="64" concept="write" presence="available" label="可用但尚未在场"></court-symbol><span>Available</span></div><div><court-symbol size="64" concept="write" presence="active" label="正在场"></court-symbol><span>Present</span></div><div><court-symbol size="64" concept="scope" authority="scoped" label="已限定范围"></court-symbol><span>Scoped</span></div><div><court-symbol size="64" concept="scope" authority="revoked" label="权限已撤销"></court-symbol><span>Revoked</span></div><div><court-symbol size="64" concept="withdraw" presence="absent" label="参与者离场，记录保留"></court-symbol><span>Trace remains</span></div></div></section>
+<details class="reference"><summary>查看 Imagegen 材质参考与原始母题 <span aria-hidden="true">＋</span></summary><div class="reference-body"><img src="references/material-board.png" alt="三种 Imagegen 材质探索：柔和玻璃、浅石墨浮雕、暗底发光玻璃" loading="lazy"><p>参考图仅用于光照与材质。SVG 直接从冻结的 Courtwork 原始几何推导，不描摹生成位图。图中比例不作为新几何标准。</p><a href="sources/legacy/icon-light.svg">冻结的原始 SVG ↗</a></div></details>
+</main>
+<footer><span>CourtWork · A place for expert work to take form.</span><a href="README.md">实现与接入说明 ↗</a></footer>
+<script type="module" src="lab.mjs"></script>
+</body></html>

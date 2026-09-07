@@ -1,0 +1,18 @@
+✔ Home sends one create and one run despite duplicate submit events (5.46525ms)
+✔ a late create after leaving Home saves the instruction but never navigates or sends (1.070625ms)
+✔ a received session reused after detail failure never creates a second session (0.889459ms)
+✔ a failed first create retries with the latest permission mode (1.383583ms)
+✔ creation failure is retryable only by an explicit submit and an uncertain receipt is blocked (0.67025ms)
+✔ an empty project list opens project creation and retains the draft (1.726458ms)
+✔ normal creation failure does not keep a stale project when the user changes the project (1.898584ms)
+✔ Home draft and session draft stay isolated, and Home blocks Send only while disconnected (1.673125ms)
+✔ session composer preserves drafts across active, waiting, stopping, failed, and disconnected states (2.009125ms)
+✔ IME composition keeps Enter from submitting while ordinary Enter still submits (1.143417ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 106.470084

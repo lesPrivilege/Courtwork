@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Courtwork frozen 512 master, translated (-112,-104) then scaled by 0.2.
+       The four rectangles preserve every proportion and corner radius. -->
+  <rect data-part="stem" x="7.2" y="4" width="11.2" height="52.8" rx="2"/>
+  <rect data-part="line-1" x="28" y="7.2" width="28" height="9.6" rx="2.8"/>
+  <rect data-part="line-2" x="28" y="25.6" width="28" height="9.6" rx="2.8"/>
+  <rect data-part="line-3" x="28" y="44" width="19.2" height="9.6" rx="2.8"/>
+</svg>

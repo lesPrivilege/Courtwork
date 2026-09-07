@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="-3 -3 70 70" role="img" aria-labelledby="cw-write-depth-title" data-concept="write" data-material="depth" data-requested-material="depth" data-presence="present" data-authority="none" data-activity="idle" data-theme="light" data-geometry-sha256="522d4303216259490fb501458391431e8329a6aff8cfa3b463be6573d4614556">
+ <title id="cw-write-depth-title">CourtWork write</title>
+ <style>
+ :root,svg{--cw-ink:#283849;--cw-record:#6f8191;--cw-depth:#172638;--cw-background:#f9fafb;--cw-amend:#865a4f;color:var(--cw-color,var(--cw-ink));overflow:visible}
+ .hint{opacity:.28}.part{transform-box:fill-box;transform-origin:center}.record{transform-origin:left center}
+ [data-presence="available"] .actor{opacity:.38}[data-presence="absent"] .actor{opacity:0}
+ [data-concept="commit"] [data-layer="settled"]{opacity:0}[data-concept="commit"][data-activity="complete"] [data-layer="settled"]{opacity:1}
+ [data-authority="requested"] [data-layer="boundary"]{stroke-dasharray:3 3}[data-authority="revoked"] [data-layer="boundary"]{opacity:.4}
+ @media(forced-colors:active){.part rect{fill:CanvasText!important;stroke:none!important;filter:none!important}[filter]{filter:none!important}[data-layer="glow"]{display:none}}
+ @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+ </style>
+ <defs>
+ <linearGradient id="cw-write-depth-face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#627387"/><stop offset=".38" stop-color="#3d4b5d" stop-opacity=".76"/><stop offset="1" stop-color="#253342"/></linearGradient>
+ <linearGradient id="cw-write-depth-rim" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#fff"/><stop offset=".42" stop-color="#b6c9d7" stop-opacity=".42"/><stop offset=".68" stop-color="#536e86"/><stop offset="1" stop-color="#e4eff9"/></linearGradient>
+ <linearGradient id="cw-write-depth-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff" stop-opacity=".76"/><stop offset=".45" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".16"/></linearGradient>
+ <filter id="cw-write-depth-shadow" x="-55%" y="-35%" width="210%" height="190%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="1.8" stdDeviation="1.2" flood-color="#1e344a" flood-opacity=".2"/></filter>
+ <filter id="cw-write-depth-glow" x="-60%" y="-40%" width="220%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="1.35"/></filter>
+ </defs>
+
+ <g data-layer="actor" class="part actor"><g filter="url(#cw-write-depth-shadow)"><g transform="translate(0 1.4)" fill="var(--cw-depth)"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/></g><rect x="7.2" y="4" width="11.2" height="52.8" rx="2" fill="url(#cw-write-depth-face)" stroke="url(#cw-write-depth-rim)" stroke-width=".65"/><rect x="7.2" y="4" width="11.2" height="52.8" rx="2" fill="url(#cw-write-depth-light)" opacity=".22"/></g></g><g data-layer="line line-1" class="part record"><g filter="url(#cw-write-depth-shadow)"><g transform="translate(0 1.4)" fill="var(--cw-depth)"><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/></g><rect x="28" y="7.2" width="28" height="9.6" rx="2.8" fill="url(#cw-write-depth-face)" stroke="url(#cw-write-depth-rim)" stroke-width=".65"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8" fill="url(#cw-write-depth-light)" opacity=".22"/></g></g><g data-layer="line line-2" class="part record"><g filter="url(#cw-write-depth-shadow)"><g transform="translate(0 1.4)" fill="var(--cw-depth)"><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/></g><rect x="28" y="25.6" width="28" height="9.6" rx="2.8" fill="url(#cw-write-depth-face)" stroke="url(#cw-write-depth-rim)" stroke-width=".65"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8" fill="url(#cw-write-depth-light)" opacity=".22"/></g></g><g data-layer="line line-3" class="part record"><g filter="url(#cw-write-depth-shadow)"><g transform="translate(0 1.4)" fill="var(--cw-depth)"><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></g><rect x="28" y="44" width="19.2" height="9.6" rx="2.8" fill="url(#cw-write-depth-face)" stroke="url(#cw-write-depth-rim)" stroke-width=".65"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8" fill="url(#cw-write-depth-light)" opacity=".22"/></g></g>
+ </svg>

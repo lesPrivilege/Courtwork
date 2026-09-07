@@ -1,0 +1,28 @@
+✔ permission update while focused leaves a stale panel that resets the next failed change (6.380958ms)
+✔ focused permission control keeps its pending choice and stays locked when a run starts (3.327583ms)
+✔ an edit from another session cannot replace the current draft (3.634334ms)
+✔ an in-flight submission keeps its readonly composer protected (0.650333ms)
+✔ a new edit preserves unresolved run identity and only queues draft persistence (1.352375ms)
+✔ disabling a pending stop moves focus to the composer before native blur (1.9475ms)
+✔ an unresolved command blocks fresh Send; recovery reuses exact input and command ID (4.145542ms)
+✔ two recovery clicks admit only one request and late receipt cannot replace another session (0.72975ms)
+✔ a failed or mismatched receipt preserves recovery obligation and newer draft (2.063292ms)
+✔ expired runtime token retries only a router-rejected request, once (1.895125ms)
+✔ transport uncertainty and server errors are never automatically replayed (2.551584ms)
+✔ ordinary narrow sheet isolates background; closing makes retained content inert (4.354917ms)
+✔ keyboard wraps in both directions (2.176458ms)
+✔ one Escape restores expanded sheet; second closes it (0.905583ms)
+✔ desktop split is nonmodal; expanded desktop is modal (0.930708ms)
+✔ breakpoint transitions transfer focus only when entering modality (0.800667ms)
+✔ native dialog owns Escape and Tab; closing restores sheet focus (0.79275ms)
+✔ late surface read cannot steal focus after close or after user moves on (0.799ms)
+✔ closing preserves renderer owner, local drafts, and run state (0.728417ms)
+✔ surface ignores Escape during IME composition (0.769584ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 120.887333
