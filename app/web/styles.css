@@ -3229,3 +3229,28 @@ court-symbol {
 @media (max-width: 1023px) {
   .runtime-switch input { height: 44px; }
 }
+
+/* WK-55 · The composer keeps only its stable parts (input, files, connection,
+   Send). Context that changes with Home or the session — project, file writes,
+   new project — sits in one quiet line below it, the way a launcher states
+   "Project or folder · Auto". Ids and select semantics are unchanged. */
+.composer-below {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-2) var(--space-3) 0;
+  min-height: var(--control);
+}
+.composer-below .home-composer-context { gap: var(--space-1) var(--space-4); }
+.composer-below .home-choice { font-size: var(--text-label); }
+.composer-below .home-choice select {
+  border-color: transparent;
+  background-color: transparent;
+  padding: 4px 22px 4px 6px;
+  font-size: var(--text-label);
+  max-width: 200px;
+}
+.composer-below .home-choice select:hover { background-color: var(--hover); }
+.composer-below .permission-mode { padding-left: 6px; }
+.composer-below:has(> [hidden]:only-child) { display: none; }
