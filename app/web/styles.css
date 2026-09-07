@@ -2578,15 +2578,14 @@ dialog[open]::backdrop {
 .home-active .message-stream { overflow: visible; padding-top: 0; }
 .home-active .home-view { padding-top: 0; }
 
-/* WK-13 · The brand symbol appears in exactly three places: the Home hero
-   (48, glass), the sidebar wordmark (20, mono) and the session presence mark
-   (16, mono). It never enters list rows or replaces a status word. */
+/* WK-13 / WK-32 · The brand symbol appears in exactly two places: the sidebar
+   wordmark (20, mono) and the session presence mark (16, mono). Home has no
+   hero symbol; its layout reproduces the geometry. */
 .workspace-brand {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
 }
-.brand-hero { flex: none; }
 .session-presence { flex: none; margin-right: var(--space-1); }
 
 /* WK-11 · Home carries no title row of its own: the sidebar already names it,
@@ -2667,4 +2666,26 @@ dialog[open]::backdrop {
   color: var(--ink);
   letter-spacing: var(--tracking-heading);
   text-transform: none;
+}
+
+/* WK-30 · macOS window-control reservation (EX-WK4). Two signals, one contract:
+   a desktop shell (Tauri Overlay) sets html[data-shell="desktop"] and gets the
+   fixed defaults; a Window Controls Overlay host (Chromium PWA / Electron
+   titleBarOverlay) overrides them through env(). The strip is a drag region with
+   nothing inside it, so the top-left 80×52 zone never holds a control. */
+.shell-strip { display: none; }
+html[data-shell="desktop"] .sidebar { padding-top: 0; }
+html[data-shell="desktop"] .shell-strip {
+  display: block;
+  flex: none;
+  height: env(titlebar-area-height, 52px);
+  padding-left: env(titlebar-area-x, 80px);
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+html[data-shell="desktop"] .sidebar-header,
+html[data-shell="desktop"] .sidebar-header button,
+html[data-shell="desktop"] .sidebar-header a {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
 }

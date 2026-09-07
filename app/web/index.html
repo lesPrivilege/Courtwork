@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="A local work agent workspace" />
-    <title>Schema Engineering · Workspace</title>
+    <title>CourtWork</title>
     <link rel="stylesheet" href="/web/styles.css" />
   </head>
   <body>
@@ -20,6 +20,7 @@
         class="sidebar"
         aria-label="Projects and sessions"
       >
+        <div class="shell-strip" aria-hidden="true"></div>
         <header class="sidebar-header">
           <a class="workspace-brand" href="#home" id="workspace-home-link"
             ><court-symbol
@@ -30,7 +31,7 @@
               theme="light"
               aria-hidden="true"
             ></court-symbol
-            >Schema Engineering</a
+            >CourtWork</a
           >
           <div class="toolbar">
             <button
@@ -195,16 +196,7 @@
         </div>
         <footer id="composer-area" class="composer-area" hidden>
           <div id="home-composer-intro" class="home-composer-intro" hidden>
-            <court-symbol
-              id="home-hero-symbol"
-              class="brand-hero"
-              concept="summon"
-              material="glass"
-              size="48"
-              theme="light"
-              aria-hidden="true"
-            ></court-symbol>
-            <h2>What would you like to work on?</h2>
+            <h2>Work that exists beyond the model.</h2>
           </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
           <form id="composer-form" class="composer-form">
@@ -421,7 +413,7 @@
           >
             Cancel
           </button>
-          <button id="use-edit-message" type="button" class="primary-button">
+          <button id="use-edit-message" type="button" class="secondary-button">
             Use as draft
           </button>
         </div>

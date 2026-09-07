@@ -7,6 +7,15 @@ import {
   installTooltips,
   anchorPopover,
 } from "./ui-controls.mjs";
+
+// WK-30 · window-control reservation is opt-in: a desktop shell sets
+// data-shell, a Chromium/Electron overlay reports itself, a fixture may ask
+// for it with ?shell=desktop. Plain browser tabs reserve nothing.
+{
+  const wanted = new URLSearchParams(location.search).get("shell") === "desktop";
+  const overlay = navigator.windowControlsOverlay?.visible === true;
+  if (wanted || overlay) document.documentElement.dataset.shell = "desktop";
+}
 import {
   createSettingsView,
   permissionLabels,
@@ -2667,13 +2676,9 @@ function playBrandVerb(verb, { target = "session-presence-symbol", explanatory =
   void Promise.resolve(symbol.play(verb, { explanatory })).catch(() => {});
 }
 
-// WK-15 · the hero plays `summon` once per page load, in explanatory mode.
-// Reduced motion is the component's own decision; it shows the static state.
-function paintBrandHero() {
-  if (brandHeroPlayed || $("home-composer-intro").hidden) return;
-  brandHeroPlayed = true;
-  playBrandVerb("summon", { target: "home-hero-symbol", explanatory: true });
-}
+// WK-32 · Home carries no hero symbol: the layout itself reproduces the brand
+// geometry. The symbol lives only in the sidebar wordmark and the session mark.
+function paintBrandHero() {}
 
 // One operational verb per merged batch, chosen from the newest host facts.
 function brandVerbForEvents(fresh) {
