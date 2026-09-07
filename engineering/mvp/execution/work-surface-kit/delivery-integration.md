@@ -11,7 +11,11 @@
 | `claude/wk7-color-governance` | `10f1afe` | 色彩三层治理、铅灰 skin、深宗、lint / 对比表 / 测试 |
 | 整合提交 | `11b5ca8`（rc，styles.css 末尾两段并存）、`623a24c`（wk7，自动）、`e1bd5d9`（WK-51 移除在场标记、WK-52 `--frame`、plug glyph、开关命中区） | |
 
-## 验证（fixture 列，整合头 `e1bd5d9`）
+## 追加
+
+`28c1032` 开关 44 px 命中；`06e0d93` composer 稳定部分 + `#composer-below`（WK-55）。
+
+## 验证（fixture 列，整合头 `e1bd5d9`；追加提交后 136 / 136、lint ok 复跑）
 
 ```
 node tools/lint-colors.mjs          → ok (13 files)
