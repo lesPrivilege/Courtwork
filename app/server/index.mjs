@@ -92,6 +92,7 @@ function routeService(service, req, url) {
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
   if (method === "GET" && tail.length === 1 && tail[0] === "bootstrap") return service.bootstrap;
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();
   if (method === "POST" && tail.length === 1 && tail[0] === "projects") return async () => service.createProject(await body(req));
   if (method === "GET" && tail.length === 1 && tail[0] === "sessions") return () => service.listSessions(url.searchParams.get("projectId") ?? undefined);

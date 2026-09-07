@@ -239,6 +239,24 @@ export class RuntimeService {
     return { project: await this.store.createProject(text(value.name, "name", { max: 200 })) };
   }
 
+  getWorkSummary(params = new URLSearchParams()) {
+    const allowed = new Set(["projectId", "limit", "sessionsOffset", "pendingOffset", "inspectionOffset"]);
+    const options = {};
+    for (const key of params.keys()) {
+      if (!allowed.has(key) || params.getAll(key).length !== 1) throw new ServiceError(400, "invalid_input", "invalid summary query");
+      const value = params.get(key);
+      if (key === "projectId") options[key] = text(value, key, { max: 200 });
+      else {
+        if (!/^(0|[1-9][0-9]*)$/.test(value) || !Number.isSafeInteger(Number(value))) throw new ServiceError(400, "invalid_input", "invalid summary pagination");
+        options[key] = Number(value);
+        if (key === "limit" && (options[key] < 1 || options[key] > 100)) throw new ServiceError(400, "invalid_input", "summary limit must be between 1 and 100");
+      }
+    }
+    // Waiter membership is sampled in the same synchronous turn as store facts.
+    // A persisted pending record without a live answer receiver is not actionable.
+    return this.store.getWorkSummary(options, new Set(this.questionWaiters.keys()));
+  }
+
   listSessions(projectId) {
     if (projectId !== undefined) text(projectId, "projectId", { max: 100 });
     return { sessions: this.store.listSessions(projectId) };

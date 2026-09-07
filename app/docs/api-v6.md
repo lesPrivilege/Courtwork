@@ -305,3 +305,12 @@ An existing command receipt is resolved before checking current provider or
 extension availability. Unloading a bound extension does not prevent retrying
 the same session/command/input to retrieve its prior Run; changed input remains
 `command_conflict`, and new commands still require an available execution route.
+
+## C4 work-index: read-only Dashboard summary
+
+`GET /api/v5/work-summary` adds bounded session candidates, pending human input,
+and failed/unknown Run inspection candidates. It reuses work-token authentication
+and existing answer routes. Exact fields, sorting, per-collection pagination,
+single-read consistency, detail flow and scale boundaries are specified in
+[work-summary-api.md](work-summary-api.md). No schemaVersion or execution semantics
+change; C3 frontend integration is a separate merge of the route increment.

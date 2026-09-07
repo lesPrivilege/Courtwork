@@ -2,6 +2,7 @@ import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { acquireRuntimeLock } from "./runtime-lock.mjs";
+import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
@@ -310,6 +311,13 @@ export class RuntimeStore {
   }
 
   snapshot() { return structuredClone(this.state); }
+
+  getWorkSummary(options, availableQuestionIds) {
+    if (!this.opened || this.lockLost) throw new Error("runtime store is unavailable");
+    // _mutate publishes by replacing this.state only after persistence. No await
+    // here: all collections and high-water marks see the same published state.
+    return deriveWorkSummary(this.state, options, availableQuestionIds);
+  }
 
   async createProject(name) {
     return this._mutate((state) => { const project = { id: randomUUID(), name, createdAt: now() }; state.projects.push(project); return project; });
