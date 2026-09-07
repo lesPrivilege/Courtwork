@@ -330,6 +330,16 @@
             Workspace
           </button>
           <button
+            id="surface-runtime-tab"
+            class="surface-tab"
+            role="tab"
+            aria-controls="runtime-content"
+            aria-selected="false"
+            type="button"
+          >
+            Runtime
+          </button>
+          <button
             id="surface-run-tab"
             class="surface-tab"
             role="tab"
@@ -358,6 +368,14 @@
           role="tabpanel"
           aria-labelledby="surface-preview-tab"
           tabindex="0"
+        ></div>
+        <div
+          id="runtime-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-runtime-tab"
+          tabindex="0"
+          hidden
         ></div>
         <div
           id="run-content"
@@ -468,6 +486,16 @@
           <div id="provider-panel" class="provider-panel"></div>
         </section>
         <section id="session-settings" class="runtime-section" hidden></section>
+        <section
+          id="runtime-control-settings"
+          class="runtime-section"
+          aria-labelledby="runtime-control-heading"
+          hidden
+        >
+          <h3 id="runtime-control-heading">Runtime resources</h3>
+          <div id="runtime-control-entry" class="runtime-control-entry"></div>
+          <div id="runtime-context-summary" class="runtime-context-summary"></div>
+        </section>
         <details class="runtime-section developer-settings">
           <summary>Runtime & extensions</summary>
           <div id="runtime-info" class="runtime-info"></div>
@@ -481,6 +509,10 @@
             ></button>
           </div>
           <div id="extension-list" class="extension-list"></div>
+        </details>
+        <details class="runtime-section planned-section">
+          <summary>Planned</summary>
+          <div id="planned-capabilities" class="planned-list"></div>
         </details>
       </div>
     </dialog>

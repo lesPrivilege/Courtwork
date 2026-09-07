@@ -1,4 +1,40 @@
 import { el, action } from "./ui-controls.mjs";
+import { renderContextBar } from "./runtime-view.mjs";
+
+/* WK-27: capabilities the backend does not have are drawn nowhere except this
+   list. Text rows only — no switch, no button, nothing focusable, so the page
+   cannot imply an authority that does not exist. */
+export const PLANNED_CAPABILITIES = [
+  ["MCP OAuth", "Only unauthenticated Streamable HTTP servers can connect today."],
+  ["MCP stdio transport", "Local process servers cannot be launched or supervised."],
+  ["Third-party plugin isolation", "Only host-trusted extensions load; there is no sandbox for outside code."],
+  ["Memory providers", "No adapter stores or retrieves memory between runs."],
+  ["Workflows", "No workflow runner exists to execute a saved sequence."],
+  ["Hooks", "No executable hook point exists."],
+  ["Registries", "Package resolution and signature checks are not implemented."],
+  ["Token counts", "The host reports no token usage, so sizes stay in characters."],
+];
+export function renderPlanned(container) {
+  container.replaceChildren(
+    el("p", {
+      className: "form-help",
+      text: "These belong to the runtime contract but have no host adapter yet. They are listed so their absence is legible, and they carry no controls.",
+    }),
+    ...PLANNED_CAPABILITIES.map(([title, help]) =>
+      el(
+        "div",
+        { className: "planned-row" },
+        el(
+          "div",
+          { className: "planned-row-text" },
+          el("span", { className: "settings-row-title", text: title }),
+          el("span", { className: "settings-row-help", text: help }),
+        ),
+        el("span", { className: "planned-state", text: "Backend pending" }),
+      ),
+    ),
+  );
+}
 export const permissionLabels = {
   ask: "Ask before writing",
   draft: "Workspace writes allowed",
@@ -117,14 +153,15 @@ export function renderConnectionCard(
 }
 export function createSettingsView(
   container,
-  { request, onConfig, getSession, onSession, notify },
+  { request, onConfig, getSession, onSession, notify, onOpenRuntime },
 ) {
   let snapshot = null,
     catalog = null,
     info = null,
     dirty = false,
     busy = false,
-    generation = 0;
+    generation = 0,
+    runtimeContext = null;
   const form = el("form", { className: "settings-form" });
   const provider = el("select", {
     attrs: { name: "provider", "aria-label": "Provider" },
@@ -216,6 +253,33 @@ export function createSettingsView(
     el("div", { className: "credential-actions" }, keyDelete, keySave),
   );
   container.replaceChildren(form, credential);
+  renderPlanned(document.getElementById("planned-capabilities"));
+  /* RC-1 / RC-5: Settings keeps two runtime entries — the door into the
+     runtime module, and the size of what the next run will actually carry. */
+  function runtimePanel() {
+    const panel = document.getElementById("runtime-control-settings");
+    const current = getSession();
+    panel.hidden = !current?.session;
+    if (!current?.session) return;
+    const entry = document.getElementById("runtime-control-entry");
+    if (!entry.dataset.wired) {
+      entry.dataset.wired = "true";
+      entry.append(
+        action("settings-2", "Open runtime resources", () => onOpenRuntime?.(), {
+          visible: true,
+          className: "context-row",
+        }),
+        el("p", {
+          className: "settings-row-help",
+          text: "Tools, MCP servers, skills, plugins and instructions, with the scope each value comes from.",
+        }),
+      );
+    }
+    renderContextBar(
+      document.getElementById("runtime-context-summary"),
+      runtimeContext,
+    );
+  }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
   }
@@ -464,24 +528,33 @@ export function createSettingsView(
         resetFields();
       lock();
       sessionPanel();
+      runtimePanel();
     },
     async refresh() {
       const own = ++generation;
       error.hidden = true;
+      const session = getSession()?.session;
       try {
-        const [config, models, runtime] = await Promise.all([
+        const [config, models, runtime, context] = await Promise.all([
           request("/provider-config"),
           request("/provider-models"),
           request("/runtime-info"),
+          session
+            ? request(
+                `/runtime-context?sessionId=${encodeURIComponent(session.id)}`,
+              ).catch(() => null)
+            : Promise.resolve(null),
         ]);
         if (own !== generation) return;
         snapshot = config;
         catalog = models;
         info = runtime;
+        runtimeContext = context;
         onConfig(config);
         if (!dirty) resetFields();
         lock();
         sessionPanel();
+        runtimePanel();
         const debug = document.getElementById("runtime-info");
         debug.replaceChildren();
         const dl = el("dl", { className: "data-list" });
