@@ -22,6 +22,14 @@
       >
         <header class="sidebar-header">
           <a class="workspace-brand" href="#home" id="workspace-home-link"
+            ><court-symbol
+              class="brand-wordmark"
+              concept="write"
+              material="mono"
+              size="20"
+              theme="light"
+              aria-hidden="true"
+            ></court-symbol
             >Schema Engineering</a
           >
           <div class="toolbar">
@@ -117,6 +125,15 @@
             aria-expanded="false"
             aria-label="Open navigation"
           ></button>
+          <court-symbol
+            id="session-presence-symbol"
+            class="session-presence"
+            concept="write"
+            material="mono"
+            size="16"
+            theme="light"
+            hidden
+          ></court-symbol>
           <div class="chat-title-wrap">
             <p id="project-title" class="eyebrow">Workspace</p>
             <h1 id="session-title" tabindex="-1">Home</h1>
@@ -178,6 +195,15 @@
         </div>
         <footer id="composer-area" class="composer-area" hidden>
           <div id="home-composer-intro" class="home-composer-intro" hidden>
+            <court-symbol
+              id="home-hero-symbol"
+              class="brand-hero"
+              concept="summon"
+              material="glass"
+              size="48"
+              theme="light"
+              aria-hidden="true"
+            ></court-symbol>
             <h2>What would you like to work on?</h2>
           </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
@@ -596,6 +622,7 @@
         </div>
       </form>
     </dialog>
+    <script type="module" src="/brand/src/court-symbol.mjs"></script>
     <script type="module" src="/web/app.mjs"></script>
   </body>
 </html>
