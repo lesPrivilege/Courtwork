@@ -3224,3 +3224,8 @@ court-symbol {
     transition: none;
   }
 }
+/* WO-RC follow-up · below the navigation breakpoint the exposure switch keeps a
+   44 px hit box whatever the pointer media query reports (touch obligation). */
+@media (max-width: 1023px) {
+  .runtime-switch input { height: 44px; }
+}
