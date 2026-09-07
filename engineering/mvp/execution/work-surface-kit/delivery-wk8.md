@@ -20,3 +20,8 @@
 ## 未验证
 
 真实 Tauri / Electron 壳下的 env() 取值（fresh 尚无壳，WK-31）；Home 10 项脚本本次未重跑（改动不涉及其断言路径，留 Astra 独验）；390 桌面态捕获。
+
+## BR-1 消费（2026-09-09）
+
+- 合入 Astra 品牌候选 `d799a7f`（`codex/brand-host-colors`，只改 `brand/`）为 merge `f61120e`；`adb2e01` 在 `styles.css` 加宿主映射 `court-symbol { --cw-ink: var(--ink); --cw-record: var(--muted-strong); --cw-background: var(--panel); }`；`75a366a` 两处落点为 hierarchical。
+- 8853 实测：wordmark 内 actor 填色 = `--ink`（rgb 32,32,32），record 填色 = `--muted-strong`（rgb 100,100,100）；本支尚无 WK7 深宗与铅灰 token，合流 `claude/wk7-color-governance` 后取值自动切换为 slate-12 / slate-11 及深宗值。
