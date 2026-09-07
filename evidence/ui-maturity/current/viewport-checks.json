@@ -1,0 +1,47 @@
+[
+  {
+    "closeHeight": 32,
+    "height": 900,
+    "mainHidden": "false",
+    "modal": null,
+    "overflow": false,
+    "panelWidth": 380,
+    "width": 1440
+  },
+  {
+    "closeHeight": 32,
+    "height": 900,
+    "mainHidden": "false",
+    "modal": null,
+    "overflow": false,
+    "panelWidth": 340,
+    "width": 1024
+  },
+  {
+    "closeHeight": 44,
+    "height": 900,
+    "mainHidden": "true",
+    "modal": "true",
+    "overflow": false,
+    "panelWidth": 460,
+    "width": 768
+  },
+  {
+    "closeHeight": 44,
+    "height": 932,
+    "mainHidden": "true",
+    "modal": "true",
+    "overflow": false,
+    "panelWidth": 430,
+    "width": 430
+  },
+  {
+    "closeHeight": 44,
+    "height": 844,
+    "mainHidden": "true",
+    "modal": "true",
+    "overflow": false,
+    "panelWidth": 390,
+    "width": 390
+  }
+]

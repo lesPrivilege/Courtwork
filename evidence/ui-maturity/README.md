@@ -1,5 +1,7 @@
 # Web UI 成熟度首片：工作面覆盖与焦点连续性
 
+> 本文保留首片历史。当前可联调版本、启动方式与验证结果见 [current/README.md](current/README.md)。
+
 2026-09-07。作者 Astra；Luna 负责只读溯源与 diff 复核。用户最新要求将 web UI 成熟度迭代交给 Astra，Claude Design 继续视觉审美、取色与画板。此候选从 C3 `2d8a26b263cb570b6adcc5d8cc866169c41174bd` 独立开出，未覆盖 `/private/tmp/se-agent-v9-web`。
 
 ## 范围与改变

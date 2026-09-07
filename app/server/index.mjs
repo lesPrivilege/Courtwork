@@ -18,6 +18,9 @@ const STATIC = new Map([
   ["/extensions/evidence-memo/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "evidence-memo", "renderer.mjs"), type: "text/javascript; charset=utf-8" }],
 ]);
 
+for (const name of ["ui-controls.mjs", "settings-view.mjs", "inspector.mjs", "materials-view.mjs", "home-view.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
+
 function send(res, status, body, type = "application/json; charset=utf-8") {
   const payload = Buffer.isBuffer(body) ? body : typeof body === "string" ? body : JSON.stringify(body);
   res.writeHead(status, { "content-type": type, "content-length": Buffer.byteLength(payload), "cache-control": "no-store" });

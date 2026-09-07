@@ -1,9 +1,43 @@
+import {
+  icon,
+  action,
+  setAction,
+  copyAction,
+  markdown,
+  installTooltips,
+} from "./ui-controls.mjs";
+import { createSettingsView, permissionLabels } from "./settings-view.mjs";
+import {
+  renderRun,
+  createFileView,
+  runLabels,
+  noticeText,
+  formatBytes,
+} from "./inspector.mjs";
+import { createMaterialsView } from "./materials-view.mjs";
+import { renderHome } from "./home-view.mjs";
+import {
+  projectThread,
+  canAnswer,
+  validPermission,
+} from "./thread-projection.mjs";
+
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
-const surfaceOverlayQuery = window.matchMedia("(max-width: 1060px)");
+const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 
 const state = {
   token: null,
+  view: "home",
+  navigationOpen: false,
+  sidebarCollapsed: false,
+  home: { data: null, error: null, loading: false, generation: 0, offsets: {} },
+  sessionListErrors: new Map(),
+  unconfirmedRuns: new Map(),
+  createAttempts: new Map(),
+  startAfterProject: false,
+  newSessionProjectId: null,
+  runtimeInfo: null,
   capabilities: null,
   adapterId: null,
   projects: [],
@@ -37,6 +71,7 @@ const state = {
   questionSubmitted: new Set(),
   questionErrors: new Map(),
   toolOpen: new Map(),
+  navigationLimits: new Map(),
   longMessageOpen: new Map(),
   messageReading: new Map(),
   bindingExtensionId: null,
@@ -50,7 +85,14 @@ const state = {
   recoveryProbeTimer: null,
   recoveryProbeController: null,
   surface: {
-    open: true,
+    open: false,
+    kind: "preview",
+    runId: null,
+    fileRef: null,
+    returnFocus: null,
+    runReadGeneration: 0,
+    runReadController: null,
+    workspaceGeneration: 0,
     expanded: false,
     requestId: 0,
     fetchRequestId: 0,
@@ -66,6 +108,31 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+let tooltips, settingsView, materialsView, fileView;
+const dialogReturns = new Map();
+const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
+function storeUnconfirmedRuns() {
+  try {
+    window.sessionStorage.setItem(
+      COMMAND_STORAGE_KEY,
+      JSON.stringify([...state.unconfirmedRuns]),
+    );
+  } catch {
+    /* receipt remains in memory */
+  }
+}
+function setWorkspaceTitle(title) {
+  if (state.surface.kind === "preview") $("surface-title").textContent = title;
+}
+function restoreLayerFocus(preferred, fallback = $("session-title")) {
+  const target =
+    preferred?.isConnected &&
+    !preferred.closest("[inert]") &&
+    preferred.getClientRects().length
+      ? preferred
+      : fallback;
+  target?.focus();
+}
 
 function element(tag, options = {}, ...children) {
   const item = document.createElement(tag);
@@ -73,12 +140,15 @@ function element(tag, options = {}, ...children) {
   if (options.text !== undefined) item.textContent = String(options.text);
   if (options.attrs) {
     for (const [name, value] of Object.entries(options.attrs)) {
-      if (value !== undefined && value !== null) item.setAttribute(name, String(value));
+      if (value !== undefined && value !== null)
+        item.setAttribute(name, String(value));
     }
   }
   for (const child of children) {
     if (child === null || child === undefined || child === false) continue;
-    item.append(typeof child === "string" ? document.createTextNode(child) : child);
+    item.append(
+      typeof child === "string" ? document.createTextNode(child) : child,
+    );
   }
   return item;
 }
@@ -93,7 +163,8 @@ function readUiState() {
     const raw = window.localStorage.getItem(UI_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return {};
     return parsed;
   } catch {
     return {};
@@ -103,19 +174,33 @@ function readUiState() {
 function writeUiState() {
   try {
     if (!window.localStorage) return;
-    window.localStorage.setItem(UI_STORAGE_KEY, JSON.stringify({
-      activeProjectId: typeof state.activeProjectId === "string" ? state.activeProjectId : null,
-      activeSessionId: typeof state.activeSessionId === "string" ? state.activeSessionId : null,
-      openProjectIds: [...state.openProjectIds].filter((id) => typeof id === "string"),
-      surfaceOpen: state.surface.open !== false,
-    }));
+    window.localStorage.setItem(
+      UI_STORAGE_KEY,
+      JSON.stringify({
+        activeProjectId:
+          typeof state.activeProjectId === "string"
+            ? state.activeProjectId
+            : null,
+        activeSessionId:
+          typeof state.activeSessionId === "string"
+            ? state.activeSessionId
+            : null,
+        openProjectIds: [...state.openProjectIds].filter(
+          (id) => typeof id === "string",
+        ),
+        surfaceOpen: state.surface.open !== false,
+      }),
+    );
   } catch {
     // Storage is a convenience for UI markers. A blocked or malformed store must not block startup.
   }
 }
 
 function sessionScopeKey(...parts) {
-  return [state.activeSessionId || "", ...parts.map((part) => String(part ?? ""))].join(":");
+  return [
+    state.activeSessionId || "",
+    ...parts.map((part) => String(part ?? "")),
+  ].join(":");
 }
 
 function nextOperationId(kind = "op") {
@@ -138,7 +223,11 @@ function nextOperationId(kind = "op") {
 // `guardAdmitNavigation` is provided for reuse by the G1 create/switch
 // navigation-admission work; it is intentionally unused here.
 function guardRegisterIntent(extra = {}) {
-  return { navEpoch: state.navigationEpoch, focusIntentEpoch: state.focusIntentEpoch, ...extra };
+  return {
+    navEpoch: state.navigationEpoch,
+    focusIntentEpoch: state.focusIntentEpoch,
+    ...extra,
+  };
 }
 
 function guardAdmitNavigation(ticket) {
@@ -150,7 +239,10 @@ function guardBumpFocusIntent() {
   return state.focusIntentEpoch;
 }
 
-function guardHandoffFocus(ticket, { isTargetActive, targetControl, intentContainer, perform } = {}) {
+function guardHandoffFocus(
+  ticket,
+  { isTargetActive, targetControl, intentContainer, perform } = {},
+) {
   if (!ticket || typeof perform !== "function") return false;
   if (ticket.focusIntentEpoch !== state.focusIntentEpoch) return false;
   if (typeof isTargetActive === "function" && !isTargetActive()) return false;
@@ -165,12 +257,13 @@ function guardHandoffFocus(ticket, { isTargetActive, targetControl, intentContai
   // outside that container still blocks the handoff.
   const active = document.activeElement;
   if (
-    targetControl
-    && active
-    && active !== document.body
-    && active !== targetControl
-    && !(intentContainer && intentContainer.contains(active))
-  ) return false;
+    targetControl &&
+    active &&
+    active !== document.body &&
+    active !== targetControl &&
+    !(intentContainer && intentContainer.contains(active))
+  )
+    return false;
   perform();
   return true;
 }
@@ -181,7 +274,10 @@ function draftRevision(sessionId) {
 
 function bumpSessionMutation(sessionId) {
   if (!sessionId) return;
-  state.sessionMutationVersions.set(sessionId, (state.sessionMutationVersions.get(sessionId) || 0) + 1);
+  state.sessionMutationVersions.set(
+    sessionId,
+    (state.sessionMutationVersions.get(sessionId) || 0) + 1,
+  );
 }
 
 function nextSessionReadToken(sessionId) {
@@ -212,7 +308,9 @@ function toolScopeKey(runId, callId, name = "tool") {
 }
 
 function isNearBottom(stream, threshold = 48) {
-  return stream.scrollHeight - stream.scrollTop - stream.clientHeight <= threshold;
+  return (
+    stream.scrollHeight - stream.scrollTop - stream.clientHeight <= threshold
+  );
 }
 
 function setJumpLatestVisible(visible) {
@@ -226,7 +324,8 @@ function rememberMessageReading(stream, { forceFollow = null } = {}) {
     setJumpLatestVisible(false);
     return { followLatest: true, scrollTop: 0 };
   }
-  const followLatest = forceFollow === null ? isNearBottom(stream) : forceFollow;
+  const followLatest =
+    forceFollow === null ? isNearBottom(stream) : forceFollow;
   const reading = { followLatest, scrollTop: stream.scrollTop };
   state.messageReading.set(session.id, reading);
   setJumpLatestVisible(!followLatest);
@@ -251,7 +350,9 @@ function normalizedType(type) {
 }
 
 function isActiveRun(run) {
-  return ["created", "running", "waiting_user", "stopping"].includes(run?.status);
+  return ["created", "running", "waiting_user", "stopping"].includes(
+    run?.status,
+  );
 }
 
 function isTerminalRunStatus(status) {
@@ -259,11 +360,16 @@ function isTerminalRunStatus(status) {
 }
 
 function currentSession() {
-  return state.session && state.session.id === state.activeSessionId ? state.session : null;
+  return state.session && state.session.id === state.activeSessionId
+    ? state.session
+    : null;
 }
 
 function currentProject() {
-  return state.projects.find((project) => project.id === state.activeProjectId) || null;
+  return (
+    state.projects.find((project) => project.id === state.activeProjectId) ||
+    null
+  );
 }
 
 function currentRun() {
@@ -272,7 +378,10 @@ function currentRun() {
 
 function showToast(message, kind = "info") {
   const region = $("toast-region");
-  const toast = element("div", { className: `toast ${kind === "error" ? "error" : ""}`, text: message });
+  const toast = element("div", {
+    className: `toast ${kind === "error" ? "error" : ""}`,
+    text: message,
+  });
   region.append(toast);
   window.setTimeout(() => toast.remove(), 4600);
 }
@@ -294,12 +403,21 @@ const FEEDBACK_CATEGORY_ORDER = ["run", "cancel", "draft"];
 function feedbackBucket(sessionId) {
   if (!sessionId) return null;
   if (!state.feedback.has(sessionId)) {
-    state.feedback.set(sessionId, { transient: null, persistent: { run: null, cancel: null, draft: null } });
+    state.feedback.set(sessionId, {
+      transient: null,
+      persistent: { run: null, cancel: null, draft: null },
+    });
   }
   return state.feedback.get(sessionId);
 }
 
-function setTransientFeedback(sessionId, operationId, category, text, { duration = 3000 } = {}) {
+function setTransientFeedback(
+  sessionId,
+  operationId,
+  category,
+  text,
+  { duration = 3000 } = {},
+) {
   const bucket = feedbackBucket(sessionId);
   if (!bucket) return;
   if (bucket.transient?.timer) window.clearTimeout(bucket.transient.timer);
@@ -313,14 +431,34 @@ function setTransientFeedback(sessionId, operationId, category, text, { duration
       }
     }, duration);
   }
-  bucket.transient = { sessionId, operationId, kind: "transient", category, text, timer };
+  bucket.transient = {
+    sessionId,
+    operationId,
+    kind: "transient",
+    category,
+    text,
+    timer,
+  };
   if (state.activeSessionId === sessionId) renderFeedback();
 }
 
-function setPersistentFeedback(sessionId, operationId, category, text, { nextAction = null } = {}) {
+function setPersistentFeedback(
+  sessionId,
+  operationId,
+  category,
+  text,
+  { nextAction = null } = {},
+) {
   const bucket = feedbackBucket(sessionId);
   if (!bucket) return;
-  bucket.persistent[category] = { sessionId, operationId, kind: "persistent", category, text, nextAction };
+  bucket.persistent[category] = {
+    sessionId,
+    operationId,
+    kind: "persistent",
+    category,
+    text,
+    nextAction,
+  };
   if (state.activeSessionId === sessionId) renderFeedback();
 }
 
@@ -338,7 +476,9 @@ function renderFeedback() {
   const sessionId = state.activeSessionId;
   const bucket = sessionId ? state.feedback.get(sessionId) : null;
   const persistentEntries = bucket
-    ? FEEDBACK_CATEGORY_ORDER.map((category) => bucket.persistent[category]).filter(Boolean)
+    ? FEEDBACK_CATEGORY_ORDER.map(
+        (category) => bucket.persistent[category],
+      ).filter(Boolean)
     : [];
   // Persistent problems (one per category, run -> cancel -> draft) take
   // priority; a transient confirmation is only shown when nothing is
@@ -348,16 +488,33 @@ function renderFeedback() {
     el.className = "draft-status";
     return;
   }
-  el.className = `draft-status ${persistentEntries.length ? "error" : "saved"}`.trim();
+  el.className =
+    `draft-status ${persistentEntries.length ? "error" : "saved"}`.trim();
   for (const entry of persistentEntries) el.append(renderFeedbackLine(entry));
   if (transient) el.append(renderFeedbackLine(transient));
 }
 
 function renderFeedbackLine(entry) {
-  const line = element("div", { className: "draft-status-line", text: entry.text });
+  const line = element("div", {
+    className: "draft-status-line",
+    text: entry.text,
+  });
+  if (entry.nextAction === "retry-run") {
+    const retry = element("button", {
+      className: "text-button",
+      attrs: { type: "button" },
+      text: "Recover run receipt",
+    });
+    retry.addEventListener("click", () => void recoverRunReceipt());
+    line.append(retry);
+  }
   if (entry.nextAction === "view-history") {
     line.append(document.createTextNode(" "));
-    const button = element("button", { className: "text-button draft-status-action", attrs: { type: "button" }, text: "View history" });
+    const button = element("button", {
+      className: "text-button draft-status-action",
+      attrs: { type: "button" },
+      text: "View history",
+    });
     button.addEventListener("click", () => scrollToLatestMessage());
     line.append(button);
   }
@@ -380,7 +537,8 @@ function scrollToLatestMessage() {
 // counts as uncertain.
 const ERROR_COPY = {
   "run:uncertain": {
-    text: () => "Could not confirm run admission. Check session history before retrying.",
+    text: () =>
+      "Could not confirm run admission. Check session history before retrying.",
     retryable: false,
     nextAction: "view-history",
   },
@@ -390,7 +548,8 @@ const ERROR_COPY = {
     nextAction: "retry",
   },
   "cancel:uncertain": {
-    text: () => "Could not confirm run cancellation. Check session history before retrying.",
+    text: () =>
+      "Could not confirm run cancellation. Check session history before retrying.",
     retryable: false,
     nextAction: "view-history",
   },
@@ -413,8 +572,17 @@ const ERROR_COPY = {
 
 function describeCommandError(operation, error) {
   const code = `${operation}:${isUncertainCommandError(error) ? "uncertain" : "rejected"}`;
-  const entry = ERROR_COPY[code] || { text: (err) => err.message, retryable: true, nextAction: "retry" };
-  return { code, text: entry.text(error), retryable: entry.retryable, nextAction: entry.nextAction };
+  const entry = ERROR_COPY[code] || {
+    text: (err) => err.message,
+    retryable: true,
+    nextAction: "retry",
+  };
+  return {
+    code,
+    text: entry.text(error),
+    retryable: entry.retryable,
+    nextAction: entry.nextAction,
+  };
 }
 
 async function request(path, options = {}) {
@@ -428,7 +596,8 @@ async function request(path, options = {}) {
     headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(options.body);
   }
-  if (state.token && path !== "/bootstrap") headers["X-Work-Token"] = state.token;
+  if (state.token && path !== "/bootstrap")
+    headers["X-Work-Token"] = state.token;
 
   let response;
   try {
@@ -446,8 +615,23 @@ async function request(path, options = {}) {
   } catch {
     payload = null;
   }
+  // Router 401 means no command was admitted. Refresh a process-scoped token
+  // once; transport errors and 5xx receipts are never automatically replayed.
+  if (
+    response.status === 401 &&
+    payload?.error?.code === "unauthorized" &&
+    path !== "/bootstrap" &&
+    !options.tokenRetried
+  ) {
+    const bootstrap = await request("/bootstrap", { signal: options.signal });
+    if (bootstrap.sessionToken) {
+      state.token = bootstrap.sessionToken;
+      return request(path, { ...options, tokenRetried: true });
+    }
+  }
   if (!response.ok) {
-    const message = payload?.error?.message || `Request failed (${response.status}).`;
+    const message =
+      payload?.error?.message || `Request failed (${response.status}).`;
     const error = new Error(message);
     error.status = response.status;
     error.body = payload;
@@ -472,11 +656,13 @@ function sameSurfaceIdentity(left, right) {
   if (!left || !right) return false;
   const a = surfaceIdentity(left);
   const b = surfaceIdentity(right);
-  return a.sessionId === b.sessionId &&
+  return (
+    a.sessionId === b.sessionId &&
     a.extensionId === b.extensionId &&
     a.generation === b.generation &&
     a.status === b.status &&
-    a.modulePath === b.modulePath;
+    a.modulePath === b.modulePath
+  );
 }
 
 function extensionModulePath(extension) {
@@ -507,26 +693,33 @@ function guardForSurface(context) {
   const infoExtension = state.surface.info?.extension;
   return Boolean(
     context &&
-    current &&
-    context.requestId === state.surface.requestId &&
-    context.requestId === current.requestId &&
-    context.epoch === state.sessionEpoch &&
-    context.sessionId === state.activeSessionId &&
-    sameSurfaceIdentity(context, current) &&
-    infoExtension &&
-    infoExtension.id === current.extensionId &&
-    (infoExtension.generation ?? null) === (current.generation ?? null) &&
-    (infoExtension.status || null) === (current.status || null) &&
-    extensionModulePath(infoExtension) === (current.modulePath || null),
+      current &&
+      context.requestId === state.surface.requestId &&
+      context.requestId === current.requestId &&
+      context.epoch === state.sessionEpoch &&
+      context.sessionId === state.activeSessionId &&
+      sameSurfaceIdentity(context, current) &&
+      infoExtension &&
+      infoExtension.id === current.extensionId &&
+      (infoExtension.generation ?? null) === (current.generation ?? null) &&
+      (infoExtension.status || null) === (current.status || null) &&
+      extensionModulePath(infoExtension) === (current.modulePath || null),
   );
 }
 
-function guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller }) {
-  return epoch === state.sessionEpoch &&
+function guardForSurfaceFetch({
+  epoch,
+  sessionId,
+  fetchRequestId,
+  controller,
+}) {
+  return (
+    epoch === state.sessionEpoch &&
     sessionId === state.activeSessionId &&
     fetchRequestId === state.surface.fetchRequestId &&
     controller === state.surface.fetchController &&
-    !controller.signal.aborted;
+    !controller.signal.aborted
+  );
 }
 
 function invalidateSurfaceFetches() {
@@ -547,9 +740,41 @@ function mergeEvents(events) {
       bySeq.set(event.seq, event);
     }
     const type = normalizedType(event.type);
-    if (type === "run/status" && event.runId && event.data?.status) changed = mergeRun({ id: event.runId, status: event.data.status }, { sessionId: eventSessionId || state.activeSessionId }) || changed;
-    if (type === "run/error" && event.runId) changed = mergeRun({ id: event.runId, status: "failed", error: event.data }, { sessionId: eventSessionId || state.activeSessionId }) || changed;
-    if (type === "question/resolved") {
+    if (type === "run/status" && event.runId && event.data?.status)
+      changed =
+        mergeRun(
+          { id: event.runId, status: event.data.status },
+          { sessionId: eventSessionId || state.activeSessionId },
+        ) || changed;
+    if (type === "run/error" && event.runId)
+      changed =
+        mergeRun(
+          { id: event.runId, status: "failed", error: event.data },
+          { sessionId: eventSessionId || state.activeSessionId },
+        ) || changed;
+    if (type === "run/usage" && event.runId)
+      mergeRun(
+        { id: event.runId, usage: event.data },
+        { sessionId: eventSessionId || state.activeSessionId },
+      );
+    if (type === "artifact/written" && event.runId) {
+      const previous = state.runs.find((run) => run.id === event.runId);
+      const artifacts = [...(previous?.artifacts || [])];
+      if (
+        !artifacts.some(
+          (file) =>
+            file.path === event.data?.path &&
+            file.sha256 === event.data?.sha256 &&
+            file.writtenAt === event.data?.writtenAt,
+        )
+      )
+        artifacts.push(event.data);
+      mergeRun(
+        { id: event.runId, artifacts },
+        { sessionId: eventSessionId || state.activeSessionId },
+      );
+    }
+    if (type === "question/resolved" || type === "permission/resolved") {
       const questionId = event.data?.id || event.data?.questionId;
       if (questionId !== undefined) {
         const key = questionScopeKey(event.runId, questionId);
@@ -562,13 +787,23 @@ function mergeEvents(events) {
     }
   }
   state.events = [...bySeq.values()].sort((a, b) => a.seq - b.seq);
-  state.lastSeq = state.events.reduce((max, event) => Math.max(max, Number(event.seq) || 0), state.lastSeq);
+  state.lastSeq = state.events.reduce(
+    (max, event) => Math.max(max, Number(event.seq) || 0),
+    state.lastSeq,
+  );
   if (changed) bumpSessionMutation(state.activeSessionId);
   return changed;
 }
 
-function mergeRun(run, { sessionId = state.activeSessionId, preserveStatus = false } = {}) {
-  if (!runBelongsToSession(run, sessionId) || sessionId !== state.activeSessionId) return false;
+function mergeRun(
+  run,
+  { sessionId = state.activeSessionId, preserveStatus = false } = {},
+) {
+  if (
+    !runBelongsToSession(run, sessionId) ||
+    sessionId !== state.activeSessionId
+  )
+    return false;
   const scopedRun = run.sessionId ? run : { ...run, sessionId };
   const index = state.runs.findIndex((item) => item.id === run.id);
   if (index === -1) {
@@ -577,16 +812,27 @@ function mergeRun(run, { sessionId = state.activeSessionId, preserveStatus = fal
     return true;
   }
   const previous = state.runs[index];
-  if (isTerminalRunStatus(previous.status) && scopedRun.status && scopedRun.status !== previous.status) return false;
+  if (
+    isTerminalRunStatus(previous.status) &&
+    scopedRun.status &&
+    scopedRun.status !== previous.status
+  )
+    return false;
   const next = {
     ...previous,
     ...scopedRun,
-    ...(preserveStatus && previous.status && scopedRun.status && previous.status !== scopedRun.status
+    ...(preserveStatus &&
+    previous.status &&
+    scopedRun.status &&
+    previous.status !== scopedRun.status
       ? { status: previous.status }
       : {}),
   };
   state.runs[index] = next;
-  const changed = previous.status !== next.status || previous.error !== next.error || previous.id !== next.id;
+  const changed =
+    previous.status !== next.status ||
+    previous.error !== next.error ||
+    previous.id !== next.id;
   if (changed) bumpSessionMutation(sessionId);
   return changed;
 }
@@ -621,10 +867,18 @@ async function pollEvents(epoch) {
   // in scheduleRecoveryProbe/refreshActiveSession below.
   const connectionEpoch = state.connectionEpoch;
   try {
-    const page = await request(`/sessions/${encodeURIComponent(sessionId)}/events?afterSeq=${state.lastSeq}`, {
-      signal: controller.signal,
-    });
-    if (epoch !== state.sessionEpoch || sessionId !== state.activeSessionId || controller.signal.aborted) return;
+    const page = await request(
+      `/sessions/${encodeURIComponent(sessionId)}/events?afterSeq=${state.lastSeq}`,
+      {
+        signal: controller.signal,
+      },
+    );
+    if (
+      epoch !== state.sessionEpoch ||
+      sessionId !== state.activeSessionId ||
+      controller.signal.aborted
+    )
+      return;
     if (wasConnectionLost && connectionEpoch === state.connectionEpoch) {
       // WS-12: connection state is separate from run state. The failing
       // request never changed run status; on recovery we do not merge the
@@ -640,14 +894,32 @@ async function pollEvents(epoch) {
       // ordinary successful poll.
       const changed = mergeEvents(page.events || []);
       if (changed) renderChat();
-      if (hadActiveRun && !state.runs.some(isActiveRun)) await loadSurface(epoch);
+      if (state.surface.open && state.surface.kind === "run" && changed)
+        void readRunDetails();
+      if (hadActiveRun && !state.runs.some(isActiveRun)) {
+        await loadSurface(epoch);
+        void refreshRunDetails(
+          state.runs.find((run) => run.id === state.surface.runId)?.id ||
+            state.runs.at(-1)?.id,
+        );
+      }
     }
   } catch (error) {
-    if (error?.name !== "AbortError" && epoch === state.sessionEpoch) {
+    if (
+      error.body?.error?.code === "cursor_ahead" &&
+      epoch === state.sessionEpoch
+    ) {
+      await refreshActiveSession();
+    } else if (error?.name !== "AbortError" && epoch === state.sessionEpoch) {
       setConnectionLost(true);
     }
   }
-  if (epoch === state.sessionEpoch && currentSession() && state.runs.some(isActiveRun)) schedulePolling(epoch);
+  if (
+    epoch === state.sessionEpoch &&
+    currentSession() &&
+    state.runs.some(isActiveRun)
+  )
+    schedulePolling(epoch);
   else stopPolling();
 }
 
@@ -726,15 +998,17 @@ function scheduleRecoveryProbe() {
     const controller = new AbortController();
     state.recoveryProbeController = controller;
     let succeeded = false;
+    let bootstrap = null;
     try {
-      await request("/bootstrap", { signal: controller.signal });
+      bootstrap = await request("/bootstrap", { signal: controller.signal });
       succeeded = true;
     } catch {
       // Network failure, or an AbortError from stopRecoveryProbe having
       // ended this probe's round while it was in flight — either way,
       // handled uniformly by the epoch/connectionLost check below.
     }
-    if (state.recoveryProbeController === controller) state.recoveryProbeController = null;
+    if (state.recoveryProbeController === controller)
+      state.recoveryProbeController = null;
     if (state.connectionEpoch !== probeEpoch || !state.connectionLost) {
       // This round already ended (recovered some other way, e.g. an
       // explicit Refresh) or was superseded by a newer outage while this
@@ -744,6 +1018,7 @@ function scheduleRecoveryProbe() {
       return;
     }
     if (succeeded) {
+      if (bootstrap?.sessionToken) state.token = bootstrap.sessionToken;
       setConnectionLost(false);
       if (state.activeSessionId) void refreshActiveSession();
       return; // setConnectionLost(false) already stopped the probe for this round.
@@ -752,36 +1027,51 @@ function scheduleRecoveryProbe() {
   }, 900);
 }
 
-async function saveDraft(sessionId, text, { revision = draftRevision(sessionId) } = {}) {
+async function saveDraft(
+  sessionId,
+  text,
+  { revision = draftRevision(sessionId) } = {},
+) {
   if (!sessionId) return false;
   const operationId = nextOperationId("draft");
   const previous = state.draftQueues.get(sessionId) || Promise.resolve(true);
   let task;
-  task = previous.catch(() => false).then(async () => {
-    try {
-      await request(`/sessions/${encodeURIComponent(sessionId)}/draft`, {
-        method: "PUT",
-        body: { text },
-      });
-      if (draftRevision(sessionId) === revision && state.draftCache.get(sessionId) === text) {
-        state.draftDirty.delete(sessionId);
-        // WS-08: storage is not gated on which session is active (see submitRun).
-        clearPersistentFeedback(sessionId, "draft");
-        setTransientFeedback(sessionId, operationId, "draft", "Draft saved");
+  task = previous
+    .catch(() => false)
+    .then(async () => {
+      try {
+        await request(`/sessions/${encodeURIComponent(sessionId)}/draft`, {
+          method: "PUT",
+          body: { text },
+        });
+        if (
+          draftRevision(sessionId) === revision &&
+          state.draftCache.get(sessionId) === text
+        ) {
+          state.draftDirty.delete(sessionId);
+          // WS-08: storage is not gated on which session is active (see submitRun).
+          clearPersistentFeedback(sessionId, "draft");
+          setTransientFeedback(sessionId, operationId, "draft", "Draft saved");
+        }
+        return true;
+      } catch (error) {
+        const currentDraft =
+          draftRevision(sessionId) === revision &&
+          state.draftCache.get(sessionId) === text;
+        if (currentDraft) {
+          state.draftDirty.add(sessionId);
+          const copy = describeCommandError("draft", error);
+          setPersistentFeedback(sessionId, operationId, "draft", copy.text, {
+            nextAction: copy.nextAction,
+          });
+        }
+        return false;
       }
-      return true;
-    } catch (error) {
-      const currentDraft = draftRevision(sessionId) === revision && state.draftCache.get(sessionId) === text;
-      if (currentDraft) {
-        state.draftDirty.add(sessionId);
-        const copy = describeCommandError("draft", error);
-        setPersistentFeedback(sessionId, operationId, "draft", copy.text, { nextAction: copy.nextAction });
-      }
-      return false;
-    }
-  }).finally(() => {
-    if (state.draftQueues.get(sessionId) === task) state.draftQueues.delete(sessionId);
-  });
+    })
+    .finally(() => {
+      if (state.draftQueues.get(sessionId) === task)
+        state.draftQueues.delete(sessionId);
+    });
   state.draftQueues.set(sessionId, task);
   return task;
 }
@@ -797,7 +1087,8 @@ function scheduleDraftSave() {
   const session = currentSession();
   if (!session) return;
   const sessionId = session.id;
-  if (state.draftTimers.has(sessionId)) window.clearTimeout(state.draftTimers.get(sessionId));
+  if (state.draftTimers.has(sessionId))
+    window.clearTimeout(state.draftTimers.get(sessionId));
   const timer = window.setTimeout(() => {
     state.draftTimers.delete(sessionId);
     const revision = draftRevision(sessionId);
@@ -805,7 +1096,13 @@ function scheduleDraftSave() {
     void saveDraft(sessionId, text, { revision });
   }, 700);
   state.draftTimers.set(sessionId, timer);
-  setTransientFeedback(sessionId, nextOperationId("draft-pending"), "draft", "Saving draft…", { duration: null });
+  setTransientFeedback(
+    sessionId,
+    nextOperationId("draft-pending"),
+    "draft",
+    "Saving draft…",
+    { duration: null },
+  );
 }
 
 async function persistCurrentDraft() {
@@ -814,7 +1111,13 @@ async function persistCurrentDraft() {
   await persistDraftForSession(session.id);
 }
 
-async function persistDraftForSession(sessionId, { revision = draftRevision(sessionId), text = state.draftCache.get(sessionId) || "" } = {}) {
+async function persistDraftForSession(
+  sessionId,
+  {
+    revision = draftRevision(sessionId),
+    text = state.draftCache.get(sessionId) || "",
+  } = {},
+) {
   if (!sessionId) return;
   const pending = state.draftTimers.get(sessionId);
   if (pending) window.clearTimeout(pending);
@@ -826,9 +1129,11 @@ async function persistDraftForSession(sessionId, { revision = draftRevision(sess
 
 function detachOwnedSurfaceContainer(container) {
   if (!container) return;
-  if (container.parentNode?.removeChild) container.parentNode.removeChild(container);
+  if (container.parentNode?.removeChild)
+    container.parentNode.removeChild(container);
   else container.remove?.();
-  if (state.surface.ownedContainer === container) state.surface.ownedContainer = null;
+  if (state.surface.ownedContainer === container)
+    state.surface.ownedContainer = null;
 }
 
 async function disposeSurfaceRenderer({ abortFetch = true } = {}) {
@@ -859,40 +1164,74 @@ async function disposeSurfaceRenderer({ abortFetch = true } = {}) {
 async function invalidateSurfaceForExtensionChange(previousExtensions = null) {
   const context = state.surface.context;
   const infoExtension = state.surface.info?.extension || null;
-  const boundExtensionId = context?.extensionId || infoExtension?.id || currentSession()?.extensionBinding?.extensionId || null;
+  const boundExtensionId =
+    context?.extensionId ||
+    infoExtension?.id ||
+    currentSession()?.extensionBinding?.extensionId ||
+    null;
   if (!boundExtensionId) return;
-  const previousExtension = previousExtensions?.find((item) => item.id === boundExtensionId) || infoExtension || null;
-  const currentIdentity = context || surfaceIdentityFromExtension(previousExtension, state.activeSessionId);
-  const extension = state.extensions.find((item) => item.id === boundExtensionId) || null;
-  const nextIdentity = surfaceIdentityFromExtension(extension, state.activeSessionId);
+  const previousExtension =
+    previousExtensions?.find((item) => item.id === boundExtensionId) ||
+    infoExtension ||
+    null;
+  const currentIdentity =
+    context ||
+    surfaceIdentityFromExtension(previousExtension, state.activeSessionId);
+  const extension =
+    state.extensions.find((item) => item.id === boundExtensionId) || null;
+  const nextIdentity = surfaceIdentityFromExtension(
+    extension,
+    state.activeSessionId,
+  );
   if (sameSurfaceIdentity(currentIdentity, nextIdentity)) return;
   state.surface.requestId += 1;
   const expectedFetchRequestId = state.surface.fetchRequestId + 1;
   await disposeSurfaceRenderer();
-  if (state.surface.fetchRequestId !== expectedFetchRequestId || state.surface.context) return;
+  if (
+    state.surface.fetchRequestId !== expectedFetchRequestId ||
+    state.surface.context
+  )
+    return;
   state.surface.info = null;
   state.surface.projection = null;
-  $("surface-title").textContent = "Preview";
+  setWorkspaceTitle("Files");
   renderSurfaceFallback();
 }
 
 function maxEventSeq(events) {
-  return (events || []).reduce((max, event) => Math.max(max, Number(event.seq) || 0), 0);
+  return (events || []).reduce(
+    (max, event) => Math.max(max, Number(event.seq) || 0),
+    0,
+  );
 }
 
 function sessionRuns(runs, sessionId) {
   return (runs || []).filter((run) => runBelongsToSession(run, sessionId));
 }
 
-function applySessionDetail(detail, sessionId, { readVersion, readSeq, readToken } = {}) {
-  if (sessionId !== state.activeSessionId || !isCurrentSessionRead(sessionId, readToken)) return false;
+function applySessionDetail(
+  detail,
+  sessionId,
+  { readVersion, readSeq, readToken } = {},
+) {
+  if (
+    sessionId !== state.activeSessionId ||
+    !isCurrentSessionRead(sessionId, readToken)
+  )
+    return false;
   const incomingEvents = (detail.events || [])
-    .filter((event) => !sessionIdForEvent(event) || sessionIdForEvent(event) === sessionId)
+    .filter(
+      (event) =>
+        !sessionIdForEvent(event) || sessionIdForEvent(event) === sessionId,
+    )
     .slice()
     .sort((a, b) => a.seq - b.seq);
   const incomingSeq = maxEventSeq(incomingEvents);
   const currentVersion = state.sessionMutationVersions.get(sessionId) || 0;
-  const hasNewerLocalObservation = currentVersion !== readVersion || state.lastSeq > incomingSeq || state.lastSeq > readSeq;
+  const hasNewerLocalObservation =
+    currentVersion !== readVersion ||
+    state.lastSeq > incomingSeq ||
+    state.lastSeq > readSeq;
   if (!hasNewerLocalObservation) {
     state.session = detail.session || state.session;
     state.events = incomingEvents;
@@ -905,16 +1244,44 @@ function applySessionDetail(detail, sessionId, { readVersion, readSeq, readToken
     if (incomingSeq > state.lastSeq) mergeEvents(incomingEvents);
   }
   if (!state.draftCache.has(sessionId)) {
-    state.draftCache.set(sessionId, state.session?.draft || detail.session?.draft || "");
+    state.draftCache.set(
+      sessionId,
+      state.session?.draft || detail.session?.draft || "",
+    );
     state.draftRevisions.set(sessionId, 0);
     state.draftDirty.delete(sessionId);
+  }
+  const uncertain = state.unconfirmedRuns.get(sessionId);
+  if (
+    uncertain &&
+    state.runs.some((run) => run.commandId === uncertain.commandId)
+  ) {
+    state.unconfirmedRuns.delete(sessionId);
+    storeUnconfirmedRuns();
+    clearPersistentFeedback(sessionId, "run");
+    setTransientFeedback(
+      sessionId,
+      uncertain.operationId,
+      "run",
+      "Previous run found. Your current draft is kept.",
+    );
   }
   return true;
 }
 
-async function selectSession(sessionId, { navigationEpoch: suppliedNavigationEpoch = null } = {}) {
-  if (!sessionId || sessionId === state.activeSessionId) return;
-  const navigationEpoch = suppliedNavigationEpoch ?? (state.navigationEpoch + 1);
+async function selectSession(
+  sessionId,
+  { navigationEpoch: suppliedNavigationEpoch = null } = {},
+) {
+  if (!sessionId) return;
+  if (sessionId === state.activeSessionId) {
+    state.view = "session";
+    closeNavigation({ restoreFocus: false });
+    renderAll();
+    restoreLayerFocus($("composer-input"));
+    return;
+  }
+  const navigationEpoch = suppliedNavigationEpoch ?? state.navigationEpoch + 1;
   if (suppliedNavigationEpoch === null) state.navigationEpoch = navigationEpoch;
   if (navigationEpoch !== state.navigationEpoch) return;
   await persistCurrentDraft();
@@ -925,6 +1292,16 @@ async function selectSession(sessionId, { navigationEpoch: suppliedNavigationEpo
   const epoch = state.sessionEpoch + 1;
   state.sessionEpoch = epoch;
   state.activeSessionId = sessionId;
+  state.view = "session";
+  state.surface.open = false;
+  state.surface.kind = "preview";
+  state.surface.runId = null;
+  state.surface.fileRef = null;
+  state.surface.runReadController?.abort();
+  state.surface.runReadGeneration++;
+  fileView?.dispose();
+  materialsView?.reset();
+  closeNavigation({ restoreFocus: false });
   writeUiState();
   state.session = null;
   state.events = [];
@@ -933,6 +1310,7 @@ async function selectSession(sessionId, { navigationEpoch: suppliedNavigationEpo
   state.bindingExtensionId = null;
   state.surface.expanded = false;
   renderAll();
+  restoreLayerFocus($("session-title"));
 
   let readToken;
   try {
@@ -940,8 +1318,20 @@ async function selectSession(sessionId, { navigationEpoch: suppliedNavigationEpo
     const readSeq = state.lastSeq;
     readToken = nextSessionReadToken(sessionId);
     const detail = await request(`/sessions/${encodeURIComponent(sessionId)}`);
-    if (epoch !== state.sessionEpoch || navigationEpoch !== state.navigationEpoch || state.activeSessionId !== sessionId) return;
-    if (!applySessionDetail(detail, sessionId, { readVersion, readSeq, readToken })) return;
+    if (
+      epoch !== state.sessionEpoch ||
+      navigationEpoch !== state.navigationEpoch ||
+      state.activeSessionId !== sessionId
+    )
+      return;
+    if (
+      !applySessionDetail(detail, sessionId, {
+        readVersion,
+        readSeq,
+        readToken,
+      })
+    )
+      return;
     renderAll();
     await loadSurface(epoch);
     if (state.runs.some(isActiveRun)) {
@@ -949,7 +1339,12 @@ async function selectSession(sessionId, { navigationEpoch: suppliedNavigationEpo
       schedulePolling(epoch, 0);
     }
   } catch (error) {
-    if (epoch !== state.sessionEpoch || navigationEpoch !== state.navigationEpoch || !isCurrentSessionRead(sessionId, readToken)) return;
+    if (
+      epoch !== state.sessionEpoch ||
+      navigationEpoch !== state.navigationEpoch ||
+      !isCurrentSessionRead(sessionId, readToken)
+    )
+      return;
     showToast(`Could not load session: ${error.message}`, "error");
     state.session = null;
     renderAll();
@@ -961,6 +1356,15 @@ function clearActiveSession() {
   void disposeSurfaceRenderer();
   state.sessionEpoch += 1;
   state.activeSessionId = null;
+  state.view = "home";
+  state.surface.open = false;
+  state.surface.kind = "preview";
+  state.surface.fileRef = null;
+  state.surface.runId = null;
+  state.surface.runReadController?.abort();
+  state.surface.runReadGeneration++;
+  fileView?.dispose();
+  materialsView?.reset();
   state.session = null;
   state.events = [];
   state.runs = [];
@@ -972,16 +1376,20 @@ function clearActiveSession() {
 }
 
 async function loadSessionsForProject(projectId, { force = false } = {}) {
-  if (!projectId || (!force && state.sessionsByProject.has(projectId))) return state.sessionsByProject.get(projectId) || [];
+  if (!projectId || (!force && state.sessionsByProject.has(projectId)))
+    return state.sessionsByProject.get(projectId) || [];
   try {
-    const result = await request(`/sessions?projectId=${encodeURIComponent(projectId)}`);
+    const result = await request(
+      `/sessions?projectId=${encodeURIComponent(projectId)}`,
+    );
     const sessions = Array.isArray(result.sessions) ? result.sessions : [];
+    state.sessionListErrors.delete(projectId);
     state.sessionsByProject.set(projectId, sessions);
     return sessions;
   } catch (error) {
     showToast(`Could not load sessions: ${error.message}`, "error");
-    state.sessionsByProject.set(projectId, []);
-    return [];
+    state.sessionListErrors.set(projectId, error.message);
+    return null;
   }
 }
 
@@ -989,10 +1397,21 @@ async function refreshNavigationAndSession() {
   const navigationEpoch = state.navigationEpoch + 1;
   state.navigationEpoch = navigationEpoch;
   await loadProjects();
-  if (navigationEpoch !== state.navigationEpoch || !state.activeProjectId) return;
-  const sessions = await loadSessionsForProject(state.activeProjectId, { force: true });
-  if (navigationEpoch !== state.navigationEpoch) return;
-  if (state.activeSessionId && sessions.some((session) => session.id === state.activeSessionId)) {
+  if (navigationEpoch !== state.navigationEpoch || !state.activeProjectId)
+    return;
+  const sessions = await loadSessionsForProject(state.activeProjectId, {
+    force: true,
+  });
+  if (navigationEpoch !== state.navigationEpoch || !sessions) return;
+  if (state.view === "home") {
+    renderProjectList();
+    await loadHome();
+    return;
+  }
+  if (
+    state.activeSessionId &&
+    sessions.some((session) => session.id === state.activeSessionId)
+  ) {
     await refreshActiveSession();
     return;
   }
@@ -1014,12 +1433,14 @@ async function selectProject(projectId, { sessionId = null } = {}) {
   const sessions = await loadSessionsForProject(projectId);
   if (navigationEpoch !== state.navigationEpoch) return;
   renderProjectList();
-  const requested = sessionId && sessions.find((session) => session.id === sessionId);
+  if (!sessions) return;
+  const requested =
+    sessionId && sessions.find((session) => session.id === sessionId);
   const current = currentSession();
   if (requested) await selectSession(requested.id, { navigationEpoch });
   else if (!current || current.projectId !== projectId) {
-    if (sessions[0]) await selectSession(sessions[0].id, { navigationEpoch });
-    else clearActiveSession();
+    clearActiveSession();
+    void loadHome();
   }
   writeUiState();
 }
@@ -1031,7 +1452,9 @@ async function loadProjects() {
   for (const projectId of state.sessionsByProject.keys()) {
     if (!valid.has(projectId)) state.sessionsByProject.delete(projectId);
   }
-  state.openProjectIds = new Set([...state.openProjectIds].filter((projectId) => valid.has(projectId)));
+  state.openProjectIds = new Set(
+    [...state.openProjectIds].filter((projectId) => valid.has(projectId)),
+  );
   if (state.activeProjectId && !valid.has(state.activeProjectId)) {
     state.activeProjectId = null;
     state.restoreSessionId = null;
@@ -1041,13 +1464,16 @@ async function loadProjects() {
 }
 
 async function restoreUiSelection() {
-  const projectId = state.activeProjectId && state.projects.some((project) => project.id === state.activeProjectId)
-    ? state.activeProjectId
-    : state.projects[0]?.id || null;
+  const projectId =
+    state.activeProjectId &&
+    state.projects.some((project) => project.id === state.activeProjectId)
+      ? state.activeProjectId
+      : state.projects[0]?.id || null;
   if (!projectId) {
     state.activeProjectId = null;
     state.restoreSessionId = null;
     clearActiveSession();
+    void loadHome();
     return;
   }
   const requestedSessionId = state.restoreSessionId;
@@ -1102,75 +1528,209 @@ async function refreshActiveSession() {
     // comment above) — otherwise this is a stale receipt for a round that
     // already ended, and connection state/the probe are left alone.
     if (connectionEpoch === state.connectionEpoch) setConnectionLost(false);
-    if (!applySessionDetail(detail, id, { readVersion, readSeq, readToken })) return;
+    if (!applySessionDetail(detail, id, { readVersion, readSeq, readToken }))
+      return;
     renderAll();
     await loadSurface(epoch);
   } catch (error) {
-    if (epoch !== state.sessionEpoch || id !== state.activeSessionId || !isCurrentSessionRead(id, readToken)) return;
+    if (
+      epoch !== state.sessionEpoch ||
+      id !== state.activeSessionId ||
+      !isCurrentSessionRead(id, readToken)
+    )
+      return;
     showToast(`Refresh failed: ${error.message}`, "error");
   }
 }
 
 function renderProjectList() {
   const list = $("project-list");
+  const focusedKey = list.contains(document.activeElement)
+    ? document.activeElement?.dataset.navKey
+    : null;
   clear(list);
   $("project-count").textContent = String(state.projects.length);
   const query = state.navigationFilter.trim().toLocaleLowerCase();
   const filterInput = $("nav-filter-input");
   const clearFilter = $("clear-nav-filter-button");
   const filterStatus = $("nav-filter-status");
-  if (filterInput && document.activeElement !== filterInput) filterInput.value = state.navigationFilter;
+  if (filterInput && document.activeElement !== filterInput)
+    filterInput.value = state.navigationFilter;
   if (clearFilter) clearFilter.hidden = !state.navigationFilter;
-  if (filterStatus) filterStatus.textContent = query ? "Filtering loaded names only." : "";
+  if (filterStatus)
+    filterStatus.textContent = query ? "Filtering loaded names only." : "";
   if (!state.projects.length) {
-    list.append(element("p", { className: "empty-list", text: "No projects yet." }));
+    list.append(
+      element("p", { className: "empty-list", text: "No projects yet." }),
+    );
     return;
   }
   const visibleProjects = state.projects.filter((project) => {
     if (!query) return true;
-    const projectMatch = String(project.name || "").toLocaleLowerCase().includes(query);
+    const projectMatch = String(project.name || "")
+      .toLocaleLowerCase()
+      .includes(query);
     const sessions = state.sessionsByProject.get(project.id) || [];
-    return projectMatch || sessions.some((session) => String(session.title || "").toLocaleLowerCase().includes(query));
+    return (
+      projectMatch ||
+      sessions.some((session) =>
+        String(session.title || "")
+          .toLocaleLowerCase()
+          .includes(query),
+      )
+    );
   });
   if (!visibleProjects.length) {
-    list.append(element("p", { className: "empty-list", text: `No loaded project or session names match “${state.navigationFilter}”.` }));
+    list.append(
+      element("p", {
+        className: "empty-list",
+        text: `No loaded project or session names match “${state.navigationFilter}”.`,
+      }),
+    );
     return;
   }
   for (const project of visibleProjects) {
     const open = state.openProjectIds.has(project.id);
     const row = element("div", { className: "project-row" });
-    const button = element("button", {
-      className: `project-button ${state.activeProjectId === project.id ? "active" : ""}`,
-      attrs: { type: "button", "aria-expanded": open, "aria-controls": `sessions-${project.id}` },
-    },
-    element("span", { className: "project-chevron", text: open ? "▾" : "▸", attrs: { "aria-hidden": "true" } }),
-    element("span", { className: "project-name", text: project.name || "Unnamed project" }));
+    const button = element(
+      "button",
+      {
+        className: `project-toggle ${state.activeProjectId === project.id ? "active" : ""}`,
+        attrs: {
+          type: "button",
+          "aria-expanded": open,
+          "aria-controls": `sessions-${project.id}`,
+          "data-nav-key": `project:${project.id}`,
+        },
+      },
+      element(
+        "span",
+        { className: "project-chevron" },
+        icon(open ? "chevron-down" : "chevron-right"),
+      ),
+      icon("folder"),
+      element("span", {
+        className: "project-name",
+        text: project.name || "Unnamed project",
+      }),
+    );
     button.addEventListener("click", () => {
-      state.openProjectIds.has(project.id) ? state.openProjectIds.delete(project.id) : state.openProjectIds.add(project.id);
-      void selectProject(project.id);
+      const wasOpen = state.openProjectIds.has(project.id);
+      if (wasOpen) {
+        state.openProjectIds.delete(project.id);
+        writeUiState();
+        renderProjectList();
+      } else {
+        state.openProjectIds.add(project.id);
+        writeUiState();
+        renderProjectList();
+        void loadSessionsForProject(project.id).then(() => renderProjectList());
+      }
     });
-    row.append(button);
+    const create = action(
+      "plus",
+      `New session in ${project.name}`,
+      () => startNewSession({ projectId: project.id }),
+      {
+        className: "quiet-button project-create",
+        attrs: { "data-nav-key": `create:${project.id}` },
+      },
+    );
+    row.append(
+      element("div", { className: "project-heading" }, button, create),
+    );
     if (open) {
       const sessions = state.sessionsByProject.get(project.id);
-      const sessionList = element("div", { className: "session-list", attrs: { id: `sessions-${project.id}` } });
-      if (!sessions) {
-        sessionList.append(element("p", { className: "empty-list", text: "Loading sessions…" }));
+      const sessionList = element("div", {
+        className: "session-list",
+        attrs: { id: `sessions-${project.id}` },
+      });
+      if (state.sessionListErrors.has(project.id)) {
+        const retry = element("button", {
+          className: "text-button",
+          attrs: { type: "button" },
+          text: "Retry loading sessions",
+        });
+        retry.addEventListener("click", async () => {
+          await loadSessionsForProject(project.id, { force: true });
+          renderProjectList();
+        });
+        sessionList.append(
+          element("p", {
+            className: "inline-error",
+            text: state.sessionListErrors.get(project.id),
+          }),
+          retry,
+        );
+      } else if (!sessions) {
+        sessionList.append(
+          element("p", { className: "empty-list", text: "Loading sessions…" }),
+        );
       } else if (!sessions.length) {
-        sessionList.append(element("p", { className: "empty-list", text: "No sessions yet." }));
+        sessionList.append(
+          element("p", { className: "empty-list", text: "No sessions yet." }),
+        );
       } else {
-        for (const session of sessions) {
-          const sessionButton = element("button", {
-            className: `session-button ${session.id === state.activeSessionId ? "active" : ""}`,
-            attrs: { type: "button" },
-          }, element("span", { className: "session-name", text: session.title || "Untitled session" }));
-          sessionButton.addEventListener("click", () => void selectSession(session.id));
+        const limit = state.navigationFilter
+          ? sessions.length
+          : state.navigationLimits.get(project.id) || 5;
+        const visible = [...sessions]
+          .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+          .slice(0, limit);
+        const active = sessions.find(
+          (session) => session.id === state.activeSessionId,
+        );
+        if (active && !visible.includes(active)) visible.push(active);
+        for (const session of visible) {
+          const sessionButton = element(
+            "button",
+            {
+              className: `session-button ${session.id === state.activeSessionId ? "active" : ""}`,
+              attrs: {
+                type: "button",
+                "aria-current":
+                  session.id === state.activeSessionId ? "page" : null,
+                "data-tooltip": session.title || "Untitled session",
+                "data-nav-key": `session:${session.id}`,
+              },
+            },
+            element("span", {
+              className: "session-name",
+              text: session.title || "Untitled session",
+            }),
+          );
+          sessionButton.addEventListener(
+            "click",
+            () => void selectProject(project.id, { sessionId: session.id }),
+          );
           sessionList.append(sessionButton);
         }
+      }
+      if (
+        sessions &&
+        sessions.length > (state.navigationLimits.get(project.id) || 5) &&
+        !state.navigationFilter
+      ) {
+        const more = element("button", {
+          className: "text-button nav-more",
+          attrs: { type: "button" },
+          text: "Show more",
+        });
+        more.addEventListener("click", () => {
+          state.navigationLimits.set(
+            project.id,
+            (state.navigationLimits.get(project.id) || 5) + 10,
+          );
+          renderProjectList();
+        });
+        sessionList.append(more);
       }
       row.append(sessionList);
     }
     list.append(row);
   }
+  if (focusedKey && document.activeElement === document.body)
+    list.querySelector(`[data-nav-key="${CSS.escape(focusedKey)}"]`)?.focus();
 }
 
 function updateExtensionStatus(extension) {
@@ -1181,33 +1741,88 @@ function renderExtensionList() {
   const list = $("extension-list");
   clear(list);
   if (!state.extensions.length) {
-    list.append(element("p", { className: "empty-list", text: "No whitelisted extensions." }));
+    list.append(
+      element("p", {
+        className: "empty-list",
+        text: "No whitelisted extensions.",
+      }),
+    );
     return;
   }
   const session = currentSession();
   for (const extension of state.extensions) {
     const row = element("div", { className: "extension-row" });
-    const head = element("div", { className: "extension-row-head" },
-      element("span", { className: "extension-row-title", text: extension.title || extension.id }),
-      element("span", { className: `extension-status ${extension.status || ""}`, text: extension.status || "unknown" }));
-    row.append(head, element("p", { className: "extension-row-meta", text: `${extension.id} · v${extension.version || "?"} · gen ${extension.generation ?? "?"}` }));
-    row.append(element("p", { className: "extension-row-meta", text: updateExtensionStatus(extension) }));
+    const head = element(
+      "div",
+      { className: "extension-row-head" },
+      element("span", {
+        className: "extension-row-title",
+        text: extension.title || extension.id,
+      }),
+      element("span", {
+        className: `extension-status ${extension.status || ""}`,
+        text: extension.status || "unknown",
+      }),
+    );
+    row.append(
+      head,
+      element("p", {
+        className: "extension-row-meta",
+        text: `${extension.id} · v${extension.version || "?"} · gen ${extension.generation ?? "?"}`,
+      }),
+    );
+    row.append(
+      element("p", {
+        className: "extension-row-meta",
+        text: updateExtensionStatus(extension),
+      }),
+    );
     const actions = element("div", { className: "extension-actions" });
-    const lifecycleAction = extension.status === "loaded" ? "unload" : extension.status === "invalidated" ? "reload" : "load";
-    const lifecycleButton = element("button", { className: "quiet-button", attrs: { type: "button" }, text: lifecycleAction[0].toUpperCase() + lifecycleAction.slice(1) });
-    lifecycleButton.addEventListener("click", () => void lifecycle(extension.id, lifecycleAction));
+    const lifecycleAction =
+      extension.status === "loaded"
+        ? "unload"
+        : extension.status === "invalidated"
+          ? "reload"
+          : "load";
+    const lifecycleButton = element("button", {
+      className: "quiet-button",
+      attrs: { type: "button" },
+      text: lifecycleAction[0].toUpperCase() + lifecycleAction.slice(1),
+    });
+    lifecycleButton.addEventListener(
+      "click",
+      () => void lifecycle(extension.id, lifecycleAction),
+    );
     actions.append(lifecycleButton);
     if (extension.status !== "invalidated") {
-      const invalidateButton = element("button", { className: "quiet-button danger-button", attrs: { type: "button" }, text: "Invalidate" });
-      invalidateButton.addEventListener("click", () => void lifecycle(extension.id, "invalidate"));
+      const invalidateButton = element("button", {
+        className: "quiet-button danger-button",
+        attrs: { type: "button" },
+        text: "Invalidate",
+      });
+      invalidateButton.addEventListener(
+        "click",
+        () => void lifecycle(extension.id, "invalidate"),
+      );
       actions.append(invalidateButton);
     }
     if (extension.status === "loaded") {
-      const reloadButton = element("button", { className: "quiet-button", attrs: { type: "button" }, text: "Reload" });
-      reloadButton.addEventListener("click", () => void lifecycle(extension.id, "reload"));
+      const reloadButton = element("button", {
+        className: "quiet-button",
+        attrs: { type: "button" },
+        text: "Reload",
+      });
+      reloadButton.addEventListener(
+        "click",
+        () => void lifecycle(extension.id, "reload"),
+      );
       actions.append(reloadButton);
       if (session && !session.extensionBinding) {
-        const bindButton = element("button", { className: "secondary-button", attrs: { type: "button" }, text: "Bind to session" });
+        const bindButton = element("button", {
+          className: "secondary-button",
+          attrs: { type: "button" },
+          text: "Bind to session",
+        });
         bindButton.addEventListener("click", () => {
           state.bindingExtensionId = extension.id;
           closeRuntimeDialog({ restoreFocus: false });
@@ -1224,7 +1839,10 @@ function renderExtensionList() {
 
 async function lifecycle(extensionId, action) {
   try {
-    await request(`/extensions/${encodeURIComponent(extensionId)}/lifecycle`, { method: "POST", body: { action } });
+    await request(`/extensions/${encodeURIComponent(extensionId)}/lifecycle`, {
+      method: "POST",
+      body: { action },
+    });
     await loadExtensions();
     if (state.activeSessionId) await loadSurface(state.sessionEpoch);
     showToast(`Extension ${action} completed.`);
@@ -1236,7 +1854,9 @@ async function lifecycle(extensionId, action) {
 function renderBindingPanel() {
   const panel = $("binding-panel");
   clear(panel);
-  const extension = state.extensions.find((item) => item.id === state.bindingExtensionId);
+  const extension = state.extensions.find(
+    (item) => item.id === state.bindingExtensionId,
+  );
   const session = currentSession();
   if (!extension || !session || session.extensionBinding) {
     panel.hidden = true;
@@ -1244,49 +1864,90 @@ function renderBindingPanel() {
   }
   panel.hidden = false;
   const inner = element("div", { className: "binding-panel-inner" });
-  inner.append(element("h3", { text: `Bind ${extension.title || extension.id}` }));
-  inner.append(element("p", { className: "binding-panel-note", text: "The extension validates these fields. The generic UI only renders the manifest declaration." }));
+  inner.append(
+    element("h3", { text: `Bind ${extension.title || extension.id}` }),
+  );
+  inner.append(
+    element("p", {
+      className: "binding-panel-note",
+      text: "The extension validates these fields. The generic UI only renders the manifest declaration.",
+    }),
+  );
   const form = element("form", { className: "binding-form" });
-  const fields = Array.isArray(extension.bindingFields) ? extension.bindingFields : [];
+  const fields = Array.isArray(extension.bindingFields)
+    ? extension.bindingFields
+    : [];
   const fieldsWrap = element("div", { className: "binding-fields" });
   const controls = [];
   for (const field of fields) {
     if (!field?.name) continue;
-    const label = element("label", { className: "binding-field", text: field.label || field.name });
-    const control = field.multiline ? element("textarea", { attrs: { name: field.name, rows: 5 } }) : element("input", { attrs: { name: field.name, type: "text" } });
+    const label = element("label", {
+      className: "binding-field",
+      text: field.label || field.name,
+    });
+    const control = field.multiline
+      ? element("textarea", { attrs: { name: field.name, rows: 5 } })
+      : element("input", { attrs: { name: field.name, type: "text" } });
     if (field.required) control.required = true;
-    if (Number.isFinite(field.maxLength) && field.maxLength > 0) control.maxLength = field.maxLength;
+    if (Number.isFinite(field.maxLength) && field.maxLength > 0)
+      control.maxLength = field.maxLength;
     label.append(control);
-    if (field.maxLength) label.append(element("small", { text: `Maximum ${field.maxLength} characters.` }));
+    if (field.maxLength)
+      label.append(
+        element("small", { text: `Maximum ${field.maxLength} characters.` }),
+      );
     fieldsWrap.append(label);
     controls.push({ field, control });
   }
-  if (!controls.length) fieldsWrap.append(element("p", { className: "section-note", text: "This extension declares no input fields." }));
+  if (!controls.length)
+    fieldsWrap.append(
+      element("p", {
+        className: "section-note",
+        text: "This extension declares no input fields.",
+      }),
+    );
   form.append(fieldsWrap);
   const actions = element("div", { className: "binding-actions" });
-  const cancel = element("button", { className: "quiet-button", attrs: { type: "button" }, text: "Cancel" });
+  const cancel = element("button", {
+    className: "quiet-button",
+    attrs: { type: "button" },
+    text: "Cancel",
+  });
   cancel.addEventListener("click", () => {
     state.bindingExtensionId = null;
     renderBindingPanel();
     $("runtime-setup-button")?.focus();
   });
   actions.append(cancel);
-  const submit = element("button", { className: "primary-button", attrs: { type: "submit" }, text: "Create binding" });
+  const submit = element("button", {
+    className: "primary-button",
+    attrs: { type: "submit" },
+    text: "Create binding",
+  });
   actions.append(submit);
   form.append(actions);
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const input = {};
-    for (const { field, control } of controls) input[field.name] = control.value;
+    for (const { field, control } of controls)
+      input[field.name] = control.value;
     submit.disabled = true;
     try {
-      const result = await request(`/sessions/${encodeURIComponent(session.id)}/extension`, {
-        method: "POST",
-        body: { extensionId: extension.id, input },
-      });
+      const result = await request(
+        `/sessions/${encodeURIComponent(session.id)}/extension`,
+        {
+          method: "POST",
+          body: { extensionId: extension.id, input },
+        },
+      );
       if (state.activeSessionId !== session.id) return;
       state.session = result.session || state.session;
-      state.sessionsByProject.set(session.projectId, (state.sessionsByProject.get(session.projectId) || []).map((item) => item.id === session.id ? state.session : item));
+      state.sessionsByProject.set(
+        session.projectId,
+        (state.sessionsByProject.get(session.projectId) || []).map((item) =>
+          item.id === session.id ? state.session : item,
+        ),
+      );
       state.bindingExtensionId = null;
       renderAll();
       await loadSurface(state.sessionEpoch);
@@ -1302,104 +1963,103 @@ function renderBindingPanel() {
 
 function focusBindingEntry() {
   const panel = $("binding-panel");
-  const firstField = panel?.querySelector("input:not([disabled]), textarea:not([disabled])");
-  (firstField || panel?.querySelector("button[type=submit]:not([disabled])"))?.focus();
+  const firstField = panel?.querySelector(
+    "input:not([disabled]), textarea:not([disabled])",
+  );
+  (
+    firstField || panel?.querySelector("button[type=submit]:not([disabled])")
+  )?.focus();
 }
 
 function renderProviderPanel() {
-  const panel = $("provider-panel");
-  clear(panel);
-  if (!state.providerConfig) {
-    panel.append(element("p", { className: "provider-readonly", text: "Loading…" }));
-    return;
+  settingsView?.update(state.providerConfig);
+  const config = state.providerConfig?.config;
+  if (config) {
+    $("model-settings-button").textContent =
+      config.provider === "fake-openai-loopback" ? "Local test" : config.model;
+    $("capability-badge").textContent =
+      config.provider === "fake-openai-loopback"
+        ? "Local test"
+        : config.provider === "openai"
+          ? "OpenAI"
+          : "DeepSeek";
   }
-  const config = state.providerConfig.config || {};
-  const form = element("form");
-  const fields = [
-    ["provider", "Provider", config.provider || "fake-openai-loopback"],
-    ["model", "Model", config.model || "fake-1"],
-    ["api", "API", config.api || "openai-completions"],
-    ["baseUrl", "Base URL (optional)", config.baseUrl || ""],
-  ];
-  const controls = new Map();
-  for (const [name, labelText, value] of fields) {
-    const label = element("label", { text: labelText });
-    const input = element("input", { attrs: { name, type: "text", autocomplete: "off" } });
-    input.value = value;
-    controls.set(name, input);
-    label.append(input);
-    form.append(label);
-  }
-  form.append(element("p", { className: "provider-help", text: "Local fake execution only. This form never accepts or reads a provider key." }));
-  const save = element("button", { className: "secondary-button", attrs: { type: "submit" }, text: "Save route" });
-  form.append(save);
-  const execution = state.providerConfig.execution || {};
-  form.append(element("p", { className: "provider-readonly", text: `${execution.mode || "local-fake"} · realProvider:${String(execution.realProvider === true)}` }));
-  if (state.providerConfig.credentialStatus) form.append(element("p", { className: "provider-readonly", text: `Credentials: ${state.providerConfig.credentialStatus}` }));
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    save.disabled = true;
-    const body = {};
-    for (const [name, input] of controls) {
-      if (name !== "baseUrl" || input.value.trim()) body[name] = input.value.trim();
-    }
-    try {
-      state.providerConfig = await request("/provider-config", { method: "PUT", body });
-      renderProviderPanel();
-      showToast("Provider descriptor saved.");
-    } catch (error) {
-      save.disabled = false;
-      showToast(`Provider descriptor was not saved: ${error.message}`, "error");
-    }
-  });
-  panel.append(form);
 }
 
 function appendRunBadge(container, status) {
   if (!status) return;
-  container.append(element("span", { className: `run-badge ${status}`, text: status }));
+  container.append(
+    element("span", {
+      className: `run-badge ${status}`,
+      text: runLabels[status] || status,
+    }),
+  );
 }
 
 function appendAssistantBody(container, text, key) {
-  const body = element("div", { className: "message-body", text });
-  if (text.length <= 1400) {
-    container.append(body);
-    return;
-  }
-  const details = element("details", { className: "message-long" });
-  details.open = state.longMessageOpen.get(key) === true;
-  details.append(element("summary", { text: `Full response · ${text.length} characters` }), body);
-  details.addEventListener("toggle", () => state.longMessageOpen.set(key, details.open));
-  container.append(details);
+  container.append(
+    element("div", { className: "message-body" }, markdown(text, { key })),
+  );
 }
 
 function appendToolDetails(container, row) {
   const requestValue = row.request;
   const resultValue = row.result;
   if (requestValue !== undefined && requestValue !== null) {
-    container.append(element("h4", { className: "tool-detail-heading", text: "Request" }));
-    container.append(element("pre", { className: "tool-detail", text: safeText(requestValue) }));
+    container.append(
+      element("h4", { className: "tool-detail-heading", text: "Request" }),
+    );
+    container.append(
+      element("pre", {
+        className: "tool-detail",
+        text: safeText(requestValue),
+      }),
+    );
   }
   if (resultValue !== undefined && resultValue !== null && resultValue !== "") {
-    container.append(element("h4", { className: "tool-detail-heading", text: "Result" }));
-    container.append(element("pre", { className: `tool-detail ${row.isError ? "tool-error" : ""}`, text: safeText(resultValue) }));
+    container.append(
+      element("h4", { className: "tool-detail-heading", text: "Result" }),
+    );
+    container.append(
+      element("pre", {
+        className: `tool-detail ${row.isError ? "tool-error" : ""}`,
+        text: safeText(resultValue),
+      }),
+    );
   }
   if (!container.childElementCount) {
-    container.append(element("p", { className: "tool-detail", text: "No request or result details were included in this event." }));
+    container.append(
+      element("p", {
+        className: "tool-detail",
+        text: "No request or result details were included in this event.",
+      }),
+    );
   }
 }
 
 function renderMessageStream() {
   const stream = $("message-stream");
-  const focusedQuestionKey = document.activeElement?.dataset?.questionKey || null;
-  const focusedQuestionInput = focusedQuestionKey ? document.activeElement : null;
-  const focusedQuestionSelection = focusedQuestionInput && Number.isInteger(focusedQuestionInput.selectionStart)
-    ? {
-      start: focusedQuestionInput.selectionStart,
-      end: focusedQuestionInput.selectionEnd ?? focusedQuestionInput.selectionStart,
-      direction: focusedQuestionInput.selectionDirection || "none",
-    }
+  if (state.view === "home") {
+    renderHomeState();
+    return;
+  }
+  const previousFocusKey = document.activeElement?.dataset?.focusKey;
+  const focusedQuestionKey =
+    document.activeElement?.dataset?.questionKey || null;
+  const focusedQuestionInput = focusedQuestionKey
+    ? document.activeElement
     : null;
+  const focusedQuestionSelection =
+    focusedQuestionInput &&
+    Number.isInteger(focusedQuestionInput.selectionStart)
+      ? {
+          start: focusedQuestionInput.selectionStart,
+          end:
+            focusedQuestionInput.selectionEnd ??
+            focusedQuestionInput.selectionStart,
+          direction: focusedQuestionInput.selectionDirection || "none",
+        }
+      : null;
   let questionFocusTarget = null;
   let questionSelectionTarget = null;
   const session = currentSession();
@@ -1409,165 +2069,258 @@ function renderMessageStream() {
   clear(stream);
   if (!session) {
     setJumpLatestVisible(false);
-    stream.append(element("div", { className: "empty-state" },
-      element("h3", { text: "No session selected" }),
-      element("p", { text: state.projects.length ? "Choose a session from the left or create one." : "Create a project and session from the left." })));
+    stream.append(
+      element(
+        "div",
+        { className: "empty-state" },
+        element("h3", { text: "No session selected" }),
+        element("p", {
+          text: state.projects.length
+            ? "Choose a session from the left or create one."
+            : "Create a project and session from the left.",
+        }),
+      ),
+    );
     return;
   }
 
-  const rows = [];
-  const assistantRows = new Map();
-  const assistantSegmentByRun = new Map();
-  const toolRows = new Map();
-  const questionRows = new Map();
-  const runStatusRows = new Map();
-  const runStatuses = new Map(state.runs.map((run) => [run.id, run.status]));
-  for (const run of state.runs) {
-    if (run?.id && run.status) runStatusRows.set(run.id, { kind: "run-status", runId: run.id, status: run.status });
-  }
-  for (const event of state.events) {
-    const type = normalizedType(event.type);
-    const data = event.data || {};
-    if (type === "message/user") {
-      rows.push({ kind: "user", text: data.text || "", runId: event.runId });
-    } else if (type === "assistant/delta") {
-      const segment = assistantSegmentByRun.get(event.runId) || 0;
-      const assistantKey = `${event.runId}:${segment}`;
-      let row = assistantRows.get(assistantKey);
-      if (!row) {
-        row = { kind: "assistant", text: "", runId: event.runId, pending: true };
-        assistantRows.set(assistantKey, row);
-        rows.push(row);
-      }
-      row.text = data.text ?? data.delta ?? row.text;
-    } else if (type === "assistant/final") {
-      const segment = assistantSegmentByRun.get(event.runId) || 0;
-      const assistantKey = `${event.runId}:${segment}`;
-      let row = assistantRows.get(assistantKey);
-      if (!row) {
-        row = { kind: "assistant", text: "", runId: event.runId };
-        assistantRows.set(assistantKey, row);
-        rows.push(row);
-      }
-      row.text = data.text ?? data.message ?? row.text;
-      row.pending = false;
-    } else if (type === "tool/start") {
-      assistantSegmentByRun.set(event.runId, (assistantSegmentByRun.get(event.runId) || 0) + 1);
-      const callId = data.callId || data.id || data.name || event.seq;
-      const key = `${event.runId}:${callId}`;
-      const row = {
-        kind: "tool",
-        runId: event.runId,
-        callId,
-        name: data.name || "tool",
-        request: data.request ?? data.args ?? data.arguments ?? data.input,
-        result: data.result ?? data.text ?? data.error,
-        isError: Boolean(data.isError || data.error),
-        phase: "started",
-      };
-      toolRows.set(key, row);
-      rows.push(row);
-    } else if (type === "tool/update" || type === "tool/result") {
-      assistantSegmentByRun.set(event.runId, (assistantSegmentByRun.get(event.runId) || 0) + 1);
-      const callId = data.callId || data.id || data.name || "";
-      const key = `${event.runId}:${callId}`;
-      let row = toolRows.get(key);
-      if (!row) {
-        row = { kind: "tool", runId: event.runId, callId, name: data.name || "tool", request: undefined, result: undefined, isError: false, phase: "updated" };
-        toolRows.set(key, row);
-        rows.push(row);
-      }
-      row.request = data.request ?? data.args ?? data.arguments ?? data.input ?? row.request;
-      row.result = data.result ?? data.text ?? data.error ?? row.result;
-      row.isError = Boolean(data.isError || data.error);
-      row.phase = type === "tool/result" ? "result" : "updated";
-    } else if (type === "question/open") {
-      assistantSegmentByRun.set(event.runId, (assistantSegmentByRun.get(event.runId) || 0) + 1);
-      const id = data.id || data.questionId || event.seq;
-      const key = questionScopeKey(event.runId, id);
-      const row = questionRows.get(key) || { kind: "question", runId: event.runId, id, prompt: data.prompt || "Input requested", answer: null };
-      row.prompt = data.prompt || row.prompt;
-      questionRows.set(key, row);
-      if (!rows.includes(row)) rows.push(row);
-    } else if (type === "question/resolved") {
-      const id = data.id || data.questionId;
-      const row = questionRows.get(questionScopeKey(event.runId, id));
-      if (row) row.answer = data.answer || "";
-    } else if (type === "run/status") {
-      if (data.status) {
-        runStatuses.set(event.runId, data.status);
-        runStatusRows.set(event.runId, { kind: "run-status", runId: event.runId, status: data.status });
-      }
-    } else if (type === "run/error") {
-      rows.push({ kind: "error", runId: event.runId, text: data.message || data.code || "Run failed." });
-    }
-  }
-
-  for (const runId of runStatuses.keys()) {
-    const hasAssistantOrStatus = rows.some((row) => (
-      row.runId === runId && (
-        row.kind === "run-status" ||
-        (row.kind === "assistant" && Boolean(row.text && row.text.trim()))
-      )
-    ));
-    if (!hasAssistantOrStatus && runStatusRows.has(runId)) rows.push(runStatusRows.get(runId));
-  }
+  const { rows, statuses: runStatuses } = projectThread(
+    state.events,
+    state.runs,
+    session.id,
+  );
 
   if (!rows.length) {
     const active = currentRun();
     setJumpLatestVisible(false);
-    stream.append(element("div", { className: "empty-state" },
-      element("h3", { text: active ? "Run has no messages yet" : "No messages yet" }),
-      element("p", { text: active ? "The next event will appear here." : "Send a message to create the first run." })));
+    stream.append(
+      element(
+        "div",
+        { className: "empty-state" },
+        element("h3", {
+          text: active ? "Run has no messages yet" : "No messages yet",
+        }),
+        element("p", {
+          text: active
+            ? "The next event will appear here."
+            : "Send a message to create the first run.",
+        }),
+      ),
+    );
     return;
   }
 
   const list = element("div", { className: "message-list" });
+  let activityGroup = null;
   for (const row of rows) {
-    const status = runStatuses.get(row.runId) || state.runs.find((run) => run.id === row.runId)?.status;
+    if (row.kind !== "tool" && !(row.kind === "assistant" && !row.text?.trim()))
+      activityGroup = null;
+    const status =
+      runStatuses.get(row.runId) ||
+      state.runs.find((run) => run.id === row.runId)?.status;
     if (row.kind === "user") {
       const wrapper = element("article", { className: "message user" });
-      const header = element("div", { className: "message-header" }, element("span", { className: "message-role", text: "You" }));
-      wrapper.append(header, element("div", { className: "message-body", text: row.text }));
+      const header = element(
+        "div",
+        { className: "message-header" },
+        element("span", { className: "message-role", text: "You" }),
+      );
+      wrapper.append(
+        header,
+        element("div", { className: "message-body", text: row.text }),
+      );
       list.append(wrapper);
     } else if (row.kind === "assistant") {
       if (!row.text || !row.text.trim()) continue;
-      const wrapper = element("article", { className: `message assistant ${row.pending ? "pending" : ""}` });
-      const header = element("div", { className: "message-header" }, element("span", { className: "message-role", text: "Assistant" }));
-      appendRunBadge(header, status);
+      const wrapper = element("article", {
+        className: `message assistant ${row.pending ? "pending" : ""}`,
+      });
+      const header = element(
+        "div",
+        { className: "message-header" },
+        element("span", { className: "message-role", text: "Assistant" }),
+      );
+      header.append(
+        action(
+          "copy",
+          "Copy response",
+          async () => {
+            try {
+              await navigator.clipboard.writeText(row.text);
+              showToast("Response copied.");
+            } catch {
+              showToast("Copy is unavailable.", "error");
+            }
+          },
+          { attrs: { "data-focus-key": `response:${row.id}` } },
+        ),
+      );
       wrapper.append(header);
-      appendAssistantBody(wrapper, row.text, sessionScopeKey("assistant", row.runId));
+      appendAssistantBody(
+        wrapper,
+        row.text,
+        sessionScopeKey("assistant", row.id),
+      );
       list.append(wrapper);
     } else if (row.kind === "tool") {
-      const details = element("details", { className: "tool-card" });
+      const details = element("details", {
+        className: `tool-card ${row.isError ? "has-error" : ""}`,
+      });
       const key = toolScopeKey(row.runId, row.callId, row.name);
-      details.open = state.toolOpen.get(key) === true;
-      const suffix = row.isError ? " · failed" : row.phase === "result" ? " · result" : "";
+      details.open = state.toolOpen.has(key)
+        ? state.toolOpen.get(key)
+        : row.isError;
+      const suffix = row.isError
+        ? " · failed"
+        : row.phase === "result"
+          ? ""
+          : " · working";
       details.append(element("summary", { text: `${row.name}${suffix}` }));
       const detail = element("div", { className: "tool-detail-block" });
       appendToolDetails(detail, row);
       details.append(detail);
-      details.addEventListener("toggle", () => state.toolOpen.set(key, details.open));
-      list.append(details);
+      details.addEventListener("toggle", () =>
+        state.toolOpen.set(key, details.open),
+      );
+      if (!activityGroup) {
+        const groupKey = sessionScopeKey("activity", row.id);
+        const group = element("details", { className: "activity-group" });
+        const summary = element(
+          "summary",
+          {},
+          icon("activity"),
+          element("span", { text: "Activity" }),
+        );
+        group.append(summary);
+        group.open = state.toolOpen.has(groupKey)
+          ? state.toolOpen.get(groupKey)
+          : row.isError;
+        group.addEventListener("toggle", () =>
+          state.toolOpen.set(groupKey, group.open),
+        );
+        activityGroup = {
+          node: group,
+          summary: summary.lastChild,
+          count: 0,
+          errors: 0,
+          working: 0,
+        };
+        list.append(group);
+      }
+      activityGroup.count++;
+      activityGroup.errors += row.isError ? 1 : 0;
+      activityGroup.working += row.phase !== "result" ? 1 : 0;
+      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? " · working" : " · completed"}`;
+      activityGroup.node.append(details);
     } else if (row.kind === "question") {
-      const card = element("article", { className: "question-card" });
-      card.append(element("strong", { text: "Input requested" }), element("p", { className: "question-prompt", text: row.prompt }));
+      if (
+        !canAnswer(
+          row,
+          state.runs.find((run) => run.id === row.runId),
+        )
+      ) {
+        const questionKey = questionScopeKey(row.runId, row.id),
+          openKey = `question-history:${questionKey}`;
+        const history = element("details", { className: "resolved-question" });
+        history.open = state.toolOpen.get(openKey) || false;
+        history.append(
+          element(
+            "summary",
+            { attrs: { "data-focus-key": `${questionKey}:answer` } },
+            icon("message-square"),
+            element("span", {
+              text: row.answer
+                ? `Answered · ${row.prompt}`
+                : `Question closed · ${row.prompt}`,
+            }),
+          ),
+          element("p", {
+            className: "form-help",
+            text:
+              row.answer ||
+              "No further response is available for this request.",
+          }),
+        );
+        history.addEventListener("toggle", () =>
+          state.toolOpen.set(openKey, history.open),
+        );
+        list.append(history);
+        continue;
+      }
+      const card = element("article", {
+        className: `question-card ${
+          canAnswer(
+            row,
+            state.runs.find((run) => run.id === row.runId),
+          )
+            ? ""
+            : "resolved"
+        }`,
+      });
+      card.append(
+        element("strong", { text: "Input requested" }),
+        element("p", { className: "question-prompt", text: row.prompt }),
+      );
       const questionKey = questionScopeKey(row.runId, row.id);
-      if (row.answer !== null) {
-        card.append(element("p", { className: "tool-detail", text: `Answered: ${row.answer}` }));
+      if (row.questionStatus !== "pending") {
+        card.append(
+          element("p", {
+            className: "tool-detail",
+            text:
+              row.questionStatus === "resolved"
+                ? `Answered: ${row.answer || ""}`
+                : `Question closed: ${row.questionStatus.replaceAll("_", " ")}.`,
+          }),
+        );
+      } else if (row.answer !== null) {
+        card.append(
+          element("p", {
+            className: "tool-detail",
+            text: `Answered: ${row.answer}`,
+          }),
+        );
       } else if (state.questionSubmitted.has(questionKey)) {
-        card.append(element("p", { className: "tool-detail", text: "Answer sent; waiting for confirmation." }));
-      } else if (!isActiveRun({ status })) {
-        card.append(element("p", { className: "tool-detail", text: "This run has ended; the question is closed." }));
+        card.append(
+          element("p", {
+            className: "tool-detail",
+            attrs: { tabindex: 0, "data-focus-key": `${questionKey}:answer` },
+            text: "Answer sent; waiting for confirmation.",
+          }),
+        );
+      } else if (
+        !canAnswer(
+          row,
+          state.runs.find((run) => run.id === row.runId),
+        )
+      ) {
+        card.append(
+          element("p", {
+            className: "tool-detail",
+            text: "This run has ended; the question is closed.",
+          }),
+        );
       } else {
         const form = element("form");
         let input = state.questionControls.get(questionKey)?.input;
         if (!input || input.ownerDocument !== document) {
-          input = element("input", { attrs: { type: "text", required: true, "aria-label": "Answer", "data-question-key": questionKey } });
-          input.addEventListener("input", () => state.questionDrafts.set(questionKey, input.value));
+          input = element("input", {
+            attrs: {
+              type: "text",
+              required: true,
+              "aria-label": "Answer",
+              "data-question-key": questionKey,
+              "data-focus-key": `${questionKey}:answer`,
+            },
+          });
+          input.addEventListener("input", () =>
+            state.questionDrafts.set(questionKey, input.value),
+          );
           state.questionControls.set(questionKey, { input });
         }
-        if (state.questionDrafts.has(questionKey) && input.value !== state.questionDrafts.get(questionKey)) {
+        if (
+          state.questionDrafts.has(questionKey) &&
+          input.value !== state.questionDrafts.get(questionKey)
+        ) {
           input.value = state.questionDrafts.get(questionKey) || "";
         }
         if (focusedQuestionKey === questionKey) {
@@ -1575,15 +2328,29 @@ function renderMessageStream() {
           questionSelectionTarget = focusedQuestionSelection;
         }
         const submitting = state.questionSubmitting.has(questionKey);
-        input.disabled = submitting;
-        const submit = element("button", { className: "secondary-button", attrs: { type: "submit" }, text: submitting ? "Sending…" : "Answer" });
-        submit.disabled = submitting;
+        input.readOnly = submitting;
+        const submit = element("button", {
+          className: "secondary-button",
+          attrs: {
+            type: "submit",
+            "data-focus-key": `${questionKey}:answer`,
+            "aria-disabled": String(submitting),
+          },
+          text: submitting ? "Sending…" : "Answer",
+        });
         form.append(input, submit);
         const questionError = state.questionErrors.get(questionKey);
-        if (questionError) form.append(element("p", { className: "question-error", text: questionError }));
+        if (questionError)
+          form.append(
+            element("p", { className: "question-error", text: questionError }),
+          );
         form.addEventListener("submit", async (event) => {
           event.preventDefault();
-          if (state.questionSubmitting.has(questionKey) || state.questionSubmitted.has(questionKey)) return;
+          if (
+            state.questionSubmitting.has(questionKey) ||
+            state.questionSubmitted.has(questionKey)
+          )
+            return;
           const answer = input.value;
           if (!answer.trim()) {
             input.reportValidity?.();
@@ -1595,15 +2362,30 @@ function renderMessageStream() {
           state.questionErrors.delete(questionKey);
           renderMessageStream();
           try {
-            await request(`/runs/${encodeURIComponent(row.runId)}/questions/${encodeURIComponent(row.id)}`, { method: "POST", body: { answer } });
+            await request(
+              `/runs/${encodeURIComponent(row.runId)}/questions/${encodeURIComponent(row.id)}`,
+              { method: "POST", body: { answer } },
+            );
             state.questionSubmitting.delete(questionKey);
-            if (epoch !== state.sessionEpoch || sessionId !== state.activeSessionId) return;
+            if (
+              epoch !== state.sessionEpoch ||
+              sessionId !== state.activeSessionId
+            )
+              return;
             state.questionSubmitted.add(questionKey);
             await pollEvents(state.sessionEpoch);
-            if (epoch === state.sessionEpoch && sessionId === state.activeSessionId) renderMessageStream();
+            if (
+              epoch === state.sessionEpoch &&
+              sessionId === state.activeSessionId
+            )
+              renderMessageStream();
           } catch (error) {
             state.questionSubmitting.delete(questionKey);
-            if (epoch !== state.sessionEpoch || sessionId !== state.activeSessionId) return;
+            if (
+              epoch !== state.sessionEpoch ||
+              sessionId !== state.activeSessionId
+            )
+              return;
             state.questionErrors.set(questionKey, error.message);
             renderMessageStream();
             showToast(`Answer was not accepted: ${error.message}`, "error");
@@ -1612,52 +2394,152 @@ function renderMessageStream() {
         card.append(form);
       }
       list.append(card);
+    } else if (row.kind === "permission") {
+      list.append(renderPermission(row));
+    } else if (row.kind === "artifact") {
+      if (
+        row.file?.kind !== "content-version" ||
+        !/^[a-f0-9]{64}$/.test(row.file.sha256 || "")
+      )
+        continue;
+      const button = element(
+        "button",
+        {
+          className: "artifact-thread-row",
+          attrs: { type: "button", "data-focus-key": row.id },
+        },
+        icon("file-text"),
+        element("span", { className: "file-name", text: row.file.path }),
+        element("span", { className: "form-help", text: "Recorded version" }),
+        icon("chevron-right"),
+      );
+      button.addEventListener("click", () =>
+        openFile({
+          kind: "content-version",
+          sessionId: session.id,
+          runId: row.runId,
+          path: row.file.path,
+          sha256: row.file.sha256,
+        }),
+      );
+      list.append(button);
+    } else if (row.kind === "notice") {
+      list.append(
+        element("p", {
+          className: `notice-row ${row.data?.kind === "unrecorded_files" ? "attention" : ""}`,
+          text: noticeText(row.data),
+        }),
+      );
     } else if (row.kind === "error") {
-      list.append(element("article", { className: "message error" }, element("div", { className: "message-body", text: row.text })));
+      list.append(
+        element(
+          "article",
+          { className: "message error" },
+          element("div", { className: "message-body", text: row.text }),
+        ),
+      );
     } else if (row.kind === "run-status") {
       const card = element("article", { className: "run-status-card" });
-      const header = element("div", { className: "message-header" }, element("span", { className: "message-role", text: "Run" }));
+      const header = element(
+        "div",
+        { className: "message-header" },
+        element("span", { className: "message-role", text: "Run" }),
+      );
       appendRunBadge(header, row.status || "unknown");
+      header.append(
+        action("activity", "Inspect this run", () => openRun(row.runId), {
+          attrs: { "data-focus-key": row.id },
+        }),
+      );
       card.append(header);
       list.append(card);
     }
   }
   if (!list.childElementCount) {
-    list.append(element("div", { className: "empty-state compact" },
-      element("h3", { text: "No message content yet" }),
-      element("p", { text: "The recorded run has no assistant text." })));
+    list.append(
+      element(
+        "div",
+        { className: "empty-state compact" },
+        element("h3", { text: "No message content yet" }),
+        element("p", { text: "The recorded run has no assistant text." }),
+      ),
+    );
   }
   stream.append(list);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
-    if (questionSelectionTarget && typeof questionFocusTarget.setSelectionRange === "function") {
+    if (
+      questionSelectionTarget &&
+      typeof questionFocusTarget.setSelectionRange === "function"
+    ) {
       const length = questionFocusTarget.value.length;
       const start = Math.min(questionSelectionTarget.start, length);
       const end = Math.min(questionSelectionTarget.end, length);
-      try { questionFocusTarget.setSelectionRange(start, end, questionSelectionTarget.direction); } catch { /* input type/browser may reject selection restoration */ }
+      try {
+        questionFocusTarget.setSelectionRange(
+          start,
+          end,
+          questionSelectionTarget.direction,
+        );
+      } catch {
+        /* input type/browser may reject selection restoration */
+      }
     }
   }
-  const reading = state.messageReading.get(session.id) || { followLatest, scrollTop: previousScrollTop };
+  if (
+    !questionFocusTarget &&
+    previousFocusKey &&
+    document.activeElement === document.body
+  )
+    stream
+      .querySelector(`[data-focus-key="${CSS.escape(previousFocusKey)}"]`)
+      ?.focus();
+  const reading = state.messageReading.get(session.id) || {
+    followLatest,
+    scrollTop: previousScrollTop,
+  };
   if (reading.followLatest) stream.scrollTop = stream.scrollHeight;
-  else stream.scrollTop = Math.min(reading.scrollTop, Math.max(0, stream.scrollHeight - stream.clientHeight));
-  state.messageReading.set(session.id, { followLatest: reading.followLatest, scrollTop: stream.scrollTop });
+  else
+    stream.scrollTop = Math.min(
+      reading.scrollTop,
+      Math.max(0, stream.scrollHeight - stream.clientHeight),
+    );
+  state.messageReading.set(session.id, {
+    followLatest: reading.followLatest,
+    scrollTop: stream.scrollTop,
+  });
   setJumpLatestVisible(!reading.followLatest);
 }
 
 function renderChatHeader() {
-  const session = currentSession();
-  const project = currentProject();
-  $("project-title").textContent = project?.name || "No project selected";
-  $("session-title").textContent = session?.title || "Create a session to begin";
-  const meta = $("session-meta");
-  clear(meta);
-  if (session) {
-    if (session.extensionBinding?.extensionId) meta.append(element("span", { className: "run-badge", text: `bound: ${session.extensionBinding.extensionId}` }));
-    const active = currentRun();
-    if (active) appendRunBadge(meta, active.status);
-  }
-  const show = $("show-surface-button");
-  show.hidden = state.surface.open;
+  const session = currentSession(),
+    project = currentProject();
+  $("project-title").textContent =
+    state.view === "home" ? "Workspace" : project?.name || "Project";
+  $("session-title").textContent =
+    state.view === "home" ? "Home" : session?.title || "Loading session…";
+  $("session-meta").replaceChildren();
+  if (session && currentRun())
+    appendRunBadge($("session-meta"), currentRun().status);
+  $("show-surface-button").hidden = !session;
+  $("show-run-button").hidden = !session;
+  $("composer-area").hidden = state.view !== "session" || !session;
+  const config = state.providerConfig?.config;
+  const model =
+    config?.provider === "fake-openai-loopback"
+      ? "Local test"
+      : config?.model || "Model settings";
+  $("model-settings-button").textContent = model;
+  $("capability-badge").textContent =
+    config?.provider === "fake-openai-loopback"
+      ? "Local test"
+      : config?.provider || "Runtime";
+  $("permission-settings-button").textContent =
+    permissionLabels[session?.permissionMode] || "File permissions";
+  $("home-button").setAttribute(
+    "aria-current",
+    state.view === "home" ? "page" : "false",
+  );
 }
 
 function renderComposer() {
@@ -1675,14 +2557,25 @@ function renderComposer() {
   // (V7 regression requirement) and only locks Send.
   textarea.disabled = !session;
   textarea.readOnly = Boolean(session) && Boolean(pendingRun);
-  send.disabled = !session || Boolean(active) || Boolean(pendingRun) || state.connectionLost;
+  send.disabled =
+    !session ||
+    Boolean(active) ||
+    Boolean(pendingRun) ||
+    state.unconfirmedRuns.has(session?.id) ||
+    state.connectionLost;
   cancel.hidden = !active;
   cancel.disabled = !active || Boolean(pendingCancel);
   if (runHint) runHint.hidden = !active;
   if (session) {
-    const cached = state.draftCache.has(session.id) ? state.draftCache.get(session.id) : session.draft || "";
-    if (document.activeElement !== textarea || !state.draftDirty.has(session.id)) textarea.value = cached;
-    textarea.placeholder = "Message the local fake agent";
+    const cached = state.draftCache.has(session.id)
+      ? state.draftCache.get(session.id)
+      : session.draft || "";
+    if (
+      document.activeElement !== textarea ||
+      !state.draftDirty.has(session.id)
+    )
+      textarea.value = cached;
+    textarea.placeholder = "What would you like to work on?";
   } else {
     textarea.value = "";
     textarea.placeholder = "Select a session to chat";
@@ -1694,6 +2587,7 @@ function renderChat() {
   renderMessageStream();
   renderComposer();
   renderFeedback();
+  renderInspector();
 }
 
 function setSurfaceExpanded(expanded, { focus = true } = {}) {
@@ -1704,34 +2598,54 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
 }
 
 function surfaceIsModal() {
-  return state.surface.open && (surfaceOverlayQuery.matches || state.surface.expanded);
+  return (
+    state.surface.open &&
+    (surfaceOverlayQuery.matches || state.surface.expanded)
+  );
 }
 
 function closeSurface() {
   state.surface.expanded = false;
   state.surface.open = false;
+  state.surface.runReadController?.abort();
+  state.surface.runReadGeneration++;
+  fileView?.pause();
   writeUiState();
   renderSurfaceVisibility();
-  $("show-surface-button")?.focus();
+  restoreLayerFocus(state.surface.returnFocus, $("show-surface-button"));
 }
-
+function closeNavigation({ restoreFocus = true } = {}) {
+  state.navigationOpen = false;
+  renderSurfaceVisibility();
+  if (restoreFocus) restoreLayerFocus($("toggle-nav-button"));
+}
+function toggleNavigation() {
+  if (surfaceOverlayQuery.matches) {
+    state.navigationOpen = !state.navigationOpen;
+    state.surface.open = false;
+  } else state.sidebarCollapsed = !state.sidebarCollapsed;
+  renderSurfaceVisibility();
+  if (state.navigationOpen) $("close-nav-button").focus();
+}
 function renderSurfaceVisibility() {
-  const shell = $("app-shell");
-  const panel = $("surface-panel");
-  const open = state.surface.open === true;
-  const expanded = open && state.surface.expanded && Boolean(currentSession());
-  const modal = Boolean(open && (surfaceOverlayQuery.matches || expanded));
+  const shell = $("app-shell"),
+    panel = $("surface-panel"),
+    nav = $("navigation-panel"),
+    chat = shell.querySelector(".chat-panel");
+  const open = Boolean(state.surface.open && currentSession()),
+    expanded = open && state.surface.expanded;
+  const modal = open && (surfaceOverlayQuery.matches || expanded),
+    navModal = surfaceOverlayQuery.matches && state.navigationOpen && !open;
   const wasModal = panel.getAttribute("aria-modal") === "true";
-  const sidebar = shell?.querySelector(".sidebar");
-  const chat = shell?.querySelector(".chat-panel");
-  const content = $("surface-content");
-  const tab = $("surface-preview-tab");
   shell.classList.toggle("surface-closed", !open);
   shell.classList.toggle("surface-expanded", expanded);
+  shell.classList.toggle("nav-open", navModal);
+  shell.classList.toggle("nav-collapsed", state.sidebarCollapsed);
   panel.classList.toggle("is-open", open);
   panel.classList.toggle("is-expanded", expanded);
-  panel.setAttribute("aria-hidden", String(!open));
+  panel.hidden = !open;
   panel.inert = !open;
+  panel.setAttribute("aria-hidden", String(!open));
   if (modal) {
     panel.setAttribute("role", "dialog");
     panel.setAttribute("aria-modal", "true");
@@ -1739,29 +2653,194 @@ function renderSurfaceVisibility() {
     panel.removeAttribute("role");
     panel.removeAttribute("aria-modal");
   }
+  const navHidden = surfaceOverlayQuery.matches
+    ? !navModal
+    : state.sidebarCollapsed;
+  nav.inert = Boolean(modal || navHidden);
+  nav.setAttribute("aria-hidden", String(nav.inert));
+  if (navModal) {
+    nav.setAttribute("role", "dialog");
+    nav.setAttribute("aria-modal", "true");
+  } else {
+    nav.removeAttribute("role");
+    nav.removeAttribute("aria-modal");
+  }
+  chat.inert = Boolean(modal || navModal);
+  chat.setAttribute("aria-hidden", String(chat.inert));
   $("surface-backdrop").hidden = !modal;
-  tab.setAttribute("aria-selected", String(open));
-  for (const root of [sidebar, chat]) {
-    if (!root) continue;
-    root.inert = modal;
-    root.setAttribute("aria-hidden", String(modal));
+  $("nav-backdrop").hidden = !navModal;
+  $("toggle-nav-button").setAttribute(
+    "aria-expanded",
+    String(surfaceOverlayQuery.matches ? navModal : !state.sidebarCollapsed),
+  );
+  setAction(
+    $("surface-expand-button"),
+    expanded ? "minimize-2" : "maximize-2",
+    expanded ? "Restore work surface" : "Expand work surface",
+  );
+  $("surface-expand-button").setAttribute("aria-expanded", String(expanded));
+  $("surface-expand-button").hidden =
+    window.matchMedia("(max-width: 767px)").matches;
+  for (const [kind, id] of [
+    ["preview", "surface"],
+    ["run", "run"],
+    ["file", "file"],
+  ]) {
+    const tab = $(`surface-${kind}-tab`),
+      selected = state.surface.kind === kind;
+    tab.hidden =
+      kind === "run"
+        ? !state.surface.runId
+        : kind === "file"
+          ? !state.surface.fileRef
+          : false;
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    $(`${id}-content`).hidden = !selected;
   }
-  const expandButton = $("surface-expand-button");
-  if (expandButton) {
-    const label = expanded ? (surfaceOverlayQuery.matches ? "Restore work surface" : "Return to chat") : "Expand work surface";
-    expandButton.textContent = label;
-    expandButton.setAttribute("aria-label", label);
-    expandButton.setAttribute("aria-expanded", String(expanded));
+  if (
+    modal &&
+    (!wasModal || !document.activeElement?.getClientRects().length) &&
+    !document.querySelector("dialog[open]") &&
+    (!panel.contains(document.activeElement) ||
+      !document.activeElement?.getClientRects().length)
+  )
+    $(`surface-${state.surface.kind}-tab`)?.focus();
+}
+function activateSurface(kind) {
+  if (!currentSession()) return;
+  if (!state.surface.open) state.surface.returnFocus = document.activeElement;
+  state.navigationOpen = false;
+  state.surface.kind = kind;
+  state.surface.open = true;
+  state.surface.runReadController?.abort();
+  state.surface.runReadGeneration++;
+  fileView?.pause();
+  $("surface-title").textContent =
+    kind === "run"
+      ? "Run details"
+      : kind === "file"
+        ? "File"
+        : state.surface.info?.extension?.title || "Workspace";
+  renderSurfaceVisibility();
+  writeUiState();
+  $(`surface-${kind}-tab`).focus();
+  if (kind === "preview") void loadSurface(state.sessionEpoch);
+  if (kind === "run") void readRunDetails();
+  if (kind === "file" && state.surface.fileRef)
+    void fileView.load(state.surface.fileRef);
+}
+function openRun(runId) {
+  state.surface.runId = runId;
+  activateSurface("run");
+}
+function openFile(ref) {
+  if (ref.sessionId !== state.activeSessionId) return;
+  state.surface.fileRef = ref;
+  activateSurface("file");
+}
+function renderInspector() {
+  if (!state.surface.open || state.surface.kind !== "run") return;
+  const run = state.runs.find((item) => item.id === state.surface.runId);
+  renderRun($("run-content"), {
+    sessionId: state.activeSessionId,
+    run,
+    events: state.events,
+    onFile: openFile,
+    onRefresh: readRunDetails,
+  });
+}
+async function refreshRunDetails(id) {
+  if (!id) return;
+  const sessionId = state.activeSessionId,
+    epoch = state.sessionEpoch;
+  try {
+    const result = await request(`/runs/${encodeURIComponent(id)}`);
+    if (sessionId !== state.activeSessionId || epoch !== state.sessionEpoch)
+      return;
+    mergeRun(result.run, { sessionId });
+    renderInspector();
+  } catch (error) {
+    if (epoch === state.sessionEpoch)
+      showToast(
+        `Run details could not be refreshed: ${error.message}`,
+        "error",
+      );
   }
-  // Closing remains available from both split and expanded layouts. In
-  // expanded mode it closes the surface and returns focus to its show trigger;
-  // the expand control remains the layout-only return action.
-  $("close-surface-button").hidden = false;
-  $("show-surface-button").hidden = open;
-  // Enter the sheet synchronously. Loading content must never reclaim focus.
-  // A native dialog above us retains its own focus and Escape handling.
-  if (modal && !wasModal && !document.querySelector("dialog[open]") && !panel.contains(document.activeElement)) {
-    $("surface-preview-tab")?.focus();
+}
+async function readRunDetails() {
+  const id = state.surface.runId,
+    sessionId = state.activeSessionId,
+    own = ++state.surface.runReadGeneration;
+  state.surface.runReadController?.abort();
+  const controller = new AbortController();
+  state.surface.runReadController = controller;
+  renderInspector();
+  try {
+    const result = await request(`/runs/${encodeURIComponent(id)}`, {
+      signal: controller.signal,
+    });
+    if (
+      own !== state.surface.runReadGeneration ||
+      sessionId !== state.activeSessionId ||
+      id !== state.surface.runId
+    )
+      return;
+    mergeRun(result.run, { sessionId });
+    renderInspector();
+  } catch (error) {
+    if (own === state.surface.runReadGeneration && error.name !== "AbortError")
+      $("run-content").prepend(
+        element("p", { className: "inline-error", text: error.message }),
+      );
+  }
+}
+async function renderWorkspaceFiles() {
+  const sessionId = state.activeSessionId,
+    own = ++state.surface.workspaceGeneration;
+  const content = $("surface-content");
+  content.replaceChildren(
+    element("p", { className: "form-help", text: "Loading workspace files…" }),
+  );
+  try {
+    const result = await request(
+      `/sessions/${encodeURIComponent(sessionId)}/workspace`,
+    );
+    if (
+      own !== state.surface.workspaceGeneration ||
+      sessionId !== state.activeSessionId ||
+      state.surface.info?.extension
+    )
+      return;
+    const files = result.tree || [];
+    content.replaceChildren(element("h3", { text: "Workspace files" }));
+    if (!files.length)
+      content.append(
+        element("p", {
+          className: "form-help",
+          text: "Add session material, or ask the agent to create a file.",
+        }),
+      );
+    for (const file of files)
+      content.append(
+        action(
+          "file-text",
+          file.path,
+          () => openFile({ kind: "current", sessionId, path: file.path }),
+          { visible: true, className: "workspace-file-row" },
+        ),
+      );
+  } catch (error) {
+    if (
+      own === state.surface.workspaceGeneration &&
+      sessionId === state.activeSessionId
+    )
+      content.replaceChildren(
+        element("p", { className: "inline-error", text: error.message }),
+        action("refresh-cw", "Retry loading workspace", renderWorkspaceFiles, {
+          visible: true,
+        }),
+      );
   }
 }
 
@@ -1775,44 +2854,92 @@ function renderSurfaceFallback() {
   clear(content);
   const info = state.surface.info;
   if (!currentSession()) {
-    content.append(element("div", { className: "empty-state compact" },
-      element("h3", { text: "No work surface" }),
-      element("p", { text: "Choose a session to load its local renderer slot." })));
+    content.append(
+      element(
+        "div",
+        { className: "empty-state compact" },
+        element("h3", { text: "No work surface" }),
+        element("p", {
+          text: "Choose a session to load its local renderer slot.",
+        }),
+      ),
+    );
     return;
   }
   const binding = currentSession().extensionBinding;
   if (!info?.extension && binding?.extensionId) {
     const loading = Boolean(state.surface.fetchController);
-    content.append(element("div", { className: "empty-state compact" },
-      element("h3", { text: loading ? "Loading preview" : "Preview not loaded yet" }),
-      element("p", { text: `This session is bound to ${binding.extensionId}; the preview has not returned its current projection.` })));
+    content.append(
+      element(
+        "div",
+        { className: "empty-state compact" },
+        element("h3", {
+          text: loading ? "Loading preview" : "Preview not loaded yet",
+        }),
+        element("p", {
+          text: `This session is bound to ${binding.extensionId}; the preview has not returned its current projection.`,
+        }),
+      ),
+    );
     return;
   }
   if (!info?.extension) {
-    content.append(element("div", { className: "empty-state compact" },
-      element("h3", { text: "No extension bound" }),
-      element("p", { text: "Bind a loaded extension to this session from Runtime setup." })));
+    void renderWorkspaceFiles();
     return;
   }
   const card = element("div", { className: "surface-card" });
   const statuses = element("div", { className: "surface-status" });
-  statuses.append(element("span", { className: `extension-status ${info.extension.status || ""}`, text: info.extension.status || "unknown" }));
-  statuses.append(element("span", { className: "run-badge", text: `generation ${info.extension.generation ?? "?"}` }));
-  card.append(statuses, element("h3", { text: info.extension.title || info.extension.id || "Extension workspace" }));
+  statuses.append(
+    element("span", {
+      className: `extension-status ${info.extension.status || ""}`,
+      text: info.extension.status || "unknown",
+    }),
+  );
+  statuses.append(
+    element("span", {
+      className: "run-badge",
+      text: `generation ${info.extension.generation ?? "?"}`,
+    }),
+  );
+  card.append(
+    statuses,
+    element("h3", {
+      text: info.extension.title || info.extension.id || "Extension workspace",
+    }),
+  );
   const projection = state.surface.projection;
   if (projection === null || projection === undefined) {
-    card.append(element("p", { className: "surface-note", text: "No read-only projection is available yet." }));
+    card.append(
+      element("p", {
+        className: "surface-note",
+        text: "No read-only projection is available yet.",
+      }),
+    );
   } else {
-    const actions = Array.isArray(projection.humanActions) ? projection.humanActions : [];
+    const actions = Array.isArray(projection.humanActions)
+      ? projection.humanActions
+      : [];
     if (actions.length) {
       const block = element("section", { className: "surface-block" });
       block.append(element("h4", { text: "Available actions" }));
       const list = element("div", { className: "action-list" });
       for (const action of actions) {
         const item = element("div", { className: "action-item" });
-        item.append(element("p", { className: "action-label", text: action.label || action.action || "Action" }));
-        const button = element("button", { className: "secondary-button", attrs: { type: "button" }, text: "Run action" });
-        button.addEventListener("click", () => void dispatchSurfaceAction(action.action, action.payload || {}));
+        item.append(
+          element("p", {
+            className: "action-label",
+            text: action.label || action.action || "Action",
+          }),
+        );
+        const button = element("button", {
+          className: "secondary-button",
+          attrs: { type: "button" },
+          text: "Run action",
+        });
+        button.addEventListener(
+          "click",
+          () => void dispatchSurfaceAction(action.action, action.payload || {}),
+        );
         item.append(button);
         list.append(item);
       }
@@ -1825,48 +2952,81 @@ function renderSurfaceFallback() {
     for (const [key, value] of Object.entries(projection)) {
       if (key === "humanActions") continue;
       const item = element("div", { className: "projection-item" });
-      item.append(element("span", { className: "projection-key", text: key }), element("span", { className: "projection-value", text: renderProjectionValue(value) }));
+      item.append(
+        element("span", { className: "projection-key", text: key }),
+        element("span", {
+          className: "projection-value",
+          text: renderProjectionValue(value),
+        }),
+      );
       list.append(item);
     }
-    if (!list.childElementCount) list.append(element("p", { className: "surface-note", text: "Projection is empty." }));
+    if (!list.childElementCount)
+      list.append(
+        element("p", {
+          className: "surface-note",
+          text: "Projection is empty.",
+        }),
+      );
     block.append(list);
     card.append(block);
   }
   content.append(card);
 }
 
-async function dispatchSurfaceAction(action, payload, context = state.surface.context) {
-  if (!guardForSurface(context) || !state.surface.info?.extension) throw new Error("This work surface is no longer active.");
+async function dispatchSurfaceAction(
+  action,
+  payload,
+  context = state.surface.context,
+) {
+  if (!guardForSurface(context) || !state.surface.info?.extension)
+    throw new Error("This work surface is no longer active.");
   const { sessionId, extensionId, generation } = context;
   const rendererController = state.surface.controller;
   invalidateSurfaceFetches();
-  const result = await request(`/sessions/${encodeURIComponent(sessionId)}/actions`, {
-    method: "POST",
-    body: { extensionId, generation, action, payload },
-    signal: rendererController?.signal,
-  });
-  if (!guardForSurface(context)) throw new Error("The work surface changed before the action completed.");
+  const result = await request(
+    `/sessions/${encodeURIComponent(sessionId)}/actions`,
+    {
+      method: "POST",
+      body: { extensionId, generation, action, payload },
+      signal: rendererController?.signal,
+    },
+  );
+  if (!guardForSurface(context))
+    throw new Error("The work surface changed before the action completed.");
   invalidateSurfaceFetches();
   if (result.projection !== undefined) {
-    if (projectionsEqual(state.surface.projection, result.projection)) return result;
-    if (!guardForSurface(context)) throw new Error("The work surface changed before the projection update.");
+    if (projectionsEqual(state.surface.projection, result.projection))
+      return result;
+    if (!guardForSurface(context))
+      throw new Error("The work surface changed before the projection update.");
     state.surface.projection = result.projection;
     const mounted = state.surface.mounted;
     if (mounted?.update) {
-      if (!guardForSurface(context)) throw new Error("The work surface changed before the projection update.");
-      try { await mounted.update(result.projection); } catch {
+      if (!guardForSurface(context))
+        throw new Error(
+          "The work surface changed before the projection update.",
+        );
+      try {
+        await mounted.update(result.projection);
+      } catch {
         if (guardForSurface(context)) {
           const failedOwnedContainer = state.surface.ownedContainer;
           const failedFetchRequestId = state.surface.fetchRequestId;
           if (state.surface.mounted === mounted) state.surface.mounted = null;
           state.surface.module = null;
           detachOwnedSurfaceContainer(failedOwnedContainer);
-          try { await mounted.dispose?.(); } catch { /* failed renderer cleanup */ }
+          try {
+            await mounted.dispose?.();
+          } catch {
+            /* failed renderer cleanup */
+          }
           if (
             guardForSurface(context) &&
             state.surface.fetchRequestId === failedFetchRequestId &&
             state.surface.ownedContainer === null
-          ) renderSurfaceFallback();
+          )
+            renderSurfaceFallback();
         }
       }
     } else if (guardForSurface(context)) renderSurfaceFallback();
@@ -1877,7 +3037,13 @@ async function dispatchSurfaceAction(action, payload, context = state.surface.co
 }
 
 async function loadSurface(epoch) {
-  if (!state.surface.open || !state.activeSessionId || epoch !== state.sessionEpoch) return;
+  if (
+    !state.surface.open ||
+    state.surface.kind !== "preview" ||
+    !state.activeSessionId ||
+    epoch !== state.sessionEpoch
+  )
+    return;
   const sessionId = state.activeSessionId;
   const fetchRequestId = state.surface.fetchRequestId + 1;
   state.surface.fetchRequestId = fetchRequestId;
@@ -1885,28 +3051,65 @@ async function loadSurface(epoch) {
   const fetchController = new AbortController();
   state.surface.fetchController = fetchController;
   try {
-    const result = await request(`/sessions/${encodeURIComponent(sessionId)}/surface`, { signal: fetchController.signal });
-    if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController })) return;
+    const result = await request(
+      `/sessions/${encodeURIComponent(sessionId)}/surface`,
+      { signal: fetchController.signal },
+    );
+    if (
+      !guardForSurfaceFetch({
+        epoch,
+        sessionId,
+        fetchRequestId,
+        controller: fetchController,
+      })
+    )
+      return;
     const extensionRecord = result.extension || null;
-    const catalogRecord = extensionRecord ? state.extensions.find((item) => item.id === extensionRecord.id) : null;
-    const extension = extensionRecord ? { ...catalogRecord, ...extensionRecord, surface: extensionRecord.surface || catalogRecord?.surface } : null;
+    const catalogRecord = extensionRecord
+      ? state.extensions.find((item) => item.id === extensionRecord.id)
+      : null;
+    const extension = extensionRecord
+      ? {
+          ...catalogRecord,
+          ...extensionRecord,
+          surface: extensionRecord.surface || catalogRecord?.surface,
+        }
+      : null;
     const nextIdentity = surfaceIdentityFromExtension(extension, sessionId);
     const currentContext = state.surface.context;
     const identityUnchanged = Boolean(
       currentContext &&
-      currentContext.epoch === epoch &&
-      currentContext.sessionId === sessionId &&
-      sameSurfaceIdentity(currentContext, nextIdentity),
+        currentContext.epoch === epoch &&
+        currentContext.sessionId === sessionId &&
+        sameSurfaceIdentity(currentContext, nextIdentity),
     );
 
     if (identityUnchanged && state.surface.mounted?.update) {
-      if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController }) || !guardForSurface(currentContext)) return;
+      if (
+        !guardForSurfaceFetch({
+          epoch,
+          sessionId,
+          fetchRequestId,
+          controller: fetchController,
+        }) ||
+        !guardForSurface(currentContext)
+      )
+        return;
       const previousProjection = state.surface.projection;
       state.surface.info = { ...result, extension };
       state.surface.projection = result.projection ?? null;
-      $("surface-title").textContent = extension?.title || extension?.id || "Work surface";
+      setWorkspaceTitle(extension?.title || "Files");
       if (!projectionsEqual(previousProjection, state.surface.projection)) {
-        if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController }) || !guardForSurface(currentContext)) return;
+        if (
+          !guardForSurfaceFetch({
+            epoch,
+            sessionId,
+            fetchRequestId,
+            controller: fetchController,
+          }) ||
+          !guardForSurface(currentContext)
+        )
+          return;
         try {
           await state.surface.mounted.update(state.surface.projection);
         } catch {
@@ -1917,12 +3120,22 @@ async function loadSurface(epoch) {
             state.surface.mounted = null;
             state.surface.module = null;
             detachOwnedSurfaceContainer(failedOwnedContainer);
-            try { await failedMount?.dispose?.(); } catch { /* failed renderer cleanup */ }
+            try {
+              await failedMount?.dispose?.();
+            } catch {
+              /* failed renderer cleanup */
+            }
             if (
-              guardForSurfaceFetch({ epoch, sessionId, fetchRequestId: failedFetchRequestId, controller: fetchController }) &&
+              guardForSurfaceFetch({
+                epoch,
+                sessionId,
+                fetchRequestId: failedFetchRequestId,
+                controller: fetchController,
+              }) &&
               guardForSurface(currentContext) &&
               state.surface.ownedContainer === null
-            ) renderSurfaceFallback();
+            )
+              renderSurfaceFallback();
           }
         }
       }
@@ -1930,67 +3143,129 @@ async function loadSurface(epoch) {
     }
 
     await disposeSurfaceRenderer({ abortFetch: false });
-    if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController })) return;
+    if (
+      !guardForSurfaceFetch({
+        epoch,
+        sessionId,
+        fetchRequestId,
+        controller: fetchController,
+      })
+    )
+      return;
     const requestId = state.surface.requestId + 1;
     state.surface.requestId = requestId;
     const rendererController = new AbortController();
     state.surface.controller = rendererController;
-    const context = extension ? {
-      ...nextIdentity,
-      requestId,
-      epoch,
-    } : null;
+    const context = extension
+      ? {
+          ...nextIdentity,
+          requestId,
+          epoch,
+        }
+      : null;
     state.surface.context = context;
     state.surface.info = { ...result, extension };
     state.surface.projection = result.projection ?? null;
-    $("surface-title").textContent = extension?.title || extension?.id || "Work surface";
+    setWorkspaceTitle(extension?.title || "Files");
     renderSurfaceFallback();
     const modulePath = nextIdentity?.modulePath || null;
     if (!modulePath || !extension || extension.status !== "loaded") return;
     const moduleUrl = new URL(modulePath, window.location.origin);
-    if (moduleUrl.origin !== window.location.origin || !moduleUrl.pathname.startsWith("/extensions/")) {
-      throw new Error("Renderer path is outside the local extension allowlist.");
+    if (
+      moduleUrl.origin !== window.location.origin ||
+      !moduleUrl.pathname.startsWith("/extensions/")
+    ) {
+      throw new Error(
+        "Renderer path is outside the local extension allowlist.",
+      );
     }
     const rendererModule = await import(moduleUrl.href);
-    if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController }) || !guardForSurface(context) || rendererController.signal.aborted) return;
+    if (
+      !guardForSurfaceFetch({
+        epoch,
+        sessionId,
+        fetchRequestId,
+        controller: fetchController,
+      }) ||
+      !guardForSurface(context) ||
+      rendererController.signal.aborted
+    )
+      return;
     const mount = rendererModule.mount || rendererModule.default?.mount;
-    if (typeof mount !== "function") throw new Error("Renderer module does not export mount().");
+    if (typeof mount !== "function")
+      throw new Error("Renderer module does not export mount().");
     const container = $("surface-content");
     clear(container);
-    const ownedContainer = element("div", { className: "surface-renderer-host" });
+    const ownedContainer = element("div", {
+      className: "surface-renderer-host",
+    });
     container.append(ownedContainer);
     state.surface.ownedContainer = ownedContainer;
     const mounted = await mount({
       container: ownedContainer,
       projection: state.surface.projection,
-      dispatch: (action, payload) => dispatchSurfaceAction(action, payload, context),
+      dispatch: (action, payload) =>
+        dispatchSurfaceAction(action, payload, context),
       signal: rendererController.signal,
     });
-    if (!guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController }) || !guardForSurface(context) || rendererController.signal.aborted) {
+    if (
+      !guardForSurfaceFetch({
+        epoch,
+        sessionId,
+        fetchRequestId,
+        controller: fetchController,
+      }) ||
+      !guardForSurface(context) ||
+      rendererController.signal.aborted
+    ) {
       detachOwnedSurfaceContainer(ownedContainer);
-      try { await mounted?.dispose?.(); } catch { /* stale renderer */ }
+      try {
+        await mounted?.dispose?.();
+      } catch {
+        /* stale renderer */
+      }
       return;
     }
     state.surface.module = rendererModule;
     state.surface.mounted = mounted || {};
   } catch (error) {
-    if (error?.name === "AbortError" || !guardForSurfaceFetch({ epoch, sessionId, fetchRequestId, controller: fetchController })) return;
+    if (
+      error?.name === "AbortError" ||
+      !guardForSurfaceFetch({
+        epoch,
+        sessionId,
+        fetchRequestId,
+        controller: fetchController,
+      })
+    )
+      return;
     if (!state.surface.mounted) {
       detachOwnedSurfaceContainer(state.surface.ownedContainer);
       renderSurfaceFallback();
-      $("surface-content").prepend(element("div", { className: "renderer-error", text: `Renderer unavailable: ${error.message}` }));
+      $("surface-content").prepend(
+        element("div", {
+          className: "renderer-error",
+          text: `Renderer unavailable: ${error.message}`,
+        }),
+      );
     }
   } finally {
-    if (state.surface.fetchController === fetchController) state.surface.fetchController = null;
+    if (state.surface.fetchController === fetchController)
+      state.surface.fetchController = null;
   }
 }
 
 function clearSubmittedDraft(operation) {
   const { sessionId, input, revision } = operation;
-  if (draftRevision(sessionId) !== revision || state.draftCache.get(sessionId) !== input) return false;
+  if (
+    draftRevision(sessionId) !== revision ||
+    state.draftCache.get(sessionId) !== input
+  )
+    return false;
   state.draftCache.set(sessionId, "");
   state.draftDirty.delete(sessionId);
-  if (state.activeSessionId === sessionId && state.session?.id === sessionId) state.session.draft = "";
+  if (state.activeSessionId === sessionId && state.session?.id === sessionId)
+    state.session.draft = "";
   return true;
 }
 
@@ -2001,14 +3276,25 @@ function isUncertainCommandError(error) {
 async function submitRun(event) {
   event.preventDefault();
   const session = currentSession();
-  if (!session || currentRun() || state.pendingRuns.has(session.id)) return;
+  if (
+    !session ||
+    currentRun() ||
+    state.pendingRuns.has(session.id) ||
+    state.unconfirmedRuns.has(session.id)
+  )
+    return;
   if (state.connectionLost) {
     // WS-12: the connection-lost guard applies to every send entry point —
     // Enter and a Send click both reach this same function (the form's
     // "submit" listener and requestSubmit() below), so there is no separate
     // Enter-specific branch to guard. Return before establishing a pending
     // fact; the draft is untouched (left exactly as typed).
-    setTransientFeedback(session.id, nextOperationId("run-blocked"), "run", "Connection lost — not sent");
+    setTransientFeedback(
+      session.id,
+      nextOperationId("run-blocked"),
+      "run",
+      "Connection lost — not sent",
+    );
     return;
   }
   const textarea = $("composer-input");
@@ -2032,23 +3318,42 @@ async function submitRun(event) {
     state.draftRevisions.set(sessionId, revision);
     state.draftCache.set(sessionId, input);
   }
-  const operation = { operationId: nextOperationId("run"), sessionId, input, revision };
+  if (state.unconfirmedRuns.has(sessionId)) {
+    setPersistentFeedback(
+      sessionId,
+      nextOperationId("run"),
+      "run",
+      "Delivery is unconfirmed. Check the previous instruction before sending another.",
+      { nextAction: "retry-run" },
+    );
+    return;
+  }
+  const operation = {
+    operationId: nextOperationId("run"),
+    commandId: crypto.randomUUID(),
+    sessionId,
+    input,
+    revision,
+  };
   // This is the command fact. It must exist before draft persistence or POST
   // admission awaits so refreshes cannot create a second request.
   state.pendingRuns.set(sessionId, operation);
   renderComposer();
 
-  const attemptFocusHandoff = () => guardHandoffFocus(focusTicket, {
-    isTargetActive: () => state.activeSessionId === sessionId,
-    targetControl: textarea,
-    // A mouse click on Send moves the browser's focus to the button before
-    // this handler ever runs; that is part of the send intent, not the user
-    // moving on, so the composer form's own controls (textarea, Send,
-    // Cancel) all count as "still inside this intent" for the secondary
-    // activeElement check below.
-    intentContainer: $("composer-form"),
-    perform: () => { if (document.activeElement !== textarea) textarea.focus(); },
-  });
+  const attemptFocusHandoff = () =>
+    guardHandoffFocus(focusTicket, {
+      isTargetActive: () => state.activeSessionId === sessionId,
+      targetControl: textarea,
+      // A mouse click on Send moves the browser's focus to the button before
+      // this handler ever runs; that is part of the send intent, not the user
+      // moving on, so the composer form's own controls (textarea, Send,
+      // Cancel) all count as "still inside this intent" for the secondary
+      // activeElement check below.
+      intentContainer: $("composer-form"),
+      perform: () => {
+        if (document.activeElement !== textarea) textarea.focus();
+      },
+    });
 
   try {
     const pendingTimer = state.draftTimers.get(sessionId);
@@ -2058,10 +3363,24 @@ async function submitRun(event) {
     state.draftDirty.add(sessionId);
     await persistDraftForSession(sessionId, { revision, text: input });
     if (state.pendingRuns.get(sessionId) !== operation) return;
-    const result = await request(`/sessions/${encodeURIComponent(sessionId)}/runs`, { method: "POST", body: { input } });
+    state.unconfirmedRuns.set(sessionId, operation);
+    storeUnconfirmedRuns();
+    const result = await request(
+      `/sessions/${encodeURIComponent(sessionId)}/runs`,
+      { method: "POST", body: { input, commandId: operation.commandId } },
+    );
+    if (
+      !result.run?.id ||
+      result.run.sessionId !== sessionId ||
+      result.run.commandId !== operation.commandId
+    )
+      throw new Error("The runtime did not return a matching run receipt.");
+    state.unconfirmedRuns.delete(sessionId);
+    storeUnconfirmedRuns();
     if (state.pendingRuns.get(sessionId) !== operation) return;
     state.pendingRuns.delete(sessionId);
-    if (state.activeSessionId === sessionId && result.run?.id) mergeRun(result.run, { sessionId, preserveStatus: true });
+    if (state.activeSessionId === sessionId && result.run?.id)
+      mergeRun(result.run, { sessionId, preserveStatus: true });
     const cleared = clearSubmittedDraft(operation);
     // WS-08: storage does not depend on which session is active — write the
     // outcome into this session's own feedback bucket regardless, so a
@@ -2069,7 +3388,12 @@ async function submitRun(event) {
     // chat re-render and focus handoff below are scoped to the active
     // session, since those affect what is currently on screen.
     clearPersistentFeedback(sessionId, "run");
-    setTransientFeedback(sessionId, operation.operationId, "run", cleared ? "Sent." : "Run admitted; newer draft kept.");
+    setTransientFeedback(
+      sessionId,
+      operation.operationId,
+      "run",
+      cleared ? "Sent." : "Run admitted; newer draft kept.",
+    );
     if (state.activeSessionId === sessionId) {
       renderChat();
       attemptFocusHandoff();
@@ -2082,15 +3406,35 @@ async function submitRun(event) {
   } catch (error) {
     if (state.pendingRuns.get(sessionId) !== operation) return;
     state.pendingRuns.delete(sessionId);
-    if (draftRevision(sessionId) === revision && state.draftCache.get(sessionId) === input) state.draftDirty.add(sessionId);
+    if (
+      draftRevision(sessionId) === revision &&
+      state.draftCache.get(sessionId) === input
+    )
+      state.draftDirty.add(sessionId);
+    const uncertain =
+      state.unconfirmedRuns.has(sessionId) &&
+      (!error.status || error.status >= 500);
+    if (!uncertain) {
+      state.unconfirmedRuns.delete(sessionId);
+      storeUnconfirmedRuns();
+    }
     const copy = describeCommandError("run", error);
-    setPersistentFeedback(sessionId, operation.operationId, "run", copy.text, { nextAction: copy.nextAction });
+    setPersistentFeedback(
+      sessionId,
+      operation.operationId,
+      "run",
+      uncertain
+        ? "Delivery is unconfirmed. Your instruction is kept; check its receipt before sending another."
+        : copy.text,
+      { nextAction: uncertain ? "retry-run" : copy.nextAction },
+    );
     if (state.activeSessionId === sessionId) {
       renderComposer();
       attemptFocusHandoff();
     }
   } finally {
-    if (state.pendingRuns.get(sessionId) === operation) state.pendingRuns.delete(sessionId);
+    if (state.pendingRuns.get(sessionId) === operation)
+      state.pendingRuns.delete(sessionId);
     if (state.activeSessionId === sessionId) renderComposer();
   }
 }
@@ -2100,15 +3444,24 @@ async function cancelCurrentRun() {
   const run = currentRun();
   if (!session || !run || state.pendingCancels.has(run.id)) return;
   const sessionId = session.id;
-  const operation = { operationId: nextOperationId("cancel"), sessionId, runId: run.id };
+  const operation = {
+    operationId: nextOperationId("cancel"),
+    sessionId,
+    runId: run.id,
+  };
   state.pendingCancels.set(run.id, operation);
   renderComposer();
   try {
-    const result = await request(`/runs/${encodeURIComponent(run.id)}/cancel`, { method: "POST", body: {} });
+    const result = await request(`/runs/${encodeURIComponent(run.id)}/cancel`, {
+      method: "POST",
+      body: {},
+    });
     if (state.pendingCancels.get(run.id) !== operation) return;
     state.pendingCancels.delete(run.id);
-    const activeTarget = state.activeSessionId === sessionId && currentRun()?.id === run.id;
-    if (activeTarget && result.run?.id === run.id) mergeRun(result.run, { sessionId });
+    const activeTarget =
+      state.activeSessionId === sessionId && currentRun()?.id === run.id;
+    if (activeTarget && result.run?.id === run.id)
+      mergeRun(result.run, { sessionId });
     // WS-08: storage is not gated on which session is active (see submitRun).
     clearPersistentFeedback(sessionId, "cancel");
     if (activeTarget) {
@@ -2119,18 +3472,347 @@ async function cancelCurrentRun() {
     if (state.pendingCancels.get(run.id) !== operation) return;
     state.pendingCancels.delete(run.id);
     const copy = describeCommandError("cancel", error);
-    setPersistentFeedback(sessionId, operation.operationId, "cancel", copy.text, { nextAction: copy.nextAction });
+    setPersistentFeedback(
+      sessionId,
+      operation.operationId,
+      "cancel",
+      copy.text,
+      { nextAction: copy.nextAction },
+    );
     if (state.activeSessionId === sessionId) {
       renderComposer();
     }
   } finally {
-    if (state.pendingCancels.get(run.id) === operation) state.pendingCancels.delete(run.id);
+    if (state.pendingCancels.get(run.id) === operation)
+      state.pendingCancels.delete(run.id);
     if (state.activeSessionId === sessionId) renderComposer();
+  }
+}
+
+function openContextSummary() {
+  const popover = $("context-popover");
+  if (popover.matches(":popover-open")) {
+    popover.hidePopover();
+    return;
+  }
+  const session = currentSession();
+  if (!session) return;
+  const run = currentRun() || state.runs.at(-1);
+  const go = (fn) => () => {
+    popover.hidePopover();
+    fn();
+  };
+  const header = element(
+    "div",
+    { className: "section-heading" },
+    element("h3", { text: "This session" }),
+    action("x", "Close session overview", () => popover.hidePopover()),
+  );
+  const group = element(
+    "section",
+    { className: "context-group" },
+    element("p", { className: "eyebrow", text: "Workspace" }),
+    action(
+      "folder",
+      "Session files",
+      go(() => {
+        openDialog("materials-dialog", "close-materials-button");
+        materialsView.open();
+      }),
+      { visible: true, className: "context-row" },
+    ),
+    action(
+      "panel-right",
+      session.extensionBinding?.extensionId
+        ? "Open work preview"
+        : "Browse workspace",
+      go(() => activateSurface("preview")),
+      { visible: true, className: "context-row" },
+    ),
+  );
+  popover.replaceChildren(header, group);
+  if (run) {
+    const inspect = action(
+      "activity",
+      runLabels[run.status] || run.status,
+      go(() => openRun(run.id)),
+      { visible: true, className: "context-row" },
+    );
+    inspect.append(icon("chevron-right"));
+    const section = element(
+      "section",
+      { className: "context-group" },
+      element("p", { className: "eyebrow", text: "Latest run" }),
+      inspect,
+    );
+    const count = run.artifacts?.length || 0;
+    section.append(
+      element("p", {
+        className: "context-meta",
+        text: `${count} recorded ${count === 1 ? "file" : "files"}${run.usage ? ` · ${run.usage.turns || 0} model turns` : ""}`,
+      }),
+    );
+    popover.append(section);
+  }
+  popover.append(
+    element(
+      "section",
+      { className: "context-group" },
+      element("p", { className: "eyebrow", text: "File permissions" }),
+      element("p", {
+        className: "context-meta",
+        text: permissionLabels[session.permissionMode],
+      }),
+    ),
+  );
+  popover.showPopover();
+  header.querySelector("button").focus();
+}
+function renderHomeState() {
+  renderHome($("message-stream"), {
+    summary: state.home.data,
+    error: state.home.error,
+    loading: state.home.loading,
+    projects: state.projects,
+    onStart: startNewSession,
+    onRetry: () => loadHome(),
+    onMore: (key, offset) => loadHome(key, offset),
+    onSession: async (item, { inspect }) => {
+      await selectProject(item.projectId, { sessionId: item.sessionId });
+      if (state.activeSessionId === item.sessionId && inspect)
+        openRun(item.runId);
+    },
+  });
+}
+async function loadHome(key = null, offset = 0) {
+  const own = ++state.home.generation;
+  state.home.loading = true;
+  state.home.error = null;
+  if (state.view === "home") renderHomeState();
+  const query = new URLSearchParams({ limit: "30" });
+  const names = {
+    sessionCandidates: "sessionsOffset",
+    pendingItems: "pendingOffset",
+    inspectionCandidates: "inspectionOffset",
+  };
+  if (key) query.set(names[key], String(offset));
+  try {
+    const data = await request(`/work-summary?${query}`);
+    if (own !== state.home.generation) return;
+    if (key && state.home.data) {
+      const previous = state.home.data[key];
+      const next = data[key];
+      const unique = new Map(
+        [...previous.items, ...next.items].map((item) => [
+          item.questionId || item.runId || item.sessionId,
+          item,
+        ]),
+      );
+      state.home.data = {
+        ...state.home.data,
+        [key]: { ...next, items: [...unique.values()] },
+      };
+    } else state.home.data = data;
+  } catch (error) {
+    if (own === state.home.generation) state.home.error = error.message;
+  } finally {
+    if (own === state.home.generation) {
+      state.home.loading = false;
+      if (state.view === "home") renderHomeState();
+    }
+  }
+}
+async function goHome() {
+  const own = ++state.navigationEpoch;
+  await persistCurrentDraft();
+  if (own !== state.navigationEpoch) return;
+  clearActiveSession();
+  closeNavigation({ restoreFocus: false });
+  restoreLayerFocus($("session-title"));
+  void loadHome();
+}
+function startNewSession({ projectId = null } = {}) {
+  if (!state.projects.length) {
+    state.startAfterProject = true;
+    openDialog("project-dialog", "project-name-input");
+    return;
+  }
+  state.newSessionProjectId =
+    projectId || state.activeProjectId || state.projects[0].id;
+  $("session-project-label").textContent =
+    state.projects.find((p) => p.id === state.newSessionProjectId)?.name ||
+    "Project";
+  openDialog("session-dialog", "session-title-input");
+}
+function renderPermission(row) {
+  const key = questionScopeKey(row.runId, row.id),
+    run = state.runs.find((item) => item.id === row.runId),
+    payload = row.payload;
+  if (!canAnswer(row, run) && validPermission(payload)) {
+    const keyOpen = `permission-history:${key}`;
+    const details = element("details", { className: "resolved-permission" });
+    details.open = state.toolOpen.get(keyOpen) || false;
+    details.append(
+      element(
+        "summary",
+        { attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` } },
+        icon("file-text"),
+        element("span", {
+          text: `${row.decision === "allow" ? "Write allowed" : row.decision === "deny" ? "Write denied" : "Write request closed"} · ${payload.path}`,
+        }),
+      ),
+      element("pre", {
+        className: "permission-preview",
+        text: payload.preview,
+      }),
+    );
+    details.addEventListener("toggle", () =>
+      state.toolOpen.set(keyOpen, details.open),
+    );
+    return details;
+  }
+  const card = element("article", {
+    className: "question-card permission-card",
+  });
+  card.append(
+    element("h3", { text: "Allow this file write?" }),
+    element("p", {
+      className: "file-name",
+      text: payload.path || "Unavailable path",
+    }),
+  );
+  if (validPermission(payload)) {
+    card.append(
+      element("p", {
+        className: "form-help",
+        text: `${formatBytes(payload.bytes)} · Permission for this exact write only`,
+      }),
+      element("pre", {
+        className: "permission-preview",
+        text: payload.preview,
+      }),
+    );
+    const details = element(
+      "details",
+      {},
+      element("summary", { text: "Write details" }),
+      element("code", { text: payload.contentSha256 }),
+      copyAction(payload.contentSha256, "Copy proposed content hash"),
+    );
+    card.append(details);
+  }
+  const allowed = validPermission(payload) && canAnswer(row, run),
+    pending =
+      state.questionSubmitting.has(key) || state.questionSubmitted.has(key);
+  if (!allowed)
+    card.append(
+      element("p", {
+        className: "form-help",
+        text: row.decision
+          ? `Write ${row.decision === "allow" ? "allowed" : "denied"}.`
+          : row.questionStatus === "pending"
+            ? "This request is no longer available."
+            : "Request resolved.",
+      }),
+    );
+  else {
+    const actions = element("div", { className: "question-actions" });
+    for (const [decision, label] of [
+      ["deny", "Deny write"],
+      ["allow", "Allow this write"],
+    ]) {
+      const button = element("button", {
+        className: decision === "allow" ? "primary-button" : "secondary-button",
+        attrs: { type: "button", "data-focus-key": `${key}:${decision}` },
+        text: label,
+      });
+      button.setAttribute("aria-disabled", String(pending));
+      button.addEventListener("click", async () => {
+        if (
+          state.questionSubmitting.has(key) ||
+          state.questionSubmitted.has(key)
+        )
+          return;
+        const epoch = state.sessionEpoch;
+        state.questionSubmitting.add(key);
+        renderMessageStream();
+        try {
+          await request(
+            `/runs/${encodeURIComponent(row.runId)}/questions/${encodeURIComponent(row.id)}`,
+            { method: "POST", body: { decision } },
+          );
+          state.questionSubmitted.add(key);
+          await pollEvents(epoch);
+        } catch (error) {
+          state.questionErrors.set(key, error.message);
+        } finally {
+          state.questionSubmitting.delete(key);
+          if (epoch === state.sessionEpoch) renderMessageStream();
+        }
+      });
+      actions.append(button);
+    }
+    card.append(actions);
+  }
+  if (state.questionErrors.has(key))
+    card.append(
+      element("p", {
+        className: "inline-error",
+        attrs: { role: "alert" },
+        text: state.questionErrors.get(key),
+      }),
+    );
+  return card;
+}
+async function recoverRunReceipt() {
+  const sessionId = state.activeSessionId,
+    receipt = state.unconfirmedRuns.get(sessionId);
+  if (!receipt || state.pendingRuns.has(sessionId)) return;
+  state.pendingRuns.set(sessionId, receipt);
+  renderComposer();
+  try {
+    const result = await request(
+      `/sessions/${encodeURIComponent(sessionId)}/runs`,
+      {
+        method: "POST",
+        body: { input: receipt.input, commandId: receipt.commandId },
+      },
+    );
+    if (
+      !result.run?.id ||
+      result.run.sessionId !== sessionId ||
+      result.run.commandId !== receipt.commandId
+    )
+      throw new Error("The returned run does not match this instruction.");
+    state.unconfirmedRuns.delete(sessionId);
+    storeUnconfirmedRuns();
+    clearPersistentFeedback(sessionId, "run");
+    if (sessionId === state.activeSessionId) {
+      mergeRun(result.run, { sessionId });
+      await refreshActiveSession();
+      schedulePolling(state.sessionEpoch, 0);
+    }
+  } catch (error) {
+    setPersistentFeedback(
+      sessionId,
+      nextOperationId("recover"),
+      "run",
+      `Run receipt is still unresolved: ${error.message}`,
+      { nextAction: "retry-run" },
+    );
+  } finally {
+    state.pendingRuns.delete(sessionId);
+    if (sessionId === state.activeSessionId) {
+      renderComposer();
+      renderFeedback();
+    }
   }
 }
 
 function openDialog(dialogId, inputId) {
   const dialog = $(dialogId);
+  dialogReturns.set(dialogId, document.activeElement);
+  if (dialog.open) return;
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
   $(inputId)?.focus();
@@ -2144,11 +3826,12 @@ function closeDialog(dialogId) {
 
 function openRuntimeDialog() {
   const dialog = $("runtime-dialog");
-  const trigger = $("runtime-setup-button");
+  const trigger = document.activeElement;
   state.runtimeDialogReturnFocus = trigger;
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
   $("close-runtime-button")?.focus();
+  void settingsView.refresh();
 }
 
 function closeRuntimeDialog({ restoreFocus = true } = {}) {
@@ -2164,8 +3847,26 @@ function closeRuntimeDialog({ restoreFocus = true } = {}) {
 }
 
 function handleSurfaceEscape(event) {
-  if (event.defaultPrevented || event.isComposing || document.querySelector("dialog[open]")) return;
+  if (
+    event.defaultPrevented ||
+    event.isComposing ||
+    document.querySelector("dialog[open]")
+  )
+    return;
+  if ($("context-popover").matches(":popover-open")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      $("context-popover").hidePopover();
+      $("show-run-button").focus();
+    }
+    return;
+  }
   if (event.key === "Escape") {
+    if (state.navigationOpen) {
+      event.preventDefault();
+      closeNavigation();
+      return;
+    }
     if (!state.surface.open) return;
     if (state.surface.expanded) {
       event.preventDefault();
@@ -2176,81 +3877,213 @@ function handleSurfaceEscape(event) {
     }
     return;
   }
-  if (event.key !== "Tab" || !surfaceIsModal()) return;
-  const panel = $("surface-panel");
-  const controls = [...panel.querySelectorAll("button, a[href], input, select, textarea, summary, [tabindex], [contenteditable=true]")]
-    .filter((control) => control.tabIndex >= 0 && !control.matches(":disabled") && !control.closest("[inert]") && control.getClientRects().length && getComputedStyle(control).visibility !== "hidden");
+  if (event.key !== "Tab" || (!surfaceIsModal() && !state.navigationOpen))
+    return;
+  const panel = state.navigationOpen
+    ? $("navigation-panel")
+    : $("surface-panel");
+  const controls = [
+    ...panel.querySelectorAll(
+      "button, a[href], input, select, textarea, summary, [tabindex], [contenteditable=true]",
+    ),
+  ].filter(
+    (control) =>
+      control.tabIndex >= 0 &&
+      !control.matches(":disabled") &&
+      !control.closest("[inert]") &&
+      control.getClientRects().length &&
+      getComputedStyle(control).visibility !== "hidden",
+  );
   const first = controls[0];
   const last = controls.at(-1);
   if (!first) return;
   const active = document.activeElement;
-  if (!panel.contains(active) || (event.shiftKey ? active === first : active === last)) {
+  if (
+    !panel.contains(active) ||
+    (event.shiftKey ? active === first : active === last)
+  ) {
     event.preventDefault();
     (event.shiftKey ? last : first).focus();
   }
 }
 
-async function createProject(event) {
+async function createEntity(event, kind) {
   event.preventDefault();
+  const dialogId = `${kind}-dialog`,
+    dialog = $(dialogId);
   if (event.submitter?.value === "cancel") {
-    closeDialog("project-dialog");
+    closeDialog(dialogId);
     return;
   }
-  const input = $("project-name-input");
-  const name = input.value.trim();
-  if (!name) return;
+  if (state.createAttempts.has(kind)) return;
+  const input = $(
+    kind === "project" ? "project-name-input" : "session-title-input",
+  );
+  const value =
+    input.value.trim() || (kind === "session" ? "Untitled session" : "");
+  if (!value) return;
+  const projectId = state.newSessionProjectId,
+    nav = state.navigationEpoch,
+    startNext = state.startAfterProject;
+  if (kind === "session" && !projectId) return;
+  const attempt = nextOperationId(kind);
+  state.createAttempts.set(kind, attempt);
+  const controls = [
+    ...dialog.querySelectorAll('button:not([value="cancel"]),input,select'),
+  ];
+  controls.forEach((node) => (node.disabled = true));
+  const error = $(`${kind}-create-error`);
+  error.hidden = true;
   try {
-    const result = await request("/projects", { method: "POST", body: { name } });
-    closeDialog("project-dialog");
-    input.value = "";
-    await loadProjects();
-    if (result.project?.id) await selectProject(result.project.id);
-  } catch (error) {
-    showToast(`Project was not created: ${error.message}`, "error");
+    const body =
+      kind === "project"
+        ? { name: value }
+        : {
+            projectId,
+            title: value,
+            permissionMode: $("session-permission-input").value,
+          };
+    const result = await request(
+      kind === "project" ? "/projects" : "/sessions",
+      { method: "POST", body },
+    );
+    const entity = result[kind];
+    if (!entity?.id)
+      throw new Error(
+        "No creation receipt returned. Refresh before creating again.",
+      );
+    const admit = dialog.open && nav === state.navigationEpoch;
+    if (kind === "project") await loadProjects();
+    else {
+      const items = state.sessionsByProject.get(projectId) || [];
+      state.sessionsByProject.set(projectId, [
+        ...items.filter((item) => item.id !== entity.id),
+        entity,
+      ]);
+    }
+    if (admit && dialog.open && nav === state.navigationEpoch) {
+      closeDialog(dialogId);
+      input.value = "";
+      if (kind === "project") {
+        await selectProject(entity.id);
+        if (startNext) startNewSession();
+      } else await selectProject(projectId, { sessionId: entity.id });
+    } else renderProjectList();
+    void loadHome();
+  } catch (err) {
+    error.hidden = false;
+    error.textContent = isUncertainCommandError(err)
+      ? `Creation could not be confirmed. Refresh the workspace and check for “${value}” before creating again.`
+      : err.message;
+    if (isUncertainCommandError(err)) {
+      state.createAttempts.set(kind, "unconfirmed");
+      return;
+    }
+  } finally {
+    if (state.createAttempts.get(kind) !== "unconfirmed") {
+      state.createAttempts.delete(kind);
+      controls.forEach((node) => (node.disabled = false));
+    }
   }
 }
-
+async function createProject(event) {
+  return createEntity(event, "project");
+}
 async function createSession(event) {
-  event.preventDefault();
-  if (event.submitter?.value === "cancel") {
-    closeDialog("session-dialog");
-    return;
-  }
-  const projectId = state.activeProjectId;
-  if (!projectId) {
-    closeDialog("session-dialog");
-    showToast("Choose a project first.", "error");
-    return;
-  }
-  const input = $("session-title-input");
-  const title = input.value.trim() || "Untitled session";
-  try {
-    const result = await request("/sessions", { method: "POST", body: { projectId, title } });
-    closeDialog("session-dialog");
-    input.value = "";
-    const sessions = state.sessionsByProject.get(projectId) || [];
-    if (result.session) state.sessionsByProject.set(projectId, [...sessions, result.session]);
-    renderProjectList();
-    if (result.session?.id) await selectSession(result.session.id);
-  } catch (error) {
-    showToast(`Session was not created: ${error.message}`, "error");
-  }
+  return createEntity(event, "session");
 }
 
 function wireEvents() {
+  const actions = {
+    "new-project-button": ["plus", "Create project"],
+    "close-nav-button": ["x", "Close navigation"],
+    "toggle-nav-button": ["panel-left", "Toggle navigation"],
+    "refresh-button": ["refresh-cw", "Refresh workspace"],
+    "clear-nav-filter-button": ["x", "Clear filter"],
+    "show-run-button": ["activity", "Session overview"],
+    "show-surface-button": ["panel-right", "Open workspace preview"],
+    "close-surface-button": ["x", "Close work surface"],
+    "close-runtime-button": ["x", "Close settings"],
+    "close-materials-button": ["x", "Close files"],
+    "materials-button": ["paperclip", "Session files"],
+    "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
+  };
+  for (const [id, [name, label]] of Object.entries(actions))
+    setAction($(id), name, label);
+  setAction($("home-button"), "house", "Home", { visible: true });
+  setAction($("runtime-setup-button"), "settings-2", "Settings", {
+    visible: true,
+  });
+  setAction($("new-session-button"), "square-pen", "New session", {
+    visible: true,
+  });
+  setAction($("send-button"), "arrow-up", "Send", { visible: true });
+  setAction($("cancel-run-button"), "square", "Cancel run", { visible: true });
+  $("search-icon").append(icon("search"));
+  $("toggle-nav-button").addEventListener("click", toggleNavigation);
+  $("close-nav-button").addEventListener("click", () => closeNavigation());
+  $("nav-backdrop").addEventListener("click", () => closeNavigation());
+  $("home-button").addEventListener("click", goHome);
+  $("workspace-home-link").addEventListener("click", (event) => {
+    event.preventDefault();
+    void goHome();
+  });
+  $("show-run-button").addEventListener("click", openContextSummary);
+  for (const id of ["model-settings-button", "permission-settings-button"])
+    $(id).addEventListener("click", openRuntimeDialog);
+  $("materials-button").addEventListener("click", () => {
+    openDialog("materials-dialog", "close-materials-button");
+    materialsView.open();
+  });
+  $("close-materials-button").addEventListener("click", () =>
+    closeDialog("materials-dialog"),
+  );
+  $("materials-dialog").addEventListener("close", () => materialsView.close());
+  for (const kind of ["run", "file"])
+    $(`surface-${kind}-tab`).addEventListener("click", () =>
+      activateSurface(kind),
+    );
+  $("surface-tabs").addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    const tabs = [...$("surface-tabs").querySelectorAll("button")].filter(
+      (tab) => !tab.hidden,
+    );
+    const index = tabs.indexOf(document.activeElement);
+    if (index < 0) return;
+    event.preventDefault();
+    const next =
+      event.key === "Home"
+        ? tabs[0]
+        : event.key === "End"
+          ? tabs.at(-1)
+          : tabs[
+              (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) %
+                tabs.length
+            ];
+    next.click();
+    next.focus();
+  });
+  tooltips = installTooltips();
   // WS-12: the recovery probe (see scheduleRecoveryProbe above) must stop
   // when the page goes away, not just on recovery.
   window.addEventListener("beforeunload", stopRecoveryProbe);
-  $("new-project-button").addEventListener("click", () => openDialog("project-dialog", "project-name-input"));
-  $("new-session-button").addEventListener("click", () => {
-    if (!state.activeProjectId) showToast("Choose or create a project first.", "error");
-    else openDialog("session-dialog", "session-title-input");
-  });
+  $("new-project-button").addEventListener("click", () =>
+    openDialog("project-dialog", "project-name-input"),
+  );
+  $("new-session-button").addEventListener("click", startNewSession);
   $("refresh-button").addEventListener("click", async () => {
     try {
       await refreshNavigationAndSession();
       await loadExtensions();
       await loadProviderConfig();
+      await loadHome();
+      for (const kind of ["project", "session"])
+        if (state.createAttempts.get(kind) === "unconfirmed") {
+          state.createAttempts.delete(kind);
+          $(`${kind}-dialog`)
+            .querySelectorAll("button,input,select")
+            .forEach((node) => (node.disabled = false));
+        }
       showToast("Workspace refreshed.");
     } catch (error) {
       showToast(`Refresh failed: ${error.message}`, "error");
@@ -2261,37 +4094,58 @@ function wireEvents() {
   $("runtime-dialog").addEventListener("close", () => {
     const trigger = state.runtimeDialogReturnFocus;
     state.runtimeDialogReturnFocus = null;
-    trigger?.focus?.();
+    settingsView.close();
+    if (
+      trigger &&
+      (document.activeElement === document.body ||
+        $("runtime-dialog").contains(document.activeElement))
+    )
+      restoreLayerFocus(trigger);
   });
   document.addEventListener("keydown", handleSurfaceEscape);
   for (const dialog of document.querySelectorAll("dialog")) {
+    dialog.addEventListener("cancel", (event) => {
+      if (event.isComposing) event.preventDefault();
+    });
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && event.isComposing) event.preventDefault();
+    });
     dialog.addEventListener("close", () => {
-      if (surfaceIsModal() && !document.querySelector("dialog[open]") && !$("surface-panel").contains(document.activeElement)) {
-        $("surface-preview-tab")?.focus();
+      const trigger = dialogReturns.get(dialog.id);
+      dialogReturns.delete(dialog.id);
+      if (
+        trigger &&
+        (document.activeElement === document.body ||
+          dialog.contains(document.activeElement))
+      )
+        restoreLayerFocus(trigger);
+      if (dialog.id === "project-dialog") state.startAfterProject = false;
+      if (
+        surfaceIsModal() &&
+        !document.querySelector("dialog[open]") &&
+        !$("surface-panel").contains(document.activeElement)
+      ) {
+        $(`surface-${state.surface.kind}-tab`)?.focus();
       }
     });
   }
-  $("refresh-extensions-button").addEventListener("click", () => void loadExtensions().catch((error) => showToast(error.message, "error")));
+  $("refresh-extensions-button").addEventListener(
+    "click",
+    () =>
+      void loadExtensions().catch((error) => showToast(error.message, "error")),
+  );
   $("close-surface-button").addEventListener("click", closeSurface);
   $("surface-backdrop").addEventListener("click", closeSurface);
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
-  $("show-surface-button").addEventListener("click", () => {
-    state.surface.expanded = false;
-    state.surface.open = true;
-    writeUiState();
-    renderSurfaceVisibility();
-    $("surface-preview-tab")?.focus();
-    void loadSurface(state.sessionEpoch);
-  });
-  $("surface-expand-button").addEventListener("click", () => setSurfaceExpanded(!state.surface.expanded));
-  $("surface-preview-tab").addEventListener("click", () => {
-    if (!state.surface.open) {
-      state.surface.open = true;
-      writeUiState();
-      renderSurfaceVisibility();
-    }
-    $("surface-preview-tab")?.focus();
-  });
+  $("show-surface-button").addEventListener("click", () =>
+    activateSurface("preview"),
+  );
+  $("surface-expand-button").addEventListener("click", () =>
+    setSurfaceExpanded(!state.surface.expanded),
+  );
+  $("surface-preview-tab").addEventListener("click", () =>
+    activateSurface("preview"),
+  );
   $("nav-filter-input").addEventListener("input", (event) => {
     state.navigationFilter = event.currentTarget.value;
     renderProjectList();
@@ -2305,7 +4159,9 @@ function wireEvents() {
   $("message-stream").addEventListener("scroll", () => {
     rememberMessageReading($("message-stream"));
   });
-  $("jump-latest-button").addEventListener("click", () => scrollToLatestMessage());
+  $("jump-latest-button").addEventListener("click", () =>
+    scrollToLatestMessage(),
+  );
   // WS-03: a single generic listener maintains focusIntentEpoch. Any focus
   // landing outside the composer form (a click into the session list, a
   // dialog opening and moving focus to its own field, etc.) is a
@@ -2322,9 +4178,16 @@ function wireEvents() {
     if (!$("composer-form").contains(event.target)) guardBumpFocusIntent();
   });
   $("composer-form").addEventListener("submit", submitRun);
-  $("cancel-run-button").addEventListener("click", () => void cancelCurrentRun());
-  $("composer-input").addEventListener("compositionstart", () => { $("composer-input").dataset.composing = "true"; });
-  $("composer-input").addEventListener("compositionend", () => { delete $("composer-input").dataset.composing; });
+  $("cancel-run-button").addEventListener(
+    "click",
+    () => void cancelCurrentRun(),
+  );
+  $("composer-input").addEventListener("compositionstart", () => {
+    $("composer-input").dataset.composing = "true";
+  });
+  $("composer-input").addEventListener("compositionend", () => {
+    delete $("composer-input").dataset.composing;
+  });
   $("composer-input").addEventListener("input", () => {
     const session = currentSession();
     if (!session) return;
@@ -2334,7 +4197,13 @@ function wireEvents() {
     scheduleDraftSave();
   });
   $("composer-input").addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.currentTarget.dataset.composing === "true") return;
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.currentTarget.dataset.composing === "true"
+    )
+      return;
     event.preventDefault();
     $("composer-form").requestSubmit();
   });
@@ -2344,10 +4213,70 @@ function wireEvents() {
 
 async function init() {
   const savedUi = readUiState();
-  state.activeProjectId = typeof savedUi.activeProjectId === "string" ? savedUi.activeProjectId : null;
-  state.restoreSessionId = typeof savedUi.activeSessionId === "string" ? savedUi.activeSessionId : null;
-  state.openProjectIds = new Set(Array.isArray(savedUi.openProjectIds) ? savedUi.openProjectIds.filter((id) => typeof id === "string") : []);
-  state.surface.open = savedUi.surfaceOpen !== false;
+  state.activeProjectId =
+    typeof savedUi.activeProjectId === "string"
+      ? savedUi.activeProjectId
+      : null;
+  state.restoreSessionId =
+    typeof savedUi.activeSessionId === "string"
+      ? savedUi.activeSessionId
+      : null;
+  state.openProjectIds = new Set(
+    Array.isArray(savedUi.openProjectIds)
+      ? savedUi.openProjectIds.filter((id) => typeof id === "string")
+      : [],
+  );
+  state.surface.open = false;
+  try {
+    for (const [id, value] of JSON.parse(
+      sessionStorage.getItem(COMMAND_STORAGE_KEY) || "[]",
+    ))
+      if (
+        typeof id === "string" &&
+        typeof value?.input === "string" &&
+        typeof value?.commandId === "string"
+      ) {
+        state.unconfirmedRuns.set(id, value);
+        setPersistentFeedback(
+          id,
+          "restored-receipt",
+          "run",
+          "A prior run receipt is unresolved. Recover it before sending another instruction.",
+          { nextAction: "retry-run" },
+        );
+      }
+  } catch {}
+  settingsView = createSettingsView($("provider-panel"), {
+    request,
+    getSession: () => ({
+      session: currentSession(),
+      active: Boolean(currentRun()),
+    }),
+    onConfig: (config) => {
+      state.providerConfig = config;
+      renderChatHeader();
+    },
+    onSession: (session, id) => {
+      if (session?.id === id) {
+        state.sessionsByProject.set(
+          session.projectId,
+          (state.sessionsByProject.get(session.projectId) || []).map((item) =>
+            item.id === id ? session : item,
+          ),
+        );
+        if (id === state.activeSessionId) state.session = session;
+        renderAll();
+      }
+    },
+    notify: showToast,
+  });
+  fileView = createFileView($("file-content"), { request });
+  materialsView = createMaterialsView({
+    request,
+    getSession: currentSession,
+    onOpenFile: openFile,
+    notify: showToast,
+  });
   wireEvents();
   renderAll();
   try {
@@ -2355,18 +4284,29 @@ async function init() {
     state.token = bootstrap.sessionToken || null;
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
-    $("capability-badge").textContent = state.capabilities?.realProvider === false ? "Local fake" : "Runtime";
+    $("capability-badge").textContent =
+      state.capabilities?.realProvider === false ? "Local fake" : "Runtime";
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
-    await restoreUiSelection();
+    await Promise.all(
+      [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
+    );
+    await loadHome();
+    // Home is the default entry; previous sessions remain in Continue.
+
     renderAll();
   } catch (error) {
     $("capability-badge").textContent = "Runtime unavailable";
     showToast(`Could not start workspace: ${error.message}`, "error");
     const stream = $("message-stream");
     clear(stream);
-    stream.append(element("div", { className: "empty-state" },
-      element("h3", { text: "Runtime unavailable" }),
-      element("p", { text: error.message })));
+    stream.append(
+      element(
+        "div",
+        { className: "empty-state" },
+        element("h3", { text: "Runtime unavailable" }),
+        element("p", { text: error.message }),
+      ),
+    );
   }
 }
 
