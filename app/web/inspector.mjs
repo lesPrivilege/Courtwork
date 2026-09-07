@@ -168,7 +168,7 @@ export function renderRun(
     section.append(
       el("p", {
         className: "form-help",
-        text: "Recorded files are results of this run. They have not been accepted by a review.",
+        text: "Recorded files have not been accepted by a review.",
       }),
     );
   container.append(section);
@@ -442,8 +442,8 @@ export function createFileView(container, { request }) {
       if (own !== generation || error.name === "AbortError") return;
       const retry = el("button", {
         className: "secondary-button",
-        attrs: { type: "button" },
-        text: "Retry loading",
+        attrs: { type: "button", "aria-label": "Retry loading this file" },
+        text: "Retry",
       });
       retry.addEventListener("click", () => load(next));
       container.replaceChildren(

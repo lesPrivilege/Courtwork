@@ -11,13 +11,10 @@ export function renderWorkspaceFilesView(
     el("h3", { text: "Workspace files" }),
     action("refresh-cw", "Refresh workspace files", onRefresh),
   );
-  container.replaceChildren(
-    heading,
-    el("p", {
-      className: "form-help workspace-description",
-      text: "Current files, grouped by folder.",
-    }),
-  );
+  /* WK-44 · the heading and the folder groups below already say what this list
+   * is; a sentence repeating it carried no definition, condition or
+   * consequence. */
+  container.replaceChildren(heading);
   const groups = new Map();
   for (const file of files) {
     const slash = file.path.lastIndexOf("/");

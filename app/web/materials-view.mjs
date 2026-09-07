@@ -50,7 +50,7 @@ export function createMaterialsView({
         list.append(
           el("p", {
             className: "form-help",
-            text: "Add a material below. Files written by the agent will also appear here.",
+            text: "Files written by the agent also appear here.",
           }),
         );
       for (const file of files) {
@@ -73,8 +73,8 @@ export function createMaterialsView({
       if (own !== generation || err.name === "AbortError") return;
       const retry = el("button", {
         className: "secondary-button",
-        attrs: { type: "button" },
-        text: "Retry loading",
+        attrs: { type: "button", "aria-label": "Retry loading session files" },
+        text: "Retry",
       });
       retry.addEventListener("click", refresh);
       list.replaceChildren(

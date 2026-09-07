@@ -40,6 +40,18 @@ function openAction(fullName, focusKey, onClick) {
   return button;
 }
 
+function retryAction(fullName, onClick) {
+  const button = action("refresh-cw", fullName, onClick, {
+    className: "secondary-button",
+  });
+  button.classList.remove("icon-only");
+  button.replaceChildren(
+    icon("refresh-cw"),
+    el("span", { className: "button-label", text: "Retry" }),
+  );
+  return button;
+}
+
 /* The one card anatomy, shared by every module (WK-47 (2), Codex right-column
  * anatomy): a heading row of icon 16 + title + one count or state word + one
  * trailing action, then rows. No nested card, no progress bar, no percentage. */
@@ -347,9 +359,7 @@ const workspaceModule = {
     if (schema?.error) {
       container.replaceChildren(
         el("p", { className: "inline-error", text: schema.error }),
-        action("refresh-cw", "Retry loading workspace", host.refreshWorkspace, {
-          visible: true,
-        }),
+        retryAction("Retry loading workspace", host.refreshWorkspace),
       );
       return;
     }

@@ -243,8 +243,8 @@ export function createSettingsView(
   });
   const keyDelete = el("button", {
     className: "quiet-button danger-button",
-    attrs: { type: "button" },
-    text: "Remove saved key",
+    attrs: { type: "button", "aria-label": "Remove saved key" },
+    text: "Remove",
   });
   credential.append(
     el("h4", { text: "API key" }),

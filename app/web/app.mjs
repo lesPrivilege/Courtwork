@@ -570,8 +570,8 @@ function renderFeedbackLine(entry) {
   if (entry.nextAction === "retry-run") {
     const retry = element("button", {
       className: "text-button",
-      attrs: { type: "button" },
-      text: "Recover run receipt",
+      attrs: { type: "button", "aria-label": "Recover run receipt" },
+      text: "Recover",
     });
     retry.addEventListener("click", () => void recoverRunReceipt());
     line.append(retry);
@@ -1731,8 +1731,8 @@ function renderProjectList() {
       if (state.sessionListErrors.has(project.id)) {
         const retry = element("button", {
           className: "text-button",
-          attrs: { type: "button" },
-          text: "Retry loading sessions",
+          attrs: { type: "button", "aria-label": "Retry loading sessions" },
+          text: "Retry",
         });
         retry.addEventListener("click", async () => {
           await loadSessionsForProject(project.id, { force: true });

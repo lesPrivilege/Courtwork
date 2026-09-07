@@ -2231,9 +2231,6 @@ button[aria-disabled="true"] {
   }
 }
 
-.workspace-description {
-  margin: 8px 0 16px;
-}
 .workspace-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);

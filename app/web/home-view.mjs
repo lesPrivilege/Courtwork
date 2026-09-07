@@ -8,8 +8,8 @@ export function renderHome(
   if (error) {
     const retry = el("button", {
       className: "secondary-button",
-      attrs: { type: "button" },
-      text: "Retry loading",
+      attrs: { type: "button", "aria-label": "Retry loading your workspace" },
+      text: "Retry",
     });
     retry.addEventListener("click", onRetry);
     home.append(
