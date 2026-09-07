@@ -1,0 +1,9 @@
+# Imagegen material study
+
+2026-09-08，内置 Imagegen；输入是 `../sources/legacy/128x128.png`，来源完整 SHA 见 provenance。输出保存在 `material-board.png`。这是三种材质的单张比较板：A soft optical glass、B shallow graphite depth、C restrained luminous glass。
+
+裁取：A 的冷灰透光与边缘、B 的浅厚度、C 的暗底细光边；不消费位图比例、纹理或像素作为几何。最终可编辑 SVG 直接由冻结的四矩形母题生成。参考图不是成品 SVG，不参与运行时。
+
+Prompt（内置工具原文）：
+
+> Use case: logo-brand. Create one refined visual reference board for CourtWork's native SVG brand-symbol system, using the supplied icon solely as the geometry and identity reference. The exact motif is one upright rounded rectangular stem on the LEFT, and THREE horizontal rounded bars on the RIGHT: first two equal long width, third shorter. Preserve this recognisable motif throughout, no book outlines, courthouse, scales, gavel, shield, star or decorative legal symbolism. Show three clearly different material studies side-by-side at large scale with generous negative space: (1) soft optical glass in cool slate, translucent gently bevelled edges, bounded soft shadow; (2) embossed graphite depth, near-monochrome, extremely shallow 3D extrusion and crisp face; (3) restrained luminous glass on a deep ink ground, tiny cool edge refraction, no neon bloom. Below each large symbol include a small flat monochrome version retaining the geometry so it visibly works as a 20px glyph. This is a sophisticated industrial brand design reference, not a software UI, app icon pack, photoreal desk, or colourful toy. Use a clean editorial board with off-white left/middle and charcoal right, no additional text beyond small A / B / C labels. Shape geometry remains frontal, no tilted perspective. Glass and depth should be achievable later with SVG gradients, offset layers, masks and bounded filters. This raster is inspiration for material/light only; not an SVG tracing template.

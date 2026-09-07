@@ -1,0 +1,42 @@
+{
+  "repo": "https://github.com/lesPrivilege/Courtwork",
+  "tag": "archive/courtwork-pre-takeover",
+  "items": [
+    {
+      "source": "docs/design/icon-light.svg",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/icon-light.svg",
+      "sha256": "2e465338c9659b4f247f89ecb882783884fecb2746bffc788a7e2c77e20a0b19"
+    },
+    {
+      "source": "docs/design/icon-dark.svg",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/icon-dark.svg",
+      "sha256": "af7369b6db2713d896797ac4596c2e8040c5fe7f23ecb4a2d6f259c974638f62"
+    },
+    {
+      "source": "docs/design/icon.md",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/icon.md",
+      "sha256": "797805b42ccf3bc8ef4c516ce87760ac793b395f8406dcb5733caca654b9a5d5"
+    },
+    {
+      "source": "apps/desktop/src/icons/custom/brand-mark.svg",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/brand-mark.svg",
+      "sha256": "b65871998ed36daf1ec50239d0857f3ad9e0429e1592e5ad951d8b6845eba8b8"
+    },
+    {
+      "source": "apps/desktop/src-tauri/icons/128x128.png",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/128x128.png",
+      "sha256": "13045eb8a0f0b5b9335ac5012538fdf94d747143b340cfacf1d7d6525522f9cb"
+    },
+    {
+      "source": "apps/desktop/src/chat/BrandThinking.tsx",
+      "commit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "saved": "sources/legacy/BrandThinking.tsx",
+      "sha256": "0dacaf601a43df1b0752dd525dba2ee167e1365c179035981bde06d8b2100969"
+    }
+  ]
+}
