@@ -5,8 +5,13 @@ import {
   copyAction,
   markdown,
   installTooltips,
+  anchorPopover,
 } from "./ui-controls.mjs";
-import { createSettingsView, permissionLabels } from "./settings-view.mjs";
+import {
+  createSettingsView,
+  permissionLabels,
+  renderConnectionCard,
+} from "./settings-view.mjs";
 import {
   renderRun,
   createFileView,
@@ -3560,6 +3565,54 @@ function useEditedMessage() {
   showToast("Draft ready. Send when you are ready.");
 }
 
+function openConnectionCard(anchor) {
+  const popover = $("connection-popover");
+  if (popover.matches(":popover-open")) {
+    popover.hidePopover();
+    return;
+  }
+  state.connectionCardAnchor = anchor;
+  const render = () =>
+    renderConnectionCard(popover, {
+      config: state.providerConfig?.config || null,
+      session: currentSession(),
+      active: Boolean(currentRun()),
+      onClose: () => popover.hidePopover(),
+      onChangeConnection: () => {
+        popover.hidePopover();
+        openRuntimeDialog();
+      },
+      onPermission: async (mode) => {
+        const session = currentSession();
+        if (!session) return;
+        try {
+          const result = await request(
+            `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
+            { method: "PUT", body: { permissionMode: mode } },
+          );
+          applySessionUpdate(result.session, session.id);
+          showToast(`File writes: ${permissionLabels[mode]}.`);
+        } catch (error) {
+          showToast(error.message, "error");
+        }
+        if (popover.matches(":popover-open")) render();
+      },
+    });
+  const header = render();
+  popover.showPopover();
+  header.querySelector("button").focus();
+}
+function applySessionUpdate(session, id) {
+  if (session?.id !== id) return;
+  state.sessionsByProject.set(
+    session.projectId,
+    (state.sessionsByProject.get(session.projectId) || []).map((item) =>
+      item.id === id ? session : item,
+    ),
+  );
+  if (id === state.activeSessionId) state.session = session;
+  renderAll();
+}
 function openContextSummary() {
   const popover = $("context-popover");
   if (popover.matches(":popover-open")) {
@@ -3899,6 +3952,14 @@ function handleSurfaceEscape(event) {
     document.querySelector("dialog[open]")
   )
     return;
+  if ($("connection-popover").matches(":popover-open")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      $("connection-popover").hidePopover();
+      state.connectionCardAnchor?.focus?.();
+    }
+    return;
+  }
   if ($("context-popover").matches(":popover-open")) {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -4075,8 +4136,38 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
-  for (const id of ["model-settings-button", "permission-settings-button"])
-    $(id).addEventListener("click", openRuntimeDialog);
+  for (const id of [
+    "capability-badge",
+    "model-settings-button",
+    "permission-settings-button",
+  ])
+    $(id).addEventListener("click", (event) =>
+      openConnectionCard(event.currentTarget),
+    );
+  {
+    // Keep the card beside whichever control opened it; mark that control expanded.
+    const popover = $("connection-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = state.connectionCardAnchor;
+      if (open && anchor?.isConnected)
+        stopFollowing = anchorPopover(anchor, popover, {
+          placement: anchor.id === "capability-badge" ? "bottom-end" : "top-start",
+        });
+      for (const id of [
+        "capability-badge",
+        "model-settings-button",
+        "permission-settings-button",
+      ])
+        $(id).setAttribute(
+          "aria-expanded",
+          String(open && anchor === $(id)),
+        );
+    });
+  }
   $("materials-button").addEventListener("click", () => {
     openDialog("materials-dialog", "close-materials-button");
     materialsView.open();
@@ -4313,18 +4404,7 @@ async function init() {
       state.providerConfig = config;
       renderChatHeader();
     },
-    onSession: (session, id) => {
-      if (session?.id === id) {
-        state.sessionsByProject.set(
-          session.projectId,
-          (state.sessionsByProject.get(session.projectId) || []).map((item) =>
-            item.id === id ? session : item,
-          ),
-        );
-        if (id === state.activeSessionId) state.session = session;
-        renderAll();
-      }
-    },
+    onSession: applySessionUpdate,
     notify: showToast,
   });
   fileView = createFileView($("file-content"), { request });

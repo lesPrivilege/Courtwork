@@ -9,6 +9,110 @@ const providerLabels = {
   deepseek: "DeepSeek",
   "fake-openai-loopback": "Local test",
 };
+const permissionHelp = {
+  ask: "Each write asks first. Allowing one write never accepts the result.",
+  draft: "The agent may write inside this session's workspace without asking.",
+  read_only: "Materials can be read; nothing is written.",
+};
+/** Native radios styled as one segmented control. `onChange(value)` may
+ * return a promise; the control is disabled until it settles. */
+export function segmentedPermission({
+  value,
+  disabled = false,
+  name,
+  label = "Session file writes",
+  onChange,
+}) {
+  const fieldset = el("fieldset", {
+    className: "segmented",
+    attrs: { "aria-label": label },
+  });
+  fieldset.disabled = disabled;
+  for (const [option, text] of Object.entries(permissionLabels)) {
+    const id = `${name}-${option}`;
+    const input = el("input", {
+      attrs: { type: "radio", name, id, value: option },
+    });
+    input.checked = option === value;
+    input.addEventListener("change", async () => {
+      if (!input.checked) return;
+      fieldset.disabled = true;
+      try {
+        await onChange(option);
+      } finally {
+        if (fieldset.isConnected) fieldset.disabled = disabled;
+      }
+    });
+    fieldset.append(
+      el("label", { className: "segment", attrs: { for: id } }, input, el("span", { text })),
+    );
+  }
+  return fieldset;
+}
+/** The secondary card behind the connection badge and the composer chips:
+ * read the current connection, change file writes in place, or jump to Settings. */
+export function renderConnectionCard(
+  container,
+  { config, session, active, onClose, onChangeConnection, onPermission },
+) {
+  const header = el(
+    "div",
+    { className: "section-heading" },
+    el("h3", { text: "Connection" }),
+    action("x", "Close connection card", onClose),
+  );
+  const providerName = config
+    ? providerLabels[config.provider] || config.provider
+    : "Not loaded";
+  const modelName = config
+    ? config.provider === "fake-openai-loopback"
+      ? "Fake local model"
+      : config.model
+    : "—";
+  const groups = [
+    el(
+      "section",
+      { className: "context-group" },
+      el("h4", { text: "Model & connection" }),
+      el(
+        "dl",
+        { className: "data-list" },
+        el("dt", { text: "Provider" }),
+        el("dd", { text: providerName }),
+        el("dt", { text: "Model" }),
+        el("dd", { text: modelName }),
+      ),
+      action("settings-2", "Change connection", onChangeConnection, {
+        visible: true,
+        className: "context-row",
+      }),
+    ),
+  ];
+  if (session) {
+    const mode = session.permissionMode || "draft";
+    groups.push(
+      el(
+        "section",
+        { className: "context-group" },
+        el("h4", { text: "File writes · this session" }),
+        segmentedPermission({
+          value: mode,
+          disabled: active,
+          name: "card-permission",
+          onChange: onPermission,
+        }),
+        el("p", {
+          className: "context-meta",
+          text: active
+            ? "Available after this run ends."
+            : permissionHelp[mode],
+        }),
+      ),
+    );
+  }
+  container.replaceChildren(header, ...groups);
+  return header;
+}
 export function createSettingsView(
   container,
   { request, onConfig, getSession, onSession, notify },
@@ -40,12 +144,29 @@ export function createSettingsView(
     },
   });
   const label = (name, input) => el("label", { text: name }, input);
+  // One row = what it is and what it means on the left, the control on the right.
+  let rowSeq = 0;
+  const row = (title, help, control) => {
+    const id = control.id || `settings-control-${++rowSeq}`;
+    control.id = id;
+    return el(
+      "div",
+      { className: "settings-row" },
+      el(
+        "div",
+        { className: "settings-row-text" },
+        el("label", { className: "settings-row-title", text: title, attrs: { for: id } }),
+        help ? el("span", { className: "settings-row-help", text: help }) : null,
+      ),
+      el("div", { className: "settings-row-control" }, control),
+    );
+  };
   const advanced = el(
     "details",
     { className: "settings-advanced" },
     el("summary", { text: "Connection options" }),
-    label("API format", api),
-    label("Base URL", baseUrl),
+    row("API format", "Wire format the provider expects.", api),
+    row("Base URL", "Leave empty for the provider default.", baseUrl),
   );
   const status = el("p", { className: "form-help", attrs: { role: "status" } });
   const error = el("p", {
@@ -58,12 +179,8 @@ export function createSettingsView(
     text: "Save connection",
   });
   form.append(
-    el(
-      "div",
-      { className: "settings-grid" },
-      label("Provider", provider),
-      label("Model", model),
-    ),
+    row("Provider", "Where model requests are sent.", provider),
+    row("Model", "Used for every new run in this workspace.", model),
     advanced,
     status,
     error,
@@ -93,7 +210,7 @@ export function createSettingsView(
   credential.append(
     el("h4", { text: "API key" }),
     credentialStatus,
-    label("Key", key),
+    row("Key", "Stored on this device only.", key),
     el("div", { className: "credential-actions" }, keySave, keyDelete),
   );
   container.replaceChildren(form, credential);
@@ -275,42 +392,48 @@ export function createSettingsView(
     )
       return;
     panel.dataset.session = session.id;
-    const mode = el("select", {
-      attrs: { "aria-label": "Session file writes" },
-    });
-    for (const [value, label] of Object.entries(permissionLabels))
-      mode.append(el("option", { attrs: { value }, text: label }));
-    mode.value = session.permissionMode || "draft";
-    mode.disabled = current.active;
-    const help = el("p", {
-      className: "form-help",
-      text: current.active
-        ? "Available after this run ends."
-        : "Applies to this session. Asking authorizes one exact write; it does not accept the result.",
-    });
     const modeError = el("p", {
       className: "inline-error",
       attrs: { role: "alert" },
     });
-    mode.addEventListener("change", async () => {
-      mode.disabled = true;
-      try {
-        const result = await request(
-          `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
-          { method: "PUT", body: { permissionMode: mode.value } },
-        );
-        onSession(result.session, session.id);
-      } catch (err) {
-        mode.value = session.permissionMode || "draft";
-        modeError.textContent = err.message;
-      } finally {
-        mode.disabled = Boolean(getSession()?.active);
-      }
+    const mode = segmentedPermission({
+      value: session.permissionMode || "draft",
+      disabled: current.active,
+      name: "settings-permission",
+      onChange: async (value) => {
+        try {
+          const result = await request(
+            `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
+            { method: "PUT", body: { permissionMode: value } },
+          );
+          onSession(result.session, session.id);
+        } catch (err) {
+          modeError.textContent = err.message;
+          const previous = mode.querySelector(
+            `input[value="${session.permissionMode || "draft"}"]`,
+          );
+          if (previous) previous.checked = true;
+        }
+      },
     });
     panel.replaceChildren(
       el("h3", { text: "This session" }),
-      label("File writes", mode),
-      help,
+      el(
+        "div",
+        { className: "settings-row" },
+        el(
+          "div",
+          { className: "settings-row-text" },
+          el("span", { className: "settings-row-title", text: "File writes" }),
+          el("span", {
+            className: "settings-row-help",
+            text: current.active
+              ? "Available after this run ends."
+              : "Applies to this session. Asking authorizes one exact write; it does not accept the result.",
+          }),
+        ),
+        el("div", { className: "settings-row-control" }, mode),
+      ),
       modeError,
     );
   }

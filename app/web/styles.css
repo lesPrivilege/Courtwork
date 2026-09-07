@@ -2286,3 +2286,188 @@ dialog[open]::backdrop {
     opacity: 1;
   }
 }
+
+/* ===== Polish layer · hover-revealed actions, secondary cards, settings rows ==
+   Frontier reference (Codex / Claude Code desktop, user screenshots 2026-09-08):
+   message utilities appear when the message is pointed at or focused, the
+   time stays; a chip opens a small card instead of the full settings dialog;
+   settings are rows: title and meaning on the left, the control on the right. */
+.user-message-actions .icon-only,
+.message.assistant .message-header .icon-only {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+.message:hover .icon-only,
+.message:focus-within .icon-only,
+.message .icon-only:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .user-message-actions .icon-only,
+  .message.assistant .message-header .icon-only {
+    opacity: 1;
+  }
+}
+/* The connection chip in the header is a real button that opens the card */
+.status-badge {
+  font-size: 12px;
+  color: var(--muted-strong);
+  margin-right: 8px;
+  min-height: 28px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+.status-badge[aria-expanded="true"],
+.composer-model[aria-expanded="true"],
+.permission-mode[aria-expanded="true"] {
+  background: var(--selected);
+  color: var(--ink);
+}
+.connection-popover {
+  inset: auto;
+  width: 340px;
+}
+.connection-popover .data-list {
+  margin: 4px 0 8px;
+}
+/* Inside the card the three options share the width and may wrap to two lines */
+.connection-popover .segmented {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+.connection-popover .segment {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  padding: 4px 6px;
+  min-height: 36px;
+}
+/* Segmented control: native radios, one track, the checked segment lifts */
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  margin: 0;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--hover);
+  max-width: 100%;
+}
+.segmented:disabled {
+  opacity: 0.55;
+}
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted-strong);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+.segment input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.segment:hover {
+  color: var(--ink);
+}
+.segment:has(input:checked) {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(32, 32, 32, 0.12);
+}
+.segment:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.segmented:disabled .segment {
+  cursor: not-allowed;
+}
+/* Settings rows */
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 24px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.settings-row:last-of-type {
+  border-bottom: 0;
+}
+.settings-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.settings-row-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.settings-row-help {
+  font-size: 12px;
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.settings-row-control {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.settings-row-control select,
+.settings-row-control input {
+  min-width: 200px;
+  max-width: 100%;
+}
+.settings-advanced > summary {
+  padding: 10px 0;
+}
+.settings-form > .form-help {
+  margin-top: 12px;
+}
+.settings-form > button {
+  margin-top: 12px;
+}
+@media (max-width: 767px) {
+  .settings-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .settings-row-control {
+    justify-content: flex-start;
+  }
+  .settings-row-control select,
+  .settings-row-control input {
+    width: 100%;
+  }
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+  .segment {
+    min-height: 44px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    padding: 4px 6px;
+  }
+  .connection-popover {
+    width: min(340px, calc(100vw - 16px));
+  }
+  .status-badge {
+    display: none;
+  }
+}

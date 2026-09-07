@@ -123,7 +123,16 @@
             <div id="session-meta" class="session-meta"></div>
           </div>
           <div class="chat-header-actions">
-            <span id="capability-badge" class="status-badge">Local test</span>
+            <button
+            id="capability-badge"
+            class="status-badge quiet-button"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="connection-popover"
+          >
+            Local test
+          </button>
             <button
               id="show-run-button"
               class="quiet-button"
@@ -382,6 +391,12 @@
       class="context-popover"
       popover="auto"
       aria-label="Session overview"
+    ></div>
+    <div
+      id="connection-popover"
+      class="context-popover connection-popover"
+      popover="auto"
+      aria-label="Connection and file writes"
     ></div>
     <div
       id="toast-region"

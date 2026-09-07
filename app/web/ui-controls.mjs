@@ -190,6 +190,23 @@ export function markdown(text, { key = "markdown" } = {}) {
 }
 
 // One tooltip adapter. Floating UI owns positioning; native controls own actions.
+/** Keep a fixed-position popover beside its anchor while it is open. Returns
+ * the autoUpdate cleanup; the caller runs it when the popover closes. */
+export function anchorPopover(anchor, popover, { placement = "bottom-end" } = {}) {
+  return autoUpdate(anchor, popover, () => {
+    if (!anchor.isConnected || !popover.matches(":popover-open")) return;
+    computePosition(anchor, popover, {
+      strategy: "fixed",
+      placement,
+      middleware: [offset(8), flip(), shift({ padding: 8 })],
+    })
+      .then(({ x, y }) => {
+        popover.style.left = `${x}px`;
+        popover.style.top = `${y}px`;
+      })
+      .catch(() => {});
+  });
+}
 export function installTooltips() {
   const tip = el("div", {
     className: "ui-tooltip",
