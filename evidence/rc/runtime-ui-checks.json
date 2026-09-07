@@ -1,5 +1,5 @@
 {
-  "app": "http://127.0.0.1:8850/",
+  "app": "http://127.0.0.1:8855/",
   "viewport": "1440x900",
   "media": "light",
   "results": [
@@ -19,25 +19,25 @@
       "id": "scopes-from-server",
       "obligation": "scope tabs and revision come from the server, not from the page",
       "pass": true,
-      "detail": "tabs=user,workspace,session note=Editing the session layer · 7f1ebfc3-14b8-4049-82ca-3ed76bfc37ca. Revision 33."
+      "detail": "tabs=user,workspace,session note=Editing the session layer · da5e01a7-06d0-4a38-8152-1c5b27569b3f. Revision 7."
     },
     {
       "id": "four-dimensions",
       "obligation": "installed / running / exposed / permitted stay separate (RC-2, acceptance)",
       "pass": true,
-      "detail": "25 rows"
+      "detail": "23 rows"
     },
     {
       "id": "running-null",
       "obligation": "running:null renders as n/a, not as disconnected",
       "pass": true,
-      "detail": "n/a rows 22, contract nulls 22"
+      "detail": "n/a rows 20, contract nulls 20"
     },
     {
       "id": "no-inferred-authority",
       "obligation": "no switch shows a value the server did not report (acceptance)",
       "pass": true,
-      "detail": "25 switches agree with the snapshot"
+      "detail": "23 switches agree with the snapshot"
     },
     {
       "id": "permission-trace",
@@ -79,13 +79,13 @@
       "id": "mcp-states",
       "obligation": "configured / connected / exposed are separate words from the snapshot (RC-6)",
       "pass": true,
-      "detail": "Stateconfigured · connected · buttons Connect,Disconnect,Restart"
+      "detail": "Stateconfigured · buttons Connect,Disconnect,Restart"
     },
     {
       "id": "remote-tools",
       "obligation": "remote tools are indented under their server and marked remote + hash",
-      "pass": true,
-      "detail": "2 of 4 indented rows are remote; contract expects 2"
+      "pass": false,
+      "detail": "0 of 2 indented rows are remote; contract expects 0"
     },
     {
       "id": "characters-not-tokens",

@@ -1,5 +1,5 @@
 {
-  "app": "http://127.0.0.1:8850/",
+  "app": "http://127.0.0.1:8855/",
   "results": [
     {
       "viewport": "1440",
@@ -44,9 +44,9 @@
     {
       "viewport": "1440",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "light"
     },
     {
@@ -92,9 +92,9 @@
     {
       "viewport": "1440",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "dark"
     },
     {
@@ -140,9 +140,9 @@
     {
       "viewport": "1440",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "light + reduced motion"
     },
     {
@@ -188,9 +188,9 @@
     {
       "viewport": "390",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "light"
     },
     {
@@ -236,9 +236,9 @@
     {
       "viewport": "390",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "dark"
     },
     {
@@ -284,9 +284,9 @@
     {
       "viewport": "390",
       "id": "escape-order",
-      "obligation": "Escape closes the surface from the runtime kind and restores focus",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
       "pass": true,
-      "detail": "panel hidden=true, focus=session-title",
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
       "media": "light + reduced motion"
     }
   ]

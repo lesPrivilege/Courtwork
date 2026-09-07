@@ -109,20 +109,30 @@ globalThis.runViewportChecks = async function runViewportChecks(label) {
     `reduce=${reduced} moving=${moving.length}`,
   );
 
-  // Escape closes the surface and returns focus to the control that opened it.
+  // WK-54 / WO-WK10a · the rail has two states, so Escape has two steps: the
+  // expanded pane returns to the collapsed cards, and the cards close the rail
+  // and return focus to the control that opened it. Opening a named kind (here
+  // the runtime module's own card action) lands in the pane, so both steps run.
   const returnTarget = $("show-surface-button");
   returnTarget.focus();
   $("show-surface-button").click();
+  await wait(700);
+  document.querySelector('[data-module="runtime"] .rail-open')?.click();
+  await wait(900);
+  const inPane = $("app-shell").classList.contains("surface-expanded");
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   await wait(500);
-  $("surface-runtime-tab").click();
-  await wait(800);
+  const onCards =
+    !$("app-shell").classList.contains("surface-expanded") &&
+    $("surface-panel").hidden === false &&
+    $("surface-rail").hidden === false;
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   await wait(500);
   record(
     "escape-order",
-    "Escape closes the surface from the runtime kind and restores focus",
-    $("surface-panel").hidden === true,
-    `panel hidden=${$("surface-panel").hidden}, focus=${document.activeElement?.id || document.activeElement?.className}`,
+    "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+    inPane && onCards && $("surface-panel").hidden === true,
+    `pane=${inPane}, cards=${onCards}, hidden=${$("surface-panel").hidden}, focus=${document.activeElement?.id || document.activeElement?.className}`,
   );
 
   return results;

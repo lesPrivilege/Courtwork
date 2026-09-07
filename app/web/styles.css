@@ -2231,12 +2231,12 @@ button[aria-disabled="true"] {
   }
 }
 
+/* WK-47 / SH-1 · a folder is not an object you open or decide about, so its
+   files are a plain group of rows: a heading, a count, and the rows. The box
+   that used to wrap each folder inside the panel added a second outline without
+   adding a judgement, and it made the expanded pane a grid of nested cards. */
 .workspace-card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
-  padding: 12px;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-6);
 }
 .workspace-card h4 {
   overflow-wrap: anywhere;

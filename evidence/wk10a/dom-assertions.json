@@ -1,6 +1,6 @@
 {
   "origin": "http://127.0.0.1:8855",
-  "at": "2026-09-07T22:41:34.738Z",
+  "at": "2026-09-07T23:07:06.984Z",
   "results": [
     {
       "name": "band · three column headers share one top",
@@ -175,7 +175,7 @@
       "name": "narrow 390 · no control under 44 with a coarse pointer",
       "pass": true,
       "actual": {
-        "controls": 8,
+        "controls": 19,
         "small": [],
         "overflow": 0,
         "composerPosition": "sticky",
@@ -191,7 +191,7 @@
       "name": "narrow 390 · the composer is a docked floating layer",
       "pass": true,
       "actual": {
-        "controls": 8,
+        "controls": 19,
         "small": [],
         "overflow": 0,
         "composerPosition": "sticky",
