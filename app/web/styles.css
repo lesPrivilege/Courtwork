@@ -168,7 +168,8 @@
   --band-top: 56px;
   --col-gap: 24px;
   --nav: 250px;
-  --inspector: 380px;
+  --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
+  --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 32px;
   --radius-small: 4px;
   --radius-control: 8px;
@@ -419,19 +420,18 @@ button {
 .section-heading h2 {
   margin: 0;
 }
+/* WK-72 · the shell is two columns. The work surface is not a third one: it is
+   an L2 layer anchored inside the main column's grid area, so the grid never
+   changes when it opens. */
 .app-shell {
   height: 100dvh;
+  position: relative;
   display: grid;
-  grid-template-columns: var(--nav) minmax(0, 1fr) var(--inspector);
+  grid-template-columns: var(--nav) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
-.app-shell.surface-closed {
-  grid-template-columns: var(--nav) minmax(0, 1fr);
-}
 .app-shell.nav-collapsed {
-  grid-template-columns: minmax(0, 1fr) var(--inspector);
-}
-.app-shell.nav-collapsed.surface-closed {
   grid-template-columns: minmax(0, 1fr);
 }
 .app-shell.nav-collapsed .sidebar {
@@ -1174,8 +1174,6 @@ button {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--line);
-  background: var(--panel-muted);
   overflow: hidden;
 }
 /* WK-42 · the rail band. Collapsed it names the rail; expanded the tab strip is
@@ -1255,28 +1253,16 @@ button {
 .surface-content > h3 {
   margin-bottom: 16px;
 }
-/* WK-54 · the expanded pane is a column of the shell, not a sheet floating over
-   it: the sidebar keeps its place, the chat column is handed over, and the tab
-   strip therefore lands in the same band as the other two headers. */
-@media (min-width: 1024px) {
-  .app-shell.surface-expanded {
-    grid-template-columns: var(--nav) minmax(0, 1fr);
-  }
-  .app-shell.surface-expanded.nav-collapsed {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .surface-expanded .chat-panel {
-    display: none;
-  }
-  .surface-expanded .surface-panel {
-    background: var(--float);
-  }
-}
 .layer-backdrop {
   position: fixed;
   inset: 0;
   background: var(--backdrop);
   z-index: 30;
+}
+/* WK-69 · the work surface's overlay is L3, so its ground is the scrim; the
+   navigation drawer is L0 sliding in and keeps the lighter backdrop. */
+#surface-backdrop {
+  background: var(--scrim);
 }
 .inspector-status {
   display: flex;
@@ -1780,7 +1766,6 @@ select {
 @media (min-width: 1024px) and (max-width: 1199px) {
   :root {
     --nav: 220px;
-    --inspector: 340px;
   }
   .composer-controls {
     flex-wrap: wrap;
@@ -1797,9 +1782,7 @@ select {
     --control: 44px;
   }
   .app-shell,
-  .app-shell.surface-closed,
-  .app-shell.nav-collapsed,
-  .app-shell.nav-collapsed.surface-closed {
+  .app-shell.nav-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
   .sidebar,
@@ -1825,8 +1808,9 @@ select {
     z-index: 31;
     border-radius: 0;
     border: 0;
-    border-left: 1px solid var(--line);
-    box-shadow: var(--shadow);
+    border-left: 1px solid var(--line-strong);
+    background: var(--float);
+    box-shadow: var(--shadow-float);
   }
   .chat-header {
     padding: 0 var(--col-gap);
@@ -3338,8 +3322,10 @@ html[data-shell="desktop"] .shell-strip {
   -webkit-app-region: drag;
 }
 
-/* WK-41 · the collapsed rail: one card per module, one gutter from the panel
-   edge, no outer margin inside a module. */
+/* WK-41 / WK-72 · the collapsed rail: one card per module, no header and no
+   layout of its own. Below 768 it is the content of the full-width sheet and
+   keeps the sheet's gutter; from 768 up it is the floating layer positioned by
+   the rules further down, and the gutter comes from the panel. */
 .surface-rail {
   flex: 1;
   min-height: 0;
@@ -3351,6 +3337,118 @@ html[data-shell="desktop"] .shell-strip {
   flex-direction: column;
   gap: var(--space-3);
   scrollbar-gutter: stable;
+}
+
+/* ============================================================================
+   WK-72 · The work surface is an L2 floating layer over the main column, not a
+   third column. Collapsed it is a stack of module cards anchored at the main
+   column's right gutter, between the band and the composer's top edge; when the
+   main column is narrower than 740 + 2·gap + 360 the cards collapse to a glyph
+   strip at the same edge; expanded it is an L3 overlay over the same area, with
+   the sidebar left operable (WK-74 (1)). Below 768 nothing here applies and the
+   existing full-width sheet stands.
+   ========================================================================== */
+@media (min-width: 768px) {
+  .surface-panel.is-open:not(.is-expanded) {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    top: calc(var(--band-top) + var(--col-gap));
+    bottom: calc(var(--composer-h, 0px) + var(--col-gap));
+    right: var(--col-gap);
+    left: auto;
+    width: var(--rail-width);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    z-index: 5;
+    pointer-events: none;
+  }
+  /* The layer is a frame, not a surface: only the cards themselves take the
+     pointer, so the thread underneath still scrolls where the layer is empty. */
+  .surface-panel.is-open:not(.is-expanded) .surface-rail {
+    padding: 0;
+    pointer-events: none;
+    scrollbar-gutter: auto;
+  }
+  .surface-panel.is-open:not(.is-expanded) .rail-card,
+  .surface-panel.is-open:not(.is-expanded) .rail-strip {
+    pointer-events: auto;
+  }
+  /* WK-72 · no rail header and no rail title while the cards are showing. */
+  .surface-panel:not(.is-expanded) .surface-header {
+    display: none;
+  }
+  .surface-panel.is-open.is-strip:not(.is-expanded) {
+    width: var(--strip-width);
+  }
+  /* The reading column steps aside for the layer instead of sliding under it:
+     at 1440 the 740 column and the 360 cards coexist with one gutter between. */
+  .app-shell.surface-cards {
+    --cards-inset: calc(var(--rail-width) + var(--col-gap));
+  }
+  .app-shell.surface-cards.surface-strip {
+    --cards-inset: calc(var(--strip-width) + var(--col-gap));
+  }
+  .app-shell.surface-cards .chat-header {
+    padding-right: calc(var(--col-gap) + var(--cards-inset));
+  }
+  .app-shell.surface-cards .message-stream,
+  .app-shell.surface-cards .composer-area {
+    padding-right: calc(var(--page-gutter) + var(--cards-inset));
+  }
+}
+
+/* WK-69 / WK-72 · the glyph strip: one icon per module, the module title as the
+   accessible name, and opening one opens the overlay on it. */
+.rail-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--float);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+}
+.rail-strip > button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--muted-strong);
+}
+.rail-strip > button:hover {
+  color: var(--ink);
+}
+
+/* WK-69 L3 · expanded is an overlay over the main column: float material over
+   the scrim. The sidebar is outside the scrim and stays operable, so no
+   aria-modal is claimed here (WK-74 (1)); below 1024 the sheet is a real modal
+   and the JS says so. */
+@media (min-width: 1024px) {
+  .surface-panel.is-expanded {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    top: calc(var(--band-top) + var(--col-gap));
+    right: var(--col-gap);
+    bottom: var(--col-gap);
+    left: var(--col-gap);
+    width: auto;
+    background: var(--float);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-container);
+    box-shadow: var(--shadow-float);
+    z-index: 29;
+  }
+  /* The sheet grows out of the cards: same top edge, same right gutter. */
+  .surface-panel.is-expanded .surface-header {
+    padding: 0 var(--col-gap);
+  }
+  #surface-backdrop {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    inset: 0;
+    z-index: 28;
+  }
 }
 /* SH-1 · a module is an object you can open as a whole, so it is a card; its
    rows are rows. SH-2: one boundary treatment — surface, 1px line and the

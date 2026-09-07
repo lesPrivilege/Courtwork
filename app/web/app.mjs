@@ -1,4 +1,5 @@
 import {
+  el,
   icon,
   action,
   setAction,
@@ -131,6 +132,10 @@ const state = {
     // rail states, so collapsing and expanding never re-reads the same tree.
     workspace: null,
     expanded: false,
+    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条
+     * 与否，以及 composer 当前占去的高度。 */
+    strip: false,
+    composerHeight: 0,
     requestId: 0,
     fetchRequestId: 0,
     fetchController: null,
@@ -2789,6 +2794,9 @@ function renderComposer() {
     textarea.value = "";
     textarea.placeholder = "Select a session to chat";
   }
+  /* The floating layer stops at the composer's top edge, so the composer's own
+   * height is one of its two measurements (WK-72). */
+  measureSurfaceLayout();
 }
 
 function renderChat() {
@@ -2814,15 +2822,23 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   }
   writeUiState();
   renderSurfaceVisibility();
-  if (focus) $("surface-expand-button")?.focus();
+  /* Returning lands on the cards, because the cards are what the overlay came
+   * from; there is no rail header to return to (WK-72). */
+  if (focus) next ? $("surface-expand-button")?.focus() : focusSurfaceRail();
 }
 
-/* The panel is a modal only where it really covers the work: below 1024 it is
- * an overlay (docs/ui-composition.md §responsive). Expanded on the desktop it
- * is a column of the shell with the sidebar still operable, so claiming
- * aria-modal there would describe a trap that does not exist. */
+/* The panel is a modal only where it really covers the work: below 1024 the
+ * expanded pane is an overlay, and below 768 so is the collapsed sheet
+ * (docs/ui-composition.md §responsive). From 768 up the collapsed state is a
+ * floating card layer that disables nothing, and from 1024 up the expanded
+ * sheet leaves the sidebar operable (WK-74 (1)); claiming aria-modal in either
+ * case would describe a trap that does not exist. */
 function surfaceIsModal() {
-  return state.surface.open && surfaceOverlayQuery.matches;
+  return (
+    state.surface.open &&
+    surfaceOverlayQuery.matches &&
+    (state.surface.expanded || narrowQuery.matches)
+  );
 }
 
 function visibleSurfaceKinds() {
@@ -2858,7 +2874,39 @@ function openSurfaceRail() {
   writeUiState();
   loadRailFacts();
   renderSurfaceVisibility();
-  $("surface-expand-button")?.focus();
+  /* WK-72 · there is no rail header to land on any more: the first card's own
+   * action is the first thing in the layer. */
+  focusSurfaceRail();
+}
+function focusSurfaceRail() {
+  const rail = $("surface-rail");
+  const first = rail.querySelector("button:not([hidden])");
+  (first ?? $("surface-expand-button"))?.focus();
+}
+/* WK-72 · the layer's two measurements: how much room the composer leaves it,
+ * and whether the main column can still hold a 740 reading column and a 360
+ * card side by side. Both are read from the live box, never assumed. */
+function measureSurfaceLayout({ render = true } = {}) {
+  const chat = document.querySelector(".chat-panel");
+  const composer = $("composer-area");
+  if (!chat) return;
+  const style = getComputedStyle(document.documentElement);
+  const px = (name, fallback) =>
+    parseFloat(style.getPropertyValue(name)) || fallback;
+  const height = composer.hidden
+    ? 0
+    : Math.round(composer.getBoundingClientRect().height);
+  if (state.surface.composerHeight !== height) {
+    state.surface.composerHeight = height;
+    document.documentElement.style.setProperty("--composer-h", `${height}px`);
+  }
+  const strip =
+    chat.getBoundingClientRect().width <
+    px("--column", 740) + 2 * px("--col-gap", 24) + px("--rail-width", 360);
+  if (strip !== state.surface.strip) {
+    state.surface.strip = strip;
+    if (render) renderSurfaceVisibility();
+  }
 }
 function closeNavigation({ restoreFocus = true } = {}) {
   state.navigationOpen = false;
@@ -2874,6 +2922,7 @@ function toggleNavigation() {
   if (state.navigationOpen) $("close-nav-button").focus();
 }
 function renderSurfaceVisibility() {
+  measureSurfaceLayout({ render: false });
   const shell = $("app-shell"),
     panel = $("surface-panel"),
     nav = $("navigation-panel"),
@@ -2881,15 +2930,20 @@ function renderSurfaceVisibility() {
   const open = Boolean(state.surface.open && currentSession()),
     expanded = open && state.surface.expanded;
   const overlay = surfaceOverlayQuery.matches;
-  const modal = open && overlay,
+  const modal = surfaceIsModal(),
     navModal = overlay && state.navigationOpen && !open;
   const wasModal = panel.getAttribute("aria-modal") === "true";
-  shell.classList.toggle("surface-closed", !open);
+  /* WK-72 · the collapsed state is a floating layer inside the main column, so
+   * the shell says whether the reading column must step aside for it. */
+  const cards = open && !expanded && !narrowQuery.matches;
+  shell.classList.toggle("surface-cards", cards);
+  shell.classList.toggle("surface-strip", cards && state.surface.strip);
   shell.classList.toggle("surface-expanded", expanded);
   shell.classList.toggle("nav-open", navModal);
   shell.classList.toggle("nav-collapsed", state.sidebarCollapsed);
   panel.classList.toggle("is-open", open);
   panel.classList.toggle("is-expanded", expanded);
+  panel.classList.toggle("is-strip", cards && state.surface.strip);
   panel.hidden = !open;
   panel.inert = !open;
   panel.setAttribute("aria-hidden", String(!open));
@@ -2915,11 +2969,18 @@ function renderSurfaceVisibility() {
    * (docs/surface-assignment.md §3). */
   chat.inert = Boolean(modal || navModal || (expanded && !overlay));
   chat.setAttribute("aria-hidden", String(chat.inert));
-  $("surface-backdrop").hidden = !modal;
+  /* WK-69 · an L3 overlay sits over the scrim; the collapsed cards are L2 and
+   * disable nothing, so the ground stays clear under them. */
+  $("surface-backdrop").hidden = !(modal || expanded);
   $("nav-backdrop").hidden = !navModal;
   $("toggle-nav-button").setAttribute(
     "aria-expanded",
     String(overlay ? navModal : !state.sidebarCollapsed),
+  );
+  setAction(
+    $("show-surface-button"),
+    "panel-right",
+    open && !expanded ? "Close work surface" : "Open work surface",
   );
   setAction(
     $("surface-expand-button"),
@@ -2953,10 +3014,9 @@ function renderSurfaceVisibility() {
     (!panel.contains(document.activeElement) ||
       !document.activeElement?.getClientRects().length)
   )
-    ($(`surface-${state.surface.kind}-tab`)?.hidden === false
-      ? $(`surface-${state.surface.kind}-tab`)
-      : $("surface-expand-button")
-    )?.focus();
+    (expanded && $(`surface-${state.surface.kind}-tab`)?.hidden === false
+      ? $(`surface-${state.surface.kind}-tab`)?.focus()
+      : focusSurfaceRail());
 }
 function surfaceKindTitle(kind) {
   if (kind === "run") return "Run details";
@@ -3010,6 +3070,23 @@ function renderSurfaceRail() {
   const focusKey = document.activeElement?.dataset?.focusKey;
   const scroll = rail.scrollTop;
   const facts = surfaceFacts();
+  /* WK-72 · below the width where a 740 column and a 360 card can stand side by
+   * side, the same modules read as one glyph each; the icon carries the module
+   * and its title is the accessible name (IC-1: a stable object, not a state). */
+  if (state.surface.strip && !narrowQuery.matches) {
+    const glyphs = surfaceModules
+      .filter((module) => module.adapter(facts))
+      .map((module) =>
+        action(module.icon, module.title, () => activateSurface(module.kind), {
+          attrs: {
+            "data-module": module.kind,
+            "data-focus-key": `strip:${module.kind}`,
+          },
+        }),
+      );
+    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs));
+    return;
+  }
   const cards = [];
   for (const module of surfaceModules) {
     const schema = module.adapter(facts);
@@ -4722,13 +4799,27 @@ function wireEvents() {
       void loadExtensions().catch((error) => showToast(error.message, "error")),
   );
   $("close-surface-button").addEventListener("click", closeSurface);
-  $("surface-backdrop").addEventListener("click", closeSurface);
+  $("surface-backdrop").addEventListener("click", () =>
+    state.surface.expanded ? setSurfaceExpanded(false) : closeSurface(),
+  );
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
   narrowQuery.addEventListener("change", () => {
     renderComposer();
     renderSurfaceVisibility();
   });
-  $("show-surface-button").addEventListener("click", openSurfaceRail);
+  /* WK-72 · the layer follows the main column and the composer, not the
+   * viewport: a collapsing sidebar changes the same numbers a resize does. */
+  const surfaceMetrics = new ResizeObserver(() => measureSurfaceLayout());
+  surfaceMetrics.observe(document.querySelector(".chat-panel"));
+  surfaceMetrics.observe($("composer-area"));
+  window.addEventListener("resize", () => measureSurfaceLayout());
+  /* WK-72 · with the rail header gone, the header control is the way in and the
+   * way out of the collapsed layer; Escape still walks the same two steps. */
+  $("show-surface-button").addEventListener("click", () =>
+    state.surface.open && !state.surface.expanded
+      ? closeSurface()
+      : openSurfaceRail(),
+  );
   $("surface-expand-button").addEventListener("click", () =>
     setSurfaceExpanded(!state.surface.expanded),
   );
