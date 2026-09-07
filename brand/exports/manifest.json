@@ -7,241 +7,241 @@
       "concept": "summon",
       "material": "mono",
       "file": "exports/summon-mono.svg",
-      "sha256": "7784ddcfa51f37abc43fc8ad65a74927413e4b113014729cbb1305338f895607"
+      "sha256": "87a12b7b76df9c0907c260e44ee766bed291c9c1e1f9a8882a3f987ac573040f"
     },
     {
       "concept": "summon",
       "material": "hierarchical",
       "file": "exports/summon-hierarchical.svg",
-      "sha256": "27d356a10b68b254ba49aeb35808ae149be6834dc6c951b817e1028e7a0c29cb"
+      "sha256": "0928059935d65c26cdb751a3d005f63ff521341317be8bc62606020027d1fde5"
     },
     {
       "concept": "summon",
       "material": "glass",
       "file": "exports/summon-glass.svg",
-      "sha256": "fdef094cd5372521f04c9fda95e5d48cf14f734619aa17cde64e92b4dc66321b"
+      "sha256": "e88814851a110f65a03c614452237a32aee010f1803f712443cf1cce49b02323"
     },
     {
       "concept": "summon",
       "material": "depth",
       "file": "exports/summon-depth.svg",
-      "sha256": "a285a69e501ad1d4389e0b6194a94930674407395f2b30bd768c91d4e88dff56"
+      "sha256": "9b26391a1e7b66837e5d9469fa94b63f85e28853314402e5e6f5fac807426447"
     },
     {
       "concept": "summon",
       "material": "luminous",
       "file": "exports/summon-luminous.svg",
-      "sha256": "264ad79a6d1e1e6ec0c91efa8c2f13a90a1432c2bec198cd591a33f91b710102"
+      "sha256": "a0fceaf70d69526e157ab06dd1893101f2eca71ed66b3256a531a50beaaa8c8b"
     },
     {
       "concept": "take-floor",
       "material": "mono",
       "file": "exports/take-floor-mono.svg",
-      "sha256": "5517b22ddc8e86176b9f05b7a29e0b7f493721bce5694524283cb315525d2191"
+      "sha256": "82dce8bcaf9346036d9c41531cddbdbaf95f6c0a5370c152ab5757ac78443542"
     },
     {
       "concept": "take-floor",
       "material": "hierarchical",
       "file": "exports/take-floor-hierarchical.svg",
-      "sha256": "3f731603e90c30d543366ccebb4e1ca0ff7d7d0421236572c2bdb2883cd2db90"
+      "sha256": "b661cd1ec102f347694d3214878224937c3b43a8925f2bb1e80213e84ad147d4"
     },
     {
       "concept": "take-floor",
       "material": "glass",
       "file": "exports/take-floor-glass.svg",
-      "sha256": "0a58c634c9b5e1beee46cca1a62b91c8b640471f23f43ffb6b59a553e47c6634"
+      "sha256": "1b6a612834fcca5934938c0297d9e599eb804061f27f9574787b4e097a96b5cd"
     },
     {
       "concept": "take-floor",
       "material": "depth",
       "file": "exports/take-floor-depth.svg",
-      "sha256": "c2df73806b397bb074a0bed4b06e3d29f17b02008967811ef1f0d1740785533c"
+      "sha256": "f5417ad5fdb15a2fdeea13700be39b2cdd397034a8a47e2a1472fe2c58fa13cf"
     },
     {
       "concept": "take-floor",
       "material": "luminous",
       "file": "exports/take-floor-luminous.svg",
-      "sha256": "5a3ff9382a0c82e7e0d51d2388c31028f7034da654a2cd3cdad6962e6d4b7e7a"
+      "sha256": "4d3aa484852069834d715faee77fdc627b223a10111ffc4e8fccc0a9a1dfe1f1"
     },
     {
       "concept": "write",
       "material": "mono",
       "file": "exports/write-mono.svg",
-      "sha256": "bca8ca20eb2051448b3d259bf2af1e136dc33326771606dcf7e83d8ea7962dfb"
+      "sha256": "f3c9cdc1880a4c01602a4e627e01aadc7358254498c6702963c487435983608e"
     },
     {
       "concept": "write",
       "material": "hierarchical",
       "file": "exports/write-hierarchical.svg",
-      "sha256": "d2f19b6bf69c3c3bd48098098c3943edfea1bfcb968cecb3e292b32f74f334c3"
+      "sha256": "ca868774824686afe30d9048a8412a0a044d6cc6233f95e2d4f0e004d846b306"
     },
     {
       "concept": "write",
       "material": "glass",
       "file": "exports/write-glass.svg",
-      "sha256": "6f3ffb8bc91e364e9050a5bc4dde38ae098f08e9ffab9da63e15d96f25e0cf74"
+      "sha256": "7503fe5d1b74ebceb35ddd727f84db67e116fc9740cb19df22b5377da88e9393"
     },
     {
       "concept": "write",
       "material": "depth",
       "file": "exports/write-depth.svg",
-      "sha256": "8a75420bc69e5808175a7937b668456b90de0eb51a0b925f7315074def543dc6"
+      "sha256": "f183795c22769c8d30e3e3e5518b8f6ed600d9dd3096dcb05870cef59f82bca3"
     },
     {
       "concept": "write",
       "material": "luminous",
       "file": "exports/write-luminous.svg",
-      "sha256": "7d02cbe4bfebacc3a1f6fa03ab2b550f95e2863f369a01be87d037c7ccfbfd9e"
+      "sha256": "80ae22251316aaf097509b54e23cb360caf03a5fcda8c5f1cef1349e1bde7cb7"
     },
     {
       "concept": "retrieve",
       "material": "mono",
       "file": "exports/retrieve-mono.svg",
-      "sha256": "58499deb5c8c34110928032992ab4d7491c55cf2f41ced96aca1891684390d30"
+      "sha256": "9959cb319e499c76f4b6bc71bbd4e01b180d03f68180a1888b6c971432904d31"
     },
     {
       "concept": "retrieve",
       "material": "hierarchical",
       "file": "exports/retrieve-hierarchical.svg",
-      "sha256": "5e210d576d7baa128f291ba3ac7b4be58184b4d5a7eb7567db81e47c9da72e83"
+      "sha256": "7fd32f2799cee16e8f1df54ea540926dd1d99e9f1512e56982ae0d1d68cafac0"
     },
     {
       "concept": "retrieve",
       "material": "glass",
       "file": "exports/retrieve-glass.svg",
-      "sha256": "6669e806165f345f6e63693ab904119e97fb2c38efe5ad0243396b2ac8767d79"
+      "sha256": "bfd3006cee35ba72e6338282947da681afbd9ccac93b39186d2697a97a3c9190"
     },
     {
       "concept": "retrieve",
       "material": "depth",
       "file": "exports/retrieve-depth.svg",
-      "sha256": "600cba3f8bcd482c8ce0129a7b57d261465029b522fbf41bd05df9ec29f61322"
+      "sha256": "77288b2ac06cb6e96c363fadc582bd3ece1973b7165c844c2934ebe3fd5137b8"
     },
     {
       "concept": "retrieve",
       "material": "luminous",
       "file": "exports/retrieve-luminous.svg",
-      "sha256": "510f3e55b9899cc3697c4feee47a777e37df5c02c72ff0cf21163d80b8c403fd"
+      "sha256": "3286f07071444bee49449f43344032d754d8c26483b7062e9392bb0a067f8dbf"
     },
     {
       "concept": "scope",
       "material": "mono",
       "file": "exports/scope-mono.svg",
-      "sha256": "996685a81cfbd36c9ad7220e0b2194b5418f8b7b444775e526e2a093188b475b"
+      "sha256": "786d14be57b63eebce48474d4a17c8d5a4b1062e9af918b0298d3e75df3f9e35"
     },
     {
       "concept": "scope",
       "material": "hierarchical",
       "file": "exports/scope-hierarchical.svg",
-      "sha256": "e660c96e582cabd0021f9828fbbb5be90f0f361f6af74b8ca51261638595323a"
+      "sha256": "ac5a4fe82fe94984451bd41446d530c12faa42382ceb0e9dd96d894d1c17ee19"
     },
     {
       "concept": "scope",
       "material": "glass",
       "file": "exports/scope-glass.svg",
-      "sha256": "37c4b1f9bc76250bf19592eec21385b5660eaa5dc76cf1b46dd87603717b44b1"
+      "sha256": "76fd8b2cbcc3fa40c6c48b0c74dc0966d7cb11d00bf3549956a54a9a79085b22"
     },
     {
       "concept": "scope",
       "material": "depth",
       "file": "exports/scope-depth.svg",
-      "sha256": "ec4a04d393c83b1df393c821111ed17a29146dfd284a63a37b1eac390dae4d94"
+      "sha256": "134de549c53c8549bc596f50a7244f68bde0e5131b8840afdf89cc5d2d67105f"
     },
     {
       "concept": "scope",
       "material": "luminous",
       "file": "exports/scope-luminous.svg",
-      "sha256": "49a9c19eef39c21089bc936bff80dd3081eb52b9c07324d243fc05aca56df5d3"
+      "sha256": "39a42e87eecef0cf57761416f196c3cd80b1856bd040db7627cecac946904d30"
     },
     {
       "concept": "commit",
       "material": "mono",
       "file": "exports/commit-mono.svg",
-      "sha256": "b546a9b3ad8abd7fe1de83d17fba4b0daa46c55c9a31f99d3c64c5fee16f2bb0"
+      "sha256": "5213ad9e0dfb9c1f6c1b732dbeea88ad2fd9521523719f28ad1129b698700882"
     },
     {
       "concept": "commit",
       "material": "hierarchical",
       "file": "exports/commit-hierarchical.svg",
-      "sha256": "1d21d6f0e76ac2d3d68604efc2719cf68bfcac382f6401cb7113dc917016f606"
+      "sha256": "ce9b648dff9c99e3b5fcb8dcdbd314ae9447f6e22f93c2da5c922661b55ccf26"
     },
     {
       "concept": "commit",
       "material": "glass",
       "file": "exports/commit-glass.svg",
-      "sha256": "a2d59ff427ac727ebbe834561a8c6972893f5b9818c2da86c68c4cf0093bb89f"
+      "sha256": "c889b38153b05bcb66a047bec3e8c82510b9665154a87a0b7183c8caa0ce2330"
     },
     {
       "concept": "commit",
       "material": "depth",
       "file": "exports/commit-depth.svg",
-      "sha256": "3346491af903eea2cbf80e608bf4f4a58b6e02a4d48523d16942a8a54f8f06dc"
+      "sha256": "455c327631647558f8bc71b18cdae8e26b56526a43831820b1fa1777272dfd48"
     },
     {
       "concept": "commit",
       "material": "luminous",
       "file": "exports/commit-luminous.svg",
-      "sha256": "7cd247ccbbf364caa982e9f981f5c394399cd068c568316a9ed16f273dc5efe4"
+      "sha256": "e2b0651d5da94067804944f08e0a17670706e8f6d631a16aceb021c38eed5f5b"
     },
     {
       "concept": "review",
       "material": "mono",
       "file": "exports/review-mono.svg",
-      "sha256": "08357ee99ac40ff9e7a9f5b56ea79a9fa18aacf67d0f990074cbf90f5941c126"
+      "sha256": "b3fb450b282e37b9c526bf29a95f67ca91f523495fc4dd891f7ce263de596f10"
     },
     {
       "concept": "review",
       "material": "hierarchical",
       "file": "exports/review-hierarchical.svg",
-      "sha256": "f2f94ec12b42bcc7b955b0f7c290f4fc574c88d83f69667ab1e868735bf2a726"
+      "sha256": "cff4e4658b140bae94439325c9322b26138b1da0f0f610a61b33bf3365579fbf"
     },
     {
       "concept": "review",
       "material": "glass",
       "file": "exports/review-glass.svg",
-      "sha256": "d1f3239f6a70d128e00bdadde6138b46b208d80e2cb2155bc0051c81fac3e343"
+      "sha256": "098773b2978d6d431b03e399656972e02b82e4d97a67fe787cbd3f0a84f47707"
     },
     {
       "concept": "review",
       "material": "depth",
       "file": "exports/review-depth.svg",
-      "sha256": "3288637ce470798b43379d095838779d4c403bd934b027fca01e4afd4eb340f9"
+      "sha256": "f2eda5e622bf7f6c491478d6faf16aa1cf73b7cee22b9e44f09412069f337fee"
     },
     {
       "concept": "review",
       "material": "luminous",
       "file": "exports/review-luminous.svg",
-      "sha256": "bdc11fe0b12429fb855ffedf5e9521c0d243a08295778672524b82d56c027e9b"
+      "sha256": "b302b329847fb613d66c6edaf469a73568ae6b933b4d82d202fceab105b124fb"
     },
     {
       "concept": "withdraw",
       "material": "mono",
       "file": "exports/withdraw-mono.svg",
-      "sha256": "637270b7c90a61b574c3287b126d6ec3f9adc0323a7e939a27907ff878e79ca3"
+      "sha256": "2f1757c8315b2bb0d68a1156e9ca2a994fcdf54342159d657680a1a4be347d34"
     },
     {
       "concept": "withdraw",
       "material": "hierarchical",
       "file": "exports/withdraw-hierarchical.svg",
-      "sha256": "fa9e136f5d77610608ce3dd2f2b0fa3ec5400eb90345f29b19d1cf18ca56c163"
+      "sha256": "76816c16ba419bf28fa5bd6fe8a7c25aee66e3491838ac825ae03636b45e8ed4"
     },
     {
       "concept": "withdraw",
       "material": "glass",
       "file": "exports/withdraw-glass.svg",
-      "sha256": "045ce8c4027876224a44b5c8674c56071902aee1f8c1c8d1ce690d89123bf624"
+      "sha256": "84e2b9ffcc61935e7596ddc39173717c2fe29cec8a3aa1c2c49234cf76c9eb6b"
     },
     {
       "concept": "withdraw",
       "material": "depth",
       "file": "exports/withdraw-depth.svg",
-      "sha256": "b14f1d823c9c0adef0038b6c88a2a94bc57690ac66213bebb3c589cd5ef25e19"
+      "sha256": "3f95a8e409380da6a4451a4989eef77c8e9325cd97efe5b80d6589e402740d4e"
     },
     {
       "concept": "withdraw",
       "material": "luminous",
       "file": "exports/withdraw-luminous.svg",
-      "sha256": "434f0e0abef255b2dee9371ee31784d01fd7933d8af75b74963f11598ff0bdac"
+      "sha256": "ff18e31fd4bc5c7c11820e915fadc838e965225598a92e8ec80db09c8532bbb5"
     }
   ]
 }

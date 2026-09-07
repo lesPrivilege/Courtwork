@@ -48,6 +48,8 @@ symbol.play('withdraw');
 
 全局主题不会暗中推断：宿主传 `theme="light|dark"`。`material` 可为 `mono|hierarchical|glass|depth|luminous`。尺寸≤24时三种表现材质自动降为无滤镜的 hierarchical；静态 SVG 按导出尺寸生成，如需 16px standalone 导出，用 `renderSymbol({size:16,…})`，不能把 128px glass SVG 当作光学小号。
 
+宿主取色支持 `--cw-ink` / `--cw-record` 等公共 CSS token，见 [BR-1 接入契约](CONTRACT.md#host-color-tokens--br-1)；[16/20px 深浅色验证页](tests/host-colors.html)展示默认与宿主取色。
+
 `renderSymbol()` 支持 Node 构建；默认每次生成独立 ID，确定性导出应传唯一 `idPrefix`。标签会转义，concept/material/state只接受枚举，尺寸限制为12–1024。无网络、脚本注入、字体或图片依赖。
 
 ## 接受范围
