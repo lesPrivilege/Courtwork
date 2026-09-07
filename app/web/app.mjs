@@ -49,6 +49,9 @@ const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
 const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
+// WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
+// the placement itself is viewport-dependent and not only its padding.
+const narrowQuery = window.matchMedia("(max-width: 767px)");
 
 const state = {
   token: null,
@@ -2657,8 +2660,12 @@ function renderChatHeader() {
   $("materials-button").hidden = home || !session;
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"), composer = $("composer-area");
-  if (home && body.firstElementChild !== composer) body.prepend(composer);
-  else if (!home && body.lastElementChild !== composer) body.append(composer);
+  /* WK-11 / WK-58 · on a wide Home the composer leads the column with whitespace
+   * above it; on a session, and on any narrow view, it is docked at the foot.
+   * The DOM order is the reading order in both cases: nothing is moved by CSS. */
+  const lead = home && !narrowQuery.matches;
+  if (lead && body.firstElementChild !== composer) body.prepend(composer);
+  else if (!lead && body.lastElementChild !== composer) body.append(composer);
   const config = state.providerConfig?.config;
   const model =
     config?.provider === "fake-openai-loopback"
@@ -3053,6 +3060,7 @@ function activateSurface(kind) {
   renderSurfaceVisibility();
   writeUiState();
   $(`surface-${kind}-tab`).focus();
+  loadRailFacts();
   loadSurfaceKind(kind);
 }
 function openRun(runId) {
@@ -4716,6 +4724,10 @@ function wireEvents() {
   $("close-surface-button").addEventListener("click", closeSurface);
   $("surface-backdrop").addEventListener("click", closeSurface);
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
+  narrowQuery.addEventListener("change", () => {
+    renderComposer();
+    renderSurfaceVisibility();
+  });
   $("show-surface-button").addEventListener("click", openSurfaceRail);
   $("surface-expand-button").addEventListener("click", () =>
     setSurfaceExpanded(!state.surface.expanded),

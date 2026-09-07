@@ -290,14 +290,20 @@ const workspaceModule = {
           text: `${schema.extension.title || "An extension"} renders this workspace.`,
         }),
       );
+    const open = () =>
+      openAction("Open workspace", "rail-open:preview", () =>
+        host.open("preview"),
+      );
     if (schema.error)
       return railCard(
         workspaceModule,
-        { stateWord: null, open: null },
+        { stateWord: null, open: open() },
         el("p", { className: "rail-note", text: schema.error }),
       );
+    /* Before the tree has arrived the card states the module and its way in,
+     * and nothing it does not yet know. */
     if (!schema.files)
-      return railCard(workspaceModule, { stateWord: null, open: null });
+      return railCard(workspaceModule, { stateWord: null, open: open() });
     const groups = new Map();
     for (const file of schema.files) {
       const slash = file.path.lastIndexOf("/");
@@ -328,9 +334,7 @@ const workspaceModule = {
       {
         stateWord:
           schema.files.length === 1 ? "1 file" : `${schema.files.length} files`,
-        open: openAction("Open workspace", "rail-open:preview", () =>
-          host.open("preview"),
-        ),
+        open: open(),
       },
       ...rows,
     );
