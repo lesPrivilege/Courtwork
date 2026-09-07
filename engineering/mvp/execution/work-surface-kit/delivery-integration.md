@@ -21,7 +21,7 @@ WK6 home-interaction-checks (8858 fresh data) → 7 / 7
 RC verify (8857, clean profile)     → 见下表
 ```
 
-RC verify 的三项 MCP 检查（mcp-states / remote-tools / mcp-lifecycle）需要 README 记载的手工步骤"把 MCP 服务器重新导入为 `http://127.0.0.1:8851` 并连接一次"，本整合未执行该步骤，因此这三项在 8857 上为 fail；RC 自身证据（8850，`988f606`）为 36 / 36。其余契约 / 反例 / 视口项以本次复跑为准（见下方回填）。
+RC verify 的三项 MCP 检查（mcp-states / remote-tools / mcp-lifecycle）需要 README 记载的手工步骤"把 MCP 服务器重新导入为 `http://127.0.0.1:8851` 并连接一次"，本整合未执行该步骤，因此这三项在 8857 上为 fail；RC 自身证据（8850，`988f606`）为 36 / 36。其余项复跑（clean profile）：contract 16/19、counterexamples 8/9、viewport 33/36。除三项 MCP 外的 fail：`bar-no-limit`（0 segments，8857 数据目录累积多次 seed 后上下文条无分段，属数据状态而非代码；与 WK-50 (4) "条只在 ≥ 2 桶时显示"一致）；`touch-targets` 390 三态报 `INPUT=17` × 8–13——headless 无 coarse pointer 且 clean profile 仍复现，真实浏览器 mobile 模拟下 `#runtime-content` 内无 < 44 px 控件，两者不一致，已追加 `@media (max-width: 1023px) .runtime-switch input { height: 44px }`（`HEAD`），请 Astra 以 RC README 的完整步骤（fresh data dir + MCP 重导入）独验定论。
 
 浏览器实测（Chromium，8857）：Home 浅 / 深宗，侧栏 `--frame` 退后一步、工作面冷白 / slate-3；390 下 runtime 模块无 < 44 px 控件（真实 coarse 模拟）；标题行一行、连接徽标 plug icon-only；侧栏次序 New session → Home。
 
