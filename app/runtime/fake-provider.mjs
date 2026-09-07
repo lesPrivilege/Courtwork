@@ -241,7 +241,7 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
           await writeToolResponse(res, response);
           return;
         }
-        await writeTextResponse(res, response, { slow: requestMode(body.messages).startsWith("/fixture slow") });
+        await writeTextResponse(res, response, { slow: response.slow === true || requestMode(body.messages).startsWith("/fixture slow") });
       } catch (error) {
         if (!res.headersSent) res.writeHead(400, { "content-type": "application/json" });
         res.end(JSON.stringify({ error: { message: error instanceof Error ? error.message : "invalid fake request" } }));

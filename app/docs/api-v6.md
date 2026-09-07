@@ -8,6 +8,11 @@ any file under `app/web/`; everything below is reachable over HTTP today.
 The URL prefix is still `/api/v5` — the path did not move. "v6" names this
 document's revision of the contract, not a new route namespace.
 
+> Current foundation amendment: real providers now include `openai` and `deepseek`,
+> with selectable native Chat/Responses formats and an applied `baseUrl`. The
+> [runtime foundation contract](runtime-foundation.md) supersedes older provider
+> restrictions below and defines catalog/capability discovery and cache continuity.
+
 ## Transport
 
 - Base URL: `http://127.0.0.1:<port>`, loopback only; requests from another
@@ -103,6 +108,8 @@ the second. Any later Review, quote, or accept step must reference a content
 version. Referencing a path alone is not a reference to content: the file may
 already have changed.
 
+Historical retrieval is now available; see [MX-R1 additions](api-runtime-mx-r1.md).
+
 ## Provider and credentials
 
 `GET /api/v5/provider-config` →
@@ -150,7 +157,9 @@ if this process does not own the run, the result is `unknown` with
 `POST /api/v5/runs/:id/questions/:questionId` —
 `{ answer }` for `ask_user`, `{ decision: "allow" | "deny" }` for `permission`.
 Answering a question that is not pending is `409 question_unavailable`; answering
-after the run closed is `409 run_closed`.
+after the run closed is `409 run_closed`. The serialized answer mutation also
+rechecks admission: if cancellation won the queue race, it returns
+`409 question_unavailable` without resolving the question or reopening the Run.
 
 ### usage
 
@@ -314,3 +323,10 @@ and existing answer routes. Exact fields, sorting, per-collection pagination,
 single-read consistency, detail flow and scale boundaries are specified in
 [work-summary-api.md](work-summary-api.md). No schemaVersion or execution semantics
 change; C3 frontend integration is a separate merge of the route increment.
+
+## Runtime foundation additions
+
+See [runtime-foundation.md](runtime-foundation.md) for provider-models, runtime-info,
+shutdown admission, current system context and per-Run settlement. Newly admitted
+Runs may expose hostSession:null until setup completes; use commandId/Run identity
+for receipts.

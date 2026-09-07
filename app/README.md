@@ -1,4 +1,4 @@
-# SE agent framework — C1/C2 execution core (Pi 0.85.1 AgentSession)
+# Fresh Work Agent — runtime and Web application
 
 This tree pairs the unchanged V7 frontend (`web/*`, byte-identical to the G2
 r2 archive) with a rebuilt backend execution core. The execution owner is
@@ -12,6 +12,10 @@ The HTTP contract a client codes against — endpoints, fields, event types,
 error codes, and the "current file vs content version" distinction — is
 `docs/api-v6.md`.
 
+The current runtime foundation, independent entry point, model/capability API and
+shutdown behavior are documented in [runtime-foundation.md](docs/runtime-foundation.md).
+Run `npm run smoke` for the local material → tool → result → restart → revision path.
+
 ## What is real vs. fake
 
 - **`fake-openai-loopback`** — a loopback HTTP server (`runtime/fake-provider.mjs`)
@@ -21,11 +25,10 @@ error codes, and the "current file vs content version" distinction — is
   `ModelRuntime`/`setRuntimeApiKey`/credential-store lane as a real provider —
   the fake route is a deterministic stand-in for the execution path, not a
   separate code path.
-- **`deepseek`** — the only real provider wired up, via pi-ai's built-in
-  `openai-completions` API. Model ids must come from the installed package's
-  own catalog (e.g. `deepseek-v4-flash`, `deepseek-v4-pro`) — **not**
-  `deepseek-chat`, which is not a registered model id at 0.85.1. Set it with
-  `PUT /api/v5/provider-config`.
+- **`deepseek` and `openai`** — installed catalog models, with native Chat
+  Completions or Responses dispatch. DeepSeek's non-default Responses format
+  requires an explicit compatible endpoint. See the current
+  [provider and cache contract](docs/runtime-foundation.md#api-selection-and-cache-continuity).
 - The server never reads `~/.pi/agent/auth.json`, never reads an API key from
   its own process environment for its own use, and if it inherits
   `DEEPSEEK_API_KEY` from its parent process, it deletes that environment
@@ -49,7 +52,8 @@ the duration of a Run, same as before.
 
 ## Run
 
-Node.js >=22.19.0. Restore the source archive, then from its `app` directory:
+Node.js >=22.19.0 and Git >=2.36 on PATH. Git is required for artifact writes;
+unavailable Git fails the write before workspace publication. Restore the source archive, then from its `app` directory:
 
 ```sh
 npm ci --ignore-scripts
@@ -77,6 +81,7 @@ task.
   workspaces/<sessionId>/
     materials/               # POST .../materials writes here
     out/                      # where the model is expected to write results
+  artifact-history/<sha256(sessionId)>/objects.git/ # private reachable content blobs
   pi-agent/                  # AgentSession agentDir; nothing under ~/.pi is read or written
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
 ```
@@ -207,7 +212,7 @@ run as part of this fixture suite and never obtains a key on its own.
 ## Test-only crash points
 
 `runtime/test-hooks.mjs` can SIGKILL the process at named points
-(`before_tool`, `after_write`, `after_record`, `store_write`) so the durability
+(`before_tool`, `after_history`, `after_write`, `after_record`, `store_write`) so the durability
 tests can observe what actually survives on disk. Two rules govern it:
 
 - `SE_TEST_CRASH_POINT` **alone does nothing**. The hook only arms when
@@ -226,3 +231,23 @@ talks to `/api/v5` exactly as before; no new event *type strings* were
 removed and no existing field was renamed. New event types
 (`permission.open`, `permission.resolved`, `artifact.written`, `run.usage`,
 `run.notice`) are additions the current frontend simply does not render yet.
+
+## MX-R1 runtime increment
+
+Historical text bytes are now retrieved by `GET /api/v5/sessions/:id/artifacts/file`
+with the exact recorded `runId`, `path` and raw content `sha256`. Git blobs are
+pinned per session before workspace publication. Old records without a stored
+object return 410; current files are never substituted. References have no
+automatic deletion policy, so storage grows with distinct saved contents.
+
+Real providers enable Pi native automatic compaction by default. Server-only
+`compaction` options are `enabled`, `reserveTokens`, `keepRecentTokens`, and
+`maxCompactions` (default 4 per Run). At the cap, the current compaction finishes
+and future automatic compactions are disabled for that Run. This cap does not
+terminate ordinary turns; existing turn and execution deadline budgets still
+apply. Cancel is sticky at the model request boundary, including cancellation
+during pre-prompt summarization. Summary usage is counted once; missing failed
+or retried summary usage is explicitly incomplete. See [MX-R1 API](docs/api-runtime-mx-r1.md).
+
+This is a generic runtime increment. Orchestration remains an independent caller
+of public Run commands, receipts and queries; no scheduler or planner is added.

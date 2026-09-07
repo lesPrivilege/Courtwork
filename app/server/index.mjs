@@ -4,13 +4,9 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { createFakeOpenAiProvider } from "../runtime/fake-provider.mjs";
-import { createIsolatedModelRuntime } from "../runtime/pi-session-runtime.mjs";
-import { describeTestHooks } from "../runtime/test-hooks.mjs";
-import { ExtensionRegistry } from "../runtime/extension-registry.mjs";
+import { createRuntime } from "./runtime.mjs";
 import { catalog } from "../extensions/catalog.mjs";
-import { RuntimeStore, TERMINAL_STATUSES } from "./store.mjs";
-import { RuntimeService, ServiceError } from "./service.mjs";
+import { ServiceError } from "./service.mjs";
 
 const MAX_BODY = 1024 * 1024;
 const APP_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -104,6 +100,7 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "POST") return async () => service.addMaterial(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "workspace" && method === "GET") return () => service.getWorkspaceTree(tail[1]);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "workspace" && tail[3] === "file" && method === "GET") return () => service.getWorkspaceFile(tail[1], url.searchParams.get("path") ?? "");
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "artifacts" && tail[3] === "file" && method === "GET") return () => service.getArtifactFile(tail[1], url.searchParams);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "runs" && method === "POST") return async () => service.createRun(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "extension" && method === "POST") return async () => service.createExtensionBinding(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "surface" && method === "GET") return () => service.getSurface(tail[1]);
@@ -111,6 +108,8 @@ function routeService(service, req, url) {
   if (tail.length === 2 && tail[0] === "runs" && method === "GET") return () => service.getRun(tail[1]);
   if (tail.length === 3 && tail[0] === "runs" && tail[2] === "cancel" && method === "POST") return async () => service.cancelRun(tail[1], await body(req));
   if (tail.length === 4 && tail[0] === "runs" && tail[2] === "questions" && method === "POST") return async () => service.answerQuestion(tail[1], tail[3], await body(req));
+  if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo();
+  if (method === "GET" && tail.length === 1 && tail[0] === "provider-models") return () => service.getProviderModels();
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-config") return () => service.getProviderConfig();
   if (method === "PUT" && tail.length === 1 && tail[0] === "provider-config") return async () => service.setProviderConfig(await body(req));
   if (method === "PUT" && tail.length === 1 && tail[0] === "provider-credential") return async () => service.putProviderCredential(await body(req));
@@ -120,43 +119,17 @@ function routeService(service, req, url) {
   return undefined;
 }
 
-/**
- * If the host process inherited DEEPSEEK_API_KEY from its environment,
- * remove it before any ModelRuntime/provider code can consult it, so the
- * provider's own env-var auth fallback (a pi-ai behavior this host does not
- * control) never silently activates. Logged once, key value never logged.
- */
-function stripInheritedProviderEnv(logger) {
-  const removed = [];
-  for (const name of ["DEEPSEEK_API_KEY"]) {
-    if (process.env[name] !== undefined) {
-      delete process.env[name];
-      removed.push(name);
-    }
-  }
-  if (removed.length) logger(`startup: removed inherited env var(s) so provider auth cannot fall back to them: ${removed.join(", ")}`);
-  return removed;
-}
-
-export async function startServer({ dataDir, host = "127.0.0.1", port = 0, fakeResponder = null, responder = null, budget, logger = (line) => console.log(line) } = {}) {
-  if (!dataDir) throw new TypeError("dataDir is required");
-  const removedEnvVars = stripInheritedProviderEnv(logger);
-  // A build that can kill itself on purpose says so before it does anything.
-  for (const line of describeTestHooks()) logger(line);
-  const store = await new RuntimeStore({ dataDir, logger }).open();
-  let fakeProvider;
-  let registry;
+export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, logger = (line) => console.log(line) } = {}) {
+  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, logger });
+  const { service } = runtime;
   let server;
+  let closing = false;
+  let closePromise;
   try {
-    fakeProvider = await createFakeOpenAiProvider({ host, port: 0, responder, fakeResponder });
-    const modelRuntime = await createIsolatedModelRuntime();
-    registry = new ExtensionRegistry({ catalog, dataDir, store });
-    await registry.initialize();
-    const service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, dataDir, modelRuntime, budget, logger });
-    await service.initialize();
     const token = randomUUID();
     server = http.createServer(async (req, res) => {
       try {
+        if (closing) { fail(res, 503, "runtime_closing", "runtime is stopping"); return; }
         const address = server.address();
         const actualPort = typeof address === "object" && address ? address.port : port;
         if (!safeOrigin(req, host, actualPort)) { fail(res, 403, "origin_denied", "request origin is not allowed"); return; }
@@ -192,28 +165,28 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, fakeR
     });
     const actualPort = server.address().port;
     return {
-      server, service, store, registry, fakeProvider, modelRuntime, token, removedEnvVars,
+      ...runtime, server, token,
       url: "http://" + host + ":" + actualPort,
-      async close() {
-        for (const run of store.listRuns()) {
-          if (!TERMINAL_STATUSES.has(run.status)) await service.cancelRun(run.id, {});
-        }
-        await new Promise((resolve) => server.close(() => resolve()));
-        await registry.dispose().catch(() => {});
-        await fakeProvider.close().catch(() => {});
-        await store.close();
+      close() {
+        closePromise ??= (async () => {
+          closing = true;
+          // Stop accepting HTTP first; cancel live Runs while existing
+          // handlers are still able to finish their receipts.
+          const stopped = new Promise((resolve) => server.close(resolve));
+          try { await runtime.close(); }
+          finally { server.closeIdleConnections(); await stopped; }
+        })();
+        return closePromise;
       },
     };
   } catch (error) {
-    if (server) await new Promise((resolve) => server.close(() => resolve())).catch(() => {});
-    if (fakeProvider) await fakeProvider.close().catch(() => {});
-    await store.close().catch(() => {});
+    if (server?.listening) await new Promise((resolve) => server.close(resolve));
+    await runtime.close().catch(() => {});
     throw error;
   }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const dataDir = process.env.SE_RUNTIME_DATA_DIR ?? path.resolve("data");
-  const started = await startServer({ dataDir, port: Number(process.env.PORT ?? 8787) });
-  console.log(started.url);
+  const { runCli } = await import("./cli.mjs");
+  await runCli(startServer);
 }

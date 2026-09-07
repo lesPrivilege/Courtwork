@@ -101,15 +101,29 @@ export class ExtensionRegistry {
 
   async initialize() {
     if (this.initialized) return this;
+    const savedRecords = new Map((this.store?.getExtensionRecords?.() ?? []).map((item) => [item.id, item]));
     for (const [id, candidate] of Object.entries(this.catalog)) {
+      const saved = savedRecords.get(id);
+      if (saved && (!Number.isSafeInteger(saved.generation) || saved.generation < 0
+        || !["loaded", "unloaded", "invalidated"].includes(saved.status) || typeof saved.version !== "string")) {
+        throw new Error("invalid persisted extension record: " + id);
+      }
       if (typeof candidate !== "function") fail("catalog entry " + id + " is not an async factory");
       const instance = await candidate({ dataDir: path.join(this.dataDir, "extensions", id) });
+      this.instances.set(id, instance);
       const manifest = validateManifest(instance?.manifest, id);
       this.manifests.set(id, manifest);
-      this.instances.set(id, instance);
-      this.records.set(id, summary(manifest, "unloaded", 0));
+      const changedVersion = saved && saved.version !== manifest.version;
+      const status = changedVersion ? "invalidated" : saved?.status ?? "unloaded";
+      const generation = (saved?.generation ?? 0) + (changedVersion ? 1 : 0);
+      this.records.set(id, summary(manifest, status, generation));
+      // Recreate process resources only for previously activated, unchanged
+      // extensions. Unload/invalidation survives restart; changed code requires
+      // explicit reload rather than silently reviving an old binding.
+      if (status === "loaded") await instance.start?.();
     }
     this.initialized = true;
+    if (this.records.size) await this.#persist();
     return this;
   }
 
@@ -145,7 +159,12 @@ export class ExtensionRegistry {
   }
 
   async #persist() {
-    if (this.store?.setExtensionRecords) await this.store.setExtensionRecords(this.list());
+    if (this.store?.setExtensionRecords) {
+      // A headless composition may install only part of the catalog. Keep
+      // dormant records without instantiating extensions absent from it.
+      const dormant = (this.store.getExtensionRecords?.() ?? []).filter((item) => !this.records.has(item.id));
+      await this.store.setExtensionRecords([...dormant, ...this.list()]);
+    }
   }
 
   async #start(id, instance, generation) {

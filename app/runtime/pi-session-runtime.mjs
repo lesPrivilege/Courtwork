@@ -5,6 +5,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { InMemoryCredentialStore, createProvider, envApiKeyAuth } from "@earendil-works/pi-ai";
 import * as openaiCompletions from "@earendil-works/pi-ai/api/openai-completions";
+import * as openaiResponses from "@earendil-works/pi-ai/api/openai-responses";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
 
 // Host wraps Pi coding-agent v3 AgentSession (in-process SDK). This module owns
@@ -18,6 +19,8 @@ export const FAKE_API_ID = "openai-completions";
 export const FAKE_CREDENTIAL_KEY = "fake-local-loopback-key";
 
 export const DEEPSEEK_PROVIDER_ID = "deepseek";
+export const OPENAI_PROVIDER_ID = "openai";
+export const API_FORMATS = Object.freeze(["openai-completions", "openai-responses"]);
 
 const NO_API_KEY_PATTERN = /no api key found/i;
 const AUTH_FAILED_PATTERN = /\b(401|403|unauthorized|forbidden|invalid[_ -]?api[_ -]?key|authentication)\b/i;
@@ -28,7 +31,7 @@ const AUTH_FAILED_PATTERN = /\b(401|403|unauthorized|forbidden|invalid[_ -]?api[
  * any ResourceLoader instance to createAgentSession skips construction of
  * DefaultResourceLoader entirely (sdk.ts:185-189).
  */
-export function createEmptyResourceLoader() {
+export function createEmptyResourceLoader(systemPrompt) {
   const runtime = createExtensionRuntime();
   return {
     getExtensions: () => ({ extensions: [], errors: [], runtime }),
@@ -36,7 +39,7 @@ export function createEmptyResourceLoader() {
     getPrompts: () => ({ prompts: [], diagnostics: [] }),
     getThemes: () => ({ themes: [], diagnostics: [] }),
     getAgentsFiles: () => ({ agentsFiles: [] }),
-    getSystemPrompt: () => undefined,
+    getSystemPrompt: () => systemPrompt,
     getSystemPromptSource: () => undefined,
     getAppendSystemPrompt: () => [],
     getAppendSystemPromptSources: () => [],
@@ -53,11 +56,27 @@ export function createEmptyResourceLoader() {
  * `agentDir`/HOME path is read anywhere in this construction.
  */
 export async function createIsolatedModelRuntime() {
-  return ModelRuntime.create({
+  const runtime = await ModelRuntime.create({
     credentials: new InMemoryCredentialStore(),
     modelsPath: null,
     refreshOnCreate: false,
   });
+  // Native provider factories have a single default transport. Register the
+  // SDK's public per-API dispatch map so the chosen format actually selects
+  // its encoder/stream parser; changing model.api alone is insufficient.
+  for (const id of [DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]) {
+    const provider = runtime.getProvider(id);
+    const models = [...runtime.getModels(id)];
+    runtime.registerNativeProvider(createProvider({
+      id, name: provider.name, baseUrl: provider.baseUrl, models,
+      auth: { apiKey: envApiKeyAuth(`${provider.name} application key`, []) },
+      api: {
+        "openai-completions": { stream: openaiCompletions.stream, streamSimple: openaiCompletions.streamSimple },
+        "openai-responses": { stream: openaiResponses.stream, streamSimple: openaiResponses.streamSimple },
+      },
+    }));
+  }
+  return runtime;
 }
 
 /**
@@ -100,12 +119,34 @@ export function classifyRuntimeError(message) {
   return "provider_error";
 }
 
+/** Use Pi's compaction with a model-sized window and a bounded number of
+ * operations per Run. The scripted fake is opt-in so its command fixtures
+ * are not summarized as though they were natural-language conversations. */
+export function resolveCompactionPolicy(model, options = {}) {
+  if (!options || typeof options !== "object" || Array.isArray(options)) throw new TypeError("compaction must be an object");
+  const allowed = new Set(["enabled", "reserveTokens", "keepRecentTokens", "maxCompactions"]);
+  if (Object.keys(options).some((key) => !allowed.has(key))) throw new TypeError("unknown compaction option");
+  if (options.enabled !== undefined && typeof options.enabled !== "boolean") throw new TypeError("compaction.enabled must be boolean");
+  const window = model.contextWindow;
+  const enabled = options.enabled ?? (model.provider !== FAKE_PROVIDER_ID);
+  if (!Number.isSafeInteger(window) || window < 4) {
+    if (enabled) throw new RangeError("compaction requires a known model context window");
+    return { enabled: false, reserveTokens: 1, keepRecentTokens: 1, maxCompactions: 4 };
+  }
+  const reserveTokens = options.reserveTokens ?? Math.min(16384, Math.floor(window / 4));
+  const keepRecentTokens = options.keepRecentTokens ?? Math.min(20000, Math.floor(window / 2));
+  const maxCompactions = options.maxCompactions ?? 4;
+  if (![reserveTokens, keepRecentTokens, maxCompactions].every((value) => Number.isSafeInteger(value) && value > 0)
+    || reserveTokens + keepRecentTokens > window || maxCompactions > 100) throw new RangeError("invalid compaction limits");
+  return { enabled, reserveTokens, keepRecentTokens, maxCompactions };
+}
+
 /**
  * Start one Run's AgentSession. Creates a fresh AgentSession per Run (bound
  * to this run's tool closures) against a caller-supplied SessionManager,
  * which is what carries continuity across Runs within one app session.
  */
-export async function startSessionRun({
+export async function createSessionRun({
   cwd,
   agentDir,
   modelRuntime,
@@ -114,24 +155,81 @@ export async function startSessionRun({
   customTools,
   maxTurns,
   input,
+  systemPrompt,
+  currentContext = "",
   onEvent,
   onNotice,
+  compaction = {},
 }) {
+  const compactionPolicy = resolveCompactionPolicy(model, compaction);
   const { session } = await createAgentSession({
     cwd,
     agentDir,
     modelRuntime,
     model,
     noTools: "builtin",
-    customTools,
-    resourceLoader: createEmptyResourceLoader(),
+    customTools: [...customTools].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+    resourceLoader: createEmptyResourceLoader(systemPrompt),
     sessionManager,
-    settingsManager: SettingsManager.inMemory({ compaction: { enabled: false } }),
+    settingsManager: SettingsManager.inMemory({ compaction: {
+      enabled: compactionPolicy.enabled,
+      reserveTokens: compactionPolicy.reserveTokens,
+      keepRecentTokens: compactionPolicy.keepRecentTokens,
+    } }),
   });
+
+  // Pi may resume prompt() after pre-prompt compaction was aborted, before
+  // its Agent had an active abort controller. Keep cancellation sticky across
+  // that transition and enforce it at the public transport seam.
+  let stopped = false;
+  const nativeStream = session.agent.streamFunction;
+  session.agent.streamFunction = (requestModel, context, options) => {
+    if (stopped) {
+      const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
+    }
+    return nativeStream(requestModel, context, {
+      ...options,
+      sessionId: sessionManager.getSessionId(),
+      cacheRetention: options?.cacheRetention ?? "short",
+    });
+  };
+  const abort = async () => {
+    stopped = true;
+    session.setAutoCompactionEnabled(false);
+    await session.abort();
+  };
+
+  // AgentSession emits synchronously and does not await subscriber promises.
+  // Observe host persistence explicitly, so terminal receipts include all
+  // admitted events and a storage failure cannot become a completed Run.
+  const pending = new Set();
+  let projectionError = null;
+  const failedProjection = (error) => {
+    projectionError ??= error;
+    void abort().catch(() => {});
+  };
+  const forward = (callback, ...args) => {
+    try {
+      const result = Promise.resolve(callback?.(...args));
+      pending.add(result);
+      result.then(() => pending.delete(result), (error) => {
+        pending.delete(result); failedProjection(error);
+      });
+    } catch (error) { failedProjection(error); }
+  };
+  const drain = async () => {
+    while (pending.size) await Promise.allSettled([...pending]);
+    if (projectionError) {
+      const error = new Error("runtime event persistence failed", { cause: projectionError });
+      error.code = "runtime_projection_failed"; throw error;
+    }
+  };
 
   const counters = newCounters();
   let lastAssistant = null;
   let turnBudgetExceeded = false;
+  let compactionCount = 0;
+  let usageMissing = false;
 
   const unsubscribe = session.subscribe((event) => {
     switch (event.type) {
@@ -139,7 +237,7 @@ export async function startSessionRun({
         counters.turns += 1;
         if (maxTurns && counters.turns > maxTurns && !turnBudgetExceeded) {
           turnBudgetExceeded = true;
-          session.abort();
+          abort();
         }
         break;
       }
@@ -151,44 +249,76 @@ export async function startSessionRun({
         break;
       }
       case "compaction_start":
-        onNotice?.({ kind: "compaction_start", reason: event.reason });
+        compactionCount += 1;
+        forward(onNotice, { kind: "compaction_start", reason: event.reason });
+        if (compactionCount === compactionPolicy.maxCompactions) {
+          // The native operation has already been admitted. Finish it, but
+          // prevent further automatic compactions in this Run. Ordinary
+          // turns retain their existing deadline and turn-count budget.
+          session.setAutoCompactionEnabled(false);
+          forward(onNotice, { kind: "compaction_limit_reached", limit: compactionPolicy.maxCompactions });
+        }
         break;
-      case "compaction_end":
-        onNotice?.({ kind: "compaction_end", reason: event.reason, aborted: event.aborted });
+      case "compaction_end": {
+        const aborted = stopped || !!event.aborted;
+        const successful = !!event.result && !aborted && !event.errorMessage;
+        if (event.result?.usage) addUsage(counters, event.result.usage);
+        if (!successful || !event.result?.usage) usageMissing = true;
+        forward(onNotice, { kind: "compaction_end", reason: event.reason, aborted,
+          willRetry: !!event.willRetry, outcome: successful ? "completed" : aborted ? "aborted" : "failed",
+          ...(!successful && !aborted ? { code: "compaction_failed" } : {}) });
+        break;
+      }
+      case "summarization_retry_scheduled":
+        usageMissing = true;
+        // Never forward the provider's raw error or summary text.
+        forward(onNotice, { kind: "summarization_retry", attempt: event.attempt, maxAttempts: event.maxAttempts });
         break;
       case "auto_retry_start":
-        onNotice?.({ kind: "auto_retry_start", attempt: event.attempt, maxAttempts: event.maxAttempts });
+        forward(onNotice, { kind: "auto_retry_start", attempt: event.attempt, maxAttempts: event.maxAttempts });
         break;
       case "auto_retry_end":
-        onNotice?.({ kind: "auto_retry_end", success: event.success, attempt: event.attempt });
+        forward(onNotice, { kind: "auto_retry_end", success: event.success, attempt: event.attempt });
         break;
       default:
         break;
     }
-    onEvent(event, session);
+    forward(onEvent, event, session);
   });
 
-  const task = (async () => {
-    try {
-      await session.prompt(input);
-      await session.waitForIdle();
-    } finally {
-      unsubscribe();
-    }
-    const stopReason = lastAssistant?.stopReason;
-    const status = stopReason === "aborted" ? "aborted" : stopReason === "error" ? "error" : "completed";
-    return {
-      status,
-      lastAssistant,
-      turnBudgetExceeded,
-      errorMessage: lastAssistant?.errorMessage,
-    };
-  })();
+  let task;
+  const run = () => {
+    task ??= (async () => {
+      try {
+        // Admission and abort ownership are installed by the caller before
+        // this function starts any provider or tool work.
+        if (!stopped) {
+          // Mutable task context belongs at the append-only history tail,
+          // never in the stable system prefix. Reuse identical context; after
+          // compaction, reassert it only if it is absent from active messages.
+          const previous = [...session.state.messages].reverse()
+            .find((message) => message.role === "custom" && message.customType === "runtime.context");
+          const content = `Current host task context (latest update applies; it does not grant permissions):\n${currentContext || "No domain extension is active."}`;
+          if ((currentContext || previous) && previous?.content !== content) {
+            await session.sendCustomMessage({ customType: "runtime.context", content, display: false }, { triggerTurn: false });
+          }
+          if (!stopped) await session.prompt(input);
+        }
+        await session.waitForIdle();
+        await drain();
+        const stopReason = lastAssistant?.stopReason;
+        const status = stopped || stopReason === "aborted" ? "aborted" : stopReason === "error" ? "error" : "completed";
+        return { status, lastAssistant, turnBudgetExceeded, errorMessage: lastAssistant?.errorMessage };
+      } finally {
+        unsubscribe();
+        session.dispose();
+        await drain();
+      }
+    })();
+    return task;
+  };
 
-  // getUsage() reads the accumulator directly, so a caller can still recover
-  // everything the provider reported when the task throws or is aborted
-  // before it settles.
-  return { session, task, getUsage: () => ({ ...counters }) };
+  return { session, abort, run, getUsage: () => ({ ...counters, missing: usageMissing }) };
 }
 
 function textFromContent(content) {

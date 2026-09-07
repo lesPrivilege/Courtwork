@@ -211,7 +211,7 @@ export function createWsReadTool({ workspaceDir }) {
   };
 }
 
-export function createWsWriteTool({ workspaceDir, permissionMode, requestPermission, onWritten }) {
+export function createWsWriteTool({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory }) {
   return {
     name: "ws_write",
     label: "Write workspace file",
@@ -254,12 +254,18 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
           await unlink(tempPath).catch(() => {});
           throw wsError("write was cancelled");
         }
+        // Save and pin the exact authorised bytes before publishing this
+        // version into the mutable workspace or the artifact record.
+        await saveHistory?.(Buffer.from(params.text, "utf8"), contentSha256, { signal });
+        maybeCrash("after_history");
+        if (signal?.aborted) throw wsError("write was cancelled");
         await rename(tempPath, resolved.absolutePath);
       } catch (error) {
         await unlink(tempPath).catch(() => {});
         throw error;
       }
-      const { sha256, bytes } = await sha256File(resolved.absolutePath);
+      const sha256 = contentSha256;
+      const bytes = bytesToWrite;
       // Crash point: the rename has landed, the artifact record has NOT. This
       // is the window the work order names; the recovery answer is a startup
       // reconciliation notice, never a silent back-fill of the record, and
@@ -367,10 +373,10 @@ export function createAskUserTool(askUser) {
   };
 }
 
-export function createWorkspaceTools({ workspaceDir, permissionMode, requestPermission, onWritten }) {
+export function createWorkspaceTools({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory }) {
   const tools = [createWsListTool({ workspaceDir }), createWsReadTool({ workspaceDir }), createWsGrepTool({ workspaceDir })];
   if (permissionMode !== "read_only") {
-    tools.push(createWsWriteTool({ workspaceDir, permissionMode, requestPermission, onWritten }));
+    tools.push(createWsWriteTool({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory }));
   }
   return tools;
 }

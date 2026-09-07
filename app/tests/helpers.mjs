@@ -8,10 +8,10 @@ import { FAKE_CREDENTIAL_KEY } from "../runtime/pi-session-runtime.mjs";
 
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
 
-export async function boot({ budget, configureFakeCredential = true, logger } = {}) {
+export async function boot({ budget, compaction, fakeResponder, configureFakeCredential = true, logger } = {}) {
   const dataDir = await mkdtemp(path.join(tmpdir(), "se-c1-test-"));
   const logs = [];
-  const runtime = await startServer({ dataDir, port: 0, budget, logger: logger ?? ((line) => logs.push(line)) });
+  const runtime = await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, logger: logger ?? ((line) => logs.push(line)) });
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
 
   async function api(method, p, bodyObj) {
