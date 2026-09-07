@@ -25,3 +25,7 @@
 
 - 合入 Astra 品牌候选 `d799a7f`（`codex/brand-host-colors`，只改 `brand/`）为 merge `f61120e`；`adb2e01` 在 `styles.css` 加宿主映射 `court-symbol { --cw-ink: var(--ink); --cw-record: var(--muted-strong); --cw-background: var(--panel); }`；`75a366a` 两处落点为 hierarchical。
 - 8853 实测：wordmark 内 actor 填色 = `--ink`（rgb 32,32,32），record 填色 = `--muted-strong`（rgb 100,100,100）；本支尚无 WK7 深宗与铅灰 token，合流 `claude/wk7-color-governance` 后取值自动切换为 slate-12 / slate-11 及深宗值。
+
+## WK-39 · 侧栏次序（2026-09-09，`dbea510`）
+
+New session 上移为导航首行（square-pen 图标 + 文字，与 Home 同一行式）；底部改为 account 式一行：首字母圆标 + 连接名（取自 provider 配置，"Local test" 或模型名；不虚构用户身份，仅为标签）+ 右侧 Refresh / Settings 两枚 icon-only 按钮（accessible name 不变）。8853 实测：侧栏可聚焦次序 wordmark → New project → Close nav → New session → Home → filter；底部 avatar "L" / "Local test" / 两工具按钮；无溢出；`npm test` 134 / 134。
