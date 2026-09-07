@@ -152,6 +152,13 @@
   --panel-padding: var(--space-6);
   --card-padding: 20px;
   --column: 740px;
+  /* WK-42 · one band across the three columns, one gutter between them. The
+     sidebar wordmark row, the chat header and the rail band share --band-top;
+     every column keeps --col-gap from its own edge, so a module adds no outer
+     margin of its own. Under a desktop shell the inert 52px strip spans the
+     window and the band itself becomes 52 (WK-42, board r2). */
+  --band-top: 56px;
+  --col-gap: 24px;
   --nav: 250px;
   --inspector: 380px;
   --control: 32px;
@@ -429,14 +436,21 @@ button {
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  padding: 16px 12px 12px;
+  padding: 0 12px 12px;
   gap: 16px;
 }
+/* WK-42 · the wordmark row is the sidebar's share of the band: full bleed, one
+   rule at its foot, text on the same 20px left edge as every nav row below. */
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 4px;
+  flex: none;
+  height: var(--band-top);
+  margin: 0 -12px;
+  padding: 0 var(--space-4) 0 20px;
+  border-bottom: 1px solid var(--line);
 }
 .workspace-brand {
   text-decoration: none;
@@ -445,8 +459,17 @@ button {
   font-weight: 650;
   letter-spacing: -0.025em;
 }
-#close-nav-button {
-  display: none;
+/* WK-39 · the sidebar carries its own collapse control; the header toggle is
+   the way back in and shows only while the sidebar is off screen. */
+@media (min-width: 1024px) {
+  .app-shell:not(.nav-collapsed) #toggle-nav-button {
+    display: none;
+  }
+}
+@media (max-width: 1023px) {
+  #close-nav-button {
+    display: none;
+  }
 }
 .nav-home {
   justify-content: flex-start;
@@ -640,9 +663,22 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px var(--page-gutter);
+  padding: 0 var(--col-gap);
   border-bottom: 1px solid var(--line);
-  min-height: 76px;
+  height: var(--band-top);
+  min-height: var(--band-top);
+}
+/* WK-42 · the header content sits in the same 740 box as the prose below it, so
+   the title and the first line of the answer share one left edge. The nav
+   toggle stays outside that box and only exists while the sidebar does not. */
+.chat-header-inner {
+  min-width: 0;
+  flex: 1;
+  max-width: var(--column);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .chat-title-wrap {
   min-width: 0;
@@ -1133,13 +1169,34 @@ button {
   background: var(--panel-muted);
   overflow: hidden;
 }
+/* WK-42 · the rail band. Collapsed it names the rail; expanded the tab strip is
+   its content and the heading keeps only the accessible name. */
 .surface-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
   gap: 12px;
-  padding: 16px;
-  min-height: 76px;
+  padding: 0 var(--col-gap);
+  height: var(--band-top);
+  min-height: var(--band-top);
+  border-bottom: 1px solid var(--line);
+}
+.surface-heading {
+  display: flex;
+  align-items: center;
+}
+.surface-header .toolbar {
+  margin-left: auto;
+  flex: none;
+}
+.surface-expanded .surface-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 .surface-heading {
   min-width: 0;
@@ -1153,16 +1210,19 @@ button {
 .surface-tabs {
   display: flex;
   flex: none;
-  gap: 20px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--line);
+  align-items: stretch;
+  gap: var(--space-1);
+  min-width: 0;
 }
 .surface-tab {
   border: 0;
   border-radius: 0;
   color: var(--muted-strong);
-  padding: 8px 0 12px;
-  font-size: var(--text-meta);
+  padding: 0 var(--space-3);
+  height: 100%;
+  min-height: 0;
+  margin-bottom: -1px;
+  font-size: var(--text-body);
   border-bottom: 2px solid transparent;
 }
 .surface-tab:hover {
@@ -1179,20 +1239,29 @@ button {
   min-width: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 20px 16px;
+  padding: var(--space-6) var(--col-gap);
   flex: 1;
   scrollbar-gutter: stable;
 }
 .surface-content > h3 {
   margin-bottom: 16px;
 }
-.surface-expanded .surface-panel {
-  position: fixed;
-  inset: 24px;
-  z-index: 31;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow);
+/* WK-54 · the expanded pane is a column of the shell, not a sheet floating over
+   it: the sidebar keeps its place, the chat column is handed over, and the tab
+   strip therefore lands in the same band as the other two headers. */
+@media (min-width: 1024px) {
+  .app-shell.surface-expanded {
+    grid-template-columns: var(--nav) minmax(0, 1fr);
+  }
+  .app-shell.surface-expanded.nav-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .surface-expanded .chat-panel {
+    display: none;
+  }
+  .surface-expanded .surface-panel {
+    background: var(--panel);
+  }
 }
 .layer-backdrop {
   position: fixed;
@@ -1751,7 +1820,7 @@ select {
     box-shadow: var(--shadow);
   }
   .chat-header {
-    padding: 12px 20px;
+    padding: 0 var(--col-gap);
   }
   .home-view {
     padding-top: 20px;
@@ -1763,7 +1832,7 @@ select {
     min-height: 44px;
   }
   .surface-header {
-    min-height: 76px;
+    min-height: var(--band-top);
   }
   .question-card input,
   .settings-form input,
@@ -1772,7 +1841,7 @@ select {
   }
 }
 @media (max-width: 767px) {
-  :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; }
+  :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; --col-gap: 16px; }
   .surface-panel,
   .surface-expanded .surface-panel {
     inset: 0;
@@ -1780,9 +1849,8 @@ select {
     border: 0;
   }
   .chat-header {
-    padding: 8px var(--page-gutter);
+    padding: 0 var(--col-gap);
     gap: 8px;
-    min-height: 72px;
   }
   .chat-header-actions {
     gap: 0;
@@ -2705,10 +2773,12 @@ dialog[open]::backdrop {
 /* WK-11 · Home carries no title row of its own: the sidebar already names it,
    and a second name is a divider without a fact. The nav toggle stays because a
    collapsed sidebar has no other way back. */
+/* WK-42 / clean-evaluation §8.3 · Home keeps the band but states nothing in it:
+   there is no session, so there is no title and no run word, and the connection
+   name is already twice on this screen. The rule at the band's foot is what
+   makes it one band across the three columns. */
 .home-active .chat-header {
-  min-height: 0;
-  padding: var(--space-2) var(--page-gutter) 0;
-  border-bottom: 0;
+  padding: 0 var(--col-gap);
 }
 .home-active .chat-title-wrap,
 .home-active #capability-badge { display: none; }
@@ -2788,36 +2858,14 @@ dialog[open]::backdrop {
    titleBarOverlay) overrides them through env(). The strip is a drag region with
    nothing inside it, so the top-left 80×52 zone never holds a control. */
 .shell-strip { display: none; }
-html[data-shell="desktop"] .sidebar { padding-top: 0; }
-html[data-shell="desktop"] .shell-strip {
-  display: block;
-  flex: none;
-  height: env(titlebar-area-height, 52px);
-  padding-left: env(titlebar-area-x, 80px);
-  app-region: drag;
-  -webkit-app-region: drag;
-}
 html[data-shell="desktop"] .sidebar-header,
 html[data-shell="desktop"] .sidebar-header button,
 html[data-shell="desktop"] .sidebar-header a {
   app-region: no-drag;
   -webkit-app-region: no-drag;
 }
-/* WK-30 · When the sidebar is not on screen (collapsed on desktop, drawer on
-   narrow widths) the main header is the top-left element; it takes the same
-   reservation so the nav toggle never sits under the traffic lights. */
-html[data-shell="desktop"] .app-shell.nav-collapsed .chat-header {
-  padding-left: env(titlebar-area-x, 80px);
-  app-region: drag;
-  -webkit-app-region: drag;
-}
-@media (max-width: 1023px) {
-  html[data-shell="desktop"] .chat-header {
-    padding-left: env(titlebar-area-x, 80px);
-    app-region: drag;
-    -webkit-app-region: drag;
-  }
-}
+/* WK-46 (3) · the strip now spans the window above all three columns, so no
+   column header needs its own traffic-light reservation. */
 html[data-shell="desktop"] .chat-header button,
 html[data-shell="desktop"] .chat-header a,
 html[data-shell="desktop"] .chat-header [tabindex] {
@@ -2839,6 +2887,7 @@ court-symbol {
 .title-project::after { content: " · "; }
 @media (min-width: 1024px) {
   .app-shell:not(.nav-collapsed) .title-project { display: none; }
+}
 
 /* Runtime control module (WO-RC).
    SH-1: the catalog is rows, the permission explanation is a DataList, an MCP
@@ -3258,3 +3307,225 @@ court-symbol {
 .composer-below .home-choice select:hover { background-color: var(--hover); }
 .composer-below .permission-mode { padding-left: 6px; }
 .composer-below:has(> [hidden]:only-child) { display: none; }
+
+/* ============================================================================
+   WO-WK10a · module rail, alignment band, composer layer (WK-41/42/13/58/60)
+   Every declaration below reuses an existing role token, spacing step, radius
+   and shadow. The only new values in this work order are the two layout tokens
+   --band-top and --col-gap declared in :root above.
+   ========================================================================== */
+
+/* WK-42 / WK-46 (3) · under a desktop shell the inert strip spans the window,
+   so the band beneath it is one line across all three columns and the traffic
+   lights never sit over a control. */
+html[data-shell="desktop"] .app-shell {
+  grid-template-rows: env(titlebar-area-height, 52px) minmax(0, 1fr);
+  --band-top: 52px;
+}
+html[data-shell="desktop"] .shell-strip {
+  display: block;
+  grid-column: 1 / -1;
+  height: env(titlebar-area-height, 52px);
+  border-bottom: 1px solid var(--line);
+  background: var(--frame);
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+/* WK-41 · the collapsed rail: one card per module, one gutter from the panel
+   edge, no outer margin inside a module. */
+.surface-rail {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--col-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  scrollbar-gutter: stable;
+}
+/* SH-1 · a module is an object you can open as a whole, so it is a card; its
+   rows are rows. SH-2: one boundary treatment — surface, 1px line and the
+   floating shadow together mark the module, and nothing inside repeats them. */
+.rail-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.rail-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.rail-card-head > .ui-icon {
+  color: var(--muted-strong);
+}
+.rail-card-title {
+  font-size: var(--text-section);
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-card-state {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-open {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px 6px;
+}
+.rail-open:hover {
+  color: var(--ink);
+}
+.rail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-meta);
+}
+.rail-row-label {
+  color: var(--muted-strong);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-row-value {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.rail-row-value.is-mono {
+  font-family: var(--font-mono);
+}
+.rail-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.rail-group {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  padding-top: var(--space-2);
+}
+.rail-file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-1) 0;
+  margin: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  font-size: var(--text-label);
+  color: var(--ink);
+  text-align: left;
+}
+.rail-file + .rail-file {
+  border-top: 1px solid var(--line);
+}
+.rail-file .ui-icon {
+  color: var(--muted);
+}
+.rail-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-file-side {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.rail-file-open:hover {
+  background: var(--hover);
+}
+.rail-file-open:active {
+  background: var(--pressed);
+}
+
+/* WK-46 (4) · prose keeps the 740 column; a file tree, a version table or a
+   diff may widen to 960 in the expanded pane, and only there. */
+.surface-expanded .surface-content > * {
+  max-width: var(--column);
+  margin-left: auto;
+  margin-right: auto;
+}
+.surface-expanded #surface-content > *,
+.surface-expanded #file-content > * {
+  max-width: 960px;
+}
+
+/* WK-13 · three icon tiers. Row 16, control 18 (the base rule above), nav 20.
+   Hit areas are untouched: they stay on the 32 / 44 --control step. */
+.rail-card-head > .ui-icon,
+.rail-file .ui-icon,
+.project-chevron .ui-icon,
+.user-message-actions .ui-icon,
+.run-status-card .ui-icon,
+.data-list .ui-icon,
+.run-history-row .ui-icon,
+.home-row > .ui-icon,
+#cancel-run-button .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.nav-home > .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* WK-58 / WK-60 · the composer is the highest layer of the work surface. On the
+   desktop it keeps the placement WK-11 gave it (centred in the column, whitespace
+   above, moving only with the viewport). Below 768 it is docked to the bottom of
+   the frame with the safe area under it, and it takes floating material — panel
+   ground, one strong hairline, the float shadow — so the header band, the rows
+   and the composer read as three different things rather than one flat sheet. */
+@media (max-width: 767px) {
+  .composer-area {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: var(--frame);
+    border-top: 1px solid var(--line);
+    padding: var(--space-2) var(--page-gutter)
+      max(var(--space-2), env(safe-area-inset-bottom));
+  }
+  .home-active .composer-area,
+  .home-active.home-empty .composer-area {
+    padding-top: var(--space-2);
+  }
+  .composer-form {
+    background: var(--panel);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-float);
+  }
+  .chat-header {
+    background: var(--frame);
+  }
+  .conversation-body {
+    background: var(--panel);
+  }
+}

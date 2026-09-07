@@ -39,10 +39,10 @@ import {
 } from "./thread-projection.mjs";
 
 import {
-  renderWorkspaceFilesView,
   renderSessionOverview,
   renderRunHistory,
 } from "./workspace-view.mjs";
+import { surfaceModules, surfaceModule } from "./surface-modules.mjs";
 import { renderUserMessage } from "./user-message.mjs";
 
 const API_BASE = "/api/v5";
@@ -124,6 +124,9 @@ const state = {
     runReadGeneration: 0,
     runReadController: null,
     workspaceGeneration: 0,
+    // WK-41 · the workspace tree is fetched once by the host and handed to both
+    // rail states, so collapsing and expanding never re-reads the same tree.
+    workspace: null,
     expanded: false,
     requestId: 0,
     fetchRequestId: 0,
@@ -1366,6 +1369,8 @@ async function selectSession(
   state.surface.kind = "preview";
   state.surface.runId = null;
   state.surface.fileRef = null;
+  state.surface.workspace = null;
+  state.surface.workspaceGeneration++;
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
   fileView?.dispose();
@@ -1431,6 +1436,8 @@ function clearActiveSession() {
   state.surface.open = false;
   state.surface.kind = "preview";
   state.surface.fileRef = null;
+  state.surface.workspace = null;
+  state.surface.workspaceGeneration++;
   state.surface.runId = null;
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
@@ -2785,18 +2792,42 @@ function renderChat() {
   renderInspector();
 }
 
+/* WK-33 / WK-56 · the rail has two states and no third: collapsed is one card
+ * per module, expanded is one tab pane. Expanding on the desktop hands the
+ * chat column to the pane inside the shell (WK-54) instead of floating a modal
+ * over it, so the tab strip lands in the same band as the other two columns. */
 function setSurfaceExpanded(expanded, { focus = true } = {}) {
   const next = Boolean(expanded && state.surface.open && currentSession());
+  const was = state.surface.expanded;
   state.surface.expanded = next;
+  if (next && !was) {
+    if (!visibleSurfaceKinds().includes(state.surface.kind))
+      state.surface.kind = "preview";
+    loadSurfaceKind(state.surface.kind);
+  }
+  writeUiState();
   renderSurfaceVisibility();
   if (focus) $("surface-expand-button")?.focus();
 }
 
+/* The panel is a modal only where it really covers the work: below 1024 it is
+ * an overlay (docs/ui-composition.md §responsive). Expanded on the desktop it
+ * is a column of the shell with the sidebar still operable, so claiming
+ * aria-modal there would describe a trap that does not exist. */
 function surfaceIsModal() {
-  return (
-    state.surface.open &&
-    (surfaceOverlayQuery.matches || state.surface.expanded)
-  );
+  return state.surface.open && surfaceOverlayQuery.matches;
+}
+
+function visibleSurfaceKinds() {
+  return surfaceModules
+    .filter((module) =>
+      module.kind === "run"
+        ? Boolean(state.surface.runId)
+        : module.kind === "file"
+          ? Boolean(state.surface.fileRef)
+          : true,
+    )
+    .map((module) => module.kind);
 }
 
 function closeSurface() {
@@ -2808,6 +2839,19 @@ function closeSurface() {
   writeUiState();
   renderSurfaceVisibility();
   restoreLayerFocus(state.surface.returnFocus, $("show-surface-button"));
+}
+/* The rail entry point: it opens the collapsed cards without choosing a kind,
+ * because choosing one is what the cards are for. */
+function openSurfaceRail() {
+  if (!currentSession()) return;
+  if (!state.surface.open) state.surface.returnFocus = document.activeElement;
+  state.navigationOpen = false;
+  state.surface.open = true;
+  state.surface.expanded = false;
+  writeUiState();
+  loadRailFacts();
+  renderSurfaceVisibility();
+  $("surface-expand-button")?.focus();
 }
 function closeNavigation({ restoreFocus = true } = {}) {
   state.navigationOpen = false;
@@ -2829,8 +2873,9 @@ function renderSurfaceVisibility() {
     chat = shell.querySelector(".chat-panel");
   const open = Boolean(state.surface.open && currentSession()),
     expanded = open && state.surface.expanded;
-  const modal = open && (surfaceOverlayQuery.matches || expanded),
-    navModal = surfaceOverlayQuery.matches && state.navigationOpen && !open;
+  const overlay = surfaceOverlayQuery.matches;
+  const modal = open && overlay,
+    navModal = overlay && state.navigationOpen && !open;
   const wasModal = panel.getAttribute("aria-modal") === "true";
   shell.classList.toggle("surface-closed", !open);
   shell.classList.toggle("surface-expanded", expanded);
@@ -2848,9 +2893,7 @@ function renderSurfaceVisibility() {
     panel.removeAttribute("role");
     panel.removeAttribute("aria-modal");
   }
-  const navHidden = surfaceOverlayQuery.matches
-    ? !navModal
-    : state.sidebarCollapsed;
+  const navHidden = overlay ? !navModal : state.sidebarCollapsed;
   nav.inert = Boolean(modal || navHidden);
   nav.setAttribute("aria-hidden", String(nav.inert));
   if (navModal) {
@@ -2860,40 +2903,42 @@ function renderSurfaceVisibility() {
     nav.removeAttribute("role");
     nav.removeAttribute("aria-modal");
   }
-  chat.inert = Boolean(modal || navModal);
+  /* The expanded pane replaces the chat column on the desktop; a column that is
+   * not on screen must not stay in the keyboard or accessibility tree
+   * (docs/surface-assignment.md §3). */
+  chat.inert = Boolean(modal || navModal || (expanded && !overlay));
   chat.setAttribute("aria-hidden", String(chat.inert));
   $("surface-backdrop").hidden = !modal;
   $("nav-backdrop").hidden = !navModal;
   $("toggle-nav-button").setAttribute(
     "aria-expanded",
-    String(surfaceOverlayQuery.matches ? navModal : !state.sidebarCollapsed),
+    String(overlay ? navModal : !state.sidebarCollapsed),
   );
   setAction(
     $("surface-expand-button"),
     expanded ? "minimize-2" : "maximize-2",
-    expanded ? "Restore work surface" : "Expand work surface",
+    expanded ? "Return to chat" : "Expand work surface",
   );
   $("surface-expand-button").setAttribute("aria-expanded", String(expanded));
   $("surface-expand-button").hidden =
-    window.matchMedia("(max-width: 767px)").matches;
-  for (const [kind, id] of [
-    ["preview", "surface"],
-    ["runtime", "runtime"],
-    ["run", "run"],
-    ["file", "file"],
-  ]) {
-    const tab = $(`surface-${kind}-tab`),
-      selected = state.surface.kind === kind;
-    tab.hidden =
-      kind === "run"
-        ? !state.surface.runId
-        : kind === "file"
-          ? !state.surface.fileRef
-          : false;
+    window.matchMedia("(max-width: 767px)").matches && !expanded;
+  const kinds = visibleSurfaceKinds();
+  for (const module of surfaceModules) {
+    const tab = $(module.tabId),
+      selected = state.surface.kind === module.kind;
+    tab.hidden = !kinds.includes(module.kind);
     tab.setAttribute("aria-selected", String(selected));
     tab.tabIndex = selected ? 0 : -1;
-    $(`${id}-content`).hidden = !selected;
+    $(module.contentId).hidden = !(expanded && selected);
   }
+  /* WK-42 · the band names the whole rail while the cards are showing, and the
+   * open kind once a pane is showing; the tab strip is the band's content then,
+   * so the heading steps back to the accessible name only. */
+  $("surface-tabs").hidden = !expanded;
+  $("surface-title").textContent = expanded
+    ? surfaceKindTitle(state.surface.kind)
+    : "Work surface";
+  renderSurfaceRail();
   if (
     modal &&
     (!wasModal || !document.activeElement?.getClientRects().length) &&
@@ -2901,7 +2946,98 @@ function renderSurfaceVisibility() {
     (!panel.contains(document.activeElement) ||
       !document.activeElement?.getClientRects().length)
   )
-    $(`surface-${state.surface.kind}-tab`)?.focus();
+    ($(`surface-${state.surface.kind}-tab`)?.hidden === false
+      ? $(`surface-${state.surface.kind}-tab`)
+      : $("surface-expand-button")
+    )?.focus();
+}
+function surfaceKindTitle(kind) {
+  if (kind === "run") return "Run details";
+  if (kind === "preview")
+    return state.surface.info?.extension?.title || "Workspace";
+  return surfaceModule(kind)?.title || "Work surface";
+}
+/* WK-41 · the host's facts. Every module reads this object and nothing else;
+ * none of them reaches into `state`. */
+function surfaceFacts() {
+  return {
+    sessionId: state.activeSessionId,
+    sessionTitle: currentSession()?.title,
+    runId: state.surface.runId,
+    runs: state.runs,
+    events: state.events,
+    recordedContext: state.recordedContext.get(state.surface.runId) || null,
+    fileRef: state.surface.fileRef,
+    workspace: state.surface.workspace,
+    extension: state.surface.info?.extension || null,
+    runtime: runtimeView?.summary() || null,
+  };
+}
+/* The intents a module may reach for. All of them navigate or re-read; none of
+ * them writes, which is why a module can never create formal state. */
+const railHost = {
+  sessionId: () => state.activeSessionId,
+  container: (kind) => $(surfaceModule(kind).contentId),
+  open: (kind) => activateSurface(kind),
+  openFile: (ref) => openFile(ref),
+  openRun: (id) => openRun(id),
+  refreshRun: () => readRunDetails(),
+  refreshWorkspace: () => void loadWorkspaceTree(),
+  loadFile: (ref) => {
+    if (ref) void fileView.load(ref);
+  },
+  loadRuntime: () => void runtimeView.load(),
+  openMaterials: () => {
+    $("material-add").open = true;
+    openDialog("materials-dialog", "material-name");
+    materialsView.open();
+  },
+};
+function renderSurfaceRail() {
+  const rail = $("surface-rail");
+  const visible = Boolean(
+    state.surface.open && currentSession() && !state.surface.expanded,
+  );
+  rail.hidden = !visible;
+  if (!visible) return;
+  const focusKey = document.activeElement?.dataset?.focusKey;
+  const scroll = rail.scrollTop;
+  const facts = surfaceFacts();
+  const cards = [];
+  for (const module of surfaceModules) {
+    const schema = module.adapter(facts);
+    /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
+    if (schema) cards.push(module.card(schema, railHost));
+  }
+  rail.replaceChildren(...cards);
+  rail.scrollTop = scroll;
+  if (focusKey && document.activeElement === document.body)
+    rail.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+}
+/* Panes that draw from facts repaint whenever the facts move; panes that own a
+ * fetch or a renderer instance are entered once, on activation. */
+function renderSurfacePanes() {
+  if (!state.surface.open || !state.surface.expanded) return;
+  const module = surfaceModule(state.surface.kind);
+  if (!module?.repaint) return;
+  module.pane(module.adapter(surfaceFacts()), railHost);
+}
+function loadSurfaceKind(kind) {
+  const module = surfaceModule(kind);
+  if (!module) return;
+  if (kind === "preview") {
+    void loadSurface(state.sessionEpoch);
+    return;
+  }
+  module.pane(module.adapter(surfaceFacts()), railHost);
+  if (kind === "run") void readRunDetails();
+}
+/* The rail's own reads: the two facts a card states that no other view has
+ * already fetched. Both are guarded by the same generation counters the panes
+ * use, so a session switch discards them. */
+function loadRailFacts() {
+  if (!state.surface.info?.extension) void loadWorkspaceTree();
+  void runtimeView?.load();
 }
 function activateSurface(kind) {
   if (!currentSession()) return;
@@ -2909,26 +3045,15 @@ function activateSurface(kind) {
   state.navigationOpen = false;
   state.surface.kind = kind;
   state.surface.open = true;
+  state.surface.expanded = true;
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
   fileView?.pause();
   if (kind !== "runtime") runtimeView?.pause();
-  $("surface-title").textContent =
-    kind === "run"
-      ? "Run details"
-      : kind === "file"
-        ? "File"
-        : kind === "runtime"
-          ? "Runtime"
-          : state.surface.info?.extension?.title || "Workspace";
   renderSurfaceVisibility();
   writeUiState();
   $(`surface-${kind}-tab`).focus();
-  if (kind === "preview") void loadSurface(state.sessionEpoch);
-  if (kind === "runtime") void runtimeView.load();
-  if (kind === "run") void readRunDetails();
-  if (kind === "file" && state.surface.fileRef)
-    void fileView.load(state.surface.fileRef);
+  loadSurfaceKind(kind);
 }
 function openRun(runId) {
   state.surface.runId = runId;
@@ -2939,20 +3064,11 @@ function openFile(ref) {
   state.surface.fileRef = ref;
   activateSurface("file");
 }
+/* The rail and its open pane are one render: a run that moves changes the Run
+ * card and the Run pane at the same moment, from the same facts. */
 function renderInspector() {
-  if (!state.surface.open || state.surface.kind !== "run") return;
-  const run = state.runs.find((item) => item.id === state.surface.runId);
-  renderRun($("run-content"), {
-    sessionTitle: currentSession()?.title,
-    sessionId: state.activeSessionId,
-    run,
-    events: state.events,
-    onFile: openFile,
-    onRefresh: readRunDetails,
-    // RC-5: the recorded half of the context, in the Run inspector that already
-    // owns this run's identity. It never opens another surface.
-    runtimeContext: state.recordedContext.get(state.surface.runId) || null,
-  });
+  renderSurfaceRail();
+  renderSurfacePanes();
 }
 /** The binding a Run was created with is a property of that Run, so it is read
  * once per Run id and never re-derived from the current configuration. */
@@ -3015,13 +3131,14 @@ async function readRunDetails() {
       );
   }
 }
-async function renderWorkspaceFiles() {
+/* WK-41 · one read, two states. The tree lands in host state; the module turns
+ * it into a card or a pane. Nothing re-reads it when the rail collapses. */
+async function loadWorkspaceTree() {
   const sessionId = state.activeSessionId,
     own = ++state.surface.workspaceGeneration;
-  const content = $("surface-content");
-  content.replaceChildren(
-    element("p", { className: "form-help", text: "Loading workspace files…" }),
-  );
+  if (!sessionId || state.surface.info?.extension) return;
+  state.surface.workspace = null;
+  renderInspector();
   try {
     const result = await request(
       `/sessions/${encodeURIComponent(sessionId)}/workspace`,
@@ -3032,28 +3149,16 @@ async function renderWorkspaceFiles() {
       state.surface.info?.extension
     )
       return;
-    renderWorkspaceFilesView(content, {
-      files: result.tree || [],
-      onFile: (path) => openFile({ kind: "current", sessionId, path }),
-      onRefresh: renderWorkspaceFiles,
-      onMaterials: () => {
-        $("material-add").open = true;
-        openDialog("materials-dialog", "material-name");
-        materialsView.open();
-      },
-    });
+    state.surface.workspace = { files: result.tree || [] };
   } catch (error) {
     if (
-      own === state.surface.workspaceGeneration &&
-      sessionId === state.activeSessionId
+      own !== state.surface.workspaceGeneration ||
+      sessionId !== state.activeSessionId
     )
-      content.replaceChildren(
-        element("p", { className: "inline-error", text: error.message }),
-        action("refresh-cw", "Retry loading workspace", renderWorkspaceFiles, {
-          visible: true,
-        }),
-      );
+      return;
+    state.surface.workspace = { error: error.message };
   }
+  renderInspector();
 }
 
 function renderProjectionValue(value) {
@@ -3096,7 +3201,10 @@ function renderSurfaceFallback() {
     return;
   }
   if (!info?.extension) {
-    void renderWorkspaceFiles();
+    const module = surfaceModule("preview");
+    if (state.surface.workspace)
+      module.pane(module.adapter(surfaceFacts()), railHost);
+    else void loadWorkspaceTree();
     return;
   }
   const card = element("div", { className: "surface-card" });
@@ -4417,7 +4525,7 @@ function wireEvents() {
     "refresh-button": ["refresh-cw", "Refresh workspace"],
     "clear-nav-filter-button": ["x", "Clear filter"],
     "show-run-button": ["activity", "Session overview"],
-    "show-surface-button": ["panel-right", "Open workspace preview"],
+    "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["x", "Close work surface"],
     "close-runtime-button": ["x", "Close settings"],
     "close-materials-button": ["x", "Close files"],
@@ -4436,7 +4544,16 @@ function wireEvents() {
   setAction($("cancel-run-button"), "square", "Cancel run");
   $("search-icon").append(icon("search"));
   $("toggle-nav-button").addEventListener("click", toggleNavigation);
-  $("close-nav-button").addEventListener("click", () => closeNavigation());
+  $("close-nav-button").addEventListener("click", () => {
+    if (surfaceOverlayQuery.matches) {
+      closeNavigation();
+      return;
+    }
+    state.sidebarCollapsed = true;
+    writeUiState();
+    renderSurfaceVisibility();
+    $("toggle-nav-button").focus();
+  });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
   $("workspace-home-link").addEventListener("click", (event) => {
@@ -4484,10 +4601,8 @@ function wireEvents() {
     closeDialog("materials-dialog"),
   );
   $("materials-dialog").addEventListener("close", () => materialsView.close());
-  for (const kind of ["runtime", "run", "file"])
-    $(`surface-${kind}-tab`).addEventListener("click", () =>
-      activateSurface(kind),
-    );
+  for (const module of surfaceModules)
+    $(module.tabId).addEventListener("click", () => activateSurface(module.kind));
   $("surface-tabs").addEventListener("keydown", (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     const tabs = [...$("surface-tabs").querySelectorAll("button")].filter(
@@ -4601,14 +4716,9 @@ function wireEvents() {
   $("close-surface-button").addEventListener("click", closeSurface);
   $("surface-backdrop").addEventListener("click", closeSurface);
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
-  $("show-surface-button").addEventListener("click", () =>
-    activateSurface("preview"),
-  );
+  $("show-surface-button").addEventListener("click", openSurfaceRail);
   $("surface-expand-button").addEventListener("click", () =>
     setSurfaceExpanded(!state.surface.expanded),
-  );
-  $("surface-preview-tab").addEventListener("click", () =>
-    activateSurface("preview"),
   );
   $("nav-filter-input").addEventListener("input", (event) => {
     state.navigationFilter = event.currentTarget.value;

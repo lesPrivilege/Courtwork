@@ -909,6 +909,29 @@ export function createRuntimeView(
   }
 
   return {
+    /* WK-41 · the rail card reads this module's already-loaded snapshot. It is a
+     * read-only projection of what `read()` fetched: no second request, no
+     * second state machine, and nothing the rail can write back. */
+    summary() {
+      if (!snapshot) return { loaded: false };
+      /* The two groups this module's own IA already names (WK-63): what the
+       * next run can do, and what it will read. A row per raw kind was removed
+       * in the WK-47 ablation — thirteen counts answered no question the pane
+       * does not answer better. */
+      const count = (kinds) =>
+        (snapshot.resources || []).filter((resource) =>
+          kinds.includes(resource.kind),
+        ).length;
+      return {
+        loaded: true,
+        total: (snapshot.resources || []).length,
+        frozen: frozen(),
+        rows: [
+          ["Capabilities", count(["tool", "mcp_server", "skill"])],
+          ["Context", count(["instruction", "prompt_template", "reference"])],
+        ],
+      };
+    },
     load() {
       if (getSessionId() !== sessionId) {
         snapshot = null;

@@ -9,6 +9,7 @@
   </head>
   <body>
     <div id="app-shell" class="app-shell surface-closed">
+      <div class="shell-strip" aria-hidden="true"></div>
       <div
         id="nav-backdrop"
         class="layer-backdrop"
@@ -20,7 +21,6 @@
         class="sidebar"
         aria-label="Projects and sessions"
       >
-        <div class="shell-strip" aria-hidden="true"></div>
         <header class="sidebar-header">
           <a class="workspace-brand" href="#home" id="workspace-home-link"
             ><court-symbol
@@ -128,6 +128,7 @@
             aria-expanded="false"
             aria-label="Open navigation"
           ></button>
+          <div class="chat-header-inner">
           <div class="chat-title-wrap">
             <h1 id="session-title" tabindex="-1">
               <span id="project-title" class="title-project" hidden></span
@@ -160,6 +161,7 @@
               aria-label="Open workspace preview"
               hidden
             ></button>
+          </div>
           </div>
         </header>
         <div
@@ -286,8 +288,56 @@
       >
         <header class="surface-header">
           <div class="surface-heading">
-            <p id="surface-eyebrow" class="eyebrow">Inspect</p>
-            <h2 id="surface-title">Workspace</h2>
+            <h2 id="surface-title">Work surface</h2>
+          </div>
+          <div
+            id="surface-tabs"
+            class="surface-tabs"
+            role="tablist"
+            aria-label="Work surface views"
+          >
+            <button
+              id="surface-preview-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="surface-content"
+              aria-selected="true"
+              type="button"
+            >
+              Workspace
+            </button>
+            <button
+              id="surface-runtime-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="runtime-content"
+              aria-selected="false"
+              type="button"
+            >
+              Runtime
+            </button>
+            <button
+              id="surface-run-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="run-content"
+              aria-selected="false"
+              type="button"
+              hidden
+            >
+              Run
+            </button>
+            <button
+              id="surface-file-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="file-content"
+              aria-selected="false"
+              type="button"
+              hidden
+            >
+              File
+            </button>
           </div>
           <div class="toolbar">
             <button
@@ -306,55 +356,7 @@
             ></button>
           </div>
         </header>
-        <div
-          id="surface-tabs"
-          class="surface-tabs"
-          role="tablist"
-          aria-label="Work surface views"
-        >
-          <button
-            id="surface-preview-tab"
-            class="surface-tab"
-            role="tab"
-            aria-controls="surface-content"
-            aria-selected="true"
-            type="button"
-          >
-            Workspace
-          </button>
-          <button
-            id="surface-runtime-tab"
-            class="surface-tab"
-            role="tab"
-            aria-controls="runtime-content"
-            aria-selected="false"
-            type="button"
-          >
-            Runtime
-          </button>
-          <button
-            id="surface-run-tab"
-            class="surface-tab"
-            role="tab"
-            aria-controls="run-content"
-            aria-selected="false"
-            type="button"
-            hidden
-          >
-            Run
-          </button>
-          <button
-            id="surface-file-tab"
-            class="surface-tab"
-            role="tab"
-            aria-controls="file-content"
-            aria-selected="false"
-            type="button"
-            hidden
-          >
-            File
-          </button>
-        </div>
+        <div id="surface-rail" class="surface-rail"></div>
         <div
           id="surface-content"
           class="surface-content"
