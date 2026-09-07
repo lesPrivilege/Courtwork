@@ -1,5 +1,10 @@
 # Fresh Courtwork integration workspace
 
+Runtime Control Plane backend increment: see [the current index](docs/runtime-control/INDEX.md)
+for protocol v1, resource adapters, schema 4 upgrade and acceptance. The baseline
+notes below describe the import; this backend branch supersedes its backend-freeze
+status. Frontend integration remains a separate change.
+
 This is the local **G1/C3 integration workspace**, restored from the independently
 reviewed C4-r1 source archive. It is not a release or the canonical replacement
 for legacy Courtwork. The executable application is in `app/`.

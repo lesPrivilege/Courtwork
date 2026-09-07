@@ -1,0 +1,100 @@
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+import { createHash } from 'node:crypto';
+
+const digest = value => createHash('sha256').update(value).digest('hex');
+export function parseMcpConfig(content) {
+  let config;
+  try { config = JSON.parse(content); } catch { throw new Error('MCP content must be JSON'); }
+  if (!config || typeof config !== 'object' || Array.isArray(config) || Object.keys(config).some(k => !['transport', 'url', 'protocol'].includes(k))) throw new Error('Unsupported MCP configuration fields');
+  if (config.transport !== 'streamable-http' || !['2026-07-28', 'legacy-2025'].includes(config.protocol)) throw new Error('Choose streamable-http and an explicit supported protocol');
+  let url;
+  try { url = new URL(config.url); } catch { throw new Error('Invalid MCP endpoint'); }
+  if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) throw new Error('MCP endpoint must not contain credentials, query or fragment');
+  if (url.protocol === 'http:' && !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) throw new Error('Remote MCP requires HTTPS');
+  return config;
+}
+
+/** The SDK owns protocol semantics. This manager owns provider handles, never
+ * Agent Sessions. Restart reconnects metadata only and cannot replay a call.
+ * v2 defaults to legacy: modern mode MUST be explicitly pinned. */
+export class MCPManager {
+  constructor() { this.connections = new Map(); }
+  inspect(id, content) {
+    const entry = this.connections.get(id);
+    if (!entry || entry.hash !== digest(content)) return { connected: false, health: 'healthy', protocol: parseMcpConfig(content).protocol, tools: [], resources: [], prompts: [], diagnostic: null };
+    return structuredClone({ connected: entry.connected, health: entry.health, protocol: entry.protocol, era: entry.era, server: entry.server, tools: entry.tools, resources: entry.resources, prompts: entry.prompts, diagnostic: entry.diagnostic });
+  }
+  async disconnect(id) {
+    const entry = this.connections.get(id);
+    if (!entry) return;
+    entry.connected = false;
+    await entry.client.close();
+    this.connections.delete(id);
+  }
+  async connect(resource) {
+    const config = parseMcpConfig(resource.content);
+    await this.disconnect(resource.id);
+    const client = new Client({ name: 'se-runtime', version: '0.1.0' }, {
+      capabilities: {}, inputRequired: { autoFulfill: false },
+      versionNegotiation: { mode: config.protocol === '2026-07-28' ? { pin: '2026-07-28' } : 'legacy' },
+    });
+    // Redirects could silently change the trusted endpoint. Authenticated
+    // OAuth/bearer transports are a separate future SecretStore adapter.
+    const transport = new StreamableHTTPClientTransport(new URL(config.url), {
+      requestInit: { redirect: 'error' }, onInsufficientScope: 'throw',
+      fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.any([...(init?.signal ? [init.signal] : []), AbortSignal.timeout(15000)]) }),
+    });
+    const entry = { client, hash: digest(resource.content), connected: false, health: 'healthy', protocol: config.protocol, tools: [], resources: [], prompts: [], diagnostic: null };
+    this.connections.set(resource.id, entry);
+    client.onclose = () => { entry.connected = false; };
+    client.onerror = () => { entry.health = 'degraded'; entry.diagnostic = 'MCP transport error; reconnect explicitly'; };
+    try {
+      await client.connect(transport, { timeout: 15000 });
+      const capabilities = client.getServerCapabilities() ?? {};
+      const [tools, resources, prompts] = await Promise.all([
+        capabilities.tools ? client.listTools({}, { timeout: 15000 }) : { tools: [] },
+        capabilities.resources ? client.listResources({}, { timeout: 15000 }) : { resources: [] },
+        capabilities.prompts ? client.listPrompts({}, { timeout: 15000 }) : { prompts: [] },
+      ]);
+      if (tools.tools.length > 100 || resources.resources.length > 100 || prompts.prompts.length > 100) throw new Error('catalog limit');
+      // Short host tool names avoid model-specific identifier limits. The
+      // descriptor retains the original name and server identity separately.
+      entry.tools = tools.tools.map(t => ({ ...t, hostName: 'mcp_' + digest(resource.id + '\0' + t.name).slice(0, 24) }));
+      entry.resources = resources.resources;
+      entry.prompts = prompts.prompts;
+      if (JSON.stringify([entry.tools, entry.resources, entry.prompts]).length > 200000) throw new Error('catalog size limit');
+      entry.connected = true;
+      entry.health = 'healthy';
+      entry.protocol = client.getNegotiatedProtocolVersion();
+      entry.era = client.getProtocolEra();
+      entry.server = client.getServerVersion() ?? null;
+    } catch (cause) {
+      await client.close().catch(() => {});
+      entry.connected = false; entry.health = 'error'; entry.diagnostic = 'Connection or discovery failed. Verify endpoint, protocol and authentication requirements.';
+      throw new Error(entry.diagnostic, { cause });
+    }
+    return this.inspect(resource.id, resource.content);
+  }
+  toolsFor(binding, onUnknown) {
+    return binding.resources.filter(r => r.kind === 'tool' && r.mcp && r.exposed).map(r => ({
+      name: r.executionName, label: r.title, description: r.description || r.title, parameters: r.inputSchema,
+      execute: async (_callId, args, signal) => {
+        const entry = this.connections.get(r.mcp.serverId);
+        if (!entry?.connected || entry.hash !== r.mcp.configHash) throw new Error('MCP provider is no longer connected to the bound configuration');
+        try {
+          const result = await entry.client.callTool({ name: r.mcp.name, arguments: args }, { signal, timeout: 60000 });
+          if (result.isError) throw Object.assign(new Error('MCP tool reported a failure'), { reported: true });
+          // Preserve supported Pi text/image blocks; keep other MCP content as
+          // explicit JSON evidence instead of pretending it was rendered.
+          const content = result.content?.map(c => c.type === 'text' || c.type === 'image' ? c : { type: 'text', text: JSON.stringify(c) }) ?? [];
+          if (!content.length && result.structuredContent !== undefined) content.push({ type: 'text', text: JSON.stringify(result.structuredContent) });
+          return { content, details: { serverId: r.mcp.serverId, tool: r.mcp.name } };
+        } catch (error) {
+          if (!error.reported) await onUnknown({ serverId: r.mcp.serverId, tool: r.mcp.name });
+          throw new Error(error.reported ? 'MCP tool reported a failure' : 'MCP result is unknown; remote effects may have occurred. Do not retry automatically.');
+        }
+      },
+    }));
+  }
+  async close() { await Promise.all([...this.connections.keys()].map(id => this.disconnect(id))); }
+}
