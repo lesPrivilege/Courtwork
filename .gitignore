@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+__pycache__/
+*.pyc
+/data/
+/app/data/
+/.local-data/
+.env
+.env.*
+!.env.example
+credentials.json

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="V5 local fake agent workspace">
+    <title>Schema Engineering · Workspace</title>
+    <link rel="stylesheet" href="/web/styles.css">
+  </head>
+  <body>
+    <div id="app-shell" class="app-shell">
+      <aside class="sidebar" aria-label="Projects and sessions">
+        <header class="sidebar-header">
+          <div>
+            <p class="eyebrow">Schema Engineering</p>
+            <h1>Workspace</h1>
+          </div>
+          <button id="new-project-button" class="icon-button" type="button" aria-label="Create project" title="Create project">+</button>
+        </header>
+
+        <div class="sidebar-actions">
+          <button id="new-session-button" class="secondary-button" type="button">New session</button>
+          <button id="refresh-button" class="quiet-button" type="button">Refresh</button>
+          <button id="runtime-setup-button" class="quiet-button" type="button" aria-haspopup="dialog">Runtime setup</button>
+        </div>
+
+        <section class="sidebar-section project-section" aria-labelledby="projects-heading">
+          <div class="section-heading">
+            <h2 id="projects-heading">Projects</h2>
+            <span id="project-count" class="count-badge">0</span>
+          </div>
+          <div class="nav-filter">
+            <label for="nav-filter-input">Find a project or session</label>
+            <div class="nav-filter-controls">
+              <input id="nav-filter-input" type="search" autocomplete="off" placeholder="Filter loaded names">
+              <button id="clear-nav-filter-button" class="text-button" type="button" hidden>Clear</button>
+            </div>
+            <p class="section-note">Names currently loaded in this navigation.</p>
+            <p id="nav-filter-status" class="filter-status" aria-live="polite"></p>
+          </div>
+          <div id="project-list" class="project-list" aria-live="polite"></div>
+        </section>
+      </aside>
+
+      <main class="chat-panel" aria-label="Chat and run history">
+        <header class="chat-header">
+          <div class="chat-title-wrap">
+            <p id="project-title" class="eyebrow">No project selected</p>
+            <h2 id="session-title">Create a session to begin</h2>
+            <div id="session-meta" class="session-meta"></div>
+          </div>
+          <div class="chat-header-actions">
+            <span id="capability-badge" class="status-badge">Local fake</span>
+            <button id="show-surface-button" class="secondary-button" type="button">Show work surface</button>
+          </div>
+        </header>
+
+        <div id="connection-status" class="connection-status" role="status" aria-live="assertive" hidden>Connection lost, retrying…</div>
+
+        <div id="binding-panel" class="binding-panel" hidden></div>
+
+        <div class="message-stream-wrap">
+          <section id="message-stream" class="message-stream" role="log" aria-live="polite" aria-relevant="additions text">
+            <div class="empty-state">
+              <h3>No session selected</h3>
+              <p>Choose a session or create a project and session from the left.</p>
+            </div>
+          </section>
+          <button id="jump-latest-button" class="jump-latest-button" type="button" hidden>Back to latest</button>
+        </div>
+
+        <footer class="composer-area">
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="3" maxlength="100000" placeholder="Select a session to chat" disabled></textarea>
+            <p id="composer-run-hint" class="composer-run-hint" hidden>Run in progress — your input will not be sent automatically.</p>
+            <div class="composer-controls">
+              <span class="composer-hint">Enter to send · Shift+Enter for a new line</span>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button" type="button" hidden>Cancel run</button>
+                <button id="send-button" class="primary-button" type="submit" disabled>Send</button>
+              </div>
+            </div>
+          </form>
+        </footer>
+      </main>
+
+      <aside id="surface-panel" class="surface-panel is-open" aria-labelledby="surface-title" aria-hidden="false">
+        <header class="surface-header">
+          <div>
+            <p class="eyebrow">Extension workspace</p>
+            <h2 id="surface-title">Preview</h2>
+            <div id="surface-tabs" class="surface-tabs" role="tablist" aria-label="Work surface views">
+              <button id="surface-preview-tab" class="surface-tab" role="tab" aria-controls="surface-content" aria-selected="true" type="button">Preview</button>
+            </div>
+          </div>
+          <button id="surface-expand-button" class="secondary-button" type="button" aria-controls="surface-panel" aria-expanded="false">Expand work surface</button>
+          <button id="close-surface-button" class="icon-button" type="button" aria-label="Close work surface" title="Close work surface">×</button>
+        </header>
+        <div id="surface-content" class="surface-content" role="tabpanel" aria-labelledby="surface-preview-tab" tabindex="0">
+          <div class="empty-state compact">
+            <h3>No work surface</h3>
+            <p>Select an extension to open its workspace.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
+
+    <dialog id="runtime-dialog" class="runtime-dialog" aria-labelledby="runtime-dialog-title">
+      <div class="runtime-dialog-inner">
+        <header class="runtime-dialog-header">
+          <div>
+            <p class="eyebrow">Development controls</p>
+            <h2 id="runtime-dialog-title">Runtime setup</h2>
+          </div>
+          <button id="close-runtime-button" class="icon-button" type="button" aria-label="Close runtime setup" title="Close runtime setup">×</button>
+        </header>
+
+        <section class="runtime-section" aria-labelledby="extensions-heading">
+          <div class="section-heading">
+            <h3 id="extensions-heading">Extensions</h3>
+            <button id="refresh-extensions-button" class="text-button" type="button">Refresh</button>
+          </div>
+          <p class="section-note">Whitelisted development extensions. Loading and binding keep their existing host checks.</p>
+          <div id="extension-list" class="extension-list" aria-live="polite"></div>
+        </section>
+
+        <details id="provider-details" class="provider-details">
+          <summary>Provider route</summary>
+          <div id="provider-panel" class="provider-panel"></div>
+        </details>
+      </div>
+    </dialog>
+
+    <dialog id="project-dialog" class="form-dialog" aria-labelledby="project-dialog-title">
+      <form id="project-form" method="dialog">
+        <h2 id="project-dialog-title">New project</h2>
+        <label for="project-name-input">Project name</label>
+        <input id="project-name-input" name="name" maxlength="200" required autocomplete="off">
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Create project</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="session-dialog" class="form-dialog" aria-labelledby="session-dialog-title">
+      <form id="session-form" method="dialog">
+        <h2 id="session-dialog-title">New session</h2>
+        <label for="session-title-input">Session title</label>
+        <input id="session-title-input" name="title" maxlength="200" placeholder="Untitled session" autocomplete="off">
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Create session</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="/web/app.mjs"></script>
+  </body>
+</html>
