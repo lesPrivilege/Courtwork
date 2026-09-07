@@ -2710,3 +2710,369 @@ html[data-shell="desktop"] .chat-header [tabindex] {
   app-region: no-drag;
   -webkit-app-region: no-drag;
 }
+
+/* Runtime control module (WO-RC).
+   SH-1: the catalog is rows, the permission explanation is a DataList, an MCP
+   server is an object row with indented child rows. No new colour, radius or
+   shadow value enters here — every declaration below reuses a role token. */
+.runtime-head {
+  display: grid;
+  gap: var(--space-2);
+}
+.runtime-precedence {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+.runtime-banner {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel-muted);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  display: grid;
+  gap: var(--space-2);
+}
+.runtime-banner p {
+  margin: 0;
+}
+.runtime-draft-summary {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.runtime-scopes {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.runtime-scope-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 6px var(--space-2);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.runtime-scope-tab:hover {
+  background: var(--hover);
+}
+.runtime-scope-tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 550;
+}
+.runtime-scope-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.runtime-catalog[data-frozen="true"] {
+  opacity: 0.72;
+}
+.runtime-kind {
+  margin-top: var(--space-6);
+}
+.runtime-kind > h4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.runtime-row {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.runtime-row.is-child {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--line);
+  margin-left: var(--space-2);
+}
+.runtime-row-title {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 2px 0;
+  text-align: left;
+  min-width: 0;
+  gap: var(--space-2);
+}
+.runtime-row-title:hover {
+  background: var(--hover);
+}
+.runtime-row-title .ui-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+.runtime-row-name {
+  font-size: var(--text-body);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.runtime-row-tag,
+.runtime-row-hash {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.runtime-row-hash {
+  font-family: var(--font-mono);
+}
+.runtime-dimensions {
+  display: grid;
+  /* Four columns whenever the panel can hold them, fewer when it cannot, so a
+     380px inspector and a 390px phone both keep the labels readable. */
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.runtime-dimension {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.runtime-dimension-label {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.runtime-dimension-value {
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.runtime-switch input {
+  appearance: none;
+  width: 30px;
+  height: 18px;
+  flex: none;
+  margin: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  position: relative;
+}
+.runtime-switch input::after {
+  content: "";
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--muted-strong);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.runtime-switch input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.runtime-switch input:checked::after {
+  background: var(--panel);
+  transform: translateX(12px);
+}
+.runtime-switch input:disabled {
+  background: var(--gray-4);
+  border-color: var(--line);
+}
+.runtime-switch input:disabled::after {
+  background: var(--muted);
+}
+.runtime-switch-text {
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-inherit,
+.runtime-inherit-note,
+.runtime-provenance {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+.runtime-inherit {
+  justify-self: start;
+  color: var(--accent);
+}
+.runtime-mcp-line {
+  display: grid;
+  gap: var(--space-1);
+}
+.runtime-mcp-state {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.runtime-action-note {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.runtime-detail {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.runtime-detail-block > h5,
+.runtime-loaded + h4,
+.runtime-detail h5 {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.runtime-description {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+.runtime-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--muted-strong);
+  border-left: 2px solid var(--line-strong);
+  padding-left: var(--space-2);
+}
+.runtime-source {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.runtime-source .file-heading h5 {
+  margin: 0;
+  font-size: var(--text-reading);
+}
+.runtime-source .file-document {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  max-height: 320px;
+  overflow: auto;
+}
+.runtime-loaded-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+.runtime-loaded-row code {
+  font-family: var(--font-mono);
+  color: var(--muted-strong);
+}
+/* Settings: the runtime entry and the next-run context bar. Buckets are told
+   apart by grey lightness and their own text label, never by hue (SH-2). */
+.runtime-control-entry {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+.context-bar {
+  display: flex;
+  height: 10px;
+  gap: 2px;
+  margin: var(--space-2) 0;
+  border-radius: var(--radius-small);
+  overflow: hidden;
+}
+.context-bar-segment {
+  flex: 1 1 0;
+  min-width: 3px;
+  background: var(--gray-11);
+}
+.context-bar-segment[data-step="1"] {
+  background: var(--gray-9);
+}
+.context-bar-segment[data-step="2"] {
+  background: var(--gray-8);
+}
+.context-bar-segment[data-step="3"] {
+  background: var(--gray-7);
+}
+.context-bar-segment[data-step="4"] {
+  background: var(--gray-6);
+}
+.context-characters dd {
+  font-variant-numeric: tabular-nums;
+}
+.planned-section > summary {
+  padding: 10px 0;
+}
+.planned-list {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+.planned-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-4);
+  align-items: baseline;
+}
+.planned-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.planned-state {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .runtime-dimensions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .runtime-switch input {
+    width: 40px;
+    height: 24px;
+  }
+  .runtime-switch input::after {
+    width: 18px;
+  }
+  .runtime-switch input:checked::after {
+    transform: translateX(16px);
+  }
+  /* The word is a real label, so switch + word form one 44px-tall target. */
+  .runtime-switch {
+    min-height: 44px;
+  }
+  .runtime-switch-text {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+  }
+  .planned-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runtime-switch input::after {
+    transition: none;
+  }
+}

@@ -29,6 +29,7 @@ import {
   noticeText,
   formatBytes,
 } from "./inspector.mjs";
+import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
 import { renderHome } from "./home-view.mjs";
 import {
@@ -84,6 +85,7 @@ const state = {
   sessionEpoch: 0,
   pollController: null,
   pollTimer: null,
+  recordedContext: new Map(),
   draftCache: new Map(),
   draftDirty: new Set(),
   draftTimers: new Map(),
@@ -137,7 +139,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-let tooltips, settingsView, materialsView, fileView;
+let tooltips, settingsView, materialsView, fileView, runtimeView;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
 function storeUnconfirmedRuns() {
@@ -964,6 +966,10 @@ async function pollEvents(epoch) {
       if (state.surface.open && state.surface.kind === "run" && changed)
         void readRunDetails();
       if (hadActiveRun && !state.runs.some(isActiveRun)) {
+        // A run ending lifts the runtime freeze; the module reads the fact
+        // from a fresh snapshot rather than deciding it locally.
+        if (state.surface.open && state.surface.kind === "runtime")
+          void runtimeView?.refresh();
         await loadSurface(epoch);
         void refreshRunDetails(
           state.runs.find((run) => run.id === state.surface.runId)?.id ||
@@ -1378,6 +1384,8 @@ async function selectSession(
   state.lastSeq = 0;
   state.bindingExtensionId = null;
   state.surface.expanded = false;
+  state.recordedContext.clear();
+  runtimeView?.pause();
   brandWroteRuns.clear();
   renderAll();
   if (focus) restoreLayerFocus($("session-title"));
@@ -1444,6 +1452,8 @@ function clearActiveSession() {
   state.lastSeq = 0;
   state.bindingExtensionId = null;
   state.surface.expanded = false;
+  state.recordedContext.clear();
+  runtimeView?.pause();
   writeUiState();
   renderAll();
 }
@@ -2949,6 +2959,7 @@ function renderSurfaceVisibility() {
     window.matchMedia("(max-width: 767px)").matches;
   for (const [kind, id] of [
     ["preview", "surface"],
+    ["runtime", "runtime"],
     ["run", "run"],
     ["file", "file"],
   ]) {
@@ -2982,16 +2993,20 @@ function activateSurface(kind) {
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
   fileView?.pause();
+  if (kind !== "runtime") runtimeView?.pause();
   $("surface-title").textContent =
     kind === "run"
       ? "Run details"
       : kind === "file"
         ? "File"
-        : state.surface.info?.extension?.title || "Workspace";
+        : kind === "runtime"
+          ? "Runtime"
+          : state.surface.info?.extension?.title || "Workspace";
   renderSurfaceVisibility();
   writeUiState();
   $(`surface-${kind}-tab`).focus();
   if (kind === "preview") void loadSurface(state.sessionEpoch);
+  if (kind === "runtime") void runtimeView.load();
   if (kind === "run") void readRunDetails();
   if (kind === "file" && state.surface.fileRef)
     void fileView.load(state.surface.fileRef);
@@ -3015,7 +3030,25 @@ function renderInspector() {
     events: state.events,
     onFile: openFile,
     onRefresh: readRunDetails,
+    // RC-5: the recorded half of the context, in the Run inspector that already
+    // owns this run's identity. It never opens another surface.
+    runtimeContext: state.recordedContext.get(state.surface.runId) || null,
   });
+}
+/** The binding a Run was created with is a property of that Run, so it is read
+ * once per Run id and never re-derived from the current configuration. */
+async function readRecordedContext(runId, sessionId) {
+  if (!runId || !sessionId || state.recordedContext.has(runId)) return;
+  try {
+    const payload = await request(
+      `/runtime-context?sessionId=${encodeURIComponent(sessionId)}&runId=${encodeURIComponent(runId)}`,
+    );
+    if (sessionId !== state.activeSessionId) return;
+    state.recordedContext.set(runId, payload);
+    renderInspector();
+  } catch {
+    // A run whose binding cannot be read keeps the rest of the inspector.
+  }
 }
 async function refreshRunDetails(id) {
   if (!id) return;
@@ -3055,6 +3088,7 @@ async function readRunDetails() {
       return;
     mergeRun(result.run, { sessionId });
     renderInspector();
+    void readRecordedContext(id, sessionId);
   } catch (error) {
     if (own === state.surface.runReadGeneration && error.name !== "AbortError")
       $("run-content").prepend(
@@ -3871,32 +3905,36 @@ function openMessageEditor(row) {
   $("edit-message-draft-warning").hidden = !$("composer-input").value.trim();
   openDialog("edit-message-dialog", "edit-message-input");
 }
-function useEditedMessage() {
-  const candidate = state.editMessageCandidate,
-    composer = $("composer-input");
+/** The single path text takes into the composer as a draft. Message editing and
+ * a runtime prompt template both use it; neither one sends anything. */
+function applyComposerDraft(sessionId, text, { unavailable, done, before }) {
+  const composer = $("composer-input");
   if (
-    !candidate ||
-    candidate.sessionId !== state.activeSessionId ||
+    !sessionId ||
+    sessionId !== state.activeSessionId ||
     composer.disabled ||
     composer.readOnly
   ) {
-    showToast(
-      "The composer is unavailable. Your edit has not been applied.",
-      "error",
-    );
-    return;
+    showToast(unavailable, "error");
+    return false;
   }
-  composer.value = $("edit-message-input").value;
-  state.draftCache.set(candidate.sessionId, composer.value);
-  state.draftRevisions.set(
-    candidate.sessionId,
-    draftRevision(candidate.sessionId) + 1,
-  );
-  state.draftDirty.add(candidate.sessionId);
+  composer.value = text;
+  state.draftCache.set(sessionId, composer.value);
+  state.draftRevisions.set(sessionId, draftRevision(sessionId) + 1);
+  state.draftDirty.add(sessionId);
   scheduleDraftSave();
-  closeDialog("edit-message-dialog");
+  before?.();
   composer.focus();
-  showToast("Draft ready. Send when you are ready.");
+  showToast(done);
+  return true;
+}
+function useEditedMessage() {
+  const candidate = state.editMessageCandidate;
+  applyComposerDraft(candidate?.sessionId, $("edit-message-input").value, {
+    unavailable: "The composer is unavailable. Your edit has not been applied.",
+    done: "Draft ready. Send when you are ready.",
+    before: () => closeDialog("edit-message-dialog"),
+  });
 }
 
 function openConnectionCard(anchor) {
@@ -4529,7 +4567,7 @@ function wireEvents() {
     closeDialog("materials-dialog"),
   );
   $("materials-dialog").addEventListener("close", () => materialsView.close());
-  for (const kind of ["run", "file"])
+  for (const kind of ["runtime", "run", "file"])
     $(`surface-${kind}-tab`).addEventListener("click", () =>
       activateSurface(kind),
     );
@@ -4789,6 +4827,22 @@ async function init() {
     },
     onSession: applySessionUpdate,
     notify: showToast,
+    onOpenRuntime: () => {
+      // The module takes the focus the dialog would otherwise hand back.
+      closeRuntimeDialog({ restoreFocus: false });
+      activateSurface("runtime");
+    },
+  });
+  runtimeView = createRuntimeView($("runtime-content"), {
+    request,
+    getSessionId: () => state.activeSessionId,
+    notify: showToast,
+    onDraft: (text, title) =>
+      applyComposerDraft(state.activeSessionId, text, {
+        unavailable:
+          "The composer is unavailable. The template has not been used.",
+        done: `Draft from "${title}" is ready. Nothing has been sent.`,
+      }),
   });
   fileView = createFileView($("file-content"), { request });
   materialsView = createMaterialsView({
