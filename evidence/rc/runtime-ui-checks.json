@@ -19,7 +19,7 @@
       "id": "scopes-from-server",
       "obligation": "scope tabs and revision come from the server, not from the page",
       "pass": true,
-      "detail": "tabs=user,workspace,session note=Editing the session layer · 7f1ebfc3-14b8-4049-82ca-3ed76bfc37ca. Revision 25."
+      "detail": "tabs=user,workspace,session note=Editing the session layer · 7f1ebfc3-14b8-4049-82ca-3ed76bfc37ca. Revision 33."
     },
     {
       "id": "four-dimensions",

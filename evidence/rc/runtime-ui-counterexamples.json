@@ -7,7 +7,7 @@
       "id": "inherit-is-removal",
       "obligation": "inherit sends exposed:null and the sentence follows the returned snapshot (RC-2)",
       "pass": true,
-      "detail": "button=\"Inherit the workspace setting\" body={\"operation\":\"exposure\",\"id\":\"tool:ws_grep\",\"scope\":{\"type\":\"session\",\"id\":\"7f1ebfc3-14b8-4049-82ca-3ed76bfc37ca\"},\"exposed\":null,\"revision\":26} before=\"Exposure: from session · your session override.\" after=\"Exposure: from workspace · your workspace override. The switch overrides it for this session.\""
+      "detail": "button=\"Inherit the workspace setting\" body={\"operation\":\"exposure\",\"id\":\"tool:ws_grep\",\"scope\":{\"type\":\"session\",\"id\":\"7f1ebfc3-14b8-4049-82ca-3ed76bfc37ca\"},\"exposed\":null,\"revision\":34} before=\"Exposure: from session · your session override.\" after=\"Exposure: from workspace · your workspace override. The switch overrides it for this session.\""
     },
     {
       "id": "mcp-lifecycle",
@@ -25,7 +25,7 @@
       "id": "conflict-draft-apply",
       "obligation": "the kept draft is applied only when the user asks, on the fresh revision",
       "pass": true,
-      "detail": "resent revision=28 (server was 28)"
+      "detail": "resent revision=36 (server was 36)"
     },
     {
       "id": "active-run-freeze",
@@ -43,7 +43,7 @@
       "id": "template-draft-only",
       "obligation": "invoking a template fills the composer and starts nothing (RC-7)",
       "pass": true,
-      "detail": "runs 5 -> 5; composer=\"Review the current draft for unsupported claims and list the\""
+      "detail": "runs 6 -> 6; composer=\"Review the current draft for unsupported claims and list the\""
     },
     {
       "id": "source-inspector",
