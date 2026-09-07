@@ -2221,7 +2221,9 @@ function renderMessageStream() {
       ) {
         const questionKey = questionScopeKey(row.runId, row.id),
           openKey = `question-history:${questionKey}`;
-        const history = element("details", { className: "resolved-question" });
+        const history = element("details", {
+          className: `resolved-question${row.answer !== null ? " intervention-record" : ""}`,
+        });
         history.open = state.toolOpen.get(openKey) || false;
         history.append(
           element(
@@ -3650,7 +3652,9 @@ function renderPermission(row) {
     payload = row.payload;
   if (!canAnswer(row, run) && validPermission(payload)) {
     const keyOpen = `permission-history:${key}`;
-    const details = element("details", { className: "resolved-permission" });
+    const details = element("details", {
+      className: `resolved-permission${["allow", "deny"].includes(row.decision) ? " intervention-record" : ""}`,
+    });
     details.open = state.toolOpen.get(keyOpen) || false;
     details.append(
       element(
@@ -3661,6 +3665,14 @@ function renderPermission(row) {
           text: `${row.decision === "allow" ? "Write allowed" : row.decision === "deny" ? "Write denied" : "Write request closed"} · ${payload.path}`,
         }),
       ),
+      element("p", {
+        className: "intervention-scope",
+        text: row.decision === "allow"
+          ? "Permission recorded for this exact write. Review acceptance is not recorded here."
+          : row.decision === "deny"
+            ? "Permission denied for this exact write."
+            : "This request closed without a recorded decision.",
+      }),
       element("pre", {
         className: "permission-preview",
         text: payload.preview,

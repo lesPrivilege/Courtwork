@@ -10,6 +10,7 @@
   --muted-strong: #5d5d55;
   --accent: #315c8a;
   --accent-soft: #e8eef6;
+  --intervention: #995033;
   --danger: #9b3c35;
   --danger-soft: #f8e9e7;
   --success: #3e704e;
@@ -1800,4 +1801,43 @@ select {
 button[aria-disabled="true"] {
   opacity: 0.55;
   cursor: wait;
+}
+
+/* Recorded input is a reading mark; outcome text carries the decision. */
+.intervention-record > summary {
+  border-inline-start: 2px solid var(--intervention);
+  padding-inline-start: 8px;
+}
+.intervention-scope {
+  margin: 8px 0 0 10px;
+  max-width: 64ch;
+}
+.reading-note {
+  border-inline-start: 1px solid var(--line-strong);
+  padding-inline-start: 12px;
+  margin: 16px 0;
+  color: var(--muted-strong);
+  font-size: 12px;
+}
+.reading-note p + p {
+  margin-top: 8px;
+}
+.reading-relation {
+  color: var(--ink);
+}
+.reading-versions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 8px 0 0;
+}
+.reading-versions dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+  .resolved-permission > summary,
+  .resolved-question > summary {
+    min-height: 44px;
+  }
 }

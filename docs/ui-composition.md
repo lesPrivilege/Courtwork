@@ -39,3 +39,7 @@ Run 首次发送生成 `commandId`；网络/5xx 回执不明时保留原 input/I
 保留：主区顺序、稳定 DOM id、ARIA 关系、popover/dialog/tab 角色、按钮语义、底层隔离、关闭/返回次序、Run/File 身份、草稿与 renderer owner。若需要改变这些，作为编排变更单独验证，不能包在换皮中。
 
 图标为固定 Lucide 1.41.0 子集的 native SVG `<use>`；Floating UI DOM 1.8.0 只负责 tooltip 避碰；Marked + DOMPurify 用于受限 Markdown。无远端 CDN，运行时不需要安装 UI 框架。版本、源文件、许可证、完整性与改动说明见 `app/web/vendor/manifest.json` 和 `tools/ui-vendor/`。
+
+## Restrained provenance treatment
+
+[Reading marks](reading-marks.md) records the local Critical Edition UI intake: confirmed response/permission rules and file provenance notes, with unchanged domain semantics and panel composition.

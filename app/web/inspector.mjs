@@ -368,16 +368,32 @@ export function createFileView(container, { request }) {
             text: "This view is truncated. The version hash covers the complete file.",
           }),
         );
-      if (next.kind === "current" && next.expectedSha256)
-        container.append(
-          el("p", {
-            className: "inline-notice",
-            text:
-              payload.sha256 === next.expectedSha256
-                ? "Current bytes match the recorded version."
-                : "The current file differs from the recorded version.",
-          }),
-        );
+      const readingNote = el("aside", {
+        className: "reading-note",
+        attrs: { "aria-label": "File provenance" },
+      });
+      readingNote.append(el("p", {
+        text: next.kind === "content-version"
+          ? "Saved by this run. Review acceptance is not recorded here."
+          : "Workspace file at the time of loading.",
+      }));
+      if (next.kind === "current" && next.expectedSha256) {
+        const matches = payload.sha256 === next.expectedSha256;
+        readingNote.append(el("p", {
+          className: "reading-relation",
+          text: matches
+            ? "Matches the recorded version."
+            : "Differs from the recorded version; both versions remain available from the run.",
+        }));
+        const comparison = el("dl", { className: "reading-versions" });
+        for (const [label, hash] of [["Recorded", next.expectedSha256], ["Current", payload.sha256]]) {
+          comparison.append(el("dt", { text: label }), el("dd", {}, el("code", { text: hash.slice(0, 12) })));
+        }
+        readingNote.append(comparison);
+        version.append(el("p", { text: "Recorded version" }), el("div", { className: "version-line" },
+          el("code", { text: next.expectedSha256 }), copyAction(next.expectedSha256, "Copy recorded version hash")));
+      }
+      container.append(readingNote);
       container.append(view);
     } catch (error) {
       if (own !== generation || error.name === "AbortError") return;
