@@ -63,7 +63,12 @@ const FILL = new Map([
   ['.context-bar-segment[data-step="2"]', "同上，第 3 档"],
   ['.context-bar-segment[data-step="3"]', "同上，第 4 档"],
   ['.context-bar-segment[data-step="4"]', "同上，第 5 档"],
-  [".activity-group.is-working > summary > span", "background-clip: text 的文字渐变"],
+  // WO-WK10b 第一段：同一条规则，选择器随 WK-57 行解剖改名（summary 现在有
+  // .flow-title 与 .flow-meta 两个 span，渐变只落在标题上）。豁免理由不变。
+  [
+    ".activity-group.is-working > summary > .flow-title",
+    "background-clip: text 的文字渐变",
+  ],
 ]);
 const norm = (sel) => sel.replace(/\s+/g, " ").trim();
 function levelCheck(file, text) {

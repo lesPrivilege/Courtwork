@@ -1,6 +1,8 @@
 # Interface component contract
 
-2026-09-07. This consolidates the composer, message flow and workspace hierarchy after the user's latest screenshot and request. Main composition remains Navigator / Work / Inspector. Earlier reading-mark color experiments are superseded.
+2026-09-07, revised 2026-09-08 (WK-72 / WK-74, WO-WK10b 第一段). This consolidates the composer, message flow and workspace hierarchy after the user's latest screenshot and request. Earlier reading-mark color experiments are superseded.
+
+**Composition.** The main area holds one working surface — the Chat Flow — and one header band. The work surface is not a third column: collapsed, it is a floating layer of module cards anchored in the main area's right gutter (L2, `--float` + `--shadow-float` + a 1px `--line-strong`), above the thread and above the composer's top edge, with no header and no title of its own; where the main area is too narrow for the 740 reading column and a 360 layer to coexist, the cards collapse to a strip of module glyphs at the right edge. Expanded, the same surface becomes an L3 overlay over the main column, carrying one tab strip and a return control, while the sidebar stays operable. Below the navigation breakpoint the expanded surface is the whole area, as before. This replaces the earlier "Navigator / Work / Inspector" three-column reading and the rail header that went with it; the module registry, the renderer identity, the DOM ids, the ARIA roles and the two-step Escape order are unchanged.
 
 ## Shape and controls
 
@@ -20,6 +22,8 @@ User input is an immutable message record aligned right, sized to its content wi
 
 Each agent run is a semantic section containing its tools, permission requests, answers, output and completion footer. The section is visually open so prose remains a continuous reading surface. Cards are reserved for actionable requests and independent workspace modules, not every runtime row.
 
+**One row anatomy (WK-57).** A tool action, an ask-user question, a decided request and a recorded output are the same primitive in the flow: a 16px type glyph, the object's own name, at most one metadata word, and at most one action — which for a disclosure is the disclosure itself. The glyph is decorative and states the kind of act, never the authorisation; the metadata word is a state word in grey, and only a failed row colours it. A row that would need a second action is not this primitive. Pending permission requests stay whole cards, with the exact call's path, bytes, hash and recorded source visible and their scope words spelled out.
+
 `Edit as new message` opens a native dialog and prepares a new draft. Original message and run remain intact. Cancel preserves the composer. `Use as draft` replaces it explicitly, queues the existing draft persistence and returns focus to the composer; it never sends. An existing composer draft is disclosed before replacement. A stale editor cannot write into another session or a readonly submission. Unconfirmed command IDs and their original input are preserved.
 
 ## Workspace composition
@@ -33,7 +37,8 @@ The session overview separates Workspace, Runs and Session settings into modules
 - `user-message.mjs`: input record presentation and callback-only copy/edit actions.
 - `workspace-view.mjs`: file groups, session overview and run-history presentation.
 - `thread-projection.mjs`: server-event projection, including recorded run-start time.
-- `app.mjs`: sole owner of session state, async generations, run admission/recovery, draft persistence, navigation, dialog/renderer lifetime.
+- `app.mjs`: sole owner of session state, async generations, run admission/recovery, draft persistence, navigation, dialog/renderer lifetime, and the work-surface slot resolution.
+- `surface-modules.mjs`: the module registry and the host's slot declarations. A slot names its id, the input it hands a contribution and that input's version, the intents a contribution may raise, and what the host shows when nothing is mounted. An agent profile's `uiSlots` is a declaration, not a renderer registry: the host mounts only when a loaded producer contributes a renderer module inside the local extension allowlist, and a declared slot with no loaded renderer is a read-only row with no control.
 
 Views do not own a second session store or independently fetch data. Run grouping does not duplicate or reorder the server event projection. Existing renderer and unsaved extension state survive surface close/reopen.
 

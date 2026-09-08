@@ -1,0 +1,36 @@
+[
+  {
+    "name": "session opened",
+    "value": "be5d4a2c-e191-4df1-ad9e-360568e3a95f"
+  },
+  {
+    "name": "question waiting",
+    "value": {
+      "run": "9d52f90a-d442-404f-a73d-e76e972b1197"
+    }
+  },
+  {
+    "name": "write allowed",
+    "value": {
+      "run": "41c817b6-e8ac-4769-abe6-b7cb47a5ecec",
+      "artifacts": 1
+    }
+  },
+  {
+    "name": "write denied",
+    "value": {
+      "run": "5a2c813a-8994-4111-90bd-fc967faad9da",
+      "artifacts": 0
+    }
+  },
+  {
+    "name": "failed tool row",
+    "value": {
+      "run": "a07b1912-6528-4f9b-9670-3ac82aa08b07"
+    }
+  },
+  {
+    "name": "page exceptions",
+    "value": []
+  }
+]

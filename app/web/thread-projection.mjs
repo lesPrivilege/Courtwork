@@ -163,6 +163,10 @@ export function permissionPresentation(payload, binding) {
   const remote = Boolean(resource?.mcp);
   return {
     title: write ? "Allow this file write?" : remote ? "Allow this remote tool call?" : "Allow this tool action?",
+    /* IC-1 · the glyph states the kind of call the row records; it never stands
+     * in for the authorisation words, which stay as text. A remote call and a
+     * local file write are not allowed to share one glyph. */
+    glyph: write ? "square-pen" : remote ? "plug" : "activity",
     noun: write ? "write" : "action",
     label: write ? "Write" : "Action",
     target: write ? payload.path : remote

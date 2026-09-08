@@ -278,17 +278,24 @@ const workspaceModule = {
   tabId: "surface-preview-tab",
   contentId: "surface-content",
   repaint: true,
-  adapter({ sessionId, workspace, extension }) {
+  adapter({ sessionId, workspace, extension, slot, projection }) {
     if (!sessionId) return null;
     return {
       sessionId,
       extension: extension || null,
+      slot: slot || null,
+      projection: projection || null,
       files: Array.isArray(workspace?.files) ? workspace.files : null,
       error: workspace?.error || null,
     };
   },
   card(schema, host) {
-    if (schema.extension)
+    if (schema.extension) {
+      /* WK-43 / 45 (3) · what this card says about a contributed surface is the
+       * host's own slot resolution, not the extension's self-report. When the
+       * renderer is not mounted the card carries a read-only line and its one
+       * navigation action; it never offers an action of the producer's. */
+      const statusLine = slotStatusLine(schema.slot);
       return railCard(
         workspaceModule,
         {
@@ -299,9 +306,12 @@ const workspaceModule = {
         },
         el("p", {
           className: "rail-note",
-          text: `${schema.extension.title || "An extension"} renders this workspace.`,
+          text:
+            statusLine ||
+            `${schema.extension.title || "An extension"} renders this workspace.`,
         }),
       );
+    }
     const open = () =>
       openAction("Open workspace", "rail-open:preview", () =>
         host.open("preview"),
@@ -439,4 +449,111 @@ export const surfaceModules = [
 
 export function surfaceModule(kind) {
   return surfaceModules.find((module) => module.kind === kind) || null;
+}
+
+/* ---- declared slots --------------------------------------------------------
+ * FN-20 · the slot belongs to the host. This table is the whole contract: an
+ * id, the input the host will hand a contribution and its version, the intents
+ * a contribution may raise, and what the host shows when nothing is mounted.
+ * A contributor declares an intention to fill a slot; it does not register
+ * renderer code by declaring it. `control-contract.d.ts:74`'s `uiSlots` is such
+ * a declaration — a saved list of strings on an agent profile — and WK-43 / 45
+ * are implemented on that reading: a declared slot with no loaded renderer is a
+ * read-only row, never a button (WK-45 (3), boundaries §4).
+ *
+ * The commands a contribution may reach are not listed here and are not open:
+ * they are exactly the ones the server advertises in that projection's
+ * `humanActions` and revalidates on receipt (FN-17). There is no command
+ * string channel and no dynamic module URL (FN-11 / FN-21). */
+export const surfaceSlots = Object.freeze([
+  Object.freeze({
+    id: "work.surface",
+    title: "Work surface",
+    /* Which rail module carries the slot. The host, not the contribution,
+     * decides where it sits, in what order, and under which tab (WK-41). */
+    module: "preview",
+    input: "ReviewProjection",
+    inputVersion: 1,
+    intents: Object.freeze(["open", "refresh"]),
+    commands: "projection.humanActions",
+    fallback: "read-only-row",
+  }),
+]);
+
+export function surfaceSlot(id) {
+  return surfaceSlots.find((slot) => slot.id === id) || null;
+}
+
+/* WK-45 (1) · the host resolves a slot from backend facts only, and from two
+ * of them: the control-plane snapshot's selected profile (the declaration) and
+ * the extension registry record the surface response carries (the producer and
+ * its renderer). Nothing here fetches, and nothing here infers a state the
+ * backend did not report.
+ *
+ * The four outcomes are kept apart on purpose (FN-24's failure table, FN-28):
+ *   mounted            renderer loaded and its module path admitted
+ *   renderer-absent    the producer is loaded but declares no renderer module
+ *   producer-<status>  the producer exists but is unloaded / invalidated
+ *   producer-absent    the registry has no record for the bound id
+ * "Not declared" is a fifth, and is not the same as any of them: an unread
+ * declaration is reported as unread, never as "no slot". */
+export function resolveSurfaceSlot(
+  slotId,
+  { declaration = null, extension = null, binding = null } = {},
+) {
+  const slot = surfaceSlot(slotId);
+  if (!slot) return null;
+  const declaredBy = [];
+  /* An incompatible composition still declares its slots, but a declaration is
+   * never the reason anything mounts, so it is recorded and set aside rather
+   * than counted (FN-20; the missing ids are explained by the Runtime module
+   * that owns that snapshot). */
+  const declarationUsable =
+    Boolean(declaration?.known) && declaration.status !== "incompatible";
+  if (declarationUsable && declaration.slots?.includes(slot.id))
+    declaredBy.push("profile");
+  if (binding?.extensionId) declaredBy.push("binding");
+  const contribution = extension?.surface || null;
+  const status = extension?.status || null;
+  const loaded = status === "loaded";
+  const mount = Boolean(loaded && contribution?.module);
+  const title =
+    contribution?.title || extension?.title || binding?.extensionId || slot.title;
+  let reason = null;
+  if (!mount) {
+    if (!extension) reason = binding?.extensionId ? "producer-absent" : "unbound";
+    else if (!loaded) reason = `producer-${status || "unknown"}`;
+    else reason = "renderer-absent";
+  }
+  return {
+    slot,
+    declaredBy,
+    declared: declaredBy.length > 0,
+    declarationKnown: Boolean(declaration?.known),
+    declarationStatus: declaration?.status || null,
+    declarationMissing: declaration?.missing || [],
+    profileId: declaration?.profileId || null,
+    extensionId: extension?.id || binding?.extensionId || null,
+    generation: extension?.generation ?? null,
+    status,
+    title,
+    module: contribution?.module || null,
+    mount,
+    reason,
+  };
+}
+
+/* The one sentence the read-only row carries. Each branch names the object, the
+ * condition and the consequence, and none of them offers an action
+ * (copy-convention §1). `renderer not loaded` is the phrase WK10b fixes for the
+ * declared-but-unmountable case. */
+export function slotStatusLine(resolved) {
+  if (!resolved) return null;
+  if (resolved.mount) return null;
+  if (resolved.reason === "renderer-absent")
+    return `${resolved.title} · renderer not loaded`;
+  if (resolved.reason === "producer-absent")
+    return `${resolved.extensionId} · not installed`;
+  if (resolved.reason === "unbound") return null;
+  return `${resolved.title} · ${resolved.status || "unknown"}`;
 }

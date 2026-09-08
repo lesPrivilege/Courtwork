@@ -45,6 +45,12 @@
 |---|---|
 | WK-83 | **合流后从清洁节点开工。** Astra 交付 `codex/harness-core` `d6247a8`（[证据](../../../../evidence/harness-core-20260908/README.md) 在其工作树，合流后随 main 可读）：通用 Work Core、NDA 后端闭环、跨 Session 续行、独立历史读取；[契约](../../../../docs/work-core/contract.md) 覆盖 [harness-core §4](../../../execution/2026-09-08-two-lines/harness-core.md) 的 H1-a / b / c、H2 执行身份与 H3 只读路径。前端单一律从 Astra 合流 `d6247a8` + `claude/fable-settings` 后的 main 建树；WK10b 第二段按契约改写，排入序 2。G1 真实 provider、G2 / G3 前端验收、G4 / G5 公开演示仍开放。 |
 
+## 4c. WK10b 第一段复核 → WK-84
+
+| 编号 | 裁定 |
+|---|---|
+| WK-84 | Opus 交付 `claude/wk10b-first` `f1ef5ae`（实现 `84803ad`，基线 `a2c2e4c`）：glyph 语义表、Chat Flow 一行解剖、宿主槽位契约 `work.surface`、四种缺席态分句、两份表面文档改写；170/170，FE-T05 / T07 作者通过。Fable 复核见 [delivery-wk10b-1 §10](delivery-wk10b-1.md)：接受 lint 选择器改名、可见词 `extension`、删除通用 Run action、不为仅声明的 uiSlots 画行。交 Astra 合流；第二段从合流后 main（含 `7941bdb` 接缝）建树。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
