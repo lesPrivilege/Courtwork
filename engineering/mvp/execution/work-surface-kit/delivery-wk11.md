@@ -312,3 +312,15 @@ git diff --stat -- app/server app/runtime app/core app/domains app/extensions br
 | 非作者独验 | 未跑 | 交 Astra / Fable。建议独验项：FE-T03 / T04 复跑、三支 RC 套件复跑、`git diff -- app/server app/runtime app/core` 为空、以及 §2 那一处范围判断 |
 
 完成的含义：**现有资源的 Workbench 可用**——读得清、改得动、改不动的时候说得清为什么。R2 Source Resolver、R4 Proposal、R5 事务化 apply、R6 Expert 快照都还没有实现，本单也没有把既有的 PUT 改名包装成它们。
+
+## 17. Fable 复核（2026-09-09）
+
+独立重跑 `644cc43`：`npm --prefix app test` 208/208，`lint-colors` ok，server / runtime / core / extensions / home-view / presentation-adapters 无差异。目视 `group-overview`（作用域 tab、precedence 句、Attention、Next run · Context 字符计数、Recorded bindings）、`group-capabilities-and-connections`（四维分列、MCP 三态、父门控解释、Configurable / Inventory、kind chips）、`layers-open`（Source / Requested / Effective / Bound 四层与权限解释）。
+
+裁定（WK-98）：
+1. 删除 `#surface-runtime-tab` / `#runtime-content` L2 面板：接受。同一目录只画一处；导轨 Runtime 卡保留粗粒度读数（WK-66），其 Open 通向 Settings 组。WK-90 将把该组搬入 Developer › Runtime，路径随之改，不改本裁定。
+2. RC 套件断言变更按 §7 逐条理由接受；两条在 WK12 时已失效的断言本单修复，登记为 WK12 遗留。
+3. 缺陷：`layers-open` 中 Explain permission 下方渲染出裸 `null`（评估结果为空时的原样输出），违反 FN-28"缺数据 ≠ 空值文本"；不阻塞合流，列入 FE-01 首项修复。
+4. 深链 `#settings/runtime` 的 bootstrap 401 重试竞态（源自 WK12）：FE-01 一并处理，先取 token 再发读取。
+5. BE-13 本轮未复现：保留为条件性问题，不关闭。
+6. 交 Astra 合流；独验项：FE-T03 / T04、RC 20 / 9 / 36、`mcp_effect_unknown` 路径（本单未检）。
