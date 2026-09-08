@@ -1,0 +1,19 @@
+[
+  {
+    "stage": "rows",
+    "name": "FE-T01 · no binding · the session reads and writes without one, and is not called an empty Matter",
+    "pass": true,
+    "actual": {
+      "binding": null,
+      "matter": false,
+      "composer": true,
+      "band": true
+    }
+  },
+  {
+    "stage": "rows",
+    "name": "the totals band belongs to Home only",
+    "pass": true,
+    "actual": true
+  }
+]

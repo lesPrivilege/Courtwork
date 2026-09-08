@@ -1,0 +1,47 @@
+PASS 1440/light · three bands read in order
+PASS 1440/light · composer stays 64–160 and its sentence stays outside the form
+PASS 1440/light · no horizontal overflow
+PASS 1440/light · the top band is at most 160
+PASS 1440/light · the tiles state the three totals
+PASS 1440/light · each tile's accessible name is its set and its count
+PASS 1440/light · the day reading is one planned line, not a grid
+PASS 1440/light · the composer band is band 2, not a page top (WK-46 (1))
+PASS 1440/light · band 3 absorbs the slack (≥ 1.8 × band 1)
+PASS 1440/dark · three bands read in order
+PASS 1440/dark · composer stays 64–160 and its sentence stays outside the form
+PASS 1440/dark · no horizontal overflow
+PASS 1440/dark · the top band is at most 160
+PASS 1440/dark · the tiles state the three totals
+PASS 1440/dark · each tile's accessible name is its set and its count
+PASS 1440/dark · the day reading is one planned line, not a grid
+PASS 1440/dark · the composer band is band 2, not a page top (WK-46 (1))
+PASS 1440/dark · band 3 absorbs the slack (≥ 1.8 × band 1)
+PASS 390/light · three bands read in order
+PASS 390/light · composer stays 64–160 and its sentence stays outside the form
+PASS 390/light · no horizontal overflow
+PASS 390/light · the three tiles read as two rows
+PASS 390/light · the tiles state the three totals
+PASS 390/light · each tile's accessible name is its set and its count
+PASS 390/light · the day reading is one planned line, not a grid
+PASS 390/light · measured band geometry
+PASS 390/dark · three bands read in order
+PASS 390/dark · composer stays 64–160 and its sentence stays outside the form
+PASS 390/dark · no horizontal overflow
+PASS 390/dark · the three tiles read as two rows
+PASS 390/dark · the tiles state the three totals
+PASS 390/dark · each tile's accessible name is its set and its count
+PASS 390/dark · the day reading is one planned line, not a grid
+PASS 390/dark · measured band geometry
+PASS FE-T12 · no today reading, no percentage, no drawn heatmap
+PASS a tile filters the lower band to its own set
+PASS the same set reads as cards when the band is filtered to it
+PASS Show all returns the three sets
+PASS j and k walk the lower band
+PASS the arrows walk the same list
+PASS the list keyboard never fires while the caret is in the composer
+PASS FE-T02 · pointer and keyboard reach the same session
+PASS a pending card is a keyboard stop and o moves into it without deciding
+PASS FE-T01 · a failed read states the failure, keeps the last confirmed counts and never reads 0
+PASS 200 % · the band reflows and nothing overflows sideways
+PASS WK-85 (2) · Continue existing leads when the project owns work; otherwise only Create new and one condition sentence
+PASS 46/46

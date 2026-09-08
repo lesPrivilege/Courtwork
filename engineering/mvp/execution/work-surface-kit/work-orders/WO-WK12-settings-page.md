@@ -1,6 +1,6 @@
 # WO-WK12 · Settings 整页与用户自定义（Claude Opus）
 
-2026-09-08。裁定见 [WK-78](../intake-round-3.md)；参考登记见 [settings-references](../inputs/settings-references-2026-09-08.md)。基线 `main` `8023e1b`；接单时重查 HEAD，在 WK10b 第一段合流后开工，与 WK11 串行于同一前端文件。Astra 接收与独验；用户裁视觉四轴。
+2026-09-08。裁定见 [WK-78](../intake-round-3.md)；参考登记见 [settings-references](../inputs/settings-references-2026-09-08.md)。基线为 WK13 r2 合流后的清洁 `main`（以 Astra 最终回执 SHA 为准）；接单时重查 HEAD，在 WK13 合流后开工，与 WK11 串行于同一前端文件。Astra 接收与独验；用户裁视觉四轴。
 
 ## 问题
 

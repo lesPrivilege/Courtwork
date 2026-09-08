@@ -1,0 +1,3 @@
+PASS FE-T12 · a truncated page says how much is not shown and never says the list is complete
+PASS FE-T12 · the tile states the server's total, not the page length
+PASS 2/2

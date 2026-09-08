@@ -1,0 +1,66 @@
+[
+  {
+    stage: 'rows',
+    width: 1440,
+    theme: 'light',
+    pass: true,
+    geometry: {
+      statusOutside: true,
+      empty: false,
+      input: [Object],
+      form: [Object],
+      status: [Object],
+      context: [Object],
+      overflow: 0,
+      rows: 6
+    }
+  },
+  {
+    stage: 'rows',
+    width: 1440,
+    theme: 'dark',
+    pass: true,
+    geometry: {
+      statusOutside: true,
+      empty: false,
+      input: [Object],
+      form: [Object],
+      status: [Object],
+      context: [Object],
+      overflow: 0,
+      rows: 6
+    }
+  },
+  {
+    stage: 'rows',
+    width: 390,
+    theme: 'light',
+    pass: true,
+    geometry: {
+      statusOutside: true,
+      empty: false,
+      input: [Object],
+      form: [Object],
+      status: [Object],
+      context: [Object],
+      overflow: 0,
+      rows: 6
+    }
+  },
+  {
+    stage: 'rows',
+    width: 390,
+    theme: 'dark',
+    pass: true,
+    geometry: {
+      statusOutside: true,
+      empty: false,
+      input: [Object],
+      form: [Object],
+      status: [Object],
+      context: [Object],
+      overflow: 0,
+      rows: 6
+    }
+  }
+]

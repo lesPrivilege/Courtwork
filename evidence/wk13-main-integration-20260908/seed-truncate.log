@@ -1,0 +1,9 @@
+{
+ "stage": "truncate",
+ "sessions": 33,
+ "totals": {
+  "pendingItems": 0,
+  "sessionCandidates": 33,
+  "inspectionCandidates": 0
+ }
+}

@@ -1,0 +1,411 @@
+[
+  {
+    "name": "1440/light · three bands read in order",
+    "pass": true,
+    "actual": [
+      "home-top-band",
+      "composer-area",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "name": "1440/light · composer stays 64–160 and its sentence stays outside the form",
+    "pass": true,
+    "actual": {
+      "input": 64,
+      "statusOutside": true
+    }
+  },
+  {
+    "name": "1440/light · no horizontal overflow",
+    "pass": true,
+    "actual": 0
+  },
+  {
+    "name": "1440/light · the top band is at most 160",
+    "pass": true,
+    "actual": 155.28125
+  },
+  {
+    "name": "1440/light · the tiles state the three totals",
+    "pass": true,
+    "actual": [
+      "Waiting for you=1",
+      "In progress=4",
+      "Needs a look=1"
+    ]
+  },
+  {
+    "name": "1440/light · each tile's accessible name is its set and its count",
+    "pass": true,
+    "actual": [
+      "Waiting for you, 1",
+      "In progress, 4",
+      "Needs a look, 1"
+    ]
+  },
+  {
+    "name": "1440/light · the day reading is one planned line, not a grid",
+    "pass": true,
+    "actual": "Activity by dayBackend pending"
+  },
+  {
+    "name": "1440/light · the composer band is band 2, not a page top (WK-46 (1))",
+    "pass": true,
+    "actual": {
+      "band": 155,
+      "composerBand": 257,
+      "lowerBandVisible": 432,
+      "streamTop": 468
+    }
+  },
+  {
+    "name": "1440/light · band 3 absorbs the slack (≥ 1.8 × band 1)",
+    "pass": true,
+    "actual": {
+      "band": 155,
+      "composerBand": 257,
+      "lowerBandVisible": 432,
+      "streamTop": 468
+    }
+  },
+  {
+    "name": "1440/dark · three bands read in order",
+    "pass": true,
+    "actual": [
+      "home-top-band",
+      "composer-area",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "name": "1440/dark · composer stays 64–160 and its sentence stays outside the form",
+    "pass": true,
+    "actual": {
+      "input": 64,
+      "statusOutside": true
+    }
+  },
+  {
+    "name": "1440/dark · no horizontal overflow",
+    "pass": true,
+    "actual": 0
+  },
+  {
+    "name": "1440/dark · the top band is at most 160",
+    "pass": true,
+    "actual": 155.28125
+  },
+  {
+    "name": "1440/dark · the tiles state the three totals",
+    "pass": true,
+    "actual": [
+      "Waiting for you=1",
+      "In progress=4",
+      "Needs a look=1"
+    ]
+  },
+  {
+    "name": "1440/dark · each tile's accessible name is its set and its count",
+    "pass": true,
+    "actual": [
+      "Waiting for you, 1",
+      "In progress, 4",
+      "Needs a look, 1"
+    ]
+  },
+  {
+    "name": "1440/dark · the day reading is one planned line, not a grid",
+    "pass": true,
+    "actual": "Activity by dayBackend pending"
+  },
+  {
+    "name": "1440/dark · the composer band is band 2, not a page top (WK-46 (1))",
+    "pass": true,
+    "actual": {
+      "band": 155,
+      "composerBand": 257,
+      "lowerBandVisible": 432,
+      "streamTop": 468
+    }
+  },
+  {
+    "name": "1440/dark · band 3 absorbs the slack (≥ 1.8 × band 1)",
+    "pass": true,
+    "actual": {
+      "band": 155,
+      "composerBand": 257,
+      "lowerBandVisible": 432,
+      "streamTop": 468
+    }
+  },
+  {
+    "name": "390/light · three bands read in order",
+    "pass": true,
+    "actual": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ]
+  },
+  {
+    "name": "390/light · composer stays 64–160 and its sentence stays outside the form",
+    "pass": true,
+    "actual": {
+      "input": 64,
+      "statusOutside": true
+    }
+  },
+  {
+    "name": "390/light · no horizontal overflow",
+    "pass": true,
+    "actual": 0
+  },
+  {
+    "name": "390/light · the three tiles read as two rows",
+    "pass": true,
+    "actual": {
+      "tileRows": 2,
+      "tops": [
+        68,
+        68,
+        156
+      ]
+    }
+  },
+  {
+    "name": "390/light · the tiles state the three totals",
+    "pass": true,
+    "actual": [
+      "Waiting for you=1",
+      "In progress=4",
+      "Needs a look=1"
+    ]
+  },
+  {
+    "name": "390/light · each tile's accessible name is its set and its count",
+    "pass": true,
+    "actual": [
+      "Waiting for you, 1",
+      "In progress, 4",
+      "Needs a look, 1"
+    ]
+  },
+  {
+    "name": "390/light · the day reading is one planned line, not a grid",
+    "pass": true,
+    "actual": "Activity by dayBackend pending"
+  },
+  {
+    "name": "390/light · measured band geometry",
+    "pass": true,
+    "actual": {
+      "band": 213,
+      "composerBand": 349,
+      "lowerBandVisible": 631,
+      "streamTop": 269
+    }
+  },
+  {
+    "name": "390/dark · three bands read in order",
+    "pass": true,
+    "actual": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ]
+  },
+  {
+    "name": "390/dark · composer stays 64–160 and its sentence stays outside the form",
+    "pass": true,
+    "actual": {
+      "input": 64,
+      "statusOutside": true
+    }
+  },
+  {
+    "name": "390/dark · no horizontal overflow",
+    "pass": true,
+    "actual": 0
+  },
+  {
+    "name": "390/dark · the three tiles read as two rows",
+    "pass": true,
+    "actual": {
+      "tileRows": 2,
+      "tops": [
+        68,
+        68,
+        156
+      ]
+    }
+  },
+  {
+    "name": "390/dark · the tiles state the three totals",
+    "pass": true,
+    "actual": [
+      "Waiting for you=1",
+      "In progress=4",
+      "Needs a look=1"
+    ]
+  },
+  {
+    "name": "390/dark · each tile's accessible name is its set and its count",
+    "pass": true,
+    "actual": [
+      "Waiting for you, 1",
+      "In progress, 4",
+      "Needs a look, 1"
+    ]
+  },
+  {
+    "name": "390/dark · the day reading is one planned line, not a grid",
+    "pass": true,
+    "actual": "Activity by dayBackend pending"
+  },
+  {
+    "name": "390/dark · measured band geometry",
+    "pass": true,
+    "actual": {
+      "band": 213,
+      "composerBand": 349,
+      "lowerBandVisible": 631,
+      "streamTop": 269
+    }
+  },
+  {
+    "name": "FE-T12 · no today reading, no percentage, no drawn heatmap",
+    "pass": true,
+    "actual": {
+      "today": false,
+      "rate": false,
+      "heat": 0
+    }
+  },
+  {
+    "name": "a tile filters the lower band to its own set",
+    "pass": true,
+    "actual": {
+      "before": 3,
+      "sections": [
+        "Waiting for you"
+      ],
+      "pressed": "true",
+      "rows": 1
+    }
+  },
+  {
+    "name": "the same set reads as cards when the band is filtered to it",
+    "pass": true,
+    "actual": {
+      "cards": 4,
+      "rows": 0,
+      "head": "Retainer letter — Okafor | Waiting for you | Open",
+      "meta": [
+        "Northside Housing",
+        "Run started Sep 8, 10:28 PM"
+      ],
+      "glyph": "16",
+      "open": "Open Retainer letter — Okafor"
+    }
+  },
+  {
+    "name": "Show all returns the three sets",
+    "pass": true,
+    "actual": null
+  },
+  {
+    "name": "j and k walk the lower band",
+    "pass": true,
+    "actual": {
+      "first": "home:pendingItems:c7e71469-defb-4d9c-9954-ff4320edc8b6",
+      "second": "home:sessionCandidates:3e525d64-ea74-4c25-9d0d-fa94073a3b81",
+      "back": "home:pendingItems:c7e71469-defb-4d9c-9954-ff4320edc8b6"
+    }
+  },
+  {
+    "name": "the arrows walk the same list",
+    "pass": true,
+    "actual": {
+      "down": "home:sessionCandidates:3e525d64-ea74-4c25-9d0d-fa94073a3b81",
+      "up": "home:pendingItems:c7e71469-defb-4d9c-9954-ff4320edc8b6"
+    }
+  },
+  {
+    "name": "the list keyboard never fires while the caret is in the composer",
+    "pass": true,
+    "actual": {
+      "value": "j",
+      "focus": "composer-input"
+    }
+  },
+  {
+    "name": "FE-T02 · pointer and keyboard reach the same session",
+    "pass": true,
+    "actual": {
+      "target": "home:pendingItems:c7e71469-defb-4d9c-9954-ff4320edc8b6",
+      "byPointer": "3e525d64-ea74-4c25-9d0d-fa94073a3b81",
+      "byKeyboard": "3e525d64-ea74-4c25-9d0d-fa94073a3b81"
+    }
+  },
+  {
+    "name": "a pending card is a keyboard stop and o moves into it without deciding",
+    "pass": true,
+    "actual": {
+      "card": "question-card ",
+      "inside": {
+        "tag": "INPUT",
+        "inCard": true,
+        "answered": false
+      }
+    }
+  },
+  {
+    "name": "FE-T01 · a failed read states the failure, keeps the last confirmed counts and never reads 0",
+    "pass": true,
+    "actual": {
+      "notice": "The local runtime could not be reached.",
+      "retry": true,
+      "tiles": [
+        "1",
+        "4",
+        "1"
+      ],
+      "observed": "Last confirmed Sep 8, 10:29 PM."
+    }
+  },
+  {
+    "name": "200 % · the band reflows and nothing overflows sideways",
+    "pass": true,
+    "actual": {
+      "overflow": 0,
+      "band": 151.28125,
+      "tiles": 3
+    }
+  },
+  {
+    "name": "WK-85 (2) · Continue existing leads when the project owns work; otherwise only Create new and one condition sentence",
+    "pass": true,
+    "actual": {
+      "withWork": {
+        "headings": [
+          "Continue existing",
+          "Create new"
+        ],
+        "note": null
+      },
+      "without": {
+        "headings": [
+          "Create new"
+        ],
+        "note": "No work in this project is bound to Evidence Memo (development) yet."
+      },
+      "unread": {
+        "headings": [
+          "Create new"
+        ],
+        "note": "Reading the work this project already owns…"
+      }
+    }
+  }
+]

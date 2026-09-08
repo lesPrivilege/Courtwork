@@ -1,0 +1,62 @@
+[
+  {
+    "stage": "empty",
+    "name": "FE-T01 · no data · the counts are a confirmed 0 and no failure is claimed",
+    "pass": true,
+    "actual": {
+      "tiles": [
+        "0",
+        "0",
+        "0"
+      ],
+      "sections": [
+        "In progress"
+      ],
+      "help": [
+        "Your sessions will appear here."
+      ],
+      "notice": false,
+      "empty": true,
+      "planned": "Activity by dayBackend pending",
+      "matter": false,
+      "composer": true,
+      "status": "Choose or create a project to send."
+    }
+  },
+  {
+    "stage": "empty",
+    "name": "FE-T01 · no data · one condition sentence, and plain exploration is still usable",
+    "pass": true,
+    "actual": {
+      "tiles": [
+        "0",
+        "0",
+        "0"
+      ],
+      "sections": [
+        "In progress"
+      ],
+      "help": [
+        "Your sessions will appear here."
+      ],
+      "notice": false,
+      "empty": true,
+      "planned": "Activity by dayBackend pending",
+      "matter": false,
+      "composer": true,
+      "status": "Choose or create a project to send."
+    }
+  },
+  {
+    "stage": "empty",
+    "name": "FE-T01 · nothing on an unbound Home is called a Matter",
+    "pass": true,
+    "actual": "Choose or create a project to send."
+  },
+  {
+    "stage": "empty",
+    "name": "the planned day reading stands in the empty state too",
+    "pass": true,
+    "actual": "Activity by dayBackend pending"
+  }
+]

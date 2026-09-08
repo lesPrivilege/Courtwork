@@ -1,0 +1,3 @@
+PASS FE-T01 · no binding · the session reads and writes without one, and is not called an empty Matter
+PASS the totals band belongs to Home only
+PASS 2/2
