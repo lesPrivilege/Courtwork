@@ -2,6 +2,8 @@
 
 基线 `main` `e0d214d`。问题：CourtWork 的 harness core 哪些部分必须自研，哪些必须继续复用；Astra 在 H1–H3 实施时的边界与每个局部应先消费的成熟实践。上游符号逐项清单见 [EX-A](explore/ex-a-upstream-surface.md)；本页只保留裁定与理由。
 
+**2026-09-08 后记：** Astra `codex/harness-core` `d6247a8` 已按 §3 / §4 交付：`app/core` 通用 owner、`work-adapter.mjs`、`inbound-nda` 领域模块、应用 schema 2 迁移与备份、`existingMatterId` 重绑定、不可变来源历史、真实执行身份、producer 缺席只读读取；契约 `docs/work-core/contract.md`，170/170。§4 表由此转为对照记录，不再是待办。
+
 ## 1. 现状：谁在承重
 
 按 import 核对（`grep "@earendil-works\|@modelcontextprotocol"`），上游只进入七个文件：
