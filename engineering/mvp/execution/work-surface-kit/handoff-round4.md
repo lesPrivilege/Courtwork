@@ -12,14 +12,14 @@
 | `claude/wk10b-second` → main `b7fa5e2` | NDA renderer、决定 / 修订 / 回执、续行、只读历史（WK-85） | 已合流 |
 | `claude/wk13-home` → main `429fdd6` | Home 三带、StatTile、adapter、j/k（WK-86） | 已合流 |
 | `claude/wk12-settings` → main `14ebd61` | Settings 整页、外观自定义、本设备偏好（WK-87） | 已合流 |
-| `claude/wk11-workbench` | Runtime Workbench 入壳 + WK-87 追加 | 见 [delivery-wk11](delivery-wk11.md) 与本页 §2 |
+| `claude/wk11-workbench` `644cc43`（+ 复核提交） | Runtime Workbench 入壳 + WK-87 追加（WK-98） | 待 Astra 合流 |
 | `claude/fable-round4` | WK-88…97：两份独立审查裁决、composition law、WO-FE-round4、EX-WK8 台账、BE-17…20、本页 | 待 Astra 合流 |
 
 合流顺序：先 `claude/wk11-workbench`，再 `claude/fable-round4`（只有文档，与 WK11 无文件重叠）。
 
-## 2. WK11 复核（回执后填）
+## 2. WK11 复核
 
-见 [delivery-wk11](delivery-wk11.md) 末节 Fable 复核与 intake-round-3 §4i。
+`claude/wk11-workbench` `644cc43` + Fable 复核提交（WK-98）：208/208 独立重跑通过；接受删除 L2 Runtime 面板；两处小缺陷（裸 `null`、深链 401 竞态）列入 FE-01 首项；BE-13 未复现保留。详见 [delivery-wk11 §17](delivery-wk11.md)。
 
 ## 3. 给 Astra
 

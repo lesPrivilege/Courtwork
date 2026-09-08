@@ -95,6 +95,12 @@
 
 FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = Home vertical composition / composer prominence / modules-below-entry；ChatGPT Work = active-work reading measure / bottom composer / dashboard evacuation。
 
+## 4i. WK11 复核 → WK-98
+
+| 编号 | 裁定 |
+|---|---|
+| WK-98 | Opus 交付 `claude/wk11-workbench` `644cc43`（基线 `14ebd61`）：Runtime 目录入 Settings 五个意图节，四层 Source / Requested / Effective / Bound，profile / policy 编辑、权限解释、Context inspector、Configurable / Inventory、`/` 查找、FN-16 冻结无"排队"，host 清理（删 `runtimeControlRequest`），WK-87 两项；208/208，RC 20 / 9 / 36，FE-T03 / T04 作者通过。裁定：接受删除 L2 Runtime 面板（导轨卡保留粗读数）；RC 断言变更按理由接受；裸 `null` 与深链 401 竞态列 FE-01 首项；BE-13 未复现保留。复核见 [delivery-wk11 §17](delivery-wk11.md)。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
