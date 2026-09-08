@@ -19,6 +19,15 @@ const MEMO_PROPOSAL_SCHEMA = {
   },
 };
 
+// Applicability of a candidate's input basis, not authority to accept it.
+export function candidateBasis(candidate, matter) {
+  const reasons = [];
+  if (candidate.base_version !== matter.version) reasons.push('base_version_changed');
+  if (candidate.source_version !== matter.source_version) reasons.push('source_version_changed');
+  if (candidate.contract_version !== matter.contract_version) reasons.push('contract_version_changed');
+  return {current:reasons.length === 0,reasons};
+}
+
 export function workProjection(view, { extension, writable = false, contractVersion = null, revisionProposalSchema = MEMO_PROPOSAL_SCHEMA } = {}) {
   const candidates = view.candidates ?? [];
   const compatible = contractVersion === view.matter.contract_version
@@ -27,8 +36,7 @@ export function workProjection(view, { extension, writable = false, contractVers
   const humanActions = [];
   if (writable && compatible) {
     for (const candidate of candidates) {
-      if (candidate.status !== 'pending' || candidate.base_version !== view.matter.version
-        || candidate.source_version !== view.matter.source_version || candidate.contract_version !== view.matter.contract_version) continue;
+      if (candidate.status !== 'pending' || !candidateBasis(candidate,view.matter).current) continue;
       humanActions.push({
         schemaVersion: 1, action: 'decide', label: `Review candidate ${candidate.id}`,
         payloadSchema: {
@@ -70,10 +78,28 @@ export function workProjection(view, { extension, writable = false, contractVers
 }
 
 export function compileWorkContext(view, limit = 24000) {
-  const required = { schemaVersion: 1, domain: view.domain ?? null, matter: view.matter, artifact: view.artifact,
+  let artifact = null;
+  if (view.artifact) {
+    const a = view.artifact;
+    const origin = view.candidates.find(c=>c.id === a.candidate_id);
+    const decision = view.decisions?.find(d=>d.action === 'accept' && d.result?.active_artifact === a.id);
+    const reasons = [];
+    if (!origin) reasons.push('origin_unavailable');
+    else {
+      if (origin.source_version !== view.matter.source_version) reasons.push('source_version_changed');
+      if (origin.contract_version !== view.matter.contract_version) reasons.push('contract_version_changed');
+    }
+    artifact = {id:a.id,candidateId:a.candidate_id,contentDigest:a.content_digest,
+      lengthCodePoints:Array.from(a.content).length,acceptedVersion:decision?.result?.version ?? null,
+      sourceVersion:origin?.source_version ?? null,contractVersion:origin?.contract_version ?? null,
+      basis:{current:reasons.length === 0,reasons},
+      read:{tool:'se_read_artifact',artifactId:a.id,offset:0,limit:4000}};
+  }
+  const required = { schemaVersion: 2, domain: view.domain ?? null, matter: view.matter, artifact,
     sourceRefs: view.sources.map(({id,version,digest}) => ({id,version,digest})),
-    pending: view.candidates.filter(c => c.status === 'pending').map(c => ({id:c.id,baseVersion:c.base_version,domain:c.domain})) };
+    pending: view.candidates.filter(c => c.status === 'pending').map(c => ({id:c.id,baseVersion:c.base_version,
+      sourceVersion:c.source_version,contractVersion:c.contract_version,basis:candidateBasis(c,view.matter),domain:c.domain})) };
   const text = JSON.stringify(required);
   if (text.length > limit) throw Object.assign(new Error('Required work context exceeds budget'), {code:'CONTEXT_BUDGET'});
-  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['effective artifact','obligations','pending candidates','source references'],omitted:['source bodies available through scoped read tool','closed candidates and execution trace'],characters:text.length,limit}};
+  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['active artifact identity and input basis','obligations','pending candidates and input basis','source references'],omitted:['artifact body available through se_read_artifact','source bodies available through scoped read tool','closed candidates and execution trace'],characters:text.length,limit}};
 }

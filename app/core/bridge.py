@@ -36,6 +36,7 @@ from core import (
     canonical_json,
     digest_source,
     parse_json,
+    sha256_text,
 )
 
 
@@ -654,6 +655,34 @@ def trusted_decide(store: Store, payload: dict[str, Any], reviewer: TrustedRevie
     return reviewer.decide(request)
 
 
+def read_artifact(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
+    _exact_keys(payload, {"artifact_id", "offset", "limit", "context"}, "read_artifact")
+    context = validate_context(payload["context"])
+    check_run_binding(store, context, require_open=True)
+    _ident(payload["artifact_id"], "artifact_id")
+    for key in ("offset", "limit"):
+        if type(payload[key]) is not int or payload[key] < 0:
+            raise CoreError("INVALID", "artifact range")
+    if not 1 <= payload["limit"] <= 4000:
+        raise CoreError("INVALID", "artifact limit must be 1..4000 code points")
+    row = store.conn.execute(
+        "SELECT a.* FROM artifact a JOIN candidate c ON a.candidate_id=c.id WHERE a.id=? AND c.matter_id=?",
+        (payload["artifact_id"], context["matter_id"]),
+    ).fetchone()
+    if row is None:
+        raise CoreError("BINDING_MISMATCH", "artifact is outside the bound Matter")
+    content = row["content"]
+    if sha256_text(content) != row["content_digest"]:
+        raise CoreError("INTEGRITY_REFUSAL", "artifact digest mismatch")
+    offset = payload["offset"]
+    if offset > len(content):
+        raise CoreError("INVALID", "artifact offset exceeds length")
+    end = min(offset + payload["limit"], len(content))
+    return {"artifactId":row["id"], "candidateId":row["candidate_id"], "contentDigest":row["content_digest"],
+            "offset":offset, "end":end, "lengthCodePoints":len(content), "text":content[offset:end],
+            "nextOffset":end if end < len(content) else None}
+
+
 def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) -> Any:
     op = request.get("op")
     if not isinstance(op, str):
@@ -740,6 +769,8 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         return store.read_source(p["source_id"], p["version"], matter_id=p["matter_id"], revision=c["source_version"])
     if op == "read_source":
         return read_source(store, request_payload(request, {"source_id", "version", "context"}))
+    if op == "read_artifact":
+        return read_artifact(store, request_payload(request, {"artifact_id", "offset", "limit", "context"}))
     if op == "save_candidate":
         return save_candidate(store, request_payload(request, {"payload", "context"}))
     if op == "trusted_decide":

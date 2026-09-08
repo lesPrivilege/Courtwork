@@ -12,7 +12,7 @@ export const manifest = Object.freeze({
     'No real provider credentials or external network access.',
     'No automatic candidate acceptance or publication.',
   ],
-  declaredTools: ['se_read_source', 'se_submit_candidate'],
+  declaredTools: ['se_read_source', 'se_submit_candidate', 'se_read_artifact'],
   surface: {
     id: 'evidence-memo',
     title: 'Evidence Memo',
@@ -31,4 +31,3 @@ export const manifest = Object.freeze({
     'Retain source digest and Evidence anchors for every Candidate.',
   ],
 });
-

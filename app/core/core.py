@@ -151,10 +151,8 @@ def validate_candidate_payload(value: Any) -> dict[str, Any]:
         _version(value[key], f"candidate.{key}")
     if not isinstance(value["artifact_text"], str) or not value["artifact_text"]:
         raise CoreError("INVALID", "candidate.artifact_text")
-    if ("\x00" in value["artifact_text"] or value["artifact_text"].startswith("/")
-            or "../" in value["artifact_text"] or "..\\" in value["artifact_text"]
-            or "://" in value["artifact_text"]):
-        raise CoreError("INVALID", "candidate.artifact_text cannot reference an external path")
+    if "\x00" in value["artifact_text"]:
+        raise CoreError("INVALID", "candidate.artifact_text contains NUL")
     if not isinstance(value["evidence"], list):
         raise CoreError("INVALID", "candidate.evidence")
     for item in value["evidence"]:

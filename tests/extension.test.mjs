@@ -38,7 +38,7 @@ test('manifest is machine-marked development and advertises generic binding fiel
     { name: 'title', label: 'Title', multiline: false, required: true, maxLength: 120 },
     { name: 'sourceText', label: 'Source text', multiline: true, required: true, maxLength: 100_000 },
   ]);
-  assert.deepEqual(evidenceManifest.declaredTools, ['se_read_source', 'se_submit_candidate']);
+  assert.deepEqual(evidenceManifest.declaredTools, ['se_read_source', 'se_submit_candidate', 'se_read_artifact']);
 });
 
 test('legacy transport import resolves the single shared Core owner', async () => {
@@ -78,8 +78,8 @@ test('begin exposes only namespaced source/propose tools and Core rejects late c
       provider: { provider: 'fake-openai-loopback', model: 'fake-1', api: 'openai-completions', baseUrl: 'http://127.0.0.1:43123/v1' },
       instruction: 'Draft a memo from the source.',
     });
-    assert.deepEqual(run.tools.map((tool) => tool.name), ['se_read_source', 'se_submit_candidate']);
-    assert.deepEqual(run.tools.map((tool) => tool.parameters.additionalProperties), [false, false]);
+    assert.deepEqual(run.tools.map((tool) => tool.name), ['se_read_source', 'se_submit_candidate', 'se_read_artifact']);
+    assert.deepEqual(run.tools.map((tool) => tool.parameters.additionalProperties), [false, false, false]);
     const source = before.sources[0];
     const read = await run.tools[0].execute({ sourceId: source.id });
     assert.equal(read.text, source.text);

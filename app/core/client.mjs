@@ -228,6 +228,10 @@ export class CoreClient {
     });
   }
 
+  readArtifact({matterId,runId,artifactId,offset=0,limit=4000}) {
+    return this.call('read_artifact',{artifact_id:artifactId,offset,limit,context:{matter_id:matterId,run_id:runId}});
+  }
+
   decide(request) { return this.call('trusted_decide', { request }); }
 
   queryRequest(requestId) { return this.call('query_request', { request_id: requestId }); }
