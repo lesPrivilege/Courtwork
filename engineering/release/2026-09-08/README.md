@@ -9,7 +9,8 @@
 | UI独立施工 | Fable维护UI方向、Preview extensions编排的UI选型与唯一writer；Opus按已派发WO-RC、WO-WK9等边界施工。WK9画布选择后才转产品实现 | 固定候选SHA、设计选择/未决、实际修改路径、作者测试与gaps；画布交付不等于产品实现 |
 | Fable竣工后双向追溯 | Astra从最终前端动作/投影追到harness契约与真实效果，再从harness能力/限制/恢复路径反查前端覆盖；补齐有界接缝 | [双向追溯与集成检查](integration.md)；固定交付SHA、调用路径、缺口及验证，不把中间整合回执当竣工 |
 | 补齐后merge | 在隔离集成树合流最终UI与必要harness补充，复核祖先、冲突和受影响检查 | 固定merge SHA、干净提交、保留未检项；接收后才转移writer责任 |
-| handoff fresh Astra | 合流后按 [fresh Astra交接包](fresh-astra-handoff.md)创建独立任务，绑定merge SHA与证据 | 新任务从交接包恢复，不依赖旧聊天记忆；此步不同于后续网页GPT Pro review |
+| Fable收尾 | 用户先派Fable完成本轮剩余前端与版面收尾，使用Astra已合流基线 | 固定收尾SHA、差异与未检项；不由此前新任务创建请求跳过此步 |
+| handoff fresh Astra | Fable收尾后按 [fresh Astra交接包](fresh-astra-handoff.md)创建独立任务，绑定merge SHA与证据 | 新任务从交接包恢复，不依赖旧聊天记忆；此步不同于后续网页GPT Pro review |
 | build后联调Web UI | fresh Astra按实际安装/校验/启动链建立同一SHA基线，再处理前后端往返、异常恢复与细粒度polish | 真实请求/回执、浏览器链和独立复核证据；未运行项显式保留 |
 | 两笔完成后push | 推送上述集成候选至Courtwork远端候选分支；按用户本轮授权，在前置工作成立后执行，无需再重复询问同一候选推送 | 本地SHA=远端SHA，独立clone可复现，验证回执及未决同源；不把不完整候选推作已完成 |
 | 双线继续 | 工程线持续改善runtime、harness Core与SE纵切；发布线维护对外口径、README/Docs、真实预览Pages与桌面发行路径 | 每次发布声称均有固定SHA/证据；发布面可先到experimental Web preview，不等待所有长期研究完成 |
