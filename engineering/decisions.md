@@ -183,3 +183,7 @@
 - 重开：SE 再次发版时按 PAPER.md 规则先记 DEC 再更新 SHA；许可证变更须用户裁定。
 
 DEC-012 接收补注（Astra）：本次采用9.6不追加代码改动或自动继承验收。上文“现有实现一致”按所列局部机制理解，不等于已完成所有角色披露、向外传递权与宿主召回路径反例；新Core/H1/H3仍按9.6固定条款复核。用户随后要求首屏“闻而见意”，原命题句进入复议，候选与范围见public-copy §3；MIT与Paper采用裁定继续生效。
+
+### DEC-012 补充 · 首屏分层（2026-09-08）
+
+用户同意 Fable 对 Astra 候选的裁取：Pages H1 用 "Turn AI output into work you can build on." / "把 AI 的产出，变成接得下去的工作。"；Paper 句退为命题一图与 Paper 桥标题；品牌句作字标副句；Home hero 不改。原首屏项据此修订，见 [WK-77](mvp/execution/work-surface-kit/intake-round-3.md) 与 [public-copy §3](release/2026-09-08/public-copy.md)。
