@@ -31,8 +31,8 @@
 | WK-80 | **表示原语只按既有契约实现。** Heatmap / Calendar / StatTile / WorkCard / ProgressList / PreviewList / ContextList 的语义、字段与缺失值处理以 WK-34、WK-37、[work-surface-boundaries §5](../../../design/work-surface-boundaries.md) 与 [presentation-primitives.d.ts](contracts/presentation-primitives.d.ts) 为准：组件不认识数据来源，adapter 只投影已记录字段。Heatmap 等 BE-1 / 3 的 `work-activity` 按日聚合，交付前产品内为 Planned，设计中可画；Calendar 无真实数据源，只在设计与 gap 中存在，不进产品；StatTile 取三集合 `total`，无"今日"口径。实现者引用裁定编号，不新造字段、口径或组件名。 |
 | WK-81 | **未消费项只读 diff（EX-WK7，Sonnet）。** 对照前几轮全部前端裁定与输入（WK-1…79、DC-1…11、UP-1…16、RC-1…10、WK9 gaps、EX-WK5、runtime-ui-gaps、backend-requests BE-1…13、consumption-ledger、user-message-audit、design/* 体例）与当前 `main` 源码，逐项标 consumed / partial / not consumed / superseded / backend-blocked，附 `path:line`。输出 `explore/ex-wk7-frontend-consumption-diff.md`；Fable 据此按局部派 Opus 单，每单引用裁定编号与体例条款。 |
 
-## 5. 次序
+## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
-1. WK10b 第一段（进行中或待开工，Opus）→ WK12 Settings 页壳与 General / Appearance / Keyboard / Developer（Opus，[WO-WK12](work-orders/WO-WK12-settings-page.md)）→ WK11 Runtime 组在 WK12 壳内交付（Opus，沿既有工单，导航与页壳以 WK12 为准）。三单串行于 `app/web/app.mjs`、`index.html`、`styles.css`。
+1. WK10b 第一段（去掉 Home 下带项）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
 2. Pages 文案按 WK-77 改 §3；Home 不改。
 3. 用户保留视觉四轴裁定；Astra 接收与独验。

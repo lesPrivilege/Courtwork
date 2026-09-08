@@ -13,7 +13,7 @@ Opus拥有本单必要的 `app/web/app.mjs`、`surface-modules.mjs`、相关view
 ## 第一段：只消费已有事实
 
 1. 建 `contracts/glyph-semantics.md`，每个稳定动作记录语义、出现面、频率、文字/图标裁取、已准入Lucide glyph、accessible name与tooltip。用本仓固定sprite源；后果、对象与权限范围保持必要文字，不为单词化牺牲含义。
-2. Chat Flow/行卡减法和Home下带按实际work-summary三集合、分页、错误与空态显示；“当前待处理”不改叫“今日”。BE-1/3未交付，不画假heatmap或补0。
+2. Chat Flow/行卡减法。Home下带三集合、分页、错误与空态显示自 2026-09-08 起移入 [WO-WK13](WO-WK13-home-bands.md)（第三轮派单），本单不再写 `home-view.mjs`；“当前待处理”不改叫“今日”。BE-1/3未交付，不画假heatmap或补0。
 3. 工作面沿主区+悬浮卡/展开态，复用既有renderer身份、File/Run引用、Escape和焦点恢复；更新旧“三栏/第三列/rail header”文档到WK-72/74最终模型。
 4. 热插拔仅指当前注册模块的呈现生命周期：声明槽位不等于可执行renderer。可复用registry、既有revision/snapshot与mount/dispose，但不能把任意profile uiSlots当新组件代码。active run期间由后端冻结配置，不提供保证稍后执行的前端队列。
 5. producer/renderer缺席区分：已有payload而renderer缺席可只读展示；后端返回空projection时明确缺失，不能自造Decision/Evidence或宣称持久fallback已完成。
