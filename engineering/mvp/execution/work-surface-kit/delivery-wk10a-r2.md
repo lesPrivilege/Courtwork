@@ -16,7 +16,7 @@ WK-57 Chat Flow 卡片、Review 纵切——属 WK10b。
 | `0486141` | web: one elevation model, four layers, and a lint that holds it |
 | `92df63f` | web: the work surface floats over the main column instead of taking a third one |
 | `8589039` | web: the composer states this send inside the box and the standing context below it |
-| （本提交） | docs: the r2 evidence, the gap registry and this record |
+| `5e3ceb2` | docs: the r2 evidence, the two backend gaps and this record |
 
 ## 2. 文件
 
