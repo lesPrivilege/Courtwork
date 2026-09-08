@@ -74,7 +74,7 @@ function errorResponse(error) {
   if (error instanceof ServiceError) return { status: error.status, code: error.code, message: error.message, details: error.details };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
   if (error?.message === "active run exists") return { status: 409, code: "active_run", message: "only one active run is allowed" };
-  if (error?.source === 'core_bridge' || ['INVALID_INPUT','EVIDENCE_INVALID','CONTRACT_UNSUPPORTED','BINDING_MISMATCH','CONTEXT_BUDGET','REVIEW_INVALID'].includes(error?.code)) return {status:409,code:error.code,message:error.message};
+  if (error?.source === 'core_bridge' || ['INVALID_INPUT','EVIDENCE_INVALID','CONTRACT_UNSUPPORTED','BINDING_MISMATCH','CONTEXT_BUDGET','REVIEW_INVALID','OBLIGATION_OPEN'].includes(error?.code)) return {status:409,code:error.code,message:error.message};
   return { status: 500, code: "internal_error", message: "request failed" };
 }
 
@@ -103,6 +103,7 @@ function routeService(service, req, url) {
   if (method === "POST" && tail.length === 1 && tail[0] === "projects") return async () => service.createProject(await body(req));
   if (method === "GET" && tail.length === 1 && tail[0] === "sessions") return () => service.listSessions(url.searchParams.get("projectId") ?? undefined);
   if (method === "POST" && tail.length === 1 && tail[0] === "sessions") return async () => service.createSession(await body(req));
+  if (tail.length === 2 && tail[0] === "sessions" && method === "DELETE") return () => service.deleteSession(tail[1]);
   if (tail.length === 2 && tail[0] === "sessions" && method === "GET") return () => service.getSession(tail[1]);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "events" && method === "GET") return () => service.getEvents(tail[1], url.searchParams.get("afterSeq") ?? 0);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "draft" && method === "PUT") return async () => service.updateDraft(tail[1], await body(req));

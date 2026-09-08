@@ -195,8 +195,13 @@ export class ExtensionRegistry {
     if (action === "unload") {
       const next = (current?.generation ?? 0) + 1;
       this.records.set(id, summary(manifest, "unloaded", next));
-      // Keep the singleton instance alive for read-only projection. Unload
-      // revokes execution/renderer activation; it does not release the DB.
+      // Shared work data outlives its producer. Release executable resources;
+      // the host Core reader serves history without this singleton.
+      const instance = this.instances.get(id);
+      if (instance?.core === this.workCore && this.workCore) {
+        await instance.dispose?.();
+        this.instances.delete(id);
+      }
       await this.#persist();
       return structuredClone(this.records.get(id));
     }
@@ -229,10 +234,11 @@ export class ExtensionRegistry {
     return this.#instance(extensionId).createBinding(input);
   }
 
-  async begin({ extensionId, runId, sessionId, binding, provider, instruction }) {
+  async begin({ extensionId, runId, sessionId, binding, provider, instruction, runtimeProfile = null }) {
     const record = this.records.get(extensionId);
     if (!record || record.status !== "loaded") throw new Error("extension is not loaded");
-    const result = await this.#instance(extensionId).begin({ runId, sessionId, binding, provider, instruction });
+    const instance = this.#instance(extensionId);
+    const result = await instance.begin({ runId, sessionId, binding, provider, instruction, ...(instance.core === this.workCore && this.workCore ? {runtimeProfile} : {}) });
     return { record: structuredClone(record), run: result };
   }
 

@@ -18,7 +18,7 @@ async function seed(core) {
  await core.createMatter({matterId:'m',title:'Work',source:s,contractVersion:'se-contract-v5.0'});
  await core.createMatter({matterId:'other',title:'Other',source:source('other-s','Other source')});
  await core.createRun({runId:'r',matterId:'m',baseVersion:0,sourceVersion:1,contractVersion:'se-contract-v5.0',instruction:'review'});
- const payload={id:'c',matter_id:'m',run_id:'r',base_version:0,source_version:1,contract_version:'se-contract-v5.0',artifact_text:'Draft',evidence:[anchor(s)],obligations:[]};
+ const payload={id:'c',matter_id:'m',run_id:'r',base_version:0,source_version:1,contract_version:'se-contract-v5.0',artifact_text:'Draft',evidence:[anchor(s)],obligations:[{id:'follow-up',text:'Synthetic human follow-up',status:'open',blocking:false,evidence_refs:[]}]};
  await core.saveCandidate({matterId:'m',runId:'r',payload});
  await core.updateRun({runId:'r',status:'completed',admissionOpen:false});
  return {s,payload};
@@ -44,6 +44,7 @@ test('Core independent lifecycle: receipt/CAS/authority, revisions and immutable
  await core.call('revise_candidate',revision); // lost revision receipt after source changed
  await assert.rejects(core.call('revise_candidate',{...revision,proposal:{...proposal,artifact_text:'Changed'}}),{code:'IDEMPOTENCY_CONFLICT'});
  const before=await core.snapshot('m');
+ assert.equal(before.matter.obligations[0].status,'open');
  assert.equal(workProjection(before,{writable:true}).humanActions.length,0);
  assert.equal(compileWorkContext(before).provenance.sourceVersion,2);
  await assert.rejects(async()=>compileWorkContext(before,5),{code:'CONTEXT_BUDGET'});
@@ -90,3 +91,18 @@ test('v1 migration backs up original, retains current source membership; failed 
   } finally {await reopened.close();}
  });
 });
+
+test('missing application metadata fails closed; terminal Run cannot change or claim another candidate',async()=>fixture(async(core,dataDir)=>{
+ await seed(core);
+ await assert.rejects(core.updateRun({runId:'r',status:'completed',admissionOpen:false,error:{code:'rewrite'}}),{code:'CONFLICT'});
+ await core.createRun({runId:'other-r',matterId:'other',baseVersion:0,sourceVersion:1,contractVersion:'contract-1',instruction:'other work'});
+ await assert.rejects(core.updateRun({runId:'other-r',status:'completed',admissionOpen:false,candidateId:'c'}),{code:'BINDING_MISMATCH'});
+ await core.updateRun({runId:'other-r',status:'unknown',admissionOpen:false});
+ const settled=await core.getRun('other-r');await core.updateRun({runId:'other-r',status:'unknown',admissionOpen:false});assert.deepEqual(await core.getRun('other-r'),settled);
+ await core.close();const db=path.join(dataDir,'state.db');
+ for(const sql of ["DELETE FROM app_meta WHERE key='schema_version'",'DROP TABLE app_meta']) {
+  assert.equal(python('import sqlite3,sys\nc=sqlite3.connect(sys.argv[1]);c.execute(sys.argv[2]);c.commit()',[db,sql]).status,0);
+  const bytes=await readFile(db);const broken=new CoreClient({dataDir});
+  try {await assert.rejects(broken.start(),{code:'SCHEMA_INVALID'});assert.deepEqual(await readFile(db),bytes);} finally {await broken.close();}
+ }
+}));

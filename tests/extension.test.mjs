@@ -22,7 +22,7 @@ async function withExtension(callback) {
 }
 
 test('catalog exposes development evidence-memo and business-free probe factories', async () => {
-  assert.deepEqual(Object.keys(catalog).sort(), ['evidence-memo', 'probe']);
+  assert.deepEqual(Object.keys(catalog).sort(), ['evidence-memo', 'inbound-nda', 'probe']);
   const probe = await catalog.probe({ dataDir: '/private/tmp/se-v5-probe-fixture' });
   assert.equal(probe.manifest.id, 'probe');
   assert.deepEqual(probe.manifest.bindingFields, []);

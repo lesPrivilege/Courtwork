@@ -10,12 +10,14 @@ export class WorkCoreOwner {
   async close() { await this.client.close(); }
 }
 
-export function workProjection(view, { extension, writable = false } = {}) {
+export function workProjection(view, { extension, writable = false, contractVersion = null } = {}) {
   const candidates = view.candidates ?? [];
-  const compatible = ['se-contract-v5.0', 'inbound-nda-v1'].includes(view.matter.contract_version);
+  const compatible = contractVersion === view.matter.contract_version
+    && (!view.domain || view.domain.schemaVersion === 1)
+    && candidates.every(c => !c.domain || c.domain.schemaVersion === 1);
   return {
     schemaVersion: 1, contractVersion: view.matter.contract_version,
-    extension, matter: view.matter, title: view.title, sources: view.sources,
+    domain: view.domain ?? null, extension, matter: view.matter, title: view.title, sources: view.sources,
     candidates, artifact: view.artifact, draft: view.draft, decisions: view.decisions,
     runs: view.runs, evidence: candidates.flatMap(c => c.evidence),
     stateVersion: view.core_state_digest, readOnly: !writable || !compatible,
@@ -31,7 +33,7 @@ export function workProjection(view, { extension, writable = false } = {}) {
 }
 
 export function compileWorkContext(view, limit = 24000) {
-  const required = { schemaVersion: 1, matter: view.matter, artifact: view.artifact,
+  const required = { schemaVersion: 1, domain: view.domain ?? null, matter: view.matter, artifact: view.artifact,
     sourceRefs: view.sources.map(({id,version,digest}) => ({id,version,digest})),
     pending: view.candidates.filter(c => c.status === 'pending').map(c => ({id:c.id,baseVersion:c.base_version,domain:c.domain})) };
   const text = JSON.stringify(required);

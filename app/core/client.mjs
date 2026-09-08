@@ -170,19 +170,20 @@ export class CoreClient {
 
   getMatter(matterId) { return this.call('get_matter', { matter_id: matterId }); }
 
-  createMatter({ matterId, title, source, contractVersion = 'contract-1', draft = '' }) {
+  createMatter({ matterId, title, source, contractVersion = 'contract-1', draft = '', domain = null }) {
     return this.call('create_matter', {
       matter_id: matterId,
       title,
       source,
       contract_version: contractVersion,
       draft,
+      domain,
     });
   }
 
   saveDraft(matterId, text) { return this.call('save_draft', { matter_id: matterId, text }); }
 
-  createRun({ runId, matterId, baseVersion, sourceVersion, contractVersion, presetVersion = 'preset-1', sessionRef = null, instruction, provider = null, model = null, providerConfig = {} }) {
+  createRun({ runId, matterId, baseVersion, sourceVersion, contractVersion, presetVersion = 'preset-1', sessionRef = null, instruction, provider = null, model = null, providerConfig = {}, workContext = null }) {
     return this.call('create_run', {
       run_id: runId,
       matter_id: matterId,
@@ -195,6 +196,7 @@ export class CoreClient {
       provider,
       model,
       provider_config: providerConfig,
+      work_context: workContext,
     });
   }
 

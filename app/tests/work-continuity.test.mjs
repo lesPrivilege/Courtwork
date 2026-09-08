@@ -30,6 +30,8 @@ test('same Matter in new Session, project isolation, detach to chat, producer ab
   await h.pollRun(chat.json.run.id);
   const events=(await h.api('GET',`/sessions/${a.id}/events`)).json.events;
   assert(events.some(e=>e.runId===chat.json.run.id && e.type==='tool.result' && e.data.isError));
+  assert.equal((await h.api('DELETE',`/sessions/${a.id}`)).status,200);
+  assert.equal((await h.api('GET',`/sessions/${a.id}`)).status,404);
   const before=(await h.api('GET',`/sessions/${b.id}/surface`)).json.projection;
   await h.runtime.close();
   absent=await createRuntime({dataDir:h.dataDir,extensionCatalog:{}});
@@ -40,4 +42,31 @@ test('same Matter in new Session, project isolation, detach to chat, producer ab
   assert.equal((await absent.service.queryWork(b.id,new URLSearchParams({kind:'source',candidateId:pending.candidates[0].id,sourceId:s.id,version:'1'}))).source.text,s.text);
   await assert.rejects(absent.service.humanAction(b.id,decision),{code:'generation_mismatch'});
  } finally {await absent?.close();await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
+});
+
+test('provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture)',async()=>{
+ const h=await boot();
+ try {
+  await h.api('POST','/extensions/evidence-memo/lifecycle',{action:'load'});
+  const s=await h.createSession();await h.api('POST',`/sessions/${s.id}/extension`,{extensionId:'evidence-memo',input:{title:'Provenance',sourceText:'Synthetic source'}});
+  const first=await h.api('POST',`/sessions/${s.id}/runs`,{commandId:'simulation',input:'Read the current work'});await h.pollRun(first.json.run.id);
+  await h.api('PUT','/provider-credential',{provider:'openai',apiKey:'synthetic-protocol-only'});
+  const configured=await h.api('PUT','/provider-config',{provider:'openai',model:'gpt-4.1-mini',api:'openai-completions',baseUrl:h.runtime.fakeProvider.baseUrl});assert.equal(configured.status,200);
+  const second=await h.api('POST',`/sessions/${s.id}/runs`,{commandId:'protocol-real-route',input:'Read the current work again'});assert.equal((await h.pollRun(second.json.run.id)).status,'completed');
+  const p=(await h.api('GET',`/sessions/${s.id}/surface`)).json.projection;
+  assert.deepEqual(p.runs.map(r=>r.providerConfig.executionMode),['simulation','real']);
+  assert.equal(p.runs[1].provider,'openai');assert.equal(p.runs[1].providerConfig.credentialStatus,'configured');
+  assert.equal(JSON.stringify(p.runs).includes('synthetic-protocol-only'),false);
+  assert(p.runs[1].workContext.provenance.runtimeProfile.hash);
+ } finally {await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
+});
+
+test('concurrent Session admission is serialized before either execution starts',async()=>{
+ const h=await boot();
+ try {
+  const a=await h.createSession();const b=await h.createSession();
+  const results=await Promise.all([a,b].map(s=>h.api('POST',`/sessions/${s.id}/runs`,{commandId:'race',input:'/fixture slow'})));
+  assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);
+  await h.pollRun(results.find(r=>r.status===200).json.run.id);
+ } finally {await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
 });

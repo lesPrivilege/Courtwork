@@ -50,6 +50,12 @@ PUBLIC_CREDENTIAL_STATUSES = frozenset({"not_configured", "configured"})
 PUBLIC_EXECUTION_MODES = frozenset({"simulation", "real"})
 
 APP_SCHEMA = (
+    """CREATE TABLE IF NOT EXISTS app_run_context (
+      run_id TEXT PRIMARY KEY, projection_json TEXT NOT NULL,
+      FOREIGN KEY(run_id) REFERENCES app_run(id))""",
+    """CREATE TABLE IF NOT EXISTS app_work_data (
+      matter_id TEXT PRIMARY KEY, domain_json TEXT NOT NULL,
+      FOREIGN KEY(matter_id) REFERENCES matter(id))""",
     """CREATE TABLE IF NOT EXISTS app_work_scope (
       matter_id TEXT PRIMARY KEY, project_id TEXT NOT NULL, extension_id TEXT NOT NULL,
       FOREIGN KEY(matter_id) REFERENCES matter(id))""",
@@ -179,7 +185,7 @@ def required_tables(conn: sqlite3.Connection) -> set[str]:
     return {str(row[0]) for row in rows}
 
 
-def ensure_app_schema(store: Store) -> None:
+def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
     tables = required_tables(store.conn)
     core_tables = {"meta", "matter", "source", "source_set", "candidate", "artifact", "request_result", "decision", "audit", "event"}
     if not core_tables.issubset(tables):
@@ -187,6 +193,8 @@ def ensure_app_schema(store: Store) -> None:
         raise CoreError("SCHEMA_MISSING", f"missing Core tables: {missing}")
 
     old = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if "app_meta" in tables else None
+    if not allow_initialize and old is None:
+        raise CoreError("SCHEMA_INVALID", "existing database has no application schema version")
     if old and old[0] not in {"1", "2"}:
         raise CoreError("SCHEMA_NEWER", "unsupported app schema")
     if old and old[0] == "1":
@@ -271,7 +279,7 @@ def open_or_initialize(db_path: str | Path) -> Store:
             }
             if meta_rows.get("mode") != "b0" or meta_rows.get("schema_version") != str(CORE_SCHEMA_VERSION):
                 raise CoreError("SCHEMA_UNSUPPORTED", "Core meta is not supported B0 schema v1")
-        ensure_app_schema(store)
+        ensure_app_schema(store, allow_initialize=not existed)
         recover_inflight_runs(store)
     except Exception:
         if store is not None:
@@ -330,14 +338,16 @@ def app_matter_row(store: Store, matter_id: str) -> sqlite3.Row | None:
     return store.conn.execute("SELECT * FROM app_matter WHERE matter_id=?", (matter_id,)).fetchone()
 
 
-def run_from_row(row: sqlite3.Row) -> dict[str, Any]:
+def run_from_row(store: Store, row: sqlite3.Row) -> dict[str, Any]:
     error = None if row["error_json"] is None else parse_json(row["error_json"])
     try:
         provider_config = validate_provider_config(parse_json(row["provider_config_json"] or "{}"))
     except CoreError as exc:
         raise CoreError("SCHEMA_INVALID", "stored Run provider descriptor is invalid") from exc
     mode = provider_config.get("executionMode", "simulation")
+    projection = store.conn.execute("SELECT projection_json FROM app_run_context WHERE run_id=?",(row["id"],)).fetchone()
     return {
+        "workContext": None if projection is None else parse_json(projection["projection_json"]),
         "id": row["id"],
         "matter_id": row["matter_id"],
         "base_version": row["base_version"],
@@ -391,12 +401,14 @@ def matter_view(store: Store, matter_id: str) -> dict[str, Any]:
     matter = state["matter"]
     app = app_matter_row(store, matter_id)
     runs = [
-        run_from_row(row)
+        run_from_row(store, row)
         for row in store.conn.execute(
             "SELECT * FROM app_run WHERE matter_id=? ORDER BY started_at,id", (matter_id,)
         ).fetchall()
     ]
+    domain = store.conn.execute("SELECT domain_json FROM app_work_data WHERE matter_id=?",(matter_id,)).fetchone()
     return {
+        "domain": None if domain is None else parse_json(domain["domain_json"]),
         "matter": matter,
         "sources": current_sources(store, matter_id, matter["source_version"]),
         "candidates": state["candidates"],
@@ -427,7 +439,9 @@ def list_matters(store: Store) -> list[dict[str, Any]]:
 
 
 def create_matter(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
-    _exact_keys(payload, {"matter_id", "title", "source", "contract_version", "draft"}, "create_matter")
+    _exact_keys(payload, {"matter_id", "title", "source", "contract_version", "draft"} | (set(payload) & {"domain"}), "create_matter")
+    if payload.get("domain") is not None and (not isinstance(payload["domain"],dict) or payload["domain"].get("schemaVersion") != 1):
+        raise CoreError("CONTRACT_UNSUPPORTED", "work domain envelope")
     _ident(payload["matter_id"], "matter_id")
     if not isinstance(payload["title"], str) or not payload["title"].strip() or len(payload["title"]) > 120:
         raise CoreError("INVALID", "title")
@@ -462,6 +476,8 @@ def create_matter(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
             "INSERT INTO app_matter(matter_id,title,draft) VALUES(?,?,?)",
             (payload["matter_id"], payload["title"].strip(), payload["draft"]),
         )
+        if payload.get("domain") is not None:
+            store.conn.execute("INSERT INTO app_work_data VALUES(?,?)", (payload["matter_id"],canonical_json(payload["domain"])))
         store.conn.commit()
     except Exception:
         store.conn.rollback()
@@ -474,7 +490,15 @@ def create_run(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
         "run_id", "matter_id", "base_version", "source_version", "contract_version",
         "preset_version", "session_ref", "instruction", "provider", "model", "provider_config",
     }
-    _exact_keys(payload, expected, "create_run")
+    _exact_keys(payload, expected | (set(payload) & {"work_context"}), "create_run")
+    projection = payload.get("work_context")
+    if projection is not None:
+        _exact_keys(projection,{"text","provenance"},"work context")
+        if not isinstance(projection["text"],str) or len(projection["text"]) > 100000 or not isinstance(projection["provenance"],dict):
+            raise CoreError("INVALID", "work context")
+        refs = projection["provenance"]
+        if (refs.get("matterId"),refs.get("stateVersion"),refs.get("sourceVersion"),refs.get("contractVersion")) != (payload["matter_id"],payload["base_version"],payload["source_version"],payload["contract_version"]):
+            raise CoreError("BINDING_MISMATCH", "context is outside trusted Run")
     for key in ("run_id", "matter_id", "contract_version", "instruction"):
         _ident(payload[key], f"run.{key}")
     for key in ("base_version", "source_version"):
@@ -511,11 +535,13 @@ def create_run(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
                 payload["provider"], payload["model"], canonical_json(provider_config), "running", started_at, None, None, None,
             ),
         )
+        if projection is not None:
+            store.conn.execute("INSERT INTO app_run_context VALUES(?,?)",(payload["run_id"],canonical_json(projection)))
         store.conn.commit()
     except Exception:
         store.conn.rollback()
         raise
-    return run_from_row(run_row(store, payload["run_id"]))
+    return run_from_row(store, run_row(store, payload["run_id"]))
 
 
 def update_run(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
@@ -533,6 +559,17 @@ def update_run(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
     if payload["ended_at"] is not None:
         _ident(payload["ended_at"], "run.ended_at")
     row = run_row(store, payload["run_id"])
+    if payload["candidate_id"] is not None:
+        candidate = store._candidate_row(payload["candidate_id"])
+        if candidate["run_id"] != row["id"] or candidate["matter_id"] != row["matter_id"]:
+            raise CoreError("BINDING_MISMATCH", "terminal candidate is outside Run")
+    if row["status"] in {"completed", "failed", "cancelled", "unknown"}:
+        prior_error = None if row["error_json"] is None else parse_json(row["error_json"])
+        if (payload["status"] != row["status"] or payload["admission_open"] or payload["error"] != prior_error
+                or (payload["candidate_id"] is not None and payload["candidate_id"] != row["candidate_id"])
+                or (payload["ended_at"] is not None and payload["ended_at"] != row["ended_at"])):
+            raise CoreError("CONFLICT", "terminal Run is immutable")
+        return run_from_row(store, row)
     terminal = payload["status"] in {"completed", "failed", "cancelled", "unknown"}
     if terminal and payload["admission_open"]:
         raise CoreError("INVALID", "terminal Run cannot keep admission open")
@@ -568,7 +605,7 @@ def update_run(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
     except Exception:
         store.conn.rollback()
         raise
-    return run_from_row(run_row(store, payload["run_id"]))
+    return run_from_row(store, run_row(store, payload["run_id"]))
 
 
 def save_candidate(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
@@ -622,7 +659,7 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
     if not isinstance(op, str):
         raise CoreError("INVALID", "missing operation")
     if op == "create_matter":
-        return create_matter(store, request_payload(request, {"matter_id", "title", "source", "contract_version", "draft"}))
+        return create_matter(store, request_payload(request, {"matter_id", "title", "source", "contract_version", "draft"} | (set(request) & {"domain"})))
     if op == "list_matters":
         request_payload(request, set())
         return {"matters": list_matters(store)}
@@ -651,10 +688,10 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         return create_run(store, request_payload(request, {
             "run_id", "matter_id", "base_version", "source_version", "contract_version",
             "preset_version", "session_ref", "instruction", "provider", "model", "provider_config",
-        }))
+        } | (set(request) & {"work_context"})))
     if op == "get_run":
         payload = request_payload(request, {"run_id"})
-        return run_from_row(run_row(store, payload["run_id"]))
+        return run_from_row(store, run_row(store, payload["run_id"]))
     if op == "update_run":
         return update_run(store, request_payload(request, {"run_id", "status", "admission_open", "error", "candidate_id", "ended_at"}))
     if op == "claim_work":

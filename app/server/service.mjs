@@ -675,13 +675,26 @@ export class RuntimeService {
     if (!session) throw new ServiceError(404, "not_found", "session not found");
     if (!session.extensionBinding) return { extension: null, projection: null };
     const record = this.extensionRegistry.getRecord(session.extensionBinding.extensionId);
-    if (!record && ['evidence-memo','inbound-nda'].includes(session.extensionBinding.extensionId)) {
-      return {extension:null,projection:workProjection(await this.workCore.snapshot(session.extensionBinding.binding.matterId),{writable:false})};
+    if ((!record || record.status !== 'loaded') && ['evidence-memo','inbound-nda'].includes(session.extensionBinding.extensionId)) {
+      return {extension:record,projection:workProjection(await this.workCore.snapshot(session.extensionBinding.binding.matterId),{writable:false})};
     }
     if (!record) return { extension: null, projection: null };
     const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
     if (record.status !== 'loaded') { projection.humanActions = []; projection.readOnly = true; }
     return {extension:record,projection};
+  }
+
+  deleteSession(sessionId) {
+    return this.#withConfiguration(async () => {
+      if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
+      const session = this.store.getSession(sessionId);
+      if (!session) throw new ServiceError(404,'not_found','session not found');
+      const binding = session.extensionBinding;
+      if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
+      // Only execution catalog records are removed. Core history and private
+      // workspace/journal bytes are retained; this is not secure erasure.
+      return this.store.deleteSession(sessionId);
+    });
   }
 
   async listWork(projectId) {
@@ -908,6 +921,7 @@ export class RuntimeService {
           binding: session.extensionBinding.binding,
           provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
           instruction,
+          runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash,composition:entry.runtimeBinding.composition},
         });
         entry.extensionRun = begun.run;
         extensionContext = begun.run.context ?? "";
