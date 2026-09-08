@@ -8,7 +8,7 @@
 - 双向追溯、BE-1…13裁取与证据：[node2-independent](../../../evidence/node2-independent/README.md)；产品补充`dbf12b3`，来源因果与上下文计数之外未改布局。
 - 合流代码基线：`7df1f6c486db8f1558dc0020ff4a62281856e207`；合流后仅追加证据和交接元数据。源文件hash见`evidence/node2-independent/source-manifest.json`。
 - 验证：全量139/139；布局30/30、Home7/7、RC契约20/20、反例9/9、视口36/36；Luna独验18/18及P2修正后的只读复查。真实provider与VoiceOver未跑，flaky未复现且无原失败栈，均保留未闭合。
-- 后继任务：创建后在此回填任务ID与启动提交。新任务先核对其起点包含上述代码基线，再按下面说明联调。
+- 后继任务：已提交创建“Astra 接手第二节点 Web UI 联调”，启动提交 `3926a5eda76f40552bdc8e310a12560b84c6bfb6`；创建请求 `client-new-thread:aca3c296-3eab-4893-953c-f9815adc7ebb`，待app返回正式任务ID。新任务使用从该fresh提交建立的隔离worktree，保存项目标签Courtwork不改变其fresh基线，也不使用冻结main。
 
 ## 新任务读取顺序
 
