@@ -357,7 +357,7 @@ export function mapSessionEvent(event) {
       return { type: "tool.start", data: { callId: event.toolCallId, name: event.toolName } };
     case "tool_execution_update":
       return {
-        type: "tool.result",
+        type: "tool.update",
         data: { callId: event.toolCallId, name: event.toolName, text: textFromContent(event.partialResult?.content), isError: false },
       };
     case "tool_execution_end":

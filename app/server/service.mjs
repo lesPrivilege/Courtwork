@@ -1038,7 +1038,8 @@ export class RuntimeService {
       }
       const current = this.store.getRun(run.id);
       if (current && !terminal(current.status)) {
-        const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
+        const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
+          ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
         await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? lastError ?? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : null) : null }, {
           type: "run.status",
           data: { status: finalStatus },
