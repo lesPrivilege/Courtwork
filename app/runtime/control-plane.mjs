@@ -44,15 +44,31 @@ export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fall
 function validateResource(item) {
   keys(item, ['id', 'kind', 'title', 'scope', 'content']);
   check(/^local:[a-z0-9][a-z0-9._-]{0,79}$/.test(item.id), 'Resource id must be local:<name>');
+  scope(item.scope);
+  validateRuntimeSource({ kind: item.kind, title: item.title, content: item.content });
+}
+
+/** The same declarative source validation is used before import and by the
+ * read-only resolver. It does not select a scope, persist or activate anything. */
+export function validateRuntimeSource(item) {
+  keys(item, ['kind', 'title', 'content']);
   check(IMPORT_KINDS.has(item.kind), 'This host imports context content and declarative agent profiles');
-  check(string(item.title) && string(item.content, 100000), 'Title or content is invalid'); scope(item.scope);
-  if (item.kind === 'mcp_server') { try { parseMcpConfig(item.content); } catch (error) { check(false, error.message); } }
-  if (item.kind === 'agent_profile') parseProfile(item.content);
+  check(string(item.title) && string(item.content, 100000), 'Title or content is invalid');
+  if (item.kind === 'mcp_server') { try { return { mcp: parseMcpConfig(item.content) }; } catch (error) { check(false, error.message); } }
+  if (item.kind === 'agent_profile') return { profile: parseProfile(item.content) };
   if (item.kind === 'skill') {
     check(item.content.startsWith('---\n'), 'Skill requires SKILL.md YAML frontmatter');
-    const { frontmatter } = parseFrontmatter(item.content);
+    let frontmatter;
+    try { ({ frontmatter } = parseFrontmatter(item.content)); }
+    catch { check(false, 'Skill frontmatter must be valid YAML'); }
     check(typeof frontmatter.name === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(frontmatter.name) && frontmatter.name.length <= 64 && string(frontmatter.description, 1024), 'Skill requires a valid name and description');
+    // YAML aliases can form cycles. These two fields enter the JSON runtime
+    // projection; reject unrepresentable metadata before it can be persisted.
+    try { JSON.stringify({ compatibility: frontmatter.compatibility, requestedTools: frontmatter['allowed-tools'] }); }
+    catch { check(false, 'Skill metadata must be JSON serializable'); }
+    return { skill: frontmatter };
   }
+  return {};
 }
 function parseProfile(content) {
   let profile;

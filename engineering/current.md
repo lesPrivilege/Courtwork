@@ -33,3 +33,7 @@
 8. 前端讨论与GUI / Review Runtime Index已形成 [Work Surface跨层边界](design/work-surface-boundaries.md) 和 [来源对账](research/frontend-intake-2026-09-08/README.md)：明确Chrome/Domain/Expert责任、Review/commit/外部效果区别及共享组件adapter边界。Fable当前施工继续由 [第二轮接管与对应工单](mvp/execution/work-surface-kit/intake-round-2.md) 维护；本轮不变更其投影类型、写权或验收状态。
 9. 用户已确定 [本阶段合流与两仓发布安排](release/2026-09-08/README.md)：Fable独立UI施工（含Preview extensions编排选型），待Fable竣工后，Astra从前端追溯harness、从harness补充前端，补齐后merge，再按 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)交接独立任务进行build后的Web UI联调；完成后push CourtWork候选，再沿工程迭代/发布面双线推进至Pages与可构建GUI DMG。端云固定提交一致后准备独立网页GPT Pro全量review。对应 [集成检查](release/2026-09-08/integration.md)、[对外稿](release/2026-09-08/public-surface.md)、[review输入契约](release/2026-09-08/review-handoff.md)已备；当前不记作两笔已完成、已推送/发版或已提交review。
 10. 用户追加的材质/层级与局部motion、hover溯源进入 [UX Polish研究包](research/ux-polish-2026-09-08/README.md)：Luna只读盘点index、旧Polish来源和当前整合候选，Astra整理12个细粒度绘制/消融片段，供build联调后消费。遵守WK51–54与最新选型；报告发现整合快照`2726805`的desktop media未闭合，列为polish前首项复核。本轮没有新的产品polish实现或像素验收。
+
+## 等待Fable期间的隔离后端切片
+
+2026-09-08 用户允许在Fable收尾回报前推进后端自研；Web联调仍暂停。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。仅存在于隔离后端分支，无HTTP/模型工具/UI入口，未合流、未push；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。
