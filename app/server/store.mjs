@@ -373,7 +373,7 @@ export class RuntimeStore {
     return this._mutate((state) => {
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
-      if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       session.permissionMode = permissionMode; return publicSession(session);
     });
   }
@@ -413,12 +413,12 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false }) {
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input);
       if (receipt) return receipt;
-      if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       const timestamp = now();
       const run = {
         id: randomUUID(), sessionId, status: "running", admissionOpen: true, adapterId,

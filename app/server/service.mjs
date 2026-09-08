@@ -833,6 +833,7 @@ export class RuntimeService {
     let created;
     try {
       created = await this.store.createRun({
+        singleActiveRun: true,
         sessionId,
         input: instruction,
         adapterId: this.adapterId,
