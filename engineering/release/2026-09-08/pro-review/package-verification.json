@@ -1,0 +1,15 @@
+{
+  "archive": "Courtwork-Pro-review-e0d214d.zip",
+  "archive_sha256": "6708a38a5efa38ee258b94c8016414555a64f127db6166aa8ca084d3ffa6975b",
+  "archive_bytes": 11652585,
+  "source_files": 666,
+  "courtwork_files": 663,
+  "paper_files": 3,
+  "all_hashes_verified": true,
+  "reviewed_sha": "e0d214dbc690b7fdf4dcab5f4889c252e6b95f01",
+  "paper_sha": "f8ecb091895559389bb4e75f3c6f28052b71c5a3",
+  "lockfile_sha256": "9d8514262a9389875e4e99558d40e610438496e7b75464fd7168e0caf264b872",
+  "manifest_sha256": "e33bf4e83f223311df97fa13d7330f928372dee5c5f103e7197eadc33e33d1ee",
+  "review_status": "prepared_for_user_submission; not_submitted; not_reviewed",
+  "scope": "All 663 tracked Courtwork files at the reviewed SHA and three pinned Paper files; no private historical research originals."
+}
