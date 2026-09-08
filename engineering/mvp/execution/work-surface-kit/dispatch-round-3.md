@@ -10,9 +10,9 @@ Opus 只从 Astra 合流后的 `main` 建工作树：合流内容 = `codex/harne
 
 | 序 | 单 | 局部 | 裁定 | 主要文件 | 开工条件 |
 |---|---|---|---|---|---|
-| 1 | [WK10b 第一段](work-orders/WO-WK10b-work-surface.md) | glyph 语义表（WK-71）、Chat Flow 卡片减法（WK-57）、热插拔槽位（WK-43 / 45；契约 `uiSlots` 已在 `control-contract.d.ts:74`）、工作面生命周期 | WK-43 / 45 / 57 / 71 / 72 / 74 | `app.mjs`、`surface-modules.mjs`、`contracts/glyph-semantics.md` | 现在。原第 2 项 Home 下带移入 WK13 |
+| 1 | [WK10b 第一段](work-orders/WO-WK10b-work-surface.md) | glyph 语义表（WK-71）、Chat Flow 卡片减法（WK-57）、热插拔槽位（WK-43 / 45；契约 `uiSlots` 已在 `control-contract.d.ts:74`）、工作面生命周期 | WK-43 / 45 / 57 / 71 / 72 / 74 | `app.mjs`、`surface-modules.mjs`、`contracts/glyph-semantics.md` | Astra给出合流清洁main SHA后。原第 2 项 Home 下带移入 WK13 |
 | 2 | [WK10b 第二段](work-orders/WO-WK10b-work-surface.md) | NDA 逐规则 Review renderer、决定与修订、决定回执、继续已有事项、只读历史 | H1 / H3 契约（`docs/work-core/contract.md`）、frontend-entries §3、spec FN-17…25 | `extensions/inbound-nda/renderer.mjs`（新）、`app.mjs`（binding panel、回执行）、`styles.css` | WK10b 第一段合流后；allowlist 路径请求交 Astra |
-| 3 | [WK13](work-orders/WO-WK13-home-bands.md) | Home 三带、StatTile、WorkCard 两态、adapter 落地、j/k 键盘、文档清理 | WK-4 / 32 / 34 / 37 / 46 / 56 / 76 / 79 / 80、DC-2 / 3 | `home-view.mjs`、`app.mjs`、`styles.css`、`presentation-adapters.mjs`（新）、`docs/ui-composition.md` | WK10b 第一段合流后 |
+| 3 | [WK13](work-orders/WO-WK13-home-bands.md) | Home 三带、StatTile、WorkCard 两态、adapter 落地、j/k 键盘、文档清理 | WK-4 / 32 / 34 / 37 / 46 / 56 / 76 / 79 / 80、DC-2 / 3 | `home-view.mjs`、`app.mjs`、`styles.css`、`presentation-adapters.mjs`（新）、`docs/ui-composition.md` | WK10b 第二段合流后 |
 | 4 | [WK12](work-orders/WO-WK12-settings-page.md) | Settings 整页壳 + General / Appearance / Keyboard / Developer、用户 skin、本设备偏好 | WK-27 / 69 / 74 / 78 | `index.html`、`settings-view.mjs`、`app.mjs`、`styles.css` | WK13 合流后 |
 | 5 | [WK11](work-orders/WO-WK11-runtime-workbench.md) | Runtime 组六节点入 WK12 页壳 | WK-63 / 64 / 66 / 68、RC-1…10 | `runtime-view.mjs`、`settings-view.mjs` | WK12 合流后 |
 
@@ -24,6 +24,7 @@ Opus 只从 Astra 合流后的 `main` 建工作树：合流内容 = `codex/harne
 |---|---|---|
 | BE-1 / 3 `GET /work-activity?days=N` 按日 recorded run 计数、UTC 日界 | Home 上带 Heatmap 去 Planned | WK-37、EX-WK7 §1.6 |
 | BE-12 `effort` 字段进入 provider-config / provider-models | composer 模型 chip 推理强度（WK-73） | EX-WK7 局部 10 |
+| `revise_candidate` 的版本化 humanActions 声明与packet更新 | WK10b 第二段人工修订；现API已实现但未声明动作 | `docs/work-core/contract.md`、当前 `app/core/owner.mjs` |
 | 静态 allowlist 增 `extensions/inbound-nda/renderer.mjs`、`app/web/presentation-adapters.mjs`（及 WK12 若新增模块） | WK10b 第二段、WK13、WK12 | `app/server/index.mjs:18–21` |
 | 窄宗 composer 沉底 | Astra 暂缓项，待其回执 | WK-58 / 76 |
 
