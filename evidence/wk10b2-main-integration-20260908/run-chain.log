@@ -1,0 +1,11 @@
+Home Send admits one waiting Run true
+question answer completes same Run true
+exact write permission publishes recorded artifact true
+recorded File surface shows same run, hash and bytes true
+Preview fallback is visible without a domain producer true
+deny never publishes artifact true
+FE-T06: allowed write can fail; permission is not a tool success or accepted work true
+FE-T06: cancel records stopping before cancelled true
+Stop closes waiting question true
+offline polling reports lost connection true
+reconnect retains session and receipts true

@@ -1,6 +1,6 @@
 # WO-WK13 · Home 三带、表示原语 adapter 与键盘导航（Claude Opus）
 
-2026-09-08。依据 [EX-WK7](../explore/ex-wk7-frontend-consumption-diff.md) §2–§3 局部 1 / 2 / 8：`presentation-primitives.d.ts` 在 `app/web` 零消费，Home 仍为单列行表，j/k 零实现。裁定来源：WK-32 / 34 / 37 / 46 / 56 / 76 / 79 / 80、WK-4 与 [review-projection §6](../contracts/review-projection.md)、DC-2 / DC-3、[boundaries §5](../../../../design/work-surface-boundaries.md)。基线 `main` `8023e1b`，接单重查 HEAD；排在 WK10b 第一段之后、WK12 之前（同写 `app.mjs` / `styles.css`）。
+2026-09-08。依据 [EX-WK7](../explore/ex-wk7-frontend-consumption-diff.md) §2–§3 局部 1 / 2 / 8：`presentation-primitives.d.ts` 在 `app/web` 零消费，Home 仍为单列行表，j/k 零实现。裁定来源：WK-32 / 34 / 37 / 46 / 56 / 76 / 79 / 80、WK-4 与 [review-projection §6](../contracts/review-projection.md)、DC-2 / DC-3、[boundaries §5](../../../../design/work-surface-boundaries.md)。基线为 WK10b 第二段合流后的清洁 `main`（以 Astra 最终回执 SHA 为准），接单重查 HEAD；排在 WK10b 第二段之后、WK12 之前（同写 `app.mjs` / `styles.css`）。
 
 ## 交付
 

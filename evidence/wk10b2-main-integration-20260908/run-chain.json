@@ -1,0 +1,108 @@
+[
+  {
+    "name": "Home Send admits one waiting Run",
+    "pass": true,
+    "actual": {
+      "id": "394bbe4e-ece3-47cf-a6a2-3ae13ac4aae1",
+      "sessionId": "9ce23221-91b2-467f-8b85-3d777ae1c7f0"
+    }
+  },
+  {
+    "name": "question answer completes same Run",
+    "pass": true,
+    "actual": "394bbe4e-ece3-47cf-a6a2-3ae13ac4aae1"
+  },
+  {
+    "name": "exact write permission publishes recorded artifact",
+    "pass": true,
+    "actual": [
+      {
+        "path": "out/browser.txt",
+        "bytes": 27,
+        "sha256": "5bd876267efd9be3304bbe64b7f8770774fda2a6fa3ae13e2c05b2c461ad7785",
+        "kind": "content-version",
+        "writtenAt": "2026-09-08T12:27:07.308Z"
+      }
+    ]
+  },
+  {
+    "name": "recorded File surface shows same run, hash and bytes",
+    "pass": true,
+    "actual": {
+      "kind": "content-version",
+      "sessionId": "9ce23221-91b2-467f-8b85-3d777ae1c7f0",
+      "runId": "b048268a-ee23-4dd0-91e4-28c855fa2280",
+      "path": "out/browser.txt",
+      "sha256": "5bd876267efd9be3304bbe64b7f8770774fda2a6fa3ae13e2c05b2c461ad7785"
+    }
+  },
+  {
+    "name": "Preview fallback is visible without a domain producer",
+    "pass": true,
+    "actual": "Loading workspace files…"
+  },
+  {
+    "name": "deny never publishes artifact",
+    "pass": true,
+    "actual": "837cfcaf-e0a5-4886-ac34-9c2b42ee2a01"
+  },
+  {
+    "name": "FE-T06: allowed write can fail; permission is not a tool success or accepted work",
+    "pass": true,
+    "actual": {
+      "runId": "190f1927-63ec-4761-8fad-b2071af836d4",
+      "artifacts": [],
+      "events": [
+        {
+          "seq": 76,
+          "runId": "190f1927-63ec-4761-8fad-b2071af836d4",
+          "sessionId": "9ce23221-91b2-467f-8b85-3d777ae1c7f0",
+          "type": "permission.resolved",
+          "data": {
+            "id": "74c00cfd-b71a-4938-9e65-5bb43c3abec8",
+            "kind": "permission",
+            "decision": "allow"
+          }
+        },
+        {
+          "seq": 78,
+          "runId": "190f1927-63ec-4761-8fad-b2071af836d4",
+          "sessionId": "9ce23221-91b2-467f-8b85-3d777ae1c7f0",
+          "type": "tool.result",
+          "data": {
+            "callId": "fake-script-37-0",
+            "name": "ws_write",
+            "text": "EISDIR: illegal operation on a directory, rename '/private/tmp/cw-wk10b2-integration-data/workspaces/9ce23221-91b2-467f-8b85-3d777ae1c7f0/out.a6e5d065-f3d9-4f75-93e1-d20ce6a5143f.tmp' -> '/private/tmp/cw-wk10b2-integration-data/workspaces/9ce23221-91b2-467f-8b85-3d777ae1c7f0/out'",
+            "isError": true
+          }
+        }
+      ],
+      "dom": "You\n/fixture question\n8:27 PM\nCopy message\nEdit as new message\n1 tool action\nCompleted\nWhat should the fake run use as its answer?\nAnswered\nASSISTANT\nCopy response\n\nSIMULATED answer received: browser answer\n\nRun\nCompleted\nInspect this run\nYou\n/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/browser.txt\",\"text\":\"synthetic browser artifact\\n\"}}]\n8:27 PM\nCopy message\nEdit as new message\n1 tool action\nCompleted\nout/browser.txt\nWrite allowed\nout/browser.txt\nRecorded version\nASSISTANT\nCopy response\n\nSIMULATED scripted response\n\nRun\nCompleted\nInspect this run\nYou\n/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/denied.txt\",\"text\":\"must not exist\"}}]\n8:27 PM\nCopy message\nEdit as new message\n1 tool action\n1 failed\nws_write\nFailed\nResult\nRuntime action was denied by the user\nout/denied.txt\nWrite denied\nASSISTANT\nCopy response\n\nSIMULATED scripted response\n\nRun\nCompleted\nInspect this run\nYou\n/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out\",\"text\":\"must fail after allow\"}}]\n8:27 PM\nCopy message\nEdit as new message\n1 tool action\n1 failed\nws_write\nFailed\nResult\nEISDIR: illegal operation on a directory, rename '/private/tmp/cw-wk10b2-integration-data/workspaces/9ce23221-91b2-467f-8b85-3d777ae1c7f0/out.a6e5d065-f3d9-4f75-93e1-d20ce6a5143f.tmp' -> '/private/tmp/cw-wk10b2-integration-data/workspaces/9ce23221-91b2-467f-8b85-3d777ae1c7f0/out'\nout\nWrite allowed\nASSISTANT\nCopy response\n\nSIMULATED scripted response\n\nRun\nCompleted\nInspect this run"
+    }
+  },
+  {
+    "name": "FE-T06: cancel records stopping before cancelled",
+    "pass": true,
+    "actual": [
+      "running",
+      "waiting_user",
+      "stopping",
+      "cancelled"
+    ]
+  },
+  {
+    "name": "Stop closes waiting question",
+    "pass": true,
+    "actual": "46c3b63b-6fde-4ee6-a929-10894961ec5f"
+  },
+  {
+    "name": "offline polling reports lost connection",
+    "pass": true,
+    "actual": "9ce23221-91b2-467f-8b85-3d777ae1c7f0"
+  },
+  {
+    "name": "reconnect retains session and receipts",
+    "pass": true,
+    "actual": "9ce23221-91b2-467f-8b85-3d777ae1c7f0"
+  }
+]
