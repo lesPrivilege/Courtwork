@@ -268,3 +268,14 @@ renderer 没有 fetch / storage / URL / provider / Core。它只有 `dispatch(ac
 | 本页所在提交 | `docs: record the second segment` |
 
 分支 `claude/wk10b-second`，未 push。基线 `62556b7`。服务器已停机，数据目录留在 `/private/tmp/se-agent-wk10b2-data`。
+
+## 11. Fable 复核（2026-09-08）
+
+独立重跑：`npm --prefix app test` 178/178，`lint-colors` ok；目视 `review-1440-light`（逐规则行、conflict 唯一着色、reason 必填、只出 packet 允许的 Reject / Request evidence、Propose a revision 作展开行）、`binding-continue-1440-light`（两段绑定面、续行列表只显 id 与 revision）、`receipt-1440-light`（Accepted this version · 候选 · version · state，无时间）。renderer 只静态 import `/web/ui-controls.mjs` 与 `/web/surface-modules.mjs`，无 fetch / storage / URL。
+
+裁定（WK-85）：
+1. 受信 renderer 可静态 import 宿主 UI kit：允许面固定为 `ui-controls.mjs` 与 `surface-modules.mjs` 的具名导出（`el`、`flowRow`、`workPacket`、`renderWorkPacket`、`candidateActions`），写入槽位契约；不受信代码不适用（FN-13）。
+2. 绑定面两段顺序按数据决定：项目内已有工作时 Continue existing 在上、Create new 在下；无工作时只显示 Create new 与一句条件句。改动排入 WK13（同写 `app.mjs`），本单不返工。
+3. 状态词只有 `conflict` 着色，`unknown` 灰字：接受（FN-28）。
+4. 消融 S-10 / S-11 对第一段字符串的收窄：接受。
+5. 交 Astra 合流；独验项：FE-T06 / T08 / T11 复跑，FE-T06 另半条（allow 后工具失败、cancel requested ≠ stopped）沿授权卡既有断言复跑；后端请求 BE-14 / BE-15 见 backend-requests。
