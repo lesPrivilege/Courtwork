@@ -57,6 +57,12 @@
 |---|---|
 | WK-85 | Opus 交付 `claude/wk10b-second` `10f185a`（实现 `e118992`，基线 `62556b7`）：`inbound-nda/renderer.mjs` 逐规则视图、按 `humanActions` 描述符出决定与修订、`request_id` 内容绑定重试、`work-query` 回执行、两段绑定面与 `existingMatterId` 续行、只读历史、历史来源字节；178/178，FE-T06 / T08 / T11 作者通过。Fable 复核见 [delivery-wk10b-2 §11](delivery-wk10b-2.md)：受信 renderer 可 import 固定 kit 导出面；绑定面顺序按数据（有工作则 Continue existing 在上，排入 WK13）；`conflict` 唯一着色。后端请求 BE-14（决定时刻）、BE-15（Matter title）登记。交 Astra 合流。 |
 
+## 4e. WK13 复核 → WK-86
+
+| 编号 | 裁定 |
+|---|---|
+| WK-86 | Opus 交付 `claude/wk13-home` `f1875ae` + r2 `6de394e`（基线 `b7fa5e2`）：Home 三带、StatTile × 3 带筛选、Heatmap Planned 行、WorkCard 行 / 卡两态、`presentation-adapters.mjs` 按契约、j/k 键盘、绑定面按数据排序、`ui-composition.md` 改写；185/185，FE-T01 / T02 / T12 作者通过。裁定：上带在场时 composer 带按 WK-46（WK-76 留白退役）；`In progress` 为 Continue 集合可见名；`.d.ts` 收编两只读 adapter；空态 31vh 留白留用户确认。合流前置：STATIC 加 `presentation-adapters.mjs`。复核见 [delivery-wk13 §12](delivery-wk13.md)。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。

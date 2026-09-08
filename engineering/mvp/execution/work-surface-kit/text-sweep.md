@@ -74,3 +74,4 @@
 |---|---|
 | WO-WK10b 第一段（2026-09-08，Chat Flow 行解剖与工作面缺席态） | [delivery-wk10b-1 §5](delivery-wk10b-1.md)（D-8…D-13、W-11…W-16、17 条新增字符串的承重说明）；语义 → glyph 的对照见 [contracts/glyph-semantics.md](contracts/glyph-semantics.md) |
 | WO-WK10b 第二段（2026-09-08，NDA 逐规则 Review、决定与修订、回执、续行、只读历史） | [delivery-wk10b-2 §5](delivery-wk10b-2.md)（D-14…D-16、W-17 / W-18、24 条新增字符串的承重说明）；语义 → glyph 见同上对照表第 3 / 4 节 |
+| WO-WK13（2026-09-08，Home 三带、StatTile / WorkCard adapter、列表键盘、绑定面顺序） | [delivery-wk13 §6](delivery-wk13.md)（D-17 / D-18、W-19…W-21、16 条新增字符串的承重说明）；W-19 的集合命名（`In progress` 与 `Continue`）为待裁项 |

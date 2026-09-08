@@ -101,8 +101,13 @@ export interface StatTileInput {
 }
 
 /**
- * StatTile 不发出 intent：Home 上带是只读读数，产品内没有"按集合筛选下带"的能力，
- * 画一个可点的 tile 会承诺不存在的动作（SH-4 "普通信息没有可点击的假外观"）。
+ * StatTile 不发出写入或业务 intent。它可以发出一个 filter intent，且只针对自己那一个
+ * 集合：WO-WK13 之后"按集合筛选下带"是产品内真实存在的能力（tile 按下 → 下带只留该集合，
+ * `aria-pressed` 表达状态，`Show all` 复位），因此可点的 tile 不再承诺不存在的动作
+ * （SH-4 "普通信息没有可点击的假外观"仍成立：能力先有，外观才有）。
+ * 筛选目标由宿主按 tuple 次序接管（0/1/2 → pendingItems / sessionCandidates /
+ * inspectionCandidates），tile 自身不路由、不 fetch、不持有集合以外的状态。
+ * 它仍不发出 open / answer / allow / deny：那些属 ReviewProjection。
  */
 export type StatTileProps = StatTileInput;
 
@@ -166,6 +171,46 @@ export interface WorkCardProps {
   input: WorkCardInput;
   /** 整卡（或整行）一次点击 → open-session。变体 A 与 B 共用同一 props。 */
   onIntent: IntentSink;
+}
+
+/* ── 3b. 另两集合的行输入（WK-86 (3)，契约补记 WO-WK13 已实现的形状） ──
+ * 本节不是新能力：`toPendingRows` / `toInspectionRows` 已在
+ * `app/web/presentation-adapters.mjs` 落地，此处把签名收进契约。两者只搬运
+ * **已记录字段**——响应里没有的一律不出现，缺失一律显式 null（规则 2）。
+ * 不复用 `WorkCardInput` 的原因：pendingItems 没有 title 也没有 run 状态，把它写成
+ * WorkCard 就得用 `missingRunLabel` 承载 'Permission requested'，那等于声称"没有 run"，
+ * 而事实是"有一个未决问题"。 */
+
+/** work-summary.pendingItems 的一行 = 一个未决问题或未决写入授权。 */
+export interface PendingRowInput {
+  sessionId: string;
+  projectId: string;
+  /** 经 GET /projects 解析；未解析成功时为 null（可见处写条件句，不写 'Project'）。 */
+  projectName: string | null;
+  /** 取自 sessionCandidates 同 sessionId 的 title；该集合未带此会话时宿主传 'Open session'。 */
+  title: string;
+  runId: string;
+  questionId: string;
+  kind: 'ask_user' | 'permission';
+  /** 服务端自己的请求词，原样传递；客户端不由 kind 反推，也不点名工具。 */
+  label: string;
+  createdAt: UtcInstant;
+}
+
+/** work-summary.inspectionCandidates 的一行 = 一个已记录 failed / unknown 的 run。 */
+export interface InspectionRowInput {
+  sessionId: string;
+  projectId: string;
+  projectName: string | null;
+  title: string;
+  runId: string;
+  /** failed 与 unknown 不合并：unknown 不是已确立的失败，是 Host 无法报告的结果（FN-28）。 */
+  status: 'failed' | 'unknown';
+  /** run 未记录错误码时为 null。 */
+  errorCode: string | null;
+  runStartedAt: UtcInstant | null;
+  runEndedAt: UtcInstant | null;
+  resultAt: UtcInstant | null;
 }
 
 /* ────────────────────────── 4. RunSummary ────────────────────────── */
@@ -267,7 +312,19 @@ export interface WorkspaceListProps {
 
 /** `GET /work-summary` 的响应形状（EX-WK5 §1；此处只列 adapter 用到的部分）。 */
 export interface WorkSummaryResponse {
-  pendingItems: PageFacts & { items: unknown[] };
+  /** 已记录字段逐字照录（work-summary.mjs）；本文件不为其新增任何字段。 */
+  pendingItems: PageFacts & {
+    items: Array<{
+      projectId: string;
+      sessionId: string;
+      runId: string;
+      questionId: string;
+      kind: 'ask_user' | 'permission';
+      /** 服务端自己的请求词：'Permission requested' / 'Answer requested'。 */
+      label: string;
+      createdAt: UtcInstant;
+    }>;
+  };
   sessionCandidates: PageFacts & {
     items: Array<{
       projectId: string;
@@ -278,7 +335,18 @@ export interface WorkSummaryResponse {
       latestRun?: { runId: string; status: RunStatus; startedAt: UtcInstant | null; endedAt: UtcInstant | null };
     }>;
   };
-  inspectionCandidates: PageFacts & { items: unknown[] };
+  inspectionCandidates: PageFacts & {
+    items: Array<{
+      projectId: string;
+      sessionId: string;
+      runId: string;
+      status: 'failed' | 'unknown';
+      startedAt: UtcInstant | null;
+      endedAt: UtcInstant | null;
+      errorCode: string | null;
+      resultAt: UtcInstant | null;
+    }>;
+  };
 }
 export interface ProjectRef { id: string; name: string }
 
@@ -293,6 +361,18 @@ export function toWorkCards(
   summary: WorkSummaryResponse,
   projects: ProjectRef[],
 ): { items: WorkCardInput[]; page: PageFacts };
+
+/** work-summary.pendingItems → 下带 Waiting for you 段的行。只搬运已记录字段（WK-86 (3)）。 */
+export function toPendingRows(
+  summary: WorkSummaryResponse,
+  projects: ProjectRef[],
+): { items: PendingRowInput[]; page: PageFacts | null };
+
+/** work-summary.inspectionCandidates → 下带 Needs a look 段的行。只搬运已记录字段（WK-86 (3)）。 */
+export function toInspectionRows(
+  summary: WorkSummaryResponse,
+  projects: ProjectRef[],
+): { items: InspectionRowInput[]; page: PageFacts | null };
 
 /** run（`GET /runs/:runId` 或 session 内嵌 runs[]）→ 右栏 Run 卡。 */
 export function toRunSummary(

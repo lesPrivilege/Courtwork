@@ -7,7 +7,7 @@
 | 层级 | 默认呈现 | 展开 / 返回 |
 |---|---|---|
 | Navigator | Home、项目组、组内最近创建的 5 个会话；当前会话始终可见 | 项目标题只折叠本组，不切走对话；Show more 分批增加条目；组旁加号在该项目创建会话 |
-| Home | 唯一开始入口、Waiting for you / Continue / Needs a look | 使用 `/work-summary` 的真实分页、状态与错误；无会话时不显示禁用 composer 或空检查栏 |
+| Home | 三带（WK-32 / 46）：上带 = 三个 StatTile（Waiting for you / In progress / Needs a look，取 `/work-summary` 三集合 `total`，窗口为「当前」，无「今日」口径）与一行 Planned 的按日活动；中带 = composer；下带 = 三集合列表 | 上带 tile 是控件：按下把下带筛到该集合（DC-2 允许重叠），再按一次或 `Show all` 复位；被筛到的会话集合改用 WorkCard 的卡态（同一输入，多出已记录 run 时间与一个 Open），其余为行态；下带与会话内待处理卡共用 `j` / `k` / `↑` / `↓` 移动焦点、`Enter` / `o` 打开，输入控件内与 IME 组字时不拦截；使用 `/work-summary` 的真实分页、状态与错误，读取失败、空集合与分页截断三者分句；无会话时不显示禁用 composer 或空检查栏 |
 | Thread | 用户输入的轻背景块、直接可读的助手正文、运行结果摘要 | 连续工具过程收成活动行；工具失败初次展开，用户收起选择保留；原始请求/结果继续内收 |
 | 待处理决定 | 唯一具有明显边界的授权 / 回答卡 | 服务端确认后收成已处理历史行；允许一次精确写入不等于接受成果 |
 | 会话概览 | 顶栏图标打开独立摘要卡：Workspace、Latest run、File permissions | 点条目进入文件对话框或完整检查栏；点击外部 / Escape 收起 |
@@ -18,9 +18,9 @@
 
 ## 响应式与焦点
 
-- `>=1024px`：Navigator | Work | Inspector；导航可收起，Inspector 按需打开。正文与 composer 同一 `--column:740px` 对齐。
-- `768–1023px`：主区独占画面；导航为抽屉，Inspector 为右侧覆盖层。底层 `inert + aria-hidden`，键盘焦点受约束。
-- `<768px`：Inspector 为 `inset:0;width:100%` 的整幅工作面；导航仍为独立抽屉。不能同时露出可操作的两套主区。
+- `>=1024px`（WK-72）：侧栏 + 主区。主区只有一个 L1 面（Chat Flow 或 Home 三带）与一条 header 带；工作面不是第三列，收敛态是锚在主区右侧 gutter 的 L2 悬浮模块卡（无 rail header、无自有标题），展开态是主列之上的 L3 覆盖层（一条 tab 条 + 返回），侧栏保持可操作。主区宽不足以并置 740 正文列与 360 悬浮层时，卡收成右缘的模块 glyph 竖条。导航可收起。正文与 composer 同一 `--column:740px` 对齐。
+- `768–1023px`：主区独占画面；导航为抽屉，工作面为右侧覆盖层。底层 `inert + aria-hidden`，键盘焦点受约束。
+- `<768px`：工作面为 `inset:0;width:100%` 的整幅覆盖；导航仍为独立抽屉。不能同时露出可操作的两套主区。Home 的 composer 在此档沉底，三带读作上带、下带、composer（WK-58）。
 - 普通桌面动作目标 32px，窄屏 / coarse pointer 44px。原生 dialog 优先于检查层；工具提示不吞掉上层 Escape；选择 tab 用箭头 / Home / End。
 - 原生 dialog 的关闭回调不会覆盖已经转移到 File tab 的焦点。实际 IME、软键盘、VoiceOver、真实触屏及 200% 缩放仍需设备验收。
 
