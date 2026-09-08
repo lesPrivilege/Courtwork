@@ -34,8 +34,8 @@
 | G2 / G3 前端入口 | Opus | H1 契约固定后；按 frontend-entries | 只读形态先行，合法动作随契约 |
 | BE-5 服务接缝 | Astra | 与 H1 的 service 写入串行 | inspect 服务 |
 
-## 未决（留用户）
+## 用户裁定（2026-09-08，DEC-012）
 
-1. 首屏命题句：Pages 沿产品 hero 用 "Work that exists beyond the model."，品牌句作字标副句；或对调。
-2. 仓内无 LICENSE；发布前是否补，补哪一种。
-3. Paper 采用版本：CourtWork 继续固定 9.3，还是待 SE 9.6 发版后升级并记录受影响契约。
+1. 首屏：命题句 "Work that exists beyond the model." 作第一句论断，品牌句作字标副句。
+2. 许可证：MIT，根目录 LICENSE 已加。
+3. Paper：SE 9.6 已发布（`d78fd31`）并由 CourtWork 采用，PAPER.md 已更新；roadmap / current 的 9.3 表述由 Astra 同步。

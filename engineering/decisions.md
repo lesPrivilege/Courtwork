@@ -168,3 +168,16 @@
 - Paper：产品根 [`PAPER.md`](../PAPER.md) 固定 SE Paper 9.3 / `f8ecb091895559389bb4e75f3c6f28052b71c5a3`；不复制第二套可编辑 Paper。
 - 谱系：保留 fresh 独立根为 `archive/fresh-pre-courtwork`；在 legacy `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476` 父提交上以替换 tree 形成 `codex/fresh-courtwork`，避免把 SE/fresh 与 legacy 历史混成一条无审阅关系的合并历史。只推送候选分支和 archive ref；`main` 保持不动。
 - 退出：候选源码、必要工程文档、依赖与可恢复性证据均固定并复核后，才可同步远端；main takeover 仍需独立的自足、legacy 蒸馏、回退和产品验收门。
+
+## DEC-012 · Paper 采用 9.6、许可证与首屏文案（2026-09-08）
+
+- 状态：accepted（用户裁定；Fable 记录）。
+- **Paper 采用版本 9.3 → 9.6。** SE 于 2026-09-08 发布 9.6，commit `d78fd312955c1f594e59cbdcbb0d3074ac355940`；[PAPER.md](../PAPER.md) 已更新。9.6 相对 9.3 的正文变化（SE Practice Index 2026-09-07 · 9.6 条）与本仓契约的关系：
+  - Canonical §5.5 候选可见性与正式效力分离：候选可被保存、检索、供后续 Review，正式更新单独过提交边界。对应 [ReviewProjection](mvp/execution/work-surface-kit/contracts/review-projection.md) 的 outcome ≠ accepted、[H1 / H3](research/experts-hotplug-2026-09-08/pr-plan.md) 的 typed packet 与只读历史；现有契约已按此分离，无需改动，H1 交付时按 §5.5 复核。
+  - Canonical §5.4 / Practice §4.3 按角色披露与工作集编译：保留来源、限定与缺口。对应 control plane 的 admission catalog（admitted / deferred 分列）与 H3 投影；现有实现一致。
+  - Canonical §6.1 读取权、工具权与向外传递权不互相代替：对应 runtime-control 的 exposed / permitted 分维与 MCP 默认 ask；现有实现一致。
+  - Practice §3.1 兼容绑定覆盖宿主实际召回的信息：对应 Pi 原生会话历史与 `runtime.bound` 记录；已知 `service.mjs` 直接使用 `SessionManager`（[harness-core](execution/2026-09-08-two-lines/harness-core.md) §2），不因本次升级新增工单。
+  - 检验：H1 / H3 交付的反例测试以 9.6 §5.5 为条款来源；[roadmap](roadmap.md) 与 [current](current.md) 中"绑定 SE 9.3"的表述由 Astra 在下次更新时同步为 9.6，本 DEC 为其依据。
+- **许可证：MIT。** 个人项目、低流量、上游 Pi 与 MCP client 均为 MIT；根目录新增 [LICENSE](../LICENSE)，版权人 lesPrivilege。发布面页脚与 README 据此写许可证；不另加 NOTICE。
+- **首屏两句按 Fable 推荐。** 字标 CourtWork；命题句 "Work that exists beyond the model." 作页面第一句论断，与产品 Home hero 同句；品牌句 "A place for expert work to take form." 作字标副句。见 [public-copy](release/2026-09-08/public-copy.md) §3。
+- 重开：SE 再次发版时按 PAPER.md 规则先记 DEC 再更新 SHA；许可证变更须用户裁定。

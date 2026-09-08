@@ -26,13 +26,13 @@ CourtWork · **A place for expert work to take form.**
 | Web↔后端联调与远端可恢复 | evidence/final-integration-20260908/{README,sync}.md | 146/146是固定代码回归范围；local-fake/loopback与真实provider分列 |
 | 领域提交样本Core | app/extensions/evidence-memo、engineering/architecture.md | 是开发样本，不写成通用NDA/法律审阅产品已完成 |
 | 当前main与旧谱系 | evidence/main-cutover-20260908/README.md | 接管已完成；旧v0.1.2、旧测试量、旧DMG属于冻结历史 |
-| Paper | PAPER.md | 当前采用SE9.3固定SHA；最新阅读入口单列，不把9.6本地候选当发布 |
+| Paper | PAPER.md | 当前采用 SE 9.6 / `d78fd31`（2026-09-08 发布并采用，DEC-012）；最新阅读入口单列 |
 
 真实provider、完整NDA/跨Session/Review闭环、producer缺席历史fallback、Workbench新布局仍按current证据更新。不要把本轮派单、已存在的字段或品牌commit动效写成这些能力已经完成。
 
 ## 写权与产物
 
-Opus拥有：根README（可保留README.md英文、README.zh-CN.md中文）、独立 `site/`、站点构建/校验、必要 `.github/workflows/` Pages工作流与发布回执。Astra本轮不改这些实现。不要改app、Core、brand源、Paper或内部career-kit材料；需要新品牌资产先提出明确用途。
+Opus拥有：根README（可保留README.md英文、README.zh-CN.md中文）、独立 `site/`、站点构建/校验、必要 `.github/workflows/` Pages工作流与发布回执。Astra本轮不改这些实现。不要改app、Core、brand源、Paper或内部career-kit材料；需要新品牌资产先提出明确用途。 许可证已定 MIT（根目录 LICENSE，DEC-012），README 与页脚据此写。
 
 交付：双语README/页面、真实产品截图/媒体manifest、构建命令、本地预览、子路径检查、可发布artifact、GitHub Pages接线与实际结果。语言版本共用事实清单、分别核对语义；不要求复刻相同正文长度。
 

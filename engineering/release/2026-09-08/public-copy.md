@@ -6,7 +6,7 @@
 
 | 角色 | 承担 | 不承担 |
 |---|---|---|
-| Schema Engineering（Paper 9.3，`f8ecb09`） | 命题：概率性提议不能凭一次输出取得正式效力；Matter 而非 Session；State / Context / Proposal / Committed Change 分层；人的 Review 改变正式状态 | 产品功能清单、版本状态 |
+| Schema Engineering（Paper 9.6，`d78fd31`） | 命题：概率性提议不能凭一次输出取得正式效力；Matter 而非 Session；State / Context / Proposal / Committed Change 分层；人的 Review 改变正式状态 | 产品功能清单、版本状态 |
 | CourtWork | 上述命题的实验实现与验证场：真实 runtime、可检查的权限与来源、领域 Core 样本、合成 NDA 纵切 | 证明 Paper 命题已被验证；宣称法律专业准确、真实客户、生产部署 |
 
 页面顺序按 Pages 准备包：是什么 → 如何工作 → 如何检查与运行。每段文案先给 Paper 依据，再给产品证据入口；两者缺一时该段收窄为"目标"口径，不删段。
@@ -25,7 +25,7 @@
 
 命题句（取自 Paper 标题）：**Work that exists beyond the model.** / **让工作存在于模型之外。**
 
-两句分工：品牌句是名字的一部分，命题句是页面第一句论断。已在产品 Home 使用命题句作 hero（WK-26），Pages 与产品同句。
+两句分工（用户 2026-09-08 裁定，DEC-012）：命题句是页面第一句论断，与产品 Home hero（WK-26）同句；品牌句作字标副句。
 
 定位段：
 
@@ -125,13 +125,13 @@ npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data 
 
 ## 10. Paper
 
-> CourtWork is built against Schema Engineering 9.3 (`f8ecb09`). The paper is the authority for the ideas on this page; CourtWork is where they are tried and tested. Product status never edits the paper; engineering results that generalize enter the paper's Practice Index with a fixed commit.
+> CourtWork is built against Schema Engineering 9.6 (`d78fd31`). The paper is the authority for the ideas on this page; CourtWork is where they are tried and tested. Product status never edits the paper; engineering results that generalize enter the paper's Practice Index with a fixed commit.
 
-链接：固定 9.3 三份文本（`PAPER.md` 所列 SHA 链接）；最新阅读入口 `https://lesprivilege.github.io/Schema-Engineering/`。9.6 本地候选不出现。
+链接：固定 9.6 三份文本（`PAPER.md` 所列 SHA 链接）；最新阅读入口 `https://lesprivilege.github.io/Schema-Engineering/`。9.6 已于 2026-09-08 发布，采用版本与最新版本本轮一致。
 
 ## 11. 页脚
 
-Experimental · source on GitHub · version manifest `<source_sha> / <site_sha>` · 无许可证声明（仓内尚无 LICENSE，不预填）。
+Experimental · source on GitHub · version manifest `<source_sha> / <site_sha>` · MIT License（根目录 LICENSE，DEC-012）。
 
 ## 12. 交付与核对
 
