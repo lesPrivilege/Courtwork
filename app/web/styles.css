@@ -969,6 +969,68 @@ button {
   width: 16px;
   height: 16px;
 }
+/* WK-57 · one anatomy for every Chat Flow row (tool action, question, output,
+   decided request): a 16 glyph, the object's own name, one metadata line, and
+   at most one trailing action. The glyph is decorative and the title carries
+   the object, so the row reads the same to a screen reader with the glyph
+   removed. Nothing here sets a colour: the state word inherits grey and only a
+   failed / waiting row is allowed to take one (copy-convention §2). */
+.flow-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 32px;
+  overflow-wrap: anywhere;
+}
+.flow-row > .ui-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  align-self: center;
+  color: var(--muted);
+}
+.flow-title {
+  min-width: 0;
+  flex: 1;
+}
+.flow-meta {
+  flex: none;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+  white-space: nowrap;
+}
+.flow-row.is-failed > .flow-meta,
+.activity-group.is-failed > summary > .flow-meta {
+  color: var(--danger);
+}
+/* A row that is also a disclosure keeps one visible affordance. Making the
+   summary a flex box drops the native marker, and a disclosure with no
+   affordance is a row users do not know they can open — so the chevron the
+   Activity group already used becomes the anatomy's own, in one place. */
+summary.flow-row {
+  list-style: none;
+  cursor: pointer;
+}
+summary.flow-row::-webkit-details-marker {
+  display: none;
+}
+summary.flow-row::after {
+  content: "›";
+  flex: none;
+  align-self: center;
+  color: var(--muted);
+  font-size: var(--text-navigation-title);
+  line-height: 1;
+  transition: transform var(--duration) var(--ease-out);
+}
+details[open] > summary.flow-row::after {
+  transform: rotate(90deg);
+}
+@media (max-width: 1023px) {
+  .flow-row {
+    min-height: 44px;
+  }
+}
 .tool-card {
   border-bottom: 1px solid var(--line);
   padding: 8px 0;
@@ -979,9 +1041,6 @@ button {
   cursor: pointer;
   padding: 4px 0;
   overflow-wrap: anywhere;
-}
-.tool-card.has-error {
-  color: var(--danger);
 }
 .tool-detail-block {
   padding: 12px 0;
@@ -1037,6 +1096,9 @@ button {
   border-radius: 0;
   text-align: left;
   padding: 12px 0;
+}
+.artifact-thread-row > .flow-title {
+  text-align: left;
 }
 .file-name {
   min-width: 0;
@@ -1698,9 +1760,12 @@ select {
   display: grid;
   gap: 12px;
 }
-.surface-status {
-  display: flex;
-  gap: 8px;
+/* WK10b · the unmounted contributed surface leads with the one row anatomy:
+   the producer's own name, its state word, and no control. The status pill row
+   it replaced said the same thing in a second shape. */
+.surface-state-row > .flow-title {
+  font-size: var(--text-label);
+  font-weight: 600;
 }
 .projection-item {
   display: grid;
@@ -1717,12 +1782,14 @@ select {
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
-.action-item {
-  padding: 12px 0;
+.action-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
 }
 .action-label {
   font-size: var(--text-label);
-  margin-bottom: 8px;
 }
 .toast-region {
   position: fixed;
@@ -1941,9 +2008,10 @@ select {
     flex: 1;
     min-height: 44px;
   }
-  .artifact-thread-row > .form-help {
+  .artifact-thread-row > .flow-meta {
     font-size: var(--text-caption);
     max-width: 64px;
+    white-space: normal;
   }
   .runtime-dialog-inner {
     padding: 20px 16px;
@@ -2006,27 +2074,9 @@ select {
   color: var(--muted-strong);
   font-size: var(--text-meta);
 }
-.activity-group > summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  min-height: 32px;
-}
-.activity-group > summary::after {
-  content: "›";
-  margin-left: 4px;
-  transform: rotate(0deg);
-  font-size: var(--text-navigation-title);
-  transition: transform var(--duration) var(--ease-out);
-}
-.activity-group[open] > summary::after {
-  transform: rotate(90deg);
-}
-.activity-group > summary .ui-icon {
-  width: 16px;
-  height: 16px;
-}
+/* The group heading is the shared `summary.flow-row` anatomy; the rules it used
+   to carry for itself (flex, gap, cursor, the 32 step, the chevron and the 16
+   glyph) are all in that one place now. */
 .activity-group > .tool-card {
   margin-left: 8px;
   padding-left: 16px;
@@ -2087,17 +2137,6 @@ select {
   font-size: var(--text-meta);
   color: var(--muted-strong);
 }
-.resolved-permission > summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  min-height: 32px;
-}
-.resolved-permission .ui-icon {
-  width: 16px;
-  height: 16px;
-}
 .resolved-permission .permission-preview {
   margin-top: 8px;
 }
@@ -2136,22 +2175,11 @@ select {
   font-size: var(--text-meta);
   color: var(--muted-strong);
 }
-.resolved-question > summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  min-height: 32px;
-}
-.resolved-question > summary > span {
+.resolved-question > summary > .flow-title {
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.resolved-question .ui-icon {
-  width: 16px;
-  height: 16px;
 }
 .resolved-question > p {
   margin: 8px 0 0 24px;
@@ -2187,13 +2215,6 @@ button[aria-disabled="true"] {
   margin: 0;
   overflow-wrap: anywhere;
 }
-@media (max-width: 767px) {
-  .resolved-permission > summary,
-  .resolved-question > summary {
-    min-height: 44px;
-  }
-}
-
 #send-button,
 #cancel-run-button {
   border-radius: 50%;
@@ -2218,12 +2239,6 @@ button[aria-disabled="true"] {
   width: 18px;
   height: 18px;
 }
-@media (max-width: 1023px) {
-  .activity-group > summary {
-    min-height: 44px;
-  }
-}
-
 /* WK-47 / SH-1 · a folder is not an object you open or decide about, so its
    files are a plain group of rows: a heading, a count, and the rows. The box
    that used to wrap each folder inside the panel added a second outline without
@@ -2707,7 +2722,7 @@ dialog[open]::backdrop {
 }
 
 /* Working ledger title: a soft highlight travels across the words while tools run */
-.activity-group.is-working > summary > span {
+.activity-group.is-working > summary > .flow-title {
   background: linear-gradient(
     90deg,
     var(--muted-strong) 0 40%,
@@ -2729,7 +2744,7 @@ dialog[open]::backdrop {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .activity-group.is-working > summary > span {
+  .activity-group.is-working > summary > .flow-title {
     animation: none;
     background: none;
     color: var(--muted-strong);

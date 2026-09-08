@@ -1,6 +1,7 @@
 import {
   el,
   icon,
+  flowRow,
   action,
   setAction,
   copyAction,
@@ -45,7 +46,12 @@ import {
   renderSessionOverview,
   renderRunHistory,
 } from "./workspace-view.mjs";
-import { surfaceModules, surfaceModule } from "./surface-modules.mjs";
+import {
+  surfaceModules,
+  surfaceModule,
+  resolveSurfaceSlot,
+  slotStatusLine,
+} from "./surface-modules.mjs";
 import { renderUserMessage } from "./user-message.mjs";
 
 const API_BASE = "/api/v5";
@@ -113,6 +119,19 @@ const state = {
   messageReading: new Map(),
   bindingExtensionId: null,
   extensions: [],
+  /* WK-43 / 45 (1) · what the selected agent profile declares about UI slots.
+   * `known` is false until the runtime module has read `/runtime-control` once
+   * in this session; an unread declaration is reported as unread, never as
+   * "this profile declares no slot" (FN-28: missing ≠ empty). */
+  slotDeclaration: {
+    known: false,
+    sessionId: null,
+    revision: null,
+    profileId: null,
+    status: null,
+    missing: [],
+    slots: [],
+  },
   providerConfig: null,
   runtimeDialogReturnFocus: null,
   focusIntentEpoch: 0,
@@ -2093,6 +2112,22 @@ function appendAssistantBody(container, text, key) {
   );
 }
 
+/* WK-57 / IC-1 · the type glyph says what kind of act the row records, so the
+ * user does not have to read the tool identifier to tell a read from a write.
+ * The identifier itself stays visible beside it — the glyph never replaces the
+ * object name, and "open the current file" and "write to it" are not allowed to
+ * share one file glyph (IC-1, «成果摘要入口» row). Anything unrecognised keeps
+ * the neutral activity glyph rather than being guessed into a family. */
+function toolGlyph(name) {
+  const tool = String(name || "");
+  if (tool === "ws_write") return "square-pen";
+  if (tool === "ws_list") return "folder";
+  if (tool === "ws_grep") return "search";
+  if (tool === "ws_read" || tool === "se_read_source") return "file-text";
+  if (tool.startsWith("runtime_")) return "settings-2";
+  return "activity";
+}
+
 function appendToolDetails(container, row) {
   const requestValue = row.request;
   const resultValue = row.result;
@@ -2269,9 +2304,11 @@ function renderMessageStream() {
       );
       list.append(wrapper);
     } else if (row.kind === "tool") {
-      const details = element("details", {
-        className: `tool-card ${row.isError ? "has-error" : ""}`,
-      });
+      /* WK-47 ablation · the whole row no longer turns red. A failed tool is
+       * named by its state word, and the failure text itself is inside; colour
+       * was never the only carrier and the object name is not a state
+       * (copy-convention §2, FN-28). */
+      const details = element("details", { className: "tool-card" });
       const key = toolScopeKey(row.runId, row.callId, row.name);
       details.open = state.toolOpen.has(key)
         ? state.toolOpen.get(key)
@@ -2282,14 +2319,30 @@ function renderMessageStream() {
         "waiting_user",
         "stopping",
       ].includes(status);
-      const suffix = row.isError
-        ? " · failed"
+      /* WK-57 · the state word is a word in its own slot, not a lower-case
+       * suffix glued to the tool's name with a middle dot. A finished tool row
+       * still carries no state word: the group summary above it already says
+       * the run completed, and repeating it on every row answers nothing
+       * (WK-47 ablation C-2). */
+      const toolState = row.isError
+        ? "Failed"
         : row.phase === "result"
-          ? ""
+          ? null
           : toolStillActive
-            ? status === "waiting_user" ? " · waiting for you" : status === "stopping" ? " · stopping" : " · working"
-            : " · interrupted";
-      details.append(element("summary", { text: `${row.name}${suffix}` }));
+            ? status === "waiting_user"
+              ? "Waiting for you"
+              : status === "stopping"
+                ? "Stopping"
+                : "Working"
+            : "Interrupted";
+      details.append(
+        flowRow("summary", {
+          glyph: toolGlyph(row.name),
+          title: row.name,
+          meta: toolState,
+          className: row.isError ? "is-failed" : "",
+        }),
+      );
       const detail = element("div", { className: "tool-detail-block" });
       appendToolDetails(detail, row);
       details.append(detail);
@@ -2299,12 +2352,12 @@ function renderMessageStream() {
       if (!activityGroup) {
         const groupKey = sessionScopeKey("activity", row.id);
         const group = element("details", { className: "activity-group" });
-        const summary = element(
-          "summary",
-          {},
-          icon("activity"),
-          element("span", { text: "Activity" }),
-        );
+        /* The group heading is the same anatomy as the rows it holds: the type
+         * glyph, the object name (how many tool actions), and one state word. */
+        const summary = flowRow("summary", {
+          glyph: "activity",
+          title: "Activity",
+        });
         group.append(summary);
         group.open = state.toolOpen.has(groupKey)
           ? state.toolOpen.get(groupKey)
@@ -2314,12 +2367,14 @@ function renderMessageStream() {
         );
         activityGroup = {
           node: group,
-          summary: summary.lastChild,
+          title: summary.querySelector(".flow-title"),
+          meta: element("span", { className: "flow-meta" }),
           count: 0,
           errors: 0,
           working: 0,
           interrupted: 0,
         };
+        summary.append(activityGroup.meta);
         list.append(group);
       }
       activityGroup.count++;
@@ -2328,7 +2383,19 @@ function renderMessageStream() {
         row.phase !== "result" && toolStillActive ? 1 : 0;
       activityGroup.interrupted +=
         row.phase !== "result" && !toolStillActive ? 1 : 0;
-      activityGroup.summary.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}${activityGroup.errors ? ` · ${activityGroup.errors} failed` : activityGroup.working ? status === "waiting_user" ? " · waiting for you" : status === "stopping" ? " · stopping" : " · working" : activityGroup.interrupted ? " · interrupted" : " · completed"}`;
+      activityGroup.title.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}`;
+      activityGroup.meta.textContent = activityGroup.errors
+        ? `${activityGroup.errors} failed`
+        : activityGroup.working
+          ? status === "waiting_user"
+            ? "Waiting for you"
+            : status === "stopping"
+              ? "Stopping"
+              : "Working"
+          : activityGroup.interrupted
+            ? "Interrupted"
+            : "Completed";
+      activityGroup.node.classList.toggle("is-failed", activityGroup.errors > 0);
       activityGroup.node.classList.toggle(
         "is-working",
         !activityGroup.errors && activityGroup.working > 0 && status === "running",
@@ -2347,16 +2414,19 @@ function renderMessageStream() {
           className: "resolved-question",
         });
         history.open = state.toolOpen.get(openKey) || false;
+        /* WK-57 · the same anatomy the live card uses: the question's own text
+         * is the title, and how it ended is the one metadata word. The two were
+         * previously one string joined by a middle dot, which read as part of
+         * the prompt. */
         history.append(
-          element(
+          flowRow(
             "summary",
-            { attrs: { "data-focus-key": `${questionKey}:answer` } },
-            icon("message-square"),
-            element("span", {
-              text: row.answer
-                ? `Answered · ${row.prompt}`
-                : `Question closed · ${row.prompt}`,
-            }),
+            {
+              glyph: "message-square",
+              title: row.prompt,
+              meta: row.answer ? "Answered" : "Closed",
+              attrs: { "data-focus-key": `${questionKey}:answer` },
+            },
           ),
           element("p", {
             className: "form-help",
@@ -2381,11 +2451,24 @@ function renderMessageStream() {
             : "resolved"
         }`,
       });
-      card.append(
-        element("strong", { text: "Answer requested" }),
-        element("p", { className: "question-prompt", text: row.prompt }),
-      );
+      /* WK-57 ablation · «Answer requested» said nothing the Answer button
+       * below it does not say, and the prompt was a second paragraph under a
+       * heading that was not an object name. One head remains: the type glyph,
+       * the question itself as the title, and one state word. */
       const questionKey = questionScopeKey(row.runId, row.id);
+      card.append(
+        flowRow("div", {
+          glyph: "message-square",
+          title: row.prompt,
+          /* No state word on the live card: an unanswered input with an Answer
+           * button beside it is the state, and the run status row directly
+           * below already carries «Waiting for you» from the Host. The word was
+           * on screen three times within one section (WK-47 ablation C-5). The
+           * decided history row keeps its word, because there it is the only
+           * carrier. */
+          className: "question-head",
+        }),
+      );
       if (row.questionStatus !== "pending") {
         card.append(
           element("p", {
@@ -2526,16 +2609,20 @@ function renderMessageStream() {
         !/^[a-f0-9]{64}$/.test(row.file.sha256 || "")
       )
         continue;
-      const button = element(
+      /* WK-57 · the output row is the same anatomy: type glyph, the file's own
+       * path as the title, one metadata word saying which of the two readings
+       * this is (IC-1 keeps «current file» and «recorded version» apart), and
+       * the single action of opening it — the row itself. */
+      const button = flowRow(
         "button",
         {
+          glyph: "file-text",
+          title: row.file.path,
+          meta: "Recorded version",
           className: "artifact-thread-row",
           attrs: { type: "button", "data-focus-key": row.id },
         },
-        icon("file-text"),
-        element("span", { className: "file-name", text: row.file.path }),
-        element("span", { className: "form-help", text: "Recorded version" }),
-        icon("chevron-right"),
+        icon("chevron-right", { size: 16 }),
       );
       button.addEventListener("click", () =>
         openFile({
@@ -3038,6 +3125,59 @@ function surfaceKindTitle(kind) {
 }
 /* WK-41 · the host's facts. Every module reads this object and nothing else;
  * none of them reaches into `state`. */
+/* FN-07 / WK-45 (1) · the Runtime module is the one reader of
+ * `/runtime-control`, and the host owns the client it hands that module. The
+ * slot declaration is therefore read off that single response: no second
+ * request, no second state machine, and nothing the surface can write back.
+ * Until the module has read once in this session, `known` stays false and the
+ * host says the declaration is unread rather than reporting no slot. */
+function runtimeControlRequest(path, options) {
+  const result = request(path, options);
+  if (typeof path === "string" && path.startsWith("/runtime-control")) {
+    const sessionId = state.activeSessionId;
+    void result.then(
+      (snapshot) => {
+        if (sessionId !== state.activeSessionId) return;
+        const composition = snapshot?.composition;
+        if (!composition) return;
+        state.slotDeclaration = {
+          known: true,
+          sessionId,
+          revision: snapshot.revision ?? null,
+          profileId: composition.id || null,
+          /* The declaration is carried with the status the server gave it. An
+           * incompatible composition still declares its slots; it just cannot
+           * be the reason anything is mounted, and the missing ids are the
+           * explanation the Runtime module already prints (FN-20, FE-T05). */
+          status: composition.status || null,
+          missing: Array.isArray(composition.missing) ? [...composition.missing] : [],
+          slots: Array.isArray(composition.uiSlots) ? [...composition.uiSlots] : [],
+        };
+        if (state.surface.open) renderSurfaceRail();
+      },
+      () => {},
+    );
+  }
+  return result;
+}
+
+function slotDeclaration() {
+  const declaration = state.slotDeclaration;
+  return declaration.sessionId === state.activeSessionId ? declaration : null;
+}
+
+/* WK-43 / 45 · the host's own reading of the `work.surface` slot for this
+ * session. Both the collapsed card and the expanded pane read this one
+ * resolution, so a card and its pane can never disagree about whether a
+ * renderer is mounted. */
+function workSurfaceSlot() {
+  return resolveSurfaceSlot("work.surface", {
+    declaration: slotDeclaration(),
+    extension: state.surface.info?.extension || null,
+    binding: currentSession()?.extensionBinding || null,
+  });
+}
+
 function surfaceFacts() {
   return {
     sessionId: state.activeSessionId,
@@ -3049,6 +3189,10 @@ function surfaceFacts() {
     fileRef: state.surface.fileRef,
     workspace: state.surface.workspace,
     extension: state.surface.info?.extension || null,
+    /* WK-43 · the host's slot resolution travels with the facts, so the module
+     * reads one answer instead of re-deriving mount conditions of its own. */
+    slot: workSurfaceSlot(),
+    projection: state.surface.projection,
     runtime: runtimeView?.summary() || null,
   };
 }
@@ -3282,16 +3426,29 @@ function renderSurfaceFallback() {
   }
   const binding = currentSession().extensionBinding;
   if (!info?.extension && binding?.extensionId) {
+    /* Three conditions that used to read as one. Still reading is not the same
+     * as read and empty, and neither is the same as a producer this host has no
+     * record of; only the first of the three is going to change on its own
+     * (FN-28). None of them shows a control. */
     const loading = Boolean(state.surface.fetchController);
+    const read = Boolean(info);
     content.append(
       element(
         "div",
         { className: "empty-state compact" },
         element("h3", {
-          text: loading ? "Loading preview" : "Preview not loaded yet",
+          text: loading
+            ? "Loading work surface"
+            : read
+              ? "Extension not installed"
+              : "Work surface not read yet",
         }),
         element("p", {
-          text: `This session is bound to ${binding.extensionId}; the preview has not returned its current projection.`,
+          text: loading
+            ? `Reading the work surface of ${binding.extensionId}.`
+            : read
+              ? `This session is bound to ${binding.extensionId}. This host has no record of it, so its work state cannot be read here.`
+              : `This session is bound to ${binding.extensionId}. Its work surface has not been read in this session.`,
         }),
       ),
     );
@@ -3304,28 +3461,56 @@ function renderSurfaceFallback() {
     else void loadWorkspaceTree();
     return;
   }
+  /* WK10b 第一段 item 5 / FN-24 · the top row of an unmounted contributed
+   * surface states three facts and offers nothing: which extension the session
+   * is bound to, what state that extension is in, and which version of the work
+   * state this reading is. The rulings' word for it is «producer»; the visible
+   * word is «extension», which is what the rest of the product already calls
+   * this object (copy-convention §3 forbids a second name for one thing).
+   * Producer absence, renderer absence and an unloaded record stay three lines,
+   * because they lead to three different next steps (FN-28). */
   const card = element("div", { className: "surface-card" });
-  const statuses = element("div", { className: "surface-status" });
-  statuses.append(
-    element("span", {
-      className: `extension-status ${info.extension.status || ""}`,
-      text: info.extension.status || "unknown",
-    }),
-  );
-  statuses.append(
-    element("span", {
-      className: "run-badge",
-      text: `generation ${info.extension.generation ?? "?"}`,
-    }),
-  );
-  card.append(
-    statuses,
-    element("h3", {
-      text: info.extension.title || info.extension.id || "Extension workspace",
-    }),
-  );
+  const slot = workSurfaceSlot();
   const projection = state.surface.projection;
+  const stateVersion =
+    typeof projection?.stateVersion === "string"
+      ? projection.stateVersion.slice(0, 12)
+      : null;
+  card.append(
+    flowRow("div", {
+      glyph: "plug",
+      title:
+        info.extension.title || info.extension.id || "Extension workspace",
+      meta: info.extension.status || "unknown",
+      className: "surface-state-row",
+    }),
+  );
+  const facts = [`generation ${info.extension.generation ?? "?"}`];
+  if (stateVersion) facts.push(`state ${stateVersion}`);
+  /* Compatibility is stated only when it is not `supported`: the ordinary case
+   * adds no judgement, and the word that matters is the one that says this
+   * reading cannot be acted on (FN-24, WK-47). The server's enum is spelled as
+   * words, not re-interpreted. */
+  if (
+    typeof projection?.compatibility === "string" &&
+    projection.compatibility !== "supported"
+  )
+    facts.push(projection.compatibility.replaceAll("_", " "));
+  card.append(element("p", { className: "surface-note", text: facts.join(" · ") }));
+  /* The slot line is added only where it says something the row above does not.
+   * For an unloaded or invalidated producer the row already carries the name and
+   * the state word, so repeating «Evidence Memo · unloaded» underneath is a
+   * second copy of one fact (WK-47 ablation S-9). A loaded producer that
+   * contributes no renderer is the case the line exists for. */
+  const statusLine =
+    slot?.reason === "renderer-absent" ? slotStatusLine(slot) : null;
+  if (statusLine)
+    card.append(element("p", { className: "surface-note", text: statusLine }));
   if (projection === null || projection === undefined) {
+    /* A bound session whose producer returned no projection is not an empty
+     * Matter. The host says the reading is missing and stops there: it does not
+     * fill in a Decision, an Evidence set or an accepted Artifact
+     * (boundaries §4, WK-45 (3)). */
     card.append(
       element("p", {
         className: "surface-note",
@@ -3336,33 +3521,39 @@ function renderSurfaceFallback() {
     const actions = Array.isArray(projection.humanActions)
       ? projection.humanActions
       : [];
-    if (actions.length) {
-      const block = element("section", { className: "surface-block" });
-      block.append(element("h4", { text: "Available actions" }));
-      const list = element("div", { className: "action-list" });
-      for (const action of actions) {
-        const item = element("div", { className: "action-item" });
-        item.append(
-          element("p", {
-            className: "action-label",
-            text: action.label || action.action || "Action",
+    /* FN-18 / FN-21 ablation · the generic fallback no longer offers a «Run
+     * action» button. A button with no object, no scope and no payload is
+     * exactly the unscoped approval FN-18 forbids, and a universal dispatch
+     * over whatever string the projection names is what FN-21 forbids. The
+     * declared actions stay visible as text, because knowing what the producer
+     * would offer is a fact; performing them belongs to its own renderer, whose
+     * absence is why this fallback is on screen at all. */
+    const block0 = element("section", { className: "surface-block" });
+    block0.append(
+      element("h4", { text: "Declared actions" }),
+      actions.length
+        ? element(
+            "ul",
+            { className: "action-list" },
+            ...actions.map((item) =>
+              element("li", {
+                className: "action-label",
+                text: item.label || item.action || "Action",
+              }),
+            ),
+          )
+        : element("p", {
+            className: "surface-note",
+            text: "No action is declared on this reading.",
           }),
-        );
-        const button = element("button", {
-          className: "secondary-button",
-          attrs: { type: "button" },
-          text: "Run action",
-        });
-        button.addEventListener(
-          "click",
-          () => void dispatchSurfaceAction(action.action, action.payload || {}),
-        );
-        item.append(button);
-        list.append(item);
-      }
-      block.append(list);
-      card.append(block);
-    }
+    );
+    block0.append(
+      element("p", {
+        className: "surface-note",
+        text: "Read-only. An action needs the extension's own renderer.",
+      }),
+    );
+    card.append(block0);
     const block = element("section", { className: "surface-block" });
     block.append(element("h4", { text: "Read-only projection" }));
     const list = element("div", { className: "projection-list" });
@@ -3585,8 +3776,19 @@ async function loadSurface(epoch) {
     state.surface.projection = result.projection ?? null;
     setWorkspaceTitle(extension?.title || "Files");
     renderSurfaceFallback();
-    const modulePath = nextIdentity?.modulePath || null;
-    if (!modulePath || !extension || extension.status !== "loaded") return;
+    /* FN-20 / WK-43 · one mount rule, and the collapsed card reads the same
+     * one: the host mounts only when its own slot resolution says a loaded
+     * producer contributes a renderer module inside the local allowlist. A
+     * profile's `uiSlots` declaration alone never mounts anything, and a
+     * declared slot with no loaded renderer leaves the read-only fallback that
+     * `renderSurfaceFallback` has already painted above. */
+    const slot = resolveSurfaceSlot("work.surface", {
+      declaration: slotDeclaration(),
+      extension,
+      binding: currentSession()?.extensionBinding || null,
+    });
+    const modulePath = slot?.mount ? nextIdentity?.modulePath || null : null;
+    if (!modulePath) return;
     const moduleUrl = new URL(modulePath, window.location.origin);
     if (
       moduleUrl.origin !== window.location.origin ||
@@ -4251,14 +4453,19 @@ function renderPermission(row) {
       className: "resolved-permission",
     });
     details.open = state.toolOpen.get(keyOpen) || false;
+    /* The decided request keeps every fact it had — which kind of call, what it
+     * named, and how it was decided — in the one row anatomy: the object it
+     * named is the title, and the decision is the metadata word. The exact-call
+     * facts stay inside, unchanged (copy-convention, Astra addendum). */
     details.append(
-      element(
+      flowRow(
         "summary",
-        { attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` } },
-        icon("file-text"),
-        element("span", {
-          text: `${display.label} ${row.decision === "allow" ? "allowed" : row.decision === "deny" ? "denied" : "request closed"} · ${display.target}`,
-        }),
+        {
+          glyph: display.glyph,
+          title: display.target,
+          meta: `${display.label} ${row.decision === "allow" ? "allowed" : row.decision === "deny" ? "denied" : "closed"}`,
+          attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` },
+        },
       ),
       element("p", {
         className: "intervention-scope",
@@ -4980,7 +5187,7 @@ async function init() {
     },
   });
   runtimeView = createRuntimeView($("runtime-content"), {
-    request,
+    request: runtimeControlRequest,
     getSessionId: () => state.activeSessionId,
     notify: showToast,
     onDraft: (text, title) =>
@@ -5062,6 +5269,11 @@ window.__V5_UI__ = {
   request,
   normalizedType,
   renderAll,
+  /* WK-43 · the host's own slot resolution, exposed for the same reason `state`
+   * is: a non-author check must be able to read the host's answer rather than
+   * re-derive one of its own from the DOM. It is a read; calling it changes
+   * nothing. */
+  slot: workSurfaceSlot,
 };
 
 void init();

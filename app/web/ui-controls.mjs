@@ -48,13 +48,18 @@ const icons = new Set([
   "arrow-down",
   "external-link",
 ]);
-export function icon(name) {
+/* IC-1 / copy-convention §4 · the glyph slot is 16 in a row, 18 on a control and
+ * 20 in navigation. The size is stated where the glyph is built, not patched
+ * afterwards by a selector, so a row's glyph cannot silently inherit a control's
+ * size when it moves. The hit region is a separate number and is never derived
+ * from this one. */
+export function icon(name, { size = 20 } = {}) {
   if (!icons.has(name)) throw new Error("Unknown static icon");
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   for (const [key, value] of Object.entries({
     viewBox: "0 0 24 24",
-    width: 20,
-    height: 20,
+    width: size,
+    height: size,
     fill: "none",
     stroke: "currentColor",
     "stroke-width": 2,
@@ -69,6 +74,29 @@ export function icon(name) {
   use.setAttribute("href", `/web/vendor/icons.svg#${name}`);
   svg.append(use);
   return svg;
+}
+/* WK-57 · one anatomy for every Chat Flow row, reached by subtraction from the
+ * frontier card: a type glyph at 16, the object's own name, one metadata line,
+ * and at most one primary action. There is no second action, no nested card and
+ * no eyebrow — a row that needs two actions is not this primitive.
+ *
+ * `title` is the object name (copy-convention §2 «标题 = 对象名本身»); `meta` is
+ * one state word or one type fact in grey (only failed / waiting_user are ever
+ * coloured, by the caller's class); `action` is the single trailing control, or
+ * null when the row's own disclosure is the action. */
+export function flowRow(
+  tag,
+  { glyph, title, meta, className = "", attrs } = {},
+  action = null,
+) {
+  return el(
+    tag,
+    { className: `flow-row ${className}`.trim(), attrs },
+    glyph ? icon(glyph, { size: 16 }) : null,
+    el("span", { className: "flow-title", text: title }),
+    meta ? el("span", { className: "flow-meta", text: meta }) : null,
+    action,
+  );
 }
 export function setAction(button, name, label, { visible = false } = {}) {
   button.replaceChildren(
