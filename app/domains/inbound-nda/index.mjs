@@ -13,9 +13,14 @@ import {
   NORMAL_FACTS,
   RULE_DEFINITIONS,
   SYNTHETIC_SOURCES,
+  development,
   developmentFixtures,
+  fixtureManifest,
+  fixtures,
+  gold,
   goldFixtures,
   hashManifest,
+  holdout,
   holdoutFixtures,
   normalFacts,
   sha256,
@@ -56,9 +61,14 @@ export {
   HOLDOUT_SOURCES,
   NORMAL_FACTS,
   SYNTHETIC_SOURCES,
+  development,
   developmentFixtures,
+  fixtureManifest,
+  fixtures,
+  gold,
   goldFixtures,
   hashManifest,
+  holdout,
   holdoutFixtures,
   normalFacts,
   syntheticSources,
@@ -97,7 +107,12 @@ function integer(value, label) {
 
 function ensureSerializable(value, label) {
   try {
-    const json = JSON.stringify(value);
+    const json = JSON.stringify(value, (_key, child) => {
+      if (child === undefined || typeof child === 'function' || typeof child === 'symbol' || typeof child === 'bigint') {
+        throw new TypeError('unsupported JSON value');
+      }
+      return child;
+    });
     if (json === undefined) throw new Error('undefined JSON value');
     JSON.parse(json);
   } catch (error) {
