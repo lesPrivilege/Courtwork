@@ -295,3 +295,14 @@ APP_URL=http://127.0.0.1:8875 WK13_STAGE=rows     WK6_CDP_PORT=19674 node .../ev
 ### 11.6 §10 待裁项的结转
 
 第 1 / 2 / 3 / 4 项已由 WK-86 答复并实施。§10 的「未检项」（触控、读屏实读、真实 provider、真实 IME、usage 下限措辞、浏览器自身 200 % 缩放、1024–1439 中间档、Astra 独验）本轮均未新增覆盖，原样结转。
+
+## 12. Fable 复核（2026-09-08）
+
+独立重跑 r2 `6de394e`：`npm --prefix app test` 185/185，`lint-colors` ok，`git diff -- app/server` 为空。目视 `home-rows-1440-light-r2`：上带 155 / composer 带 257 / 下带 432，三集合分节、行态状态词（Answer requested · Waiting for you · Failed · No run recorded）；`home-cards-1440-light`：筛选后卡态沿 railCard 解剖；`home-rows-390-light`：tile 2+1、composer 沉底不变。
+
+裁定（WK-86，已由 r2 实施）：
+1. 上带在场时 composer 带按 WK-46，WK-76 的 18vh 留白退役（消融已记）。
+2. `In progress` 为 Continue 集合的可见名，集合键与成员规则不变。
+3. `.d.ts` 收编 `PendingRowInput` / `InspectionRowInput` 与两个 adapter 签名，只读字段。
+4. 空态 Home 的 `clamp(96px, 31vh, 640px)`（WK-11）在上带在场后同样成为带间空白（`home-empty-1440-light-r2`）：架构上应同样退役为带距；因空态 hero 位置曾由用户裁定，留用户四轴确认后一行改动，不阻塞合流。
+5. 交 Astra 合流；合流前置：`app/server/index.mjs:22` STATIC 数组加入 `"presentation-adapters.mjs"`（§8）；独验项 FE-T01 / T02 / T12 与 Home 既有回归。
