@@ -14,6 +14,8 @@ CourtWork · **A place for expert work to take form.**
 
 首屏形成产品印象，紧接实际界面与一条可复现工作路径；之后是本地启动、支持范围、架构/roadmap、Paper。品牌仍来自 `brand/`，可更大胆处理字阶、记录标注和局部运动，权威状态与内容保持诚实。视觉决定由Opus结合真实截图与既有 [局部参考队列](pages-preparation/reference-index.json)作裁取，不默认照搬旧法律产品站。
 
+文案入口：[public-copy](public-copy.md) 固定双语文案、状态三档与声称→证据表，Pages 与根 README 从它取词；本单其余边界不变。
+
 ## 可发布的事实与出处
 
 | 可表达 | 固定基线来源 | 需要保留的范围 |
