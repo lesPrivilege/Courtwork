@@ -1,0 +1,5 @@
+
+> se-agent-v5-runtime@0.1.0 start
+> node server/index.mjs --data-dir /var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/courtwork-remote-start-2w5rdrb9 --port 19021
+
+http://127.0.0.1:19021

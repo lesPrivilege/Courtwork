@@ -1,0 +1,127 @@
+{
+  "app": "http://127.0.0.1:19011/",
+  "viewport": "1440x900",
+  "media": "light",
+  "results": [
+    {
+      "id": "surface",
+      "obligation": "runtime is a surface kind beside workspace / run / file (RC-1)",
+      "pass": true,
+      "detail": "title=Runtime"
+    },
+    {
+      "id": "precedence",
+      "obligation": "a static precedence sentence sits above the scope tabs (RC-3 revision)",
+      "pass": true,
+      "detail": "Session overrides workspace, and workspace overrides user. A narrower scope cannot loosen a deny or ask that a wider one set."
+    },
+    {
+      "id": "scopes-from-server",
+      "obligation": "scope tabs and revision come from the server, not from the page",
+      "pass": true,
+      "detail": "tabs=user,workspace,session note=Editing the session layer · b18cf2e4-61fd-45fa-a095-9e3be620c8ce. Revision 7."
+    },
+    {
+      "id": "four-dimensions",
+      "obligation": "installed / running / exposed / permitted stay separate (RC-2, acceptance)",
+      "pass": true,
+      "detail": "25 rows"
+    },
+    {
+      "id": "running-null",
+      "obligation": "running:null renders as n/a, not as disconnected",
+      "pass": true,
+      "detail": "n/a rows 22, contract nulls 22"
+    },
+    {
+      "id": "no-inferred-authority",
+      "obligation": "no switch shows a value the server did not report (acceptance)",
+      "pass": true,
+      "detail": "25 switches agree with the snapshot"
+    },
+    {
+      "id": "permission-trace",
+      "obligation": "a tool's permission effect and trace read as a DataList on disclosure",
+      "pass": true,
+      "detail": "Effect | Step 1 · host-ceiling | Step 2 · host-default | Kind | Source | Version | Owning scope | Activation | Health | Default exposure"
+    },
+    {
+      "id": "source-identity",
+      "obligation": "source type, owning scope and hash or URI are shown",
+      "pass": true,
+      "detail": "Effect | Step 1 · host-ceiling | Step 2 · host-default | Kind | Source | Version | Owning scope | Activation | Health | Default exposure"
+    },
+    {
+      "id": "unsupported-kinds",
+      "obligation": "adapter-required kinds are labelled, with no controls",
+      "pass": true,
+      "detail": "memory_provider, workflow, hook, registry · interactive=0"
+    },
+    {
+      "id": "profile-compatibility",
+      "obligation": "the selected profile's compatibility is shown (acceptance)",
+      "pass": true,
+      "detail": "Selected profile agent:general · compatible. Adapter pi-coding-agent@0.85.1/agent-session."
+    },
+    {
+      "id": "ui-slots-declarative",
+      "obligation": "profile UI slots are declared, not executed (acceptance)",
+      "pass": true,
+      "detail": "Agent profile | builtin | pi-coding-agent@0.85.1/agent-session | user · local | always | healthy | exposed | yes · compatible | runtime.inspector, work.surface — declared, not executed"
+    },
+    {
+      "id": "selection-not-exposure",
+      "obligation": "selecting a profile is distinguished from generic exposure (acceptance)",
+      "pass": true,
+      "detail": "Selecting a profile is a different act from exposing a resource: a profile filters and restricts, and it can never grant authority the host does not already hold. Selection is made where the profile is chosen, not with these switches."
+    },
+    {
+      "id": "mcp-states",
+      "obligation": "configured / connected / exposed are separate words from the snapshot (RC-6)",
+      "pass": true,
+      "detail": "Stateconfigured · connected · buttons Connect,Disconnect,Restart"
+    },
+    {
+      "id": "parent-gate-readonly",
+      "obligation": "a parent gate disables the child switch and does not pretend it is a removable override",
+      "pass": true,
+      "detail": "2 parent-gated remote children"
+    },
+    {
+      "id": "remote-tools",
+      "obligation": "remote tools are indented under their server and marked remote + hash",
+      "pass": true,
+      "detail": "2 of 4 indented rows are remote; contract expects 2"
+    },
+    {
+      "id": "characters-not-tokens",
+      "obligation": "context sizes say characters, not tokens (RC-5)",
+      "pass": true,
+      "detail": "174 characters · 1 deferred / 92 characters / 43 characters · 1 deferred / Sizes use characters, not tokens. Counts include injected instructions, catalog text and formatting. Deferred bodies load only on request; templates remain draft-only. Session history and other host context are excluded."
+    },
+    {
+      "id": "token-usage-null",
+      "obligation": "tokenUsage null shows no token line at all",
+      "pass": true,
+      "detail": "tokenUsage=null"
+    },
+    {
+      "id": "deferred-dash",
+      "obligation": "zero-contribution kinds are dashes; catalog contributions count without admitting deferred bodies",
+      "pass": true,
+      "detail": "Prompt template · user-invoked"
+    },
+    {
+      "id": "bar-no-limit",
+      "obligation": "the bar shows composition only: no percentage, free space or quota line",
+      "pass": true,
+      "detail": "3 segments"
+    },
+    {
+      "id": "planned-inert",
+      "obligation": "the Planned section carries text rows and zero interactive descendants (WK-27)",
+      "pass": true,
+      "detail": "interactive=0, rows=8, disclosure summary=1"
+    }
+  ]
+}

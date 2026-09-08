@@ -1,0 +1,40 @@
+✔ Home sends one create and one run despite duplicate submit events (5.963375ms)
+✔ a late create after leaving Home saves the instruction but never navigates or sends (1.038875ms)
+✔ creation failure is retryable only by an explicit submit and an uncertain receipt is blocked (0.810125ms)
+✔ an empty project list opens project creation and retains the draft (2.465708ms)
+✖ normal creation failure does not keep a stale project when the user changes the project (3.338833ms)
+✔ Home draft and session draft stay isolated, and Home blocks Send only while disconnected (0.935292ms)
+✔ session composer preserves drafts across active, waiting, stopping, failed, and disconnected states (1.836875ms)
+✔ IME composition keeps Enter from submitting while ordinary Enter still submits (1.690708ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.62475
+
+✖ failing tests:
+
+test at evidence/home-composer-independent/home-composer-counterexamples.mjs:306:1
+✖ normal creation failure does not keep a stale project when the user changes the project (3.338833ms)
+  AssertionError [ERR_ASSERTION]: a retry must honor the newly selected project
+  + actual - expected
+
+    [
+      'p1',
+  +   'p1'
+  -   'p2'
+    ]
+
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/se-fresh-integration-20260908/evidence/home-composer-independent/home-composer-counterexamples.mjs:325:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'p1', 'p1' ],
+    expected: [ 'p1', 'p2' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,20 @@
+home-1440-light
+session-collapsed-1440-light
+session-expanded-1440-light
+home-1200-light
+session-collapsed-1200-light
+session-expanded-1200-light
+home-390-light
+session-collapsed-390-light
+session-expanded-390-light
+home-1440-dark
+session-collapsed-1440-dark
+session-expanded-1440-dark
+home-1200-dark
+session-collapsed-1200-dark
+session-expanded-1200-dark
+home-390-dark
+session-collapsed-390-dark
+session-expanded-390-dark
+reduced motion: {"running":[],"reduced":true}
+session-collapsed-1440-reduced-motion

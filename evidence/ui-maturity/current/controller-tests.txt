@@ -1,0 +1,22 @@
+✔ an unresolved command blocks fresh Send; recovery reuses exact input and command ID (2.80775ms)
+✔ two recovery clicks admit only one request and late receipt cannot replace another session (0.605125ms)
+✔ a failed or mismatched receipt preserves recovery obligation and newer draft (1.937417ms)
+✔ expired runtime token retries only a router-rejected request, once (1.695833ms)
+✔ transport uncertainty and server errors are never automatically replayed (2.289208ms)
+✔ ordinary narrow sheet isolates background; closing makes retained content inert (3.262458ms)
+✔ keyboard wraps in both directions (1.309875ms)
+✔ one Escape restores expanded sheet; second closes it (0.848084ms)
+✔ desktop split is nonmodal; expanded desktop is modal (0.831792ms)
+✔ breakpoint transitions transfer focus only when entering modality (0.6725ms)
+✔ native dialog owns Escape and Tab; closing restores sheet focus (0.771458ms)
+✔ late surface read cannot steal focus after close or after user moves on (0.69125ms)
+✔ closing preserves renderer owner, local drafts, and run state (0.72275ms)
+✔ surface ignores Escape during IME composition (0.710833ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 95.859417

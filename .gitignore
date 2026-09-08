@@ -1,41 +1,11 @@
 node_modules/
-.claude/
-_benchmark/
-dist/
-*.log
 .DS_Store
-coverage/
-test-results/
-
-# 架构预裁：用户本地文档查看器配置，不入 repo
-.obsidian/
-
-# 架构预裁：真实判例 PDF/HTML（获取手法不宜分发），不入 repo
-usecase/
-
-# 环境变量与本地密钥（防御性；仓库内当前无 .env 文件）
+__pycache__/
+*.pyc
+/data/
+/app/data/
+/.local-data/
 .env
 .env.*
 !.env.example
-
-# 非 TS 语言 spike 产出的构建/环境目录（Python/Java 等，与主线技术基线无关）
-__pycache__/
-*.pyc
-.venv/
-target/
-
-# eval 跑分产出：可重新生成，且当前只用 mock provider 验证过机制，不代表真实基线
-eval/reports/*.json
-eval/reports/*.md
-apps/desktop/dist/
-apps/desktop/test-results/
-apps/desktop/playwright-report/
-apps/desktop/src-tauri/target/
-apps/desktop/src-tauri/gen/schemas/
-*.tsbuildinfo
-site-dist/
-
-# 桌面安装包 / 构建产物（永不入库）
-*.dmg
-*.pkg
-*.app/
+credentials.json

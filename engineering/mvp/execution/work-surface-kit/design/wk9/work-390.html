@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Work · 390</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="board.css" />
+  </head>
+  <body>
+    <div class="shell shell--work">
+      <main class="thread" aria-label="Agent workspace">
+        <!-- WK-40 · the sidebar is a drawer here, so the project name appears as a muted
+             prefix on the same line. Still one line: presence + title + run state word. -->
+        <header class="thread-header">
+          <div class="thread-header-inner">
+            <button class="btn btn--icon" type="button" aria-label="Open navigation" aria-expanded="false"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#panel-left"></use></svg></button>
+            <span data-brand-wordmark data-brand-16 aria-hidden="true"></span>
+            <div class="thread-title">
+              <h1><span class="title-project">Coastal Freight</span>Exhibit index rebuild</h1>
+              <span class="state">Completed</span>
+            </div>
+            <div class="thread-actions">
+              <button class="btn btn--icon" type="button" aria-label="Connection · Local test"><span class="dot" aria-hidden="true"></span></button>
+            </div>
+          </div>
+        </header>
+        <div class="thread-body">
+          <div class="thread-column">
+            <p class="msg-user">Rebuild the exhibit index from the materials folder and record it as a file.</p>
+            <p class="msg-agent">I read the four documents in <code>materials/</code>, matched each exhibit number against the deposition transcript, and wrote the rebuilt index. Two exhibits referenced in the transcript have no matching document, so they are listed under a separate heading rather than dropped.</p>
+            <div class="ledger">
+              <p class="ledger-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg>Read materials/deposition-2026-08-30.md</p>
+              <p class="ledger-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg>Read materials/exhibit-log.csv</p>
+              <p class="ledger-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#square-pen"></use></svg>Wrote out/exhibit-index.md</p>
+              <p class="ledger-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#square-pen"></use></svg>Wrote out/unmatched-exhibits.md</p>
+            </div>
+            <p class="t-meta">Completed &middot; Run 08:31 – 08:47</p>
+          </div>
+          <div class="thread-column" style="gap: var(--space-3); padding-top: var(--space-6)">
+            <div class="band-head"><h2>Work surface</h2></div>
+        <section class="float-card" aria-labelledby="run-card-heading" data-primitive="RunSummary">
+          <div class="float-head">
+            <h2 id="run-card-heading">Run</h2>
+            <button class="btn btn--quiet" type="button">Open run<svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#chevron-right"></use></svg></button>
+          </div>
+          <p class="t-meta">Completed &middot; Run 08:31 – 08:47</p>
+          <div data-source="run.artifacts">
+            <p class="t-label">Results</p>
+            <p class="t-caption">3 recorded files. They have not been accepted by a review.</p>
+          </div>
+          <dl class="data-list" data-source="run.usage">
+            <dt>Input tokens</dt><dd>12,480</dd>
+            <dt>Output tokens</dt><dd>3,110</dd>
+            <dt>Cached input</dt><dd>Not reported</dd>
+            <dt>Model turns</dt><dd>6</dd>
+          </dl>
+        </section>
+        <section class="float-card" aria-labelledby="file-card-heading" data-primitive="FileList">
+          <div class="float-head">
+            <h2 id="file-card-heading">File</h2>
+            <button class="btn btn--quiet" type="button">Open file<svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#chevron-right"></use></svg></button>
+          </div>
+          <div data-source="run.artifacts[].path">
+            <p class="t-label">Current file</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/exhibit-index.md</span><span class="side">18.2 KB</span></p>
+          </div>
+          <div data-source="run.artifacts[kind=content-version]">
+            <p class="t-label">Recorded versions</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/exhibit-index.md</span><span class="side hash">4f2a91c07be3</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/unmatched-exhibits.md</span><span class="side hash">b81d0e5527aa</span></p>
+          </div>
+        </section>
+        <section class="float-card" aria-labelledby="workspace-card-heading" data-primitive="WorkspaceList">
+          <div class="float-head">
+            <h2 id="workspace-card-heading">Workspace</h2>
+            <button class="btn btn--quiet" type="button">Open workspace<svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#chevron-right"></use></svg></button>
+          </div>
+          <div data-source="GET /sessions/:id/workspace">
+            <p class="group-head" style="padding-top: 0">Workspace root</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">notes.md</span><span class="side">1.4 KB</span></p>
+            <p class="group-head">materials</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">deposition-2026-08-30.md</span><span class="side">62.9 KB</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">exhibit-log.csv</span><span class="side">8.1 KB</span></p>
+            <p class="group-head">out</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">exhibit-index.md</span><span class="side">18.2 KB</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">unmatched-exhibits.md</span><span class="side">2.6 KB</span></p>
+          </div>
+        </section>
+          </div>
+        </div>
+        <footer class="thread-foot">
+            <div class="composer">
+              <div class="composer-input">Reply or ask for a change</div>
+              <div class="composer-controls">
+                <div class="composer-context">
+                  <button class="btn btn--icon" type="button" aria-label="Session files"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#paperclip"></use></svg></button>
+                  <span class="chip"><span class="dot"></span>Local test</span>
+                  <span class="chip chip--field"><i>File writes</i> Ask before writing</span>
+                </div>
+                <div class="composer-buttons"><button class="send-round" type="submit" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button></div>
+              </div>
+            </div>
+        </footer>
+      </main>
+    </div>
+    <script src="board.js"></script>
+  </body>
+</html>

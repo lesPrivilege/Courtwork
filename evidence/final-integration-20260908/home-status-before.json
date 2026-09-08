@@ -1,0 +1,81 @@
+{
+  "derivedFrom": "home-empty-geometry-before.json, captured on Fable CSS before alignment repair",
+  "assertions": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "aligned": false,
+      "form": {
+        "top": 397.015625,
+        "left": 475,
+        "width": 740,
+        "height": 130,
+        "bottom": 527.015625
+      },
+      "status": {
+        "top": 535.015625,
+        "left": 278,
+        "width": 1134,
+        "height": 18,
+        "bottom": 553.015625
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "aligned": false,
+      "form": {
+        "top": 397.015625,
+        "left": 475,
+        "width": 740,
+        "height": 130,
+        "bottom": 527.015625
+      },
+      "status": {
+        "top": 535.015625,
+        "left": 278,
+        "width": 1134,
+        "height": 18,
+        "bottom": 553.015625
+      }
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "aligned": false,
+      "form": {
+        "top": 624,
+        "left": 16,
+        "width": 358,
+        "height": 134,
+        "bottom": 758
+      },
+      "status": {
+        "top": 766,
+        "left": 20,
+        "width": 350,
+        "height": 18,
+        "bottom": 784
+      }
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "aligned": false,
+      "form": {
+        "top": 624,
+        "left": 16,
+        "width": 358,
+        "height": 134,
+        "bottom": 758
+      },
+      "status": {
+        "top": 766,
+        "left": 20,
+        "width": 350,
+        "height": 18,
+        "bottom": 784
+      }
+    }
+  ]
+}

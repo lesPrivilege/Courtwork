@@ -1,0 +1,600 @@
+{
+  "responses": [
+    {
+      "url": "http://127.0.0.1:19013/",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/styles.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/app.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/inspector.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/home-view.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/user-message.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/projects",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/extensions",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/provider-config",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/favicon.ico",
+      "status": 404,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/runs",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=0",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=3",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/3f4e6ac8-50c4-4fca-bd74-43b6c0084f7e/questions/bdc43ec7-4b54-4df9-827d-9557f9a73b1e",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=11",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=13",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/3f4e6ac8-50c4-4fca-bd74-43b6c0084f7e",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/runs",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=21",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=24",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/30cb7545-ca82-4366-bc4d-ac841076a7b7/questions/0d2c868b-5a58-4ba0-9a79-0a823d824dba",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=32",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=34",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/30cb7545-ca82-4366-bc4d-ac841076a7b7",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runtime-control?sessionId=c8c72af8-bf60-40bc-bc42-61624e49a4f7",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/workspace",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/artifacts/file?path=out%2Fbrowser.txt&runId=30cb7545-ca82-4366-bc4d-ac841076a7b7&sha256=5bd876267efd9be3304bbe64b7f8770774fda2a6fa3ae13e2c05b2c461ad7785",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runtime-control?sessionId=c8c72af8-bf60-40bc-bc42-61624e49a4f7",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/surface",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/workspace",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/workspace",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/runs",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=43",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=48",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/9c2e1452-1695-4903-8b63-dcec7b314441/questions/dfa396ca-ef6d-419d-9b0d-b99fb6f82642",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=54",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=56",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/surface",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/9c2e1452-1695-4903-8b63-dcec7b314441",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/runs",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=64",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=70",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/2625091e-971a-41ca-9f6c-0c42275470ef/cancel",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=75",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/draft",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/runs",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=79",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=82",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=90",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/surface",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/runs/cd7aa6da-6d59-4ba6-b149-6692aae91789/cancel",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:19013/api/v5/sessions/c8c72af8-bf60-40bc-bc42-61624e49a4f7/events?afterSeq=90",
+      "status": 200,
+      "mime": "application/json"
+    },
+    {
+      "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    }
+  ],
+  "exceptions": []
+}

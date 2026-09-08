@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@floating-ui/core": "1.8.0",
+    "@floating-ui/dom": "1.8.0",
+    "@floating-ui/utils": "0.2.12",
+    "dompurify": "3.4.15",
+    "esbuild": "0.28.1",
+    "marked": "18.0.11"
+  }
+}

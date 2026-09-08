@@ -1,0 +1,13 @@
+{
+  "contract": "18/19",
+  "counterexamples": "9/9",
+  "viewport": "36/36",
+  "failures": [
+    {
+      "id": "characters-not-tokens",
+      "obligation": "context sizes say characters, not tokens (RC-5)",
+      "pass": false,
+      "detail": "174 characters · 1 deferred / 92 characters / 43 characters · 1 deferred"
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WK-42 对齐带 · 1440</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="board.css" />
+    <style>
+      /* Measuring board. Every guide below is drawn from the artboard's own
+         getBoundingClientRect(), never from a hand-placed coordinate, so a guide cannot
+         claim an alignment the artboard does not have. Guide chrome uses --line-strong and
+         --selected only: no accent, so this board does not enter the WK-36 accent count. */
+      body { overflow: auto; background: var(--canvas); }
+      .page { max-width: 1000px; margin: 0 auto; padding: var(--space-8) var(--col-gap) 96px; display: flex; flex-direction: column; gap: var(--space-8); }
+      .page h1 { font-size: 28px; letter-spacing: var(--tracking-heading); font-weight: 600; }
+      .page h2 { font-size: var(--text-title); font-weight: 600; letter-spacing: var(--tracking-heading); }
+      .page p { max-width: 78ch; line-height: 1.65; }
+      .page section { display: flex; flex-direction: column; gap: var(--space-3); }
+      .lede { font-size: var(--text-reading); color: var(--muted-strong); }
+      .stage { position: relative; width: 100%; height: 596px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
+      .stage-inner { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; transform: scale(0.6625); transform-origin: 0 0; }
+      .stage-inner iframe { width: 1440px; height: 900px; border: 0; display: block; }
+      .guides { position: absolute; inset: 0; width: 1440px; height: 900px; pointer-events: none; }
+      .guides line { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 6 5; }
+      .guides line.solid { stroke-dasharray: none; }
+      .guides rect { fill: var(--selected); opacity: 0.5; }
+      .guides text { font-family: var(--font-mono); font-size: 15px; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+      .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-2) var(--space-6); }
+      .legend div { display: flex; align-items: baseline; gap: var(--space-2); font-size: var(--text-label); }
+      .swatch { flex: none; width: 26px; height: 0; border-top: 2px dashed var(--line-strong); transform: translateY(-4px); }
+      .swatch.solid { border-top-style: solid; }
+      .swatch.fill { height: 12px; border: 0; background: var(--selected); transform: none; border-radius: 2px; }
+      table { border-collapse: collapse; font-size: var(--text-label); width: 100%; }
+      th, td { text-align: left; vertical-align: top; padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: 1px solid var(--line); }
+      th { color: var(--muted-strong); font-weight: 600; }
+      td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .verdict { font-weight: 600; }
+      code { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--muted-strong); }
+      .toggle { display: inline-flex; align-items: baseline; gap: var(--space-2); font-size: var(--text-label); color: var(--muted-strong); }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section>
+        <h1>WK-42 对齐带实测</h1>
+        <p class="lede">
+          两幅 1440 × 900 构图各自加一层参考线：参考线不是画上去的，是从画板自身
+          <code>getBoundingClientRect()</code> 读出来后绘制的，所以线只会暴露真实几何，不会替画板作证。
+          缩放 0.6625 只影响显示，测量在画板的原始 1440 × 900 坐标里完成。
+        </p>
+        <label class="toggle"><input id="guides-toggle" type="checkbox" checked /> 显示参考线</label>
+      </section>
+
+      <section>
+        <h2>1 · 工作页收敛态</h2>
+        <div class="stage">
+          <div class="stage-inner">
+            <iframe id="frame-work" src="work-collapsed-1440.html" title="Work collapsed 1440"></iframe>
+            <svg class="guides" id="guides-work" viewBox="0 0 1440 900" aria-hidden="true"></svg>
+          </div>
+        </div>
+        <div class="legend">
+          <div><span class="swatch solid"></span>顶部带下沿：三栏 header 的公共基线（<code>--band-top</code>）</div>
+          <div><span class="swatch"></span>各列的 gutter 边（<code>--col-gap</code> 24）</div>
+          <div><span class="swatch fill"></span>中栏 740 内容列（<code>--column</code>）</div>
+          <div><span class="swatch"></span>右栏模块卡左边缘</div>
+        </div>
+        <table id="table-work"><thead><tr><th>量</th><th>实测（px）</th><th>判读</th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <section>
+        <h2>2 · Home A</h2>
+        <div class="stage">
+          <div class="stage-inner">
+            <iframe id="frame-home" src="home-a-1440.html" title="Home A 1440"></iframe>
+            <svg class="guides" id="guides-home" viewBox="0 0 1440 900" aria-hidden="true"></svg>
+          </div>
+        </div>
+        <div class="legend">
+          <div><span class="swatch solid"></span>顶部带下沿：侧栏 wordmark 行与 Home 带共用</div>
+          <div><span class="swatch"></span>三带的分界（WK-46 (1)：160 / 192 / minmax(1.8 × 160, 1fr)）</div>
+          <div><span class="swatch fill"></span>Home 内容列 740</div>
+        </div>
+        <table id="table-home"><thead><tr><th>量</th><th>实测（px）</th><th>判读</th></tr></thead><tbody></tbody></table>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        var SVGNS = "http://www.w3.org/2000/svg";
+        function el(name, attrs, text) {
+          var n = document.createElementNS(SVGNS, name);
+          for (var k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+        function vline(svg, x, y1, y2, label, labelY) {
+          svg.appendChild(el("line", { x1: x, x2: x, y1: y1, y2: y2 }));
+          if (label) svg.appendChild(el("text", { x: x + 6, y: labelY || y1 + 18 }, label));
+        }
+        function hline(svg, y, x1, x2, label, solid) {
+          var l = el("line", { x1: x1, x2: x2, y1: y, y2: y });
+          if (solid) l.setAttribute("class", "solid");
+          svg.appendChild(l);
+          if (label) svg.appendChild(el("text", { x: x2 - 130, y: y - 8 }, label));
+        }
+        function rows(tableId, data) {
+          var tb = document.querySelector("#" + tableId + " tbody");
+          data.forEach(function (d) {
+            var tr = document.createElement("tr");
+            tr.innerHTML = "<td>" + d[0] + "</td><td class='num'>" + d[1] +
+              "</td><td class='verdict'>" + d[2] + "</td>";
+            tb.appendChild(tr);
+          });
+        }
+        function ready(frame, fn) {
+          function go() { fn(frame.contentDocument); }
+          if (frame.contentDocument && frame.contentDocument.readyState === "complete") setTimeout(go, 60);
+          else frame.addEventListener("load", function () { setTimeout(go, 60); });
+        }
+
+        ready(document.getElementById("frame-work"), function (d) {
+          var svg = document.getElementById("guides-work");
+          var r = function (s) { return d.querySelector(s).getBoundingClientRect(); };
+          var sh = r(".sidebar-header"), th = r(".thread-header"), rh = r(".rail-header");
+          var inner = r(".thread-header-inner"), col = r(".thread-column"), body = r(".thread-body");
+          var card = r(".rail-body .float-card"), railBody = r(".rail-body"), rail = r(".rail");
+          var wm = r(".wordmark"), navRow = r(".nav-row"), acct = r(".account-avatar");
+          var band = Math.round(sh.height);
+
+          svg.appendChild(el("rect", { x: col.left, y: body.top, width: col.width, height: Math.min(body.height, 900 - body.top) }));
+          hline(svg, band, 0, 1440, "band-top " + band, true);
+          vline(svg, Math.round(wm.left), 0, 900, "nav " + Math.round(wm.left));
+          vline(svg, Math.round(col.left), band, 900, "col740 L " + Math.round(col.left));
+          vline(svg, Math.round(col.right), band, 900, "col740 R " + Math.round(col.right), 640);
+          vline(svg, Math.round(railBody.left), band, 900, "");
+          vline(svg, Math.round(card.left), band, 900, "card L " + Math.round(card.left));
+
+          rows("table-work", [
+            ["三栏 header 顶（sidebar / chat / rail）", [sh.top, th.top, rh.top].join(" · "),
+              (sh.top === th.top && th.top === rh.top) ? "相等 ✔" : "不等 ✘"],
+            ["三栏 header 高", [sh.height, th.height, rh.height].join(" · "),
+              (sh.height === th.height && th.height === rh.height) ? "= --band-top ✔" : "不等 ✘"],
+            ["chat header 内容左 − 740 内容列左", Math.round(inner.left) + " − " + Math.round(col.left) + " = " + Math.round(inner.left - col.left),
+              Math.round(inner.left - col.left) === 0 ? "0 ✔ 标题压在正文列上" : "偏移 ✘"],
+            ["模块卡左 − 右栏内容左", Math.round(card.left) + " − " + Math.round(railBody.left) + " = " + Math.round(card.left - railBody.left),
+              "= 一个 --col-gap ✔"],
+            ["模块卡左 − 740 内容列右", Math.round(card.left) + " − " + Math.round(col.right) + " = " + Math.round(card.left - col.right),
+              "= 2 × --col-gap + 1 分栏线 + 居中余量 " + Math.round((body.width - 48 - col.width) / 2)],
+            ["侧栏文字左 / 导航行文字左 / 底部行左", [Math.round(wm.left), Math.round(navRow.left + 8), Math.round(acct.left)].join(" · "),
+              "同一 --nav-inset ✔"],
+            ["三栏列宽（nav / thread / rail）", [Math.round(r(".sidebar").width), Math.round(r(".thread").width), Math.round(rail.width)].join(" · "), "250 / 1fr / 380"],
+            ["横向溢出", d.documentElement.scrollWidth, d.documentElement.scrollWidth === 1440 ? "无 ✔" : "有 ✘"]
+          ]);
+        });
+
+        ready(document.getElementById("frame-home"), function (d) {
+          var svg = document.getElementById("guides-home");
+          var r = function (s) { return d.querySelector(s).getBoundingClientRect(); };
+          var sh = r(".sidebar-header"), hb = r(".home-band"), wm = r(".wordmark");
+          var b1 = r('[data-band="band-1"]'), b2 = r('[data-band="band-2"]'), b3 = r('[data-band="band-3"]');
+          var inner = r(".band-1 .band-inner"), band = Math.round(sh.height);
+
+          svg.appendChild(el("rect", { x: inner.left, y: b1.top, width: inner.width, height: 900 - b1.top }));
+          hline(svg, band, 0, 1440, "band-top " + band, true);
+          hline(svg, Math.round(b2.top), b1.left, 1440, "band 1 = " + Math.round(b1.height));
+          hline(svg, Math.round(b3.top), b1.left, 1440, "band 2 = " + Math.round(b2.height));
+          vline(svg, Math.round(wm.left), 0, 900, "nav " + Math.round(wm.left));
+          vline(svg, Math.round(inner.left), band, 900, "col740 L " + Math.round(inner.left));
+          vline(svg, Math.round(inner.right), band, 900, "col740 R " + Math.round(inner.right), 700);
+
+          rows("table-home", [
+            ["侧栏 wordmark 行顶 / Home 带顶", sh.top + " · " + hb.top, sh.top === hb.top ? "相等 ✔" : "不等 ✘"],
+            ["侧栏 wordmark 行高 / Home 带高", sh.height + " · " + hb.height, sh.height === hb.height ? "= --band-top ✔" : "不等 ✘"],
+            ["三带高（band 1 / 2 / 3）", [b1.height, b2.height, b3.height].map(Math.round).join(" · "),
+              "1 : " + (b2.height / b1.height).toFixed(2) + " : " + (b3.height / b1.height).toFixed(2) + "（WK-46 (1)：1.8 为下限）"],
+            ["band 1 顶 = 带下沿", Math.round(b1.top) + " = " + band, Math.round(b1.top) === band ? "统计砖在带以下 ✔" : "✘"],
+            ["Home 内容列宽 / 左", Math.round(inner.width) + " / " + Math.round(inner.left), "740 居中"],
+            ["横向溢出", d.documentElement.scrollWidth, d.documentElement.scrollWidth === 1440 ? "无 ✔" : "有 ✘"]
+          ]);
+        });
+
+        document.getElementById("guides-toggle").addEventListener("change", function (e) {
+          var v = e.target.checked ? "visible" : "hidden";
+          document.getElementById("guides-work").style.visibility = v;
+          document.getElementById("guides-home").style.visibility = v;
+        });
+      })();
+    </script>
+    <script src="board.js"></script>
+  </body>
+</html>

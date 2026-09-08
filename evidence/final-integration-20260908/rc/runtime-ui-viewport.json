@@ -1,0 +1,293 @@
+{
+  "app": "http://127.0.0.1:19011/",
+  "results": [
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=true moving=0",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "the module fits its panel with no horizontal scroll",
+      "pass": true,
+      "detail": "document=0px panel=0px spills=none",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "surface-tab-keyboard",
+      "obligation": "the existing surface tab strip keeps its arrow-key order with the new kind",
+      "pass": true,
+      "detail": "ArrowRight from Runtime focused surface-preview-tab",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=true moving=0",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "escape-order",
+      "obligation": "Escape steps the runtime module out of its pane, then closes the rail and restores focus",
+      "pass": true,
+      "detail": "pane=true, cards=true, hidden=true, focus=session-title",
+      "media": "light + reduced motion"
+    }
+  ]
+}

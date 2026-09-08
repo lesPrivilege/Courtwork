@@ -1,0 +1,247 @@
+{
+  "geometry": "geometry/mark.svg",
+  "geometrySha256": "522d4303216259490fb501458391431e8329a6aff8cfa3b463be6573d4614556",
+  "generatedBy": "node brand/scripts/build.mjs",
+  "assets": [
+    {
+      "concept": "summon",
+      "material": "mono",
+      "file": "exports/summon-mono.svg",
+      "sha256": "87a12b7b76df9c0907c260e44ee766bed291c9c1e1f9a8882a3f987ac573040f"
+    },
+    {
+      "concept": "summon",
+      "material": "hierarchical",
+      "file": "exports/summon-hierarchical.svg",
+      "sha256": "0928059935d65c26cdb751a3d005f63ff521341317be8bc62606020027d1fde5"
+    },
+    {
+      "concept": "summon",
+      "material": "glass",
+      "file": "exports/summon-glass.svg",
+      "sha256": "e88814851a110f65a03c614452237a32aee010f1803f712443cf1cce49b02323"
+    },
+    {
+      "concept": "summon",
+      "material": "depth",
+      "file": "exports/summon-depth.svg",
+      "sha256": "9b26391a1e7b66837e5d9469fa94b63f85e28853314402e5e6f5fac807426447"
+    },
+    {
+      "concept": "summon",
+      "material": "luminous",
+      "file": "exports/summon-luminous.svg",
+      "sha256": "a0fceaf70d69526e157ab06dd1893101f2eca71ed66b3256a531a50beaaa8c8b"
+    },
+    {
+      "concept": "take-floor",
+      "material": "mono",
+      "file": "exports/take-floor-mono.svg",
+      "sha256": "82dce8bcaf9346036d9c41531cddbdbaf95f6c0a5370c152ab5757ac78443542"
+    },
+    {
+      "concept": "take-floor",
+      "material": "hierarchical",
+      "file": "exports/take-floor-hierarchical.svg",
+      "sha256": "b661cd1ec102f347694d3214878224937c3b43a8925f2bb1e80213e84ad147d4"
+    },
+    {
+      "concept": "take-floor",
+      "material": "glass",
+      "file": "exports/take-floor-glass.svg",
+      "sha256": "1b6a612834fcca5934938c0297d9e599eb804061f27f9574787b4e097a96b5cd"
+    },
+    {
+      "concept": "take-floor",
+      "material": "depth",
+      "file": "exports/take-floor-depth.svg",
+      "sha256": "f5417ad5fdb15a2fdeea13700be39b2cdd397034a8a47e2a1472fe2c58fa13cf"
+    },
+    {
+      "concept": "take-floor",
+      "material": "luminous",
+      "file": "exports/take-floor-luminous.svg",
+      "sha256": "4d3aa484852069834d715faee77fdc627b223a10111ffc4e8fccc0a9a1dfe1f1"
+    },
+    {
+      "concept": "write",
+      "material": "mono",
+      "file": "exports/write-mono.svg",
+      "sha256": "f3c9cdc1880a4c01602a4e627e01aadc7358254498c6702963c487435983608e"
+    },
+    {
+      "concept": "write",
+      "material": "hierarchical",
+      "file": "exports/write-hierarchical.svg",
+      "sha256": "ca868774824686afe30d9048a8412a0a044d6cc6233f95e2d4f0e004d846b306"
+    },
+    {
+      "concept": "write",
+      "material": "glass",
+      "file": "exports/write-glass.svg",
+      "sha256": "7503fe5d1b74ebceb35ddd727f84db67e116fc9740cb19df22b5377da88e9393"
+    },
+    {
+      "concept": "write",
+      "material": "depth",
+      "file": "exports/write-depth.svg",
+      "sha256": "f183795c22769c8d30e3e3e5518b8f6ed600d9dd3096dcb05870cef59f82bca3"
+    },
+    {
+      "concept": "write",
+      "material": "luminous",
+      "file": "exports/write-luminous.svg",
+      "sha256": "80ae22251316aaf097509b54e23cb360caf03a5fcda8c5f1cef1349e1bde7cb7"
+    },
+    {
+      "concept": "retrieve",
+      "material": "mono",
+      "file": "exports/retrieve-mono.svg",
+      "sha256": "9959cb319e499c76f4b6bc71bbd4e01b180d03f68180a1888b6c971432904d31"
+    },
+    {
+      "concept": "retrieve",
+      "material": "hierarchical",
+      "file": "exports/retrieve-hierarchical.svg",
+      "sha256": "7fd32f2799cee16e8f1df54ea540926dd1d99e9f1512e56982ae0d1d68cafac0"
+    },
+    {
+      "concept": "retrieve",
+      "material": "glass",
+      "file": "exports/retrieve-glass.svg",
+      "sha256": "bfd3006cee35ba72e6338282947da681afbd9ccac93b39186d2697a97a3c9190"
+    },
+    {
+      "concept": "retrieve",
+      "material": "depth",
+      "file": "exports/retrieve-depth.svg",
+      "sha256": "77288b2ac06cb6e96c363fadc582bd3ece1973b7165c844c2934ebe3fd5137b8"
+    },
+    {
+      "concept": "retrieve",
+      "material": "luminous",
+      "file": "exports/retrieve-luminous.svg",
+      "sha256": "3286f07071444bee49449f43344032d754d8c26483b7062e9392bb0a067f8dbf"
+    },
+    {
+      "concept": "scope",
+      "material": "mono",
+      "file": "exports/scope-mono.svg",
+      "sha256": "786d14be57b63eebce48474d4a17c8d5a4b1062e9af918b0298d3e75df3f9e35"
+    },
+    {
+      "concept": "scope",
+      "material": "hierarchical",
+      "file": "exports/scope-hierarchical.svg",
+      "sha256": "ac5a4fe82fe94984451bd41446d530c12faa42382ceb0e9dd96d894d1c17ee19"
+    },
+    {
+      "concept": "scope",
+      "material": "glass",
+      "file": "exports/scope-glass.svg",
+      "sha256": "76fd8b2cbcc3fa40c6c48b0c74dc0966d7cb11d00bf3549956a54a9a79085b22"
+    },
+    {
+      "concept": "scope",
+      "material": "depth",
+      "file": "exports/scope-depth.svg",
+      "sha256": "134de549c53c8549bc596f50a7244f68bde0e5131b8840afdf89cc5d2d67105f"
+    },
+    {
+      "concept": "scope",
+      "material": "luminous",
+      "file": "exports/scope-luminous.svg",
+      "sha256": "39a42e87eecef0cf57761416f196c3cd80b1856bd040db7627cecac946904d30"
+    },
+    {
+      "concept": "commit",
+      "material": "mono",
+      "file": "exports/commit-mono.svg",
+      "sha256": "5213ad9e0dfb9c1f6c1b732dbeea88ad2fd9521523719f28ad1129b698700882"
+    },
+    {
+      "concept": "commit",
+      "material": "hierarchical",
+      "file": "exports/commit-hierarchical.svg",
+      "sha256": "ce9b648dff9c99e3b5fcb8dcdbd314ae9447f6e22f93c2da5c922661b55ccf26"
+    },
+    {
+      "concept": "commit",
+      "material": "glass",
+      "file": "exports/commit-glass.svg",
+      "sha256": "c889b38153b05bcb66a047bec3e8c82510b9665154a87a0b7183c8caa0ce2330"
+    },
+    {
+      "concept": "commit",
+      "material": "depth",
+      "file": "exports/commit-depth.svg",
+      "sha256": "455c327631647558f8bc71b18cdae8e26b56526a43831820b1fa1777272dfd48"
+    },
+    {
+      "concept": "commit",
+      "material": "luminous",
+      "file": "exports/commit-luminous.svg",
+      "sha256": "e2b0651d5da94067804944f08e0a17670706e8f6d631a16aceb021c38eed5f5b"
+    },
+    {
+      "concept": "review",
+      "material": "mono",
+      "file": "exports/review-mono.svg",
+      "sha256": "b3fb450b282e37b9c526bf29a95f67ca91f523495fc4dd891f7ce263de596f10"
+    },
+    {
+      "concept": "review",
+      "material": "hierarchical",
+      "file": "exports/review-hierarchical.svg",
+      "sha256": "cff4e4658b140bae94439325c9322b26138b1da0f0f610a61b33bf3365579fbf"
+    },
+    {
+      "concept": "review",
+      "material": "glass",
+      "file": "exports/review-glass.svg",
+      "sha256": "098773b2978d6d431b03e399656972e02b82e4d97a67fe787cbd3f0a84f47707"
+    },
+    {
+      "concept": "review",
+      "material": "depth",
+      "file": "exports/review-depth.svg",
+      "sha256": "f2eda5e622bf7f6c491478d6faf16aa1cf73b7cee22b9e44f09412069f337fee"
+    },
+    {
+      "concept": "review",
+      "material": "luminous",
+      "file": "exports/review-luminous.svg",
+      "sha256": "b302b329847fb613d66c6edaf469a73568ae6b933b4d82d202fceab105b124fb"
+    },
+    {
+      "concept": "withdraw",
+      "material": "mono",
+      "file": "exports/withdraw-mono.svg",
+      "sha256": "2f1757c8315b2bb0d68a1156e9ca2a994fcdf54342159d657680a1a4be347d34"
+    },
+    {
+      "concept": "withdraw",
+      "material": "hierarchical",
+      "file": "exports/withdraw-hierarchical.svg",
+      "sha256": "76816c16ba419bf28fa5bd6fe8a7c25aee66e3491838ac825ae03636b45e8ed4"
+    },
+    {
+      "concept": "withdraw",
+      "material": "glass",
+      "file": "exports/withdraw-glass.svg",
+      "sha256": "84e2b9ffcc61935e7596ddc39173717c2fe29cec8a3aa1c2c49234cf76c9eb6b"
+    },
+    {
+      "concept": "withdraw",
+      "material": "depth",
+      "file": "exports/withdraw-depth.svg",
+      "sha256": "3f95a8e409380da6a4451a4989eef77c8e9325cd97efe5b80d6589e402740d4e"
+    },
+    {
+      "concept": "withdraw",
+      "material": "luminous",
+      "file": "exports/withdraw-luminous.svg",
+      "sha256": "ff18e31fd4bc5c7c11820e915fadc838e965225598a92e8ec80db09c8532bbb5"
+    }
+  ]
+}

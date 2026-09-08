@@ -1,0 +1,11 @@
+{
+  "baseCommit": "b0173deab477b9be577df75a712f446d14e3c356",
+  "branch": "codex/runtime-source-resolver",
+  "files": {
+    "app/runtime/control-plane.mjs": "d0abb7b128140fd90229df6b467afca92d788115a6905d06bf5630c4befb4d6f",
+    "app/runtime/source-resolver.mjs": "1e56cb176d7cdc8c6a956a3a89ccecdbc87af89101abc3b25b358ef80327120d",
+    "app/runtime/source-resolver.d.ts": "8b90533187a5442efdb9bf1594dc1a3fc2ebb3b50e19d4df4931f7eed180fc33",
+    "app/tests/source-resolver.test.mjs": "6354ae5d58c0731928e551dba91ee327248e6333c3bdd84e0066fa2cae8237fd",
+    "app/package-lock.json": "9d8514262a9389875e4e99558d40e610438496e7b75464fd7168e0caf264b872"
+  }
+}

@@ -1,0 +1,1024 @@
+{
+  "results": [
+    {
+      "name": "real extension renderer loads its source projection",
+      "pass": true,
+      "actual": "0d9c9203-6af2-498d-9a49-ee780283510e"
+    },
+    {
+      "name": "renderer action persists in domain projection",
+      "pass": true,
+      "actual": "Saved through the real domain action"
+    },
+    {
+      "name": "module load failure leaves a visible fallback and unchanged domain state",
+      "pass": true,
+      "actual": "Renderer unavailable: Failed to fetch dynamically imported module: http://127.0.0.1:19013/extensions/evidence-memo/renderer.mjs\nloaded\ngeneration 0\nEvidence Memo (development)\nRead-only projection\nextension\n{\n  \"id\": \"evidence-memo\",\n  \"version\": \"0.1.0\",\n  \"releaseStatus\": \"development\"\n}\nmatter\n{\n  \"active_artifact\": null,\n  \"contract_version\": \"se-contract-v5.0\",\n  \"id\": \"matter-64e597f7-165c-4818-a553-c2fc416783e0\",\n  \"obligations\": [],\n  \"source_version\": 1,\n  \"version\": 0\n}\ntitle\nSynthetic source\nsources\n[\n  {\n    \"id\": \"source-858c735f-9f99-4412-b4df-b7e5ca88afbe\",\n    \"version\": 1,\n    \"text\": \"Recorded extension source for browser recovery.\",\n    \"digest\": \"5574cab6c0bbdd53829c952dfe6fe7fef0b6f16d1e2a9f1f586117cdae04add5\"\n  }\n]\nevidence\n[]\ncandidates\n[]\nartifact\ndraft\nSaved through the real domain action\nstateVersion\n4d17d098c93fe2bf95ddd03bc017008bd4cc5e1288d7024c5f1374c0d0226322"
+    },
+    {
+      "name": "renderer reload restores the same domain draft",
+      "pass": true,
+      "actual": "0d9c9203-6af2-498d-9a49-ee780283510e"
+    },
+    {
+      "name": "provider error is visibly failed with a backend error receipt",
+      "pass": true,
+      "actual": "b33447ab-7d2c-42ab-954f-7d3cb007084f"
+    },
+    {
+      "name": "new explicit run recovers after confirmed provider failure",
+      "pass": true,
+      "actual": "3b81d4ad-ebad-4ca8-a0b1-1bb087389f45"
+    }
+  ],
+  "observations": {
+    "responses": [
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/projects",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/provider-config",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/favicon.ico",
+        "status": 404,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/runs",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=0",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=3",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runs/1b0550d2-8029-4750-8c5c-b519460a2494",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/extension",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/projects",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/provider-config",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions?projectId=f2c739a1-94b0-435c-a806-6ed97bf5e929",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runtime-control?sessionId=0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/workspace",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/surface",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/extensions/evidence-memo/renderer.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/actions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/surface",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/projects",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/provider-config",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions?projectId=f2c739a1-94b0-435c-a806-6ed97bf5e929",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runtime-control?sessionId=0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/workspace",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/surface",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/surface",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/projects",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/provider-config",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions?projectId=f2c739a1-94b0-435c-a806-6ed97bf5e929",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runtime-control?sessionId=0d9c9203-6af2-498d-9a49-ee780283510e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/workspace",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/surface",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/extensions/evidence-memo/renderer.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/runs",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=11",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=14",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=16",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=16",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=18",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=18",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=18",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=18",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=18",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=20",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runs/b33447ab-7d2c-42ab-954f-7d3cb007084f",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runs/b33447ab-7d2c-42ab-954f-7d3cb007084f",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/runs",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=25",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/0d9c9203-6af2-498d-9a49-ee780283510e/events?afterSeq=28",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runs/3b81d4ad-ebad-4ca8-a0b1-1bb087389f45",
+        "status": 200,
+        "mime": "application/json"
+      }
+    ],
+    "exceptions": []
+  }
+}

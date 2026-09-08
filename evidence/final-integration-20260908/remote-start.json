@@ -1,0 +1,30 @@
+{
+  "testedCommit": "512ef14dbc621dcd034e384d27fed62824144771",
+  "sourceCommit": "0a3b9b22f47f5605ccedc227106b0c17a4df6120",
+  "sourceHashes": 45,
+  "commands": {
+    "install": 0,
+    "tests": 0,
+    "smoke": 0
+  },
+  "http": {
+    "/": {
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    "/web/app.mjs": {
+      "status": 200,
+      "contentType": "text/javascript; charset=utf-8"
+    },
+    "/web/styles.css": {
+      "status": 200,
+      "contentType": "text/css; charset=utf-8"
+    }
+  },
+  "capabilities": {
+    "realProvider": false,
+    "mode": "local-fake",
+    "externalBrowser": false
+  },
+  "cleanCloneAfterChecks": true
+}

@@ -1,0 +1,138 @@
+{
+  "origin": "http://127.0.0.1:19013",
+  "results": [
+    {
+      "path": "/web/app.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/extensions/evidence-memo/renderer.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/ui-controls.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/settings-view.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/inspector.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/runtime-view.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/materials-view.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/home-view.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/thread-projection.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/workspace-view.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/surface-modules.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/user-message.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/vendor/floating.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/vendor/marked.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/vendor/purify.mjs",
+      "status": 200,
+      "type": "text/javascript; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "type": "text/html; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/styles.css",
+      "status": 200,
+      "type": "text/css; charset=utf-8",
+      "pass": true
+    },
+    {
+      "path": "/web/vendor/icons.svg",
+      "status": 200,
+      "type": "image/svg+xml",
+      "pass": true
+    },
+    {
+      "path": "/web/not-a-module.mjs",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "path": "/server/service.mjs",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "path": "/runtime-state.json",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "path": "/brand/CONTRACT.md",
+      "status": 404,
+      "pass": true
+    },
+    {
+      "path": "/web/%2e%2e/server/service.mjs",
+      "status": 404,
+      "pass": true
+    }
+  ]
+}

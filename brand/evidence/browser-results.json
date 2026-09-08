@@ -1,0 +1,55 @@
+{
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+  "reducedMotion": false,
+  "checks": [
+    {
+      "name": "native SVG renders four canonical parts",
+      "status": "pass"
+    },
+    {
+      "name": "native write schedule is sequential and bounded",
+      "status": "pass"
+    },
+    {
+      "name": "rapid restart cancels the old native animations",
+      "status": "pass"
+    },
+    {
+      "name": "attribute update cancels native animations",
+      "status": "pass"
+    },
+    {
+      "name": "withdraw removes luminous actor and retains record",
+      "status": "pass"
+    },
+    {
+      "name": "commit motion does not grant authority or acceptance",
+      "status": "pass"
+    },
+    {
+      "name": "each semantic verb completes and leaves no native animation",
+      "status": "pass"
+    },
+    {
+      "name": "disconnect cancels native animation",
+      "status": "pass"
+    },
+    {
+      "name": "real SVG title and filter IDs are instance-local",
+      "status": "pass"
+    },
+    {
+      "name": "glyph fallback renders without active filter",
+      "status": "pass"
+    }
+  ],
+  "passed": 10,
+  "failed": 0,
+  "notRun": [
+    "system preference toggle",
+    "forced-colors",
+    "screen reader",
+    "Safari",
+    "Firefox"
+  ]
+}

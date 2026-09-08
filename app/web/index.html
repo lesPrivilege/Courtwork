@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A local work agent workspace" />
+    <title>CourtWork</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <div id="app-shell" class="app-shell">
+      <div class="shell-strip" aria-hidden="true"></div>
+      <div
+        id="nav-backdrop"
+        class="layer-backdrop"
+        aria-hidden="true"
+        hidden
+      ></div>
+      <aside
+        id="navigation-panel"
+        class="sidebar"
+        aria-label="Projects and sessions"
+      >
+        <header class="sidebar-header">
+          <a class="workspace-brand" href="#home" id="workspace-home-link"
+            ><court-symbol
+              class="brand-wordmark"
+              concept="write"
+              material="hierarchical"
+              size="20"
+              theme="light"
+              aria-hidden="true"
+            ></court-symbol
+            >CourtWork</a
+          >
+          <div class="toolbar">
+            <button
+              id="new-project-button"
+              class="quiet-button"
+              type="button"
+              aria-label="New project"
+            ></button>
+            <button
+              id="close-nav-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Close navigation"
+            ></button>
+          </div>
+        </header>
+        <button
+          id="new-session-button"
+          class="nav-home quiet-button"
+          type="button"
+        >
+          New session
+        </button>
+        <button id="home-button" class="nav-home quiet-button" type="button">
+          Home
+        </button>
+        <div class="nav-filter">
+          <label class="sr-only" for="nav-filter-input"
+            >Find a project or session</label
+          >
+          <div class="nav-filter-controls">
+            <span id="search-icon" class="search-icon"></span>
+            <input
+              id="nav-filter-input"
+              type="search"
+              autocomplete="off"
+              placeholder="Find a session"
+            />
+            <button
+              id="clear-nav-filter-button"
+              class="quiet-button"
+              type="button"
+              hidden
+            ></button>
+          </div>
+          <p
+            id="nav-filter-status"
+            class="filter-status"
+            aria-live="polite"
+          ></p>
+        </div>
+        <section
+          class="sidebar-section project-section"
+          aria-labelledby="projects-heading"
+        >
+          <div class="section-heading">
+            <h2 id="projects-heading">Projects</h2>
+            <span id="project-count" class="count-badge">0</span>
+          </div>
+          <nav
+            id="project-list"
+            class="project-list"
+            aria-label="Project sessions"
+          ></nav>
+        </section>
+        <footer class="sidebar-account" aria-label="Connection and settings">
+          <span id="account-avatar" class="account-avatar" aria-hidden="true"></span>
+          <span id="account-name" class="account-name"></span>
+          <span class="account-tools">
+            <button
+              id="refresh-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Refresh workspace"
+            ></button>
+            <button
+              id="runtime-setup-button"
+              class="quiet-button"
+              type="button"
+              aria-haspopup="dialog"
+            >
+              Settings
+            </button>
+          </span>
+        </footer>
+      </aside>
+      <main class="chat-panel" aria-label="Agent workspace">
+        <header class="chat-header">
+          <button
+            id="toggle-nav-button"
+            class="quiet-button"
+            type="button"
+            aria-controls="navigation-panel"
+            aria-expanded="false"
+            aria-label="Open navigation"
+          ></button>
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project" hidden></span
+              ><span id="session-title-text">Home</span>
+            </h1>
+            <div id="session-meta" class="session-meta"></div>
+          </div>
+          <div class="chat-header-actions">
+            <button
+            id="capability-badge"
+            class="status-badge quiet-button"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="connection-popover"
+          >
+            Local test
+          </button>
+            <button
+              id="show-run-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Session overview"
+              hidden
+            ></button>
+            <button
+              id="show-surface-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Open workspace preview"
+              hidden
+            ></button>
+          </div>
+          </div>
+        </header>
+        <div
+          id="connection-status"
+          class="connection-status"
+          role="status"
+          hidden
+        >
+          Connection lost. Reconnecting…
+        </div>
+        <div id="binding-panel" class="binding-panel" hidden></div>
+        <div id="conversation-body" class="conversation-body">
+        <div class="message-stream-wrap">
+          <section
+            id="message-stream"
+            class="message-stream"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+          ></section>
+          <button
+            id="jump-latest-button"
+            class="jump-latest-button"
+            type="button"
+            hidden
+          >
+            Back to latest
+          </button>
+        </div>
+        <footer id="composer-area" class="composer-area" hidden>
+          <div id="home-composer-intro" class="home-composer-intro" hidden>
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea
+              id="composer-input"
+              rows="2"
+              maxlength="100000"
+              placeholder="What would you like to work on?"
+              disabled
+            ></textarea>
+            <p id="composer-run-hint" class="composer-run-hint" hidden>
+              Run in progress — your input will not be sent automatically.
+            </p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button
+                  id="materials-button"
+                  class="quiet-button"
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-label="Session files"
+                ></button>
+                <button
+                  id="model-settings-button"
+                  class="composer-model quiet-button"
+                  type="button"
+                  aria-haspopup="dialog"
+                >
+                  Local test
+                </button>
+              </div>
+              <div class="composer-buttons">
+                <button
+                  id="cancel-run-button"
+                  class="quiet-button danger-button"
+                  type="button"
+                  hidden
+                >
+                  Cancel run
+                </button>
+                <button
+                  id="send-button"
+                  class="primary-button"
+                  type="submit"
+                  disabled
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" hidden></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project" hidden></p>
+            <div id="home-composer-context" class="home-composer-context" hidden>
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for new session"></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button">New project</button>
+              <label class="home-choice">File writes
+                <select id="home-permission-input" aria-label="File writes for new session">
+                  <option value="ask" aria-label="Ask before writing">Ask</option>
+                  <option value="draft" aria-label="Workspace writes allowed">Write</option>
+                  <option value="read_only" aria-label="Read only">Read</option>
+                </select>
+              </label>
+            </div>
+            <button
+              id="permission-settings-button"
+              class="permission-mode quiet-button"
+              type="button"
+              aria-haspopup="dialog"
+            >
+              Ask
+            </button>
+          </div>
+        </footer>
+        </div>
+      </main>
+      <div
+        id="surface-backdrop"
+        class="layer-backdrop"
+        aria-hidden="true"
+        hidden
+      ></div>
+      <aside
+        id="surface-panel"
+        class="surface-panel"
+        aria-labelledby="surface-title"
+        aria-hidden="true"
+        inert
+      >
+        <header class="surface-header">
+          <div class="surface-heading">
+            <h2 id="surface-title">Work surface</h2>
+          </div>
+          <div
+            id="surface-tabs"
+            class="surface-tabs"
+            role="tablist"
+            aria-label="Work surface views"
+          >
+            <button
+              id="surface-preview-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="surface-content"
+              aria-selected="true"
+              type="button"
+            >
+              Workspace
+            </button>
+            <button
+              id="surface-runtime-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="runtime-content"
+              aria-selected="false"
+              type="button"
+            >
+              Runtime
+            </button>
+            <button
+              id="surface-run-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="run-content"
+              aria-selected="false"
+              type="button"
+              hidden
+            >
+              Run
+            </button>
+            <button
+              id="surface-file-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="file-content"
+              aria-selected="false"
+              type="button"
+              hidden
+            >
+              File
+            </button>
+          </div>
+          <div class="toolbar">
+            <button
+              id="surface-expand-button"
+              class="quiet-button"
+              type="button"
+              aria-controls="surface-panel"
+              aria-expanded="false"
+              aria-label="Expand work surface"
+            ></button>
+            <button
+              id="close-surface-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Close work surface"
+            ></button>
+          </div>
+        </header>
+        <div id="surface-rail" class="surface-rail"></div>
+        <div
+          id="surface-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-preview-tab"
+          tabindex="0"
+        ></div>
+        <div
+          id="runtime-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-runtime-tab"
+          tabindex="0"
+          hidden
+        ></div>
+        <div
+          id="run-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-run-tab"
+          tabindex="0"
+          hidden
+        ></div>
+        <div
+          id="file-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-file-tab"
+          tabindex="0"
+          hidden
+        ></div>
+      </aside>
+    </div>
+    <dialog id="run-history-dialog" aria-labelledby="run-history-title">
+      <div class="run-history-inner">
+        <div class="section-heading dialog-heading">
+          <h2 id="run-history-title">Run history</h2>
+          <button
+            id="close-run-history"
+            class="quiet-button"
+            type="button"
+            aria-label="Close run history"
+          >
+            Close
+          </button>
+        </div>
+        <div id="run-history-list"></div>
+      </div>
+    </dialog>
+    <dialog id="edit-message-dialog" aria-labelledby="edit-message-title">
+      <div class="edit-message-inner">
+        <h2 id="edit-message-title">Edit as new message</h2>
+        <p class="form-help">
+          The original message and its run remain in history.
+        </p>
+        <label for="edit-message-input" class="sr-only">Message draft</label>
+        <textarea
+          id="edit-message-input"
+          maxlength="100000"
+          rows="6"
+        ></textarea>
+        <p id="edit-message-draft-warning" class="form-help" hidden>
+          Using this draft will replace the text currently in your composer.
+        </p>
+        <div class="dialog-actions">
+          <button
+            id="cancel-edit-message"
+            type="button"
+            class="quiet-button"
+          >
+            Cancel
+          </button>
+          <button id="use-edit-message" type="button" class="secondary-button">
+            Use as draft
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <div
+      id="context-popover"
+      class="context-popover"
+      popover="auto"
+      aria-label="Session overview"
+    ></div>
+    <div
+      id="connection-popover"
+      class="context-popover connection-popover"
+      popover="auto"
+      aria-label="Connection and file writes"
+    ></div>
+    <div
+      id="toast-region"
+      class="toast-region"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <dialog
+      id="runtime-dialog"
+      class="runtime-dialog"
+      aria-labelledby="runtime-dialog-title"
+    >
+      <div class="runtime-dialog-inner">
+        <header class="runtime-dialog-header">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <h2 id="runtime-dialog-title">Settings</h2>
+          </div>
+          <button
+            id="close-runtime-button"
+            class="quiet-button"
+            type="button"
+            aria-label="Close settings"
+          ></button>
+        </header>
+        <section
+          id="provider-details"
+          class="provider-details"
+          aria-labelledby="provider-heading"
+        >
+          <h3 id="provider-heading">Model & connection</h3>
+          <div id="provider-panel" class="provider-panel"></div>
+        </section>
+        <section id="session-settings" class="runtime-section" hidden></section>
+        <section
+          id="runtime-control-settings"
+          class="runtime-section"
+          aria-labelledby="runtime-control-heading"
+          hidden
+        >
+          <h3 id="runtime-control-heading">Runtime resources</h3>
+          <div id="runtime-control-entry" class="runtime-control-entry"></div>
+          <div id="runtime-context-summary" class="runtime-context-summary"></div>
+        </section>
+        <details class="runtime-section developer-settings">
+          <summary>Runtime & extensions</summary>
+          <div id="runtime-info" class="runtime-info"></div>
+          <div class="section-heading">
+            <h3>Extensions</h3>
+            <button
+              id="refresh-extensions-button"
+              class="quiet-button"
+              type="button"
+              aria-label="Refresh extensions"
+            ></button>
+          </div>
+          <div id="extension-list" class="extension-list"></div>
+        </details>
+        <details class="runtime-section planned-section">
+          <summary>Planned</summary>
+          <div id="planned-capabilities" class="planned-list"></div>
+        </details>
+      </div>
+    </dialog>
+    <dialog
+      id="materials-dialog"
+      class="runtime-dialog"
+      aria-labelledby="materials-title"
+    >
+      <div class="runtime-dialog-inner">
+        <header class="runtime-dialog-header">
+          <div>
+            <p class="eyebrow" id="materials-session-title">Session</p>
+            <h2 id="materials-title">Files</h2>
+          </div>
+          <button
+            id="close-materials-button"
+            class="quiet-button"
+            type="button"
+            aria-label="Close files"
+          ></button>
+        </header>
+        <div id="workspace-files" class="workspace-files"></div>
+        <details class="material-add" id="material-add">
+          <summary>Add text material</summary>
+          <form id="material-form">
+            <label
+              >File name<input
+                id="material-name"
+                name="name"
+                required
+                pattern="[A-Za-z0-9._-]+"
+                placeholder="brief.md"
+                autocomplete="off"
+            /></label>
+            <label
+              >Text<textarea
+                id="material-text"
+                name="text"
+                rows="5"
+                required
+                placeholder="Paste the material for this session"
+              ></textarea>
+            </label>
+            <label class="file-upload-label"
+              >Or choose a text file<input
+                id="material-upload"
+                type="file"
+                accept=".txt,.md,.csv,.json,.html,.xml,.yaml,.yml,text/*"
+            /></label>
+            <p id="material-error" class="inline-error" role="alert" hidden></p>
+            <div class="dialog-actions">
+              <button id="material-submit" class="primary-button" type="submit">
+                Add material
+              </button>
+            </div>
+          </form>
+        </details>
+      </div>
+    </dialog>
+    <dialog
+      id="project-dialog"
+      class="form-dialog"
+      aria-labelledby="project-dialog-title"
+    >
+      <form id="project-form" method="dialog">
+        <h2 id="project-dialog-title">New project</h2>
+        <p class="form-help">A place for related sessions and their files.</p>
+        <label for="project-name-input">Project name</label
+        ><input
+          id="project-name-input"
+          name="name"
+          maxlength="200"
+          required
+          autocomplete="off"
+        />
+        <p
+          id="project-create-error"
+          class="inline-error"
+          role="alert"
+          hidden
+        ></p>
+        <div class="dialog-actions">
+          <button
+            class="quiet-button"
+            value="cancel"
+            type="submit"
+            formnovalidate
+          >
+            Cancel</button
+          ><button class="primary-button" value="default" type="submit">
+            Create project
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="session-dialog"
+      class="form-dialog"
+      aria-labelledby="session-dialog-title"
+    >
+      <form id="session-form" method="dialog">
+        <h2 id="session-dialog-title">New session</h2>
+        <p id="session-project-label" class="form-help"></p>
+        <label for="session-title-input">Session title</label
+        ><input
+          id="session-title-input"
+          name="title"
+          maxlength="200"
+          placeholder="Untitled session"
+          autocomplete="off"
+        />
+        <label for="session-permission-input">File writes</label
+        ><select id="session-permission-input">
+          <option value="ask">Ask before writing</option>
+          <option value="draft">Workspace writes allowed</option>
+          <option value="read_only">Read only</option>
+        </select>
+        <p
+          id="session-create-error"
+          class="inline-error"
+          role="alert"
+          hidden
+        ></p>
+        <div class="dialog-actions">
+          <button
+            class="quiet-button"
+            value="cancel"
+            type="submit"
+            formnovalidate
+          >
+            Cancel</button
+          ><button class="primary-button" value="default" type="submit">
+            Create session
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="/brand/src/court-symbol.mjs"></script>
+    <script type="module" src="/web/app.mjs"></script>
+  </body>
+</html>

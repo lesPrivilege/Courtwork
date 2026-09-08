@@ -1,0 +1,46 @@
+{
+  "projectId": "fc7502a1-7d9c-478d-a661-bfeaa17df541",
+  "sessionId": "393b8ff5-29df-42e0-b6f0-ade5003c56d7",
+  "revision": 7,
+  "resources": [
+    "tool:tool:ask_user",
+    "tool:tool:ws_list",
+    "tool:tool:ws_read",
+    "tool:tool:ws_write",
+    "tool:tool:ws_grep",
+    "tool:tool:runtime_load",
+    "plugin:plugin:evidence-memo",
+    "tool:tool:se_read_source",
+    "tool:tool:se_submit_candidate",
+    "plugin:plugin:probe",
+    "instruction:local:conventions",
+    "skill:local:citation",
+    "reference:local:brief",
+    "prompt_template:local:review",
+    "agent_profile:local:reader",
+    "mcp_server:local:docs-mcp",
+    "tool:tool:mcp_50696bf82a9bbeb4de5c4d80",
+    "tool:tool:mcp_73c977231c0a2c4086308141",
+    "agent_profile:agent:general",
+    "provider:provider:current",
+    "model:model:current",
+    "secret:secret:provider",
+    "sandbox:sandbox:workspace",
+    "permission_policy:policy:host",
+    "session_context:context:session"
+  ],
+  "scopes": [
+    {
+      "type": "user",
+      "id": "local"
+    },
+    {
+      "type": "workspace",
+      "id": "fc7502a1-7d9c-478d-a661-bfeaa17df541"
+    },
+    {
+      "type": "session",
+      "id": "393b8ff5-29df-42e0-b6f0-ade5003c56d7"
+    }
+  ]
+}

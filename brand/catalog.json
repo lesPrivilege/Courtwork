@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "canonicalGeometry": "geometry/mark.svg",
+  "renderer": "src/symbol.mjs",
+  "component": "src/court-symbol.mjs",
+  "tokens": {
+    "operationalMs": 140,
+    "operationalStaggerMs": 40,
+    "explanatoryMs": 440,
+    "explanatoryStaggerMs": 100,
+    "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
+    "materialThresholdPx": 32
+  },
+  "semantics": [
+    "summon",
+    "take-floor",
+    "write",
+    "retrieve",
+    "scope",
+    "commit",
+    "review",
+    "withdraw"
+  ],
+  "materials": [
+    "mono",
+    "hierarchical",
+    "glass",
+    "depth",
+    "luminous"
+  ],
+  "stateSource": "host-owned; no work/authority mutations",
+  "reducedMotion": "static host-owned state",
+  "runtimeDependencies": [],
+  "references": "sources/visual-runtime-index.json",
+  "localPreview": "index.html",
+  "machineInterface": "JSON + CLI only; no installed MCP/registry service"
+}

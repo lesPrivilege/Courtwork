@@ -1,0 +1,479 @@
+{
+  "origin": "http://127.0.0.1:8859",
+  "at": "2026-09-07T23:54:03.673Z",
+  "results": [
+    {
+      "name": "band · the sidebar wordmark row and the main header share one top and one height",
+      "pass": true,
+      "actual": {
+        "sidebar": {
+          "top": 0,
+          "height": 56
+        },
+        "chat": {
+          "top": 0,
+          "height": 56
+        },
+        "railHeader": "none",
+        "token": "56px"
+      }
+    },
+    {
+      "name": "band · the collapsed work surface has no header and no title of its own",
+      "pass": true,
+      "actual": "none"
+    },
+    {
+      "name": "layer · top = band + one gap, right = one gap from the main column, 360 wide",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "left": 1056,
+        "width": 360,
+        "bottom": 692,
+        "rightGap": 24,
+        "bandPlusGap": 80,
+        "composerTop": 716,
+        "colGap": 24,
+        "cardLeft": 1056,
+        "cardMargin": "0px 0px 0px",
+        "position": "absolute"
+      }
+    },
+    {
+      "name": "layer · the cards stop one gap above the composer's top edge",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "left": 1056,
+        "width": 360,
+        "bottom": 692,
+        "rightGap": 24,
+        "bandPlusGap": 80,
+        "composerTop": 716,
+        "colGap": 24,
+        "cardLeft": 1056,
+        "cardMargin": "0px 0px 0px",
+        "position": "absolute"
+      }
+    },
+    {
+      "name": "layer · a module card adds no outer margin",
+      "pass": true,
+      "actual": "0px 0px 0px"
+    },
+    {
+      "name": "column · the header and the composer share one left edge",
+      "pass": true,
+      "actual": {
+        "header": 283,
+        "composer": 283,
+        "columnRight": 1023,
+        "cardLeft": 1056
+      }
+    },
+    {
+      "name": "column · the reading column and the floating cards do not overlap",
+      "pass": true,
+      "actual": {
+        "header": 283,
+        "composer": 283,
+        "columnRight": 1023,
+        "cardLeft": 1056
+      }
+    },
+    {
+      "name": "collapsed · cards showing, tab strip and every pane hidden",
+      "pass": true,
+      "actual": {
+        "railHidden": false,
+        "tabsHidden": true,
+        "modules": [
+          "preview",
+          "runtime"
+        ],
+        "panesHidden": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "nested": 0,
+        "progress": 0,
+        "percent": 0,
+        "backdropHidden": true,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "collapsed · no nested card, no progress bar, no percentage",
+      "pass": true,
+      "actual": {
+        "railHidden": false,
+        "tabsHidden": true,
+        "modules": [
+          "preview",
+          "runtime"
+        ],
+        "panesHidden": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "nested": 0,
+        "progress": 0,
+        "percent": 0,
+        "backdropHidden": true,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "collapsed · an L2 layer disables nothing: no scrim, no aria-modal",
+      "pass": true,
+      "actual": {
+        "railHidden": false,
+        "tabsHidden": true,
+        "modules": [
+          "preview",
+          "runtime"
+        ],
+        "panesHidden": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "nested": 0,
+        "progress": 0,
+        "percent": 0,
+        "backdropHidden": true,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "expanded · the sheet grows out of the cards: same top edge, same right gutter",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "bandPlusGap": 80,
+        "rightGap": 24,
+        "colGap": 24,
+        "backdropHidden": false,
+        "backdropLeft": 250,
+        "chatLeft": 250,
+        "shadow": true,
+        "tabsHidden": false,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "expanded · L3 material: the scrim covers the main column only, the sheet carries the float shadow",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "bandPlusGap": 80,
+        "rightGap": 24,
+        "colGap": 24,
+        "backdropHidden": false,
+        "backdropLeft": 250,
+        "chatLeft": 250,
+        "shadow": true,
+        "tabsHidden": false,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "expanded · the tab strip replaces the cards inside the sheet",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "bandPlusGap": 80,
+        "rightGap": 24,
+        "colGap": 24,
+        "backdropHidden": false,
+        "backdropLeft": 250,
+        "chatLeft": 250,
+        "shadow": true,
+        "tabsHidden": false,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "expanded · the sidebar stays operable and no aria-modal is claimed",
+      "pass": true,
+      "actual": {
+        "top": 80,
+        "bandPlusGap": 80,
+        "rightGap": 24,
+        "colGap": 24,
+        "backdropHidden": false,
+        "backdropLeft": 250,
+        "chatLeft": 250,
+        "shadow": true,
+        "tabsHidden": false,
+        "railHidden": true,
+        "chatInert": true,
+        "navInert": false,
+        "ariaModal": null
+      }
+    },
+    {
+      "name": "escape · sheet, then cards, then closed",
+      "pass": true,
+      "actual": [
+        {
+          "expanded": true,
+          "rail": false,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": true,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": false,
+          "open": false
+        }
+      ]
+    },
+    {
+      "name": "keyboard · ArrowRight / End / Home move the selected tab",
+      "pass": true,
+      "actual": [
+        "surface-preview-tab",
+        "surface-runtime-tab",
+        "surface-runtime-tab",
+        "surface-preview-tab"
+      ]
+    },
+    {
+      "name": "lifecycle · three collapse/expand toggles re-read nothing",
+      "pass": true,
+      "actual": {
+        "toggles": 3,
+        "workspaceReads": 0,
+        "runtimeReads": 0,
+        "total": 1
+      }
+    },
+    {
+      "name": "composer · inside the box: attach, the model chip, then the round send slot",
+      "pass": true,
+      "actual": {
+        "inside": [
+          "materials-button",
+          "model-settings-button",
+          "send-button"
+        ],
+        "belowIds": [
+          "composer-project",
+          "permission-settings-button"
+        ],
+        "belowText": [
+          "Runtime control fixture",
+          "Write"
+        ],
+        "permissionWord": "Write",
+        "permissionName": "File writes: Workspace writes allowed",
+        "project": "Runtime control fixture",
+        "modelChip": "Local test",
+        "microphone": 0,
+        "shadow": true,
+        "sendRadius": "50%"
+      }
+    },
+    {
+      "name": "composer · the box is a floating layer (float ground, one strong line, the float shadow)",
+      "pass": true,
+      "actual": true
+    },
+    {
+      "name": "composer · below the box: the project read-only and the mode as one word, nothing else",
+      "pass": true,
+      "actual": {
+        "inside": [
+          "materials-button",
+          "model-settings-button",
+          "send-button"
+        ],
+        "belowIds": [
+          "composer-project",
+          "permission-settings-button"
+        ],
+        "belowText": [
+          "Runtime control fixture",
+          "Write"
+        ],
+        "permissionWord": "Write",
+        "permissionName": "File writes: Workspace writes allowed",
+        "project": "Runtime control fixture",
+        "modelChip": "Local test",
+        "microphone": 0,
+        "shadow": true,
+        "sendRadius": "50%"
+      }
+    },
+    {
+      "name": "elevation · dark: frame < panel < float in measured luminance",
+      "pass": true,
+      "actual": {
+        "frame": "#111113",
+        "panel": "#212225",
+        "float": "#272a2d",
+        "lum": {
+          "frame": 0.0057,
+          "panel": 0.016,
+          "float": 0.0228
+        },
+        "rgb": {
+          "frame": [
+            17,
+            17,
+            19
+          ],
+          "panel": [
+            33,
+            34,
+            37
+          ],
+          "float": [
+            39,
+            42,
+            45
+          ]
+        }
+      }
+    },
+    {
+      "name": "elevation · light: the frame is the lowest and the float is the surface's paper",
+      "pass": true,
+      "actual": {
+        "frame": "#f0f0f3",
+        "panel": "#fdfdfe",
+        "float": "#fdfdfe",
+        "lum": {
+          "frame": 0.8732,
+          "panel": 0.9829,
+          "float": 0.9829
+        },
+        "rgb": {
+          "frame": [
+            240,
+            240,
+            243
+          ],
+          "panel": [
+            253,
+            253,
+            254
+          ],
+          "float": [
+            253,
+            253,
+            254
+          ]
+        }
+      }
+    },
+    {
+      "name": "strip · under 740 + 2·gap + 360 the cards become one glyph per module",
+      "pass": true,
+      "actual": {
+        "chatWidth": 950,
+        "cards": 0,
+        "names": [
+          "Workspace",
+          "Runtime"
+        ],
+        "icons": [
+          "folder",
+          "settings-2"
+        ],
+        "visibleLabels": 0,
+        "left": 1132,
+        "top": 80,
+        "width": 44,
+        "rightGap": 24,
+        "columnRight": 1061
+      }
+    },
+    {
+      "name": "strip · every glyph carries its module's title as the accessible name",
+      "pass": true,
+      "actual": [
+        "Workspace",
+        "Runtime"
+      ]
+    },
+    {
+      "name": "strip · a glyph opens the overlay on that module",
+      "pass": true,
+      "actual": {
+        "expanded": true,
+        "selected": [
+          "surface-preview-tab"
+        ]
+      }
+    },
+    {
+      "name": "narrow 390 · no control under 44 with a coarse pointer",
+      "pass": true,
+      "actual": {
+        "controls": 8,
+        "small": [],
+        "overflow": 0,
+        "composerPosition": "sticky",
+        "composerShadow": true
+      }
+    },
+    {
+      "name": "narrow 390 · no horizontal overflow",
+      "pass": true,
+      "actual": 0
+    },
+    {
+      "name": "narrow 390 · the composer is a docked floating layer",
+      "pass": true,
+      "actual": {
+        "controls": 8,
+        "small": [],
+        "overflow": 0,
+        "composerPosition": "sticky",
+        "composerShadow": true
+      }
+    },
+    {
+      "name": "narrow 390 · below 768 the full-width sheet stands, cards inside it, and it is the one real modal",
+      "pass": true,
+      "actual": {
+        "width": 390,
+        "left": 0,
+        "cards": 2,
+        "strip": 0,
+        "header": "flex",
+        "ariaModal": "true"
+      }
+    },
+    {
+      "name": "1440 · no horizontal overflow collapsed or expanded",
+      "pass": true,
+      "actual": {
+        "collapsed": 0,
+        "expanded": 0
+      }
+    }
+  ],
+  "failed": 0
+}

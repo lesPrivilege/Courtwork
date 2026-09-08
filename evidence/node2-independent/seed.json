@@ -1,0 +1,44 @@
+{
+  "projectId": "48b27fc9-be2b-48d1-bb61-9e3360cff026",
+  "sessionId": "dfd9e66d-70f4-44e2-a6b0-396d56921735",
+  "revision": 7,
+  "resources": [
+    "tool:tool:ask_user",
+    "tool:tool:ws_list",
+    "tool:tool:ws_read",
+    "tool:tool:ws_write",
+    "tool:tool:ws_grep",
+    "tool:tool:runtime_load",
+    "plugin:plugin:evidence-memo",
+    "tool:tool:se_read_source",
+    "tool:tool:se_submit_candidate",
+    "plugin:plugin:probe",
+    "instruction:local:conventions",
+    "skill:local:citation",
+    "reference:local:brief",
+    "prompt_template:local:review",
+    "agent_profile:local:reader",
+    "mcp_server:local:docs-mcp",
+    "agent_profile:agent:general",
+    "provider:provider:current",
+    "model:model:current",
+    "secret:secret:provider",
+    "sandbox:sandbox:workspace",
+    "permission_policy:policy:host",
+    "session_context:context:session"
+  ],
+  "scopes": [
+    {
+      "type": "user",
+      "id": "local"
+    },
+    {
+      "type": "workspace",
+      "id": "48b27fc9-be2b-48d1-bb61-9e3360cff026"
+    },
+    {
+      "type": "session",
+      "id": "dfd9e66d-70f4-44e2-a6b0-396d56921735"
+    }
+  ]
+}

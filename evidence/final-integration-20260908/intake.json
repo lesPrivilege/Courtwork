@@ -1,0 +1,10 @@
+{
+  "fableHandoff": "bcbca1b3b6b848f8976a12e697e0972cf975b3bf",
+  "fableCode": "0bc416b",
+  "auditSource": "untracked user-message-audit.md in fresh candidate at b0173de; original bytes copied, not present in Fable commit",
+  "auditSha256": "c9dc7e3acd2ff15ed22a9a449bf02e4eb1510d81bf1376e3855254286bdfe9f7",
+  "priorBackend": "dc754045a9fd0b6a5d394bc4d75e93228c5fe774",
+  "integratedBackend": "c1b19f6",
+  "intakeSource": "fresh candidate tracked modification containing WK-76; original bytes copied without altering writer checkout",
+  "intakeSha256": "246bb032655cd94a848a688c910fe1238143df3c17205e666a30bb6d41410ce8"
+}

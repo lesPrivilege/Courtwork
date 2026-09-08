@@ -1,0 +1,330 @@
+{
+  "results": [
+    {
+      "name": "exception",
+      "pass": false,
+      "error": "Error: Uncaught TypeError: Cannot read properties of null (reading 'click')\n    at <anonymous>:1:36\n    at evaluate (file:///private/tmp/courtwork-final-integration-20260908/evidence/final-integration-20260908/browser.mjs:47:31)\n    at async reopen (file:///private/tmp/courtwork-final-integration-20260908/evidence/final-integration-20260908/extension-recovery.mjs:7:107)\n    at async file:///private/tmp/courtwork-final-integration-20260908/evidence/final-integration-20260908/extension-recovery.mjs:14:2",
+      "dom": "CourtWork\nNew project\nClose navigation\nNew session\nHome\nFind a project or session\nPROJECTS\n0\n\nNo projects yet.\n\nM\nModel settings\nRefresh workspace\nSettings\nWork that exists beyond the model.\nMessage\nModel settings\nSend\n\nChoose or create a project to send.\n\nProject\nCreate a project to begin\nNew project\nFile writes\nAsk\nWrite\nRead"
+    }
+  ],
+  "observations": {
+    "responses": [
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/bootstrap",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/projects",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/provider-config",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/favicon.ico",
+        "status": 404,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/draft",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/runs",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/work-summary?limit=30",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/events?afterSeq=0",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/events?afterSeq=3",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/runs/205dab81-aa51-4da2-a6cc-50a89a62f316",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/extensions",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/api/v5/sessions/e4d43bbb-882d-44a1-83e8-51600f46553e/extension",
+        "status": 200,
+        "mime": "application/json"
+      },
+      {
+        "url": "http://127.0.0.1:19013/",
+        "status": 200,
+        "mime": "text/html"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/styles.css",
+        "status": 200,
+        "mime": "text/css"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/court-symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/symbol.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/app.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/brand/src/geometry.generated.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/settings-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/ui-controls.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/inspector.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/runtime-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/materials-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/home-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/thread-projection.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/workspace-view.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/user-message.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/surface-modules.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/floating.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/marked.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/purify.mjs",
+        "status": 200,
+        "mime": "text/javascript"
+      },
+      {
+        "url": "http://127.0.0.1:19013/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "exceptions": []
+  }
+}
