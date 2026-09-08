@@ -35,6 +35,8 @@
 | B-8 | **`agent_profile` 的选择动作没有前端入口。** 契约有 `operation: 'profile'`，但 RC-1 的三处 Settings 扩展和 runtime 模块的写权都只到 exposure；选择 profile 会改变整套可用能力 | 只读呈现：选中的 profile、状态、`uiSlots`（标"declared, not executed"）、`missing`；`configurable: false` 的 profile 行不给开关，分组顶部一句说明"选择 ≠ 曝光" | 需要架构决定 profile 选择放在哪一面（Settings 的选择卡？runtime 模块的一个分组？），以及切换时对进行中 session 的说明 |
 | B-9 | **`policy` 编辑没有前端入口。** 契约有 `operation: 'policy'`，规则列表整体替换 | 只读：权限解释的 trace 里能看到某条 workspace 规则命中，但看不到、也改不了规则列表本身 | 规则编辑是一个独立表面（一张规则表 + 整体替换语义 + "更窄不能放宽"的校验），不适合塞进资源行，建议单独下单 |
 | B-10 | **`unknown` 远端效果没有前端可复现的入口。** 只有真实 MCP 调用在 Run 中失联才会产生；配置面的 409 只有 `active_run` 与 `runtime_conflict` | 代码里有 `mcp_effect_unknown` 分支与"Reconcile before sending another command."横幅，但本轮**未在浏览器中触发过**，见"未验证" | 若要验收这一条，需要一个能在配置面触发 unknown 的路径，或者接受它只在 Run 表面出现（那它就不属于 runtime 模块的义务） |
+| BE-12 | **provider 不暴露推理强度（reasoning effort）。** `GET /provider-config` 只返回 `{provider, model, api}`；`GET /provider-models` 的每个模型只有布尔 `reasoning`（`service.mjs:253`），没有当前强度值，也没有可选强度集合 | 按 WK-73 不画：composer 的模型 chip 只写 `<model>`，不写 `<model> · <effort>`；连接 popover 里也没有 effort 项 | `providerConfig` 增加 `effort`（值域随 provider），`provider-models` 每个模型增加 `efforts: string[]`；两者齐备时 chip 与 popover 各加一处，无需改版式 |
+| BE-13 | **MCP `disconnect` 不回翻状态词。** 把 fixture 的 MCP server 指向本机后，经产品控件 connect 生效（状态词转 `configured connected`），随后的 disconnect 与再次 connect 都读回同一个 `configured`；`remote-tools` 始终为 0 行（WK-74 (3) 登记，本轮 r2 复现） | 不冒充通过：`evidence/rc/runtime-ui-checks.json` 的 `remote-tools` 与反例的 `mcp-lifecycle` 记为 not_run / 待复核，前端未改 `runtime-view.mjs` 的渲染与请求 | 由 MCP 线路一侧复核：`mcpLifecycle` 的 `disconnect` 之后 `inspect` 是否真的反映断开 |
 
 ## C · 我没有画的、也不建议画的
 
