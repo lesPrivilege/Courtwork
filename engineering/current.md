@@ -1,5 +1,7 @@
 # 当前工程状态
 
+清账与合流（2026-09-08）：Pages准备稿已固定并合并，开发入口迁到持久`Courtwork-current`，legacy目录按原计划冻结。见 [清账回执](../evidence/reconciliation-20260908/README.md)。候选分支继续为`codex/fresh-courtwork`，main takeover仍是独立T4节点。
+
 Fable收尾 `bcbca1b` 已接收，fresh Astra实际Web↔后端联调完成；固定代码基线 `0a3b9b22f47f5605ccedc227106b0c17a4df6120`。修复通用工具权限误称写入与Home框外状态句错列，纳入只读R2解析切片；实际验证与未检项见 [联调回执](../evidence/final-integration-20260908/README.md)，候选推送/独立clone以该回执的sync记录为准。WK10b/WK11继续按Fable既有工单，不把作者19/27消费报告当作全部产品验收。
 
 第二自足节点已在Astra隔离树合流：Fable `0a30780`（WK10a+r2）+ 接缝修补 `dbf12b3` → 代码基线 `7df1f6c486db8f1558dc0020ff4a62281856e207`。见 [独立集成回执](../evidence/node2-independent/README.md) 与 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)。候选同步与新任务ID以交接包的实际记录为准；尚未push或公开发布。WK10b / WK11由Fable基于本次合流后派发。最新用户边界：Desktop优先，composer沉底不作为桌面验收要求，窄宗可暂缓，Continue等版面位置留Fable后续参考裁定。

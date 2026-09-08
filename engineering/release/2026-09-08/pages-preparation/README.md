@@ -1,5 +1,7 @@
 # GitHub Pages · 实现准备
 
+> 后续清账：本包已合入联调后的fresh候选；user-message-audit已固定，前后端联调已完成，见[当前状态](../../../current.md)。下文checkout位置与缺件描述是准备时快照，发布媒体应采用最新候选重新取证。
+
 2026-09-08。目标：为稍后的 CourtWork 发布面提供可直接消费的内容、局部设计取证和实施切片。本轮交付准备文件；未创建页面、截图、部署工作流或产品功能。事实基线为 CourtWork `b0173deab477b9be577df75a712f446d14e3c356`；重新施工先读取 [current](../../../current.md) 与最终交接，不把本页维护成产品状态账本。
 
 承接 [既有对外稿](../public-surface.md)、[发布安排](../README.md)、[原调研快照](source-chat.md)。用户本轮要求先准备；产品 UI 仍由现有 Fable 工单维护，发布面不能通过复刻 UI 替产品验收。
