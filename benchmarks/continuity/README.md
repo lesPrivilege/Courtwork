@@ -1,18 +1,31 @@
-# Continuity mechanism runner
+# Continuity development conformance suite
 
-Protocol: [SE Continuity Evaluation v0](../../engineering/research/se-continuity-2026-09-08/README.md).
+Protocol: [SE Continuity Evaluation](../../engineering/research/se-continuity-2026-09-08/README.md).
+Observation and scoring: [v2 contract](observation-contract.md).
 
-Run from repository root with Node >=22.19 and Python 3 (standard library only):
+From repository root, Node >=22.19 and Python 3 (standard library only):
 
 ```sh
 node --test benchmarks/continuity/grade.test.mjs
 node benchmarks/continuity/run.mjs --output /tmp/continuity-result.json
 ```
 
-Output must be a new file; existing evidence is never overwritten. A failed trajectory yields exit code 1 after recording all cases. Setup/transport failures remain failures, not successful rejections. Each case creates and removes its own temporary database. There are no providers, personal runtime directories, or network calls.
+Output, `.attempts.json` and `.journal.jsonl` must be new files. Attempts are
+persisted before execution; failures stay in the denominator. Each trajectory
+uses an independent temporary database, cleaned on normal completion. No
+providers, personal runtime directories or network calls are used.
 
-This initial B0 entry executes five development trajectories in **one synthetic memo family** against the real private Core client: pending/valid acceptance, stale source, duplicate/changed receipt, graceful process restart, and actor-field spoof rejection followed by valid acceptance. The trusted client is a fixture driver, not a model-reachable interface or an authorization security test. Restart is graceful, not SIGKILL; host Session continuation and absent-producer behavior belong to B1.
+v1 runs six development trajectories in **one synthetic memo family** against
+E (real trusted Work Core) and S (ordinary SQLite approval system). Both should
+pass; this is calibration, not evidence of SE advantage. The sixth trajectory
+checks stale-base CAS in addition to the original five scenarios. Production
+regression counts and independent reruns are not additional benchmark samples.
+The five-case v0 score had observation gaps identified by Pro; old reports are
+retained unchanged and do not assert full continuity.
 
-`cases.json` owns source material, operations and expected observations. `courtwork.mjs` owns only fixture setup, operations and normalization. `grade.mjs` has no production dependencies and compares expected fields to actual values. `run.mjs` preserves raw snapshots, hashes, environment, errors and per-checkpoint results. This is author-created development evidence, not heldout evaluation or a competing-harness comparison. No legal correctness or human/model performance claim is supported.
-
-Next capability order and required evidence are in the protocol. Existing Core/runtime regression suites remain separate; their assertion counts are not new benchmark samples.
+`cases.json` defines outcomes, `grade.mjs` checks full state at every checkpoint,
+`observe.mjs` maps durable raw records, `courtwork.mjs` and `standard.py/mjs`
+execute independently implemented mechanisms. The trusted clients are fixture
+drivers, not model-reachable tools or a host authorization test. Restarts are
+graceful, not SIGKILL. Host, model, legal-quality and human-takeover evidence is
+separate. Strong S is brought forward before expanding tasks or model runs.
