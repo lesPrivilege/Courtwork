@@ -251,3 +251,16 @@ git diff -- app/server              # 空
 1. **四块预览还是一块。** 工单第 3 条写「每行下方一块」，参考图也是逐行放；但四块内容一模一样，消融表里这条只失去邻接。
 2. **General › This session 行。** 工单第 2 条只列了 Connection / New sessions / Data；本单保留了既有的「这一次会话的 File writes」，因为删掉等于删一项既有能力，且它与「新会话的默认」并列时正好说清两者不是一回事。
 3. **用户 skin 的对比度**是否在接受前给警告（见 §11）。
+
+## 13. Fable 复核（2026-09-09）
+
+独立重跑 `7599a91`：`npm --prefix app test` 204/204，`lint-colors` ok，`git diff -- app/server app/runtime app/core app/extensions runtime-view.mjs home-view.mjs` 为空。目视 General / Appearance / Runtime 1440 浅宗与 General 390 深宗：页壳、分组导航、行解剖（标题 + 一句作用域 / 后果 + 右侧控件）、Ask / Write / Read 分段、Scheme 与 Skin 预览、Runtime 五个意图分组与挂载点、Models 只读 + Edit in General、窄屏顶部下拉，均符合 WK-78 与 spec §4.1 / §6。
+
+裁定（WK-87）：
+1. 四块预览按消融收为一块，置于 Appearance 顶部，Scheme / Skin / Text size / Code font 共用；随 WK11 同一 writer 实施，本单不返工。
+2. 保留 General › This session 行：与 New sessions 默认并列正是"这一次 vs 下次"的区别，承重成立。
+3. Settings 打开时点击侧栏会话须先离开页面：已修，接受；FE-T10 应保留该反例。
+4. 用户 skin 对比度：接受前按 `contrast-report.mjs` 同一对照对计算并**警告**，不阻止；随 WK11 实施。
+5. 首帧偏好脚本为内联 `<script>`：当前无 CSP，接受；将来加 CSP 时以 nonce 或外置模块处理，登记于 spec FN-29 备注。
+6. 后端请求 BE-16：`GET /runtime-info` 报告数据目录或稳定工作区标识，供 Data 行与偏好键使用。
+7. 交 Astra 合流；独验项：FE-T09 / T10、既有 Settings 回归（provider 保存、key 保存 / 删除、extension lifecycle、Bind to session）。

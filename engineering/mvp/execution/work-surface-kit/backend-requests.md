@@ -22,3 +22,4 @@
 |---|---|---|---|
 | BE-14 | Decision 记录带 `decidedAt`（或独立 decision 事件），供回执行显示时间 | Chat Flow 决定回执行的时间列 | delivery-wk10b-2 §3.5 / 消融 R-8 |
 | BE-15 | `GET /projects/:id/work` 返回 Matter `title` 与最近决定时间 | Continue existing 列表只显 id 短形 | delivery-wk10b-2 §3.6 / 消融 R-13 |
+| BE-16 | `GET /runtime-info` 返回数据目录路径或稳定工作区标识（不含凭据） | Settings › General › Data 行；本设备偏好键 `cw:prefs:<id>` | delivery-wk12 §9 / §13 |
