@@ -1,0 +1,14 @@
+✔ NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context (2307.442375ms)
+✔ NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail (514.831042ms)
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (2635.321292ms)
+✔ versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions (686.3825ms)
+✔ unresolved and source-stale parents can be revised only with currently verified NDA input (470.8585ms)
+✔ host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation (1017.35575ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5421.741042

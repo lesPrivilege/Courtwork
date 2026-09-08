@@ -24,8 +24,8 @@ Opus 只从 Astra 合流后的 `main` 建工作树：合流内容 = `codex/harne
 |---|---|---|
 | BE-1 / 3 `GET /work-activity?days=N` 按日 recorded run 计数、UTC 日界 | Home 上带 Heatmap 去 Planned | WK-37、EX-WK7 §1.6 |
 | BE-12 `effort` 字段进入 provider-config / provider-models | composer 模型 chip 推理强度（WK-73） | EX-WK7 局部 10 |
-| `revise_candidate` 的版本化 humanActions 声明与packet更新 | WK10b 第二段人工修订；现API已实现但未声明动作 | `docs/work-core/contract.md`、当前 `app/core/owner.mjs` |
-| 静态 allowlist 增 `extensions/inbound-nda/renderer.mjs`、`app/web/presentation-adapters.mjs`（及 WK12 若新增模块） | WK10b 第二段、WK13、WK12 | `app/server/index.mjs:18–21` |
+| `revise_candidate` 版本化声明与packet、NDA renderer精确准入 | Astra后端接缝已实现，第二段消费固定交付；实际renderer仍由Opus提供 | [接缝回执](../../../../evidence/work-review-actions-20260908/README.md)、`docs/work-core/contract.md` |
+| 后续静态 allowlist 请求：`app/web/presentation-adapters.mjs`（及 WK12 若新增模块）；NDA renderer精确路径已由本单准入 | WK10b 第二段、WK13、WK12 | `app/server/index.mjs:18–21` |
 | 窄宗 composer 沉底 | Astra 暂缓项，待其回执 | WK-58 / 76 |
 
 ## 已超越或无需派单

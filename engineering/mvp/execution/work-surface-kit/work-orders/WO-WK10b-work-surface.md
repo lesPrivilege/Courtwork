@@ -21,19 +21,19 @@ Opus拥有本单必要的 `app/web/app.mjs`、`surface-modules.mjs`、相关view
 
 ## 第二段：领域 Review 与续行（契约已交付，合流后开工）
 
-依据 Astra `codex/harness-core` `d6247a8`（代码基线 `1332691`，170/170）交付的 [Work Core 契约](../../../../../docs/work-core/contract.md)、[NDA 接缝](../../../../../docs/work-core/nda.md) 与真实合成 packet `app/tests/fixtures/work-core/nda-packets.json`（pending / accepted / producer-unloaded 三态）。本段只消费 packet 中实际存在的字段与 `humanActions` 列出的合法动作；服务端复验一切授权（spec FN-17）。
+依据 Astra `codex/harness-core` `d6247a8`（代码基线 `1332691`，170/170）交付的 [Work Core 契约](../../../../../docs/work-core/contract.md)、[NDA 接缝](../../../../../docs/work-core/nda.md) 与真实合成 packet `app/tests/fixtures/work-core/nda-packets.json`（fixtureVersion 2 保留 pending / accepted / history 三态，新增 revision 请求与 revised packet；[后端接缝回执](../../../../../evidence/work-review-actions-20260908/README.md)）。本段只消费 packet 中实际存在的字段与 `humanActions` 列出的合法动作；服务端复验一切授权（spec FN-17）。
 
 | 入口 | 消费 | 形态 |
 |---|---|---|
 | 逐规则候选视图（G2） | `projection.candidates[].domain`：`findings[]`（`ruleId / status / evidence / reason`）、`reconciliation`、`facts`、`playbookVersion`；`sources[]`、`evidence[]`、`matter.version / source_version` | 一行一规则，状态词按 packet 原值（灰字，仅 conflict / unknown 类可着色）；展开显示引文锚点（Unicode 码点偏移）与 reason；同一 `stateVersion` 下 inline 与展开一致 |
 | 正式决定（G2） | `POST /sessions/:id/actions` `decide {request_id, candidate_id, base_version, action, reason}`；只消费 `humanActions` 的 `action:"decide"` 描述及其 `payloadSchema.properties.action.enum`；未决 finding 存在时该 enum 不含 accept | 三个对象化按钮（Accept this version · Reject · Request evidence）+ reason；409 `VERSION_CONFLICT / STALE_INPUT / IDEMPOTENCY_CONFLICT / CANDIDATE_CLOSED` 后刷新 surface 并保留 reason 草稿；回执丢失时用原 `request_id` 重试 |
-| 人工修订 | `revise_candidate {candidate_id, new_candidate_id, base_version, proposal:{domain}}` | API已存在，但当前 packet 尚未声明 `action:"revise_candidate"`；第二段接线前由Astra补版本化动作声明与fixture，未声明时不提供按钮。新候选带 `supersedes` 与 `provenance`，旧候选保持可读 |
+| 人工修订 | `revise_candidate {candidate_id, new_candidate_id, base_version, proposal:{domain}}` | Astra已补 `schemaVersion:1, action:"revise_candidate"` 声明与fixture；按该动作的 payloadSchema 固定父candidate/current base，客户端只补新ID与proposal。未声明或未知版本时不提供按钮。新候选带 `supersedes` 与 `provenance`，旧候选保持可读 |
 | 决定回执可见（G2） | `GET /sessions/:id/work-query?kind=request&requestId=…`；`projection.decisions[]` | Chat Flow 该 Run 后一行只读回执（动作 · 候选 · stateVersion · 时间）；null 表示无已提交回执，不显示成功 |
 | 继续已有事项（G3） | `GET /projects/:id/work` → 列出 Matter identity 与 extensionId；`POST /sessions/:id/extension {extensionId, input:{existingMatterId}}`；`{detach:true}` 释放 | `#binding-panel` 分两段 Create new / Continue existing；跨 project 不可见；`binding_mismatch / binding_exists` 按权威回执处理 |
 | 只读历史（G3） | `GET /sessions/:id/surface` 在 producer 缺席、卸载或 contract 不支持时返回 `readOnly:true`、`humanActions:[]`、`extension:null` 或 unloaded | 同一组件无按钮；顶行显示 producer 状态与 `stateVersion`；`compatibility` 非 supported 时只显示可安全识别的 envelope |
 | 历史来源字节 | `GET /sessions/:id/work-query?kind=source&candidateId=…&sourceId=…&version=…` | 旧候选的引文按其冻结 revision 读取，不用当前 sources 回填 |
 
-Renderer：`inbound-nda` manifest `surface:null`，需新建 `app/extensions/inbound-nda/renderer.mjs`（与 evidence-memo renderer 同一 dispatch 契约：只收 projection 与 typed dispatch，无 fetch / storage）；静态 allowlist 路径向 Astra 提交请求，不自改 `app/server/index.mjs`。绑定表单沿 manifest `bindingFields`（title / sourceText / facts JSON）。
+Renderer：Astra已声明 manifest surface 与精确路径 `/extensions/inbound-nda/renderer.mjs`（缺文件返回404），Opus需新建 `app/extensions/inbound-nda/renderer.mjs`（与 evidence-memo renderer 同一 dispatch 契约：只收 projection 与 typed dispatch，无 fetch / storage）；该renderer路径已准入；其他新增依赖路径仍向Astra提交请求，不自改 `app/server/index.mjs`。绑定表单沿 manifest `bindingFields`（title / sourceText / facts JSON）。
 
 不做：通用 permission / question / outcome 信封不扩 accepted；不画 packet 未给的动作；不在前端计算 findings 是否完整；不执行旧 producer。
 ## 必须验证与交付

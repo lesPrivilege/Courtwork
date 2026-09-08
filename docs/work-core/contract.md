@@ -35,7 +35,11 @@ All HTTP routes below have `/api/v5` prefix and use existing local host authenti
 
 Legacy action queries `query_request` and `read_source_history` are retained for adapter consumers; frontend should use the GET routes, which work without producer activation.
 
-`humanActions` advertises decisions only for pending candidates whose base/contract/source still match current Matter. Clients never infer authority from Run completed, tool permission, or a visible button; server revalidates. Domain completion may further restrict accept. Refresh surface after mutation or a conflict; retry decisions with the original request ID and content after losing the acknowledgement.
+Each `humanActions` descriptor has `schemaVersion:1`, an `action` name, a display label, and `payloadSchema`. The Work envelope and domain contract versions remain unchanged; this is an additive action descriptor. Unknown action versions/names must remain non-executable to the consumer.
+
+`decide` is advertised only for pending candidates whose base/contract/source still match current Matter. Its allowed decisions are `payloadSchema.properties.action.enum`, not separate top-level action entries. `revise_candidate` is advertised for readable candidates of the supported current contract, including accepted/rejected or source-stale parents: `candidate_id.const` binds the parent, `base_version.const` binds the current Matter version, and the client supplies a fresh `new_candidate_id` plus `proposal`. The NDA adapter supplies exactly `{domain}` as the proposal schema; generic memo revisions use `{artifact_text,evidence,obligations}`. Proposal validity is still verified by the server against current sources/facts. A revision never revokes an earlier Decision or Artifact.
+
+The host returns `readOnly:true` and no actions while any host Run is active, just as it already refuses human actions during that Run. Producer absence/unload and unsupported contracts also expose no mutations. Clients never infer authority from Run completed, tool permission, or a visible button; server revalidates. Domain completion may further restrict accept. Refresh surface after mutation or a conflict; retry decisions with the original request ID and content after losing the acknowledgement.
 
 ## Errors and fixtures
 
@@ -50,3 +54,9 @@ Code baseline `133269184468f1adf3b38acfc59091818daeb8e8`. Generic pending propos
 The host requests globally serialized admission atomically in RuntimeStore; standalone Store callers retain per-Session admission semantics. Work Context freezes selected/omitted inputs and host runtime profile provenance in the Core Run. See [NDA seam](nda.md) and [frozen packets](../../app/tests/fixtures/work-core/nda-packets.json) for pending, accepted and producer-unloaded examples.
 
 A failed extension settlement keeps host status `unknown` with `extension_finish_failed`. The work adapter queries durable Core state: an existing terminal result is preserved; an active orphan is closed `unknown` before a new command proceeds. No finisher/tool effect is replayed. If reconciliation itself fails, a separate `extension_reconcile_failed` event records the need for recovery; host restart remains the recovery path when Core is unavailable. Partial tool events use `tool.update`, with only `tool.result` terminal.
+
+## WK10b second-segment backend seam
+
+Action/renderer preparation is recorded in [the delivery](../../evidence/work-review-actions-20260908/README.md). Updated [NDA packets](../../app/tests/fixtures/work-core/nda-packets.json) use fixtureVersion 2: original `pending`, `accepted`, `history` keys remain, with `revision` (the declared action request) and `revised` (the resulting packet) added. Historical fixture bytes remain at `1332691:app/tests/fixtures/work-core/nda-packets.json`.
+
+Inbound NDA declares `surface.module:'/extensions/inbound-nda/renderer.mjs'`. The server admits that exact optional path only. Missing renderer bytes return 404; the producer and its Core history can still exist. The frontend must show its missing-renderer read-only fallback. When the frontend-owned file is delivered, the same exact route serves it without a directory-wide allowlist or another backend path change. A declared module is not proof that renderer code has been delivered, nor does it grant any formal action.
