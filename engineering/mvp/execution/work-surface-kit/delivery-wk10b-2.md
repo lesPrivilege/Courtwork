@@ -264,6 +264,7 @@ renderer 没有 fetch / storage / URL / provider / Core。它只有 `dispatch(ac
 
 | SHA | 题 |
 |---|---|
-| 见分支 | `web: one reading of a Work packet, and the NDA renderer that acts on it` |
+| `e118992486cd0a0c0e417a37ec29163a5974e0b2` | `web: one reading of a Work packet, and the NDA renderer that acts on it` |
+| 本页所在提交 | `docs: record the second segment` |
 
 分支 `claude/wk10b-second`，未 push。基线 `62556b7`。服务器已停机，数据目录留在 `/private/tmp/se-agent-wk10b2-data`。
