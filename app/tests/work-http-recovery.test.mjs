@@ -42,6 +42,17 @@ test('Core SIGKILL before commit / after commit before ACK, followed by HTTP rec
       const after=(await resumed.api('GET',`/sessions/${session.id}/surface`)).json.projection;
       assert.equal(after.artifact.content,'Synthetic artifact');assert.equal(after.decisions.length,1);
       assert.deepEqual(after.matter.obligations,obligations);
+      const observed=spawnSync(process.env.WORK_AGENT_PYTHON ?? 'python3',[fileURLToPath(new URL('./fixtures/work-core/observe-recovery.py',import.meta.url)),path.join(h.dataDir,'extensions/evidence-memo/state.db'),p.matter.id],{encoding:'utf8',timeout:10000});
+      assert.equal(observed.status,0,observed.stderr);
+      const durable=JSON.parse(observed.stdout);
+      assert.equal(durable.artifact.content,'Synthetic artifact');
+      assert.equal(durable.work.active_artifact,durable.artifact.id);
+      assert.deepEqual(JSON.parse(durable.work.obligations_json),obligations);
+      for(const rows of [durable.decisions,durable.audits,durable.receipts]) {
+        assert.equal(rows.length,1);
+        assert.equal(rows[0].request_id,payload.request_id);
+        assert.equal(JSON.parse(rows[0].result_json).active_artifact,durable.artifact.id);
+      }
       const session2=(await resumed.api('POST','/sessions',{projectId:h.projectId,title:'Resumed'})).json.session;
       assert.equal((await resumed.api('POST',`/sessions/${session2.id}/extension`,{extensionId:'evidence-memo',input:{existingMatterId:p.matter.id}})).status,200);
       const revised=await resumed.api('POST',`/sessions/${session2.id}/actions`,{extensionId:'evidence-memo',generation:0,action:'revise_candidate',payload:{candidate_id:p.candidates[0].id,new_candidate_id:'continued',base_version:1,proposal:{artifact_text:'Continued after recovery',evidence:p.candidates[0].evidence,obligations}}});
@@ -50,7 +61,7 @@ test('Core SIGKILL before commit / after commit before ACK, followed by HTTP rec
       assert.equal(next.status,200);
       assert.equal(next.json.projection.artifact.content,'Continued after recovery');
       assert.equal(next.json.projection.decisions.length,2);
-      t.diagnostic(JSON.stringify({stage,signal:child.signal,receiptBeforeRetry:receipt,artifactBeforeRetry:before.artifact,afterRetry:after.artifact,obligations:after.matter.obligations,continued:next.json.projection.artifact}));
+      t.diagnostic(JSON.stringify({stage,signal:child.signal,receiptBeforeRetry:receipt,artifactBeforeRetry:before.artifact,afterRetry:after.artifact,durable,obligations:after.matter.obligations,continued:next.json.projection.artifact}));
     } finally {await resumed?.runtime.close();await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
   }
 });
