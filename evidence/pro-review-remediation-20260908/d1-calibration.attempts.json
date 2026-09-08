@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 2,
+  "protocol": "se-continuity-conformance-v1",
+  "startedAt": "2026-09-08T12:06:31.705Z",
+  "git": {
+    "head": "61df606889b060a5d91451ca2d476835b6bdbbe3",
+    "dirty": true
+  },
+  "hashes": {
+    "benchmarks/continuity/cases.json": "1d22241119aa0a8e3d1b5b38732ccefa9dd90a4235d11c7c2ac1f7736a32fa60",
+    "benchmarks/continuity/run.mjs": "c80d539d5178b282a688b96fd95bd0a3e748090a3eb3247c5ba514f1838e4170",
+    "benchmarks/continuity/courtwork.mjs": "7cd35ba64aeebeed474e90c70567aa3a6890671dc539cef92e66d9d2c67921bb",
+    "benchmarks/continuity/standard.mjs": "49e32378ebbb5d497c62e3d3cdc780289f69d2916d368457e6702b37989f6c00",
+    "benchmarks/continuity/standard.py": "07fae7602dcd37c302b46258b655f4bc51565b97ea9047179bccec980061568e",
+    "benchmarks/continuity/observe.mjs": "9d4f2f8ffff02207056195eb4864df0feda2d5d729e210d3de1406464451b947",
+    "benchmarks/continuity/grade.mjs": "583202ea3a5f3a143f1fd318954077f3c7d2f330ac4c7c792608f2760be5c352",
+    "app/core/client.mjs": "d654a5fbc126e655a8bfd2623ac2000930c0a4202b5fdb1908904cc59792f509",
+    "app/core/bridge.py": "8e41f7ad2c417b85f928ce3077cc34283c147d6344ad8cb3a3ec79ef555e0673",
+    "app/core/core.py": "d662206da674eb9cb0eca00d3e5878e260f71687266a40aafffa0867b89b41d7"
+  },
+  "environment": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "python": "Python 3.14.2"
+  },
+  "corpus": "continuity-conformance-dev-v1",
+  "split": "development",
+  "independentTaskFamilies": 1,
+  "model": null,
+  "limitations": [
+    "development fixtures; shared author",
+    "trusted scripted clients",
+    "S is a bounded conventional transaction baseline, not a general workflow product",
+    "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
+  ],
+  "results": [],
+  "attempts": [
+    {
+      "id": "E/normal",
+      "condition": "E",
+      "taskId": "normal",
+      "steps": [
+        "observe",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/stale-source",
+      "condition": "E",
+      "taskId": "stale-source",
+      "steps": [
+        "replace",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/receipt-replay",
+      "condition": "E",
+      "taskId": "receipt-replay",
+      "steps": [
+        "accept",
+        "accept",
+        "changed-request"
+      ]
+    },
+    {
+      "id": "E/restart",
+      "condition": "E",
+      "taskId": "restart",
+      "steps": [
+        "accept",
+        "restart",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/actor-spoof",
+      "condition": "E",
+      "taskId": "actor-spoof",
+      "steps": [
+        "spoof",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/cas-conflict",
+      "condition": "E",
+      "taskId": "cas-conflict",
+      "steps": [
+        "accept",
+        "stale-base"
+      ]
+    },
+    {
+      "id": "S/normal",
+      "condition": "S",
+      "taskId": "normal",
+      "steps": [
+        "observe",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/stale-source",
+      "condition": "S",
+      "taskId": "stale-source",
+      "steps": [
+        "replace",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/receipt-replay",
+      "condition": "S",
+      "taskId": "receipt-replay",
+      "steps": [
+        "accept",
+        "accept",
+        "changed-request"
+      ]
+    },
+    {
+      "id": "S/restart",
+      "condition": "S",
+      "taskId": "restart",
+      "steps": [
+        "accept",
+        "restart",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/actor-spoof",
+      "condition": "S",
+      "taskId": "actor-spoof",
+      "steps": [
+        "spoof",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/cas-conflict",
+      "condition": "S",
+      "taskId": "cas-conflict",
+      "steps": [
+        "accept",
+        "stale-base"
+      ]
+    }
+  ]
+}

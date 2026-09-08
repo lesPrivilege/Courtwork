@@ -1,0 +1,13 @@
+✔ E and ordinary S both satisfy the same semantic protocol with different IDs and revisions (2.820709ms)
+✔ Pro M1-M5 observation corruptions are rejected in both conditions (1.042875ms)
+✔ all committed checkpoints protect content, obligations, authority, source, receipts and unique effect (31.200667ms)
+✔ reject-all, wrong refusal, missing/extra/reordered checkpoints and run errors fail (0.689791ms)
+✔ raw observer maps actual facts and never reconstructs missing durable audit or content (0.304541ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1214.401209

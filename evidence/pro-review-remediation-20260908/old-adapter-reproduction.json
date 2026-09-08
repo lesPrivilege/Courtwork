@@ -1,0 +1,12 @@
+{
+  "scope": "actual WorkExtension/Core, synthetic direct driver; no HTTP/provider",
+  "url": {
+    "code": "INVALID_INPUT",
+    "message": "artifact_text cannot reference an external path"
+  },
+  "acceptedCharacters": 25000,
+  "continuation": {
+    "code": "CONTEXT_BUDGET",
+    "message": "Required work context exceeds budget"
+  }
+}

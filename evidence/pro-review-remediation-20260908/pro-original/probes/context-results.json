@@ -1,0 +1,49 @@
+{
+  "scope": "Isolated pure-function observations only; reachability through a complete Courtwork accept/resume lifecycle has not been executed.",
+  "environment": {
+    "node": "v22.16.0"
+  },
+  "results": [
+    {
+      "id": "P1",
+      "finding": "Current and source-stale pending candidates have identical compiled model context, although UI action eligibility differs.",
+      "currentActions": [
+        "decide",
+        "revise_candidate"
+      ],
+      "staleActions": [
+        "revise_candidate"
+      ],
+      "compiledContext": {
+        "text": "{\"schemaVersion\":1,\"domain\":null,\"matter\":{\"id\":\"m\",\"version\":0,\"source_version\":2,\"contract_version\":\"se-contract-v5.0\",\"active_artifact\":null,\"obligations\":[]},\"artifact\":null,\"sourceRefs\":[{\"id\":\"s\",\"version\":2,\"digest\":\"digest-v2\"}],\"pending\":[{\"id\":\"c\",\"baseVersion\":0}]}",
+        "provenance": {
+          "matterId": "m",
+          "stateVersion": 0,
+          "sourceVersion": 2,
+          "contractVersion": "se-contract-v5.0",
+          "selected": [
+            "effective artifact",
+            "obligations",
+            "pending candidates",
+            "source references"
+          ],
+          "omitted": [
+            "source bodies available through scoped read tool",
+            "closed candidates and execution trace"
+          ],
+          "characters": 276,
+          "limit": 24000
+        }
+      }
+    },
+    {
+      "id": "P2",
+      "finding": "A 25,000-character artifact cannot enter the default 24,000-character continuation context.",
+      "artifactCharacters": 25000,
+      "failure": {
+        "code": "CONTEXT_BUDGET",
+        "message": "Required work context exceeds budget"
+      }
+    }
+  ]
+}

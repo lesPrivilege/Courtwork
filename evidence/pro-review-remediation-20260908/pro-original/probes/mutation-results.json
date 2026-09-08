@@ -1,0 +1,730 @@
+{
+  "scope": "Independent grader mutation probes only; no Core execution, HTTP, SIGKILL, model calls, or legal judgement.",
+  "environment": {
+    "node": "v22.16.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "summary": {
+    "undesirableObservationsAccepted": 5,
+    "detectionControlsRejected": 2,
+    "probes": 7
+  },
+  "results": [
+    {
+      "id": "M1",
+      "caseId": "receipt-replay",
+      "observedGradePass": true,
+      "expectedProbeResult": true,
+      "interpretation": "Wrong final artifact is invisible to receipt-replay scoring.",
+      "observations": [
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": false,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "CORRUPTED AFTER REPLAY",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "M2",
+      "caseId": "receipt-replay",
+      "observedGradePass": true,
+      "expectedProbeResult": true,
+      "interpretation": "Dropped final open obligation is invisible to receipt-replay scoring.",
+      "observations": [
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": false,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "M3",
+      "caseId": "restart",
+      "observedGradePass": true,
+      "expectedProbeResult": true,
+      "interpretation": "State can be correct immediately after restart and damaged on the final replay without failure.",
+      "observations": [
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": null,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": "Delivery is 12 October; owner confirmation remains open.",
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [
+              "confirm-owner"
+            ],
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "M4",
+      "caseId": "normal",
+      "observedGradePass": true,
+      "expectedProbeResult": true,
+      "interpretation": "Normal completion can have no audit record and still pass.",
+      "observations": [
+        {
+          "accepted": null,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 0,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": "Delivery is 12 October; owner confirmation remains open.",
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [
+              "confirm-owner"
+            ],
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "M5",
+      "caseId": "actor-spoof",
+      "observedGradePass": true,
+      "expectedProbeResult": true,
+      "interpretation": "The legitimate action after spoof rejection need not create an artifact to pass this case.",
+      "observations": [
+        {
+          "accepted": false,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "C1",
+      "caseId": "normal",
+      "observedGradePass": false,
+      "expectedProbeResult": false,
+      "interpretation": "Positive detection control: a graded artifact field is correctly rejected.",
+      "observations": [
+        {
+          "accepted": null,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "WRONG",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": false,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": "WRONG",
+            "pass": false
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [
+              "confirm-owner"
+            ],
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "C2",
+      "caseId": "normal",
+      "observedGradePass": false,
+      "expectedProbeResult": false,
+      "interpretation": "A genuine reject-all/no-effect implementation fails normal.",
+      "observations": [
+        {
+          "accepted": null,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": false,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "grade": {
+        "pass": false,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 0,
+            "pass": false
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": null,
+            "pass": false
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 0,
+            "pass": false
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [],
+            "pass": false
+          }
+        ],
+        "error": null
+      }
+    }
+  ]
+}

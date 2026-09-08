@@ -6,12 +6,13 @@ historical scores remain frozen at d879e2f. No heldout claims.
 
 Each checkpoint provides schemaVersion=2, operation, opaque revision,
 workspaceId, current/historical source (ID, opaque version, content, digest),
-proposal (ID, owner, source baseline, content, full obligations), active artifact
+the full proposal set (ID, owner, base/source/contract baseline, status, content, full obligations), active artifact
 (ID, originating proposal, content, digest), full current obligations, decisions,
 audits and receipts. Decisions/audits expose request, work, proposal, artifact,
 action, reviewer and scope. Receipts expose the same effect binding. IDs differ
-between implementations and are compared to the independently seeded fixture
-identities; numeric revision increments are NOT scored. Revisions must stay
+between implementations and are compared to test-environment assignments in
+`fixture-identities.mjs`, frozen in the attempt manifest before execution. The
+grader ignores adapter-returned identity assignments; numeric revision increments are NOT scored. Revisions must stay
 unchanged on no-effect paths and change once on commit. One artifact's identity
 must remain stable across replay/restart, without requiring a particular format.
 
@@ -26,9 +27,15 @@ Rejected operations/restart preserve the previous state; accepted replays
 preserve the first complete effect. Source replacement preserves old bytes.
 
 `observe.mjs` maps existing records; it must never reconstruct missing records
-from the expected task. Trace entries retain raw state and receive SHA256 hashes
-in the report in the same order as observations. Mutation tests cover both the
-raw mapping and normalized observations. Oracle/data and implementations share
+from the expected task. Trace entries retain raw state and SHA256 hashes;
+observations carry rawRef. Grading checks hash, step and a complete raw-to-observation
+mapping at each index before semantic invariants. It also checks the complete
+expected proposal membership, status/basis, and receipt request-digest presence
+and stability. Mutation tests cover raw-only changes, recomputed hashes with
+stale observations, and consistently mapped corrupt raw facts. Hashes prove
+internal record consistency, not independent attestation that an untrusted
+adapter actually queried a database. Source review and nonauthor probes remain
+necessary. Oracle/data and implementations share
 an author: separate imports do not imply independent professional standards.
 
 S uses separate ordinary jobs, versioned sources/documents, submissions, tasks,

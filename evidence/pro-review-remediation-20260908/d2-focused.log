@@ -1,0 +1,15 @@
+✔ artifact read is paged by code point and bound to an open trusted Matter/Run (283.961875ms)
+✔ model and human projections preserve source/contract/base applicability without granting authority (4.72575ms)
+✔ HTTP accepted short/25k/100k text resumes in new Session with scoped artifact pages; URLs are content (3184.550583ms)
+✔ Core SIGKILL before commit / after commit before ACK, followed by HTTP receipt reconciliation and continuation (1672.325125ms)
+ℹ {"stage":"before_commit","signal":"SIGKILL","receiptBeforeRetry":null,"artifactBeforeRetry":null,"afterRetry":{"candidate_hash":"3bfc25979a66a10b3ba7e0056c1e94a91efc3710958ab44f971de99554534628","candidate_id":"candidate-583ba3df76b3dfb9faac7e7ee8a2b3d35b2eff44d391bd390d3e7143ddf0ecfc","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-583ba3df76b3dfb9faac7e7ee8a2b3d35b2eff44d391bd390d3e7143ddf0ecfc-1"},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"39e010d3c3f509b598bb9424b76f1f3fa913f1ede983b505dae5170e84783c38","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+ℹ {"stage":"after_commit_before_ack","signal":"SIGKILL","receiptBeforeRetry":{"action":"accept","active_artifact":"artifact-candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb-1","candidate_id":"candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb","matter_id":"matter-271919f3-e08b-46c5-acbb-36df98518e66","request_id":"crash-request","version":1},"artifactBeforeRetry":{"candidate_hash":"377cdb116f8ae018371edb67a28e77f55f5b06461bc6ef73a849793955bfeada","candidate_id":"candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb-1"},"afterRetry":{"candidate_hash":"377cdb116f8ae018371edb67a28e77f55f5b06461bc6ef73a849793955bfeada","candidate_id":"candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-9669a11dc492a1a618ddcfb9704b7524d2d9dc8d39a7e2085dcb4e18614ab6cb-1"},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"56998402b4a95c2b1a0990351e7dfeb4b3ea70f96047e36ef7296be4ddf25c0f","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+✔ HTTP stale source refusal, producer unload/read-only/reload and legal revised completion (788.152917ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4873.400834

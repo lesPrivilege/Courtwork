@@ -1,25 +1,26 @@
-# B1 下一能力施工边界
+# Pro 审查后的下一能力顺序
 
-本文件固定顺序与接口，不表示已有后台任务运行。当前状态见 [current](../../current.md)，总协议见 [README](README.md)。
+用户已裁决：保留薄Work Core；B0为开发符合性；先修评分/Context，提前正常S。
+当前产品状态由 [current](../../current.md) 维护；[Pro逐项处置与原始证据](../../../evidence/pro-review-remediation-20260908/README.md) 记录实际运行。本文件不表示后台任务已启动。
 
-## B1a NDA 与宿主正常续行
+## D1：观察契约与普通S校准
 
-从最新 main 重查 SHA/工作树，使用独立 worktree、临时 dataDir 和 port 0。只扩展 benchmark 目录；若生产契约缺陷需改 service/core，先按现有 writer 分工形成独立修复，不让 benchmark 偷渡新 authority。
+现有六条开发轨迹在E和普通SQLite审批S上均通过；[observation v2](../../../benchmarks/continuity/observation-contract.md) 定义全检查点语义、预分配角色、完整候选集、raw引用/哈希/重映射、唯一效果和义务保留。原五个Pro坏观察、raw/obs不一致及同步坏raw/obs都必须拒绝。
 
-消费 [NDA 契约](../../../docs/work-core/nda.md)、[共享契约](../../../docs/work-core/contract.md) 和 `app/tests/nda-runtime.test.mjs`、`app/tests/work-continuity.test.mjs` 的实际接口。测试 helper 可用于 loopback host，但新语料/期望不得导入生产 NDA verifier 或开发/holdout fixture 模块作为 oracle。
+剩余门槛是非作者复核最终代码和映射、完整证据归档。S不导入Courtwork，但仍由同一实现作者编写、只覆盖该有界机制协议；不称跨作者任务或通用工作流能力。不得把双方同过理解成SE优势。
 
-先按 lockfile 安装 app 依赖；B0 树只需要标准库，Luna 探索 host 时缺少 pi-ai，未能运行。评分增加跨实现语义拒绝类别（过期、幂等冲突、actor 字段拒绝），不能任意拒绝都得分。
+## D2：投影与真实续行
 
-最小交付：一条合法 NDA 候选→人工裁决→新 Session attach 的正向轨迹；一条替换来源→旧候选拒绝→有效新候选成功的轨迹；保存 HTTP 请求/结果、规范化状态与 raw projection。脚本生成候选不标记真实模型。工作成果接受不等于 NDA 签署/发送。补 HTTP actor 字段拒绝及合法动作控制，不用 Core payload 拒绝替代宿主检查。
+已实现Context v2：成果引用/digest/basis+受控分页正文，pending保留base/source/contract与basis；literal URL不再被当作执行路径。应用179/179回归及smoke已过，另有三个尺寸HTTP新Session续行、作用域负例、producer卸载只读/重载接受、两种Core事务SIGKILL后的HTTP对账/修订继续。
 
-再添加 producer unload/restart 只读历史，记录旧成果/来源可读、动作不可用；不把不可写当恢复失败，也不把读取历史当完成续行。可执行恢复另测兼容 producer 重新加载。
+SIGKILL的对象是宿主关闭后的独立Core事务进程，不是运行中的HTTP宿主。完整live host kill/网络回执丢失、独立数据库外部观察、producer版本升级与更大义务集合仍须按需要分项建立。不能将此局部结果外推到外部exactly-once或专业法律正确性。新生产改动需要非作者有界复核，benchmark不能夹带新权限。
 
-## B1b 强制中断与回执
+## D3：先定义实际处理差异，再做有界pilot
 
-复用真实进程 kill 方法，注入提交前与提交后未回执两个窗口。执行前冻结触发点、请求 ID 和预期状态；重开宿主→查询 receipt→同请求 retry，检查仅一个正式效应和未完义务。优先独立故障驱动，不在业务路径增加 benchmark 依赖。覆盖丢通知与真正 SIGKILL，二者分别报告。
+1. 冻结普通S与E的真实差异。若语义功能一致、仅名称或目录不同，不做伪因果对照；在共同身份/事务/CAS/幂等之上消融P（任务化治理投影）与G（领域语义准入/完成）。
+2. 独立作者建立不同基础事项，包含有效变化、无关变化、正确拒绝和必须完成控制。开发、调参与留出分组；当前memo及已读NDA fixtures均不能成为新留出。
+3. 分开固定续行起点和端到端状态形成两种设计；计入编纂、verifier、reviewer和维护成本。先冻结业务上有意义的收益/风险/成本界限，再以少量已授权真实模型估计方差与成本。小样本“不显著”不等于不劣。
 
-## B2 开始条件
+如果S/T不劣且总成本更低，收缩E。没有明确可观察收益的字段/组件按Paper删除测试裁撤或降为按需投影，不增题替其争取高分。
 
-B1 的正常与异常控制均可复现、grader 有独立复核；至少准备不同基础事项并冻结样本来源和分组；T/S/E 三种条件使用共同 observable schema 和相同信息/权限，S 具备正常持久化与审批能力。先用少量已获授权真实模型调用量测成本，再决定正式 pilot 规模。未配置/授权的付费运行记 not_run，不读个人凭据填空。
-
-独立复核不得由本实现作者自称完成。任何新增 rubric/样本修订都提升版本，已读/已调优样本不进入新的留出分母。
+法律外部数据需固定许可/版本并重新审阅变化后的rubric；C3真人接管后置，机器续行、历史可读、短时真人接管、长期技能保留分别需要不同证据。未配置/授权的付费运行记not_run；不读取个人凭据。

@@ -1,0 +1,27 @@
+{
+  "source_commit": "d879e2ff94d234120f902e15101c103943719e33",
+  "method": "Files reconstructed from GitHub connector text; each full file verified against its Git blob SHA-1. Not a repository checkout.",
+  "files": {
+    "grade.mjs": {
+      "git_blob_sha1": "f2f98794cc4cfa446da9cbb7780545af659486fb",
+      "sha256": "295b2ab3bc70188003987fa9b531abb5f0aa1f6a1b5fea312cf02bf022ea31cb",
+      "bytes": 766
+    },
+    "cases.json": {
+      "git_blob_sha1": "5d04a352ed34a6995f1fe9cbcc343b1c56b79de6",
+      "sha256": "b558a2137781e3665d1424d1d6f52f64c0e9250873b2594f7dedbccaa6def60d",
+      "bytes": 1546
+    },
+    "grade.test.mjs": {
+      "git_blob_sha1": "2373421526af9ff14a69540b0f65fa98412402d3",
+      "sha256": "5e904d449fa69d3b11d0cc31971ed9ce233fdf2e5ed46a7d380fb36827ac4dfe",
+      "bytes": 862
+    },
+    "owner-original.mjs": {
+      "source_path": "app/core/owner.mjs",
+      "git_blob_sha1": "581b1cd04568c90213393de66365ade4b12abe86",
+      "sha256": "b8df31cc70b555c9170c8d55d75e4085340fb6aef197f6b5aba8d2edb9ccf21f",
+      "bytes": 4345
+    }
+  }
+}
