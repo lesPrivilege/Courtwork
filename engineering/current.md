@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-08。唯一开发入口为 `Courtwork`，主线 `main`。本次后端接缝读取基线 `a2c2e4cdda08a4976be6eca96b61237555633809`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-08。唯一开发入口为 `Courtwork`，主线 `main`。本次WK10b第一段合流读取main基线 `7941bdbdd2ca2bfcaaa36e451ab8a15b1e72e866`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -11,7 +11,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | Claude Opus按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)实现；Astra核对证据 |
-| 通用工作面 / Workbench | WK10a+r2、收尾与联调已在main；WK10b/WK11未按本轮工单实施 | 清洁main建树，Opus串行：WK10b第一段 → 第二段 → WK13 → WK12 → WK11；[第三轮派单](mvp/execution/work-surface-kit/dispatch-round-3.md) |
+| 通用工作面 / Workbench | WK10b第一段已合流，FE-T05/T07复跑通过；第二段与WK11待实施 | 本次清洁main建树，Opus串行：WK10b第二段 → WK13 → WK12 → WK11；[第三轮派单](mvp/execution/work-surface-kit/dispatch-round-3.md) |
 | 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI待WK10b第二段，不据后端测试关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -21,7 +21,7 @@ Harness Core交付 `d6247a8` 已接收：代码 `1332691`，作者170/170与smok
 
 Fable文档交付 `claude/fable-settings` `99a9279` 已接收：WK-83按两分支合流后的清洁main开工，前端单一writer串行，WK10b第二段进入序2。Paper9.6、MIT与首屏文案既有裁定保留；Core历史9.3证据不重标为9.6验证。该清洁节点遗留的修订动作声明与renderer准入由下述Astra接缝单补齐；实际renderer由Opus第二段实现，其他新增静态路径仍由Astra串行处理。
 
-WK10b第一段已由Opus从清洁节点 `a2c2e4c` 开工：`claude/wk10b-first`，独立端口8873与数据目录，前端单一writer；交付待固定SHA与Fable复核。Astra后端前置交付 `codex/work-review-actions`，从同一main基线建独立树；版本化 `revise_candidate` 动作声明、NDA proposal schema与精确renderer准入已实现，代码 `3d97beb`，作者174/174与smoke通过，非作者接缝独验6/6；证据见 [本单回执](../evidence/work-review-actions-20260908/README.md)。实际renderer仍待第二段，G2/G3前端不据此关闭。
+WK10b第一段已接收：Opus代码 `84803ad`、作者回执 `f1ef5ae`、Fable复核 `d408961`，与main `7941bdb` 无冲突合流。Astra复跑浏览器22/22（含FE-T05/T07）、覆盖态5/5、全量174/174与smoke；合流时修正NDA renderer路径已声明但文件尚缺席的槽位失败状态，详见 [合流证据](../evidence/wk10b-main-integration-20260908/README.md)。第二段从本次清洁main建树。Astra后端前置交付 `codex/work-review-actions`，从同一main基线建独立树；版本化 `revise_candidate` 动作声明、NDA proposal schema与精确renderer准入已实现，代码 `3d97beb`，作者174/174与smoke通过，非作者接缝独验6/6；证据见 [本单回执](../evidence/work-review-actions-20260908/README.md)。实际renderer仍待第二段，G2/G3前端不据此关闭。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
@@ -42,7 +42,7 @@ WK10b第一段已由Opus从清洁节点 `a2c2e4c` 开工：`claude/wk10b-first`�
 ## 仍未闭合
 
 - G1真实provider仍not_run；可信执行身份贯通已由loopback验证。G2/G3后端闭环已成立，Review/新Session GUI、键盘主路径与真实运行纵切尚待；不以工具allow代替成果accept。
-- H1历史来源归属与H3 producer缺席后端读取已实现。领域renderer及版本化修订动作声明待第二段；H4完整卸载/重装/升级矩阵仍按实际需要验证。
+- H1历史来源归属与H3 producer缺席后端读取已实现。领域renderer待第二段；版本化修订动作声明已由Astra接缝单交付；H4完整卸载/重装/升级矩阵仍按实际需要验证。
 - BE-1/3 activity与UTC日过滤；BE-2多文档实例；BE-12模型effort；Runtime R2获取、R3兼容、R4 Proposal、R5事务apply/rollback、R6 Expert版本。分别消费既有契约，不为导航或演示造能力。
 - VoiceOver/NVDA、IME/触控、桌面壳、200%缩放的完整产品验证及数据回退演练；旧135/1无栈flaky未复现，不称已修复。
 - README/Pages真实媒体与发布；新DMG/签名公证/外部用户试点未完成。Paper已采用 [9.6固定SHA](../PAPER.md) `d78fd312955c1f594e59cbdcbb0d3074ac355940`（DEC-012）；版本采用不关闭产品验证门。

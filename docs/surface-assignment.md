@@ -15,6 +15,8 @@ Runtime setup 的 Bind to session 只打开对话框背后的表单，用户看�
 1. Bind入口：关闭Runtime setup并显示实际绑定表单，焦点进入第一项可输入字段（没有字段则Create binding）；通用字段仍由manifest决定。关闭事件不能随后把焦点抢回Runtime setup。取消绑定返回可见通用入口。正常关闭开发对话框仍返回原入口。
 2. Preview增加Expand work surface / Return to chat明确可逆控件。仅改变布局；保持同一renderer实例和opaque DOM、当前投影与未发送普通草稿。不得借扩展重挂或reload实现布局切换。
 3. 展开后**主列**退出可见和键盘/可访问性树的交互范围，返回恢复；不得隐藏后仍让Tab进入不可见控制。**侧栏不退出**（WK-74 (1)：本条原文的"侧栏退出交互树"只在 < 1024 的覆盖态成立）。关闭展开工作面应回到聊天，Open work surface 可重开同一实例的悬浮卡态。
+   合流复验（2026-09-08）：1440 / 1024 / 1023 / 800 / 390 五档通过；展开时主列均 `inert` 与 `aria-hidden`，侧栏仅在 < 1024 覆盖态退出，关闭后聊天恢复。见 [合流证据](../evidence/wk10b-main-integration-20260908/README.md)；此处为浏览器DOM与焦点验证，非真实读屏验收。
+
 4. Escape在无打开dialog且未被renderer阻止时先退出展开布局，不改变正式状态；控件名称及aria状态表达真实动作。原Runtime setup的Escape/焦点行为保留。
 5. 布局模式为本页、当前会话的视图状态；切换会话回到收敛的悬浮卡态。不承诺持久恢复/跨会话保留/浏览器真实导航、多对象tab或Preview/Code协议。关闭重开同身份opaque字段仍沿用V6保留契约。
 

@@ -1,0 +1,383 @@
+[
+  {
+    "name": "anatomy · every flow row is one glyph 16, one title, at most one metadata word",
+    "pass": true,
+    "actual": {
+      "count": 13,
+      "sample": [
+        {
+          "title": "1 tool action",
+          "meta": "Completed",
+          "glyphs": 1,
+          "titles": 1,
+          "metas": 1,
+          "buttons": 0,
+          "glyphSize": "16"
+        },
+        {
+          "title": "ask_user",
+          "meta": null,
+          "glyphs": 1,
+          "titles": 1,
+          "metas": 0,
+          "buttons": 0,
+          "glyphSize": "16"
+        },
+        {
+          "title": "What should the fake run use as its answer?",
+          "meta": "Answered",
+          "glyphs": 1,
+          "titles": 1,
+          "metas": 1,
+          "buttons": 0,
+          "glyphSize": "16"
+        },
+        {
+          "title": "2 tool actions",
+          "meta": "Completed",
+          "glyphs": 1,
+          "titles": 1,
+          "metas": 1,
+          "buttons": 0,
+          "glyphSize": "16"
+        }
+      ]
+    }
+  },
+  {
+    "name": "anatomy · no nested row, and the lower-case dotted suffixes are gone",
+    "pass": true,
+    "actual": {
+      "nested": 0,
+      "oldStrings": []
+    }
+  },
+  {
+    "name": "anatomy · state words are words, not glued suffixes",
+    "pass": true,
+    "actual": [
+      "Completed",
+      "Answered",
+      "Completed",
+      "Write allowed",
+      "Recorded version",
+      "1 failed",
+      "Failed",
+      "Write denied",
+      "1 failed",
+      "Failed"
+    ]
+  },
+  {
+    "name": "anatomy · on a failed row only the state word takes the danger colour",
+    "pass": true,
+    "actual": [
+      {
+        "title": "rgb(96, 100, 108)",
+        "meta": "rgb(155, 60, 53)",
+        "danger": "#9b3c35"
+      },
+      {
+        "title": "rgb(96, 100, 108)",
+        "meta": "rgb(155, 60, 53)",
+        "danger": "#9b3c35"
+      }
+    ]
+  },
+  {
+    "name": "slot · a loaded producer that contributes a renderer module mounts it",
+    "pass": true,
+    "actual": {
+      "slot": {
+        "mount": true,
+        "reason": null,
+        "declaredBy": [
+          "profile",
+          "binding"
+        ],
+        "status": "loaded",
+        "module": "/extensions/evidence-memo/renderer.mjs",
+        "title": "Evidence Memo"
+      },
+      "dom": {
+        "host": 1,
+        "fallback": 0
+      }
+    }
+  },
+  {
+    "name": "slot · a loaded producer with no renderer module is a read-only row, never a button",
+    "pass": false,
+    "actual": {
+      "slot": {
+        "mount": true,
+        "reason": null,
+        "declaredBy": [
+          "profile",
+          "binding"
+        ],
+        "status": "loaded",
+        "module": "/extensions/inbound-nda/renderer.mjs",
+        "title": "Inbound NDA Review"
+      },
+      "dom": {
+        "host": 0,
+        "line": [
+          "generation 0 · state 65ed2e272c64",
+          "No action is declared on this reading.",
+          "Read-only. An action needs the extension's own renderer."
+        ],
+        "stateRow": "Inbound NDA Playbook Review\nloaded",
+        "buttons": 0
+      }
+    }
+  },
+  {
+    "name": "slot · the read-only row states the producer, its state word and the state version",
+    "pass": true,
+    "actual": {
+      "host": 0,
+      "line": [
+        "generation 0 · state 65ed2e272c64",
+        "No action is declared on this reading.",
+        "Read-only. An action needs the extension's own renderer."
+      ],
+      "stateRow": "Inbound NDA Playbook Review\nloaded",
+      "buttons": 0
+    }
+  },
+  {
+    "name": "slot · an unloaded producer is read-only: no renderer, no button, a state word and a version",
+    "pass": true,
+    "actual": {
+      "slot": {
+        "mount": false,
+        "reason": "producer-unloaded",
+        "declaredBy": [
+          "profile",
+          "binding"
+        ],
+        "status": "unloaded",
+        "module": "/extensions/evidence-memo/renderer.mjs",
+        "title": "Evidence Memo"
+      },
+      "dom": {
+        "host": 0,
+        "buttons": 0,
+        "stateRow": "Evidence Memo (development)\nunloaded",
+        "notes": [
+          "generation 1 · state 51bd9c349f09 · read only",
+          "No action is declared on this reading.",
+          "Read-only. An action needs the extension's own renderer."
+        ],
+        "readOnly": true,
+        "actions": 0
+      }
+    }
+  },
+  {
+    "name": "slot · every field on the read-only card is a field the server returned",
+    "pass": true,
+    "actual": {
+      "keys": [
+        "schemaVersion",
+        "contractVersion",
+        "domain",
+        "matter",
+        "title",
+        "sources",
+        "candidates",
+        "artifact",
+        "draft",
+        "decisions",
+        "runs",
+        "evidence",
+        "stateVersion",
+        "readOnly",
+        "compatibility"
+      ],
+      "unknown": []
+    }
+  },
+  {
+    "name": "FE-T05 · an unknown slot id is refused, and the refusal says a profile cannot register renderer code",
+    "pass": true,
+    "actual": {
+      "status": 400,
+      "json": {
+        "error": {
+          "code": "invalid_runtime_config",
+          "message": "Unsupported UI slot; a profile cannot register renderer code"
+        }
+      }
+    }
+  },
+  {
+    "name": "FE-T05 · a profile carrying a module URL and a script field is refused as unsupported fields",
+    "pass": true,
+    "actual": {
+      "status": 400,
+      "json": {
+        "error": {
+          "code": "invalid_runtime_config",
+          "message": "Unsupported runtime fields"
+        }
+      }
+    }
+  },
+  {
+    "name": "FE-T05 · a saved profile with a missing dependency declares its slot but is incompatible, and the missing id is named",
+    "pass": true,
+    "actual": {
+      "declaration": {
+        "known": true,
+        "sessionId": "9a3f222a-05f8-4285-af58-a7d8a7bb7b60",
+        "revision": 9,
+        "profileId": "local:t05-gap",
+        "status": "incompatible",
+        "missing": [
+          "local:absent"
+        ],
+        "slots": [
+          "work.surface"
+        ]
+      },
+      "runtimeText": "Selected profile local:t05-gap · incompatible · missing local:absent. Adapter pi-coding-agent@0.85.1/agent-session."
+    }
+  },
+  {
+    "name": "FE-T05 · none of the three imported anything or fetched a module",
+    "pass": true,
+    "actual": {
+      "beforeModules": 4,
+      "afterModules": 4,
+      "offOrigin": []
+    }
+  },
+  {
+    "name": "FE-T05 · no request left this origin",
+    "pass": true,
+    "actual": []
+  },
+  {
+    "name": "FE-T07 · a late response from the surface left behind does not overwrite the one on screen",
+    "pass": true,
+    "actual": {
+      "sessionId": "a2cf0ad5-a138-493c-8ddb-861ecf9deaa9",
+      "extensionId": "inbound-nda",
+      "mounted": false,
+      "hosts": 0,
+      "text": "Renderer unavailable: Failed to fetch dynamically imported module: http://127.0.0.1:8891/extensions/inbound-nda/renderer.mjs\nInbound NDA Playbook Review\nloaded\n"
+    }
+  },
+  {
+    "name": "FE-T07 · expanding and collapsing a card runs no command and keeps the composer draft",
+    "pass": true,
+    "actual": {
+      "draft": "wk10b draft that must survive",
+      "cached": "wk10b draft that must survive",
+      "calls": [],
+      "restoredOpen": true,
+      "questionStillLive": false
+    }
+  },
+  {
+    "name": "lifecycle · three collapse / expand toggles re-read nothing",
+    "pass": true,
+    "actual": {
+      "surface": 0,
+      "workspace": 0,
+      "runtime": 0
+    }
+  },
+  {
+    "name": "lifecycle · closing and reopening reads each source at most once — never twice",
+    "pass": true,
+    "actual": {
+      "surface": 0,
+      "workspace": 1,
+      "runtime": 1
+    }
+  },
+  {
+    "name": "escape · sheet, then cards, then closed, and focus returns to the control that opened it",
+    "pass": true,
+    "actual": {
+      "steps": [
+        {
+          "expanded": true,
+          "rail": false,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": true,
+          "open": true
+        },
+        {
+          "expanded": false,
+          "rail": false,
+          "open": false
+        }
+      ],
+      "focus": "show-surface-button"
+    }
+  },
+  {
+    "name": "keyboard · every visible control in the flow and the surface has a full accessible name and is reachable",
+    "pass": true,
+    "actual": [
+      {
+        "tag": "BUTTON",
+        "name": "Copy message",
+        "focusable": true
+      },
+      {
+        "tag": "BUTTON",
+        "name": "Edit as new message",
+        "focusable": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "1 tool action\nCompleted",
+        "focusable": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "ask_user",
+        "focusable": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "What should the fake run use as its answer?\nAnswered",
+        "focusable": true
+      },
+      {
+        "tag": "BUTTON",
+        "name": "Copy response",
+        "focusable": true
+      }
+    ]
+  },
+  {
+    "name": "geometry · every flow row clears the local 32 / 44 step and nothing overflows sideways",
+    "pass": true,
+    "actual": {
+      "390": {
+        "rows": 13,
+        "underMinimum": 0,
+        "overflow": 0
+      },
+      "1440": {
+        "rows": 13,
+        "underMinimum": 0,
+        "overflow": 0
+      }
+    }
+  },
+  {
+    "name": "no page exception was thrown",
+    "pass": true,
+    "actual": []
+  }
+]

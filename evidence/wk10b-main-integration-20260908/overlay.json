@@ -1,0 +1,62 @@
+[
+  {
+    "width": 1440,
+    "expanded": {
+      "chatInert": true,
+      "chatHidden": "true",
+      "navInert": false,
+      "modal": null,
+      "focusInChat": false
+    },
+    "restored": true,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "expanded": {
+      "chatInert": true,
+      "chatHidden": "true",
+      "navInert": false,
+      "modal": null,
+      "focusInChat": false
+    },
+    "restored": true,
+    "pass": true
+  },
+  {
+    "width": 1023,
+    "expanded": {
+      "chatInert": true,
+      "chatHidden": "true",
+      "navInert": true,
+      "modal": "true",
+      "focusInChat": false
+    },
+    "restored": true,
+    "pass": true
+  },
+  {
+    "width": 800,
+    "expanded": {
+      "chatInert": true,
+      "chatHidden": "true",
+      "navInert": true,
+      "modal": "true",
+      "focusInChat": false
+    },
+    "restored": true,
+    "pass": true
+  },
+  {
+    "width": 390,
+    "expanded": {
+      "chatInert": true,
+      "chatHidden": "true",
+      "navInert": true,
+      "modal": "true",
+      "focusInChat": false
+    },
+    "restored": true,
+    "pass": true
+  }
+]
