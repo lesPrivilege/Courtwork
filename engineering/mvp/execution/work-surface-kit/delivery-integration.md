@@ -13,6 +13,10 @@
 
 ## 追加
 
+第二节点（2026-09-09 深夜）：合入 `claude/wk10-rail`（WK10a：模块登记表与宿主、对齐带、composer 层、图标尺寸档、文案扫描、消融表）与 `claude/wk10-r2`（WK-69 高度层与 `--float`、`--canvas` 退役、背景 lint；WK-72 悬浮工作面与 glyph 竖条；WK-73 composer 框内 / 框外）。整合头 `e170b99`：136 / 136（一次 135 / 1 偶发，复跑通过）、lint 两项、对比 76 / 76、WK6 7 / 7、断言 30 / 30。交付细节见 `delivery-wk10a.md`、`delivery-wk10a-r2.md`、`text-sweep.md`、`ablation-wk10a.md`。
+
+## 追加（第一节点）
+
 `28c1032` 开关 44 px 命中；`06e0d93` composer 稳定部分 + `#composer-below`（WK-55）。
 
 ## 验证（fixture 列，整合头 `e1bd5d9`；追加提交后 136 / 136、lint ok 复跑）
