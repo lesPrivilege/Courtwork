@@ -33,7 +33,11 @@ for (const mode of ['before-write','after-write-ack-loss','cancel-and-finish-fai
       assert.equal(replay.json.run.id,run.id);assert.equal(finishCalls,1);
       const p=(await h.api('GET',`/sessions/${session.id}/surface`)).json.projection;
       assert.equal(p.artifact,null);
-      if(mode==='after-write-ack-loss')assert.equal(p.runs[0].status,'completed');
+      assert.equal(p.runs[0].status,mode==='after-write-ack-loss'?'completed':'unknown');
+      h.runtime.registry.begin=original;
+      const next=await h.api('POST',`/sessions/${session.id}/runs`,{commandId:'after-reconciliation',input:'Continue the current work.'});
+      assert.equal(next.status,200);
+      assert.equal((await h.pollRun(next.json.run.id)).status,'completed');
     } finally {await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
   });
 }

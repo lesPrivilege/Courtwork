@@ -1034,6 +1034,8 @@ export class RuntimeService {
           extensionOutcome = "unknown";
           lastError = { code: "extension_finish_failed", message: "extension finish failed" };
           await this.#appendError(run.id, lastError.code, lastError.message);
+          try { await entry.extensionRun.reconcile?.(); }
+          catch { await this.#appendError(run.id, "extension_reconcile_failed", "Work settlement requires recovery before continuing"); }
         }
       }
       const current = this.store.getRun(run.id);
@@ -1128,6 +1130,9 @@ export class RuntimeService {
     const onAbort = () => reject(new Error(kind + " aborted"));
     signal?.addEventListener("abort", onAbort, { once: true });
     this.questionWaiters.set(question.id, { resolve, reject, runId, kind });
+    // openQuestion awaits durable storage. An abort may already have fired
+    // before listener registration; recheck in the same synchronous block.
+    if (signal?.aborted || entry.cancelRequested || !this.store.getRun(runId)?.admissionOpen) onAbort();
     try {
       return await decisionPromise;
     } finally {

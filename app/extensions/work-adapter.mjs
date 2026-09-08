@@ -333,6 +333,7 @@ export class WorkExtension {
       ],
       close,
       finish,
+      reconcile: () => this.#reconcileRun(state),
     };
   }
 
@@ -398,6 +399,22 @@ export class WorkExtension {
       state.closePromise = null;
       throw error;
     }
+  }
+
+  async #reconcileRun(state) {
+    // A finish acknowledgement may be lost. Inspect durable state, never
+    // replay the finisher or overwrite a terminal outcome already committed.
+    let run = await this.core.getRun(state.runId);
+    if (!['completed', 'failed', 'cancelled', 'unknown'].includes(run.status)) {
+      run = await this.core.updateRun({ runId: state.runId, status: 'unknown',
+        admissionOpen: false, error: { code: 'extension_finish_failed' } });
+    }
+    state.admissionOpen = false;
+    state.closed = true;
+    state.finished = true;
+    state.finishResult = { status: 'unknown', candidateRefs: [...state.candidateRefs], run };
+    this.activeRuns.delete(state.runId);
+    return clone(state.finishResult);
   }
 
   async #finishRun(state, result) {
