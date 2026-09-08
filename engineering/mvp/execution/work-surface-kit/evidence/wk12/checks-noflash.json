@@ -1,0 +1,39 @@
+{
+  "ranAt": "2026-09-08T17:00:39.381Z",
+  "origin": "http://127.0.0.1:8881",
+  "results": [
+    {
+      "name": "N1 · 没有存过偏好时，body 进场时根元素上什么外观属性都没有（默认宗、默认 skin）",
+      "pass": true,
+      "actual": {
+        "readyState": "loading",
+        "bootRan": "object",
+        "theme": null,
+        "size": null,
+        "skin": null,
+        "mono": "ui-monospace",
+        "bg": "#fdfdfe"
+      }
+    },
+    {
+      "name": "N2 · 存过偏好时，body 进场时宗、skin、字号、代码字体已经全部在场：没有先默认后跳变",
+      "pass": true,
+      "actual": {
+        "readyState": "loading",
+        "bootRan": "object",
+        "theme": "dark",
+        "size": "large",
+        "skin": "gray-steel",
+        "mono": "Courier New,",
+        "bg": "#222222"
+      }
+    },
+    {
+      "name": "N3 · Reduced motion 的强制档同样在首帧之前落地",
+      "pass": true,
+      "actual": "reduce"
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

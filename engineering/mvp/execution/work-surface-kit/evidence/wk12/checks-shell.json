@@ -1,0 +1,120 @@
+{
+  "ranAt": "2026-09-08T17:00:14.875Z",
+  "origin": "http://127.0.0.1:8881",
+  "results": [
+    {
+      "name": "S1 · Settings 是主区的一页，不是模态：无 dialog、无遮罩，侧栏留在原处可操作",
+      "pass": true,
+      "actual": {
+        "page": true,
+        "body": true,
+        "hash": "#settings/general",
+        "title": "Settings",
+        "sidebarUsable": true,
+        "dialogs": 0,
+        "scrim": false
+      }
+    },
+    {
+      "name": "S2 · 打开即写入可深链的 hash",
+      "pass": true,
+      "actual": "#settings/general"
+    },
+    {
+      "name": "S3 · Escape 回到进入前的画面，焦点回到打开它的控件",
+      "pass": true,
+      "actual": {
+        "page": true,
+        "body": true,
+        "hash": "",
+        "focus": "runtime-setup-button"
+      }
+    },
+    {
+      "name": "S4 · 深链直接落在那一组",
+      "pass": true,
+      "actual": {
+        "hidden": false,
+        "current": "Appearance",
+        "panel": true
+      }
+    },
+    {
+      "name": "S5 · Back 与 Escape 是同一条路",
+      "pass": true,
+      "actual": "true:"
+    },
+    {
+      "name": "K1 · 导航列 ↑/↓ 只移动焦点，右列不跟着换；只有当前项在 Tab 序里",
+      "pass": true,
+      "actual": {
+        "focus": "Keyboard",
+        "stillCurrent": "General",
+        "keyboardHidden": true,
+        "tabindex": "0,-1,-1,-1,-1"
+      }
+    },
+    {
+      "name": "K2 · Enter 进节，焦点交给右列，hash 跟上；快捷键只读表六行 + 一行 Planned",
+      "pass": true,
+      "actual": {
+        "current": "Keyboard",
+        "focus": "settings-keyboard",
+        "hash": "#settings/keyboard",
+        "rows": 6,
+        "planned": 1
+      }
+    },
+    {
+      "name": "K3 · 搜索框不抢占 IME：组合中不触发命令、不换焦点、不改过滤；组合结束才过滤",
+      "pass": true,
+      "actual": {
+        "during": {
+          "focus": "settings-search",
+          "panels": [
+            "settings-keyboard"
+          ],
+          "dialogs": 0
+        },
+        "afterCompose": []
+      }
+    },
+    {
+      "name": "K4 · 列表键属于被盖住的那条列表，这一页在场时静默",
+      "pass": true,
+      "actual": "settings-tab-general"
+    },
+    {
+      "name": "Q1 · 搜索只过滤本页的行：命中的组留下，其余组整组退场",
+      "pass": true,
+      "actual": {
+        "rows": [
+          "Code font"
+        ],
+        "panels": [
+          "settings-appearance"
+        ]
+      }
+    },
+    {
+      "name": "Q2 · 说明句也参与匹配，不只是标题",
+      "pass": true,
+      "actual": [
+        "Scheme",
+        "Code font",
+        "API key"
+      ]
+    },
+    {
+      "name": "Q3 · 无命中时说出来，而不是留一页空白",
+      "pass": true,
+      "actual": {
+        "empty": true,
+        "text": "No setting matches “zzzz”.",
+        "panels": 0
+      }
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

@@ -6,6 +6,68 @@
     <meta name="description" content="A local work agent workspace" />
     <title>CourtWork</title>
     <link rel="stylesheet" href="/web/styles.css" />
+    <!-- WK-78 (5) · 本设备的外观偏好在第一帧之前应用，否则换宗、换 skin、换字号的人
+         每次开页都先看见默认值再跳一下。模块脚本一律 defer，来不及；所以读取与应用这一小段
+         同步内联在这里，并把两个函数挂到 window，供 settings-view.mjs 在改动时复用 ——
+         应用逻辑只有这一份。偏好的 schema、可选值与用户 token 集的校验都在 settings-view.mjs；
+         本段只照抄已存下的结果（未知的档位值落不到任何属性选择器上），并在拼进样式表前对两个
+         自由文本值再过一道同形状的窄闸，因为 localStorage 是可以被手改的。
+         键名带 origin 派生的 hash，一台机器上的两个工作区互不覆盖。 -->
+    <script>
+      (function () {
+        function hash(text) {
+          var h = 2166136261;
+          for (var i = 0; i < text.length; i++) {
+            h ^= text.charCodeAt(i);
+            h = (h * 16777619) >>> 0;
+          }
+          return h.toString(36);
+        }
+        var key = "cw:prefs:" + hash(location.origin);
+        function apply(prefs) {
+          var root = document.documentElement;
+          var p = prefs || {};
+          if (p.scheme === "light" || p.scheme === "dark")
+            root.setAttribute("data-theme", p.scheme);
+          else root.removeAttribute("data-theme");
+          if (p.skin === "gray-steel") root.setAttribute("data-skin", p.skin);
+          else if (p.skin === "custom") root.setAttribute("data-skin", "custom");
+          else root.removeAttribute("data-skin");
+          if (p.textSize === "small" || p.textSize === "large")
+            root.setAttribute("data-text-size", p.textSize);
+          else root.removeAttribute("data-text-size");
+          if (p.motion === "reduce") root.setAttribute("data-motion", "reduce");
+          else root.removeAttribute("data-motion");
+          var style = document.getElementById("user-appearance");
+          if (!style) {
+            style = document.createElement("style");
+            style.id = "user-appearance";
+            document.head.appendChild(style);
+          }
+          var rules = [];
+          /* 存进来的两个值本来就是 settings-view 校验过的，但 localStorage 是可以被手改的，
+             所以落地前再过一道同样形状的窄闸：字体名只有字母数字与引号逗号，token 集只有
+             既有 token 名与 hex / 数字。不符合的当作没有设置，绝不原样拼进样式表。 */
+          if (p.codeFont && /^[A-Za-z0-9 ,'"_-]{1,120}$/.test(p.codeFont))
+            rules.push(":root{--font-mono:" + p.codeFont + ",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}");
+          if (p.skin === "custom" && p.customSkin && /^[a-z0-9#,.:;\s-]{1,4000}$/i.test(p.customSkin))
+            rules.push(
+              ':root[data-skin="custom"],:root[data-skin="custom"][data-theme="dark"],:root[data-skin="custom"]:not([data-theme="light"]){' +
+                p.customSkin +
+                "}",
+            );
+          style.textContent = rules.join("\n");
+        }
+        var stored = null;
+        try {
+          stored = JSON.parse(localStorage.getItem(key) || "null");
+        } catch (error) {
+          stored = null;
+        }
+        window.__cwPrefs = { key: key, value: stored && typeof stored === "object" ? stored : {}, apply: apply };
+        apply(window.__cwPrefs.value);
+      })();
+    </script>
   </head>
   <body>
     <div id="app-shell" class="app-shell">
@@ -284,6 +346,186 @@
           </div>
         </footer>
         </div>
+        <!-- WK-78 / FN-26 · Settings 是页面，不是模态：它替换主区的内容，侧栏留在原处
+             并保持可操作，所以「改设置」不是一件必须先结束才能回去做别的事的阻断步骤。
+             左列是分组导航加一个只过滤本页行的搜索框，右列是当前组的分节。
+             五个组各是一个 tabpanel：同一容器内切换，用 tab 原语；深链由 hash 承担。 -->
+        <div
+          id="settings-page"
+          class="settings-page"
+          aria-labelledby="settings-page-title"
+          hidden
+        >
+          <header class="settings-page-head">
+            <button id="settings-back-button" class="quiet-button" type="button">
+              Back
+            </button>
+            <h2 id="settings-page-title">Settings</h2>
+          </header>
+          <div class="settings-page-body">
+            <div class="settings-nav-column">
+              <label class="sr-only" for="settings-search">Search settings</label>
+              <input
+                id="settings-search"
+                class="settings-search"
+                type="search"
+                placeholder="Search settings…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <div
+                id="settings-nav"
+                class="settings-nav"
+                role="tablist"
+                aria-orientation="vertical"
+                aria-label="Settings groups"
+              ></div>
+              <label class="sr-only" for="settings-nav-select">Settings group</label>
+              <select id="settings-nav-select" class="settings-nav-select"></select>
+            </div>
+            <div id="settings-sections" class="settings-sections">
+              <p
+                id="settings-search-empty"
+                class="settings-search-empty"
+                role="status"
+                hidden
+              ></p>
+              <section
+                id="settings-general"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-general-title"
+              >
+                <h3 id="settings-general-title" class="settings-section-title">
+                  General
+                </h3>
+                <div class="settings-block">
+                  <h4 class="settings-block-title">Connection</h4>
+                  <div id="provider-panel" class="provider-panel"></div>
+                </div>
+                <div id="settings-new-sessions" class="settings-block"></div>
+                <section id="session-settings" class="settings-block" hidden></section>
+                <div id="settings-data" class="settings-block"></div>
+              </section>
+              <section
+                id="settings-appearance"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-appearance-title"
+                hidden
+              >
+                <h3 id="settings-appearance-title" class="settings-section-title">
+                  Appearance
+                </h3>
+                <div id="settings-appearance-rows" class="settings-block"></div>
+              </section>
+              <section
+                id="settings-keyboard"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-keyboard-title"
+                hidden
+              >
+                <h3 id="settings-keyboard-title" class="settings-section-title">
+                  Keyboard
+                </h3>
+                <div id="settings-keyboard-rows" class="settings-block"></div>
+              </section>
+              <!-- WK-82 / frontend-layering-spec §3.1 · Runtime 组按意图分组。本单只把
+                   已有的 runtime 入口与上下文摘要搬进 Overview；其余四节是 WO-WK11 的挂载点，
+                   现在各写一句它收纳什么、今天在哪里可读，不画没有后端的控件（WK-27）。 -->
+              <section
+                id="settings-runtime"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-runtime-title"
+                hidden
+              >
+                <h3 id="settings-runtime-title" class="settings-section-title">
+                  Runtime
+                </h3>
+                <p class="settings-section-note">
+                  These readings are in the Runtime module today. This page names
+                  the groups they will be organised into; it does not organise
+                  them yet.
+                </p>
+                <div class="settings-block" data-wk11-mount="overview">
+                  <h4 class="settings-block-title" id="settings-runtime-overview-title">
+                    Overview
+                  </h4>
+                  <section
+                    id="runtime-control-settings"
+                    aria-labelledby="settings-runtime-overview-title"
+                    hidden
+                  >
+                    <div id="runtime-control-entry" class="runtime-control-entry"></div>
+                    <div
+                      id="runtime-context-summary"
+                      class="runtime-context-summary"
+                    ></div>
+                  </section>
+                  <div id="settings-runtime-overview-absent"></div>
+                </div>
+                <div
+                  id="settings-runtime-composition"
+                  class="settings-block"
+                  data-wk11-mount="composition"
+                ></div>
+                <div
+                  id="settings-runtime-instructions"
+                  class="settings-block"
+                  data-wk11-mount="instructions-and-context"
+                ></div>
+                <div
+                  id="settings-runtime-capabilities"
+                  class="settings-block"
+                  data-wk11-mount="capabilities-and-connections"
+                ></div>
+                <div
+                  id="settings-runtime-permissions"
+                  class="settings-block"
+                  data-wk11-mount="permissions-and-environment"
+                ></div>
+              </section>
+              <section
+                id="settings-developer"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-developer-title"
+                hidden
+              >
+                <h3 id="settings-developer-title" class="settings-section-title">
+                  Developer
+                </h3>
+                <div class="settings-block">
+                  <div class="section-heading">
+                    <h4 class="settings-block-title">Extensions</h4>
+                    <button
+                      id="refresh-extensions-button"
+                      class="quiet-button"
+                      type="button"
+                      aria-label="Refresh extensions"
+                    ></button>
+                  </div>
+                  <div id="extension-list" class="extension-list"></div>
+                </div>
+                <div class="settings-block">
+                  <h4 class="settings-block-title">Runtime info</h4>
+                  <div id="runtime-info" class="runtime-info"></div>
+                </div>
+                <div class="settings-block">
+                  <h4 class="settings-block-title">Planned</h4>
+                  <div id="planned-capabilities" class="planned-list"></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
       </main>
       <div
         id="surface-backdrop"
@@ -465,63 +707,6 @@
       role="status"
       aria-live="polite"
     ></div>
-    <dialog
-      id="runtime-dialog"
-      class="runtime-dialog"
-      aria-labelledby="runtime-dialog-title"
-    >
-      <div class="runtime-dialog-inner">
-        <header class="runtime-dialog-header">
-          <div>
-            <p class="eyebrow">Workspace</p>
-            <h2 id="runtime-dialog-title">Settings</h2>
-          </div>
-          <button
-            id="close-runtime-button"
-            class="quiet-button"
-            type="button"
-            aria-label="Close settings"
-          ></button>
-        </header>
-        <section
-          id="provider-details"
-          class="provider-details"
-          aria-labelledby="provider-heading"
-        >
-          <h3 id="provider-heading">Model & connection</h3>
-          <div id="provider-panel" class="provider-panel"></div>
-        </section>
-        <section id="session-settings" class="runtime-section" hidden></section>
-        <section
-          id="runtime-control-settings"
-          class="runtime-section"
-          aria-labelledby="runtime-control-heading"
-          hidden
-        >
-          <h3 id="runtime-control-heading">Runtime resources</h3>
-          <div id="runtime-control-entry" class="runtime-control-entry"></div>
-          <div id="runtime-context-summary" class="runtime-context-summary"></div>
-        </section>
-        <details class="runtime-section developer-settings">
-          <summary>Runtime & extensions</summary>
-          <div id="runtime-info" class="runtime-info"></div>
-          <div class="section-heading">
-            <h3>Extensions</h3>
-            <button
-              id="refresh-extensions-button"
-              class="quiet-button"
-              type="button"
-              aria-label="Refresh extensions"
-            ></button>
-          </div>
-          <div id="extension-list" class="extension-list"></div>
-        </details>
-        <details class="runtime-section planned-section">
-          <summary>Planned</summary>
-          <div id="planned-capabilities" class="planned-list"></div>
-        </details>
-      </div>
-    </dialog>
     <dialog
       id="materials-dialog"
       class="runtime-dialog"
