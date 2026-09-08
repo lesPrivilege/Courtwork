@@ -1,22 +1,18 @@
-# Fresh Courtwork 工程入口
+# CourtWork 工程入口
 
-本目录记录 fresh Courtwork 候选的工程事实、契约、设计边界和迁移证据。产品代码与 Paper 入口分别由仓库根目录的应用目录和 [`../PAPER.md`](../PAPER.md) 负责；`main` 仍是冻结 legacy，不因候选分支同步而改变。
+CourtWork当前实现、设计、契约与证据在本仓main维护，唯一持久开发目录为Courtwork。Schema Engineering独立编订论文；冻结旧实现仅通过 [legacy召回索引](ecosystem/legacy-recall-index.md)按需读取。
 
 ## 当前阅读顺序
 
-1. [`current.md`](current.md)：当前候选、已测范围、阻断项和下一步。
-2. [`decisions.md`](decisions.md)：工程裁决与责任边界；本次搬迁授权是 DEC-011。
-3. [`migration/2026-09-08/README.md`](migration/2026-09-08/README.md)：来源、谱系、公开载荷和回退边界。
-4. [`../docs/runtime-control/INDEX.md`](../docs/runtime-control/INDEX.md)、[`../docs/interface-components.md`](../docs/interface-components.md)：已落盘契约。
-5. [`../brand/README.md`](../brand/README.md)：零依赖品牌 SVG 与语义动效包。
-6. [`release/2026-09-08/README.md`](release/2026-09-08/README.md)：本阶段UI/runtime合流、条件推送、工程与发布双线、Pages/DMG及独立网页review交接。
+1. [current](current.md)：当前代码/证据、责任与未闭合项，唯一产品状态入口。
+2. [本轮派单](execution/2026-09-08-main-round/README.md)与 [公开完成度](execution/2026-09-08-main-round/public-readiness.md)：Astra架构/后端，Claude Opus发布面与前端；本轮以支撑resume/Pages的产品证据收口。
+3. [architecture](architecture.md)、[core-contracts](core-contracts.md)：实际接缝与目标责任边界；实现事实与设计分别阅读。
+4. [Long-life Roadmap](roadmap.md)：长期R0–R5、NDA H0–H5与扩展触发，不是当前功能清单。
+5. [Runtime Control API](../docs/runtime-control/INDEX.md)、[UI契约](../docs/interface-components.md)、[品牌契约](../brand/CONTRACT.md)：按具体工单消费。
+6. [Opus公开交接](release/2026-09-08/opus-public-surface-handoff.md)：README/Pages事实、写权、媒体和发布边界。
 
-历史 SE 工程材料只作为来源和证据索引。旧执行包、SQLite、截图、临时目录和个人/凭据捕获不进入公开工程树；必要时从迁移 evidence index 定向回到私有证据副本。
+[decisions](decisions.md)保存架构裁决；历史迁移/合流/main接管见 [接管回执](../evidence/main-cutover-20260908/README.md)及其来源，不将已完成分支切换重新变成产品前置。
 
-## Paper 边界
+## Paper边界
 
-[`../PAPER.md`](../PAPER.md) 固定 Schema Engineering 9.3（commit `f8ecb091895559389bb4e75f3c6f28052b71c5a3`）的 Canonical、Practice 与 Practice Index。Courtwork 保存实现、契约、验收和 PR；产品事实不会自动升级为 Paper 命题。Paper 版本更换须先记录受影响契约和复核证据，再更新根入口。
-
-## 最新作者交付
-
-UI 已消费 `4fab4bd`（祖先 `f8e3c19`），最终代码合流 `d44fb28` 已完成受影响路径独验；作者施工树与原预览保留。后续施工从本目录的 current 与明确的新工单继续。
+[根PAPER.md](../PAPER.md)固定采用SE9.3与完整SHA，并提供最新阅读入口。实现、契约与验收留在CourtWork；只有固定工程结果支持泛化观察时才向SE的Practice Index回流，不复制论文或建立第二份修订账本。

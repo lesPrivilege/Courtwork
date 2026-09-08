@@ -4,6 +4,8 @@
 
 用户本轮要求将 Chat/index 消费为真实本地计划，以 SE 验证为主；Luna 承担 explore、外部溯源与只读 diff，Astra 承担架构与必要自研。每个实现 PR 开始时，先由 Luna 对该局部的成熟实现和本地差异做有界核验；只有已有 evidence 因版本/需求变化失效时才重开研究。Astra 实现后由 Luna 独立检查；前端沿当前单一 writer 合流机制，不占用活动 Work Surface Kit 文件。
 
+本轮启动裁定见 [main首轮派单](../../execution/2026-09-08-main-round/README.md)：H0现在可开契约/fixture单，H1依其固定输入，H2/H3随后；最终按 [公开完成度](../../execution/2026-09-08-main-round/public-readiness.md)收口。这是派单授权，不把以下功能记为已实现。
+
 ## H0 · 固定 NDA 验证契约与对照
 
 **PR 标题：** `docs: define bounded NDA review experiment and acceptance evidence`
@@ -29,6 +31,8 @@
 - 验证：现有相关回归，加重复/异内容、过时决定、伪造 Reviewer、响应丢失、重启与替换 session 的必要反例。未实现事务/权限前不给 UI 正式接受动作。
 - 回退：关闭新 mutation 入口并保留只读历史；有 schema 变更则先备份，以已验证的恢复路径回退，不让旧 host 读升级后的数据。
 
+H1追加源码约束：`replace_source_set`会删除旧成员关系，`read_source(matter_id=...)`只允许当前revision；须保留可验证的历史归属或不可变packet，验证材料替换后旧候选仍可读、其他Matter不能越界。不得以裸source读取绕过归属。
+
 ## H2 · 用现有 profile / trusted extension 跑 NDA 顺序审阅
 
 **PR 标题：** `feat: execute bounded NDA review through the existing agent runtime`
@@ -42,6 +46,8 @@
 - Scope：仅实现本地已有的 session/run 绑定与真实 Matter 引用；不建立 index 全部 global/user/workspace/project/matter/session/run 七层制度。
 - 验证：同一 runtime 两个 session 只有 A 附带 NDA；B 无此能力；直接调用被禁能力仍拒绝；unknown 保留；取消后的迟到结果不自动接受；mock 与真实 provider 分开。
 - 回退：禁用该首方 profile/extension，已有工作状态仍可读。模型质量不足时缩窄规则范围或仅提供 evidence 候选，不自动升级到远程模型。
+
+H2追加源码约束：样本`coreProviderConfig`固定simulation/not_configured。真实链交付须从宿主可信Run映射准确、不含凭据的执行身份，并保留旧样本原身份；只配置真实provider不足以关闭此项。
 
 ## H3 · 为同一 Work state 提供 Review 与历史 fallback
 

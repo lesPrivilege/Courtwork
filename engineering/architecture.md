@@ -4,6 +4,21 @@
 
 全场景、交互与部署的长期设计见 [Long-life Roadmap](roadmap.md)。本页 M01–M14 保存逻辑责任与模块边界；下方“最小交付”限定首个 continuity 纵切。低后果探索可用普通工具，单次 consequential action 可仅实现 commitment boundary，不把完整 Matter 作为所有场景的前置。
 
+## 当前实现到下一轮的接缝
+
+读取基线 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`；以下为源码核对，不增加产品验收。下一轮完工口径见 [公开完成度](execution/2026-09-08-main-round/public-readiness.md)。
+
+| 当前owner / 入口 | 已存在 | 下一单必须补齐 |
+|---|---|---|
+| `app/server/service.mjs` → Pi / control-plane | Run、配置队列、权限、记录绑定 | 真实provider回路证据；不重建loop |
+| `app/extensions/evidence-memo/core/core.py` / bridge / `humanAction` | Matter/Candidate/Artifact/Decision与可信决定、CAS、幂等 | H1在原owner上补NDA逐规则/修订；不新建Review账本 |
+| `evidence-memo/index.mjs:createBinding` | 每次创建新的matterId | H1补有归属检查的同Matter新Session绑定，不以session续跑冒充 |
+| `service.mjs:getSurface` / extension registry | 依赖已登记producer投影；record缺席返回空 | H3提供独立历史read path，UI fallback不能代替数据获取 |
+| `service.mjs:humanAction` | host拥有actor、检查generation与session绑定 | H1沿既有actions mutation；H3消费版本化合法动作，不扩大通用permission信封 |
+| `core.py:read_source/replace_source_set` | 材料字节可保留；Matter读取仅当前revision | H1补历史归属或不可变packet，禁止裸读绕过归属 |
+| `evidence-memo/index.mjs:coreProviderConfig` | 领域记录固定simulation | H2从可信Run映射真实执行身份，旧样本保持原身份 |
+| `app/runtime/source-resolver.mjs` | 无副作用inline解析；locator unsupported | BE-5仅开放inspect服务，获取/Proposal/apply另单 |
+
 ## 最小交付
 
 一个人围绕一个 Matter，读取材料、让 Agent 提出成果、检查证据与差异、接受或退回候选，在重启或替换 Session 后继续工作。

@@ -1,6 +1,6 @@
 # Work Surface Kit · 准备轮（2026-09-08）
 
-状态：**准备，不开工。** Codex（Astra）正把 `codex/fresh-integration`（`05c6947`，代码合流 `d44fb28`）迁入持久候选 `codex/fresh-courtwork`；`~/Projects/Courtwork-fresh` 工作树已清空待导入。本目录暂存于 SE 主树（不入 SE git），Codex 完成搬迁并给出基线 SHA 后整体迁至 `Courtwork-fresh/engineering/mvp/execution/work-surface-kit/`，路径引用保持相对。
+当前开工入口见 [main首轮派单](../../../execution/2026-09-08-main-round/README.md)。原迁移、WK10a与收尾前置已完成；本目录历史intake与delivery保留原记录。WK10b第一段和WK11沿最新工单，H3领域Review等待H1契约。以下“开工前置”是准备轮历史，不覆盖本轮派单。
 
 ## 阅读顺序
 

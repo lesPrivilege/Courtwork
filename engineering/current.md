@@ -1,45 +1,45 @@
 # 当前工程状态
 
-Main 接管裁定（2026-09-08）：用户明确先将本地与远端切至 main，唯一开发入口恢复为 `Courtwork`，不再以 fresh/current 后缀管理。新实现以已同步 `34a87c2` 为来源，旧实现固定 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，以 tag/archive 保留。见 [接管回执](../evidence/main-cutover-20260908/README.md)。本次授权取代旧 T3/T4 中“所有验收与 distill/回退先于 main 切换”的时序；真实 provider、Review/commit/跨 session 纵切、回退演练、WK10b/WK11仍按实际证据推进，不由接管自动关闭。Luna 已完成 [冻结来源只读索引](ecosystem/legacy-recall-index.md)（15条，15/15路径核验），旧代码仅按需召回。
+更新：2026-09-08。唯一开发入口为 `Courtwork`，主线 `main`。本轮读取基线 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`；产品代码等价于已联调 `0a3b9b22f47f5605ccedc227106b0c17a4df6120`，后续main接管及索引提交只改变文档。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
-以下清账/联调段保留接管前快照；其中目录、分支、等待接管等措辞不作为当前开发入口。
+## 本轮责任与完工节点
 
-清账与合流（2026-09-08）：Pages准备稿已固定并合并，开发入口迁到持久`Courtwork-current`，legacy目录按原计划冻结。见 [清账回执](../evidence/reconciliation-20260908/README.md)。本地与远端候选已核对为 `34a87c2b92dc5819798ccac64b859fd9810da42e`；当前目录的实际本地分支为 `codex/astra-final-integration`，远端 ref 为 `codex/fresh-courtwork`。复工仅从 `Courtwork-current` 开始，不再登记 Fresh 为独立开发线或入口。main takeover仍是独立T4节点。
+用户指定：**Claude Opus建立README/Pages；Astra负责current、架构、契约与下一轮派单。完工以足以修订resume并公开Pages的产品证据为准。** [本轮派单](execution/2026-09-08-main-round/README.md)已形成，[G1–G5完工条件](execution/2026-09-08-main-round/public-readiness.md)尚未满足，不以本轮文档交付或main接管关闭。
 
-Fable收尾 `bcbca1b` 已接收，fresh Astra实际Web↔后端联调完成；固定代码基线 `0a3b9b22f47f5605ccedc227106b0c17a4df6120`。修复通用工具权限误称写入与Home框外状态句错列，纳入只读R2解析切片；实际验证与未检项见 [联调回执](../evidence/final-integration-20260908/README.md)，候选推送/独立clone以该回执的sync记录为准。WK10b/WK11继续按Fable既有工单，不把作者19/27消费报告当作全部产品验收。
-
-第二自足节点已在Astra隔离树合流：Fable `0a30780`（WK10a+r2）+ 接缝修补 `dbf12b3` → 代码基线 `7df1f6c486db8f1558dc0020ff4a62281856e207`。见 [独立集成回执](../evidence/node2-independent/README.md) 与 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)。候选同步与新任务ID以交接包的实际记录为准；尚未push或公开发布。WK10b / WK11由Fable基于本次合流后派发。最新用户边界：Desktop优先，composer沉底不作为桌面验收要求，窄宗可暂缓，Continue等版面位置留Fable后续参考裁定。
-
-以下迁移说明和表格保留前期已交付基线；第二节点新增结果以上述回执为准。
-
-更新时间：2026-09-08（Asia/Singapore）。当前载荷已合入 Claude UI `dd65d2b`（包含 `4fab4bd`、`f8e3c19`）、Runtime Control Plane `8722259`、Brand `faef241`，以及 Astra 权限修复 `787bf1c`、Home composer 和 UI 编排收敛。已迁入并推送 `codex/fresh-courtwork`，导入基线 `9f13ca3`，远端独立克隆134项与恢复 smoke通过；实际同步结果以 [迁移回执](migration/2026-09-08/README.md) 为准。Legacy `main` 仍冻结。
-
-## 已交付与验证
-
-| 面 | 交付 | 边界 |
+| 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
-| Home | composer 主导，显式项目/写权限；草稿隔离与创建收据保护 | Home 10项反例、浏览器创建/等待/重连，非真实provider |
-| 通用 UI | Claude 最新 polish，统一字阶、留白、卡片、Button、动作语义和对齐 | [编排标准](design/ui-composition-standard.md)；窄宽重排不等于完整浏览器缩放验收 |
-| Runtime Control Plane | schema 4、资源/权限与 MCP 后端 | 后端134项已验；新控制面 UI 待施工 |
-| Brand | 8个语义样板、5材质、40 SVG与独立动效组件 | 产品品牌语义注入由用户 merge 后首单交 Claude |
-| 修复与回归 | 权限回滚/焦点，waiting 静态状态，Home创建失败后项目选择 | [最终 UI 审核](../evidence/final-ui-audit/README.md)：Home10 + UI20 |
+| 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | Claude Opus按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)实现；Astra核对证据 |
+| 通用工作面 / Workbench | WK10a+r2、收尾与联调已在main；WK10b/WK11未按本轮工单实施 | Opus先WK10b第一段，再串行处理共享web文件的WK11；[工单入口](execution/2026-09-08-main-round/README.md) |
+| 领域主链 | evidence-memo样本Core可复用；NDA逐规则、同Matter换Session、独立历史读取仍缺实现/验收 | Astra沿H0→H1→H2/H3；Opus领域renderer等待H1契约 |
+| Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
+| 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
+| 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
 
-品牌另有 [验收记录](../brand/evidence/ACCEPTANCE.md)：浏览器10项和独立组件13项。独验与作者观察分开登记；不据此声称真实模型、完整读屏/物理IME、全部触控/缩放或最终产品通过。
+本表“可接单/下一步”不代表已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
-## 后续施工
+## 已成立的证据
 
-1. 候选同步与远端恢复已完成，见 [远端恢复证据](../evidence/remote-recovery-20260908/README.md)。后续提交从当前候选 HEAD 开始。
-   Claude 新增的 [Work Surface Kit准备输入](mvp/execution/work-surface-kit/README.md) 已原文迁入；旧SHA/路径是准备时快照，未自动启动其中工单。品牌首单顺序以用户最新安排为准。
-2. 用户在 merge 后第一轮向 Claude 提交 Court Work 品牌语义注入；本轮已交付可复用的通用 UI 编排标准与品牌包。
-3. Runtime 基础配置/状态应属于第一层 GUI，按 [Astra范围裁定](migration/2026-09-08/runtime-control-frontend-intake.md) 消费真实后端契约；不虚构 MOE 或未接入能力。
-4. 用户在 Web UI 配置真实 provider 后补真实运行/tool/恢复链；Matter、完整工作纵切与 legacy distill 按既定边界推进。
-5. `main` takeover 留待自足、真实链、legacy distill 与回退条件成立。Paper独立，固定入口 [PAPER.md](../PAPER.md)。
-6. Experts / Extensions 的 [NDA 与热插拔本地研究计划](research/experts-hotplug-2026-09-08/README.md) 已消费 Chat/index：Luna 外部溯源与只读对照，Astra 编写验证设计、必要自研 PR 切片与 long-life 路线增量。此为研究/计划交付，新增 NDA、卸载后历史 fallback 与真实配对实验尚未实现或验收；后续复用既有领域状态和 runtime control plane。
-7. [Long-life Roadmap](roadmap.md) 已按 SE 全场景/全交互重写：按治理厚度组合三条工作链、表面/执行通道、部署/所有权、长程协作与经验发布；R0–R5 和 NDA H0–H5 保留原责任。见 [来源与设计回执](research/longlife-2026-09-08/README.md)。此为架构设计，不新增已实现能力或关闭任何阶段门。
-8. 前端讨论与GUI / Review Runtime Index已形成 [Work Surface跨层边界](design/work-surface-boundaries.md) 和 [来源对账](research/frontend-intake-2026-09-08/README.md)：明确Chrome/Domain/Expert责任、Review/commit/外部效果区别及共享组件adapter边界。Fable当前施工继续由 [第二轮接管与对应工单](mvp/execution/work-surface-kit/intake-round-2.md) 维护；本轮不变更其投影类型、写权或验收状态。
-9. 用户已确定 [本阶段合流与两仓发布安排](release/2026-09-08/README.md)：Fable独立UI施工（含Preview extensions编排选型），待Fable竣工后，Astra从前端追溯harness、从harness补充前端，补齐后merge，再按 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)交接独立任务进行build后的Web UI联调；完成后push CourtWork候选，再沿工程迭代/发布面双线推进至Pages与可构建GUI DMG。端云固定提交一致后准备独立网页GPT Pro全量review。对应 [集成检查](release/2026-09-08/integration.md)、[对外稿](release/2026-09-08/public-surface.md)、[review输入契约](release/2026-09-08/review-handoff.md)已备；当前不记作两笔已完成、已推送/发版或已提交review。
-10. 用户追加的材质/层级与局部motion、hover溯源进入 [UX Polish研究包](research/ux-polish-2026-09-08/README.md)：Luna只读盘点index、旧Polish来源和当前整合候选，Astra整理12个细粒度绘制/消融片段，供build联调后消费。遵守WK51–54与最新选型；报告发现整合快照`2726805`的desktop media未闭合，列为polish前首项复核。本轮没有新的产品polish实现或像素验收。
+| 范围 | 已有证据 | 支持边界 |
+|---|---|---|
+| 本地/远端恢复 | 独立clone安装、146/146、runtime smoke与启动静态资源通过 | [联调同步](../evidence/final-integration-20260908/sync.md)；测试提交与当前产品app/tests/brand一致，非真实provider |
+| Web↔后端主链 | 回答/精确工具授权、File身份、Preview、deny/Stop/断连恢复9/9；MCP unknown回执3/3；extension恢复6/6 | [联调回执](../evidence/final-integration-20260908/README.md)；fixture、实际HTTP与浏览器，不代表完整NDA/专业正确性 |
+| Runtime控制面 | CAS、parent gate、Source/Effective、历史Context与MCP生命周期；RC契约20/20、反例9/9、视口36/36 | 同上；characters非tokens，安装/连接/曝光/许可分别成立 |
+| 当前GUI与品牌 | Home空/列表、1440/390浅深几何8/8；既有L0–L3、悬浮工作面/composer；brand独立包 | [联调回执](../evidence/final-integration-20260908/README.md)、[品牌验收](../brand/evidence/ACCEPTANCE.md)；部分画面目视，不宣称全面视觉/读屏/触控验收 |
+| Runtime R2解析 | inline六kind、exact hash、unverified来源、inspect-only与locator unsupported | [解析契约](../docs/runtime-control/source-resolver.md)、[证据](../evidence/runtime-resolver-20260908/README.md)；不是R3兼容矩阵或R4/R5安装方案 |
+| Main谱系与目录 | replacement `d20fbc3`继承旧`f9ade85`，文档后继`d86eba4`已同步；原Courtwork目录检出main，迁目录后smoke通过 | [接管回执](../evidence/main-cutover-20260908/README.md)；不代表Pages/DMG发行或产品G1–G5已完成 |
 
-## 等待Fable期间的隔离后端切片
+146/146、9/9等是不同范围的既有回执，不累加成一个“产品完成度”数字；本次架构派单没有重跑或新增产品测试。
 
-2026-09-08 用户曾允许在Fable收尾回报前推进后端自研，当时Web联调暂停；现已恢复并完成，以上述联调回执为准。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。已纳入上述联调代码基线，无HTTP/模型工具/UI入口；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。
+## 仍未闭合
+
+- G1真实provider及领域记录中准确的执行模式（样本当前固定simulation）；G2 NDA候选→审阅→正式决定；G3新Session恢复同Matter。已有Core样本、同Session续跑与权限批准不能替代这些纵切。
+- H1历史source revision的归属读取（当前只读现用revision）；H3 producer缺席历史read path；H4按实际需要的卸载/重装/版本兼容。现renderer缺席fixture不关闭整个H3/H4。
+- BE-1/3 activity与UTC日过滤；BE-2多文档实例；BE-12模型effort；Runtime R2获取、R3兼容、R4 Proposal、R5事务apply/rollback、R6 Expert版本。分别消费既有契约，不为导航或演示造能力。
+- VoiceOver/NVDA、IME/触控、桌面壳、200%缩放的完整产品验证及数据回退演练；旧135/1无栈flaky未复现，不称已修复。
+- README/Pages真实媒体与发布；新DMG/签名公证/外部用户试点未完成。Paper当前仍采用 [9.3固定SHA](../PAPER.md)，本地9.6候选不自动取得发布地位。
+
+## 责任与历史
+
+[架构](architecture.md)保持M01–M14所有权，[长期路线](roadmap.md)保持R0–R5与H0–H5；本轮不改Paper、不新增并行正式状态，不重启已结束的Fable loop。过去的迁移条件已经由用户“先切main”的授权调整，不再当作当前分支门；其中真实验收/恢复要求继续由本轮产品完成度承接。
+
+历史细节按需读 [第二节点](../evidence/node2-independent/README.md)、[最终联调](../evidence/final-integration-20260908/README.md)、[清账](../evidence/reconciliation-20260908/README.md)、[main接管](../evidence/main-cutover-20260908/README.md)。历史回执原文保留，其旧目录、等待状态与分支称呼不覆盖本页。
