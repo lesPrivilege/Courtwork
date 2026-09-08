@@ -73,20 +73,27 @@ export function provenanceValue(resource) {
 }
 export function overrideAt(resource, scope) {
   return (resource.provenance || []).some(
-    (entry) => sameScope(entry.scope, scope) && entry.reason !== "source default",
+    (entry) => sameScope(entry.scope, scope) && entry.reason === "explicit override",
   );
 }
 /** What "inherit" would fall back to: the nearest layer outside this one that
  * still states a value, otherwise the resource's own source default. */
 export function inheritSource(resource, rank) {
   const outer = (resource.provenance || [])
-    .filter((entry) => scopeRank(entry.scope) < rank && scopeRank(entry.scope) >= 0)
+    .filter((entry) => ["source default", "explicit override"].includes(entry.reason) && scopeRank(entry.scope) < rank && scopeRank(entry.scope) >= 0)
     .at(-1);
   return outer ? SCOPE_LABELS[outer.scope.type] : null;
 }
-export function provenanceSentence(resource) {
+export function provenanceSentence(resource, resources = []) {
   const winner = (resource.provenance || []).at(-1);
   if (!winner) return "Exposure: from the source default.";
+  if (winner.parentId) {
+    const parent = resources.find((item) => item.id === winner.parentId);
+    return `Exposure: ${parent?.title || "the parent resource"} is ${winner.reason === "parent not running" ? "not running" : "not exposed"}.`;
+  }
+  if (winner.reason === "profile capability ceiling") return "Exposure: limited by the selected profile.";
+  if (winner.reason === "context loader is not exposed") return "Exposure: the context loader is not exposed.";
+  if (winner.reason === "profile selection") return "Exposure: determined by the selected profile.";
   const where = SCOPE_LABELS[winner.scope.type] || winner.scope.type;
   return winner.reason === "source default"
     ? "Exposure: the source default."
@@ -336,7 +343,7 @@ export function createRuntimeView(
       },
     });
     input.checked = value;
-    input.disabled = !configurable || busy;
+    input.disabled = !configurable || busy || hasParentGate(resource);
     input.addEventListener("change", () => {
       void setExposure(resource, input.checked);
     });
@@ -362,7 +369,7 @@ export function createRuntimeView(
     const lines = [
       el("p", {
         className: "runtime-provenance",
-        text: provenanceSentence(resource),
+        text: provenanceSentence(resource, snapshot.resources),
       }),
     ];
     // The recorded chain does not carry an MCP server's gate, so where the two
@@ -391,8 +398,12 @@ export function createRuntimeView(
       );
       return lines;
     }
+    if (hasParentGate(resource)) lines.push(el("p", {
+      className: "runtime-provenance",
+      text: "Expose and connect the parent resource before changing this tool's exposure.",
+    }));
     if (!overrideAt(resource, scope)) {
-      lines[0].textContent = `${lines[0].textContent} The switch overrides it for ${scope.type === "session" ? "this session" : `this ${SCOPE_LABELS[scope.type]}`}.`;
+      if (!hasParentGate(resource)) lines[0].textContent = `${lines[0].textContent} The switch overrides it for ${scope.type === "session" ? "this session" : `this ${SCOPE_LABELS[scope.type]}`}.`;
       return lines;
     }
     const from = inheritSource(resource, scopeRank(scope));
@@ -969,17 +980,16 @@ export function renderContextBar(container, payload) {
     return;
   }
   const items = payload.context || [];
-  // Only `instructions` admission actually enters the next run's prompt. A
-  // catalog-only body waits for runtime_load and a user-invoked template never
-  // reaches the model at all, so neither one is counted into the bar.
+  // New snapshots count the exact compiled instruction/catalog contribution.
+  // Older bindings retain their historical partial count; never backfill them.
   const buckets = new Map();
   for (const item of items) {
     const key = item.kind;
     if (!buckets.has(key))
       buckets.set(key, { kind: key, characters: 0, deferred: 0, admission: null });
     const bucket = buckets.get(key);
-    if (item.admission === "instructions") bucket.characters += item.characters || 0;
-    else {
+    bucket.characters += admittedCharacters(item);
+    if (item.admission !== "instructions") {
       bucket.deferred += 1;
       bucket.admission = item.admission;
     }
@@ -1019,7 +1029,7 @@ export function renderContextBar(container, payload) {
     segment.style.flexGrow = String(bucket.characters);
     bar.append(segment);
   }
-  if (admitted.length) container.append(bar);
+  if (admitted.length >= 2) container.append(bar);
   const list = el("dl", { className: "data-list context-characters" });
   for (const bucket of admitted)
     list.append(
@@ -1043,7 +1053,9 @@ export function renderContextBar(container, payload) {
   container.append(
     el("p", {
       className: "form-help context-character-note",
-      text: `Sizes are measured in ${CHARACTER_NOTE}. A deferred kind is catalogued for the run and loads its body only when the agent asks for it; a user-invoked kind never reaches the model on its own. Both are listed with a dash and left out of the bar.`,
+      text: items.every((item) => Number.isFinite(item.admittedCharacters))
+        ? `Sizes use ${CHARACTER_NOTE}. Counts include injected instructions, catalog text and formatting. Deferred bodies load only on request; templates remain draft-only. Session history and other host context are excluded.`
+        : `This older record contains partial ${CHARACTER_NOTE}. Catalog formatting was not measured; no total model-context size is inferred.`,
     }),
   );
   if (payload.tokenUsage !== null && payload.tokenUsage !== undefined)
@@ -1136,18 +1148,29 @@ export function renderRecordedContext(payload) {
           text: "This run loaded no skill or reference body.",
         }),
   );
-  // The same rule the next-run bar uses: only `instructions` admission is
-  // measured, so the two halves of the context are counted the same way.
+  // Preserve historical measurements; do not infer missing catalog counts.
   const admitted = (binding?.context || []).reduce(
-    (sum, item) => sum + (item.admission === "instructions" ? item.characters || 0 : 0),
+    (sum, item) => sum + admittedCharacters(item),
     0,
   );
   if (binding)
     section.append(
       el("p", {
         className: "form-help",
-        text: `The bound context measured ${admitted.toLocaleString()} ${CHARACTER_NOTE}. Later edits do not change this record.`,
+        text: (binding.context || []).every((item) => Number.isFinite(item.admittedCharacters))
+          ? `Bound runtime instructions and catalog: ${admitted.toLocaleString()} ${CHARACTER_NOTE}. Session history and other host context are excluded. Later edits do not change this record.`
+          : `Historical partial count: ${admitted.toLocaleString()} ${CHARACTER_NOTE}. Catalog formatting was not measured. Later edits do not change this record.`,
       }),
     );
   return section;
+}
+
+/** Historical bindings lack the additive compiled contribution. */
+export function admittedCharacters(item) {
+  return Number.isFinite(item.admittedCharacters) ? item.admittedCharacters
+    : item.admission === "instructions" ? item.characters || 0 : 0;
+}
+
+export function hasParentGate(resource) {
+  return (resource.provenance || []).some(entry => entry.parentId && entry.value === false);
 }

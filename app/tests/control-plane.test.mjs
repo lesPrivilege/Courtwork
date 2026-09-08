@@ -229,7 +229,14 @@ for (const legacy of [false, true]) test(`MCP ${legacy ? 'legacy' : 'modern'}: d
     const mcp = snapshot.resources.find(r => r.id === 'local:mcp');
     assert.equal(mcp.running, true); assert.equal(mcp.exposed, false);
     assert.equal(mcp.capabilities.resources, 1); assert.equal(mcp.capabilities.prompts, 1);
-    assert.equal(snapshot.resources.find(r => r.mcp).exposed, false);
+    const gated = snapshot.resources.find(r => r.mcp);
+    assert.equal(gated.exposed, false);
+    assert.deepEqual(gated.provenance.at(-1), { scope: mcp.scope, value: false, reason: 'parent not exposed', parentId: mcp.id });
+    // A child override cannot defeat or hide the parent gate.
+    await c.change({ operation: 'exposure', id: gated.id, scope: c.scope, exposed: true });
+    const overridden = (await c.get()).resources.find(r => r.id === gated.id);
+    assert.equal(overridden.exposed, false);
+    assert.equal(overridden.provenance.at(-1).value, overridden.exposed);
     await c.change({ operation: 'exposure', id: 'local:mcp', scope: c.scope, exposed: true });
     snapshot = await c.get();
     const tool = snapshot.resources.find(r => r.mcp);
@@ -322,4 +329,37 @@ test('admission serializes permission changes and extension binding before runti
       assert.equal(h.runtime.store.getSession(session.id).extensionBinding, null);
     } finally { release?.(); await h.runtime.close(); }
   }
+});
+
+
+test('context: additive compiled counts separate catalog text, deferred bodies and draft-only templates', async () => {
+  const h = await boot();
+  try {
+    const session = await h.createSession(); const c = await control(h, session);
+    const records = [
+      { id: 'local:z', kind: 'instruction', title: 'Z', content: 'First 😀 instruction.' },
+      { id: 'local:a', kind: 'instruction', title: 'A', content: 'Second instruction.' },
+      { id: 'local:ref', kind: 'reference', title: 'Reference', content: 'Deferred body not injected.' },
+      { id: 'local:skill', kind: 'skill', title: 'Skill', content: '---\nname: review\ndescription: Check references\n---\nDeferred skill body.' },
+      { id: 'local:template', kind: 'prompt_template', title: 'Draft', content: 'Human-invoked template, never automatic.' },
+    ];
+    for (const r of records) assert.equal((await c.change({ operation: 'put', resource: { ...r, scope: c.scope } })).status, 200);
+    const snap = await c.get(), binding = h.runtime.service.control.bind(snap);
+    const expected = '[Instruction local:a]\nSecond instruction.\n\n[Instruction local:z]\nFirst 😀 instruction.\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:ref (reference): Reference\nlocal:skill (skill): Check references';
+    assert.equal(compileControlContext(binding), expected, 'compiled bytes remain unchanged');
+    assert.equal(snap.context.reduce((n, r) => n + r.admittedCharacters, 0), expected.length);
+    for (const r of records.filter(r => r.kind !== 'instruction')) {
+      const item = snap.context.find(x => x.id === r.id);
+      assert.equal(item.deferredCharacters, r.content.length);
+      assert.equal(item.admittedCharacters > 0, r.kind !== 'prompt_template');
+    }
+    const recorded = JSON.parse(JSON.stringify(binding));
+    await c.change({ operation: 'put', resource: { ...records[2], scope: c.scope, title: 'Changed reference', content: 'Changed body' } });
+    assert.equal(compileControlContext(recorded), expected);
+    assert.equal(recorded.context.reduce((n, r) => n + r.admittedCharacters, 0), expected.length);
+    await c.change({ operation: 'exposure', id: 'tool:runtime_load', scope: c.scope, exposed: false });
+    const withoutLoader = await c.get();
+    assert.ok(!withoutLoader.context.some(x => ['skill', 'reference'].includes(x.kind)));
+    assert.equal(withoutLoader.context.reduce((n, r) => n + r.admittedCharacters, 0), compileControlContext(h.runtime.service.control.bind(withoutLoader)).length);
+  } finally { await h.runtime.close(); }
 });

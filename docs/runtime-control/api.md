@@ -9,7 +9,7 @@ Use the existing `/api/v5` base, loopback/origin protections and `x-work-token` 
 | GET `/runtime-resources?kind=skill` | Filtered descriptor catalog |
 | GET `/runtime-resources/:id` | Local-user source inspector: descriptor and imported content if any |
 | POST `/runtime-resources/:id/invoke` with `{}` | Exposed prompt template as `draft-only`; creates no Run |
-| GET `/runtime-context` | Effective next-run context; tokenUsage is null |
+| GET `/runtime-context` | Next-run admission catalog, including deferred and draft-only entries; tokenUsage is null |
 | GET `/runtime-context?sessionId=...&runId=...` | Historical binding and explicit load events; enforces session ownership |
 | POST `/runtime-permissions/evaluate` | Advisory effect and trace for a tool/resource |
 | POST `/mcp/:id/lifecycle` | Connect/disconnect/restart and refreshed snapshot |
@@ -53,3 +53,12 @@ Import an `mcp_server` with this JSON source text:
 ```
 
 Then POST lifecycle `{"revision":CURRENT_REVISION,"action":"connect"}`. Inspect remote descriptors, explicitly expose the server using an exposure mutation, and retain default per-call ask or write an explicit scoped policy for its readable `mcp.<server-id>.<remote-tool-name>` action. A connected server alone does not grant model access. Model tool calls use the descriptor's `executionName`, not its policy action. A failed/unknown remote effect is never a reason to automatically resend the same work.
+
+
+## Admission and provenance detail (second UI integration node)
+
+`context[]` is an admission catalog, not a claim that every listed body has entered the model. Instructions are injected; skill/reference catalog text is injected while its body remains deferred; `user-invoked` templates stay explicit draft actions and contribute zero automatic context. Template presence here does not authorize execution.
+
+New context entries add `admittedCharacters` and `deferredCharacters`. The former measures UTF-16 code units of the exact `compileControlContext` contribution: instruction labels and separators are included, a separator belongs to the following item, and the shared catalog heading belongs to the first catalog item. Its sum equals that compiler's output length. It excludes session history, other host instructions, tool schemas and later loads; it is neither a whole-model-context total nor a token estimate. `deferredCharacters` measures the source body not automatically injected. The existing `characters` field remains the legacy instruction-body or catalog-description/title length. Historical bindings without the new fields are displayed as partial counts and are never retroactively recomputed from current sources.
+
+Resource `provenance[]` also records enforced parent gates with `parentId` and reason `parent not exposed` or `parent not running`. The authoritative `exposed` value remains decisive. A parent/profile gate is an explanation, not a scope override: only `reason: 'explicit override'` supports the remove-override action. Connecting an MCP server still grants no exposure or permission.

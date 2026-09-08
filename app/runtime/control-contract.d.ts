@@ -36,7 +36,7 @@ export interface RuntimeResource {
   /** Whether exposure is configurable; lifecycle stays with its kind service. */
   configurable: boolean;
   defaultExposed: boolean;
-  provenance: Array<{ scope: Scope; value: boolean; reason: string }>;
+  provenance: Array<{ scope: Scope; value: boolean; reason: string; parentId?: string }>;
   action?: string;
   /** A model-compatible tool name, distinct from the readable policy action. */
   executionName?: string;
@@ -93,8 +93,15 @@ export interface ContextItem {
   source: ResourceSource;
   scope: Scope;
   admission: 'instructions' | 'catalog-only' | 'user-invoked';
-  /** Measured characters, never presented as an exact token count. */
+  /** Legacy source-body (instruction) or catalog description/title length.
+   * Not a compiled-context total. Retained for historical bindings. */
   characters: number;
+  /** UTF-16 code units contributed to compileControlContext, including headers
+   * and separators allocated to the following item (catalog header: first item).
+   * Absent on historical bindings. Never a token estimate or full model context. */
+  admittedCharacters?: number;
+  /** Source-body code units not automatically injected; templates remain draft-only. */
+  deferredCharacters?: number;
 }
 export interface RuntimeSnapshot {
   protocolVersion: 1;

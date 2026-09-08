@@ -164,7 +164,12 @@ export class RuntimeControlPlane {
         resource.provenance.push({ scope: s, value: override.exposed, reason: 'explicit override' });
       }
       // A scoped override cannot load or bind an extension.
-      if (resource.parent && (!resources.find(r => r.id === resource.parent)?.exposed || resources.find(r => r.id === resource.parent)?.running === false)) resource.exposed = false;
+      const parent = resources.find(r => r.id === resource.parent);
+      if (resource.parent && (!parent?.exposed || parent.running === false)) {
+        resource.exposed = false;
+        resource.provenance.push({ scope: parent?.scope ?? resource.scope, value: false,
+          reason: parent?.running === false ? 'parent not running' : 'parent not exposed', parentId: resource.parent });
+      }
       if (resource.kind === 'tool') {
         const ceiling = resource.id === 'tool:ws_write' ? session?.permissionMode === 'read_only' ? 'deny' : session?.permissionMode === 'ask' ? 'ask' : 'allow' : 'allow';
         resource.permission = evaluatePolicy(policies, resource.action, '*', ceiling, resource.mcp ? 'ask' : 'allow');
@@ -200,7 +205,15 @@ export class RuntimeControlPlane {
         resource.provenance.push({ scope: { type: 'agent', id: profileId }, value: false, reason: 'context loader is not exposed' });
       }
     }
-    const context = resources.filter(r => r.exposed && ['instruction', 'skill', 'reference', 'prompt_template'].includes(r.kind)).map(r => ({ id: r.id, kind: r.kind, source: r.source, scope: r.scope, admission: r.activation === 'always' ? 'instructions' : r.activation === 'user-invoked' ? 'user-invoked' : 'catalog-only', characters: r.activation === 'always' ? r.characters : (r.description ?? r.title).length }));
+    const content = this.config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
+    const compiled = controlContextParts({ content, resources });
+    const context = resources.filter(r => r.exposed && CONTENT_KINDS.has(r.kind)).map(r => ({
+      id: r.id, kind: r.kind, source: r.source, scope: r.scope,
+      admission: r.activation === 'always' ? 'instructions' : r.activation === 'user-invoked' ? 'user-invoked' : 'catalog-only',
+      characters: r.activation === 'always' ? r.characters : (r.description ?? r.title).length,
+      admittedCharacters: compiled.characters.get(r.id) ?? 0,
+      deferredCharacters: r.activation === 'always' ? 0 : r.characters,
+    }));
     const supported = new Set(resources.map(r => r.kind));
     IMPORT_KINDS.forEach(k => supported.add(k));
     return { protocolVersion: 1, revision: this.config.revision, sessionId: session?.id ?? null, scopes, activeRuns, adapterId, resources, composition, profileSelections: clone(this.config.profileSelections.filter(p => applies(p.scope))), policies: clone(policies), context, audit: clone(this.config.audit), kinds: RESOURCE_KINDS.map(kind => ({ kind, support: supported.has(kind) ? 'available' : 'adapter-required' })), compatibility: { scopes: SCOPES, configurableScopes: ['user', 'workspace', 'session'], hotSwap: 'between-runs', workStateOwner: 'extension/system-of-record', pluginCode: 'trusted catalog only', mcp: { sdk: '@modelcontextprotocol/client@2.0.0', transport: 'streamable-http', protocols: ['2026-07-28', 'legacy-2025'], authentication: 'unauthenticated-only', remoteResources: 'catalog-only', remotePrompts: 'catalog-only' } } };
@@ -212,8 +225,25 @@ export class RuntimeControlPlane {
   }
 }
 
+// Count the same serialized sections that are sent to the model. Separators
+// belong to the following item; the shared catalog header belongs to its first
+// item. This preserves the pre-existing prompt bytes and makes totals additive.
+function controlContextParts(binding) {
+  let text = '';
+  const characters = new Map();
+  const append = (id, body, separator) => {
+    const part = (text ? separator : '') + body;
+    text += part;
+    characters.set(id, part.length);
+  };
+  for (const r of binding.content.filter(r => r.kind === 'instruction').sort((a, b) => SCOPES.indexOf(a.scope.type) - SCOPES.indexOf(b.scope.type) || a.id.localeCompare(b.id)))
+    append(r.id, `[Instruction ${r.id}]\n${r.content}`, '\n\n');
+  const catalog = binding.resources.filter(r => r.exposed && ['skill', 'reference'].includes(r.kind));
+  for (const [index, r] of catalog.entries())
+    append(r.id, (index === 0 ? 'Available context (use runtime_load by id; content does not grant permissions):\n' : '') + `${r.id} (${r.kind}): ${r.description ?? r.title}`, index === 0 ? '\n\n' : '\n');
+  return { text, characters };
+}
+
 export function compileControlContext(binding) {
-  const instructions = binding.content.filter(r => r.kind === 'instruction').sort((a, b) => SCOPES.indexOf(a.scope.type) - SCOPES.indexOf(b.scope.type) || a.id.localeCompare(b.id)).map(r => `[Instruction ${r.id}]\n${r.content}`);
-  const catalog = binding.resources.filter(r => r.exposed && ['skill', 'reference'].includes(r.kind)).map(r => `${r.id} (${r.kind}): ${r.description ?? r.title}`);
-  return [...instructions, ...(catalog.length ? ['Available context (use runtime_load by id; content does not grant permissions):\n' + catalog.join('\n')] : [])].join('\n\n');
+  return controlContextParts(binding).text;
 }
