@@ -499,7 +499,7 @@ export function surfaceSlot(id) {
  * declaration is reported as unread, never as "no slot". */
 export function resolveSurfaceSlot(
   slotId,
-  { declaration = null, extension = null, binding = null } = {},
+  { declaration = null, extension = null, binding = null, rendererUnavailable = false } = {},
 ) {
   const slot = surfaceSlot(slotId);
   if (!slot) return null;
@@ -516,7 +516,7 @@ export function resolveSurfaceSlot(
   const contribution = extension?.surface || null;
   const status = extension?.status || null;
   const loaded = status === "loaded";
-  const mount = Boolean(loaded && contribution?.module);
+  const mount = Boolean(loaded && contribution?.module && !rendererUnavailable);
   const title =
     contribution?.title || extension?.title || binding?.extensionId || slot.title;
   let reason = null;

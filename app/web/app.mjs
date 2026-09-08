@@ -163,6 +163,7 @@ const state = {
     controller: null,
     context: null,
     info: null,
+    rendererUnavailableContext: null,
     projection: null,
     module: null,
     ownedContainer: null,
@@ -3175,6 +3176,10 @@ function workSurfaceSlot() {
     declaration: slotDeclaration(),
     extension: state.surface.info?.extension || null,
     binding: currentSession()?.extensionBinding || null,
+    rendererUnavailable: Boolean(
+      state.surface.context &&
+      state.surface.rendererUnavailableContext === state.surface.context,
+    ),
   });
 }
 
@@ -3845,6 +3850,7 @@ async function loadSurface(epoch) {
       }
       return;
     }
+    state.surface.rendererUnavailableContext = null;
     state.surface.module = rendererModule;
     state.surface.mounted = mounted || {};
   } catch (error) {
@@ -3859,6 +3865,7 @@ async function loadSurface(epoch) {
     )
       return;
     if (!state.surface.mounted) {
+      state.surface.rendererUnavailableContext = state.surface.context;
       detachOwnedSurfaceContainer(state.surface.ownedContainer);
       renderSurfaceFallback();
       $("surface-content").prepend(
