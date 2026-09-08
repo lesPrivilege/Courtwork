@@ -30,6 +30,12 @@ WK13 r2已接收：Opus实现 `f1875ae`、r2 `6de394e`、Fable复核 `a271d95`�
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
+## 新接两单：Luna 首轮有界交付
+
+2026-09-08 用户指定“code base 优化和 harness Core 验证”，并确认“落工单并启动 Luna 有界执行”。从实际 main `429fdd68febb9998f322a0b53c323651fc8cd7fd` 建临时隔离分支 `codex/luna-maintenance-core-validation`；[两单合同](execution/2026-09-08-luna-two-orders/README.md)已形成并启动三个 Luna max 分片：clarity Finder、Core 独立反例验证、agent capability compatibility index。首阶段仅各写对应证据；代码候选必须经另一人验证后才授予修复写权。Astra 负责架构、current 与合流，不触碰 WK12/WK11 前端写权。
+
+[CB-01](execution/2026-09-08-luna-two-orders/WO-CB01-clarity-pilot.md)只做四文件 clarity 试点；[HC-01](execution/2026-09-08-luna-two-orders/WO-HC01-core-capabilities.md)检查 Core 不变量与基础 agent 能力/开放控制面缺口。首轮结果见 [证据包](../evidence/luna-two-orders-20260908/README.md)：CB-01两候选经非Finder复读与35/35复跑均拒绝，以四文件no-change完成本次试点；HC-01定向18/18与两个独立探针通过，探针另经非作者复跑，基础能力兼容性首版矩阵已交付。Astra接收有界证据，未修改产品代码；未声称全仓优化、全生态兼容或产品验收。不自动实现整个能力列表，不关闭 G1–G5，现有产品施工顺序保持。
+
 ## 已成立的证据
 
 | 范围 | 已有证据 | 支持边界 |

@@ -1,0 +1,1 @@
+{"artifact": null, "audits": 0, "candidateStatus": "pending", "decisions": 0, "error": "STALE_INPUT", "integrity": {"foreign_key_check": [], "integrity_check": "ok"}, "matterVersion": 0, "probe": "cas-recheck-after-audit", "sourceVersionAfterRollback": 1, "status": "pass"}
