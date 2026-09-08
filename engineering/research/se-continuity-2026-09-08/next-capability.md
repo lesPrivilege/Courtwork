@@ -8,7 +8,9 @@
 
 消费 [NDA 契约](../../../docs/work-core/nda.md)、[共享契约](../../../docs/work-core/contract.md) 和 `app/tests/nda-runtime.test.mjs`、`app/tests/work-continuity.test.mjs` 的实际接口。测试 helper 可用于 loopback host，但新语料/期望不得导入生产 NDA verifier 或开发/holdout fixture 模块作为 oracle。
 
-最小交付：一条合法 NDA 候选→人工裁决→新 Session attach 的正向轨迹；一条替换来源→旧候选拒绝→有效新候选成功的轨迹；保存 HTTP 请求/结果、规范化状态与 raw projection。脚本生成候选不标记真实模型。工作成果接受不等于 NDA 签署/发送。
+先按 lockfile 安装 app 依赖；B0 树只需要标准库，Luna 探索 host 时缺少 pi-ai，未能运行。评分增加跨实现语义拒绝类别（过期、幂等冲突、actor 字段拒绝），不能任意拒绝都得分。
+
+最小交付：一条合法 NDA 候选→人工裁决→新 Session attach 的正向轨迹；一条替换来源→旧候选拒绝→有效新候选成功的轨迹；保存 HTTP 请求/结果、规范化状态与 raw projection。脚本生成候选不标记真实模型。工作成果接受不等于 NDA 签署/发送。补 HTTP actor 字段拒绝及合法动作控制，不用 Core payload 拒绝替代宿主检查。
 
 再添加 producer unload/restart 只读历史，记录旧成果/来源可读、动作不可用；不把不可写当恢复失败，也不把读取历史当完成续行。可执行恢复另测兼容 producer 重新加载。
 
