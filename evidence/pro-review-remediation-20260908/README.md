@@ -24,15 +24,15 @@
 ## 运行与失败保留
 
 - [D1第一次](d1-first.json)：11/12。新增CAS驱动误对已接受候选提交，触发 CANDIDATE_CLOSED 而非目标版本冲突；修正为同base的第二pending候选，不改变Core以迎合测试。[下一次](d1-calibration.json) 12/12。
-- Luna 对早期 D1 再发现 raw 与 normalized 可不一致、角色由adapter自报；这两项作为实质P1继续修复，而非以12/12接受。`427226d` 增加预先固定角色、全部候选映射、raw hash与逐项重映射；后续增加receipt payload digest稳定性。
-- [最终D1运行](d1-linked.json)、[先落盘的计划](d1-linked.attempts.json)、[同步journal](d1-linked.journal.jsonl)：E/S各6条，合计12/12；仍只有一个开发memo族。raw/源码哈希/dirty状态按真实运行记录。[grader与负例](d1-final-tests.log)：7/7测试组，包括Pro五类、raw被改但obs未变、重签hash、同步坏raw与obs仍须语义失败。不是七个独立任务。
+- Luna 对早期 D1 再发现 raw 与 normalized 可不一致、角色由adapter自报；这两项作为实质P1继续修复，而非以12/12接受。`427226d` 增加预先固定角色、全部候选映射、raw hash与逐项重映射；后续增加receipt payload digest稳定性；Luna再发现合法格式的错误指纹仍可误通过，`55930a8`修复为与预设实际请求的独立canonical SHA256精确绑定。
+- [raw绑定阶段D1运行](d1-linked.json)、[先落盘的计划](d1-linked.attempts.json)、[同步journal](d1-linked.journal.jsonl)：E/S各6条，合计12/12；仍只有一个开发memo族。raw/源码哈希/dirty状态按真实运行记录。[grader与负例](d1-final-tests.log)：7/7测试组，包括Pro五类、raw被改但obs未变、重签hash、同步坏raw与obs仍须语义失败。不是七个独立任务。
 - [D2 focused](d2-focused.log)：5/5测试组。包括三个尺寸的HTTP续行、source/base/contract投影、作用域分页读取、source过期→卸载只读→重载修订接受。
 - 两个真正 SIGKILL 窗口在事务 barrier 精确触发，记录进程信号与恢复前receipt/成果、retry后的成果/义务及后续新修订。**被杀的是独立Core事务进程；HTTP宿主先正常关闭，之后重新启动做对账与继续工作。** 不宣称测了运行中的HTTP宿主被杀、远端网络副作用或外部exactly-once。
 - 后继 [独立持久化观察日志](d2-durable-observer.log) 2/2：`observe-recovery.py` 不导入生产模块，只读SQLite并一次事务读取成果、完整义务、决定/audit/receipt及同一效果引用。此观察器由本轮实现作者编写，代码依赖独立，不冒充非作者接受；Luna另行复核。
 - 初始读取范围测试试图同时建立两个Run，触发既有 RUN_ACTIVE；调整为串行测试，未放宽全局单Run约束。
 - [全量应用回归](full-tests-first.log)：179/179；[smoke](smoke.log)通过。未执行付费provider、专业法律任务或真人接管。
 
-原始数据副本与新版本运行分别保存。最终复验SHA、非作者结论另记补充，不重标旧5/5为修复后成绩。
+原始数据副本与新版本运行分别保存。最终复验SHA、非作者结论见 [独立复核与合流回执](independent-review.md)，不重标旧5/5为修复后成绩。
 
 ## 未完成与下一步
 

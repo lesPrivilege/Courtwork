@@ -1,0 +1,2 @@
+{"condition":"E","pass":false,"failed":[{"checkpoint":1,"field":"receipt_payload_binding"}]}
+{"condition":"S","pass":false,"failed":[{"checkpoint":1,"field":"receipt_payload_binding"}]}

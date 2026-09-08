@@ -30,8 +30,9 @@ preserve the first complete effect. Source replacement preserves old bytes.
 from the expected task. Trace entries retain raw state and SHA256 hashes;
 observations carry rawRef. Grading checks hash, step and a complete raw-to-observation
 mapping at each index before semantic invariants. It also checks the complete
-expected proposal membership, status/basis, and receipt request-digest presence
-and stability. Mutation tests cover raw-only changes, recomputed hashes with
+expected proposal membership, status/basis, and receipt request-digest equality
+to a preassigned request payload using each implementation's published encoding,
+plus stability across replay/restart. Mutation tests cover raw-only changes, recomputed hashes with
 stale observations, and consistently mapped corrupt raw facts. Hashes prove
 internal record consistency, not independent attestation that an untrusted
 adapter actually queried a database. Source review and nonauthor probes remain

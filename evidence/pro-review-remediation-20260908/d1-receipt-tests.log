@@ -1,0 +1,15 @@
+✔ E and ordinary S both satisfy the same semantic protocol with different IDs and revisions (3.327458ms)
+✔ Pro M1-M5 observation corruptions are rejected in both conditions (1.984125ms)
+✔ all committed checkpoints protect content, obligations, authority, source, receipts and unique effect (71.762ms)
+✔ reject-all, wrong refusal, missing/extra/reordered checkpoints and run errors fail (1.490167ms)
+✔ raw observer maps actual facts and never reconstructs missing durable audit or content (0.283292ms)
+✔ raw tampering, even with a recomputed hash, cannot retain a stale normalized observation (0.695666ms)
+✔ coherently mapped bad raw facts fail semantic checks, not just trace linkage (2.028208ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1303.362875

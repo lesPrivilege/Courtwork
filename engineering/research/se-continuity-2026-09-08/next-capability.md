@@ -7,13 +7,13 @@
 
 现有六条开发轨迹在E和普通SQLite审批S上均通过；[observation v2](../../../benchmarks/continuity/observation-contract.md) 定义全检查点语义、预分配角色、完整候选集、raw引用/哈希/重映射、唯一效果和义务保留。原五个Pro坏观察、raw/obs不一致及同步坏raw/obs都必须拒绝。
 
-剩余门槛是非作者复核最终代码和映射、完整证据归档。S不导入Courtwork，但仍由同一实现作者编写、只覆盖该有界机制协议；不称跨作者任务或通用工作流能力。不得把双方同过理解成SE优势。
+非作者已复核代码和映射，并发现与推动修复raw绑定、身份自报及receipt请求指纹三个评分边界；最终结论与日志见证据目录。S不导入Courtwork，但仍由同一实现作者编写、只覆盖该有界机制协议；不称跨作者任务或通用工作流能力。不得把双方同过理解成SE优势。
 
 ## D2：投影与真实续行
 
 已实现Context v2：成果引用/digest/basis+受控分页正文，pending保留base/source/contract与basis；literal URL不再被当作执行路径。应用179/179回归及smoke已过，另有三个尺寸HTTP新Session续行、作用域负例、producer卸载只读/重载接受、两种Core事务SIGKILL后的HTTP对账/修订继续。
 
-SIGKILL的对象是宿主关闭后的独立Core事务进程，不是运行中的HTTP宿主。完整live host kill/网络回执丢失、独立数据库外部观察、producer版本升级与更大义务集合仍须按需要分项建立。不能将此局部结果外推到外部exactly-once或专业法律正确性。新生产改动需要非作者有界复核，benchmark不能夹带新权限。
+SIGKILL的对象是宿主关闭后的独立Core事务进程，不是运行中的HTTP宿主。只读SQLite独立观察器已覆盖两种事务窗口的完整持久化效果，Luna另行复核通过。完整live host kill/网络回执丢失、producer版本升级与更大义务集合仍须按需要分项建立。不能将此局部结果外推到外部exactly-once或专业法律正确性。本轮生产改动已获Luna有界复核，benchmark不授予新权限。
 
 ## D3：先定义实际处理差异，再做有界pilot
 

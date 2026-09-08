@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 2,
+  "protocol": "se-continuity-conformance-v1",
+  "startedAt": "2026-09-08T12:32:50.538Z",
+  "git": {
+    "head": "55930a86517f01472ca1e4b85c0ed45ef284d3f2",
+    "dirty": false
+  },
+  "hashes": {
+    "benchmarks/continuity/cases.json": "1d22241119aa0a8e3d1b5b38732ccefa9dd90a4235d11c7c2ac1f7736a32fa60",
+    "benchmarks/continuity/run.mjs": "21daa1ced36dc1aa35f9f72a7e98bed386e4e40e665c206a3bcc113cb1803755",
+    "benchmarks/continuity/courtwork.mjs": "28b0559888c85d95fea03d3579a68a54554d79d76c430fe697679192eba58119",
+    "benchmarks/continuity/standard.mjs": "7c7b092381b4032d2d1b2f41c0b15a0e5cfc00c8d48af33427e4c035b62ef137",
+    "benchmarks/continuity/standard.py": "85bb888d99e8f70a7bc5e919fd7fd91f15e5f335ab1def297bef8012ff91cb7c",
+    "benchmarks/continuity/observe.mjs": "b369a1ed7dbf1e7dd4ebaa8d702ade6ae93e0b8a79885066878d15c19e2dcedd",
+    "benchmarks/continuity/grade.mjs": "920f87e6fe4b03c1e880e221318b8013bdf2aee2cd1d2e91a9733b497f644c20",
+    "benchmarks/continuity/fixture-identities.mjs": "e59743fb5d000cfd735833406a05b93da9e14633709860657486b2f4b9d9b4b8",
+    "benchmarks/continuity/trace.mjs": "3e34c8db01c66b7f3db9d36a071091304436455d11f96251abc077899dacfdf8",
+    "app/core/client.mjs": "2644e8aa9137c49f1c789899569c6165e48e60c4172706a42bafa964f64f7f58",
+    "app/core/bridge.py": "d503029935734176c80e2eee32382c05b56b135f2ef1e6c0a43cce658c6b4bdd",
+    "app/core/core.py": "a5103de27c2fd1d5552d6e55b69e34c350942af828f50e052184ae1f27d2109b"
+  },
+  "environment": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "python": "Python 3.14.2"
+  },
+  "corpus": "continuity-conformance-dev-v1",
+  "split": "development",
+  "independentTaskFamilies": 1,
+  "model": null,
+  "limitations": [
+    "development fixtures; shared author",
+    "trusted scripted clients",
+    "S is a bounded conventional transaction baseline, not a general workflow product",
+    "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
+  ],
+  "results": [],
+  "attempts": [
+    {
+      "id": "E/normal",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "normal",
+      "steps": [
+        "observe",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/stale-source",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "stale-source",
+      "steps": [
+        "replace",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/receipt-replay",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "receipt-replay",
+      "steps": [
+        "accept",
+        "accept",
+        "changed-request"
+      ]
+    },
+    {
+      "id": "E/restart",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "restart",
+      "steps": [
+        "accept",
+        "restart",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/actor-spoof",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "actor-spoof",
+      "steps": [
+        "spoof",
+        "accept"
+      ]
+    },
+    {
+      "id": "E/cas-conflict",
+      "condition": "E",
+      "identities": {
+        "workspaceId": "matter",
+        "sourceId": "source",
+        "proposalId": "candidate",
+        "peerProposalId": "other-candidate",
+        "obligationId": "confirm-owner",
+        "requestId": "review",
+        "reviewerId": "reviewer-1",
+        "initialRevision": "0",
+        "contractVersion": "se-contract-v5.0"
+      },
+      "taskId": "cas-conflict",
+      "steps": [
+        "accept",
+        "stale-base"
+      ]
+    },
+    {
+      "id": "S/normal",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "normal",
+      "steps": [
+        "observe",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/stale-source",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "stale-source",
+      "steps": [
+        "replace",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/receipt-replay",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "receipt-replay",
+      "steps": [
+        "accept",
+        "accept",
+        "changed-request"
+      ]
+    },
+    {
+      "id": "S/restart",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "restart",
+      "steps": [
+        "accept",
+        "restart",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/actor-spoof",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "actor-spoof",
+      "steps": [
+        "spoof",
+        "accept"
+      ]
+    },
+    {
+      "id": "S/cas-conflict",
+      "condition": "S",
+      "identities": {
+        "workspaceId": "job-19",
+        "sourceId": "file-27",
+        "proposalId": "submission-32",
+        "peerProposalId": "submission-33",
+        "obligationId": "task-81",
+        "requestId": "approval-23",
+        "reviewerId": "staff-91",
+        "initialRevision": "41",
+        "contractVersion": "ordinary-review-v1"
+      },
+      "taskId": "cas-conflict",
+      "steps": [
+        "accept",
+        "stale-base"
+      ]
+    }
+  ]
+}
