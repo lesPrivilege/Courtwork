@@ -373,7 +373,7 @@ export class RuntimeStore {
     return this._mutate((state) => {
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
-      if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       session.permissionMode = permissionMode; return publicSession(session);
     });
   }
