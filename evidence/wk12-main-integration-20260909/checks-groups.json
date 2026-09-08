@@ -1,0 +1,200 @@
+{
+  "ranAt": "2026-09-08T17:14:39.942Z",
+  "origin": "http://127.0.0.1:8898",
+  "sessionId": "d81cfa42-59bf-4594-a7dc-bb1835e39b68",
+  "results": [
+    {
+      "name": "G1 · General 收 Connection（原表单原请求）、New sessions 默认与只读 Data",
+      "pass": true,
+      "actual": {
+        "rows": [
+          "Provider",
+          "Model",
+          "API format",
+          "Base URL",
+          "Key",
+          "File writes",
+          "Data directory",
+          "Adapter",
+          "Host state",
+          "Tools"
+        ],
+        "providerForm": true,
+        "credentialForm": true,
+        "newSessions": true,
+        "dataDir": "Data directoryThe runtime does not report its path over the API, so this page cannot state it. It is the --data-dir the host was started with.Not reported",
+        "adapter": [
+          "Not reported",
+          "pi-coding-agent@0.85.1/agent-session",
+          "ready",
+          "ask_user, ws_list, ws_read, ws_write, ws_grep"
+        ],
+        "editable": 0
+      }
+    },
+    {
+      "name": "G2 · 主机不报数据目录就说没报，不拿别的东西冒充一个路径",
+      "pass": true,
+      "actual": {
+        "dataDir": "Data directoryThe runtime does not report its path over the API, so this page cannot state it. It is the --data-dir the host was started with.Not reported",
+        "readouts": [
+          "Not reported",
+          "pi-coding-agent@0.85.1/agent-session",
+          "ready",
+          "ask_user, ws_list, ws_read, ws_write, ws_grep"
+        ]
+      }
+    },
+    {
+      "name": "G3 · New sessions 写的是 Home 已有的那个默认值来源，不是第二份状态",
+      "pass": true,
+      "actual": {
+        "home": "read_only",
+        "state": "read_only"
+      }
+    },
+    {
+      "name": "R1 · Runtime 按意图分组，五个节位就位；Overview 收现有 runtime 入口与上下文摘要",
+      "pass": true,
+      "actual": {
+        "mounts": [
+          "overview",
+          "composition",
+          "instructions-and-context",
+          "capabilities-and-connections",
+          "permissions-and-environment"
+        ],
+        "headings": [
+          "Overview",
+          "Composition",
+          "Instructions & context",
+          "Capabilities & connections",
+          "Permissions & environment"
+        ],
+        "overviewPanel": true,
+        "contextSummary": true,
+        "controlEntry": true,
+        "modelsEditable": 0,
+        "jump": [
+          "Edit in General"
+        ],
+        "modelRows": [
+          "Provider",
+          "Model",
+          "API format",
+          "Base URL",
+          "API key"
+        ]
+      }
+    },
+    {
+      "name": "R2 · Models 只读，编辑只在 General 一处",
+      "pass": true,
+      "actual": {
+        "editable": 0,
+        "jump": [
+          "Edit in General"
+        ],
+        "rows": [
+          "Provider",
+          "Model",
+          "API format",
+          "Base URL",
+          "API key"
+        ]
+      }
+    },
+    {
+      "name": "R3 · Edit in General 落到 General 的那一处表单上",
+      "pass": true,
+      "actual": {
+        "current": "General",
+        "focus": "SELECT:provider"
+      }
+    },
+    {
+      "name": "D1 · Developer 收 extension 生命周期、runtime-info 与 Planned；Planned 行没有任何控件",
+      "pass": true,
+      "actual": {
+        "extensions": 3,
+        "planned": 8,
+        "plannedControls": 0,
+        "info": true
+      }
+    },
+    {
+      "name": "X1 · 回归：连接保存仍走 PUT /provider-config，字段与结果不变",
+      "pass": true,
+      "actual": {
+        "before": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "after": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        }
+      }
+    },
+    {
+      "name": "X2 · 回归：切到真实 provider 后 key 的保存与删除路径不变，key 从不回显",
+      "pass": true,
+      "actual": {
+        "keyPath": {
+          "hiddenAfterSwitch": false,
+          "afterSave": "A key is saved on this device. It is never shown here.",
+          "afterDelete": "No key is saved for the selected connection."
+        },
+        "credentialState": "not_configured"
+      }
+    },
+    {
+      "name": "X3 · 复位：工作区回到本地 fake provider",
+      "pass": true,
+      "actual": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "api": "openai-completions"
+      }
+    },
+    {
+      "name": "X4 · 回归：extension 生命周期在 Developer 组内不变（load 后状态与动作集照旧）",
+      "pass": true,
+      "actual": {
+        "before": "unloaded",
+        "after": "loaded",
+        "actions": [
+          "Unload",
+          "Invalidate",
+          "Reload"
+        ]
+      }
+    },
+    {
+      "name": "X5 · 回归：Bind to session 仍在 Developer 组内，按下后本页让位、绑定面出现、hash 离开设置",
+      "pass": true,
+      "actual": {
+        "found": true,
+        "settingsHidden": true,
+        "panelOpen": true,
+        "focusOnHandover": false,
+        "focusedTag": "BODY:",
+        "focusAfterReread": false,
+        "hash": ""
+      }
+    },
+    {
+      "name": "X5b · 既有缺陷（非本单造成）：交接时绑定面里还没有字段，焦点落在 body",
+      "pass": true,
+      "actual": {
+        "focusOnHandover": false,
+        "focusedTag": "BODY:",
+        "focusAfterReread": false
+      }
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

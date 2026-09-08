@@ -1,0 +1,9 @@
+PASS FE-T10 (a) · 只用 Tab 走这一页：每一个落脚点都有名字，没有一个被悬浮层遮住
+PASS FE-T10 (b) · Tab 序覆盖搜索、导航与右列控件；导航只留当前项一个落脚点（roving tabindex）
+PASS FE-T10 (c) · 展开用 Enter 打开，焦点留在 summary 上，展开的两行有各自的标题与关联标签
+PASS FE-T10 (d) · dialog 由键盘打开，焦点进到里面且有名字，Escape 关掉后焦点回到开它的控件
+PASS FE-T10 (e) · 键盘换会话：Settings 让位，hash 离开设置，标题换成会话，焦点按既有落点交给会话标题
+PASS FE-T10 (g) · 进这一页时悬浮工作面收起，没有一层浮在设置之上；焦点落在 Back
+PASS FE-T10 (f) · IME 组合期间的 Enter / Escape / j 都不触发命令：不发送、不关层、不挪焦点
+
+7/7 pass · exceptions 0

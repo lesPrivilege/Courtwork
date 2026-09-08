@@ -1,6 +1,6 @@
 # WO-WK11 · Runtime Workbench（Claude Opus）
 
-2026-09-08。用户授权下一轮施工；基线 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`（main）。现RC已在当前实现，WO-WK10a合流前置已满足。共享 `app/web/app.mjs` 的写入排在 [WK10b第一段](WO-WK10b-work-surface.md) 接收后，不能同时覆盖同一文件。Astra负责契约与接收，Fable既有WK裁定继续作为设计输入。
+2026-09-08。用户授权下一轮施工；基线为 WK12 合流后的清洁main（以Astra最终回执SHA为准，接单重查HEAD）。现RC与Settings页壳已在当前实现。共享 `app/web/app.mjs` 的写入排在 [WK12](WO-WK12-settings-page.md) 接收后，不能同时覆盖同一文件。Astra负责契约与接收，Fable既有WK裁定继续作为设计输入。
 
 ## 问题与输入
 
@@ -11,6 +11,8 @@
 2026-09-08 补充（WK-78 / WK-82）：本单在 [WO-WK12](WO-WK12-settings-page.md) 的 Settings 页壳内作 Runtime 组交付；导航改为 [frontend-layering-spec §3.1](../../../../design/frontend-layering-spec.md) 的意图分组（Overview / Composition / Instructions & context / Capabilities & connections / Permissions & environment），原 Overview…Governance 节点映射其中，kind 作过滤；设置条目显示 Source / Requested / Effective / Bound 四层（FN-14）；active Run 冻结时只留草稿，不用"已排队"（FN-16）。反例 FE-T03 / T04 由本单交付。
 
 WK-87 追加（同 writer、同文件，随本单实施）：(a) Appearance 四块预览收为一块，置于组顶，四行共用；(b) 用户 skin 接受前按 `tools/contrast-report.mjs` 同一对照对计算并警告，不阻止。
+
+WK12挂载点与复用更新通道见 [delivery-wk12 §10](../delivery-wk12.md#10-留给-wk11-的挂载点)。BE-16稳定工作区标识仍为后端登记请求，前端不造字段；空态Home的31vh不属本单，等待用户裁定。
 
 ## 第一段：当前API即可完成
 

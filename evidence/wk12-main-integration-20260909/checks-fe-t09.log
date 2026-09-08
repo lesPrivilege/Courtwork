@@ -1,0 +1,6 @@
+PASS FE-T09 (a) · 换 skin、换字号、窄屏、缩放、强制 reduced motion：Settings 的行、说明、控件种类、可用性与 Planned 行一字不差
+PASS FE-T09 (b) · 同样九种条件下，Home 的三个计数、状态词与合法动作一字不差
+PASS FE-T09 (c) · 每种条件下焦点仍可见、未被悬浮层遮住，命中区不低于本地下限（桌面 32 / 窄屏 44）
+PASS FE-T09 (d) · 每种条件下都不横向溢出
+
+4/4 pass · exceptions 0

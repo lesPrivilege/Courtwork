@@ -1,0 +1,174 @@
+{
+  "ranAt": "2026-09-08T17:15:17.239Z",
+  "origin": "http://127.0.0.1:8898",
+  "note": "密度与模块顺序两项自定义本轮未实现（frontend-layering-spec §3 列为「可以」，无消费者前不排单），因此本反例以 skin、字号、宗、窄屏、缩放、强制 reduced motion 六种变更代替。",
+  "conditions": [
+    {
+      "label": "baseline · slate · medium · 1440 · light",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(28, 32, 36)",
+        "blurred": "none|3px|none|rgb(28, 32, 36)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "skin gray-steel",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(32, 32, 32)",
+        "blurred": "none|3px|none|rgb(32, 32, 32)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "skin user tokens",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(32, 32, 32)",
+        "blurred": "none|3px|none|rgb(32, 32, 32)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "text size large",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 34,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(32, 32, 32)",
+        "blurred": "none|3px|none|rgb(32, 32, 32)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "text size small",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(32, 32, 32)",
+        "blurred": "none|3px|none|rgb(32, 32, 32)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "reduced motion forced",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(32, 32, 32)",
+        "blurred": "none|3px|none|rgb(32, 32, 32)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "dark scheme",
+      "focus": {
+        "id": "settings-tab-general",
+        "w": 208,
+        "h": 32,
+        "covered": false,
+        "outline": true,
+        "focused": "solid|2px|none|rgb(237, 238, 240)",
+        "blurred": "none|3px|none|rgb(237, 238, 240)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "narrow 390",
+      "focus": {
+        "id": "settings-nav-select",
+        "w": 358,
+        "h": 44,
+        "covered": false,
+        "outline": true,
+        "focused": "none|3px|rgba(0, 0, 0, 0) 0px 0px 0px 0px|rgb(185, 187, 198)",
+        "blurred": "none|3px|none|rgb(185, 187, 198)"
+      },
+      "overflow": 0
+    },
+    {
+      "label": "zoom 200 %",
+      "focus": {
+        "id": "settings-nav-select",
+        "w": 688,
+        "h": 44,
+        "covered": false,
+        "outline": true,
+        "focused": "none|3px|rgba(0, 0, 0, 0) 0px 0px 0px 0px|rgb(185, 187, 198)",
+        "blurred": "none|3px|none|rgb(185, 187, 198)"
+      },
+      "overflow": 0
+    }
+  ],
+  "results": [
+    {
+      "name": "FE-T09 (a) · 换 skin、换字号、窄屏、缩放、强制 reduced motion：Settings 的行、说明、控件种类、可用性与 Planned 行一字不差",
+      "pass": true,
+      "actual": {
+        "differing": [],
+        "conditions": 9
+      }
+    },
+    {
+      "name": "FE-T09 (b) · 同样九种条件下，Home 的三个计数、状态词与合法动作一字不差",
+      "pass": true,
+      "actual": {
+        "homeDiffering": [],
+        "baselineHome": {
+          "tiles": [
+            "Waiting for you, 0=0",
+            "In progress, 1=1",
+            "Needs a look, 0=0"
+          ],
+          "planned": [
+            "Activity by dayBackend pending"
+          ],
+          "rows": [],
+          "composer": [
+            "Session files:false",
+            "Local test:false",
+            "Cancel run:true",
+            "Send:true",
+            "New project:false",
+            "File writes: File permissions:false"
+          ]
+        }
+      }
+    },
+    {
+      "name": "FE-T09 (c) · 每种条件下焦点仍可见、未被悬浮层遮住，命中区不低于本地下限（桌面 32 / 窄屏 44）",
+      "pass": true,
+      "actual": {
+        "focusProblems": []
+      }
+    },
+    {
+      "name": "FE-T09 (d) · 每种条件下都不横向溢出",
+      "pass": true,
+      "actual": []
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

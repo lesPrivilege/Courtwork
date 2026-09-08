@@ -1,0 +1,13 @@
+PASS A0 · Appearance 五行，四行下方各一块真实产品片段预览（Chat Flow 行 + 带 diff 的代码块）
+PASS A1 · Scheme 写 data-theme，预览随之即时重画
+PASS A2 · Text size 一个根变量带动整条字号阶梯
+PASS A3 · Code font 写进 --font-mono 前缀；不是字体名的输入被拒绝，旧值不动
+PASS A4 · Reduced motion 强制档把过渡停到 0s（系统未设 reduce 时）
+PASS A5 · Skin 只换 Tier S：token 的值变了，行、状态词与控件一字不变
+PASS A6 · 选中「你的 token」只露出编辑框；校验通过之前不改变生效的 skin（请求值 ≠ 有效值）
+PASS A7 · 用户 token 集不通过时逐行指出并整体拒绝，一个字节都不落地
+PASS A8 · 通过时应用并持久化：一组 Tier S token 就是一个 skin
+PASS A9 · 偏好由 head 里的同步脚本应用，重载后原样生效；键按工作区区分，值只在本设备
+PASS A10 · 服务器一侧没有多出任何外观字段：偏好不进 runtime-state，也没有新后端
+
+11/11 pass · exceptions 0

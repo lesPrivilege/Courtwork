@@ -1,0 +1,5 @@
+PASS N1 · 没有存过偏好时，body 进场时根元素上什么外观属性都没有（默认宗、默认 skin）
+PASS N2 · 存过偏好时，body 进场时宗、skin、字号、代码字体已经全部在场：没有先默认后跳变
+PASS N3 · Reduced motion 的强制档同样在首帧之前落地
+
+3/3 pass · exceptions 0

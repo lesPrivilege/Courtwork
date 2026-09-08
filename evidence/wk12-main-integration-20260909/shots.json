@@ -1,0 +1,450 @@
+{
+  "ranAt": "2026-09-08T17:15:50.588Z",
+  "origin": "http://127.0.0.1:8898",
+  "geometry": [
+    {
+      "label": "1440-light-medium",
+      "overflow": 0,
+      "nav": {
+        "w": 208,
+        "h": 168,
+        "top": 157,
+        "left": 274
+      },
+      "dropdown": {
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0
+      },
+      "sections": {
+        "w": 910,
+        "h": 763,
+        "top": 113,
+        "left": 506
+      },
+      "navVisible": true,
+      "dropdownVisible": false,
+      "tabHeights": [
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "controlHeights": [
+        32,
+        32,
+        32,
+        37,
+        32,
+        32,
+        32,
+        39,
+        32,
+        32
+      ],
+      "rootFont": "14px",
+      "sidebarUsable": true
+    },
+    {
+      "label": "text-small",
+      "rootFont": "13.006px"
+    },
+    {
+      "label": "text-medium",
+      "rootFont": "14px"
+    },
+    {
+      "label": "text-large",
+      "rootFont": "16.002px"
+    },
+    {
+      "label": "1440-dark-medium",
+      "overflow": 0,
+      "nav": {
+        "w": 208,
+        "h": 168,
+        "top": 157,
+        "left": 274
+      },
+      "dropdown": {
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0
+      },
+      "sections": {
+        "w": 910,
+        "h": 763,
+        "top": 113,
+        "left": 506
+      },
+      "navVisible": true,
+      "dropdownVisible": false,
+      "tabHeights": [
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "controlHeights": [
+        32,
+        32,
+        32,
+        37,
+        32,
+        32,
+        32,
+        39,
+        32,
+        32
+      ],
+      "rootFont": "14px",
+      "sidebarUsable": true
+    },
+    {
+      "label": "390-light-medium",
+      "overflow": 0,
+      "nav": {
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0
+      },
+      "dropdown": {
+        "w": 358,
+        "h": 44,
+        "top": 168,
+        "left": 16
+      },
+      "sections": {
+        "w": 358,
+        "h": 532,
+        "top": 224,
+        "left": 16
+      },
+      "navVisible": false,
+      "dropdownVisible": true,
+      "tabHeights": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "controlHeights": [
+        32,
+        32,
+        32,
+        37,
+        32,
+        32,
+        32,
+        39,
+        32,
+        32
+      ],
+      "rootFont": "14px",
+      "sidebarUsable": true
+    },
+    {
+      "label": "390-dark-medium",
+      "overflow": 0,
+      "nav": {
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0
+      },
+      "dropdown": {
+        "w": 358,
+        "h": 44,
+        "top": 168,
+        "left": 16
+      },
+      "sections": {
+        "w": 358,
+        "h": 532,
+        "top": 224,
+        "left": 16
+      },
+      "navVisible": false,
+      "dropdownVisible": true,
+      "tabHeights": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "controlHeights": [
+        32,
+        32,
+        32,
+        37,
+        32,
+        32,
+        32,
+        39,
+        32,
+        32
+      ],
+      "rootFont": "14px",
+      "sidebarUsable": true
+    },
+    {
+      "label": "200pct-light",
+      "overflow": 0,
+      "nav": {
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0
+      },
+      "dropdown": {
+        "w": 688,
+        "h": 44,
+        "top": 168,
+        "left": 16
+      },
+      "sections": {
+        "w": 688,
+        "h": 202,
+        "top": 224,
+        "left": 16
+      },
+      "navVisible": false,
+      "dropdownVisible": true,
+      "tabHeights": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "controlHeights": [
+        32,
+        32,
+        32,
+        37,
+        32,
+        32,
+        32,
+        39,
+        32,
+        32
+      ],
+      "rootFont": "14px",
+      "sidebarUsable": true
+    }
+  ],
+  "results": [
+    {
+      "name": "T1 · 1440：左列导航在场、顶部下拉退场，横向不溢出，命中区不小于 32",
+      "pass": true,
+      "actual": {
+        "overflow": 0,
+        "nav": {
+          "w": 208,
+          "h": 168,
+          "top": 157,
+          "left": 274
+        },
+        "dropdown": {
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "left": 0
+        },
+        "sections": {
+          "w": 910,
+          "h": 763,
+          "top": 113,
+          "left": 506
+        },
+        "navVisible": true,
+        "dropdownVisible": false,
+        "tabHeights": [
+          32,
+          32,
+          32,
+          32,
+          32
+        ],
+        "controlHeights": [
+          32,
+          32,
+          32,
+          37,
+          32,
+          32,
+          32,
+          39,
+          32,
+          32
+        ],
+        "rootFont": "14px",
+        "sidebarUsable": true
+      }
+    },
+    {
+      "name": "T2 · 390 light：导航折成顶部下拉，右列单列，横向不溢出，命中区不小于 44",
+      "pass": true,
+      "actual": {
+        "overflow": 0,
+        "nav": {
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "left": 0
+        },
+        "dropdown": {
+          "w": 358,
+          "h": 44,
+          "top": 168,
+          "left": 16
+        },
+        "sections": {
+          "w": 358,
+          "h": 532,
+          "top": 224,
+          "left": 16
+        },
+        "navVisible": false,
+        "dropdownVisible": true,
+        "tabHeights": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "controlHeights": [
+          32,
+          32,
+          32,
+          37,
+          32,
+          32,
+          32,
+          39,
+          32,
+          32
+        ],
+        "rootFont": "14px",
+        "sidebarUsable": true
+      }
+    },
+    {
+      "name": "T2 · 390 dark：导航折成顶部下拉，右列单列，横向不溢出，命中区不小于 44",
+      "pass": true,
+      "actual": {
+        "overflow": 0,
+        "nav": {
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "left": 0
+        },
+        "dropdown": {
+          "w": 358,
+          "h": 44,
+          "top": 168,
+          "left": 16
+        },
+        "sections": {
+          "w": 358,
+          "h": 532,
+          "top": 224,
+          "left": 16
+        },
+        "navVisible": false,
+        "dropdownVisible": true,
+        "tabHeights": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "controlHeights": [
+          32,
+          32,
+          32,
+          37,
+          32,
+          32,
+          32,
+          39,
+          32,
+          32
+        ],
+        "rootFont": "14px",
+        "sidebarUsable": true
+      }
+    },
+    {
+      "name": "T3 · 200 % 缩放：整页重排而不是被裁掉，横向不溢出",
+      "pass": true,
+      "actual": {
+        "overflow": 0,
+        "nav": {
+          "w": 0,
+          "h": 0,
+          "top": 0,
+          "left": 0
+        },
+        "dropdown": {
+          "w": 688,
+          "h": 44,
+          "top": 168,
+          "left": 16
+        },
+        "sections": {
+          "w": 688,
+          "h": 202,
+          "top": 224,
+          "left": 16
+        },
+        "navVisible": false,
+        "dropdownVisible": true,
+        "tabHeights": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "controlHeights": [
+          32,
+          32,
+          32,
+          37,
+          32,
+          32,
+          32,
+          39,
+          32,
+          32
+        ],
+        "rootFont": "14px",
+        "sidebarUsable": true
+      }
+    },
+    {
+      "name": "T4 · 强制 reduced motion：系统未设 reduce 时页内也没有过渡与在跑的动效",
+      "pass": true,
+      "actual": {
+        "running": 0,
+        "transitions": [
+          "0s"
+        ],
+        "mediaReduce": false
+      }
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

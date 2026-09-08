@@ -1,0 +1,382 @@
+{
+  "ranAt": "2026-09-08T17:15:31.344Z",
+  "origin": "http://127.0.0.1:8898",
+  "walk": [
+    {
+      "tag": "INPUT",
+      "id": "settings-search",
+      "role": null,
+      "name": "Search settings",
+      "w": 208,
+      "h": 36,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "settings-tab-general",
+      "role": "tab",
+      "name": "General",
+      "w": 208,
+      "h": 32,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SELECT",
+      "id": "settings-control-3",
+      "role": null,
+      "name": "Provider",
+      "w": 109,
+      "h": 37,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SELECT",
+      "id": "settings-control-4",
+      "role": null,
+      "name": "Model",
+      "w": 150,
+      "h": 37,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SUMMARY",
+      "id": "",
+      "role": null,
+      "name": "Connection options",
+      "w": 598,
+      "h": 38,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "role": null,
+      "name": "Save connection",
+      "w": 132,
+      "h": 33,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "settings-new-session-permission-ask",
+      "role": null,
+      "name": "Ask",
+      "w": 197,
+      "h": 1,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "BODY",
+      "name": "",
+      "covered": false
+    },
+    {
+      "tag": "A",
+      "id": "workspace-home-link",
+      "role": null,
+      "name": "CourtWork",
+      "w": 94,
+      "h": 20,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "new-project-button",
+      "role": null,
+      "name": "New project",
+      "w": 32,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "close-nav-button",
+      "role": null,
+      "name": "Close navigation",
+      "w": 32,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "new-session-button",
+      "role": null,
+      "name": "New session",
+      "w": 225,
+      "h": 33,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "home-button",
+      "role": null,
+      "name": "Home",
+      "w": 225,
+      "h": 33,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "nav-filter-input",
+      "role": null,
+      "name": "Find a project or session",
+      "w": 225,
+      "h": 34,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "role": null,
+      "name": "WK12 checks",
+      "w": 193,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "role": null,
+      "name": "New session in WK12 checks",
+      "w": 32,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "refresh-button",
+      "role": null,
+      "name": "Refresh workspace",
+      "w": 32,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "runtime-setup-button",
+      "role": null,
+      "name": "Settings",
+      "w": 32,
+      "h": 32,
+      "covered": false,
+      "inPage": false,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "settings-back-button",
+      "role": null,
+      "name": "Back",
+      "w": 54,
+      "h": 33,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "settings-search",
+      "role": null,
+      "name": "Search settings",
+      "w": 208,
+      "h": 36,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "settings-tab-general",
+      "role": "tab",
+      "name": "General",
+      "w": 208,
+      "h": 32,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SELECT",
+      "id": "settings-control-3",
+      "role": null,
+      "name": "Provider",
+      "w": 109,
+      "h": 37,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SELECT",
+      "id": "settings-control-4",
+      "role": null,
+      "name": "Model",
+      "w": 150,
+      "h": 37,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "SUMMARY",
+      "id": "",
+      "role": null,
+      "name": "Connection options",
+      "w": 598,
+      "h": 38,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "role": null,
+      "name": "Save connection",
+      "w": 132,
+      "h": 33,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    },
+    {
+      "tag": "INPUT",
+      "id": "settings-new-session-permission-ask",
+      "role": null,
+      "name": "Ask",
+      "w": 197,
+      "h": 1,
+      "covered": false,
+      "inPage": true,
+      "inDialog": false
+    }
+  ],
+  "results": [
+    {
+      "name": "FE-T10 (a) · 只用 Tab 走这一页：每一个落脚点都有名字，没有一个被悬浮层遮住",
+      "pass": true,
+      "actual": {
+        "visited": 15,
+        "nameless": [],
+        "covered": [],
+        "tiny": []
+      }
+    },
+    {
+      "name": "FE-T10 (b) · Tab 序覆盖搜索、导航与右列控件；导航只留当前项一个落脚点（roving tabindex）",
+      "pass": true,
+      "actual": {
+        "reachedSearch": true,
+        "reachedNav": true,
+        "reachedControl": true,
+        "tabStops": [
+          "settings-tab-general"
+        ]
+      }
+    },
+    {
+      "name": "FE-T10 (c) · 展开用 Enter 打开，焦点留在 summary 上，展开的两行有各自的标题与关联标签",
+      "pass": true,
+      "actual": {
+        "beforeOpen": false,
+        "afterOpen": {
+          "open": true,
+          "focus": "SUMMARY",
+          "fields": [
+            "API format",
+            "Base URL"
+          ]
+        }
+      }
+    },
+    {
+      "name": "FE-T10 (d) · dialog 由键盘打开，焦点进到里面且有名字，Escape 关掉后焦点回到开它的控件",
+      "pass": true,
+      "actual": {
+        "inDialog": {
+          "tag": "INPUT",
+          "id": "project-name-input",
+          "role": null,
+          "name": "Project name",
+          "w": 370,
+          "h": 39,
+          "covered": false,
+          "inPage": false,
+          "inDialog": true
+        },
+        "afterDialog": {
+          "open": 0,
+          "focus": "new-project-button"
+        }
+      }
+    },
+    {
+      "name": "FE-T10 (e) · 键盘换会话：Settings 让位，hash 离开设置，标题换成会话，焦点按既有落点交给会话标题",
+      "pass": true,
+      "actual": {
+        "settingsHidden": true,
+        "hash": "",
+        "session": true,
+        "focus": "session-title",
+        "title": "Settings checks"
+      }
+    },
+    {
+      "name": "FE-T10 (g) · 进这一页时悬浮工作面收起，没有一层浮在设置之上；焦点落在 Back",
+      "pass": true,
+      "actual": {
+        "railOpen": true,
+        "surfaceOpen": false,
+        "panelInert": true,
+        "overlap": false,
+        "pageVisible": true,
+        "focus": "settings-back-button"
+      }
+    },
+    {
+      "name": "FE-T10 (f) · IME 组合期间的 Enter / Escape / j 都不触发命令：不发送、不关层、不挪焦点",
+      "pass": true,
+      "actual": {
+        "runsBefore": 0,
+        "runsAfter": 0,
+        "focus": "composer-input",
+        "dialogs": 0,
+        "settingsHidden": true
+      }
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

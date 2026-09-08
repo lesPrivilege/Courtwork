@@ -1,0 +1,15 @@
+PASS G1 · General 收 Connection（原表单原请求）、New sessions 默认与只读 Data
+PASS G2 · 主机不报数据目录就说没报，不拿别的东西冒充一个路径
+PASS G3 · New sessions 写的是 Home 已有的那个默认值来源，不是第二份状态
+PASS R1 · Runtime 按意图分组，五个节位就位；Overview 收现有 runtime 入口与上下文摘要
+PASS R2 · Models 只读，编辑只在 General 一处
+PASS R3 · Edit in General 落到 General 的那一处表单上
+PASS D1 · Developer 收 extension 生命周期、runtime-info 与 Planned；Planned 行没有任何控件
+PASS X1 · 回归：连接保存仍走 PUT /provider-config，字段与结果不变
+PASS X2 · 回归：切到真实 provider 后 key 的保存与删除路径不变，key 从不回显
+PASS X3 · 复位：工作区回到本地 fake provider
+PASS X4 · 回归：extension 生命周期在 Developer 组内不变（load 后状态与动作集照旧）
+PASS X5 · 回归：Bind to session 仍在 Developer 组内，按下后本页让位、绑定面出现、hash 离开设置
+PASS X5b · 既有缺陷（非本单造成）：交接时绑定面里还没有字段，焦点落在 body
+
+13/13 pass · exceptions 0
