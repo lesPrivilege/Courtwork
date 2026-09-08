@@ -1,0 +1,20 @@
+[
+  {
+    "action": "connect",
+    "status": 200,
+    "running": true,
+    "tools": 2
+  },
+  {
+    "action": "disconnect",
+    "status": 200,
+    "running": false,
+    "tools": 0
+  },
+  {
+    "action": "connect",
+    "status": 200,
+    "running": true,
+    "tools": 2
+  }
+]

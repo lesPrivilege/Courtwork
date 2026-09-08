@@ -1,0 +1,67 @@
+[
+ {
+  "name": "no project · the conditional sentence is shown",
+  "pass": true,
+  "actual": {
+   "projects": 0,
+   "hidden": false,
+   "text": "Choose or create a project to send."
+  }
+ },
+ {
+  "name": "a project exists · the sentence disappears",
+  "pass": true,
+  "actual": {
+   "projects": 1,
+   "hidden": true,
+   "draft": "WK6 draft that must survive project creation"
+  }
+ },
+ {
+  "name": "draft retained across project creation",
+  "pass": true,
+  "actual": {
+   "draft": "WK6 draft that must survive project creation"
+  }
+ },
+ {
+  "name": "Shift+Enter inserts a newline and sends nothing",
+  "pass": true,
+  "actual": {
+   "value": "WK6 draft that must survive project creation\n",
+   "runs": 0,
+   "view": "home"
+  }
+ },
+ {
+  "name": "Enter sends: one session and one run were admitted",
+  "pass": true,
+  "actual": {
+   "view": "session",
+   "session": "a8ab12c5-d5fe-460b-b5a6-567126b2711e",
+   "runs": [
+    "running"
+   ]
+  }
+ },
+ {
+  "name": "Send is the last focusable control in the composer",
+  "pass": true,
+  "actual": {
+   "order": [
+    "composer-input",
+    "model-settings-button",
+    "send-button"
+   ]
+  }
+ },
+ {
+  "name": "Escape closes the topmost layer only",
+  "pass": true,
+  "actual": {
+   "popoverOpen": true,
+   "popoverClosed": true
+  }
+ }
+]
+PASS 7/7

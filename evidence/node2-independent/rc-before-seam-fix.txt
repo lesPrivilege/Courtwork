@@ -1,0 +1,13 @@
+{
+  "contract": "18/19",
+  "counterexamples": "9/9",
+  "viewport": "36/36",
+  "failures": [
+    {
+      "id": "bar-no-limit",
+      "obligation": "the bar shows composition only: no percentage, free space or quota line",
+      "pass": false,
+      "detail": "0 segments"
+    }
+  ]
+}

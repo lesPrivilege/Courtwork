@@ -2,13 +2,13 @@
 
 状态：用户已明确第二自足节点 `0a307802b61a6847ee88bfea870bdf340647caee` 交Astra独验合流；本轮接收的是WK10a + r2，WK10b / WK11等待合流基线。双向追溯与补齐正在隔离树进行，最终移交字段按下文固定。
 
-## 移交时填写
+## 固定移交输入
 
-- Fable最终交付：分支、完整SHA、交付/设计选择/契约路径、writer退出与遗留项。
-- 双向追溯：关键路径→harness映射、harness→UI覆盖、必要补充提交、验证和未闭合gap。
-- 合流：源分支祖先、完整merge SHA、冲突处理、实际修改路径；确认所需文档已在提交中，不能只存在于另一工作树的未提交文件。
-- 验证：作者/独立验证分别列命令、环境、fixture、输出和源SHA；真实provider未跑明确`not_run`。
-- 下一任务：项目、隔离工作树、起点merge SHA、独立数据目录和端口、任务ID；创建成功后回填，避免重复派发。
+- Fable最终节点：`claude/wsk-integration` @ `0a307802b61a6847ee88bfea870bdf340647caee`；用户明确本节点交Astra，WK10b / WK11等待新基线，不包含在本节点已完成范围。
+- 双向追溯、BE-1…13裁取与证据：[node2-independent](../../../evidence/node2-independent/README.md)；产品补充`dbf12b3`，来源因果与上下文计数之外未改布局。
+- 合流代码基线：`7df1f6c486db8f1558dc0020ff4a62281856e207`；合流后仅追加证据和交接元数据。源文件hash见`evidence/node2-independent/source-manifest.json`。
+- 验证：全量139/139；布局30/30、Home7/7、RC契约20/20、反例9/9、视口36/36；Luna独验18/18及P2修正后的只读复查。真实provider与VoiceOver未跑，flaky未复现且无原失败栈，均保留未闭合。
+- 后继任务：创建后在此回填任务ID与启动提交。新任务先核对其起点包含上述代码基线，再按下面说明联调。
 
 ## 新任务读取顺序
 

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+第二自足节点已在Astra隔离树合流：Fable `0a30780`（WK10a+r2）+ 接缝修补 `dbf12b3` → 代码基线 `7df1f6c486db8f1558dc0020ff4a62281856e207`。见 [独立集成回执](../evidence/node2-independent/README.md) 与 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)。候选同步与新任务ID以交接包的实际记录为准；尚未push或公开发布。WK10b / WK11由Fable基于本次合流后派发。最新用户边界：Desktop优先，composer沉底不作为桌面验收要求，窄宗可暂缓，Continue等版面位置留Fable后续参考裁定。
+
+以下迁移说明和表格保留前期已交付基线；第二节点新增结果以上述回执为准。
+
 更新时间：2026-09-08（Asia/Singapore）。当前载荷已合入 Claude UI `dd65d2b`（包含 `4fab4bd`、`f8e3c19`）、Runtime Control Plane `8722259`、Brand `faef241`，以及 Astra 权限修复 `787bf1c`、Home composer 和 UI 编排收敛。已迁入并推送 `codex/fresh-courtwork`，导入基线 `9f13ca3`，远端独立克隆134项与恢复 smoke通过；实际同步结果以 [迁移回执](migration/2026-09-08/README.md) 为准。Legacy `main` 仍冻结。
 
 ## 已交付与验证

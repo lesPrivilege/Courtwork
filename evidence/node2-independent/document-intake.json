@@ -1,0 +1,472 @@
+[
+  {
+    "path": "engineering/design/work-surface-boundaries.md",
+    "source_sha256": "b77d8d5559d7add11a20a4d8300e51b9c49ffcaa5575390956ec600de5893a17",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/ablation-wk10a.md",
+    "source_sha256": "0899f34b21e674cd4f8383df9abc32c588a8cfc4bbcd2a7dd48aac3b133d65a5",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/backend-requests.md",
+    "source_sha256": "636abe748291dfc7a76a5c397ad6ce48defe58f67a9d37f90f3759ba44a0cfd5",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/brand-requests.md",
+    "source_sha256": "4530519d3838b87d73a8a90b5d615478fcbd7c3fbd9873da51d9e58e397c232b",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/consumption-ledger.md",
+    "source_sha256": "9074907f5223a04f0a4eb345c1af8b251e85c97795b3b331da743b163fa1ea46",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/contracts/color-governance.md",
+    "source_sha256": "4b59ccc193d610a3e68c3c3c7293ff952fa510da8109fe2905f28057795849a6",
+    "resolution": "keep delivered WK10a-r2 expansion; original main content is a subset of the delivered layer contract"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/contracts/presentation-primitives.d.ts",
+    "source_sha256": "f947017e1de599871e946edfbd69031773451f6e852432e812d239c1fb1ba279",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/contracts/review-projection.d.ts",
+    "source_sha256": "62b625ac70b336564cb6688b29fff38583e198f10ac3fd51389ed8a769e6e574",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/contracts/review-projection.md",
+    "source_sha256": "4b5618b836de0063828420142056bc95c8945559fe8369997c3d583a1849a76f",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-integration.md",
+    "source_sha256": "ed6381a188c9be91b111386a57a03010a6fcec56bab1d7fe5e36ff2b4e3593c5",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-wk10a-r2.md",
+    "source_sha256": "25aa1407dd8b93a8d870de2e7586758726091e251cf8ce6a4e1615394002bee2",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-wk10a.md",
+    "source_sha256": "f8e72a42b63dcd2ef49dbd922a2fc3c81d1d00ba7b0bed1fbf82a6e869979866",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-wk6.md",
+    "source_sha256": "f7e14acf69de88e1698609c2b49f5d55c64a5d2cab311ddf1adc82feaa40058b",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-wk7.md",
+    "source_sha256": "7a4826680ad2488174ce952c436a495d5897611409e7ea581fc6f3ccbd663998",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/delivery-wk8.md",
+    "source_sha256": "1eae37240c755a897c35837992b9b9d36456041e855abca909eea238588bc77c",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/alignment-1440.html",
+    "source_sha256": "458a2123a098716840c3e56f1a89e682ac8ba877285f3ae1816814a3b5a0f6b3",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/board.css",
+    "source_sha256": "bb2a0b9eba4147b0af6511c244a1479738791a390890fc6691b7bd3ccd28e224",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/board.js",
+    "source_sha256": "d6e4e810c5620250edffa13a43b264599f584a7c443e0f19ca81e050ed5f365f",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/clean-evaluation.md",
+    "source_sha256": "4dfa71bb56b71c274cfddcb7df08d39ee9766ab5dab53d692ad40aba56a5e138",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/gaps-wk9.md",
+    "source_sha256": "be7956e8a3299bac7c3995bf879159412089e752eb39c50b563a12e9255a5f07",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/home-a-1440.html",
+    "source_sha256": "2e06ca9480acc5f1e07a80630c2a2d3066176c9b948d92a5e681991df6ae311a",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/home-a-390.html",
+    "source_sha256": "e804a5ef7e92f12c430ffb4a0743791537d1127d844630858e577b0f61741216",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/home-b-1440.html",
+    "source_sha256": "39d5db29045515e0a9709d024a8212e6f470bdf8e63ce95acada57f6bc9010b0",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/home-shell-1440.html",
+    "source_sha256": "85f52d81cd917caadbe22551c782f6e1180ffced3b0141c7e00ea6ad9a8a9e1a",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/index.html",
+    "source_sha256": "a8b2c9b568a0f846a92cdc6605491ecbce733eefdf37dc655f4e4932dc3b7ae4",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/tokens.css",
+    "source_sha256": "8e6525d2b4a99d0f031b2322f957a46b6870fd321b22ecf130bc44dc84bb1261",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/work-390.html",
+    "source_sha256": "8c0a5f0231f0e3b1cf1972403a985f227ae3ff690f4d100e65153b5459cb084a",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/work-collapsed-1440.html",
+    "source_sha256": "8d077049c88b6dbbd66bdc43e983c63b617254b9355df398e3422b265a8af292",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/design/wk9/work-expanded-1440.html",
+    "source_sha256": "9f2ba2dc9dfb241f8c7ad6e1b645c7a74f9260d423258bb4ac95508c5d652ea2",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk1-canon-map.md",
+    "source_sha256": "930f7d4e87914f8b221550f2833d49e6bbbf54db69e0f2d786863487ed1311c5",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk2-review-sources.md",
+    "source_sha256": "6e6087a0e81f368b0015360c064629e705c9aa9de79b24171e4b74c7575488bc",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk3-color-spacing-sources.md",
+    "source_sha256": "e13e4dfa0af905d7a0b4a64047a17634524706e1bfb969c0349991539790ee02",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk4-window-controls.md",
+    "source_sha256": "8156319b99f59c1f74e2463cdd7c639c1dc6b35416ba85c57af736d4afbf0e89",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk5-home-work-data.md",
+    "source_sha256": "71d7a1757524edeba41b8912aa1ddbbdfff6a4bcd9b91aecab75795bf9e65327",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk6-dsh-plugins-webui.md",
+    "source_sha256": "12577a41d2d53c49313c4bbefb1424a888506739b39de9b5b2799da27dcf93e4",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/explore/ex-wk6-r2-dsh-official.md",
+    "source_sha256": "72268e18bd0c36ea031255aec4eae989dc65f1c214fc587184435c468e38a243",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/inputs/runtime-workbench-discussion-2026-09-09.md",
+    "source_sha256": "9797eb3b736e0a578fcb40cc5f93de0d1cf65885e1a158b1bc67e6b64a0f6f25",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/intake-round-2.md",
+    "source_sha256": "1fd8f989857f8662edc983f30450cc2436d60d307e4042fee20e35bda87fc267",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/text-sweep.md",
+    "source_sha256": "f95190fdcf17c18b7e5abf6942b101ff12891a0bd64e59c1dce991b82a85a3a0",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK3-color-spacing-sources.md",
+    "source_sha256": "901b29b8a4b7879e7ebd341b229c6dd63df7da4521bb3088cc03f8238aadb384",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK4-window-controls.md",
+    "source_sha256": "162060d5fa77c10d3d101e49d7f06c1974cb0aaa91b63048b1dd308af657806d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK5-home-work-data.md",
+    "source_sha256": "dae133fbf00f06072d5d22ad98652ece43503e2d52e9c2b7b30f12a8735058ea",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK6-dsh-plugins-webui.md",
+    "source_sha256": "7f215f23fc0daad9875b6a26b4cc98f0c85376b741059c75a39dcee872e67bf5",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK10-rail-host.md",
+    "source_sha256": "97b1726cd664fd75861e0095e585f521092cab3a1c244f340cebb4370b23f45b",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK11-runtime-workbench.md",
+    "source_sha256": "b9abb8bdc2e58c10e4343b535d778772db9f142c6543b62626b58df503fbaf9d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK6-home-brand.md",
+    "source_sha256": "e8c3ba836af464e7befabbc734eeadfeb836e99c0ab77bea85ffaae24bb8879d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK7-color-governance.md",
+    "source_sha256": "883e1ae2b91583e758f30d8352c52a507cc01cf084e2b4b582c0f2d2d0b2556d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK8-slogan-buttons.md",
+    "source_sha256": "70da2a45d9c3fe1f9b77c982619132c0d50785a6eb735ef8ca19f19e87e61b11",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK9-home-work-design.md",
+    "source_sha256": "0efd96d0d2f6262499791cde5343fd75dd793e2c08c97cf9c91930c4ee43e097",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/README.md",
+    "source_sha256": "8d3c4f9b2da4ea88ce494fb0635c8b438b2a6893978540c287c1b8e4420f2285",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/evidence/final-review.md",
+    "source_sha256": "8cfc71b347c3a341a0b5b63cf79382bfaf51d27b47b4c93d4c25929f2f86382f",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/evidence/local.md",
+    "source_sha256": "dcb6bf6a62f2964ebe42efe79de2f593f6445d994fbaa4d16c81dc57c0aa9772",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/evidence/reef.md",
+    "source_sha256": "91264c99a13495d0ba10db1af00112daa63e9e195f64295db22cd9733bebf90d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/fresh-astra-handoff.md",
+    "source_sha256": "c36ae4f45c833694f66648a32cf54244b8a5019886e5830b08e84e8e3828e383",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/integration.md",
+    "source_sha256": "5948e500341c41d44c54776e73e1637b588ed6a5b0501705be632a154cf61391",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/public-surface.md",
+    "source_sha256": "b734c25699d0af56cb9fe1851a7219a09dd4c73012c3686716dce72c148762cf",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/release/2026-09-08/review-handoff.md",
+    "source_sha256": "49d8c7c15dbba6124411ec6e06fd299e491386476679625da115ede029a1f319",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/README.md",
+    "source_sha256": "d2adf3d629e558eac944f4ea5f319350eb9bfcdf26b2c85e524088eeccd8925b",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/evidence/final-review.md",
+    "source_sha256": "3ead65492959fa7b254bce0215dd59ae0fc51f88122b65af39c964a0d6b021f0",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/evidence/local-seams.md",
+    "source_sha256": "0cf3fe492c6d40f701f683b79ed721717bec25381d9ee1332ebc11d75edb58fa",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/evidence/paper-validation.md",
+    "source_sha256": "c8c4da4c1adb02b1541948dad4f59bb7d2a34d90171eece45526bc02673e0652",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/evidence/upstream.md",
+    "source_sha256": "d0f45630d702849e13d76cd9cb492b202d31bffc5926c1ad6c44969aafc41c0d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/inputs/research-index.md",
+    "source_sha256": "f9576d7efcbe6267c2c7fd4cee3f057d7797fc6886e4b91eb0363eebbd8a741a",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/pr-plan.md",
+    "source_sha256": "2e6e591becb24af3c2f1fdeba6bab179d67610ff5cd1c0270c7c7cf5f8428808",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/experts-hotplug-2026-09-08/validation.md",
+    "source_sha256": "9d0ffa82d687423377e090d6c98880caa8010ffc55e982aef33077686ceecb7e",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/frontend-intake-2026-09-08/README.md",
+    "source_sha256": "c508b4e44b957ad50f8cc637dba4b0ce4f6f740954f5cc328367d5c55ab69e87",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/frontend-intake-2026-09-08/evidence/final-review.md",
+    "source_sha256": "b1c2c3c1b0e28917171f71f5dfbc5c5505e828bbc2a9d6cc38fd7c5ffb90f6bd",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/frontend-intake-2026-09-08/evidence/local.md",
+    "source_sha256": "8f7496e87b131892a606ba3104e526e8848c2ba1a90132425e6d7af3f22a9ef9",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/frontend-intake-2026-09-08/evidence/upstream.md",
+    "source_sha256": "d7f15f7016d8538d9f1b721f3cfb8ec09320c250024a06c4d1f1880ad0c7b08d",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/frontend-intake-2026-09-08/inputs/discussion.txt",
+    "source_sha256": "a31e24b39a3e5b3d1bde66fbecb5e00b590df67a072cf5681c3e70bc7b713428",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/longlife-2026-09-08/README.md",
+    "source_sha256": "bdb940e758e61dd571f69cbd7beefcbad886cd9c62187ddac1de333abed73207",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/longlife-2026-09-08/evidence/final-review.md",
+    "source_sha256": "4d0bf96721d1c15ba6dc0b62d600c67f0c5a5976beca4917dbe21fc9e534fb2f",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/longlife-2026-09-08/evidence/local-coverage.md",
+    "source_sha256": "62e7de0c3201a2d286ff321b78efc7819131ac8a890859ba0de8461c62a12b38",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/longlife-2026-09-08/evidence/paper-coverage.md",
+    "source_sha256": "5ea22b26db69d2209addbd411eb3dea74d2bde2a9bb74028339d1f93961a02f4",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/longlife-2026-09-08/evidence/upstream.md",
+    "source_sha256": "f51770bde1441acccd6980d226e81c42b1dbcb5f5b881d2b47acc17e51b1cb49",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/README.md",
+    "source_sha256": "cd290595bc03769e2632257c0807230e6bd2f173a6158fa0d3cac8c14c361ac0",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/astra-polish-plan.md",
+    "source_sha256": "eddaf8c6879b2a7e80e188a84bbc55ac8893ce32af91f6a51a8e5393450854d8",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/evidence/current.md",
+    "source_sha256": "a17ff9fae6965b13cf654a7c35af81ac731435f454fc93df0c4b6b037217d167",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/evidence/motion-index.md",
+    "source_sha256": "548579c18f851d636940f67bbd122fb6fae3ca3383f358cf6926a580dd08e439",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/evidence/motion-official.md",
+    "source_sha256": "a70371e8d15ff762bf4c783e3e2b9465b1e07afdb5672491cec69677d85b8cc4",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/evidence/upstream.md",
+    "source_sha256": "ba75287a544b3dc6fef04701280e5b327cb043d0b70342218703c1ce5de433f1",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/evidence/validation.md",
+    "source_sha256": "3beda73c332bb076aff9638fce75f611fd58932ed0405b8e88ecb0945d218e8b",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/research/ux-polish-2026-09-08/index.md",
+    "source_sha256": "257d9da761cc8aaf9cdbaed6b0125d5e6a1458b31e703bd95ca5bd57dd3606b8",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/README.md",
+    "source_sha256": "9524610bc2321077135fc2ce78692d0de7747246b71a7a1c20efe6b089aab584",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/architecture.md",
+    "source_sha256": "e33ebc91510585c2a2103c833b9210746c2be8976fbf0bd2d37b2df394c07ed4",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/core-contracts.md",
+    "source_sha256": "8266ab96c3467836d480f36b9e579b0e758d7193b8645326b97db576c3b149e2",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/current.md",
+    "source_sha256": "1ca0d00930cb9a695d15bc37bb1698af079738052a6f8b1170ca220e80705cb7",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/design/README.md",
+    "source_sha256": "163f4aa498fd128b5e4531b33dff755780e652ff6e68c68d09fe4225fc08b8cb",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK1-canon-map.md",
+    "source_sha256": "acbb05520fba897f373701705f9a636a0c92bbe639e86c45de49cbf8ed92c33a",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-RC-runtime-ui.md",
+    "source_sha256": "49f18290b2754be31b18aaeee8174c765a90237505c3d7cb86c1306ae4a75769",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK3-contract-freeze.md",
+    "source_sha256": "387478806365970467f19ed31366c6bb376923e8dac3925a96decd0b8593dcf6",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK5-brand-wiring.md",
+    "source_sha256": "f713cb2552544447e589d73dd08d63846ba612feefa7bac062f734bd6fd0a5e1",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/pre-takeover-roadmap.md",
+    "source_sha256": "06946889135da8e4752e454671b2f8eef10b1e142c2bc9fdf7d934f30d2c8b12",
+    "resolution": "preserved"
+  },
+  {
+    "path": "engineering/roadmap.md",
+    "source_sha256": "6633f1dcccbcdd88f7e92945ea436cc7ab862bea645061c52b1aa1f4a3089fb8",
+    "resolution": "preserved"
+  }
+]

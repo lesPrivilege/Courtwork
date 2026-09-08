@@ -2,13 +2,13 @@
 
 A place for expert work to take form.
 
-本分支是 CourtWork 的 fresh 开发候选：通用 Agent Web UI、Pi AgentSession 运行底座、Runtime Control Plane 后端，以及独立品牌 SVG/动效包。开发在这里继续，Schema Engineering 专注论文。Legacy `main` 仍冻结，候选同步不代表产品接管或正式发布。
+本分支是 CourtWork 的 fresh 开发候选：通用 Agent Web UI、Pi AgentSession 运行底座、Runtime Control Plane 后端与资源检查 UI、悬浮工作面，以及独立品牌 SVG/动效包。开发在这里继续，Schema Engineering 专注论文。Legacy `main` 仍冻结，候选同步不代表产品接管或正式发布。
 
 ## 入口
 
 - [工程状态](engineering/current.md)：已交付能力、证据边界、下一单。
 - [工程索引](engineering/README.md)：架构、设计、RD 与工单。
-- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源与权限、MCP、上下文绑定、schema 4；新控制面 UI 待施工。
+- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源与权限、MCP、上下文绑定、schema 4与已合流的资源检查UI；Runtime Workbench仍属后续工单。
 - [UI 文本与编排体例](engineering/design/ui-composition-standard.md)：字阶、按钮、卡片、对齐、留白与窄屏重排。
 - [UI 组件契约](docs/interface-components.md)：布局、消息、工作面、焦点与状态 owner。
 - [品牌符号与动效](brand/README.md)：8 个语义样板、5 种材质与独立预览。

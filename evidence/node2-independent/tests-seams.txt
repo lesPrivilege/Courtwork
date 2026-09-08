@@ -1,0 +1,26 @@
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (184.127542ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (283.411125ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (0.534042ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (132.530584ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (499.717333ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.976209ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (366.030625ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (132.530292ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (102.326459ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 4 fence (108.831666ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (640.913542ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (654.11525ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (493.347083ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (669.020917ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (333.455791ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (77.257167ms)
+✔ runtime projection: parent/profile gates are explanations, not removable overrides (0.823583ms)
+✔ runtime projection: historical counts stay partial; new catalogs count admitted text only (0.465417ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5774.19375

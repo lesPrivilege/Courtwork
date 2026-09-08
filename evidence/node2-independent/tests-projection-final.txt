@@ -1,0 +1,10 @@
+✔ runtime projection: parent/profile gates are explanations, not removable overrides (0.830542ms)
+✔ runtime projection: historical counts stay partial; new catalogs count admitted text only (0.478958ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.137042
