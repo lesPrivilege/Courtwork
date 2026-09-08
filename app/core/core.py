@@ -133,7 +133,18 @@ def validate_candidate_payload(value: Any) -> dict[str, Any]:
         "id", "matter_id", "run_id", "base_version", "contract_version",
         "source_version", "artifact_text", "evidence", "obligations",
     }
-    _exact_keys(value, expected, "candidate")
+    _exact_keys(value, expected | (set(value) & {"domain", "supersedes", "provenance"}), "candidate")
+    if "domain" in value:
+        domain = value["domain"]
+        if not isinstance(domain, dict) or domain.get("schemaVersion") != 1:
+            raise CoreError("CONTRACT_UNSUPPORTED", "domain envelope version")
+    if "provenance" in value:
+        p = value["provenance"]
+        _exact_keys(p, {"kind", "actor"}, "provenance")
+        if p != {"kind":"human_revision", "actor":"local-user"}:
+            raise CoreError("INVALID", "provenance")
+    if "supersedes" in value:
+        _ident(value["supersedes"], "candidate.supersedes")
     for key in ("id", "matter_id", "run_id", "contract_version"):
         _ident(value[key], f"candidate.{key}")
     for key in ("base_version", "source_version"):
@@ -195,6 +206,15 @@ CREATE TABLE IF NOT EXISTS source_set (
   FOREIGN KEY(matter_id) REFERENCES matter(id),
   FOREIGN KEY(source_id, source_version) REFERENCES source(id, version)
 );
+CREATE TABLE IF NOT EXISTS source_history (
+  matter_id TEXT NOT NULL, source_id TEXT NOT NULL, source_version INTEGER NOT NULL, revision INTEGER NOT NULL,
+  PRIMARY KEY(matter_id,revision,source_id),
+  FOREIGN KEY(matter_id) REFERENCES matter(id),
+  FOREIGN KEY(source_id,source_version) REFERENCES source(id,version)
+);
+CREATE TRIGGER IF NOT EXISTS retain_source_membership AFTER INSERT ON source_set BEGIN
+  INSERT OR IGNORE INTO source_history VALUES(NEW.matter_id,NEW.source_id,NEW.source_version,NEW.revision);
+END;
 CREATE TABLE IF NOT EXISTS candidate (
   id TEXT PRIMARY KEY,
   matter_id TEXT NOT NULL,
@@ -414,6 +434,7 @@ class Store:
             "source_version": row["source_version"], "artifact_text": row["artifact_text"],
             "evidence": parse_json(row["evidence_json"]),
             "obligations": parse_json(row["obligations_json"]), "status": row["status"],
+            **{k: v for k, v in parse_json(row["payload_json"]).items() if k in {"domain", "supersedes", "provenance"}},
         }
 
     def save_candidate(self, payload: dict[str, Any], context: RunContext | None = None) -> dict[str, Any]:
@@ -437,6 +458,10 @@ class Store:
                     raise CoreError("IDEMPOTENCY_CONFLICT", "candidate id has different canonical payload")
                 self.conn.commit()
                 return parse_json(existing["save_result_json"])
+            if payload.get("supersedes"):
+                parent = self._candidate_row(payload["supersedes"])
+                if parent["matter_id"] != payload["matter_id"] or parent["id"] == payload["id"]:
+                    raise CoreError("BINDING_MISMATCH", "candidate lineage")
             self.conn.execute(
                 "INSERT INTO candidate(id,matter_id,run_id,base_version,contract_version,source_version,artifact_text,evidence_json,obligations_json,payload_json,payload_hash,save_result_json,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (payload["id"], payload["matter_id"], payload["run_id"], payload["base_version"],
@@ -456,7 +481,7 @@ class Store:
             self._rollback()
             raise
 
-    def read_source(self, source_id: str, version: int, matter_id: str | None = None) -> dict[str, Any]:
+    def read_source(self, source_id: str, version: int, matter_id: str | None = None, revision: int | None = None) -> dict[str, Any]:
         _ident(source_id, "source_id")
         _version(version, "source_version")
         if matter_id is None:
@@ -467,9 +492,9 @@ class Store:
             matter = self._matter_row(matter_id)
             row = self.conn.execute(
                 "SELECT s.id,s.version,s.text,s.digest FROM source AS s "
-                "JOIN source_set AS ss ON ss.source_id=s.id AND ss.source_version=s.version "
+                "JOIN source_history AS ss ON ss.source_id=s.id AND ss.source_version=s.version "
                 "WHERE ss.matter_id=? AND ss.revision=? AND s.id=? AND s.version=?",
-                (matter_id, matter["source_version"], source_id, version),
+                (matter_id, matter["source_version"] if revision is None else revision, source_id, version),
             ).fetchone()
             if row is None:
                 exists = self.conn.execute("SELECT 1 FROM source WHERE id=? AND version=?",
@@ -546,7 +571,10 @@ class Store:
             if revision <= matter["source_version"]:
                 raise CoreError("VERSION_CONFLICT", "source revision must increase")
             for source in sources:
-                self.conn.execute("INSERT OR REPLACE INTO source(id,version,text,digest) VALUES(?,?,?,?)",
+                prior = self.conn.execute("SELECT text,digest FROM source WHERE id=? AND version=?", (source["id"],source["version"])).fetchone()
+                if prior and (prior["text"] != source["text"] or prior["digest"] != source["digest"]):
+                    raise CoreError("IDEMPOTENCY_CONFLICT", "immutable source bytes")
+                self.conn.execute("INSERT OR IGNORE INTO source(id,version,text,digest) VALUES(?,?,?,?)",
                                   (source["id"], source["version"], source["text"], source["digest"]))
             self.conn.execute("DELETE FROM source_set WHERE matter_id=?", (matter_id,))
             for source in sources:
@@ -859,7 +887,7 @@ class Store:
             raise CoreError("INVALID", "projection rebuild only applies to B1")
         self._begin()
         try:
-            for table in ("audit", "decision", "request_result", "artifact", "candidate", "source_set", "source", "matter"):
+            for table in ("audit", "decision", "request_result", "artifact", "candidate", "source_set", "source_history", "source", "matter"):
                 self.conn.execute(f"DELETE FROM {table}")
             for row in self.conn.execute("SELECT event_version,event_type,payload_json FROM event ORDER BY rowid").fetchall():
                 if row["event_version"] != 1:

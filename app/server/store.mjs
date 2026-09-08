@@ -373,7 +373,7 @@ export class RuntimeStore {
     return this._mutate((state) => {
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
-      if (state.runs.some((run) => run.sessionId === sessionId && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       session.permissionMode = permissionMode; return publicSession(session);
     });
   }
@@ -383,6 +383,24 @@ export class RuntimeStore {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       session.hostSession = structuredClone(hostSession); return publicSession(session);
     });
+  }
+
+  async deleteSession(sessionId) {
+    return this._mutate((state) => {
+      if (!state.sessions.some(s => s.id === sessionId)) throw new Error("session not found");
+      const runs = state.runs.filter(r => r.sessionId === sessionId);
+      if (runs.some(r => ACTIVE_STATUSES.has(r.status))) throw new Error("active run exists");
+      const ids = new Set(runs.map(r => r.id));
+      state.sessions = state.sessions.filter(s => s.id !== sessionId);
+      state.runs = state.runs.filter(r => !ids.has(r.id));
+      state.events = state.events.filter(e => e.sessionId !== sessionId);
+      state.questions = state.questions.filter(q => !ids.has(q.runId));
+      return {deleted:true,sessionId,workspaceRetained:true};
+    });
+  }
+
+  async detachExtension(sessionId) {
+    return this._mutate((state) => { const session=state.sessions.find(s=>s.id===sessionId); if(!session) throw new Error("session not found"); session.extensionBinding=null; return publicSession(session); });
   }
 
   async bindExtension(sessionId, extensionBinding) {
@@ -395,12 +413,12 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false }) {
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input);
       if (receipt) return receipt;
-      if (state.runs.some((run) => run.sessionId === sessionId && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       const timestamp = now();
       const run = {
         id: randomUUID(), sessionId, status: "running", admissionOpen: true, adapterId,

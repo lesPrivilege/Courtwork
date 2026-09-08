@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-08。唯一开发入口为 `Courtwork`，主线 `main`。本轮读取基线 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`；产品代码等价于已联调 `0a3b9b22f47f5605ccedc227106b0c17a4df6120`，后续main接管及索引提交只改变文档。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-08。唯一开发入口为 `Courtwork`，主线 `main`。本次合流读取基线 `8023e1bfda89ddad8fbf59d96f22a9f6bc40fed7`；接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -8,20 +8,18 @@
 
 用户最新派单：下一主单为 [Fresh Astra：通用Harness Core＋首个NDA场景](execution/2026-09-08-main-round/fresh-astra-core-handoff.md)，整合H0–H3进入实际实施；Fable在分支从前端逆向。Core允许从样本提炼通用owner，保持单写者并复用Pi运行循环；BE-5/完整Workbench后置。fresh指新任务上下文，不指退休目录。
 
-Fresh Astra新任务已请求创建：`client-new-thread:905e35ff-aa42-472f-883e-3e7999fd5429`，Courtwork项目的隔离worktree，模型gpt-6-astra。当前工具仅返回创建排队标识，尚未取得正式任务ID或实现开工回执；不记作代码已施工。
-
-已收到NDA领域子单开工回报（43e3dc0，codex/harness-core）：仅负责`app/domains/inbound-nda/**`和`app/tests/nda-domain.test.mjs`，准备4条规则与dev/holdout。其回报不构成Core主单或产品验收；实际交付待固定SHA与证据。
-
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | Claude Opus按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)实现；Astra核对证据 |
-| 通用工作面 / Workbench | WK10a+r2、收尾与联调已在main；WK10b/WK11未按本轮工单实施 | Opus先WK10b第一段，再串行处理共享web文件的WK11；[工单入口](execution/2026-09-08-main-round/README.md) |
-| 领域主链 | evidence-memo样本Core可复用；NDA逐规则、同Matter换Session、独立历史读取仍缺实现/验收 | Fresh Astra按新Core主单实施H0–H3；Fable前端消费其冻结契约 |
+| 通用工作面 / Workbench | WK10a+r2、收尾与联调已在main；WK10b/WK11未按本轮工单实施 | 清洁main建树，Opus串行：WK10b第一段 → 第二段 → WK13 → WK12 → WK11；[第三轮派单](mvp/execution/work-surface-kit/dispatch-round-3.md) |
+| 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI待WK10b第二段，不据后端测试关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
 
-Fable分支`claude/fable-two-lines`交付`6e220ae`：Paper 9.6采用、MIT、两线研究/派单与文案已接收，未改产品代码；首屏命题句按用户最新意见进入复议。前端产品交付仍待实际SHA。网页GPT Pro初审按 [固定快照交接](release/2026-09-08/pro-review/HANDOFF.md)并行准备，由用户提交；后续Fable交付另作diff补审。
+Harness Core交付 `d6247a8` 已接收：代码 `1332691`，作者170/170与smoke通过，Core/adapter/abort与收尾恢复非作者复验有界通过，原始来源消费、Paper历史映射与Pro逐项处置见 [交付证据](../evidence/harness-core-20260908/README.md)。Pro初审针对旧 `e0d214d`，本轮修复收尾误报成功、未知结算恢复、partial tool事件与底层abort窗口，不冒充Pro已审新分支。
+
+Fable文档交付 `claude/fable-settings` `99a9279` 已接收：WK-83按两分支合流后的清洁main开工，前端单一writer串行，WK10b第二段进入序2。Paper9.6、MIT与首屏文案既有裁定保留；Core历史9.3证据不重标为9.6验证。当前 `humanActions` 声明决定动作，`revise_candidate` API存在但修订动作声明需在第二段接线前补齐；renderer/静态allowlist按实际模块提交由Astra串行处理。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
@@ -29,6 +27,7 @@ Fable分支`claude/fable-two-lines`交付`6e220ae`：Paper 9.6采用、MIT、两
 
 | 范围 | 已有证据 | 支持边界 |
 |---|---|---|
+| Harness Core与NDA后端 | 170/170、smoke与独立Core/adapter/故障注入；固定代码1332691 | [回执](../evidence/harness-core-20260908/README.md)；合成/loopback、无真实provider或前端验收 |
 | 本地/远端恢复 | 独立clone安装、146/146、runtime smoke与启动静态资源通过 | [联调同步](../evidence/final-integration-20260908/sync.md)；测试提交与当前产品app/tests/brand一致，非真实provider |
 | Web↔后端主链 | 回答/精确工具授权、File身份、Preview、deny/Stop/断连恢复9/9；MCP unknown回执3/3；extension恢复6/6 | [联调回执](../evidence/final-integration-20260908/README.md)；fixture、实际HTTP与浏览器，不代表完整NDA/专业正确性 |
 | Runtime控制面 | CAS、parent gate、Source/Effective、历史Context与MCP生命周期；RC契约20/20、反例9/9、视口36/36 | 同上；characters非tokens，安装/连接/曝光/许可分别成立 |
@@ -36,12 +35,12 @@ Fable分支`claude/fable-two-lines`交付`6e220ae`：Paper 9.6采用、MIT、两
 | Runtime R2解析 | inline六kind、exact hash、unverified来源、inspect-only与locator unsupported | [解析契约](../docs/runtime-control/source-resolver.md)、[证据](../evidence/runtime-resolver-20260908/README.md)；不是R3兼容矩阵或R4/R5安装方案 |
 | Main谱系与目录 | replacement `d20fbc3`继承旧`f9ade85`，文档后继`d86eba4`已同步；原Courtwork目录检出main，迁目录后smoke通过 | [接管回执](../evidence/main-cutover-20260908/README.md)；不代表Pages/DMG发行或产品G1–G5已完成 |
 
-146/146、9/9等是不同范围的既有回执，不累加成一个“产品完成度”数字；本次架构派单没有重跑或新增产品测试。
+146/146、9/9等是不同范围的既有回执，不累加成一个“产品完成度”数字；本次Core作者全量验证与独验按各自SHA/范围分列；合流验证见清洁节点回执。
 
 ## 仍未闭合
 
-- G1真实provider及领域记录中准确的执行模式（样本当前固定simulation）；G2 NDA候选→审阅→正式决定；G3新Session恢复同Matter。已有Core样本、同Session续跑与权限批准不能替代这些纵切。
-- H1历史source revision的归属读取（当前只读现用revision）；H3 producer缺席历史read path；H4按实际需要的卸载/重装/版本兼容。现renderer缺席fixture不关闭整个H3/H4。
+- G1真实provider仍not_run；可信执行身份贯通已由loopback验证。G2/G3后端闭环已成立，Review/新Session GUI、键盘主路径与真实运行纵切尚待；不以工具allow代替成果accept。
+- H1历史来源归属与H3 producer缺席后端读取已实现。领域renderer及版本化修订动作声明待第二段；H4完整卸载/重装/升级矩阵仍按实际需要验证。
 - BE-1/3 activity与UTC日过滤；BE-2多文档实例；BE-12模型effort；Runtime R2获取、R3兼容、R4 Proposal、R5事务apply/rollback、R6 Expert版本。分别消费既有契约，不为导航或演示造能力。
 - VoiceOver/NVDA、IME/触控、桌面壳、200%缩放的完整产品验证及数据回退演练；旧135/1无栈flaky未复现，不称已修复。
 - README/Pages真实媒体与发布；新DMG/签名公证/外部用户试点未完成。Paper已采用 [9.6固定SHA](../PAPER.md) `d78fd312955c1f594e59cbdcbb0d3074ac355940`（DEC-012）；版本采用不关闭产品验证门。

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { WorkCoreOwner } from "../core/owner.mjs";
 import { createFakeOpenAiProvider } from "../runtime/fake-provider.mjs";
 import { createIsolatedModelRuntime } from "../runtime/pi-session-runtime.mjs";
 import { describeTestHooks } from "../runtime/test-hooks.mjs";
@@ -36,12 +37,13 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
   for (const line of describeTestHooks()) logger(line);
   const store = await new RuntimeStore({ dataDir, logger }).open();
   let fakeProvider, registry, service;
+  const workCore = new WorkCoreOwner(dataDir);
   try {
     fakeProvider = await createFakeOpenAiProvider({ host: "127.0.0.1", port: 0, responder, fakeResponder });
     const modelRuntime = await createIsolatedModelRuntime();
-    registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store });
+    registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, dataDir, modelRuntime, budget, compaction, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, budget, compaction, logger });
     await service.initialize();
     let closePromise;
     return {
@@ -53,7 +55,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
             try { await registry.dispose(); }
             finally {
               try { await fakeProvider.close(); }
-              finally { await store.close(); }
+              finally { await workCore.close(); await store.close(); }
             }
           }
         })();
@@ -64,6 +66,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     await service?.close().catch(() => {});
     await registry?.dispose().catch(() => {});
     await fakeProvider?.close().catch(() => {});
+    await workCore.close().catch(() => {});
     await store.close().catch(() => {});
     throw error;
   }

@@ -1,3 +1,4 @@
+import { workProjection } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
 import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promises";
 import path from "node:path";
@@ -117,10 +118,11 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, logger = () => {} }) {
     this.store = store;
     this.fakeProvider = fakeProvider;
     this.extensionRegistry = extensionRegistry;
+    this.workCore = workCore;
     this.dataDir = dataDir;
     this.control = new RuntimeControlPlane({ dataDir });
     this.mcp = new MCPManager();
@@ -621,10 +623,31 @@ export class RuntimeService {
     requireObject(value.input, "input");
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
+    if (value.input.detach === true) {
+      assertKeys(value.input,new Set(['detach']));
+      if (session.extensionBinding?.extensionId !== extensionId) throw new ServiceError(409,'binding_mismatch','bound extension mismatch');
+      // Preserve a durable project owner before releasing a legacy binding.
+      if (['evidence-memo','inbound-nda'].includes(extensionId)) await this.workCore.call('claim_work',{matter_id:session.extensionBinding.binding.matterId,project_id:session.projectId,extension_id:extensionId});
+      return {session:await this.store.detachExtension(sessionId)};
+    }
     if (session.extensionBinding) throw new ServiceError(409, "binding_exists", "session already has an extension binding");
     const record = this.extensionRegistry.getRecord(extensionId);
     if (!record || record.status !== "loaded") throw new ServiceError(409, "extension_unloaded", "extension is not loaded");
-    const binding = await this.extensionRegistry.createBinding({ extensionId, input: value.input });
+    let binding;
+    if (value.input.existingMatterId !== undefined) {
+      assertKeys(value.input, new Set(['existingMatterId','fromSessionId']));
+      const scope = {matter_id:value.input.existingMatterId,project_id:session.projectId,extension_id:extensionId};
+      if (value.input.fromSessionId !== undefined) {
+        const origin = this.store.getSession(value.input.fromSessionId);
+        if (!origin || origin.projectId !== session.projectId || origin.extensionBinding?.extensionId !== extensionId || origin.extensionBinding?.binding?.matterId !== value.input.existingMatterId) throw new ServiceError(409,'binding_mismatch','existing Matter requires an owned source Session in the same project');
+        await this.workCore.call('claim_work',scope);
+      }
+      await this.workCore.call('check_work_scope',scope);
+      binding = {matterId:value.input.existingMatterId};
+    } else {
+      binding = await this.extensionRegistry.createBinding({ extensionId, input: value.input });
+      if (['evidence-memo','inbound-nda'].includes(extensionId)) await this.workCore.call('claim_work',{matter_id:binding.matterId,project_id:session.projectId,extension_id:extensionId});
+    }
     return { session: await this.store.bindExtension(sessionId, { extensionId, binding }) };
   }
 
@@ -652,14 +675,48 @@ export class RuntimeService {
     if (!session) throw new ServiceError(404, "not_found", "session not found");
     if (!session.extensionBinding) return { extension: null, projection: null };
     const record = this.extensionRegistry.getRecord(session.extensionBinding.extensionId);
+    if ((!record || record.status !== 'loaded') && ['evidence-memo','inbound-nda'].includes(session.extensionBinding.extensionId)) {
+      return {extension:record,projection:workProjection(await this.workCore.snapshot(session.extensionBinding.binding.matterId),{writable:false})};
+    }
     if (!record) return { extension: null, projection: null };
-    return {
-      extension: record,
-      projection: await this.extensionRegistry.projection({
-        extensionId: session.extensionBinding.extensionId,
-        binding: session.extensionBinding.binding,
-      }),
-    };
+    const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
+    if (record.status !== 'loaded') { projection.humanActions = []; projection.readOnly = true; }
+    return {extension:record,projection};
+  }
+
+  deleteSession(sessionId) {
+    return this.#withConfiguration(async () => {
+      if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
+      const session = this.store.getSession(sessionId);
+      if (!session) throw new ServiceError(404,'not_found','session not found');
+      const binding = session.extensionBinding;
+      if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
+      // Only execution catalog records are removed. Core history and private
+      // workspace/journal bytes are retained; this is not secure erasure.
+      return this.store.deleteSession(sessionId);
+    });
+  }
+
+  async listWork(projectId) {
+    if (!this.store.listProjects().find(p=>p.id===projectId)) throw new ServiceError(404,'not_found','project not found');
+    return this.workCore.call('list_work',{project_id:projectId});
+  }
+
+  async queryWork(sessionId, params) {
+    const session = this.store.getSession(sessionId);
+    const binding = session?.extensionBinding;
+    if (!binding || !['evidence-memo','inbound-nda'].includes(binding.extensionId)) throw new ServiceError(404,'not_found','work binding not found');
+    const matterId = binding.binding.matterId;
+    const kind = params.get('kind');
+    if (kind === 'request') {
+      const result = await this.workCore.queryRequest(text(params.get('requestId'),'requestId',{max:256}));
+      if (result && result.matter_id !== matterId) throw new ServiceError(409,'binding_mismatch','request belongs to another Matter');
+      return {schemaVersion:1,result};
+    }
+    if (kind === 'source') {
+      return {schemaVersion:1,source:await this.workCore.call('historical_source',{matter_id:matterId,candidate_id:params.get('candidateId'),source_id:params.get('sourceId'),version:Number(params.get('version'))})};
+    }
+    throw new ServiceError(400,'invalid_input','unknown work query');
   }
 
   async humanAction(sessionId, input) {
@@ -776,6 +833,7 @@ export class RuntimeService {
     let created;
     try {
       created = await this.store.createRun({
+        singleActiveRun: true,
         sessionId,
         input: instruction,
         adapterId: this.adapterId,
@@ -862,8 +920,9 @@ export class RuntimeService {
           runId: run.id,
           sessionId: run.sessionId,
           binding: session.extensionBinding.binding,
-          provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return descriptor; })(),
+          provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
           instruction,
+          runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash,composition:entry.runtimeBinding.composition},
         });
         entry.extensionRun = begun.run;
         extensionContext = begun.run.context ?? "";
@@ -975,11 +1034,14 @@ export class RuntimeService {
           extensionOutcome = "unknown";
           lastError = { code: "extension_finish_failed", message: "extension finish failed" };
           await this.#appendError(run.id, lastError.code, lastError.message);
+          try { await entry.extensionRun.reconcile?.(); }
+          catch { await this.#appendError(run.id, "extension_reconcile_failed", "Work settlement requires recovery before continuing"); }
         }
       }
       const current = this.store.getRun(run.id);
       if (current && !terminal(current.status)) {
-        const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
+        const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
+          ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
         await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? lastError ?? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : null) : null }, {
           type: "run.status",
           data: { status: finalStatus },
@@ -1068,6 +1130,9 @@ export class RuntimeService {
     const onAbort = () => reject(new Error(kind + " aborted"));
     signal?.addEventListener("abort", onAbort, { once: true });
     this.questionWaiters.set(question.id, { resolve, reject, runId, kind });
+    // openQuestion awaits durable storage. An abort may already have fired
+    // before listener registration; recheck in the same synchronous block.
+    if (signal?.aborted || entry.cancelRequested || !this.store.getRun(runId)?.admissionOpen) onAbort();
     try {
       return await decisionPromise;
     } finally {

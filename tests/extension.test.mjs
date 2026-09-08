@@ -22,7 +22,7 @@ async function withExtension(callback) {
 }
 
 test('catalog exposes development evidence-memo and business-free probe factories', async () => {
-  assert.deepEqual(Object.keys(catalog).sort(), ['evidence-memo', 'probe']);
+  assert.deepEqual(Object.keys(catalog).sort(), ['evidence-memo', 'inbound-nda', 'probe']);
   const probe = await catalog.probe({ dataDir: '/private/tmp/se-v5-probe-fixture' });
   assert.equal(probe.manifest.id, 'probe');
   assert.deepEqual(probe.manifest.bindingFields, []);
@@ -41,16 +41,11 @@ test('manifest is machine-marked development and advertises generic binding fiel
   assert.deepEqual(evidenceManifest.declaredTools, ['se_read_source', 'se_submit_candidate']);
 });
 
-test('the three frozen V4 Core transport files retain their audited bytes', async () => {
-  const files = {
-    'app/extensions/evidence-memo/core/core.py': '0382d1877491e3eb2694d20c81e6088b5696b007b52af535ea38c74dfcc9f9ef',
-    'app/extensions/evidence-memo/core/bridge.py': '25fdf0dff5c98f599d6e86f9d31ad408caaa0a221dc3551be87efe343a44db26',
-    'app/extensions/evidence-memo/server/core-client.mjs': '1d430414c157cedbe938f5046a1148234bb1c6a7b762ff269c934b3bed7b87cf',
-  };
-  for (const [relativePath, expected] of Object.entries(files)) {
-    const bytes = await readFile(new URL(`../${relativePath}`, import.meta.url));
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), expected, relativePath);
-  }
+test('legacy transport import resolves the single shared Core owner', async () => {
+  const legacy = await import('../app/extensions/evidence-memo/server/core-client.mjs');
+  const shared = await import('../app/core/client.mjs');
+  assert.equal(legacy.CoreClient, shared.CoreClient);
+  assert.match(shared.BRIDGE_PATH, /app.core.bridge.py$/);
 });
 
 test('createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft', async () => {
