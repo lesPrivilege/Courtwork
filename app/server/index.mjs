@@ -16,6 +16,7 @@ const STATIC = new Map([
   ["/web/app.mjs", { file: path.join(APP_ROOT, "web", "app.mjs"), type: "text/javascript; charset=utf-8" }],
   ["/web/styles.css", { file: path.join(APP_ROOT, "web", "styles.css"), type: "text/css; charset=utf-8" }],
   ["/extensions/evidence-memo/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "evidence-memo", "renderer.mjs"), type: "text/javascript; charset=utf-8" }],
+  ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
 for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "materials-view.mjs", "home-view.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
@@ -167,7 +168,12 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, exten
         }
         if (req.method === "GET" && STATIC.has(url.pathname)) {
           const file = STATIC.get(url.pathname);
-          const data = await readFile(file.file);
+          let data;
+          try { data = await readFile(file.file); }
+          catch (error) {
+            if (file.optional && error?.code === "ENOENT") { fail(res, 404, "not_found", "renderer is unavailable"); return; }
+            throw error;
+          }
           send(res, 200, data, file.type);
           return;
         }

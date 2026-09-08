@@ -243,7 +243,7 @@ export class WorkExtension {
     const safeBinding = bindingOf(binding);
     await this.start();
     const view = await this.core.snapshot(safeBinding.matterId);
-    const projected = workProjection(view,{extension:{id:this.manifest.id,version:this.manifest.version,releaseStatus:this.manifest.releaseStatus},contractVersion:this.contractVersion,writable:view.matter.contract_version===this.contractVersion});
+    const projected = workProjection(view,{extension:{id:this.manifest.id,version:this.manifest.version,releaseStatus:this.manifest.releaseStatus},contractVersion:this.contractVersion,writable:view.matter.contract_version===this.contractVersion, ...(this.domain ? {revisionProposalSchema:this.domain.proposalSchema} : {})});
     return this.domain?.project ? this.domain.project(projected,view) : projected;
   }
 

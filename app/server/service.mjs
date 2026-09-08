@@ -680,7 +680,7 @@ export class RuntimeService {
     }
     if (!record) return { extension: null, projection: null };
     const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
-    if (record.status !== 'loaded') { projection.humanActions = []; projection.readOnly = true; }
+    if (record.status !== 'loaded' || this.store.hasActiveRun()) { projection.humanActions = []; projection.readOnly = true; }
     return {extension:record,projection};
   }
 

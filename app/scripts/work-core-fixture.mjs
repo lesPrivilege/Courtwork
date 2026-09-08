@@ -19,10 +19,17 @@ try {
  const receipt=await h.api('POST',`/sessions/${session.id}/actions`,decision);
  if(receipt.status!==200) throw new Error(JSON.stringify(receipt.json));
  const accepted=(await h.api('GET',`/sessions/${session.id}/surface`)).json;
+ const revisionAction=accepted.projection.humanActions.find(action=>action.action==='revise_candidate');
+ if(revisionAction?.schemaVersion!==1) throw new Error('versioned revision action missing');
+ const properties=revisionAction.payloadSchema.properties;
+ const revision={extensionId:'inbound-nda',generation:accepted.extension.generation,action:revisionAction.action,payload:{candidate_id:properties.candidate_id.const,new_candidate_id:'packet-human-revision',base_version:properties.base_version.const,proposal:{domain}}};
+ const revisedResult=await h.api('POST',`/sessions/${session.id}/actions`,revision);
+ if(revisedResult.status!==200) throw new Error(JSON.stringify(revisedResult.json));
+ const revised=(await h.api('GET',`/sessions/${session.id}/surface`)).json;
  await h.api('POST','/extensions/inbound-nda/lifecycle',{action:'unload'});
  const history=(await h.api('GET',`/sessions/${session.id}/surface`)).json;
  if(h.runtime.registry.instances.has('inbound-nda')) throw new Error('producer retained after unload');
- const fixture={schemaVersion:1,dataClass:'synthetic; actual HTTP/Pi loopback/Core; no real provider',decision,pending,accepted,history};
+ const fixture={schemaVersion:1,fixtureVersion:2,dataClass:'synthetic; actual HTTP/Pi loopback/Core; no real provider',decision,revision,pending,accepted,revised,history};
  const bytes=JSON.stringify(fixture,null,2)+'\n';
  const target=new URL('../tests/fixtures/work-core/nda-packets.json',import.meta.url);
  await writeFile(target,bytes);

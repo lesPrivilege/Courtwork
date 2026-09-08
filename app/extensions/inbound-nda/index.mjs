@@ -7,7 +7,9 @@ export const manifest = Object.freeze({...memoManifest,
  id:'inbound-nda',version:'0.1.0',title:'Inbound NDA Playbook Review',
  applicability:'Bounded synthetic plaintext inbound NDA and represented-party facts',
  exclusions:['Synthetic playbook only; no professional legal acceptance claim.','No automatic acceptance or external signing/sending.','Provider credentials remain host-owned; this adapter has no network tool.'],
- surface:null,
+ // Declares the exact frontend module seam. Missing bytes remain a 404 and
+ // must be rendered as an unavailable renderer, never as a missing producer.
+ surface:{id:'inbound-nda',title:'Inbound NDA Review',module:'/extensions/inbound-nda/renderer.mjs'},
  bindingFields:[...memoManifest.bindingFields,{name:'facts',label:'Represented party and transaction facts (JSON)',multiline:true,required:true,maxLength:20000}],
  stateCompatibility:'Work envelope v1 / inbound-nda-v1; unsupported versions remain read-only',
 });
@@ -50,6 +52,7 @@ export function createInboundNda({dataDir,core}) {
   },
   project(projected) {
    for(const action of projected.humanActions) {
+    if(action.action!=='decide') continue;
     const id=action.payloadSchema.properties.candidate_id.const;
     const candidate=projected.candidates.find(c=>c.id===id);
     if(!candidate?.domain?.reconciliation?.complete) action.payloadSchema.properties.action.enum=['reject','request_evidence'];

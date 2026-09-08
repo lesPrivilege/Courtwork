@@ -10,11 +10,54 @@ export class WorkCoreOwner {
   async close() { await this.client.close(); }
 }
 
-export function workProjection(view, { extension, writable = false, contractVersion = null } = {}) {
+const MEMO_PROPOSAL_SCHEMA = {
+  type: 'object', additionalProperties: false,
+  required: ['artifact_text', 'evidence', 'obligations'],
+  properties: {
+    artifact_text: { type: 'string', minLength: 1, maxLength: 100000 },
+    evidence: { type: 'array' }, obligations: { type: 'array' },
+  },
+};
+
+export function workProjection(view, { extension, writable = false, contractVersion = null, revisionProposalSchema = MEMO_PROPOSAL_SCHEMA } = {}) {
   const candidates = view.candidates ?? [];
   const compatible = contractVersion === view.matter.contract_version
     && (!view.domain || view.domain.schemaVersion === 1)
     && candidates.every(c => !c.domain || c.domain.schemaVersion === 1);
+  const humanActions = [];
+  if (writable && compatible) {
+    for (const candidate of candidates) {
+      if (candidate.status !== 'pending' || candidate.base_version !== view.matter.version
+        || candidate.source_version !== view.matter.source_version || candidate.contract_version !== view.matter.contract_version) continue;
+      humanActions.push({
+        schemaVersion: 1, action: 'decide', label: `Review candidate ${candidate.id}`,
+        payloadSchema: {
+          type: 'object', additionalProperties: false,
+          required: ['request_id', 'candidate_id', 'base_version', 'action', 'reason'],
+          properties: {
+            request_id: { type: 'string' }, candidate_id: { const: candidate.id }, base_version: { const: candidate.base_version },
+            action: { enum: ['accept', 'reject', 'request_evidence'] }, reason: { type: 'string', minLength: 1 },
+          },
+        },
+      });
+    }
+    for (const candidate of candidates) {
+      // A revision is a fresh proposal at the current work version. Its parent
+      // may be closed or source-stale; historical decisions are not revoked.
+      if (candidate.contract_version !== view.matter.contract_version) continue;
+      humanActions.push({
+        schemaVersion: 1, action: 'revise_candidate', label: `Revise candidate ${candidate.id}`,
+        payloadSchema: {
+          type: 'object', additionalProperties: false,
+          required: ['candidate_id', 'new_candidate_id', 'base_version', 'proposal'],
+          properties: {
+            candidate_id: { const: candidate.id }, new_candidate_id: { type: 'string', minLength: 1 },
+            base_version: { const: view.matter.version }, proposal: structuredClone(revisionProposalSchema),
+          },
+        },
+      });
+    }
+  }
   return {
     schemaVersion: 1, contractVersion: view.matter.contract_version,
     domain: view.domain ?? null, extension, matter: view.matter, title: view.title, sources: view.sources,
@@ -22,13 +65,7 @@ export function workProjection(view, { extension, writable = false, contractVers
     runs: view.runs, evidence: candidates.flatMap(c => c.evidence),
     stateVersion: view.core_state_digest, readOnly: !writable || !compatible,
     compatibility: compatible ? 'supported' : 'read_only',
-    humanActions: writable && compatible ? candidates.filter(c => c.status === 'pending' && c.base_version === view.matter.version && c.source_version === view.matter.source_version && c.contract_version === view.matter.contract_version).map(c => ({
-      action: 'decide', label: `Review candidate ${c.id}`, payloadSchema: {
-        type: 'object', additionalProperties: false,
-        required: ['request_id','candidate_id','base_version','action','reason'],
-        properties: { request_id: {type:'string'},candidate_id:{const:c.id},base_version:{const:c.base_version},action:{enum:['accept','reject','request_evidence']},reason:{type:'string',minLength:1} },
-      },
-    })) : [],
+    humanActions,
   };
 }
 
