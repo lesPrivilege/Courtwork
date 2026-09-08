@@ -236,3 +236,62 @@ APP_URL=http://127.0.0.1:8875 WK13_STAGE=rows     WK6_CDP_PORT=19674 node .../ev
 - **200 % 缩放**：以 720 × 450 视口等效，未用浏览器自身的 200 % 页面缩放验证。
 - **1024–1439 中间档**：未单独取样；本单只测 1440 与 390 两档（工单所列）。
 - **Astra 独验**：本节全部为作者验证，独验分列待 Astra / Fable。
+
+## 11. r2 · WK-86 裁定落地（Claude Opus，2026-09-08）
+
+裁定 [WK-86](intake-round-2.md) 对 §10 四项待裁的答复：(1) 上带既已常驻，composer 带按 WK-46 (1) 办，WK-76 的顶留白退役；(2) `In progress` 是 review-projection §2「Continue」集合的可见名；(3) `.d.ts` 补记 WK13 已实现的形状；(4) 其余不动。本节记本轮实际改动与实测值。
+
+### 11.1 改动（三处代码 / 契约 + 一处证据脚本）
+
+| 文件 | 改动 |
+|---|---|
+| `app/web/styles.css` | `.home-active .composer-area` 的 `padding-top` 由 `clamp(48px, 18vh, 200px)` 改为 `var(--section-gap)`（24 px），注释由 WK-76 改述为 WK-86 (1)。**只此一行**；`.home-active.home-empty` 的 `clamp(96px, 31vh, 640px)` 与 `< 768` 的沉底 composer（`padding-top: var(--space-3)`）均未触及 |
+| `contracts/review-projection.md` §2 | 归属表后加一句：`Continue` 集合的可见名是 `In progress`，集合键 `sessionCandidates` 与归属规则不变 |
+| `contracts/presentation-primitives.d.ts` | `StatTileProps` 注释改写（tile 可为自己那一个集合发出 filter intent，仍不发出写入 / 业务 intent，仍不发出 open / answer / allow / deny）；新增 §3b `PendingRowInput` / `InspectionRowInput` 与 `toPendingRows` / `toInspectionRows` 两条签名，逐字照 `presentation-adapters.mjs` 现状，标明「只搬运已记录字段」。为使两条签名成立，`WorkSummaryResponse` 里 `pendingItems.items` / `inspectionCandidates.items` 的 `unknown[]` 填成服务端实际返回的字段（`work-summary.mjs:34–47`），未新增任何字段 |
+| `evidence/wk13/home-checks.mjs` | 1440 档的「measured band geometry」（原恒真、只记数）改为两条真断言：composer 带 ∈ [192, 260]、下带首屏可见 ≥ 1.8 × 上带。390 档仍只记数（沉底 composer 有自己的几何，WK-58）。**本轮唯一改动的断言，且只为本次意图改动而改**；其余断言与两个既有 Home 回归脚本一字未动 |
+
+`app/web/*.mjs`、`index.html`、`app/tests/**` 本轮零改动：adapter 签名未移动，7 条 adapter 测试原样通过。
+
+### 11.2 实测带高（1440 × 900，浅 / 深两宗同值）
+
+| 带 | r1（WK13 提交时） | r2（本轮） | 依据 |
+|---|---:|---:|---|
+| 上带（band 1） | 155 | **155** | WK-46 (1) 上限 160 ✓ |
+| composer 带（band 2） | 395 | **257** | WK-46 (1) ≈ 192–260 ✓ |
+| 下带首屏可见（band 3） | 294 | **432** | 下限 1.8 × 155 = 279 ✓ |
+| hero 上沿（`#composer-form.top`） | 280（WK13 前基线，无上带） | 297 | — |
+
+390 × 900：上带 213、composer 带 349、下带可见 631，与 r1 **逐像素相同**——`home-rows-390-light.png` 重拍后与提交版字节一致，390 沉底 composer 未受影响。
+
+空态（8879）：`#composer-form.top` = 552，与 r1 同值；`.home-active.home-empty` 的 31vh 未改（见 11.5）。
+
+### 11.3 消融行（WK-47 增补，接 §5）
+
+| 元素 | 去掉后失去的判断 | 结果 |
+|---|---|---|
+| hero 上方 `clamp(48px, 18vh, 200px)` 的留白（WK-76） | **上带出现之前**：它是页面顶部的留白，承担「Home 的入口是一句话加一个输入框，不是一份文档」——去掉它，hero 会贴在视口上沿，读者第一眼落在标题栏而不是那句话上。**上带出现之后**：hero 不再是屏幕上第一件东西，`Activity by day` 一行已经把「读数到此为止」说完，这段留白不再区隔任何两件事，只是夹在两带之间的空白；它承担的判断已由上带自己的边界承担。同时它把下带从 432 压到 294，让本可见的两行掉到折线以下 | **删**（改为 24 px 带间距，WK-86 (1)） |
+
+### 11.4 复验（服务端口 8878 / 8879 / 8880，数据目录 `/private/tmp/se-agent-wk13-data-2{,-empty,-trunc}` 全新、仓外、fake provider，CDP 19681–19687）
+
+| 命令 | 结果 |
+|---|---|
+| `npm --prefix app test` | **185 / 185** |
+| `node tools/lint-colors.mjs` | `ok (15 files)` |
+| `node tools/contrast-report.mjs` | 全表通过 |
+| `evidence/wk13/home-checks.mjs`（8878） | **46 / 46**（44 + 新增两条带高断言；原「measured band geometry」两条恒真项改为真断言） |
+| `evidence/wk13/home-states.mjs` rows / empty / truncate（8878 / 8879 / 8880） | **2 / 2**、**4 / 4**、**2 / 2**，断言未改 |
+| `evidence/final-integration-20260908/home-geometry.mjs` `HOME_STAGE=rows`（8878） | **4 / 4**，断言未改 |
+| 同上 `HOME_STAGE=empty`（8879） | **4 / 4**，断言未改 |
+| `evidence/final-integration-20260908/home-checks.mjs`（8879） | **7 / 7**，断言未改 |
+
+证据（新增，r1 文件保留作对照）：`home-rows-1440-light-r2.png`、`home-empty-1440-light-r2.png`、`home-rows-390-light-r2.png`、`home-cards-1440-light-r2.png`、`home-read-failure-1440-light-r2.png`、`home-checks-r2.json`、`regression/home-{rows,empty}-geometry-r2.json`。目视核对了前三张。既有回归目录 `evidence/final-integration-20260908/` 经 `git checkout` 还原，提交里零改动。
+
+服务端越界：本地验证期间在 `app/server/index.mjs:22` 临时加入 `"presentation-adapters.mjs"`，全部浏览器验证结束后 `git checkout` 还原；提交前 `git diff -- app/server` 为空，`grep -c presentation-adapters app/server/index.mjs` = 0。§8 的 allowlist 请求仍待 Astra 落实。
+
+### 11.5 本轮不改、交回裁定的一项
+
+**空态的 `clamp(96px, 31vh, 640px)`（WK-11）。** WK-86 (1) 只点名 WK-76 的 `clamp(48px, 18vh, 200px)`，且第 4 项写明「其余不动」，故本轮未动。但上带在空态同样常驻（三个确认过的 0），`home-empty-1440-light-r2.png` 上那 279 px 已经不是页面顶部的留白，而是与 11.3 同形的带间空白——同一条理由在空态成立。若要一并退役，同样是一行 CSS（`padding-top` 改为带间距或一档更大的值），不影响任何现有断言（`home-geometry.mjs` 只断言 `home-empty` 类、composer 64–160 与状态句在框外）。请裁。
+
+### 11.6 §10 待裁项的结转
+
+第 1 / 2 / 3 / 4 项已由 WK-86 答复并实施。§10 的「未检项」（触控、读屏实读、真实 provider、真实 IME、usage 下限措辞、浏览器自身 200 % 缩放、1024–1439 中间档、Astra 独验）本轮均未新增覆盖，原样结转。

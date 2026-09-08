@@ -79,12 +79,22 @@ try {
         geometry.tiles.every((t) => t.name === `${t.label}, ${t.value}`), geometry.tiles.map((t) => t.name));
       check(`${width}/${theme} · the day reading is one planned line, not a grid`,
         /Activity by day/.test(geometry.planned || "") && /Backend pending/.test(geometry.planned || ""), geometry.planned);
-      check(`${width}/${theme} · measured band geometry`, true, {
+      /* WK-86 (1) · r2: the gap above the hero is band spacing now, not a page
+       * top, so the composer band lands in WK-46 (1)'s ~192–260 and band 3 takes
+       * the slack (lower bound 1.8 × band 1). Asserted at 1440 only; 390 docks
+       * the composer and keeps its own geometry (WK-58). */
+      const measured = {
         band: Math.round(geometry.band.height),
         composerBand: Math.round(geometry.composer.height),
         lowerBandVisible: Math.round(900 - geometry.stream.top),
         streamTop: Math.round(geometry.stream.top),
-      });
+      };
+      if (width === 1440) {
+        check(`1440/${theme} · the composer band is band 2, not a page top (WK-46 (1))`,
+          measured.composerBand >= 192 && measured.composerBand <= 260, measured);
+        check(`1440/${theme} · band 3 absorbs the slack (≥ 1.8 × band 1)`,
+          measured.lowerBandVisible >= 1.8 * measured.band, measured);
+      } else check(`390/${theme} · measured band geometry`, true, measured);
       await shot(`home-rows-${width}-${theme}`);
     }
 

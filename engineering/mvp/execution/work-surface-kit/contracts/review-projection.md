@@ -29,6 +29,8 @@ ReviewProjection
 | Continue | 会话有非终态 run 或最近活动（`sessionCandidates`） |
 | Needs a look | run failed / unknown、`unrecorded_files` notice（`inspectionCandidates`） |
 
+WK-86 (2)：`Continue` 集合在产品内的可见名是 **`In progress`**（tile 与下带段标题共用这一个名字，copy-convention §3），集合键 `sessionCandidates` 与上表的归属规则均不变。
+
 ## 3. 动作表
 
 permission → allow / deny（一次写授权，不是成果接受）；question → answer（自然语言，不授权）；outcome → 无动作。accept / reject / revise 在 Core 契约成立前不出现（WS-01 / A-4）。
