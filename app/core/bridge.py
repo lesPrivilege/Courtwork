@@ -1,6 +1,6 @@
-"""Small trusted JSONL adapter around the frozen Core v2.
+"""Private JSONL adapter for the shared Work Core.
 
-The application owns this process boundary.  The frozen ``core.py`` remains
+The application owns this process boundary.  The shared ``core.py`` remains
 the implementation of Candidate/Decision/Evidence invariants; this module
 only adds safe empty initialization, application metadata and a narrow RPC
 surface for the Node host.  It is deliberately not a public network server.
@@ -39,7 +39,7 @@ from core import (
 )
 
 
-APP_SCHEMA_VERSION = 1
+APP_SCHEMA_VERSION = 2
 CORE_SCHEMA_VERSION = 1
 RUN_STATUSES = frozenset({"running", "stopping", "completed", "failed", "cancelled", "unknown"})
 ACTIVE_RUN_STATUSES = frozenset({"running", "stopping"})
@@ -50,6 +50,9 @@ PUBLIC_CREDENTIAL_STATUSES = frozenset({"not_configured", "configured"})
 PUBLIC_EXECUTION_MODES = frozenset({"simulation", "real"})
 
 APP_SCHEMA = (
+    """CREATE TABLE IF NOT EXISTS app_work_scope (
+      matter_id TEXT PRIMARY KEY, project_id TEXT NOT NULL, extension_id TEXT NOT NULL,
+      FOREIGN KEY(matter_id) REFERENCES matter(id))""",
     """
     CREATE TABLE IF NOT EXISTS app_meta (
       key TEXT PRIMARY KEY,
@@ -183,8 +186,16 @@ def ensure_app_schema(store: Store) -> None:
         missing = sorted(core_tables - tables)
         raise CoreError("SCHEMA_MISSING", f"missing Core tables: {missing}")
 
+    old = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if "app_meta" in tables else None
+    if old and old[0] not in {"1", "2"}:
+        raise CoreError("SCHEMA_NEWER", "unsupported app schema")
+    if old and old[0] == "1":
+        store.backup_to(str(store.conn.execute("PRAGMA database_list").fetchone()[2]) + ".pre-core-v2.bak")
     store.conn.execute("BEGIN IMMEDIATE")
     try:
+        store.conn.execute("CREATE TABLE IF NOT EXISTS source_history (matter_id TEXT NOT NULL,source_id TEXT NOT NULL,source_version INTEGER NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(matter_id,revision,source_id),FOREIGN KEY(matter_id) REFERENCES matter(id),FOREIGN KEY(source_id,source_version) REFERENCES source(id,version))")
+        store.conn.execute("INSERT OR IGNORE INTO source_history SELECT matter_id,source_id,source_version,revision FROM source_set")
+        store.conn.execute("CREATE TRIGGER IF NOT EXISTS retain_source_membership AFTER INSERT ON source_set BEGIN INSERT OR IGNORE INTO source_history VALUES(NEW.matter_id,NEW.source_id,NEW.source_version,NEW.revision); END")
         for statement in APP_SCHEMA:
             store.conn.execute(statement)
         expected_columns = {
@@ -207,10 +218,10 @@ def ensure_app_schema(store: Store) -> None:
                 version = int(existing[0])
             except (TypeError, ValueError) as exc:
                 raise CoreError("SCHEMA_INVALID", "invalid app schema version") from exc
-            if version != APP_SCHEMA_VERSION:
+            if version not in {1, APP_SCHEMA_VERSION}:
                 raise CoreError("SCHEMA_NEWER", f"unsupported app_schema_version={version}")
         store.conn.execute(
-            "INSERT OR IGNORE INTO app_meta(key,value) VALUES('schema_version',?)",
+            "INSERT OR REPLACE INTO app_meta(key,value) VALUES('schema_version',?)",
             (str(APP_SCHEMA_VERSION),),
         )
         store.conn.commit()
@@ -577,7 +588,7 @@ def save_candidate(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
         if candidate.get("base_version") != run["base_version"] or candidate.get("source_version") != run["source_version"] or candidate.get("contract_version") != run["contract_version"]:
             raise CoreError("STALE_INPUT", "candidate is outside trusted input binding")
     else:
-        # Let frozen Core compare the canonical payload and return its original
+        # Let Core compare the canonical payload and return its original
         # result; do not turn a legitimate retry into CANDIDATE_CLOSED.
         store._matter_row(context["matter_id"])
     return store.save_candidate(candidate, context=RunContext(context["matter_id"], context["run_id"]))
@@ -646,6 +657,50 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         return run_from_row(run_row(store, payload["run_id"]))
     if op == "update_run":
         return update_run(store, request_payload(request, {"run_id", "status", "admission_open", "error", "candidate_id", "ended_at"}))
+    if op == "claim_work":
+        p = request_payload(request, {"matter_id", "project_id", "extension_id"})
+        for key in p: _ident(p[key], key)
+        store._matter_row(p["matter_id"])
+        prior = store.conn.execute("SELECT project_id,extension_id FROM app_work_scope WHERE matter_id=?",(p["matter_id"],)).fetchone()
+        if prior and (prior["project_id"] != p["project_id"] or prior["extension_id"] != p["extension_id"]):
+            raise CoreError("BINDING_MISMATCH", "work ownership")
+        store.conn.execute("INSERT OR IGNORE INTO app_work_scope VALUES(?,?,?)",(p["matter_id"],p["project_id"],p["extension_id"]))
+        return {"bound":True}
+    if op == "check_work_scope":
+        p = request_payload(request, {"matter_id", "project_id", "extension_id"})
+        prior = store.conn.execute("SELECT project_id,extension_id FROM app_work_scope WHERE matter_id=?",(p["matter_id"],)).fetchone()
+        if not prior or prior["project_id"] != p["project_id"] or prior["extension_id"] != p["extension_id"]:
+            raise CoreError("BINDING_MISMATCH", "work ownership")
+        return {"bound":True}
+    if op == "list_work":
+        p = request_payload(request, {"project_id"})
+        rows = store.conn.execute("SELECT matter_id,extension_id FROM app_work_scope WHERE project_id=? ORDER BY matter_id",(p["project_id"],)).fetchall()
+        return {"schemaVersion":1,"matters":[{"extensionId":r["extension_id"],"matter":matter_view(store,r["matter_id"])["matter"]} for r in rows]}
+    if op == "revise_candidate":
+        p = request_payload(request, {"matter_id", "candidate_id", "new_candidate_id", "base_version", "proposal"})
+        parent = store._candidate_row(p["candidate_id"])
+        matter = store._matter_row(p["matter_id"])
+        if parent["matter_id"] != p["matter_id"]:
+            raise CoreError("BINDING_MISMATCH", "candidate lineage")
+        _exact_keys(p["proposal"], {"artifact_text", "evidence", "obligations"} | (set(p["proposal"]) & {"domain"}), "revision proposal")
+        candidate = {"id":p["new_candidate_id"],"matter_id":p["matter_id"],"run_id":parent["run_id"],"base_version":p["base_version"],"source_version":matter["source_version"],"contract_version":matter["contract_version"],"supersedes":p["candidate_id"],"provenance":{"kind":"human_revision","actor":"local-user"}, **p["proposal"]}
+        existing = store.conn.execute("SELECT source_version,contract_version FROM candidate WHERE id=?", (p["new_candidate_id"],)).fetchone()
+        if existing:
+            candidate["source_version"] = existing["source_version"]
+            candidate["contract_version"] = existing["contract_version"]
+        if not existing and p["base_version"] != matter["version"]:
+            raise CoreError("VERSION_CONFLICT", "revision base version")
+        return store.save_candidate(candidate)
+    if op == "replace_sources":
+        p = request_payload(request, {"matter_id", "sources", "revision"})
+        store.replace_source_set(p["matter_id"], p["sources"], p["revision"])
+        return matter_view(store, p["matter_id"])
+    if op == "historical_source":
+        p = request_payload(request, {"matter_id", "candidate_id", "source_id", "version"})
+        c = store._candidate_row(p["candidate_id"])
+        if c["matter_id"] != p["matter_id"]:
+            raise CoreError("BINDING_MISMATCH", "candidate belongs to another Matter")
+        return store.read_source(p["source_id"], p["version"], matter_id=p["matter_id"], revision=c["source_version"])
     if op == "read_source":
         return read_source(store, request_payload(request, {"source_id", "version", "context"}))
     if op == "save_candidate":

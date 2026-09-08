@@ -385,6 +385,10 @@ export class RuntimeStore {
     });
   }
 
+  async detachExtension(sessionId) {
+    return this._mutate((state) => { const session=state.sessions.find(s=>s.id===sessionId); if(!session) throw new Error("session not found"); session.extensionBinding=null; return publicSession(session); });
+  }
+
   async bindExtension(sessionId, extensionBinding) {
     return this._mutate((state) => { const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found"); if (session.extensionBinding) throw new Error("session already has an extension binding"); session.extensionBinding = structuredClone(extensionBinding); return publicSession(session); });
   }

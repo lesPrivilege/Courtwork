@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { workProjection, compileWorkContext } from '../../core/owner.mjs';
 import { manifest } from './manifest.mjs';
 import { CoreClient, CoreClientError } from './server/core-client.mjs';
 
@@ -69,7 +70,7 @@ function bindingOf(value) {
 
 function providerOf(value) {
   if (!isRecord(value)) throw extensionError('INVALID_INPUT', 'provider must be an object');
-  const allowed = ['provider', 'model', 'api', 'baseUrl'];
+  const allowed = ['provider', 'model', 'api', 'baseUrl', 'executionMode', 'credentialStatus'];
   for (const key of Object.keys(value)) {
     if (!allowed.includes(key)) throw extensionError('INVALID_INPUT', 'provider has unsupported fields');
   }
@@ -82,6 +83,8 @@ function providerOf(value) {
     api: identifier(value.api, 'provider.api'),
   };
   if (value.baseUrl !== undefined) descriptor.baseUrl = identifier(value.baseUrl, 'provider.baseUrl');
+  descriptor.executionMode = value.executionMode ?? "simulation";
+  descriptor.credentialStatus = value.credentialStatus ?? "not_configured";
   return descriptor;
 }
 
@@ -172,59 +175,15 @@ function normalizeCandidateInput(value, view) {
   };
 }
 
-function project(view) {
-  if (!isRecord(view) || !isRecord(view.matter)) throw extensionError('CORE_INVALID', 'Core returned an invalid Matter view');
-  const evidence = [];
-  const seen = new Set();
-  const candidates = Array.isArray(view.candidates) ? view.candidates.map((candidate) => clone(candidate)) : [];
-  for (const candidate of candidates) {
-    for (const item of Array.isArray(candidate.evidence) ? candidate.evidence : []) {
-      const key = `${item.source_id}:${item.source_version}:${item.start}:${item.end}:${item.digest}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        evidence.push(clone(item));
-      }
-    }
-  }
-  const humanActions = candidates
-    .filter((candidate) => candidate?.status === 'pending')
-    .map((candidate) => ({
-      label: `Review candidate ${candidate.id}`,
-      action: 'decide',
-      payloadSchema: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['request_id', 'candidate_id', 'base_version', 'action', 'reason'],
-        properties: {
-          request_id: { type: 'string' },
-          candidate_id: { const: candidate.id },
-          base_version: { const: candidate.base_version },
-          action: { enum: ['accept', 'reject', 'request_evidence'] },
-          reason: { type: 'string', minLength: 1 },
-        },
-      },
-    }));
-  return {
-    extension: { id: manifest.id, version: manifest.version, releaseStatus: manifest.releaseStatus },
-    matter: clone(view.matter),
-    title: view.title,
-    sources: Array.isArray(view.sources) ? view.sources.map(sourceView) : [],
-    evidence,
-    candidates,
-    artifact: clone(view.artifact),
-    draft: typeof view.draft === 'string' ? view.draft : '',
-    humanActions,
-    stateVersion: view.core_state_digest,
-  };
-}
+function project(view) { return workProjection(view, {extension: {id:manifest.id, version:manifest.version,releaseStatus:manifest.releaseStatus},writable:true}); }
 
 function coreProviderConfig(provider) {
   const config = {
     provider: provider.provider,
     model: provider.model,
     api: provider.api,
-    credentialStatus: 'not_configured',
-    executionMode: 'simulation',
+    credentialStatus: provider.credentialStatus,
+    executionMode: provider.executionMode,
   };
   if (provider.baseUrl !== undefined) config.baseUrl = provider.baseUrl;
   return config;
@@ -236,10 +195,11 @@ function safeError(error, fallback = 'EXTENSION_ERROR') {
 }
 
 class EvidenceMemoExtension {
-  constructor({ dataDir }) {
+  constructor({ dataDir, core }) {
     if (typeof dataDir !== 'string' || dataDir.trim() === '') throw new TypeError('dataDir is required');
     this.dataDir = dataDir;
-    this.core = new CoreClient({ dataDir });
+    this.ownsCore = !core;
+    this.core = core ?? new CoreClient({ dataDir });
     this.started = false;
     this.disposed = false;
     this.activeRuns = new Map();
@@ -287,6 +247,7 @@ class EvidenceMemoExtension {
     if (this.activeRuns.has(context.runId)) throw extensionError('CONFLICT', 'Run is already bound');
     const view = await this.core.snapshot(context.binding.matterId);
     const matter = view.matter;
+    const compiledContext = compileWorkContext(view);
     const run = await this.core.createRun({
       runId: context.runId,
       matterId: context.binding.matterId,
@@ -321,6 +282,7 @@ class EvidenceMemoExtension {
     const finish = async (result) => this.#finishRun(state, result);
     return {
       context: [
+        JSON.stringify(compiledContext),
         'This is the Evidence Memo development extension.',
         `Matter: ${context.binding.matterId}.`,
         'Use se_read_source to inspect the approved source and se_submit_candidate to propose a memo.',
@@ -467,6 +429,26 @@ class EvidenceMemoExtension {
       }
       return this.core.saveDraft(binding.matterId, input.payload.text);
     }
+    if (input.action === 'revise_candidate') {
+      exactKeys(input.payload, ['candidate_id','new_candidate_id','base_version','proposal'], 'revision');
+      const view = await this.core.snapshot(binding.matterId);
+      const proposal = normalizeCandidateInput(input.payload.proposal, view);
+      return this.core.call('revise_candidate',{matter_id:binding.matterId,...input.payload,proposal});
+    }
+    if (input.action === 'query_request') {
+      exactKeys(input.payload, ['request_id'], 'query request');
+      const result = await this.core.queryRequest(input.payload.request_id);
+      if (result && result.matter_id !== binding.matterId) throw extensionError('BINDING_MISMATCH', 'request belongs to another Matter');
+      return result;
+    }
+    if (input.action === 'read_source_history') {
+      exactKeys(input.payload, ['candidate_id','source_id','version'], 'historical source');
+      return this.core.call('historical_source', {matter_id:binding.matterId,...input.payload});
+    }
+    if (input.action === 'replace_sources') {
+      exactKeys(input.payload, ['sources','revision'], 'source replacement');
+      return this.core.call('replace_sources', {matter_id:binding.matterId,...input.payload});
+    }
     if (input.action === 'decide') {
       exactKeys(input.payload, ['request_id', 'candidate_id', 'base_version', 'action', 'reason'], 'decide payload');
       const request = {
@@ -484,14 +466,14 @@ class EvidenceMemoExtension {
     for (const state of this.activeRuns.values()) {
       try { await this.#closeRun(state, 'reload'); } catch { /* host records unknown when close cannot be made durable */ }
     }
-    await this.core.close();
+    if (this.ownsCore) await this.core.close();
     this.activeRuns.clear();
     this.started = false;
   }
 }
 
-export function createEvidenceMemo({ dataDir }) {
-  return new EvidenceMemoExtension({ dataDir });
+export function createEvidenceMemo({ dataDir, core }) {
+  return new EvidenceMemoExtension({ dataDir, core });
 }
 
 export { CONTRACT_VERSION, PRESET_VERSION, CoreClientError };

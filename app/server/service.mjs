@@ -1,3 +1,4 @@
+import { workProjection } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
 import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promises";
 import path from "node:path";
@@ -117,10 +118,11 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, logger = () => {} }) {
     this.store = store;
     this.fakeProvider = fakeProvider;
     this.extensionRegistry = extensionRegistry;
+    this.workCore = workCore;
     this.dataDir = dataDir;
     this.control = new RuntimeControlPlane({ dataDir });
     this.mcp = new MCPManager();
@@ -621,10 +623,31 @@ export class RuntimeService {
     requireObject(value.input, "input");
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
+    if (value.input.detach === true) {
+      assertKeys(value.input,new Set(['detach']));
+      if (session.extensionBinding?.extensionId !== extensionId) throw new ServiceError(409,'binding_mismatch','bound extension mismatch');
+      // Preserve a durable project owner before releasing a legacy binding.
+      if (['evidence-memo','inbound-nda'].includes(extensionId)) await this.workCore.call('claim_work',{matter_id:session.extensionBinding.binding.matterId,project_id:session.projectId,extension_id:extensionId});
+      return {session:await this.store.detachExtension(sessionId)};
+    }
     if (session.extensionBinding) throw new ServiceError(409, "binding_exists", "session already has an extension binding");
     const record = this.extensionRegistry.getRecord(extensionId);
     if (!record || record.status !== "loaded") throw new ServiceError(409, "extension_unloaded", "extension is not loaded");
-    const binding = await this.extensionRegistry.createBinding({ extensionId, input: value.input });
+    let binding;
+    if (value.input.existingMatterId !== undefined) {
+      assertKeys(value.input, new Set(['existingMatterId','fromSessionId']));
+      const scope = {matter_id:value.input.existingMatterId,project_id:session.projectId,extension_id:extensionId};
+      if (value.input.fromSessionId !== undefined) {
+        const origin = this.store.getSession(value.input.fromSessionId);
+        if (!origin || origin.projectId !== session.projectId || origin.extensionBinding?.extensionId !== extensionId || origin.extensionBinding?.binding?.matterId !== value.input.existingMatterId) throw new ServiceError(409,'binding_mismatch','existing Matter requires an owned source Session in the same project');
+        await this.workCore.call('claim_work',scope);
+      }
+      await this.workCore.call('check_work_scope',scope);
+      binding = {matterId:value.input.existingMatterId};
+    } else {
+      binding = await this.extensionRegistry.createBinding({ extensionId, input: value.input });
+      if (['evidence-memo','inbound-nda'].includes(extensionId)) await this.workCore.call('claim_work',{matter_id:binding.matterId,project_id:session.projectId,extension_id:extensionId});
+    }
     return { session: await this.store.bindExtension(sessionId, { extensionId, binding }) };
   }
 
@@ -652,14 +675,35 @@ export class RuntimeService {
     if (!session) throw new ServiceError(404, "not_found", "session not found");
     if (!session.extensionBinding) return { extension: null, projection: null };
     const record = this.extensionRegistry.getRecord(session.extensionBinding.extensionId);
+    if (!record && ['evidence-memo','inbound-nda'].includes(session.extensionBinding.extensionId)) {
+      return {extension:null,projection:workProjection(await this.workCore.snapshot(session.extensionBinding.binding.matterId),{writable:false})};
+    }
     if (!record) return { extension: null, projection: null };
-    return {
-      extension: record,
-      projection: await this.extensionRegistry.projection({
-        extensionId: session.extensionBinding.extensionId,
-        binding: session.extensionBinding.binding,
-      }),
-    };
+    const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
+    if (record.status !== 'loaded') { projection.humanActions = []; projection.readOnly = true; }
+    return {extension:record,projection};
+  }
+
+  async listWork(projectId) {
+    if (!this.store.listProjects().find(p=>p.id===projectId)) throw new ServiceError(404,'not_found','project not found');
+    return this.workCore.call('list_work',{project_id:projectId});
+  }
+
+  async queryWork(sessionId, params) {
+    const session = this.store.getSession(sessionId);
+    const binding = session?.extensionBinding;
+    if (!binding || !['evidence-memo','inbound-nda'].includes(binding.extensionId)) throw new ServiceError(404,'not_found','work binding not found');
+    const matterId = binding.binding.matterId;
+    const kind = params.get('kind');
+    if (kind === 'request') {
+      const result = await this.workCore.queryRequest(text(params.get('requestId'),'requestId',{max:256}));
+      if (result && result.matter_id !== matterId) throw new ServiceError(409,'binding_mismatch','request belongs to another Matter');
+      return {schemaVersion:1,result};
+    }
+    if (kind === 'source') {
+      return {schemaVersion:1,source:await this.workCore.call('historical_source',{matter_id:matterId,candidate_id:params.get('candidateId'),source_id:params.get('sourceId'),version:Number(params.get('version'))})};
+    }
+    throw new ServiceError(400,'invalid_input','unknown work query');
   }
 
   async humanAction(sessionId, input) {
@@ -862,7 +906,7 @@ export class RuntimeService {
           runId: run.id,
           sessionId: run.sessionId,
           binding: session.extensionBinding.binding,
-          provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return descriptor; })(),
+          provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
           instruction,
         });
         entry.extensionRun = begun.run;

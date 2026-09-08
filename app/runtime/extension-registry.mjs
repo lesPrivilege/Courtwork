@@ -89,10 +89,11 @@ function summary(manifest, status, generation) {
 }
 
 export class ExtensionRegistry {
-  constructor({ catalog = {}, dataDir, store = null } = {}) {
+  constructor({ catalog = {}, dataDir, store = null, workCore = null } = {}) {
     this.catalog = catalog;
     this.dataDir = dataDir;
     this.store = store;
+    this.workCore = workCore;
     this.instances = new Map();
     this.manifests = new Map();
     this.records = new Map();
@@ -109,7 +110,7 @@ export class ExtensionRegistry {
         throw new Error("invalid persisted extension record: " + id);
       }
       if (typeof candidate !== "function") fail("catalog entry " + id + " is not an async factory");
-      const instance = await candidate({ dataDir: path.join(this.dataDir, "extensions", id) });
+      const instance = await candidate({ dataDir: path.join(this.dataDir, "extensions", id), core: this.workCore });
       this.instances.set(id, instance);
       const manifest = validateManifest(instance?.manifest, id);
       this.manifests.set(id, manifest);
@@ -151,7 +152,7 @@ export class ExtensionRegistry {
   async #newInstance(id) {
     const factory = this.catalog[id];
     if (typeof factory !== "function") throw new Error("extension not found");
-    const instance = await factory({ dataDir: path.join(this.dataDir, "extensions", id) });
+    const instance = await factory({ dataDir: path.join(this.dataDir, "extensions", id), core: this.workCore });
     const manifest = validateManifest(instance?.manifest, id);
     const known = this.#manifest(id);
     if (manifest.version !== known.version || manifest.id !== known.id) throw new Error("extension manifest changed during reload");

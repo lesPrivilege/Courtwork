@@ -1,0 +1,24 @@
+✔ extension restart: loaded binding continues; invalidation and unload keep their generations (1248.244292ms)
+✔ extension restart: changed version requires reload; empty composition preserves dormant records (247.423291ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (647.68725ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (411.095792ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (980.807875ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (210.424334ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (198.962625ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (867.179541ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (709.879666ms)
+✔ catalog exposes development evidence-memo and business-free probe factories (1.881375ms)
+✔ manifest is machine-marked development and advertises generic binding fields (0.088625ms)
+✔ legacy transport import resolves the single shared Core owner (0.338375ms)
+✔ createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft (104.184834ms)
+✔ begin exposes only namespaced source/propose tools and Core rejects late candidate calls after close (109.618458ms)
+✔ humanAction accepts only host-derived local-user and uses the same Review route for formal Artifact (114.912083ms)
+✔ close gates admission before cleanup and finish maps cancellation without acceptance (92.790167ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2721.249709

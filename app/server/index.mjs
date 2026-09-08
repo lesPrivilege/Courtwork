@@ -74,6 +74,7 @@ function errorResponse(error) {
   if (error instanceof ServiceError) return { status: error.status, code: error.code, message: error.message, details: error.details };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
   if (error?.message === "active run exists") return { status: 409, code: "active_run", message: "only one active run is allowed" };
+  if (error?.source === 'core_bridge' || ['INVALID_INPUT','EVIDENCE_INVALID','CONTRACT_UNSUPPORTED','BINDING_MISMATCH','CONTEXT_BUDGET','REVIEW_INVALID'].includes(error?.code)) return {status:409,code:error.code,message:error.message};
   return { status: 500, code: "internal_error", message: "request failed" };
 }
 
@@ -97,6 +98,7 @@ function routeService(service, req, url) {
   const tail = parts.slice(2);
   if (method === "GET" && tail.length === 1 && tail[0] === "bootstrap") return service.bootstrap;
   if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
+  if (method === "GET" && tail.length === 3 && tail[0] === "projects" && tail[2] === "work") return () => service.listWork(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();
   if (method === "POST" && tail.length === 1 && tail[0] === "projects") return async () => service.createProject(await body(req));
   if (method === "GET" && tail.length === 1 && tail[0] === "sessions") return () => service.listSessions(url.searchParams.get("projectId") ?? undefined);
@@ -111,6 +113,7 @@ function routeService(service, req, url) {
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "artifacts" && tail[3] === "file" && method === "GET") return () => service.getArtifactFile(tail[1], url.searchParams);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "runs" && method === "POST") return async () => service.createRun(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "extension" && method === "POST") return async () => service.createExtensionBinding(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "work-query" && method === "GET") return () => service.queryWork(tail[1], url.searchParams);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "surface" && method === "GET") return () => service.getSurface(tail[1]);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "actions" && method === "POST") return async () => service.humanAction(tail[1], await body(req));
   if (tail.length === 2 && tail[0] === "runs" && method === "GET") return () => service.getRun(tail[1]);
