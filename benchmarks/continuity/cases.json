@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "corpus": "continuity-mechanism-dev-v0",
+  "split": "development",
+  "family": "synthetic-evidence-memo",
+  "source": "Synthetic delivery date: 12 October. Confirm owner separately.",
+  "replacement": "Synthetic delivery date: 19 October. Confirm owner separately.",
+  "artifact": "Delivery is 12 October; owner confirmation remains open.",
+  "cases": [
+    {"id":"normal","steps":["observe","accept"],"expected":[{"version":0,"artifact":null,"decisions":0},{"version":1,"artifact":"Delivery is 12 October; owner confirmation remains open.","decisions":1,"openObligations":["confirm-owner"]}]},
+    {"id":"stale-source","steps":["replace","accept"],"expected":[{"sourceVersion":2,"version":0},{"accepted":false,"version":0,"artifact":null,"decisions":0,"historicalSource":"Synthetic delivery date: 12 October. Confirm owner separately."}]},
+    {"id":"receipt-replay","steps":["accept","accept","changed-request"],"expected":[{"version":1,"decisions":1},{"accepted":true,"version":1,"decisions":1,"audits":1},{"accepted":false,"version":1,"decisions":1,"audits":1}]},
+    {"id":"restart","steps":["accept","restart","accept"],"expected":[{"version":1},{"version":1,"artifact":"Delivery is 12 October; owner confirmation remains open.","openObligations":["confirm-owner"],"decisions":1},{"accepted":true,"version":1,"decisions":1,"audits":1}]},
+    {"id":"actor-spoof","steps":["spoof","accept"],"expected":[{"accepted":false,"version":0,"artifact":null,"decisions":0},{"accepted":true,"version":1,"decisions":1}]}
+  ]
+}

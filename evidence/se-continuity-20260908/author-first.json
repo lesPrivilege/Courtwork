@@ -1,0 +1,2130 @@
+{
+  "schemaVersion": 1,
+  "protocol": "se-continuity-mechanism-v0",
+  "startedAt": "2026-09-08T10:50:14.561Z",
+  "git": {
+    "head": "62556b7f65170ecf30efb2869447ae85fe69d721",
+    "dirty": true
+  },
+  "hashes": {
+    "benchmarks/continuity/cases.json": "b558a2137781e3665d1424d1d6f52f64c0e9250873b2594f7dedbccaa6def60d",
+    "benchmarks/continuity/run.mjs": "ac5a05cc37bb8e35df55dc2ba7024fb0916239015aa5154eb88ae8203b0932f8",
+    "benchmarks/continuity/courtwork.mjs": "cf67e1e27e3da0ae8305c46ffea9bf8e1af738bcc99e08ebdb87fb130dc3603e",
+    "benchmarks/continuity/grade.mjs": "295b2ab3bc70188003987fa9b531abb5f0aa1f6a1b5fea312cf02bf022ea31cb",
+    "app/core/client.mjs": "d654a5fbc126e655a8bfd2623ac2000930c0a4202b5fdb1908904cc59792f509",
+    "app/core/bridge.py": "8e41f7ad2c417b85f928ce3077cc34283c147d6344ad8cb3a3ec79ef555e0673",
+    "app/core/core.py": "d662206da674eb9cb0eca00d3e5878e260f71687266a40aafffa0867b89b41d7"
+  },
+  "environment": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "python": "Python 3.14.2"
+  },
+  "corpus": "continuity-mechanism-dev-v0",
+  "split": "development",
+  "independentTaskFamilies": 1,
+  "condition": "courtwork-core-scripted",
+  "model": null,
+  "limitations": [
+    "development fixtures",
+    "scripted trusted Core client",
+    "no model, host Session, GUI, SIGKILL, legal-quality or comparative claims"
+  ],
+  "results": [
+    {
+      "id": "normal",
+      "durationMs": 107.239375,
+      "observations": [
+        {
+          "accepted": null,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "trace": [
+        {
+          "step": "observe",
+          "operationError": null,
+          "state": {
+            "artifact": null,
+            "audits": [],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "core_state_digest": "d4a9d11c208269fccb6b0335bddbedd2da7e26f21443652c203c429d9fd89ead",
+            "decisions": [],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "request_results": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:14.895+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:14.894+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:14.895+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:14.894+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        }
+      ],
+      "error": null,
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": "Delivery is 12 October; owner confirmation remains open.",
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [
+              "confirm-owner"
+            ],
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "stale-source",
+      "durationMs": 74.28525000000002,
+      "observations": [
+        {
+          "accepted": null,
+          "version": 0,
+          "sourceVersion": 2,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": false,
+          "version": 0,
+          "sourceVersion": 2,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "trace": [
+        {
+          "step": "replace",
+          "operationError": null,
+          "state": {
+            "artifact": null,
+            "audits": [],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "core_state_digest": "f6e35fc2cc62256443451a25e5f4130dd8be063bf3b4f98afbb240a3af609ff6",
+            "decisions": [],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [],
+              "source_version": 2,
+              "version": 0
+            },
+            "request_results": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:14.973+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:14.972+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "d855c8969207fe105264eb71991469a725744a7bdf548417839c883083bf0002",
+                "id": "source",
+                "text": "Synthetic delivery date: 19 October. Confirm owner separately.",
+                "version": 2
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "accept",
+          "operationError": {
+            "code": "STALE_INPUT",
+            "message": "STALE_INPUT: candidate contract/source revision is stale"
+          },
+          "state": {
+            "artifact": null,
+            "audits": [],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "core_state_digest": "f6e35fc2cc62256443451a25e5f4130dd8be063bf3b4f98afbb240a3af609ff6",
+            "decisions": [],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [],
+              "source_version": 2,
+              "version": 0
+            },
+            "request_results": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:14.973+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:14.972+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "d855c8969207fe105264eb71991469a725744a7bdf548417839c883083bf0002",
+                "id": "source",
+                "text": "Synthetic delivery date: 19 October. Confirm owner separately.",
+                "version": 2
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        }
+      ],
+      "error": null,
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "sourceVersion",
+            "expected": 2,
+            "actual": 2,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "historicalSource",
+            "expected": "Synthetic delivery date: 12 October. Confirm owner separately.",
+            "actual": "Synthetic delivery date: 12 October. Confirm owner separately.",
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "receipt-replay",
+      "durationMs": 72.64129199999996,
+      "observations": [
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": false,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "trace": [
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.044+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.043+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.044+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.043+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "changed-request",
+          "operationError": {
+            "code": "IDEMPOTENCY_CONFLICT",
+            "message": "IDEMPOTENCY_CONFLICT: request id has different payload/actor/scope"
+          },
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.044+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.043+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        }
+      ],
+      "error": null,
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "restart",
+      "durationMs": 136.88083300000005,
+      "observations": [
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": null,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "trace": [
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.117+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.116+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "restart",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.117+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.116+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.117+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.116+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        }
+      ],
+      "error": null,
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "artifact",
+            "expected": "Delivery is 12 October; owner confirmation remains open.",
+            "actual": "Delivery is 12 October; owner confirmation remains open.",
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "openObligations",
+            "expected": [
+              "confirm-owner"
+            ],
+            "actual": [
+              "confirm-owner"
+            ],
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 2,
+            "field": "audits",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "actor-spoof",
+      "durationMs": 72.710917,
+      "observations": [
+        {
+          "accepted": false,
+          "version": 0,
+          "sourceVersion": 1,
+          "artifact": null,
+          "decisions": 0,
+          "audits": 0,
+          "openObligations": [],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        },
+        {
+          "accepted": true,
+          "version": 1,
+          "sourceVersion": 1,
+          "artifact": "Delivery is 12 October; owner confirmation remains open.",
+          "decisions": 1,
+          "audits": 1,
+          "openObligations": [
+            "confirm-owner"
+          ],
+          "historicalSource": "Synthetic delivery date: 12 October. Confirm owner separately."
+        }
+      ],
+      "trace": [
+        {
+          "step": "spoof",
+          "operationError": {
+            "code": "INVALID",
+            "message": "INVALID: decision keys extra=['actor'] missing=[]"
+          },
+          "state": {
+            "artifact": null,
+            "audits": [],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "core_state_digest": "d4a9d11c208269fccb6b0335bddbedd2da7e26f21443652c203c429d9fd89ead",
+            "decisions": [],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "request_results": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.255+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.254+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        },
+        {
+          "step": "accept",
+          "operationError": null,
+          "state": {
+            "artifact": {
+              "candidate_hash": "cf95f1bf8cde80d29473709a4d572a64ae3aa279772ea5f6ac647165a4af10d3",
+              "candidate_id": "candidate",
+              "content": "Delivery is 12 October; owner confirmation remains open.",
+              "content_digest": "15764897b7137644c1a7b1536fd835409b974cd07d690538f921214e6ff756e8",
+              "id": "artifact-candidate-1"
+            },
+            "audits": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Delivery is 12 October; owner confirmation remains open.",
+                "base_version": 0,
+                "contract_version": "se-contract-v5.0",
+                "evidence": [
+                  {
+                    "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                    "end": 62,
+                    "quote": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                    "source_id": "source",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "id": "candidate",
+                "matter_id": "matter",
+                "obligations": [
+                  {
+                    "blocking": false,
+                    "evidence_refs": [],
+                    "id": "confirm-owner",
+                    "status": "open",
+                    "text": "Confirm owner separately"
+                  }
+                ],
+                "run_id": "run",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "core_state_digest": "36d73884c53ccae62d67bfdbb3808d44fca10cbebde5e8d3317f0514010330b2",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate",
+                "matter_id": "matter",
+                "reason": "Synthetic authorized review",
+                "request_id": "review",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-1",
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "request_id": "review",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate",
+                  "matter_id": "matter",
+                  "run_id": "run"
+                }
+              }
+            ],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": "artifact-candidate-1",
+              "contract_version": "se-contract-v5.0",
+              "id": "matter",
+              "obligations": [
+                {
+                  "blocking": false,
+                  "evidence_refs": [],
+                  "id": "confirm-owner",
+                  "status": "open",
+                  "text": "Confirm owner separately"
+                }
+              ],
+              "source_version": 1,
+              "version": 1
+            },
+            "request_results": [
+              {
+                "request_hash": "a72be14194b9f668d38ac99881e363edf3e92718c35ff09bf7195a3e25ae3e47",
+                "request_id": "review",
+                "result_json": "{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-1\",\"candidate_id\":\"candidate\",\"matter_id\":\"matter\",\"request_id\":\"review\",\"version\":1}"
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": null,
+                "contract_version": "se-contract-v5.0",
+                "endedAt": "2026-09-08T10:50:15.255+00:00",
+                "error": null,
+                "id": "run",
+                "instruction": "Synthetic probe",
+                "matter_id": "matter",
+                "mode": "simulation",
+                "model": null,
+                "preset_version": "preset-1",
+                "provider": null,
+                "providerConfig": {},
+                "session_ref": null,
+                "source_version": 1,
+                "startedAt": "2026-09-08T10:50:15.254+00:00",
+                "status": "completed",
+                "workContext": null
+              }
+            ],
+            "sources": [
+              {
+                "digest": "464cfef1cae0cba92852ae9e208347eb500da61f4e43ef22f765342bf2c6b6a0",
+                "id": "source",
+                "text": "Synthetic delivery date: 12 October. Confirm owner separately.",
+                "version": 1
+              }
+            ],
+            "title": "Synthetic continuity probe"
+          }
+        }
+      ],
+      "error": null,
+      "grade": {
+        "pass": true,
+        "complete": true,
+        "checks": [
+          {
+            "checkpoint": 0,
+            "field": "accepted",
+            "expected": false,
+            "actual": false,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "version",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "artifact",
+            "expected": null,
+            "actual": null,
+            "pass": true
+          },
+          {
+            "checkpoint": 0,
+            "field": "decisions",
+            "expected": 0,
+            "actual": 0,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "accepted",
+            "expected": true,
+            "actual": true,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "version",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          },
+          {
+            "checkpoint": 1,
+            "field": "decisions",
+            "expected": 1,
+            "actual": 1,
+            "pass": true
+          }
+        ],
+        "error": null
+      }
+    }
+  ],
+  "summary": {
+    "attempted": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

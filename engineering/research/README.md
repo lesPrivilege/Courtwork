@@ -8,6 +8,7 @@ RD 是围绕局部工程问题的研究与验证记录，不等同于完整产�
 | [RD-002](RD-002-commit-recovery.md) | M05–07、M10 | 正式状态如何保持原子、幂等、可恢复且不可绕过？ | V-04、V-09、V-11 |
 | [RD-003](RD-003-work-surface.md) | M07–12 | GUI 和 Context 是否支持可靠裁决与连续工作？ | V-05、V-08、V-10、V-14/15 |
 | [RD-004](RD-004-harness-core-pt2-reconciliation.md) | PT2 | 外部 Harness Core 交付如何与既有 DEC-006/007/008、H1–H5 义务对账？（documentation-only，未验收） | — |
+| [SE Continuity Evaluation v0](se-continuity-2026-09-08/README.md) | Core / Work Eval | 普通持久化基线与显式治理在变更、恢复、接管上的差异是什么？ | Paper 9.6 §2.4、§3–4、F12；B0 起步，非论文实证结论 |
 
 V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/practice-index.md`）](../../PAPER.md)。工程实验只支持自己的范围；对论文命题的影响另行裁决。
 

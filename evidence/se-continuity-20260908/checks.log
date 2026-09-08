@@ -1,0 +1,14 @@
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (154.044ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (125.814ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (717.175458ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (444.90025ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (256.591667ms)
+✔ oracle rejects missing, extra, corrupted and interrupted observations (1.952542ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1795.686167
