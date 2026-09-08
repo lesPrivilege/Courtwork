@@ -1,0 +1,147 @@
+{
+  "ranAt": "2026-09-08T17:00:19.695Z",
+  "origin": "http://127.0.0.1:8881",
+  "results": [
+    {
+      "name": "A0 · Appearance 五行，四行下方各一块真实产品片段预览（Chat Flow 行 + 带 diff 的代码块）",
+      "pass": true,
+      "actual": {
+        "rowTitles": [
+          "Scheme",
+          "Skin",
+          "Text size",
+          "Code font",
+          "Reduced motion"
+        ],
+        "previews": 4,
+        "diff": [
+          "same",
+          "del",
+          "add",
+          "same",
+          "same",
+          "del",
+          "add",
+          "same",
+          "same",
+          "del",
+          "add",
+          "same",
+          "same",
+          "del",
+          "add",
+          "same"
+        ]
+      }
+    },
+    {
+      "name": "A1 · Scheme 写 data-theme，预览随之即时重画",
+      "pass": true,
+      "actual": {
+        "light": "rgb(249, 249, 251)",
+        "dark": "rgb(24, 25, 27)"
+      }
+    },
+    {
+      "name": "A2 · Text size 一个根变量带动整条字号阶梯",
+      "pass": true,
+      "actual": {
+        "small": "13.006px",
+        "medium": "14px",
+        "large": "16.002px"
+      }
+    },
+    {
+      "name": "A3 · Code font 写进 --font-mono 前缀；不是字体名的输入被拒绝，旧值不动",
+      "pass": true,
+      "actual": {
+        "applied": "Courier New,ui-monospace,SFMono-Regular,",
+        "afterBad": "Courier New,ui-monospace,SFMono-Regular,",
+        "error": "A font family name only: letters, digits, spaces, quotes and commas."
+      }
+    },
+    {
+      "name": "A4 · Reduced motion 强制档把过渡停到 0s（系统未设 reduce 时）",
+      "pass": true,
+      "actual": {
+        "forced": "0s",
+        "default": "0.12s, 0.12s, 0.12s, 0.12s, 0.12s"
+      }
+    },
+    {
+      "name": "A5 · Skin 只换 Tier S：token 的值变了，行、状态词与控件一字不变",
+      "pass": true,
+      "actual": {
+        "base": {
+          "accent": "#1c2024",
+          "paper": "#fdfdfe"
+        },
+        "steel": {
+          "accent": "#315c8a",
+          "paper": "#ffffff"
+        }
+      }
+    },
+    {
+      "name": "A6 · 选中「你的 token」只露出编辑框；校验通过之前不改变生效的 skin（请求值 ≠ 有效值）",
+      "pass": true,
+      "actual": {
+        "editor": true,
+        "skin": null,
+        "state": "No token set has been accepted yet."
+      }
+    },
+    {
+      "name": "A7 · 用户 token 集不通过时逐行指出并整体拒绝，一个字节都不落地",
+      "pass": true,
+      "actual": {
+        "problems": [
+          "Line 2: --nope: #ffffff — --nope is not a Tier S token name.",
+          "Line 3: --gray-2: rebeccapurple — Only a hex colour is accepted here.",
+          "Line 4: --shadow-alpha: 3 — This token is a number between 0 and 1."
+        ],
+        "skin": null,
+        "paper": "#fdfdfe"
+      }
+    },
+    {
+      "name": "A8 · 通过时应用并持久化：一组 Tier S token 就是一个 skin",
+      "pass": true,
+      "actual": {
+        "skin": "custom",
+        "paper": "#fffdf7"
+      }
+    },
+    {
+      "name": "A9 · 偏好由 head 里的同步脚本应用，重载后原样生效；键按工作区区分，值只在本设备",
+      "pass": true,
+      "actual": {
+        "current": {
+          "theme": "dark",
+          "skin": "custom",
+          "size": "large"
+        },
+        "key": "cw:prefs:1vsd6kg",
+        "atBodyInsertion": {
+          "readyState": "loading",
+          "boot": "object",
+          "bootValue": "{}",
+          "stored": "empty",
+          "theme": null,
+          "size": null,
+          "skin": null,
+          "mono": "ui-monospace, SF"
+        }
+      }
+    },
+    {
+      "name": "A10 · 服务器一侧没有多出任何外观字段：偏好不进 runtime-state，也没有新后端",
+      "pass": true,
+      "actual": {
+        "sessionHasAppearance": false
+      }
+    }
+  ],
+  "pageExceptions": [],
+  "failedResponses": []
+}

@@ -27,7 +27,12 @@
 | 工作单位 | Project · Session · Run | Matter（Core 语义，UI 不显）· Task · Thread · Chat |
 | 人机请求 | Question · Write permission · Tool permission | Approval · Interrupt · Elicitation |
 | 文件写入模式 | Ask · Write · Read | Auto · YOLO · Full access |
-| 连接 | Connection · Model | Provider（仅设置对话框内）· Backend |
+| 连接 | Connection · Model | Provider（仅 Settings › General 的表单内）· Backend |
+| 外观（WK-78） | Scheme（Light / Dark / System） | Theme · Colour mode · Appearance mode |
+| 色阶（WK-78 / WK7） | Skin（Slate · Gray steel · Your tokens） | Theme · Palette · Colour theme |
+| 字号（WK-78） | Text size（Small / Medium / Large） | Font size · Zoom · Scale |
+| 代码字体（WK-78） | Code font | Monospace font · Editor font |
+| 本设备偏好整体（WK-78） | Appearance（组名） | Preference · Personalization · Customization |
 | 工作面模块 | Run · File · Workspace · Runtime | Inspector · Preview · Panel · Sidebar |
 | 运行控制 | Send · Cancel run | Stop · Abort · Submit |
 | 品牌 | CourtWork | Schema Engineering（仅 Paper 链接）· Courtwork |

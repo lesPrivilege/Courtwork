@@ -19,11 +19,14 @@ import {
   if (wanted || overlay) document.documentElement.dataset.shell = "desktop";
 }
 import {
+  createSettingsPage,
   createSettingsView,
+  isSettingsSection,
   permissionLabels,
   permissionWords,
   providerLabels,
   renderConnectionCard,
+  DEFAULT_SECTION,
 } from "./settings-view.mjs";
 import {
   renderRun,
@@ -137,7 +140,10 @@ const state = {
     slots: [],
   },
   providerConfig: null,
-  runtimeDialogReturnFocus: null,
+  /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：
+   * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着
+   * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */
+  settings: { open: false, section: DEFAULT_SECTION, returnFocus: null },
   focusIntentEpoch: 0,
   feedback: new Map(),
   connectionLost: false,
@@ -190,7 +196,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-let tooltips, settingsView, materialsView, fileView, runtimeView;
+let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
 function storeUnconfirmedRuns() {
@@ -1394,6 +1400,10 @@ async function selectSession(
   { navigationEpoch: suppliedNavigationEpoch = null, focus = true } = {},
 ) {
   if (!sessionId) return;
+  /* 侧栏在 Settings 在场时是可点的（这正是页面而非模态的意思），所以走到一个会话
+   * 就得让这一页退场：否则会话在底下换好了，顶带还写着 Settings。焦点交给下面的
+   * 会话流程，不还给打开设置的那个控件。 */
+  closeSettings({ restoreFocus: false });
   if (sessionId === state.activeSessionId) {
     state.view = "session";
     closeNavigation({ restoreFocus: false });
@@ -1954,7 +1964,7 @@ function renderExtensionList() {
         });
         bindButton.addEventListener("click", () => {
           state.bindingExtensionId = extension.id;
-          closeRuntimeDialog({ restoreFocus: false });
+          closeSettings({ restoreFocus: false });
           renderBindingPanel();
           focusBindingEntry();
           void loadProjectWork(session.projectId, extension.id);
@@ -2974,20 +2984,31 @@ function renderMessageStream() {
 function renderChatHeader() {
   const session = currentSession(),
     project = currentProject();
+  /* WK-78 · Settings 在场时顶带说的是这一页，而不是它盖住的那个会话；进入设置的入口
+   * （连接徽章、会话概览、工作面）在这一页里都收起来，否则会从设置再走回设置。
+   * 会话本身没有被离开，所以标题一收起页面就回来。 */
+  const settingsOpen = state.settings.open;
+  $("settings-page").hidden = !settingsOpen;
+  $("conversation-body").hidden = settingsOpen;
+  $("app-shell").classList.toggle("settings-active", settingsOpen);
   // WK-40 · one title line: the project name is a prefix only when the sidebar
   // cannot show it (collapsed or narrow); Home carries no eyebrow at all.
   const projectTitle = $("project-title");
   projectTitle.textContent = state.view === "home" ? "" : project?.name || "";
-  projectTitle.hidden = state.view === "home" || !project?.name;
-  $("session-title-text").textContent =
-    state.view === "home" ? "Home" : session?.title || "Loading session…";
+  projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
+  $("session-title-text").textContent = settingsOpen
+    ? "Settings"
+    : state.view === "home"
+      ? "Home"
+      : session?.title || "Loading session…";
   $("session-meta").replaceChildren();
-  if (session && currentRun())
+  if (!settingsOpen && session && currentRun())
     appendRunBadge($("session-meta"), currentRun().status);
-  $("show-surface-button").hidden = !session;
-  $("show-run-button").hidden = !session;
+  $("show-surface-button").hidden = settingsOpen || !session;
+  $("show-run-button").hidden = settingsOpen || !session;
+  $("capability-badge").hidden = settingsOpen;
   const home = state.view === "home";
-  $("composer-area").hidden = !home && !session;
+  $("composer-area").hidden = settingsOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
@@ -3031,7 +3052,7 @@ function renderChatHeader() {
   permission.dataset.tooltip = `File writes: ${permissionSentence}`;
   $("home-button").setAttribute(
     "aria-current",
-    state.view === "home" ? "page" : "false",
+    !settingsOpen && state.view === "home" ? "page" : "false",
   );
 }
 
@@ -3198,7 +3219,7 @@ function visibleSurfaceKinds() {
     .map((module) => module.kind);
 }
 
-function closeSurface() {
+function closeSurface({ restoreFocus = true } = {}) {
   state.surface.expanded = false;
   state.surface.open = false;
   state.surface.runReadController?.abort();
@@ -3206,7 +3227,10 @@ function closeSurface() {
   fileView?.pause();
   writeUiState();
   renderSurfaceVisibility();
-  restoreLayerFocus(state.surface.returnFocus, $("show-surface-button"));
+  /* 收起时通常把焦点还给开它的控件；被别的东西接管（进 Settings 页）时不还，
+     由接管者决定焦点落在哪里，否则焦点会先跳到一个马上要被藏起来的按钮上。 */
+  if (restoreFocus)
+    restoreLayerFocus(state.surface.returnFocus, $("show-surface-button"));
 }
 /* The rail entry point: it opens the collapsed cards without choosing a kind,
  * because choosing one is what the cards are for. */
@@ -4698,7 +4722,7 @@ function openConnectionCard(anchor) {
       },
       onChangeConnection: () => {
         popover.hidePopover();
-        openRuntimeDialog();
+        openSettings("general");
       },
       onPermission: async (mode) => {
         const session = currentSession();
@@ -4756,7 +4780,7 @@ function openContextSummary() {
     onWorkspace: go(() => activateSurface("preview")),
     onRun: (id) => go(() => openRun(id))(),
     onHistory: go(openRunHistory),
-    onPermissions: go(openRuntimeDialog),
+    onPermissions: go(() => openSettings("general")),
   });
   popover.showPopover();
   header.querySelector("button").focus();
@@ -4858,6 +4882,7 @@ async function loadHome(key = null, offset = 0) {
   }
 }
 async function goHome() {
+  closeSettings({ restoreFocus: false });
   const own = ++state.navigationEpoch;
   await persistCurrentDraft();
   if (own !== state.navigationEpoch) return;
@@ -5081,26 +5106,51 @@ function closeDialog(dialogId) {
   else dialog.removeAttribute("open");
 }
 
-function openRuntimeDialog() {
-  const dialog = $("runtime-dialog");
-  const trigger = document.activeElement;
-  state.runtimeDialogReturnFocus = trigger;
-  if (typeof dialog.showModal === "function") dialog.showModal();
-  else dialog.setAttribute("open", "");
-  $("close-runtime-button")?.focus();
+/* WK-78 (1) · Settings 页的开合。它不是一个 view：会话、活动 Run 与草稿都不动，
+ * 只是主区暂时显示这一页。hash 是可深链的那一面，state.settings.open 是唯一的真值，
+ * 两者由 syncSettingsHash 单向对齐，避免 hashchange 与状态互相回声。 */
+function settingsHash(section) {
+  return `#settings/${section}`;
+}
+function readSettingsHash() {
+  const match = /^#settings(?:\/([a-z-]+))?$/.exec(location.hash);
+  if (!match) return null;
+  return isSettingsSection(match[1]) ? match[1] : DEFAULT_SECTION;
+}
+function openSettings(section = state.settings.section, { trigger, hash = true } = {}) {
+  const target = isSettingsSection(section) ? section : DEFAULT_SECTION;
+  if (!state.settings.open) state.settings.returnFocus = trigger ?? document.activeElement;
+  state.settings.open = true;
+  state.settings.section = target;
+  /* 悬浮的工作面锚在主区右侧，会盖住这一页；这一页替换的正是主区的内容，所以进设置
+   * 就收起工作面，而不是让两层叠在一起（FN-27：焦点不被悬浮层遮住）。 */
+  if (state.surface.open) closeSurface({ restoreFocus: false });
+  settingsPage.select(target);
+  if (hash && location.hash !== settingsHash(target)) location.hash = settingsHash(target);
+  renderChatHeader();
+  /* 进这一页，焦点落在 Back：出去的路和 Escape 指的是同一件事，一开始就摆在手边。 */
+  if (!$("settings-page").contains(document.activeElement)) $("settings-back-button").focus();
   void settingsView.refresh();
 }
-
-function closeRuntimeDialog({ restoreFocus = true } = {}) {
-  const dialog = $("runtime-dialog");
-  if (!restoreFocus) state.runtimeDialogReturnFocus = null;
-  if (typeof dialog.close === "function" && dialog.open) {
-    dialog.close();
+function closeSettings({ restoreFocus = true, hash = true } = {}) {
+  if (!state.settings.open) return;
+  const trigger = state.settings.returnFocus;
+  state.settings.open = false;
+  state.settings.returnFocus = null;
+  settingsPage.resetSearch();
+  settingsView.close();
+  if (hash && readSettingsHash() !== null) location.hash = "";
+  renderChatHeader();
+  if (restoreFocus) restoreLayerFocus(trigger);
+}
+function syncSettingsFromHash() {
+  const section = readSettingsHash();
+  if (section === null) {
+    if (state.settings.open) closeSettings({ hash: false });
     return;
   }
-  dialog.removeAttribute("open");
-  if (restoreFocus) state.runtimeDialogReturnFocus?.focus?.();
-  state.runtimeDialogReturnFocus = null;
+  if (state.settings.open && state.settings.section === section) return;
+  openSettings(section, { hash: false });
 }
 
 /* WK-4 / review-projection §6 · one list keyboard for both inboxes: Home's lower
@@ -5137,6 +5187,9 @@ function openListItem(item) {
 function handleListKeys(event) {
   if (event.defaultPrevented || event.isComposing || event.keyCode === 229)
     return;
+  /* 列表键属于 Chat Flow 与 Home 的那一条列表。Settings 页在场时那条列表被盖住，
+     j / k / o 不该在看不见的地方挪焦点。 */
+  if (state.settings.open) return;
   if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
   if (!LIST_KEYS.has(event.key)) return;
   const active = document.activeElement;
@@ -5196,13 +5249,17 @@ function handleSurfaceEscape(event) {
       closeNavigation();
       return;
     }
-    if (!state.surface.open) return;
-    if (state.surface.expanded) {
+    if (state.surface.open) {
       event.preventDefault();
-      setSurfaceExpanded(false);
-    } else {
+      if (state.surface.expanded) setSurfaceExpanded(false);
+      else closeSurface();
+      return;
+    }
+    /* Settings 是最后一层：抽屉与工作面都不在了，Escape 才退出这一页，
+       焦点回到打开它的那个控件（FN-27）。 */
+    if (state.settings.open) {
       event.preventDefault();
-      closeSurface();
+      closeSettings();
     }
     return;
   }
@@ -5339,7 +5396,6 @@ function wireEvents() {
     "show-run-button": ["activity", "Session overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["x", "Close work surface"],
-    "close-runtime-button": ["x", "Close settings"],
     "close-materials-button": ["x", "Close files"],
     "materials-button": ["paperclip", "Session files"],
     "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
@@ -5469,19 +5525,11 @@ function wireEvents() {
       showToast(`Refresh failed: ${error.message}`, "error");
     }
   });
-  $("runtime-setup-button").addEventListener("click", openRuntimeDialog);
-  $("close-runtime-button").addEventListener("click", closeRuntimeDialog);
-  $("runtime-dialog").addEventListener("close", () => {
-    const trigger = state.runtimeDialogReturnFocus;
-    state.runtimeDialogReturnFocus = null;
-    settingsView.close();
-    if (
-      trigger &&
-      (document.activeElement === document.body ||
-        $("runtime-dialog").contains(document.activeElement))
-    )
-      restoreLayerFocus(trigger);
-  });
+  $("runtime-setup-button").addEventListener("click", (event) =>
+    openSettings(state.settings.section, { trigger: event.currentTarget }),
+  );
+  $("settings-back-button").addEventListener("click", () => closeSettings());
+  window.addEventListener("hashchange", syncSettingsFromHash);
   setAction($("close-run-history"), "x", "Close run history");
   $("close-run-history").addEventListener("click", () =>
     closeDialog("run-history-dialog"),
@@ -5673,7 +5721,30 @@ async function init() {
         );
       }
   } catch {}
+  /* WK-78 · 页壳自己的控制器：分组、搜索、外观偏好、只读表。它不取数据；
+   * 需要的快照由 settingsView 推给它（`page` 选项），所以一个事实仍只有一个来源。 */
+  settingsPage = createSettingsPage({
+    home: {
+      get: () => state.homePermissionMode,
+      set: (value) => {
+        if (!Object.hasOwn(permissionLabels, value)) return;
+        state.homePermissionMode = value;
+        storeHomeDraft();
+        renderHomeComposerContext();
+      },
+    },
+    onSection: (section) => {
+      state.settings.section = section;
+      if (state.settings.open && location.hash !== settingsHash(section))
+        history.replaceState(null, "", settingsHash(section));
+    },
+    onEditConnection: () => {
+      settingsPage.select("general", { focusPanel: false });
+      $("provider-panel").querySelector("select,input,button")?.focus();
+    },
+  });
   settingsView = createSettingsView($("provider-panel"), {
+    page: settingsPage,
     request,
     getSession: () => ({
       session: currentSession(),
@@ -5686,8 +5757,8 @@ async function init() {
     onSession: applySessionUpdate,
     notify: showToast,
     onOpenRuntime: () => {
-      // The module takes the focus the dialog would otherwise hand back.
-      closeRuntimeDialog({ restoreFocus: false });
+      // The module takes the focus the page would otherwise hand back.
+      closeSettings({ restoreFocus: false });
       activateSurface("runtime");
     },
   });
@@ -5727,6 +5798,8 @@ async function init() {
   }
   wireEvents();
   renderAll();
+  /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。 */
+  syncSettingsFromHash();
   try {
     const bootstrap = await request("/bootstrap");
     state.token = bootstrap.sessionToken || null;

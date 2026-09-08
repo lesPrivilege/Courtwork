@@ -110,6 +110,111 @@
     --rim-alpha: 0.12;
   }
 }
+/* ==== tier:S · skin gray-steel（中性灰 + 钢蓝 accent）· 三宗 =====================
+   WK-78 / FN-29 · Appearance 的 Skin 行要选中它，它就必须是产品内可选能力，而不是
+   一份未进 STATIC 的实验文件。所以第二个 skin 与默认 skin 住在同一处治理位置：只重定义
+   tier:S，由根元素的 data-skin 属性切换，token 名与层级比一字不改。逐字对照见
+   app/web/skins/gray-steel.css（该文件仍是这套色阶的可独立加载副本），两处的值由
+   app/tests/settings-preferences.test.mjs 断言相同，防止漂移。
+   用户自己粘贴的 token 集不写在这里：它是运行时注入的一个 style 元素，见 settings-view.mjs。 */
+:root[data-skin="gray-steel"] {
+  --gray-1: #fcfcfc;
+  --gray-2: #f9f9f9;
+  --gray-3: #f0f0f0;
+  --gray-4: #e8e8e8;
+  --gray-5: #e0e0e0;
+  --gray-6: #d9d9d9;
+  --gray-7: #cecece;
+  --gray-8: #bbbbbb;
+  --gray-9: #8d8d8d;
+  --gray-10: #838383;
+  --gray-11: #646464;
+  --gray-12: #202020;
+  --accent-3: #e6f4fe;
+  --accent-9: #315c8a;
+  --accent-10: #29507a;
+  --accent-11: #315c8a;
+  --danger-3: #feebec;
+  --danger-11: #9b3c35;
+  --success-3: #e6f6eb;
+  --success-11: #3e704e;
+  --paper: #ffffff;
+  --float-s: #ffffff;
+  --frame-s: #f0f0f0;
+  --ink-max: #000000;
+  --on-accent-s: #ffffff;
+  --alpha-ink: 32, 32, 32;
+  --alpha-paper: 255, 255, 255;
+  --shadow-alpha: 0.08;
+  --glass-alpha: 0.86;
+  --rim-alpha: 0.7;
+}
+:root[data-skin="gray-steel"][data-theme="dark"] {
+  --gray-1: #111111;
+  --gray-2: #191919;
+  --gray-3: #222222;
+  --gray-4: #2a2a2a;
+  --gray-5: #313131;
+  --gray-6: #3a3a3a;
+  --gray-7: #484848;
+  --gray-8: #606060;
+  --gray-9: #6e6e6e;
+  --gray-10: #7b7b7b;
+  --gray-11: #b4b4b4;
+  --gray-12: #eeeeee;
+  --accent-3: #0d2847;
+  --accent-9: #3a6a9e;
+  --accent-10: #4474a8;
+  --accent-11: #8fb8e6;
+  --danger-3: #3b1219;
+  --danger-11: #ff9592;
+  --success-3: #132d21;
+  --success-11: #3dd68c;
+  --paper: #222222;
+  --float-s: #2a2a2a;
+  --frame-s: #111111;
+  --ink-max: #ffffff;
+  --on-accent-s: #ffffff;
+  --alpha-ink: 0, 0, 0;
+  --alpha-paper: 255, 255, 255;
+  --shadow-alpha: 0.4;
+  --glass-alpha: 0.12;
+  --rim-alpha: 0.12;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="gray-steel"]:not([data-theme="light"]) {
+    --gray-1: #111111;
+    --gray-2: #191919;
+    --gray-3: #222222;
+    --gray-4: #2a2a2a;
+    --gray-5: #313131;
+    --gray-6: #3a3a3a;
+    --gray-7: #484848;
+    --gray-8: #606060;
+    --gray-9: #6e6e6e;
+    --gray-10: #7b7b7b;
+    --gray-11: #b4b4b4;
+    --gray-12: #eeeeee;
+    --accent-3: #0d2847;
+    --accent-9: #3a6a9e;
+    --accent-10: #4474a8;
+    --accent-11: #8fb8e6;
+    --danger-3: #3b1219;
+    --danger-11: #ff9592;
+    --success-3: #132d21;
+    --success-11: #3dd68c;
+    --paper: #222222;
+    --float-s: #2a2a2a;
+    --frame-s: #111111;
+    --ink-max: #ffffff;
+    --on-accent-s: #ffffff;
+    --alpha-ink: 0, 0, 0;
+    --alpha-paper: 255, 255, 255;
+    --shadow-alpha: 0.4;
+    --glass-alpha: 0.12;
+    --rim-alpha: 0.12;
+  }
+}
 /* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
 :root {
   /* WK-69 · 高度层级是唯一的取色规则：L0 frame（body、侧栏、抽屉底、留位条）、
@@ -177,15 +282,19 @@
   --radius-container: 16px;
   --radius-pill: 999px;
   --radius: var(--radius-control);
-  /* Type roles · Geist ladder (KIT-TYPE); body leading widened for CJK */
-  --text-title: 20px;
-  --text-navigation-title: 17px;
-  --text-reading: 15px;
-  --text-label: 13px;
-  --text-caption: 11px;
-  --text-section: 14px;
-  --text-body: 14px;
-  --text-meta: 12px;
+  /* Type roles · Geist ladder (KIT-TYPE); body leading widened for CJK.
+     WK-78 · Text size 是一个根变量：每个字号角色乘 --text-scale，三档只改这一处，
+     角色之间的比例不变。角色之外写死的五处显示级字号用同一乘子，否则放大后它们独自不动。
+     命中区、间距与行高不随字号缩放（FN-27 的可用性下限另计）。 */
+  --text-scale: 1;
+  --text-title: calc(20px * var(--text-scale));
+  --text-navigation-title: calc(17px * var(--text-scale));
+  --text-reading: calc(15px * var(--text-scale));
+  --text-label: calc(13px * var(--text-scale));
+  --text-caption: calc(11px * var(--text-scale));
+  --text-section: calc(14px * var(--text-scale));
+  --text-body: calc(14px * var(--text-scale));
+  --text-meta: calc(12px * var(--text-scale));
   --tracking-heading: -0.02em;
   --tracking-caps: 0.06em;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
@@ -201,6 +310,15 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  font-size: calc(14px * var(--text-scale));
+}
+/* WK-78 · 三档字号。属性由 Appearance 的 Text size 行写在根元素上，偏好在本设备
+   （localStorage）读出后于首帧前应用，所以没有先小后大的闪跳。 */
+:root[data-text-size="small"] {
+  --text-scale: 0.929;
+}
+:root[data-text-size="large"] {
+  --text-scale: 1.143;
 }
 * {
   box-sizing: border-box;
@@ -781,7 +899,7 @@ button {
   gap: 12px;
 }
 .home-intro h2 {
-  font-size: 28px;
+  font-size: calc(28px * var(--text-scale));
   line-height: 1.25;
   max-width: 530px;
 }
@@ -1438,7 +1556,7 @@ details[open] > summary.flow-row::after {
 .file-heading h3 {
   grid-column: 1 / -1;
   grid-row: 1;
-  font-size: 22px;
+  font-size: calc(22px * var(--text-scale));
   line-height: 1.3;
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
@@ -1498,7 +1616,7 @@ details[open] > summary.flow-row::after {
   margin-top: 12px;
 }
 .markdown-body h1 {
-  font-size: 23px;
+  font-size: calc(23px * var(--text-scale));
 }
 .markdown-body h2 {
   font-size: var(--text-title);
@@ -1947,7 +2065,7 @@ select {
     margin-bottom: 28px;
   }
   .home-intro h2 {
-    font-size: 25px;
+    font-size: calc(25px * var(--text-scale));
   }
   .home-description {
     font-size: var(--text-label);
@@ -2064,6 +2182,20 @@ select {
     animation: none !important;
     transition: none !important;
   }
+}
+/* WK-78 · Reduced motion 的强制档。同一条规则，改由 Appearance 写在根元素上的
+   data-motion 触发；「跟随系统」不写属性，媒体查询照旧生效。强制档只停动效，不改
+   任何状态词、合法动作或 Evidence 可用性（FN-09 / FN-27）。 */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  scroll-behavior: auto !important;
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion="reduce"] .activity-group.is-working > summary > .flow-title {
+  background: none;
+  color: var(--muted-strong);
 }
 
 .session-name {
@@ -2563,8 +2695,10 @@ dialog[open]::backdrop {
   padding: 4px 6px;
   min-height: 36px;
 }
-/* Segmented control: native radios, one track, the checked segment lifts */
+/* Segmented control: native radios, one track, the checked segment lifts.
+   WO-WK12 · 段数写成一个变量：Reduced motion 只有两档，滑块宽度不能再写死成三格。 */
 .segmented {
+  --segments: 3;
   position: relative;
   display: inline-grid;
   grid-auto-flow: column;
@@ -2584,7 +2718,7 @@ dialog[open]::backdrop {
   top: 2px;
   bottom: 2px;
   left: 2px;
-  width: calc((100% - 8px) / 3);
+  width: calc((100% - 4px - (var(--segments) - 1) * 2px) / var(--segments));
   border-radius: 6px;
   background: var(--panel);
   box-shadow: var(--shadow-thumb);
@@ -2904,7 +3038,7 @@ dialog[open]::backdrop {
   color: var(--muted-strong);
 }
 .stat-value {
-  font-size: 25px;
+  font-size: calc(25px * var(--text-scale));
   line-height: 1.1;
   letter-spacing: var(--tracking-heading);
   color: var(--ink);
@@ -4049,4 +4183,271 @@ html[data-shell="desktop"] .shell-strip {
 }
 .binding-entry > .work-note {
   padding-left: var(--space-6);
+}
+
+/* ===== tier:U · Settings 页（WO-WK12 / WK-78 / FN-26） =====================
+   Settings 替换主区的内容，侧栏与顶带留在原处，所以这一页没有自己的框、没有遮罩，
+   也没有第二个焦点陷阱：它就是主列现在显示的东西。左列导航 + 搜索，右列分节；
+   1024 以下导航折成顶部下拉，右列单列。取色只引用高度层 role（WK-69）。 */
+.settings-page {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.settings-page-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--col-gap) var(--space-2);
+}
+.settings-page-head h2 {
+  margin: 0;
+  font-size: var(--text-navigation-title);
+  letter-spacing: var(--tracking-heading);
+}
+.settings-page-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 208px minmax(0, 1fr);
+  gap: var(--space-6);
+  padding: 0 var(--col-gap) var(--space-6);
+}
+.settings-nav-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow: auto;
+}
+.settings-search {
+  width: 100%;
+  font-size: var(--text-meta);
+}
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* 命中区 32（IC-1），字号变化不缩小它。 */
+.settings-tab {
+  display: block;
+  width: 100%;
+  min-height: var(--control);
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted-strong);
+  font: inherit;
+  font-size: var(--text-label);
+  text-align: left;
+  cursor: pointer;
+}
+.settings-tab:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.settings-tab.is-current {
+  background: var(--selected);
+  color: var(--ink);
+  font-weight: 550;
+}
+.settings-tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.settings-nav-select {
+  display: none;
+  width: 100%;
+}
+.settings-sections {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding-right: var(--space-1);
+}
+.settings-section {
+  max-width: 640px;
+}
+.settings-section:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-card);
+}
+.settings-section-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-title);
+  letter-spacing: var(--tracking-heading);
+}
+/* 一节 = 一张平卡：把成组的行圈起来，不额外加一层高度。 */
+.settings-block {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-2) var(--card-padding);
+  margin-bottom: var(--space-4);
+}
+.settings-block:empty {
+  display: none;
+}
+.settings-block-title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--text-section);
+}
+.settings-block > .section-heading {
+  margin-top: var(--space-3);
+}
+.settings-block > .settings-row:last-child,
+.settings-block > .settings-entry:last-child > .settings-row {
+  border-bottom: 0;
+}
+.settings-readout {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.settings-jump {
+  margin: var(--space-2) 0 var(--space-3);
+}
+.settings-search-empty {
+  font-size: var(--text-body);
+  color: var(--muted-strong);
+}
+/* 快捷键只读表：键在左，后果在右，两列都是文字。 */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-meta);
+  margin-bottom: var(--space-3);
+}
+.settings-table th,
+.settings-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+}
+.settings-table thead th {
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.settings-table kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.settings-key-row > th {
+  width: 34%;
+  color: var(--ink);
+}
+/* 预览：一条真实的 Chat Flow 行加一段带 diff 的代码块，随选择即时变化。
+   它不可交互，读屏由外面那句 Preview 承担。 */
+.settings-entry {
+  border-bottom: 1px solid var(--line);
+}
+.settings-entry > .settings-row {
+  border-bottom: 0;
+  padding-bottom: var(--space-2);
+}
+.settings-preview {
+  display: grid;
+  gap: var(--space-1);
+  padding-bottom: var(--space-4);
+}
+.settings-preview-label {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.settings-preview-surface {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: var(--panel-muted);
+  display: grid;
+  gap: var(--space-2);
+}
+.settings-preview-code {
+  background: var(--panel);
+}
+.settings-preview-diff {
+  margin: 0;
+  padding: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: 1.55;
+  overflow-x: auto;
+}
+.diff-line {
+  display: block;
+  padding: 0 4px;
+  border-radius: var(--radius-small);
+}
+/* 增删两行用稀缺色的 soft 底，符号 + / − 始终在场，颜色不是唯一载体（FN-28）。 */
+.diff-line[data-diff="add"] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.diff-line[data-diff="del"] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+/* 用户 token 集：一个纯文本框，逐行报错，不通过就不应用。 */
+.skin-editor {
+  padding: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+.skin-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  resize: vertical;
+}
+.skin-error-list {
+  margin: var(--space-1) 0 0;
+  padding-left: 1.2em;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.skin-error-list li {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1023px) {
+  .settings-page-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .settings-nav {
+    display: none;
+  }
+  .settings-nav-select {
+    display: block;
+    min-height: 44px;
+  }
+  .settings-nav-column {
+    overflow: visible;
+  }
+  .settings-tab {
+    min-height: 44px;
+  }
+  .settings-section {
+    max-width: none;
+  }
+}
+/* 一句话说明整组的现状，写在组标题下面一次，不在每个节里重复一遍（WK-12 / 文案体例）。 */
+.settings-section-note {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  max-width: 60ch;
 }
