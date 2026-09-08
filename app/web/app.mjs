@@ -34,7 +34,7 @@ import {
 } from "./inspector.mjs";
 import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
-import { renderHome } from "./home-view.mjs";
+import { renderHome, renderHomeBand, homeSets } from "./home-view.mjs";
 import {
   projectThread,
   canAnswer,
@@ -72,7 +72,7 @@ const state = {
   view: "home",
   navigationOpen: false,
   sidebarCollapsed: false,
-  home: { data: null, error: null, loading: false, generation: 0, offsets: {} },
+  home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },
   homeDraft: "",
   homeProjectId: null,
   homePermissionMode: "ask",
@@ -2063,33 +2063,32 @@ async function refreshSessionBinding(sessionId) {
   }
 }
 
-function continueExistingSegment(extension, session, submitExisting) {
-  const segment = element("section", { className: "binding-segment" });
-  segment.append(element("h4", { text: "Continue existing" }));
+/* WK-85 (2) · which segment leads is decided by the data, not by a fixed order:
+ * a project that already owns work is a project where continuing is the likely
+ * act, and a project that owns none has no second choice to offer. `entries` is
+ * null in both of the cases that are not "there is work": the read has not
+ * settled, and the read settled on nothing. The sentence says which (DC-1). */
+function existingProjectWork(extension, session) {
   const work = state.projectWork;
-  if (work.projectId !== session.projectId || work.matters === null) {
-    segment.append(
-      element("p", {
-        className: "section-note",
-        text: work.error
-          ? work.error
-          : "Reading the work this project already owns…",
-      }),
-    );
-    return segment;
-  }
+  if (work.projectId !== session.projectId || work.matters === null)
+    return {
+      entries: null,
+      note: work.error || "Reading the work this project already owns…",
+    };
   const entries = work.matters.filter(
     (item) => item?.extensionId === extension.id && item?.matter?.id,
   );
-  if (!entries.length) {
-    segment.append(
-      element("p", {
-        className: "section-note",
-        text: `No work in this project is bound to ${extension.title || extension.id} yet.`,
-      }),
-    );
-    return segment;
-  }
+  return entries.length
+    ? { entries, note: null }
+    : {
+        entries: null,
+        note: `No work in this project is bound to ${extension.title || extension.id} yet.`,
+      };
+}
+
+function continueExistingSegment(entries, submitExisting) {
+  const segment = element("section", { className: "binding-segment" });
+  segment.append(element("h4", { text: "Continue existing" }));
   const list = element("div", { className: "binding-entries" });
   for (const entry of entries) {
     const matter = entry.matter;
@@ -2261,7 +2260,14 @@ function renderBindingPanel() {
     }
   });
   created.append(form);
-  inner.append(created, continueExistingSegment(extension, session, submitExisting));
+  const existing = existingProjectWork(extension, session);
+  if (existing.entries)
+    inner.append(continueExistingSegment(existing.entries, submitExisting), created);
+  else
+    inner.append(
+      created,
+      element("p", { className: "section-note", text: existing.note }),
+    );
   panel.append(inner);
 }
 
@@ -2677,6 +2683,9 @@ function renderMessageStream() {
             ? ""
             : "resolved"
         }`,
+        /* WK-4 · a pending card is one stop of the list keyboard. It is not in
+         * the tab sequence (tabindex -1): Tab still walks the controls. */
+        attrs: { tabindex: "-1", "data-nav-item": "" },
       });
       /* WK-57 ablation · «Answer requested» said nothing the Answer button
        * below it does not say, and the prompt was a second paragraph under a
@@ -2985,12 +2994,17 @@ function renderChatHeader() {
   if (!home) $("home-start-status").hidden = true;
   $("materials-button").hidden = home || !session;
   $("permission-settings-button").hidden = home || !session;
-  const body = $("conversation-body"), composer = $("composer-area");
-  /* WK-11 / WK-58 · on a wide Home the composer leads the column with whitespace
-   * above it; on a session, and on any narrow view, it is docked at the foot.
-   * The DOM order is the reading order in both cases: nothing is moved by CSS. */
+  const body = $("conversation-body"),
+    composer = $("composer-area"),
+    band = $("home-top-band");
+  /* WK-11 / WK-58 / WK-32 · the bands in reading order. On a wide Home: recorded
+   * totals, composer, work. On a session, and on any narrow view, the composer
+   * is docked at the foot (WK-58), so the order reads totals, work, composer.
+   * The DOM order is the reading order in every case: nothing is moved by CSS. */
+  if (body.firstElementChild !== band) body.prepend(band);
+  band.hidden = !home;
   const lead = home && !narrowQuery.matches;
-  if (lead && body.firstElementChild !== composer) body.prepend(composer);
+  if (lead && band.nextElementSibling !== composer) band.after(composer);
   else if (!lead && body.lastElementChild !== composer) body.append(composer);
   const config = state.providerConfig?.config;
   const model =
@@ -4763,19 +4777,41 @@ function openRunHistory() {
 function renderHomeState() {
   const summary = state.home.data;
   const rows = summary
-    ? ["pendingItems", "sessionCandidates", "inspectionCandidates"].reduce(
+    ? homeSets.reduce(
         (total, key) => total + (summary[key]?.items?.length || 0),
         0,
       )
     : 0;
   $("app-shell").classList.toggle("home-empty", !rows && !state.home.error);
+  const load = { loading: state.home.loading, error: state.home.error };
+  /* WK-32 · the top band is Home's first band; a session has no cross-session
+   * totals to state, so the band is absent rather than present-and-empty. The
+   * `hidden` flag itself is set with the rest of the band order in renderChat. */
+  const band = $("home-top-band");
+  if (state.view === "home")
+    renderHomeBand(band, {
+      summary,
+      load,
+      activeSet: state.home.filter,
+      onFilter: (key) => {
+        state.home.filter = key;
+        renderHomeState();
+        /* FN-05 · the tile and the row reach the same list; pressing a tile
+         * leaves the focus on the tile that now states the filter. */
+      },
+    });
   renderHome($("message-stream"), {
     summary: state.home.data,
     error: state.home.error,
     loading: state.home.loading,
     projects: state.projects,
+    activeSet: state.home.filter,
     onRetry: () => loadHome(),
     onMore: (key, offset) => loadHome(key, offset),
+    onFilter: (key) => {
+      state.home.filter = key;
+      renderHomeState();
+    },
     onSession: async (item, { inspect }) => {
       await selectProject(item.projectId, { sessionId: item.sessionId });
       if (state.activeSessionId === item.sessionId && inspect)
@@ -4892,6 +4928,7 @@ function renderPermission(row) {
   }
   const card = element("article", {
     className: "question-card permission-card",
+    attrs: { tabindex: "-1", "data-nav-item": "" },
   });
   card.append(
     element("h3", { text: display.title }),
@@ -5066,6 +5103,70 @@ function closeRuntimeDialog({ restoreFocus = true } = {}) {
   state.runtimeDialogReturnFocus = null;
 }
 
+/* WK-4 / review-projection §6 · one list keyboard for both inboxes: Home's lower
+ * band and the pending cards inside a session. `j` / `k` / ArrowDown / ArrowUp
+ * move the focus, `Enter` / `o` open the focused item.
+ *
+ * What is deliberately absent: `a` / `e` / `d` / `x` and any batch key. SE has
+ * no risk or reversibility field and no batch decision, so a one-key Allow would
+ * be an authorisation granted without the payload being read (§6, FN-18).
+ * Opening a pending card therefore moves the focus into it — the same place a
+ * click lands — and never presses Allow or Deny for the person (FN-05).
+ *
+ * The handler yields to text entry: it never fires while the caret is in an
+ * input, a textarea, a select or contenteditable, and never during IME
+ * composition. Arrow keys are only taken when a list item already holds the
+ * focus, so ordinary scrolling is untouched. */
+const LIST_KEYS = new Set(["j", "k", "o", "ArrowDown", "ArrowUp", "Enter"]);
+const TEXT_ENTRY =
+  "input, textarea, select, [contenteditable=''], [contenteditable='true']";
+function openListItem(item) {
+  const target = item.matches("button")
+    ? item
+    : item.querySelector("[data-nav-open]");
+  if (target) {
+    target.click();
+    return;
+  }
+  item
+    .querySelector(
+      "button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [tabindex='0']",
+    )
+    ?.focus();
+}
+function handleListKeys(event) {
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229)
+    return;
+  if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+  if (!LIST_KEYS.has(event.key)) return;
+  const active = document.activeElement;
+  if (active?.closest(TEXT_ENTRY)) return;
+  if (document.querySelector("dialog[open]")) return;
+  if (active?.closest("#surface-panel, [popover]")) return;
+  const stream = $("message-stream");
+  const items = [...stream.querySelectorAll("[data-nav-item]")];
+  if (!items.length) return;
+  const current = active?.closest("[data-nav-item]");
+  const index = current ? items.indexOf(current) : -1;
+  if (event.key === "Enter" || event.key === "o") {
+    if (index < 0) return;
+    /* A focused button already activates itself on Enter; taking the event here
+     * would open the same session twice. */
+    if (event.key === "Enter" && current.matches("button")) return;
+    event.preventDefault();
+    openListItem(current);
+    return;
+  }
+  const arrow = event.key === "ArrowDown" || event.key === "ArrowUp";
+  if (arrow && index < 0) return;
+  event.preventDefault();
+  const forward = event.key === "j" || event.key === "ArrowDown";
+  const next =
+    index < 0
+      ? 0
+      : Math.min(items.length - 1, Math.max(0, index + (forward ? 1 : -1)));
+  items[next].focus();
+}
 function handleSurfaceEscape(event) {
   if (
     event.defaultPrevented ||
@@ -5393,6 +5494,7 @@ function wireEvents() {
     state.editMessageCandidate = null;
   });
   document.addEventListener("keydown", handleSurfaceEscape);
+  document.addEventListener("keydown", handleListKeys);
   for (const dialog of document.querySelectorAll("dialog")) {
     dialog.addEventListener("cancel", (event) => {
       if (event.isComposing) event.preventDefault();

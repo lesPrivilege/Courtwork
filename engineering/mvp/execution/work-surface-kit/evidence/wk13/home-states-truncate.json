@@ -1,0 +1,28 @@
+[
+  {
+    "stage": "truncate",
+    "name": "FE-T12 · a truncated page says how much is not shown and never says the list is complete",
+    "pass": true,
+    "actual": {
+      "total": "33",
+      "rows": 30,
+      "notes": [
+        "Showing 30 of 33. Some items are outside this page."
+      ],
+      "more": [
+        "Load more"
+      ],
+      "tile": "33",
+      "closed": false
+    }
+  },
+  {
+    "stage": "truncate",
+    "name": "FE-T12 · the tile states the server's total, not the page length",
+    "pass": true,
+    "actual": {
+      "tile": "33",
+      "rows": 30
+    }
+  }
+]

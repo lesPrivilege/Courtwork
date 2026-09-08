@@ -838,11 +838,20 @@ button {
   font-size: var(--text-meta);
   color: var(--muted-strong);
 }
-.home-row.waiting_user .home-row-status {
+/* WO-WK13 · ux-conventions §1 / FN-28 · the colour follows the state word, not
+   the set it was listed under. `unknown` sits in the same section as `failed`
+   but is not a failure that was established, so it keeps the grey of every
+   other state word. Only a run waiting on a person and a run that failed take
+   ink, which is what holds the screen to three accents (WK-36). */
+.home-row-status.is-waiting,
+.rail-card-state.is-waiting {
   color: var(--accent-ink);
+  font-weight: 600;
 }
-.home-row.inspection .home-row-status {
+.home-row-status.is-failed,
+.rail-card-state.is-failed {
   color: var(--danger);
+  font-weight: 600;
 }
 .empty-state {
   max-width: var(--column);
@@ -2829,6 +2838,164 @@ dialog[open]::backdrop {
 .home-choice select { width: auto; max-width: 150px; min-width: 0; padding: 6px 22px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
 .home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
+
+/* ==== WO-WK13 · Home's three bands ======================================
+   Band 1 states what is recorded, band 2 is the composer, band 3 absorbs the
+   rest (WK-32 / 46 / 76). Only band 1 and band 3 are described here; band 2 is
+   the application's own composer and keeps the rules above it unchanged. */
+
+/* Band 1 · recorded totals. WK-46 (1): the band is bounded at 160 so the
+   composer and the work below stay on the first screen. */
+.home-top-band {
+  padding: var(--space-6) var(--page-gutter) 0;
+}
+.home-band-inner {
+  max-width: var(--column);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+/* SH-1 · a plain statistic stays flat: no card frame, no shadow, no second
+   boundary. The tile reads as a control through hover, focus and pressed state
+   alone, and it is a control because pressing it does something — it filters
+   band 3 to this set (DC-2 allows the sets to overlap). */
+.home-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+}
+.stat-row > .home-stat:first-child {
+  padding-left: 0;
+}
+.stat-row > .home-stat + .home-stat {
+  box-shadow: inset 1px 0 0 var(--line);
+}
+.home-stat:hover {
+  background: var(--hover);
+}
+.home-stat:active {
+  background: var(--pressed);
+}
+.home-stat[aria-pressed="true"] {
+  background: var(--selected);
+}
+.stat-inline {
+  display: contents;
+}
+.stat-label {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+.stat-value {
+  font-size: 25px;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-heading);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+/* A set the answer did not carry reads as words, never as a 0 (FN-28). */
+.stat-value.is-missing {
+  font-size: var(--text-body);
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: var(--muted-strong);
+}
+.stat-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--muted-strong);
+}
+/* WK-27 · the planned reading is one line with no control: the day-by-day count
+   has no endpoint and no declared day boundary behind it. */
+.home-planned {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.home-planned-label {
+  font-weight: 600;
+}
+.home-observed {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+/* Band 3 · the way back from a filtered band to the three sets. */
+.home-filter-line {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: var(--space-2);
+}
+/* WK-56 · the card state of the same WorkCard: the rail's anatomy (glyph 16,
+   object name, one state word, one action) on the L1 panel, so the boundary is
+   a hairline and not the rail card's floating material (WK-69, SH-2). */
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--card-padding);
+  margin-top: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+.home-card-meta {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  /* WO-WK13 · at 390 the three tiles read as two rows rather than one line of
+     three: a 120px column cannot hold a label, a count and a definition. */
+  .stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) 0;
+  }
+  .stat-row > .home-stat:first-child {
+    padding-left: var(--space-2);
+  }
+  /* The rule between two tiles reads as a column divider; on a two-row grid the
+     third tile has no neighbour to its left, so the rule would point at nothing. */
+  .stat-row > .home-stat + .home-stat {
+    box-shadow: none;
+  }
+  .home-stat {
+    padding: var(--space-1) var(--space-2);
+  }
+  .stat-inline {
+    display: flex;
+    align-self: stretch;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .stat-value {
+    font-size: var(--text-title);
+  }
+  .home-top-band {
+    padding-top: var(--space-3);
+  }
+}
 
 /* WK-11 · One quiet section label --space-8 below the composer, no rule line:
    the rows below already carry their own boundaries. */
