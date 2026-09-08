@@ -2,9 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CONTRACT_VERSION,
-  GOLD_FIXTURES,
-  HASH_MANIFEST,
-  HOLDOUT_FIXTURES,
   PLAYBOOK_VERSION,
   REVIEW_STATUSES,
   buildReview,
@@ -14,6 +11,11 @@ import {
   reviewToObligations,
   verifyReview,
 } from '../domains/inbound-nda/index.mjs';
+import {
+  GOLD_FIXTURES,
+  HASH_MANIFEST,
+  HOLDOUT_FIXTURES,
+} from '../domains/inbound-nda/fixtures.mjs';
 
 const cases = Object.values(GOLD_FIXTURES);
 
@@ -32,6 +34,7 @@ test('bounded NDA playbook and fixture manifest are versioned and serializable',
   assert.match(HASH_MANIFEST.schema, /inbound-nda-fixture-hashes\/v1/);
   assert.equal(HASH_MANIFEST.contractVersion, CONTRACT_VERSION);
   assert.equal(HASH_MANIFEST.playbookVersion, PLAYBOOK_VERSION);
+  assert.match(HASH_MANIFEST.playbookSha256, /^[a-f0-9]{64}$/);
   assert.equal(Object.keys(HASH_MANIFEST.development.cases).length, 4);
   assert.ok(HASH_MANIFEST.holdout.cases['holdout-normal']);
   for (const digest of [

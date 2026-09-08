@@ -1,5 +1,6 @@
-import { createHash } from 'node:crypto';
 import { CONTRACT_VERSION, PLAYBOOK_VERSION, SCHEMA_VERSION } from './constants.mjs';
+import { RULE_DEFINITIONS } from './rules.mjs';
+import { sha256, stableJson } from './serialization.mjs';
 
 const clone = (value) => structuredClone(value);
 
@@ -9,23 +10,6 @@ function deepFreeze(value) {
     for (const child of Object.values(value)) deepFreeze(child);
   }
   return value;
-}
-
-function stableValue(value) {
-  if (Array.isArray(value)) return value.map(stableValue);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stableValue(value[key])]));
-  }
-  return value;
-}
-
-export function stableJson(value) {
-  return JSON.stringify(stableValue(value));
-}
-
-export function sha256(value) {
-  const input = typeof value === 'string' ? value : stableJson(value);
-  return createHash('sha256').update(input, 'utf8').digest('hex');
 }
 
 const NDA_TEXT = [
@@ -202,49 +186,6 @@ export const HOLDOUT_FIXTURES = deepFreeze([
   },
 ]);
 
-export const RULE_DEFINITIONS = deepFreeze([
-  {
-    ruleId: 'purpose-limitation',
-    sequence: 1,
-    title: 'Use is limited to the synthetic transaction purpose',
-    sourceQuotes: [
-      '1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.',
-    ],
-    factPaths: ['transaction.purpose', 'use.purpose'],
-    expected: 'use.purpose equals "evaluate Project Cedar acquisition"',
-  },
-  {
-    ruleId: 'need-to-know-recipients',
-    sequence: 2,
-    title: 'Recipients are need-to-know and bound',
-    sourceQuotes: [
-      '2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.',
-    ],
-    factPaths: ['recipients[].needToKnow', 'recipients[].boundToConfidentiality'],
-    expected: 'every listed recipient has needToKnow=true and boundToConfidentiality=true',
-  },
-  {
-    ruleId: 'security-and-notice',
-    sequence: 3,
-    title: 'Safeguards and notice window meet the synthetic check',
-    sourceQuotes: [
-      '3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.',
-    ],
-    factPaths: ['security.safeguards', 'security.noticeHours'],
-    expected: 'safeguards="reasonable" and noticeHours<=24',
-  },
-  {
-    ruleId: 'term-duration',
-    sequence: 4,
-    title: 'Confidentiality term is three years',
-    sourceQuotes: [
-      '4. Term. These confidentiality obligations continue for three years after the Effective Date.',
-    ],
-    factPaths: ['term.years'],
-    expected: 'term.years equals 3',
-  },
-]);
-
 function fixtureHashes(items) {
   return Object.fromEntries(items.map((item) => [item.id, {
     factsSha256: sha256(item.facts),
@@ -274,14 +215,83 @@ function setHashes(items) {
   };
 }
 
-export const HASH_MANIFEST = deepFreeze({
+const ACTUAL_HASH_MANIFEST = {
   schema: 'inbound-nda-fixture-hashes/v1',
   schemaVersion: SCHEMA_VERSION,
   contractVersion: CONTRACT_VERSION,
   playbookVersion: PLAYBOOK_VERSION,
+  playbookSha256: sha256(RULE_DEFINITIONS),
   development: setHashes(DEVELOPMENT_FIXTURES),
   holdout: setHashes(HOLDOUT_FIXTURES),
-});
+};
+
+// These values are deliberately checked into the fixture module.  Dynamic
+// recomputation alone would make a changed corpus look valid on every run.
+const EXPECTED_HASH_MANIFEST = {
+  schema: 'inbound-nda-fixture-hashes/v1',
+  schemaVersion: 1,
+  contractVersion: 'inbound-nda-v1',
+  playbookVersion: 'inbound-nda-playbook-v1',
+  playbookSha256: '2d93c98049f60d98b7036147f60a7e73613ac70a2492925d8106400166415fb1',
+  development: {
+    sourceSetSha256: 'afc7bba3eccafa50d89312b81c20ca4af9e16dbe6494b6eab6420b7b68e0ebbc',
+    factsSetSha256: '8c1961394d3d7f28eea7b269cbb2ad4057b09fc4449a163bcdfae80a6391f1c2',
+    goldSetSha256: 'fa275a546b16d79f56f3b53005fb24ad6ce3c5a1178bf242dc542550b18e1806',
+    fixtureSetSha256: '1c977f1a2c79e324af6e0189bd16864b2687550af48fae2f3011fb284016d36b',
+    cases: {
+      normal: {
+        factsSha256: 'acce46c1ab0402dcf038cf3ddb767ed93fa2900bc57743f94d6e1953d07af279',
+        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        expectedSha256: '1a766c04f98ffe4d5dee2b00078d7006df516ed2dadedd8b4dcdc8eb627b99c1',
+        fixtureSha256: '7384201d03e1b8df8eeb4290b7735545732e101f8f68ffe236e53ecf1aca9b3a',
+      },
+      missing: {
+        factsSha256: '4f4ac723a7233975e90dbbd30cb92eec665dfaac76436378a4d7825a15ec31ee',
+        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        expectedSha256: '56f62333d7984440340a7c42ad96e328e776a91ca2c3635b671cab7f189c0450',
+        fixtureSha256: '4f5b7d6f5003b1482036db2b3217a2c81a78ab99f8610fbf573edd750358ef49',
+      },
+      conflict: {
+        factsSha256: 'e62138816b74ad748270dca8fc3a5cccf343c9c9f00ddb768318170c0819fc3a',
+        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        expectedSha256: '35905dea273ecf5ecc8d05ba0a94fcbd726b93ed96e5eb5354a2efdcfc95ed0c',
+        fixtureSha256: '9489754bac6bc37cb67606bfa758657790183de7f3b0b29613626f621ff2c282',
+      },
+      unknown: {
+        factsSha256: 'b3ed72e32c5abdc1a91fc7e9a9b700c9d0d51972d38171084ce9a625318cc549',
+        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        expectedSha256: '113b8ab9396e8c703ce9128ef4a6ba9d614d687f1fcb7cb2bd855945e3044fe4',
+        fixtureSha256: 'bec5596941605059bc810e904ef521f7bff93a9e1de46bc09a0bfd17d5209fc9',
+      },
+    },
+  },
+  holdout: {
+    sourceSetSha256: '1bba0f79302a0d168f8794da57d864a5e4d24fcba9acc5cb79c9f8a145479124',
+    factsSetSha256: '370ecfb3859aac1bbc15992dd98a8b6bead93e6ed37a7ff36877c214028ae3de',
+    goldSetSha256: 'a14cbd12bd2ed1ca6fe9adf62848a9b60451f5c70b983ea3b5389fd4ff0fcf24',
+    fixtureSetSha256: '76f59f5329966f6805c06381b076eba40f9b23b40d44f43d7ecc139d5abfabfc',
+    cases: {
+      'holdout-normal': {
+        factsSha256: '3c65f1de1bb40cdf974de3287eed96d7f7874bfd4c0381ae9c010d17e329db19',
+        sourcesSha256: '989573b526d3e80b6ea1870398880a401be03291bf21ee41d04c534c2c04a3a6',
+        expectedSha256: '1a766c04f98ffe4d5dee2b00078d7006df516ed2dadedd8b4dcdc8eb627b99c1',
+        fixtureSha256: '7c007fafb664b1740f1bdd7822093d4fb756aa0295a24b31e8a0c273cfefb090',
+      },
+      'holdout-deviation': {
+        factsSha256: '182f9d7bde87c7827252426560e5c34a3613d6b02715e7536617f0255beee3c1',
+        sourcesSha256: '989573b526d3e80b6ea1870398880a401be03291bf21ee41d04c534c2c04a3a6',
+        expectedSha256: '79f94aa361b83e8c95bfd0d22f245c5fa26be76db70f81add49d9beb24d236be',
+        fixtureSha256: '62bdd0a25dbb7849dc01888b1c1400440284a7ba7eb553ccb879ce8a21dc2246',
+      },
+    },
+  },
+};
+
+if (stableJson(ACTUAL_HASH_MANIFEST) !== stableJson(EXPECTED_HASH_MANIFEST)) {
+  throw new Error('inbound NDA fixture hash manifest mismatch; update fixture data and expected hashes together');
+}
+
+export const HASH_MANIFEST = deepFreeze(EXPECTED_HASH_MANIFEST);
 
 export const fixtures = deepFreeze({
   gold: GOLD_FIXTURES,

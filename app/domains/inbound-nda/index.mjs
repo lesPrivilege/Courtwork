@@ -4,29 +4,8 @@ import {
   REVIEW_STATUSES,
   SCHEMA_VERSION,
 } from './constants.mjs';
-import {
-  DEVELOPMENT_FIXTURES,
-  GOLD_FIXTURES,
-  HASH_MANIFEST,
-  HOLDOUT_FIXTURES,
-  HOLDOUT_SOURCES,
-  NORMAL_FACTS,
-  RULE_DEFINITIONS,
-  SYNTHETIC_SOURCES,
-  development,
-  developmentFixtures,
-  fixtureManifest,
-  fixtures,
-  gold,
-  goldFixtures,
-  hashManifest,
-  holdout,
-  holdoutFixtures,
-  normalFacts,
-  sha256,
-  stableJson,
-  syntheticSources,
-} from './fixtures.mjs';
+import { RULE_DEFINITIONS } from './rules.mjs';
+import { sha256, stableJson } from './serialization.mjs';
 
 const RULE_IDS = Object.freeze(RULE_DEFINITIONS.map((rule) => rule.ruleId));
 const STATUS_SET = new Set(REVIEW_STATUSES);
@@ -53,26 +32,6 @@ export const playbook = Object.freeze({
 });
 
 export { CONTRACT_VERSION, PLAYBOOK_VERSION, REVIEW_STATUSES, SCHEMA_VERSION };
-export {
-  DEVELOPMENT_FIXTURES,
-  GOLD_FIXTURES,
-  HASH_MANIFEST,
-  HOLDOUT_FIXTURES,
-  HOLDOUT_SOURCES,
-  NORMAL_FACTS,
-  SYNTHETIC_SOURCES,
-  development,
-  developmentFixtures,
-  fixtureManifest,
-  fixtures,
-  gold,
-  goldFixtures,
-  hashManifest,
-  holdout,
-  holdoutFixtures,
-  normalFacts,
-  syntheticSources,
-};
 
 export class InboundNdaError extends Error {
   constructor(code, message, details = {}) {
@@ -608,5 +567,3 @@ function reviewArtifactText(review) {
 export const toArtifact = reviewToArtifact;
 export const toObligations = reviewToObligations;
 export const toCoreCandidate = reviewToCoreCandidate;
-
-export { sha256, stableJson };
