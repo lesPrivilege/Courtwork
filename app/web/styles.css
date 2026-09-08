@@ -2777,7 +2777,10 @@ dialog[open]::backdrop {
    viewport-proportional so the group reflows with the window instead of being
    pinned. Empty Home puts the group at about a third of the viewport; a Home
    with rows to read keeps it near the top so the rows stay above the fold. */
-.home-active .composer-area { padding: clamp(20px, 9vh, 112px) var(--page-gutter) 0; }
+/* WK-76 · Home keeps real whitespace above the hero + composer group even with
+   lists below (about a fifth of the viewport), and the composer stays short:
+   the group is an entry point, not a document. */
+.home-active .composer-area { padding: clamp(48px, 18vh, 200px) var(--page-gutter) 0; }
 .home-active.home-empty .composer-area { padding-top: clamp(96px, 31vh, 640px); }
 
 .home-composer-intro {
@@ -2792,7 +2795,7 @@ dialog[open]::backdrop {
   line-height: 1.2;
   letter-spacing: var(--tracking-heading);
 }
-.home-active #composer-input { min-height: 100px; }
+.home-active #composer-input { min-height: 64px; max-height: 160px; }
 
 /* WK-12 · Project and file-writes scope join the model chip in the composer's
    own bottom control row; Send stays at the trailing edge. */
