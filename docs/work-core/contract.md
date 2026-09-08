@@ -17,6 +17,7 @@ All HTTP routes below have `/api/v5` prefix and use existing local host authenti
 - `GET /sessions/:id/surface`: `{extension,projection}`. Inline/detail consume the same packet and version. If the producer is absent, extension is null and Core history remains available with `readOnly:true`, no humanActions. Unloaded/invalidated producer also exposes no legal mutations. Unsupported contract versions are read-only.
 - `GET /sessions/:id/work-query?kind=request&requestId=...`: `{schemaVersion:1,result}`; null means no committed receipt. A receipt from another Matter is rejected.
 - `GET /sessions/:id/work-query?kind=source&candidateId=...&sourceId=...&version=1`: historical source bytes from the candidate's frozen source-set revision. Both candidate and source membership are checked against the Session's Matter. This remains available without a producer.
+- `DELETE /sessions/:id`: logical deletion of execution catalog records after preserving work ownership; Core work survives. Workspace/journal bytes remain private on disk. This is not secure erasure.
 - `GET /projects/:id/work`: durable project-owned Matter identities and extension IDs for continuation. No automatic Matter is created for plain Chat.
 
 ## Binding and actions
@@ -41,3 +42,11 @@ Legacy action queries `query_request` and `read_source_history` are retained for
 Core errors are HTTP 409 with `{error:{code,message}}`; host errors keep existing status/code. Important codes: `VERSION_CONFLICT`, `STALE_INPUT`, `IDEMPOTENCY_CONFLICT`, `BINDING_MISMATCH`, `CANDIDATE_CLOSED`, `EVIDENCE_INVALID`, `OBLIGATION_OPEN`, `OBLIGATION_INVALID`, `CONTRACT_UNSUPPORTED`, `SCHEMA_INVALID`, `SCHEMA_NEWER`, `DB_IN_USE`, `CONTEXT_BUDGET`. Host admission includes `generation_mismatch`, `active_run`, `binding_mismatch`, `binding_exists`, `unknown_field`.
 
 Executable synthetic fixtures: `app/tests/work-core.test.mjs` (Core independent of runtime/provider/UI), `work-continuity.test.mjs` (actual service/Pi loopback), and `fixtures/work-core/crash.py` (real SIGKILL around commit). Source anchors use Unicode code-point offsets and UTF-8 SHA-256; no personal data or paid provider is used.
+
+## Validation boundaries and frozen delivery
+
+Code baseline `133269184468f1adf3b38acfc59091818daeb8e8`. Generic pending proposals may retain unverified evidence for review; only accept validates evidence and confers formal effect. Reject/request_evidence do not certify that evidence. The NDA adapter verifies domain evidence before saving any proposal. Terminal Core Run fields are immutable except exact replay; candidate references must belong to that Run and Matter. Missing or partial existing application schema metadata fails closed.
+
+The host requests globally serialized admission atomically in RuntimeStore; standalone Store callers retain per-Session admission semantics. Work Context freezes selected/omitted inputs and host runtime profile provenance in the Core Run. See [NDA seam](nda.md) and [frozen packets](../../app/tests/fixtures/work-core/nda-packets.json) for pending, accepted and producer-unloaded examples.
+
+A failed extension settlement keeps host status `unknown` with `extension_finish_failed`. The work adapter queries durable Core state: an existing terminal result is preserved; an active orphan is closed `unknown` before a new command proceeds. No finisher/tool effect is replayed. If reconciliation itself fails, a separate `extension_reconcile_failed` event records the need for recovery; host restart remains the recovery path when Core is unavailable. Partial tool events use `tool.update`, with only `tool.result` terminal.

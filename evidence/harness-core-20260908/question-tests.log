@@ -1,0 +1,19 @@
+✔ answer admission race: ask_user queued behind cancel returns 409 (640.458167ms)
+✔ answer admission race: permission queued behind cancel returns 409 (295.898375ms)
+✔ normal ask_user answer still resolves and completes the run (681.503541ms)
+✔ double permission answer records one decision and rejects the other (1320.875542ms)
+✔ T-CANCEL-2: cancelling while waiting for the first token yields stopping then cancelled (750.277083ms)
+✔ T-CANCEL-3: cancelling during ask_user closes the question and refuses a late answer (104.683166ms)
+✔ T-CANCEL-4: a late allow after cancelling a permission is refused and writes nothing (1066.895042ms)
+✔ T-CANCEL-5: cancelling a run that is not in this process reports unknown, not cancelled (505.116667ms)
+✔ T-PERM-6: concurrent allow and deny on one permission — first wins, second is 409 (998.905667ms)
+✔ T-PERM-7: read_only makes ws_write absent, not present-and-refused (492.407458ms)
+✔ HYP-01: abort before openQuestion waiter is installed does not hang (189.225916ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4753.47025

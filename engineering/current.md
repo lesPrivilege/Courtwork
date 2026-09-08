@@ -17,6 +17,8 @@
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
 
+Core施工回执（尚未合流main）：隔离分支 `codex/harness-core` 从 `43e3dc0` 开始，代码冻结 `133269184468f1adf3b38acfc59091818daeb8e8`。H0–H3后端已实现：单一host-owned Core、合成NDA规则/verifier与Pi接线、Context版本来源、跨Session/删除保留、历史来源归属及producer缺席只读。契约见 [Work Core](../docs/work-core/contract.md)、[NDA](../docs/work-core/nda.md)，测试和独验见 [施工回执](../evidence/harness-core-20260908/README.md)。用户提供的旧基线Pro初审已消费；R-01收尾结算、R-04非终态事件及受控abort探针修复与复核见施工回执。Fable尚待消费冻结packet与actions；真实provider为not_run。这些分支结果不改变main已成立范围、不关闭G1–G5。
+
 用户最新回报：Fable已开始新一轮施工；具体工单、分支与交付SHA待其回执，尚不计入main已交付能力。网页GPT Pro初审按 [固定快照交接](release/2026-09-08/pro-review/HANDOFF.md)并行准备，由用户提交；后续Fable交付另作diff补审。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。

@@ -1,0 +1,13 @@
+✔ Pro R-01: before-write never reports completed or discards settlement error (612.710708ms)
+✔ Pro R-01: after-write-ack-loss never reports completed or discards settlement error (914.158208ms)
+✔ Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error (998.951209ms)
+✔ Pro R-02: ordinary first instruction discovers scoped source refs only from host context (607.415208ms)
+✔ Pro R-04: intermediate tool updates stay nonterminal until end (3.583625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4136.216333
