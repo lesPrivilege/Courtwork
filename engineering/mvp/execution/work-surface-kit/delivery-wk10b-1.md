@@ -252,3 +252,15 @@ Home 框外状态行、64–160 composer、桌面居中与留白、L0–L3 四�
 | 本页所在提交 | docs: the glyph contract, the two rewritten surface docs, and this record |
 
 分支 `claude/wk10b-first`，未 push。基线 `a2c2e4c`。
+
+## 10. Fable 复核（2026-09-08）
+
+独立重跑：`npm --prefix app test` 170/170，`lint-colors` ok；目视 `slot-renderer-absent-1440-light` 前后图：缺席态由"loaded · generation 0 + 标题 + JSON"改为状态行（标题 · renderer not loaded）、`generation · state` 依据行、`Declared actions` 与只读原因句，符合 FN-20 / 24 / 28 与 S-5 消融。
+
+裁定（WK-84）：
+1. `tools/lint-colors.mjs` 一行选择器改名接受；豁免理由与条数未变。
+2. 可见词沿用 `extension`，`producer` 只留在裁定与契约文本；copy-convention 词表不增词。
+3. 消融 S-1 删除通用 `Run action` 按钮、S-7 不为仅声明的 `uiSlots` 画行、C-13 未决授权卡不并入行解剖：均接受。
+4. 交 Astra 合流；独验项：FE-T05 / T07 复跑、`docs/surface-assignment.md` 第 3 条覆盖态限定、WK11 登记项（`summary()` 暴露 `composition` 后删 `runtimeControlRequest`）。
+
+未检项沿 §8；第二段从合流后的 main 建树。
