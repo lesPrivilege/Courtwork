@@ -2,6 +2,8 @@
 
 2026-09-08。用户已授权下一轮 roadmap 施工，并指定 README/Pages 由 Claude Opus 建立；Astra 负责 current、架构、契约与派单。本包基线为 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`，唯一主目录 `Courtwork`、主线 `main`。这是可交给执行者的工单包；本包完成不代表实施会话已启动或代码已验收。当前状态只在 [current](../../current.md) 更新。
 
+最新派单覆盖下表启动顺序：[Fresh Astra Core实施交接](fresh-astra-core-handoff.md)整合H0–H3，建立通用底层并封装首个NDA场景；Fable同时从前端逆向。允许从现有样本提炼通用Core owner并保留兼容，不复制第二套可写状态；BE-5和完整Workbench后置。以下工单仍作范围输入，前端实际排期以Fable本轮分支回执为准。
+
 ## 本轮落点
 
 用户进一步指定：本轮结束须达到 [G1–G5公开完成度](public-readiness.md)，足以修订resume并公开Pages。派单/契约交付是中间产物；BE-5或完整Workbench不挤占最小正式工作闭环的优先级。
