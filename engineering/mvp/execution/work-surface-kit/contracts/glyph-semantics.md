@@ -63,6 +63,7 @@
 | 已决定的远程工具调用（折叠行） | 同上 | 同上 | P0 图标 | `plug` | `<server name> · <serverId>` | `Action allowed` / `Action denied` / `Action closed` |
 | 已决定的本地工具调用（折叠行） | 同上 | 同上 | P0 图标 | `activity` | 工具标识 | 同上 |
 | 展开 / 收起一行（disclosure） | 上列每一个 `<summary>` | 每行一次 | P0 图标 | `::after` 的 `›`（字符，非 sprite；旋转 90°） | 由 `<summary>` 的行内文字承担 | — |
+| 已确认的正式决定回执（WO-WK10b 第二段新登记） | Chat Flow，该 Run 之后一行 | 每决定一行 | P0 图标 | `file-text` | 由行内的候选短 id 与决定词承担 | — |
 
 **未决的授权卡不进本表的行解剖**：`Allow this file write?` / `Allow this tool action?` / `Allow this remote tool call?` 及其 `Allow this write` / `Deny write` / `Allow this action` / `Deny action` 保持整卡与整句，路径、字节、hash、来源逐项可见（copy-convention Astra 补充、FN-18）。不用勾、叉或盾牌承担授权（IC-1）。
 
@@ -83,6 +84,21 @@
 | 折叠 / 展开 project | 侧栏 | 每 project 一次 | P0 图标 | `chevron-down` / `chevron-right` | project 名 + `aria-expanded` | — |
 | 未挂载的贡献工作面（本轮新登记） | 工作面首行、悬浮 Workspace 卡 | 每会话 ≤1 次 | P0 图标 + **保留文字** | `plug` | 由同一行的 producer 名与状态词承担；行本身**不是控件** | — |
 
+### 4.1 领域 Review 的行（WO-WK10b 第二段新登记，**新增 glyph 数 = 0**）
+
+行解剖与第 3 节相同：glyph 16 + 对象名 + 至多一个元数据词。所有 glyph `aria-hidden`；状态词、版本、锚点与授权后果一律保持文字（第 5 节）。
+
+| 语义 | 出现面 | 频率 | 裁取 | glyph | 标题（对象名） | 元数据词 |
+|---|---|---|---|---|---|---|
+| 一个候选（一份提出的 Review） | 工作面候选卡头 | 每候选一次 | P0 图标 | `file-text` | 候选 id 短形 | packet 的候选状态词（`pending` / `accepted` / `rejected` …） |
+| 一条规则的 finding | 候选卡内，一行一规则 | 每规则一行 | P0 图标 | `file-text` | `ruleId` | packet 的状态词原值（`pass` / `deviation` / `missing` / `conflict` / `unknown`）。**只有 `conflict` 可着色**，且词永远在（FN-28）；`unknown` 保持灰：unknown 不是 failed |
+| packet 自己记的事实 / 字节（disclosure） | 候选卡内 `Recorded facts`；只读 fallback 的 `Recorded fields` | 每候选 / 每面一次 | P0 图标 | `folder` | `Recorded facts` / `Recorded fields` | — |
+| 提出一份修订（disclosure） | 候选控件内 | 每候选 ≤1 次 | P0 图标 | `square-pen` | `Propose a revision` | — |
+| 领域工作面首行 | 工作面首行 | 每会话 ≤1 次 | P0 图标 | `plug` | 工作标题 | `Read only`（仅只读时） |
+| 已有的工作条目（续行） | `#binding-panel` 的 Continue existing | 每条目一行 | P0 图标 | `plug` | Matter id 短形 | `version N` |
+
+**决定按钮不给 glyph**：`Accept this version` / `Reject` / `Request evidence` 承担范围与后果，勾 / 叉 / 盾牌表达不了「这一版、这一次」（IC-1「文字优先」、FN-18）。`Read the recorded source` 同理保持文字：它是一种**读取类别**（读该候选冻结的那一版），不是刷新，也不是打开当前文件。
+
 ## 5. 保留文字、不给 glyph 的语义（IC-1「文字优先」行）
 
 | 语义 | 为什么不能交给 glyph |
@@ -101,7 +117,7 @@
 | 项 | 事实 |
 |---|---|
 | sprite 内 glyph 数 | 24（`activity` `arrow-down` `arrow-up` `chevron-down` `chevron-right` `copy` `external-link` `file-text` `folder` `house` `maximize-2` `message-square` `minimize-2` `panel-left` `panel-right` `paperclip` `plug` `plus` `refresh-cw` `search` `settings-2` `square-pen` `square` `x`） |
-| 本轮新增 | 0。第 3 节的类型 glyph 全部取自已准入子集 |
+| 本轮新增 | 0。第 3 节与第 4.1 节的类型 glyph 全部取自已准入子集（WO-WK10b 第一段与第二段各新增 0 枚） |
 | 已 vendoring 但产品未消费 | `arrow-down`、`external-link`。`arrow-down` 原为 `Back to latest` 预留，该控件当前是纯文字 pill；`external-link` 无外部导航入口。**登记为缺口，不为了用掉它们而造入口**（FN-29：未消费不等于能力） |
 | 未登记来源的图形 | 无。`›`（Activity 与行 disclosure 的旋转标记）是字符不是 SVG，沿用既有实现 |
 | tooltip 框架 | 沿 `installTooltips`（Floating UI DOM 1.8.0，IC-5）；本轮未新增 tooltip 行为，未新造计时器 |

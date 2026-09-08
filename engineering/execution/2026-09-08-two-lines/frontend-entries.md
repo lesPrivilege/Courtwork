@@ -1,6 +1,8 @@
 # 前端必要入口：G1–G3 的编排指引（Fable，2026-09-08）
 
-基线 `main` `e0d214d`。**2026-09-08 更新：** Astra `codex/harness-core` `d6247a8` 已交付本页所列 H1 / H3 契约（[docs/work-core/contract.md](../../../docs/work-core/contract.md)：`existingMatterId` 重绑定、`GET /projects/:id/work`、`readOnly` 只读历史、`work-query` 回执与历史来源、逐规则 `domain` payload、版本化 `humanActions`）；合流 main 后 §3 四个入口按 [WO-WK10b 第二段](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md) 开工，下表"契约依赖"列视为已满足。对象：为达到 [G1–G3](../2026-09-08-main-round/public-readiness.md) 必须存在的前端入口；哪些已有、哪些等契约、Opus 如何画。完整入口清单与 hunk 核对见 [EX-B](explore/ex-b-frontend-entries-diff.md)。写权沿 [WK10b](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md)：Opus 拥有 `app/web/**` 与 `evidence-memo/renderer.mjs` 第二段；不改 server / runtime / Core。
+基线 `main` `e0d214d`。**2026-09-08 更新：** Astra `codex/harness-core` `d6247a8` 已交付本页所列 H1 / H3 契约（[docs/work-core/contract.md](../../../docs/work-core/contract.md)：`existingMatterId` 重绑定、`GET /projects/:id/work`、`readOnly` 只读历史、`work-query` 回执与历史来源、逐规则 `domain` payload、版本化 `humanActions`）；合流 main 后 §3 四个入口按 [WO-WK10b 第二段](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md) 开工，下表"契约依赖"列视为已满足。**2026-09-08 再更新：** §3 的四个入口（3.1 逐规则视图、3.2 续行、3.3 只读历史、3.4 决定回执）已由 [WO-WK10b 第二段](../../mvp/execution/work-surface-kit/delivery-wk10b-2.md) 交付；下表现状列按实际结果改写，裁定与编排文字未动。两处契约缺口留给 Astra：Decision 无时刻字段、`list_work` 无 Matter title。
+
+对象：为达到 [G1–G3](../2026-09-08-main-round/public-readiness.md) 必须存在的前端入口；哪些已有、哪些等契约、Opus 如何画。完整入口清单与 hunk 核对见 [EX-B](explore/ex-b-frontend-entries-diff.md)。写权沿 [WK10b](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md)：Opus 拥有 `app/web/**` 与 `evidence-memo/renderer.mjs` 第二段；不改 server / runtime / Core。
 
 ## 1. 后端路由（`app/server/index.mjs:98–134`）
 
@@ -19,14 +21,14 @@
 |---|---|---|---|---|
 | G1 真实运行 | Connection 设置：provider、API 格式、base URL、模型、API key 保存 / 删除 | 已有：`settings-view.mjs` connection card + credential form；徽标 `#capability-badge` | 无新契约 | 不改结构；核对 key 输入不进日志、保存后徽标由 Local test 变为实际连接名；真实 provider 由用户输入 |
 | G1 失败 / 取消 / 重启可检查 | Run 终态与 unknown 显示、Stop、重连 | 已有：composer Cancel、连接状态行、Run 面 | 无 | 保持；文案按体例 |
-| G2 候选与依据 | 候选列表 → 逐规则 finding、来源锚点、未决、修改内容 | 部分：`renderer.mjs` 显示 Sources / Evidence / Draft / Review（memo 级），无逐规则 | H1-c per-rule packet | 先画只读逐规则形态，字段只取交付 packet 实际存在者 |
-| G2 正式决定 | accept / return（reject）/ request evidence，带 reason、base_version | 已有：`renderer.mjs:reviewPanel` 三个按钮 dispatch `decide`，经 `/sessions/:id/actions`；host 校验 generation、active run、actor | H1 固定 humanActions 版本化 | 按钮只在 `projection.humanActions` 含该动作时出现；过时版本 409 后刷新并保留 reason 草稿 |
-| G2 决定回执可见 | accept / return / request evidence 的结果进入 Chat Flow 或 Home 待处理集合 | 无：决定只回写在扩展自身的 projection（`app.mjs:3394–3454`），主线事件流与 work-summary 看不到（EX-B 表二） | H1 host 侧 decision 事件类型 | 等契约；有事件后按 ReviewProjection 之外的领域投影只读呈现 |
-| G3 新 Session 继续同一事项 | 在同一 Project 内新建 Session 时选择"继续已有事项" | 无：`#binding-panel` 由 Settings 的 Bind to session 打开（`app.mjs:1910–1922`），表单只有 title + sourceText（`app.mjs:1944–2049`）；`createSession` 也不接受 binding 参数 | H1-a rebind 契约 | 等契约；先在 binding panel 预留"Continue existing"分段，无契约前不渲染 |
-| G3 producer 缺席读历史 | 扩展卸载 / 失效后仍可读候选、决定、版本 | 无：`getSurface` 返回 null projection，前端显示缺失 | H3 只读路径 | 等契约；缺失态文案区分"扩展未加载"与"无记录"，不画动作 |
+| G2 候选与依据 | 候选列表 → 逐规则 finding、来源锚点、未决、修改内容 | **已交付**（WK10b 第二段）：`inbound-nda/renderer.mjs` 与宿主共用的 `workPacket` / `renderWorkPacket`，一行一规则、锚点与冻结引文在展开态 | H1-c per-rule packet（已满足） | 已画；字段只取 packet 实际存在者，`unresolved` 计数每候选一次 |
+| G2 正式决定 | accept / return（reject）/ request evidence，带 reason、base_version | **已交付**（WK10b 第二段）：按钮只来自 `decide` 描述符的 enum，对象化命名，`request_id` 按内容固定 | H1 固定 humanActions 版本化（已满足） | 已画；409 后刷新到权威状态，回执丢失用原 `request_id` 重试 |
+| G2 决定回执可见 | accept / return / request evidence 的结果进入 Chat Flow | **已交付**（WK10b 第二段）：Chat Flow 该 Run 之后一行只读回执，由 `work-query?kind=request` 的已提交回执驱动；null 回执不画行 | 用 `work-query` 回执，未用事件流 | 已画；**Decision 无时刻字段**，故不画时间（交付 §3.5） |
+| G3 新 Session 继续同一事项 | 在同一 Project 内新建 Session 时选择"继续已有事项" | **已交付**（WK10b 第二段）：`#binding-panel` 两段 Create new / Continue existing，列表来自 `GET /projects/:id/work`，跨 project 不可见；`{detach:true}` 为扩展行上的 `Release` | H1-a rebind 契约（已满足） | 已画；**`list_work` 无 title**，行只能显示 Matter id 短形（交付 §3.6） |
+| G3 producer 缺席读历史 | 扩展卸载 / 失效后仍可读候选、决定、版本 | **已交付**（WK10b 第二段）：缺席态沿第一段三句，其下接同一份读法（无控件），原始字节收进 `Recorded fields` | H3 只读路径（已满足） | 已画；解码判据取 payload 自己的 `schemaVersion`，与信封 `compatibility` 分开 |
 | G3 键盘与遮挡 | 关键路径键盘可达、无主要遮挡 | 已有：既有 Escape / 焦点回归回归测试 | 无 | WK10b 第一段沿既有验证项 |
 
-G1 不需要新入口。G2 缺逐规则视图与决定回执，G3 缺两个入口；四者都等 H1 / H3 后端契约，前端不先造数据。`probe` 扩展未核对同类缺口（EX-B 未检项）。
+G1 不需要新入口。G2 的逐规则视图与决定回执、G3 的两个入口原本都等 H1 / H3 后端契约；契约到位后由 WK10b 第二段交付，前端未先造数据。`probe` 扩展未核对同类缺口（EX-B 未检项）。
 
 ## 3. 待建入口的编排
 

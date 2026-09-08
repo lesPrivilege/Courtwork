@@ -1,0 +1,59 @@
+[
+  {
+    "label": "readonly-1440-light",
+    "minimum": 32,
+    "controls": 0,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-390-light",
+    "minimum": 44,
+    "controls": 0,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-1440-dark",
+    "minimum": 32,
+    "controls": 0,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-390-dark",
+    "minimum": 44,
+    "controls": 0,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "review-200pct-light",
+    "minimum": 32,
+    "controls": 0,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "reduced-motion",
+    "runningAnimations": 0
+  },
+  {
+    "label": "keyboard",
+    "focusables": 0,
+    "reachedByTab": 1,
+    "unnamed": 0,
+    "visited": [
+      {
+        "tag": "DIV",
+        "name": "Renderer unavailable: Failed to fetch dy",
+        "visibleFocus": true
+      }
+    ]
+  }
+]
