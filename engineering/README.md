@@ -15,4 +15,4 @@ CourtWork当前实现、设计、契约与证据在本仓main维护，唯一持�
 
 ## Paper边界
 
-[根PAPER.md](../PAPER.md)固定采用SE9.3与完整SHA，并提供最新阅读入口。实现、契约与验收留在CourtWork；只有固定工程结果支持泛化观察时才向SE的Practice Index回流，不复制论文或建立第二份修订账本。
+[根PAPER.md](../PAPER.md)固定采用SE9.6（DEC-012）与完整SHA，并提供最新阅读入口。实现、契约与验收留在CourtWork；只有固定工程结果支持泛化观察时才向SE的Practice Index回流，不复制论文或建立第二份修订账本。

@@ -15,10 +15,11 @@
 
 ## 首先消费的材料
 
-1. 本仓`AGENTS.md`、[current](../../current.md)、[architecture](../../architecture.md)、[core-contracts](../../core-contracts.md)、[PAPER.md](../../../PAPER.md)。Paper采用9.3固定SHA；9.6若作为比较输入，另固定字节，不自动升级采用版本。
+1. 本仓`AGENTS.md`、[current](../../current.md)、[architecture](../../architecture.md)、[core-contracts](../../core-contracts.md)、[PAPER.md](../../../PAPER.md)。Paper按DEC-012升级采用9.6 / `d78fd312955c1f594e59cbdcbb0d3074ac355940`。H1/H3反例以9.6 §5.5候选可见性与正式效力分离为条款来源，并复核§5.4按角色披露、§6.1读取/工具/外传权限及Practice §3.1宿主召回；9.3旧检验保留原身份，不冒充9.6已验。
 2. `engineering/options.md`、`engineering/decisions.md`、`engineering/research/RD-001-runtime-adapter.md`、`RD-002-commit-recovery.md`、`RD-004-harness-core-pt2-reconciliation.md`；`engineering/ecosystem/`。
-3. [Experts研究与原始index](../../research/experts-hotplug-2026-09-08/README.md)、[验证设计](../../research/experts-hotplug-2026-09-08/validation.md)、[H0–H5](../../research/experts-hotplug-2026-09-08/pr-plan.md)、[Longlife宣言覆盖](../../research/longlife-2026-09-08/README.md)。先消费已有证据，只有版本/实际缺口使证据失效时才重开局部研究。
-4. 当前`app/runtime/`、`app/server/`、`app/extensions/evidence-memo/`、相关测试与`docs/runtime-control/`。研究历史基线不代替当前源码。
+3. 同时消费Fable合流的`engineering/execution/2026-09-08-two-lines/{harness-core,frontend-entries}.md`及explore来源；其具体文件位置建议按当前Core提炼结果适配，不复制第二写入owner。
+4. [Experts研究与原始index](../../research/experts-hotplug-2026-09-08/README.md)、[验证设计](../../research/experts-hotplug-2026-09-08/validation.md)、[H0–H5](../../research/experts-hotplug-2026-09-08/pr-plan.md)、[Longlife宣言覆盖](../../research/longlife-2026-09-08/README.md)。先消费已有证据，只有版本/实际缺口使证据失效时才重开局部研究。
+5. 当前`app/runtime/`、`app/server/`、`app/extensions/evidence-memo/`、相关测试与`docs/runtime-control/`。研究历史基线不代替当前源码。
 
 早期原件已实际定位，可定向只读（不在公开树，不上传整个快照）：
 
@@ -30,7 +31,7 @@
     sha256 3c10d146f11d60a66c2e34366e5b74b72be1b7fd38e22f8e631887013157b8d5
 ```
 
-本次仅验证两原件存在、hash及index标题结构，不冒充已全文消费。执行者读取其中primitive/coverage/selection matrix、Q1–Q8、正式提交补充与source ledger，并把重要条目逐项映射为复用/薄适配/自研/延后/拒绝及理由、源码消费者和反例。只引用RD-004总结不足以完成这一步。其他本地原件按记录的确切坐标召回，不扫描凭据/私有archives；旧Courtwork仅按冻结SHA/path召回。
+原始manifest的input_papers记为9.4研究输入，不是当前9.6采用版本；来源消费表须保留该偏差并映射到9.6，不能机械替换历史hash。本次交接编订时仅验证两原件存在、hash及index标题结构，不冒充已全文消费。执行者读取其中primitive/coverage/selection matrix、Q1–Q8、正式提交补充与source ledger，并把重要条目逐项映射为复用/薄适配/自研/延后/拒绝及理由、源码消费者和反例。只引用RD-004总结不足以完成这一步。其他本地原件按记录的确切坐标召回，不扫描凭据/私有archives；旧Courtwork仅按冻结SHA/path召回。
 
 ## 实施切片与交付节点
 

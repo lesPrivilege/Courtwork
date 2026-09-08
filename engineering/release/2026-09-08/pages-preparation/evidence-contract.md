@@ -12,7 +12,7 @@
 | Runtime policy / MCP 的真实控制 | docs/runtime-control/api.md；evidence/node2-independent/README.md | 固定节点本地 fixture 与后端/浏览器证据；不外推真实 provider 全链 |
 | Review / commit 的职责区别 | engineering/design/work-surface-boundaries.md；engineering/mvp/execution/work-surface-kit/contracts/review-projection.md | permission/question/outcome 的当前边界；outcome 不宣称为专业成果已接受 |
 | 品牌语义与材质 | brand/CONTRACT.md；brand/evidence/ACCEPTANCE.md | 图形语义与组件验证；不支持产品能力声明 |
-| Schema Engineering | PAPER.md | 固定采用 9.3 / f8ecb091895559389bb4e75f3c6f28052b71c5a3；最新阅读页单独链接，9.6 本地候选不冒充已采用 |
+| Schema Engineering | PAPER.md | 采用 9.6 / d78fd312955c1f594e59cbdcbb0d3074ac355940（2026-09-08 发布，DEC-012）；最新阅读页单独链接 |
 | 历史桌面发布与测试 | engineering/migration/2026-09-08/README.md 指定的 frozen legacy SHA | 历史版本单列；不复用旧 v0.1.2 或测试总数作 fresh 的发行/质量 badge |
 
 以上路径在固定快照存在不意味着都已公开可访问。发布时逐条核实远端；本地证据若尚未进入公开载荷，只能准备经过筛选的公开摘要，不能给读者坏链接。

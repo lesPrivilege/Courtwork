@@ -1,0 +1,5 @@
+
+> se-agent-v5-runtime@0.1.0 start
+> node server/index.mjs --data-dir /private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/***/scratchpad/cw-data-8871 --port 8871
+
+http://127.0.0.1:8871

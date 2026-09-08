@@ -21,7 +21,7 @@ Fresh Astra新任务已请求创建：`client-new-thread:905e35ff-aa42-472f-883e
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
 
-用户最新回报：Fable已开始新一轮施工；具体工单、分支与交付SHA待其回执，尚不计入main已交付能力。网页GPT Pro初审按 [固定快照交接](release/2026-09-08/pro-review/HANDOFF.md)并行准备，由用户提交；后续Fable交付另作diff补审。
+Fable分支`claude/fable-two-lines`交付`6e220ae`：Paper 9.6采用、MIT、两线研究/派单与文案已接收，未改产品代码；首屏命题句按用户最新意见进入复议。前端产品交付仍待实际SHA。网页GPT Pro初审按 [固定快照交接](release/2026-09-08/pro-review/HANDOFF.md)并行准备，由用户提交；后续Fable交付另作diff补审。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
@@ -44,7 +44,7 @@ Fresh Astra新任务已请求创建：`client-new-thread:905e35ff-aa42-472f-883e
 - H1历史source revision的归属读取（当前只读现用revision）；H3 producer缺席历史read path；H4按实际需要的卸载/重装/版本兼容。现renderer缺席fixture不关闭整个H3/H4。
 - BE-1/3 activity与UTC日过滤；BE-2多文档实例；BE-12模型effort；Runtime R2获取、R3兼容、R4 Proposal、R5事务apply/rollback、R6 Expert版本。分别消费既有契约，不为导航或演示造能力。
 - VoiceOver/NVDA、IME/触控、桌面壳、200%缩放的完整产品验证及数据回退演练；旧135/1无栈flaky未复现，不称已修复。
-- README/Pages真实媒体与发布；新DMG/签名公证/外部用户试点未完成。Paper当前仍采用 [9.3固定SHA](../PAPER.md)，本地9.6候选不自动取得发布地位。
+- README/Pages真实媒体与发布；新DMG/签名公证/外部用户试点未完成。Paper已采用 [9.6固定SHA](../PAPER.md) `d78fd312955c1f594e59cbdcbb0d3074ac355940`（DEC-012）；版本采用不关闭产品验证门。
 
 ## 责任与历史
 

@@ -4,7 +4,7 @@
 
 “全场景”指不同工作能够以适当厚度接入同一套语义与治理边界。“全交互”指人在不同工作表面提出、检查、修订和裁决时，状态后果保持一致。覆盖地图需要完整，施工按最小消费者递进；不要求先建设全平台，也不以一个法律 demo 代表全部工作。
 
-工程仍绑定 [PAPER.md](../PAPER.md) 中的 SE 9.3；9.6 候选用于检查设计方向，采用版本升级另行记录受影响契约。源坐标、候选字节与本地覆盖差异见 [研究证据](research/longlife-2026-09-08/README.md)。R0–R5 保留为研究与验证阶梯；[PT0–PT9](pre-takeover-roadmap.md) 保存历史施工与资格设计；main已按用户授权先行接管，未完成的产品验证转由 [本轮公开完成度](execution/2026-09-08-main-round/public-readiness.md)承接。R0–R5、Runtime R2–R6与H0–H5是不同编号体系，不互相换算，当前实施按 [派单](execution/2026-09-08-main-round/README.md)。
+工程按DEC-012绑定 [PAPER.md](../PAPER.md) 中的 SE 9.6 / `d78fd312955c1f594e59cbdcbb0d3074ac355940`；9.3及候选坐标保留为历史研究输入，后续实现以9.6条款复核。源坐标、候选字节与本地覆盖差异见 [研究证据](research/longlife-2026-09-08/README.md)。R0–R5 保留为研究与验证阶梯；[PT0–PT9](pre-takeover-roadmap.md) 保存历史施工与资格设计；main已按用户授权先行接管，未完成的产品验证转由 [本轮公开完成度](execution/2026-09-08-main-round/public-readiness.md)承接。R0–R5、Runtime R2–R6与H0–H5是不同编号体系，不互相换算，当前实施按 [派单](execution/2026-09-08-main-round/README.md)。
 
 ## 1. 以工作需求决定治理厚度
 

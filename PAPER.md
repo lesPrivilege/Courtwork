@@ -4,13 +4,13 @@ Schema Engineering 论文继续在 [Schema-Engineering](https://github.com/lesPr
 
 ## 固定语义基线
 
-当前工程起始映射沿用 **9.3 / 2026-09-05**，commit `f8ecb091895559389bb4e75f3c6f28052b71c5a3`：
+当前工程映射采用 **9.6 / 2026-09-07**，commit `d78fd312955c1f594e59cbdcbb0d3074ac355940`（2026-09-08 发布并采用，见 [DEC-012](engineering/decisions.md)）：
 
-- [Canonical](https://github.com/lesPrivilege/Schema-Engineering/blob/f8ecb091895559389bb4e75f3c6f28052b71c5a3/papers/src/canonical.md)
-- [Practice](https://github.com/lesPrivilege/Schema-Engineering/blob/f8ecb091895559389bb4e75f3c6f28052b71c5a3/papers/src/practice.md)
-- [Practice Index](https://github.com/lesPrivilege/Schema-Engineering/blob/f8ecb091895559389bb4e75f3c6f28052b71c5a3/papers/src/practice-index.md)
+- [Canonical](https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md)
+- [Practice](https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/practice.md)
+- [Practice Index](https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/practice-index.md)
 
-[最新阅读入口](https://lesprivilege.github.io/Schema-Engineering/) 可随发版变化。迁移时 SE 本地论文候选为9.6，尚有未提交变化；本次不把它伪装成已发布或已冻结语义基线。以后升级采用版本时，在工程 decisions 记录受影响契约与检验，再更新本页 SHA。
+前一采用版本 9.3 / `f8ecb091895559389bb4e75f3c6f28052b71c5a3` 保留为历史映射；研究与证据文档中对 9.3 坐标的引用按其写作时点理解。9.6 相对 9.3 对工程契约的影响与检验记录在 DEC-012。[最新阅读入口](https://lesprivilege.github.io/Schema-Engineering/) 随发版变化。以后升级采用版本时，先在工程 decisions 记录受影响契约与检验，再更新本页 SHA。
 
 ## 开发 PR 与论文反馈
 
