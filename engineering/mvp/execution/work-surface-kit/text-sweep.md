@@ -65,3 +65,11 @@
 1. `Load more` 与 `Show more` 在不同表面表达同一动作。`Show more` 是 `docs/ui-composition.md` 已记的措辞；统一到一个词属编排体例的一次裁定，不在本单自决。
 2. `runtime-view.mjs` 的长句（见上表末行）：可收敛处不少，但与 RC 的契约检查同源，须同批改，留 WO-WK11。
 3. 窄屏顶带只放侧栏开合按钮，未按画布 §8.3 再放 wordmark。品牌符号只允许出现在侧栏 wordmark 一处（WK-51），在顶带另置一份需要先裁定。
+
+## 5. 后续轮次的增量
+
+同一体例（删 / 单词化 / 保留并注明承重）逐轮追加在该轮交付内，本页只登记入口：
+
+| 轮次 | 增量所在 |
+|---|---|
+| WO-WK10b 第一段（2026-09-08，Chat Flow 行解剖与工作面缺席态） | [delivery-wk10b-1 §5](delivery-wk10b-1.md)（D-8…D-13、W-11…W-16、17 条新增字符串的承重说明）；语义 → glyph 的对照见 [contracts/glyph-semantics.md](contracts/glyph-semantics.md) |
