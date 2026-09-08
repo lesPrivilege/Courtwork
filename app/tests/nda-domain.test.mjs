@@ -45,7 +45,7 @@ test('bounded NDA playbook and fixture manifest are versioned and serializable',
   ]) assert.match(digest, /^[a-f0-9]{64}$/);
 });
 
-test('buildReview produces the four frozen gold outcomes with complete anchors', () => {
+test('buildReview produces the four frozen gold outcomes with source-aware anchors', () => {
   for (const fixture of cases) {
     const review = buildReview({ sources: fixture.sources, facts: fixture.facts });
     assert.equal(review.schemaVersion, 1);
@@ -54,9 +54,16 @@ test('buildReview produces the four frozen gold outcomes with complete anchors',
     assert.deepEqual(Object.fromEntries(review.findings.map((finding) => [finding.ruleId, finding.status])), fixture.expectedStatuses);
     assert.equal(review.findings.length, 4);
     for (const finding of review.findings) {
-      assert.equal(finding.evidence.length, 1);
-      assert.ok(finding.evidence[0].quote.length > 20);
-      assert.ok(finding.evidence[0].digest);
+      if (fixture.id === 'missing' && finding.ruleId === 'security-and-notice') {
+        assert.deepEqual(finding.evidence, []);
+      } else if (fixture.id === 'conflict' && finding.ruleId === 'term-duration') {
+        assert.equal(finding.evidence.length, 2);
+        assert.ok(finding.evidence.every((anchor) => anchor.quote.length > 20 && anchor.digest));
+      } else {
+        assert.equal(finding.evidence.length, 1);
+        assert.ok(finding.evidence[0].quote.length > 10);
+        assert.ok(finding.evidence[0].digest);
+      }
     }
     const verification = verifyReview(review, { sources: fixture.sources, facts: fixture.facts });
     assert.equal(verification.ok, true, `${fixture.id}: ${JSON.stringify(verification.errors)}`);
@@ -87,6 +94,18 @@ test('verifyReview rejects self-reported conclusions, missing coverage and dupli
   const missingResult = verifyReview(missingFinding, { sources: fixture.sources, facts: fixture.facts });
   assert.equal(missingResult.ok, false);
   assert.ok(missingResult.errors.some((error) => error.code === 'FINDINGS_COVERAGE'));
+
+  const missingContract = structuredClone(review);
+  delete missingContract.contractVersion;
+  const missingContractResult = verifyReview(missingContract, { sources: fixture.sources, facts: fixture.facts });
+  assert.equal(missingContractResult.ok, false);
+  assert.ok(missingContractResult.errors.some((error) => error.code === 'CONTRACT_MISMATCH'));
+
+  const forgedReason = structuredClone(review);
+  forgedReason.findings[0].reason = 'model says pass';
+  const forgedReasonResult = verifyReview(forgedReason, { sources: fixture.sources, facts: fixture.facts });
+  assert.equal(forgedReasonResult.ok, false);
+  assert.ok(forgedReasonResult.errors.some((error) => error.code === 'REASON_MISMATCH'));
 });
 
 test('verifyReview rejects bad source anchors and reconciliation tampering', () => {
@@ -99,6 +118,13 @@ test('verifyReview rejects bad source anchors and reconciliation tampering', () 
   assert.equal(badAnchorResult.ok, false);
   assert.ok(badAnchorResult.errors.some((error) => error.code === 'INVALID_EVIDENCE'));
   assert.ok(badAnchorResult.errors.some((error) => error.code === 'SOURCE_COVERAGE'));
+
+  const outOfBounds = structuredClone(review);
+  const anchor = outOfBounds.findings[0].evidence[0];
+  anchor.end = Array.from(fixture.sources[0].text).length + 1;
+  const outOfBoundsResult = verifyReview(outOfBounds, { sources: fixture.sources, facts: fixture.facts });
+  assert.equal(outOfBoundsResult.ok, false);
+  assert.ok(outOfBoundsResult.errors.some((error) => error.code === 'INVALID_EVIDENCE'));
 
   const duplicateEvidence = structuredClone(review);
   duplicateEvidence.findings[0].evidence.push(structuredClone(duplicateEvidence.findings[0].evidence[0]));
@@ -123,13 +149,44 @@ test('candidate adapters are serializable and preserve proposal-only obligations
   assert.deepEqual(JSON.parse(JSON.stringify(artifact)), artifact);
   assert.deepEqual(JSON.parse(JSON.stringify(obligations)), obligations);
   assert.equal(typeof candidate.artifact_text, 'string');
-  assert.equal(candidate.evidence.length, 4);
+  assert.equal(candidate.evidence.length, 3);
   assert.equal(obligations.length, 1);
   assert.equal(obligations[0].id, 'nda-security-and-notice-missing');
   assert.equal(obligations[0].status, 'open');
   assert.equal(obligations[0].blocking, true);
   assert.equal(artifact.status, 'needs_review');
-  assert.match(candidate.artifact_text, /proposal only/);
+  assert.match(candidate.artifact_text, /formal acceptance is recorded separately by Work Core/);
+});
+
+test('a missing source clause remains unresolved and a forged pass is rejected', () => {
+  const fixture = GOLD_FIXTURES.missing;
+  const review = buildReview({ sources: fixture.sources, facts: fixture.facts });
+  const finding = review.findings.find((item) => item.ruleId === 'security-and-notice');
+  assert.equal(finding.status, 'missing');
+  assert.deepEqual(finding.evidence, []);
+
+  const forged = structuredClone(review);
+  forged.findings.find((item) => item.ruleId === 'security-and-notice').status = 'pass';
+  const result = verifyReview(forged, { sources: fixture.sources, facts: fixture.facts });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((error) => error.code === 'CONCLUSION_MISMATCH'));
+});
+
+test('source conflict and unsupported clause stay visible with bounded evidence', () => {
+  const conflict = GOLD_FIXTURES.conflict;
+  const conflictReview = buildReview({ sources: conflict.sources, facts: conflict.facts });
+  const conflictFinding = conflictReview.findings.find((item) => item.ruleId === 'term-duration');
+  assert.equal(conflictFinding.status, 'conflict');
+  assert.equal(conflictFinding.evidence.length, 2);
+  assert.equal(verifyReview(conflictReview, { sources: conflict.sources, facts: conflict.facts }).ok, true);
+
+  const unknown = GOLD_FIXTURES.unknown;
+  const unknownReview = buildReview({ sources: unknown.sources, facts: unknown.facts });
+  const unknownFinding = unknownReview.findings.find((item) => item.ruleId === 'purpose-limitation');
+  assert.equal(unknownFinding.status, 'unknown');
+  assert.equal(unknownFinding.evidence.length, 1);
+  assert.equal(unknownFinding.evidence[0].quote, '1. Purpose.');
+  assert.equal(verifyReview(unknownReview, { sources: unknown.sources, facts: unknown.facts }).ok, true);
 });
 
 test('development and holdout fixtures are distinct but obey the same deterministic contract', () => {

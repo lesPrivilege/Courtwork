@@ -24,6 +24,27 @@ const NDA_TEXT = [
   '4. Term. These confidentiality obligations continue for three years after the Effective Date.',
 ].join('\n');
 
+const PURPOSE_CLAUSE = RULE_DEFINITIONS.find((rule) => rule.ruleId === 'purpose-limitation').sourceQuotes[0];
+const SECURITY_CLAUSE = RULE_DEFINITIONS.find((rule) => rule.ruleId === 'security-and-notice').sourceQuotes[0];
+const TERM_CLAUSE = RULE_DEFINITIONS.find((rule) => rule.ruleId === 'term-duration').sourceQuotes[0];
+const TERM_CONFLICT_CLAUSE = RULE_DEFINITIONS.find((rule) => rule.ruleId === 'term-duration').conflictQuotes[0];
+
+function replaceClause(text, clause, replacement) {
+  if (!text.includes(clause)) throw new Error(`fixture clause is not present: ${clause}`);
+  return text.replace(clause, replacement);
+}
+
+// Keep one source variant per failure class.  These are valid source bytes,
+// with the same source identity shape, so the domain must report the clause
+// boundary rather than throw before it can produce a review finding.
+const MISSING_SOURCE_TEXT = replaceClause(NDA_TEXT, `${SECURITY_CLAUSE}\n`, '');
+const CONFLICT_SOURCE_TEXT = replaceClause(NDA_TEXT, TERM_CLAUSE, `${TERM_CLAUSE}\n${TERM_CONFLICT_CLAUSE}`);
+const UNKNOWN_SOURCE_TEXT = replaceClause(
+  NDA_TEXT,
+  PURPOSE_CLAUSE,
+  '1. Purpose. Recipient may use Confidential Information solely to assess Project Cedar acquisition.',
+);
+
 const HOLDOUT_NDA_TEXT = [
   'SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT — HOLDOUT B',
   'Disclosing Party: Northstar Bio, Inc.',
@@ -50,6 +71,18 @@ export const HOLDOUT_SOURCE_ID = 'synthetic-inbound-nda-holdout-b';
 
 export const SYNTHETIC_SOURCES = deepFreeze([
   source(SYNTHETIC_SOURCE_ID, NDA_TEXT),
+]);
+
+export const MISSING_SOURCES = deepFreeze([
+  source('synthetic-inbound-nda-dev-missing', MISSING_SOURCE_TEXT),
+]);
+
+export const CONFLICT_SOURCES = deepFreeze([
+  source('synthetic-inbound-nda-dev-conflict', CONFLICT_SOURCE_TEXT),
+]);
+
+export const UNKNOWN_SOURCES = deepFreeze([
+  source('synthetic-inbound-nda-dev-unknown', UNKNOWN_SOURCE_TEXT),
 ]);
 
 export const HOLDOUT_SOURCES = deepFreeze([
@@ -116,7 +149,7 @@ export const GOLD_FIXTURES = deepFreeze({
   },
   missing: {
     id: 'missing',
-    sources: clone(SYNTHETIC_SOURCES),
+    sources: clone(MISSING_SOURCES),
     facts: missingFacts,
     expectedStatuses: {
       'purpose-limitation': 'pass',
@@ -127,7 +160,7 @@ export const GOLD_FIXTURES = deepFreeze({
   },
   conflict: {
     id: 'conflict',
-    sources: clone(SYNTHETIC_SOURCES),
+    sources: clone(CONFLICT_SOURCES),
     facts: conflictFacts,
     expectedStatuses: {
       'purpose-limitation': 'pass',
@@ -138,7 +171,7 @@ export const GOLD_FIXTURES = deepFreeze({
   },
   unknown: {
     id: 'unknown',
-    sources: clone(SYNTHETIC_SOURCES),
+    sources: clone(UNKNOWN_SOURCES),
     facts: unknownFacts,
     expectedStatuses: {
       'purpose-limitation': 'unknown',
@@ -232,12 +265,12 @@ const EXPECTED_HASH_MANIFEST = {
   schemaVersion: 1,
   contractVersion: 'inbound-nda-v1',
   playbookVersion: 'inbound-nda-playbook-v1',
-  playbookSha256: '2d93c98049f60d98b7036147f60a7e73613ac70a2492925d8106400166415fb1',
+  playbookSha256: '3ecd3a9f33b39de12a6ad4d41e4077e650f2678a9746234baa627e29272a597f',
   development: {
-    sourceSetSha256: 'afc7bba3eccafa50d89312b81c20ca4af9e16dbe6494b6eab6420b7b68e0ebbc',
+    sourceSetSha256: 'e33f05f97e92c0c60d3b2b5a28e5934207c934bac8ed23de1691f7254d1ad418',
     factsSetSha256: '8c1961394d3d7f28eea7b269cbb2ad4057b09fc4449a163bcdfae80a6391f1c2',
     goldSetSha256: 'fa275a546b16d79f56f3b53005fb24ad6ce3c5a1178bf242dc542550b18e1806',
-    fixtureSetSha256: '1c977f1a2c79e324af6e0189bd16864b2687550af48fae2f3011fb284016d36b',
+    fixtureSetSha256: '56710275cc377e3a7024465682b5516910e978b0e444744522653ef25d33346a',
     cases: {
       normal: {
         factsSha256: 'acce46c1ab0402dcf038cf3ddb767ed93fa2900bc57743f94d6e1953d07af279',
@@ -247,21 +280,21 @@ const EXPECTED_HASH_MANIFEST = {
       },
       missing: {
         factsSha256: '4f4ac723a7233975e90dbbd30cb92eec665dfaac76436378a4d7825a15ec31ee',
-        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        sourcesSha256: 'b7eb50ae7e15f0323d2ebb829b41ee539cb032515d5604ad35d8db39c6ddc646',
         expectedSha256: '56f62333d7984440340a7c42ad96e328e776a91ca2c3635b671cab7f189c0450',
-        fixtureSha256: '4f5b7d6f5003b1482036db2b3217a2c81a78ab99f8610fbf573edd750358ef49',
+        fixtureSha256: '3090b1336cc3481fd7026e8b7cdee1277e72f885b7e835ae7f41fe9fccad35b5',
       },
       conflict: {
         factsSha256: 'e62138816b74ad748270dca8fc3a5cccf343c9c9f00ddb768318170c0819fc3a',
-        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        sourcesSha256: 'b716bd52abc9b0db82044dbef8b69e618ba63428ab501fedf32a64f8c35a1d63',
         expectedSha256: '35905dea273ecf5ecc8d05ba0a94fcbd726b93ed96e5eb5354a2efdcfc95ed0c',
-        fixtureSha256: '9489754bac6bc37cb67606bfa758657790183de7f3b0b29613626f621ff2c282',
+        fixtureSha256: '127d4b4ab71873c84638f34834afe7fcf5f1a2e6625e25d60c582b5eec90fd00',
       },
       unknown: {
         factsSha256: 'b3ed72e32c5abdc1a91fc7e9a9b700c9d0d51972d38171084ce9a625318cc549',
-        sourcesSha256: '5be82870d2c8c50c019be1c22448a16828f87568383a5510301e72b5512b7948',
+        sourcesSha256: '59e0896e0a71c6eab19476374ab061f8e130bcfa68f0930189a0371f2e336e9a',
         expectedSha256: '113b8ab9396e8c703ce9128ef4a6ba9d614d687f1fcb7cb2bd855945e3044fe4',
-        fixtureSha256: 'bec5596941605059bc810e904ef521f7bff93a9e1de46bc09a0bfd17d5209fc9',
+        fixtureSha256: 'e67ef49c40c190fdd95ccc213123e7c7da861e76fd6718d873e621848a57f4d7',
       },
     },
   },

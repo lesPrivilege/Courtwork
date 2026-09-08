@@ -135,6 +135,29 @@ function findSourceAnchors(sources, quote) {
   return anchors;
 }
 
+function firstSourceAnchor(sources, quote) {
+  return findSourceAnchors(sources, quote)[0] ?? null;
+}
+
+function anchorsForQuotes(sources, quotes = []) {
+  return quotes
+    .map((quote) => firstSourceAnchor(sources, quote))
+    .filter(Boolean);
+}
+
+function uniqueAnchors(anchors) {
+  const result = [];
+  const seen = new Set();
+  for (const anchor of anchors) {
+    const key = anchorKey(anchor);
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(anchor);
+    }
+  }
+  return result;
+}
+
 function anchorKey(anchor) {
   return [anchor.source_id, anchor.source_version, anchor.start, anchor.end, anchor.digest].join(':');
 }
@@ -154,10 +177,51 @@ function normalizeAnchor(anchor, sources, path) {
   const digest = identifier(anchor.digest, `${path}.digest`);
   const source = sources.find((item) => item.id === sourceId && item.version === sourceVersion);
   if (!source) throw new InboundNdaError('SOURCE_OUTSIDE_BOUNDARY', `${path} points outside the supplied source set`);
+  const sourceLength = Array.from(source.text).length;
+  if (start > sourceLength || end > sourceLength) {
+    throw new InboundNdaError('INVALID_EVIDENCE', `${path} range exceeds the supplied source bytes`);
+  }
   if (digest !== source.digest || codePointSlice(source.text, start, end) !== quote) {
     throw new InboundNdaError('INVALID_EVIDENCE', `${path} does not match the supplied source bytes`);
   }
   return { source_id: sourceId, source_version: sourceVersion, start, end, quote, digest };
+}
+
+/**
+ * Classify the supplied source clause before looking at the represented-party
+ * facts.  An exact playbook clause is evaluated with deterministic facts;
+ * missing, contradictory, and unparseable clauses remain visible as distinct
+ * review states so a model cannot turn an absent or changed clause into a
+ * pass.
+ */
+function assessSource(rule, sources) {
+  const normal = anchorsForQuotes(sources, rule.sourceQuotes);
+  const conflict = anchorsForQuotes(sources, rule.conflictQuotes);
+  const markers = anchorsForQuotes(sources, rule.sourceMarkers);
+  const normalComplete = normal.length === (rule.sourceQuotes?.length ?? 0) && normal.length > 0;
+
+  if (conflict.length > 0) {
+    return {
+      state: 'conflict',
+      evidence: uniqueAnchors([...normal, ...conflict]),
+      reason: normalComplete
+        ? 'the supplied source contains both the playbook clause and an explicit conflicting clause'
+        : 'the supplied source contains an explicit clause that conflicts with the playbook',
+    };
+  }
+  if (normalComplete) return { state: 'exact', evidence: uniqueAnchors(normal) };
+  if (normal.length > 0 || markers.length > 0) {
+    return {
+      state: 'unknown',
+      evidence: uniqueAnchors([...normal, ...markers]),
+      reason: 'the supplied source clause is changed or cannot be parsed against the playbook',
+    };
+  }
+  return {
+    state: 'missing',
+    evidence: [],
+    reason: 'the supplied source does not contain the playbook clause',
+  };
 }
 
 function getPath(value, path) {
@@ -295,17 +359,9 @@ function evaluateRule(ruleId, facts) {
   }
 }
 
-function expectedAnchors(rule, sources) {
-  const result = [];
-  for (const quote of rule.sourceQuotes) {
-    const matches = findSourceAnchors(sources, quote);
-    if (matches.length === 0) throw new InboundNdaError('SOURCE_ANCHOR_UNAVAILABLE', `${rule.ruleId} source quote is not present in the supplied source set`);
-    // A source revision set can contain the same quote more than once.  Keep a
-    // stable first anchor in the proposal and let the verifier accept any
-    // exact anchor for that quote as long as it is unique in the finding.
-    result.push(matches[0]);
-  }
-  return result;
+function findingResult(ruleId, facts, sourceAssessment) {
+  if (sourceAssessment.state === 'exact') return evaluateRule(ruleId, facts);
+  return statusResult(sourceAssessment.state, sourceAssessment.reason);
 }
 
 function reconciliationFor(findings) {
@@ -353,12 +409,12 @@ export function buildReview({ sources, facts } = {}) {
   if (!isRecord(facts)) throw new InboundNdaError('INVALID_INPUT', 'facts must be an object');
   ensureSerializable(facts, 'facts');
   const findings = RULE_DEFINITIONS.map((rule) => {
-    const evidence = expectedAnchors(rule, sourceViews);
-    const result = evaluateRule(rule.ruleId, facts);
+    const sourceAssessment = assessSource(rule, sourceViews);
+    const result = findingResult(rule.ruleId, facts, sourceAssessment);
     return {
       ruleId: rule.ruleId,
       status: result.status,
-      evidence,
+      evidence: sourceAssessment.evidence,
       reason: result.reason,
     };
   });
@@ -397,7 +453,7 @@ export function verifyReview(payload, { sources, facts } = {}) {
     return { ok: false, errors };
   }
   if (payload.schemaVersion !== SCHEMA_VERSION) errors.push(errorRecord('SCHEMA_MISMATCH', 'schemaVersion', `expected ${SCHEMA_VERSION}`));
-  if (payload.contractVersion !== undefined && payload.contractVersion !== CONTRACT_VERSION) {
+  if (payload.contractVersion !== CONTRACT_VERSION) {
     errors.push(errorRecord('CONTRACT_MISMATCH', 'contractVersion', `expected ${CONTRACT_VERSION}`));
   }
   if (payload.playbookVersion !== PLAYBOOK_VERSION) errors.push(errorRecord('PLAYBOOK_MISMATCH', 'playbookVersion', `expected ${PLAYBOOK_VERSION}`));
@@ -445,14 +501,8 @@ export function verifyReview(payload, { sources, facts } = {}) {
     }
     const anchorKeys = anchors.map(anchorKey);
     if (new Set(anchorKeys).size !== anchorKeys.length) errors.push(errorRecord('DUPLICATE_EVIDENCE', `${path}.evidence`, 'evidence anchors must be unique'));
-    let expected;
-    try {
-      expected = expectedAnchors(rule, sourceViews ?? []);
-    } catch (error) {
-      errors.push(errorRecord(error.code ?? 'SOURCE_ANCHOR_UNAVAILABLE', `${path}.evidence`, error.message));
-      expected = [];
-    }
-    const expectedQuotes = new Set(expected.map((anchor) => anchor.quote));
+    const sourceAssessment = assessSource(rule, sourceViews ?? []);
+    const expectedQuotes = new Set(sourceAssessment.evidence.map((anchor) => anchor.quote));
     const actualQuotes = new Set(anchors.map((anchor) => anchor.quote));
     for (const quote of expectedQuotes) {
       if (!actualQuotes.has(quote)) errors.push(errorRecord('SOURCE_COVERAGE', `${path}.evidence`, 'finding is missing its rule source anchor'));
@@ -461,8 +511,9 @@ export function verifyReview(payload, { sources, facts } = {}) {
       if (!expectedQuotes.has(quote)) errors.push(errorRecord('SOURCE_SCOPE', `${path}.evidence`, 'finding contains an anchor outside its rule source clause'));
     }
     if (isRecord(facts)) {
-      const result = evaluateRule(finding.ruleId, facts);
+      const result = findingResult(finding.ruleId, facts, sourceAssessment);
       if (finding.status !== result.status) errors.push(errorRecord('CONCLUSION_MISMATCH', `${path}.status`, `expected deterministic status ${result.status}`));
+      if (finding.reason !== result.reason) errors.push(errorRecord('REASON_MISMATCH', `${path}.reason`, 'reason does not match the deterministic source and fact assessment'));
     }
   }
   for (const ruleId of RULE_IDS) if (!seenRules.has(ruleId)) errors.push(errorRecord('FINDINGS_COVERAGE', 'findings', `missing finding for ${ruleId}`));
@@ -482,7 +533,7 @@ export function verifyReview(payload, { sources, facts } = {}) {
 
 function assertReview(review) {
   if (!isRecord(review)) throw new InboundNdaError('INVALID_PAYLOAD', 'review must be an object');
-  if (review.schemaVersion !== SCHEMA_VERSION || review.playbookVersion !== PLAYBOOK_VERSION) {
+  if (review.schemaVersion !== SCHEMA_VERSION || review.contractVersion !== CONTRACT_VERSION || review.playbookVersion !== PLAYBOOK_VERSION) {
     throw new InboundNdaError('VERSION_MISMATCH', 'review version is not supported');
   }
   if (!Array.isArray(review.findings) || review.findings.length !== RULE_DEFINITIONS.length) {
@@ -556,7 +607,7 @@ function reviewArtifactText(review) {
   assertReview(review);
   const lines = [
     `Inbound NDA Playbook Review (${PLAYBOOK_VERSION})`,
-    'Synthetic fixture rules; proposal only.',
+    'Synthetic fixture rules; formal acceptance is recorded separately by Work Core.',
   ];
   for (const finding of review.findings) lines.push(`${finding.ruleId}: ${finding.status} — ${finding.reason}`);
   return lines.join('\n');
