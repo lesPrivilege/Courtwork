@@ -19,7 +19,7 @@ if op == 'seed':
     c.executescript('''
       CREATE TABLE jobs(key TEXT PRIMARY KEY, revision INTEGER, source_revision TEXT, document_key TEXT);
       CREATE TABLE sources(key TEXT, revision TEXT, content TEXT, digest TEXT, PRIMARY KEY(key,revision));
-      CREATE TABLE submissions(key TEXT PRIMARY KEY, job_key TEXT, base INTEGER, source_revision TEXT, content TEXT, tasks_json TEXT);
+      CREATE TABLE submissions(key TEXT PRIMARY KEY, job_key TEXT, base INTEGER, source_revision TEXT, content TEXT, tasks_json TEXT, status TEXT, contract TEXT);
       CREATE TABLE documents(key TEXT PRIMARY KEY, submission_key TEXT, content TEXT, digest TEXT);
       CREATE TABLE tasks(key TEXT PRIMARY KEY, job_key TEXT, value_json TEXT);
       CREATE TABLE approvals(key TEXT PRIMARY KEY, value_json TEXT);
@@ -32,7 +32,9 @@ if op == 'seed':
     c.execute('INSERT INTO jobs VALUES(?,?,?,NULL)',(ids['workspaceId'],41,'edition-A'))
     c.execute('INSERT INTO reviewers VALUES(?,?)',(ids['reviewerId'],ids['workspaceId']))
     c.execute('INSERT INTO sources VALUES(?,?,?,?)',(ids['sourceId'],'edition-A',p['spec']['source'],sha(p['spec']['source'])))
-    c.execute('INSERT INTO submissions VALUES(?,?,?,?,?,?)',(ids['proposalId'],ids['workspaceId'],41,'edition-A',p['spec']['artifact'],enc([task])))
+    c.execute('INSERT INTO submissions VALUES(?,?,?,?,?,?,?,?)',(ids['proposalId'],ids['workspaceId'],41,'edition-A',p['spec']['artifact'],enc([task]),'pending',ids['contractVersion']))
+    if 'stale-base' in p['task']['steps']:
+        c.execute('INSERT INTO submissions VALUES(?,?,?,?,?,?,?,?)',(ids['peerProposalId'],ids['workspaceId'],41,'edition-A',p['spec']['artifact'],enc([task]),'pending',ids['contractVersion']))
     c.commit()
     print(enc({'operation':'seeded'}))
 else:
@@ -46,7 +48,8 @@ else:
         c.execute('INSERT INTO sources VALUES(?,?,?,?)',(ids['sourceId'],'edition-B',text,sha(text)))
         c.execute('UPDATE jobs SET source_revision=? WHERE key=?',('edition-B',job['key']))
     elif op in ('accept','spoof','changed-request','stale-base'):
-        request = {'key':ids['requestId'] if op != 'stale-base' else 'different-request','submission':sub['key'],'job':job['key'],'base':41,'reason':'reviewed'}
+        target = c.execute('SELECT * FROM submissions WHERE key=?',(ids['peerProposalId'],)).fetchone() if op == 'stale-base' else sub
+        request = {'key':ids['requestId'] if op != 'stale-base' else 'different-request','submission':target['key'],'job':job['key'],'base':target['base'],'reason':'reviewed'}
         if op == 'changed-request': request['reason'] = 'changed'
         if op == 'spoof': request['actor'] = 'injected'
         fingerprint = sha(enc(request))
@@ -72,6 +75,7 @@ else:
             c.execute('INSERT INTO audit VALUES(?,?)',(request['key'],enc(approval)))
             c.execute('INSERT INTO receipts VALUES(?,?,?)',(request['key'],fingerprint,enc(result)))
             c.execute('UPDATE jobs SET revision=revision+7,document_key=? WHERE key=?',(document,job['key']))
+            c.execute("UPDATE submissions SET status='accepted' WHERE key=?",(target['key'],))
             outcome = 'accepted'
     elif op not in ('observe','restart'):
         raise ValueError('unknown operation')
@@ -81,12 +85,13 @@ else:
         r = c.execute('SELECT * FROM sources WHERE key=? AND revision=?',(ids['sourceId'],rev)).fetchone()
         return dict(id=r['key'],version=r['revision'],text=r['content'],digest=r['digest'])
     doc = c.execute('SELECT * FROM documents WHERE key=?',(job['document_key'],)).fetchone()
+    submissions = [dict(id=r['key'],workspaceId=r['job_key'],sourceVersion=r['source_revision'],baseVersion=str(r['base']),contractVersion=r['contract'],status=r['status'],content=r['content'],obligations=json.loads(r['tasks_json'])) for r in c.execute('SELECT * FROM submissions ORDER BY key')]
     raw = dict(job=job,source=source(job['source_revision']),original=source(sub['source_revision']),
-      submission=dict(id=sub['key'],workspaceId=sub['job_key'],sourceVersion=sub['source_revision'],content=sub['content'],obligations=json.loads(sub['tasks_json'])),
+      submissions=submissions,
       document=None if doc is None else dict(id=doc['key'],proposalId=doc['submission_key'],content=doc['content'],digest=doc['digest']),
       tasks=[json.loads(r['value_json']) for r in c.execute('SELECT value_json FROM tasks WHERE job_key=? ORDER BY key',(job['key'],))],
       approvals=[json.loads(r['value_json']) for r in c.execute('SELECT value_json FROM approvals ORDER BY key')],
       auditLog=[json.loads(r['value_json']) for r in c.execute('SELECT value_json FROM audit ORDER BY key')],
-      receipts=[json.loads(r['value_json']) for r in c.execute('SELECT value_json FROM receipts ORDER BY key')])
+      receipts=[dict(**json.loads(r['value_json']),requestDigest=r['request_hash']) for r in c.execute('SELECT value_json,request_hash FROM receipts ORDER BY key')])
     print(enc(dict(operation=outcome,raw=raw)))
 c.close()

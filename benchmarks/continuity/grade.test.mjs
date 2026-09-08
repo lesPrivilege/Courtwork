@@ -13,12 +13,12 @@ for (const [name,execute] of Object.entries({E:courtwork,S:standard})) {
 }
 const taskOf = id=>spec.cases.find(t=>t.id === id);
 function score(condition,id,mutate=()=>{},error=null) {
-  const r=results.get(condition+'/'+id), o=structuredClone(r.observations);
-  mutate(o);
-  return grade(spec,taskOf(id),o,r.identities,error);
+  const r=results.get(condition+'/'+id), o=structuredClone(r.observations), trace=structuredClone(r.trace);
+  mutate(o,trace);
+  return grade(spec,taskOf(id),o,condition,trace,error);
 }
 test('E and ordinary S both satisfy the same semantic protocol with different IDs and revisions',()=>{
-  for (const [key,r] of results) assert.equal(grade(spec,taskOf(key.split('/')[1]),r.observations,r.identities,r.error).pass,true,key);
+  for (const [key,r] of results) assert.equal(grade(spec,taskOf(key.split('/')[1]),r.observations,key.split('/')[0],r.trace,r.error).pass,true,key);
   assert.notEqual(results.get('E/normal').identities.workspaceId,results.get('S/normal').identities.workspaceId);
   assert.notEqual(results.get('E/normal').observations[1].revision,results.get('S/normal').observations[1].revision);
 });
@@ -38,7 +38,7 @@ test('all committed checkpoints protect content, obligations, authority, source,
     o=>{o.obligations[0].text='Different work';},o=>{o.obligations[0].blocking=true;},o=>{o.obligations[0].status='closed';},
     o=>{o.decisions[0].actorId='outsider';},o=>{o.audits[0].scope.workspaceId='foreign';},
     o=>{o.receipts[0].artifactId='not-the-artifact';},o=>{o.receipts.push(o.receipts[0]);},
-    o=>{o.source.digest='wrong';},o=>{o.proposal.sourceVersion='unknown';},o=>{o.historicalSource.text='changed';},
+    o=>{o.source.digest='wrong';},o=>{o.proposals[0].sourceVersion='unknown';},o=>{o.historicalSource.text='changed';},
   ];
   for(const condition of ['E','S']) for(const task of spec.cases) {
     const base=results.get(condition+'/'+task.id);
@@ -66,6 +66,34 @@ test('raw observer maps actual facts and never reconstructs missing durable audi
     else {entry.raw.auditLog=[];entry.raw.document.content='raw corruption';observation=observeStandard(entry.raw,entry.operation);}
     assert.equal(observation.audits.length,0);
     assert.equal(observation.artifact.content,'raw corruption');
-    assert.equal(grade(spec,taskOf('normal'),[r.observations[0],observation],r.identities).pass,false);
+    assert.equal(grade(spec,taskOf('normal'),[r.observations[0],observation],c,r.trace).pass,false);
+  }
+});
+
+test('raw tampering, even with a recomputed hash, cannot retain a stale normalized observation',async()=>{
+  const {seal}=await import('./trace.mjs');
+  for(const c of ['E','S']) {
+    for(const reseal of [false,true]) {
+      assert.equal(score(c,'normal',(o,t)=>{
+        if(c==='E') t[1].state.matter.version=99;else t[1].raw.job.revision=999;
+        if(reseal) {t[1]=seal(t[1]);o[1].rawRef=t[1].sha256;}
+      }).pass,false);
+    }
+  }
+});
+test('coherently mapped bad raw facts fail semantic checks, not just trace linkage',async()=>{
+  const {seal}=await import('./trace.mjs');
+  const mutations={
+    E:[t=>{t.state.artifact.content='WRONG';},t=>{t.state.matter.obligations[0].text='Wrong task';},t=>{t.state.decisions[0].actor.id='outsider';},t=>{t.state.candidates.push({...t.state.candidates[0],id:'foreign'});},t=>{t.state.candidates[0].status='pending';},t=>{t.state.matter.id='wrong-owner';}],
+    S:[t=>{t.raw.document.content='WRONG';},t=>{t.raw.tasks[0].text='Wrong task';},t=>{t.raw.approvals[0].actorId='outsider';},t=>{t.raw.submissions.push({...t.raw.submissions[0],id:'foreign'});},t=>{t.raw.submissions[0].status='pending';},t=>{t.raw.job.key='wrong-owner';}],
+  };
+  for(const c of ['E','S']) for(const mutate of mutations[c]) {
+    const result=score(c,'normal',(o,t)=>{
+      mutate(t[1]);t[1]=seal(t[1]);
+      const mapped=c==='E'?observeCourtwork(t[1].state,t[1].historicalSource,t[1].operation):observeStandard(t[1].raw,t[1].operation);
+      o[1]={...mapped,rawRef:t[1].sha256};
+    });
+    assert.equal(result.pass,false);
+    assert(result.checks.filter(c=>c.field==='raw_mapping'||c.field==='raw_reference').every(c=>c.pass));
   }
 });

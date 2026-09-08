@@ -4,13 +4,15 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {CoreClient} from '../../app/core/client.mjs';
 import {observeCourtwork} from './observe.mjs';
+import {identitiesFor} from './fixture-identities.mjs';
+import {seal} from './trace.mjs';
 
 const source = (text, version) => ({id:'source', text, version, digest:createHash('sha256').update(text).digest('hex')});
 export async function execute(spec, task) {
   const dataDir = await mkdtemp(path.join(tmpdir(), 'cw-benchmark-'));
   let core = new CoreClient({dataDir});
   const observations = [], trace = [];
-  const identities = {workspaceId:'matter',sourceId:'source',proposalId:'candidate',obligationId:'confirm-owner',requestId:'review',reviewerId:'reviewer-1',initialRevision:'0'};
+  const identities = identitiesFor('E');
   let error = null;
   try {
     const s = source(spec.source, 1);
@@ -46,8 +48,9 @@ export async function execute(spec, task) {
       } else if (step !== 'observe') throw new Error(`Unknown step: ${step}`);
       const state = await core.snapshot('matter');
       const old = await core.call('historical_source',{matter_id:'matter',candidate_id:'candidate',source_id:'source',version:1});
-      observations.push(observeCourtwork(state,old,operation));
-      trace.push({step,operation,operationError,state,historicalSource:old});
+      const entry=seal({step,operation,operationError,state,historicalSource:old});
+      observations.push({...observeCourtwork(state,old,operation),rawRef:entry.sha256});
+      trace.push(entry);
     }
   } catch (e) { error = {code:e.code ?? e.name,message:e.message}; }
   finally {
