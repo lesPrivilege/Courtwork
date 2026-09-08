@@ -1,6 +1,6 @@
 # 前端必要入口：G1–G3 的编排指引（Fable，2026-09-08）
 
-基线 `main` `e0d214d`。对象：为达到 [G1–G3](../2026-09-08-main-round/public-readiness.md) 必须存在的前端入口；哪些已有、哪些等契约、Opus 如何画。完整入口清单与 hunk 核对见 [EX-B](explore/ex-b-frontend-entries-diff.md)。写权沿 [WK10b](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md)：Opus 拥有 `app/web/**` 与 `evidence-memo/renderer.mjs` 第二段；不改 server / runtime / Core。
+基线 `main` `e0d214d`。**2026-09-08 更新：** Astra `codex/harness-core` `d6247a8` 已交付本页所列 H1 / H3 契约（[docs/work-core/contract.md](../../../docs/work-core/contract.md)：`existingMatterId` 重绑定、`GET /projects/:id/work`、`readOnly` 只读历史、`work-query` 回执与历史来源、逐规则 `domain` payload、版本化 `humanActions`）；合流 main 后 §3 四个入口按 [WO-WK10b 第二段](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md) 开工，下表"契约依赖"列视为已满足。对象：为达到 [G1–G3](../2026-09-08-main-round/public-readiness.md) 必须存在的前端入口；哪些已有、哪些等契约、Opus 如何画。完整入口清单与 hunk 核对见 [EX-B](explore/ex-b-frontend-entries-diff.md)。写权沿 [WK10b](../../mvp/execution/work-surface-kit/work-orders/WO-WK10b-work-surface.md)：Opus 拥有 `app/web/**` 与 `evidence-memo/renderer.mjs` 第二段；不改 server / runtime / Core。
 
 ## 1. 后端路由（`app/server/index.mjs:98–134`）
 

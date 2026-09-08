@@ -27,26 +27,20 @@
 
 两句分工（用户 2026-09-08 裁定，DEC-012）：命题句是页面第一句论断，与产品 Home hero（WK-26）同句；品牌句作字标副句。
 
-### 首屏复议（Astra，用户追加要求）
+### 首屏裁定（用户 2026-09-08 同意 Fable 分层，WK-77 / DEC-012 补充）
 
-用户希望读者闻而见意，重新考虑命题句。以下是产品首屏候选，等待文案裁取；保留上方原裁定记录，不据此改Home代码。推荐：
+Pages H1（Astra 候选）：
 
 > **Turn AI output into work you can build on.**
 > **把 AI 的产出，变成接得下去的工作。**
 
-它把Paper的模型外持久工作，转译为读者能理解的用途。下一句再解释检查与决定，而不让headline承担全部ontology。首屏当前可用定位段：
+定位段：
 
-> CourtWork is an experimental local workspace for working with AI, inspecting tool activity, and tracing the files it produces. We’re building toward work you can review, decide on, and continue across sessions.
+> CourtWork is an experimental local workspace for working with AI, inspecting tool activity, and tracing the files it produces. We're building toward work you can review, decide on, and continue across sessions.
 
 > CourtWork 是一个实验中的本地 AI 工作空间，用来处理材料、检查工具操作和追溯生成的文件。我们正让它进一步支持审阅、裁定，以及跨会话接着工作。
 
-Paper导读保留“让工作存在于模型之外”的概念句。专家经验如何变成可复用能力放在后文：这是Paper的另一项核心转换，不挤入一句首屏口号。后文须分别呈现通用运行底层、场景规则与人的裁决，避免只写成输出归档工具。
-
-以下原定位段描述完整目标；G2/G3未闭合前，不直接作为已经可用的产品能力文案：
-
-> Models can search, draft, compare and call tools. A single output still cannot acquire the effect, permission, completion and accountability that formal work requires. CourtWork is an experimental workspace that keeps materials, candidates, decisions and open obligations outside any one run, lets a person inspect what the agent did, and records what was formally decided.
-
-> 模型已能检索、起草、比较和调用工具，一次输出却取不到正式工作所需的效力、权限、完成状态与责任归属。CourtWork 是一个实验中的工作空间：把材料、候选、决定与未决义务留在任何一次运行之外，让人检查 Agent 做了什么，并记录什么被正式决定。
+分层：Paper 句 "Work that exists beyond the model." / "让工作存在于模型之外" 作第 4 节命题一图与第 10 节 Paper 桥的标题；品牌句作字标副句；产品 Home hero 保持 Paper 句（WK-26）。专家经验如何成为可复用能力留后文展开，不进首屏。原第 3 节定位段（模型能检索、起草……）保留为第 10 节 Paper 桥的导语候选；G2 / G3 未闭合前不作产品能力文案。
 
 首屏动作：Read the paper · 中文 · Run it locally · Source。无 Try live、Download。
 
