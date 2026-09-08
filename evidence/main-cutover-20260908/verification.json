@@ -1,0 +1,24 @@
+{
+  "source": "50939dc7d89af3d93da6efb1b1f7fe4790367603",
+  "takeover": "d20fbc3c9da983e1e7620fc28274fdebf51cbd4d",
+  "tree": "ee45514423be7ee7d51109e4973358de06b99236",
+  "legacy": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+  "active": "/Users/lesprivilege/Projects/Courtwork",
+  "frozen": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen",
+  "verified_at": "2026-09-08T05:53:30.631746+00:00",
+  "remote_refs_at_takeover": {
+    "refs/heads/archive/courtwork-main": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+    "refs/heads/main": "d20fbc3c9da983e1e7620fc28274fdebf51cbd4d",
+    "refs/tags/archive/courtwork-pre-takeover^{}": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476"
+  },
+  "source_app_tests_brand_unchanged": true,
+  "worktrees_resolve": 15,
+  "legacy_untracked_preserved": [
+    ".agents/",
+    "FROZEN-LEGACY.md",
+    "skills-lock.json"
+  ],
+  "publication": false,
+  "real_provider": "not_run",
+  "meaning": "Repository lineage switch under explicit user authorization; not product acceptance."
+}

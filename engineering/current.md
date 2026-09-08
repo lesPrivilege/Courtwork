@@ -1,6 +1,6 @@
 # 当前工程状态
 
-Main 接管裁定（2026-09-08）：用户明确先将本地与远端切至 main，唯一开发入口恢复为 `Courtwork`，不再以 fresh/current 后缀管理。新实现以已同步 `34a87c2` 为来源，旧实现固定 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，以 tag/archive 保留。见 [接管回执](../evidence/main-cutover-20260908/README.md)。本次授权取代旧 T3/T4 中“所有验收与 distill/回退先于 main 切换”的时序；真实 provider、Review/commit/跨 session 纵切、回退演练、WK10b/WK11仍按实际证据推进，不由接管自动关闭。Luna 对冻结 Git 对象建立只读索引，旧代码仅按需召回。
+Main 接管裁定（2026-09-08）：用户明确先将本地与远端切至 main，唯一开发入口恢复为 `Courtwork`，不再以 fresh/current 后缀管理。新实现以已同步 `34a87c2` 为来源，旧实现固定 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，以 tag/archive 保留。见 [接管回执](../evidence/main-cutover-20260908/README.md)。本次授权取代旧 T3/T4 中“所有验收与 distill/回退先于 main 切换”的时序；真实 provider、Review/commit/跨 session 纵切、回退演练、WK10b/WK11仍按实际证据推进，不由接管自动关闭。Luna 已完成 [冻结来源只读索引](ecosystem/legacy-recall-index.md)（15条，15/15路径核验），旧代码仅按需召回。
 
 以下清账/联调段保留接管前快照；其中目录、分支、等待接管等措辞不作为当前开发入口。
 
