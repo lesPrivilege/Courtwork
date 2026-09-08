@@ -56,3 +56,7 @@ permission → allow / deny（一次写授权，不是成果接受）；question
 | inbox 键盘 | `j` / `k` / `↑` / `↓` 移动焦点，`Enter` / `o` 打开；焦点在输入控件时不拦截 | `a` / `e` / `d` / `x` / `1-3` / `/`：合并了 permission 与 proposal review，或引入批量与搜索 | §2.3 Suna；§3.3 |
 | 决定收据 | 本轮只显示 permission/resolved 事件的 decision 与时间 | 审计表、链式签名、resolvedBy 防伪：待 Core（core-contracts §2） | §2.4 Gatewerk、VekInbox |
 | 分离原则 | permission ≠ proposal review ≠ commit 在 UI 与类型上分开 | 四个来源把两类合进一个 Approve（§3.1–3.4），不迁移 | §3、§4.4 |
+
+## Astra 联调补充：一次工具调用授权
+
+既有 runtime control 的 permission 也覆盖策略为 ask 的非写工具及 MCP 调用，动作仍只有 allow / deny。`payload.tool` 明确为 `ws_write` 才使用一次写入语义；其他工具的 path 是被评估的 resource（可能为 `*`），bytes / contentSha256 / preview 绑定序列化参数，而不是文件内容。名称与远程来源从同一 Run 的 recorded runtime.bound 读取，不从当前资源目录回填。旧记录缺少 tool 时使用保守通用动作词。此补充不提供 Proposal/commit 或成果接受，也不关闭 WK10b/H1 的未实施范围。

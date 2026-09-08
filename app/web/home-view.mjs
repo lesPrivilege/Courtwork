@@ -89,7 +89,7 @@ export function renderHome(
             text:
               key === "pendingItems"
                 ? item.kind === "permission"
-                  ? "Write permission requested"
+                  ? "Permission requested"
                   : "Answer requested"
                 : runLabels[item.status || item.latestRun?.status] || "",
           }),

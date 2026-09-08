@@ -2808,7 +2808,7 @@ dialog[open]::backdrop {
 }
 .home-choice { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
 .home-choice select { width: auto; max-width: 150px; min-width: 0; padding: 6px 22px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
-.home-start-status { margin: var(--space-2) var(--space-1) 0; font-size: var(--text-meta); color: var(--muted-strong); }
+.home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
 
 /* WK-11 · One quiet section label --space-8 below the composer, no rule line:

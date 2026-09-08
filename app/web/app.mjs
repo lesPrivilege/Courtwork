@@ -38,6 +38,7 @@ import {
   projectThread,
   canAnswer,
   validPermission,
+  permissionPresentation,
 } from "./thread-projection.mjs";
 
 import {
@@ -4241,7 +4242,9 @@ function startNewSession({ projectId = null } = {}) {
 function renderPermission(row) {
   const key = questionScopeKey(row.runId, row.id),
     run = state.runs.find((item) => item.id === row.runId),
-    payload = row.payload;
+    payload = row.payload,
+    binding = state.events.find((event) => event.runId === row.runId && normalizedType(event.type) === "runtime/bound")?.data,
+    display = permissionPresentation(payload, binding);
   if (!canAnswer(row, run) && validPermission(payload)) {
     const keyOpen = `permission-history:${key}`;
     const details = element("details", {
@@ -4254,16 +4257,16 @@ function renderPermission(row) {
         { attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` } },
         icon("file-text"),
         element("span", {
-          text: `${row.decision === "allow" ? "Write allowed" : row.decision === "deny" ? "Write denied" : "Write request closed"} · ${payload.path}`,
+          text: `${display.label} ${row.decision === "allow" ? "allowed" : row.decision === "deny" ? "denied" : "request closed"} · ${display.target}`,
         }),
       ),
       element("p", {
         className: "intervention-scope",
         text:
           row.decision === "allow"
-            ? "Permission recorded for this exact write. Review acceptance is not recorded here."
+            ? `Permission recorded for this exact ${display.noun}. Review acceptance is not recorded here.`
             : row.decision === "deny"
-              ? "Permission denied for this exact write."
+              ? `Permission denied for this exact ${display.noun}.`
               : "This request closed without a recorded decision.",
       }),
       element("pre", {
@@ -4271,6 +4274,7 @@ function renderPermission(row) {
         text: payload.preview,
       }),
     );
+    if (display.source) details.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
     details.addEventListener("toggle", () =>
       state.toolOpen.set(keyOpen, details.open),
     );
@@ -4280,17 +4284,18 @@ function renderPermission(row) {
     className: "question-card permission-card",
   });
   card.append(
-    element("h3", { text: "Allow this file write?" }),
+    element("h3", { text: display.title }),
     element("p", {
       className: "file-name",
-      text: payload.path || "Unavailable path",
+      text: display.target,
     }),
   );
+  if (display.source) card.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
   if (validPermission(payload)) {
     card.append(
       element("p", {
         className: "form-help",
-        text: `${formatBytes(payload.bytes)} · Permission for this exact write only`,
+        text: `${formatBytes(payload.bytes)} · Permission for this exact ${display.noun} only`,
       }),
       element("pre", {
         className: "permission-preview",
@@ -4300,9 +4305,9 @@ function renderPermission(row) {
     const details = element(
       "details",
       {},
-      element("summary", { text: "Write details" }),
+      element("summary", { text: display.details }),
       element("code", { text: payload.contentSha256 }),
-      copyAction(payload.contentSha256, "Copy proposed content hash"),
+      copyAction(payload.contentSha256, display.hashLabel),
     );
     card.append(details);
   }
@@ -4314,7 +4319,7 @@ function renderPermission(row) {
       element("p", {
         className: "form-help",
         text: row.decision
-          ? `Write ${row.decision === "allow" ? "allowed" : "denied"}.`
+          ? `${display.label} ${row.decision === "allow" ? "allowed" : "denied"}.`
           : row.questionStatus === "pending"
             ? "This request is no longer available."
             : "Request resolved.",
@@ -4323,8 +4328,8 @@ function renderPermission(row) {
   else {
     const actions = element("div", { className: "question-actions" });
     for (const [decision, label] of [
-      ["deny", "Deny write"],
-      ["allow", "Allow this write"],
+      ["deny", `Deny ${display.noun}`],
+      ["allow", `Allow this ${display.noun}`],
     ]) {
       const button = element("button", {
         className: decision === "allow" ? "primary-button" : "secondary-button",

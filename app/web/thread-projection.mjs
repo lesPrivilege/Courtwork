@@ -151,3 +151,25 @@ export function validPermission(payload) {
       typeof payload.preview === "string",
   );
 }
+
+// Names are display facts from the permission and this Run's recorded binding.
+// Never infer a file write from the shared path/hash envelope, or relabel an
+// old request using the current (possibly replaced) runtime catalog.
+export function permissionPresentation(payload, binding) {
+  const write = payload?.tool === "ws_write";
+  const resource = binding?.resources?.find(
+    (item) => item.id === `tool:${payload?.tool}`,
+  );
+  const remote = Boolean(resource?.mcp);
+  return {
+    title: write ? "Allow this file write?" : remote ? "Allow this remote tool call?" : "Allow this tool action?",
+    noun: write ? "write" : "action",
+    label: write ? "Write" : "Action",
+    target: write ? payload.path : remote
+      ? `${resource.mcp.name} · ${resource.mcp.serverId}`
+      : payload?.tool || "Recorded tool identity unavailable",
+    source: remote ? resource.source?.uri || "Recorded remote source unavailable" : null,
+    details: write ? "Write details" : "Action details",
+    hashLabel: write ? "Copy proposed content hash" : "Copy proposed arguments hash",
+  };
+}

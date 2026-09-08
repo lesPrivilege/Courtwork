@@ -25,7 +25,7 @@
 | 概念 | 词 | 不用 |
 |---|---|---|
 | 工作单位 | Project · Session · Run | Matter（Core 语义，UI 不显）· Task · Thread · Chat |
-| 人机请求 | Question · Write permission | Approval · Interrupt · Elicitation |
+| 人机请求 | Question · Write permission · Tool permission | Approval · Interrupt · Elicitation |
 | 文件写入模式 | Ask · Write · Read | Auto · YOLO · Full access |
 | 连接 | Connection · Model | Provider（仅设置对话框内）· Backend |
 | 工作面模块 | Run · File · Workspace · Runtime | Inspector · Preview · Panel · Sidebar |
@@ -41,3 +41,7 @@
 ## 5. 验收
 
 每轮交付附 `text-sweep.md` 三列（删 / 单词化 / 保留并注明承重）；新增字符串逐条对照 §1–§3；读屏对单词标签的全句读法为独验项。
+
+## Astra 联调补充：通用工具授权
+
+MCP 与策略设为 ask 的非写工具也沿既有 permission 事件请求一次调用授权。仅 `payload.tool === ws_write` 使用 Write / Allow this write；非写请求的状态使用 Action，决定按钮使用 Allow this action / Deny action；标题按事实区分 Allow this tool action? 与 Allow this remote tool call?。远程调用显示该 Run 的 recorded runtime.bound 中 tool/server/source。Home summary 未提供具体 tool 时只称 Permission requested。历史缺少 tool 或 binding 时不推断为文件写入，不使用当前 catalog 回填来源。此为既有执行事实的文案修正，不新增授权、Review 接受或 WK10b 能力。

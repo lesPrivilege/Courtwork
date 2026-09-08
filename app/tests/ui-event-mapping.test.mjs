@@ -95,3 +95,22 @@ test("tool calls with identical IDs in different runs remain separate and requir
   assert.equal(canAnswer(q, runs[1]), true);
   assert.equal(canAnswer(q, { ...runs[1], admissionOpen: false }), false);
 });
+
+test('permission display distinguishes remote actions from writes using only the recorded binding', async () => {
+  const { permissionPresentation } = await import('../web/thread-projection.mjs');
+  const payload = { tool: 'mcp_opaque', path: '*' };
+  const binding = { resources: [{ id: 'tool:mcp_opaque', mcp: { name: 'send', serverId: 'local:mail' }, source: { uri: 'http://127.0.0.1:19000/original' } }] };
+  const remote = permissionPresentation(payload, binding);
+  assert.equal(remote.title, 'Allow this remote tool call?');
+  assert.equal(remote.target, 'send · local:mail');
+  assert.equal(remote.source, 'http://127.0.0.1:19000/original');
+  assert.equal(remote.noun, 'action');
+  const missing = permissionPresentation(payload, null);
+  assert.equal(missing.target, 'mcp_opaque');
+  assert.equal(missing.source, null);
+  assert.equal(missing.noun, 'action');
+  assert.equal(permissionPresentation({ path: 'out/old.txt' }).noun, 'action', 'missing tool does not prove a write');
+  assert.equal(permissionPresentation({ tool: 'ws_write', path: 'out/a.txt' }).target, 'out/a.txt');
+  assert.equal(permissionPresentation({ tool: 'ws_write', path: 'out/a.txt' }).noun, 'write');
+  assert.equal(permissionPresentation({ tool: 'ws_read', path: 'materials/a.txt' }).noun, 'action');
+});
