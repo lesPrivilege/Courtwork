@@ -84,6 +84,17 @@
 | WK-94 | **Chrome 与 Home 层级。** Lucide 冻结、brand / domain SVG 分库（已是）；sidebar header：`+ New project` 移到 PROJECTS heading，desktop 去 `×`，collapse 用 `panel-left`，`×` 只在 overlay；80px window-control safe area 升为 shell layout contract；Home 三带弱 / 强 / 中，StatTile 为一条 strip 内三个数字，Heatmap Planned 行从 Home 移除（实现态文案不上 production Home），空态 31vh 留白退役为带距（composer 唯一锚点；此前留用户的一项据此收口，用户可否决）；runtime 不可达一行 + Retry；`Local test` 只说一次（header badge 退役）；`File writes  Ask` → `Ask before editing ▾`；尺寸 token 表入 ui-composition-standard；border 只留 input / selected / floating / error。 |
 | WK-95 | **次序。** WK11 完成并合流 → FE-01（词表 + IA + chrome + Home 层级）→ FE-02（Models & Connections）→ FE-03（Chat / Work / Memory shell）→ FE-04（primitive 审计；EX-WK8 可先行并行）。四单之后才进材质 / 动效。 |
 
+## 4h. Composition law：Home / Dashboard / Work 三种版面状态 → WK-96 / WK-97
+
+输入：[版面参考与法则草案](inputs/composition-references-2026-09-09.md)（用户"仅供参考"）。与 WK-94 一致并更精确，收为可检查约束；替代 WK-46 的带高数值与 WK13 的"三带等权"读法。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-96 | **三种 composition state 冻结。** Home = 中心向下：orientation（≤120，只放 hero 句与一行状态，无 greeting 人格化）→ composer（唯一 L1 锚点，宽 760–880，初始 92–112，中心不低于主区高 55%，其上非 chrome 内容 ≤180）→ standing context 行 → 32–48 → 下部 modules（Today 三数字 strip、Continue 行、Activity / Calendar 等 compact card，ragged layout，不填满 grid；首屏下半部必须有可见 continuity 内容）。WK13 的三个 StatTile 从上带移到 composer 下方作 Today 模块头，上带不再承载数字。Dashboard = 可组合背景：card 是模块与编排单位，card 内无框内容，禁止 nested card；Calendar 等窄时 compact，展开进独立 surface。Work = 顶部向下推进：Home dashboard primitive 全部退出，reading column 700–780 为 L1，composer 沉底同 measure，右侧 contextual surface 有内容才出现，正文 measure 不低于 640，不足则 overlay / collapse。层级判断只问"是否真的跨了一层"（沿 WK-69 L0–L3）。以上数值为产品配置，进 `ui-composition-standard.md`；约束进 Home / Work 几何断言。 |
+| WK-97 | **Composer 两种 variant，同一 primitive。** Home：primary entry、optical center、可略宽于阅读列、初始 96–112、controls 可完整。Work：continuation control、viewport 底部、与 reading measure 同宽、初始 80–96、controls 压成单层、不承担 hero。不新造第二个 composer 组件。WK-58 桌面居中 / 会话沉底与 WK-73 anatomy 不变。 |
+
+FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = Home vertical composition / composer prominence / modules-below-entry；ChatGPT Work = active-work reading measure / bottom composer / dashboard evacuation。
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
