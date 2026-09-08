@@ -1,0 +1,26 @@
+{
+  "sourceHead": "b0173deab477b9be577df75a712f446d14e3c356",
+  "files": {
+    "engineering/release/2026-09-08/public-surface.md": "98ce144146f315819d389845bed1c1ca5b2b88fced0638ebf142b4766cd1bf67",
+    "engineering/release/2026-09-08/pages-preparation/source-chat.md": "54aa98f83dbdc88811ab9a24efcb06a5d67e8fcb7a5c3fd4bf2b919100aefd04",
+    "engineering/release/2026-09-08/pages-preparation/README.md": "3ae98844854467a8ae77241a71aebb956d567f0909f10b7d867023d2ea8721d5",
+    "engineering/release/2026-09-08/pages-preparation/evidence-contract.md": "1359006ba0db9f5e58eeca6aab2d5830119ed439469a5799e9d28ff7dd561795",
+    "engineering/release/2026-09-08/pages-preparation/reference-index.json": "af108b0bcb8f94a55c98e1a6613147290871b2fbe8f1e46066ab5dab5df8ad44",
+    "engineering/design/copy-convention.md": {
+      "sourceSha256": "8f2b648d9e1d4ae0de33181d5e196b3bcad181ea0c92fcca113ae2a6127b84fa",
+      "integratedSha256": "513d489a7752dc6f086836144d2c5f43127bfc548c57e45dd3661df5994a12f6"
+    },
+    "engineering/mvp/execution/work-surface-kit/delivery-wk10c.md": {
+      "sourceSha256": "86b78f93ab05f866882b8b52a1346eec412690177b2f7157462704bccd5ece9b",
+      "integratedSha256": "86b78f93ab05f866882b8b52a1346eec412690177b2f7157462704bccd5ece9b"
+    },
+    "engineering/mvp/execution/work-surface-kit/user-message-audit.md": {
+      "sourceSha256": "c9dc7e3acd2ff15ed22a9a449bf02e4eb1510d81bf1376e3855254286bdfe9f7",
+      "integratedSha256": "c9dc7e3acd2ff15ed22a9a449bf02e4eb1510d81bf1376e3855254286bdfe9f7"
+    },
+    "engineering/mvp/execution/work-surface-kit/intake-round-2.md": {
+      "sourceSha256": "246bb032655cd94a848a688c910fe1238143df3c17205e666a30bb6d41410ce8",
+      "integratedSha256": "246bb032655cd94a848a688c910fe1238143df3c17205e666a30bb6d41410ce8"
+    }
+  }
+}

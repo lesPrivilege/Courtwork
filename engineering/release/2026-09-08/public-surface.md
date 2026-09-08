@@ -2,6 +2,8 @@
 
 本稿承接 [双线安排](README.md)，是发布面可消费的结构与文案，尚未替换根README。原品牌语句保留；UI视觉、Preview extensions编排与产品截图由Fable选定并合流的实现提供。
 
+GitHub Pages 的 [实现准备包](pages-preparation/README.md) 已整理页面阅读路径、局部参考队列、媒体/声称证据契约与实施切片。参考尚待原站抓图，页面与部署尚未实现；产品状态仍以 current 和具体交接为准。
+
 ## 首屏文案草稿
 
 **CourtWork**  
