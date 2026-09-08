@@ -1,0 +1,360 @@
+/* WK9 artboards · shared component layer (tier:U).
+   Colour rule (contracts/color-governance.md): this file references role tokens only.
+   No hex, no rgb literal, no colour name may ever appear below. All values come from tokens.css.
+   r2 (WK-42 / WK-46): the three columns share one top band (--band-top) and one column
+   gutter (--col-gap); the sidebar follows WK-39 order; the work header follows WK-40. */
+
+/* ---- r2 layout tokens (WK-42) ------------------------------------------
+   --band-top  the shared height of the sidebar wordmark row, the chat header and the
+               rail header. 56 on desktop; under a desktop shell the inert 52 px strip
+               sits above the whole window and the band itself drops to 52 (WK-42).
+   --col-gap   the inset every content column keeps from its own panel edge, and the
+               gap the host puts between column contents. Module content adds none.
+   --nav-inset the sidebar's text left edge: nav rows carry --space-2 inside the column's
+               --space-3 padding, so the wordmark row and the account row match it.
+   --band-1/2  Home band heights (WK-46 (1)); band 3 = minmax(1.8 x band 1, 1fr). */
+:root {
+  --band-top: 56px;
+  --col-gap: 24px;
+  --nav-inset: 20px;
+  --band-1: 160px;
+  --band-2: 192px;
+  --shell-strip: 52px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  overflow: hidden;
+  accent-color: var(--accent);
+  text-wrap: pretty;
+  font: var(--text-body) / 1.5 ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+h1, h2, h3, h4, p, dl, dd, dt { margin: 0; }
+button { font: inherit; color: inherit; border: 0; background: transparent; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.ui-icon { width: 20px; height: 20px; flex: none; }
+.ui-icon--16 { width: 16px; height: 16px; }
+
+/* ---- type ladder (ui-composition-standard) ---- */
+.t-hero { font-size: 28px; overflow-wrap: anywhere; line-height: 1.2; letter-spacing: var(--tracking-heading); font-weight: 500; }
+.t-section { font-size: var(--text-section); font-weight: 600; }
+.t-body { font-size: var(--text-body); }
+.t-label { font-size: var(--text-label); }
+.t-meta { font-size: var(--text-meta); color: var(--muted-strong); }
+.t-caption { font-size: var(--text-caption); color: var(--muted-strong); line-height: 1.45; }
+
+/* ---- state words (ux-conventions §1: text only; colour only for failed / waiting_user) ---- */
+.state { font-size: var(--text-label); color: var(--muted-strong); white-space: nowrap; }
+.state--waiting { color: var(--accent-ink); font-weight: 600; }
+.state--failed { color: var(--danger); font-weight: 600; }
+
+/* ---- controls ---- */
+.btn {
+  height: var(--control); display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: 0 var(--space-3); border-radius: var(--radius-control); border: 1px solid transparent;
+  background: transparent; font-size: var(--text-body); cursor: default;
+}
+.btn--primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 500; }
+.btn--secondary { border-color: var(--line); background: var(--panel); }
+.btn--quiet { color: var(--muted-strong); }
+.btn--icon { width: var(--control); padding: 0; justify-content: center; color: var(--muted-strong); }
+
+/* ---- gap markers (WK-27: drawn in design, "Planned" in product) ---- */
+.gap {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); min-width: 0;
+  font-size: var(--text-caption); color: var(--muted-strong);
+  border-top: 1px dashed var(--line); padding-top: var(--space-2);
+}
+.gap b { font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; font-size: var(--text-caption); }
+
+/* ======================= shell ======================= */
+.shell { height: 100%; display: grid; grid-template-columns: var(--nav) minmax(0, 1fr); background: var(--panel); }
+.shell--work { grid-template-columns: var(--nav) minmax(0, 1fr) var(--inspector); }
+/* WK-42: expanding the rail hands the remaining width to one pane; the sidebar keeps its
+   column, so the band stays one line and only the middle/right pair is replaced. */
+.shell--work.is-expanded { grid-template-columns: var(--nav) minmax(0, 1fr); }
+
+/* WK-30 / WK-46 (3) · desktop shell only. The strip is inert: a drag region and the
+   traffic-light reserve. Nothing readable, and no Back / Forward (WK-46 (3) retires that
+   clause). It spans the window above the three columns so the band below stays one line. */
+.window { height: 100%; display: flex; flex-direction: column; --band-top: 52px; }
+.window > .shell { flex: 1; min-height: 0; }
+.shell-strip {
+  flex: none; height: var(--shell-strip); border-bottom: 1px solid var(--line);
+  background: var(--canvas); position: relative;
+}
+.shell-strip .reserve { position: absolute; left: 0; top: 0; width: 80px; height: 100%; }
+
+/* ---- sidebar (WK-39 order) ----
+   shell strip -> wordmark row (New project / Close nav on the right) -> New session ->
+   Home -> filter -> Projects -> account row (initial, connection name, Refresh / Settings). */
+.sidebar {
+  min-width: 0; min-height: 0; background: var(--canvas); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+}
+.sidebar-header {
+  flex: none; height: var(--band-top); display: flex; align-items: center;
+  justify-content: space-between; gap: var(--space-1);
+  padding: 0 var(--nav-inset); border-bottom: 1px solid var(--line);
+}
+.wordmark {
+  display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0;
+  font-size: var(--text-navigation-title); font-weight: 600; letter-spacing: var(--tracking-heading);
+  color: var(--ink); text-decoration: none;
+}
+.wordmark [data-brand-wordmark] { display: inline-flex; line-height: 0; }
+.sidebar-utilities { display: flex; align-items: center; gap: var(--space-1); flex: none; }
+.sidebar-nav {
+  flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain;
+  padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-1);
+}
+.nav-row {
+  display: flex; align-items: center; gap: var(--space-2); height: var(--control);
+  padding: 0 var(--space-2); border-radius: var(--radius-control);
+  color: var(--ink); font-size: var(--text-body); text-align: left;
+}
+.nav-row.is-current { background: var(--selected); font-weight: 500; }
+.nav-row svg { color: var(--muted-strong); }
+.nav-row.is-current svg { color: var(--ink); }
+.nav-filter {
+  display: flex; align-items: center; gap: var(--space-2); height: var(--control);
+  padding: 0 var(--space-2); border: 1px solid var(--line); border-radius: var(--radius-control);
+  background: var(--panel); color: var(--muted); margin-top: var(--space-2);
+}
+.nav-filter span { font-size: var(--text-body); }
+.sidebar-section { display: flex; flex-direction: column; gap: var(--space-1); min-height: 0; margin-top: var(--space-4); }
+.section-heading { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-2); height: var(--control); }
+.section-heading h2, .section-heading h3 { font-size: var(--text-label); color: var(--muted-strong); font-weight: 600; }
+.count-badge { font-size: var(--text-meta); color: var(--muted-strong); }
+.project-row {
+  display: flex; align-items: center; gap: var(--space-2); height: var(--control);
+  padding: 0 var(--space-2); border-radius: var(--radius-control);
+  font-size: var(--text-body); color: var(--muted-strong);
+}
+.project-row.is-current { background: var(--hover); color: var(--ink); }
+/* WK-39 · account-style foot. No user identity source exists, so the row states the
+   connection: an initial mark, the connection name, then two icon-only utilities. */
+.sidebar-account {
+  flex: none; display: flex; align-items: center; gap: var(--space-2);
+  border-top: 1px solid var(--line); padding: var(--space-2) var(--nav-inset); min-height: 52px;
+}
+.account-avatar {
+  flex: none; width: 24px; height: 24px; border-radius: var(--radius-pill);
+  background: var(--selected); color: var(--ink); font-size: var(--text-meta); font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.account-name {
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--text-label); color: var(--muted-strong);
+}
+.account-tools { flex: none; display: inline-flex; gap: var(--space-1); }
+
+/* ======================= Home · band + three bands ======================= */
+/* WK-42: Home's top band carries only the navigation-toggle slot; it stays reserved and
+   otherwise empty so the first line of all three columns sits on one baseline.
+   WK-46 (1): band 1 <= 160, band 2 ~ 192, band 3 = minmax(1.8 x band 1, 1fr) and scrolls. */
+.home { min-width: 0; min-height: 0; display: grid; grid-template-rows: var(--band-top) var(--band-1) var(--band-2) minmax(calc(1.8 * var(--band-1)), 1fr); }
+.home-band {
+  min-width: 0; display: flex; align-items: center; gap: var(--space-2);
+  padding: 0 var(--col-gap); border-bottom: 1px solid var(--line);
+}
+/* the toggle only exists while the sidebar is closed; the slot keeps its width either way */
+.nav-toggle-slot { width: var(--control); height: var(--control); flex: none; }
+.band { min-width: 0; min-height: 0; padding: var(--space-4) var(--col-gap); display: flex; flex-direction: column; }
+.band + .band { border-top: 1px solid var(--line); }
+.band-inner { width: 100%; max-width: var(--column); margin: 0 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+
+/* band 1 · StatTile row. SH-1: plain statistics stay flat, they do not become cards. */
+.band-1 { justify-content: center; gap: var(--space-3); }
+.stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.stat { padding: 0 var(--space-4); min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.stat:first-child { padding-left: 0; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat-label { font-size: var(--text-label); color: var(--muted-strong); font-weight: 600; }
+.stat-value { font-size: 25px; line-height: 1.1; letter-spacing: var(--tracking-heading); color: var(--ink); font-variant-numeric: tabular-nums; }
+/* value === null renders missingLabel at body size, never a 0 (presentation-primitives.d.ts). */
+.stat-value.is-missing { font-size: var(--text-body); color: var(--muted-strong); letter-spacing: normal; }
+
+/* band 2 · composer */
+.band-2 { justify-content: center; }
+.band-2 .band-inner { gap: var(--space-3); }
+.composer { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel-muted); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+.composer-input { font-size: var(--text-reading); color: var(--muted); padding: var(--space-1) var(--space-1) var(--space-4); }
+.composer-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.composer-context { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control);
+  padding: 0 var(--space-2); border-radius: var(--radius-control); font-size: var(--text-label); color: var(--muted-strong);
+}
+.dot { width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--muted); flex: none; }
+.chip--field { border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.chip--field i { font-style: normal; color: var(--muted-strong); }
+
+/* band 3 · work in progress */
+.band-3 { gap: var(--space-3); overflow: hidden; }
+.band-3 .band-inner { gap: var(--space-3); overflow: hidden; }
+.band-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); flex: none; }
+.band-head h2 { font-size: var(--text-section); font-weight: 600; }
+.scroller { overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; min-height: 0; padding-bottom: var(--space-2); }
+
+/* variant A · WorkCard grid */
+.card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.work-card {
+  border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel);
+  padding: var(--card-padding); display: flex; flex-direction: column; gap: var(--space-3); text-align: left;
+}
+.work-card-title { font-size: var(--text-body); font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.work-card-foot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+
+/* variant B · the same items as rows */
+.row-list { display: flex; flex-direction: column; }
+.work-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+  gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-2); text-align: left; background: transparent;
+}
+.work-row + .work-row { border-top: 1px solid var(--line); }
+.work-row-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.work-row-title { font-size: var(--text-body); font-weight: 500; color: var(--ink); }
+.work-row-side { display: flex; align-items: center; gap: var(--space-4); }
+
+/* ======================= work page ======================= */
+.thread { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); }
+/* WK-40 / WK-42 · one band-high line: presence mark + session title + run state word, then
+   the icon-only utilities. The inner box is the same 740 column as the body, so the title
+   and the first message share one left edge. */
+.thread-header {
+  flex: none; height: var(--band-top); display: flex; align-items: center;
+  padding: 0 var(--col-gap); border-bottom: 1px solid var(--line);
+}
+.thread-header-inner {
+  width: 100%; max-width: var(--column); margin: 0 auto; min-width: 0;
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.thread-title {
+  min-width: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: var(--space-2);
+  overflow: hidden; white-space: nowrap;
+}
+.thread-title .state { flex: none; }
+.thread-title h1 {
+  font-size: var(--text-navigation-title); font-weight: 600; letter-spacing: var(--tracking-heading);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0;
+}
+/* WK-40 · the project name is a muted prefix, shown only where the sidebar cannot carry it */
+.title-project { color: var(--muted-strong); font-weight: 400; }
+.title-project::after { content: " · "; }
+.thread-actions { margin-left: auto; display: flex; align-items: center; gap: var(--space-1); flex: none; }
+.thread-body { flex: 1; min-height: 0; overflow: auto; padding: var(--space-8) var(--col-gap) var(--space-6); }
+.thread-column { width: 100%; max-width: var(--column); margin: 0 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.msg-user {
+  align-self: flex-end; max-width: 80%; background: var(--panel-muted); border: 1px solid var(--line);
+  border-radius: var(--radius-card); padding: var(--space-3) var(--space-4); font-size: var(--text-reading);
+}
+.msg-agent { font-size: var(--text-reading); line-height: 1.6; }
+.ledger { display: flex; flex-direction: column; gap: var(--space-1); padding-top: var(--space-1); }
+.ledger-row { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-meta); color: var(--muted-strong); }
+.thread-foot { flex: none; padding: var(--space-2) var(--col-gap) var(--space-4); }
+.thread-foot .composer { max-width: var(--column); margin: 0 auto; }
+
+/* ---- right column = module rail (WK-41) ----
+   The host owns the band, the module order and the gutter. Each module is one card with
+   one heading and one open action; module content carries no outer margin of its own. */
+.rail {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  background: var(--canvas); border-left: 1px solid var(--line);
+}
+.rail-header {
+  flex: none; height: var(--band-top); display: flex; align-items: center;
+  justify-content: space-between; gap: var(--space-2);
+  padding: 0 var(--col-gap); border-bottom: 1px solid var(--line);
+}
+.rail-header h2 { font-size: var(--text-section); font-weight: 600; }
+.rail-body {
+  flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain;
+  padding: var(--col-gap); display: flex; flex-direction: column; gap: var(--space-3);
+}
+.float-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float); padding: var(--card-padding); display: flex; flex-direction: column; gap: var(--space-3);
+}
+.float-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.float-head h2 { font-size: var(--text-section); font-weight: 600; }
+.data-list { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-4); font-size: var(--text-meta); }
+.data-list dt { color: var(--muted-strong); }
+.data-list dd { text-align: right; font-variant-numeric: tabular-nums; }
+.file-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); font-size: var(--text-label); color: var(--ink); padding: var(--space-1) 0; }
+.file-row + .file-row { border-top: 1px solid var(--line); }
+.file-row .path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-row .side { font-size: var(--text-meta); color: var(--muted-strong); font-variant-numeric: tabular-nums; }
+.group-head { font-size: var(--text-caption); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--muted-strong); padding-top: var(--space-2); }
+.hash { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--muted-strong); }
+
+/* ---- rail expanded = one pane inside the shell (WK-42: the tab strip is the band) ---- */
+.surface-pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); }
+.surface-band {
+  flex: none; height: var(--band-top); display: flex; align-items: stretch; gap: var(--space-1);
+  padding: 0 var(--col-gap); border-bottom: 1px solid var(--line);
+}
+.tablist { display: flex; align-items: stretch; gap: var(--space-1); min-width: 0; }
+.tab {
+  height: 100%; padding: 0 var(--space-3); border: 0; background: transparent; color: var(--muted-strong);
+  font-size: var(--text-body); border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+.tab[hidden] { display: none; }
+.surface-band-actions { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); flex: none; }
+.tabpanel { flex: 1; min-height: 0; overflow: auto; padding: var(--space-6) var(--col-gap); }
+.tabpanel-inner { width: 100%; max-width: var(--column); margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-6); }
+/* WK-46 (4) · prose stays at 740; file lists, version tables and diffs may widen to 960. */
+.tabpanel-inner--wide { max-width: 960px; }
+.pane-section { display: flex; flex-direction: column; gap: var(--space-2); }
+.pane-section h3 { font-size: var(--text-section); font-weight: 600; }
+
+/* ======================= measuring aid (design only) ======================= */
+.measure-strip {
+  position: fixed; left: 0; bottom: 0; z-index: 9; font-family: var(--font-mono);
+  font-size: var(--text-caption); color: var(--ink); background: var(--glass);
+  border-top: 1px solid var(--line); border-right: 1px solid var(--line); padding: 2px var(--space-2);
+}
+
+/* ======================= narrow (390) ======================= */
+@media (max-width: 767px) {
+  .shell, .shell--work, .shell--work.is-expanded { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .sidebar { display: none; }
+  /* 390: the page scrolls as one column; the bands keep their order and their rules,
+     but band 3 no longer owns a private scroller inside a 200px box. */
+  .home { display: flex; flex-direction: column; overflow: auto; overscroll-behavior: contain; }
+  .home-band { flex: none; height: var(--band-top); position: sticky; top: 0; background: var(--panel); z-index: 2; }
+  .band { flex: none; }
+  .band-3, .band-3 .band-inner, .band-3 .scroller { overflow: visible; }
+  .band { padding: var(--space-3) var(--space-4); }
+  .stat-row { grid-template-columns: minmax(0, 1fr); }
+  .stat { padding: var(--space-2) 0; }
+  .stat:first-child { padding-top: 0; }
+  .stat + .stat { border-left: 0; border-top: 1px solid var(--line); }
+  .stat-inline { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+  .card-grid { grid-template-columns: minmax(0, 1fr); }
+  .work-card { padding: var(--space-4); }
+  .thread-header, .thread-body, .thread-foot { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .thread-body { padding-top: var(--space-4); }
+  .rail { border-left: 0; border-top: 1px solid var(--line); }
+  .rail-body { padding: var(--space-4); }
+  .float-card { padding: var(--space-4); box-shadow: none; }
+  .surface-band, .tabpanel { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+@media (min-width: 768px) { .stat-inline { display: contents; } }
+
+/* brand symbol landing points (WK-13 / WK-38): sidebar wordmark 20, session presence 16 */
+[data-brand-wordmark] { display: inline-flex; line-height: 0; flex: none; }
+[data-brand-16] svg { width: 16px; height: 16px; }
+.msg-agent code, .gap code { font-family: var(--font-mono); font-size: var(--text-label); color: var(--muted-strong); overflow-wrap: anywhere; }
+.composer-buttons { display: flex; align-items: center; gap: var(--space-2); }
+
+/* WK-48 · frozen control: the round icon-only Send (UP-3), transcribed from the product. */
+.send-round { width: var(--control); height: var(--control); border: 0; border-radius: var(--radius-pill); background: var(--accent); color: var(--on-accent); display: inline-flex; align-items: center; justify-content: center; }

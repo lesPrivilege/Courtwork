@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WK9 · Home 三带与工作页两态</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="board.css" />
+    <style>
+      body { overflow: auto; background: var(--canvas); }
+      .canvas { max-width: 1180px; margin: 0 auto; padding: var(--space-8) var(--page-gutter) 96px; display: flex; flex-direction: column; gap: var(--space-8); }
+      .canvas h1 { font-size: 28px; letter-spacing: var(--tracking-heading); font-weight: 600; }
+      .canvas h2 { font-size: var(--text-title); font-weight: 600; letter-spacing: var(--tracking-heading); }
+      .canvas h3 { font-size: var(--text-section); font-weight: 600; }
+      .canvas p { max-width: 78ch; line-height: 1.65; }
+      .canvas section { display: flex; flex-direction: column; gap: var(--space-3); }
+      .lede { font-size: var(--text-reading); color: var(--muted-strong); }
+      .boards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--space-6); }
+      .board { display: flex; flex-direction: column; gap: var(--space-2); }
+      .board-frame {
+        position: relative; overflow: hidden; background: var(--panel);
+        border: 1px solid var(--line); border-radius: var(--radius-card);
+      }
+      .board-frame iframe { border: 0; display: block; transform-origin: 0 0; }
+      .frame-1440 { height: 225px; }
+      .frame-1440 iframe { width: 1440px; height: 900px; transform: scale(0.25); }
+      .frame-390 { height: 338px; }
+      .frame-390 iframe { width: 390px; height: 844px; transform: scale(0.4); }
+      .board-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+      .board-head a { color: var(--ink); font-size: var(--text-body); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+      .board-links { display: flex; gap: var(--space-3); }
+      .board-links a { font-size: var(--text-meta); color: var(--muted-strong); text-decoration: none; border-bottom: 1px solid var(--line); }
+      table { border-collapse: collapse; font-size: var(--text-label); width: 100%; }
+      th, td { text-align: left; vertical-align: top; padding: var(--space-2) var(--space-3) var(--space-2) 0; border-bottom: 1px solid var(--line); }
+      th { color: var(--muted-strong); font-weight: 600; }
+      code { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--muted-strong); overflow-wrap: anywhere; }
+      ul { margin: 0; padding-left: 1.2em; line-height: 1.7; font-size: var(--text-body); }
+    </style>
+  </head>
+  <body>
+    <main class="canvas">
+      <section>
+        <h1>WK9 · Home 三带与工作页两态</h1>
+        <p class="lede">
+          设计画布，非产品代码。裁定输入：intake-round-2 §7（WK-32…WK-37）、§8（WK-38）、WK-11/12/13/25/29/30；
+          数据输入：EX-WK5；语义边界：<code>engineering/design/work-surface-boundaries.md</code> §4–§5；
+          编排与表面体例：<code>ui-composition-standard.md</code>、<code>surface-hierarchy.md</code>、<code>icon-controls.md</code>、<code>ux-conventions.md</code> §1–§4。
+          色彩取自 WK7 铅灰 skin（<code>claude/wk7-color-governance</code> 的 <code>styles.css</code> <code>:root</code>），逐字复制为本目录 <code>tokens.css</code>；
+          <code>board.css</code> 只引用 role token，全文件无 hex。
+        </p>
+      </section>
+
+      <section>
+        <h2>怎么读这张画布</h2>
+        <p>
+          先看 <b>home-a-1440</b> 与 <b>home-b-1440</b>：两者的上带（三个 StatTile 与热力图 gap 行）与中带（hero 一行 + composer）逐像素相同，
+          唯一受控差异是下带的工作中集合——A 用 WorkCard 网格，B 用同字段的行结构，用于回答 SH-1 的"这些对象该不该成卡"。
+          再看 <b>work-collapsed-1440</b> 与 <b>work-expanded-1440</b>：右栏收敛态是 Run / File / Workspace 三张悬浮卡，展开态是同一 tablist 的三 kind 面板；
+          两态的内容字段完全相同，改变的只是可用宽高与层关系，kind 静态映射、renderer 身份与 Escape 次序（第一次还原布局、第二次关闭）均按 EX-WK5 §2 现状绘制，未在本画布内改动。
+          <b>home-shell-1440</b> 只增加 WK-30 / WK-46 (3) 的 52 px 惰性 shell 条（横贯整窗，条内无任何可读或可点内容，无 Back / Forward），其余与 home-a 相同；两张 390 板检查窄屏 reflow。
+          <b>alignment-1440</b> 是量板：给收敛态与 Home A 各加一层从画板自身 <code>getBoundingClientRect()</code> 读出的参考线与实测表，
+          用来验 WK-42 的"三栏 header 顶相等"与 gutter 关系，本身不是产品构图。
+        </p>
+        <p>
+          <b>r2 的三处结构变化</b>：(1) 顶部带 <code>--band-top</code>（桌面 56；桌面壳下 shell 条 52 + 带 52）由侧栏 wordmark 行、
+          chat header、右栏 rail header 共用，Home 的那一格只留导航开合位、其余留白但预留；
+          (2) 右栏按 WK-41 拆成宿主的 band（"Work surface" + 展开动作）与模块卡纵列，卡片不自带外边距；
+          (3) 展开态不再是浮在壳上的 modal，而是壳内接管两列的面，tab 条因此能落在同一带内，右端为 Return to chat——
+          这一改动会影响 EX-WK5 §2 记录的两级 Escape 次序，见 <code>clean-evaluation.md</code> §8。
+          每张板都跟随 <code>prefers-color-scheme</code>，也接受 <code>?theme=dark</code> / <code>?theme=light</code>；加 <code>?measure=1</code> 会在左下角打印实测带高与溢出元素。
+        </p>
+      </section>
+
+      <section>
+        <h2>Artboards</h2>
+        <div class="boards">
+          <div class="board">
+            <div class="board-head"><a href="home-a-1440.html">home-a-1440</a><span class="t-meta">1440 × 900</span></div>
+            <div class="board-frame frame-1440"><iframe src="home-a-1440.html" title="Home A 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">Home，下带为 WorkCard 网格（变体 A）。</p>
+            <div class="board-links"><a href="home-a-1440.html?theme=light">light</a><a href="home-a-1440.html?theme=dark">dark</a><a href="home-a-1440.html?measure=1">measure</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="home-b-1440.html">home-b-1440</a><span class="t-meta">1440 × 900</span></div>
+            <div class="board-frame frame-1440"><iframe src="home-b-1440.html" title="Home B 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">Home，下带为同字段的行结构（变体 B）。</p>
+            <div class="board-links"><a href="home-b-1440.html?theme=light">light</a><a href="home-b-1440.html?theme=dark">dark</a><a href="home-b-1440.html?measure=1">measure</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="home-shell-1440.html">home-shell-1440</a><span class="t-meta">1440 × 900</span></div>
+            <div class="board-frame frame-1440"><iframe src="home-shell-1440.html" title="Home desktop shell 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">变体 A + 横贯整窗的 52 px 惰性 shell 条（左 80 px 为红绿灯留位）。</p>
+            <div class="board-links"><a href="home-shell-1440.html?theme=light">light</a><a href="home-shell-1440.html?theme=dark">dark</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="work-collapsed-1440.html">work-collapsed-1440</a><span class="t-meta">1440 × 900</span></div>
+            <div class="board-frame frame-1440"><iframe src="work-collapsed-1440.html" title="Work collapsed 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">工作页收敛态：侧栏 | thread | 右栏模块导轨（band + Run / File / Workspace 三卡）。</p>
+            <div class="board-links"><a href="work-collapsed-1440.html?theme=light">light</a><a href="work-collapsed-1440.html?theme=dark">dark</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="work-expanded-1440.html">work-expanded-1440</a><span class="t-meta">1440 × 900</span></div>
+            <div class="board-frame frame-1440"><iframe src="work-expanded-1440.html" title="Work expanded 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">工作页展开态：壳内接管两列，tab 条落在顶部带内，文件列表用 WK-46 (4) 的 960 例外。</p>
+            <div class="board-links"><a href="work-expanded-1440.html?theme=light">light</a><a href="work-expanded-1440.html?theme=dark">dark</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="alignment-1440.html">alignment-1440</a><span class="t-meta">量板</span></div>
+            <div class="board-frame frame-1440"><iframe src="alignment-1440.html" title="Alignment 1440" loading="lazy"></iframe></div>
+            <p class="t-caption">WK-42 对齐带实测：收敛态与 Home A 的参考线叠层与实测表。</p>
+            <div class="board-links"><a href="alignment-1440.html?theme=light">light</a><a href="alignment-1440.html?theme=dark">dark</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="home-a-390.html">home-a-390</a><span class="t-meta">390 宽</span></div>
+            <div class="board-frame frame-390"><iframe src="home-a-390.html" title="Home A 390" loading="lazy"></iframe></div>
+            <p class="t-caption">窄屏 Home：侧栏收起，三带顺序不变，整页单列滚动。</p>
+            <div class="board-links"><a href="home-a-390.html?theme=light">light</a><a href="home-a-390.html?theme=dark">dark</a></div>
+          </div>
+          <div class="board">
+            <div class="board-head"><a href="work-390.html">work-390</a><span class="t-meta">390 宽</span></div>
+            <div class="board-frame frame-390"><iframe src="work-390.html" title="Work 390" loading="lazy"></iframe></div>
+            <p class="t-caption">窄屏工作页：三张卡堆叠在 thread 之下，composer 固定在底部。</p>
+            <div class="board-links"><a href="work-390.html?theme=light">light</a><a href="work-390.html?theme=dark">dark</a></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Fixture 数据图例</h2>
+        <p class="lede">板上每个数字与时间都对应 EX-WK5 §1 列出的字段；数值本身是 fixture（虚构样例），字段来源不是。</p>
+        <table>
+          <thead><tr><th>板上元素</th><th>字段（EX-WK5 §1）</th><th>fixture 值</th><th>语义</th></tr></thead>
+          <tbody>
+            <tr><td>StatTile「Waiting for you」</td><td><code>work-summary.pendingItems.total</code></td><td>1</td><td>当前全部未决 question / permission，跨会话，无"今日"口径</td></tr>
+            <tr><td>StatTile「In progress」</td><td><code>work-summary.sessionCandidates.total</code></td><td>7</td><td>有已记录活动的会话数，跨会话</td></tr>
+            <tr><td>StatTile「Needs a look」</td><td><code>work-summary.inspectionCandidates.total</code></td><td>1</td><td>仅 failed / unknown 两态，非"未读"</td></tr>
+            <tr><td>热力图</td><td>—</td><td>—</td><td>无端点，只画成 "Planned · Backend pending" 文字行（gap G-1）</td></tr>
+            <tr><td>WorkCard / WorkRow 标题</td><td><code>sessionCandidates.items[].title</code></td><td>7 条法务样例</td><td>—</td></tr>
+            <tr><td>WorkCard 项目名</td><td><code>items[].projectId</code> + <code>GET /projects</code></td><td>Northside Housing / Coastal Freight / Marina Estate</td><td>id 需二次解析为名称</td></tr>
+            <tr><td>WorkCard 状态词</td><td><code>items[].latestRun.status</code></td><td>waiting_user / running / completed / failed / cancelled / 缺失</td><td>八态固定文案；缺 latestRun 时为「No run recorded」</td></tr>
+            <tr><td>WorkCard 时间行</td><td><code>latestRun.startedAt</code> / <code>endedAt</code>；缺失时 <code>items[].createdAt</code></td><td>Run 08:31 – 08:47 等</td><td>UTC ISO 来源，按浏览器本地时区显示；不写 "2h ago"</td></tr>
+            <tr><td>RunSummary 状态与时间</td><td><code>run.status</code> / <code>startedAt</code> / <code>endedAt</code></td><td>Completed · 08:31 – 08:47</td><td>—</td></tr>
+            <tr><td>RunSummary「3 recorded files」</td><td><code>run.artifacts.length</code></td><td>3</td><td>成果未经 review 接受</td></tr>
+            <tr><td>RunSummary usage</td><td><code>run.usage</code></td><td>12,480 / 3,110 / Not reported / 6</td><td><code>missing:true</code> 时前缀「At least」，不显示为零</td></tr>
+            <tr><td>FileList</td><td><code>run.artifacts[].path/bytes/sha256</code></td><td>out/exhibit-index.md 等</td><td><code>current</code> 与 <code>content-version</code> 是读取类别，不是审批状态</td></tr>
+            <tr><td>WorkspaceList</td><td><code>GET /sessions/:id/workspace</code> 的 <code>path/bytes</code></td><td>5 个文件，3 组目录</td><td>只反映当前文件系统状态，无版本历史</td></tr>
+            <tr><td>连接 chip「Local test」</td><td><code>GET /runtime-info</code> 的 provider / state</td><td>Local test</td><td>连接状态与 run 状态分开</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>同目录文件</h2>
+        <ul>
+          <li><a href="clean-evaluation.md">clean-evaluation.md</a> — WK-36 判准逐项评分、实测带高、accent 计数、被排除的参考图元素</li>
+          <li><a href="gaps-wk9.md">gaps-wk9.md</a> — WK-27 格式的 gap 登记（G-1…G-7）</li>
+          <li><a href="../../contracts/presentation-primitives.d.ts">../../contracts/presentation-primitives.d.ts</a> — 六种 primitive 的输入 schema、adapter 签名、缺失值与时区语义、可发出的 intent</li>
+          <li><code>tokens.css</code>（WK7 <code>:root</code> 逐字复制）、<code>board.css</code>（只用 role token）、<code>board.js</code>（图标 sprite 与品牌符号内联，file:// 下 ES module 与外部 <code>&lt;use&gt;</code> 均被拦截）</li>
+        </ul>
+      </section>
+    </main>
+    <script src="board.js"></script>
+  </body>
+</html>

@@ -2,6 +2,8 @@
 
 本文比通用组件选型更精确地规定状态与效果边界，但尚未通过运行验证。它是 [RD-002](research/RD-002-commit-recovery.md) 与 [RD-003](research/RD-003-work-surface.md) 的输入，不是源码接口或数据库全表设计。
 
+适用范围为 continuity 场景的承重契约。单次 consequential action 只消费所需的候选、权限、检查、提交与效果核对；低后果的一次性探索不必创建 Matter。全场景的配置选择、交互覆盖与演进依赖见 [Long-life Roadmap](roadmap.md)。样本Core已有部分实现，其实际覆盖以 current/源码证据为准，不将本文所有条款视为已经验收。
+
 ## 1. Matter 与版本绑定
 
 每个 Run 绑定 Matter identity、base state version、Contract/Extension version、可用能力和宿主 Session reference。运行中的配置不可被静默替换；变化应终止并重开 Run，或形成显式的新版本绑定。

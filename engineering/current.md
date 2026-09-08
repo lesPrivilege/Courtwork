@@ -22,3 +22,8 @@
 3. Runtime 基础配置/状态应属于第一层 GUI，按 [Astra范围裁定](migration/2026-09-08/runtime-control-frontend-intake.md) 消费真实后端契约；不虚构 MOE 或未接入能力。
 4. 用户在 Web UI 配置真实 provider 后补真实运行/tool/恢复链；Matter、完整工作纵切与 legacy distill 按既定边界推进。
 5. `main` takeover 留待自足、真实链、legacy distill 与回退条件成立。Paper独立，固定入口 [PAPER.md](../PAPER.md)。
+6. Experts / Extensions 的 [NDA 与热插拔本地研究计划](research/experts-hotplug-2026-09-08/README.md) 已消费 Chat/index：Luna 外部溯源与只读对照，Astra 编写验证设计、必要自研 PR 切片与 long-life 路线增量。此为研究/计划交付，新增 NDA、卸载后历史 fallback 与真实配对实验尚未实现或验收；后续复用既有领域状态和 runtime control plane。
+7. [Long-life Roadmap](roadmap.md) 已按 SE 全场景/全交互重写：按治理厚度组合三条工作链、表面/执行通道、部署/所有权、长程协作与经验发布；R0–R5 和 NDA H0–H5 保留原责任。见 [来源与设计回执](research/longlife-2026-09-08/README.md)。此为架构设计，不新增已实现能力或关闭任何阶段门。
+8. 前端讨论与GUI / Review Runtime Index已形成 [Work Surface跨层边界](design/work-surface-boundaries.md) 和 [来源对账](research/frontend-intake-2026-09-08/README.md)：明确Chrome/Domain/Expert责任、Review/commit/外部效果区别及共享组件adapter边界。Fable当前施工继续由 [第二轮接管与对应工单](mvp/execution/work-surface-kit/intake-round-2.md) 维护；本轮不变更其投影类型、写权或验收状态。
+9. 用户已确定 [本阶段合流与两仓发布安排](release/2026-09-08/README.md)：Fable独立UI施工（含Preview extensions编排选型），待Fable竣工后，Astra从前端追溯harness、从harness补充前端，补齐后merge，再按 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)交接独立任务进行build后的Web UI联调；完成后push CourtWork候选，再沿工程迭代/发布面双线推进至Pages与可构建GUI DMG。端云固定提交一致后准备独立网页GPT Pro全量review。对应 [集成检查](release/2026-09-08/integration.md)、[对外稿](release/2026-09-08/public-surface.md)、[review输入契约](release/2026-09-08/review-handoff.md)已备；当前不记作两笔已完成、已推送/发版或已提交review。
+10. 用户追加的材质/层级与局部motion、hover溯源进入 [UX Polish研究包](research/ux-polish-2026-09-08/README.md)：Luna只读盘点index、旧Polish来源和当前整合候选，Astra整理12个细粒度绘制/消融片段，供build联调后消费。遵守WK51–54与最新选型；报告发现整合快照`2726805`的desktop media未闭合，列为polish前首项复核。本轮没有新的产品polish实现或像素验收。
