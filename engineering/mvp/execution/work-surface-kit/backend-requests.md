@@ -15,3 +15,10 @@
 | BE-11 | Hooks / memory providers / registries / secrets / sandboxes 的资源 kind（现 Planned） | WK-63 |
 | BE-12 | `provider-models` / `provider-config` 暴露模型的推理强度（effort / thinking）字段与可选值，供 composer 模型 chip 显示与设置 | WK-73 |
 | BE-13 | MCP lifecycle：disconnect 后快照状态不回翻（RC verify `mcp-lifecycle` 反例；WK10a 复现 put 200 → connect 翻转、disconnect 不翻转），wire 侧待查 | WK-74 |
+
+## WK10b 第二段回执（2026-09-08，Fable 转 Astra）
+
+| 编号 | 请求 | 阻塞的前端 | 来源 |
+|---|---|---|---|
+| BE-14 | Decision 记录带 `decidedAt`（或独立 decision 事件），供回执行显示时间 | Chat Flow 决定回执行的时间列 | delivery-wk10b-2 §3.5 / 消融 R-8 |
+| BE-15 | `GET /projects/:id/work` 返回 Matter `title` 与最近决定时间 | Continue existing 列表只显 id 短形 | delivery-wk10b-2 §3.6 / 消融 R-13 |

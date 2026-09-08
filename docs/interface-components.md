@@ -1,6 +1,6 @@
 # Interface component contract
 
-2026-09-07, revised 2026-09-08 (WK-72 / WK-74, WO-WK10b 第一段). This consolidates the composer, message flow and workspace hierarchy after the user's latest screenshot and request. Earlier reading-mark color experiments are superseded.
+2026-09-07, revised 2026-09-08 (WK-72 / WK-74, WO-WK10b 第一段 and 第二段). This consolidates the composer, message flow and workspace hierarchy after the user's latest screenshot and request. Earlier reading-mark color experiments are superseded.
 
 **Composition.** The main area holds one working surface — the Chat Flow — and one header band. The work surface is not a third column: collapsed, it is a floating layer of module cards anchored in the main area's right gutter (L2, `--float` + `--shadow-float` + a 1px `--line-strong`), above the thread and above the composer's top edge, with no header and no title of its own; where the main area is too narrow for the 740 reading column and a 360 layer to coexist, the cards collapse to a strip of module glyphs at the right edge. Expanded, the same surface becomes an L3 overlay over the main column, carrying one tab strip and a return control, while the sidebar stays operable. Below the navigation breakpoint the expanded surface is the whole area, as before. This replaces the earlier "Navigator / Work / Inspector" three-column reading and the rail header that went with it; the module registry, the renderer identity, the DOM ids, the ARIA roles and the two-step Escape order are unchanged.
 
@@ -32,13 +32,23 @@ The workspace file view groups paths by their actual parent directory. Folder ca
 
 The session overview separates Workspace, Runs and Session settings into modules. Run history exposes recorded runs already loaded for the session and links to the existing authoritative run inspector. It does not claim additional review, fork, history rewrite, search or archive capabilities.
 
+## Domain work surface
+
+A bound work extension contributes one reading of one Work packet, and the host and the producer show the same one. The reading is a candidate list; each candidate carries its identity, its base and source versions, its lineage when the packet states one, and — when the payload declares a domain schema this build knows — one row per rule: the rule's own id, the status word the packet spelled, and under the expanded row its reason, its Unicode source anchor and the quote frozen with that candidate. The reconciliation, the playbook version and the recorded facts are stated once per candidate, not once per rule. Status words are grey; only `conflict` takes a colour, and the word is always present, so colour is never the carrier. An unknown status is not a failure and is not coloured.
+
+Actions exist only because the packet advertises them. A decision button is drawn for a value the `decide` descriptor's enum names, with the candidate and base version taken from that descriptor's own constants, and it is named for its object (`Accept this version`). A revision form is drawn only where `revise_candidate` is advertised; it starts from the parent candidate's own bytes and the extension re-verifies the result. Unknown descriptor versions stay non-executable. A committed decision appears once in the conversation as a read-only row after the Run it belongs to, drawn from the request receipt rather than from the local record: an unread or absent receipt draws nothing.
+
+Where the producer is unloaded, absent, or its declared renderer cannot be read, the same reading is shown with no control and the absence sentence that names the actual condition. Where the domain payload declares a schema this build does not know, only the identifiable envelope is shown and it says so; no finding is reconstructed from field names. Historical source bytes are read from the candidate's own frozen revision and are never back-filled from the Matter's current sources; that read works with no producer at all.
+
+Binding a session to a work extension is two acts in one panel: creating new work from the manifest's own fields, and continuing work the project already owns. The list is scoped to the session's project by the route itself. Releasing a binding returns the session to plain chat and leaves the recorded work with the project.
+
 ## Ownership
 
 - `user-message.mjs`: input record presentation and callback-only copy/edit actions.
 - `workspace-view.mjs`: file groups, session overview and run-history presentation.
 - `thread-projection.mjs`: server-event projection, including recorded run-start time.
 - `app.mjs`: sole owner of session state, async generations, run admission/recovery, draft persistence, navigation, dialog/renderer lifetime, and the work-surface slot resolution.
-- `surface-modules.mjs`: the module registry and the host's slot declarations. A slot names its id, the input it hands a contribution and that input's version, the intents a contribution may raise, and what the host shows when nothing is mounted. An agent profile's `uiSlots` is a declaration, not a renderer registry: the host mounts only when a loaded producer contributes a renderer module inside the local extension allowlist, and a declared slot with no loaded renderer is a read-only row with no control.
+- `surface-modules.mjs`: the module registry, the host's slot declarations, and the single reading of a Work packet (`workPacket` / `renderWorkPacket` / `candidateActions`) that both the host's read-only fallback and a contributed renderer use, so a collapsed card, an expanded pane and a producer's own renderer cannot state one work state three ways. A slot names its id, the input it hands a contribution and that input's version, the intents a contribution may raise, and what the host shows when nothing is mounted. An agent profile's `uiSlots` is a declaration, not a renderer registry: the host mounts only when a loaded producer contributes a renderer module inside the local extension allowlist, and a declared slot with no loaded renderer is a read-only row with no control.
 
 Views do not own a second session store or independently fetch data. Run grouping does not duplicate or reorder the server event projection. Existing renderer and unsaved extension state survive surface close/reopen.
 

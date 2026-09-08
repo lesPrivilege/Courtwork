@@ -1,0 +1,163 @@
+[
+  {
+    "label": "review-1440-light",
+    "minimum": 32,
+    "controls": 13,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "binding-1440-light",
+    "minimum": 32,
+    "controls": 5,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-1440-light",
+    "minimum": 32,
+    "controls": 10,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "review-390-light",
+    "minimum": 44,
+    "controls": 13,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "binding-390-light",
+    "minimum": 44,
+    "controls": 5,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-390-light",
+    "minimum": 44,
+    "controls": 10,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "review-1440-dark",
+    "minimum": 32,
+    "controls": 13,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "binding-1440-dark",
+    "minimum": 32,
+    "controls": 5,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-1440-dark",
+    "minimum": 32,
+    "controls": 10,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "review-390-dark",
+    "minimum": 44,
+    "controls": 13,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "binding-390-dark",
+    "minimum": 44,
+    "controls": 5,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "readonly-390-dark",
+    "minimum": 44,
+    "controls": 10,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "review-200pct-light",
+    "minimum": 32,
+    "controls": 13,
+    "short": [],
+    "overflow": 0,
+    "unnamed": 0
+  },
+  {
+    "label": "reduced-motion",
+    "runningAnimations": 0
+  },
+  {
+    "label": "keyboard",
+    "focusables": 9,
+    "reachedByTab": 9,
+    "unnamed": 0,
+    "visited": [
+      {
+        "tag": "SUMMARY",
+        "name": "purpose-limitationconflict",
+        "visibleFocus": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "need-to-know-recipientspass",
+        "visibleFocus": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "security-and-noticepass",
+        "visibleFocus": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "term-durationpass",
+        "visibleFocus": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "Recorded facts",
+        "visibleFocus": true
+      },
+      {
+        "tag": "TEXTAREA",
+        "name": "Reason",
+        "visibleFocus": true
+      },
+      {
+        "tag": "BUTTON",
+        "name": "Reject",
+        "visibleFocus": true
+      },
+      {
+        "tag": "BUTTON",
+        "name": "Request evidence",
+        "visibleFocus": true
+      },
+      {
+        "tag": "SUMMARY",
+        "name": "Propose a revision",
+        "visibleFocus": true
+      }
+    ]
+  }
+]

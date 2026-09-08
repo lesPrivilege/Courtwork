@@ -1,0 +1,13 @@
+shot readonly-1440-light-before.png
+measured readonly-1440-light {"controls":0,"short":[],"overflow":0,"unnamed":0}
+shot readonly-390-light-before.png
+measured readonly-390-light {"controls":0,"short":[],"overflow":0,"unnamed":0}
+shot readonly-1440-dark-before.png
+measured readonly-1440-dark {"controls":0,"short":[],"overflow":0,"unnamed":0}
+shot readonly-390-dark-before.png
+measured readonly-390-dark {"controls":0,"short":[],"overflow":0,"unnamed":0}
+shot review-200pct-light-before.png
+measured review-200pct-light {"controls":0,"short":[],"overflow":0,"unnamed":0}
+reduced motion running animations 0
+shot review-1440-reduced-motion-before.png
+keyboard {"focusables":0,"reachedByTab":1,"unnamed":0}

@@ -1724,10 +1724,14 @@ select {
   margin-top: 8px;
   font-size: var(--text-meta);
 }
+/* WO-WK10b 第二段 · the panel now holds two ways of binding, so 40vh cut the
+   second one off entirely: a person who came to continue existing work saw only
+   the form for starting new work. The box still scrolls; it is tall enough that
+   both segments are on screen at the two checked widths. */
 .binding-panel {
   padding: 16px var(--page-gutter);
   border-bottom: 1px solid var(--line);
-  max-height: 40vh;
+  max-height: 60vh;
   overflow: auto;
 }
 .binding-panel-inner {
@@ -3668,4 +3672,211 @@ html[data-shell="desktop"] .shell-strip {
   .conversation-body {
     background: var(--panel);
   }
+}
+
+/* WO-WK10b 第二段 · the Work packet reading. One set of rules serves the
+   producer's own renderer and the host's read-only fallback, because they are
+   one reading of one object (surface-modules.mjs `renderWorkPacket`). Nothing
+   here introduces a colour: the status word of a finding inherits the row's
+   grey, and only `conflict` — the one word that says two read facts disagree —
+   takes the scarce ink, with the word itself always present (FN-28). */
+.work-packet {
+  display: grid;
+  gap: var(--space-4);
+}
+.work-block {
+  display: grid;
+  gap: var(--space-2);
+}
+.work-block > h4 {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  margin: 0;
+}
+.work-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.work-note.is-mono,
+.rule-anchor-ref {
+  font-family: var(--font-mono);
+}
+.work-candidate {
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
+.work-candidate-head > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.rule-rows {
+  display: grid;
+  gap: var(--space-1);
+}
+.rule-row {
+  border-top: 1px solid var(--line);
+}
+.rule-row:first-child {
+  border-top: none;
+}
+.rule-row.is-flagged > summary > .flow-meta {
+  color: var(--danger);
+}
+.rule-detail {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0 0 var(--space-2) var(--space-6);
+}
+.rule-reason {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.rule-anchor {
+  display: grid;
+  gap: var(--space-1);
+}
+.rule-anchor-ref {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.rule-quote {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--line);
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.rule-source-text,
+.work-artifact-text {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--panel-muted);
+  border-radius: var(--radius-control);
+  font: 12px/1.7 var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: auto;
+}
+.work-facts-block,
+.work-decision {
+  border-top: 1px solid var(--line);
+}
+.work-decision-detail,
+.work-facts-block > .projection-list {
+  padding: 0 0 var(--space-2) var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+}
+/* The controls a producer's renderer adds under a candidate. They sit inside
+   the candidate they act on, so an action can never be read as belonging to a
+   different version (FN-18). */
+.candidate-controls {
+  display: grid;
+  gap: var(--space-3);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+.candidate-actions,
+.revision-body {
+  display: grid;
+  gap: var(--space-2);
+}
+.work-field {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.work-field textarea,
+.work-field input {
+  width: 100%;
+  min-height: var(--control);
+}
+.work-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.revision-rule {
+  display: grid;
+  gap: var(--space-2);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.revision-rule-id {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+/* frontend-entries 3.4 · the receipt is a row in the conversation, not a card
+   with a border of its own: it states one outcome and offers nothing. */
+.decision-receipt {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+}
+.decision-receipt > .flow-row > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.decision-receipt > .work-note {
+  padding-left: var(--space-6);
+}
+/* G3 · the binding panel is two segments of one panel, because «start new work»
+   and «continue work this project already owns» are two different acts on the
+   same object. */
+.binding-segment {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.binding-segment:first-of-type {
+  margin-top: var(--space-2);
+}
+.binding-segment > h4 {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  margin: 0;
+}
+.binding-entries {
+  display: grid;
+  gap: var(--space-2);
+}
+.binding-entry {
+  display: grid;
+  gap: var(--space-1);
+}
+.binding-entry-open {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  color: inherit;
+  cursor: pointer;
+  min-height: var(--control);
+}
+.binding-entry-open > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.binding-entry-open:hover {
+  background: var(--hover);
+}
+.binding-entry > .work-note {
+  padding-left: var(--space-6);
 }

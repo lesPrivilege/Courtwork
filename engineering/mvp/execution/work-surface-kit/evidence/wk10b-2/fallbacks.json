@@ -1,0 +1,193 @@
+[
+  {
+    "name": "a decision on a stale reading is refused, the host reads the authoritative state, and no Decision is recorded",
+    "pass": true,
+    "detail": {
+      "error": null,
+      "toast": null,
+      "matterSourceVersion": 2,
+      "candidateSourceVersion": 1,
+      "decide": false,
+      "decisions": 0,
+      "controls": 0,
+      "statuses": [
+        [
+          "purpose-limitation",
+          "pass"
+        ],
+        [
+          "need-to-know-recipients",
+          "pass"
+        ],
+        [
+          "security-and-notice",
+          "pass"
+        ],
+        [
+          "term-duration",
+          "unknown"
+        ]
+      ],
+      "quoteStillFrozen": true,
+      "currentSourceHasTerm": false
+    }
+  },
+  {
+    "name": "the old candidate is not re-judged by the new source: its status words are the ones it was proposed with",
+    "pass": true,
+    "detail": {
+      "before": [
+        [
+          "purpose-limitation",
+          "pass"
+        ],
+        [
+          "need-to-know-recipients",
+          "pass"
+        ],
+        [
+          "security-and-notice",
+          "pass"
+        ],
+        [
+          "term-duration",
+          "unknown"
+        ]
+      ],
+      "after": [
+        [
+          "purpose-limitation",
+          "pass"
+        ],
+        [
+          "need-to-know-recipients",
+          "pass"
+        ],
+        [
+          "security-and-notice",
+          "pass"
+        ],
+        [
+          "term-duration",
+          "unknown"
+        ]
+      ],
+      "replaced": {
+        "oldHadTerm": true,
+        "newHasTerm": false
+      }
+    }
+  },
+  {
+    "name": "the quote of an old candidate is read from its own frozen revision, not back-filled from the current sources",
+    "pass": true,
+    "detail": {
+      "shownHasTerm": true,
+      "currentHasTerm": false,
+      "ref": "source-4ee1599a-f454-4b07-884e-135468b9fc8b:1 [672, 765]"
+    }
+  },
+  {
+    "name": "while a Run holds the work the packet is read only and the action is refused by the host",
+    "pass": true,
+    "detail": {
+      "readOnly": true,
+      "actions": 0,
+      "refused": {
+        "status": 409,
+        "code": "active_run"
+      }
+    }
+  },
+  {
+    "name": "renderer absent: the declared module 404s, the producer stays loaded, and the packet is read read-only",
+    "pass": true,
+    "detail": {
+      "rendererStatus": 404,
+      "reason": "renderer-absent",
+      "mount": false,
+      "status": "loaded",
+      "line": [
+        "generation 0 · state 44c3e92cd84d",
+        "Inbound NDA Review · renderer not loaded",
+        "Read-only. An action needs the extension's own renderer."
+      ],
+      "rules": 4,
+      "reads": 4,
+      "controls": 0,
+      "packetText": "version 0 · source revision 1Candidatecandidate-0b2a151473…p"
+    }
+  },
+  {
+    "name": "an undecodable domain payload is named as such: no rules are reconstructed, the identifiable envelope stays",
+    "pass": true,
+    "detail": {
+      "declared": 2,
+      "rules": 0,
+      "says": true,
+      "identity": true,
+      "version": true,
+      "controls": 0
+    }
+  },
+  {
+    "name": "producer absent is its own absence: the state word is unloaded, the history is readable, and nothing is actionable",
+    "pass": true,
+    "detail": {
+      "reason": "producer-unloaded",
+      "mount": false,
+      "status": "unloaded",
+      "readOnly": true,
+      "compatibility": "read_only",
+      "actions": 0,
+      "stateRow": "Inbound NDA Playbook Reviewunloaded",
+      "facts": [
+        "generation 1 · state 44c3e92cd84d · read only",
+        "No action is declared on this reading."
+      ],
+      "rules": 4,
+      "reads": 4,
+      "controls": 0,
+      "candidates": 1
+    }
+  },
+  {
+    "name": "an unloaded producer is not reported as a missing renderer, and the compatibility word is stated as the server sent it",
+    "pass": true,
+    "detail": {
+      "reason": "producer-unloaded",
+      "compatibility": "read_only",
+      "facts": [
+        "generation 1 · state 44c3e92cd84d · read only",
+        "No action is declared on this reading."
+      ]
+    }
+  },
+  {
+    "name": "historical source bytes stay readable with no producer at all",
+    "pass": true,
+    "detail": {
+      "bytes": 765
+    }
+  },
+  {
+    "name": "reloading the producer restores the renderer and exactly the decisions the packet advertises",
+    "pass": true,
+    "detail": {
+      "mount": true,
+      "buttons": [
+        "Reject",
+        "Request evidence"
+      ],
+      "enum": [
+        "reject",
+        "request_evidence"
+      ]
+    }
+  },
+  {
+    "name": "no page exception",
+    "pass": true,
+    "detail": []
+  }
+]
