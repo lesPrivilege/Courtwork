@@ -1,0 +1,362 @@
+是，现在已经编制成可直接交给 Opus 的定本 index，不再只是上一轮的候选调研记录。
+
+下载 CourtWork / SE GUI & Review Runtime Index
+
+这份 index 已明确拆开：
+
+已有完整前后端 / runtime 的参考：Codeg、OpenHands、Gatewerk、VekInbox、CopilotKit 等，重点追状态契约、interrupt/resume、durable review、runtime adapter、commit gate。
+主要是 frontend / component substrate 的参考：BoardUI、assistant-ui、AI Elements、Agent Elements、headless trace/approval primitives 等，重点追组件 anatomy、状态投影、design tokens、source-owned 分发。
+review / observability / replay 专项：Suna Review Center、Langfuse、Rewind、TraceLens 等。
+Runtime / capability control-plane 专项：MCP、skills、tools、permissions、agent/runtime registration 与 adapter boundary。
+已整理一套 Review Primitive Canon，用作以后所有 Expert 共用的交互词汇，而不是每个 Expert 自己发明界面。
+已把 Expert = declarative composition、Chrome/Shell 与 Expert 的职责边界，以及未来接近低代码的 Expert manifest 目标写入。
+对每类参考给出了 P0/P1/P2 优先级、消费目标与追源码方向。
+文件末尾已经包含一份 可以直接复制给 Opus 的完整回溯 design kickoff，要求它先审计当前 CourtWork 前后端真实实现，再逐 primitive 对照社区源码，而不是从参考项目反推本地现状。
+
+其中一个刻意保留的边界是：这份 index 不把此前对 CourtWork repo 的观察当成当前事实。 Opus 第一阶段必须以现有 repo/worktree 为 ground truth，分别生成 frontend/backend/runtime/component/state/review maps；之后才把现状映射到 Canon，决定 preserve / replace / extract / adapt。
+
+这一步之后，设计施工的逻辑会从过去的：
+
+看见参考 → 模仿页面
+
+转成：
+
+审计现状 → 找到工作语义 → 查 index → 定点逆向成熟实现 → 冻结共享 primitive/contract → Expert 只做编排
+
+这才足以支撑后续大规模 Expert 扩展，而不让 CourtWork 随场景数量一起膨胀。
+
+courtwork_se_gui_review_runtime_index_2026-09-08.md
+Document
+考虑交给 Astra 
+
+可以，而且这次 Astra 很适合作为 Opus 之后的施工模型，甚至可以把这次 CourtWork 前端重构当成一次“component factory”实验。但我不建议直接用 Astra 替代 Opus 做第一轮总设计。
+
+目前公开信息正好支持这种分工：OpenAI 对 Astra 的定位里专门强调了更强的 visual judgment、网站/应用构建、frontend QA，以及自主安装和测试软件的能力；GitHub 的内部测试则称它在长时 coding task 中会边做边规划、验证，并在完成前自行确认结果。
+
+所以更合适的是：
+
+Opus = architect / archaeologist
+回溯现有 CourtWork 前后端、读我们刚做的 index、恢复设计意图，裁定：
+preserve / extract / replace / adapt，最后冻结 Chrome、runtime boundary、Review Primitive Canon、Expert contract。
+Astra = component factory / implementation engineer
+消费冻结后的 contract，成批制作和验证：
+Composer / ReviewCard / Approval / ToolCall / Trace / Diff / Evidence / Artifact / Queue / Chrome primitives，以及 light/dark、窄屏、motion、a11y、Storybook/fixture、真实 browser QA。
+Expert = composition only
+Astra 后面甚至可以继续承担 Expert 封装：读取 manifest/schema，把已有 primitive 编排成一个新 Tab；除非出现真正的新工作语义，否则不新增组件。
+
+这里尤其符合我们刚才确定的架构：
+
+community implementations
+        ↓ reverse / consume
+Primitive Canon
+        ↓
+CourtWork shared components
+        ↓
+Expert manifests
+        ↓
+Chrome Tab composition
+但给 Astra 的输入最好不是“把整个 index 扔进去，让它重新设计”
+
+那会重新产生发散。
+
+更好的 handoff 是：
+
+1. CURRENT_REPO_MAP.md       ← Opus 从真实 repo 回溯
+2. DESIGN_DECISIONS.md       ← 本轮裁决
+3. PRIMITIVE_CANON.md        ← 允许存在的共享语义
+4. RUNTIME_CONTRACTS.md      ← 不得擅改的边界
+5. references/index.md       ← 刚才的研究 index，按需追溯
+6. WORK_ORDER.md             ← Astra 当前只实现哪一组 primitive
+
+也就是说 index 是检索层，不是 prompt payload。Astra 遇到 approval 才去追 CopilotKit/Gatewerk/Suna；遇到 agent trace 才追 assistant-ui/Agent Elements/Langfuse；遇到 shell maturity 才看 BoardUI。这样恰好也是 SE 的渐进披露原则。
+
+第一批我会让 Astra 做一个“纵切”，而不是铺满全站
+
+例如：
+
+Review vertical slice
+
+WorkEvent
+   ↓
+Agent trace row
+   ↓
+Proposal
+   ↓
+Diff / Evidence
+   ↓
+ReviewCard
+   ↓
+Approve / Edit / Reject
+   ↓
+CommitGate
+   ↓
+Recorded decision
+
+同时跑：
+
+desktop + narrow viewport；
+light + dark；
+streaming / waiting / error / resolved；
+keyboard navigation；
+reduced motion；
+mock fixture + 一个真实 runtime event；
+screenshot regression；
+browser interaction QA。
+
+这一个纵切如果 Astra 做得稳定，就意味着 SE 的“人类 review 编排”已经从论文语义真正凝固成可复用 UI substrate。之后 Contract Review、Research、Design Audit、Code Review 等 Expert 大部分真的只剩 schema + composition。
+
+我甚至会把 Astra 的施工权限限制得很明确：
+
+可以创造 implementation，不可以创造 ontology。
+
+也就是它可以非常自主地决定一个 ReviewCard 怎样达到成熟产品级别、怎样重构 CSS/React、怎样做响应式和 motion；但不能因为施工方便擅自新增一种 review state、改变 proposal→commit 语义、把 Expert-specific state 塞回 Chrome。
+
+这会是非常合适的组合：Opus 冻结意义，Astra 大规模制造，CourtWork 自己保留治理权。
+
+热力图、日历、邮件卡片等等，亦可以按解耦的方式实现。
+
+对，而且这类组件比 ReviewCard 更适合彻底解耦，因为它们本质上是 稳定数据结构 → 稳定可视化投影，几乎不应该知道 Expert 是谁。
+
+可以把 CourtWork 的共享层进一步分成两类：
+
+A. Work primitives
+   ├─ Review
+   ├─ Approval
+   ├─ Diff
+   ├─ Trace
+   ├─ Evidence
+   └─ Commit gate
+
+B. Domain-neutral presentation primitives
+   ├─ Calendar
+   ├─ Heatmap
+   ├─ Email / Message card
+   ├─ Timeline
+   ├─ Data table
+   ├─ Chart
+   ├─ File / Document preview
+   ├─ Entity card
+   ├─ Kanban / Queue
+   └─ Map / Graph
+
+第二类尤其不应该跟 Agent runtime 绑定。
+
+例如 Calendar 最好只接受类似：
+
+type CalendarEvent = {
+  id: string
+  title: string
+  start: string
+  end?: string
+  status?: string
+  source?: EntityRef
+  actions?: ActionDescriptor[]
+}
+
+然后：
+
+<Calendar
+  events={events}
+  view="week"
+  onOpen={openArtifact}
+/>
+
+它根本不关心这些事件来自：
+
+Google Calendar
+法律案件 deadline
+软件发布计划
+Expert 生成的任务
+自动化运行计划
+
+Expert 只负责 adapter：
+
+domain schema
+   ↓ adapter
+CalendarEvent[]
+   ↓
+shared Calendar
+
+同理，邮件卡片也不应该是 GmailCard。
+
+应该先抽象成：
+
+type MessageArtifact = {
+  id: string
+  sender: EntityRef
+  recipients: EntityRef[]
+  subject?: string
+  body: RichContent
+  timestamp: string
+  attachments?: ArtifactRef[]
+  thread?: string
+  status?: "draft" | "sent" | "received"
+}
+
+然后：
+
+Gmail
+Outlook
+Slack-like message
+Agent drafted outbound mail
+Legal correspondence
+Customer-support reply
+        ↓
+MessageArtifact
+        ↓
+<MessageCard />
+
+真正需要 Gmail-specific 的只是 adapter 和 actions：
+
+reply
+forward
+archive
+send
+
+而不是整个 UI。
+
+这会直接服务 SE 的 proposal ≠ commitment：
+
+Agent generates MessageArtifact
+        ↓
+<MessageCard state="proposed" />
+        ↓
+<ReviewActions />
+        ↓
+human approves
+        ↓
+provider adapter sends email
+        ↓
+<MessageCard state="committed" />
+
+同一个组件就把 proposal 和真实世界 action 连起来了。
+
+热力图更值得这样做
+
+Heatmap 本质上甚至可以只是一种 projection：
+
+type HeatmapDatum = {
+  x: string
+  y?: string
+  value: number
+  metadata?: unknown
+}
+
+于是：
+
+Git activity
+Agent activity
+Risk density
+Review backlog
+Tool usage
+Evidence density
+Matter activity
+Token/cost activity
+        ↓
+HeatmapDatum[]
+        ↓
+<Heatmap />
+
+CourtWork 甚至不需要为：
+
+GitHub contribution heatmap
+Expert activity heatmap
+风险热力图
+文件改动热力图
+
+分别造组件。
+
+差异只是：
+
+metric
+scale
+tooltip renderer
+interaction
+最终可以形成三层
+Layer 1 — Headless semantics
+schemas / state / actions
+
+Layer 2 — Shared visual primitives
+Calendar
+Heatmap
+MessageCard
+Diff
+Timeline
+Table
+Graph
+Artifact
+ReviewCard
+...
+
+Layer 3 — Expert composition
+Contract Review
+Research
+Mail Triage
+Code Review
+Design Audit
+...
+
+而不是：
+
+ContractReviewCalendar
+ResearchCalendar
+EmailAgentCalendar
+...
+
+后者很快就会失控。
+
+甚至 layout 本身也可以成为 primitive
+
+以后 Expert manifest 可以接近：
+
+views:
+  - type: split
+    left:
+      type: inbox
+      source: messages
+    right:
+      type: artifact
+      source: selected_message
+
+widgets:
+  - type: heatmap
+    source: activity
+    metric: review_density
+
+  - type: calendar
+    source: deadlines
+
+这时 Expert authoring 就真的开始接近低代码：
+
+不是生成 React 页面，而是在组合经过治理的工作语义与视觉 primitive。
+
+只有：
+
+schema adapter
+data mapping
+review policy
+actions
+layout
+
+需要配置。
+
+而且这会让 Astra 的“component factory”更有价值：它可以一次把这些组件做得足够成熟，包括：
+
+empty / loading / streaming / error
+compact / comfortable
+light / dark
+desktop / narrow
+keyboard / touch
+read-only / interactive
+proposal / committed
+motion / reduced-motion
+
+之后几十个 Expert 都直接消费。
+
+所以后面的目标其实不应该只是 agent UI component library，而更接近一个：
+
+CourtWork Work Surface Kit
+
+其中 Agent 只是数据和行为来源之一；日历、邮件、表格、热力图、文档、diff、review 都是统一的工作表面 primitive。
+
+这样 CourtWork 才真正从“Agent GUI”往 由 Agent 驱动的通用专业工作 chrome 演进。

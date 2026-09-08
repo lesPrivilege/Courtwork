@@ -1,0 +1,185 @@
+/* WK9 artboard tokens · copied VERBATIM from /private/tmp/se-agent-wk7/app/web/styles.css lines 1-184 (branch claude/wk7-color-governance). Do not edit values here. */
+/* ==== tier:S · skin lead-gray（铅灰）· light =============================
+   色彩三层治理（engineering/mvp/execution/work-surface-kit/contracts/color-governance.md）：
+   S = scale（本文件三个 tier:S 块，可整体替换为另一 skin，见 app/web/skins/）；
+   R = role（名称稳定，只引用 S）；U = 组件（只引用 R）。
+   hex / rgb 字面量只允许出现在标为 tier:S 的块内，tools/lint-colors.mjs 检查。
+   Slate · Radix Colors 3.0.0 (MIT) 逐字；用户 2026-09-08 裁定：冷灰、冷白底、不用蓝系；
+   accent 本轮为单色（ink 实心），色相留给后续 skin；danger / success 的 3 步取 Radix，11 步自定。 */
+:root {
+  color-scheme: light;
+  --gray-1: #fcfcfd;
+  --gray-2: #f9f9fb;
+  --gray-3: #f0f0f3;
+  --gray-4: #e8e8ec;
+  --gray-5: #e0e1e6;
+  --gray-6: #d9d9e0;
+  --gray-7: #cdced6;
+  --gray-8: #b9bbc6;
+  --gray-9: #8b8d98;
+  --gray-10: #80838d;
+  --gray-11: #60646c;
+  --gray-12: #1c2024;
+  --accent-3: #e8e8ec; /* = slate-4：单色 accent 的 soft 底 */
+  --accent-9: #1c2024; /* = slate-12：实心 accent = ink */
+  --accent-10: #0b0d10; /* 自定：ink 实心 hover/pressed */
+  --accent-11: #1c2024; /* accent 文字 = ink；等待态由状态词与字重承担 */
+  --danger-3: #feebec; /* Radix red-3 */
+  --danger-11: #9b3c35; /* 自定（PD-KIT） */
+  --success-3: #e6f6eb; /* Radix green-3 */
+  --success-11: #3e704e; /* 自定（PD-KIT） */
+  --paper: #fdfdfe; /* 冷白：panel 面，高于 canvas(slate-2) 与 panel-muted(slate-1) */
+  --ink-max: #000;
+  --on-accent-s: #fdfdfe;
+  --alpha-ink: 28, 32, 36; /* rgba 基底：阴影、遮罩（slate-12） */
+  --alpha-paper: 253, 253, 254; /* rgba 基底：glass、rim */
+  --shadow-alpha: 0.08;
+  --glass-alpha: 0.86;
+  --rim-alpha: 0.7;
+}
+/* ==== tier:S · skin lead-gray · dark =====================================
+   Slate · Radix Colors 3.0.0 slate-dark 1–12 逐字。深宗规则（color-governance §4）：
+   canvas 取最暗步，panel 比 canvas 亮一步（层级越高越亮；Atlassian / Primer / Apple 同向，EX-WK3 表 B）；
+   实心 accent 与 accent 文字分值。 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --gray-1: #111113;
+  --gray-2: #18191b;
+  --gray-3: #212225;
+  --gray-4: #272a2d;
+  --gray-5: #2e3135;
+  --gray-6: #363a3f;
+  --gray-7: #43484e;
+  --gray-8: #5a6169;
+  --gray-9: #696e77;
+  --gray-10: #777b84;
+  --gray-11: #b0b4ba;
+  --gray-12: #edeef0;
+  --accent-3: #272a2d; /* = slate-4 dark */
+  --accent-9: #edeef0; /* = slate-12 dark：实心 accent = ink，文字取 on-accent 深色 */
+  --accent-10: #ffffff;
+  --accent-11: #edeef0;
+  --danger-3: #3b1219; /* Radix red-dark-3 */
+  --danger-11: #ff9592; /* Radix red-dark-11 */
+  --success-3: #132d21; /* Radix green-dark-3 */
+  --success-11: #3dd68c; /* Radix green-dark-11 */
+  --paper: #212225; /* = slate-3：panel 比 canvas(slate-2) 亮一步 */
+  --ink-max: #fff;
+  --on-accent-s: #111113;
+  --alpha-ink: 0, 0, 0;
+  --alpha-paper: 237, 238, 240;
+  --shadow-alpha: 0.4;
+  --glass-alpha: 0.1;
+  --rim-alpha: 0.12;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --gray-1: #111113;
+    --gray-2: #18191b;
+    --gray-3: #212225;
+    --gray-4: #272a2d;
+    --gray-5: #2e3135;
+    --gray-6: #363a3f;
+    --gray-7: #43484e;
+    --gray-8: #5a6169;
+    --gray-9: #696e77;
+    --gray-10: #777b84;
+    --gray-11: #b0b4ba;
+    --gray-12: #edeef0;
+    --accent-3: #272a2d;
+    --accent-9: #edeef0;
+    --accent-10: #ffffff;
+    --accent-11: #edeef0;
+    --danger-3: #3b1219;
+    --danger-11: #ff9592;
+    --success-3: #132d21;
+    --success-11: #3dd68c;
+    --paper: #212225;
+    --ink-max: #fff;
+    --on-accent-s: #111113;
+    --alpha-ink: 0, 0, 0;
+    --alpha-paper: 237, 238, 240;
+    --shadow-alpha: 0.4;
+    --glass-alpha: 0.1;
+    --rim-alpha: 0.12;
+  }
+}
+/* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
+:root {
+  --canvas: var(--gray-2);
+  --panel: var(--paper);
+  --panel-muted: var(--gray-1);
+  --hover: var(--gray-3);
+  --selected: var(--gray-4);
+  --pressed: var(--gray-5);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-8);
+  --ink: var(--gray-12);
+  --ink-strong: var(--ink-max);
+  --muted: var(--gray-10); /* non-text only: icons, hairlines, placeholders; ≥ 3:1 */
+  --muted-strong: var(--gray-11); /* every secondary text role; ≥ 4.5:1 on --panel */
+  --accent: var(--accent-9); /* 实心填充、accent-color */
+  --accent-strong: var(--accent-10);
+  --accent-soft: var(--accent-3);
+  --accent-ink: var(--accent-11); /* accent 作文字、链接、等待态状态词 */
+  --focus: var(--accent-11); /* 焦点环与聚焦边框，对相邻面 ≥ 3:1 */
+  --on-accent: var(--on-accent-s); /* 实心 accent 上的文字 */
+  --danger: var(--danger-11); /* 文字与侧线；不作整片底色 */
+  --danger-soft: var(--danger-3);
+  --success: var(--success-11);
+  --success-soft: var(--success-3);
+  --backdrop: rgba(var(--alpha-ink), 0.22);
+  --scrim: rgba(var(--alpha-ink), 0.52); /* L4-12: ≥ 3:1 against the layer it disables */
+  --shadow-float: 0 12px 30px rgba(var(--alpha-ink), var(--shadow-alpha)); /* floating layers only */
+  --shadow: var(--shadow-float);
+  --shadow-thumb: 0 1px 2px rgba(var(--alpha-ink), 0.12); /* segmented thumb */
+  --shadow-pressed: inset 0 1px 2px rgba(var(--alpha-ink), 0.25);
+  --glass: rgba(var(--alpha-paper), var(--glass-alpha)); /* translucent floating surface over blur */
+  --glass-muted: rgba(var(--alpha-paper), var(--glass-alpha));
+  --rim: inset 0 0 0 1px rgba(var(--alpha-paper), var(--rim-alpha)); /* glass edge highlight, no refraction */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --page-gutter: 24px;
+  --section-gap: var(--space-6);
+  --panel-padding: var(--space-6);
+  --card-padding: 20px;
+  --column: 740px;
+  --nav: 250px;
+  --inspector: 380px;
+  --control: 32px;
+  --radius-small: 4px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-container: 16px;
+  --radius-pill: 999px;
+  --radius: var(--radius-control);
+  /* Type roles · Geist ladder (KIT-TYPE); body leading widened for CJK */
+  --text-title: 20px;
+  --text-navigation-title: 17px;
+  --text-reading: 15px;
+  --text-label: 13px;
+  --text-caption: 11px;
+  --text-section: 14px;
+  --text-body: 14px;
+  --text-meta: 12px;
+  --tracking-heading: -0.02em;
+  --tracking-caps: 0.06em;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  /* Motion · two durations, one exit curve; only opacity/transform/colour move */
+  --duration-fast: 120ms;
+  --duration: 180ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  font:
+    14px/1.5 ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}

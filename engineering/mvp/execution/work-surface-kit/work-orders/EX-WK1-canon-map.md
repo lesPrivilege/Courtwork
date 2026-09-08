@@ -1,6 +1,6 @@
 # EX-WK1 · 本地 Canon 映射（Sonnet，只读）
 
-状态：骨架；开工待基线 SHA。输出 `../explore/ex-wk1-canon-map.md`，卷首标 `直接可消费`。
+状态：已派发 2026-09-08。输出 `../explore/ex-wk1-canon-map.md`，卷首标 `直接可消费`。
 
 ## 问题
 
@@ -8,7 +8,7 @@
 
 ## 输入
 
-- 基线：`codex/fresh-courtwork` `<SHA>`（待填）。
+- 基线：`codex/fresh-courtwork` `f8aff61`。
 - `app/web/*.mjs`、`app/web/styles.css`、`app/web/index.html`；`docs/ui-composition.md`、`docs/interface-components.md`、`docs/ui-orchestration-contract.md`；`engineering/design/ux-conventions.md`；`engineering/core-contracts.md`；`app/runtime/control-contract.d.ts`。
 - 索引 §3（五类）、§3.2（ReviewItem 信封）、§10（组件树词表），只作对照列，不作评价标准。
 

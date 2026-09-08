@@ -124,7 +124,9 @@ PT2 证明 Agent 能工作，PT3 证明它不是另一个 session chatbot。落�
 
 此后 `main` 为 Fresh，archive 为 legacy，SE 为 theory／canonical doctrine，Fresh Courtwork 为 living reference implementation。
 
-## 当前位置
+## 历史位置快照（2026-09-06/07，非当前状态）
+
+下列位置与关键路径保留当时语境；当前交付以 [current](current.md) 为准，长期覆盖与依赖以 [Long-life Roadmap](roadmap.md) 为准。历史“PT2仅只读、不施工Core”的限制已被下文DEC-009局部取代，不得据此阻断现有授权施工。
 
 ```text
 PT0 General Shell Closure
@@ -144,7 +146,7 @@ PT2 Fresh Runtime Baseline（门未过；DEC-009 授权隔离目录受控集成�
   └── 自足节点成立 → 架构 handoff Codex 定稿（handoff-codex.md）；C3 前端 Claude/Opus 待 Codex 冻结；C4 独验 Astra/Luna
 ```
 
-critical path 只有：G2 accept → G1 → rebind Polish → 视觉裁决 → PT1 关闭。同期可作 PT2 的只读 runtime explore，但不施工 runtime core，避免出现三条互相改底座的线。现在不需要另开大施工线。
+**历史关键路径（Core只读限制已由DEC-009取代）：** critical path 只有：G2 accept → G1 → rebind Polish → 视觉裁决 → PT1 关闭。同期可作 PT2 的只读 runtime explore，但不施工 runtime core，避免出现三条互相改底座的线。现在不需要另开大施工线。
 
 **2026-09-07 更新**：用户以施工单授权 PT2 在隔离目录进入受控集成（[DEC-009](decisions.md#dec-009--从只读研究转为受控集成施工2026-09-07)），Core 线与 GUI 线并行、只在 C3/C4 汇合；上一段的「不施工 runtime core」作为历史记录保留，不再约束隔离目录。三线不互改底座的原则不变：Core 不写 `web/*`，Polish/G1 不写 `server/*`。批次与边界见 [pt2-integration/intake.md（历史路径：`mvp/execution/pt2-integration/intake.md`）](migration/2026-09-08/evidence-index.md)。
 

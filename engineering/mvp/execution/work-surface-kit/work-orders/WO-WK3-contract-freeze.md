@@ -1,6 +1,6 @@
 # WO-WK3 · 前端投影契约冻结（Fable）
 
-状态：骨架；依赖 EX-WK1、EX-WK2。输出 `../contracts/review-projection.md` 与 `../contracts/review-projection.d.ts`（类型仅供前端与 fixture，不进 `app/runtime`）。
+状态：已冻结 2026-09-08；EX-WK2 微交互附注已补（契约 §6）。输出 `../contracts/review-projection.md` 与 `../contracts/review-projection.d.ts`（类型仅供前端与 fixture，不进 `app/runtime`）。
 
 ## 问题
 

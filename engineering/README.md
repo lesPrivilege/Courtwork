@@ -9,6 +9,7 @@
 3. [`migration/2026-09-08/README.md`](migration/2026-09-08/README.md)：来源、谱系、公开载荷和回退边界。
 4. [`../docs/runtime-control/INDEX.md`](../docs/runtime-control/INDEX.md)、[`../docs/interface-components.md`](../docs/interface-components.md)：已落盘契约。
 5. [`../brand/README.md`](../brand/README.md)：零依赖品牌 SVG 与语义动效包。
+6. [`release/2026-09-08/README.md`](release/2026-09-08/README.md)：本阶段UI/runtime合流、条件推送、工程与发布双线、Pages/DMG及独立网页review交接。
 
 历史 SE 工程材料只作为来源和证据索引。旧执行包、SQLite、截图、临时目录和个人/凭据捕获不进入公开工程树；必要时从迁移 evidence index 定向回到私有证据副本。
 

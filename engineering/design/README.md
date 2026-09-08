@@ -15,6 +15,8 @@
 | [decisions.md](decisions.md) | 局部设计选择与裁决格式；作者推荐和用户选择分开 |
 | [sources.md](sources.md) | 官方 skill、官方规范、社区转译和产品能力资料的来源边界 |
 | [reference-consumption.md](reference-consumption.md) | 历史本地巧思、网页端建议与外部工具的裁取，隔离旧 context |
+| [work-surface-boundaries.md](work-surface-boundaries.md) | Chrome / Domain / Expert责任，Review与commit语义、同源投影和组件adapter边界；连接Fable现有契约 |
+| [UX Polish研究包](../research/ux-polish-2026-09-08/README.md) | 材质/层级与局部motion/hover的来源、源码现状及build联调绘制切片 |
 
 ## 与工程治理的关系
 

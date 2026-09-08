@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Work · expanded · 1440</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="board.css" />
+  </head>
+  <body>
+    <div class="shell shell--work is-expanded">
+      <aside class="sidebar" aria-label="Projects and sessions">
+        <!-- WK-39 order: wordmark row (the shared top band) -> New session -> Home -> filter ->
+             Projects -> an account-style foot. No user identity source exists, so the foot
+             states the connection only: initial mark, connection name, two icon-only tools. -->
+        <header class="sidebar-header">
+          <a class="wordmark" href="#home"><span data-brand-wordmark></span>CourtWork</a>
+          <div class="sidebar-utilities">
+            <button class="btn btn--icon" type="button" aria-label="New project"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#plus"></use></svg></button>
+            <button class="btn btn--icon" type="button" aria-label="Close navigation"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#panel-left"></use></svg></button>
+          </div>
+        </header>
+        <div class="sidebar-nav">
+          <button class="nav-row" type="button"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#square-pen"></use></svg>New session</button>
+          <button class="nav-row" type="button"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#house"></use></svg>Home</button>
+          <div class="nav-filter"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#search"></use></svg><span>Find a session</span></div>
+          <section class="sidebar-section" aria-labelledby="projects-heading">
+            <div class="section-heading"><h2 id="projects-heading">Projects</h2><span class="count-badge">3</span></div>
+            <div class="project-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#folder"></use></svg>Northside Housing</div>
+            <div class="project-row is-current"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#folder"></use></svg>Coastal Freight</div>
+            <div class="project-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#folder"></use></svg>Marina Estate</div>
+          </section>
+        </div>
+        <footer class="sidebar-account" aria-label="Connection and settings">
+          <span class="account-avatar" aria-hidden="true">L</span>
+          <span class="account-name">Local test</span>
+          <span class="account-tools">
+            <button class="btn btn--icon" type="button" aria-label="Refresh workspace"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#refresh-cw"></use></svg></button>
+            <button class="btn btn--icon" type="button" aria-label="Settings"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#settings-2"></use></svg></button>
+          </span>
+        </footer>
+      </aside>
+      <!-- WK-42 · expanded state. The pane is not an overlay: it takes the two content
+           columns inside the shell, so its tab strip lands in the same top band as the
+           sidebar wordmark row. "Return to chat" sits at the right of that band and
+           restores the collapsed three-column layout. -->
+      <section class="surface-pane" aria-label="Work surface">
+        <div class="surface-band">
+          <div class="tablist" role="tablist" aria-label="Work surface">
+            <button class="tab" type="button" role="tab" aria-selected="true">Workspace</button>
+            <button class="tab" type="button" role="tab" aria-selected="false">Run</button>
+            <button class="tab" type="button" role="tab" aria-selected="false">File</button>
+          </div>
+          <div class="surface-band-actions">
+            <button class="btn btn--secondary" type="button">Return to chat</button>
+          </div>
+        </div>
+        <!-- WK-46 (4) · file lists and version tables may widen to 960; prose keeps 740.
+             The Workspace and File tabs use the exception, the Run tab does not. -->
+        <div class="tabpanel" role="tabpanel" tabindex="0" aria-label="Workspace">
+          <div class="tabpanel-inner tabpanel-inner--wide">
+            <section class="pane-section" data-source="GET /sessions/:id/workspace" data-primitive="WorkspaceList">
+              <h3>Workspace files</h3>
+              <p class="t-caption">Current files, grouped by folder. Coastal Freight &middot; Exhibit index rebuild.</p>
+            <p class="group-head" style="padding-top: 0">Workspace root</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">notes.md</span><span class="side">1.4 KB</span></p>
+            <p class="group-head">materials</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">materials/deposition-2026-08-30.md</span><span class="side">62.9 KB</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">materials/exhibit-log.csv</span><span class="side">8.1 KB</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">materials/retainer-2026-07-14.pdf</span><span class="side">311.0 KB</span></p>
+            <p class="group-head">out</p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/exhibit-index.md</span><span class="side">18.2 KB</span></p>
+            <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/unmatched-exhibits.md</span><span class="side">2.6 KB</span></p>
+            </section>
+            <section class="pane-section" data-source="run.artifacts[kind=content-version]">
+              <h3>Recorded versions</h3>
+              <p class="t-caption">Every version this session recorded, newest first. A recorded version is not an accepted result.</p>
+              <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/exhibit-index.md</span><span class="side hash">4f2a91c07be3</span></p>
+              <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#file-text"></use></svg><span class="path">out/unmatched-exhibits.md</span><span class="side hash">b81d0e5527aa</span></p>
+            </section>
+            <section class="pane-section">
+              <h3>Materials</h3>
+              <p class="t-caption">Files you added to this session. Add material from the composer.</p>
+              <p class="file-row"><svg class="ui-icon ui-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#folder"></use></svg><span class="path">materials/</span><span class="side">3 files &middot; 382.0 KB</span></p>
+            </section>
+            <p class="gap"><b>Document tabs</b> Planned &middot; Backend and state pending &mdash; the tab strip is the three fixed kinds; opening several documents at once needs a stackable open-document list (gap G-2).</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="board.js"></script>
+  </body>
+</html>
