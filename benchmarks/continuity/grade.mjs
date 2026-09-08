@@ -1,8 +1,9 @@
 import {isDeepStrictEqual} from 'node:util';
 import {createHash} from 'node:crypto';
-import {identitiesFor} from './fixture-identities.mjs';
+import {identitiesFor,acceptedRequestPayload} from './fixture-identities.mjs';
 import {observeCourtwork,observeStandard} from './observe.mjs';
 import {traceHash} from './trace.mjs';
+const canonical = x => JSON.stringify(x && typeof x==='object' ? Object.fromEntries(Object.keys(x).sort().map(k=>[k,JSON.parse(canonical(x[k]))])) : x);
 const digest = text => createHash('sha256').update(text).digest('hex');
 
 // Independent protocol oracle: check complete semantic state at EVERY checkpoint.
@@ -53,7 +54,7 @@ function gradeState(spec, task, observations, condition, trace, error = null) {
         const row = rows?.[0];
         check(i,kind+'_binding',row?.requestId === identities.requestId && row.workspaceId === identities.workspaceId && row.proposalId === identities.proposalId && row.artifactId === a?.id && row.action === 'accept');
         if (kind !== 'receipts') check(i,kind+'_authority',row?.actorId === identities.reviewerId && row.scope?.workspaceId === identities.workspaceId && row.scope.proposalId === identities.proposalId);
-        else check(i,'receipt_payload_binding',typeof row?.requestDigest === 'string' && /^[a-f0-9]{64}$/u.test(row.requestDigest));
+        else check(i,'receipt_payload_binding',row?.requestDigest === digest(canonical(acceptedRequestPayload(condition))));
       }
       const effect = {revision:o.revision,artifact:o.artifact,obligations:o.obligations,decisions:o.decisions,audits:o.audits,receipts:o.receipts};
       if (firstCommit === null) firstCommit = structuredClone(effect);

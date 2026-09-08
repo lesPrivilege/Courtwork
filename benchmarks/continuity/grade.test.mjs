@@ -84,8 +84,8 @@ test('raw tampering, even with a recomputed hash, cannot retain a stale normaliz
 test('coherently mapped bad raw facts fail semantic checks, not just trace linkage',async()=>{
   const {seal}=await import('./trace.mjs');
   const mutations={
-    E:[t=>{t.state.artifact.content='WRONG';},t=>{t.state.matter.obligations[0].text='Wrong task';},t=>{t.state.decisions[0].actor.id='outsider';},t=>{t.state.candidates.push({...t.state.candidates[0],id:'foreign'});},t=>{t.state.candidates[0].status='pending';},t=>{t.state.matter.id='wrong-owner';}],
-    S:[t=>{t.raw.document.content='WRONG';},t=>{t.raw.tasks[0].text='Wrong task';},t=>{t.raw.approvals[0].actorId='outsider';},t=>{t.raw.submissions.push({...t.raw.submissions[0],id:'foreign'});},t=>{t.raw.submissions[0].status='pending';},t=>{t.raw.job.key='wrong-owner';}],
+    E:[t=>{t.state.request_results[0].request_hash='0'.repeat(64);},t=>{t.state.artifact.content='WRONG';},t=>{t.state.matter.obligations[0].text='Wrong task';},t=>{t.state.decisions[0].actor.id='outsider';},t=>{t.state.candidates.push({...t.state.candidates[0],id:'foreign'});},t=>{t.state.candidates[0].status='pending';},t=>{t.state.matter.id='wrong-owner';}],
+    S:[t=>{t.raw.receipts[0].requestDigest='0'.repeat(64);},t=>{t.raw.document.content='WRONG';},t=>{t.raw.tasks[0].text='Wrong task';},t=>{t.raw.approvals[0].actorId='outsider';},t=>{t.raw.submissions.push({...t.raw.submissions[0],id:'foreign'});},t=>{t.raw.submissions[0].status='pending';},t=>{t.raw.job.key='wrong-owner';}],
   };
   for(const c of ['E','S']) for(const mutate of mutations[c]) {
     const result=score(c,'normal',(o,t)=>{

@@ -8,3 +8,12 @@ export function identitiesFor(condition) {
   if (!Object.hasOwn(assignments,condition)) throw new Error('Unknown condition');
   return structuredClone(assignments[condition]);
 }
+
+// Published request encodings for these two fixture drivers; no production
+// hashing/validation imports. Each implementation may use its own encoding.
+export function acceptedRequestPayload(condition) {
+  const i=identitiesFor(condition);
+  if(condition==='S') return {key:i.requestId,submission:i.proposalId,job:i.workspaceId,base:41,reason:'reviewed'};
+  return {request:{request_id:i.requestId,matter_id:i.workspaceId,candidate_id:i.proposalId,base_version:0,action:'accept',reason:'Synthetic authorized review'},
+    actor:{kind:'local_reviewer',id:i.reviewerId},scope:{matter_id:i.workspaceId,run_id:'run',candidate_id:i.proposalId,base_version:0}};
+}
