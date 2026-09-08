@@ -38,6 +38,33 @@
 | BE-12 | **provider 不暴露推理强度（reasoning effort）。** `GET /provider-config` 只返回 `{provider, model, api}`；`GET /provider-models` 的每个模型只有布尔 `reasoning`（`service.mjs:253`），没有当前强度值，也没有可选强度集合 | 按 WK-73 不画：composer 的模型 chip 只写 `<model>`，不写 `<model> · <effort>`；连接 popover 里也没有 effort 项 | `providerConfig` 增加 `effort`（值域随 provider），`provider-models` 每个模型增加 `efforts: string[]`；两者齐备时 chip 与 popover 各加一处，无需改版式 |
 | BE-13 | **MCP `disconnect` 不回翻状态词。** 把 fixture 的 MCP server 指向本机后，经产品控件 connect 生效（状态词转 `configured connected`），随后的 disconnect 与再次 connect 都读回同一个 `configured`；`remote-tools` 始终为 0 行（WK-74 (3) 登记，本轮 r2 复现） | 不冒充通过：`evidence/rc/runtime-ui-checks.json` 的 `remote-tools` 与反例的 `mcp-lifecycle` 记为 not_run / 待复核，前端未改 `runtime-view.mjs` 的渲染与请求 | 由 MCP 线路一侧复核：`mcpLifecycle` 的 `disconnect` 之后 `inspect` 是否真的反映断开 |
 
+## D · WO-WK11 复核（2026-09-09，Opus）
+
+Workbench 建成后，逐行复核 A / B 两表。判定三档：**已覆盖**（Workbench 画出来了）/ **仍是缺口**（依然只有文字）/ **后端阻塞**（等某条 BE-n）。分支 `claude/wk11-workbench`，基线 `14ebd61`，端口 8883，fake provider。
+
+| 行 | 判定 | 依据 |
+|---|---|---|
+| G-1 MCP OAuth | 仍是缺口 · 后端阻塞（BE-11 之外另立） | `authentication` 仍恒为 `unauthenticated-only`。Workbench 的 Inventory 把它作为该服务器的 trust 事实读出来（"unauthenticated-only · streamable-http 2026-07-28"），比原先只在 Planned 里出现更靠近事实，但仍无授权控件 |
+| G-2 MCP stdio | 仍是缺口 | `transport` 仍恒为 `streamable-http`；Inventory 同上，只陈述不画控件 |
+| G-3 第三方插件隔离 | 仍是缺口 | `trust` 恒 `host-trusted`、`isolation` 恒 `in-process`。Inventory 逐行读出这两个字段，Attention 在 `trust !== 'host-trusted'` 时会报警；本机没有这样的包，所以那条从未触发过（未验） |
+| G-4 memory_provider | 仍是缺口 · BE-11 | Planned 行现在落在 Instructions & context 组内，并写明 BE-11 |
+| G-5 workflow | 仍是缺口 · BE-11 | Planned 行落在 Capabilities & connections 组内 |
+| G-6 hook | 仍是缺口 · BE-11 | 同上 |
+| G-7 registry | 仍是缺口 · BE-11 | 同上 |
+| G-8 token 用量 | 仍是缺口 | `tokenUsage` 仍恒 `null`。Workbench 一处不画 token，并在 Permissions & environment 明写「未报告上限，所以不画占比 / 配额 / 剩余」 |
+| B-1 provenance 不含服务器闸门 | **已覆盖（前端侧）** · 后端仍待 BE-4 | 行内那句因果句照旧（"Its server … is not exposed"），并且四层里的 Requested 现在会写「recorded, and outranked by parent not exposed」，把「存下了」与「没生效」分成两件事。后端补一条 provenance 仍是更好的解 |
+| B-2 catalog-only 的 characters 语义 | 仍是缺口 · BE-4 | 裁定未改：仍按 `admittedCharacters` 计入、`deferredCharacters` 另列。Effective Context Inspector 现在把两列并排列出，所以「进了多少 / 留了多少」第一次同屏可读，但字段语义仍是后端的事 |
+| B-3 比例条恒单段 | **已过时** | 本机 fixture 下条已有 instruction / skill / reference 三段（`admittedCharacters` 使 catalog 文本计入）。B-3 是按旧裁定写的，现在不成立 |
+| B-4 prompt_template 出现在 context[] | 仍是缺口 · BE-4 | 仍按 `user-invoked` 列破折号；Inspector 里它是一行 `draft only` + admitted 0 + deferred 80，比破折号多说了一件事，但它是否该在 `context[]` 里仍是后端裁定 |
+| B-5 没有列 Run 的接口 | **已覆盖（绕过）** | Overview 的 Recorded bindings 读宿主已有的 `state.runs` 与 per-run 的 `recordedContext` 缓存，不新开端点、不新开缓存 |
+| B-6 新 web 模块要进 STATIC allowlist | **本轮不触发** | Workbench 写在既有的 `runtime-view.mjs` 内，没有新增模块文件，因此没有 allowlist 请求。B-6 作为流程问题仍然成立 |
+| B-7 产品没有暗色主题 | **已过时** | WK-78 之后 `styles.css` 有完整深宗；本轮四组截图在 light / dark 两宗下同条件生成，状态词与合法动作一致 |
+| B-8 profile 选择没有前端入口 | **已覆盖** | Composition 组有 `operation: "profile"` 的选择控件（含 Inherit），四层读数、依赖解析、适用范围与「选 ≠ 曝光 ≠ 已验证 Expert」一句；切 profile 后历史 Run 的 Bound 不变（FE-T03） |
+| B-9 policy 编辑没有前端入口 | **已覆盖** | Permissions & environment 组有整表替换的规则编辑（`operation: "policy"`）、其他层只读、以及「只能收紧」的实证：user deny + session allow → effective 仍 deny，且行内一句指名是谁没被放宽 |
+| B-10 unknown 远端效果无法复现 | 仍是缺口 | 代码路径仍在（`mcp_effect_unknown` → 一条要求 reconcile 的横幅、无 Retry），本轮同样未在浏览器里触发过。要验收仍需一条能在配置面产生 unknown 的路径 |
+| BE-12 推理强度 | 仍是缺口 · BE-12 | Permissions & environment 有一行只读 `Reasoning effort = Not reported`，并写明 BE-12；不画任何强度选项 |
+| BE-13 MCP disconnect 不回翻 | **本轮未复现** | 用同一 loopback fixture，经产品控件 disconnect → 状态词由 `configured connected` 回到 `configured`，再 connect 又回来；RC 反例 `mcp-lifecycle` 本轮 **通过**（此前记为 not_run / 待复核）。这不等于线路侧已无问题：只说明在 8883 + 本地 fixture 这一条件下不复现 |
+
 ## C · 我没有画的、也不建议画的
 
 - 三态开关图形（RC-2、EX-RC1 B 节：六个成熟产品无一实现）。

@@ -3268,12 +3268,14 @@ court-symbol {
 .runtime-kind {
   margin-top: var(--space-6);
 }
-.runtime-kind > h4 {
+.runtime-kind > h4,
+.runtime-kind > h5 {
   margin: 0 0 var(--space-2);
   font-size: var(--text-caption);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--muted-strong);
+  font-weight: 550;
 }
 .runtime-row {
   padding: var(--space-3) 0;
@@ -3492,13 +3494,8 @@ court-symbol {
   font-family: var(--font-mono);
   color: var(--muted-strong);
 }
-/* Settings: the runtime entry and the next-run context bar. Buckets are told
-   apart by grey lightness and their own text label, never by hue (SH-2). */
-.runtime-control-entry {
-  display: grid;
-  gap: var(--space-1);
-  margin-bottom: var(--space-4);
-}
+/* Settings: the next-run context bar. Buckets are told apart by grey lightness
+   and their own text label, never by hue (SH-2). */
 .context-bar {
   display: flex;
   height: 10px;
@@ -3530,9 +3527,205 @@ court-symbol {
 .runtime-context-summary > p + p {
   margin-top: var(--space-2);
 }
+.runtime-context-title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  font-weight: 550;
+}
 .runtime-context-summary .section-heading {
   margin-bottom: 0;
 }
+/* ==== WO-WK11 · Runtime Workbench ==========================================
+   The five intent groups live inside the Settings page, so every block below
+   sits on the page's own surface and adds no colour, radius or shadow value of
+   its own. What is new here is structure only: the four-layer readout, the
+   Attention list, the kind chips, the Configurable / Inventory pair and the
+   three read-only tables. */
+.runtime-layers > dd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.runtime-layer-note {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+/* `minmax(0, 1fr)` is the load-bearing part: a grid track is min-content wide by
+   default, so one long <select> option would otherwise widen the whole block and
+   push the page sideways. */
+.runtime-attention,
+.runtime-bindings,
+.runtime-policy,
+.runtime-explainer,
+.runtime-environment {
+  margin-top: var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.runtime-attention > h5,
+.runtime-bindings > h5,
+.runtime-policy > h5,
+.runtime-explainer > h5,
+.runtime-environment > h5 {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  font-weight: 550;
+}
+.runtime-attention-row {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+/* Chips are a filter and a selector, never a state word: the pressed one is
+   told apart by weight and a filled ground, and its text says what it filters. */
+.runtime-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.runtime-chip {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 4px var(--space-2);
+  min-height: 32px;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  background: transparent;
+}
+.runtime-chip:hover {
+  background: var(--hover);
+}
+.runtime-chip[aria-pressed="true"] {
+  background: var(--selected);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  font-weight: 550;
+}
+.runtime-subtabs {
+  display: flex;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  border-bottom: 1px solid var(--line);
+}
+.runtime-subtab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 6px var(--space-2);
+  min-height: 32px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.runtime-subtab:hover {
+  background: var(--hover);
+}
+.runtime-subtab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 550;
+}
+.runtime-tabpanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.runtime-group-label {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+/* A wide table scrolls inside its own box; the page never scrolls sideways.
+   `min-width: 0` is what actually holds it: a grid or flex item defaults to
+   min-content, so without it the table pushes the column wider instead of
+   scrolling inside it. */
+.runtime-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+.runtime-attention,
+.runtime-bindings,
+.runtime-policy,
+.runtime-explainer,
+.runtime-environment,
+.runtime-tabpanel {
+  min-width: 0;
+}
+.runtime-context-table,
+.runtime-inventory-table,
+.runtime-policy-table {
+  min-width: 34rem;
+  margin-bottom: 0;
+}
+.runtime-context-table th[scope="row"],
+.runtime-inventory-table th[scope="row"] {
+  display: grid;
+  gap: 2px;
+  color: var(--ink);
+}
+.runtime-policy-table input,
+.runtime-policy-table select {
+  width: 100%;
+  min-width: 7rem;
+}
+.runtime-policy-row td {
+  vertical-align: middle;
+}
+.runtime-explain-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+/* A <select> is as wide as its longest option unless it is told otherwise, and
+   the longest option here is a plugin-qualified tool name. */
+.runtime-explain-form select,
+.runtime-explain-form input {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 12rem;
+}
+/* FN-16 · a frozen group still opens every explanation, trace and source; only
+   the controls that would submit a change are off. Nothing is dimmed into
+   illegibility, because a read-only group is still a group you read. */
+.settings-block[data-frozen="true"] .runtime-switch input:disabled + .runtime-switch-text {
+  color: var(--muted-strong);
+}
+/* IC-1 · 32 on a pointer, 44 on a narrow or touch viewport, measured on the
+   control itself and not on the row that holds it. */
+.runtime-explain-form select,
+.runtime-explain-form input,
+.runtime-policy-table input,
+.runtime-policy-table select {
+  min-height: 32px;
+}
+@media (max-width: 767px) {
+  .runtime-explain-form select,
+  .runtime-explain-form input {
+    flex-basis: 100%;
+  }
+  .runtime-chip,
+  .runtime-subtab,
+  .runtime-explain-form select,
+  .runtime-explain-form input,
+  .runtime-policy-table input,
+  .runtime-policy-table select {
+    min-height: 44px;
+  }
+}
+
 .planned-section > summary {
   padding: 10px 0;
 }
@@ -4300,8 +4493,7 @@ html[data-shell="desktop"] .shell-strip {
 .settings-block > .section-heading {
   margin-top: var(--space-3);
 }
-.settings-block > .settings-row:last-child,
-.settings-block > .settings-entry:last-child > .settings-row {
+.settings-block > .settings-row:last-child {
   border-bottom: 0;
 }
 .settings-readout {
@@ -4348,19 +4540,14 @@ html[data-shell="desktop"] .shell-strip {
   width: 34%;
   color: var(--ink);
 }
-/* 预览：一条真实的 Chat Flow 行加一段带 diff 的代码块，随选择即时变化。
-   它不可交互，读屏由外面那句 Preview 承担。 */
-.settings-entry {
-  border-bottom: 1px solid var(--line);
-}
-.settings-entry > .settings-row {
-  border-bottom: 0;
-  padding-bottom: var(--space-2);
-}
+/* 预览（WK-87 (a)）：组顶一块，四行共用。一条真实的 Chat Flow 行加一段带 diff 的
+   代码块，随任一行的选择即时变化。它不可交互，读屏由外面那句 Preview 承担。 */
 .settings-preview {
   display: grid;
   gap: var(--space-1);
   padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-2);
 }
 .settings-preview-label {
   font-size: var(--text-caption);
