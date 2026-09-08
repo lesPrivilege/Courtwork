@@ -1,6 +1,6 @@
 # 当前工程状态
 
-最新责任顺序：用户先派Fable收尾，之后fresh Astra从真实前后端两侧联调；当前Astra交接等待。Fable回报见 [节点回执](mvp/execution/work-surface-kit/delivery-astra-node2.md)。
+Fable收尾 `bcbca1b` 已接收，fresh Astra实际Web↔后端联调完成；固定代码基线 `0a3b9b22f47f5605ccedc227106b0c17a4df6120`。修复通用工具权限误称写入与Home框外状态句错列，纳入只读R2解析切片；实际验证与未检项见 [联调回执](../evidence/final-integration-20260908/README.md)，候选推送/独立clone以该回执的sync记录为准。WK10b/WK11继续按Fable既有工单，不把作者19/27消费报告当作全部产品验收。
 
 第二自足节点已在Astra隔离树合流：Fable `0a30780`（WK10a+r2）+ 接缝修补 `dbf12b3` → 代码基线 `7df1f6c486db8f1558dc0020ff4a62281856e207`。见 [独立集成回执](../evidence/node2-independent/README.md) 与 [fresh Astra交接包](release/2026-09-08/fresh-astra-handoff.md)。候选同步与新任务ID以交接包的实际记录为准；尚未push或公开发布。WK10b / WK11由Fable基于本次合流后派发。最新用户边界：Desktop优先，composer沉底不作为桌面验收要求，窄宗可暂缓，Continue等版面位置留Fable后续参考裁定。
 
@@ -36,4 +36,4 @@
 
 ## 等待Fable期间的隔离后端切片
 
-2026-09-08 用户允许在Fable收尾回报前推进后端自研；Web联调仍暂停。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。仅存在于隔离后端分支，无HTTP/模型工具/UI入口，未合流、未push；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。
+2026-09-08 用户允许在Fable收尾回报前推进后端自研；Web联调仍暂停。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。已纳入上述联调代码基线，无HTTP/模型工具/UI入口；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。

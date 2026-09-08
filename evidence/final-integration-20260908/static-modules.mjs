@@ -1,0 +1,7 @@
+import { writeFile } from 'node:fs/promises';
+const origin=process.env.APP_URL||'http://127.0.0.1:19013';
+const queue=['/web/app.mjs','/extensions/evidence-memo/renderer.mjs'],seen=new Set(),results=[];
+while(queue.length){const pathname=queue.shift();if(seen.has(pathname))continue;seen.add(pathname);const res=await fetch(origin+pathname);const source=await res.text();results.push({path:pathname,status:res.status,type:res.headers.get('content-type'),pass:res.status===200&&res.headers.get('content-type')?.startsWith('text/javascript')});for(const match of source.matchAll(/(?:from\s*|import\s*\(\s*|import\s*)["']([^"']+)["']/g)){if(!match[1].startsWith('.'))continue;queue.push(new URL(match[1],origin+pathname).pathname);}}
+for(const pathname of ['/','/web/styles.css','/web/vendor/icons.svg']){const r=await fetch(origin+pathname);results.push({path:pathname,status:r.status,type:r.headers.get('content-type'),pass:r.ok});}
+for(const pathname of ['/web/not-a-module.mjs','/server/service.mjs','/runtime-state.json','/brand/CONTRACT.md','/web/%2e%2e/server/service.mjs']){const r=await fetch(origin+pathname);results.push({path:pathname,status:r.status,pass:r.status===404});}
+await writeFile(new URL('./static-modules.json',import.meta.url),JSON.stringify({origin,results},null,2));console.log(`${results.filter(r=>r.pass).length}/${results.length}`);if(results.some(r=>!r.pass))process.exitCode=1;

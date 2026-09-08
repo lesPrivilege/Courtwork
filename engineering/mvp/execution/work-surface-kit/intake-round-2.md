@@ -285,3 +285,11 @@ Astra 已落定 `engineering/research/experts-hotplug-2026-09-08/`（README 架�
 | 编号 | 裁定 |
 |---|---|
 | WK-75 | (1) 会话态项目名只读、不"可打开"——接受，无该意图不造；(2) File writes 的单词标签 Ask / Write / Read 以 `<option aria-label>` 承载全句，读屏未验；若 VoiceOver / NVDA 不读则退为双词可见标签（Astra 独验项）；(3) `docs/surface-assignment.md`、`docs/ui-composition.md` 的"三栏"表述在 WK10b 随语义 → glyph 表一并改写为"主区 + 悬浮工作面"；(4) 偶发失败测试登记为 flaky（Astra 定位）；(5) 整合支到此为**第二个自足节点**，交 Astra 独验合流 |
+
+## 27. 收尾（Fable，2026-09-09）→ WK-76
+
+Astra 第二节点 `b0173de`（139 / 139；RC 20 / 20 · 9 / 9 · 36 / 36；父门控、上下文计数、BE-13 未复现）。用户 /loop：补充几轮仍需消费——Home 留白、composer 不过高、window control、宽窄宗参考、Button / 文本 / 卡片 / 二级对齐按体例、文案体例严明；回报时核验用户消息消费。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-76 | Home 有列表态顶留白约视口五分之一、composer 64–160 px、状态句在框外；文案体例成文 `engineering/design/copy-convention.md`；用户消息核验表 `user-message-audit.md`（27 条：已落实 19、裁定待实施 8 → WK10b / WK11 / BE）。收尾 SHA `bcbca1b`（`claude/wk10c-finish`），交 fresh Astra 联调；桌面不要求 composer 沉底、窄宗沉底暂缓（Astra 回执） |

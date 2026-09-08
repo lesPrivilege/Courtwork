@@ -1,0 +1,64 @@
+[
+  {
+    "name": "Home Send admits one waiting Run",
+    "pass": true,
+    "actual": {
+      "id": "3f4e6ac8-50c4-4fca-bd74-43b6c0084f7e",
+      "sessionId": "c8c72af8-bf60-40bc-bc42-61624e49a4f7"
+    }
+  },
+  {
+    "name": "question answer completes same Run",
+    "pass": true,
+    "actual": "3f4e6ac8-50c4-4fca-bd74-43b6c0084f7e"
+  },
+  {
+    "name": "exact write permission publishes recorded artifact",
+    "pass": true,
+    "actual": [
+      {
+        "path": "out/browser.txt",
+        "bytes": 27,
+        "sha256": "5bd876267efd9be3304bbe64b7f8770774fda2a6fa3ae13e2c05b2c461ad7785",
+        "kind": "content-version",
+        "writtenAt": "2026-09-08T02:48:58.517Z"
+      }
+    ]
+  },
+  {
+    "name": "recorded File surface shows same run, hash and bytes",
+    "pass": true,
+    "actual": {
+      "kind": "content-version",
+      "sessionId": "c8c72af8-bf60-40bc-bc42-61624e49a4f7",
+      "runId": "30cb7545-ca82-4366-bc4d-ac841076a7b7",
+      "path": "out/browser.txt",
+      "sha256": "5bd876267efd9be3304bbe64b7f8770774fda2a6fa3ae13e2c05b2c461ad7785"
+    }
+  },
+  {
+    "name": "Preview fallback is visible without a domain producer",
+    "pass": true,
+    "actual": "Workspace files\nRefresh workspace files\nout\n1\nbrowser.txt\nAdd material"
+  },
+  {
+    "name": "deny never publishes artifact",
+    "pass": true,
+    "actual": "9c2e1452-1695-4903-8b63-dcec7b314441"
+  },
+  {
+    "name": "Stop closes waiting question",
+    "pass": true,
+    "actual": "2625091e-971a-41ca-9f6c-0c42275470ef"
+  },
+  {
+    "name": "offline polling reports lost connection",
+    "pass": true,
+    "actual": "c8c72af8-bf60-40bc-bc42-61624e49a4f7"
+  },
+  {
+    "name": "reconnect retains session and receipts",
+    "pass": true,
+    "actual": "c8c72af8-bf60-40bc-bc42-61624e49a4f7"
+  }
+]
