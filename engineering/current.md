@@ -8,6 +8,8 @@
 
 用户最新派单：下一主单为 [Fresh Astra：通用Harness Core＋首个NDA场景](execution/2026-09-08-main-round/fresh-astra-core-handoff.md)，整合H0–H3进入实际实施；Fable在分支从前端逆向。Core允许从样本提炼通用owner，保持单写者并复用Pi运行循环；BE-5/完整Workbench后置。fresh指新任务上下文，不指退休目录。
 
+Fresh Astra新任务已请求创建：`client-new-thread:905e35ff-aa42-472f-883e-3e7999fd5429`，Courtwork项目的隔离worktree，模型gpt-6-astra。当前工具仅返回创建排队标识，尚未取得正式任务ID或实现开工回执；不记作代码已施工。
+
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | Claude Opus按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)实现；Astra核对证据 |
