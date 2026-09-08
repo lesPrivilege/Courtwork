@@ -31,6 +31,14 @@
 | WK-80 | **表示原语只按既有契约实现。** Heatmap / Calendar / StatTile / WorkCard / ProgressList / PreviewList / ContextList 的语义、字段与缺失值处理以 WK-34、WK-37、[work-surface-boundaries §5](../../../design/work-surface-boundaries.md) 与 [presentation-primitives.d.ts](contracts/presentation-primitives.d.ts) 为准：组件不认识数据来源，adapter 只投影已记录字段。Heatmap 等 BE-1 / 3 的 `work-activity` 按日聚合，交付前产品内为 Planned，设计中可画；Calendar 无真实数据源，只在设计与 gap 中存在，不进产品；StatTile 取三集合 `total`，无"今日"口径。实现者引用裁定编号，不新造字段、口径或组件名。 |
 | WK-81 | **未消费项只读 diff（EX-WK7，Sonnet）。** 对照前几轮全部前端裁定与输入（WK-1…79、DC-1…11、UP-1…16、RC-1…10、WK9 gaps、EX-WK5、runtime-ui-gaps、backend-requests BE-1…13、consumption-ledger、user-message-audit、design/* 体例）与当前 `main` 源码，逐项标 consumed / partial / not consumed / superseded / backend-blocked，附 `path:line`。输出 `explore/ex-wk7-frontend-consumption-diff.md`；Fable 据此按局部派 Opus 单，每单引用裁定编号与体例条款。 |
 
+## 4a. 前端分层与自定义入口规范 → WK-82
+
+用户提交独立审查候选《前端分层与自定义入口规范 v0.1》（29 条、12 反例），要求从分散设计说明收敛为一份主规范，严明落在对象、接口、状态与权限。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-82 | **采纳为主规范** [frontend-layering-spec](../../../design/frontend-layering-spec.md)（1.0-候选）：FN-01…29 全部采用或改写，无拒绝；逐条裁决见其附录 A。改写项：FN-07 保留 `app.mjs` 为会话 / 准入 / 生命周期 owner；候选 §3.1 与 WK-63 合并为 Runtime 组的意图分组（Overview / Composition / Instructions & context / Capabilities & connections / Permissions & environment），kind 作过滤；设置条目显示 Source / Requested / Effective / Bound 四层（新增 Requested）；FE-T01…12 分配到 WK10b / WK11 / WK12 / WK13 与 Astra H1 / H3，全部 not_run。三份体例、color-governance、interface-components、ui-orchestration-contract 继续承载产品配置与 owner 事实，不再各自解释分层。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. WK10b 第一段（去掉 Home 下带项）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。

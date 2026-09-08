@@ -12,10 +12,12 @@
 2. **General。** Connection 沿 `settings-view.mjs` 现有 connection card 与 credential form 迁入，不改字段与请求；New sessions 默认 File writes（Ask / Write / Read，写入现有 Home 默认值来源）；Data 节只读显示数据目录、adapter、host 状态（`GET /runtime-info`）。
 3. **Appearance。** Scheme（Light / Dark / System → `data-theme`，WK7）；Skin（Slate、`skins/gray-steel.css`、用户 token 集）；Text size（三档，一个根字号变量）；Code font（单行输入，写入 `--font-mono` 前缀）；Reduced motion（跟随系统 / 强制开）。每行下方一块真实产品片段预览（一条 Chat Flow 工具行 + 一段带 diff 的代码块），随选择即时变化。用户 skin：粘贴一组 Tier S token（`--slate-1…12` 等既有名），前端按 `tools/lint-colors.mjs` 同一规则校验：只接受既有 token 名、只接受 hex、不得含 `url(`、`expression`、`@import` 或分号外内容；不通过时逐行指出并拒绝。
 4. **Keyboard。** 现有快捷键只读表（`j` / `k` / `↑` / `↓` / `Enter` / `o` / `Escape` / 发送与取消）；"重绑定" 为 Planned 行。
-5. **Runtime。** 预留组与节位（Overview / Capabilities / Context / Extensions / Models / Governance），由 WK11 填充；本单只搬入现有 `#runtime-control-settings` 与 `#runtime-context-summary` 到 Runtime › Overview，不新增 API。Models 节与 General › Connection 共用同一表单实例，只在 General 编辑，Runtime › Models 显示只读摘要 + "Edit in General" 链接。
+5. **Runtime。** 预留组与节位，按 [frontend-layering-spec §3.1](../../../../design/frontend-layering-spec.md) 的意图分组（Overview / Composition / Instructions & context / Capabilities & connections / Permissions & environment），由 WK11 填充；本单只搬入现有 `#runtime-control-settings` 与 `#runtime-context-summary` 到 Runtime › Overview，不新增 API。Models 节与 General › Connection 共用同一表单实例，只在 General 编辑，Runtime › Models 显示只读摘要 + "Edit in General" 链接。
 6. **Developer。** 现有 Extensions 生命周期列表、`PLANNED_CAPABILITIES`、runtime-info 迁入；Planned 行保持 inert 文字。
 7. **持久化。** Appearance 与 Keyboard 偏好写 localStorage（键 `cw:prefs:<dataDirHash>`），页面加载时先应用再渲染，避免闪烁；不进 runtime-state，不新增后端；Connection / File writes / Runtime 仍走既有端点。
 8. **文档。** 更新 `docs/interface-components.md` 的 Settings 段与 `engineering/design/copy-convention.md` 的词表（新增：Scheme · Skin · Text size · Code font；不用 Theme / Preference / Personalization）。
+
+规范依据：[frontend-layering-spec](../../../../design/frontend-layering-spec.md) §2.1 Configure / Develop 面、§3 自定义分类、§4.1 设置条目四层、§6 FN-26 / 27；本单交付 FE-T09 / T10。
 
 ## 不做
 

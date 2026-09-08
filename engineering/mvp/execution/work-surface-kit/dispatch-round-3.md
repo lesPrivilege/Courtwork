@@ -12,7 +12,7 @@
 | 4 | [WK11](work-orders/WO-WK11-runtime-workbench.md) | Runtime 组六节点入 WK12 页壳 | WK-63 / 64 / 66 / 68、RC-1…10 | `runtime-view.mjs`、`settings-view.mjs` | WK12 合流后 |
 | 5 | WK10b 第二段 | 领域 Review 纵切、只读历史 | H1 / H3 契约、[frontend-entries](../../../execution/2026-09-08-two-lines/frontend-entries.md) | `evidence-memo/renderer.mjs` | H1 契约固定后 |
 
-每单交付：固定 SHA、受影响文件、同条件截图、消融表、`text-sweep.md` 增量、未检项；作者验证与 Astra 独验分列；视觉四轴留用户。
+所有单以 [frontend-layering-spec](../../../design/frontend-layering-spec.md)（WK-82）为主规范，交付附其 §7 分配到本单的反例结果。每单交付：固定 SHA、受影响文件、同条件截图、消融表、`text-sweep.md` 增量、未检项；作者验证与 Astra 独验分列；视觉四轴留用户。
 
 ## 后端前置（Astra，登记不施工）
 
