@@ -36,4 +36,4 @@ Fable收尾 `bcbca1b` 已接收，fresh Astra实际Web↔后端联调完成；�
 
 ## 等待Fable期间的隔离后端切片
 
-2026-09-08 用户允许在Fable收尾回报前推进后端自研；Web联调仍暂停。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。已纳入上述联调代码基线，无HTTP/模型工具/UI入口；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。
+2026-09-08 用户曾允许在Fable收尾回报前推进后端自研，当时Web联调暂停；现已恢复并完成，以上述联调回执为准。BE-5 / Runtime R2 的 [显式声明式来源解析](../docs/runtime-control/source-resolver.md) 提供六kind的只读解析、精确hash和未核验来源边界，复用既有导入校验。已纳入上述联调代码基线，无HTTP/模型工具/UI入口；URL/仓库/包/路径获取和R3–R6继续未实现。证据见 [后端回执](../evidence/runtime-resolver-20260908/README.md)。本条不取代Fable收尾交付与之后的联调门。

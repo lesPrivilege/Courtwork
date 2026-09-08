@@ -14,7 +14,7 @@ Node v25.9.0、npm 11.12.1；`npm --prefix app ci`，277 packages，audit 0 vuln
 
 | 检查 | 本轮结果 | 证据 |
 |---|---|---|
-| 全量unit/integration | 146/146（CSS修补前）；最终远端源码复现另见同步记录 | `tests.txt` |
+| 全量unit/integration | 146/146；最终远端独立clone再次146/146 | `tests.txt`、`remote-tests.txt` |
 | 静态模块、MIME、未知/源码路径拒绝 | 23/23；浏览器实际17个MJS请求200、未捕获JS异常 | `static-modules.json`、`browser-loading.json` |
 | 干净Home交互 | 7/7 | `home-final.txt` |
 | Home→回答→精确写allow→录制File身份/内容→Preview fallback→deny→Stop→离线/重连 | 9/9 | `run-chain.json` |
@@ -50,4 +50,4 @@ Node v25.9.0、npm 11.12.1；`npm --prefix app ci`，277 packages，audit 0 vuln
 | activity/UTC过滤、多文档实例、完整source acquisition/proposal/apply/rollback/Expert版本、模型effort | Astra既有BE/R/H阶段；本轮R2仅只读解析模块，无HTTP/UI/model工具入口 |
 | 真实provider、VoiceOver/NVDA、IME/触控、桌面壳与200%缩放 | not_run，不能由fake/CDP替代 |
 
-Paper仍为PAPER.md固定9.3。无公开部署、DMG、legacy main/default branch变更或SE发版。候选推送和独立clone结果见后续`sync.md`，未完成前不把同步记为PASS。
+Paper仍为PAPER.md固定9.3。无公开部署、DMG、legacy main/default branch变更或SE发版。候选推送与远端独立clone均完成，见 [同步与复现回执](sync.md)。
