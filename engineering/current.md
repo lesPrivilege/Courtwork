@@ -10,6 +10,8 @@
 
 Fresh Astra新任务已请求创建：`client-new-thread:905e35ff-aa42-472f-883e-3e7999fd5429`，Courtwork项目的隔离worktree，模型gpt-6-astra。当前工具仅返回创建排队标识，尚未取得正式任务ID或实现开工回执；不记作代码已施工。
 
+已收到NDA领域子单开工回报（43e3dc0，codex/harness-core）：仅负责`app/domains/inbound-nda/**`和`app/tests/nda-domain.test.mjs`，准备4条规则与dev/holdout。其回报不构成Core主单或产品验收；实际交付待固定SHA与证据。
+
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | Claude Opus按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)实现；Astra核对证据 |

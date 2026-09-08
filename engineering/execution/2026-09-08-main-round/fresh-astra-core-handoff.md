@@ -44,6 +44,8 @@
 - 实现有归属检查的existing Matter重新绑定新Session；Session结束/删除不级联丢失工作。不得直接相信客户端matterId或模型actor。
 - 固定给Fable的query/action、错误、版本、合法动作与fixture，允许继续沿现有`/sessions/:id/actions`、`surface`边界；只有真实职责缺口才新增窄接口。
 
+领域子单接口补充：domain payload绑定Contract/playbook与source identity/revision/hash及anchors；Matter/base/Candidate/request identity和可信actor归Core/host envelope，模型payload不得覆盖。`verifyReview`输出检查结果与原因，不写accepted、不授予批准。逐规则认识状态与Candidate处置/Decision效力分开；开发/holdout gold只用于验证，不进入模型运行输入。字段名由Core实现者与领域子单对齐，避免重复冻结。
+
 ### 第二节点：首个NDA场景与runtime接线
 
 - H2：封装规则/资源、schema/verifier、source坐标、逐规则finding与未决/冲突及reconciliation。顺序执行先成立；复用现有profile/extension、模型能力准入与Pi loop，不新增法律专用loop。
