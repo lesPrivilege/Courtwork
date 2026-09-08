@@ -1,0 +1,49 @@
+shot review-1440-light-after.png
+measured review-1440-light {"controls":13,"short":[],"overflow":0,"unnamed":0}
+shot review-rule-1440-light-after.png
+shot receipt-1440-light-after.png
+shot revision-1440-light-after.png
+shot binding-empty-1440-light-after.png
+shot binding-1440-light-after.png
+measured binding-1440-light {"controls":5,"short":[],"overflow":0,"unnamed":0}
+shot binding-continue-1440-light-after.png
+shot readonly-1440-light-after.png
+measured readonly-1440-light {"controls":10,"short":[],"overflow":0,"unnamed":0}
+shot review-390-light-after.png
+measured review-390-light {"controls":13,"short":[],"overflow":0,"unnamed":0}
+shot review-rule-390-light-after.png
+shot receipt-390-light-after.png
+shot revision-390-light-after.png
+shot binding-empty-390-light-after.png
+shot binding-390-light-after.png
+measured binding-390-light {"controls":5,"short":[],"overflow":0,"unnamed":0}
+shot binding-continue-390-light-after.png
+shot readonly-390-light-after.png
+measured readonly-390-light {"controls":10,"short":[],"overflow":0,"unnamed":0}
+shot review-1440-dark-after.png
+measured review-1440-dark {"controls":13,"short":[],"overflow":0,"unnamed":0}
+shot review-rule-1440-dark-after.png
+shot receipt-1440-dark-after.png
+shot revision-1440-dark-after.png
+shot binding-empty-1440-dark-after.png
+shot binding-1440-dark-after.png
+measured binding-1440-dark {"controls":5,"short":[],"overflow":0,"unnamed":0}
+shot binding-continue-1440-dark-after.png
+shot readonly-1440-dark-after.png
+measured readonly-1440-dark {"controls":10,"short":[],"overflow":0,"unnamed":0}
+shot review-390-dark-after.png
+measured review-390-dark {"controls":13,"short":[],"overflow":0,"unnamed":0}
+shot review-rule-390-dark-after.png
+shot receipt-390-dark-after.png
+shot revision-390-dark-after.png
+shot binding-empty-390-dark-after.png
+shot binding-390-dark-after.png
+measured binding-390-dark {"controls":5,"short":[],"overflow":0,"unnamed":0}
+shot binding-continue-390-dark-after.png
+shot readonly-390-dark-after.png
+measured readonly-390-dark {"controls":10,"short":[],"overflow":0,"unnamed":0}
+shot review-200pct-light-after.png
+measured review-200pct-light {"controls":13,"short":[],"overflow":0,"unnamed":0}
+reduced motion running animations 0
+shot review-1440-reduced-motion-after.png
+keyboard {"focusables":9,"reachedByTab":9,"unnamed":0}

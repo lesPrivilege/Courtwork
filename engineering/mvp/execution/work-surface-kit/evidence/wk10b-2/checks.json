@@ -1,0 +1,400 @@
+[
+  {
+    "name": "renderer mounts at its declared path",
+    "pass": true
+  },
+  {
+    "name": "one row per finding, with the packet's own rule id and status word",
+    "pass": true,
+    "detail": {
+      "rules": [
+        [
+          "purpose-limitation",
+          "pass"
+        ],
+        [
+          "need-to-know-recipients",
+          "pass"
+        ],
+        [
+          "security-and-notice",
+          "pass"
+        ],
+        [
+          "term-duration",
+          "pass"
+        ]
+      ],
+      "packet": [
+        [
+          "purpose-limitation",
+          "pass"
+        ],
+        [
+          "need-to-know-recipients",
+          "pass"
+        ],
+        [
+          "security-and-notice",
+          "pass"
+        ],
+        [
+          "term-duration",
+          "pass"
+        ]
+      ]
+    }
+  },
+  {
+    "name": "each rule row is the one anatomy: one 16 glyph, one title, at most one metadata word",
+    "pass": true,
+    "detail": [
+      [
+        16,
+        16
+      ],
+      [
+        16,
+        16
+      ],
+      [
+        16,
+        16
+      ],
+      [
+        16,
+        16
+      ]
+    ]
+  },
+  {
+    "name": "the expanded rule shows the packet's reason, its Unicode anchor and its frozen quote",
+    "pass": true,
+    "detail": {
+      "reason": "the intended use matches the synthetic transaction purpose",
+      "packetReason": "the intended use matches the synthetic transaction purpose",
+      "ref": "source-6ccdaf92-84c9-447a-9065-2e157164792a:1 [168, 268]",
+      "expectedRef": "source-6ccdaf92-84c9-447a-9065-2e157164792a:1 [168, 268]",
+      "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+      "packetQuote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition."
+    }
+  },
+  {
+    "name": "the playbook version and the recorded facts are stated once per candidate, not once per rule",
+    "pass": true,
+    "detail": {
+      "playbookCount": 1,
+      "reconciliationBlocks": 1,
+      "candidates": 1
+    }
+  },
+  {
+    "name": "the collapsed card and the expanded pane state one stateVersion",
+    "pass": true,
+    "detail": {
+      "before": "051aa202cca9b5dd6f954e40e245e80d73885d4dd6cd6b82017ca068c518a529",
+      "paneHasState": true,
+      "rows": [
+        "Version0",
+        "Candidates1 candidate",
+        "Unresolved0 rules",
+        "State051aa202cca9"
+      ]
+    }
+  },
+  {
+    "name": "the complete review offers exactly the three decisions its descriptor names",
+    "pass": true,
+    "detail": {
+      "buttons": [
+        "Accept this version",
+        "Reject",
+        "Request evidence"
+      ],
+      "enum": [
+        "accept",
+        "reject",
+        "request_evidence"
+      ]
+    }
+  },
+  {
+    "name": "every control in the work surface has a non-empty accessible name",
+    "pass": true,
+    "detail": {
+      "empty": 0
+    }
+  },
+  {
+    "name": "a decision with no reason is not sent, and says so where the reason is typed",
+    "pass": true,
+    "detail": {
+      "actionPosts": 0,
+      "error": "A reason is required for this decision.",
+      "focused": "TEXTAREA"
+    }
+  },
+  {
+    "name": "a lost acknowledgement is neither a success nor a refusal: no receipt, no promotion, the draft stays",
+    "pass": true,
+    "detail": {
+      "notice": "The decision was not acknowledged. Sending it again uses the same request.",
+      "draft": "Reviewed against the recorded source",
+      "stillPending": "pending",
+      "decisions": 0,
+      "receipts": 0
+    }
+  },
+  {
+    "name": "the retry uses the same request identity and Core records exactly one Decision",
+    "pass": true,
+    "detail": {
+      "retryId": "decide-fd76c4ee-8248-4eff-9326-70ac6d4d7264",
+      "accepted": {
+        "status": "accepted",
+        "decisions": [
+          [
+            "accept",
+            "decide-fd76c4ee-8248-4eff-9326-70ac6d4d7264"
+          ]
+        ],
+        "version": 1,
+        "artifact": true
+      }
+    }
+  },
+  {
+    "name": "the accepted decision becomes one read-only row after its Run, naming the version and the work state",
+    "pass": true,
+    "detail": {
+      "receipt": [
+        {
+          "title": "candidate-b67716f938…",
+          "meta": "Accepted this version",
+          "note": "version 1 · state effba3492920",
+          "buttons": 0,
+          "afterRunStatus": true
+        }
+      ],
+      "stateVersion": "effba3492920"
+    }
+  },
+  {
+    "name": "a null receipt draws no success row",
+    "pass": true,
+    "detail": {
+      "withNull": 0,
+      "restored": 1
+    }
+  },
+  {
+    "name": "an accepted candidate advertises a revision and no decision",
+    "pass": true,
+    "detail": {
+      "revise": 1,
+      "decide": 0,
+      "advertised": [
+        "revise_candidate"
+      ]
+    }
+  },
+  {
+    "name": "a hand-edited finding is refused by the extension, and nothing is saved",
+    "pass": true,
+    "detail": {
+      "error": "[{\"code\":\"STATUS_INVALID\",\"path\":\"findings[0].status\",\"message\":\"status is outside the contract\"},{\"code\":\"CONCLUSION_MISMATCH\",\"path\":\"findings[0].status\",\"message\":\"expected deterministic status pass\"}]",
+      "candidates": 1,
+      "parentStatus": "accepted",
+      "decisions": 1
+    }
+  },
+  {
+    "name": "the saved revision is a new candidate with lineage; the old candidate, its Decision and the accepted version stay",
+    "pass": true,
+    "detail": {
+      "candidates": 2,
+      "parent": {
+        "id": "candidate-b67716f93807b2493236c4798279566f36273d766417f199ec40d30d800d3e0f",
+        "status": "accepted"
+      },
+      "childId": "revision-6f24ae19-37fc-48bf-986a-69378c024d47",
+      "childProvenance": {
+        "actor": "local-user",
+        "kind": "human_revision"
+      },
+      "decisions": 1,
+      "artifact": "candidate-b67716f93807b2493236c4798279566f36273d766417f199ec40d30d800d3e0f",
+      "lineageShown": true
+    }
+  },
+  {
+    "name": "after the revision the earlier decision is neither re-opened nor duplicated, and a new decision on the old base is refused",
+    "pass": true,
+    "detail": {
+      "replay": {
+        "action": "accept",
+        "active_artifact": "artifact-candidate-b67716f93807b2493236c4798279566f36273d766417f199ec40d30d800d3e0f-1",
+        "candidate_id": "candidate-b67716f93807b2493236c4798279566f36273d766417f199ec40d30d800d3e0f",
+        "matter_id": "matter-c9086d4d-5e83-4cca-bac7-1788d1b67aa3",
+        "request_id": "decide-fd76c4ee-8248-4eff-9326-70ac6d4d7264",
+        "version": 1
+      },
+      "stale": {
+        "status": 409,
+        "code": "CANDIDATE_CLOSED"
+      },
+      "decisions": 1
+    }
+  },
+  {
+    "name": "an unresolved review offers no accept anywhere on the surface",
+    "pass": true,
+    "detail": {
+      "buttons": [
+        "Reject",
+        "Request evidence"
+      ],
+      "enum": [
+        "reject",
+        "request_evidence"
+      ],
+      "statuses": [
+        "pass",
+        "pass",
+        "pass",
+        "unknown"
+      ],
+      "metaColours": [
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)"
+      ]
+    }
+  },
+  {
+    "name": "an unknown status word is grey like the rest: unknown is not failed",
+    "pass": true,
+    "detail": {
+      "buttons": [
+        "Reject",
+        "Request evidence"
+      ],
+      "enum": [
+        "reject",
+        "request_evidence"
+      ],
+      "statuses": [
+        "pass",
+        "pass",
+        "pass",
+        "unknown"
+      ],
+      "metaColours": [
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)",
+        "rgb(96, 100, 108)"
+      ]
+    }
+  },
+  {
+    "name": "a conflict is the one coloured status word, and the word carries it too",
+    "pass": true,
+    "detail": {
+      "words": [
+        "conflict",
+        "pass",
+        "pass",
+        "pass"
+      ],
+      "conflictColour": "rgb(155, 60, 53)",
+      "otherColour": "rgb(96, 100, 108)",
+      "flagged": true
+    }
+  },
+  {
+    "name": "the binding panel is two segments: create new keeps the manifest fields, continue existing lists this project's work",
+    "pass": true,
+    "detail": {
+      "segments": [
+        "Create new",
+        "Continue existing"
+      ],
+      "entries": [
+        {
+          "label": "Continue matter-a3f7f793-7580-482b-914b-c5eb96c9bb4e",
+          "meta": "version 0",
+          "note": "inbound-nda · source revision 1 · inbound-nda-v1"
+        },
+        {
+          "label": "Continue matter-c9086d4d-5e83-4cca-bac7-1788d1b67aa3",
+          "meta": "version 1",
+          "note": "inbound-nda · source revision 1 · inbound-nda-v1"
+        },
+        {
+          "label": "Continue matter-dcfabfbd-e78a-4131-9ee8-9fa204ef4e87",
+          "meta": "version 0",
+          "note": "inbound-nda · source revision 1 · inbound-nda-v1"
+        }
+      ],
+      "fields": [
+        "Title",
+        "Source text",
+        "Represented party and transaction facts (JSON)"
+      ]
+    }
+  },
+  {
+    "name": "another project's work is not in this project's list",
+    "pass": true,
+    "detail": {
+      "crossProject": 0
+    }
+  },
+  {
+    "name": "a new Session that continues the work shows the original candidates and the decision made in the other Session",
+    "pass": true,
+    "detail": {
+      "bound": "matter-c9086d4d-5e83-4cca-bac7-1788d1b67aa3",
+      "candidates": [
+        [
+          "candidate-b67716f93807b2493236c4798279566f36273d766417f199ec40d30d800d3e0f",
+          "accepted"
+        ],
+        [
+          "revision-6f24ae19-37fc-48bf-986a-69378c024d47",
+          "pending"
+        ]
+      ],
+      "decisions": [
+        "accept"
+      ],
+      "panelHidden": true,
+      "rules": 8
+    }
+  },
+  {
+    "name": "a second binding on a bound Session is refused by the server, not by a guess here",
+    "pass": true,
+    "detail": {
+      "refused": true,
+      "status": 409,
+      "code": "binding_exists"
+    }
+  },
+  {
+    "name": "releasing the binding returns the Session to plain chat and leaves the work with the project",
+    "pass": true,
+    "detail": {
+      "binding": null,
+      "matters": 3,
+      "stillOwned": true
+    }
+  },
+  {
+    "name": "no page exception",
+    "pass": true,
+    "detail": []
+  }
+]

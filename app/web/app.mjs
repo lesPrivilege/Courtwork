@@ -51,6 +51,10 @@ import {
   surfaceModule,
   resolveSurfaceSlot,
   slotStatusLine,
+  workPacket,
+  renderWorkPacket,
+  decisionWords,
+  shortRef,
 } from "./surface-modules.mjs";
 import { renderUserMessage } from "./user-message.mjs";
 
@@ -169,6 +173,20 @@ const state = {
     ownedContainer: null,
     mounted: null,
   },
+  /* WO-WK10b 第二段 · the formal decisions of the session's bound work, and the
+   * committed receipt for each. The Chat Flow row is drawn from the receipt,
+   * not from the decision: a decision the server cannot confirm has no receipt,
+   * and a null receipt never becomes a success row (frontend-entries 3.4).
+   * This store is read for a bound session whether or not the work surface is
+   * open, because the receipt row belongs to the conversation. */
+  work: { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null },
+  /* Which rule rows of the read-only fallback are open. A disclosure is a view
+   * state, not a formal one, and it survives a re-read (FN-23). */
+  surfaceRuleOpen: new Set(),
+  /* WO-WK10b 第二段 · the work this project already owns, read once when the
+   * binding panel opens. The route is per project, so work of another project
+   * is not in this list and cannot be offered here. */
+  projectWork: { projectId: null, extensionId: null, matters: null, error: null },
 };
 
 const $ = (id) => document.getElementById(id);
@@ -1440,6 +1458,7 @@ async function selectSession(
       return;
     renderAll();
     await loadSurface(epoch);
+    await loadWorkThread(epoch);
     if (state.runs.some(isActiveRun)) {
       state.pollController = new AbortController();
       schedulePolling(epoch, 0);
@@ -1938,12 +1957,57 @@ function renderExtensionList() {
           closeRuntimeDialog({ restoreFocus: false });
           renderBindingPanel();
           focusBindingEntry();
+          void loadProjectWork(session.projectId, extension.id);
         });
         actions.append(bindButton);
+      }
+      /* G3 · the other half of the same contract: `{detach:true}` releases the
+       * execution binding after the project keeps the work. The formal record
+       * survives, and this Session goes back to plain Chat — which is why the
+       * word is «Release», not «Delete» (contract «Binding and actions»). */
+      if (session && session.extensionBinding?.extensionId === extension.id) {
+        const releaseButton = element("button", {
+          className: "quiet-button",
+          attrs: { type: "button" },
+          text: "Release",
+        });
+        releaseButton.setAttribute(
+          "aria-label",
+          "Release this session's binding; the recorded work stays in this project",
+        );
+        releaseButton.addEventListener("click", () => void releaseBinding(extension.id));
+        actions.append(releaseButton);
       }
     }
     row.append(actions);
     list.append(row);
+  }
+}
+
+async function releaseBinding(extensionId) {
+  const session = currentSession();
+  if (!session) return;
+  try {
+    const result = await request(
+      `/sessions/${encodeURIComponent(session.id)}/extension`,
+      { method: "POST", body: { extensionId, input: { detach: true } } },
+    );
+    if (state.activeSessionId !== session.id) return;
+    state.session = result.session || state.session;
+    state.sessionsByProject.set(
+      session.projectId,
+      (state.sessionsByProject.get(session.projectId) || []).map((item) =>
+        item.id === session.id ? state.session : item,
+      ),
+    );
+    state.work = { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null };
+    await disposeSurfaceRenderer();
+    renderAll();
+    await loadSurface(state.sessionEpoch);
+    showToast("The binding is released; the recorded work stays in this project.");
+  } catch (error) {
+    showToast(`Could not release the binding: ${error.message}`, "error");
+    if (error.status === 409) await refreshSessionBinding(session.id);
   }
 }
 
@@ -1959,6 +2023,102 @@ async function lifecycle(extensionId, action) {
   } catch (error) {
     showToast(`Extension ${action} failed: ${error.message}`, "error");
   }
+}
+
+/* G3 · what this project already owns, so a new Session can continue it instead
+ * of starting a second work item over the same source. The route is scoped to
+ * one project by the server; nothing here merges two projects' lists. */
+async function loadProjectWork(projectId, extensionId) {
+  state.projectWork = { projectId, extensionId, matters: null, error: null };
+  if (!projectId) return;
+  try {
+    const result = await request(
+      `/projects/${encodeURIComponent(projectId)}/work`,
+    );
+    if (state.projectWork.projectId !== projectId) return;
+    state.projectWork.matters = Array.isArray(result?.matters) ? result.matters : [];
+  } catch (error) {
+    if (state.projectWork.projectId !== projectId) return;
+    state.projectWork.error = error.message;
+  }
+  if (state.bindingExtensionId) renderBindingPanel();
+}
+
+/* The authoritative answer to a refused binding is the session record itself:
+ * `binding_exists` and `binding_mismatch` both mean this host already knows
+ * something this panel did not. Re-read it rather than restate the guess. */
+async function refreshSessionBinding(sessionId) {
+  try {
+    const detail = await request(`/sessions/${encodeURIComponent(sessionId)}`);
+    if (state.activeSessionId !== sessionId) return;
+    state.session = detail.session || state.session;
+    const list = state.sessionsByProject.get(state.session.projectId) || [];
+    state.sessionsByProject.set(
+      state.session.projectId,
+      list.map((item) => (item.id === sessionId ? state.session : item)),
+    );
+    renderAll();
+  } catch {
+    /* The refusal message stands on its own. */
+  }
+}
+
+function continueExistingSegment(extension, session, submitExisting) {
+  const segment = element("section", { className: "binding-segment" });
+  segment.append(element("h4", { text: "Continue existing" }));
+  const work = state.projectWork;
+  if (work.projectId !== session.projectId || work.matters === null) {
+    segment.append(
+      element("p", {
+        className: "section-note",
+        text: work.error
+          ? work.error
+          : "Reading the work this project already owns…",
+      }),
+    );
+    return segment;
+  }
+  const entries = work.matters.filter(
+    (item) => item?.extensionId === extension.id && item?.matter?.id,
+  );
+  if (!entries.length) {
+    segment.append(
+      element("p", {
+        className: "section-note",
+        text: `No work in this project is bound to ${extension.title || extension.id} yet.`,
+      }),
+    );
+    return segment;
+  }
+  const list = element("div", { className: "binding-entries" });
+  for (const entry of entries) {
+    const matter = entry.matter;
+    const row = element("div", { className: "binding-entry" });
+    const button = flowRow(
+      "button",
+      {
+        glyph: "plug",
+        title: shortRef(matter.id),
+        meta: matter.version === undefined ? null : `version ${matter.version}`,
+        className: "binding-entry-open",
+        attrs: {
+          type: "button",
+          "aria-label": `Continue ${matter.id}`,
+          "data-focus-key": `binding-existing:${matter.id}`,
+        },
+      },
+    );
+    button.addEventListener("click", () => void submitExisting(matter.id, button));
+    row.append(button);
+    const facts = [entry.extensionId];
+    if (matter.source_version !== undefined)
+      facts.push(`source revision ${matter.source_version}`);
+    if (matter.contract_version) facts.push(matter.contract_version);
+    row.append(element("p", { className: "work-note", text: facts.join(" · ") }));
+    list.append(row);
+  }
+  segment.append(list);
+  return segment;
 }
 
 function renderBindingPanel() {
@@ -1983,6 +2143,37 @@ function renderBindingPanel() {
       text: "The extension validates these fields. The generic UI only renders the manifest declaration.",
     }),
   );
+  const submitExisting = async (matterId, control) => {
+    control.disabled = true;
+    try {
+      const result = await request(
+        `/sessions/${encodeURIComponent(session.id)}/extension`,
+        {
+          method: "POST",
+          body: { extensionId: extension.id, input: { existingMatterId: matterId } },
+        },
+      );
+      if (state.activeSessionId !== session.id) return;
+      state.session = result.session || state.session;
+      state.sessionsByProject.set(
+        session.projectId,
+        (state.sessionsByProject.get(session.projectId) || []).map((item) =>
+          item.id === session.id ? state.session : item,
+        ),
+      );
+      state.bindingExtensionId = null;
+      renderAll();
+      await loadSurface(state.sessionEpoch);
+      await loadWorkThread(state.sessionEpoch);
+      showToast("This session continues the existing work.");
+    } catch (error) {
+      control.disabled = false;
+      showToast(`Could not continue this work: ${error.message}`, "error");
+      if (error.status === 409) await refreshSessionBinding(session.id);
+    }
+  };
+  const created = element("section", { className: "binding-segment" });
+  created.append(element("h4", { text: "Create new" }));
   const form = element("form", { className: "binding-form" });
   const fields = Array.isArray(extension.bindingFields)
     ? extension.bindingFields
@@ -2061,13 +2252,16 @@ function renderBindingPanel() {
       state.bindingExtensionId = null;
       renderAll();
       await loadSurface(state.sessionEpoch);
+      await loadWorkThread(state.sessionEpoch);
       showToast("Extension bound to this session.");
     } catch (error) {
       submit.disabled = false;
       showToast(`Could not create binding: ${error.message}`, "error");
+      if (error.status === 409) await refreshSessionBinding(session.id);
     }
   });
-  inner.append(form);
+  created.append(form);
+  inner.append(created, continueExistingSegment(extension, session, submitExisting));
   panel.append(inner);
 }
 
@@ -2162,6 +2356,38 @@ function appendToolDetails(container, row) {
       }),
     );
   }
+}
+
+/* A decision becomes visible in the conversation only when the server confirms
+ * it. `projection.decisions[]` says this host recorded one; the request query
+ * says Core committed it. A null receipt draws nothing — not a success row, not
+ * a failure row (frontend-entries 3.4, FN-28). */
+function decisionReceiptRows(runId) {
+  if (!runId || state.work.sessionId !== state.activeSessionId) return [];
+  const rows = [];
+  for (const decision of state.work.decisions) {
+    if (decision?.scope?.run_id !== runId) continue;
+    const receipt = state.work.receipts.get(decision.request_id);
+    if (!receipt) continue;
+    const facts = [];
+    if (receipt.version !== undefined) facts.push(`version ${receipt.version}`);
+    if (state.work.stateVersion && state.work.matterId === decision.matter_id)
+      facts.push(`state ${state.work.stateVersion.slice(0, 12)}`);
+    const card = element("article", { className: "decision-receipt" });
+    card.append(
+      flowRow("div", {
+        glyph: "file-text",
+        title: shortRef(receipt.candidate_id || decision.candidate_id),
+        meta:
+          decisionWords[receipt.action || decision.action] ||
+          String(receipt.action || decision.action || ""),
+      }),
+    );
+    if (facts.length)
+      card.append(element("p", { className: "work-note", text: facts.join(" · ") }));
+    rows.push(card);
+  }
+  return rows;
 }
 
 function renderMessageStream() {
@@ -2665,6 +2891,11 @@ function renderMessageStream() {
       );
       card.append(header);
       list.append(card);
+      /* frontend-entries 3.4 · the Run's formal outcome, one read-only row
+       * after the Run it belongs to. It restates nothing the decision changed:
+       * which version was decided, how, and at which work state. There is no
+       * button, and no fourth Home band (WK13 keeps three). */
+      for (const receipt of decisionReceiptRows(row.runId)) list.append(receipt);
     }
   }
   if (!streamList.childElementCount) {
@@ -3511,6 +3742,7 @@ function renderSurfaceFallback() {
     slot?.reason === "renderer-absent" ? slotStatusLine(slot) : null;
   if (statusLine)
     card.append(element("p", { className: "surface-note", text: statusLine }));
+  const rendererAbsent = slot?.reason === "renderer-absent";
   if (projection === null || projection === undefined) {
     /* A bound session whose producer returned no projection is not an empty
      * Matter. The host says the reading is missing and stops there: it does not
@@ -3552,15 +3784,51 @@ function renderSurfaceFallback() {
             text: "No action is declared on this reading.",
           }),
     );
-    block0.append(
-      element("p", {
-        className: "surface-note",
-        text: "Read-only. An action needs the extension's own renderer.",
-      }),
-    );
+    /* WO-WK10b 第二段 ablation · this sentence is the reason there is no
+     * button, and it is only true in one of the branches. An unloaded producer
+     * has no action because it is unloaded — the state word above says so — and
+     * telling that reader it needs a renderer names the wrong condition
+     * (FN-28, copy-convention §1). It stays where it is the reason. */
+    if (rendererAbsent)
+      block0.append(
+        element("p", {
+          className: "surface-note",
+          text: "Read-only. An action needs the extension's own renderer.",
+        }),
+      );
     card.append(block0);
-    const block = element("section", { className: "surface-block" });
-    block.append(element("h4", { text: "Read-only projection" }));
+    /* WO-WK10b 第二段 item 6 · a producer that is gone does not take its work
+     * with it. When the packet carries a per-rule review the host reads it with
+     * the same component the producer's own renderer uses, minus every control:
+     * the rules, their status words, the anchors, the decisions and the
+     * accepted version stay legible, and no action is offered (FN-24's
+     * «producer 缺席，独立 reader 可用» row, frontend-entries 3.3). */
+    const packet = workPacket(projection);
+    const sessionId = state.activeSessionId;
+    const epoch = state.sessionEpoch;
+    if (packet?.hasCandidates)
+      card.append(
+        renderWorkPacket(packet, {
+          /* The identity line above already carries the work state. */
+          stateVersionShown: Boolean(stateVersion),
+          expanded: state.surfaceRuleOpen,
+          onToggle(candidateId, ruleId, open) {
+            const memory = `${candidateId}|${ruleId}`;
+            if (open) state.surfaceRuleOpen.add(memory);
+            else state.surfaceRuleOpen.delete(memory);
+          },
+          onReadSource: (input) => readHistoricalSource(sessionId, epoch, input),
+        }),
+      );
+    const block = element(packet?.hasCandidates ? "details" : "section", {
+      className: "surface-block",
+    });
+    /* The whole packet stays available underneath, unchanged. The structured
+     * reading above is a reading; this is the bytes it was read from, and a
+     * field the reading does not show is still here (WK-47 ablation S-8). */
+    if (packet?.hasCandidates)
+      block.append(flowRow("summary", { glyph: "folder", title: "Recorded fields" }));
+    else block.append(element("h4", { text: "Read-only projection" }));
     const list = element("div", { className: "projection-list" });
     for (const [key, value] of Object.entries(projection)) {
       if (key === "humanActions") continue;
@@ -3587,6 +3855,115 @@ function renderSurfaceFallback() {
   content.append(card);
 }
 
+/* WO-WK10b 第二段 · the read-only work queries a contributed renderer may
+ * raise, and the only ones. The contribution names a kind from this closed
+ * table and hands over fixed parameters; it never names a path, a method or a
+ * host, so this is not the universal dispatch FN-21 forbids. Both routes are
+ * GETs that work without a loaded producer, which is why historical bytes stay
+ * readable after the extension is unloaded (contract «Queries»).
+ *
+ * `source` reads the bytes of the revision that candidate was frozen against.
+ * A quote of an old candidate is therefore never re-read from the Matter's
+ * current sources, and never silently updated by a source replacement. */
+const SURFACE_QUERIES = Object.freeze({
+  source: (input) => ({
+    kind: "source",
+    candidateId: String(input.candidateId ?? ""),
+    sourceId: String(input.sourceId ?? ""),
+    version: String(input.version ?? ""),
+  }),
+  request: (input) => ({
+    kind: "request",
+    requestId: String(input.requestId ?? ""),
+  }),
+});
+
+/* The same GET the contributed renderer reaches through `surfaceQuery`, for the
+ * read-only fallback, which has no renderer context to guard on. It is bound to
+ * the session and the epoch that drew the row, so a late answer to an old
+ * session cannot land in a new one (FN-24). */
+async function readHistoricalSource(sessionId, epoch, input) {
+  if (!sessionId || epoch !== state.sessionEpoch || state.activeSessionId !== sessionId)
+    throw new Error("This work surface is no longer active.");
+  const params = new URLSearchParams(SURFACE_QUERIES.source(input || {}));
+  const answer = await request(
+    `/sessions/${encodeURIComponent(sessionId)}/work-query?${params}`,
+  );
+  if (epoch !== state.sessionEpoch || state.activeSessionId !== sessionId)
+    throw new Error("The session changed before the read completed.");
+  return answer?.source ?? null;
+}
+
+async function surfaceQuery(kind, input, context = state.surface.context) {
+  const build = Object.hasOwn(SURFACE_QUERIES, kind) ? SURFACE_QUERIES[kind] : null;
+  if (!build) throw new Error("This work query is not available.");
+  if (!guardForSurface(context))
+    throw new Error("This work surface is no longer active.");
+  const { sessionId } = context;
+  const params = new URLSearchParams(build(input || {}));
+  const answer = await request(
+    `/sessions/${encodeURIComponent(sessionId)}/work-query?${params}`,
+    { signal: state.surface.controller?.signal },
+  );
+  if (!guardForSurface(context))
+    throw new Error("The work surface changed before the read completed.");
+  return kind === "source" ? (answer?.source ?? null) : (answer?.result ?? null);
+}
+
+/* The receipt half of a decision. `projection.decisions[]` says what this host
+ * recorded; the request query says whether the server committed it. A decision
+ * whose receipt cannot be read keeps no row at all — an unread receipt is not
+ * a failure and not a success (FN-28). */
+async function loadWorkReceipts(epoch, projection) {
+  const sessionId = state.activeSessionId;
+  if (!sessionId || epoch !== state.sessionEpoch) return;
+  if (state.work.sessionId !== sessionId)
+    state.work = { sessionId, decisions: [], receipts: new Map(), matterId: null, stateVersion: null };
+  const decisions = Array.isArray(projection?.decisions) ? projection.decisions : [];
+  state.work.decisions = decisions;
+  /* The work state this reading of the decisions came from. It is carried with
+   * them so the conversation row can name the version it is reporting even
+   * when the work surface panel was never opened. */
+  state.work.matterId = projection?.matter?.id ?? null;
+  state.work.stateVersion =
+    typeof projection?.stateVersion === "string" ? projection.stateVersion : null;
+  let changed = false;
+  for (const decision of decisions) {
+    const id = decision?.request_id;
+    if (typeof id !== "string" || !id || state.work.receipts.has(id)) continue;
+    try {
+      const answer = await request(
+        `/sessions/${encodeURIComponent(sessionId)}/work-query?kind=request&requestId=${encodeURIComponent(id)}`,
+      );
+      if (epoch !== state.sessionEpoch || state.activeSessionId !== sessionId) return;
+      state.work.receipts.set(id, answer?.result ?? null);
+      changed = true;
+    } catch {
+      /* An unread receipt stays unread; no row is drawn from a guess. */
+    }
+  }
+  if (changed && state.activeSessionId === sessionId && epoch === state.sessionEpoch)
+    renderMessageStream();
+}
+
+/* Read the bound work of the current session once, so the Chat Flow receipt
+ * does not depend on whether the work surface panel happens to be open. The
+ * work surface's own reads stay where they are; this one is not repeated by
+ * collapsing or expanding anything (FN-23). */
+async function loadWorkThread(epoch) {
+  const session = currentSession();
+  if (!session?.extensionBinding || epoch !== state.sessionEpoch) return;
+  try {
+    const result = await request(
+      `/sessions/${encodeURIComponent(session.id)}/surface`,
+    );
+    if (epoch !== state.sessionEpoch || state.activeSessionId !== session.id) return;
+    await loadWorkReceipts(epoch, result?.projection);
+  } catch {
+    /* The conversation stays readable without its work receipts. */
+  }
+}
+
 async function dispatchSurfaceAction(
   action,
   payload,
@@ -3597,14 +3974,25 @@ async function dispatchSurfaceAction(
   const { sessionId, extensionId, generation } = context;
   const rendererController = state.surface.controller;
   invalidateSurfaceFetches();
-  const result = await request(
-    `/sessions/${encodeURIComponent(sessionId)}/actions`,
-    {
+  let result;
+  try {
+    result = await request(`/sessions/${encodeURIComponent(sessionId)}/actions`, {
       method: "POST",
       body: { extensionId, generation, action, payload },
       signal: rendererController?.signal,
-    },
-  );
+    });
+  } catch (error) {
+    /* WO-WK10b 第二段 · a refused mutation is refused against a state this
+     * reading no longer knows: Core's 409s (VERSION_CONFLICT, STALE_INPUT,
+     * IDEMPOTENCY_CONFLICT, CANDIDATE_CLOSED) and the host's admission refusals
+     * (generation_mismatch, active_run, binding_mismatch) all mean the same
+     * next step — read the authoritative state again. The contribution keeps
+     * its draft and receives the error, so it can say what was refused; the
+     * host never replays the command (FN-19). */
+    if (error?.name !== "AbortError" && Number.isFinite(error?.status) && error.status < 500)
+      await loadSurface(context.epoch);
+    throw error;
+  }
   if (!guardForSurface(context))
     throw new Error("The work surface changed before the action completed.");
   invalidateSurfaceFetches();
@@ -3646,6 +4034,9 @@ async function dispatchSurfaceAction(
   } else {
     await loadSurface(context.epoch);
   }
+  /* A committed decision changes what the conversation shows, so the receipt
+   * half is re-read from the same authority that just answered. */
+  await loadWorkReceipts(context.epoch, state.surface.projection);
   return result;
 }
 
@@ -3677,6 +4068,7 @@ async function loadSurface(epoch) {
       })
     )
       return;
+    void loadWorkReceipts(epoch, result.projection);
     const extensionRecord = result.extension || null;
     const catalogRecord = extensionRecord
       ? state.extensions.find((item) => item.id === extensionRecord.id)
@@ -3830,6 +4222,10 @@ async function loadSurface(epoch) {
       projection: state.surface.projection,
       dispatch: (action, payload) =>
         dispatchSurfaceAction(action, payload, context),
+      /* FN-20 · the contribution's only read channel, and a closed one. It
+       * cannot reach a route this table does not name (FN-21), and it stops
+       * working the moment this mount's context is no longer current. */
+      query: (kind, input) => surfaceQuery(kind, input, context),
       signal: rendererController.signal,
     });
     if (
