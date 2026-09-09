@@ -15,7 +15,7 @@
 
 ## 2. 队列（WK-120 / 用户 2026-09-09）
 
-**CC-D0-a 已备好未派**：树 `/private/tmp/se-agent-ccd0a`（基线 `0b5ccd2`，分支 `claude/cc-d0a-home-modules`，端口 8905 / 8906，数据目录已建），提示词全文 [WO-CCD0A-dispatch-prompt](work-orders/WO-CCD0A-dispatch-prompt.md)——fresh Fable 以 `opus-wo-low` 原样派出。CC-D0-a（`opus-wo-low`）→ FE-05a（字阶与密度 V1 + 第 0 项 M-15 + 第 0b 项 Shape 落地 WK-128，`opus-wo-low`）→ FE-05（材质与光：Material grammar 五节，progressive blur 配方 WK-127，`opus-wo-low`）→ CC-I（共享 Inspector + contextual toolbar 可操作 payload，`opus-wo-medium`）。ATT-FE-01 在 ATT-BE-01 交付后默认排 FE-05 之后。CC-D0-b（Activity / Usage）待 BE-1/3/25、BE-29；CC-P（policy editor）待 PolicyRule canonical 文本；GI（生成式身份）在品牌线。
+**CC-D0-a 已备好未派**：树 `/private/tmp/se-agent-ccd0a`（基线 `fa90763`，分支 `claude/cc-d0a-home-modules`，端口 8905 / 8906），提示词 [WO-CCD0A-dispatch-prompt](work-orders/WO-CCD0A-dispatch-prompt.md)——**已于 2026-09-09 由 fresh Fable 以 `opus-wo-low` 派出**。CC-D0-a（`opus-wo-low`）→ FE-05a（字阶与密度 V1 + 第 0 项 M-15 + 第 0b 项 Shape 落地 WK-128，`opus-wo-low`）→ FE-05（材质与光：Material grammar 五节，progressive blur 配方 WK-127，`opus-wo-low`）→ CC-I（共享 Inspector + contextual toolbar 可操作 payload，`opus-wo-medium`）。ATT-FE-01 在 ATT-BE-01 交付后默认排 FE-05 之后。CC-D0-b（Activity / Usage）待 BE-1/3/25、BE-29；CC-P（policy editor）待 PolicyRule canonical 文本；GI（生成式身份）在品牌线。
 
 ## 3. 成单前置与未闭合
 

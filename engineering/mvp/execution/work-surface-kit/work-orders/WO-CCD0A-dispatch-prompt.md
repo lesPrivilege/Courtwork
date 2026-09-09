@@ -7,14 +7,14 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第五轮工单 CC-D0-a（Home 模块带外壳与现有事实投影）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `0b5ccd2`）：/private/tmp/se-agent-ccd0a，分支 `claude/cc-d0a-home-modules`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `fa90763`，2026-09-09 由 fresh Fable 从 `0b5ccd2` 重置，期间 main 只有后端与证据变更、app/web 未动）：/private/tmp/se-agent-ccd0a，分支 `claude/cc-d0a-home-modules`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
 - 应用端口 8905，数据目录 /private/tmp/se-agent-ccd0a-data（已建、为空，可建子目录）；MCP 线路 fixture 用 8906；CDP 端口自选 20000 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8904、8921–8953 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback。
 
 ## 先读（顺序，均在你树内，除注明者）
 1. engineering/mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md §CC-D0-a —— 工单全文：§VI 交接契约头（intent / constraints / existing_system / references / unresolved 两条）、做什么 1–4、写权。注意 constraints.density（次级带以 `--home-column` 820 为上限按剩余宽度分配、容不下换行）与 business_states（六态逐态注明事实来源或 not_applicable；不展示无契约的 stale / not connected）。
 2. engineering/mvp/execution/work-surface-kit/intake-round-3.md：§4h WK-96 / 97（Home 三带、0.56）、§4s WK-114（CC-D0 范围：Attention 不成为第二个名字；Simple 默认；不放死模块；Models 不做第二处展示，只多一行 "Manage connections" 入口；显隐走 cw:prefs）、§4u WK-116 R4D-2（D0-a / D0-b 拆分）、§4v WK-117 (b)（不安装 Activity / Usage 占位、不写 "until BE-nn"；具体待办优先于统计，HOME-6 保持；0.56 是基线非原则）、§4w WK-118、§4y WK-120、§4ab WK-123（Auto 与 Question 卡行为契约，只作参照）、§4ah WK-129（Control Grammar：boolean 偏好 → Switch、小枚举 → Segmented；Inspector PropertyRow 的 modified / reset 只对本设备偏好行）。
-   若某节尚未合入你的树（main `0b5ccd2` 含至 WK-127），只读路径：/private/tmp/se-fable-r4d/engineering/mvp/execution/work-surface-kit/intake-round-3.md。不要写那棵树。
+   若某节尚未合入你的树（main `fa90763` 含至 WK-127），只读路径：/private/tmp/se-fable-r4d/engineering/mvp/execution/work-surface-kit/intake-round-3.md。不要写那棵树。
 3. engineering/mvp/execution/work-surface-kit/explore/ex-cc2-home-modules.md（现状量测、数据接缝表、显隐存储建议）；misfit-ledger.md M-7；engineering/design/clean-cool-2026-09-09/shell-refinement.md §"首页模块退为辅助" / §"模块首页的解耦约定"；engineering/design/attention-surface-2026-09-09/README.md §"常驻Attention与Home"（Home 可选摘要只指向同一对象；本单不实现 Attention，只留模块 id 与位置的可扩展性）。
 4. engineering/design/ui-composition-standard.md（Home 尺寸 token、composition law）；copy-convention.md §3；contracts/ui-state-vocabulary.md（六态只能映射到已有事实）；delivery-cc-w.md（体例与 §16 anti-slop 门）。
 5. 代码：app/web/home-view.mjs（三带、`renderHomeBand`、StatTile、WorkCard、`emptyLabels`、`connection-line`）、presentation-adapters.mjs、app.mjs 的 Home 渲染与 `measureHomeLead()`（约 3179–3199）与 DOM 重排（约 3011–3025）、settings-view.mjs 的偏好通道（`PREFERENCE_DEFAULTS` / `readPreferences` / `writePreferences`、Appearance 组）；styles.css `--home-column`、`.home-top-band`、`.stat-row`、`.home-card`；evidence/cc-w-main-integration-20260909/ 的脚本作为回归底本（composition-checks 含 HOME-1…7、SETTINGS-*、WORK-*、SHELL-1…5）。
