@@ -68,7 +68,7 @@
       "notice": "context window unknown, compaction disabled"
     },
     "config": {
-      "provider": "conn-bb66308979b0",
+      "provider": "conn-efd0ef8b1e2e",
       "model": "loopback-alpha",
       "api": "openai-completions",
       "baseUrl": "http://127.0.0.1:8912/v1"
@@ -79,48 +79,48 @@
     "pass": true,
     "status": "completed",
     "provider": {
-      "provider": "conn-bb66308979b0",
+      "provider": "conn-efd0ef8b1e2e",
       "model": "loopback-alpha",
       "api": "openai-completions",
       "baseUrl": "http://127.0.0.1:8912/v1",
       "realProvider": true,
-      "connectionId": "conn-bb66308979b0",
+      "connectionId": "conn-efd0ef8b1e2e",
       "credentialSource": "runtime",
       "contextWindowSource": "unknown",
       "capabilityNotice": "context window unknown, compaction disabled"
     },
     "project": {
       "project": {
-        "id": "ef5ce148-a4e9-44ac-a7b1-3f610c6f90a5",
+        "id": "e7c67054-6ab8-474e-bbd9-9c870903cf89",
         "name": "PV-FE01",
-        "createdAt": "2026-09-09T21:29:44.457Z"
+        "createdAt": "2026-09-09T21:40:18.444Z"
       }
     },
-    "sessionId": "eea06176-88c0-4680-9327-a6106980c83b",
-    "runId": "3a3f0b84-6a9b-43e6-adbe-295e5471d29c",
+    "sessionId": "d499913d-df67-4ab7-884e-aa857e0420a3",
+    "runId": "f490241a-2b19-475e-aace-78731e4db27c",
     "created": {
       "run": {
-        "id": "3a3f0b84-6a9b-43e6-adbe-295e5471d29c",
-        "sessionId": "eea06176-88c0-4680-9327-a6106980c83b",
+        "id": "f490241a-2b19-475e-aace-78731e4db27c",
+        "sessionId": "d499913d-df67-4ab7-884e-aa857e0420a3",
         "status": "running",
         "admissionOpen": true,
         "adapterId": "pi-coding-agent@0.85.1/agent-session",
         "provider": {
-          "provider": "conn-bb66308979b0",
+          "provider": "conn-efd0ef8b1e2e",
           "model": "loopback-alpha",
           "api": "openai-completions",
           "baseUrl": "http://127.0.0.1:8912/v1",
           "realProvider": true,
-          "connectionId": "conn-bb66308979b0",
+          "connectionId": "conn-efd0ef8b1e2e",
           "credentialSource": "runtime",
           "contextWindowSource": "unknown",
           "capabilityNotice": "context window unknown, compaction disabled"
         },
         "extension": null,
-        "startedAt": "2026-09-09T21:29:44.462Z",
+        "startedAt": "2026-09-09T21:40:18.449Z",
         "endedAt": null,
         "error": null,
-        "commandId": "e5b46b52-1106-4893-9b89-4db603867323",
+        "commandId": "4059b2d4-7e40-4321-8567-4857cfabed62",
         "artifacts": [],
         "usage": {
           "input": 0,
@@ -168,5 +168,20 @@
       "127.0.0.1:8912In forcehttp://127.0.0.1:8912/v1 · openai-completions · API key saved · 2 models, 1 with an unknown context windowConfigure"
     ],
     "error": ""
+  },
+  {
+    "id": "PV-FE-10",
+    "pass": true,
+    "groups": [
+      "deepseek",
+      "openai",
+      "fake-openai-loopback",
+      "127.0.0.1:8912"
+    ],
+    "connectionId": "conn-efd0ef8b1e2e",
+    "providerIdentity": "conn-efd0ef8b1e2e",
+    "baseUrl": "http://127.0.0.1:8912/v1",
+    "expectedHost": "127.0.0.1:8912",
+    "note": "标签是用户自己填过的端点主机名；取不到连接列表时退回原始 id"
   }
 ]

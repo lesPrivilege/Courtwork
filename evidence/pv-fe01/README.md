@@ -25,13 +25,13 @@
 | 检查 | 结果与位置 |
 |---|---|
 | `npm --prefix app ci` | 277 包，0 漏洞 · `npm-ci.txt` |
-| `npm --prefix app test` | **461 / 461**，fail 0 · `npm-test.txt` |
-| `node tools/lint-colors.mjs` | ok（27 files） · `lint-colors.log` |
+| `npm --prefix app test` | **462 / 462**，fail 0 · `npm-test.txt`（PV-53 补丁后重跑） |
+| `node tools/lint-colors.mjs` | ok（26 files） · `lint-colors.log` |
 | `node tools/lint-materials.mjs` | ok（3 files） · `lint-materials.log` |
 | `node tools/contrast-report.mjs` | 全部通过 · `contrast.log` |
 | `npm --prefix app run smoke` | `{"status":"passed","provider":"local-fake","realProvider":"not_run"}` · `smoke.log` |
-| 浏览器断言 PV-FE-1…9 | **9 / 9** · `pv-checks.log`、`pv-checks.json` |
+| 浏览器断言 PV-FE-1…10 | **10 / 10** · `pv-checks.log`、`pv-checks.json` |
 
-截图：`settings-models-1440-light-before.png`（改动前的三条目录连接）、`-discovered.png`（Fetch models 之后）、`-saved.png`（保存后四行、生效行带后端能力原话）、`-user-window.png`（用户填入窗口后）。
+截图：`settings-models-1440-light-before.png`（改动前的三条目录连接）、`-discovered.png`（Fetch models 之后）、`-saved.png`（保存后四行、生效行带后端能力原话）、`-user-window.png`（用户填入窗口后）、`model-picker-1440-light-groups.png`（PV-53 补丁后的模型选择器分组标签）。
 
 真实 provider：**`not_run`**。凭据只在 Web UI 输入，本单不持有任何真实 key，也未读取任何凭据文件。

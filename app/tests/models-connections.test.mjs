@@ -325,6 +325,23 @@ test("PV-M-1 · 两处写入合一：任一处保存都不清掉另一处的字�
   assert.doesNotMatch(pickerSource, /const config=\{provider:/);
 });
 
+test("PV-53 · 模型选择器的用户连接分组标签是它的端点主机名，取不到注册表时退回 id", () => {
+  const user = REGISTRY.find((c) => c.kind === "compatible");
+  // 标签与 Connections 列同出一处：主机名，不是 `conn-<hex>`，也不是前端造的显示名。
+  assert.equal(connectionLabel(user), "127.0.0.1:1234");
+  assert.notEqual(connectionLabel(user), user.id);
+  // 目录连接不受这条影响：它仍报自己的 provider 名。
+  assert.equal(connectionLabel(REGISTRY[0]), providerLabels.openai || "openai");
+  // 选择器多取一次注册表，只为这一层标签，并且只映射 compatible 那些。
+  assert.match(pickerSource, /request\('\/provider-connections'\)/);
+  assert.match(pickerSource, /groupLabels = new Map\(connections\.filter\(c=>c\.kind==='compatible'\)\.map\(c=>\[c\.providerIdentity,connectionLabel\(c\)\]\)\)/);
+  // 退回路径：注册表取不到时这份表为空，标签就是原始 provider 身份。
+  assert.match(pickerSource, /\.catch\(\(\)=>\[\]\)/);
+  assert.match(pickerSource, /label:groupLabels\.get\(provider\) \|\| provider/);
+  // 一次一变量：搜索匹配的字段集不动，`conn-` id 仍搜得到。
+  assert.match(pickerSource, /`\$\{m\.provider\} \$\{m\.name\} \$\{m\.id\}`/);
+});
+
 test("PV-27 · 目录未声明档位时只出 Off，不出一个只有一项的下拉", () => {
   assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", supportedEfforts: ["off", "high"] }] }, "openai", "m"), ["off", "high"]);
   // 目录里根本没有这条模型 = 不知道，不等于"只有 off"。

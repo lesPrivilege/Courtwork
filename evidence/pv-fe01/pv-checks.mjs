@@ -16,6 +16,8 @@
  *   PV-FE-7  发现来的模型真的能执行：一次 run 完成，run 记录指回这条连接
  *   PV-FE-8  三类保存失败各自的真实错误信封（前端按码分类，不看正文）
  *   PV-FE-9  用户填入窗口后，来源标为用户输入，未知计数随之减一
+ *   PV-FE-10 PV-53 · 模型选择器里用户连接的分组标签是它的端点主机名，
+ *            不是 `conn-<hex>`；目录连接的分组名不变
  */
 import { cdp, evaluate as ev, waitFor, close, ORIGIN, sleep } from "./browser.mjs";
 import { writeFile } from "node:fs/promises";
@@ -214,6 +216,32 @@ record("PV-FE-9",
   windowRows.rows.some((text) => text.includes("2 models, 1 with an unknown context window")),
   { capability: withWindow.capability, ...windowRows });
 await shot("settings-models-1440-light-user-window");
+
+// --------------------------------------------------------------- PV-FE-10
+/* PV-53 · 模型选择器的分组标签。此处已存在一条用户连接（PV-FE-5 存下的那条，
+ * 端点 127.0.0.1:8912），它在目录里的身份是 `conn-<hex>`。 */
+const userConnection = (await api("/provider-connections")).body.connections.find((c) => c.kind === "compatible");
+await cdp("Page.navigate", { url: `${ORIGIN}/?pvfe01=${Date.now()}` });
+await waitFor("window.__V5_UI__?.state.home.data");
+await sleep(800);
+await ev(`document.getElementById("model-settings-button").click()`);
+await sleep(400);
+await ev(`[...document.getElementById("connection-popover").querySelectorAll("button")].find((b) => (b.getAttribute("aria-label") || "").startsWith("Choose model")).click()`);
+await waitFor(`document.querySelector(".model-picker-dialog select")?.options.length > 0`);
+await sleep(400);
+const picker = await ev(`(() => {
+  const dialog = document.querySelector(".model-picker-dialog");
+  return { groups: [...dialog.querySelectorAll("optgroup")].map((g) => g.label) };
+})()`);
+const expectedHost = new URL(userConnection.baseUrl).host;
+record("PV-FE-10",
+  picker.groups.includes(expectedHost) &&
+  !picker.groups.some((label) => label.startsWith("conn-")) &&
+  picker.groups.includes("openai"),
+  { groups: picker.groups, connectionId: userConnection.id, providerIdentity: userConnection.providerIdentity, baseUrl: userConnection.baseUrl, expectedHost,
+    note: "标签是用户自己填过的端点主机名；取不到连接列表时退回原始 id" });
+await shot("model-picker-1440-light-groups");
+await ev(`document.querySelector(".model-picker-dialog").close()`);
 
 await writeFile(new URL("./pv-checks.json", import.meta.url), JSON.stringify(results, null, 2));
 for (const entry of results) console.log(entry.pass ? "PASS" : "FAIL", entry.id);

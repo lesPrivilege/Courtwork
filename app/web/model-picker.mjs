@@ -1,5 +1,5 @@
 import { el, action } from './ui-controls.mjs';
-import { effortSelectable, projectProviderConfig, supportedEffortsOf } from './settings-view.mjs';
+import { connectionLabel, effortSelectable, projectProviderConfig, supportedEffortsOf } from './settings-view.mjs';
 
 // Shared native modal. It saves the existing host provider configuration;
 // choosing a model never performs generation or discovers credentials.
@@ -17,10 +17,19 @@ export function createModelPicker({ request, onSaved }) {
     const status = el('p', {className:'form-help',text:'Loading installed models…',attrs:{role:'status'}});
     dialog.replaceChildren(header,status); dialog.showModal(); close.focus();
     try {
-      const [catalog, current] = await Promise.all([request('/provider-models'),request('/provider-config')]);
+      /* PV-53 · 分组标签多取一次连接注册表。用户连接在目录里的身份就是它的
+       * `conn-<hex>` id，那串东西对用户没有意义；它的名字用它自己填过的端点
+       * 主机名（与 Connections 列同一处 `connectionLabel`）。取不到注册表时
+       * 这份表为空，标签退回原始 id —— 不猜，也不在前端造一个显示名。 */
+      const [catalog, current, connections] = await Promise.all([
+        request('/provider-models'),
+        request('/provider-config'),
+        request('/provider-connections').then(r=>r.connections||[]).catch(()=>[]),
+      ]);
       if (own !== epoch) return;
       if (!Array.isArray(catalog.models)) throw new Error('Model catalog unavailable');
       const models = catalog.models;
+      const groupLabels = new Map(connections.filter(c=>c.kind==='compatible').map(c=>[c.providerIdentity,connectionLabel(c)]));
       let selected = models.find(m=>m.provider===current.config.provider && m.id===current.config.model);
       let effort = current.config.reasoningEffort ?? selected?.defaultEffort ?? 'off';
       const search = el('input',{attrs:{type:'search','aria-label':'Find installed model',placeholder:'Find a model…'}});
@@ -65,7 +74,7 @@ export function createModelPicker({ request, onSaved }) {
         const filtered=models.filter(m=>`${m.provider} ${m.name} ${m.id}`.toLowerCase().includes(q));
         select.replaceChildren();
         for(const provider of [...new Set(filtered.map(m=>m.provider))]) {
-          const group=el('optgroup',{attrs:{label:provider}});
+          const group=el('optgroup',{attrs:{label:groupLabels.get(provider) || provider}});
           for(const model of filtered.filter(m=>m.provider===provider)) group.append(el('option',{text:model.name || model.id,attrs:{value:String(models.indexOf(model))}}));
           select.append(group);
         }
