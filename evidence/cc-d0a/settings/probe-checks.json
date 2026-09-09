@@ -1,0 +1,156 @@
+{
+  "results": [
+    {
+      "name": "PRB-1 · test ok：状态与后端原话逐字上屏",
+      "pass": true,
+      "actual": {
+        "text": "ok · Model directory handshake succeeded; generation was not tested.",
+        "models": []
+      }
+    },
+    {
+      "name": "PRB-2 · discover ok：目录报告 3 个模型，ID 原样列出",
+      "pass": true,
+      "actual": {
+        "text": "ok · Model directory handshake succeeded; generation was not tested.",
+        "catalogue": [
+          "The directory reports 3 models. They are listed as reported, and are not added to the Model list or saved."
+        ],
+        "models": [
+          "probe-model-a",
+          "probe-model-b",
+          "probe-model-c"
+        ]
+      }
+    },
+    {
+      "name": "PRB-3 · discover 的模型 ID 不进 Model 下拉，也不进已保存配置",
+      "pass": true,
+      "actual": {
+        "modelOptions": [
+          "gpt-4",
+          "gpt-4-turbo",
+          "gpt-4.1",
+          "gpt-4.1-mini",
+          "gpt-4.1-nano",
+          "gpt-4o",
+          "gpt-4o-2024-05-13",
+          "gpt-4o-2024-08-06",
+          "gpt-4o-2024-11-20",
+          "gpt-4o-mini",
+          "gpt-5",
+          "gpt-5-chat-latest",
+          "gpt-5-mini",
+          "gpt-5-nano",
+          "gpt-5-pro",
+          "gpt-5.1",
+          "gpt-5.2",
+          "gpt-5.2-chat-latest",
+          "gpt-5.2-pro",
+          "gpt-5.3-chat-latest",
+          "gpt-5.3-codex",
+          "gpt-5.3-codex-spark",
+          "gpt-5.4",
+          "gpt-5.4-mini",
+          "gpt-5.4-nano",
+          "gpt-5.4-pro",
+          "gpt-5.5",
+          "gpt-5.5-pro",
+          "gpt-5.6-luna",
+          "gpt-5.6-sol",
+          "gpt-5.6-terra",
+          "gpt-6-astra",
+          "gpt-realtime-2.1",
+          "o1",
+          "o1-pro",
+          "o3",
+          "o3-mini",
+          "o3-pro",
+          "o4-mini"
+        ],
+        "configUnchanged": true
+      }
+    },
+    {
+      "name": "PRB-6 · 无 key 时 apiKey 字段被省略：目标目录收到的请求没有 Authorization",
+      "pass": true,
+      "actual": {
+        "requests": [
+          {
+            "url": "/ok/models",
+            "authorization": null,
+            "extra": []
+          },
+          {
+            "url": "/ok/models",
+            "authorization": null,
+            "extra": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "PRB-7 · 有 key 时只作 Bearer 送出，且不加任何自定义 header",
+      "pass": true,
+      "actual": {
+        "requests": [
+          {
+            "url": "/ok/models",
+            "authorization": "Bearer synthetic-probe-key",
+            "extra": []
+          }
+        ],
+        "text": "ok · Model directory handshake succeeded; generation was not tested."
+      }
+    },
+    {
+      "name": "PRB-8 · 改地址后上一次的结果离开",
+      "pass": true,
+      "actual": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PRB-4 · authentication_failed 原样呈现，且不被改写成一句更好听的话",
+      "pass": true,
+      "actual": {
+        "text": "authentication_failed · The model directory rejected authentication."
+      }
+    },
+    {
+      "name": "PRB-5 · unsupported 原样呈现，且没有目录行",
+      "pass": true,
+      "actual": {
+        "text": "unsupported · The target does not support this model directory endpoint.",
+        "catalogue": []
+      }
+    }
+  ],
+  "upstreamRequests": [
+    {
+      "url": "/ok/models",
+      "authorization": null,
+      "extra": []
+    },
+    {
+      "url": "/ok/models",
+      "authorization": null,
+      "extra": []
+    },
+    {
+      "url": "/ok/models",
+      "authorization": "Bearer synthetic-probe-key",
+      "extra": []
+    },
+    {
+      "url": "/auth/models",
+      "authorization": null,
+      "extra": []
+    },
+    {
+      "url": "/missing/models",
+      "authorization": null,
+      "extra": []
+    }
+  ]
+}

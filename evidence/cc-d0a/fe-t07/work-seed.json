@@ -1,0 +1,104 @@
+{
+  "base": "http://127.0.0.1:8905",
+  "capabilities": {
+    "realProvider": false,
+    "mode": "local-fake",
+    "externalBrowser": false
+  },
+  "projectId": "3c82efce-fa9a-48da-ad95-fc14a8e3eccf",
+  "otherProjectId": "cc9f11d6-81e9-4aad-9c71-e4fe3a0ae06e",
+  "sessions": {
+    "complete": "307c0001-f822-41f8-98f3-64ee3bc3ff5f",
+    "unresolved": "51974c88-15e5-4d4e-a2cc-bb3e5e899699",
+    "conflicting": "34fd2437-28b8-4a73-9599-ec773386cc71",
+    "continuation": "8ac3aa3a-8b45-4a52-a8bf-c1dca2cf18e4",
+    "outside": "16e27526-bf68-4f97-b40f-1bb5ed8b9910"
+  },
+  "runs": {
+    "complete": "d2475726-deb3-446c-8ca4-edbb779368f4",
+    "unresolved": "3fea0e5f-f646-4656-ba1f-5d5e2b269831",
+    "conflicting": "ea1e614b-7b5a-4127-b261-7abde4e9b148"
+  },
+  "matterId": "matter-98f2b647-71ac-401b-a024-515f942b722c",
+  "candidates": {
+    "complete": "candidate-7623a3070ecd72d6acb08bd33570f474ba1c3c7b0369ed2c00e9882886f5f013",
+    "unresolved": "candidate-e690a8893271cbcc9206275c6bfa3eb19e9071f08dfacf9bfbeea4b12443187a",
+    "conflicting": "candidate-5ff22568829480d4cb50cd1b304d185c2099449a6c742b696335ef2ce0810481"
+  },
+  "sources": {
+    "complete": [
+      {
+        "id": "source-db882ccc-4a3c-4847-8e09-2e6993e9a5b5",
+        "version": 1,
+        "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d"
+      }
+    ]
+  },
+  "enums": {
+    "complete": [
+      "accept",
+      "reject",
+      "request_evidence"
+    ],
+    "unresolved": [
+      "reject",
+      "request_evidence"
+    ]
+  },
+  "statuses": {
+    "complete": [
+      [
+        "purpose-limitation",
+        "pass"
+      ],
+      [
+        "need-to-know-recipients",
+        "pass"
+      ],
+      [
+        "security-and-notice",
+        "pass"
+      ],
+      [
+        "term-duration",
+        "pass"
+      ]
+    ],
+    "unresolved": [
+      [
+        "purpose-limitation",
+        "pass"
+      ],
+      [
+        "need-to-know-recipients",
+        "pass"
+      ],
+      [
+        "security-and-notice",
+        "pass"
+      ],
+      [
+        "term-duration",
+        "unknown"
+      ]
+    ],
+    "conflicting": [
+      [
+        "purpose-limitation",
+        "conflict"
+      ],
+      [
+        "need-to-know-recipients",
+        "pass"
+      ],
+      [
+        "security-and-notice",
+        "pass"
+      ],
+      [
+        "term-duration",
+        "pass"
+      ]
+    ]
+  }
+}

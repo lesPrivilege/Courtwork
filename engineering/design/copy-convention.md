@@ -128,6 +128,18 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | Text size | Small / Medium / Large | Font size · Zoom |
 | Code font | 等宽字体族名 | Monospace font · Editor font |
 | Appearance | 本设备偏好的组名 | Personalization · Customization |
+| Home layout | Home 的版面，本设备偏好：Simple · Modules | Dashboard · Layout mode · View · Density |
+| Simple · Modules | 那个偏好的两个值。`Simple` 是默认，与模块带出现之前的 Home 逐像素相同；`Modules` 在 composer 之后多一条次级带 | Compact · Classic · Advanced · Full |
+
+### 3.5b Home 的次级模块带（CC-D0-a / WK-114 / WK-117 (b)）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Models | 模块带上那一行的**对象名**：它标的是这一行通向哪一类设置 | Connections（那是 Settings › Models 里的段名）· Provider · LLM |
+| Manage connections | 通往 `Settings › Models` 的**目的地**。词组而不是单词：动作与对象各占一半，去掉任一半就指不出去哪里。它**不说**模型名——那件事 composer 底部的 chip 已经说过一次（WK-114 ⑤、§3 不发明第二套说法） | Configure · Edit · Models（与模块名重复）· Open settings |
+| Hide modules · Show modules | 折叠那条带。带没有自己的标题（消融记录见 text-sweep §12.3），所以控件自己说出它折的是什么；两个词随 `aria-expanded` 成对翻面 | Hide · Show · Collapse · Expand · ⌄ |
+
+**这条带上没有状态词。** 模块要么陈述一个今天已经加载的事实并因此承担它的六个显示状态，要么不安装；`Models` 这一行不陈述任何连接事实，所以它没有 loading / empty / stale 可写，也不写 `Backend pending` / `Coming soon` / `until BE-nn` 一类实现状态（WK-114 ③、WK-117 (b)）。准入合同见 [home-modules](../mvp/execution/work-surface-kit/contracts/home-modules.md)。
 
 ### 3.6 只在 Developer 与代码里出现
 

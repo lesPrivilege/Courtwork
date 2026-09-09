@@ -1,0 +1,72 @@
+PASS HOME-1 {"centre":0.56,"threshold":0.55}
+PASS HOME-2 {"aboveComposerHeight":38}
+PASS HOME-3 {"orientation":38,"text":"Work that exists beyond the model."}
+PASS HOME-4 {"width":820}
+PASS HOME-5 {"input":96}
+PASS HOME-6 {}
+PASS HOME-7 {"stats":3,"planned":0,"backendPendingOnHome":false,"order":["composer-area","home-top-band","home-module-band","message-stream-wrap"]}
+PASS HOME-overflow {"overflow":0}
+PASS HOME-narrow-dock {"order":["home-top-band","message-stream-wrap","home-module-band","composer-area"]}
+PASS HOME-narrow-overflow {"overflow":0}
+PASS WORK-1 {"homePrimitives":0,"bandHidden":true}
+PASS WORK-2 {"order":["home-top-band","message-stream-wrap","home-module-band","composer-area"],"width":740}
+PASS WORK-3 {"input":88}
+PASS WORK-overflow {"overflow":0}
+PASS WORK-4 {"surfaceOpen":true,"readingWidth":1184,"composerMeasure":740}
+PASS SHELL-1 {"unsafeControls":[]}
+PASS SETTINGS-1 {"settingsActive":true,"navHidden":true,"navInert":true,"navRects":0,"navFocusable":0,"toggleNavHidden":true}
+PASS SETTINGS-2 {"navColumn":240,"contentColumn":820,"leftGutter":48,"rightGutter":48}
+PASS SETTINGS-3 {"blockGaps":[40],"rowPaddingTopBottom":[12,12],"rowSpacing":24}
+PASS SETTINGS-4 {"labelLeftEdges":[341],"controlRightEdges":[1119]}
+PASS SETTINGS-back-label {"backLabel":"Back to app","backVisible":true}
+PASS SETTINGS-title {"pageTitle":"Settings","settingsHeadingsOnScreen":1,"labelledBy":"session-title"}
+PASS SETTINGS-1440-overflow {"overflow":0}
+PASS SETTINGS-5 {"settingsOpen":false,"view":"home","sidebarBack":true,"focus":"quiet-button icon-only"}
+PASS SETTINGS-1680-gutter {"leftGutter":64,"overflow":0}
+PASS SETTINGS-1024-overflow {"overflow":0,"sidebarRendered":0}
+PASS SETTINGS-6 {"selectVisible":true,"navListVisible":false,"gutter":16,"controlsUnder44":[],"overflow":0}
+PASS SETTINGS-7 {"overflow":0,"cssViewport":720}
+PASS SHELL-2 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-3 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-2-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-3-browser {"host":"browser","unsafeControls":null}
+PASS WORK-5 {"shape":"app-shell surface-expanded surface-view-switch","docPane":1136,"strip":44,"proseGap":24,"backdropHidden":true,"shadow":"none","radius":"0px","chatColumn":{"hidden":true,"inert":true,"inDom":true},"overflow":0}
+PASS WORK-6 {"shape":"app-shell surface-expanded surface-three-pane","columns":"256px 688px 736px","position":"static","nav":256,"chat":688,"doc":688,"docMin":688,"scrolls":{"doc":"auto","chat":"auto","nav":"visible"},"chromeBaseline":{"chat":{"top":0,"left":256,"width":687,"height":56,"bottom":56},"doc":{"top":0,"left":944,"width":736,"height":56,"bottom":56}},"composerWhole":true,"overflow":0}
+PASS WORK-7 {"1679":{"shape":"app-shell surface-expanded surface-view-switch","doc":1375,"overflow":0},"1680":{"shape":"app-shell surface-expanded surface-three-pane","doc":688,"chat":688,"overflow":0}}
+PASS WORK-8 {"height":720,"composerWhole":true,"composer":{"top":484,"left":280,"width":639,"height":180,"bottom":664},"overflow":0}
+PASS WORK-9 {"cssViewport":720,"shape":"app-shell surface-expanded","overflow":0}
+PASS SHELL-4 {"host":"desktop","shape":"app-shell surface-expanded surface-view-switch","unsafeControls":[]}
+PASS SHELL-5 {"host":"desktop","shape":"app-shell surface-expanded surface-three-pane","unsafeControls":[]}
+PASS SHELL-4-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-5-browser {"host":"browser","unsafeControls":null}
+PASS HOME-8 {"layout":"simple","inDocument":true,"shown":false,"children":0,"hidden":true,"order":["composer-area","home-top-band","home-module-band","message-stream-wrap"]}
+PASS HOME-1-simple-900 {"centre":0.56,"threshold":0.55,"layout":"simple","viewportHeight":900}
+PASS HOME-6-simple-900 {"layout":"simple","viewportHeight":900}
+PASS HOME-11-simple-900 {"layout":"simple","viewportHeight":900,"todoTop":896,"areaBottom":956,"visible":60}
+PASS HOME-16-simple-900 {"layout":"simple","viewportHeight":900,"visible":60,"threshold":12}
+PASS HOME-overflow-simple-900 {"overflow":0,"layout":"simple"}
+PASS HOME-1-simple-1058 {"centre":0.5596,"threshold":0.55,"layout":"simple","viewportHeight":1058}
+PASS HOME-6-simple-1058 {"layout":"simple","viewportHeight":1058}
+PASS HOME-11-simple-1058 {"layout":"simple","viewportHeight":1058,"todoTop":984,"areaBottom":1114,"visible":130}
+PASS HOME-16-simple-1058 {"layout":"simple","viewportHeight":1058,"visible":130,"threshold":12}
+PASS HOME-overflow-simple-1058 {"overflow":0,"layout":"simple"}
+PASS HOME-1-modules-900 {"centre":0.56,"threshold":0.55,"layout":"modules","viewportHeight":900}
+PASS HOME-6-modules-900 {"layout":"modules","viewportHeight":900}
+PASS HOME-11-modules-900 {"layout":"modules","viewportHeight":900,"todoTop":941,"areaBottom":956,"visible":15}
+PASS HOME-16-modules-900 {"layout":"modules","viewportHeight":900,"visible":15,"threshold":12}
+PASS HOME-overflow-modules-900 {"overflow":0,"layout":"modules"}
+PASS HOME-1-modules-1058 {"centre":0.5596,"threshold":0.55,"layout":"modules","viewportHeight":1058}
+PASS HOME-6-modules-1058 {"layout":"modules","viewportHeight":1058}
+PASS HOME-11-modules-1058 {"layout":"modules","viewportHeight":1058,"todoTop":1029,"areaBottom":1114,"visible":85}
+PASS HOME-16-modules-1058 {"layout":"modules","viewportHeight":1058,"visible":85,"threshold":12}
+PASS HOME-overflow-modules-1058 {"overflow":0,"layout":"modules"}
+PASS HOME-9 {"order":["composer-area","home-top-band","home-module-band","message-stream-wrap"],"bandTop":831,"todayTop":743,"streamTop":884}
+PASS HOME-10 {"rows":1,"names":["Models"],"bandText":"ModelsManage connectionsHide modules","framedNodes":0,"cards":0,"modelChip":"Local test","forbiddenFound":[]}
+PASS HOME-7-modules {"stats":3,"order":["composer-area","home-top-band","home-module-band","message-stream-wrap"]}
+PASS HOME-4-modules {"composer":820,"bandColumn":820,"bandLeft":438,"composerLeft":438}
+PASS HOME-5-modules {"input":96}
+PASS HOME-12 {"order":["composer-input","model-settings-button","home-project-input","home-create-project","home-permission-input","stat:pendingItems","stat:sessionCandidates","stat:inspectionCandidates","home-module-models","home-module-collapse","home:pendingItems:29bb94c8-4256-4699-a6b7-0a86ce0521d6","home:sessionCandidates:f3878415-c05f-4be2-8292-038663f5fa4d","home:sessionCandidates:3727e102-c878-42a6-90ee-32a6d7b1e7da","home:sessionCandidates:153bef56-bfa0-4ef3-85bf-1556e784ef20","home:sessionCandidates:86600f76-5639-4e52-95ec-47529ab270ce","home:inspectionCandidates:e58fabb8-7d7f-470c-b9d0-58200ee30cee"],"stats":["stat:pendingItems","stat:sessionCandidates","stat:inspectionCandidates"],"bandControls":["home-module-models","home-module-collapse"]}
+PASS HOME-13 {"collapsed":{"rows":0,"expanded":"false"},"afterReload":{"rows":0,"expanded":"false"},"reExpanded":{"rows":1,"expanded":"true"}}
+PASS HOME-14 {"order":["home-top-band","home-module-band","message-stream-wrap","composer-area"],"toggle":{"width":99,"height":44},"overflow":0}
+PASS HOME-15 {"before":false,"afterSwitchToModules":true,"afterSwitchBack":false}
+71 / 71

@@ -157,6 +157,106 @@ export function renderHomeBand(
   container.replaceChildren(inner);
 }
 
+/* ── the secondary module band (CC-D0-a) ───────────────────────
+ * `Home layout: Modules` (Settings › Appearance, this device only) adds one
+ * secondary band after the composer. It is a band, not a dashboard: the entry
+ * stays the loudest thing on Home, Today keeps its own place above the band,
+ * and the concrete to-dos below are never pushed off the first screen
+ * (WK-117 (b), HOME-6).
+ *
+ * The registry is the contract. A module may only be installed here when every
+ * one of the six display states it can reach names a fact this frontend already
+ * loads, or is written `not_applicable` with the reason. Activity, Usage, Mail,
+ * Calendar and the future Attention summary are declared in
+ * `contracts/home-modules.md` and are NOT here: no seam, no module. Nothing on
+ * this band renders a placeholder, a "coming soon", or an implementation state
+ * (WK-114 ③, WK-117 (b)).
+ *
+ * `Today` carries `place: "band"` — it is the existing `#home-top-band` and is
+ * rendered where it already was, unchanged, in both layouts. Only modules with
+ * `place: "modules"` are drawn here. The id is the extension point a later
+ * Attention summary uses (ATT-FE-01 切片 b); there is no plugin framework and
+ * no empty slot waiting for one. */
+export const homeModules = [
+  {
+    id: "today",
+    title: "Today",
+    place: "band",
+    /* `GET /api/v5/work-summary` → pendingItems / sessionCandidates /
+     * inspectionCandidates, through `toStatTiles`. */
+    source: "work-summary",
+    installed: true,
+  },
+  {
+    id: "models",
+    title: "Models",
+    place: "modules",
+    /* No read of its own. WK-114 ⑤: the model name is already stated once, on
+     * the composer's own chip; a second display of one fact would be a second
+     * vocabulary for it (copy-convention §3). This module states no fact — it
+     * is the way to the place where the connection is stated and edited. */
+    source: null,
+    installed: true,
+    /* One line, one way out: the entry to Settings › Models. It states no
+     * connection fact, so it has no loading, empty, stale or not-connected
+     * state to be honest or dishonest about (home-modules.md §3). */
+    row: ({ onManageConnections }) => {
+      const link = el("button", {
+        className: "text-button",
+        attrs: { type: "button", "data-focus-key": "home-module-models" },
+        text: "Manage connections",
+      });
+      link.addEventListener("click", onManageConnections);
+      return link;
+    },
+  },
+];
+export const homeBandModules = () =>
+  homeModules.filter((module) => module.installed && module.place === "modules");
+
+/** The band: one heading, one collapse control, and the installed rows.
+ *  Collapsing hides the rows and keeps the heading, so the control that undoes
+ *  it is still on the screen — there is no one-way door here. */
+export function renderHomeModuleBand(
+  container,
+  { collapsed, onCollapse, onManageConnections },
+) {
+  const modules = homeBandModules();
+  /* 消融 · 这条带原本有一个自己的标题行（"Modules"）加一排行。一个模块的带
+   * 上，那一行标题只是在为一行内容再画一层结构——而它换来的高度，实测把
+   * "Waiting for you" 的第一条具体待办推出了 900 高视口的首屏（HOME-11 反例，
+   * todoTop 992 > 可见区 956）。具体待办优先于统计（WK-117 (b)），所以标题行
+   * 被消融掉：带的名字由 `aria-label` 承担，折叠控件自己说出它折的是什么。 */
+  const toggle = el("button", {
+    className: "home-module-collapse",
+    attrs: {
+      type: "button",
+      "aria-expanded": String(!collapsed),
+      "aria-controls": "home-module-list",
+      "data-focus-key": "home-module-collapse",
+    },
+    text: collapsed ? "Show modules" : "Hide modules",
+  });
+  toggle.addEventListener("click", () => onCollapse(!collapsed));
+  const list = el("div", {
+    className: "home-module-list",
+    attrs: { id: "home-module-list", role: "list" },
+  });
+  if (!collapsed)
+    for (const module of modules)
+      list.append(
+        el(
+          "div",
+          { className: "home-module-row", attrs: { role: "listitem" } },
+          el("h4", { className: "home-module-name", text: module.title }),
+          module.row({ onManageConnections }),
+        ),
+      );
+  container.replaceChildren(
+    el("div", { className: "home-module-band-inner" }, list, toggle),
+  );
+}
+
 /* ── lower band ───────────────────────────────────────────────────────────
  * WK-56 · the row and the card are two states of one WorkCard fed by one
  * adapter output. The row is the standing state of the three-set list; the card
