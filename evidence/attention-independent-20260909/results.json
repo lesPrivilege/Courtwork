@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "baseMain": "fa90763a4da1cdede47778b6487c801c0acb74cc",
+  "initialProduct": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+  "finalProduct": "d37704e2e4f9c7bac7e982d9ddd26b795dfb8574",
+  "authorOfProbes": "source Astra (non-author of product)",
+  "productPatchByReviewer": false,
+  "fullTests": {
+    "pass": 305,
+    "fail": 0,
+    "skip": 0
+  },
+  "directedRerun": {
+    "pass": 15,
+    "fail": 0
+  },
+  "smoke": {
+    "status": "passed",
+    "provider": "local-fake",
+    "realProvider": "not_run"
+  },
+  "logSha256": {
+    "install": "185ef45445463a557a874aa5ca098efc333c7534df9341fc9b5e45afc0bd2672",
+    "directed": "28238eab8839cadcb2a16ffbdfd79d07164418572da15932c2ca7882298070c5",
+    "migration": "9c7ffb2ab4706ba79b3a81da206d7c6727cd356d341cae309a2301580a57765f",
+    "symlink-original": "0d6501a13771dcd18bb84dc3c84cb343d5fb7cf92b416e5265aab3aa3680d5f8",
+    "disclosure": "cc5e4e28931590da5dbbcf8bf7346968f726dbd26bd96caeb05f7261830eaa61",
+    "symlink-fixed": "6f8fe926980045a1c55b0d88a42cf003adc2294695b008c19afbe3b0efea30c9",
+    "migration-fixed": "a6d5e001a124f6c6f62dd4948e193ed053c531dd4c6b6b384c6b0f124313dbd3",
+    "disclosure-fixed": "aa6abbfb1dc6c3af2bff1e9ce8a56146f1d284055e4c0dcaada14023cc473a64",
+    "final-tests": "b65aa8ed03a0f0fa323cc2ac1aa7d7ac6f1a411e0ca2f39ccaccb9958d7b957c",
+    "final-smoke": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea"
+  },
+  "symlink-original": {
+    "target": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+    "sourceHashes": {
+      "attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e",
+      "bridge.py": "7cb903b4ef245b51cac64828fe1ca3470b7a6ebd74d27848640c842c47fc2b1d",
+      "core.py": "39d7997e9d4214f454b055ae95d1e6cb9796344d09d31cbeb595543263b5227a",
+      "file_candidates.py": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594"
+    },
+    "outcomes": [
+      {
+        "probe": "legacy-file-backup",
+        "startup": {
+          "status": "opened",
+          "version": 3
+        },
+        "databaseUnchanged": false,
+        "linkPreserved": true,
+        "symlinkTargetCreated": true
+      },
+      {
+        "probe": "es-attention-backup",
+        "startup": {
+          "status": "refused",
+          "code": "SCHEMA_INVALID",
+          "detail": "SCHEMA_INVALID: Attention migration backup already exists"
+        },
+        "databaseUnchanged": true,
+        "linkPreserved": true,
+        "symlinkTargetCreated": false
+      }
+    ]
+  },
+  "disclosure": {
+    "scope": "local-fake isolated HTTP/Runtime/SQLite",
+    "results": [
+      {
+        "name": "hidden-unknown-schema-visible-pagination-registry-fields",
+        "status": "passed"
+      },
+      {
+        "name": "project-scoped-id-request-identity-and-cross-project-relation",
+        "status": "passed"
+      },
+      {
+        "name": "signal-non-authority-exact-replay-and-grant-revocation",
+        "status": "passed"
+      },
+      {
+        "name": "competing-CAS-one-event-and-terminal-run-no-mutation",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP-token-required",
+        "status": "passed"
+      }
+    ],
+    "productHashes": {
+      "app/core/attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e",
+      "app/core/bridge.py": "7cb903b4ef245b51cac64828fe1ca3470b7a6ebd74d27848640c842c47fc2b1d",
+      "app/server/service.mjs": "6377723ca177f5b71e8fae1e5d75d703bdeafc31568a4b5ef6001a120417deed",
+      "app/server/index.mjs": "e59c0738063052c590157dfcac37d96e9bd664acb450711f5e4c393485c8698b",
+      "app/extensions/attention-adapter.mjs": "56e6eac67511ea0720b5e9b4bd063e29b61157f754d8abff837807dc760ed16f"
+    }
+  },
+  "symlink-fixed": {
+    "target": "d37704e2e4f9c7bac7e982d9ddd26b795dfb8574",
+    "sourceHashes": {
+      "attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e",
+      "bridge.py": "6e88d730ada6be46271af1ae5f45311d20e00d4f341d54f87c00aab53aff6201",
+      "core.py": "39d7997e9d4214f454b055ae95d1e6cb9796344d09d31cbeb595543263b5227a",
+      "file_candidates.py": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594"
+    },
+    "outcomes": [
+      {
+        "probe": "legacy-file-backup",
+        "startup": {
+          "status": "refused",
+          "code": "SCHEMA_INVALID",
+          "detail": "SCHEMA_INVALID: migration backup already exists; restore or inspect it explicitly"
+        },
+        "databaseUnchanged": true,
+        "linkPreserved": true,
+        "symlinkTargetCreated": false
+      },
+      {
+        "probe": "es-attention-backup",
+        "startup": {
+          "status": "refused",
+          "code": "SCHEMA_INVALID",
+          "detail": "SCHEMA_INVALID: Attention migration backup already exists"
+        },
+        "databaseUnchanged": true,
+        "linkPreserved": true,
+        "symlinkTargetCreated": false
+      }
+    ]
+  },
+  "migration-fixed": {
+    "oldSha": "a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d",
+    "esSha": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c",
+    "currentSource": "d37704e2e4f9c7bac7e982d9ddd26b795dfb8574",
+    "sourceHashes": {
+      "core.py": "39d7997e9d4214f454b055ae95d1e6cb9796344d09d31cbeb595543263b5227a",
+      "bridge.py": "6e88d730ada6be46271af1ae5f45311d20e00d4f341d54f87c00aab53aff6201",
+      "file_candidates.py": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594",
+      "attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e"
+    },
+    "cases": [
+      {
+        "appVersion": 1,
+        "first": {
+          "ready": {
+            "app_schema_version": 3,
+            "core_schema_version": 2,
+            "mode": "b0",
+            "ready": true
+          },
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          },
+          "backup": {
+            "user_version": 1,
+            "core": "1",
+            "app": "1"
+          }
+        },
+        "second": {
+          "ready": {
+            "app_schema_version": 4,
+            "core_schema_version": 3,
+            "mode": "b0",
+            "ready": true
+          },
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          },
+          "backup": {
+            "user_version": 2,
+            "core": "2",
+            "app": "3"
+          }
+        },
+        "oldBackupRestore": {
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          }
+        },
+        "attentionBackupRestore": {
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          }
+        },
+        "oldHostReject": {
+          "code": "SCHEMA_NEWER",
+          "detail": "unsupported user_version=3"
+        },
+        "oldestHostReject": {
+          "code": "SCHEMA_NEWER",
+          "detail": "unsupported user_version=3"
+        }
+      },
+      {
+        "appVersion": 2,
+        "first": {
+          "ready": {
+            "app_schema_version": 3,
+            "core_schema_version": 2,
+            "mode": "b0",
+            "ready": true
+          },
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          },
+          "backup": {
+            "user_version": 1,
+            "core": "1",
+            "app": "2"
+          }
+        },
+        "second": {
+          "ready": {
+            "app_schema_version": 4,
+            "core_schema_version": 3,
+            "mode": "b0",
+            "ready": true
+          },
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          },
+          "backup": {
+            "user_version": 2,
+            "core": "2",
+            "app": "3"
+          }
+        },
+        "oldBackupRestore": {
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          }
+        },
+        "attentionBackupRestore": {
+          "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+          "receipt": {
+            "action": "accept",
+            "active_artifact": "artifact-legacy-candidate-1",
+            "candidate_id": "legacy-candidate",
+            "matter_id": "legacy-matter",
+            "request_id": "legacy-decision",
+            "version": 1
+          }
+        },
+        "oldHostReject": {
+          "code": "SCHEMA_NEWER",
+          "detail": "unsupported user_version=3"
+        },
+        "oldestHostReject": {
+          "code": "SCHEMA_NEWER",
+          "detail": "unsupported user_version=3"
+        }
+      }
+    ],
+    "negative": {
+      "pair24": {
+        "code": "SCHEMA_INVALID",
+        "detail": "Core/app schema pair mismatch",
+        "dbShaBefore": "c371f13d7488b4261b11db36627a7926732ab80568359ce5c7952e7fafd90526",
+        "dbShaAfter": "c371f13d7488b4261b11db36627a7926732ab80568359ce5c7952e7fafd90526"
+      },
+      "pair33": {
+        "code": "SCHEMA_INVALID",
+        "detail": "Core/app schema pair mismatch",
+        "dbShaBefore": "92d289ab1a98efe3f66d21c01d6c71d1547d71a35e38f15c4ec9398044053f2f",
+        "dbShaAfter": "92d289ab1a98efe3f66d21c01d6c71d1547d71a35e38f15c4ec9398044053f2f"
+      },
+      "malformedOldAttention": {
+        "code": "SCHEMA_INVALID",
+        "detail": "Attention tables found in older schema",
+        "dbShaBefore": "a195bee35e47d9dcf5a6895727ea9e8e118aa404ce4b5f8d58f4538f7d4cac54",
+        "dbShaAfter": "a195bee35e47d9dcf5a6895727ea9e8e118aa404ce4b5f8d58f4538f7d4cac54"
+      },
+      "preexistingAttentionBackup": {
+        "code": "SCHEMA_INVALID",
+        "detail": "Attention migration backup already exists",
+        "dbShaBefore": "cc4a314fee8fa9b94ee7ddd73e92c8a06690561a44ff91ac9248102b60caeb62",
+        "dbShaAfter": "cc4a314fee8fa9b94ee7ddd73e92c8a06690561a44ff91ac9248102b60caeb62",
+        "sentinelShaBefore": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a",
+        "sentinelShaAfter": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a"
+      },
+      "malformedCurrentAttention": {
+        "code": "SCHEMA_INVALID",
+        "detail": "unsupported attention_event schema",
+        "dbShaBefore": "14f3da79bb17881c44c43521f7773f551d47fa4715b2790faa89dc179a177dfb",
+        "dbShaAfter": "14f3da79bb17881c44c43521f7773f551d47fa4715b2790faa89dc179a177dfb"
+      },
+      "missingCurrentAttention": {
+        "code": "SCHEMA_MISSING",
+        "detail": "missing owned tables: ['attention_request']",
+        "dbShaBefore": "753b39b14acb7672ef2ec96ef52b5cf5e1230ecf0982aa87a386689178916525",
+        "dbShaAfter": "753b39b14acb7672ef2ec96ef52b5cf5e1230ecf0982aa87a386689178916525"
+      },
+      "legacyFileBackupDanglingSymlink": {
+        "code": "SCHEMA_INVALID",
+        "detail": "migration backup already exists; restore or inspect it explicitly",
+        "dbShaBefore": "fc6432a516a4e0922aaf976f800bf362ea2ae43aebfb8fdec338f0a20afa6b0c",
+        "dbShaAfter": "fc6432a516a4e0922aaf976f800bf362ea2ae43aebfb8fdec338f0a20afa6b0c",
+        "linkPreserved": true,
+        "targetCreated": false
+      },
+      "attentionBackupDanglingSymlink": {
+        "code": "SCHEMA_INVALID",
+        "detail": "Attention migration backup already exists",
+        "dbShaBefore": "cc4a314fee8fa9b94ee7ddd73e92c8a06690561a44ff91ac9248102b60caeb62",
+        "dbShaAfter": "cc4a314fee8fa9b94ee7ddd73e92c8a06690561a44ff91ac9248102b60caeb62",
+        "linkPreserved": true,
+        "targetCreated": false
+      }
+    },
+    "status": "passed",
+    "tempDataOnly": true
+  },
+  "disclosure-fixed": {
+    "scope": "local-fake isolated HTTP/Runtime/SQLite",
+    "results": [
+      {
+        "name": "hidden-unknown-schema-visible-pagination-registry-fields",
+        "status": "passed"
+      },
+      {
+        "name": "project-scoped-id-request-identity-and-cross-project-relation",
+        "status": "passed"
+      },
+      {
+        "name": "signal-non-authority-exact-replay-and-grant-revocation",
+        "status": "passed"
+      },
+      {
+        "name": "competing-CAS-one-event-and-terminal-run-no-mutation",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP-token-required",
+        "status": "passed"
+      }
+    ],
+    "productHashes": {
+      "app/core/attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e",
+      "app/core/bridge.py": "6e88d730ada6be46271af1ae5f45311d20e00d4f341d54f87c00aab53aff6201",
+      "app/server/service.mjs": "6377723ca177f5b71e8fae1e5d75d703bdeafc31568a4b5ef6001a120417deed",
+      "app/server/index.mjs": "e59c0738063052c590157dfcac37d96e9bd664acb450711f5e4c393485c8698b",
+      "app/extensions/attention-adapter.mjs": "56e6eac67511ea0720b5e9b4bd063e29b61157f754d8abff837807dc760ed16f"
+    }
+  },
+  "deliveryHead": "ae595ed5e0a585117b2642b3125a0c7a7e01fa23"
+}

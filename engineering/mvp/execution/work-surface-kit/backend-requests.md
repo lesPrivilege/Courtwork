@@ -65,3 +65,10 @@ BE-1/3/25与BE-29由`fd3861b`实现，交付头`52f75dd`；正式消费沿[work-
 BE-30后端已交付并合流：可选expectedContentSha256/expectedToolCallId在排队resolve事务内比较，409 version_mismatch无副作用，旧body保持兼容。前端Approval卡按[协议](../../../../app/docs/permission-cas.md)消费，不静默换hash重试；前端消费未随本单完成。
 
 ES-01完整文件候选后端以最终 `b1ff74b`（证据 `95cfb16`）合流，Core2/app3、Runtime4；[正式合同](../../../../docs/work-core/contract.md#es-01-opt-in-recorded-file-memo)与[集成证据](../../../../evidence/harness-next-main-integration-20260909/README.md)给出范围、迁移和290/290组合验证。文件profile无创建GUI，旧renderer只读fallback，文件Review前端需按capability/version显式消费。AM import负例同时合流，不是完整安全解析。Attention接下轮后端，BE-31/32/33与真实provider等不随此单关闭。
+
+
+## Astra 后端合流：Attention（2026-09-09）
+
+ATT-BE-01以最终产品 `d37704e`、作者证据 `ae595ed` 经来源Astra非作者反例审阅接收；[正式合同](../../../../docs/work-core/attention.md)、[实际packets](../../../../app/tests/fixtures/work-core/attention-packets.json)、[独验记录](../../../../evidence/attention-independent-20260909/README.md)。同库Attention状态/事件/回执、project scope、CAS/重放、typed actions、披露/查询及Runtime signal后端已可消费；Core3/app4、Runtime4。来源Astra发现的旧ES备份悬空链接已修复并复验，最终全量305/305与smoke通过。
+
+ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限，处理action schema/expected_revision与真实不可用状态。Runtime seam不等于已安装Pi工具或完整ATT-RT；暂无scheduler、外部发送或UI交付。BE-31/32/33、AM-B和真实provider等仍各自待办。

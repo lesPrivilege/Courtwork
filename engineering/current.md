@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次BE-30/AM/ES-01合流读取main基线 `0b5ccd27e9d0be5940714e913f4fc197f9ec7a05`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -12,7 +12,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
 | 通用工作面 / Workbench | CC-W与r4d指定提交已合流；WK-122…127与合流补丁边界见下 | Fable从最终main提交新建清洁树派CC-D0-a（Low）→ FE-05a → FE-05 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
-| 领域主链 | ES-01文件候选后端已合流（Core2/app3，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
+| 领域主链 | ES-01文件候选与Attention后端已合流（当前Core3/app4，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
@@ -175,3 +175,12 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 [合流证据](../evidence/harness-next-main-integration-20260909/README.md)：来源Astra代码审阅、组合290/290与smoke通过，BE-30七组及固定SHA迁移/Core反例复跑通过；作者与两位Luna证据分列，无集成产品补丁。Core2/app3仅从验证过的Core1/app1或app2备份迁移；旧host拒新库，恢复用独立目录。RuntimeStore仍4；没有升级用户数据。
 
 文件GUI/catalog创建入口未做，旧renderer只读fallback；完整输入coverage限洁净Session且compaction禁用，额外输入保守unknown；结构PASS不等于专业质量。Attention fresh Astra任务已启动边界准备，本次合流后从最终main接Core/service写权；前端继续CC-D0-a → FE-05a → FE-05 → CC-I，main/current/台账由来源Astra持有。真实provider、Paper、发布和G1–G5保持原边界。
+
+
+## Attention：后端独立接受与合流（2026-09-09）
+
+用户授权fresh Astra沿ES完成后接续ATT-BE-01。来源Astra从main `fa90763` 独立审阅，接受最终产品 `d37704e` 与证据头 `ae595ed`：Attention current/event/receipt与Matter同属Core SQLite；project复合身份、revision/CAS与精确重放、typed human actions、最小registry/详情/来源/事件查询及默认拒绝的Runtime披露/signal接缝已实现。[正式合同](../docs/work-core/attention.md)与[实际HTTP/Pi/Core packets](../app/tests/fixtures/work-core/attention-packets.json)供后续消费。Session/Run结束或缺席不解决Attention，signal不产生Matter接受或工具许可。
+
+[非作者证据](../evidence/attention-independent-20260909/README.md)记录来源Astra独立发现旧ES前置备份悬空链接缺陷、作者修复及原反例最终通过；de38中间产品不单独接受。五组新设计披露/状态反例、固定SHA迁移矩阵、作者15项定向复跑、最终全量305/305与smoke通过。Luna被作者补写的测试初稿不计独立接受；作者和来源非作者证据分别归因，无集成产品补丁。
+
+当前Core3/app4、RuntimeStore4；支持既定旧schema经独占备份分阶段升级，回退用独立目录和对应旧host，未升级个人数据。ATT-FE可按稳定合同进入现有单writer队列，具体插入点由Fable按已排工单协调；本次无Attention UI、自动调度、外部发送、自动Pi工具安装或完整ATT-RT兼容矩阵。Core/service本轮写权交回来源Astra；Paper、真实provider、发布及G1–G5不随本单关闭。
