@@ -1,0 +1,120 @@
+[
+  {
+    "id": "FE-T03-a",
+    "obligation": "FN-14 · 三层可分别读出",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "bound": [
+        {
+          "sessionId": "92535bc3-69c6-4e3d-8940-892370270055",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "c3e72497-0cb0-4536-be4b-1d3ce99c9841",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-b",
+    "obligation": "FN-14 / 16 · 请求值不冒充有效值",
+    "pass": true,
+    "detail": {
+      "drafted": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro"
+      },
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "row": [
+        "Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"
+      ],
+      "claims": []
+    }
+  },
+  {
+    "id": "FE-T03-c",
+    "obligation": "FN-14 / 15 · 有效值变、绑定值不变",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro",
+        "baseUrl": null
+      },
+      "row": [
+        "DeepSeekIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"
+      ],
+      "boundBefore": [
+        {
+          "sessionId": "92535bc3-69c6-4e3d-8940-892370270055",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "c3e72497-0cb0-4536-be4b-1d3ce99c9841",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ],
+      "boundAfter": [
+        {
+          "sessionId": "92535bc3-69c6-4e3d-8940-892370270055",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "c3e72497-0cb0-4536-be4b-1d3ce99c9841",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-d",
+    "obligation": "FN-14 · 绑定值自始至终不被改写",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "bound": [
+        {
+          "sessionId": "92535bc3-69c6-4e3d-8940-892370270055",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "c3e72497-0cb0-4536-be4b-1d3ce99c9841",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-e",
+    "obligation": "FN-16 · 冻结时不假装排队",
+    "pass": true,
+    "detail": {
+      "error": "provider config is frozen during a run",
+      "errorShown": true,
+      "effective": "fake-openai-loopback",
+      "queueWords": []
+    }
+  }
+]
