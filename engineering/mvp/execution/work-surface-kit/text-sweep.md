@@ -298,3 +298,27 @@
 ### 11.3 删
 
 无。本单没有删掉任何可见字符串；`Memory · Off` 只是换了它所在的那条带（M-2），词一字未动。
+
+## 12. CC-D0-a 增量（WK-114 / WK-117 (b) / WK-129，2026-09-09）
+
+### 12.1 新增字符串（承重说明）
+
+| 字符串 | 位置 | 它承担哪一个事实 |
+|---|---|---|
+| `Home layout`（行标题）+ `Simple` / `Modules`（两段） | `settings-view.mjs` `renderAppearance`，Settings › Appearance | **闭集本身**。两个值就是这台设备上 Home 的两种版面，段内文字即值名，没有第三种。用 segmented 而不是开关，因为两个选项都该同时看得见（WK-129 (b)） |
+| `Modules adds one secondary band under the composer on Home. Nothing is read that Simple does not already read, and the composer, Today and your work list stay where they are.` | 同上，行 help | **后果与边界**。前半句说打开它会看到什么，后半句说它**不会**做什么——不新增读取、不搬动 composer / Today / 列表。这是一条布局偏好可能被误解成"打开更多数据"的地方，所以边界必须写出来 |
+| `Models`（模块名） | `home-view.mjs` 模块带一行 | **对象名**。它标的是这一行通向哪一类设置，不是任何连接的状态 |
+| `Manage connections` | 同上 | **目的地**。WK-114 ⑤：模型名由 composer 底部的 chip 说过一次，这里不再说第二次；这个词组必须是词组而不是一个动词，因为它同时承载动作（管理）与对象（连接），去掉任一半就指不出去哪里 |
+| `Hide modules` / `Show modules` | 同上，折叠控件 | **对象与方向**。带没有自己的标题（见 §12.3），所以这个控件必须自己说出它折的是什么。两个词随 `aria-expanded` 成对翻面，不是两个不同的控件 |
+
+### 12.2 删
+
+无可见字符串被删——但一整行结构被删，见下。
+
+### 12.3 消融掉的一行标题
+
+模块带原本有自己的 `Modules` 标题行（`<h3>` 加一个 `Hide` 按钮），行下才是模块。它不是一个错词，它是一层多余的结构：一个模块的带上，一行标题在为一行内容再画一次分组（WK-40「不承担定义、条件、后果或对象名的文字，删」）。而它换来的高度是可测的——1440×900 实测把 `Waiting for you` 的第一条具体待办从可见区推了出去（`HOME-11-modules-900` 反例，顶边 992 > 可见区底边 956，WK-117 (b)）。
+
+删掉之后：带的名字由 `aria-label="Home modules"` 承担（读屏仍能说出这是哪一区），折叠控件从 `Hide` 变成 `Hide modules`（自己说出对象），可见处少了一行 `Modules`。待办顶边回到 940，露出 16px。
+
+**一个标题被删掉，是因为一条具体待办要留在屏幕上。**

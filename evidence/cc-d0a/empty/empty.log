@@ -1,0 +1,4 @@
+PASS FE-T01 · 无数据 · 三 tile 读确认过的 0，不是缺失 {"tiles":[{"label":"Waiting for you, 0","value":"0"},{"label":"In progress, 0","value":"0"},{"label":"Needs a look, 0","value":"0"}]}
+PASS FE-T01 · 无数据 · 无失败提示，composer 可用 {"projects":0,"errors":[],"composerDisabled":false}
+PASS FE-T01 · 无数据 · 空态不把「没有」说成「出错」 {"homeError":null,"errors":[],"retries":[],"emptyText":""}
+3 / 3
