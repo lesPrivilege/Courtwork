@@ -161,6 +161,7 @@ test("读偏好只认闭集里的值：坏掉的存储读成默认，不是读�
   globalThis.__cwPrefs = undefined;
   assert.deepEqual(readPreferences(), {
     scheme: "system", skin: "slate", customSkin: "", textSize: "medium", codeFont: "", motion: "system",
+    connectionNames: {},
   });
   globalThis.__cwPrefs = original;
 });

@@ -34,6 +34,45 @@ export function renderPlanned(container) {
     ),
   );
 }
+/* WK-91 · MCP servers 与 provider 走同一形态：Add → Configure → Test →
+ * Review permissions → Save / Enable → Advanced。这里只写这条路上每一步今天落在
+ * 哪里；没有注册端点的两步说明它们缺什么，不画按钮。Enable / Advanced 与权限复核
+ * 都已经在下面的 Tools, MCP servers and plugins 块里，本块不复制它们。 */
+export const MCP_INTAKE_STEPS = [
+  ["Add", "Not available yet: a server arrives with the runtime configuration this build imports; there is no form here that registers a new one."],
+  ["Configure", "Not available yet: endpoint and transport come from that same imported configuration."],
+  ["Test connection", "Not available yet: the same missing handshake as a model connection."],
+  ["Review permissions", "Below: each server and the tools it declares carry their source, scope and the rule that decided them."],
+  ["Enable", "Below: Connect, Disconnect and Restart act on a declared server."],
+  ["Advanced", "Below: transport, configuration hash and the tools a server exposes."],
+];
+export function renderIntegrationsIntake(container) {
+  if (!container) return;
+  container.replaceChildren(
+    el("h4", { className: "settings-block-title", text: "Adding an MCP server" }),
+    el("p", {
+      className: "form-help",
+      text: "A connection follows the same six steps as a model connection. Three of them have somewhere to happen today and three do not; this list says which is which rather than offering a control that cannot act.",
+    }),
+    el(
+      "ol",
+      { className: "connection-flow" },
+      ...MCP_INTAKE_STEPS.map(([title, note]) =>
+        el(
+          "li",
+          {
+            className: note.startsWith("Not available yet")
+              ? "connection-step is-pending"
+              : "connection-step",
+          },
+          el("span", { className: "connection-step-name", text: title }),
+          el("span", { className: "connection-step-note", text: note }),
+        ),
+      ),
+    ),
+  );
+}
+
 /* WK-89 · 文件模式是 File access，不是 permission：permission 适合持久策略，
    一次动作是 Approval。三档说的是后果本身，不是内部枚举。 */
 export const permissionLabels = {
@@ -50,6 +89,78 @@ export const providerLabels = {
   deepseek: "DeepSeek",
   "fake-openai-loopback": "Local test",
 };
+/* WK-91 · Add provider 的三条 happy path。`providers` 是后端目录的闭集
+ * （`ALLOWED_PROVIDER_IDS`）在前端的投影：provider ID 由目录给，前端不生成也不发明。
+ * `endpoint` 说的是这条路径里端点归谁决定 —— 这正是三条路径唯一真正的差别。 */
+export const CONNECTION_PATHS = [
+  {
+    id: "catalog",
+    title: "Catalog provider",
+    providers: ["openai", "deepseek"],
+    endpoint: "provider",
+    help: "A provider this build already knows. Add an API key and choose a model; the endpoint is the provider's own.",
+  },
+  {
+    id: "compatible",
+    title: "Compatible endpoint",
+    providers: ["openai", "deepseek"],
+    endpoint: "required",
+    help: "An endpoint that speaks one of the formats below. Give its Base URL under Advanced and an API key; the provider identity above decides which model catalogue applies.",
+  },
+  {
+    id: "local",
+    title: "Local endpoint",
+    providers: ["fake-openai-loopback"],
+    endpoint: "host",
+    help: "The local test endpoint this build runs itself. It takes no key and its address is fixed by the host.",
+  },
+];
+/* 统一流程的五步。`available: false` 的两步在界面上只留位说明，不画按钮：
+ * BE-17（对未保存表单 Fetch models）与 BE-18（Test connection）未交付。 */
+export const CONNECTION_STEPS = [
+  { id: "configure", title: "Configure", available: true, note: "Name it, choose the provider and the endpoint." },
+  { id: "test", title: "Test connection", available: false, note: "Not available yet: the host has no handshake that runs without starting a chat." },
+  { id: "fetch", title: "Fetch models", available: false, note: "Not available yet for an unsaved form. A saved connection lists the models the installed catalogue reports." },
+  { id: "choose", title: "Choose a model", available: true, note: "From the catalogue for the provider above." },
+  { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here; the API key is saved separately." },
+];
+export const CONNECTION_NAME_LIMIT = 60;
+export const CONNECTION_NAME_PATTERN = /^[^\u0000-\u001f]{1,60}$/;
+/** 路径由已保存的事实反推，不另存一个"用户当时选了哪条"的第二真源。 */
+export function connectionPathOf(config) {
+  if (!config) return "catalog";
+  if (config.provider === "fake-openai-loopback") return "local";
+  return config.baseUrl ? "compatible" : "catalog";
+}
+/** Connections 列表的一行。后端只持有一条生效连接，所以列表只有一行；
+ * 其余目录身份是 Add provider 里的选项，不是连接 —— 把它们画成连接会让
+ * 界面替后端宣布一个它没有的注册表。 */
+export function connectionRows({ config, credentialStatus, names = {} } = {}) {
+  if (!config) return [];
+  const provider = config.provider;
+  const path = connectionPathOf(config);
+  return [
+    {
+      id: provider,
+      name: names[provider] || providerLabels[provider] || provider,
+      provider: providerLabels[provider] || provider,
+      path,
+      model: provider === "fake-openai-loopback" ? "Local deterministic model" : config.model,
+      endpoint:
+        path === "local"
+          ? "Local endpoint fixed by the host"
+          : config.baseUrl || "Provider default endpoint",
+      credential:
+        path === "local"
+          ? "No key needed"
+          : credentialStatus === "configured"
+            ? "API key saved"
+            : "No API key saved",
+      inForce: true,
+    },
+  ];
+}
+
 const permissionHelp = {
   ask: "Each edit asks first. Approving one edit never accepts the result.",
   draft: "The agent may edit files inside this chat's workspace without asking.",
@@ -167,11 +278,21 @@ export function createSettingsView(
     busy = false,
     generation = 0;
   const form = el("form", { className: "settings-form" });
+  const list = el("div", { className: "connection-list" });
+  const name = el("input", {
+    attrs: {
+      type: "text",
+      name: "displayName",
+      autocomplete: "off",
+      spellcheck: "false",
+      maxlength: String(CONNECTION_NAME_LIMIT),
+      placeholder: "Provider name",
+      "aria-label": "Display name",
+    },
+  });
   const provider = el("select", {
     attrs: { name: "provider", "aria-label": "Provider" },
   });
-  for (const [value, label] of Object.entries(providerLabels))
-    provider.append(el("option", { attrs: { value }, text: label }));
   const model = el("select", {
     attrs: { name: "model", "aria-label": "Model" },
   });
@@ -186,7 +307,7 @@ export function createSettingsView(
       autocomplete: "off",
     },
   });
-  const label = (name, input) => el("label", { text: name }, input);
+  const label = (name_, input) => el("label", { text: name_ }, input);
   // One row = what it is and what it means on the left, the control on the right.
   let rowSeq = 0;
   const row = (title, help, control) => {
@@ -204,12 +325,51 @@ export function createSettingsView(
       el("div", { className: "settings-row-control" }, control),
     );
   };
+  /* WK-91 · 三条 happy path 不是三个表单，是同一个表单的三个入口：选哪一条，只决定
+     哪些字段先出现、端点由谁决定。Provider ID 由后端目录给（闭集），用户填的是
+     display name。 */
+  const pathFieldset = el("fieldset", {
+    className: "segmented connection-paths",
+    attrs: { "aria-label": "How this connection reaches a model" },
+  });
+  for (const entry of CONNECTION_PATHS) {
+    const id = `connection-path-${entry.id}`;
+    const input = el("input", {
+      attrs: { type: "radio", name: "connection-path", id, value: entry.id },
+    });
+    input.checked = entry.id === "catalog";
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      dirty = true;
+      applyPath(entry.id);
+    });
+    pathFieldset.append(
+      el("label", { className: "segment", attrs: { for: id } }, input, el("span", { text: entry.title })),
+    );
+  }
+  const pathHelp = el("p", { className: "form-help" });
+  /* 统一流程写在界面上，未交付的两步标注为未交付而不是画一个按钮：
+     一个按不动的按钮和一句"还没有"说的是同一件事，但前者先许诺再收回。 */
+  const flow = el("ol", { className: "connection-flow" });
+  for (const step of CONNECTION_STEPS)
+    flow.append(
+      el(
+        "li",
+        { className: step.available ? "connection-step" : "connection-step is-pending" },
+        el("span", { className: "connection-step-name", text: step.title }),
+        el("span", { className: "connection-step-note", text: step.note }),
+      ),
+    );
   const advanced = el(
     "details",
     { className: "settings-advanced" },
-    el("summary", { text: "Connection options" }),
+    el("summary", { text: "Advanced" }),
     row("API format", "Wire format the provider expects.", api),
     row("Base URL", "Leave empty for the provider default.", baseUrl),
+    el("p", {
+      className: "form-help",
+      text: "Custom headers and provider compatibility quirks are not configurable here yet; this connection sends the format above and nothing else.",
+    }),
   );
   const status = el("p", { className: "form-help", attrs: { role: "status" } });
   const error = el("p", {
@@ -221,9 +381,19 @@ export function createSettingsView(
     attrs: { type: "submit" },
     text: "Save connection",
   });
+  const addProvider = el(
+    "details",
+    { className: "settings-advanced connection-add" },
+    el("summary", { text: "Add provider" }),
+    pathFieldset,
+    pathHelp,
+    flow,
+  );
   form.append(
+    addProvider,
+    row("Display name", "What this connection is called on this device.", name),
     row("Provider", "Where model requests are sent.", provider),
-    row("Model", "Used for every new run in this workspace.", model),
+    row("Model", "Used for every chat you start next. Chats already open keep the model they were bound to.", model),
     advanced,
     status,
     error,
@@ -256,8 +426,9 @@ export function createSettingsView(
     row("Key", "Stored on this device only.", key),
     el("div", { className: "credential-actions" }, keyDelete, keySave),
   );
-  container.replaceChildren(form, credential);
+  container.replaceChildren(list, form, credential);
   renderPlanned(document.getElementById("planned-capabilities"));
+  renderIntegrationsIntake(document.getElementById("settings-integrations-intake"));
   /* Settings 页的只读节读的是本控制器已经取到的同一份快照，不另开一路请求：
      一个事实一个来源（FN-07 的可失效缓存，不是第二真源）。Runtime 组的五个块由
      WO-WK11 的 Workbench 控制器拥有，这里只把连接快照转给它，供 Models 只读行使用。 */
@@ -269,6 +440,104 @@ export function createSettingsView(
       active: Boolean(getSession()?.active),
     });
     onRuntimeEnvironment?.({ config: snapshot, info });
+  }
+  function connectionNames() {
+    return readPreferences().connectionNames;
+  }
+  function rememberName(providerId, value) {
+    const prefs = readPreferences();
+    const next = { ...prefs.connectionNames };
+    const trimmed = value.trim();
+    if (trimmed && trimmed !== providerLabels[providerId]) next[providerId] = trimmed;
+    else delete next[providerId];
+    writePreferences({ ...prefs, connectionNames: next });
+  }
+  /* 一行一条连接：名字与它的四个事实（provider、端点、模型、凭据），外加它是不是
+     生效的那一条。Configure 不是第二个编辑入口，它把下面同一个表单对准这一行。 */
+  function renderConnections() {
+    const rows = connectionRows({
+      config: snapshot?.config,
+      credentialStatus: snapshot?.credentialStatus,
+      names: connectionNames(),
+    });
+    if (!rows.length) {
+      list.replaceChildren(
+        el("p", { className: "form-help", text: "No connection is loaded yet." }),
+      );
+      return;
+    }
+    list.replaceChildren(
+      ...rows.map((entry) =>
+        el(
+          "div",
+          { className: "connection-row", attrs: { "data-connection": entry.id } },
+          el(
+            "div",
+            { className: "connection-row-text" },
+            el(
+              "span",
+              { className: "connection-row-title" },
+              el("span", { text: entry.name }),
+              entry.inForce
+                ? el("span", { className: "connection-row-badge", text: "In force" })
+                : null,
+            ),
+            el("span", {
+              className: "settings-row-help",
+              text: `${entry.provider} · ${entry.model} · ${entry.endpoint} · ${entry.credential}`,
+            }),
+          ),
+          el("div", { className: "connection-row-control" }, configureButton()),
+        ),
+      ),
+    );
+  }
+  function configureButton() {
+    const button = el("button", {
+      className: "text-button",
+      attrs: { type: "button", "data-focus-key": "connection:configure" },
+      text: "Configure",
+    });
+    button.addEventListener("click", () => {
+      addProvider.open = false;
+      name.focus();
+    });
+    return button;
+  }
+  function activePath() {
+    return (
+      [...pathFieldset.querySelectorAll("input")].find((input) => input.checked)?.value ||
+      "catalog"
+    );
+  }
+  function selectPath(id) {
+    for (const input of pathFieldset.querySelectorAll("input")) input.checked = input.value === id;
+  }
+  /* 一条路径只决定两件事：哪些 provider 身份可选，端点归谁。别的字段不随路径改动，
+     因为它们在三条路径里说的是同一件事。 */
+  function applyPath(id, preferred) {
+    const entry = CONNECTION_PATHS.find((path) => path.id === id) || CONNECTION_PATHS[0];
+    pathHelp.textContent = entry.help;
+    const allowed = entry.providers;
+    provider.replaceChildren();
+    for (const value of allowed)
+      provider.append(
+        el("option", { attrs: { value }, text: providerLabels[value] || value }),
+      );
+    provider.value = allowed.includes(preferred || provider.value)
+      ? preferred || provider.value
+      : allowed[0];
+    baseUrl.disabled = entry.endpoint === "host";
+    baseUrl.placeholder =
+      entry.endpoint === "host"
+        ? "Fixed by the host"
+        : entry.endpoint === "required"
+          ? "https://host/v1"
+          : "Provider default";
+    if (entry.endpoint === "host") baseUrl.value = "";
+    if (entry.endpoint === "required") advanced.open = true;
+    fillModels(snapshot?.config?.model);
+    lock();
   }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
@@ -315,7 +584,10 @@ export function createSettingsView(
     const active = Boolean(info?.activeRuns) || Boolean(getSession()?.active);
     for (const node of form.querySelectorAll("input,select,button"))
       node.disabled = busy || active;
-    save.disabled = busy || active || !catalog || !model.value;
+    const path = CONNECTION_PATHS.find((entry) => entry.id === activePath());
+    const endpointMissing = path?.endpoint === "required" && !baseUrl.value.trim();
+    save.disabled = busy || active || !catalog || !model.value || endpointMissing;
+    if (path?.endpoint === "host") baseUrl.disabled = true;
     keySave.disabled = busy || active || !key.value.trim();
     keyDelete.disabled =
       busy || active || snapshot?.credentialStatus !== "configured";
@@ -334,7 +606,13 @@ export function createSettingsView(
   }
   function resetFields() {
     if (!snapshot) return;
+    selectPath(connectionPathOf(snapshot.config));
+    applyPath(connectionPathOf(snapshot.config), snapshot.config.provider);
     provider.value = snapshot.config.provider;
+    name.value =
+      connectionNames()[snapshot.config.provider] ||
+      providerLabels[snapshot.config.provider] ||
+      snapshot.config.provider;
     fillModels(snapshot.config.model);
     fillApis(snapshot.config.api);
     baseUrl.value = snapshot.config.baseUrl || "";
@@ -358,6 +636,9 @@ export function createSettingsView(
   baseUrl.addEventListener("input", () => {
     dirty = true;
   });
+  name.addEventListener("input", () => {
+    dirty = true;
+  });
   key.addEventListener("input", lock);
   function fail(err) {
     error.hidden = false;
@@ -377,7 +658,11 @@ export function createSettingsView(
     };
     try {
       snapshot = await request("/provider-config", { method: "PUT", body });
+      /* display name 只是这台设备上的叫法，和端点、模型、凭据不在一处存：
+         后端目录没有名字这个字段，前端也就不假装它有。 */
+      rememberName(body.provider, name.value);
       onConfig(snapshot);
+      renderConnections();
       dirty = false;
       key.value = "";
       notify("Connection saved.");
@@ -407,6 +692,7 @@ export function createSettingsView(
       });
       snapshot = await request("/provider-config");
       onConfig(snapshot);
+      renderConnections();
       notify("API key saved.");
     } catch (err) {
       fail(err);
@@ -428,6 +714,7 @@ export function createSettingsView(
       key.value = "";
       snapshot = await request("/provider-config");
       onConfig(snapshot);
+      renderConnections();
       notify("Saved key removed.");
     } catch (err) {
       fail(err);
@@ -517,6 +804,7 @@ export function createSettingsView(
       if (snapshot && !dirty && !busy && !form.contains(document.activeElement))
         resetFields();
       lock();
+      renderConnections();
       sessionPanel();
       pushToPage();
     },
@@ -536,6 +824,7 @@ export function createSettingsView(
         onConfig(config);
         if (!dirty) resetFields();
         lock();
+        renderConnections();
         sessionPanel();
         pushToPage();
         const debug = document.getElementById("runtime-info");
@@ -781,6 +1070,7 @@ const PREFERENCE_DEFAULTS = {
   textSize: "medium",
   codeFont: "",
   motion: "system",
+  connectionNames: {},
 };
 const PREFERENCE_VALUES = {
   scheme: ["system", "light", "dark"],
@@ -791,7 +1081,7 @@ const PREFERENCE_VALUES = {
 export const CODE_FONT_PATTERN = /^[A-Za-z0-9 ,'"_-]{1,120}$/;
 export function readPreferences() {
   const stored = globalThis.__cwPrefs?.value;
-  const prefs = { ...PREFERENCE_DEFAULTS };
+  const prefs = { ...PREFERENCE_DEFAULTS, connectionNames: {} };
   if (!stored || typeof stored !== "object") return prefs;
   for (const [name, allowed] of Object.entries(PREFERENCE_VALUES))
     if (allowed.includes(stored[name])) prefs[name] = stored[name];
@@ -799,6 +1089,16 @@ export function readPreferences() {
     prefs.codeFont = stored.codeFont;
   if (typeof stored.customSkin === "string" && stored.customSkin.length <= SKIN_LIMIT)
     prefs.customSkin = stored.customSkin;
+  /* WK-91 · 连接的 display name 是本设备上的叫法，键必须是后端目录里真有的
+     provider ID：一个界面替后端发明出来的连接名字，会让人以为那里有一条连接。 */
+  if (stored.connectionNames && typeof stored.connectionNames === "object")
+    for (const [id, value] of Object.entries(stored.connectionNames))
+      if (
+        Object.hasOwn(providerLabels, id) &&
+        typeof value === "string" &&
+        CONNECTION_NAME_PATTERN.test(value.trim())
+      )
+        prefs.connectionNames[id] = value.trim();
   return prefs;
 }
 export function writePreferences(prefs) {

@@ -285,7 +285,7 @@
      window and the band itself becomes 52 (WK-42, board r2). */
   --band-top: 56px;
   --col-gap: 24px;
-  --nav: 250px;
+  --nav: 256px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 32px;
@@ -1792,6 +1792,83 @@ select {
   padding-top: 20px;
   margin-top: 20px;
 }
+/* WK-91 · Connections。一行是一条连接，不是一张卡：没有对象边框（WK-94 的四角色
+   闭集里没有"列表项"这一档），行与行之间只有重复行的分隔线。 */
+.connection-list {
+  display: grid;
+  margin-bottom: 20px;
+}
+.connection-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 0;
+}
+.connection-row + .connection-row {
+  border-top: 1px solid var(--line);
+}
+.connection-row-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.connection-row-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--text-body);
+  font-weight: 500;
+}
+.connection-row-badge {
+  font-size: var(--text-meta);
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+/* 统一流程：五步一列。未交付的两步不是禁用控件，是一行说明，所以它只降对比度，
+   不画按钮形状。 */
+.connection-flow {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: connection-step;
+}
+.connection-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  font-size: var(--text-meta);
+  counter-increment: connection-step;
+}
+.connection-step::before {
+  content: counter(connection-step) ".";
+  color: var(--muted-strong);
+}
+.connection-step-name {
+  font-weight: 500;
+}
+.connection-step-note {
+  grid-column: 2;
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.connection-step.is-pending .connection-step-name {
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+.connection-paths {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.connection-paths .segment {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  padding: 4px 6px;
+  min-height: 32px;
+}
 .credential-actions {
   display: flex;
   gap: 8px;
@@ -2035,6 +2112,12 @@ select {
     min-height: var(--band-top);
   }
   .question-card input,
+  /* 命中区是包着 radio 的那个 segment，不是 1px 的 radio 本身；窄屏下它和同一行
+     的 input / select 一样要够得着（RC viewport 的 44px 一条）。 */
+  .settings-form .segment,
+  .settings-row .segment {
+    min-height: 44px;
+  }
   .settings-form input,
   .settings-form select {
     min-height: 44px;
@@ -2826,6 +2909,14 @@ dialog[open]::backdrop {
 .settings-row-control input {
   min-width: 200px;
   max-width: 100%;
+}
+/* WK-100 ③ · 同一行级的 input 与 select 是同一档控件，就得同高同 radius。
+   放着不管时 select 因为字体量度比 input 高 3–4 px，一列控件会读成两档。 */
+.settings-row-control select,
+.settings-row-control input:not([type="radio"]):not([type="checkbox"]) {
+  block-size: var(--control);
+  padding-block: 0;
+  border-radius: var(--radius-control);
 }
 /* A wide control (the segmented file-writes choice) takes the row's full width
    under its text instead of squeezing the explanation into a sliver. */
