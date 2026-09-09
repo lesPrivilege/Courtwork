@@ -123,6 +123,12 @@ FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = H
 |---|---|
 | WK-105 | Opus 交付 `claude/fe01-vocab-ia` `bfefcd2`（基线 `1688a7b`，六次提交）：WK-98 两缺陷、WK-102 两 token 与回退、`tools/lint-materials.mjs` 入 `npm test`；词表与 text-sweep；Settings 九组 IA；chrome；Home / Work composition 与几何断言；尺寸 token 表、border 审计、shell contract；五轮收敛表；FE-T02 / T09 / T10 12/12、composition 16/16、RC 20/9/36；212/212。Fable 独立重跑一致，范围干净。六项待裁：① 取 WK-96 的 55 %；② 92–112 指输入本体；③ scope strip 多处挂载单一真源，接受；④ 分隔线与对象边框为两个通道，不做全站清扫；⑤ `--nav` 250 → 256 列 FE-02 第 0 项；⑥ 侧栏脚保持工具条，账户行待真实身份对象。接受，交 Astra 合流（先 `claude/fe01-vocab-ia`，再 `claude/fable-round4b`）；复核见 [delivery-fe01 §13](delivery-fe01.md)。 |
 
+## 4l. Astra 集成补丁复核 → WK-106（2026-09-09）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-106 | Astra 合流 FE-01 为 `6bdc6db` / `ccc1076`，并以自写两行补丁 `343e59b` 修 WK-98 裸 `null` 遗漏（`runtime-view.mjs` 资源 detail 两处 `append` 改为过滤缺席片段；根因是 `permissionDetail` / `sourceInspector` 可返回 `null`，原生 `append(null)` 变文本）。Fable 非作者复核：读码确认两个 helper 确有 `return null` 路径而 `layerBlock` / `sourceDetail` / `rowActions` 无；在清洁 `main` `2b6c221` 重跑 212/212；用自有端口 8893、新数据目录与新 Chrome profile 复跑 Astra 的 WK-98 追加脚本 10/10（九个深链无 401、`ws_write` 展开无裸 null）。接受；不改数据、权限算法、端点或全局 DOM 工具。清洁节点 `2b6c221`。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
