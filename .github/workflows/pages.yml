@@ -1,0 +1,73 @@
+# Publish the site under site/dist/ to GitHub Pages.
+#
+# The build takes the product's tokens and rendering modules out of the
+# repository itself, so this workflow needs the whole checkout — but it runs
+# nothing of the product: no server, no data directory, no credential. It also
+# installs nothing: site/build.mjs uses only the Node standard library.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "README.md"
+      - ".github/workflows/pages.yml"
+      # The page reads its tokens from the product's stylesheet and its numbers
+      # from the recorded evidence, so a change to either must rebuild it.
+      - "app/web/styles.css"
+      - "evidence/publishing-surface-2026-09-09/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a queued run is not cancelled, so the newest commit
+# is always the one that ends up published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # source_sha evidence may precede the current product
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.19"
+      - name: Build the site
+        run: node site/build.mjs
+      # Built twice and compared: the page states recorded numbers, so a build
+      # that is not reproducible is a build whose numbers cannot be checked.
+      - name: Build again and compare
+        run: |
+          find site/dist -type f -exec shasum -a 256 {} + | sort -k2 > /tmp/first.sha
+          node site/build.mjs
+          find site/dist -type f -exec shasum -a 256 {} + | sort -k2 > /tmp/second.sha
+          diff /tmp/first.sha /tmp/second.sha
+      - name: Check product material inheritance
+        run: node site/scripts/check-material.mjs
+      - name: Check the sub-path
+        run: node site/scripts/check-links.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    # Main integration is not publication approval. Only an explicit manual
+    # run may publish this candidate after its release gates are reviewed.
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

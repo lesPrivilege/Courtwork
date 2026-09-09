@@ -1,0 +1,14 @@
+{
+  "id": "specimen",
+  "kind": "interactive-fixture",
+  "file": "site/specimen/9e5384f.json",
+  "sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0",
+  "bytes": 298756,
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+  "capture_date": "2026-09-09",
+  "capture_command": "node site/scripts/capture-specimen.mjs",
+  "dataClass": "synthetic; actual HTTP/Pi loopback/Core; no real provider",
+  "data_kind": "synthetic",
+  "provider_mode": "local deterministic fake (fake-openai-loopback)",
+  "data_dir": "/private/tmp/cw-pages-first-specimen-data"
+}

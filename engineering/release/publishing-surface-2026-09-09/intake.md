@@ -48,6 +48,11 @@
 | PS-23 | **施工次序：** WO-PS-01（Opus 在建）不追加；07 段与 01 段改题作为 WO-PS-02 在 PS-01 交付并复核后从 `claude/ps01-site` 头开单，同一 writer 谱系，`opus-wo-low`（规格已完整）。用户提到的本地 Design Agent 若接手，读同一份 pricing-specimen；本批目录内的 `commercial-surfaces/` 即其索引位。CodeRabbit / Greptile / Cursor Bugbot / Factory / OpenHands / Cline / Langfuse 七条来源在输入三登记，进入 `engineering/design/sources.md` 的行由 Astra 合流时追加（该文件在 r4d 分支上维护，本批不改）。 | 单一 writer 规则；[opus-effort](../../mvp/execution/work-surface-kit/dispatch-round-4.md) |
 | PS-24 | **与 Scout Index v2（r4d WK-137，头 `6bd8fb0`）的接口。** (a) 该索引把公共站的 7 行问题（section galleries：Navbar Gallery、Unsection、SaaSFrame 等）划给本批；本批不在施工中派 sweep——WO-PS-01 已按 EX-PS2 六站解剖与用户三份输入成单。交付后若用户四轴复核判某一段弱，按 WK-137 的"30 样本 → 3 候选 → specimen"程序为该段派一次 sweep（Sonnet 只读，≤ 10 条），回执裁定后进 WO-PS-02 或后续修订。(b) 索引"pricing 对 Courtwork 不适用"一行指真实定价；本批第 07 段是带标记的概念研究稿（PS-22），不需要 pricing sweep，两者不冲突；该行继续防止 agent 外搜真实 pricing 参照。(c) 60fps 升为 C 层 motion donor 只影响运动行为与时序；本批站点零运动（PS-4），标本步进的焦点移动不取 donor。 | 用户转达 WK-137 |
 
+| PS-25 | **用户 2026-09-10 接续裁定：** 本轮仍做 Pages，完成包含 fake pricing 的第一版完整发布版面；Astra 接管中断施工，Luna 有界探索/复核，Terra 做规格已定的有限实现。品牌探索后置。Pages 可比产品更有表现力，blur 不是硬禁止，PS-20 的零 blur 据此撤回；本版只柔化非焦点连接线，文字不模糊，reduced-motion/transparency 下静止清晰。消费已有 Scout 与定价输入，不启动新的前端选型或 sweep。实际 Send 文本回退须检查真实 WebUI 并修复后重取页面图。 | 本轮用户直接指令；PS-21/22/24 |
+
+| PS-26 | **用户当轮文案修订：** Kill 保护性措辞与“某某是为了某某”式自我解释；按真正的 fake product / SaaS 写正文，Scout 可参。首屏直接讲工作价值，取消反复辩护与商业研究旁白；定价只保留 `Concept pricing` 一处短标记，卡片直接写方案与能力，Explore 链接打开对应架构图。证据区保留真实版本、方法与未验项。该裁定覆盖 PS-22/public-copy-v2 中较长提示语的逐字要求。当前稿见 public-copy-v3。 | 本轮用户直接指令 |
+| PS-27 | **用户明确授权：** 完成后推送 GitHub 并部署 Pages，用户随后做独立 review。本轮执行此发布，不扩大到产品 provider 或 SE 论文站。 | 本轮用户“完成后部署到 git，我会提交独立 review” |
+
 ## 3. 未决（留用户）
 
 | 编号 | 问题 | Fable 建议 |

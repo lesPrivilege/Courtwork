@@ -1,5 +1,7 @@
 # 发布面文案 v2（Fable，2026-09-09）
 
+> 文案已由用户当轮 PS-26 修订：[public-copy-v3](public-copy-v3.md)。本文件保留原施工来源；长概念提示与保护性旁白不再是当前逐字要求。
+
 用途：GitHub Pages 与根 README 直接取词的文案与事实绑定。替代 [2026-09-08 版](../2026-09-08/public-copy.md) 的 §2、§3 动作、§5、§6、§8、§12；其余段落在此改写为中文主语后沿用。裁定见 [intake](intake.md)：语言 PS-6，词表与状态档 PS-5，六段骨架 PS-2，标本边界 PS-7，Eval PS-13。叙事以 Paper 为权威；CourtWork 是命题被试验与检验的地方；产品状态只从 [current](../../current.md) 取。
 
 体例：一页，中文为主。English 保留在字标、H1、段标题、产品 UI 词、Paper 术语、命令与代码。产品路径只用 [界面文案体例](../../design/copy-convention.md) §3 词表；命题段只用 Paper 词；两套词不混。状态三档：**verified with synthetic data**（固定 SHA、合成材料、确定性 provider）· **runs locally**（可启动可操作，未做独立验收）· **not yet**（目标）。不用 beta、alpha、coming soon、planned for。页面不出现内部编号。
@@ -246,6 +248,7 @@ not yet 行只写目标，不写日期。Astra 核对"Astra 核对"行的证据�
 
 ```sh
 git clone https://github.com/lesPrivilege/Courtwork.git
+cd Courtwork
 npm --prefix app ci
 npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
 npm --prefix app test
@@ -315,3 +318,7 @@ npm --prefix app test
 - Astra：§6.3 每行证据路径在发布 SHA 下成立；媒体 manifest 与截图状态一致；不成立者降档不删行。
 - 用户：四轴（成熟、安静、身份、耐久）；U1…U6。
 - Fable：文案的每一次改动回到本页，不在站点源码里另改一份。
+
+## 2026-09-10 首版执行补记
+
+Astra 按用户当轮范围接续 PS-01/02，品牌后置。命令增加 `cd Courtwork`，保证从 clone 后可直接运行。08 保留媒体清单已规定的 M7 Models 图及准确快照图注，作为本地配置入口展示。来源样本固定为 `9e5384f`；Stop 行明确本记录未包含取消/重连。八步无脚本回退按本文件完整八步执行。历史产品证据保留各自提交与验证范围，不冒充本次全项重跑。Pages 可按需使用 blur（PS-25），文字保持清晰。

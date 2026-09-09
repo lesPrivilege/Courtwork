@@ -1,0 +1,4998 @@
+{
+  "light": [
+    {
+      "selector": "a.skip",
+      "text": "跳到正文",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.wordmark",
+      "text": "CourtWork",
+      "size": 17,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.tagline",
+      "text": "A place for expert work to take form.",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "GitHub",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Docs",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Turn AI output into work you can build o",
+      "size": 46,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "把 AI 的产出，变成接得下去的工作。",
+      "size": 33.1,
+      "ratio": 5.22,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run it locally",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "01",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Anatomy of a governed matter",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从来源到决定，每一步都有据可循",
+      "size": 19.8,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Event",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Matter state",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Review",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Decision",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Provenance",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Work agents need governed state, not lon",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Agent 需要的是受治理的状态，不是更长的对话记录。",
+      "size": 15,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Event log",
+      "size": 13,
+      "ratio": 13.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Work state",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Compiled context",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Event log",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "按时间追踪请求、工具调用、批准、回答与结果。随时回到工作的任何一步。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "034  user.message\n035  run.status\n036  r",
+      "size": 10.1,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "synthetic data · recorded at CourtWork 9",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "02",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A matter in motion",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从第一条请求，到一次有据可循的决定。",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "1",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Home",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask befor",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "2",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Run",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "每一次工具调用在发生时显示，不藏在摘要后面。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "3",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Approval",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "4",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Question",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "需要一个事实时 Agent 提问；回答随 Run 一起记录。回答不等于授权。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "5",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "File",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "6",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Stop · reconnect",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-not-yet",
+      "text": "not recorded in this replay",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "7",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Continue in Work",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "8",
+      "size": 13,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Candidate → Decision",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "Interactive replay · synthetic NDA",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "逐步查看一次 NDA 工作的完整记录。",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "03",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work that exists beyond the model.",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "让工作存在于模型之外",
+      "size": 19.8,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption.diagram-title",
+      "text": "From state to committed change",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Governed work state",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Context projection",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Model / human proposal",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Candidate",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "validation · evidence · authority · revi",
+      "size": 12.5,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Committed change",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Updated state",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "当前状态 → 运行上下文 → 候选 → 审阅 → 正式变化。",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose.closing",
+      "text": "Built on Schema Engineering 9.6. 从论文中的工作",
+      "size": 15,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice Index",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "04",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Review is a first-class surface",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把候选、证据与来源放在一起。看清依据，再作决定。",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Proposal",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "逐条规则的候选，绑定它所依据的来源版本。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Evidence",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "直接查看候选引用的原文、事实与待补证据。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Decision",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "接受、退回，或要求补充证据。每次决定绑定明确的候选版本。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Provenance",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "逐条展开依据，比较修订，保留决定的完整来路。",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "05",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Evidence",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开记录，检查方法，亲自复现。",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "项",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "文案",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "入口",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Benchmark",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "Continuity conformance：六个用例覆盖来源替换、回执重放、重",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "benchmarks/continuity/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Fixture",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 ",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "app/tests/fixtures/work-core/nda-packets",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Tests",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "固定产品版本的完整应用测试。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "npm --prefix app test · 308 passed, 0 fa",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Version",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "Paper 9.6 · 产品 · 站点",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "d78fd31",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "5d7d63b",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "PAPER.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Decisions",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "架构裁决，从第一条起可读。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/decisions.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Paper revision",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "论文的版本级变化。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "CHANGELOG.md（Schema Engineering）",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Eval",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "从输入、运行方法到原始结果，完整检查一次 continuity conforma",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What was tested?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Continuity conformance。六个用例，每个 checkpoin",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Against what?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "S：一个认真实现的普通持久化机制，带版本化来源与文档、提交、任务、审批、审计与回",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "With which model?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Deterministic clients。模型 pilot：not yet。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Which harness?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "编排六个用例；E 经 驱动真实 Core，S 经 ； 把原始输出映射为语义字段，",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "benchmarks/continuity/run.mjs",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "CoreClient",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "standard.py",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "observe.mjs",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "grade.mjs",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Which fixture?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "一个合成的“证据备忘录”族，开发集，六个用例：normal · stale-so",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What was held constant?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "报告内固定被测文件的 sha256 与 git head 及 dirty 标志；",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What failed?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "早期 cas-conflict 用例曾命中已关闭候选，修订为同一 base 上的",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Can I reproduce it?",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "； 。需要仓库根目录、Node 22.19 以上、Python 3 标准库；输出",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "node --test benchmarks/continuity/grade.",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "node benchmarks/continuity/run.mjs --out",
+      "size": 13.8,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.record.is-mono",
+      "text": "E 6/6 · S 6/6 · se-continuity-conformanc",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "拒绝结果的四个名字（stale_source · request_conflic",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "method",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "raw record",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "reproduce",
+      "size": 13,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "声称表",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "可写的声称",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "状态",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "证据入口",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "从独立 clone 安装、测试、启动",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/sync",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Run 链：回答、精确写入批准、文件身份、预览、拒绝、停止、断线重连",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/READ",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "运行控制：配置 CAS、来源、上下文、MCP 生命周期",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/rc/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "MCP 未知效果后封闭后续调用",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/mcp-",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Continue in Work：Chat 绑定 Matter，历史与 Proj",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/fe03/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "合成 NDA：逐规则候选 → 审阅 → 正式决定；幂等与过时版本拒绝",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/wk10b2-main-integration-2026090",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "新 Session 继续同一事项；产生候选的一方缺席时历史可读",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/se-continuity-20260908/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Models：Catalog provider · Compatible end",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/fe03-main-integration-20260909/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Settings 整页；Appearance 本设备偏好",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/cc-s-main-integration-20260909/",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "真实模型 provider 路径",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "用户在界面配置",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "有界模型 pilot 与对比分数",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "事项级记忆、Temporary chat",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "桌面安装包、签名",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "每份记录包含对应版本、运行条件与验证范围。",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "06",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Architecture & portability",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "工作可以留下，智能可以迁移",
+      "size": 19.8,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Web UI.",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "原生 ES module 前端，呈现会话、运行、文件与审阅。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Host runtime.",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Domain core.",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Matter、候选、证据与决定，配合版本校验与幂等提交。",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "CourtWork 运行在 Pi agent SDK（ 0.85.1）与官方 M",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "@earendil-works/pi-*",
+      "size": 12.9,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "07",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-concept",
+      "text": "Concept pricing",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Plans for the way you work",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从个人工作，到团队协作",
+      "size": 19.8,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
+      "size": 15,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Your work. Your models. Room to grow.",
+      "size": 20,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作留在手里，模型自由选择。",
+      "size": 15,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Local",
+      "size": 20,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "$0",
+      "size": 32,
+      "ratio": 20.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Open source",
+      "size": 11,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Your work stays yours.",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local Matter store",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Event log & provenance",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local runtime, bring your own provider o",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Public eval suite",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Exportable schemas",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "MIT source",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "View source",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Professional",
+      "size": 20,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "$29",
+      "size": 32,
+      "ratio": 20.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.pricing-price-unit",
+      "text": "/ month",
+      "size": 11,
+      "ratio": 20.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Managed",
+      "size": 11,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "A maintained professional workbench.",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Signed desktop builds",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed updates",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Cloud sync & backup",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Hosted runtime",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Continuous private eval",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed integrations",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Longer history",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore hosted →",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Organization",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "Custom",
+      "size": 32,
+      "ratio": 18.86,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Private deployment",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Governed work at organizational scale.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Shared Matters",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Policy & review controls",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "RBAC / SSO",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Audit exports",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Private deployment",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Sovereign-model support",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Expert lifecycle management",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "SLA / deployment assistance",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore organization →",
+      "size": 11,
+      "ratio": 18.86,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-model-note",
+      "text": "Bring your own provider, use local model",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Local",
+      "size": 13,
+      "ratio": 13.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Hosted",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Organization",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter store",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "CourtWork",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Your provider",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "从本地到组织，材料、事件与版本始终随工作同行。",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "08",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Build / inspect / reproduce",
+      "size": 30,
+      "ratio": 14.41,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "git clone https://github.com/lesPrivileg",
+      "size": 10.1,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "需要 Node.js 22.19 以上、Python 3、Git 2.36 以上",
+      "size": 14,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "入口",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "文案",
+      "size": 11,
+      "ratio": 5.22,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "README.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "运行、验证与范围。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/current.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "已交付能力、证据边界、下一单。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/architecture.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "模块所有权与边界。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/roadmap.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "长期路线与验证门。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "docs/runtime-control/INDEX.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "资源、权限、MCP 与上下文绑定。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "docs/interface-components.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "布局、消息、工作面、焦点与状态 owner。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "PAPER.md",
+      "size": 12.9,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "采用的论文版本与反馈路径。",
+      "size": 14,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "Open source",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source on GitHub",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "9e5384f / 5d7d63b",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "MIT License",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Schema Engineering 9.6",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
+  "dark": [
+    {
+      "selector": "a.skip",
+      "text": "跳到正文",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.wordmark",
+      "text": "CourtWork",
+      "size": 17,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.tagline",
+      "text": "A place for expert work to take form.",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "GitHub",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Docs",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Turn AI output into work you can build o",
+      "size": 46,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "把 AI 的产出，变成接得下去的工作。",
+      "size": 33.1,
+      "ratio": 9.06,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run it locally",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "01",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Anatomy of a governed matter",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从来源到决定，每一步都有据可循",
+      "size": 19.8,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Event",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Matter state",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Review",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Decision",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Provenance",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Work agents need governed state, not lon",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Agent 需要的是受治理的状态，不是更长的对话记录。",
+      "size": 15,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Event log",
+      "size": 13,
+      "ratio": 12.43,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Work state",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Compiled context",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Event log",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "按时间追踪请求、工具调用、批准、回答与结果。随时回到工作的任何一步。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "034  user.message\n035  run.status\n036  r",
+      "size": 10.1,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "synthetic data · recorded at CourtWork 9",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "02",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A matter in motion",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从第一条请求，到一次有据可循的决定。",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "1",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Home",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask befor",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "2",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Run",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "每一次工具调用在发生时显示，不藏在摘要后面。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "3",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Approval",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "4",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Question",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "需要一个事实时 Agent 提问；回答随 Run 一起记录。回答不等于授权。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "5",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "File",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "6",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Stop · reconnect",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-not-yet",
+      "text": "not recorded in this replay",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "7",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Continue in Work",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "8",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Candidate → Decision",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "Interactive replay · synthetic NDA",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "逐步查看一次 NDA 工作的完整记录。",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "03",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work that exists beyond the model.",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "让工作存在于模型之外",
+      "size": 19.8,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption.diagram-title",
+      "text": "From state to committed change",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Governed work state",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Context projection",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Model / human proposal",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Candidate",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "validation · evidence · authority · revi",
+      "size": 12.5,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Committed change",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Updated state",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "当前状态 → 运行上下文 → 候选 → 审阅 → 正式变化。",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose.closing",
+      "text": "Built on Schema Engineering 9.6. 从论文中的工作",
+      "size": 15,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice Index",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "04",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Review is a first-class surface",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把候选、证据与来源放在一起。看清依据，再作决定。",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Proposal",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "逐条规则的候选，绑定它所依据的来源版本。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Evidence",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "直接查看候选引用的原文、事实与待补证据。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Decision",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "接受、退回，或要求补充证据。每次决定绑定明确的候选版本。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Provenance",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "逐条展开依据，比较修订，保留决定的完整来路。",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "05",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Evidence",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开记录，检查方法，亲自复现。",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "项",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "文案",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "入口",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Benchmark",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "Continuity conformance：六个用例覆盖来源替换、回执重放、重",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "benchmarks/continuity/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Fixture",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 ",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "app/tests/fixtures/work-core/nda-packets",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Tests",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "固定产品版本的完整应用测试。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "npm --prefix app test · 308 passed, 0 fa",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Version",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "Paper 9.6 · 产品 · 站点",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "d78fd31",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "5d7d63b",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "PAPER.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Decisions",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "架构裁决，从第一条起可读。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/decisions.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Paper revision",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "论文的版本级变化。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "CHANGELOG.md（Schema Engineering）",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Eval",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "从输入、运行方法到原始结果，完整检查一次 continuity conforma",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What was tested?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Continuity conformance。六个用例，每个 checkpoin",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Against what?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "S：一个认真实现的普通持久化机制，带版本化来源与文档、提交、任务、审批、审计与回",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "With which model?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Deterministic clients。模型 pilot：not yet。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Which harness?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "编排六个用例；E 经 驱动真实 Core，S 经 ； 把原始输出映射为语义字段，",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "benchmarks/continuity/run.mjs",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "CoreClient",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "standard.py",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "observe.mjs",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "grade.mjs",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Which fixture?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "一个合成的“证据备忘录”族，开发集，六个用例：normal · stale-so",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What was held constant?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "报告内固定被测文件的 sha256 与 git head 及 dirty 标志；",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "What failed?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "早期 cas-conflict 用例曾命中已关闭候选，修订为同一 base 上的",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Can I reproduce it?",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "； 。需要仓库根目录、Node 22.19 以上、Python 3 标准库；输出",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "node --test benchmarks/continuity/grade.",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "node benchmarks/continuity/run.mjs --out",
+      "size": 13.8,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.record.is-mono",
+      "text": "E 6/6 · S 6/6 · se-continuity-conformanc",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "拒绝结果的四个名字（stale_source · request_conflic",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "method",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "raw record",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "reproduce",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "声称表",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "可写的声称",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "状态",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "证据入口",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "从独立 clone 安装、测试、启动",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/sync",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Run 链：回答、精确写入批准、文件身份、预览、拒绝、停止、断线重连",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/READ",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "运行控制：配置 CAS、来源、上下文、MCP 生命周期",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/rc/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "MCP 未知效果后封闭后续调用",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/final-integration-20260908/mcp-",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Continue in Work：Chat 绑定 Matter，历史与 Proj",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/fe03/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "合成 NDA：逐规则候选 → 审阅 → 正式决定；幂等与过时版本拒绝",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/wk10b2-main-integration-2026090",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "新 Session 继续同一事项；产生候选的一方缺席时历史可读",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-verified",
+      "text": "verified with synthetic data",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/se-continuity-20260908/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Models：Catalog provider · Compatible end",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/fe03-main-integration-20260909/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "Settings 整页；Appearance 本设备偏好",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-local",
+      "text": "runs locally",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "evidence/cc-s-main-integration-20260909/",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "真实模型 provider 路径",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "用户在界面配置",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "有界模型 pilot 与对比分数",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "事项级记忆、Temporary chat",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "桌面安装包、签名",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.status.is-not-yet",
+      "text": "not yet",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "—",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "每份记录包含对应版本、运行条件与验证范围。",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "06",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Architecture & portability",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "工作可以留下，智能可以迁移",
+      "size": 19.8,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Web UI.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "原生 ES module 前端，呈现会话、运行、文件与审阅。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Host runtime.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Domain core.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "Matter、候选、证据与决定，配合版本校验与幂等提交。",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "CourtWork 运行在 Pi agent SDK（ 0.85.1）与官方 M",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "@earendil-works/pi-*",
+      "size": 12.9,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "07",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-concept",
+      "text": "Concept pricing",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Plans for the way you work",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从个人工作，到团队协作",
+      "size": 19.8,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Your work. Your models. Room to grow.",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作留在手里，模型自由选择。",
+      "size": 15,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Local",
+      "size": 20,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "$0",
+      "size": 32,
+      "ratio": 15.91,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Open source",
+      "size": 11,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Your work stays yours.",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local Matter store",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Event log & provenance",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local runtime, bring your own provider o",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Public eval suite",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Exportable schemas",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "MIT source",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "View source",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Professional",
+      "size": 20,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "$29",
+      "size": 32,
+      "ratio": 15.91,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.pricing-price-unit",
+      "text": "/ month",
+      "size": 11,
+      "ratio": 15.91,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Managed",
+      "size": 11,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "A maintained professional workbench.",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Signed desktop builds",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed updates",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Cloud sync & backup",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Hosted runtime",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Continuous private eval",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed integrations",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Longer history",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore hosted →",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Organization",
+      "size": 20,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "Custom",
+      "size": 32,
+      "ratio": 18.86,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Private deployment",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Governed work at organizational scale.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Shared Matters",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Policy & review controls",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "RBAC / SSO",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Audit exports",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Private deployment",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Sovereign-model support",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Expert lifecycle management",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "SLA / deployment assistance",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore organization →",
+      "size": 11,
+      "ratio": 18.86,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-model-note",
+      "text": "Bring your own provider, use local model",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Local",
+      "size": 13,
+      "ratio": 12.43,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Hosted",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Organization",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter store",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "CourtWork",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Your provider",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "从本地到组织，材料、事件与版本始终随工作同行。",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "08",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Build / inspect / reproduce",
+      "size": 30,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "git clone https://github.com/lesPrivileg",
+      "size": 10.1,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "需要 Node.js 22.19 以上、Python 3、Git 2.36 以上",
+      "size": 14,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "CourtWork · synthetic data · local deter",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "9e5384f",
+      "size": 10.1,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "入口",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "th",
+      "text": "文案",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "README.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "运行、验证与范围。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/current.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "已交付能力、证据边界、下一单。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/architecture.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "模块所有权与边界。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "engineering/roadmap.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "长期路线与验证门。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "docs/runtime-control/INDEX.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "资源、权限、MCP 与上下文绑定。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "docs/interface-components.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "布局、消息、工作面、焦点与状态 owner。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "code",
+      "text": "PAPER.md",
+      "size": 12.9,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "td",
+      "text": "采用的论文版本与反馈路径。",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "Open source",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source on GitHub",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "9e5384f / 5d7d63b",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "MIT License",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Schema Engineering 9.6",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CourtWork · Turn AI output into work you can build on.</title>
+    <meta name="description" content="在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。" />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./site.css" />
+    <link rel="stylesheet" href="./pricing.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">跳到正文</a>
+    <header class="masthead">
+      <p class="wordmark">CourtWork<span class="tagline">A place for expert work to take form.</span></p>
+      <nav aria-label="Site">
+        <a href="https://github.com/lesPrivilege/Courtwork">GitHub</a>
+        <a href="https://lesprivilege.github.io/Schema-Engineering/">Paper</a>
+        <a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/docs">Docs</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="h1">
+        <h1 id="h1"><span lang="en">Turn AI output into work you can build on.</span><span>把 AI 的产出，变成接得下去的工作。</span></h1>
+        <p class="lede">在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。</p>
+        <p class="actions"><a href="https://lesprivilege.github.io/Schema-Engineering/">Read the paper</a><a href="#build">Run it locally</a><a href="https://github.com/lesPrivilege/Courtwork">Source</a></p>
+<figure class="shot">
+          <picture><source srcset="./media/home-1440-dark.png" media="(prefers-color-scheme: dark)" />
+            <img src="./media/home-1440-light.png" alt="CourtWork Home：两个 Project，Today 带三格，一个 Chat 在 Waiting for you。" width="1440" height="900" loading="eager" decoding="async" />
+          </picture>
+          <figcaption>CourtWork <code>9e5384f</code> · synthetic data · local deterministic provider · 1440×900 light · Home：两个 Project，一个 Chat 在等待一次写入批准。</figcaption>
+        </figure>
+      </section>
+      <section class="section" id="layers" aria-labelledby="layers-title">
+        <p class="index">01</p>
+        <h2 id="layers-title"><span lang="en">Anatomy of a governed matter</span><span class="zh">从来源到决定，每一步都有据可循</span></h2>
+        <nav class="anatomy-links" aria-label="Anatomy of a governed matter">
+          <a href="./specimen/index.html#source" target="matter-replay">Source</a><span aria-hidden="true">→</span>
+          <a href="#tab-events">Event</a><span aria-hidden="true">→</span>
+          <a href="#tab-surface">Matter state</a><span aria-hidden="true">→</span>
+          <a href="./specimen/index.html#step-run" target="matter-replay">Run</a><span aria-hidden="true">→</span>
+          <a href="#review">Review</a><span aria-hidden="true">→</span>
+          <a href="./specimen/index.html#step-candidate" target="matter-replay">Decision</a><span aria-hidden="true">→</span>
+          <a href="#review-provenance">Provenance</a>
+        </nav>
+        <blockquote class="pull">
+          <p lang="en">Work agents need governed state, not longer transcripts.</p>
+          <p>Agent 需要的是受治理的状态，不是更长的对话记录。</p>
+        </blockquote>
+        <p class="lede">一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。</p>
+        <div class="tabs" data-tabs="layers">
+          <div class="tab-strip" role="tablist" aria-label="Anatomy of a governed matter">
+            <button type="button" role="tab" id="tab-events" aria-controls="panel-events" aria-selected="true" tabindex="0" lang="en">Event log</button>
+            <button type="button" role="tab" id="tab-surface" aria-controls="panel-surface" aria-selected="false" tabindex="-1" lang="en">Work state</button>
+            <button type="button" role="tab" id="tab-context" aria-controls="panel-context" aria-selected="false" tabindex="-1" lang="en">Compiled context</button>
+          </div>
+          <section class="tab-panel" id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+            <h3 lang="en">Event log</h3>
+            <p>按时间追踪请求、工具调用、批准、回答与结果。随时回到工作的任何一步。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+            <pre class="excerpt"><code>034  user.message
+035  run.status
+036  runtime.bound
+037  assistant.delta
+038  assistant.delta
+039  assistant.delta
+040  assistant.delta
+041  assistant.message
+042  tool.start
+043  tool.result
+044  assistant.delta
+045  assistant.delta
+046  assistant.delta
+047  assistant.delta</code></pre>
+          </section>
+          <section class="tab-panel" id="panel-surface" role="tabpanel" aria-labelledby="tab-surface">
+            <h3 lang="en">Work state</h3>
+            <p>在同一个工作面查看候选、证据、决定与版本。每次审阅，推动事项向前。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+            <pre class="excerpt"><code>matter        Synthetic inbound NDA
+sources       1
+candidates    1
+decisions     0
+stateVersion  2b11e123ccaa928fba1e159942c637a93cebdf56a267b4774ce178cdeeee941b</code></pre>
+          </section>
+          <section class="tab-panel" id="panel-context" role="tabpanel" aria-labelledby="tab-context">
+            <h3 lang="en">Compiled context</h3>
+            <p>查看每次运行使用的资源、版本与上下文，以及实际的 token 用量。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+            <pre class="excerpt"><code>mode          recorded-run
+revision      0
+hash          905247de045aaef920ad309e17a6f5e0d24ca48c119c4c211d2aeb410d6f4bca
+resources     24
+loaded        0
+tokenUsage    input 2 · output 3 · turns 2</code></pre>
+          </section>
+        </div>
+        <p class="caption">synthetic data · recorded at CourtWork 9e5384f · 三个视图读取同一份记录</p>
+      </section>
+      <section class="section" id="matter" aria-labelledby="matter-title">
+        <p class="index">02</p>
+        <h2 id="matter-title" lang="en">A matter in motion</h2>
+        <blockquote class="pull"><p>从第一条请求，到一次有据可循的决定。</p></blockquote>
+        <iframe
+          class="specimen-frame"
+          name="matter-replay"
+          src="./specimen/index.html"
+          title="A matter in motion"
+          loading="lazy"
+        ></iframe>
+        <p class="note">跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，查看当时的工作状态。</p>
+        <ol class="steps">
+          <li>
+            <p class="step-seen"><span class="step-number">1</span><span lang="en">Home</span></p>
+            <p>写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask before editing、Allow edits，或 Read only。</p>
+            <p class="status is-local">runs locally</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">2</span><span lang="en">Run</span></p>
+            <p>每一次工具调用在发生时显示，不藏在摘要后面。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">3</span><span lang="en">Approval</span></p>
+            <p>写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次写入。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">4</span><span lang="en">Question</span></p>
+            <p>需要补充信息时，直接回答 Agent 的提问。问答随 Run 一起保留。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">5</span><span lang="en">File</span></p>
+            <p>打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">6</span><span lang="en">Stop · reconnect</span></p>
+            <p>取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。</p>
+            <p class="status is-not-yet">not recorded in this replay</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">7</span><span lang="en">Continue in Work</span></p>
+            <p>把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复制，不迁移。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+          <li>
+            <p class="step-seen"><span class="step-number">8</span><span lang="en">Candidate → Decision</span></p>
+            <p>候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。</p>
+            <p class="status is-verified">verified with synthetic data</p>
+          </li>
+        </ol>
+        <p class="caption" lang="en">Interactive replay · synthetic NDA</p>
+        <p class="caption">逐步查看一次 NDA 工作的完整记录。</p>
+      </section>
+      <section class="section editorial" id="architecture" aria-labelledby="architecture-title">
+        <p class="index">03</p>
+        <h2 id="architecture-title"><span lang="en">Work that exists beyond the model.</span><span class="zh">让工作存在于模型之外</span></h2>
+        <p class="prose" data-layers="commit">模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完事项留在一起。一次运行结束，工作继续。</p>
+        <p class="prose" data-layers="input output">每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为正式变化。</p>
+        <p class="prose" data-layers="">更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然有迹可循。</p>
+        <figure class="diagram">
+          <figcaption class="diagram-title" lang="en">From state to committed change</figcaption>
+          <svg class="flow" viewBox="0 0 960 260" role="img" aria-labelledby="flow-title flow-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="flow-title">From state to committed change</title>
+  <desc id="flow-desc">Governed work state 投影为 Context projection，模型或人的提议成为 Candidate；经过验证、证据、授权与审阅之后写入 Committed change，并更新为 Updated state。</desc>
+  <defs>
+    <marker id="flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+  <g fill="currentColor" font-size="14" font-family="inherit">
+    <g data-layer="input">
+      <text x="16" y="46">Governed work state</text>
+      <line x1="164" y1="41" x2="204" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="216" y="46">Context projection</text>
+    </g>
+    <g data-layer="output">
+      <line x1="352" y1="41" x2="392" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="404" y="46">Model / human proposal</text>
+      <line x1="576" y1="41" x2="616" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="628" y="46">Candidate</text>
+      <line x1="664" y1="62" x2="664" y2="176" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="648" y="128" text-anchor="end" font-size="12.5">validation · evidence · authority · review</text>
+    </g>
+    <g data-layer="commit">
+      <text x="628" y="212">Committed change</text>
+      <line x1="616" y1="207" x2="132" y2="207" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="16" y="212">Updated state</text>
+    </g>
+  </g>
+</svg>
+
+          <figcaption>当前状态 → 运行上下文 → 候选 → 审阅 → 正式变化。</figcaption>
+        </figure>
+        <p class="prose closing">Built on Schema Engineering 9.6. 从论文中的工作状态模型，到可以运行、审阅与复现的实现。</p>
+        <p class="actions"><a href="https://lesprivilege.github.io/Schema-Engineering/" lang="en">Read the paper</a><a href="https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md" lang="en">Canonical</a><a href="https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/practice.md" lang="en">Practice</a><a href="https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/practice-index.md" lang="en">Practice Index</a></p>
+      </section>
+      <section class="section" id="review" aria-labelledby="review-title">
+        <p class="index">04</p>
+        <h2 id="review-title" lang="en">Review is a first-class surface</h2>
+        <blockquote class="pull"><p>把候选、证据与来源放在一起。看清依据，再作决定。</p></blockquote>
+        <dl class="words">
+          <dt lang="en">Proposal</dt><dd>逐条规则的候选，绑定它所依据的来源版本。</dd>
+          <dt lang="en">Evidence</dt><dd>直接查看候选引用的原文、事实与待补证据。</dd>
+          <dt lang="en">Decision</dt><dd>接受、退回，或要求补充证据。每次决定绑定明确的候选版本。</dd>
+          <dt lang="en" id="review-provenance">Provenance</dt><dd>谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。</dd>
+        </dl>
+        <p class="note">逐条展开依据，比较修订，保留决定的完整来路。</p>
+<figure class="shot">
+          <picture><source srcset="./media/review-1440-dark.png" media="(prefers-color-scheme: dark)" />
+            <img src="./media/review-1440-light.png" alt="Work Review：一条候选待决定，依据与来源版本可见。" width="1440" height="900" loading="lazy" decoding="async" />
+          </picture>
+          <figcaption>CourtWork <code>9e5384f</code> · synthetic data · local deterministic provider · 1440×900 light · Work Review：一条候选待决定。</figcaption>
+        </figure>
+      </section>
+      <section class="section" id="evidence" aria-labelledby="evidence-title">
+        <p class="index">05</p>
+        <h2 id="evidence-title" lang="en">Evidence</h2>
+        <blockquote class="pull"><p>打开记录，检查方法，亲自复现。</p></blockquote>
+
+        <table class="table">
+          <thead><tr><th>项</th><th>文案</th><th>入口</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" lang="en">Benchmark</th><td>Continuity conformance：六个用例覆盖来源替换、回执重放、重启、身份校验与版本冲突。</td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/benchmarks/continuity"><code>benchmarks/continuity/</code></a></td></tr>
+            <tr><th scope="row" lang="en">Fixture</th><td>由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 sha256。</td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/app/tests/fixtures/work-core/nda-packets.json"><code>app/tests/fixtures/work-core/nda-packets.json</code></a></td></tr>
+            <tr><th scope="row" lang="en">Tests</th><td>固定产品版本的完整应用测试。</td><td>npm --prefix app test · 308 passed, 0 failed</td></tr>
+            <tr><th scope="row" lang="en">Version</th><td>Paper 9.6 <code>d78fd31</code> · 产品 <code>9e5384f</code> · 站点 <code>c8f633e</code></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/PAPER.md"><code>PAPER.md</code></a></td></tr>
+            <tr><th scope="row" lang="en">Decisions</th><td>架构裁决，从第一条起可读。</td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/engineering/decisions.md"><code>engineering/decisions.md</code></a></td></tr>
+            <tr><th scope="row" lang="en">Paper revision</th><td>论文的版本级变化。</td><td><a href="https://github.com/lesPrivilege/Schema-Engineering/blob/main/CHANGELOG.md">CHANGELOG.md（Schema Engineering）</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3 lang="en">Eval</h3>
+        <p class="note">从输入、运行方法到原始结果，完整检查一次 continuity conformance 测试。</p>
+        <dl class="eval">
+          <dt lang="en">What was tested?</dt><dd>Continuity conformance。六个用例，每个 checkpoint 校验完整的语义状态：观察是否在场、来源版本、候选的归属与依据、义务语义、效果计数、成果内容、决定与回执的绑定、拒绝或重启之后状态是否保持。测试范围：协议保真度。</dd>
+          <dt lang="en">Against what?</dt><dd>S：一个认真实现的普通持久化机制，带版本化来源与文档、提交、任务、审批、审计与回执表、事务与 compare-and-set、绑定 payload 的幂等。E 是 CourtWork 的 Core。两者使用同一组符合性要求。只有 transcript 加检索的条件 T：not yet。</dd>
+          <dt lang="en">With which model?</dt><dd>Deterministic clients。模型 pilot：not yet。</dd>
+          <dt lang="en">Which harness?</dt><dd><code>benchmarks/continuity/run.mjs</code> 编排六个用例；E 经 <code>CoreClient</code> 驱动真实 Core，S 经 <code>standard.py</code>；<code>observe.mjs</code> 把原始输出映射为语义字段，<code>grade.mjs</code> 独立校验。CourtWork <code>9e5384f</code>。</dd>
+          <dt lang="en">Which fixture?</dt><dd>一个合成的“证据备忘录”族，开发集，六个用例：normal · stale-source · receipt-replay · restart · actor-spoof · cas-conflict。角色与 ID 在执行前冻结，adapter 不决定哪一个候选是对的。</dd>
+          <dt lang="en">What was held constant?</dt><dd>报告内固定被测文件的 sha256 与 git head 及 dirty 标志；每次尝试的角色与 ID 在执行前冻结；尝试清单在执行任何一条之前落盘。</dd>
+          <dt lang="en">What failed?</dt><dd>早期 cas-conflict 用例曾命中已关闭候选，修订为同一 base 上的第二个待决候选。当前结果与逐次尝试记录见下方 raw record。</dd>
+          <dt lang="en">Can I reproduce it?</dt><dd><code>node --test benchmarks/continuity/grade.test.mjs</code>；<code>node benchmarks/continuity/run.mjs --output /absolute/path/result.json</code>。需要仓库根目录、Node 22.19 以上、Python 3 标准库；输出文件须是新文件；不用 provider、不联网。</dd>
+        </dl>
+        <p class="record is-mono">E 6/6 · S 6/6 · se-continuity-conformance-v1 · CourtWork 9e5384f · model null</p>
+        <p class="note">拒绝结果的四个名字（stale_source · request_conflict · authority_rejected · version_conflict）是被测系统的正确拒绝，不是评测的失败分类。</p>
+        <p class="actions"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/benchmarks/continuity/observation-contract.md" lang="en">method</a><a href="./evidence/continuity-9e5384f.json" lang="en">raw record</a><a href="#build" lang="en">reproduce</a></p>
+
+        <h3>声称表</h3>
+        <table class="table claims">
+          <thead><tr><th>可写的声称</th><th>状态</th><th>证据入口</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">从独立 clone 安装、测试、启动</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/evidence/final-integration-20260908/sync.md"><code>evidence/final-integration-20260908/sync.md</code></a></td></tr>
+            <tr><th scope="row">Run 链：回答、精确写入批准、文件身份、预览、拒绝、停止、断线重连</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/evidence/final-integration-20260908/README.md"><code>evidence/final-integration-20260908/README.md</code></a></td></tr>
+            <tr><th scope="row">运行控制：配置 CAS、来源、上下文、MCP 生命周期</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/rc"><code>evidence/rc/</code></a></td></tr>
+            <tr><th scope="row">MCP 未知效果后封闭后续调用</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/evidence/final-integration-20260908/mcp-unknown.json"><code>evidence/final-integration-20260908/mcp-unknown.json</code></a></td></tr>
+            <tr><th scope="row">Continue in Work：Chat 绑定 Matter，历史与 Project 保留</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/fe03"><code>evidence/fe03/</code></a></td></tr>
+            <tr><th scope="row">合成 NDA：逐规则候选 → 审阅 → 正式决定；幂等与过时版本拒绝</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/wk10b2-main-integration-20260908"><code>evidence/wk10b2-main-integration-20260908/</code></a></td></tr>
+            <tr><th scope="row">新 Session 继续同一事项；产生候选的一方缺席时历史可读</th><td><span class="status is-verified">verified with synthetic data</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/se-continuity-20260908"><code>evidence/se-continuity-20260908/</code></a></td></tr>
+            <tr><th scope="row">Models：Catalog provider · Compatible endpoint · Local endpoint；Test connection、Fetch models</th><td><span class="status is-local">runs locally</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/fe03-main-integration-20260909"><code>evidence/fe03-main-integration-20260909/</code></a></td></tr>
+            <tr><th scope="row">Settings 整页；Appearance 本设备偏好</th><td><span class="status is-local">runs locally</span></td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/9e5384fcabdac432259b3ffab7928251bea49859/evidence/cc-s-main-integration-20260909"><code>evidence/cc-s-main-integration-20260909/</code></a></td></tr>
+            <tr><th scope="row">真实模型 provider 路径</th><td><span class="status is-not-yet">not yet</span></td><td>用户在界面配置</td></tr>
+            <tr><th scope="row">有界模型 pilot 与对比分数</th><td><span class="status is-not-yet">not yet</span></td><td>—</td></tr>
+            <tr><th scope="row">事项级记忆、Temporary chat</th><td><span class="status is-not-yet">not yet</span></td><td>—</td></tr>
+            <tr><th scope="row">桌面安装包、签名</th><td><span class="status is-not-yet">not yet</span></td><td>—</td></tr>
+          </tbody>
+        </table>
+        <p class="note">每份记录包含对应版本、运行条件与验证范围。</p>
+      </section>
+      <section class="section" id="portability" aria-labelledby="portability-title">
+        <p class="index">06</p>
+        <h2 id="portability-title"><span lang="en">Architecture &amp; portability</span><span class="zh">工作可以留下，智能可以迁移</span></h2>
+        <dl class="words">
+          <dt lang="en">Web UI.</dt><dd>原生 ES module 前端，呈现会话、运行、文件与审阅。</dd>
+          <dt lang="en">Host runtime.</dt><dd>Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限、资源与 MCP。</dd>
+          <dt lang="en">Domain core.</dt><dd>Matter、候选、证据与决定，配合版本校验与幂等提交。</dd>
+        </dl>
+        <p class="note">CourtWork 运行在 Pi agent SDK（<code>@earendil-works/pi-*</code> 0.85.1）与官方 MCP client 2.0.0 之上；harness core 管理策略、状态与审阅。</p>
+        <p class="note"><strong>Model usage is separate.</strong> 模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模型账单。</p>
+      </section>
+      <section class="section pricing" id="pricing" aria-labelledby="pricing-title">
+        <p class="index">07</p>
+        <p class="pricing-concept">Concept pricing</p>
+        <h2 id="pricing-title"><span lang="en">Plans for the way you work</span><span class="zh">从个人工作，到团队协作</span></h2>
+        <p class="lede">在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作基础。</p>
+        <blockquote class="pull pricing-premise"><p lang="en">Your work. Your models. Room to grow.</p><p>工作留在手里，模型自由选择。</p></blockquote>
+
+        <div class="pricing-grid">
+          <article class="pricing-card pricing-local" aria-labelledby="pricing-local-title">
+            <div>
+              <h3 id="pricing-local-title" lang="en">Local</h3>
+              <p class="pricing-price">$0</p>
+              <p class="pricing-status">Open source</p>
+              <p class="pricing-summary">Your work stays yours.</p>
+              <ul class="pricing-features">
+                <li>Local Matter store</li><li>Event log &amp; provenance</li><li>Local runtime, bring your own provider or local models</li><li>Public eval suite</li><li>Exportable schemas</li><li>MIT source</li>
+              </ul>
+            </div>
+            <p class="pricing-action"><a href="https://github.com/lesPrivilege/Courtwork">View source</a></p>
+          </article>
+
+          <article class="pricing-card pricing-professional" aria-labelledby="pricing-professional-title">
+            <div>
+              <h3 id="pricing-professional-title" lang="en">Professional</h3>
+              <p class="pricing-price"><span>$29</span><span class="pricing-price-unit"> / month</span></p>
+              <p class="pricing-status">Managed</p>
+              <p class="pricing-summary">A maintained professional workbench.</p>
+              <ul class="pricing-features">
+                <li>Signed desktop builds</li><li>Managed updates</li><li>Cloud sync &amp; backup</li><li>Hosted runtime</li><li>Continuous private eval</li><li>Managed integrations</li><li>Longer history</li>
+              </ul>
+            </div>
+            <p class="pricing-action"><a href="#pricing-tab-hosted">Explore hosted →</a></p>
+          </article>
+
+          <article class="pricing-card pricing-organization" aria-labelledby="pricing-organization-title">
+            <div>
+              <h3 id="pricing-organization-title" lang="en">Organization</h3>
+              <p class="pricing-price">Custom</p>
+              <p class="pricing-status">Private deployment</p>
+              <p class="pricing-summary">Governed work at organizational scale.</p>
+              <ul class="pricing-features">
+                <li>Shared Matters</li><li>Policy &amp; review controls</li><li>RBAC / SSO</li><li>Audit exports</li><li>Private deployment</li><li>Sovereign-model support</li><li>Expert lifecycle management</li><li>SLA / deployment assistance</li>
+              </ul>
+            </div>
+            <p class="pricing-action"><a href="#pricing-tab-organization">Explore organization →</a></p>
+          </article>
+        </div>
+
+        <p class="pricing-model-note"><strong>Model usage is separate.</strong> Bring your own provider, use local models, or use managed inference with a spending cap.<br />模型用量另计：自带 provider、用本地模型，或用带上限的托管推理。</p>
+
+        <div class="pricing-tabs tabs" data-tabs="pricing-value">
+          <div class="tab-strip" role="tablist" aria-label="Plans for the way you work">
+            <button type="button" role="tab" id="pricing-tab-local" aria-controls="pricing-panel-local" aria-selected="true" tabindex="0">Local</button>
+            <button type="button" role="tab" id="pricing-tab-hosted" aria-controls="pricing-panel-hosted" aria-selected="false" tabindex="-1">Hosted</button>
+            <button type="button" role="tab" id="pricing-tab-organization" aria-controls="pricing-panel-organization" aria-selected="false" tabindex="-1">Organization</button>
+          </div>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-local" role="tabpanel" aria-labelledby="pricing-tab-local">
+            <svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-local-svg-title">
+          <title id="pricing-local-svg-title">Local value layer: Matter store, CourtWork, and your provider.</title>
+          <g class="pricing-svg-node">
+            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Matter store</text>
+            <line x1="150" y1="102" x2="150" y2="150" />
+            <rect x="30" y="150" width="240" height="72" rx="8" /><text x="150" y="192">CourtWork</text>
+            <line x1="150" y1="222" x2="150" y2="270" />
+            <rect x="30" y="270" width="240" height="72" rx="8" /><text x="150" y="312">Your provider</text>
+          </g>
+        </svg>
+          </section>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-hosted" role="tabpanel" aria-labelledby="pricing-tab-hosted">
+            <svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-hosted-svg-title">
+          <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
+          <g class="pricing-svg-node">
+            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Local / cloud Matter</text>
+            <line x1="150" y1="102" x2="150" y2="142" />
+            <rect x="30" y="142" width="240" height="116" rx="8" />
+            <text x="150" y="166">CourtWork service</text><text x="150" y="191">Sync · Eval</text><text x="150" y="230">Managed runtime</text>
+            <line x1="150" y1="258" x2="150" y2="298" />
+            <rect x="30" y="298" width="240" height="72" rx="8" /><text x="150" y="340">BYOK / managed model</text>
+          </g>
+        </svg>
+          </section>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-organization" role="tabpanel" aria-labelledby="pricing-tab-organization">
+            <svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-organization-svg-title">
+          <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval, and provenance.</title>
+          <g class="pricing-svg-node">
+            <rect x="30" y="30" width="240" height="48" rx="8" /><text x="150" y="59">Users</text>
+            <line x1="150" y1="78" x2="85" y2="112" /><line x1="150" y1="78" x2="215" y2="112" />
+            <rect x="30" y="112" width="110" height="48" rx="8" /><text x="85" y="141">Policy</text>
+            <rect x="160" y="112" width="110" height="48" rx="8" /><text x="215" y="141">Review</text>
+            <line x1="85" y1="160" x2="150" y2="190" /><line x1="215" y1="160" x2="150" y2="190" />
+            <rect x="30" y="190" width="240" height="48" rx="8" /><text x="150" y="219">Matter governance</text>
+            <line x1="150" y1="238" x2="150" y2="270" />
+            <rect x="30" y="270" width="240" height="44" rx="8" /><text x="150" y="297">Expert runtime</text>
+            <line x1="150" y1="314" x2="150" y2="340" />
+            <rect x="30" y="340" width="240" height="36" rx="8" /><text x="150" y="363">Audit · Eval · Provenance</text>
+          </g>
+        </svg>
+          </section>
+        </div>
+        <p class="caption">从本地到组织，材料、事件与版本始终随工作同行。</p>
+      </section>
+      <section class="section" id="build" aria-labelledby="build-title">
+        <p class="index">08</p>
+        <h2 id="build-title" lang="en">Build / inspect / reproduce</h2>
+        <pre class="commands"><code>git clone https://github.com/lesPrivilege/Courtwork.git
+cd Courtwork
+npm --prefix app ci
+npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
+npm --prefix app test</code></pre>
+        <p class="note">需要 Node.js 22.19 以上、Python 3、Git 2.36 以上。默认 provider 是本地确定性 fake；真实 provider 在界面里配置，密钥不进入仓库、聊天或截图。</p>
+        <figure class="shot">
+          <picture><source srcset="./media/settings-models-1440-dark.png" media="(prefers-color-scheme: dark)" />
+            <img src="./media/settings-models-1440-light.png" alt="Settings › Models：Add provider 的 Compatible endpoint 一行，Test connection 与 Fetch models 在场。" width="1440" height="900" loading="lazy" decoding="async" />
+          </picture>
+          <figcaption>CourtWork <code>9e5384f</code> · synthetic data · local deterministic provider · 1440×900 light · Settings › Models：Compatible endpoint 的两个探测控件在场，未填写端点，未存任何密钥。</figcaption>
+        </figure>
+        <table class="table">
+          <thead><tr><th>入口</th><th>文案</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/README.md"><code>README.md</code></a></th><td>运行、验证与范围。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/engineering/current.md"><code>engineering/current.md</code></a></th><td>已交付能力、证据边界、下一单。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/engineering/architecture.md"><code>engineering/architecture.md</code></a></th><td>模块所有权与边界。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/engineering/roadmap.md"><code>engineering/roadmap.md</code></a></th><td>长期路线与验证门。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/docs/runtime-control/INDEX.md"><code>docs/runtime-control/INDEX.md</code></a></th><td>资源、权限、MCP 与上下文绑定。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/docs/interface-components.md"><code>docs/interface-components.md</code></a></th><td>布局、消息、工作面、焦点与状态 owner。</td></tr>
+            <tr><th scope="row"><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/PAPER.md"><code>PAPER.md</code></a></th><td>采用的论文版本与反馈路径。</td></tr>
+          </tbody>
+        </table>
+
+      </section>
+    </main>
+    <footer class="footer">
+      <p><span class="is-mono">Open source</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork" lang="en">Source on GitHub</a><span class="dot">·</span><span class="is-mono">9e5384f / c8f633e</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/LICENSE" lang="en">MIT License</a><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/9e5384fcabdac432259b3ffab7928251bea49859/PAPER.md" lang="en">Schema Engineering 9.6</a></p>
+    </footer>
+    <script type="module" src="./site.mjs"></script>
+  </body>
+</html>

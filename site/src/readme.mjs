@@ -1,0 +1,87 @@
+// The repository's README.
+//
+// One README, Chinese-led, sharing its headline, its claim table and its
+// commands with the published page — literally, from copy.mjs, so the two can
+// never say different things about what has been verified. The README does not
+// repeat the page's argument; it says how to run the thing and what is true.
+import { HERO, CLAIMS, BUILD, EVIDENCE } from "./copy.mjs";
+
+export function renderReadme({ identity, evidence }) {
+  const claims = CLAIMS.map(([claim, status, entry]) => {
+    const cell =
+      entry === "—" || !/^[A-Za-z0-9_.\-]+(\/|$)/.test(entry) ? entry : `[\`${entry}\`](${entry})`;
+    return `| ${claim} | ${status} | ${cell} |`;
+  }).join("\n");
+
+  // The page's entry table lists the README first; inside the README that row
+  // would point at the file the reader is already in.
+  const entries = BUILD.entries
+    .filter(([, , target]) => target !== "README.md")
+    .map(([name, text, target]) => `- [\`${target}\`](${target})：${text}`)
+    .join("\n");
+  const components = BUILD.components.map(([name, text]) => `- **${name}** ${text}`).join("\n");
+
+  return `# ${HERO.wordmark}
+
+_${HERO.tagline}_
+
+**${HERO.h1[0]}**
+**${HERO.h1[1]}**
+
+${HERO.lede}
+
+[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [站点源码与本地预览](site/README.md) · [工程状态](engineering/current.md)。
+
+## 本地运行
+
+${BUILD.note}
+
+每个服务使用独立数据目录。当前主线使用 schema 5，旧 schema 3/4 经完整验证与独占备份后升级；迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
+
+\`\`\`sh
+${BUILD.commands.join("\n")}
+\`\`\`
+
+## 验证
+
+\`\`\`sh
+npm --prefix app test
+node --test benchmarks/continuity/grade.test.mjs
+node benchmarks/continuity/run.mjs --output /absolute/path/result.json
+node tools/lint-colors.mjs
+node tools/lint-materials.mjs
+node tools/contrast-report.mjs
+\`\`\`
+
+产品证据快照 \`${identity.sha7}\` 上的记录：应用测试 ${evidence.tests.pass} 通过、${evidence.tests.fail} 失败；continuity conformance E ${evidence.benchmark.conditions.E.passed}/${evidence.benchmark.conditions.E.attempted}、S ${evidence.benchmark.conditions.S.passed}/${evidence.benchmark.conditions.S.attempted}，记录在 [\`${evidence.benchmark.record}\`](${evidence.benchmark.record})。这些数字属于该固定快照，不代表当前 main 的测试总数。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
+
+真实模型验证：待完成。
+
+## 声称表
+
+| 可写的声称 | 状态 | 证据入口 |
+|---|---|---|
+${claims}
+
+${EVIDENCE.claimsNote}
+
+## 入口
+
+${entries}
+- [\`engineering/migration/2026-09-08/README.md\`](engineering/migration/2026-09-08/README.md)：来源、Git 谱系、工作目录与回退边界。
+
+## 组成
+
+${components}
+
+${BUILD.upstream}
+
+## Paper
+
+CourtWork 按 Schema Engineering 9.6（\`d78fd31\`）建造，版本绑定与反馈路径见 [\`PAPER.md\`](PAPER.md)。
+
+## License
+
+MIT，见 [\`LICENSE\`](LICENSE)。
+`;
+}

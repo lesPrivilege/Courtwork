@@ -1,0 +1,331 @@
+/* The specimen's own layout. Every colour, radius, shadow and type size below
+ * is a product token: this file adds arrangement, never material. */
+body.specimen-page {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--frame);
+  color: var(--ink);
+}
+
+#specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.specimen-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.specimen-label {
+  margin: 0;
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.specimen-counter {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+
+.specimen-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.specimen-step,
+.specimen-layer,
+.specimen-state,
+.specimen-nav {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--muted-strong);
+  font: inherit;
+  font-size: var(--text-label);
+  padding: 6px var(--space-3);
+  cursor: pointer;
+}
+
+.specimen-step.is-current,
+.specimen-layer.is-current,
+.specimen-state.is-current {
+  background: var(--selected);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.specimen-step:focus-visible,
+.specimen-layer:focus-visible,
+.specimen-state:focus-visible,
+.specimen-nav:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.specimen-nav[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.specimen-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.specimen-sentence {
+  margin: 0;
+  font-size: var(--text-reading);
+  line-height: 1.7;
+}
+
+.specimen-status,
+.specimen-links {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+}
+
+.specimen-links {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.specimen-key {
+  font-family: var(--font-mono);
+}
+
+.specimen-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.specimen-main,
+.specimen-layers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.specimen-stage,
+.specimen-layer-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  overflow-x: auto;
+  min-height: 220px;
+}
+
+.specimen-layer-tabs {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.specimen-surface-switch {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.specimen-card h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-title);
+  letter-spacing: var(--tracking-heading);
+}
+
+.specimen-field {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-body);
+}
+
+.specimen-field-name {
+  color: var(--muted-strong);
+  min-width: 9em;
+}
+
+.specimen-absent {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+.specimen-events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-caption);
+}
+
+.specimen-events li {
+  display: flex;
+  gap: var(--space-2);
+  padding: 2px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.specimen-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 2px var(--space-3);
+  margin: 0;
+  font-size: var(--text-caption);
+}
+
+.specimen-facts dt {
+  color: var(--muted-strong);
+}
+
+.specimen-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.specimen-refusal {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  background: var(--panel-muted);
+  padding: var(--space-3);
+}
+
+.specimen-refusal p {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-body);
+}
+
+/* Not an error: a statement that the request stopped here. It is set in the
+ * same quiet monospace as the replay label above it. */
+.specimen-refusal-head {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+.specimen-json {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.specimen-nav-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.specimen-foot p {
+  margin: 0 0 var(--space-1);
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+  line-height: 1.7;
+}
+
+.specimen-fallback {
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fallback-lead,
+.fallback-note {
+  font-size: var(--text-body);
+  line-height: 1.7;
+  color: var(--muted-strong);
+}
+
+.fallback-seen {
+  margin: 0;
+  font-size: var(--text-label);
+}
+
+.fallback-text {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+.fallback-status {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+@media (max-width: 900px) {
+  .specimen-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Motion here is one thing only: the focus ring moving between steps. There is
+ * no transition to disable, so reduced motion changes nothing — which is the
+ * state this file must be able to claim. */
+
+/* The thread rows app.mjs would otherwise own. Material comes from the
+ * product's stylesheet; these rules only place things. */
+.specimen-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.specimen-assistant,
+.specimen-prompt {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+.specimen-tool summary {
+  cursor: pointer;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+
+.specimen-run-status {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+.specimen-permission {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+
+.specimen-card + .specimen-card {
+  margin-top: var(--space-3);
+}
+
+.fallback-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}

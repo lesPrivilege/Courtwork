@@ -10,7 +10,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
-| 对外口径 / README / Pages | PS-24 与 public-copy-v2 准备包已合流；WO-PS-01 仍待正式回执，主线尚无新 site/workflow | Astra 接手回执复核；按 [当前发布面批次](release/publishing-surface-2026-09-09/README.md) 接收 PS-01，再处理 PS-02 |
+| 对外口径 / README / Pages | PS-01/02 第一版完整版面已交付，PS-26 改为产品口吻；固定产品快照 9e5384f，308/308、E/S 各 6/6，页面浏览器 17/17 | 用户 PS-27 授权本轮 GitHub Pages 发布，随后独立 review；[交付与接续](release/publishing-surface-2026-09-09/delivery-ps-01.md)。品牌后置 |
 | 通用工作面 / Workbench | CC-D0-a 与 r4d 5b4c981 已合流（4f7278f），验证与归因见页末 | Astra 接手清账；后续 FE-05a → FE-05 → ATT-FE-01 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
 | 领域主链 | ES-01文件候选与Attention后端已合流（当前Core3/app4，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
@@ -220,6 +220,8 @@ Astra 完成隔离 parser 坐标 probe，Luna 负责本仓/主源核验，Terra 
 T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有锁定SDK普通loop与native缺口，不声称原生async。HL包仍只是离线响应/向量，生产DTO、摄取、proposal/effect写链路待Astra冻结。无新UI、自动续行、真实provider、外发、部署或Paper变更，G1–G5保持开放；前端和发布面队列沿上文当前裁定。
 
 本批组合实际基线 `a243a6c`，Astra合流验证346/346与smoke通过；T4四窗/分目录恢复与策略wrapper真红→绿独验已接收，详见上述回执。最小task adapter仍为opt-in，独立协议/fixture测试不授予模型native能力。
+
+2026-09-10 Pages 接续：Claude 原施工 `e492dc9` 由 Astra 恢复为 `230a719`，Terra 定价 `082b35f`/`f412a62`，Astra 完整版面 `e142b56`；与 async 当前 main `85693a6` 合流为 `e2f3ef0`。唯一冲突 README 按页面生成器重建并保留 schema 5 迁移/独占备份要求。真实 composer 图标回退在 `9e5384f` 修复，独立复核与页面回执另列；固定快照测试不代表合流后全量数量。用户将独立 review 页面，不关闭真实模型与产品门。品牌 `15b6464` 保留独立分支，不随本轮发布。
 
 ## Markdown reader 与 Output Review 边界（2026-09-10）
 

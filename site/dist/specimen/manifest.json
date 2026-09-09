@@ -1,0 +1,200 @@
+{
+  "id": "specimen",
+  "kind": "interactive-fixture",
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+  "capture_date": "2026-09-09",
+  "capture_command": "node site/scripts/capture-specimen.mjs",
+  "data_kind": "synthetic",
+  "provider_mode": "local deterministic fake (fake-openai-loopback)",
+  "dataClass": "synthetic; actual HTTP/Pi loopback/Core; no real provider",
+  "recording": {
+    "path": "specimen/9e5384f.json",
+    "bytes": 298756,
+    "sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0"
+  },
+  "vendor_product": [
+    {
+      "source": "app/web/ui-controls.mjs",
+      "source_sha256": "2a3fdc941838f5ec3a18018302e491412402f6208d4da43ab3adde9a6fc79d62",
+      "source_bytes": 15187,
+      "copied_to": "web/ui-controls.mjs",
+      "copied_sha256": "7bb69be918a86da087e807288887a315e1206dad851bbc7aa325c6587d1ea4b2",
+      "rewrites": [
+        {
+          "line": 74,
+          "from": "/web/vendor/icons.svg#",
+          "to": "./vendor-product/web/vendor/icons.svg#"
+        }
+      ]
+    },
+    {
+      "source": "app/web/surface-modules.mjs",
+      "source_sha256": "2409c1a732d573ff7f89f63009f65f7e66a349c33da99e464021163419e86d15",
+      "source_bytes": 40646,
+      "copied_to": "web/surface-modules.mjs",
+      "copied_sha256": "2409c1a732d573ff7f89f63009f65f7e66a349c33da99e464021163419e86d15",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/thread-projection.mjs",
+      "source_sha256": "3cb84b522fa955d1233fca13be179203a078f2dc2361e17ef2a107b90095dd64",
+      "source_bytes": 6472,
+      "copied_to": "web/thread-projection.mjs",
+      "copied_sha256": "3cb84b522fa955d1233fca13be179203a078f2dc2361e17ef2a107b90095dd64",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/presentation-adapters.mjs",
+      "source_sha256": "7f84ffa9f2ce957a8081d6b67a2eea1d982c3cfa4edbfa92d04770c0d72bc5b3",
+      "source_bytes": 7389,
+      "copied_to": "web/presentation-adapters.mjs",
+      "copied_sha256": "7f84ffa9f2ce957a8081d6b67a2eea1d982c3cfa4edbfa92d04770c0d72bc5b3",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/user-message.mjs",
+      "source_sha256": "f15f404df2cdeb2464c25a92f11fb6f6854b1a0a8512ec7b71d40fd1e3129200",
+      "source_bytes": 1366,
+      "copied_to": "web/user-message.mjs",
+      "copied_sha256": "f15f404df2cdeb2464c25a92f11fb6f6854b1a0a8512ec7b71d40fd1e3129200",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/workspace-view.mjs",
+      "source_sha256": "ea51d3b1f001c7cda704010da262dd8b13f89b096acbfc7e19b295006c600e5a",
+      "source_bytes": 4546,
+      "copied_to": "web/workspace-view.mjs",
+      "copied_sha256": "ea51d3b1f001c7cda704010da262dd8b13f89b096acbfc7e19b295006c600e5a",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/inspector.mjs",
+      "source_sha256": "3e6b1cda8e939c8182b027309315d8950f03f12944b93dafb3a52d5e7a33ee6f",
+      "source_bytes": 14599,
+      "copied_to": "web/inspector.mjs",
+      "copied_sha256": "3e6b1cda8e939c8182b027309315d8950f03f12944b93dafb3a52d5e7a33ee6f",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/runtime-view.mjs",
+      "source_sha256": "5b3693f6d995669824ad7361019d03a4c0bf439290d470e2cf5fcee8b949e8e2",
+      "source_bytes": 106415,
+      "copied_to": "web/runtime-view.mjs",
+      "copied_sha256": "5b3693f6d995669824ad7361019d03a4c0bf439290d470e2cf5fcee8b949e8e2",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/styles.css",
+      "source_sha256": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "source_bytes": 134422,
+      "copied_to": "web/styles.css",
+      "copied_sha256": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/vendor/floating.mjs",
+      "source_sha256": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
+      "source_bytes": 15842,
+      "copied_to": "web/vendor/floating.mjs",
+      "copied_sha256": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/vendor/marked.mjs",
+      "source_sha256": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
+      "source_bytes": 43800,
+      "copied_to": "web/vendor/marked.mjs",
+      "copied_sha256": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/vendor/purify.mjs",
+      "source_sha256": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
+      "source_bytes": 133141,
+      "copied_to": "web/vendor/purify.mjs",
+      "copied_sha256": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/vendor/icons.svg",
+      "source_sha256": "1e0528478d5e5bc0d2844b150a052383af5a674092309e5e33819f73b7998847",
+      "source_bytes": 3941,
+      "copied_to": "web/vendor/icons.svg",
+      "copied_sha256": "1e0528478d5e5bc0d2844b150a052383af5a674092309e5e33819f73b7998847",
+      "rewrites": []
+    },
+    {
+      "source": "app/web/vendor/LICENSES.txt",
+      "source_sha256": "28ba9753d069a1be742c35d6e2939291ea54c6cbea01e7af2b0912490ace0a18",
+      "source_bytes": 21148,
+      "copied_to": "web/vendor/LICENSES.txt",
+      "copied_sha256": "28ba9753d069a1be742c35d6e2939291ea54c6cbea01e7af2b0912490ace0a18",
+      "rewrites": []
+    },
+    {
+      "source": "app/extensions/inbound-nda/renderer.mjs",
+      "source_sha256": "7e1f2095bd1d970960f2bfdb9f48ac4028f6bcc14b035d1ae0178c9fd6b85ef6",
+      "source_bytes": 14940,
+      "copied_to": "extensions/inbound-nda/renderer.mjs",
+      "copied_sha256": "710365c1221e99e79439206151a3cd2c453ecd03ca453ea969274066b037023a",
+      "rewrites": [
+        {
+          "line": 21,
+          "from": "\"/web/ui-controls.mjs\"",
+          "to": "\"../../web/ui-controls.mjs\""
+        },
+        {
+          "line": 28,
+          "from": "\"/web/surface-modules.mjs\"",
+          "to": "\"../../web/surface-modules.mjs\""
+        }
+      ]
+    }
+  ],
+  "rewritten_references": [
+    {
+      "source": "app/web/index.html",
+      "original": "/web/styles.css",
+      "disposition": "not copied — the specimen has its own document"
+    },
+    {
+      "source": "app/web/index.html",
+      "original": "/brand/src/court-symbol.mjs",
+      "disposition": "not copied — the specimen has its own document"
+    },
+    {
+      "source": "app/web/index.html",
+      "original": "/web/app.mjs",
+      "disposition": "not copied — the specimen has its own document"
+    },
+    {
+      "source": "app/web/app.mjs",
+      "original": "\"/api/v5\"",
+      "disposition": "not copied — app.mjs is replaced by site/specimen/shell.mjs"
+    },
+    {
+      "source": "app/web/ui-controls.mjs",
+      "original": "/web/vendor/icons.svg#",
+      "rewrite": [
+        "/web/vendor/icons.svg#",
+        "./vendor-product/web/vendor/icons.svg#"
+      ]
+    },
+    {
+      "source": "app/extensions/inbound-nda/renderer.mjs",
+      "original": "\"/web/ui-controls.mjs\"",
+      "rewrite": [
+        "\"/web/ui-controls.mjs\"",
+        "\"../../web/ui-controls.mjs\""
+      ]
+    },
+    {
+      "source": "app/extensions/inbound-nda/renderer.mjs",
+      "original": "\"/web/surface-modules.mjs\"",
+      "rewrite": [
+        "\"/web/surface-modules.mjs\"",
+        "\"../../web/surface-modules.mjs\""
+      ]
+    }
+  ]
+}

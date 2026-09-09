@@ -1,0 +1,579 @@
+/* The page's arrangement.
+ *
+ * Every colour, shadow, radius, type size and spacing step below is a variable
+ * lifted from the product's stylesheet at build time (tokens.css). The only
+ * variables this file declares are measurements — how wide the reading column
+ * is, how far sections stand apart — which the product has no opinion about
+ * because it has no page like this one. No hex value, no shadow, no radius and
+ * no font is invented here. */
+:root {
+  --site-measure: 68ch;
+  --site-wide: 1040px;
+  --site-section-gap: 88px;
+  --site-block-gap: var(--space-6);
+  /* The one length here that is not a measurement. The product's two blur
+   * steps are for chrome floating over scrolling content and are far too
+   * strong to step a diagram back by one remove; this is a defocus, and it is
+   * named so it can be found. */
+  --site-defocus: 1.6px;
+}
+
+body {
+  margin: 0;
+  background: var(--frame);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-reading);
+  line-height: 1.75;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* CJK reads better with a touch more air between lines than the product's
+ * dense application type; nothing else about the ladder changes. */
+p,
+li,
+dd,
+td,
+th {
+  line-height: 1.85;
+}
+
+a {
+  color: var(--accent-ink);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: from-font;
+}
+
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-small);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+}
+
+.is-mono {
+  font-family: var(--font-mono);
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  position: static;
+  display: inline-block;
+  margin: var(--space-3);
+}
+
+/* ---- masthead ---------------------------------------------------------- */
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: var(--site-wide);
+  margin: 0 auto;
+  padding: var(--space-6) var(--page-gutter) var(--space-4);
+}
+
+.wordmark {
+  margin: 0;
+  font-size: var(--text-navigation-title);
+  font-weight: 600;
+  letter-spacing: var(--tracking-heading);
+}
+
+.tagline {
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted-strong);
+  font-style: italic;
+}
+
+.masthead nav {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-label);
+}
+
+/* ---- shared -------------------------------------------------------------- */
+main {
+  max-width: var(--site-wide);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter) var(--site-section-gap);
+}
+
+.section,
+.hero {
+  padding-top: var(--site-section-gap);
+  border-top: 1px solid var(--line);
+  margin-top: var(--site-section-gap);
+}
+
+.hero {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: var(--space-6);
+}
+
+.index {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(30px, 4.4vw, 46px);
+  line-height: 1.25;
+  letter-spacing: var(--tracking-heading);
+  font-weight: 600;
+  max-width: 20ch;
+}
+
+h1 span {
+  display: block;
+}
+
+h1 span + span {
+  color: var(--muted-strong);
+  font-size: 0.72em;
+  margin-top: var(--space-2);
+}
+
+h2 {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.35;
+  letter-spacing: var(--tracking-heading);
+  font-weight: 600;
+}
+
+h2 .zh {
+  display: block;
+  color: var(--muted-strong);
+  font-size: 0.66em;
+  margin-top: var(--space-1);
+}
+
+h3 {
+  margin: var(--space-8) 0 var(--space-3);
+  font-size: var(--text-title);
+  letter-spacing: var(--tracking-heading);
+  font-weight: 600;
+}
+
+.lede,
+.note,
+.prose {
+  max-width: var(--site-measure);
+  margin: 0 0 var(--space-4);
+}
+
+.note,
+.caption {
+  color: var(--muted-strong);
+  font-size: var(--text-body);
+}
+
+.caption {
+  max-width: var(--site-measure);
+  margin: var(--space-3) 0 0;
+}
+
+.label {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+blockquote.pull {
+  margin: 0 0 var(--space-6);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--line-strong);
+  max-width: var(--site-measure);
+}
+
+blockquote.pull p {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.6;
+}
+
+blockquote.pull p + p {
+  font-size: var(--text-reading);
+  color: var(--muted-strong);
+  margin-top: var(--space-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-label);
+}
+
+/* The three states are told apart by their words, not by colour. The page's
+ * whole palette is one ink, one secondary grey, one link and one accent, all
+ * of them the product's; a green badge would be a fifth, and it would also
+ * make «verified with synthetic data» look like an endorsement rather than a
+ * statement about the data. The modifier classes stay as hooks and carry no
+ * colour of their own. */
+.status {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+/* ---- media -------------------------------------------------------------- */
+figure.shot {
+  margin: var(--space-6) 0 0;
+}
+
+figure.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+figure.shot figcaption {
+  margin-top: var(--space-3);
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+  max-width: var(--site-measure);
+}
+
+/* ---- tabs (01) ---------------------------------------------------------- */
+.tab-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.tab-strip button {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--muted-strong);
+  font: inherit;
+  font-size: var(--text-label);
+  padding: 6px var(--space-3);
+  cursor: pointer;
+}
+
+.tab-strip button[aria-selected="true"] {
+  background: var(--selected);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.tab-panel {
+  max-width: var(--site-measure);
+}
+
+.tab-panel h3 {
+  margin-top: 0;
+}
+
+/* Without scripting the three panels simply stand one after another, which is
+ * the whole content; the strip is then only a set of in-page landmarks. */
+.tabs[data-ready] .tab-panel[hidden] {
+  display: none;
+}
+
+.excerpt,
+.commands {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  overflow-x: auto;
+  font-size: var(--text-caption);
+  line-height: 1.65;
+}
+
+.commands {
+  max-width: var(--site-measure);
+}
+
+/* ---- specimen (02) ------------------------------------------------------ */
+.specimen-frame {
+  display: block;
+  width: 100%;
+  height: 720px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--frame);
+}
+
+.steps {
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6) var(--space-8);
+}
+
+.steps li p {
+  margin: 0 0 var(--space-1);
+}
+
+.step-seen {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  font-weight: 600;
+  font-size: var(--text-label);
+}
+
+.step-number {
+  font-family: var(--font-mono);
+  color: var(--muted-strong);
+  font-weight: 400;
+}
+
+/* ---- editorial (03) ----------------------------------------------------- */
+.editorial .prose {
+  font-size: var(--text-title);
+  line-height: 1.9;
+  max-width: 40ch;
+}
+
+.editorial .closing {
+  font-size: var(--text-reading);
+  color: var(--muted-strong);
+  max-width: var(--site-measure);
+  margin-top: var(--space-8);
+}
+
+.diagram {
+  margin: var(--space-8) 0 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+.diagram-title {
+  font-weight: 600;
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-heading);
+  margin-bottom: var(--space-3);
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 640px;
+  height: auto;
+  color: var(--ink);
+}
+
+.diagram figcaption:last-of-type {
+  margin-top: var(--space-3);
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+  max-width: var(--site-measure);
+}
+
+/* Focus follows the paragraph. Only inactive connectors soften; the labels
+ * remain sharp so the whole argument is still readable. No scroll animation,
+ * no backdrop sampling, and no effect without reader interaction. */
+.editorial[data-focus] .diagram g[data-layer] > line {
+  transition:
+    filter var(--duration) var(--ease-out),
+    opacity var(--duration) var(--ease-out);
+}
+
+.editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
+  filter: blur(var(--site-defocus));
+  opacity: 0.42;
+}
+
+.editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) {
+  color: var(--muted-strong);
+}
+
+.editorial[data-focus] .prose:not(.is-sharp):not(.closing) {
+  color: var(--muted-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial[data-focus] .diagram g[data-layer] > line {
+    transition: none;
+  }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
+    filter: none;
+    opacity: 1;
+  }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) { color: var(--ink); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .editorial[data-focus] .diagram g[data-layer] > line {
+    transition: none;
+  }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
+    filter: none;
+    opacity: 1;
+  }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) { color: var(--ink); }
+}
+
+/* ---- lists and tables --------------------------------------------------- */
+.words {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) minmax(0, 1fr);
+  gap: var(--space-3) var(--space-6);
+  margin: 0 0 var(--space-6);
+  max-width: var(--site-wide);
+}
+
+.words dt {
+  font-weight: 600;
+}
+
+.words dd {
+  margin: 0;
+}
+
+.eval {
+  display: grid;
+  grid-template-columns: minmax(11rem, max-content) minmax(0, 1fr);
+  gap: var(--space-3) var(--space-6);
+  margin: 0 0 var(--space-4);
+}
+
+.eval dt {
+  font-weight: 600;
+  font-size: var(--text-label);
+}
+
+.eval dd {
+  margin: 0;
+}
+
+.record {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  font-size: var(--text-caption);
+  display: inline-block;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body);
+  display: block;
+  overflow-x: auto;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--space-3) var(--space-4) var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+}
+
+.table thead th {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  border-bottom-color: var(--line-strong);
+}
+
+.table tbody th {
+  font-weight: 600;
+  padding-right: var(--space-6);
+}
+
+.claims tbody th {
+  max-width: 34ch;
+}
+
+/* ---- footer -------------------------------------------------------------- */
+/* The closing band is the darkest surface on the page. In the light theme that
+ * is the inverted pair; in the dark theme the page is already dark, and
+ * inverting again would end the page on a bright slab, so the band becomes the
+ * deepest frame with a rule above it. Both are product tokens. */
+.footer {
+  background: var(--gray-12);
+  color: var(--gray-1);
+  padding: var(--space-8) var(--page-gutter);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .footer {
+    background: var(--frame);
+    color: var(--ink);
+    border-top: 1px solid var(--line);
+  }
+  :root:not([data-theme="light"]) .footer a {
+    color: var(--ink);
+  }
+  :root:not([data-theme="light"]) .footer .dot {
+    color: var(--muted-strong);
+  }
+}
+
+.footer p {
+  max-width: var(--site-wide);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+  font-size: var(--text-label);
+}
+
+.footer a {
+  color: var(--gray-1);
+}
+
+.footer .dot {
+  color: var(--gray-9);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --site-section-gap: 56px;
+  }
+  .words,
+  .eval {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) 0;
+  }
+  .words dt,
+  .eval dt {
+    margin-top: var(--space-3);
+  }
+  .specimen-frame {
+    height: 620px;
+  }
+}
+
+.anatomy-links { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-3); margin-block:var(--space-6); font-family:var(--font-mono); font-size:var(--text-body); }
