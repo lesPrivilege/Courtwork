@@ -157,7 +157,7 @@ Updated state ◀─────────────────────
 
 | 项 | 文案 | 入口 |
 |---|---|---|
-| **Benchmark** | 同一事项换 Session 继续的观察协议与用例。分数只在协议内有意义。 | `benchmarks/continuity/` |
+| **Benchmark** | Continuity conformance：六个用例检验正式状态在来源替换、回执重放、重启、伪造 actor 与过期 base 之下是否保持。结果只在协议内有意义。 | `benchmarks/continuity/` |
 | **Fixture** | 由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 sha256。 | `app/tests/fixtures/work-core/nda-packets.json` |
 | **Tests** | 数字由构建时从发布 SHA 计算，不手写。 | `npm --prefix app test` |
 | **Version** | Paper 9.6 `d78fd31` · 产品 `<source_sha>` · 站点 `<site_sha>` | `PAPER.md`、页脚 |
@@ -166,20 +166,22 @@ Updated state ◀─────────────────────
 
 ### 6.2 Eval 八问
 
-固定结构，每问只显示发布 SHA 下真实存在的答案，缺者写 **not yet**。有界模型 pilot 未跑之前不出现任何对比分数。答案由 EX-PS4 核实后填入。
+固定结构，每问只显示发布 SHA 下真实存在的答案，缺者写 **not yet**。有界模型 pilot 未跑之前不出现任何对比分数；E 与 S 的通过数只从发布 SHA 上重跑生成的记录文件读取（PS-16）。答案依据 [EX-PS4](explore/ex-ps4-eval-surface.md) 表 1–6。
 
-| 问 | 文案（答案位） |
+| 问 | 文案 |
 |---|---|
-| What was tested? | 连续性：新 Session 是否恢复同一事项的成果、依据与未决。 |
-| Against what? | 协议内的 baseline 定义（EX-PS4 核实；无则 not yet）。 |
-| With which model? | 已有运行的 provider 身份：local deterministic provider；真实模型 not yet。 |
-| Which harness? | CourtWork `<source_sha>`。 |
-| Which fixture? | 用例 id 列表（`cases.json`）。 |
-| What was held constant? | 协议规定的固定项（EX-PS4 核实）。 |
-| What failed? | 已有运行记录中的失败项；无失败分类则写"协议未定义失败分类"。 |
-| Can I reproduce it? | 复现命令与前置条件。 |
+| What was tested? | Continuity conformance。六个用例，每个 checkpoint 校验完整的语义状态：观察是否在场、来源版本、候选的归属与依据、义务语义、效果计数、成果内容、决定与回执的绑定、拒绝或重启之后状态是否保持。它衡量协议保真度，不衡量 SE 的增量价值。 |
+| Against what? | S：一个认真实现的普通持久化机制，带版本化来源与文档、提交、任务、审批、审计与回执表、事务与 compare-and-set、绑定 payload 的幂等。E 是 CourtWork 的 Core。两者都应通过；这是校准，不是优势证明。只有 transcript 加检索的条件 T：not yet。 |
+| With which model? | 没有模型。两个条件都由脚本化的受信客户端驱动，记录里 model 为空。有界模型 pilot：not yet。 |
+| Which harness? | `benchmarks/continuity/run.mjs` 编排六个用例；E 经 `CoreClient` 驱动真实 Core，S 经 `standard.py`；`observe.mjs` 把原始输出映射为语义字段，`grade.mjs` 独立校验。CourtWork `<source_sha>`。 |
+| Which fixture? | 一个合成的"证据备忘录"族，开发集，六个用例：normal · stale-source · receipt-replay · restart · actor-spoof · cas-conflict。角色与 ID 在执行前冻结，adapter 不决定哪一个候选是对的。 |
+| What was held constant? | 报告内固定被测文件的 sha256 与 git head 及 dirty 标志；每次尝试的角色与 ID 在执行前冻结；尝试清单在执行任何一条之前落盘。 |
+| What failed? | 首次运行 11/12：cas-conflict 用例误命中一个已关闭的候选。修正的是用例（改为同一 base 上的第二个待决候选），Core 没有为迎合测试而改动；随后 12/12。发布 SHA 上的重跑结果从记录文件读取；没有记录则 not yet。 |
+| Can I reproduce it? | `node --test benchmarks/continuity/grade.test.mjs`；`node benchmarks/continuity/run.mjs --output /absolute/path/result.json`。需要仓库根目录、Node 22.19 以上、Python 3 标准库；输出文件须是新文件；不用 provider、不联网。 |
 
-动作：**method** · **raw record** · **reproduce**。
+拒绝结果的四个名字（stale_source · request_conflict · authority_rejected · version_conflict）是被测系统的正确拒绝，不是评测的失败分类；页面不写 "failure classes"。
+
+动作：**method**（`observation-contract.md`）· **raw record**（重跑的 JSON、attempts 与 journal）· **reproduce**（上面两条命令）。
 
 ### 6.3 声称表
 

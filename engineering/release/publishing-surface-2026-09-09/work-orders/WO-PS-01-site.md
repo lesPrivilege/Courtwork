@@ -36,7 +36,8 @@
 2. 根 README（中文为主，一份，与页面共用声称表）；
 3. Pages workflow；
 4. 媒体 manifest（证据契约字段齐全）与捕获脚本；标本 JSON、其 sha256 与捕获脚本；
-5. `delivery-ps-01.md`：SHA、改动文件、验证命令与原文、未验证清单、"哪一像素改变了哪一判断"、五轮收敛表（WK-100）。
+5. 发布 SHA 上重跑 `node benchmarks/continuity/run.mjs --output <绝对路径>`：输出 JSON、`.attempts.json`、`.journal.jsonl` 三文件入 `evidence/publishing-surface-<date>/`（PS-16 c）；页面 Eval 块的 E / S 通过数只从该输出读取，构建时校验文件存在且 `git.head` 等于发布 SHA；
+6. `delivery-ps-01.md`：SHA、改动文件、验证命令与原文、未验证清单、"哪一像素改变了哪一判断"、五轮收敛表（WK-100）。
 
 ## 必须验证
 
