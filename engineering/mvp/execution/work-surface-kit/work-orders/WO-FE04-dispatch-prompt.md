@@ -7,7 +7,7 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第四轮工单 FE-04（Primitive reconciliation，WK-93）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `af95bcb`）：/private/tmp/se-agent-fe04，分支 `claude/fe04-primitives`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `af95bcb`）：<isolated-checkout>，分支 `claude/fe04-primitives`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8897，数据目录 /private/tmp/se-agent-fe04-data（已建、为空，可建子目录）；MCP 线路 fixture 用 8898；CDP 端口自选 19905 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8896、8921–8937 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback。
 
@@ -15,7 +15,7 @@
 1. engineering/mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md §FE-04 —— 工单正文。
 2. engineering/mvp/execution/work-surface-kit/explore/ex-wk8-primitive-ledger.md 全文 —— 你的台账：§2 十一个 primitive 逐项，§3 gap 表（每行标了 **禁止 / 未禁止 / 不适用**），§4 未检项。
 3. engineering/mvp/execution/work-surface-kit/intake-round-3.md §4g WK-93、WK-89 词表、§4j WK-100（五轮收敛表）、§4k WK-105、§4m WK-107、§4o WK-109。
-   §4q WK-111 / WK-112 尚未合入你的树，只读路径：/private/tmp/se-fable-r4d/engineering/mvp/execution/work-surface-kit/intake-round-3.md §4q（WK-112 (d) 规定你要交的状态矩阵）。不要写那棵树。
+   §4q WK-111 / WK-112 尚未合入你的树，只读路径：<isolated-checkout>/engineering/mvp/execution/work-surface-kit/intake-round-3.md §4q（WK-112 (d) 规定你要交的状态矩阵）。不要写那棵树。
 4. engineering/mvp/execution/work-surface-kit/contracts/review-projection.md（§6 "不采纳"清单是硬边界）、presentation-primitives.d.ts、glyph-semantics.md；engineering/design/frontend-layering-spec.md（FN-18…28）、copy-convention.md §3。
 5. 反例定义：delivery-wk10b-2.md 的 **FE-T06**（FN-18 / 19 · 三类事实不混同、不自动重放；含另半条 `allow` 后工具失败、`cancel requested ≠ stopped`）与 delivery-wk10b-1.md §6.4 的 **FE-T07**（FN-22 / 23 / 24 · 迟到响应与卡片展开收起）；delivery-fe03.md（交付格式与 §13）。
 6. 代码：app/web/thread-projection.mjs、app.mjs 的 approval / question / inbox 键盘段、user-message.mjs、inspector.mjs、surface-modules.mjs、ui-controls.mjs；app/tests 中对应测试；evidence/fe03/ 与 evidence/fe03-main-integration-20260909/ 的脚本（RC 三支、composition、shell）作为回归底本。

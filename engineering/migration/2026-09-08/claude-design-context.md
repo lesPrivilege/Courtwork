@@ -200,11 +200,11 @@ Agent 输出：
 
 | 来源与定位 | 本次取用 | 明确不继承 |
 |---|---|---|
-| `/Users/lesprivilege/Downloads/anti-ai-slop-kit/01-问题与原则/01-问题定义与原则.md` | 检查无判断的默认风格与功能缺态；以具体内容、节奏和工艺判断 | 个人站布局、年代归因、社区“共识”或工具流行度不作为产品结论 |
+| `<private-source>/anti-ai-slop-kit/01-问题与原则/01-问题定义与原则.md` | 检查无判断的默认风格与功能缺态；以具体内容、节奏和工艺判断 | 个人站布局、年代归因、社区“共识”或工具流行度不作为产品结论 |
 | 同 kit：`05-可执行工具/09-检测清单.md` | 检查嵌套卡片、层级噪音、弱对比、死按钮、缺焦点与伪数据 | 任意字体、字号比、圆角值的一票否决；清单分数不替代视觉判断 |
 | 同 kit：`05-可执行工具/11-Tokens与布局配方.md` | 相关信息紧、组间松；token 化与清楚的正文宽度 | Swiss/Editorial/深色 Craft 配方、现成色值、字体、个人站骨架 |
 | 同 kit：`02-社区生态/03-灵感与工具目录.md` | 定向找局部工艺、组件与设计来源 | 星数、工具三件套和安装指令；不把历史目录当当日已核验推荐 |
-| `/Users/lesprivilege/Projects/Deswrit kit/03-刊例.md` | 值错、缺态、赘余、顺序错误四类检查；取法不取貌；区分检查与审美判断 | 古籍外形、强制禁例、底本治理、牌记与审批门禁 |
+| `<private-source>/03-刊例.md` | 值错、缺态、赘余、顺序错误四类检查；取法不取貌；区分检查与审美判断 | 古籍外形、强制禁例、底本治理、牌记与审批门禁 |
 | 同 Deswrit kit：`04-谱例.md` | 颜色有职责、记号不重复、动作状态完整、错误给下一步、检查实际落点 | 旧颜色、Dystopia、朱色人裁、固定声部数、绝对动画属性或色空间规则 |
 
 若后续需要视觉参考，按局部问题再打开 kit 的范例档案；本次没有把其中截图当成当前产品 UI 的实测证据。外部网站和工具的历史描述要回官方入口核验，不能从本地摘录推出今日功能或许可。
@@ -224,7 +224,7 @@ Paper 在本文指 repo 中 Canonical / Practice 论文。论文的最少背景�
 
 未来 SE 专用演示可以加入“候选 → 原文/差异 → 修订 → 采用 → 新会话续行”。它是另一个接入阶段，不作为首轮通用 UI 的完成门。
 
-Repo 根：`/Users/lesprivilege/Projects/Schema Engineering`。以下只供定向溯源，前文已经自足：
+Repo 根：`<private-source>`。以下只供定向溯源，前文已经自足：
 
 | 入口 | 取用位置 |
 |---|---|
@@ -243,9 +243,9 @@ Repo 根：`/Users/lesprivilege/Projects/Schema Engineering`。以下只供定�
 
 | 材料入口 | 可取的局部机制 | 不带入的旧规则 |
 |---|---|---|
-| `/Users/lesprivilege/Projects/Motto/docs/TUI-THESIS.md`；`docs/architecture/TUI-REVIEW-FLOW-RESEARCH.md`；`docs/architecture/TUI-CARD-FRAME-RESEARCH.md`（后两者同属 Motto 根目录） | 悬挂对齐、低噪音边界、成功活动折叠、异常保持可见、多行原文与复制保真 | TUI 宽度、装饰字符、终端框；不混入相邻 motto-dsh |
-| `/Users/lesprivilege/Projects/Deswrit kit/03-刊例.md`、`04-谱例.md`（同目录） | 缺态检查、信息去重、焦点行动、稀缺状态色；“取法不取貌” | 古籍术语、旧颜色、印章与边框；不机械规定全屏只有一个数字 |
-| `/Users/lesprivilege/Projects/Courtwork`，固定 commit `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476` 下的 `docs/design/README.md`、`principles.md`、`courtwork-design.md` | 设计源与编译消费稿分责、动作指向对象、来源按需可达、效果图回迁 | 旧 tokens、冷白藏青配色、线级语法、三栏、动效白名单、法律术语与旧项目审批流程 |
+| `<private-source>/docs/TUI-THESIS.md`；`docs/architecture/TUI-REVIEW-FLOW-RESEARCH.md`；`docs/architecture/TUI-CARD-FRAME-RESEARCH.md`（后两者同属 Motto 根目录） | 悬挂对齐、低噪音边界、成功活动折叠、异常保持可见、多行原文与复制保真 | TUI 宽度、装饰字符、终端框；不混入相邻 motto-dsh |
+| `<private-source>/03-刊例.md`、`04-谱例.md`（同目录） | 缺态检查、信息去重、焦点行动、稀缺状态色；“取法不取貌” | 古籍术语、旧颜色、印章与边框；不机械规定全屏只有一个数字 |
+| `.`，固定 commit `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476` 下的 `docs/design/README.md`、`principles.md`、`courtwork-design.md` | 设计源与编译消费稿分责、动作指向对象、来源按需可达、效果图回迁 | 旧 tokens、冷白藏青配色、线级语法、三栏、动效白名单、法律术语与旧项目审批流程 |
 
 Courtwork 读取方式：在其目录执行 `git show f9ade85b72e5abcdc64c3a6c43ed3a13a2292476:docs/design/README.md`，再按需查看该 commit 下的文件。2026-09-07 已核验此 commit 与 README/principles 可读取；当前 `archive/courtwork-pre-takeover` tag 解析为 `40bde518e15345912bd013e16fe7ccde3ec979e3`，与旧索引写的 SHA 不同，因此本文不依赖 tag 作为固定来源。此发现不判断 tag 变化原因。
 
@@ -253,7 +253,7 @@ Courtwork 读取方式：在其目录执行 `git show f9ade85b72e5abcdc64c3a6c43
 
 以下是可选工作方法，不是已选组件或本次执行过的验收。索引不会自动启用 skill；纯 HTML 的交付范围优先。
 
-| 入口（均位于 `/Users/lesprivilege/.codex/skills/`） | 何时取用 |
+| 入口（均位于 `<private-source>/`） | 何时取用 |
 |---|---|
 | `emil-design-eng/SKILL.md` | 控件反馈、输入、浮层、细微排版与动效取舍 |
 | `apple-design/SKILL.md` | 连续性、层级、焦点与有物理关系的过渡；本地社区转译，不是 Apple 官方规范 |

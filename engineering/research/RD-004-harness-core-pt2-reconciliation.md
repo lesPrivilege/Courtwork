@@ -4,7 +4,7 @@
 
 ## 0. Baseline
 
-- **Worktree**：`/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema Engineering`，`git status --branch` 报告 `## HEAD (no branch)`（detached）。
+- **Worktree**：`<isolated-checkout>`，`git status --branch` 报告 `## HEAD (no branch)`（detached）。
 - **HEAD**：`f8ecb091895559389bb4e75f3c6f28052b71c5a3`，commit 时间 `2026-09-05 14:01:02 +0800`。
 - **未提交改动**：主树 `CONTRIBUTING.md`、`README.md` 各有 6/5 行未提交增量（与本文档无关，未触碰）；`engineering/` 整体是 untracked 目录（按 [DEC-001](../decisions.md#dec-001--文档先行与独立工程目录) 与 [current.md](../current.md) 的既定安排，`engineering/` 本就不入 SE repo，不是本次遗漏）。
 - **观察时间**：2026-09-06（新加坡时间，续前几轮惯例）。

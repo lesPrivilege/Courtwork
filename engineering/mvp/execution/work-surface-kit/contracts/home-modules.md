@@ -1,7 +1,7 @@
 # Home 模块契约（CC-D0-a）
 
 2026-09-09，Claude Opus（`opus-wo-low`），**作者验证**（Astra 独验另计，本页不代它写结论）。
-基线 `main` `fa90763`，分支 `claude/cc-d0a-home-modules`，树 `/private/tmp/se-agent-ccd0a`。
+基线 `main` `fa90763`，分支 `claude/cc-d0a-home-modules`，树 `<isolated-checkout>`。
 上游裁定：[WK-114](../intake-round-3.md)（CC-D0 范围）、[WK-116 R4D-2](../intake-round-3.md)（D0-a / D0-b 拆分）、[WK-117 (b)](../intake-round-3.md)（不装占位、具体待办优先）、[WK-120](../intake-round-3.md)（成熟感来自秩序）、[WK-129](../intake-round-3.md)（Control grammar）。
 设计输入：[shell-refinement §首页模块退为辅助 / §模块首页的解耦约定](../../../../design/clean-cool-2026-09-09/shell-refinement.md)、[attention-surface §常驻 Attention 与 Home](../../../../design/attention-surface-2026-09-09/README.md)。
 硬边界：[ui-state-vocabulary](ui-state-vocabulary.md)（没有后端事实的状态不画）、[copy-convention §3](../../../../design/copy-convention.md)（同一事实不给第二套说法）。

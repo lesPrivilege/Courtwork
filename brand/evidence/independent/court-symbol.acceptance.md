@@ -1,7 +1,7 @@
 # CourtSymbol 独立验收证据
 
 验收时间：2026-09-08 01:01 +08:00
-验收工作区：`/Users/lesprivilege/.codex/worktrees/se-brand-symbols-20260908`
+验收工作区：`<isolated-checkout>`
 范围：`brand/src/symbol.mjs`、`brand/src/court-symbol.mjs`。本次只在 `brand/evidence/independent/` 新增测试与本报告，没有修改产品源码，也没有运行会写入 `brand/exports/` 的 build。
 
 ## 可执行检查

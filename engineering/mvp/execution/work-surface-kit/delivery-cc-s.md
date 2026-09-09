@@ -11,7 +11,7 @@
 |---|---|
 | 基线 | `main` `683b6d1`（Astra 合流 FE-04 后的清洁节点） |
 | 分支 | `claude/cc-s-settings-nav` |
-| 树 | `/private/tmp/se-agent-ccs` |
+| 树 | `<isolated-checkout>` |
 | 端口 / 数据 | 8899（第二台服务器与 MCP fixture 用 8900）；`/private/tmp/se-agent-ccs-data/*`，每换一次用途换一个全新空目录 |
 | CDP | 19925–19954 |
 
@@ -48,7 +48,7 @@
 |---|---|---|
 | 改约 `interface-components.md` §Settings | "while the sidebar stays operable" → "the global sidebar is not rendered … `Back to app` and Escape return to the view, the session and the focus that were there on the way in (WK-116)"；并在深链一句里写明 Back 的位置 | 单测「WK-116 · 改约已落在文档里」 |
 | 改约 FN-26 注 | 保留"Settings 为页面而非模态（WK-78）"，补"settings-active 时全局侧栏不渲染 …"；符合性表 FN-26 行由「未实现」改「已实现」 | 同上 |
-| 不改 intake | `intake-round-3.md` 差异为空（Fable 已在 `/private/tmp/se-fable-r4d` 记 WK-116） | §2 写权干净 |
+| 不改 intake | `intake-round-3.md` 差异为空（Fable 已在 `<isolated-checkout>` 记 WK-116） | §2 写权干净 |
 | tool 行第六词 `Unknown` | `unfinishedToolWord(status)`：`cancelled` / `failed` → `Interrupted`，其余（含 `unknown` 与无 Run 记录）→ `Unknown`；Activity 组头同一判断，另加 `unknown` 计数 | 单测 1 条；浏览器 `cc-s-checks` 第 3 条（fixture 造 `unknown` 终态，见 §5） |
 | Inbox `Home` / `End` | `LIST_KEYS` 加两键；只在焦点已在列表里时接管（与方向键同档），否则整页滚动不被夺走 | 单测 1 条；`cc-s-checks` 第 2 条 |
 | 两条 `role="list"` | Home 下带每个集合一条 `home-list`；Chat Flow 未决卡一条 `pending-list`，遇到非未决内容即收口 | 单测 1 条；`cc-s-checks` 第 1、4 条 |

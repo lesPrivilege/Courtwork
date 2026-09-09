@@ -7,7 +7,7 @@
 | 项 | 值 |
 |---|---|
 | 基线 | `b7fa5e27d013886250c04af07dc40523bd8bd67f`（清洁 `main`，含 WK10b 第一段 + 第二段） |
-| 工作树 | `/private/tmp/se-agent-wk13` |
+| 工作树 | `<isolated-checkout>` |
 | 分支 | `claude/wk13-home`（未 push） |
 | 实现 SHA | 见本轮提交（本文件与代码同提交） |
 | 服务端口 | 8875（rows）、8876（empty）、8877（truncate） |

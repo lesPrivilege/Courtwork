@@ -1,7 +1,7 @@
 # CC-W 证据 · 工作面：1440 主次切换 + tab strip，≥1680 三栏（WK-113 / WK-116 / WK-117 (b) / WK-118 ④⑤ / WK-119 补充 / WK-121 ②）
 
 2026-09-09 · Claude Opus（`opus-wo-medium`），**作者验证**（Astra 独验另计，本页不代它写结论）。
-基线 `main` `414b196`，分支 `claude/cc-w-surface-tabs`，树 `/private/tmp/se-agent-ccw`。
+基线 `main` `414b196`，分支 `claude/cc-w-surface-tabs`，树 `<isolated-checkout>`。
 全程 local-fake / loopback：未配置任何真实 provider，未读取任何凭据文件，fixture 内没有任何真实 key。
 交付页 [delivery-cc-w](../../engineering/mvp/execution/work-surface-kit/delivery-cc-w.md)。
 

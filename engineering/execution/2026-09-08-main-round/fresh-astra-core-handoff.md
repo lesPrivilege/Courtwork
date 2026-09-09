@@ -24,7 +24,7 @@
 早期原件已实际定位，可定向只读（不在公开树，不上传整个快照）：
 
 ```text
-/Users/lesprivilege/Projects/Courtwork-evidence/2026-09-08/continuation/engineering/mvp/execution/runtime-sources/pt2-harness-core-explore-2026-09-06/
+<private-source>/2026-09-08/continuation/engineering/mvp/execution/runtime-sources/pt2-harness-core-explore-2026-09-06/
   harness-primitive-index.md
     sha256 170fe09abddb4a5fe0476dc2e68d392459868e050eaf0066854ef8dc1ce3f7a8
   source-manifest.json

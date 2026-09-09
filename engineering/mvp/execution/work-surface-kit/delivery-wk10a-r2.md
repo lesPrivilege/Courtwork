@@ -1,7 +1,7 @@
 # WO-WK10a-r2 交付 · 高度层级、悬浮工作面、composer 解剖（Opus，归并轮）
 
 分支 `claude/wk10-r2`，基线 = 整合头 `5f76b2e`（`claude/wsk-integration`，已含 WK10a r1 六提交）。
-worktree `/private/tmp/se-agent-wk10r2`，数据目录 `/private/tmp/se-agent-wk10r2-data`（全新），
+worktree `<isolated-checkout>`，数据目录 `/private/tmp/se-agent-wk10r2-data`（全新），
 端口 8859；WK6 一套另起 `/private/tmp/se-agent-wk10r2-clean` + 8860（该套第一条要求零项目）。
 Node v25.9.0。**真实 provider：not_run**——宿主 `capabilities.mode = "local-fake"`，
 全程未配置也未调用真实 provider，未读取任何凭据文件。

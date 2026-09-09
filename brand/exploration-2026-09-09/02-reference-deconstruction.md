@@ -6,7 +6,7 @@ Sonnet，只读 explore。派单 [EX-BR1](EX-BR1-reference-deconstruction.md)；
 
 **只读声明**：本卷未修改 `brand/**`、`engineering/**` 之外的任何文件；未启动本地服务（未执行 `node brand/scripts/build.mjs`、未起 `python3 -m http.server`）；未下载图像/视频资产，只抓取文本文件（`.md`）。
 
-**只读来源与 sha256**（本地 checkout `/private/tmp/se-fable-ps`）：
+**只读来源与 sha256**（本地 checkout `<isolated-checkout>`）：
 
 | 文件 | sha256 |
 |---|---|
@@ -25,7 +25,7 @@ Sonnet，只读 explore。派单 [EX-BR1](EX-BR1-reference-deconstruction.md)；
 | `brand/sources/visual-runtime-index.json` | `367fa90818eebf398262db3e7a898c7227b6ad926ffb3529e2223ba3b1ef8f22` |
 | `brand/exports/manifest.json` | `ac1457f03cd0e827bf5e3af93927c6e69bc422b11e86492c23e88f58f6904c73` |
 
-**未找到**：`engineering/design/identity-specimen/**` — 工单只读清单列出该路径，但本 checkout（`/private/tmp/se-fable-ps`）下不存在 `engineering/design/identity-specimen` 目录（`find engineering/design -iname "*identity*"` 无命中）；00-brief.md 第 3 行引用的 `identity-specimen/index.html` 链接在当前分支未落地。本卷未从该来源转录任何事实，也未访问其 URL。
+**未找到**：`engineering/design/identity-specimen/**` — 工单只读清单列出该路径，但本 checkout（`<isolated-checkout>`）下不存在 `engineering/design/identity-specimen` 目录（`find engineering/design -iname "*identity*"` 无命中）；00-brief.md 第 3 行引用的 `identity-specimen/index.html` 链接在当前分支未落地。本卷未从该来源转录任何事实，也未访问其 URL。
 
 **未访问的 URL / 未启动的服务**：未打开 `http://127.0.0.1:8842/`；未执行 `node brand/scripts/query-index.mjs`；两个外部 repo 中除下表列出的文件外，其余文件（如 `PROMPT.md` 第 1–139、261 行以后、`docs/troubleshooting.md`、`docs/provenance.md`、`prompts/images/*`、`prompts/video/*`、`brand-system-skill` 的 `BENCHMARK.md`、`CHANGELOG.md`、`CONTRIBUTING.md`、`.github/**`）已抓取存档但未在下表逐条转录，只作背景阅读。
 

@@ -1,6 +1,6 @@
 # WO-WK6 · 品牌语义注入 + 首页呼吸 + 文本收编（Opus）
 
-状态：已派发 2026-09-08。吸收 WO-WK5。基线 `f8aff61`；worktree `/private/tmp/se-agent-wk6`，分支 `claude/wk6-home-brand`；端口 8853；数据目录 `/private/tmp/se-agent-wk6-data`。
+状态：已派发 2026-09-08。吸收 WO-WK5。基线 `f8aff61`；worktree `<isolated-checkout>`，分支 `claude/wk6-home-brand`；端口 8853；数据目录 `/private/tmp/se-agent-wk6-data`。
 
 ## 输入
 

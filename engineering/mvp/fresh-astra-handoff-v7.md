@@ -14,9 +14,9 @@ SE 的编排理念是收敛依据。Courtwork、DSH、Claude、开源 runtime �
 
 ## 接手位置与首读顺序
 
-持久工作树：`/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema Engineering`。
+持久工作树：`<isolated-checkout>`。
 
-原目录 `/Users/lesprivilege/Projects/Schema Engineering` 的工程摘要较旧，保持只读。当前活动源码在临时目录，持久源码交付形式是归档包；不能只在持久工作树搜索 app 并据此判断实现不存在。
+原目录 `<private-source>` 的工程摘要较旧，保持只读。当前活动源码在临时目录，持久源码交付形式是归档包；不能只在持久工作树搜索 app 并据此判断实现不存在。
 
 1. 本文、[current](../current.md)、[decisions](../decisions.md)、[governance](../governance.md) 与 [CONTRIBUTING（历史路径：`../../CONTRIBUTING.md`）](../migration/2026-09-08/evidence-index.md)。后续指令优先于旧文档的轮次安排。
 2. [Canonical（历史路径：`../../papers/src/canonical.md`）](../../PAPER.md)、[Practice（历史路径：`../../papers/src/practice.md`）](../../PAPER.md)，重点为编排、Host Adapter、Compiled Expert、人类工作面、正式状态与验证责任。按问题读相关节，避免重新通读所有历史工单。
@@ -37,8 +37,8 @@ Astra 负责问题定义、架构与 SE 映射、来源取舍、工单接口和�
 
 ## 三个来源与前端轮次产物
 
-- Courtwork：`/Users/lesprivilege/Projects/Courtwork`。V6 读取时 HEAD 为 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，工作树有未提交变化。先核对当前 status/文档与实际文件 hash；commit 不是脏文件的版本替代。既有三组消费仅覆盖身份门、工具/消息分层与视图生命周期。Codex/Claude 历史施工记录可按选定问题召回，之前没有完整消费全部原始日志。
-- DSH Web UI：`/Users/lesprivilege/Projects/motto-dsh`。V5 读取时 HEAD 为 `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`，同样有未提交变化。已有 QuestionComposer/pending、session projection、DetailsPanel 等源码线索；没有可继承的完整上游 Web UI 实操验收。核对实际入口、启动条件与 UI 版本后再判断。
+- Courtwork：`.`。V6 读取时 HEAD 为 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，工作树有未提交变化。先核对当前 status/文档与实际文件 hash；commit 不是脏文件的版本替代。既有三组消费仅覆盖身份门、工具/消息分层与视图生命周期。Codex/Claude 历史施工记录可按选定问题召回，之前没有完整消费全部原始日志。
+- DSH Web UI：`<private-source>`。V5 读取时 HEAD 为 `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`，同样有未提交变化。已有 QuestionComposer/pending、session projection、DetailsPanel 等源码线索；没有可继承的完整上游 Web UI 实操验收。核对实际入口、启动条件与 UI 版本后再判断。
 - Claude Desktop：原生应用 `com.anthropic.claudefordesktop`，V6 观察时版本 `1.46388.4`。已实际观察会话定位、文件预览/源码/展开、工具请求详情、example.com Browser 打开与关闭重开后的状态。它是界面行为证据；未取得 Claude 前端源码，不能将不可见实现写成事实。fresh 轮仍以可访问实际界面为准。
 
 前端轮次应交付：三个来源的机制与证据索引；“交互问题—状态/责任—来源决定—SE 映射—采纳/拒绝/待验”的回溯；可落地的 UI 编排契约与有界工单；需要 Harness Core 专轮处理的接口/语义问题单独列出。在既有授权内完成必要的可逆局部验证与实现，不仅交一份泛泛研究计划；也不在前端轮顺带重写 runtime/Core。
@@ -50,7 +50,7 @@ Astra 负责问题定义、架构与 SE 映射、来源取舍、工单接口和�
 - [源码包（历史路径：`execution/archives/framework-v6-source.tar.gz`）](../migration/2026-09-08/evidence-index.md) 与 [源码 manifest（历史路径：`execution/archives/framework-v6-source.json`）](../migration/2026-09-08/evidence-index.md)：31 个成员，已逐一 hash 校验。
 - [证据包（历史路径：`execution/archives/framework-v6-evidence.tar.gz`）](../migration/2026-09-08/evidence-index.md) 与 [证据 manifest（历史路径：`execution/archives/framework-v6-evidence.json`）](../migration/2026-09-08/evidence-index.md)：44 个成员，已逐一 hash 校验。包含真实执行的独立 Chromium 脚本/结果、Astra 浏览器记录和 deferred 材料。
 - [恢复说明（历史路径：`execution/restore-v6.md`）](../migration/2026-09-08/evidence-index.md)：恢复到新目录，独立数据目录，Node/npm 安装使用精确锁。不要使用旧数据目录做 seed，也不要依赖临时进程永远存活。
-- 交接时临时源码 `/private/tmp/se-agent-v6/app`；预览 `http://127.0.0.1:8796/`，数据 `/private/tmp/se-v6-preview-20260906`。V5 比较入口此前为 `http://127.0.0.1:8795/`。这些是可失效的便捷入口；fresh 接手时先检查。
+- 交接时临时源码 `<isolated-checkout>/app`；预览 `http://127.0.0.1:8796/`，数据 `/private/tmp/se-v6-preview-20260906`。V5 比较入口此前为 `http://127.0.0.1:8795/`。这些是可失效的便捷入口；fresh 接手时先检查。
 - 最终 `app/web/app.mjs` SHA-256：`ea234992379898d4a90347a184210ab6b1afd7f25ae2308a758131dab1c6a9b0`。
 - 最终 `app/extensions/evidence-memo/renderer.mjs` SHA-256：`282259113422edea54d66c8780a9691d7b367a8461b41433f325462bb140c2a0`，保持 V5 字节。
 

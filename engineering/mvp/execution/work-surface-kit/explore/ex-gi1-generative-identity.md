@@ -1,6 +1,6 @@
 # EX-GI1 · Generative Identity 只读探索（Sonnet，2026-09-09）
 
-只读探索，回应 [intake-round-3 §4ad WK-125 (d)](../intake-round-3.md) 与 [§4ac WK-124 (d)](../intake-round-3.md) 的派单。只读树 `/private/tmp/se-fable-r4d`（基线 main `5ea5ff0`）；未改 `brand/`、`app/**`，未 commit，未启动服务。specimen 输出见 [identity-specimen/](../../../../design/identity-specimen/index.html)（相对本文件路径；仓内路径 `engineering/design/identity-specimen/`）。
+只读探索，回应 [intake-round-3 §4ad WK-125 (d)](../intake-round-3.md) 与 [§4ac WK-124 (d)](../intake-round-3.md) 的派单。只读树 `<isolated-checkout>`（基线 main `5ea5ff0`）；未改 `brand/`、`app/**`，未 commit，未启动服务。specimen 输出见 [identity-specimen/](../../../../design/identity-specimen/index.html)（相对本文件路径；仓内路径 `engineering/design/identity-specimen/`）。
 
 ## 0. 结论先行（供 Fable / 品牌线速览）
 

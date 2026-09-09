@@ -12,7 +12,7 @@
 - `inputs/runtime-workbench-discussion-2026-09-09.md` · sha256 `9797eb3b736e0a578fcb40cc5f93de0d1cf65885e1a158b1bc67e6b64a0f6f25`
 - `~/.pi/agent/skills/deepseek-harness/SKILL.md` · sha256 `57a8b8b8004f66edfbb563fa1d90fb8e8af960cbaadb83404778b3c91e063778`（只读其索引/派发表以确认它把插件、preset、inspect、web UI 的文档定位在 `docs/subsystems/*` 与各 package README，未套用其模板到本仓）
 
-主源：`/Users/lesprivilege/Projects/motto-dsh`，DeepSeek Harness 检出，`HEAD` = `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`（`git log -1` 已核，commit message "release(dsh): 0.1.0-rc.7" / "Merge pull request #2620 ... release/dsh-0.1.0-rc.7"）。该 SHA 同时被仓库自己的 `COMPATIBILITY.md:6` 与 `EXTENSIONS.lock.json:3` 记为 `dshBase`，三处一致。LICENSE = MIT。
+主源：`<private-source>`，DeepSeek Harness 检出，`HEAD` = `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`（`git log -1` 已核，commit message "release(dsh): 0.1.0-rc.7" / "Merge pull request #2620 ... release/dsh-0.1.0-rc.7"）。该 SHA 同时被仓库自己的 `COMPATIBILITY.md:6` 与 `EXTENSIONS.lock.json:3` 记为 `dshBase`，三处一致。LICENSE = MIT。
 
 未启动的服务 / 未访问的 URL：无。本地 `motto-dsh` 副本已完整覆盖工单要求的全部机制点（define/run/update/rollback/stop/undefine、immutable package + current/next 指针、validation、approval、inspect、creator mode、agent preset、scoped registry、live reload、effect cleanup、web UI 页面），未触发"官方仓库固定 commit"外部溯源分支，未调用 WebFetch/WebSearch。
 
@@ -24,7 +24,7 @@
 - 没有找到 WK-63 Governance 节点提到的"policy 编辑"UI 对应物——只找到 permission-preset 的整包切换（`workspace-write`/`danger-full-access`），没有逐条 `PolicyRule` 编辑界面。
 - 没有找到独立的 "Registries" IA 页面/路由——悬浮 Cordis 面板内部用到 `inventory()`，但没有专门的 Registries 设置页。
 - 没有找到 WK-63 Context 节点对应的 instruction / prompt_template / reference 三 kind 可视化清单页面——这些经 `ctx.systemPrompt.section()` 注入，但没有面向用户的 "Effective Context Inspector" UI。
-- `/Users/lesprivilege/Projects/DeepSeek-TUI` 为 Rust/Cargo 项目，全文检索 `cordis` / `dsh-tool` / `harness plugin` 均无匹配，已排除为来源（工单允许的 secondary source 在本地不存在对应内容）。
+- `<private-source>` 为 Rust/Cargo 项目，全文检索 `cordis` / `dsh-tool` / `harness plugin` 均无匹配，已排除为来源（工单允许的 secondary source 在本地不存在对应内容）。
 
 ---
 

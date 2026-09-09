@@ -22,7 +22,7 @@
 
 ## 范围与验收
 
-仅拥有 `/private/tmp/se-agent-v7/app/web/**`；本单预计集中app.mjs，必要文案与README可改。不改server/runtime/extensions、package/lock、API或Paper，不移入deferred。允许依据具体不变量删除重复UI状态；禁止仅为复制DSH而加入通用状态库。
+仅拥有 `<isolated-checkout>/app/web/**`；本单预计集中app.mjs，必要文案与README可改。不改server/runtime/extensions、package/lock、API或Paper，不移入deferred。允许依据具体不变量删除重复UI状态；禁止仅为复制DSH而加入通用状态库。
 
 作者先做有界自检；独立Reviewer保留基线失败，修订不依赖失败条件的同步脚本，在最终source hash上实跑相同用户路径以及请求尚未准入时重复submit、发送失败保稿/重试、A→B→A、新稿保存成功后reload、旧detail乱序与非作者V6通用UI回归。源码字符串匹配不计行为测试。
 

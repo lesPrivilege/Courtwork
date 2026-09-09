@@ -3,8 +3,8 @@
   "takeover": "d20fbc3c9da983e1e7620fc28274fdebf51cbd4d",
   "tree": "ee45514423be7ee7d51109e4973358de06b99236",
   "legacy": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
-  "active": "<isolated-checkout>",
-  "frozen": "<isolated-checkout>",
+  "active": "<product-checkout>",
+  "frozen": "<frozen-legacy-checkout>",
   "verified_at": "2026-09-08T05:53:30.631746+00:00",
   "remote_refs_at_takeover": {
     "refs/heads/archive/courtwork-main": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",

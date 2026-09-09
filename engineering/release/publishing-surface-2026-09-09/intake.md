@@ -1,6 +1,6 @@
 # 发布面 · 接管记录（Fable，2026-09-09）
 
-基线：Courtwork `main` `172130e`（本地；`origin/main` 停在 `62556b7`，本地领先 135 个提交）。文档支 `claude/fable-publishing-surface`，worktree `/private/tmp/se-fable-ps`。SE 论文仓 `main` `96e9b9e`，已发布 9.6 `d78fd31`。角色（用户 2026-09-09）：Sonnet explore，Fable 裁决并亲写发布面文案，Opus 施工站点，Astra 核对事实与合流，视觉四轴留用户。裁定编号本批 `PS-n`。
+基线：Courtwork `main` `172130e`（本地；`origin/main` 停在 `62556b7`，本地领先 135 个提交）。文档支 `claude/fable-publishing-surface`，worktree `<isolated-checkout>`。SE 论文仓 `main` `96e9b9e`，已发布 9.6 `d78fd31`。角色（用户 2026-09-09）：Sonnet explore，Fable 裁决并亲写发布面文案，Opus 施工站点，Astra 核对事实与合流，视觉四轴留用户。裁定编号本批 `PS-n`。
 
 ## 1. 事实
 

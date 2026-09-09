@@ -7,7 +7,7 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第五轮工单 CC-W（工作面：1440 主次切换 + tab strip，≥1680 三栏）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `414b196`）：/private/tmp/se-agent-ccw，分支 `claude/cc-w-surface-tabs`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `414b196`）：<isolated-checkout>，分支 `claude/cc-w-surface-tabs`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8901，数据目录 /private/tmp/se-agent-ccw-data（已建、为空，可建子目录）；MCP 线路 fixture 用 8902；CDP 端口自选 19960 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8900、8921–8953 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback。
 

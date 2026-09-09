@@ -2,7 +2,7 @@
 
 状态：只读 explore，Sonnet，2026-09-09，派单见 [intake-round-3 §4ac WK-124 (e)](../intake-round-3.md)。
 
-只读声明：本卷只读 `/private/tmp/se-fable-r4d`（基线 `main` `5ea5ff0`，HEAD `2a94287`）内的文档与 `app/web/styles.css`、`tools/lint-materials.mjs`、`evidence/cc-s-main-integration-20260909/`。为量测代价，在端口 8904（数据目录 `/private/tmp/se-fable-r4d-excc6-data`，自建、已删除）启动过一次本树的应用，local-fake 模式，未配置任何真实 provider、未读取任何凭据；量测用的 CSS 变体只在浏览器运行时通过注入的 `<style>` 标签生效，从未写回 `app/web/styles.css`；lint 的登记/回退验证用的是拷到 scratch 目录的 `styles.css` 副本与 `lint-materials.mjs` 副本，产品树内 `tools/lint-materials.mjs` 一字未动。未修改任何产品代码、未 `git commit`。全程结束后已停止 8904 上的 server 与 CDP 的 headless Chrome（`ps aux` 复查干净），已删除自建数据目录。链接与 Atlas/Josh Comeau 原文一律标"用户转交，未核验"；结论标 file:line。
+只读声明：本卷只读 `<isolated-checkout>`（基线 `main` `5ea5ff0`，HEAD `2a94287`）内的文档与 `app/web/styles.css`、`tools/lint-materials.mjs`、`evidence/cc-s-main-integration-20260909/`。为量测代价，在端口 8904（数据目录 `/private/tmp/se-fable-r4d-excc6-data`，自建、已删除）启动过一次本树的应用，local-fake 模式，未配置任何真实 provider、未读取任何凭据；量测用的 CSS 变体只在浏览器运行时通过注入的 `<style>` 标签生效，从未写回 `app/web/styles.css`；lint 的登记/回退验证用的是拷到 scratch 目录的 `styles.css` 副本与 `lint-materials.mjs` 副本，产品树内 `tools/lint-materials.mjs` 一字未动。未修改任何产品代码、未 `git commit`。全程结束后已停止 8904 上的 server 与 CDP 的 headless Chrome（`ps aux` 复查干净），已删除自建数据目录。链接与 Atlas/Josh Comeau 原文一律标"用户转交，未核验"；结论标 file:line。
 
 ## 1 · 现状：三个候选面今天的材质
 

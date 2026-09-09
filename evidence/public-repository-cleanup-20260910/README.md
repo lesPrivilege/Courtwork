@@ -4,7 +4,7 @@ User scope: Luna explores directory structure and public reference/privacy mater
 
 ## Changes and ownership
 
-Astra owns integration, architecture navigation, README, generated-file separation and the public specimen projection. Luna independently explored structure and privacy, and authored the missing evidence/engineering indexes. Astra reviewed those indexes against the actual directories and link checker. Luna's document-path cleanup and final independent build check are separately recorded below; neither author's own checks constitute independent acceptance of their work.
+Astra owns integration, architecture navigation, README, generated-file separation and the public specimen projection. Luna independently explored structure and privacy, and authored the missing evidence/engineering indexes. Astra reviewed those indexes against the actual directories and link checker. Luna’s [document-path cleanup](document-path-review.json) and final independent build check are separately recorded below; neither author's own checks constitute independent acceptance of their work.
 
 - `site/dist/` and generated specimen vendor/HTML/copy/manifest files are ignored and rebuilt. Brand SVG exports and licensed product vendor assets remain distribution inputs.
 - Root README includes the Host/Pi/adapter/Core/store architecture and directory map. Docs, app docs, engineering boundaries, benchmarks, tools and every first-level evidence packet have navigation entries. Three existing relative links and an installed-dependency citation were repaired.
@@ -19,8 +19,11 @@ Astra owns integration, architecture navigation, README, generated-file separati
 - Public projection tests: 3/3, including unchanged source, idempotence, unexpected-content refusal and injected Unix/Windows path rejection.
 - Real browser verification after projection: 17/17; eight specimen steps, source identity/refusal, keyboard, no foreign requests, no-JS, preference fallbacks, contrast and viewport/zoom checks.
 - Repository documentation checker verifies Git source targets rather than ignored files left on disk; Pages build rejects machine-absolute paths in publishable text. Both checks are included in CI.
-- Final clean-build, link, privacy and deployment results are attached as subsequent evidence here.
+- Luna non-author verification of Astra implementation at `21380a44daf916585a438d7ed71e0b2d80330805`: clean detached checkout, generated paths absent before build, 46/46 output hashes identical across two builds, documentation 2,368 references and site 27 references valid, material check and 3/3 projection tests passed, no machine-local paths in public output, 40 brand SVG exports retained. [Independent receipt](independent-verification.json). This does not independently accept Luna’s own navigation files; Astra reviewed those separately.
+- [Browser assertions](browser-verification.json) record the 17/17 author run; later documentation-only redactions do not change the published inputs.
 
 ## Scope
 
 No product code or data schema changed, no personal runtime directory was opened/upgraded, and no real provider ran. This removes identified private references from current source and publication; it does not purge old Git commits. Existing frozen archives and provenance remain historical sources. Product acceptance gates and the deferred brand direction are unchanged.
+
+Final documentation handoff: the observed Markdown delta included 119 files (including parent edits), removing 84 user-root and 160 actual-worktree path occurrences. Generic fixture paths and historical SHA references remain. Astra reviewed the change scope, source-index semantics, original hash provenance and final relative-link checks; no actual user-root path remains in tracked text, excluding deliberately synthetic test strings.

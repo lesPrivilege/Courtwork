@@ -2,7 +2,7 @@
 
 状态：直接可消费
 
-来源：`/Users/lesprivilege/Projects/Courtwork-fresh`，分支 `codex/fresh-courtwork`，HEAD `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`（本卷写入前核对；工作树另有与本探查无关的未提交改动，均未读取、未依赖）。
+来源：`<isolated-checkout>`，分支 `codex/fresh-courtwork`，HEAD `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`（本卷写入前核对；工作树另有与本探查无关的未提交改动，均未读取、未依赖）。
 
 只读声明：本卷为只读 explore。未修改仓库内任何既有文件、未执行任何状态变更类 git 命令、未启动服务器、未访问数据目录或凭据存储、未访问外部 URL。
 

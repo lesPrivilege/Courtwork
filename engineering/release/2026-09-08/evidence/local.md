@@ -1,7 +1,7 @@
 # CourtWork fresh · 本地发布盘点
 
 核对归档日期：2026-09-08（Asia/Singapore）；活动Fable工单中的2026-09-09日期按来源原文保留。
-范围：只读检查 `/Users/lesprivilege/Projects/Courtwork-fresh` 的 fresh checkout、活动工作树、工程契约与发布说明；未读取私有运行时数据，未修改项目文件，未跑测试，未 push。
+范围：只读检查 `<isolated-checkout>` 的 fresh checkout、活动工作树、工程契约与发布说明；未读取私有运行时数据，未修改项目文件，未跑测试，未 push。
 
 > Astra归档说明：这是Luna并行只读盘点时的观察快照，分支可能继续前进。下文当时尚缺的发布稿/回执现已由本轮创建，不作为当前缺口；未完成的RC/WK9与产品验证仍按活动工单。推荐顺序是计划裁取，不是运行证据。
 
@@ -15,10 +15,10 @@
 
 | 工作树 | 本地 HEAD / 状态 | 可用证据与剩余门 |
 |---|---|---|
-| RC 控制面 UI | `/private/tmp/se-agent-rc`，`claude/rc-runtime-ui@37a05f3`；修改 `app/web/runtime-view.mjs`、`styles.css`，未跟踪 delivery/evidence | `delivery-rc.md:1-39` 仍为“施工中”，提交、验证、未验证和像素判断均待填；不能接收为完成交付 |
-| WK6 + WK8 + BR-1 | `/private/tmp/se-agent-wk6`，`claude/wk6-home-brand@dbea510`；产品改动已由提交承载，当前仅见未跟踪 intake/evidence | `delivery-wk6.md:3-22`、`delivery-wk8.md:3-27` 记录 `802c65e/8adafb5/4007f80`、`bd54107/af7cf8b` 与 BR-1 合流；测试/Chromium fixture 有证据，但未 push，真实 provider、真实桌面壳和部分视口未验证 |
-| WK7 色彩 | `/private/tmp/se-agent-wk7`，`claude/wk7-color-governance@10f1afe`，干净 | `delivery-wk7.md:3-38` 记录 lint、对比度和 136 tests；data-theme 宿主切换、forced-colors、Safari/Firefox、设备与合流冲突仍未验证；未 push |
-| BR-1 品牌包 | `/private/tmp/cw-brand-br1`，`codex/brand-host-colors@d799a7f` | 是 WK6 已消费的候选来源；应在集成前复核是否有新修订，不能单独关闭产品验收（`engineering/release/2026-09-08/integration.md:7-10,20`） |
+| RC 控制面 UI | `<isolated-checkout>`，`claude/rc-runtime-ui@37a05f3`；修改 `app/web/runtime-view.mjs`、`styles.css`，未跟踪 delivery/evidence | `delivery-rc.md:1-39` 仍为“施工中”，提交、验证、未验证和像素判断均待填；不能接收为完成交付 |
+| WK6 + WK8 + BR-1 | `<isolated-checkout>`，`claude/wk6-home-brand@dbea510`；产品改动已由提交承载，当前仅见未跟踪 intake/evidence | `delivery-wk6.md:3-22`、`delivery-wk8.md:3-27` 记录 `802c65e/8adafb5/4007f80`、`bd54107/af7cf8b` 与 BR-1 合流；测试/Chromium fixture 有证据，但未 push，真实 provider、真实桌面壳和部分视口未验证 |
+| WK7 色彩 | `<isolated-checkout>`，`claude/wk7-color-governance@10f1afe`，干净 | `delivery-wk7.md:3-38` 记录 lint、对比度和 136 tests；data-theme 宿主切换、forced-colors、Safari/Firefox、设备与合流冲突仍未验证；未 push |
+| BR-1 品牌包 | `<isolated-checkout>`，`codex/brand-host-colors@d799a7f` | 是 WK6 已消费的候选来源；应在集成前复核是否有新修订，不能单独关闭产品验收（`engineering/release/2026-09-08/integration.md:7-10,20`） |
 | WK9 设计 | fresh 的 `design/wk9/` 有静态 artboards 和 `index.html` | `WO-WK9-home-work-design.md:5-17` 要求的 `clean-evaluation.md`、`gaps-wk9.md`、`contracts/presentation-primitives.d.ts` 尚未出现；设计仍不能转作产品实现 |
 | EX-WK5 | fresh 已有 `explore/ex-wk5-home-work-data.md` | 仅为本地数据/生命周期事实清单；WK9 仍需完成选择和 Astra 契约复核，不能把参考图中的无数据字段画入产品（`intake-round-2.md:91-97`） |
 

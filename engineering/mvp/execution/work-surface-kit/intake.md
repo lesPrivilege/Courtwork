@@ -18,7 +18,7 @@
 | 项 | 事实 | 来源 |
 |---|---|---|
 | 集成候选 | `codex/fresh-integration` `05c6947`；代码合流 `d44fb28` = UI `4fab4bd` + Runtime Control Plane `8722259` + Brand `faef241` + 权限修复 `787bf1c`；后端 134/134，前端反例 18/18 + 2/2 | fresh worktree `engineering/current.md`、`engineering/migration/2026-09-08/README.md` |
-| 搬迁 | `~/Projects/Courtwork-fresh` 为 Courtwork 仓 worktree，分支 `codex/fresh-courtwork`，HEAD 仍在冻结 `f9ade85`，全部 legacy 文件已暂存删除，待导入 replacement tree；远端 `main` 不动 | `git status` / `git worktree list` |
+| 搬迁 | `<isolated-checkout>` 为 Courtwork 仓 worktree，分支 `codex/fresh-courtwork`，HEAD 仍在冻结 `f9ade85`，全部 legacy 文件已暂存删除，待导入 replacement tree；远端 `main` 不动 | `git status` / `git worktree list` |
 | 前端形态 | 原生 ES module，无 React、无 npm 前端依赖；`app/web/app.mjs` 158 KB 为唯一页面状态 owner，另有 home / inspector / materials / settings / thread-projection / ui-controls / user-message / workspace 八个模块与 `styles.css` 52 KB | `app/web/`、`docs/interface-components.md` |
 | 已有 Canon 对应 | 授权卡（questionId + toolCallId + path + bytes + sha256，allow 一次写）、问题卡（answer）、工具 ledger 行、Run 检查栏、File 的 Current / Recorded version、work-summary 三集合（Waiting for you / Continue / Needs a look）、`outcome` kind（只读摘要，无端点）| `ux-conventions.md` §1–3、DC-2 / A-3 / A-4 |
 | 品牌包 | CW-BRAND-01 已交付并独验（Luna 13/13，Chromium 10/10）：几何源 `brand/geometry/mark.svg`（冻结 `f9ade85` 的 icon-light 四 rect 平移缩放）；八动词 summon / take-floor / write / retrieve / scope / commit / review / withdraw；五材质 mono / hierarchical / glass / depth / luminous；40 静态 SVG；`<court-symbol>` 宿主状态 presence / authority / activity；write 三行 0/40/80 ms 顺序，总 220 ms，说明模式 640 ms；≤24 px 自动降 hierarchical；imagegen 仅作材质参考未描摹；**未接入应用 UI**，需静态资源 allowlist | `brand/README.md`、`CONTRACT.md`、`catalog.json`、`evidence/ACCEPTANCE.md` |

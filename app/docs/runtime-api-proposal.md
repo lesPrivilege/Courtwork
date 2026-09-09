@@ -4,11 +4,11 @@
 
 日期：2026-09-06。本文只冻结 runtime/host/extension 的最小接缝，不实现 HTTP server、UI 或持久化 Core。真实 provider 调用预算为 0；执行路线只有显式注册的本地 `fake-openai-loopback`。fake 响应和 `realProvider: false` 必须进入事件与记录，不能称为真实模型结果。
 
-契约依据是 [`docs/framework-contract-v5.md`](/private/tmp/se-agent-v5/docs/framework-contract-v5.md)。旧 `Projects/Schema Engineering` 只读；运行数据使用独立目录。宿主只加载编译时白名单中的本地可信 extension。没有用户配置、credential、`auth.json`、`models.json`、`.env` 或环境变量发现。
+契约依据是 ``docs/framework-contract-v5.md`` (source: <isolated-checkout>)。旧 `Projects/Schema Engineering` 只读；运行数据使用独立目录。宿主只加载编译时白名单中的本地可信 extension。没有用户配置、credential、`auth.json`、`models.json`、`.env` 或环境变量发现。
 
 ## 已核实的 Pi 最小 API
 
-核查对象是 `/private/tmp/se-mvp-runtime-research/src/pi-0.83.0`，Pi `0.83.0` 的两个包：`@earendil-works/pi-agent-core` 和 `@earendil-works/pi-ai`。Node 要求为 `>=22.19.0`。这不是 `pi-coding-agent` 的默认 coding harness；本切片只使用通用 Agent loop、provider stream 和显式工具列表。
+核查对象是 `<isolated-checkout>/src/pi-0.83.0`，Pi `0.83.0` 的两个包：`@earendil-works/pi-agent-core` 和 `@earendil-works/pi-ai`。Node 要求为 `>=22.19.0`。这不是 `pi-coding-agent` 的默认 coding harness；本切片只使用通用 Agent loop、provider stream 和显式工具列表。
 
 | 接缝 | 实际签名/行为 | 固定源码坐标 |
 |---|---|---|
@@ -274,10 +274,10 @@ The extension validates binding/version/anchor data before `submit_candidate`; h
 
 ## Dependency-lock evidence and next implementation boundary
 
-Pi's source `package-lock.json` is lockfile v3 with SHA-256 `94dc20758b1bbde6d0fc0ac3a41f1945eb4309165419b41c5892ea75c7b0ecdb`. It resolves both Pi packages to `0.83.0`. The exact direct package dependencies and source hashes are recorded in [`engineering/mvp/execution/provider-strategy-v4.md`](/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema%20Engineering/engineering/mvp/execution/provider-strategy-v4.md#fresh-luna-v5-runtime-source-lock-2026-09-06). The offline command below returned `up to date` and did not contact a registry:
+Pi's source `package-lock.json` is lockfile v3 with SHA-256 `94dc20758b1bbde6d0fc0ac3a41f1945eb4309165419b41c5892ea75c7b0ecdb`. It resolves both Pi packages to `0.83.0`. The exact direct package dependencies and source hashes are recorded in ``engineering/mvp/execution/provider-strategy-v4.md`` (source: <isolated-checkout>). The offline command below returned `up to date` and did not contact a registry:
 
 ```text
-npm --prefix /private/tmp/se-mvp-runtime-research/src/pi-0.83.0 \
+npm --prefix <isolated-checkout>/src/pi-0.83.0 \
   install --package-lock-only --ignore-scripts --offline --dry-run
 ```
 

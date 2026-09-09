@@ -2,7 +2,7 @@
 
 状态：直接可消费。Sonnet，只读 explore，2026-09-09。
 
-只读声明：本卷全程只读 `/private/tmp/se-fable-r4d`（Courtwork 文档支，main `386fbc6` + 文档提交至 `00e33f9`）。未修改任何产品代码、未执行任何状态变更类 git 命令、未启动任何服务、未读取任何凭据文件。仓内 `app/` 源码对应的最近一次产品提交是 `24c6eaa`（FE-01，"feat(web): product vocabulary, Settings IA, chrome and Home composition"）；FE-02/FE-03 已在别处交付但均未触及 Home 渲染路径（见 §0 说明），本卷据此认为读到的 Home 实现即为 FE-03 之后的当前状态。
+只读声明：本卷全程只读 `<isolated-checkout>`（Courtwork 文档支，main `386fbc6` + 文档提交至 `00e33f9`）。未修改任何产品代码、未执行任何状态变更类 git 命令、未启动任何服务、未读取任何凭据文件。仓内 `app/` 源码对应的最近一次产品提交是 `24c6eaa`（FE-01，"feat(web): product vocabulary, Settings IA, chrome and Home composition"）；FE-02/FE-03 已在别处交付但均未触及 Home 渲染路径（见 §0 说明），本卷据此认为读到的 Home 实现即为 FE-03 之后的当前状态。
 
 ## 0. 版本核对
 

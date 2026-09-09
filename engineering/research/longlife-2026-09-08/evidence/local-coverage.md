@@ -1,7 +1,7 @@
 # SE Long-life 全场景覆盖核对
 
 **核对时间：** 2026-09-08（Asia/Singapore）  
-**仓库：** `/Users/lesprivilege/Projects/Courtwork-fresh`  
+**仓库：** `<isolated-checkout>`\
 **分支 / HEAD：** `codex/fresh-courtwork` / `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`  
 **工作树：** `engineering/current.md`、`engineering/roadmap.md`、Work Surface Kit 若干 work-order/contract/explore 文件及 `engineering/research/experts-hotplug-2026-09-08/` 有修改或未跟踪；未把这些候选文档当作已交付产品代码。此次只读核对未改项目文件，也未运行全量测试。
 

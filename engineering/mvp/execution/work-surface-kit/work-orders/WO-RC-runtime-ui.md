@@ -1,6 +1,6 @@
 # WO-RC · Runtime 控制面 UI（Opus）
 
-状态：已派发 2026-09-09（额度恢复后）。基线 = `claude/wk6-home-brand` `9ef1710`（WK6 + WK8 之上叠加；WK7 色彩支另行合流）；worktree `/private/tmp/se-agent-rc`，分支 `claude/rc-runtime-ui`，端口 8850，数据目录 `/private/tmp/se-agent-rc-data`；交付 `delivery-rc.md`。端口 8850，数据目录 `/private/tmp/se-agent-rc-data`（schema 4）。
+状态：已派发 2026-09-09（额度恢复后）。基线 = `claude/wk6-home-brand` `9ef1710`（WK6 + WK8 之上叠加；WK7 色彩支另行合流）；worktree `<isolated-checkout>`，分支 `claude/rc-runtime-ui`，端口 8850，数据目录 `/private/tmp/se-agent-rc-data`；交付 `delivery-rc.md`。端口 8850，数据目录 `/private/tmp/se-agent-rc-data`（schema 4）。
 
 ## 输入
 

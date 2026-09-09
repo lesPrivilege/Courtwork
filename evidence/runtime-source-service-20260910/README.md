@@ -4,7 +4,7 @@
 
 ## Fixed code
 
-- Worktree: `/private/tmp/cw-runtime-source-service-20260910`, branch `codex/runtime-source-service-20260910`.
+- Worktree: `<isolated-checkout>`, branch `codex/runtime-source-service-20260910`.
 - Baseline: `85693a6d185f284ecc68324e4dda6d7d677abb03` (actual main HEAD when the order was taken).
 - BE-5 code commit: `9cbae87` (this evidence directory is committed after it and references that SHA).
 - Node v25.9.0, npm 11.12.1, locked install via `npm --prefix app ci` (0 audit vulnerabilities). Only synthetic temp data directories and OS-assigned ports were used; no real provider, personal credential or network target was touched.

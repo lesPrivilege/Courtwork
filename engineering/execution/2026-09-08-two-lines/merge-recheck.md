@@ -6,7 +6,7 @@
 
 | 项 | 值 |
 |---|---|
-| 工作树 | `/private/tmp/se-fable-lines`，分支 `claude/fable-two-lines`，自 `main` `e0d214d` 新建 |
+| 工作树 | `<isolated-checkout>`，分支 `claude/fable-two-lines`，自 `main` `e0d214d` 新建 |
 | Node / npm | v25.9.0 / 11.12.1 |
 | 数据目录 | 会话 scratchpad 下 `cw-data-8871`，仓外、全新 |
 | 端口 | 8871（启动前核对空闲） |

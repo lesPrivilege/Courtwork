@@ -15,7 +15,7 @@
 
 ## 基线 SHA
 
-`main` `172130e`（worktree `/private/tmp/se-agent-ps01`，分支 `claude/ps01-site`）。本单文档在 `/private/tmp/se-fable-ps/engineering/release/publishing-surface-2026-09-09/`（分支 `claude/fable-publishing-surface`，未合流），按路径读取。
+`main` `172130e`（worktree `<isolated-checkout>`，分支 `claude/ps01-site`）。本单文档在 `<isolated-checkout>/engineering/release/publishing-surface-2026-09-09/`（分支 `claude/fable-publishing-surface`，未合流），按路径读取。
 
 ## 写权路径
 

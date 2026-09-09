@@ -2,7 +2,7 @@
 
 > 本文保留首片历史。当前可联调版本、启动方式与验证结果见 [current/README.md](current/README.md)。
 
-2026-09-07。作者 Astra；Luna 负责只读溯源与 diff 复核。用户最新要求将 web UI 成熟度迭代交给 Astra，Claude Design 继续视觉审美、取色与画板。此候选从 C3 `2d8a26b263cb570b6adcc5d8cc866169c41174bd` 独立开出，未覆盖 `/private/tmp/se-agent-v9-web`。
+2026-09-07。作者 Astra；Luna 负责只读溯源与 diff 复核。用户最新要求将 web UI 成熟度迭代交给 Astra，Claude Design 继续视觉审美、取色与画板。此候选从 C3 `2d8a26b263cb570b6adcc5d8cc866169c41174bd` 独立开出，未覆盖 `<isolated-checkout>`。
 
 ## 范围与改变
 
@@ -34,7 +34,7 @@
 3. 消费已接受 Lucide 子集和共用提示 adapter；授权、错误恢复、状态与后果仍用可见文字。
 4. 接入 Dashboard 摘要与 run 内成果视图，依真实 API 逐字段验证。表格/事件/列表扁平化与 Claude 的最终视觉 token 合流单独审查。
 
-工作树 `/Users/lesprivilege/.codex/worktrees/se-ui-maturity-20260907`，分支 `codex/ui-maturity-surface`。本地验证端口8816，独立合成数据 `/private/tmp/se-ui-maturity-data-20260907`。从本目录向上两级为仓根。重启命令：`PORT=8816 SE_RUNTIME_DATA_DIR=/private/tmp/se-ui-maturity-data-20260907 node app/server/index.mjs`。源码以提交和相邻 manifest.json 绑定；UI实操记录为作者观察，未伪称自动化截图归档。
+工作树 `<isolated-checkout>`，分支 `codex/ui-maturity-surface`。本地验证端口8816，独立合成数据 `/private/tmp/se-ui-maturity-data-20260907`。从本目录向上两级为仓根。重启命令：`PORT=8816 SE_RUNTIME_DATA_DIR=/private/tmp/se-ui-maturity-data-20260907 node app/server/index.mjs`。源码以提交和相邻 manifest.json 绑定；UI实操记录为作者观察，未伪称自动化截图归档。
 
 Luna 独立运行首版控制器8/8与底座88/88，并复核指出 WS-10/D5 桌面第二次 Escape 必须关闭分栏。Astra已补修并增加组合输入防护反例；最终控制器9/9。Luna另指出默认落点/切会话后面板打开、1060实现断点与WS10的1024文档、隐藏面板的在途读取以及创建dialog opener统一策略尚需G1核对；这些未由本片关闭。新版最后一项IME仅是事件模拟，非真实IME实测。
 

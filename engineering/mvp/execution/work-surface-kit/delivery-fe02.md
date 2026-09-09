@@ -10,7 +10,7 @@
 |---|---|
 | 基线 | `main` `2b6c221`（FE-01 合流 + Astra 补丁 `343e59b` 后的清洁节点，WK-106） |
 | 分支 | `claude/fe02-models` |
-| 树 | `/private/tmp/se-agent-fe02` |
+| 树 | `<isolated-checkout>` |
 | 端口 / 数据目录 | 8887 / `/private/tmp/se-agent-fe02-data/main`（rows fixture）；8889 / `…/t03`（failed fixture，无等待中的 Run）；8890 / `…/rc`（RC 三支）；MCP 线路 fixture 8888；CDP 19887–19897 |
 | 凭据 | 未读取任何凭据文件；全程 local-fake / loopback，未配置真实 provider，fixture 内无任何真实 key |
 

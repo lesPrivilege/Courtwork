@@ -1,12 +1,12 @@
 # CourtWork-fresh · Experts / hot-plug local seam report
 
 Date: 2026-09-08 (Asia/Singapore)
-Scope: read-only inspection of `/Users/lesprivilege/Projects/Courtwork-fresh`, branch `codex/fresh-courtwork`, HEAD `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`. No product or Paper files were changed by this audit. The only new file written by this audit is `/tmp/se-hotplug-local-seams.md`.
+Scope: read-only inspection of `<isolated-checkout>`, branch `codex/fresh-courtwork`, HEAD `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`. No product or Paper files were changed by this audit. The only new file written by this audit is `/tmp/se-hotplug-local-seams.md`.
 
 ## Verification
 
 ```text
-cd /Users/lesprivilege/Projects/Courtwork-fresh/app
+cd <isolated-checkout>/app
 npm test
 tests 134
 pass 134

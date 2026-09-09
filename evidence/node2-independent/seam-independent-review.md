@@ -1,6 +1,6 @@
 # Astra node 2 seam review
 
-Scope: read-only review of `/private/tmp/cw-astra-node2` at
+Scope: read-only review of `<isolated-checkout>` at
 `0a307802b61a6847ee88bfea870bdf340647caee`. The worktree contains the node 2
 runtime-control/UI changes plus the surrounding integration evidence and docs;
 no product files were edited by this review.

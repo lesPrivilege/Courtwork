@@ -6,7 +6,7 @@ This slice checks the generic Core owner, cross-Session work continuity, produce
 
 ## Checked tree and fixed references
 
-The assigned worktree was `/private/tmp/cw-luna-maintenance-core-validation` on branch `codex/luna-maintenance-core-validation`, at `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The initial `git status --short --branch` was clean. The parent and other workers later added their own order/evidence files in this shared worktree; I did not edit those files or any product source.
+The assigned worktree was `<isolated-checkout>` on branch `codex/luna-maintenance-core-validation`, at `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The initial `git status --short --branch` was clean. The parent and other workers later added their own order/evidence files in this shared worktree; I did not edit those files or any product source.
 
 `npm --prefix app ci` was run once in this tree because `app/node_modules` was absent. It used the checked-in lockfile, installed 277 packages, and reported 0 vulnerabilities. No credentials, paid provider, network provider, or personal data was used by the probes.
 

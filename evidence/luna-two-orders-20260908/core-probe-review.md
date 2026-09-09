@@ -4,7 +4,7 @@ Date: 2026-09-08 (Asia/Singapore). Reviewer: Luna, non-author cross-review. This
 
 ## Fixed tree and probe stability
 
-The checked tree is `/private/tmp/cw-luna-maintenance-core-validation`, branch `codex/luna-maintenance-core-validation`, HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`.
+The checked tree is `<isolated-checkout>`, branch `codex/luna-maintenance-core-validation`, HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`.
 
 Before execution, the probe files were stable and no related probe process was running:
 

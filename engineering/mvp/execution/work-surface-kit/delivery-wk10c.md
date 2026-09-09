@@ -1,6 +1,6 @@
 # WO-WK10c 收尾交付（Fable，2026-09-09）
 
-基线 Astra 第二节点 `b0173de`；分支 `claude/wk10c-finish`，**固定收尾 SHA `0bc416b`**（worktree `/private/tmp/se-agent-wk10c`，预览 8861）。未推送。
+基线 Astra 第二节点 `b0173de`；分支 `claude/wk10c-finish`，**固定收尾 SHA `0bc416b`**（worktree `<isolated-checkout>`，预览 8861）。未推送。
 
 ## 变更范围
 

@@ -2,7 +2,7 @@
 
 状态：只读 explore，Sonnet，2026-09-09，派单见 [intake-round-3 §4p WK-110 (c)](../intake-round-3.md)。
 
-只读声明：本卷只读 `/private/tmp/se-fable-r4d`（基线 `386fbc6`，HEAD `00e33f9`）内的文档、`app/web/app.mjs`、`app/web/surface-modules.mjs`、`app/web/styles.css`、`app/web/index.html`、既有 evidence 脚本，以及通过 `git show` 只读引用了尚未合入本树的 `claude/fe03-chat-work:delivery-fe03.md`（该文件在本树 HEAD 不存在，见 §0 说明）。未修改任何产品代码、未 `git commit`、未启动任何服务、未新增依赖。结论一律标 file:line；无法核实处写“未核实”而不是猜测。
+只读声明：本卷只读 `<isolated-checkout>`（基线 `386fbc6`，HEAD `00e33f9`）内的文档、`app/web/app.mjs`、`app/web/surface-modules.mjs`、`app/web/styles.css`、`app/web/index.html`、既有 evidence 脚本，以及通过 `git show` 只读引用了尚未合入本树的 `claude/fe03-chat-work:delivery-fe03.md`（该文件在本树 HEAD 不存在，见 §0 说明）。未修改任何产品代码、未 `git commit`、未启动任何服务、未新增依赖。结论一律标 file:line；无法核实处写“未核实”而不是猜测。
 
 ## 0. 派单要求与实际可读材料的落差
 

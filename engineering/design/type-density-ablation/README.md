@@ -4,7 +4,7 @@
 
 ## 来源
 
-- 只读树：`/private/tmp/se-fable-r4d`，基线 `main` `5ea5ff0`。
+- 只读树：`<isolated-checkout>`，基线 `main` `5ea5ff0`。
 - 规格：[type-density-constraints.md](../type-density-constraints.md)（§1 现状、§2 约束、§3 V1/V2 目标值、§4 消融面与比较方法）。
 - 应用端口 **8903**（local-fake，未配置真实 provider，未读取任何凭据文件），CDP 端口 **19970/19971**。
 - 数据目录：`/private/tmp/se-fable-r4d-excc4-data/work2`（Settings 与 composer·idle 取样）+ 一个额外播种的

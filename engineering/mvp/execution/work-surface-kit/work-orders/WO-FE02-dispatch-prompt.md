@@ -7,7 +7,7 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第四轮工单 FE-02（Models & Connections）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `2b6c221`）：/private/tmp/se-agent-fe02，分支 `claude/fe02-models`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `2b6c221`）：<isolated-checkout>，分支 `claude/fe02-models`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8887，数据目录 /private/tmp/se-agent-fe02-data（已建、为空）；MCP 线路 fixture 用 8888；CDP 端口自选 19887 起。结束后停掉自己的全部进程（server、fixture、headless Chrome）。8850–8861、8810、8817、8818 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback，不配置真实 provider，不把任何真实 key 写进 fixture。
 

@@ -3,7 +3,7 @@
 Date: 2026-09-08 (Asia/Singapore)
 
 Scope: read-only review of the uncommitted MCP permission projection patch on
-`/private/tmp/courtwork-final-integration-20260908` at HEAD `c1b19f6`.
+`<isolated-checkout>` at HEAD `c1b19f6`.
 The only file written by this review is this evidence receipt; product and
 browser-chain files were not changed.
 

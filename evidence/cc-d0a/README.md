@@ -1,7 +1,7 @@
 # CC-D0-a 证据 · Home 模块带外壳与现有事实投影（WK-114 / WK-116 R4D-2 / WK-117 (b) / WK-120 / WK-129）
 
 2026-09-09 · Claude Opus（`opus-wo-low`），**作者验证**（Astra 独验另计，本页不代它写结论）。
-基线 `main` `fa90763`，分支 `claude/cc-d0a-home-modules`，树 `/private/tmp/se-agent-ccd0a`。
+基线 `main` `fa90763`，分支 `claude/cc-d0a-home-modules`，树 `<isolated-checkout>`。
 全程 local-fake / loopback：未配置任何真实 provider，未读取任何凭据文件，fixture 内没有任何真实 key。
 交付页 [delivery-cc-d0a](../../engineering/mvp/execution/work-surface-kit/delivery-cc-d0a.md)；准入合同 [contracts/home-modules](../../engineering/mvp/execution/work-surface-kit/contracts/home-modules.md)。
 

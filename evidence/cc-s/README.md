@@ -1,7 +1,7 @@
 # CC-S 证据 · Settings 替换全局导航（WK-116 / WK-115 ① ②）
 
 2026-09-09 · Claude Opus，**作者验证**（Astra 独验另计，本页不代它写结论）。
-基线 `main` `683b6d1`，分支 `claude/cc-s-settings-nav`，树 `/private/tmp/se-agent-ccs`。
+基线 `main` `683b6d1`，分支 `claude/cc-s-settings-nav`，树 `<isolated-checkout>`。
 全程 local-fake / loopback：未配置任何真实 provider，未读取任何凭据文件，fixture 内没有任何真实 key。
 交付页 [delivery-cc-s](../../engineering/mvp/execution/work-surface-kit/delivery-cc-s.md)。
 

@@ -1,6 +1,6 @@
 # EX-A：CourtWork `app/` 对上游包的复用面盘点
 
-范围：只读，工作树 `/private/tmp/se-fable-lines`（Courtwork main @ `e0d214d`）。所有引用均为 `path:line`
+范围：只读，工作树 `<isolated-checkout>`（Courtwork main @ `e0d214d`）。所有引用均为 `path:line`
 或 `node_modules/<pkg>/...` 形式，可复核。“观察”= 我读到的代码/文件事实；“推断”= 我基于观察做的判断，
 两者分开标注。
 

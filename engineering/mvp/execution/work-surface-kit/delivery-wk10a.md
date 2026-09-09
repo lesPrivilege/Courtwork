@@ -1,7 +1,7 @@
 # WO-WK10a 交付 · 右栏模块导轨、三栏对齐带、composer 层级、文本清退（Opus）
 
 分支 `claude/wk10-rail`，基线 = 整合头 `9cb1d7e`（`claude/wsk-integration` = WK6+WK8+RC+WK7）。
-worktree `/private/tmp/se-agent-wk10`，数据目录 `/private/tmp/se-agent-wk10-data`（全新，runtime
+worktree `<isolated-checkout>`，数据目录 `/private/tmp/se-agent-wk10-data`（全新，runtime
 schema 4），端口 8855。Node v25.9.0。**真实 provider：not_run**——宿主 `capabilities.mode =
 "local-fake"`，全程未配置也未调用真实 provider，未读取任何凭据文件。
 

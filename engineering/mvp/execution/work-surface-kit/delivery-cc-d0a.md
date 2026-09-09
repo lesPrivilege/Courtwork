@@ -10,7 +10,7 @@
 |---|---|
 | 基线 | `main` `fa90763`（相对上一单基线 `0b5ccd2`，main 只有后端与证据变更，`app/web` 未动） |
 | 分支 | `claude/cc-d0a-home-modules` |
-| 树 / 端口 / 数据 | `/private/tmp/se-agent-ccd0a` · 8905（fixture 8906） · `/private/tmp/se-agent-ccd0a-data` |
+| 树 / 端口 / 数据 | `<isolated-checkout>` · 8905（fixture 8906） · `/private/tmp/se-agent-ccd0a-data` |
 
 | 提交 | 内容 |
 |---|---|

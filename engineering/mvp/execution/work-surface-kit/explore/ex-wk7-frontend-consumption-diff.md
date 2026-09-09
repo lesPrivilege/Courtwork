@@ -1,6 +1,6 @@
 # EX-WK7 · 前端裁定消费对照（Sonnet，只读，2026-09-08）
 
-基线：worktree `/private/tmp/se-fable-lines`，分支 `claude/fable-settings`，`1b0bf83`（其上 `main` `8023e1b`）。方法：对 WK-1…81、DC-1…11、PC-1…9、UP-1…15（无 UP-16）、RC-1…10、BE-1…13、BR-1、gaps-wk9 G-1…7、runtime-ui-gaps A/B 逐项 grep + 读源判定。证据全部来自本 worktree 的 `app/web/**`、`app/extensions/evidence-memo/renderer.mjs`、`brand/`、`engineering/**`；未运行 npm、未起服务、未 checkout。`presentation-primitives.d.ts` 的类型名（`StatTile`/`Heatmap`/`WorkCard`/`toStatTiles`/`toWorkCards`/`WorkCardInput`/`HeatmapInput` 等）在 `app/web/**`、`app/runtime/**` 全文 **grep 零命中**——六原语目前只是冻结的 `.d.ts`，无任何 adapter 或组件消费。
+基线：worktree `<isolated-checkout>`，分支 `claude/fable-settings`，`1b0bf83`（其上 `main` `8023e1b`）。方法：对 WK-1…81、DC-1…11、PC-1…9、UP-1…15（无 UP-16）、RC-1…10、BE-1…13、BR-1、gaps-wk9 G-1…7、runtime-ui-gaps A/B 逐项 grep + 读源判定。证据全部来自本 worktree 的 `app/web/**`、`app/extensions/evidence-memo/renderer.mjs`、`brand/`、`engineering/**`；未运行 npm、未起服务、未 checkout。`presentation-primitives.d.ts` 的类型名（`StatTile`/`Heatmap`/`WorkCard`/`toStatTiles`/`toWorkCards`/`WorkCardInput`/`HeatmapInput` 等）在 `app/web/**`、`app/runtime/**` 全文 **grep 零命中**——六原语目前只是冻结的 `.d.ts`，无任何 adapter 或组件消费。
 
 ## §1 逐项状态
 

@@ -1,7 +1,7 @@
 # BE-4 / BE-13 read-only review
 
 Date: 2026-09-08  
-Checkout: \`/private/tmp/cw-astra-node2\`  
+Checkout: \`<isolated-checkout>\`\
 Branch / commit: \`codex/astra-node2\` / \`0a307802b61a6847ee88bfea870bdf340647caee\`  
 Scope: trace BE-4 (B-1, B-2, B-4, B-10) and BE-13 through the runtime-control API, MCP manager, and runtime UI. This review did not edit product files, run tests, start a service, or send an application task. The checkout has only the separately created \`evidence/node2-independent/\` directory as an untracked evidence addition.
 

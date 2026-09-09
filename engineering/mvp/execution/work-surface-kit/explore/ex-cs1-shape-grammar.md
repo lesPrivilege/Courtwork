@@ -2,9 +2,9 @@
 
 状态：只读 explore，Sonnet，2026-09-09，派单见 [intake-round-3 §4ad WK-125 (e)](../intake-round-3.md)。
 
-只读声明：本卷只读 `/private/tmp/se-fable-r4d`（基线 `main` `5ea5ff0`，HEAD `5a6d8ac`）内的文档、`app/web/styles.css`、`app/web/app.mjs`、`app/web/settings-view.mjs`、`app/web/index.html`、`tools/lint-colors.mjs`、`tools/lint-materials.mjs`、`evidence/cc-s/README.md`（含其 `browser.mjs` / `seed.mjs` / `work-seed.mjs` 脚本源码，只读引用其 CDP 写法，未修改这些文件）。产品代码零改动、零 `git commit`、零新依赖。
+只读声明：本卷只读 `<isolated-checkout>`（基线 `main` `5ea5ff0`，HEAD `5a6d8ac`）内的文档、`app/web/styles.css`、`app/web/app.mjs`、`app/web/settings-view.mjs`、`app/web/index.html`、`tools/lint-colors.mjs`、`tools/lint-materials.mjs`、`evidence/cc-s/README.md`（含其 `browser.mjs` / `seed.mjs` / `work-seed.mjs` 脚本源码，只读引用其 CDP 写法，未修改这些文件）。产品代码零改动、零 `git commit`、零新依赖。
 
-启动了一个只读量测用的应用实例：树不变，端口 **8905**，数据目录 `/private/tmp/se-fable-r4d-excs1-data`（本卷自建，已在收尾时删除），CDP 端口 19992（19990/19991 为本卷失败重试后已清理的临时进程，一并杀掉）。`local-fake` 模式，`capabilities.realProvider:false`，未配置任何真实 provider，未读取任何凭据文件。测量脚本临时写在会话 scratchpad（`/private/tmp/claude-501/.../scratchpad/measure.mjs`），不在产品树或 `evidence/` 内，收尾未删（scratchpad 由会话自身回收，不影响仓库）。全部 server / headless Chrome 进程已在收尾时 kill；8905、19990–19992 已释放；未触碰 8850–8861、8810、8817、8818、8887–8904、8921–8953。
+启动了一个只读量测用的应用实例：树不变，端口 **8905**，数据目录 `/private/tmp/se-fable-r4d-excs1-data`（本卷自建，已在收尾时删除），CDP 端口 19992（19990/19991 为本卷失败重试后已清理的临时进程，一并杀掉）。`local-fake` 模式，`capabilities.realProvider:false`，未配置任何真实 provider，未读取任何凭据文件。测量脚本临时写在会话 scratchpad（`<isolated-checkout>/.../scratchpad/measure.mjs`），不在产品树或 `evidence/` 内，收尾未删（scratchpad 由会话自身回收，不影响仓库）。全部 server / headless Chrome 进程已在收尾时 kill；8905、19990–19992 已释放；未触碰 8850–8861、8810、8817、8818、8887–8904、8921–8953。
 
 结论一律标 file:line；CDP 实测的数字标"实测"，未启动验证的标"推算"或"未核实"。
 

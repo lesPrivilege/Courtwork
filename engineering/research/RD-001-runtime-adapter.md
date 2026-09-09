@@ -32,7 +32,7 @@
 
 ## 证据与未完义务
 
-固定版本及执行记录见下文。实验目录为 `/private/tmp/se-work-agent-mvp/runtime/`；未建立正式产品应用，真实 provider 预算仍为 0。
+固定版本及执行记录见下文。实验目录为 `<isolated-checkout>/runtime/`；未建立正式产品应用，真实 provider 预算仍为 0。
 
 ## 2026-09-05 · 固定源码筛选
 

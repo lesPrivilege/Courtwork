@@ -1,12 +1,12 @@
 # EX-PS3 · 互动标本可行性：纯静态重放一段已记录的工作
 
-Sonnet，只读 explore，可起服务。2026-09-09。基线 Courtwork `main` `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`（worktree `/private/tmp/se-fable-ps`）。
+Sonnet，只读 explore，可起服务。2026-09-09。基线 Courtwork `main` `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`（worktree `<isolated-checkout>`）。
 
 **状态：直接可消费**（表内已含转录值、file:line 与实测字节数，不需再查原文件；唯一需要复核的是「未核实项」列标注的几行）。
 
 ## 卷首
 
-**只读声明**：本次 explore 未修改、未创建仓内任何文件（本文件除外）。启动过一次本地服务：`node server/index.mjs`，`SE_RUNTIME_DATA_DIR=/private/tmp/se-fable-ps-ex3-data PORT=8906`，仅监听 `127.0.0.1:8906`；所有请求均为 `curl http://127.0.0.1:8906/...`，未访问任何外部 URL，未使用任何真实凭据（`provider-credential` 写入的是 README 记录的公开常量 `fake-local-loopback-key`）。服务已停止（`kill`），数据目录 `/private/tmp/se-fable-ps-ex3-data` 已删除。`app/node_modules` 此前不存在，已从 `~/Projects/Courtwork/app/node_modules` 复制（未触碰该源目录本身）；`git status --short` 在复制后为空，说明 `node_modules` 属仓内 `.gitignore` 忽略范围，未产生仓内改动。
+**只读声明**：本次 explore 未修改、未创建仓内任何文件（本文件除外）。启动过一次本地服务：`node server/index.mjs`，`SE_RUNTIME_DATA_DIR=/private/tmp/se-fable-ps-ex3-data PORT=8906`，仅监听 `127.0.0.1:8906`；所有请求均为 `curl http://127.0.0.1:8906/...`，未访问任何外部 URL，未使用任何真实凭据（`provider-credential` 写入的是 README 记录的公开常量 `fake-local-loopback-key`）。服务已停止（`kill`），数据目录 `/private/tmp/se-fable-ps-ex3-data` 已删除。`app/node_modules` 此前不存在，已从 `./app/node_modules` 复制（未触碰该源目录本身）；`git status --short` 在复制后为空，说明 `node_modules` 属仓内 `.gitignore` 忽略范围，未产生仓内改动。
 
 **基线漂移**：读取过程中 worktree 的 `main` 从 `172130e` 前进到 `4acabb9`、再到 `0741d2e`（另一并行 Sonnet 会话提交了 EX-PS4 回执与本批文档，`git diff --stat 172130e HEAD` 显示改动全部落在 `engineering/release/publishing-surface-2026-09-09/**`，不涉及 `app/**`）。本卷引用的所有 `app/`、`docs/` 文件字节与下表 sha256 一致，未受影响。
 

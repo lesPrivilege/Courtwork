@@ -1,6 +1,6 @@
 # EX-B · 合并复检 + 前端入口盘点
 
-只读探索，工作树 `/private/tmp/se-fable-lines`（main = `e0d214d`）。所有引用均为 `path:line`；未特别标注处均为直接读取源码得到的 observed 事实，`推断：` 前缀标出的判断为 inferred。
+只读探索，工作树 `<isolated-checkout>`（main = `e0d214d`）。所有引用均为 `path:line`；未特别标注处均为直接读取源码得到的 observed 事实，`推断：` 前缀标出的判断为 inferred。
 
 ## PART 1 — 合并复检
 
@@ -58,7 +58,7 @@ app/web/thread-projection.mjs       |  22 ++
 | `engineering/mvp/execution/work-surface-kit/user-message-audit.md`（提示词写的 `user-message-audit.md` 实际路径在 `work-surface-kit/` 子目录下，未在仓库根目录发现同名文件） | 是 |
 | `engineering/release/2026-09-08/pages-preparation/{README.md,evidence-contract.md,reference-index.json,source-chat.md}` | 均是 |
 
-与 `/Users/lesprivilege/Projects/Courtwork-fresh/<同路径>` 字节对比（`cmp`/`diff`，只读）：
+与 `<isolated-checkout>/<同路径>` 字节对比（`cmp`/`diff`，只读）：
 
 | 路径 | 结果 |
 |---|---|

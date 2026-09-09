@@ -5,7 +5,7 @@
 
 ## 来源
 
-- 只读树：`/private/tmp/se-fable-r4d`。**基线说明**：本单任务书写的基线是 `main` `5ea5ff0`，
+- 只读树：`<isolated-checkout>`。**基线说明**：本单任务书写的基线是 `main` `5ea5ff0`，
   但这棵树实际检出的 HEAD 是 `claude/fable-round4d` 分支的 `bef3cd9`（`main` 目前在
   `a7a08f0`）——`bef3cd9` 正是写下 WK-123 (b) 裁定、并把 EX-CC4 落盘的那一条提交（往前两条是
   `9c5ed1d docs: EX-CC4 静态字阶/密度消融页`），本单需要的 `type-density-constraints.md`、

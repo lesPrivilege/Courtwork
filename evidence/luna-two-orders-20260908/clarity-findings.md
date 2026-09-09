@@ -4,7 +4,7 @@ Date: 2026-09-08 (Asia/Singapore). Role: Luna Finder only. The review is read-on
 
 ## Fixed scope and deterministic snapshot
 
-The worktree is `/private/tmp/cw-luna-maintenance-core-validation`, branch `codex/luna-maintenance-core-validation`, HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The four files were measured with:
+The worktree is `<isolated-checkout>`, branch `codex/luna-maintenance-core-validation`, HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The four files were measured with:
 
 ```sh
 wc -l app/runtime/source-resolver.mjs app/runtime/artifact-history.mjs app/core/client.mjs app/core/owner.mjs

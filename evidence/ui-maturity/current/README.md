@@ -1,6 +1,6 @@
 # 可联调 UI + Harness Core 节点
 
-2026-09-07，Astra 实现与行为验证；Luna 做来源、基线视觉 diff 和结构截图复核。独立工作树 `/Users/lesprivilege/.codex/worktrees/se-ui-maturity-20260907`，分支 `codex/ui-maturity-surface`。接受的 Foundation R3 累计后端补丁已原样合入提交 `9213e3f`，此后只修改 UI、显式静态资产路由和验证材料。Claude 的 `/private/tmp/se-agent-v9-web` 活动树未覆盖。
+2026-09-07，Astra 实现与行为验证；Luna 做来源、基线视觉 diff 和结构截图复核。独立工作树 `<isolated-checkout>`，分支 `codex/ui-maturity-surface`。接受的 Foundation R3 累计后端补丁已原样合入提交 `9213e3f`，此后只修改 UI、显式静态资产路由和验证材料。Claude 的 `<isolated-checkout>` 活动树未覆盖。
 
 ## 使用
 
