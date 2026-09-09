@@ -15,6 +15,8 @@
 
 ## FE-02 · Models & Connections（WK-91）
 
+0. **WK-105 追加**：`--nav` 250 → 256（与 ui-composition-standard 尺寸 token 表一致），Home / Work 几何断言随之更新。
+
 Settings › Models：Connections 列表 + Add provider 三条 happy path（catalog：API key → Connect；compatible：Base URL + key → Fetch models；local：Base URL → Detect / Fetch）；统一 Test connection → Fetch models → 选 model → Save connection；display name 用户填、provider ID 内部生成；compat / headers / API format 在 Advanced；credential 与 endpoint 分离；默认模型只影响以后的 Chat / Work，已有会话固定其 `runtime.bound`。MCP servers 沿同一 Add → Configure → Test → Review permissions → Save / Enable → Advanced。前端先按现有 `provider-config` / `provider-credential` / `provider-models` 做；Fetch models（未保存表单）与 Test connection 待 BE-17 / BE-18，未交付前按钮不出现。反例 FE-T03（请求值 / 有效值 / 绑定值）。
 
 ## FE-03 · Chat / Work / Memory shell（WK-92）
