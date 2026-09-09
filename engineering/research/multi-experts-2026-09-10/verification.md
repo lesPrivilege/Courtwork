@@ -20,4 +20,6 @@ git diff --check
 
 Luna补核21个准确目录标题、两份社区仓库、HiGMem/APEX-MEM，结果见[探索](exploration.md)。目录和摘要阅读不升级成论文/全书复现，仓库README的测试声明不升级成本项目测试。Astra保留关键owner、权限、no-replay、Pi默认与延后路线的裁决。
 
+Luna随后对文档包作有界只读复核：HC/RA/AT 22项各一次、21标题一致、T19–23后半段决定完整、planned/current与owner无明显冲突，未发现阻塞项。唯一措辞意见是RA2可能让人误以为RPC已有；Astra将该行明确改为当前生产入口是Pi coding AgentSession SDK、RPC未接。此复核仅覆盖所列文档映射，不替代全部来源全文或产品行为审查。
+
 共享main工作树仍有既存`evidence/fe01-main-integration-20260909/wk98-regression.json`修改及`site/verification/main-20260910/`未跟踪目录；本次均未触碰。隔离分支只提交本研究目录、current与roadmap。远端main落后本地BG-02的六个提交，PR正文单独准备，见[pull-request](pull-request.md)。

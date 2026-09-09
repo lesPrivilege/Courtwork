@@ -38,7 +38,7 @@ ME-08 的 `PTY` 仅最后兼容候选，不是可依赖控制协议。上述目�
 | HC6 heartbeat/Attention/Spark | ME-06；当前消息不wake，无自动scheduler |
 | RA0 FakeRuntime + conformance | ME-05并入AM-A/F与已有synthetic child，不宣称完整adapter套件已有 |
 | RA1 Codex App Server | ME-08候选，取代“第一默认runtime”排序 |
-| RA2 Pi RPC | 默认已有SDK；跨进程消费者出现才ME-05/08，不为RPC改写现有集成 |
+| RA2 Pi RPC | 当前生产入口是Pi coding AgentSession SDK，未接RPC；跨进程消费者出现才ME-05/08，不为RPC改写现有集成 |
 | RA3 ACP generic | ME-08第二候选；agent逐个验native能力，generic不保证权限/恢复等价 |
 | RA4 Pi native-TUI attach | ME-08后置；单控制者无法证明即不附着同一session |
 | RA5 Antigravity SDK | research-only，T18后置；先恢复并核验官方固定接口 |
