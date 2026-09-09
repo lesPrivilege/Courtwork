@@ -18,9 +18,12 @@
 | SHA | 标题 |
 |---|---|
 | `062170c` | `feat: let the connection and model surfaces consume the real connection registry` |
-| `5a27f09` | `docs: record the FE01 delivery and its loopback evidence` —— 本页与证据目录自身的提交（分支 HEAD） |
+| `5a27f09` | `docs: record the FE01 delivery and its loopback evidence` —— 本页与证据目录自身的提交 |
+| `88e8339` | `docs: record the FE01 commit SHAs on the delivery page` |
+| `56cfe71` | `feat: name a user connection's model group by its endpoint host` —— PV-53 补丁（§11） |
+| （分支 HEAD） | `docs: record the PV-53 patch on the FE01 delivery page` —— 本节与 §11 自身的提交；它记不下自己的 SHA，见 `git log` |
 
-均为显式路径 `git add`，无 `git add -A`。作者验证的六条命令与九条浏览器断言跑在第一条提交的树上。
+作者验证的六条命令与十条浏览器断言跑在 `56cfe71` 的树上（PV-53 补丁前的九条跑在 `062170c` 的树上）。
 
 ## 2. 改动文件
 
