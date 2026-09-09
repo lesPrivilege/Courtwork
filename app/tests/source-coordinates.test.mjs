@@ -434,3 +434,18 @@ test('MR-A1a: NUL and control characters are ordinary code points, never trimmed
   assert.equal(got.toOffset(1, 'codePoint', 'utf8'), 1);
   assert.deepEqual(Uint8Array.from(Buffer.from(got.text, 'utf8')), bytes);
 });
+
+
+test('MR-A1a integration: spoofed non-byte views are rejected by internal type', () => {
+  const spoofed = new Uint16Array([0x41]);
+  Object.defineProperty(spoofed, Symbol.toStringTag, { value: 'Uint8Array' });
+  assert.throws(() => buildSourceCoordinates(spoofed), TypeError);
+});
+
+test('MR-A1a integration: invalid unit errors never coerce caller objects', () => {
+  const source = buildSourceCoordinates(Buffer.from('A😀B'));
+  for (const unit of [Object.create(null), { toString() { throw new Error('must not coerce'); } }]) {
+    assert.throws(() => source.toOffset(0, unit, 'utf8'), e => e.code === 'invalid_coordinate_unit');
+    assert.throws(() => source.toOffset(0, 'utf8', unit), e => e.code === 'invalid_coordinate_unit');
+  }
+});

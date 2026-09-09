@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isUint8Array } from 'node:util/types';
 
 // MR-A1a · raw-text coordinate base for the Markdown Review Surface.
 //
@@ -43,8 +44,7 @@ function coordinatesError(code, message) {
 // caller contract violation and surfaces as a plain TypeError: it is not one of
 // the frozen content/offset error codes.
 function isByteSource(value) {
-  return value instanceof Uint8Array ||
-    (ArrayBuffer.isView(value) && Object.prototype.toString.call(value) === '[object Uint8Array]');
+  return isUint8Array(value);
 }
 
 const isContinuation = (byte) => byte >= 0x80 && byte <= 0xbf;
@@ -143,8 +143,8 @@ export function buildSourceCoordinates(value) {
     codePointLength: codePointCount,
     utf16Length: utf16Cursor,
     toOffset(offset, from, to) {
-      if (!UNITS.has(from)) throw coordinatesError('invalid_coordinate_unit', `Unknown source unit '${String(from)}'; expected one of ${SOURCE_COORDINATES.units.join(', ')}.`);
-      if (!UNITS.has(to)) throw coordinatesError('invalid_coordinate_unit', `Unknown target unit '${String(to)}'; expected one of ${SOURCE_COORDINATES.units.join(', ')}.`);
+      if (!UNITS.has(from)) throw coordinatesError('invalid_coordinate_unit', `Unknown source unit; expected one of ${SOURCE_COORDINATES.units.join(', ')}.`);
+      if (!UNITS.has(to)) throw coordinatesError('invalid_coordinate_unit', `Unknown target unit; expected one of ${SOURCE_COORDINATES.units.join(', ')}.`);
       if (!Number.isSafeInteger(offset) || offset < 0) throw coordinatesError('invalid_offset', 'Offset must be a safe non-negative integer.');
 
       let cp;
