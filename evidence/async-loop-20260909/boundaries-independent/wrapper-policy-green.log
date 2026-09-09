@@ -1,0 +1,18 @@
+✔ catalog staleness keeps durable result readable and refuses further adapter work (80.985083ms)
+✔ policy rejection records dependency before adapter I/O, leaving Run unresolved (62.855083ms)
+✔ late query cannot overwrite cancellation and lost cancel ACK remains unresolved (104.89325ms)
+✔ stopped Run forbids dispatch and wait stays inside local budget (128.063625ms)
+✔ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (274.915417ms)
+✔ two durable reads use actual host/Pi tools and wait only on the selected source (621.657917ms)
+✔ premature final and lost launch ACK preserve query-only recovery, then a later Run consumes the original task (501.878375ms)
+✔ source/implementation absence remains readable; corrupt bytes and cross-session consumption are refused (483.982792ms)
+✔ schema3/4 migrate only after full validation and exclusive backup; current-state corruption refuses open (558.685334ms)
+✔ invalid UTF-8 schema4 is refused before backup or replacement (136.126ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3476.529417

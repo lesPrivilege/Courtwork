@@ -144,12 +144,12 @@ export class RuntimeControlPlane {
     finally { await unlink(temp).catch(() => {}); }
     this.config = next;
   }
-  inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp }) {
+  inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp, additionalTools = [] }) {
     const scopes = [{ type: 'user', id: 'local' }, ...(session ? [{ type: 'workspace', id: session.projectId }, { type: 'session', id: session.id }] : [])];
     const applies = value => scopes.some(s => sameScope(s, value));
     const policies = scopes.flatMap(s => this.config.policies.filter(p => sameScope(s, p.scope)));
     const descriptor = (id, kind, title, extra = {}) => ({ id, kind, title, source: { type: 'builtin', version: adapterId }, scope: { type: 'user', id: 'local' }, activation: 'always', installed: true, running: null, exposed: true, health: 'healthy', configurable: false, ...extra });
-    const resources = TOOLS.map(name => descriptor('tool:' + name, 'tool', name, { configurable: true, action: name }));
+    const resources = [...TOOLS, ...additionalTools].map(name => descriptor('tool:' + name, 'tool', name, { configurable: true, action: name }));
     for (const ext of extensions) {
       const bound = session?.extensionBinding?.extensionId === ext.id;
       resources.push(descriptor('plugin:' + ext.id, 'plugin', ext.title, { installed: true, running: ext.status === 'loaded', exposed: Boolean(bound && ext.status === 'loaded'), health: ext.status === 'invalidated' ? 'error' : 'healthy', source: { type: 'builtin', version: ext.version }, trust: 'host-trusted', isolation: 'in-process', capabilities: ext.tools.map(t => 'tool:' + t), generation: ext.generation }));

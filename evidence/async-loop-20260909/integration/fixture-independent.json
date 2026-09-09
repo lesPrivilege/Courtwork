@@ -1,0 +1,51 @@
+{
+  "sourceRoot": "/private/tmp/cw-async-loop-implementation",
+  "sourceCommit": "8614cc0585d77c1149e78ec1438818831b67e1d1",
+  "observations": {
+    "utf8": {
+      "nfcDigest": "sha256:47f1eaf94fd20fc2c8adfcb19d30bf2d20d99221f307bad27155b4296d2d5e38",
+      "nfdDigest": "sha256:4d9e3739df17dc6f3d6723a659e16c4cdcfe16467b1fc88c54412f41b553024a",
+      "mismatchRejected": "jobId, exact document bytes, and immutable lowercase SHA-256 input are required",
+      "acceptedCodePoints": [
+        "43",
+        "61",
+        "66",
+        "65",
+        "301",
+        "a"
+      ]
+    },
+    "conflictingRetry": {
+      "first": {
+        "status": 202,
+        "document": "document-A",
+        "input": "Courtwork fixture input for conflicting-retry.\n"
+      },
+      "conflicting": {
+        "status": 409,
+        "error": "job identity conflicts with the retained immutable request",
+        "code": "job_identity_conflict"
+      },
+      "stored": {
+        "document": "document-A",
+        "input": "Courtwork fixture input for conflicting-retry.\n",
+        "launchCount": 1
+      },
+      "finding": "fixed SHA returns 409 job_identity_conflict and preserves one launch attempt"
+    },
+    "executionKill": {
+      "killedPid": 8304,
+      "restartedPid": 8305,
+      "persistedBeforeKill": {
+        "status": "executing",
+        "result": null,
+        "launchCount": 1
+      },
+      "afterRestart": {
+        "status": "executing",
+        "result": null,
+        "launchCount": 1
+      }
+    }
+  }
+}

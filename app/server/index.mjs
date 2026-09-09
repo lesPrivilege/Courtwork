@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { createRuntime } from "./runtime.mjs";
+import { AsyncTaskError } from './async-task-state.mjs';
 import { catalog } from "../extensions/catalog.mjs";
 import { ServiceError } from "./service.mjs";
 
@@ -74,6 +75,7 @@ function routeParts(url) {
 
 function errorResponse(error) {
   if (error instanceof ServiceError) return { status: error.status, code: error.code, message: error.message, details: error.details };
+  if (error instanceof AsyncTaskError) return { status: error.status, code: error.code, message: error.message };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
   if (error?.message === "active run exists") return { status: 409, code: "active_run", message: "only one active run is allowed" };
   if (error?.source === 'core_bridge' || ['INVALID_INPUT','EVIDENCE_INVALID','CONTRACT_UNSUPPORTED','BINDING_MISMATCH','CONTEXT_BUDGET','REVIEW_INVALID','OBLIGATION_OPEN'].includes(error?.code)) return {status:409,code:error.code,message:error.message};
@@ -98,6 +100,10 @@ function routeService(service, req, url) {
   const method = req.method ?? "GET";
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
+  if (tail[0] === 'async-tasks') {
+    if (method === 'GET' && tail.length <= 2) return () => service.readAsyncTasks(tail[1] ?? null, url.searchParams);
+    if (method === 'POST' && tail.length === 3 && ['reconcile','cancel'].includes(tail[2])) return async () => service.actOnAsyncTask(tail[1], tail[2], await body(req));
+  }
   if (tail[0] === 'attention') {
     if (method === 'GET' && tail.length === 2) return () => service.readAttention(tail[1] === 'registry' ? null : tail[1],url.searchParams);
     if (method === 'POST' && tail.length === 1) return async () => service.actOnAttention(null,await body(req));
@@ -151,8 +157,8 @@ function routeService(service, req, url) {
   return undefined;
 }
 
-export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, logger = (line) => console.log(line) } = {}) {
-  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, logger });
+export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, asyncTaskAdapters = [], logger = (line) => console.log(line) } = {}) {
+  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, logger });
   const { service } = runtime;
   let server;
   let closing = false;
