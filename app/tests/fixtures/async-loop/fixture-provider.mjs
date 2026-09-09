@@ -1,10 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
+import { DOCUMENTS, FIXTURE_IDENTITY, sha256Utf8 } from './contract.mjs';
 
 const root = process.argv[2], statePath = path.join(root, 'synthetic-provider-jobs.json');
-const identity = { provider: 'courtwork-async-loop-fixture', version: '1' };
-const docs = new Map([['document-A', { id: 'document-A', version: '1', digest: 'sha256:fixture-document-A-v1' }], ['document-B', { id: 'document-B', version: '1', digest: 'sha256:fixture-document-B-v1' }]]);
+const docs = new Map(Object.values(DOCUMENTS).map((document) => [document.id, document]));
 const phases = new Set(['launchAccepted', 'startExecution', 'resultGenerated', 'sendReceipt']), jobs = new Map(), gates = new Map(), events = new Map();
 const key = (jobId, phase) => `${jobId}:${phase}`;
 function deferred() { let resolve; return { promise: new Promise((done) => { resolve = done; }), resolve }; }
@@ -12,10 +12,10 @@ function item(registry, jobId, phase) { const id = key(jobId, phase); if (!regis
 const copy = (value) => JSON.parse(JSON.stringify(value));
 async function persist() { await mkdir(root, { recursive: true }); await writeFile(statePath, JSON.stringify({ jobs: [...jobs.values()] }, null, 2)); }
 try { for (const job of JSON.parse(await readFile(statePath, 'utf8')).jobs ?? []) jobs.set(job.jobId, job); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-function view(job) { return copy({ fixture: identity, jobId: job.jobId, document: job.document, input: job.input, status: job.status, result: job.result ?? null, launchCount: job.launchCount, cancellation: job.cancellation ?? null, receipt: job.receipt ?? null }); }
+function view(job) { return copy({ fixture: FIXTURE_IDENTITY, jobId: job.jobId, document: job.document, input: job.input, status: job.status, result: job.result ?? null, launchCount: job.launchCount, cancellation: job.cancellation ?? null, receipt: job.receipt ?? null }); }
 function signal(jobId, phase) { item(events, jobId, phase).resolve(); }
-async function run(job) { await item(gates, job.jobId, 'startExecution').promise; job.executionStarted = true; if (job.status === 'accepted') job.status = 'executing'; signal(job.jobId, 'startExecution'); await persist(); await item(gates, job.jobId, 'resultGenerated').promise; job.result = { resultId: `result-${job.jobId}`, document: job.document, input: job.input, value: `synthetic-result:${job.document.id}` }; if (job.status !== 'cancelled') job.status = 'succeeded'; signal(job.jobId, 'resultGenerated'); await persist(); }
-async function launch(input) { const document = docs.get(input?.documentId); if (!input?.jobId || !document || !input.input?.version || !input.input?.digest) throw new Error('jobId, known documentId, and immutable input version/digest are required'); let job = jobs.get(input.jobId); if (job) { job.launchCount += 1; await persist(); return job; } job = { jobId: input.jobId, document, input: copy(input.input), status: 'accepted', launchCount: 1, options: { ...(input.options ?? {}) } }; jobs.set(job.jobId, job); signal(job.jobId, 'launchAccepted'); await persist(); void run(job); return job; }
+async function run(job) { await item(gates, job.jobId, 'startExecution').promise; job.executionStarted = true; if (job.status === 'accepted') job.status = 'executing'; signal(job.jobId, 'startExecution'); await persist(); await item(gates, job.jobId, 'resultGenerated').promise; job.result = { resultId: `result-${job.jobId}`, document: job.document, input: job.input, content: job.document.content }; if (job.status !== 'cancelled') job.status = 'succeeded'; signal(job.jobId, 'resultGenerated'); await persist(); }
+async function launch(input) { const document = docs.get(input?.documentId); const expectedInputDigest = input?.input?.content ? sha256Utf8(input.input.content) : null; if (!input?.jobId || !document || document.digest !== sha256Utf8(document.content) || !input.input?.version || !input.input?.content || input.input.digest !== expectedInputDigest || !/^sha256:[0-9a-f]{64}$/.test(input.input.digest)) throw new Error('jobId, exact document bytes, and immutable lowercase SHA-256 input are required'); let job = jobs.get(input.jobId); if (job) { job.launchCount += 1; await persist(); return job; } job = { jobId: input.jobId, document, input: copy(input.input), status: 'accepted', launchCount: 1, options: { ...(input.options ?? {}) } }; jobs.set(job.jobId, job); signal(job.jobId, 'launchAccepted'); await persist(); void run(job); return job; }
 async function body(req) { let text = ''; for await (const chunk of req) text += chunk; return text ? JSON.parse(text) : {}; }
 function send(res, status, value) { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(value)); }
 const server = http.createServer(async (req, res) => { try { const url = new URL(req.url, 'http://fixture.invalid');

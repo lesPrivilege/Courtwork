@@ -3,12 +3,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { DOCUMENTS, FIXTURE_IDENTITY, fixtureInput } from './contract.mjs';
 
-export const FIXTURE_IDENTITY = Object.freeze({ provider: 'courtwork-async-loop-fixture', version: '1' });
-export const DOCUMENTS = Object.freeze({
-  A: Object.freeze({ id: 'document-A', version: '1', digest: 'sha256:fixture-document-A-v1', title: 'Synthetic document A' }),
-  B: Object.freeze({ id: 'document-B', version: '1', digest: 'sha256:fixture-document-B-v1', title: 'Synthetic document B' }),
-});
+export { DOCUMENTS, FIXTURE_IDENTITY, fixtureInput };
 export const PHASES = Object.freeze(['launchAccepted', 'startExecution', 'resultGenerated', 'sendReceipt']);
 
 /** Fixture-only slow provider. A real child owns synthetic records and port 0. */
@@ -35,7 +32,7 @@ export async function createAsyncLoopFixture({ root } = {}) {
   await startProvider();
   return {
     get origin() { return origin; }, get baseUrl() { return origin; }, root: directory, statePath, documents: JSON.parse(JSON.stringify(DOCUMENTS)), identity: FIXTURE_IDENTITY,
-    launch(jobId, documentId, { input = { version: '1', digest: `sha256:input-${jobId}` }, ...options } = {}) { return request('POST', '/jobs', { jobId, documentId, input, options }); },
+    launch(jobId, documentId, { input = fixtureInput(jobId), ...options } = {}) { return request('POST', '/jobs', { jobId, documentId, input, options }); },
     query(jobId) { return request('GET', `/jobs/${encodeURIComponent(jobId)}`); },
     cancel(jobId, reason) { return request('POST', `/jobs/${encodeURIComponent(jobId)}/cancel`, { reason }); },
     receipt(jobId, receiptId) { return request('POST', `/jobs/${encodeURIComponent(jobId)}/receipts`, { receiptId }); },

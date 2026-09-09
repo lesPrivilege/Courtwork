@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { createAsyncLoopFixture, FIXTURE_IDENTITY } from './fixtures/async-loop/index.mjs';
+import { createAsyncLoopFixture, FIXTURE_IDENTITY, fixtureInput } from './fixtures/async-loop/index.mjs';
 
 async function withFixture(run) {
   const fixture = await createAsyncLoopFixture();
@@ -18,6 +18,9 @@ async function complete(fixture, jobId, documentId, options) {
 }
 
 test('fixture independently releases two documents without timing assertions', async () => withFixture(async (fixture) => {
+  const invalidInput = fixtureInput('bad-digest');
+  const rejected = await fixture.launch('bad-digest', fixture.documents.A.id, { input: { ...invalidInput, digest: invalidInput.digest.toUpperCase() } });
+  assert.deepEqual(rejected, { status: 400, json: { error: 'jobId, exact document bytes, and immutable lowercase SHA-256 input are required' } });
   await Promise.all([fixture.launch('job-A', fixture.documents.A.id), fixture.launch('job-B', fixture.documents.B.id)]);
   await Promise.all([fixture.barrier('job-A', 'launchAccepted'), fixture.barrier('job-B', 'launchAccepted')]);
   await fixture.release('job-A', 'startExecution'); await fixture.barrier('job-A', 'startExecution');
@@ -28,8 +31,9 @@ test('fixture independently releases two documents without timing assertions', a
   await fixture.release('job-B', 'resultGenerated'); await fixture.barrier('job-B', 'resultGenerated');
   const b = await fixture.query('job-B');
   assert.deepEqual(b.json.fixture, FIXTURE_IDENTITY);
-  assert.deepEqual(b.json.document, { id: 'document-B', version: '1', digest: 'sha256:fixture-document-B-v1' });
-  assert.deepEqual(b.json.input, { version: '1', digest: 'sha256:input-job-B' });
+  assert.deepEqual(b.json.document, fixture.documents.B);
+  assert.deepEqual(b.json.input, fixtureInput('job-B'));
+  assert.equal(b.json.result.content, fixture.documents.B.content, 'result is the exact immutable document bytes');
 }));
 
 test('fixture makes delivery identity idempotent and exposes launch/result acknowledgement loss', async () => withFixture(async (fixture) => {
@@ -73,4 +77,15 @@ test('SIGKILLs the state-owning provider and queries persisted synthetic settlem
   assert.equal(observed.kind, 'query'); assert.equal(observed.job.status, 'succeeded');
   child.kill('SIGKILL'); await once(child, 'exit');
   assert.deepEqual((await fixture.query('missing-job')).json, { error: 'missing_job' });
+}));
+
+test('in-flight provider SIGKILL retains the accepted synthetic record without implicit resume or relaunch', async () => withFixture(async (fixture) => {
+  await fixture.launch('restart-in-flight', fixture.documents.B.id);
+  await fixture.barrier('restart-in-flight', 'launchAccepted');
+  await fixture.killProvider('SIGKILL');
+  await fixture.restartProvider();
+  const retained = await fixture.query('restart-in-flight');
+  assert.equal(retained.json.status, 'accepted');
+  assert.equal(retained.json.result, null);
+  assert.deepEqual(await fixture.launchCounts(), { 'restart-in-flight': 1 });
 }));
