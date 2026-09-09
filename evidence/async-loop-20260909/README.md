@@ -4,7 +4,7 @@
 
 ## 本单实现
 
-Astra产品 `b4c98d4`，迁移字节修复 `35f4bf0`。正式合同见 [async-tasks.md](../../app/docs/async-tasks.md)。RuntimeStore schema5新增有界持久任务，Core3/app4不变；无默认adapter。只接host登记的不可变只读来源，来源ID/version/SHA绑定到原project/Session/Run/call。完整输入与授权后先记intent、再记至多一次dispatch；执行、取消请求、读取依赖、Runtime投递分别记录。原Run中断不重放，显式同Session新Run查询原任务；删除Session保留orphan。
+Astra产品 `b4c98d4`，迁移字节修复 `35f4bf0`、policy接缝修复 `74944d0`。正式合同见 [async-tasks.md](../../app/docs/async-tasks.md)。RuntimeStore schema5新增有界持久任务，Core3/app4不变；无默认adapter。只接host登记的不可变只读来源，来源ID/version/SHA绑定到原project/Session/Run/call。完整输入与授权后先记intent、再记至多一次dispatch；执行、取消请求、读取依赖、Runtime投递分别记录。原Run中断不重放，显式同Session新Run查询原任务；删除Session保留orphan。
 
 真实host/Pi loopback证明：A/B分别launch后可继续独立workspace步骤，仅wait A不会等待B；未读终态或读取失败不会悄悄清除依赖并把final记为completed。Get/wait读取结果以原始UTF-8 SHA核验，tool.result事件与Runtime已记录回执同一事务；provider delivery始终unknown。任务成功不授予Core接受或解决Attention。
 
@@ -15,7 +15,7 @@ Astra产品 `b4c98d4`，迁移字节修复 `35f4bf0`。正式合同见 [async-ta
 | 单 | 作者固定交付 | 本单接收范围 |
 |---|---|---|
 | T1协议 | `0c50503` + `aaba970` | [证据](protocol/README.md)，最终4项；Astra指出最初modern/legacy混形，Terra修正inline task、extension能力、ACK-only cancel并补真实Pi出站/partial SSE；只接最终形态 |
-| T2夹具 | `1791e86` + `0c5db70` | [证据](fixture/README.md)，最终5项；Astra要求实际UTF-8 SHA与in-flight provider kill；T4再接真实host，不以fixture自测代替 |
+| T2夹具 | `1791e86` + `0c5db70` + `95f118d` | [证据](fixture/README.md)，最终7项；Astra要求实际UTF-8 SHA与in-flight provider kill；T4再接真实host，不以fixture自测代替 |
 | HL-T1 Gmail | `25a4b62` | [证据](../attention-human-loop-20260909/gmail/README.md)，3项离线响应脚本 |
 | HL-T2 GitHub | `2452351` | [证据](../attention-human-loop-20260909/github/README.md)，4项离线响应脚本 |
 | HL-T3 trace | `d409675` | [证据](../attention-human-loop-20260909/trace/README.md)，3项自测/4向量，只验夹具内部一致；Astra接收必要新增test文件写权，不产生生产trace owner |
@@ -42,3 +42,13 @@ Astra源码审阅补入非法UTF-8拒绝，防止读取字符串时发生有损�
 - Terra边界测试 `3ab6b77` → `fec8a59`，同步改为有界barrier；最终真实wrapper反例 `4b8ba2c`。修正fixture在旧 `35f4bf0` 真正失败（completed），在 `74944d0`通过（unknown）；实际tool.start/拒绝tool.result、零query与未投递receipt均断言。最终独验5项+作者5项10/10，见 [独验、有效红测与绿测](boundaries-independent/README.md)。Astra未改这些验收脚本，产品修复由Astra独立提交。
 
 这些是确定性适配层与恢复接受，不是模型调度质量、领域判断质量或native async接受。没有以模型脚本final作为任务完成的唯一依据。
+
+
+## 最终组合验证
+
+与实际main `a243a6ca0f43c12f5d1f69aa80dbf1b29e38dd29` 合并为 `902a912`：唯一冲突是current两个新段落同时追加，保留Markdown架构原文后追加本单状态；无产品冲突或他人源码修改。该组合全量 **346/346**、smoke passed，见 [全量](integration/final-tests.log) 与 [smoke](integration/final-smoke.log)。本轮合流验证为Astra作者/整合复跑；非作者固定SHA反例归因见上，不将作者全量重标为独立接受。
+
+Luna最终独立协议/fixture probe源 `4fff325`：现代/legacy分开握手与task拒绝、NFC/NFD精确字节、冲突409及真实执行期provider kill复验，见 [协议独验](protocol-independent/README.md)、[夹具独验](fixture-independent/README.md)。临时路径可移植修正不改变断言，组合复跑JSON另存integration。T1自身未测legacy task运行，Luna新增的是其拒绝路径，仍无native continuation接受。
+
+
+最终组合 `8614cc0` 原样复跑Luna两个probe通过，结果 [protocol](integration/protocol-independent.json) / [fixture](integration/fixture-independent.json)。脚本断言由Luna持有，可移植修正 `57ebd39`；这些JSON为Astra整合复跑，不重标为新独验。最终后续仅证据/状态文字、一个失效相对链接和作者测试标题修正，运行语义与上述346项组合一致。

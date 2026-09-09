@@ -1,0 +1,44 @@
+{
+  "sourceRoot": "/private/tmp/cw-async-loop-implementation",
+  "sourceCommit": "8614cc0585d77c1149e78ec1438818831b67e1d1",
+  "observations": [
+    {
+      "mode": "modern",
+      "negotiated": "2026-07-28",
+      "era": "modern",
+      "methods": [
+        "server/discover",
+        "tools/list",
+        "tools/call",
+        "tools/call"
+      ],
+      "ordinaryTool": "completed",
+      "taskShape": "resultType:task",
+      "taskRuntime": "rejected as unknown by current manager/client",
+      "toolCallMeta": {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientInfo": {
+          "name": "se-runtime",
+          "version": "0.1.0"
+        },
+        "io.modelcontextprotocol/clientCapabilities": {}
+      }
+    },
+    {
+      "mode": "legacy",
+      "negotiated": "2025-11-25",
+      "era": "legacy",
+      "methods": [
+        "initialize",
+        "notifications/initialized",
+        "tools/list",
+        "tools/call",
+        "tools/call"
+      ],
+      "ordinaryTool": "completed",
+      "taskShape": "task wrapper",
+      "taskRuntime": "rejected as unknown by current manager/client",
+      "toolCallMeta": null
+    }
+  ]
+}

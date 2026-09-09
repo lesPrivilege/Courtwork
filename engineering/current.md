@@ -218,3 +218,5 @@ Astra 完成隔离 parser 坐标 probe，Luna 负责本仓/主源核验，Terra 
 当前RuntimeStore5，Core3/app4保持。schema3/4经完整验证和独占原字节备份升级；已有备份路径/非法UTF-8拒绝，旧host拒新库，恢复使用独立目录。没有升级个人数据。adapter默认缺席；仅不绑定domain的Session可用，防止绕过ES完整输入覆盖。旧任务/来源历史可读，任务成功不授予Core接受或解决Attention；未读取终态的final保持unknown。
 
 T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有锁定SDK普通loop与native缺口，不声称原生async。HL包仍只是离线响应/向量，生产DTO、摄取、proposal/effect写链路待Astra冻结。无新UI、自动续行、真实provider、外发、部署或Paper变更，G1–G5保持开放；前端和发布面队列沿上文当前裁定。
+
+本批组合实际基线 `a243a6c`，Astra合流验证346/346与smoke通过；T4四窗/分目录恢复与策略wrapper真红→绿独验已接收，详见上述回执。最小task adapter仍为opt-in，独立协议/fixture测试不授予模型native能力。

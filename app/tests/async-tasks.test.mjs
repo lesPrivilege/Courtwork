@@ -121,7 +121,7 @@ test('source/implementation absence remains readable; corrupt bytes and cross-se
   } finally { await h.close(); }
 });
 
-test('schema3/4 migrate only after full validation and exclusive backup; current-state corruption refuses open', async () => {
+test('schema3/4 migrate through exclusive backup and refuse existing backup paths', async () => {
   for (const version of [3,4]) {
     const dir = await mkdtemp(path.join(tmpdir(), 'cw-async-schema-'));
     let store = await new RuntimeStore({ dataDir: dir }).open(); await store.close();
