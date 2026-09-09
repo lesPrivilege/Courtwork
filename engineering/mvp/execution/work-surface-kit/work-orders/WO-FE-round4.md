@@ -29,6 +29,8 @@ Chat = 未绑定会话（无 workspace、无项目文件夹也可）；Work = �
 
 前置：FE-01…04 合流，且各表面五轮收敛表 ①②③⑤ 通过；[EX-WK9](EX-WK9-material-sources.md) 回执。范围只在 WK-101 登记的表面：Chrome 二择（Work 态沉底 composer、滚动时主区 header 带是否取 `--glass` + `--blur-chrome`，每项给消融表与去 blur 对照截图，四轴留用户）；Transient 统一 `--glass-muted` + `--blur-transient` + `--rim` + `--shadow-float`；glass-on-glass 二择；Focus 局部化审计；Modal 沿 L3。Token 只用 WK-102 闭集；每处半透明表面有 reduced-transparency 回退；深浅两宗与 reduced motion 各验。不得：侧栏 / 内容区 blur；折射 / lensing；随尺寸变化的材质；引入运动库；新增高度层。交付附"哪一像素改变了哪一判断"。
 
+取值（WK-104，EX-WK9 回执后填）：`--blur-chrome: 12px`、`--blur-transient: 16px`；`--glass-alpha-chrome` 浅 0.86 / 深 0.10，`--glass-alpha-transient` 浅 0.92 / 深 0.16（深宗为起点值，contrast-report 通过为准）；`saturate(1.4)` 只在 transient；`--rim`、`--shadow-float` 不变。回退：`@media (prefers-reduced-transparency: reduce)` 与 `:root[data-reduce-transparency]` 两条规则同指 `background: var(--float); backdrop-filter: none`。Appearance 增本设备偏好行 `Reduce transparency`（存法同 reduced motion 偏好，无后端）。反例：transient 打开于 chrome glass 之上时只剩一层 glass；开关开启后页面无任何生效的 `backdrop-filter`（lint + 运行时断言）；深浅两宗对比度不降。
+
 ## 交付与验收
 
 每单：固定 SHA、受影响文件、消融表、五轮收敛表（WK-100）、`text-sweep.md` 增量、分配反例结果、allowlist / 后端请求、未检项（触控 / 读屏 / 真实 provider 分列）；作者验证与 Astra 独验分列；视觉四轴留用户。
