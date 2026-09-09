@@ -214,3 +214,21 @@ WO-PV-FE01 的派出条件随之改为：WO-PV-BE02 交付后，以 `claude/pv-b
 
 **结论：接受（作者验证级）。** 独立验收仍归 Astra（C4 体例）。下一步按 PV-45 派 WO-PV-FE01，基线 `e61c9d5`。
 
+## 14. WO-PV-FE01 复核（Fable，2026-09-10）
+
+交付页 [delivery-pv-fe01](delivery-pv-fe01.md)，分支 `claude/pvfe01-connections`，基线 `e61c9d5`（含 BE02），三提交 `062170c` / `5a27f09` / `88e8339`。Fable 独立重跑 **461/461，fail 0，exit 0**（自跑），与作者一致；读码抽验：两处写入确由同一 `projectProviderConfig` 装配（`settings-view.mjs:56`、`model-picker.mjs:2,87`），PV-M-1 闭合；`app/server` / `app/runtime` 零改动。
+
+逐项裁定（对交付页 §7）：
+
+**PV-53（④模型面的分组标签，本单最显眼的不可读）** 模型选择器把用户连接的模型分组在原始 `conn-<hex>` 下（`model-picker.mjs:68`）。连接列表那边已经用端点主机名作名字，两处不一致。裁定：模型面同样用**端点主机名**——它是用户自己填过的事实，不是宿主编造的友好名；不新增 display name 字段（FE-02 已移除它），取不到连接列表则退回原始 id，不猜不留空。已作有界补丁派回原作者，一次一变量。
+
+**PV-54（①投影未能独立成模块）** `app/server/index.mjs` 的静态白名单枚举可服务的 web 模块，而 `app/server` 不在前端写权内，作者以一次真实 404 证实后把投影留在 `settings-view.mjs` 内并加注释——处置正确，没有为了模块化去越权。合流时由 Astra 拆出 `app/web/provider-config.mjs` 并补一行白名单；记入合流须知，不另开单。
+
+**PV-55（②"Compatible endpoint"含义变了）** 接受。目录身份 + 自定义 Base URL 没有失去落点（仍在 catalog 路径的 Advanced，后端 `providerConfig.baseUrl` 未变），变的只是这个入口的含义：它现在登记一条真连接。文案已随之改写，合流时按 copy-convention 复看一遍即可。
+
+**PV-56（③能力原话只出现在生效行）** `GET /provider-connections` 的记录不带 `capability`，所以未知窗口的那句后端原话只能落在生效连接那一行，其余行退到"N models with an unknown context window"这句较弱但为真的话。作者拒绝把后端句子硬编码进前端以免造第二个真相源，是对的。要让每一行都说同一句，须后端按连接给出 capability——登记 **BE-40**，不在本单。
+
+**PV-57（六项完成度）** 冒烟按裁定只留位：`CONNECTION_STEPS` 增 `smoke` 一步、`available:false`、note 写明宿主没有这个端点（BE-39），没有按钮、没有假状态、没有许诺日期——与"一个按不动的按钮和一句还没有说的是同一件事，但前者先许诺再收回"的既有体例一致。三类保存失败全部按后端错误码取文案，未登记的错误码原样转述 host 的话，不塞进三类冒充精度（PV-34 / PV-46 守住）。
+
+**结论：接受（作者验证级），待 PV-53 补丁回来后一并交 Astra 独立验收。** 合流单元按 PV-45 = BE02 + FE01（+ PV-53 补丁），Astra 合 `claude/pvfe01-connections` 一支即带入全部。
+
