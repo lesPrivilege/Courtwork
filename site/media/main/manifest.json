@@ -1,0 +1,258 @@
+{
+  "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+  "origin": "http://127.0.0.1:8966",
+  "media": [
+    {
+      "id": "M6",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/review-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "36fc59018e707a0a2bf9000a5325467d202a1271a54490aecbe5d8fa397d11a4",
+      "bytes": 103930,
+      "displayed_path": "/ · Work · work surface",
+      "setup_steps": "a bound matter whose scripted run proposed one candidate; nobody has decided yet",
+      "claim_ids": [
+        "review"
+      ],
+      "limitations": "synthetic material; the candidate came from a scripted tool call, not a model"
+    },
+    {
+      "id": "M6",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/review-1440-dark.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "390fe0ca8f42330e7904213fade02e99c6f05491274c7327f4b08fccc73518f2",
+      "bytes": 104865,
+      "displayed_path": "/ · Work · work surface",
+      "setup_steps": "a bound matter whose scripted run proposed one candidate; nobody has decided yet",
+      "claim_ids": [
+        "review"
+      ],
+      "limitations": "synthetic material; the candidate came from a scripted tool call, not a model"
+    },
+    {
+      "id": "M6",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "390x844",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/review-390-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "172af40f8b90d56990fa8b71585e7b3bcf4596f173b4389e47a178006d4d1719",
+      "bytes": 53504,
+      "displayed_path": "/ · Work · work surface",
+      "setup_steps": "a bound matter whose scripted run proposed one candidate; nobody has decided yet",
+      "claim_ids": [
+        "review"
+      ],
+      "limitations": "synthetic material; the candidate came from a scripted tool call, not a model"
+    },
+    {
+      "id": "M3",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/chat-question-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "739e12075e8c63948b3f8c0cfd0176086ad918027cad1a84ff19f267cbcda175",
+      "bytes": 108668,
+      "displayed_path": "/ · Chat",
+      "setup_steps": "a chat whose scripted ask_user was answered, recorded with the run",
+      "claim_ids": [
+        "run-chain"
+      ],
+      "limitations": "synthetic material; scripted tool call, no real provider"
+    },
+    {
+      "id": "M4",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/chat-file-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "0d2d6923efe084af4e31e472ee3886239697780f7dd00b970a320d393691e3ac",
+      "bytes": 90218,
+      "displayed_path": "/ · Chat files",
+      "setup_steps": "open the file the answered run wrote",
+      "claim_ids": [
+        "run-chain"
+      ],
+      "limitations": "synthetic material"
+    },
+    {
+      "id": "M5",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/continue-in-work-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "922945adea948e31cfa43e3935a5cf340265f36a40c54d5c729e6a8e7f8162bc",
+      "bytes": 93212,
+      "displayed_path": "/ · Continue in Work",
+      "setup_steps": "an unbound chat in a project that already holds one matter",
+      "claim_ids": [
+        "continue-in-work"
+      ],
+      "limitations": "synthetic material"
+    },
+    {
+      "id": "M7",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/settings-models-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "5552bd61c69e7092c6d7116be2bc6865db2f54578d93f530edbba4f0bc77bcd3",
+      "bytes": 104437,
+      "displayed_path": "/#settings/models",
+      "setup_steps": "open Add provider and choose the Compatible endpoint path",
+      "claim_ids": [
+        "models"
+      ],
+      "limitations": "no endpoint is entered and nothing is probed; no credential is stored"
+    },
+    {
+      "id": "M7",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/settings-models-1440-dark.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "20fcddfb3a8d4d25a128e3b347d9b6a0c480cf7a4e40c41541198f30045d2046",
+      "bytes": 105591,
+      "displayed_path": "/#settings/models",
+      "setup_steps": "open Add provider and choose the Compatible endpoint path",
+      "claim_ids": [
+        "models"
+      ],
+      "limitations": "no endpoint is entered and nothing is probed; no credential is stored"
+    },
+    {
+      "id": "M1",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/home-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "af482a5aca5a15093707408dc86b8fd91b81b23659d51fbdcef115ce746af3f2",
+      "bytes": 137689,
+      "displayed_path": "/",
+      "setup_steps": "two projects and five chats; the last chat holds a write waiting for approval",
+      "claim_ids": [
+        "hero"
+      ],
+      "limitations": "synthetic material; the local deterministic provider answers every run"
+    },
+    {
+      "id": "M1",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/home-1440-dark.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "04152c872fbb695c738ffde8c09869ff6aaeccd761d961944d076148f304b19f",
+      "bytes": 141810,
+      "displayed_path": "/",
+      "setup_steps": "two projects and five chats; the last chat holds a write waiting for approval",
+      "claim_ids": [
+        "hero"
+      ],
+      "limitations": "synthetic material; the local deterministic provider answers every run"
+    },
+    {
+      "id": "M1",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "390x844",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/home-390-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "b4ebd8ebf7a95b872edf2d1d6ce8185ce46cdccb5e607f50e2ac0d431b7f408d",
+      "bytes": 68496,
+      "displayed_path": "/",
+      "setup_steps": "two projects and five chats; the last chat holds a write waiting for approval",
+      "claim_ids": [
+        "hero"
+      ],
+      "limitations": "synthetic material; the local deterministic provider answers every run"
+    },
+    {
+      "id": "M2",
+      "kind": "product-screenshot",
+      "source_sha": "774a3bd073bc1845d9bacde22da657b44df673d1",
+      "capture_date": "2026-09-09",
+      "viewport": "1440x900",
+      "theme": "light",
+      "data_kind": "synthetic",
+      "provider_mode": "local deterministic fake (fake-openai-loopback); no real provider",
+      "capture_command": "node site/scripts/capture-media.mjs",
+      "asset_path": "site/media/main/chat-approval-1440-light.png",
+      "evidence_path": "site/media/main/manifest.json",
+      "sha256": "c8784e08a26e33d7f537fed8ab02bde6b18f12a4e995c2fa0056cc5d3f0c3a9e",
+      "bytes": 98771,
+      "displayed_path": "/ · Chat",
+      "setup_steps": "a chat in Ask before editing whose scripted ws_write is waiting for a decision",
+      "claim_ids": [
+        "run-chain"
+      ],
+      "limitations": "synthetic material; scripted tool call, no real provider"
+    }
+  ]
+}

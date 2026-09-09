@@ -10,7 +10,7 @@
 //
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
-import { SITE, ROOT } from "./release.mjs";
+import { SITE, ROOT, git } from "./release.mjs";
 
 const DIST = path.join(SITE, "dist");
 const ALLOWED_EXTERNAL = ["https://github.com/", "https://lesprivilege.github.io/"];
@@ -81,6 +81,21 @@ for (const [, repoPath] of index.matchAll(/https:\/\/github\.com\/lesPrivilege\/
     await stat(path.join(ROOT, repoPath));
   } catch {
     problems.push({ file: "index.html", reference: repoPath, why: "the repository has no such path at this commit" });
+  }
+}
+
+// Product-life pages name immutable evidence. Verify the path at that SHA,
+// not merely a similarly named file in the current checkout.
+for (const name of ["tour", "get", "cli", "changelog", "models", "data"]) {
+  const file = `${name}.html`;
+  const html = await readFile(path.join(DIST, file), "utf8");
+  for (const [, sha, repoPath] of html.matchAll(/https:\/\/github\.com\/lesPrivilege\/Courtwork\/blob\/([a-f0-9]{40})\/([^"#]+)/g)) {
+    try { git("cat-file", "-e", `${sha}:${repoPath}`); }
+    catch { problems.push({file, reference: `${sha}:${repoPath}`, why: "pinned evidence path missing"}); }
+  }
+  for (const [, sha] of html.matchAll(/https:\/\/github\.com\/lesPrivilege\/Courtwork\/commit\/([a-f0-9]{40})/g)) {
+    try { git("cat-file", "-e", `${sha}^{commit}`); }
+    catch { problems.push({file, reference: sha, why: "changelog commit missing"}); }
   }
 }
 

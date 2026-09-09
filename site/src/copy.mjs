@@ -2,16 +2,20 @@
 //
 // Copy is shared by the page and README. Version/count placeholders are filled
 // from the fixed evidence receipt. The current editorial policy is PS-26.
+export const PAPER_ENTRY = {
+  href: "https://lesprivilege.github.io/Schema-Engineering/",
+  baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
+};
 export const NAV = [
-  { label: "GitHub", href: "https://github.com/lesPrivilege/Courtwork" },
-  { label: "Paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
-  { label: "Docs", href: "https://github.com/lesPrivilege/Courtwork/tree/main/docs" },
+  { label: "Product tour", href: "./tour.html" },
+  { label: "Paper ↗", href: PAPER_ENTRY.href },
+  { label: "Get Courtwork", href: "./get.html" },
 ];
 
 export const HERO = {
   wordmark: "CourtWork",
   tagline: "A place for expert work to take form.",
-  h1: ["Turn AI output into work you can build on.", "把 AI 的产出，变成接得下去的工作。"],
+  h1: ["Work that survives the model.", "模型可以离场，工作继续。"],
   lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
   actions: [
     { label: "Read the paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },

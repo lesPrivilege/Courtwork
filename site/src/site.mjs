@@ -1,4 +1,5 @@
-// The page's only script. Two jobs, both of which the page survives without:
+// Progressive enhancement; all evidence remains readable without JavaScript.
+// The page survives without these interactions:
 // switch the three layer tabs, and let the reader put one paragraph of the
 // architecture section in focus. Nothing here fetches, stores or measures.
 
@@ -7,7 +8,9 @@ for (const group of document.querySelectorAll("[data-tabs]")) {
   const tabs = [...group.querySelectorAll('[role="tab"]')];
   const panels = tabs.map((tab) => document.getElementById(tab.getAttribute("aria-controls")));
 
-  const select = (index) => {
+  const select = (index, pointer = false) => {
+    group.dataset.motion = pointer ? "pointer" : "instant";
+    group.dataset.projection = tabs[index].id.replace("tab-", "");
     tabs.forEach((tab, position) => {
       tab.setAttribute("aria-selected", String(position === index));
       tab.tabIndex = position === index ? 0 : -1;
@@ -16,7 +19,7 @@ for (const group of document.querySelectorAll("[data-tabs]")) {
   };
 
   tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => select(index));
+    tab.addEventListener("click", (event) => select(index, event.detail > 0));
     tab.addEventListener("keydown", (event) => {
       const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
       if (!step) return;

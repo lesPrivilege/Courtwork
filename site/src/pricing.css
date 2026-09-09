@@ -1,7 +1,4 @@
-/* PS-22 · Section 07 only.  Every colour, radius, shadow, and type role below
- * comes from the product token surface.  The parent that mounts this fragment
- * injects --pricing-dark-* from the product's extracted dark-token block; the
- * role-token fallbacks keep the fragment legible before that assembly step. */
+/* Concept pricing: product semantic roles with an independent Pages campaign skin. */
 
 .pricing-concept {
   margin: 0 0 var(--space-3);
@@ -176,4 +173,15 @@
   .pricing-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Campaign skin: conceptual plans share the launch page's editorial scale. */
+.pricing-grid { gap: 0; padding: 0; border-radius: 0; background: transparent; }
+.pricing-card { border-radius: 0; border: 0; padding: 36px 28px; }
+.pricing-card + .pricing-card { border-left: 1px solid var(--line); }
+.pricing-card h3 { font-size: 24px; }
+.pricing-price { font-size: clamp(42px, 5vw, 72px); font-weight: 400; letter-spacing: -.06em; }
+.pricing-professional { background: var(--campaign-soft); }
+@media (max-width: 700px) {
+  .pricing-card + .pricing-card { border-left: 0; border-top: 1px solid var(--line); }
 }

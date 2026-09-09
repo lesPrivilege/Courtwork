@@ -15,7 +15,8 @@ import path from "node:path";
 import { extractTokens } from "./scripts/tokens.mjs";
 import { copyProductModules } from "./scripts/vendor-product.mjs";
 import { release, ROOT, SITE, productBytes } from "./scripts/release.mjs";
-import { renderPage } from "./src/page.mjs";
+import { renderProductPages } from "./src/product-pages.mjs";
+import { renderPage, brandIcon } from "./src/page.mjs";
 import { renderSpecimenPage } from "./src/specimen-page.mjs";
 import { assertPublicTree } from "./scripts/public-data.mjs";
 import { renderReadme } from "./src/readme.mjs";
@@ -94,10 +95,16 @@ const media = JSON.parse(await readFile(path.join(SITE, "media", "manifest.json"
 if (media.source_sha !== identity.source_sha) {
   throw new Error(`the media were captured at ${String(media.source_sha).slice(0, 7)}, not at ${identity.sha7}`);
 }
-for (const entry of media.media) {
-  const bytes = await readFile(path.join(ROOT, entry.asset_path));
-  if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
-}
+const pageMedia = JSON.parse(await readFile(path.join(SITE, "media", "main", "manifest.json"), "utf8"));
+const validateMedia = async (manifest, label) => {
+  if (!/^[0-9a-f]{40}$/.test(manifest.source_sha)) throw new Error(`${label} source_sha is not a full commit SHA`);
+  for (const entry of manifest.media) {
+    const bytes = await readFile(path.join(ROOT, entry.asset_path));
+    if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
+  }
+};
+await validateMedia(media, "published media");
+await validateMedia(pageMedia, "current-main page media");
 
 await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity, media }));
 
@@ -107,7 +114,12 @@ for (const file of evidence.files) await emit(`evidence/${path.basename(file.pat
 // ---- the page ---------------------------------------------------------------
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
+await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media }));
+const packageVersion = JSON.parse(productBytes(identity.source_sha, "app/package.json").toString("utf8")).version;
+for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);
+await emit("product-pages.css", await readFile(path.join(SITE, "src", "product-pages.css")));
+await emit("product-pages.mjs", await readFile(path.join(SITE, "src", "product-interactions.mjs")));
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
 await emit("pricing.css", await readFile(path.join(SITE, "src", "pricing.css")));
 await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
@@ -137,10 +149,14 @@ const manifest = {
   site_sha_note: "SHA-256 of authored page sources and recorded evidence; generated README, dist and specimen copies are excluded. Product tokens and modules come from source_sha Git blobs.",
   tokens: { source: "app/web/styles.css", source_sha256: tokens.sourceSha256, blocks: tokens.blocks },
   media_manifest: "media/manifest.json",
+  product_media_manifest: "media/main/manifest.json",
+  product_media_source_sha: pageMedia.source_sha,
   specimen_manifest: "specimen/manifest.json",
   evidence_links: evidence.links,
   supported_platforms: ["local run from source on macOS and Linux"],
   download_assets: [],
+  source_preview_version: packageVersion,
+  product_pages: ["tour.html", "get.html", "cli.html", "changelog.html", "models.html", "data.html"],
   known_limits: evidence.knownLimits,
   locale_content_hashes: { "zh-CN": sha256(await readFile(path.join(DIST, "index.html"))) },
   files: written,

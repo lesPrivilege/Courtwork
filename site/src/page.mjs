@@ -3,7 +3,7 @@
 // One document, Chinese-led, no framework and no build-time templating engine:
 // the copy is data (copy.mjs), this file arranges it, and every number it
 // prints comes from the recorded evidence rather than from the copy.
-import { NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
+import { PAPER_ENTRY, NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
 import { renderPricing } from "./pricing.mjs";
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
 
@@ -65,6 +65,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <title>CourtWork · ${escape(HERO.h1[0])}</title>
     <meta name="description" content="${escape(HERO.lede)}" />
     <link rel="stylesheet" href="./tokens.css" />
@@ -76,6 +77,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
+      ${paperEntry()}
       ${rawGoverned(fill, recording)}
       ${matter(fill)}
       ${architecture(fill, diagram)}
@@ -85,6 +87,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
       ${renderPricing()}
       ${build(fill, shot)}
     </main>
+    ${closingShot()}
     ${footer(fill, identity)}
     <script type="module" src="./site.mjs"></script>
   </body>
@@ -95,7 +98,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
 
 function header() {
   return `<header class="masthead">
-      <p class="wordmark">${escape(HERO.wordmark)}<span class="tagline">${escape(HERO.tagline)}</span></p>
+      <a class="wordmark brand-lockup" href="#main" aria-label="CourtWork · 回到顶部">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></a>
       <nav aria-label="Site">
         ${NAV.map((item) => `<a href="${escape(item.href)}">${escape(item.label)}</a>`).join("\n        ")}
       </nav>
@@ -109,14 +112,13 @@ function hero(fill, shot) {
         <p class="actions">${HERO.actions
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
           .join("")}</p>
-${shot("M1", {
-          eager: true,
-          alt: "CourtWork Home：两个 Project，Today 带三格，一个 Chat 在 Waiting for you。",
-          caption: inline(
-            "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Home：两个 Project，一个 Chat 在等待一次写入批准。",
-            fill,
-          ),
-        })}
+        <figure class="hero-object" aria-labelledby="object-caption">
+          <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
+          <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
+          <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
+        </figure>
+        <details class="home-capture-slot" data-capture-slot="home" data-capture-status="awaiting-home-completion"><summary>Inside Courtwork <span>Home · 新版实机图待补</span></summary><p>Home 前端更新中。下图保留已取证版本，供查看实际界面；新版完成后统一更新截图与来源记录。</p>
+${shot("M1", { alt: "CourtWork Home，固定版本的合成工作区。", caption: inline("Recorded Home · `{sha7}` · synthetic data · local deterministic provider · 1440×900", fill) })}</details>
       </section>`;
 }
 
@@ -149,7 +151,7 @@ function rawGoverned(fill, recording) {
     ].join("\n"),
   };
 
-  return `<section class="section" id="layers" aria-labelledby="layers-title">
+  return `<section class="section anatomy" id="layers" aria-labelledby="layers-title">
         <p class="index">${RAW_GOVERNED.index}</p>
         <h2 id="layers-title"><span lang="en">${escape(RAW_GOVERNED.title)}</span><span class="zh">${escape(RAW_GOVERNED.subtitle)}</span></h2>
         <nav class="anatomy-links" aria-label="Anatomy of a governed matter">
@@ -166,7 +168,8 @@ function rawGoverned(fill, recording) {
           <p>${escape(RAW_GOVERNED.quote[1])}</p>
         </blockquote>
         <p class="lede">${escape(RAW_GOVERNED.lede)}</p>
-        <div class="tabs" data-tabs="layers">
+        <div class="tabs instrument" data-tabs="layers">
+          <div class="instrument-object" aria-hidden="true"><span class="instrument-id">MATTER / 01</span><div class="projection-lines"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="projection-caption">ONE MATTER · THREE PROJECTIONS</span></div>
           <div class="tab-strip" role="tablist" aria-label="${escape(RAW_GOVERNED.title)}">
             ${RAW_GOVERNED.tabs
               .map(
@@ -203,7 +206,7 @@ function matter(fill) {
           loading="lazy"
         ></iframe>
         <p class="note">${escape(MATTER.note)}</p>
-        <ol class="steps">
+        <details class="replay-index"><summary>Explore all 8 recorded steps</summary><ol class="steps">
           ${STEPS.map(
             (step, index) => `<li>
             <p class="step-seen"><span class="step-number">${index + 1}</span><span lang="en">${escape(step.seen)}</span></p>
@@ -211,7 +214,7 @@ function matter(fill) {
             <p class="status ${STATUS_CLASS(step.status)}">${escape(step.status)}</p>
           </li>`,
           ).join("\n          ")}
-        </ol>
+        </ol></details>
         <p class="caption" lang="en">${escape(REPLAY_NOTE[0])}</p>
         <p class="caption">${escape(REPLAY_NOTE[1])}</p>
       </section>`;
@@ -253,6 +256,7 @@ function review(fill, shot) {
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
+<p class="review-attention" data-attention="review"><span aria-hidden="true"></span>待人审阅 <small>· 录制中的候选状态</small></p>
 ${shot("M6", {
           alt: "Work Review：一条候选待决定，依据与来源版本可见。",
           caption: inline(
@@ -288,7 +292,7 @@ function evidenceSection(fill, evidence) {
           </tbody>
         </table>
 
-        <h3 lang="en">Eval</h3>
+        <div class="eval-scoreboard"><p class="index">CONTINUITY / RECORDED RESULT</p><p class="eval-headline">Same score.<br>Different structure.</p><div class="eval-scores">${["E", "S"].map(key => `<div><span>${key}</span><strong>${benchmark.conditions[key].passed}<small> / ${benchmark.conditions[key].attempted}</small></strong></div>`).join("")}</div><p class="note">Synthetic conformance · no real model · 固定快照 ${escape(benchmark.git.head.slice(0, 7))}。本结果不证明 E 优于 S。</p></div><h3 lang="en">Eval</h3>
         <p class="note">${escape(EVIDENCE.evalIntro)}</p>
         <dl class="eval">
           ${EVIDENCE.eval
@@ -356,6 +360,7 @@ function build(fill, shot) {
 
 function footer(fill, identity) {
   return `<footer class="footer">
+      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
       <p>${FOOTER.items
         .map((item) => {
           const text = fill(item);
@@ -368,3 +373,11 @@ function footer(fill, identity) {
         .join('<span class="dot">·</span>')}</p>
     </footer>`;
 }
+
+function closingShot() { return `<section class="closing-shot" aria-label="Courtwork"><p>The model can leave.<br><em>The work remains.</em></p><a href="#main" aria-label="Courtwork · Back to top">COURTWORK<span aria-hidden="true">↗</span></a></section>`; }
+
+// Static mono use of brand/geometry/mark.svg. Exact canonical rectangles;
+// this lockup conveys identity, never review or acceptance state.
+export function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
+
+function paperEntry() { return `<aside class="paper-entry" aria-labelledby="paper-entry-title"><div><p class="index">RESEARCH FOUNDATION / SCHEMA ENGINEERING</p><h2 id="paper-entry-title">The paper behind<br>the work.</h2></div><div><p>事件、工作状态、模型上下文，各有自己的边界。Schema Engineering 提出这套研究框架；Courtwork 将它带入可运行、可检验的工作面。</p><p class="paper-links"><a class="paper-read" href="${PAPER_ENTRY.href}">Read the paper ↗</a><a href="${PAPER_ENTRY.baseline}">采用基线 · 9.6</a><a href="#evidence">Implementation &amp; evidence →</a></p></div></aside>`; }

@@ -157,8 +157,13 @@ try {
   // ---- V2 · the iframe requests nothing off its own origin ----------------
   const frameResources = await evaluate(`(async () => {
     const frame = document.querySelector("iframe.specimen-frame");
+    const loaded = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("specimen did not load after scrolling")), 15000);
+      frame.addEventListener("load", () => { clearTimeout(timeout); resolve(); }, { once: true });
+    });
     frame.src = frame.src;
-    await new Promise((resolve) => frame.addEventListener("load", resolve, { once: true }));
+    frame.scrollIntoView();
+    await loaded;
     await new Promise((resolve) => setTimeout(resolve, 2500));
     const inner = frame.contentWindow;
     const entries = inner.performance.getEntriesByType("resource").map((e) => e.name);
@@ -234,7 +239,17 @@ try {
     tabs[0].dispatchEvent(new KeyboardEvent("keydown", {key:"ArrowRight",bubbles:true}));
     return {count:tabs.length, reached, arrow:document.activeElement.id, concepts:document.querySelector(".pricing-concept").textContent, cards:document.querySelectorAll(".pricing-card").length};
   })()`);
-  record("V3c · pricing panels and keyboard selection", pricing.count === 3 && pricing.cards === 3 && pricing.reached.every(Boolean) && pricing.arrow === "pricing-tab-hosted" && /Concept pricing/.test(pricing.concepts), pricing);
+  record("V3c · pricing panels and keyboard selection", pricing.count === 3 && pricing.cards === 3 && pricing.reached.every(Boolean) && pricing.arrow === "pricing-tab-hosted" && /CONCEPT PLANS.*NOT CURRENTLY OFFERED/.test(pricing.concepts), pricing);
+
+  const instrument = await evaluate(`(() => {
+    const group = document.querySelector('[data-tabs="layers"]');
+    const object = group.querySelector('.instrument-object');
+    const tabs = [...group.querySelectorAll('[role="tab"]')];
+    const seen = tabs.map(tab => { tab.click(); return { projection: group.dataset.projection, same: group.querySelector('.instrument-object') === object, visible: [...group.querySelectorAll('[role="tabpanel"]')].filter(p => !p.hidden).length }; });
+    tabs[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    return { seen, instant: group.dataset.motion === 'instant', caption: document.querySelector('.hero-object figcaption').textContent, slot: document.querySelector('[data-capture-slot="home"]').dataset.captureStatus };
+  })()`);
+  record("V3d · one decorative object, three projections, capture pending", instrument.seen.map(s => s.projection).join(',') === 'events,surface,context' && instrument.seen.every(s => s.same && s.visible === 1) && instrument.instant && /Concept study/.test(instrument.caption) && instrument.slot === 'awaiting-home-completion', instrument);
 
   // ---- V4 · reduced motion and reduced transparency ------------------------
   for (const feature of ["prefers-reduced-motion", "prefers-reduced-transparency"]) {
@@ -291,7 +306,7 @@ try {
   const noscript = await evaluate(`(() => {
     const text = document.body.innerText;
     return {
-      hero: /把 AI 的产出/.test(text),
+      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("[data-capture-slot=home]")?.dataset.captureStatus === "awaiting-home-completion",
       architecture: /让工作存在于模型之外/.test(text) && /已确认的决定/.test(text),
       evidence: /Continuity conformance/.test(text) && /声称表/.test(text),
       build: /npm --prefix app ci/.test(text) && /Domain core/.test(text),
@@ -303,7 +318,7 @@ try {
   // so the same facts are read out of the served HTML instead.
   const served = await (await fetch(ORIGIN)).text();
   record("V6 · without scripting the first screen and sections 03 / 05 / 06 are complete", 
-    /把 AI 的产出/.test(served) &&
+    /模型可以离场，工作继续/.test(served) && /data-capture-status="awaiting-home-completion"/.test(served) &&
       /让工作存在于模型之外/.test(served) && /已确认的决定/.test(served) &&
       /Continuity conformance/.test(served) && /声称表/.test(served) &&
       /npm --prefix app ci/.test(served) && /Domain core/.test(served) &&
