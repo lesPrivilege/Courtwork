@@ -1,0 +1,51 @@
+# 发布面 · 接管记录（Fable，2026-09-09）
+
+基线：Courtwork `main` `172130e`（本地；`origin/main` 停在 `62556b7`，本地领先 135 个提交）。文档支 `claude/fable-publishing-surface`，worktree `/private/tmp/se-fable-ps`。SE 论文仓 `main` `96e9b9e`，已发布 9.6 `d78fd31`。角色（用户 2026-09-09）：Sonnet explore，Fable 裁决并亲写发布面文案，Opus 施工站点，Astra 核对事实与合流，视觉四轴留用户。裁定编号本批 `PS-n`。
+
+## 1. 事实
+
+| 事实 | 来源 |
+|---|---|
+| Courtwork Pages 已配置：`https://lesprivilege.github.io/Courtwork/`，build_type=workflow，source main，无自定义域；主线无 `site/`、无 `.github/workflows/` | [Opus 交接](../2026-09-08/opus-public-surface-handoff.md)（2026-09-08 只读核实）；本地目录 |
+| `origin/main` 停在 `62556b7`（2026-09-08）；本地 `main` 领先 135 提交。Pages 由 main 的 workflow 构建，未 push 则任何站点都不会部署 | `git rev-list --count origin/main..main` |
+| SE Pages 入口即论文三视图 `papers/dist/index.html`，由 `papers/build.py` 生成；push main 且改动 `papers/**`、README、CHANGELOG 或 workflow 即触发发布 | SE `.github/workflows/pages.yml` |
+| Courtwork 采用 Paper 9.6 `d78fd31`（DEC-012）；SE 已发布版本与采用版本一致 | `PAPER.md`；SE `CHANGELOG.md` |
+| 既有发布面材料：Opus 交接、[public-copy](../2026-09-08/public-copy.md)（2026-09-08）、[证据契约](../2026-09-08/pages-preparation/evidence-contract.md)、reference-index 12 条（全部 queued，无截图） | `engineering/release/2026-09-08/` |
+| 界面词表已于 FE-01 改写（WK-89）：Chat / Work / Run / Project / Approval / File access（Ask before editing · Allow edits · Read only）；public-copy §2、§6 仍用 Session / Write permission / Ask · Write · Read | [copy-convention](../../design/copy-convention.md) §3；[current](../../current.md) 第 39 行 |
+| 最新主线截图：`evidence/cc-s-main-integration-20260909/`（Home、Chat、Continue in Work、Settings；1440 light；基线 `414b196`）。Home hero 为 "Work that exists beyond the model."，Today 带三格，侧栏 Projects；Chat 标题下模式词 `Chat`，composer 脚注 `NDA review · Allow edits` | 目录内 PNG |
+| 确定性 fixture `app/tests/fixtures/work-core/nda-packets.json`：pending / accepted / revised / history 四份 surface 投影与 decision / revision 两条动作，133 KB，`dataClass: synthetic; actual HTTP/Pi loopback/Core; no real provider`，由 `app/scripts/work-core-fixture.mjs` 经 `tests/helpers.mjs boot()` 生成 | 文件 |
+| 产品表面 token：`--frame / --panel / --panel-muted / --float`，`--shadow-float / --shadow-thumb / --shadow-pressed`，`--glass / --glass-muted`（当前同值），`--blur-chrome 12 / --blur-transient 16`，`--radius-small 4`、`--radius-control / card` 6 / 8；层级 L0–L3（WK-69）；不新增 elevation（WK-101）；shape roles 与 concentricity（WK-125，未合流） | `app/web/styles.css`；[surface-hierarchy](../../design/surface-hierarchy.md) SH-3 |
+| 产品 server 的 STATIC allowlist 封闭，任何站点文件都不能由产品 server 提供 | `evidence/rc/planned-fixture.html` 首注 |
+| G1 真实 provider not_run；G2 / G3 后端闭环成立，Review 与新 Session GUI 有合成复验；真实运行纵切尚待；continuity benchmark 有协议与用例，有界模型 pilot 尚未进行 | [current](../../current.md)「仍未闭合」与「Benchmark / SE 连续性」 |
+| 两份输入已转录：[设计索引](inputs/exa-design-index-2026-09-09.md)、[商业化与 Eval](inputs/commercialization-eval-2026-09-09.md) | 本目录 |
+
+## 2. 裁定
+
+| 编号 | 裁定 | 理由 / 来源 |
+|---|---|---|
+| PS-1 | **定位：repository → publication surface → executable evidence。** Pages 不是 landing page，而是论文命题的可检查面：Paper 提出命题，repo 给出实现，Pages 允许访客亲手检查。全站不出现转化式结构（feature cards、testimonials、pricing、下载按钮）。 | 输入 §骨架；与 [发布计划](../2026-09-08/README.md) "experimental Web preview" 一致 |
+| PS-2 | **页面骨架采用六个 proof surface，顺序固定：** 首屏 → 01 Raw → Governed → 02 A matter in motion → 03 Why this architecture → 04 Review is a first-class surface → 05 Evidence（含 Eval）→ 06 Build / inspect / reproduce → 深色页脚。(a) 首帧是一张从发布 SHA 捕获的真实 Home 静态图，不是互动标本：无 JS 时首屏必须完整可读，标本放在 02。(b) 01 的三个层级对应产品的三种真实数据：Run 事件（Event log）、Core surface 投影（Work state）、记录的 Context（Compiled context）；三者来源由 EX-PS3 核实。(c) 03 采用 editorial 排版，无卡片；退焦只用于这一段。(d) 04 消费既有 review-projection 契约与 review-surface 研究包，不重画。(e) 每段先给证据入口，缺证据的段落降为"目标"口径，不删段。 | 输入 §骨架；[public-copy](../2026-09-08/public-copy.md) §1 的"两者缺一时收窄"规则沿用 |
+| PS-3 | **材质治理：站点 token 由产品 token 派生，不另起一套。** (a) 表面层级沿产品 L0–L3，不采用输入的 surface-0…5 六档；输入的 elevation-1…4（ring → contact → ambient → inset highlight）作为站点浮层的一种阴影合成配方登记，落到 `--shadow-float` 的替代候选，由 EX-PS1 转录 Cal.com 实值后 Fable 定值；站点若采用，须回写产品 styles.css 作为同一 token（Korren "同源"），不允许站点独有阴影。(b) 圆角沿 WK-125 shape roles（control.compact / control.default / surface / overlay / full）映射到产品既有 4 / 6 / 8 与浮层档，不采用输入的 r2…r16 七档；pill 只给状态与 segmented control。(c) blur 只出现在 03 段作注意力语义，用 `filter` 不用 `backdrop-filter`，`prefers-reduced-motion` 与 `prefers-reduced-transparency` 下全部锐化；站点无玻璃。(d) 颜色数量：正文一种墨色、一种次级灰、一种链接色、一种 accent，全部取自产品 Tier S。 | 输入 §Cal.com；WK-69 / WK-101 / WK-125；[surface-hierarchy](../../design/surface-hierarchy.md) SH-3 |
+| PS-4 | **排除项原样采纳：** 无 3D hero、无满屏 glow、无无语义 glass、无 bento、无 scroll reveal、无"假装 live"的 agent 动画、无自动播放。运动只保留 reduced-motion 可关的两种：标本步进的焦点移动、03 段的锐化切换。 | 输入 §排除 |
+| PS-5 | **文案由 Fable 亲写，见 [public-copy-v2](public-copy-v2.md)。** (a) 产品路径只用 copy-convention §3 词表；命题段只用 Paper 词；两套词不混。(b) 状态三档不变：verified with synthetic data · runs locally · not yet。(c) H1 维持 WK-77（"Turn AI output into work you can build on." / "把 AI 的产出，变成接得下去的工作。"）；输入的 "Work agents need governed state, not longer transcripts." 作 01 段引句，不作 H1；Paper 句作 03 段标题。用户若改选，只换一处。(d) 2026-09-08 版 public-copy 的 §2、§3 动作、§5、§6、§8、§12 由 v2 替代，其余段落保留并在 v2 中改写为中文主语。 | 用户 2026-09-09 角色裁定；WK-77 |
+| PS-6 | **语言：一页，中文为主，English 保留在它更易读的地方**：字标、H1 双语、产品 UI 词、Paper 术语、段标题、命令与代码。不做机械双语两版，不做英文全文页；"中文"按钮取消。README 同法：一份 README，中文为主。英文全文另立后续单，不在本批。 | 用户 2026-09-09 原话 |
+| PS-7 | **互动标本（02）的边界：** 只读重放，数据是一份在发布 SHA 上由捕获脚本生成、带 sha256 的 JSON；页面不发起任何网络请求（字体、统计、模型一概没有）；每一次点击只显示记录下的事实；无打字动画、无假光标；标签固定为 `Replay · synthetic data · recorded at CourtWork <sha7>`；kind 为证据契约的 `interactive-fixture`。渲染优先复用产品投影模块，复用不成的部分由站点另写最小渲染，不改产品代码；可行性由 EX-PS3 核实后再成单。EX-PS3 回执前，02 的退路是六步条 + 每步一张真实图。 | 输入 §02；[证据契约](../2026-09-08/pages-preparation/evidence-contract.md) |
+| PS-8 | **站点技术边界：** 独立 `site/`，原生 HTML / CSS / ES module，无框架、无新 npm 依赖；构建脚本用仓内 Node，产物到 `site/dist/`；Pages workflow 只构建 `site/`，产物不含 server、数据目录、凭据；所有资源相对 `/Courtwork/` 子路径；无外部字体与脚本；不设 analytics。README 与 Pages 共用同一份文案与声称表。 | Opus 交接 §写权；PS-14 |
+| PS-9 | **媒体：** 每张媒体按证据契约带 `source_sha, data_kind, provider_mode, viewport, theme, claim_ids`；全部从发布 SHA 在独立数据目录重新捕获，`cc-s-main-integration` 截图只作构图基线；截图里的可见文字必须是现行词表；深浅两宗与 390 至少覆盖首帧与 04 段。 | 证据契约 |
+| PS-10 | **SE 侧：本批不修订 Paper。** 页面引用 Paper 只用两种方式：固定 9.6 三份文本的 SHA 链接，以及最新阅读入口；页面需要而 Paper 没有的句子，写在页面，不写进 Paper。发布面筹备不产生 Practice Index 观察。SE `papers/notes/publication-surface.md` 补一节记录本批关系与两处过时事实（PAPER.md 已采用 9.6；跨仓入口为 main）。论文页页脚加一条指向 Courtwork Pages 的链接是 `infra:` 候选，因 push 会触发 SE Pages 重建，留用户裁定（U3）。 | 用户"可能无需很多"；SE CONTRIBUTING「只调整入口与索引时不触发版本变更」 |
+| PS-11 | **次序：** EX-PS1…PS4 并行（Sonnet，只读）→ Fable 消费回执、定 token 值与标本范围 → 写 WO-PS-01（站点、README、workflow、媒体捕获脚本、标本捕获脚本）交 `opus-wo-medium` → Astra 核对声称表与证据路径、合流 → 用户按四轴看页面 → push 与部署（U2）。站点施工与前端串行队列（CC-W → CC-D0-a → FE-05a → FE-05）互不阻塞：`site/` 不触碰 `app/web`。 | 用户角色裁定；[dispatch-round-4](../../mvp/execution/work-surface-kit/dispatch-round-4.md) 单 writer 规则 |
+| PS-12 | **部署前置：** Courtwork main 须先 push 到 origin（135 提交），Pages 才会从 workflow 构建；push 是对外动作，由用户或 Astra 执行，本批不代行。部署后须核对 `https://lesprivilege.github.io/Courtwork/` 实际内容，不把工作流成功当作页面正确。 | 事实表第 2 行；Opus 交接 |
+| PS-13 | **Eval 进入 05 段，作为证据而不是数字。** 05 段的 Eval 块固定八问结构：What was tested · Against what · With which model · Which harness · Which fixture · What was held constant · What failed · Can I reproduce it；每问只显示发布 SHA 下真实存在的答案，缺者显示 not yet。有界模型 pilot 未跑之前，页面不出现任何对比分数；输入示意中的 63 / 81 与失败类目数字是示意，不是数据。Eval 块的事实由 EX-PS4 核实。 | 输入二 §5；current「有界模型 pilot」 |
+| PS-14 | **三分法进站点规则：Matter Telemetry ≠ Product Analytics ≠ Evaluation Evidence。** 站点只展示 Evaluation Evidence 与作为产品证据的合成 Matter provenance；不采集 Product Analytics（无统计脚本、无第三方请求）；标本里的 Run 事件是合成数据的 provenance，页面说明它不是使用统计。 | 输入二 §7 |
+| PS-15 | **商业化只登记，不进本批页面。** 输入二的原则候选（Keep intelligence portable; charge for coordination, assurance and operation）、四条路径表、entitlement 分离、`commercialization/` 与 `eval/` 两个 sibling 目录提案，转录在 [输入二](inputs/commercialization-eval-2026-09-09.md)，作为后续 explore 的起点；本批页面不出现 pricing、plan、enterprise 字样，页脚只写 MIT。Hamming repo 的五级证据区分（code fact / public source / runtime observation / owner experience / hypothesis）与本仓证据等级同构，不新增一套标记。 | 输入二 §1–4、§6；用户"本轮 task 不变" |
+
+## 3. 未决（留用户）
+
+| 编号 | 问题 | Fable 建议 |
+|---|---|---|
+| U1 | H1 沿 WK-77 还是换成 "Work agents need governed state, not longer transcripts." | 沿 WK-77（PS-5 c）；后者作 01 段引句 |
+| U2 | Courtwork main 何时 push（135 提交）；Pages 部署随之 | 站点 WO 交付并经 Astra 核对后一次 push；本批不代行 |
+| U3 | SE 论文页页脚加 Courtwork Pages 链接（会触发 SE Pages 重建） | 与 U2 同期做，一次 `infra:` 提交 |
+| U4 | 英文全文页 | 不在本批；中文页稳定后另立 |
+| U5 | 首帧用静态图还是互动标本 | 静态图（PS-2 a）；标本在 02 |
+| U6 | 商业化与 Eval 两个 explore 目录何时开 | Eval 目录随 EX-PS4 回执由 Astra 在 `engineering/` 下开；商业化 explore 待用户另派 |
