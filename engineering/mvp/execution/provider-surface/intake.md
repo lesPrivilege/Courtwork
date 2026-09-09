@@ -67,3 +67,15 @@
 2. **队列位置**：建议 PV 前端排在 FE-05a 之后（PV-14）；若要求 PV 前端提前，则 FE-05a 顺延，模型面会在字阶未定的状态下成形。
 
 两项均不阻塞：后端契约与三条探索按 PV-14 即刻并行。
+
+## 5. 回执与增补裁定
+
+**EX-PV1 收（2026-09-10，Fable 复核接受）**：[explore/ex-pv1-current-state.md](explore/ex-pv1-current-state.md)，10 条端点、三层校验、持久化与前端触点均带 file:line。Fable 非作者抽验三处成立：凭据以 provider id 为唯一索引（`credential-file.mjs:35` 覆盖写）、`providerConfig` 在 `runtime-state.json` 中是单值而非表（`store.mjs:23-33`）、Settings 连接表单的 PUT 体不含 `reasoningEffort`（`settings-view.mjs:794-798`）。
+
+**PV-15（单值配置是多连接的真障碍）** 阻碍不在允许集那一行，而在三处结构单数：`state.providerConfig` 单对象、`credentials.json` 以 provider id 为键（同一 provider 两把 key 不可表达）、`control-plane` 资源 id `provider:current` / `model:current` / `secret:provider` 为单数。BE-21 的验收须同时覆盖这三处，只扩允许集不算交付。
+
+**PV-16（模型面与连接面的写入必须合一）** 缺陷：模型选择器 PUT 带 `reasoningEffort`、Settings 连接表单 PUT 不带，而后端整体替换配置——保存连接会静默清掉已选推理档位。登记为 PV-M-1，修复入 PV 前端单第 0 项：两处写入合流为一条投影（读同一 snapshot、提交同一字段集），不是各自补字段。
+
+**PV-17（探测结果不落盘是现状而非缺陷）** discover / test 的结果只活在一次前端渲染里，刷新即失。BE-28 落地前，UI 不得把探测结果呈现为连接的持久健康状态；BE-28 的 `lastVerifiedAt` 须绑定被检查的配置与凭据代次（既有裁定），并与 `credentialStatus` 的布尔语义分列两列。
+
+**PV-18（遥测缺口按现状披露）** `providerTtftMs` 与 `decodeTokensPerSecond` 今日恒为 `null`（`request-telemetry.mjs:20` 自陈 `missing:['provider_token_timing','token_deltas']`），且失败只落 `phase`，无错误类别字段。PV-13 所需的 error class 因此是一条新后端条目（候选 BE-38），不能由前端从文案反推分类。

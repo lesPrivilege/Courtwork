@@ -39,6 +39,7 @@
 | BE-28 | `provider-config`（或 `runtime-info`）增加连接健康时间戳（`lastVerifiedAt`；须绑定被检查配置/凭据版本与 check kind，配置改变即失效，临时 BE-17/18 表单探测不得直接更新全局健康时间），使 Models 摘要能诚实呈现 stale | CC-D0 Models 入口行；Settings › Models 连接行 | WK-114 / EX-CC2 |
 | BE-36 | provider 描述符上的显式认证方式：`authMethods`（`api_key` / `oauth` / `ambient_credentials`）与每种方式所需字段，供前端据数据编排凭据表单，而非按 provider id 分支；今日只有 `api_key` 有实现，其余先立契约位 | PV 前端连接面；Settings › Models 凭据行 | PV-4 |
 | BE-37 | 目录扩集：新增一个真实 provider 身份（首轮候选 `google` + Gemini API key）所需的允许集、目录条目与传输格式；保存与执行仍受允许集与凭据绑定约束（BE-17/18 的握手成功不等于可保存执行） | PV 首轮 dogfood；模型面按 provider 分组 | PV-11 / PV-12 |
+| BE-38 | 请求遥测的错误类别字段：失败与中断落一个闭集 error class（认证 / 配额 / 传输 / 目录 / 取消 / 其他），与 `phase` 分列；今日失败只落 `phase` 且清空 usage | PV-13 可追溯性；Run inspector 与 usage 面 | PV-18 |
 | BE-29 | 跨 run / 会话的 usage 聚合端点：输入 / 输出 / 缓存 token 分列、计费来源是否等于账单、统计区间与时区、聚合层面的 "Not reported"（对应单 run `missing`） | CC-D0 Usage 模块；落地前不安装 | WK-114 / EX-CC2 |
 | BE-30 | 授权决定的乐观并发：`POST /runs/:id/questions/:qid` 接受可选 `expectedContentSha256` / `expectedToolCallId`，与服务端未决载荷比对，不一致返回 409 `version_mismatch`；前端不自造版本号 | Approval 卡（今日请求体只有 `{decision}`） | WK-115 / FE-04 §10 |
 | BE-31 | Question 的受限结构化 schema（`string` / `number` / `boolean` / `enum`，无嵌套）**连同**服务端复验 MCP "MUST NOT request sensitive information"；两句一体 | 问题卡（今日自由文本单值） | WK-115 ⑦ / FE-04 §10 |
