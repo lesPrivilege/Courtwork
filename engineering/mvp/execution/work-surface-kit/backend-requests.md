@@ -37,6 +37,11 @@
 | BE-23 | 无项目的 Chat：`POST /api/v5/sessions` 不带 `projectId`（不建 `workspaceDir`）的创建路径，或一个宿主默认容器 | FE-03 Chat 两态（今日只在既有能力上说清，不画无项目入口） | WK-109 ① |
 | BE-25 | `GET /work-activity`（BE-1/3）落地时附带并发写入下的去重规则（按 run id 而非计数增量）与"覆盖是否完整"的回答；时区声明沿 BE-3 | CC-D0 Activity 模块（热力图）；落地前不安装 | WK-114 / EX-CC2 |
 | BE-28 | `provider-config`（或 `runtime-info`）增加连接健康时间戳（`lastVerifiedAt`；须绑定被检查配置/凭据版本与 check kind，配置改变即失效，临时 BE-17/18 表单探测不得直接更新全局健康时间），使 Models 摘要能诚实呈现 stale | CC-D0 Models 入口行；Settings › Models 连接行 | WK-114 / EX-CC2 |
+| BE-36 | provider 描述符上的显式认证方式：`authMethods`（`api_key` / `oauth` / `ambient_credentials`）与每种方式所需字段，供前端据数据编排凭据表单，而非按 provider id 分支；今日只有 `api_key` 有实现，其余先立契约位 | PV 前端连接面；Settings › Models 凭据行 | PV-4 |
+| BE-37 | 目录扩集：新增一个真实 provider 身份（首轮候选 `google` + Gemini API key）所需的允许集、目录条目与传输格式；保存与执行仍受允许集与凭据绑定约束（BE-17/18 的握手成功不等于可保存执行） | PV 首轮 dogfood；模型面按 provider 分组 | PV-11 / PV-12 |
+| BE-38 | 请求遥测的错误类别字段：失败与中断落一个闭集 error class（认证 / 配额 / 传输 / 目录 / 取消 / 其他），与 `phase` 分列；今日失败只落 `phase` 且清空 usage | PV-13 可追溯性；Run inspector 与 usage 面 | PV-18 |
+| BE-39 | 连接冒烟端点：对一条**已保存**的连接发一次最小的真实生成（同一 provider / 凭据解析 / wire 格式 / 模型 id，最小输出上限、无工具、无 workspace、不进会话历史），返回可显示的回执（时间、连接、模型、凭据来源档、`observedModel`、模型回复的首行、失败类别），回执绑 `{providerConfig 版本, credentialGeneration}` 持久化、二者一变即失效；只在用户显式触发时执行 | PV 连接面的第三级阶梯；WO-PV-FE01 第 6 项 | PV-35 / PV-37 / PV-38 / PV-39 |
+| BE-40 | `GET /provider-connections` 的每条记录附 capability（至少 contextWindow 已知与否、压缩是否启用），使连接列表每一行都能说出与生效行同一句能力原话，而不必由前端硬编码后端句子 | PV 连接列表非生效行 | PV-56 |
 | BE-29 | 跨 run / 会话的 usage 聚合端点：输入 / 输出 / 缓存 token 分列、计费来源是否等于账单、统计区间与时区、聚合层面的 "Not reported"（对应单 run `missing`） | CC-D0 Usage 模块；落地前不安装 | WK-114 / EX-CC2 |
 | BE-30 | 授权决定的乐观并发：`POST /runs/:id/questions/:qid` 接受可选 `expectedContentSha256` / `expectedToolCallId`，与服务端未决载荷比对，不一致返回 409 `version_mismatch`；前端不自造版本号 | Approval 卡（今日请求体只有 `{decision}`） | WK-115 / FE-04 §10 |
 | BE-31 | Question 的受限结构化 schema（`string` / `number` / `boolean` / `enum`，无嵌套）**连同**服务端复验 MCP "MUST NOT request sensitive information"；两句一体 | 问题卡（今日自由文本单值） | WK-115 ⑦ / FE-04 §10 |

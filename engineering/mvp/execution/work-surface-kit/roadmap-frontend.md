@@ -20,6 +20,8 @@
 
 **CC-D0-a 已合流（4f7278f）**。当前队列：**FE-05a → FE-05 → ATT-FE-01 → CC-I**（Astra 对 WK-136 的裁定）。FE-05a 提示词已备好，含 M-15/16/17、Shape 与 M-18，从最终 main SHA 建独立树后派单；当前未派。ATT-FE-01 四项前置见下，grant 编辑器归候选 CC-P；PropertyRow modified/reset 归 CC-I。CC-D0-b 的后端 BE-1/3/25、BE-29 已交付，前端另行成单。Astra 接手清账与回执复核。
 
+**PV（provider 前后端，2026-09-10 认领）**：批次页 [provider-surface](../provider-surface/intake.md)。后端主干 BE-36 / BE-37 / BE-21 / BE-28 与三条 Sonnet 探索（EX-PV1 现状转录、EX-PV2 pi 与 DSH 参照解剖、EX-PV3 模型面先例）即刻并行；PV 前端单排在 FE-05a 合流之后（PV-14：模型面是密度敏感面）。首轮 dogfood 矩阵与队列位置两项已升报用户。
+
 ## 3. 成单前置与未闭合
 
 - FE-05a：第 0 项含 M-15（B 态顶带对齐）与 M-16（composer icon / label 槽位）；第 0c 项 M-18（三档 text-size 跑 HOME-16，WK-138 ②）；EX-CC5 已回执并入库（WK-132：四项前置闭合；M-16 / M-17 为现状缺陷入第 0 项；对照基线 [v1](../../../design/type-density-ablation/v1/README.md)）；约束表 [type-density-constraints](../../../design/type-density-constraints.md)；消融页 [type-density-ablation](../../../design/type-density-ablation/index.html)。
