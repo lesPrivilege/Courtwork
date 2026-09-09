@@ -253,3 +253,18 @@ RC 三支脚本的改写副本在 [evidence/fe01/rc/](evidence/fe01/rc/)，每�
 - **侧栏第一行少了 `+` 和 `×`，`+` 出现在 PROJECTS 那一行的右端。** 品牌行原本是"身份 + 两个动作"，读起来像工具栏；`+` 落到 PROJECTS 之后，**它加的是什么**由它旁边的词回答，不再需要 tooltip。
 - **Settings 左列从五项变九项，`Runtime` 不再在其中。** 之前一个普通用户要改模型得先在 General 里找连接、要看权限得先理解 Runtime；现在左列的每一项都是一件人想做的事，**"我该点哪一项"**这个判断从"猜架构"变成"读名字"。
 - **两处 `backdrop-filter` 的 12 px 与 16 px 变成两个 token，并各加一条 reduced-transparency 回退。** 像素上关掉透明效果时才看得见差别：之前那两处在系统关掉透明后仍然模糊，之后是实色。判断的变化是**"这个界面尊不尊重我的系统设置"**。
+
+## 13. Fable 复核（WK-105，2026-09-09）
+
+独立重跑于本树 `bfefcd2`：`npm --prefix app test` 212/212；`lint-colors` ok（15 files）；`lint-materials` ok（2 files）；`contrast-report` 无低于门槛；`smoke` 通过、realProvider not_run。`git diff 1688a7b..HEAD -- app/server app/runtime app/core domains brand` 为空。目视 `home-1440-light.png`、`work-1440-light.png` 与九张 Settings 截图，与 WK-96 / 97 版面一致；不冒充浏览器独验，四轴留用户。
+
+§11 六项裁定：
+
+1. 取 WK-96 原文（中心 ≥ 55 %），0.56 接受；参考稿的 48–55 % 起点已被 WK-96 冻结值取代，不再引用。
+2. 92–112 指 `#composer-input` 本体，沿 WK13 量法；Home 96 / Work 88 接受。
+3. scope strip 为同一控件多处挂载、单一 `scopeType` 真源，不是新状态或第二真源；"只搬家不改内容"约束语义与合法动作，不约束挂载次数。接受；FE-T09 已覆盖状态不变。
+4. 分隔线（SH-2 行分隔通道，1 px `--line`，不闭合）与对象边框（WK-94 四角色闭集：input / selected / floating / error）是两个通道。全站六十处不清扫；ui-composition-standard 的 border 审计表按"边框 / 分隔线"两列重标，作后续单的台账，不另立工单。
+5. `--nav` 改 256，与本单写入的 sidebar 256–280 token 表一致；列 FE-02 第 0 项，附几何断言。
+6. 侧栏脚保持两个 icon 控件的工具条；账户行待真实身份对象（无对应 BE，登记为观察，不造能力）。
+
+`Local test` 在 composer 框内稳定行（WK-58 / 73 的连接 chip 位）说一次，header 徽章退役，符合 WK-94 意图；"上下文行"措辞按此理解。给 Astra：`evidence/wk11-main-integration-20260909/rc/` 原副本仍是旧 IA，独验请用 `evidence/fe01/rc/` 三处改写（入口 `#settings/developer`、根 `#settings-sections`、视口逐组量测）。接受，交 Astra 合流；FE-02 从合流后的 main 建树。
