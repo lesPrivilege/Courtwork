@@ -102,11 +102,11 @@ function routeService(service, req, url) {
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
   if (tail[0] === 'coordination') {
+    if (method === 'GET' && tail[1] === 'threads' && tail.length === 3) return () => service.coordination.readMailbox(tail[2],url.searchParams);
     if (url.searchParams.size) return () => { throw new ServiceError(400, 'invalid_input', 'Coordination queries use explicit paths'); };
     if (method === 'GET' && tail.length === 1) return () => service.coordination.list();
     if (method === 'GET' && tail.length === 3 && tail[1] === 'sessions') return () => service.coordination.list(tail[2]);
     if (method === 'POST' && tail.length === 2 && tail[1] === 'threads') return async () => ({schemaVersion:1,thread:await service.coordination.create(await body(req))});
-    if (tail[1] === 'threads' && tail.length === 3 && method === 'GET') return () => service.coordination.mailbox(tail[2]);
     if (tail[1] === 'threads' && tail.length === 4 && method === 'POST' && ['attach','close'].includes(tail[3])) return async () => ({schemaVersion:1,thread:await service.coordination[tail[3]](tail[2],await body(req))});
     if (tail[1] === 'messages' && tail.length === 2 && method === 'POST') return async () => ({schemaVersion:1,message:await service.coordination.send(await body(req))});
   }

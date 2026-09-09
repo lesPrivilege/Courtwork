@@ -30,19 +30,20 @@ export function validateCoordination(value) {
     check(['open','closed'].includes(t.status) && Number.isFinite(Date.parse(t.createdAt)), 'Invalid Thread state');
     check(Array.isArray(t.sessionIds) && t.sessionIds.length > 0 && t.sessionIds.length <= 64, 'Invalid membership');
     for (const s of t.sessionIds) { str(s); check(!memberships.has(s), 'Session already belongs to a Thread'); memberships.add(s); }
+    check(t.revision === t.sessionIds.length + (t.status === 'closed' ? 1 : 0), 'Thread revision does not match membership');
     keys(t.creation, ['sessionId','title']); str(t.creation.sessionId); str(t.creation.title);
     check(t.sessionIds[0] === t.creation.sessionId && t.title === t.creation.title, 'Invalid creation receipt');
   }
-  const messages = new Map();
+  const messages = new Map(), calls = new Set();
   for (const m of value.messages) {
     keys(m, ['id','sourceThreadId','targetThreadId','sourceSessionId','sourceRunId','sourceCallId','actor','kind','text','replyTo','expectedTargetRevision','status','revision','createdAt','deliveredAt']);
     str(m.id); check(!messages.has(m.id), 'Duplicate message'); messages.set(m.id,m);
     check(ids.has(m.sourceThreadId) && ids.has(m.targetThreadId) && m.sourceThreadId !== m.targetThreadId, 'Invalid message Threads');
     str(m.sourceSessionId); check(value.threads.find(t=>t.id === m.sourceThreadId).sessionIds.includes(m.sourceSessionId), 'Invalid message source');
     check(['human','runtime'].includes(m.actor), 'Invalid actor');
-    if (m.actor === 'runtime') { str(m.sourceRunId); str(m.sourceCallId); } else check(m.sourceRunId === null && m.sourceCallId === null, 'Invalid human origin');
+    if (m.actor === 'runtime') { str(m.sourceRunId); str(m.sourceCallId); const key=JSON.stringify([m.sourceRunId,m.sourceCallId]); check(!calls.has(key),'Duplicate runtime message call'); calls.add(key); } else check(m.sourceRunId === null && m.sourceCallId === null, 'Invalid human origin');
     check(['request','signal','reply','result'].includes(m.kind), 'Invalid message kind'); str(m.text, 16000);
-    revision(m.expectedTargetRevision); check(m.expectedTargetRevision >= 1, 'Invalid target revision');
+    revision(m.expectedTargetRevision); check(m.expectedTargetRevision >= 1 && m.expectedTargetRevision <= value.threads.find(t=>t.id === m.targetThreadId).revision, 'Invalid target revision');
     check(['queued','delivered','target_unavailable','stale_target'].includes(m.status), 'Invalid delivery');
     check(m.revision === (m.status === 'queued' ? 1 : 2), 'Invalid message revision');
     check(Number.isFinite(Date.parse(m.createdAt)), 'Invalid createdAt');

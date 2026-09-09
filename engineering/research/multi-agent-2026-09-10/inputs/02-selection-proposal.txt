@@ -1,0 +1,649 @@
+同意。沿 Courtwork 现有 `selection-index` 的体例继续最合适：**只消费外部项目已经证明的局部机制，不复制任何项目的整体 ontology。** 现有 Attention 索引本身也是这样规定的。
+
+这一轮我用 Exa 分成 14 个 workstream，过了约 140 个候选结果，重点回到一手工程资料：Pi、DSH、OpenCode、Claude Code、OpenAI Agents SDK、Anthropic Research、LangGraph、Google ADK、Temporal、Restate、Cedar、A2A、OpenTelemetry GenAI，以及 transactional outbox。同时重新对照 CW 的 Architecture、RD-004、Attention contract、Experts hot-plug 和 architecture-maintenance。
+
+先给总裁决：**不选 multi-agent framework，选七个稳定 seam。**
+
+```text
+Courtwork Domain / Core
+────────────────────────────────────────────────────────
+Matter · Thread · Attention · Expert · governed state
+        │
+        ├── Delegation Contract
+        ├── Capability Grant
+        ├── Cross-Matter Envelope
+        └── Commit / CAS / provenance
+                    │
+Execution Plane     │
+────────────────────┼───────────────────────────────────
+Child Execution ─ Reducer ─ Workflow Run
+        │              │          │
+        └──── Runtime Adapter(s) ──┘
+              Pi / DSH / other
+                    │
+             Tool / MCP / Sandbox
+
+Observability Plane
+────────────────────────────────────────────────────────
+Runtime execution log ≠ Core audit ≠ OTel trace
+```
+
+这与 CW 现在的边界是一致的：Runtime/Session/adapter 与 Semantic Core、Matter Repository 已经明确分层，runtime replacement 本来就不应该改写 Core 语义。 Experts 研究也已经明确偏向“Expert 是 Work Contract，不复制开发者协作式 multi-agent topology，保持一个 run lifecycle owner”。
+
+## 七个 seam 的技术选型 index
+
+| Seam                          | CW 应冻结的合同                                                                                              | 第一实现建议                                                                                    | 主要外部依据                                                                                                                                                                                                                                                                             | 明确不继承                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **1. child execution**        | `ChildExecutionSpec / ChildResult`；origin、lineage、context policy、grant、budget、output schema、durability | 先保持 CW 自己的 adapter；对当前 Pi AgentHarness v2 做 conformance spike，通过后优先成为本地实现；DSH 做第二 adapter | [Pi Harness v2](https://github.com/earendil-works/pi/blob/845d6ff1f6643aba440341cce877ce1c43ebbc39/packages/agent/docs/harness-v2.md)、[DSH architecture](https://deepseek-harness.github.io/deepseek-harness/en/reference/)、[OpenCode agents](https://opencode.ai/v2/docs/agents/) | child ≠ Thread；child ≠ 新进程；不让 runtime session identity 进入 CW domain                               |
+| **2. delegation**             | `invoke` 与 `handoff` 两种 ownership 语义；同步/异步是另一个正交字段                                                     | Expert/Explore 默认 `invoke`，parent 保留用户-facing ownership；只有明确工作所有权转换才 `handoff`            | [OpenAI orchestration](https://developers.openai.com/api/docs/guides/agents/orchestration)、Google ADK `AgentTool` / transfer                                                                                                                                                       | 不把“发消息给另一个 Agent”“调用 Expert”“移交工作”混成一个 API                                                        |
+| **3. capability**             | 显式 `CapabilityGrant`；权限随 delegation 单调不增；deny > allow；approval 是窄化的新 grant                             | CW 自己拥有 grant；每个 tool boundary enforcement；Cedar 以后可作为 policy evaluator                   | [Cedar authorization](https://docs.cedarpolicy.com/auth/authorization.html)、OpenCode permission rules、Claude Code subagents                                                                                                                                                        | Expert declaration 不是 authority；Pi/OpenCode 自身权限模型都不能成为 CW 权限真相                                   |
+| **4. reducer**                | `FindingBundle` + deterministic reduction + optional synthesizer；provenance 不丢                         | 先 normalize/dedupe/conflict merge，再允许 LLM synthesis；结果只是 proposal                         | [Anthropic multi-agent Research](https://www.anthropic.com/engineering/multi-agent-research-system)、[LangGraph subgraphs](https://docs.langchain.com/oss/python/langgraph/use-subgraphs)、Google ADK fan-out/gather                                                                 | 不把多份 transcript 直接 stuffing 回 parent；不让 synthesizer 覆盖 evidence/conflict                          |
+| **5. durable workflow**       | `WorkflowSpec / WorkflowRun` 是 execution state，不是 Matter state                                         | 短流程先薄自研；出现真正长等待/副作用后 spike Restate；规模、跨服务和多日可靠性要求再 Temporal                               | [Restate durable agents](https://docs.restate.dev/ai/patterns/durable-agents)、[Temporal Durable AI](https://docs.temporal.io/ai)、[ADK workflows](https://adk.dev/workflows/patterns/)                                                                                              | 不把 LangGraph/Temporal/Restate state 当 Core truth；不一开始就上重 workflow infra                           |
+| **6. cross-Matter messaging** | typed envelope + outbox/inbox + idempotency；message 是 proposal/signal，不是远程写权限                          | Core/SQLite 内先 transactional outbox，无 broker；Attention 是一个合法 target；外部 agent 才考虑 A2A      | [AWS transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[A2A](https://a2a-protocol.org/latest/)                                                                                                       | Matter 之间不共享 mutable memory；Thread 不充当 transport；A2A 不用于内部 ontology                               |
+| **7. tracing**                | 三层分离：Core audit / runtime log / telemetry；统一 causal IDs                                                | OTel/OTLP 作为底座 + `cw.*` attributes；GenAI semconv 仅 mapping adapter                        | [OpenTelemetry GenAI](https://github.com/open-telemetry/semantic-conventions-genai)                                                                                                                                                                                                | trace 不是 audit；prompt/output content 默认不进 telemetry；不把 development-status semconv 固化进 Core schema |
+
+---
+
+## 1. Child execution：这里最大的外部新信息来自 Pi
+
+这次重查后，**Pi 上游已经明显越过 RD-004 当时观察到的阶段**。CW 旧研究里仍把更高阶 AgentHarness 当作 WIP，需要 Q1–Q8 真实 host validation；这个谨慎判断仍然正确。 但当前 Pi 的 `harness-v2.md` 已经把下面几件事明确设计出来：
+
+```text
+Session
+├── conversation tree
+├── lanes
+│   ├── main
+│   ├── explore:a
+│   └── explore:b
+├── per-lane operation logs
+└── global facts
+```
+
+它明确提出 durable accepted runs、parallel lanes、每 lane 单 operation、single writer、operation log 与 conversation tree 分离、crash recovery，以及 subagent 可以作为另一个 lane。这已经非常贴近 CW 需要的 execution substrate。
+
+但要特别防止一个错误映射：
+
+```text
+Pi Lane       ≠ Courtwork Thread
+LangGraph ID  ≠ Courtwork Thread
+Child Session ≠ Courtwork Thread
+```
+
+它们可以在某个实现里恰好 1:1，但不能在合同上等同。
+
+我建议 CW 的正式边界长这样：
+
+```ts
+interface ChildExecutionSpec {
+  executionId: string
+  parentRunId: string
+  originThreadRef: string
+
+  actor:
+    | { kind: "explore"; profile: string }
+    | { kind: "expert"; expertId: string; version: string }
+
+  taskRef: string
+  contextPolicyRef: string
+  capabilityGrantId: string
+
+  budget: {
+    maxSteps?: number
+    maxTokens?: number
+    maxWallTimeMs?: number
+    maxChildren?: number
+  }
+
+  outputSchema: string
+
+  durability:
+    | "ephemeral"
+    | "recoverable"
+}
+```
+
+这里故意**没有** `sessionId`、`laneId`、`processId`。这些由 adapter 返回：
+
+```ts
+RuntimeExecutionRef {
+  provider: "pi" | "dsh" | "remote"
+  opaqueRef: string
+}
+```
+
+于是 DSH 将来完全可以用“fresh child agent”，Pi 可以用 lane，另一个 provider 可以用进程甚至远端 agent，而 Courtwork 不变。
+
+OpenCode 的 `Explore` 很适合继续作为产品命名：它本身也是 read-only、fresh-context subagent。但 OpenCode 当前有一个很好的**负面证据**：parent 虽然控制可以启动哪些 subagent，child 当前使用自己的 configured permissions，并不是 parent permission 的严格子集。对 CW 而言，这一条不能照搬。
+
+---
+
+## 2. Delegation：需要正式拆成 `invoke` 和 `handoff`
+
+OpenAI Agents SDK 在这里提供了相当成熟的语义收敛：
+
+```text
+invoke / agent-as-tool
+──────────────────────
+Parent owns task
+   │
+   ├── calls Expert / Explore
+   │       └── returns typed result
+   │
+   └── Parent continues and answers user
+
+
+handoff
+──────────────────────
+Parent
+   │ ownership transfer
+   ▼
+Expert / Other Agent
+   │
+   └── now owns this conversation/work branch
+```
+
+对于 CW：
+
+```ts
+Delegation {
+  mode: "invoke" | "handoff"
+  delivery: "await" | "async"
+  target: ActorRef
+  task: TaskEnvelopeRef
+  grant: CapabilityGrantRef
+  origin: OriginRef
+}
+```
+
+这样 `async` 不会错误地成为第三种 ownership 语义。
+
+**Expert 默认应该是 `invoke`。Explore 更应该始终是 `invoke`。**
+
+例如法律 Expert 给主 Agent 做合同条款判断，最终仍由 Matter 的当前工作 Agent 整合；这本质上就是 bounded capability。只有用户明确“把这一部分交给 Due Diligence Expert 继续负责”，或者 UI 明确显示工作 ownership 发生了转移，才产生 `handoff`。
+
+这还自然解决 Attention：
+
+```text
+Legal Expert ── raise_attention ──> Attention Assistant
+```
+
+不是 handoff。
+
+```text
+Attention Assistant ── create Matter + handoff ──> Legal Matter
+```
+
+才可能是 handoff。
+
+---
+
+## 3. Capability：建议正式建立一个“小权限代数”
+
+这是多 Agent 最容易腐化成 prompt engineering 的地方，因此反而值得先冻结。
+
+推荐原则：
+
+```text
+effective child grant
+=
+parent grant
+∩ Matter policy
+∩ delegation grant
+∩ runtime/environment boundary
+```
+
+Expert 自己声明的是：
+
+```text
+requiredCapabilities / supportedCapabilities
+```
+
+不是：
+
+```text
+grantedCapabilities
+```
+
+例如：
+
+```ts
+ExpertManifest {
+  id: "legal.contract-review"
+  requires: [
+    "matter.read",
+    "artifact.read",
+  ]
+  optional: [
+    "web.search",
+    "artifact.propose",
+  ]
+}
+```
+
+调用时：
+
+```ts
+CapabilityGrant {
+  principal: "execution:exp-42"
+  matterScope: ["matter-8"]
+  actions: [
+    "matter.read",
+    "artifact.read",
+    "web.search"
+  ]
+  expiresWithRun: "run-91"
+  delegationDepth: 1
+}
+```
+
+如果 Expert 想写正式 Decision：
+
+```text
+Expert asks
+    ↓
+policy = deny / ask
+    ↓
+Attention / Human approval
+    ↓
+new narrowly-scoped grant
+```
+
+而不是 Expert 自己因为“这是我的工具”就能写。
+
+Cedar 的 `principal / action / resource / context`（PARC）、default deny、forbid overrides permit 非常适合作为未来 policy evaluator；但 **Cedar 只是 evaluator，`CapabilityGrant` 仍然应该是 CW 对象**。
+
+Pi 当前官方 README 也明确提示本身不是 filesystem/process/network/credential 的完整安全边界，因此更不能把 runtime 自带 tool visibility 当 authority。
+
+---
+
+## 4. Reducer：应当把“归并”和“写总结”拆开
+
+Anthropic Research 最值得 CW 消费的其实不是“多 Agent”，而是这一结构：
+
+```text
+fan out
+   │
+   ├── research child
+   ├── research child
+   └── research child
+          │
+          ▼
+       reducer
+          │
+          ▼
+      synthesis
+```
+
+他们的生产经验还证明了一个很重要的约束：multi-agent 对 breadth-heavy、可并行研究特别合适，但在依赖很强、共享 context 很重的任务上并不天然优越，并且 token 成本会非常快地放大。[Anthropic 的工程复盘](https://www.anthropic.com/engineering/multi-agent-research-system)里内部数据甚至显示 multi-agent research 约为普通 chat 的 15× token 使用量，所以 CW 不应该默认 fanout。
+
+更适合 SE 的 reducer contract 是：
+
+```ts
+FindingBundle {
+  findings: Finding[]
+  claims: Claim[]
+  evidenceRefs: EvidenceRef[]
+  artifactRefs: ArtifactRef[]
+
+  conflicts: Conflict[]
+  gaps: Gap[]
+
+  sourceExecutions: ChildExecutionRef[]
+  traceRef: string
+}
+```
+
+然后：
+
+```text
+Child results
+    ↓
+schema validation
+    ↓
+deduplicate
+    ↓
+evidence / conflict reduction      ← deterministic where possible
+    ↓
+FindingBundle
+    ↓
+optional LLM Synthesizer
+    ↓
+Candidate / Proposal
+    ↓
+Core review / acceptance
+```
+
+也就是说：
+
+> **LLM synthesizer 不是 reducer 的 source of truth。**
+
+一个很适合做硬测试的性质是：
+
+```text
+reduce([A, B, C]) == reduce([C, A, B])
+```
+
+对于不依赖顺序的字段应该成立。
+
+这也能直接防止某个“总结 Agent”把三份 evidence 中的冲突吞掉。
+
+---
+
+## 5. Durable workflow：现在不需要选择 Temporal 或 Restate，但合同该现在定
+
+Google ADK 这里给了一个很好的语言学分界：它明确区分 LLM agent 与 deterministic workflow orchestration。现在 ADK 2.0 又进一步朝 graph workflows 演进。这恰好支持：
+
+> **Workflow 是控制流，不是一个更大的 Agent。**
+
+建议 Courtwork 首先只有很薄的：
+
+```ts
+WorkflowSpec {
+  version: string
+  nodes: WorkflowNode[]
+  edges: WorkflowEdge[]
+
+  retryPolicy: RetryPolicy
+  concurrencyPolicy: ConcurrencyPolicy
+  approvalPolicy: ApprovalPolicy
+}
+
+WorkflowRun {
+  workflowId: string
+  runId: string
+  status:
+    | "queued"
+    | "running"
+    | "waiting"
+    | "suspended"
+    | "completed"
+    | "failed"
+    | "cancelled"
+
+  cursor: ExecutionCursor
+  origin: OriginRef
+}
+```
+
+`WorkflowRun` 的 durability 目的是恢复执行，不是承载 Matter 事实。
+
+真正引入 durable engine，我建议等至少出现下面一种真实压力：运行跨进程/机器重启；等待 human/webhook 很久；有不可安全重复的外部 side effects；需要补偿事务；或已出现复杂 fanout/retry 恢复。
+
+届时两条路线不同：
+
+| 候选                                                             | 更适合 CW 的时机                                                                                       |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Restate](https://docs.restate.dev/ai/patterns/durable-agents) | TypeScript、本地/服务化 agent workload，希望 LLM/tool call journal + durable promise/HITL，较轻地包住现有 runtime |
+| [Temporal](https://docs.temporal.io/ai)                        | 多服务、数小时/数日业务流程、成熟运维要求、Signals/Updates/Child Workflows、补偿与规模调度成为核心需求                              |
+
+所以我目前会给 **Restate 一个更早的 spike 位，Temporal 一个更高阶的 production 位**，但二者都暂不进入 Core dependency。
+
+LangGraph 则最适合作为 graph/reducer/subgraph 的工程参考或 developer adapter，而不是 CW durability authority。
+
+---
+
+## 6. Cross-Matter messaging：这里其实不需要先引入 message broker
+
+Attention contract 已经把一个关键边界写得相当清楚：external signal、model suggestion、delivery、session/run completion 都不能自己改变 Attention 的最终状态，状态 owner 仍是 Core。 Architecture-maintenance 也已经把 execution、delivery、artifact acceptance 分成独立事实，并强调 origin/session/run/request/lineage 等身份不能被“latest”偷换。
+
+因此 Cross-Matter message 推荐：
+
+```ts
+CrossMatterEnvelope {
+  messageId: string
+  schemaVersion: string
+
+  kind:
+    | "signal"
+    | "request"
+    | "proposal"
+    | "result"
+    | "reply"
+
+  source: {
+    matterId?: string
+    actorId: string
+  }
+
+  target:
+    | { type: "matter"; matterId: string }
+    | { type: "attention" }
+
+  origin: {
+    threadId?: string
+    runId?: string
+    invocationId?: string
+  }
+
+  payloadRef: string
+  replyTo?: string
+
+  expectedTargetRevision?: number
+  createdAt: string
+}
+```
+
+关键语义：
+
+```text
+message received
+    ≠
+target state changed
+```
+
+目标 Matter 的 owner 才能：
+
+```text
+inspect → govern → accept/reject → commit
+```
+
+第一版根本不需要 Kafka/NATS。
+
+CW 已经有 Core/SQLite，所以可以：
+
+```text
+Core transaction
+   ├── write governed local fact / proposal
+   └── append outbox row
+             │
+             ▼
+       local dispatcher
+             │
+             ▼
+       target inbox
+       idempotent consume
+```
+
+这就是成熟的 [transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html) 模式。以后即使底下换成 broker，envelope 也不变。
+
+而 A2A 应该留在**产品边界外侧**：
+
+```text
+CW Expert Invocation
+       │
+       ├── local Pi adapter
+       ├── local DSH adapter
+       └── A2A adapter ── remote opaque Expert
+```
+
+[A2A](https://a2a-protocol.org/latest/) 的 Agent Card、Task、Message、Artifact、stream/push 很适合独立 remote agent，但内部 Matter 之间用它反而会把 CW 自己稳定的 ontology 污染掉。
+
+---
+
+## 7. Tracing：建议明确立成“三本账”
+
+这一处我认为可以直接裁定：
+
+```text
+1. Core Event / Audit
+   governed truth
+   Decision / Matter state / acceptance / approval
+
+2. Runtime Execution Log
+   model-visible provenance + recovery
+   request / response / tool / child execution / workflow step
+
+3. OTel Trace
+   operational causality
+   latency / token / retries / topology / errors
+```
+
+绝不能：
+
+```text
+trace span exists
+→ therefore Matter state changed
+```
+
+也不能：
+
+```text
+session says agent finished
+→ therefore Attention resolved
+```
+
+这正是当前 CW Attention contract 已经坚持的原则。
+
+[OpenTelemetry GenAI Semantic Conventions](https://github.com/open-telemetry/semantic-conventions-genai) 现在已经覆盖 `execute_tool`、`invoke_agent`、`invoke_workflow` 等概念，值得马上消费；但它当前仍标为 **Development**，所以建议增加一个映射层。
+
+CW 自己稳定保存：
+
+```text
+cw.matter.id
+cw.thread.id
+cw.run.id
+cw.invocation.id
+cw.child_execution.id
+cw.workflow_run.id
+cw.expert.id
+cw.capability_grant.id
+cw.origin.event_id
+cw.schema.version
+```
+
+然后 adapter 映射到当时版本的：
+
+```text
+gen_ai.operation.name
+gen_ai.provider.name
+gen_ai.request.model
+gen_ai.tool.call.id
+gen_ai.usage.*
+...
+```
+
+这样 OTel 将来改字段，不会迫使 Matter schema 迁移。
+
+尤其法律/工作场景，`gen_ai.input.messages`、`gen_ai.output.messages` 之类 raw content 应默认关闭；trace 保存 causal metadata，真正 evidence 留在受治理的 store。
+
+---
+
+# 一个值得立即更新的选型判断：Pi 的权重上升，但不能直接宣布胜出
+
+当前可以把 runtime matrix 调整成：
+
+| 项目                     | 当前最值得消费                                                                       | CW 位置                                     |
+| ---------------------- | ----------------------------------------------------------------------------- | ----------------------------------------- |
+| **Pi**                 | durable AgentHarness、lanes、operation logs、session tree、extension/runtime      | **首个 child-execution conformance target** |
+| **DSH**                | subagent provider seam、Session/Agent/Capability 三类 event、everything-as-plugin | 第二 adapter + 架构反证                         |
+| **OpenCode**           | `Explore` 产品语义、fresh child context、agent catalog                              | 产品/UX 与负面权限案例                             |
+| **Claude Code**        | isolated subagents、worktree、agent teams/mailbox/task board                    | Explore 与 workflow 经验样本                   |
+| **OpenAI Agents SDK**  | agent-as-tool vs handoff                                                      | delegation contract 主要来源                  |
+| **Anthropic Research** | orchestrator-worker、budgeted fanout、synthesis                                 | Explore cluster / reducer                 |
+| **LangGraph**          | subgraph boundary、private state、fanout/reducer                                | Workflow adapter / reducer reference      |
+| **Google ADK**         | deterministic workflow 与 LLM agent 分层                                         | Workflow ontology reference               |
+| **Restate / Temporal** | crash-safe long execution                                                     | 后置 durability provider                    |
+| **Cedar**              | policy decision                                                               | Capability evaluator                      |
+| **A2A**                | opaque remote agents                                                          | perimeter adapter                         |
+| **OTel**               | vendor-neutral trace                                                          | telemetry base                            |
+
+Pi 的变化尤其值得重新验收：上游现在的设计已经非常接近我们自己推导出来的 `session ≠ context`、parallel execution lane、durable operation 等方向；但它自己的安全边界仍不足，而且 CW 旧 RD-004 明确要求真实 runtime validation，因此正确动作是**重新 pin upstream commit + 跑 conformance，而不是因为文档变漂亮就替换 runtime**。
+
+---
+
+## 可以直接交给本地 Agent 的工程 handoff
+
+我会把施工拆成下面七笔，而不是一个 “Implement multi-agent” PR：
+
+| ID        | 工件                       | 最小施工                                                              | 必须通过的反例                                                              |
+| --------- | ------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **MA-01** | Child Execution Contract | `ChildExecutionSpec/Result/Origin/RuntimeRef` + fake provider     | child late result 不得落到 latest Thread；cancelled child 不得伪 completed   |
+| **MA-02** | Pi Conformance Adapter   | 对现 Pi runtime + pinned Harness v2 实现同一 fixture                    | kill/reopen、parallel child、cancel race、parent moved、version mismatch |
+| **MA-03** | Capability Grant         | grant calculus + tool-boundary enforcement + approval escalation  | child 配置更多 tool 仍不可越权；duplicate approval 不扩权                         |
+| **MA-04** | Reducer                  | typed FindingBundle、dedupe、conflict、provenance、optional synthesis | 输入乱序不改变 deterministic result；synthesis 不得删除 conflict/evidence        |
+| **MA-05** | Cross-Matter Mailbox     | envelope + SQLite outbox/inbox + idempotency                      | duplicate / out-of-order / deleted target / stale revision           |
+| **MA-06** | Trace Bridge             | OTel + `cw.*` IDs + provider mapper + redaction                   | 不保存内容仍能重建 parent → child → tool → reducer causal chain               |
+| **MA-07** | Workflow Spike           | 先 native short workflow；同 fixture 跑 Restate spike                 | process kill、HITL wait、retry side effect、resume 不重复已完成 step          |
+
+其中最关键的一组不变量可以固定成一个共同 test suite：
+
+```text
+C1  Child identity is stable across retry/recovery.
+C2  Child never widens parent's effective capability.
+C3  Runtime child/session/lane identity never becomes CW Thread identity.
+C4  Invoke does not transfer ownership; handoff does.
+C5  Child result cannot directly commit Matter truth.
+C6  Reducer preserves provenance and conflicts.
+C7  Duplicate delivery is idempotent.
+C8  Late delivery binds to origin, never "latest".
+C9  Runtime completion ≠ delivery ≠ Core acceptance.
+C10 Trace is reconstructable without storing governed content.
+```
+
+这套 fixture 的价值会比选定任何一个 multi-agent SDK 更大，因为以后 Pi、DSH、甚至主权模型自研 runtime 都可以跑同一套。
+
+---
+
+## 与 Attention Assistant 的 Chat flow 也因此自然收敛
+
+前一笔 Chatbot UI Explore 反而和这个后端分层高度一致。我看过 [Raycast AI Chat](https://manual.raycast.com/ai/ai-chat)、OpenAI [ChatKit](https://developers.openai.com/api/docs/guides/custom-chatkit)、[assistant-ui](https://www.assistant-ui.com/docs/runtimes/ai-sdk/v7)、[CopilotKit HITL](https://docs.copilotkit.ai/human-in-the-loop) 和 Vercel [AI Elements](https://elements.ai-sdk.dev/)。
+
+对截图里这种全局悬浮 Attention Chat，我会收敛成：
+
+```text
+内部有：
+Explore × 4
+Expert × 2
+8 tool calls
+Reducer
+Cross-Matter signal
+OTel spans
+...
+
+Attention Chat 默认只显示：
+
+Assistant message
+
+Exploring…                       ← compact activity, optional expand
+
+┌ Need your decision ─────────┐
+│ Allow access to Matter X?   │ ← typed approval / clarification
+│ [Deny]          [Allow]     │
+└─────────────────────────────┘
+
+Found 3 issues in Contract A.      ← result
+[Open Matter] [Review evidence]
+
+Waiting for Legal Expert…          ← only when human-relevant
+
+Failed to deliver update.          ← meaningful failure
+[Retry] [Details]
+```
+
+也就是说，**Attention Assistant 是 Agent，但交付面确实应该更接近成熟 Chatbot，而不是把 Agent runtime trajectory 常驻暴露出来。** Raycast 的 `Quick AI → AI Chat` 升级、inline clarification、queue/steer、后台完成通知尤其值得取：Attention 悬浮窗可以承担低成本问答和全局 human loop；一旦形成独立持续工作，就 `Open/Create Matter`，转入 Courtwork 完整 Chatspace。
+
+这又反过来给后端一个很好的约束：凡是必须在 Attention Chat 里呈现的，都应该是稳定 typed interaction，例如 `clarification / approval / attention / compact progress / result / handoff / failure`；**raw tool call、child topology、runtime trace 只是 Details projection。**
+
+如果按现有 repo 研究体例落盘，我建议这轮最终形成：
+
+```text
+engineering/research/multi-agent-2026-09-10/
+├── source-index.md
+├── selection-index.md
+├── contract-draft.md
+├── runtime-matrix.md
+├── verification.md
+└── local-handoff.md
+```
+
+其中 `selection-index.md` 就按上面的七个 seam；`verification.md` 固定 C1–C10；`local-handoff.md` 固定 MA-01–MA-07。这样本地施工第一次读到的不是“实现 multi-agent”，而是**七个互相正交、可单独验收、可替换 provider 的工程接缝**。

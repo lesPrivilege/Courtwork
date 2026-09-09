@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "logs": [
+    {
+      "path": "doc-links.log",
+      "rawSha256": "4784ec5ed9497f266744938215db7d9983ed175a20b257eb7e0e22ff00c56107",
+      "publishedSha256": "4784ec5ed9497f266744938215db7d9983ed175a20b257eb7e0e22ff00c56107",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    },
+    {
+      "path": "focused-final.log",
+      "rawSha256": "e016f3a47f4fa7f5b4c3c9e30122530e7e0fad6694d2b4af896398fe35370d7c",
+      "publishedSha256": "e016f3a47f4fa7f5b4c3c9e30122530e7e0fad6694d2b4af896398fe35370d7c",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    },
+    {
+      "path": "smoke.log",
+      "rawSha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea",
+      "publishedSha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    },
+    {
+      "path": "contrast.log",
+      "rawSha256": "cbbe43e396c173cf1e60b404056542135e89c07b9336e31a615c5cf3e62c61b7",
+      "publishedSha256": "77d45704dd97d21132eb2b737ff1226806c56b4f74fa0a9731473eb9b2cc23e9",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    },
+    {
+      "path": "tests-final.log",
+      "rawSha256": "6e2d57073ab5e651178b40a516b2413325040776a112a42d81ab12cf1a5450e4",
+      "publishedSha256": "6e2d57073ab5e651178b40a516b2413325040776a112a42d81ab12cf1a5450e4",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    },
+    {
+      "path": "tests.log",
+      "rawSha256": "e6a7627ed06e7da1901df86a0c10275cbc7e4bc63d246578f2519fe8ff9b5fd0",
+      "publishedSha256": "b226e0e53423fe3aea598ba4be8dfa4df8f0c5bc05a4d27eb107fd941b5ddf63",
+      "projection": "checkout and OS temporary-directory prefixes replaced with portable placeholders; test details and counts retained; trailing blank EOF lines omitted"
+    }
+  ]
+}

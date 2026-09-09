@@ -1,0 +1,29 @@
+✔ Thread identity and membership are durable, explicit and not Session identity (174.946541ms)
+✔ outbox replay is idempotent; conflicting payload and invented source are refused (62.71575ms)
+✔ late delivery retains origin and distinguishes stale target from missing target (54.6385ms)
+✔ reply lineage requires a delivered reverse envelope, not an unrelated latest message (53.956875ms)
+✔ delete and scope change do not recreate a recipient or reroute queued messages (59.616625ms)
+✔ RuntimeStore6 migration preserves global scope and exact backup; corrupt ledger fails closed (162.188916ms)
+✔ child grant monotonically narrows and reducer retains source attribution and conflicts under permutation (1.60275ms)
+✔ child tool boundary denies widening and completion remains undelivered/unaccepted (0.681708ms)
+✔ cancel, timeout, late completion and mutated caller input cannot change child settlement or origin (5.811708ms)
+✔ authenticated HTTP Thread/message entry reaches a real inbox without starting a model (116.04ms)
+✔ SIGKILL after outbox persistence recovers exactly one local delivery without a Run (852.170625ms)
+✔ model messages require a real permission decision and cannot auto-run the recipient (609.245375ms)
+✔ read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes (336.361208ms)
+✔ schema7 effort survives upgrade; fixed old host refuses schema8 and restores only the separate original backup (317.7755ms)
+✔ mailbox pagination preserves ordered identities and refuses duplicate or oversized queries (82.958833ms)
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (1376.613875ms)
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (3.887708ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.423084ms)
+✔ effort is capability checked and recorded by real local SDK requests (621.134375ms)
+✔ malformed measurement records are omitted before rendering (0.168ms)
+✔ schema6 migration preserves both global and project sessions (107.367916ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4228.500959

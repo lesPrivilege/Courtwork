@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "initialHead": "27d37dad75c07f0bc0aa394c19d208e92c8c9a1f",
+  "integratedMain": "6921dbd18de153020c87e4438eebe5260762fee0",
+  "sources": [
+    {
+      "id": "MA-S1",
+      "path": "inputs/01-domain-proposal.txt",
+      "bytes": 16132,
+      "sha256": "1e4cfcd614a4cd428814c7c0c8257681785aa836093b5c1700719e7e48920f36",
+      "provenance": "User supplied research text, 2026-09-10; preserved verbatim",
+      "evidenceLevel": "proposal; external source claims require independent verification"
+    },
+    {
+      "id": "MA-S2",
+      "path": "inputs/02-selection-proposal.txt",
+      "bytes": 29414,
+      "sha256": "08a89406bbe006dab467b483b067352ea91c9ea8962cde903d97b2b99e782a4f",
+      "provenance": "User supplied research text, 2026-09-10; preserved verbatim",
+      "evidenceLevel": "proposal; external source claims require independent verification"
+    }
+  ]
+}

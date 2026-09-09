@@ -1,13 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
-import { mkdtemp, rm, readFile, writeFile, readdir } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { RuntimeStore } from '../server/store.mjs';
 import { Coordination } from '../harness/coordination.mjs';
 import { executeChild, narrowGrant, reduceFindings } from '../harness/child-execution.mjs';
-import { boot, spawnWorker } from './helpers.mjs';
+import { boot, spawnWorker, reopen } from './helpers.mjs';
 
 async function fixture() {
   const dir=await mkdtemp(path.join(tmpdir(),'cw-coordination-'));
@@ -125,4 +128,95 @@ test('authenticated HTTP Thread/message entry reaches a real inbox without start
     const unauthorized=await fetch(h.runtime.url+'/api/v5/coordination');assert.equal(unauthorized.status,401);
     assert.equal((await h.api('GET','/coordination?sessionId=guess')).status,400);
   }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
+});
+
+test('SIGKILL after outbox persistence recovers exactly one local delivery without a Run',async()=>{
+  const dir=await mkdtemp(path.join(tmpdir(),'cw-coordination-kill-'));let worker,host;
+  try{
+    worker=spawnWorker({dataDir:dir,body:`
+      const a=(await runtime.service.createAttentionConversation({conversationId:crypto.randomUUID()})).session;
+      const b=(await runtime.service.createAttentionConversation({conversationId:crypto.randomUUID()})).session;
+      await runtime.service.coordination.create({threadId:'a',sessionId:a.id,title:'A'});
+      await runtime.service.coordination.create({threadId:'b',sessionId:b.id,title:'B'});
+      const input={messageId:'durable-message',sourceThreadId:'a',targetThreadId:'b',sourceSessionId:a.id,expectedTargetRevision:1,kind:'request',text:'Crash fixture',replyTo:null};
+      const receipt=await runtime.service.coordination.enqueue(input);
+      emit({ready:true,input,status:receipt.status});
+    `});
+    const ready=await worker.waitForLine(v=>v.ready);assert.equal(ready.status,'queued');await worker.kill();
+    host=await reopen(dir);let mailbox=(await host.api('GET','/coordination/threads/b')).json;
+    assert.equal(mailbox.messages.length,1);assert.equal(mailbox.messages[0].status,'delivered');
+    const repeat=(await host.api('POST','/coordination/messages',ready.input)).json.message;
+    assert.deepEqual(repeat,mailbox.messages[0]);assert.equal(host.runtime.store.listRuns().length,0);
+    await host.runtime.close();host=await reopen(dir);
+    mailbox=(await host.api('GET','/coordination/threads/b')).json;assert.equal(mailbox.messages.length,1);
+  }finally{await worker?.kill();await host?.runtime.close();await rm(dir,{recursive:true,force:true});}
+});
+
+test('model messages require a real permission decision and cannot auto-run the recipient',async()=>{
+  const h=await boot();try{
+    const a=await h.createSession({permissionMode:'ask'}),b=await h.createSession();
+    for(const [id,s] of [['a',a],['b',b]])await h.api('POST','/coordination/threads',{threadId:id,sessionId:s.id,title:id});
+    const command=await h.api('POST',`/sessions/${a.id}/runs`,{commandId:randomUUID(),input:h.scriptInput([{name:'message_other_agent',arguments:{target_thread_id:'b',expected_target_revision:1,kind:'request',text:'Synthetic model request'}}])});
+    assert.equal(command.status,200,JSON.stringify(command.json));
+    const pending=await h.pollRun(command.json.run.id,{until:s=>s==='waiting_user'});
+    assert.equal(h.runtime.store.snapshot().coordination.messages.length,0);
+    const question=h.runtime.store.snapshot().questions.find(q=>q.runId===pending.id&&q.status==='pending');
+    assert.equal(question.payload.tool,'message_other_agent');
+    const approved=await h.api('POST',`/runs/${pending.id}/questions/${question.id}`,{decision:'allow'});assert.equal(approved.status,200);
+    await h.pollRun(pending.id);const message=h.runtime.store.snapshot().coordination.messages[0];
+    assert.equal(message.status,'delivered');assert.equal(message.actor,'runtime');assert.equal(message.sourceRunId,pending.id);
+    assert.equal(h.runtime.store.listRuns().length,1);assert.equal(h.runtime.store.listRuns().some(r=>r.sessionId===b.id),false);
+  }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
+});
+
+test('read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes',async()=>{
+  const h=await boot();try{
+    const a=await h.createSession({permissionMode:'read_only'}),b=await h.createSession();
+    const project=(await h.api('POST','/projects',{name:'Other scope'})).json.project;
+    const other=(await h.api('POST','/sessions',{projectId:project.id,title:'Other'})).json.session;
+    for(const [id,s] of [['a',a],['b',b],['other',other]])await h.api('POST','/coordination/threads',{threadId:id,sessionId:s.id,title:id});
+    const control=(await h.api('GET',`/runtime-control?sessionId=${a.id}`)).json;
+    assert.equal(control.resources.find(r=>r.id==='tool:message_other_agent').permission.effect,'deny');
+    assert.deepEqual(h.runtime.service.coordination.runtimeDirectory(a.id).threads.map(t=>t.id),['a','b']);
+    await assert.rejects(async()=>h.runtime.service.coordination.mailbox('b',{sessionId:a.id}),{code:'coordination_binding'});
+    const response=await h.api('POST',`/sessions/${a.id}/runs`,{commandId:randomUUID(),input:h.scriptInput([{name:'message_other_agent',arguments:{target_thread_id:'b',expected_target_revision:1,kind:'request',text:'must not send'}}])});
+    assert.equal(response.status,200);await h.pollRun(response.json.run.id);
+    assert.equal(h.runtime.store.snapshot().coordination.messages.length,0);
+    assert.equal(h.runtime.store.snapshot().questions.length,0);
+  }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
+});
+
+test('schema7 effort survives upgrade; fixed old host refuses schema8 and restores only the separate original backup',async()=>{
+  const dir=await mkdtemp(path.join(tmpdir(),'cw-coordination-schema7-'));let store,oldStore;
+  try{
+    const code=path.join(dir,'old-code'),data=path.join(dir,'data'),restore=path.join(dir,'restore');
+    const repo=fileURLToPath(new URL('../../',import.meta.url));
+    const files=['server/store.mjs','server/runtime-lock.mjs','server/runtime-lock.py','server/work-metrics.mjs','server/work-summary.mjs','server/async-task-state.mjs','runtime/test-hooks.mjs'];
+    for(const file of files) {
+      const {stdout}=await promisify(execFile)('git',['show','6921dbd18de153020c87e4438eebe5260762fee0:app/'+file],{cwd:repo,encoding:'buffer'});
+      const dest=path.join(code,file);await mkdir(path.dirname(dest),{recursive:true});await writeFile(dest,stdout);
+    }
+    const {RuntimeStore:Old}=await import(pathToFileURL(path.join(code,'server/store.mjs')).href);
+    oldStore=await new Old({dataDir:data}).open();
+    await oldStore.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Synthetic global',workspaceDir:path.join(dir,'ws'),permissionMode:'ask'});
+    await oldStore.setProviderConfig({provider:'fake-openai-loopback',model:'fake-local-model',api:'openai-completions',reasoningEffort:'off'});
+    await oldStore.close();const raw=await readFile(path.join(data,'runtime-state.json'));
+    store=await new RuntimeStore({dataDir:data}).open();assert.equal(store.state.schemaVersion,8);assert.equal(store.getProviderConfig().reasoningEffort,'off');assert.equal(store.listSessions()[0].scope,'global');await store.close();
+    const upgraded=await readFile(path.join(data,'runtime-state.json'));
+    await assert.rejects(new Old({dataDir:data}).open(),/schemaVersion 8 is not supported/);assert.deepEqual(await readFile(path.join(data,'runtime-state.json')),upgraded);
+    const digest=createHash('sha256').update(raw).digest('hex'),backup=await readFile(path.join(data,`runtime-state.schema7.${digest}.json`));assert.deepEqual(backup,raw);
+    await mkdir(restore);await writeFile(path.join(restore,'runtime-state.json'),backup);
+    oldStore=await new Old({dataDir:restore}).open();assert.equal(oldStore.state.schemaVersion,7);await oldStore.close();
+  }finally{await store?.close();await oldStore?.close();await rm(dir,{recursive:true,force:true});}
+});
+
+test('mailbox pagination preserves ordered identities and refuses duplicate or oversized queries',async()=>{
+  const f=await fixture();try{
+    for(let n=0;n<21;n++)await f.c.send(f.input({messageId:`page-${n}`}));
+    const first=f.c.readMailbox(f.tb.id,new URLSearchParams('offset=0&limit=20'));
+    assert.equal(first.messages.length,20);assert.equal(first.nextOffset,20);assert.equal(first.total,21);
+    const second=f.c.readMailbox(f.tb.id,new URLSearchParams('offset=20&limit=20'));assert.equal(second.messages[0].id,'page-20');assert.equal(second.nextOffset,null);
+    assert.throws(()=>f.c.readMailbox(f.tb.id,new URLSearchParams('limit=21')));
+    assert.throws(()=>f.c.readMailbox(f.tb.id,new URLSearchParams('offset=0&offset=1')));
+  }finally{await f.close();}
 });

@@ -11,6 +11,7 @@ function member(state, t, id) {
 }
 function cas(t, expected) { revision(expected); check(t.revision === expected, 'Thread changed; refresh before acting', 'coordination_stale'); }
 function available(state,t) { return t.status === 'open' && t.sessionIds.some(id => state.sessions.some(s=>s.id === id && same(sessionScope(s),t.scope))); }
+function pageOptions({offset=0,limit=20}={}) { revision(offset); check(Number.isSafeInteger(limit) && limit >= 1 && limit <= 20,'Invalid page size'); return {offset,limit}; }
 const inputFields = ['messageId','sourceThreadId','targetThreadId','sourceSessionId','kind','text','replyTo','expectedTargetRevision'];
 
 // A single RuntimeStore transaction publishes outbox/inbox delivery records.
@@ -24,6 +25,12 @@ export class Coordination {
     return { schemaVersion: 1, threads: state.coordination.threads.map(t => ({...t, available: available(state,t)})),
       currentThreadId: sessionId === null ? null : state.coordination.threads.find(t=>t.sessionIds.includes(sessionId) && same(t.scope,sessionScope(session(state,sessionId))))?.id ?? null,
       capabilities: { message: true, explore: false, handoff: false, workflow: false } };
+  }
+  runtimeDirectory(sessionId, options={}) {
+    const state=this.store.snapshot(), s=session(state,sessionId), directory=this.list(sessionId);
+    const {offset,limit}=pageOptions(options), selected=directory.threads.filter(t=>s.scope === 'global' || same(t.scope,sessionScope(s)));
+    return {...directory,threads:selected.slice(offset,offset+limit).map(({id,title,scope,revision,status,available})=>({id,title,scope,revision,status,available})),
+      offset,total:selected.length,nextOffset:offset+limit < selected.length ? offset+limit : null};
   }
   create(input) {
     keys(input,['threadId','sessionId','title']); str(input.threadId); str(input.sessionId); str(input.title);
@@ -63,7 +70,7 @@ export class Coordination {
       sourceRunId:runtimeOrigin?.runId ?? null,sourceCallId:runtimeOrigin?.callId ?? null,actor:runtimeOrigin ? 'runtime' : 'human',
       kind:input.kind,text:input.text,replyTo:input.replyTo,expectedTargetRevision:input.expectedTargetRevision};
     return this.mutate(state => {
-      const old=state.coordination.messages.find(m=>m.id === record.id);
+      const old=state.coordination.messages.find(m=>m.id === record.id || (record.actor === 'runtime' && m.actor === 'runtime' && m.sourceRunId === record.sourceRunId && m.sourceCallId === record.sourceCallId));
       if (old) { check(Object.keys(record).every(k=>same(old[k],record[k])), 'Message identity reused with different input', 'coordination_conflict'); return old; }
       const source=thread(state,record.sourceThreadId), target=thread(state,record.targetThreadId);
       member(state,source,record.sourceSessionId);
@@ -72,7 +79,9 @@ export class Coordination {
         const r=state.runs.find(r=>r.id === runtimeOrigin.runId);
         check(r?.sessionId === record.sourceSessionId && r.admissionOpen && ['running','waiting_user'].includes(r.status), 'Run admission closed', 'coordination_closed');
         // A bound domain Run must not acquire input outside its coverage owner.
-        check(!session(state,record.sourceSessionId).extensionBinding, 'Bound domain messaging awaits coverage contract', 'coordination_binding');
+        const caller=session(state,record.sourceSessionId);
+        check(!caller.extensionBinding, 'Bound domain messaging awaits coverage contract', 'coordination_binding');
+        check(caller.scope === 'global' || same(source.scope,target.scope), 'Cross-scope runtime messaging requires Attention', 'coordination_binding');
       }
       cas(target,record.expectedTargetRevision);
       if (record.replyTo !== null) {
@@ -94,10 +103,20 @@ export class Coordination {
   }
   async send(input,origin=null) { const receipt=await this.enqueue(input,origin); return receipt.status === 'queued' ? this.deliver(receipt.id) : receipt; }
   async recover() { for (const m of this.store.snapshot().coordination.messages) if (m.status === 'queued') await this.deliver(m.id); }
-  mailbox(id, {sessionId=null}={}) {
+  mailbox(id, {sessionId=null,offset=0,limit=20}={}) {
     const state=this.store.snapshot(), t=thread(state,id); if (sessionId !== null) member(state,t,sessionId);
-    return {schemaVersion:1,thread:{...t,available:available(state,t)},authority:'communication-only',
-      messages:state.coordination.messages.filter(m=>m.sourceThreadId === id || (m.targetThreadId === id && m.status === 'delivered'))};
+    ({offset,limit}=pageOptions({offset,limit}));
+    const messages=state.coordination.messages.filter(m=>m.sourceThreadId === id || (m.targetThreadId === id && m.status === 'delivered'));
+    return {schemaVersion:1,thread:{...t,available:available(state,t)},authority:'communication-only',offset,total:messages.length,
+      nextOffset:offset+limit < messages.length ? offset+limit : null,messages:messages.slice(offset,offset+limit)};
+  }
+  readMailbox(id,query) {
+    const options={};
+    for (const key of query.keys()) {
+      check(['offset','limit'].includes(key) && query.getAll(key).length === 1,'Invalid mailbox query');
+      check(/^(0|[1-9][0-9]*)$/.test(query.get(key)),'Invalid mailbox cursor'); options[key]=Number(query.get(key));
+    }
+    return this.mailbox(id,options);
   }
   runtimeMessageId(runId,callId) { return 'message-' + createHash('sha256').update(JSON.stringify([runId,callId])).digest('hex'); }
 }

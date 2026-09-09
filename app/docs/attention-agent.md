@@ -1,4 +1,6 @@
-# Global Attention conversations · schema 1 API / RuntimeStore 6
+# Global Attention conversations · schema 1 API / introduced in RuntimeStore 6
+
+Current additive schema8 and explicit Thread messaging are defined in [coordination](coordination.md). Global Session scope and the one Attention role remain unchanged.
 
 Attention is one global product role with multiple conversations. Session remains the conversation owner and Run the execution owner. The global role is not a project, Matter, imported profile or second agent loop. [Architecture and PR slices](../../engineering/design/attention-agent-2026-09-10/README.md).
 
