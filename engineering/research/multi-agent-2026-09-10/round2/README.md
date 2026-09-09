@@ -49,3 +49,30 @@
 - MA2-D16 **前端片与 CC-I 分文件并行**。前端片只新增 `coordination-view.mjs` 与投影模块、小改 `attention-agent-view.mjs` 的挂载、往 `app/server/index.mjs` 白名单加项、加自己的测试文件；与 CC-I 唯一重叠的 `styles.css` 新增集中成一整块带标记的末尾追加，合流前先 rebase。此为对"单一 `app/web` writer"字面规则的一次具名例外，仅限本片。
 
 本轮尚未改动产品代码，未新增依赖，未运行真实 provider，未部署；G1–G5 与 Paper 不变。
+
+## 收敛节点（2026-09-10）
+
+两片独立施工、独立复核，均停在分支上未合流，等用户挑节点 merge。
+
+| 分支 | 基线 | 作者自跑 | 我的复跑 |
+|---|---|---|---|
+| `claude/ma2-backend-tests` @ `d0feb07` | `964c37f` | 467 → **476/476** | **476/476**，52.0s；定向 24/24 串行 5.9s |
+| `claude/ma2-frontend` @ `8bef964` | `6b4f4cd` | 467 → **475/475** | **475/475**，53.0s |
+| `claude/ma2-round2-docs` @ `6886cd3` | `461ab12` | — | 文档 |
+
+两片基线数目相同而终值差一，是各自新增用例数不同（+9／+8），不是同一套跑出两个数。smoke 均通过；前端片三项 lint 全过，附带跑了 `lint-interaction` 亦过。前端改动面已核：`attention-agent-view.mjs` 只动 import、一行挂载、一处 `deactivate()`，`styles.css` 是带标记的末尾整块追加，`settings-view.mjs` 未碰——与 CC-I 的并行约束守住。
+
+**已关闭**：MA2-D06 圈定的六项后端测试全部落地，无空项；Thread 消费面可用，投递与 Run／Core 接受在界面上分得开。EX-MA-R1 §五那个疑问结了：`!caller.extensionBinding` 经两侧同测可定性为纵深防御，不是无人看管的可回归路径。
+
+**暴露但未改，留待后续施工**
+
+1. 合同措辞：`available` 是读取时派生的，`create`／`attach` 的回执不带该字段，而合同把四条写端点一律记作 `{schemaVersion:1,thread}`。前端已按事实处理（回执缺失记显式 `null`，不猜 `false`——猜出的 `false` 会读成"该工作线已关闭"）。宜在合同的写端点处注明其返回不含派生字段。
+2. `coordination_binding` 一个错误码承载四种拒绝，消费者只能靠错误文案分流，脆。
+3. `tools/contrast-report.mjs` 的 `pairs` 够不着 `ink | panel-muted`，四种皮肤下都没检查；现有用户气泡用的就是这组，缺口早于本轮。`tools/` 不在两片写权内。
+4. `/brand/src/*.mjs` 是同一张 `STATIC` 表里的第二段字面清单，今日同样零对表。
+5. 测试套在并发负载下有运行时锁握手超时的抖动面（锁按数据目录取路径、由 python 子进程持 flock，超时发生在握手阶段）。串行复跑无此现象。
+6. T4 用的是 store 的**通用**崩溃点，测到的是通用撕裂安全，不是 coordination 专属崩溃点。
+
+**本轮未交付**：消息 `kind` 固定 `request`（`reply` 需回复选取控件）、`close` 端点未接、收件箱内不跳转对方会话、Attention typed actions 未涉及、未预支 FE-05a；以及 MA2-D06 划出的 (c) 类整体——持久 child intent、Matter policy 交集与审批升级、handoff、Core proposal 消费方、broker、OTel、Workflow。`capabilities.explore/handoff/workflow` 仍为 false。
+
+**一处更正**：EX-MA-R4 §四记 `tools/lint-interaction.mjs` 不存在，那是钉在 `5b405b3` 的事实；主线已在 `6b4f4cd` 接受该 lint，前端片基线上它存在且通过。
