@@ -127,3 +127,7 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 用户提供七张线框及两张真实agent产品截图，已做静态复读；[交接包](design/attention-surface-2026-09-09/README.md)支持B+C与D0-B有条件方向，指出长文行宽、composer缺席与Home待办下沉。Attention建议常驻全局入口/独立工作面，Home仅可选摘要，复用并行研究ATT-BE-01/ATT-FE-01/ATT-RT-01，不复制对象owner或台账；并行研究当时未合流。CC-S继续，CC-W→D0-a→FE-05次序不变，Attention待后端接缝后进入单writer队列。本次仅文档与用户图片证据，不升级为产品验收或Paper修订。
 
 本次文档合流同时接收Attention研究准备包与上述截图交接；常驻入口/独立工作面和可选Home摘要共用同一对象与service，后端接缝交付后再进入FE队列。Paper由Astra仅登记PI-22，Canonical/Practice正文不改。
+
+## 多专家资源治理：TeamAI研究入账（2026-09-09）
+
+用户授权消费“多专家架构分析”，本轮完整读取2个turn、4条文本与唯一上游仓库入口。从实际main `3af83eb` 隔离核对，[TeamAI索引](research/teamai-2026-09-09/README.md)将scope、原生格式转换、资源生命周期、recall来源锚点、friction与owned patch映射至已有AM/LG/ATT和Runtime接缝。原回答的12个内部citation没有URL映射，不冒称恢复原检索；上游另行有界核验。仅研究入账，不安装TeamAI、不新增并行registry或编排平台，不改变Paper、现有施工顺序及G1–G5。

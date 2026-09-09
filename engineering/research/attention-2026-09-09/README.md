@@ -46,3 +46,5 @@ Attention 是与 Matter 同级的个人关注对象。它可以跨多个 Matter�
 关键裁决、独立目录限制和 Paper 处置记录在 [本轮裁决](adjudication.md)。
 
 交付导航：[逐turn与外链索引](source-index.md) · [局部选型](selection-index.md) · [外部核验](verification.md) · [本轮交付检查](delivery-checks.md)。
+
+后续[TeamAI局部实践索引](../teamai-2026-09-09/README.md)补充资源治理、原生格式转换、recall锚点与friction候选来源，复用本包ATT接缝，不另立Attention状态owner。
