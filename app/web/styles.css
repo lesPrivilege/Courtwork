@@ -3155,6 +3155,29 @@ dialog[open]::backdrop {
   padding: 4px 6px;
   min-height: 32px;
 }
+/* CC-I 第一片（WK-150）· PropertyRow 的脚：provenance 一个词，右边是复位。
+   横跨整行的最后一行，所以两栏行与整宽的 segmented 行读起来是同一个解剖。
+   高度用 --control 钉死：复位只在 modified 时呈现，钉死之后它的出现与消失都不挪动
+   下面的行。状态只由文字承担 —— 不换整行的背景、不加边框、不加第二个色点
+   （材质表达层次不表达状态，FN-28）。 */
+.property-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--control);
+}
+.property-provenance {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.property-reset {
+  flex: none;
+}
+.settings-appearance-status:empty {
+  display: none;
+}
 .settings-advanced > summary {
   padding: 10px 0;
 }
