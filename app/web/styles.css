@@ -479,10 +479,10 @@ button {
   min-width: var(--control);
   padding: 0;
 }
-/* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与一份静止态的
+/* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与静止态、在途态的
    影子标签叠在同一个 grid 格子里，按钮的宽度因此是两者的较大值：`Sending…` 出现时
    没有一个邻居会挪位，指针已经落在半路上的用户不会点到另一个决定。影子不进无障碍
-   树（aria-hidden + visibility），也不接收指针。 */
+   树（visibility），按钮用 aria-label 显式命名；影子也不接收指针。 */
 .request-width {
   display: inline-grid;
   grid-template-areas: "request-label";
@@ -490,9 +490,15 @@ button {
   justify-items: center;
 }
 .request-width > .request-label,
+.request-width::before,
 .request-width::after {
   grid-area: request-label;
   white-space: nowrap;
+}
+.request-width::before {
+  content: attr(data-sending-label);
+  visibility: hidden;
+  pointer-events: none;
 }
 .request-width::after {
   content: attr(data-resting-label);

@@ -3474,7 +3474,7 @@ const TAB_ACTIVITY = {
   stopping: "Running",
   waiting_user: "Waiting for you",
   failed: "Failed",
-  unknown: "Failed",
+  unknown: "Unknown",
 };
 /* run 的状态在每一次 render 里都可能变，而 `renderSurfaceVisibility` 只在布局变化时
  * 跑；记号因此从 `renderInspector` 一起画，那是 rail 与 pane 的同一次重绘。 */

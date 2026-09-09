@@ -393,18 +393,19 @@ export function requestLabel(label, inFlight) {
  * 长、比 `Cancel run` 短，于是一次决定送出的瞬间，它旁边的按钮会左右挪一下 —— 指针
  * 已经落在半路上的用户因此可能点到另一个决定。修法不是量一次宽度存起来（那会在字号
  * 三档、`--text-scale` 与不同字体回退下过期），而是让按钮**同时**排一份静止态标签：
- * 两个 span 叠在同一个 grid 格子里，看得见的那个说当前的词，看不见的那个占住静止态
- * 的宽度，按钮的宽度因此永远是两者的较大值。按钮元素本身不被替换，所以焦点不动。 */
+ * 当前标签与两份影子叠在同一个 grid 格子里，两份影子分别预留静止态与在途态的
+ * 宽度，按钮的宽度因此永远是两者的较大值。按钮元素本身不被替换，所以焦点不动。 */
 export function setRequestLabel(button, label, inFlight) {
   const visible = document.createElement("span");
   visible.className = "request-label";
   visible.textContent = requestLabel(label, inFlight);
   button.classList.add("request-width");
-  /* 影子是一条 CSS 生成内容（`::after` 读这个属性），不是一个真的子节点：真的子节点
+  /* 影子是 CSS 生成内容（`::before` / `::after` 读两个属性），不是一个真的子节点：真的子节点
    * 会进 `textContent`，而既有的反例脚本正是按 `textContent` 认这几个按钮的。生成
    * 内容在无障碍树里可能被读到，所以可访问名由 `aria-label` 显式说一遍，与看得见的
    * 字一字不差。 */
   button.dataset.restingLabel = label;
+  button.dataset.sendingLabel = SENDING_LABEL;
   button.setAttribute("aria-label", requestLabel(label, inFlight));
   button.replaceChildren(visible);
   return button;
