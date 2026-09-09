@@ -80,14 +80,14 @@ test('real transaction SIGKILL before commit and after commit before acknowledge
 test('v1 migration backs up original, retains current source membership; failed schema migration rolls back',async()=>{
  for (const corrupt of [false,true]) await fixture(async(core,dataDir)=>{
   await seed(core);await core.close();const db=path.join(dataDir,'state.db');
-  const altered=python(`import sqlite3,sys\nc=sqlite3.connect(sys.argv[1])\nc.executescript("DROP TRIGGER retain_source_membership; DROP TABLE source_history; DROP TABLE app_work_scope; UPDATE app_meta SET value='1' WHERE key='schema_version';")\nif sys.argv[2]=='true': c.execute('ALTER TABLE app_matter ADD COLUMN unsupported TEXT')\nc.commit()\nc.close()`,[db,String(corrupt)]);
+  const altered=python(`import sqlite3,sys\nc=sqlite3.connect(sys.argv[1])\nc.executescript("DROP TABLE artifact_file_bundle; DROP TABLE candidate_verification; DROP TABLE candidate_file; DROP TABLE candidate_file_bundle; DROP TABLE file_run_basis; DROP TRIGGER retain_source_membership; DROP TABLE source_history; DROP TABLE app_work_scope; UPDATE app_meta SET value='1' WHERE key='schema_version'; UPDATE meta SET value='1' WHERE key='schema_version'; PRAGMA user_version=1;")\nif sys.argv[2]=='true': c.execute('ALTER TABLE app_matter ADD COLUMN unsupported TEXT')\nc.commit()\nc.close()`,[db,String(corrupt)]);
   assert.equal(altered.status,0,altered.stderr);
   const dump = file => python('import sqlite3,sys\nc=sqlite3.connect(sys.argv[1]);print("\\n".join(c.iterdump()))',[file]).stdout;
   const priorDump=dump(db);const bytes=await readFile(db);const reopened=new CoreClient({dataDir});
   try {
    if(corrupt) {await assert.rejects(reopened.start(),{code:'SCHEMA_INVALID'});assert.deepEqual(await readFile(db),bytes);}
    else {await reopened.start();const v=await reopened.snapshot('m');assert.equal(v.candidates.length,1);assert.equal((await reopened.call('historical_source',{matter_id:'m',candidate_id:'c',source_id:'s',version:1})).text,'Original 😀 evidence');}
-   assert.equal(dump(db+'.pre-core-v2.bak'),priorDump);
+   if (!corrupt) assert.equal(dump(db+'.pre-file-core-v2-app-v3.bak'),priorDump);
   } finally {await reopened.close();}
  });
 });

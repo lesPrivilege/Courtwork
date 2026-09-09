@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "baseMain": "0b5ccd27e9d0be5940714e913f4fc197f9ec7a05",
+  "deliveryHead": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c",
+  "finalProduct": "b1ff74b08c053fa0e3ab47fb20f510eabb9440e9",
+  "testedMergedTree": "6f82e6c439838967d472d5e6f8de9d745511e2fe",
+  "productPatch": false,
+  "fullTests": {
+    "pass": 290,
+    "fail": 0,
+    "skip": 0
+  },
+  "smoke": {
+    "status": "passed",
+    "provider": "local-fake",
+    "realProvider": "not_run"
+  },
+  "logSha256": {
+    "install": "185ef45445463a557a874aa5ca098efc333c7534df9341fc9b5e45afc0bd2672",
+    "tests": "f484a2ecfd04a5be3ded00f7c47ad8d9678c21cf4a80b71f31a1ff8aec283b73",
+    "smoke": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea",
+    "schema": "a106b116b5b2ffde96469a2fb77a0fcd17ca341444fe341b2f6198c9be1a00be",
+    "core": "c427976303569f72cc31cb690693eac8f3d1bf233a8b3a97e3a2ff80499bafd3",
+    "be30": "3a89a44b2605bcf039a6fe4f2a696d76cd5946f8d73cbd21a14c4719e74ecd4f"
+  },
+  "schemaProbe": {
+    "oldSha": "a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d",
+    "newSha": "b1ff74b08c053fa0e3ab47fb20f510eabb9440e9",
+    "originalDbSha256": "96943c58214a67c4d0a22a653c29f7462fc4fe80af6e3507c2f1995c7eea7f74",
+    "old": {
+      "ready": {
+        "app_schema_version": 2,
+        "core_schema_version": 1,
+        "mode": "b0",
+        "ready": true
+      },
+      "coreStateDigest": "89e836ba27a564be585bde6ce0a185e9c32e1917b3cee5d3e675118970fba7b6",
+      "decision": {
+        "action": "accept",
+        "active_artifact": "artifact-legacy-candidate-1",
+        "candidate_id": "legacy-candidate",
+        "matter_id": "legacy-matter",
+        "request_id": "legacy-decision",
+        "version": 1
+      }
+    },
+    "upgrade": {
+      "ready": {
+        "app_schema_version": 3,
+        "core_schema_version": 2,
+        "mode": "b0",
+        "ready": true
+      },
+      "coreStateDigest": "89e836ba27a564be585bde6ce0a185e9c32e1917b3cee5d3e675118970fba7b6",
+      "decision": {
+        "action": "accept",
+        "active_artifact": "artifact-legacy-candidate-1",
+        "candidate_id": "legacy-candidate",
+        "matter_id": "legacy-matter",
+        "request_id": "legacy-decision",
+        "version": 1
+      },
+      "backupPath": ".pre-file-core-v2-app-v3.bak",
+      "backupDbSha256": "c46cc56a11a6faf98af7fc93c5c3c1e08f879faa4d44eb7ab3bc1f074dc23cb9",
+      "oldBridgeReject": {
+        "code": "SCHEMA_NEWER",
+        "detail": "unsupported user_version=2"
+      },
+      "oldBackupOpen": {
+        "coreStateDigest": "89e836ba27a564be585bde6ce0a185e9c32e1917b3cee5d3e675118970fba7b6",
+        "decision": {
+          "action": "accept",
+          "active_artifact": "artifact-legacy-candidate-1",
+          "candidate_id": "legacy-candidate",
+          "matter_id": "legacy-matter",
+          "request_id": "legacy-decision",
+          "version": 1
+        }
+      }
+    },
+    "negative": {
+      "missingProjection": {
+        "code": "SCHEMA_INVALID",
+        "detail": "unsupported app_run_context schema",
+        "dbShaBefore": "5b6f0eaa75a721993694bd48146da7d3f57aa6a65502dc8fcdf72c3889d0262b",
+        "dbShaAfter": "5b6f0eaa75a721993694bd48146da7d3f57aa6a65502dc8fcdf72c3889d0262b"
+      },
+      "malformedFileTable": {
+        "code": "SCHEMA_INVALID",
+        "detail": "file tables found in an older schema",
+        "dbShaBefore": "73c4813c0a1014b325c767b7dc3339b5db59777bbdb7d5b76c36a096b9b8ffe5",
+        "dbShaAfter": "73c4813c0a1014b325c767b7dc3339b5db59777bbdb7d5b76c36a096b9b8ffe5"
+      },
+      "preexistingBackup": {
+        "code": "SCHEMA_INVALID",
+        "detail": "migration backup already exists; restore or inspect it explicitly",
+        "dbShaBefore": "96943c58214a67c4d0a22a653c29f7462fc4fe80af6e3507c2f1995c7eea7f74",
+        "dbShaAfter": "96943c58214a67c4d0a22a653c29f7462fc4fe80af6e3507c2f1995c7eea7f74",
+        "backupSha": "7cb2b4d582af7ed4bc899184eba03f2e0641619e807b75a90a651dd46362f447",
+        "backupShaAfter": "7cb2b4d582af7ed4bc899184eba03f2e0641619e807b75a90a651dd46362f447"
+      }
+    },
+    "status": "passed",
+    "tempDataOnly": true
+  },
+  "coreProbe": {
+    "requestedSha": "b1ff74b08c053fa0e3ab47fb20f510eabb9440e9",
+    "resolvedSha": "b1ff74b08c053fa0e3ab47fb20f510eabb9440e9",
+    "expectFixed": true,
+    "loadedSources": [
+      {
+        "path": "app/core/core.py",
+        "sha256": "793251eba0851b73bbeb437387de4041f846030ec4ebff5a2cf725b4ad22e82a"
+      },
+      {
+        "path": "app/core/bridge.py",
+        "sha256": "867c6ec3a86cedc926eeb75b71883b838182ff65037d850531510392ecef2564"
+      },
+      {
+        "path": "app/core/file_candidates.py",
+        "sha256": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594"
+      }
+    ],
+    "outcomes": [
+      {
+        "name": "valid-recorded-file-accept",
+        "status": "passed",
+        "decision": {
+          "action": "accept",
+          "active_artifact": "artifact-candidate-1-1",
+          "candidate_id": "candidate-1",
+          "matter_id": "matter-1",
+          "request_id": "valid-accept",
+          "version": 1
+        }
+      },
+      {
+        "name": "verification-result-tamper",
+        "status": "rejected",
+        "code": "INTEGRITY_REFUSAL",
+        "sideEffects": {
+          "matterVersion": 0,
+          "decisions": 0,
+          "artifacts": 0
+        }
+      },
+      {
+        "name": "verification-result-tamper-with-digest",
+        "status": "rejected",
+        "code": "VERIFICATION_REQUIRED",
+        "sideEffects": {
+          "matterVersion": 0,
+          "decisions": 0,
+          "artifacts": 0
+        }
+      },
+      {
+        "name": "null-session-provenance",
+        "status": "rejected",
+        "code": "BINDING_MISMATCH"
+      },
+      {
+        "name": "malformed-writtenAt",
+        "status": "rejected",
+        "code": "INVALID"
+      }
+    ]
+  },
+  "permissionProbe": {
+    "commit": "757ea768b8ea9702c7534f5f67b950bbd9dafc7d",
+    "dataDir": "independent temp dirs",
+    "port": 0,
+    "provider": "local-fake",
+    "results": {
+      "mismatchNoSideEffects": {
+        "mismatches": 2,
+        "status": "passed"
+      },
+      "optionalAndLegacyBodies": {
+        "cases": [
+          "legacy body",
+          "content hash only",
+          "tool call only deny"
+        ],
+        "status": "passed"
+      },
+      "malformedBodiesAndUnknownField": {
+        "malformed": 8,
+        "unknownFieldStatus": "unknown_field",
+        "status": "passed"
+      },
+      "askUserDoesNotMixExpectations": {
+        "rejectionCode": "unknown_field",
+        "status": "passed"
+      },
+      "concurrentMatchingAnswers": {
+        "statuses": [
+          200,
+          409
+        ],
+        "status": "passed"
+      },
+      "cancelWinsOverQueuedAnswer": {
+        "cancel": 200,
+        "answer": 409,
+        "status": "passed"
+      },
+      "queuedPayloadChangeCAS": {
+        "replacementCall": "be30-new-generation-call",
+        "status": "passed"
+      }
+    },
+    "executionNote": "Harness imports the combined working tree. Its commit field is a hardcoded original BE-30 label; testedMergedTree identifies this rerun."
+  }
+}

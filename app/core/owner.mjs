@@ -38,13 +38,14 @@ export function workProjection(view, { extension, writable = false, contractVers
     for (const candidate of candidates) {
       if (candidate.status !== 'pending' || !candidateBasis(candidate,view.matter).current) continue;
       humanActions.push({
-        schemaVersion: 1, action: 'decide', label: `Review candidate ${candidate.id}`,
+        schemaVersion: candidate.contract_version === 'se-file-memo-v1' ? 2 : 1,
+        ...(candidate.contract_version === 'se-file-memo-v1' ? {fileCapabilityVersion:1} : {}), action: 'decide', label: `Review candidate ${candidate.id}`,
         payloadSchema: {
           type: 'object', additionalProperties: false,
           required: ['request_id', 'candidate_id', 'base_version', 'action', 'reason'],
           properties: {
             request_id: { type: 'string' }, candidate_id: { const: candidate.id }, base_version: { const: candidate.base_version },
-            action: { enum: ['accept', 'reject', 'request_evidence'] }, reason: { type: 'string', minLength: 1 },
+            action: { enum: candidate.contract_version === 'se-file-memo-v1' && candidate.files?.acceptable !== true ? ['reject','request_evidence'] : ['accept', 'reject', 'request_evidence'] }, reason: { type: 'string', minLength: 1 },
           },
         },
       });
@@ -52,7 +53,7 @@ export function workProjection(view, { extension, writable = false, contractVers
     for (const candidate of candidates) {
       // A revision is a fresh proposal at the current work version. Its parent
       // may be closed or source-stale; historical decisions are not revoked.
-      if (candidate.contract_version !== view.matter.contract_version) continue;
+      if (candidate.contract_version === 'se-file-memo-v1' || candidate.contract_version !== view.matter.contract_version) continue;
       humanActions.push({
         schemaVersion: 1, action: 'revise_candidate', label: `Revise candidate ${candidate.id}`,
         payloadSchema: {
@@ -67,6 +68,7 @@ export function workProjection(view, { extension, writable = false, contractVers
     }
   }
   return {
+    ...(view.matter.contract_version === 'se-file-memo-v1' ? {fileCapability:{schemaVersion:1,contractVersion:'se-file-memo-v1',queries:['file-manifest','file-content','file-diff']}} : {}),
     schemaVersion: 1, contractVersion: view.matter.contract_version,
     domain: view.domain ?? null, extension, matter: view.matter, title: view.title, sources: view.sources,
     candidates, artifact: view.artifact, draft: view.draft, decisions: view.decisions,
