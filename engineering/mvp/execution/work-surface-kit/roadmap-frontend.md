@@ -20,14 +20,14 @@
 ## 3. 成单前置与未闭合
 
 - FE-05a：第 0 项含 M-15（B 态顶带对齐）与 M-16（composer icon / label 槽位）；EX-CC5 已回执并入库（WK-132：四项前置闭合；M-16 / M-17 为现状缺陷入第 0 项；对照基线 [v1](../../../design/type-density-ablation/v1/README.md)）；约束表 [type-density-constraints](../../../design/type-density-constraints.md)；消融页 [type-density-ablation](../../../design/type-density-ablation/index.html)。
-- Specimen board（Shape / Material / Identity / Control）：Shape 项来自 EX-CS1 §7；Material 项来自 WK-127（header 带有 / 无 progressive、round vs squircle 只在此并排）；Identity 来自 EX-GI1（已回执，WK-130：三方向 specimen [identity-specimen](../../../design/identity-specimen/index.html)，选向归用户 / 品牌线，Fable 建议 A）；Control 只放今日有 schema 的控件（WK-129 (g)）。载体：Claude Design 画布或静态页（画布曾加载失败，静态页为回退）。
+- Specimen board（Shape / Material / Identity / Control / Iconography）：Shape 项来自 EX-CS1 §7；Material 项来自 WK-127（header 带有 / 无 progressive、round vs squircle 只在此并排）；Identity 来自 EX-GI1（已回执，WK-130：三方向 specimen [identity-specimen](../../../design/identity-specimen/index.html)，选向归用户 / 品牌线，Fable 建议 A）；Control 只放今日有 schema 的控件（WK-129 (g)）；Iconography 来自 WK-133 (f)（EX-IC1 在 FE-05a 合流后派：Lucide 现状 vs MingCute Regular vs Phosphor Regular，一次一变量，真实槽位，Fill 只在 boolean toggle 候选位并排）。载体：Claude Design 画布或静态页（画布曾加载失败，静态页为回退）。
 - GI（生成式身份）：用户 2026-09-09 定为非排期重点，只作必要实现（公共站 hero、Home 空态静态 canonical mark，A 为基线，可读性优先），不开 generator 单。
 - 后端（Astra 已接）：BE-2、BE-1/3/25、BE-30…33、BE-28/29、BE-19/20、BE-21/22、ATT-BE-01；候选 BE-34（可逆窗口）、BE-35（Auto 模式）、BE-26/27（Mail / Calendar）。
 - 仍开：public-copy 同步、G1–G5、错误文案抻平（M-3）、M-12/13/14 状态模型簇。
 
 ## 4. 方法与边界（不重裁）
 
-WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵、misfit 台账、anti-slop 门）；WK-120 成熟感 = 密度 + 留白对齐 + 层级；WK-123 Auto；WK-122 四层来源 + 六级 atlas 格式 + ui-state-vocabulary（无契约状态不画）；WK-125 Visual Grammar；WK-129 Control Grammar。硬边界：前端单 writer；不引 React / 依赖（donor 只取行为）；Always allow 不采纳；侧栏实色、内容不 blur；field / 氛围层只作 specimen；不复制 OpenCode 风格；Schema constraint ≠ UI affordance。
+WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵、misfit 台账、anti-slop 门）；WK-120 成熟感 = 密度 + 留白对齐 + 层级；WK-123 Auto；WK-122 四层来源 + 六级 atlas 格式 + ui-state-vocabulary（无契约状态不画）；WK-125 Visual Grammar；WK-129 Control Grammar；WK-133 Iconography（一时一族、donor 逐枚归一、Lucide 设计指南为验收规则、glyph 不承担状态）。硬边界：前端单 writer；不引 React / 依赖（donor 只取行为）；Always allow 不采纳；侧栏实色、内容不 blur；field / 氛围层只作 specimen；不复制 OpenCode 风格；Schema constraint ≠ UI affordance。
 
 ## 5. fresh Fable 续接清单
 

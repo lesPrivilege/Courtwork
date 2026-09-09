@@ -49,3 +49,15 @@ state transition（原位变态：Send → Sending…、Approve → 回执行）
 | Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项） | Tiptap / Nuxt fixed-bubble-floating；cmdk |
 | Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好）、Rule builder（待 PolicyRule canonical 文本，候选 CC-P） | MetaBind Inspector；Tailscale visual editor ↔ text |
 | Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |
+
+## Iconography 段（WK-133）
+
+Visual Grammar 第五段；来源 S17，裁定 [intake §4al WK-133](../../mvp/execution/work-surface-kit/intake-round-3.md)。
+
+| 节 | 今日 | 规则 / 候选 |
+|---|---|---|
+| semantic registry | [glyph-semantics](../../mvp/execution/work-surface-kit/contracts/glyph-semantics.md)（WK-71）：语义 · 出现面 · 频率 · 裁取 · glyph · accessible name · tooltip | 不另建 registry；代码层 symbol id 仍是 Lucide 名——换族 / 引 donor 的那一单第 0 项先改为语义 id，此后换族只动 sprite |
+| geometry | 24 × 24 canvas、2px 居中描边、round cap / join、currentColor；行 16 / 控件 18 / 导航 20；命中 32 / 44 从 `--control` 来（IC-1、WK-13） | Lucide 设计指南升为验收规则：1px 安全边、圆角 2 / 1 / 2.41、元素间距 ≥ 2、circle / square 光学密度模糊对照、视觉重心居中、像素对齐、一致细节密度；适用于自绘与 donor 归一 glyph |
+| state | glyph 不承担状态（WK-71 规则 1 / FN-28）；selected / current / expanded 走 aria 状态 + `--selected` | Line ↔ Fill 配对 = "候选，待 boolean toggle schema"（最近 ATT-* watch），只作冗余线索；duotone 不进入 |
+| density | 单一 2px 重量；尺寸档三档 | compact / prominent 不引第二重量；图标与字阶的配对在 FE-05a 后定 |
+| source | canonical family = Lucide 1.41.0 静态子集 24 枚（IC-5，冻结）；Courtwork 独有语义 = brand / domain SVG 库；window chrome = 宿主 | 一时一族。候选：MingCute（主要视觉候选，Apache-2.0，Regular / Filled）、Phosphor Regular（表现力局部，六重量不采纳）、Remix（覆盖 donor）、Hugeicons（长尾查询源）。donor 单枚进入须归一 geometry + manifest 来源 / sha / license + 光学验收。EX-IC1 specimen 在 FE-05a 合流后派 |
