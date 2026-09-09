@@ -1,6 +1,6 @@
-# WO-PS-01 · Courtwork 发布面站点（Opus，`opus-wo-medium`）· 骨架
+# WO-PS-01 · Courtwork 发布面站点（Opus，`opus-wo-medium`）
 
-状态：骨架，待 EX-PS1…PS4 回执后由 Fable 填值再派单。体例：[handoff-convention](../../../mvp/execution/work-surface-kit/handoff-convention.md) §2 工单。
+状态：已派单（2026-09-09）。EX-PS2 / PS3 / PS4 已消费（PS-16…18）；EX-PS1 不阻塞（PS-19）。体例：[handoff-convention](../../../mvp/execution/work-surface-kit/handoff-convention.md) §2 工单。
 
 ## 问题
 
@@ -10,12 +10,12 @@
 
 - 裁定：PS-1…PS-15；WK-77（H1）；WK-69 / WK-101 / WK-125（层级、材质、形状）。
 - 文案：public-copy-v2 全部；词表 copy-convention §3。
-- explore 回执：EX-PS1 表 2–4（token 值与缺口）、EX-PS2 表 3（素材映射）、EX-PS3 表 1–6（标本模块、数据源、子路径、ABI）、EX-PS4 表 1（Eval 八问）。行号在派单时填。
+- explore 回执：[EX-PS2](../explore/ex-ps2-proof-patterns.md) 表三（素材映射：全部需捕获）与表二（六站解剖）；[EX-PS3](../explore/ex-ps3-specimen-feasibility.md) 表 1–6；[EX-PS4](../explore/ex-ps4-eval-surface.md) 表 1、6。EX-PS1 不在输入内（PS-19）。
 - 证据契约：`engineering/release/2026-09-08/pages-preparation/evidence-contract.md`。
 
 ## 基线 SHA
 
-派单时填（Astra 合流后的清洁 main）。
+`main` `172130e`（worktree `/private/tmp/se-agent-ps01`，分支 `claude/ps01-site`）。本单文档在 `/private/tmp/se-fable-ps/engineering/release/publishing-surface-2026-09-09/`（分支 `claude/fable-publishing-surface`，未合流），按路径读取。
 
 ## 写权路径
 
@@ -29,6 +29,18 @@
 - 在页面上写内部编号（WK / PS / BE / G）；
 - 把 fixture 或 loopback 的运行写成真实模型；
 - 出现 pricing / plan / enterprise / beta / coming soon。
+
+## 页面结构（按 [public-copy-v2](../public-copy-v2.md) §0–§8 逐段取词，不改一字；改动回到该文件）
+
+首屏（静态 Home 图 M1）→ 01 三个 tab（Event log / Work state / Compiled context，同一 Run）→ 02 标本 iframe（无 JS 退六步条）→ 03 editorial 与一图（静态 SVG；退焦只此段，`filter` 实现，reduced-motion / reduced-transparency 全锐化）→ 04 四词与 M6 → 05 证据清单、Eval 八问、声称表 → 06 命令与入口 → 深色页脚。导航三项：GitHub · Paper · Docs。语言：一页，中文为主，`lang="zh-CN"`。
+
+## 材质（PS-3 / PS-19）
+
+构建时从产品 `app/web/styles.css` 抽取 `:root` 及深色块生成 `site/dist/tokens.css`（抽取范围与源 sha256 写入 manifest）；页面 `site.css` 只引用这些 token，新增变量仅限布局尺寸。浮层只用 `--shadow-float`；无 backdrop-filter；圆角只用产品既有档位。字体沿产品字体栈；无 webfont。
+
+## 媒体（PS-9 / PS-17）
+
+M1–M7 按 public-copy-v2 §10 从 8908 实例捕获，脚本入 `site/scripts/capture-media.mjs`，manifest 字段齐全；任何既有 evidence 截图不上页；截图内可见文字须为现行词表。
 
 ## 交付物
 
@@ -56,4 +68,4 @@ Astra 核对声称表每行的证据路径在发布 SHA 下成立（不成立者
 
 ## 端口与数据目录
 
-站点预览端口与标本捕获用的产品端口、数据目录在派单时分配。
+站点预览 8907；标本捕获与媒体捕获用的产品实例 8908（MCP fixture 如需 8909）；数据目录 `/private/tmp/se-agent-ps01-data`（每次捕获前清空）。benchmark 重跑输出到 `/private/tmp/se-agent-ps01-bench/` 后再拷入 `evidence/`。
