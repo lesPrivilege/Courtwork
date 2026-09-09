@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-09T16:53:10.995Z",
+  "generated_at": "2026-09-09T16:55:48.748Z",
   "worktree": "<isolated-pages-checkout>",
   "preview": "http://127.0.0.1:8941/Courtwork/",
   "cdp_port": 19993,
@@ -23,7 +23,7 @@
       "details": {
         "status": 1,
         "reportsPath": true,
-        "output": "capture product paths differ from source_sha 9e5384f:\napp/web/styles.css\nCapture in an isolated checkout of the declared source SHA. Builds replay its pinned Git bytes.\n"
+        "output": "capture product paths differ from source_sha 9e5384f:\napp/web/styles.css\nCapture in an isolated checkout of the declared source SHA. Builds replay its pinned Git bytes."
       }
     },
     {
