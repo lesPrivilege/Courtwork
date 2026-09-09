@@ -8,6 +8,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { RuntimeStore } from '../server/store.mjs';
 import { AsyncTasks } from '../server/async-tasks.mjs';
 import { digestText } from '../server/async-task-state.mjs';
+import { startServer } from '../server/index.mjs';
 
 async function until(check, message = 'condition timed out') {
   const deadline = Date.now() + 2_000;
@@ -168,5 +169,68 @@ test('stopped Run forbids dispatch and wait stays inside local budget', async ()
     assert(waitingAdapter.calls.query > 0);
   } finally {
     await waitingFixture.close();
+  }
+});
+
+
+function piTool(id, name, args) {
+  return { kind: 'tool', id, created: 1, toolCallId: id, name, arguments: args };
+}
+
+function piFinal() {
+  return { kind: 'text', id: 'final', created: 1, text: 'final' };
+}
+
+test('host/Pi wrapper denial of an old async_get leaves the new Run unresolved', async () => {
+  const adapter = reader();
+  const dataDir = await mkdtemp(path.join(tmpdir(), 'cw-async-wrapper-'));
+  let phase = 'launch';
+  let taskId;
+  const host = await startServer({
+    dataDir,
+    asyncTaskAdapters: [adapter.adapter],
+    logger: () => {},
+    responder: ({ body }) => {
+      const completedTools = body.messages.filter(message => message.role === 'tool').length;
+      if (phase === 'launch') {
+        return completedTools ? piFinal() : piTool('launch', 'async_launch', { adapterId: 'reader', sourceId: 'source' });
+      }
+      return completedTools ? piFinal() : piTool('get', 'async_get', { taskId });
+    },
+  });
+  const api = async (method, url, input) => {
+    const response = await fetch(host.url + '/api/v5' + url, {
+      method,
+      headers: { 'content-type': 'application/json', 'x-work-token': host.token },
+      body: input === undefined ? undefined : JSON.stringify(input),
+    });
+    return { status: response.status, json: await response.json() };
+  };
+  try {
+    const project = (await api('POST', '/projects', { name: 'wrapper review' })).json.project;
+    const session = (await api('POST', '/sessions', { projectId: project.id, title: 'wrapper review' })).json.session;
+    const first = (await api('POST', `/sessions/${session.id}/runs`, { commandId: 'launch', input: 'read' })).json.run;
+    await until(() => host.store.getRun(first.id)?.status === 'unknown', 'launching Run did not preserve unresolved dependency');
+    taskId = host.store.state.asyncTasks[0].id;
+
+    const control = host.service.getRuntimeControl(session.id);
+    await host.service.changeRuntimeControl(session.id, {
+      revision: control.revision,
+      operation: 'policy',
+      scope: { type: 'session', id: session.id },
+      rules: [{ action: 'async_get', resource: '*', effect: 'deny' }],
+    });
+    phase = 'get';
+    const second = (await api('POST', `/sessions/${session.id}/runs`, { commandId: 'denied-get', input: 'read' })).json.run;
+    await until(() => ['unknown', 'completed', 'failed', 'cancelled'].includes(host.store.getRun(second.id)?.status));
+
+    assert.equal(host.store.getRun(second.id).status, 'unknown');
+    assert.equal(adapter.calls.query, 0);
+    const task = host.store.state.asyncTasks[0];
+    assert.equal(task.deliveries.some(delivery => delivery.runId === second.id), true);
+    assert.equal(task.deliveries.find(delivery => delivery.runId === second.id).runtimeRecordedAt, null);
+  } finally {
+    await host.close();
+    await rm(dataDir, { recursive: true, force: true });
   }
 });

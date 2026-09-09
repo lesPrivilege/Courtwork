@@ -7,3 +7,7 @@ Reviewed on `b4c98d415ff0ae61d381260e70d49a59dce60e36` using a new production `R
 Run with `node --test tests/async-boundaries-independent.test.mjs` from `app/`. The local worktree uses the existing project dependency installation only to resolve declared package dependencies; no production files or dependency lockfiles are changed.
 
 The current product head `35f4bf0` was merged into this review tree after the independent test commit. The focused independent suite and the production async-task suite then passed together (9/9); the additional passing case is the main-line UTF-8 migration refusal regression.
+
+## Wrapper pre-consumption regression
+
+`host/Pi wrapper denial of an old async_get leaves the new Run unresolved` is a deliberate red test at `35f4bf0`. Its host/Pi setup first creates an unresolved task, applies a session policy that denies `async_get`, then has a new Run request the old task. The wrapper rejects before `AsyncTasks.consume` records the delivery. The old product incorrectly completes the new Run; the expected state is `unknown`, with no adapter query I/O and an unrecorded delivery receipt. The red output is retained in `wrapper-policy-red.log`; this test must turn green only with the product correction.
