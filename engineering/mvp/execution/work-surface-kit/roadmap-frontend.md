@@ -18,7 +18,7 @@
 
 ## 2. 队列（WK-120 / 用户 2026-09-09）
 
-**CC-D0-a 已交付并复核接受（WK-138）**，等 Astra 合流；树 `/private/tmp/se-agent-ccd0a` 合流后删除。CC-D0-a（`opus-wo-low`）→ FE-05a（字阶与密度 V1 + 第 0 项 M-15 + 第 0b 项 Shape 落地 WK-128，`opus-wo-low`）→ FE-05（材质与光：Material grammar 五节，progressive blur 配方 WK-127，`opus-wo-low`）→ CC-I（共享 Inspector + contextual toolbar 可操作 payload，`opus-wo-medium`）。ATT-FE-01：ATT-BE-01 已交付（0480c17），骨架 [WO-ATT-FE01](work-orders/WO-ATT-FE01.md)；默认仍在 CC-I 之后（WK-120），Fable 建议提到 CC-I 之前，换序归用户（WK-136 (e)）。CC-D0-b（Activity / Usage）待 BE-1/3/25、BE-29；CC-P（policy editor）待 PolicyRule canonical 文本；GI（生成式身份）在品牌线。
+**CC-D0-a 已交付并复核接受（WK-138）**，等 Astra 合流；树 `/private/tmp/se-agent-ccd0a` 合流后删除。FE-05a（字阶与密度 V1 + 第 0 项 M-15/16/17 + 第 0b 项 Shape 落地 WK-128 + 第 0c 项 M-18，`opus-wo-low`；提示词已备好 [WO-FE05A-dispatch-prompt](work-orders/WO-FE05A-dispatch-prompt.md)，待 Astra 合流 cc-d0a 后建树 `/private/tmp/se-agent-fe05a`、端口 8909/8910、填 SHA 派出）→ FE-05（材质与光：Material grammar 五节，progressive blur 配方 WK-127，`opus-wo-low`）→ CC-I（共享 Inspector + contextual toolbar 可操作 payload，`opus-wo-medium`）。ATT-FE-01：ATT-BE-01 已交付（0480c17），骨架 [WO-ATT-FE01](work-orders/WO-ATT-FE01.md)；默认仍在 CC-I 之后（WK-120），Fable 建议提到 CC-I 之前，换序归用户（WK-136 (e)）。CC-D0-b（Activity / Usage）待 BE-1/3/25、BE-29；CC-P（policy editor）待 PolicyRule canonical 文本；GI（生成式身份）在品牌线。
 
 ## 3. 成单前置与未闭合
 
@@ -36,7 +36,7 @@ WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵�
 ## 5. fresh Fable 续接清单
 
 1. 读记忆 `round4-material-dispatch` 与本页；核对 main 头与 r4d 是否已合流。
-2. CC-W 已合流（0b5ccd2）：直接以 `opus-wo-low` 原样派出 [WO-CCD0A-dispatch-prompt](work-orders/WO-CCD0A-dispatch-prompt.md)（树与数据目录已建）。
-3. EX-CC5 / EX-GI1 均已收（WK-132 / WK-130）；FE-05a 派单提示词须含第 0 项（M-15 / M-16 / M-17）、第 0b 项（WK-128）、V1 目标值与 v1 对照基线。
+2. CC-D0-a 已交付并复核（WK-138）；Astra 合流后：建树、填 `<BASE>`，以 `opus-wo-low` 原样派出 [WO-FE05A-dispatch-prompt](work-orders/WO-FE05A-dispatch-prompt.md)。
+3. EX-CC5 / EX-GI1 均已收（WK-132 / WK-130）；FE-05a 提示词已含第 0 / 0b / 0c 项、V1 目标值与 v1 对照基线。
 4. 出 specimen board（一次一变量，真实控件）交用户裁定；裁定输出 tokens + invariants + forbidden rules。
 5. 每单复核沿 §13/§14/§16 体例：写权、读码、独立重跑、待裁逐项、anti-slop 门、合流次序。
