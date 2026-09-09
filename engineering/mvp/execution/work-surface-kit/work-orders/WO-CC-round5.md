@@ -178,6 +178,49 @@ design_task:
 
 骨架：以 `connection-popover`（原生 `popover` + Floating UI，两锚点共享）为种子，合并为一个组件，payload kind 分只读（tool row、runtime 资源、来源 span、文件引用摘要）与可操作（permission mode，PUT 沿现有路径）；一个单点互斥状态"当前打开的是谁"（锚点身份复用 `toolScopeKey` / `{sessionId,runId,path,sha256}` / `resource.id`）；只 click / focus 触发，tooltip 保持纯文本 hover；同一浮层随锚点迁移、变尺寸、换内容，reduced-motion 下瞬切；"Open in surface" 动作接 File / Trace 的工作面导航，不做钉住；窄屏底部 sheet 且与工作面 sheet 互斥；材质 Transient（登记类名 + 回退，无 glass-on-glass，FE-05 消融后落地）；断言：焦点归还、两步 Escape、generation 竞态、安全区、窄屏、四处旧展开状态收敛后 FE-T07 与 RC 全量回归。§VI 契约头在成单时由 Fable 填写。
 
-## FE-05a · 字阶与控件密度（`opus-wo-low`；M-11；WK-120 定为 FE-05 材质之前）
+## FE-05a · 字阶与控件密度（`opus-wo-low`；M-11；WK-120 定为 FE-05 材质之前；WK-123 选向 V1，成单前置：1:1 单页、深色、390、命中区、按钮不折行）
 
-按 WK-112：先约束后变体，一次只变一个维度（密度 → 字阶，材质另单）。第一步由 Fable 写约束表：现状 ramp（title 20 / nav-title 17 / reading 15 / label 13 / section 14 / body 14 / meta 12 / caption 11；`--control` 32，触控 44；primary 550）对照目标（正文 14 不动、阅读列 15 不动；chrome 与元数据一档更细：meta 12 → 11–12、caption 11 → 10.5–11 且字重 400–450、字距 +0.01–0.02em 大写 eyebrow；桌面控件 32 → 28（触控仍 44）、按钮字号随 label 13、primary 字重 550 → 500；行高与间距随控件缩），每一项给"哪一层级因此更清"的理由与对比度门槛（contrast-report 不得降到 4.5 以下）。第二步 Opus 出两张变体（"chrome 收敛 / 正文不动" vs "全站一档"）在 Settings 与 Work 头部各一处做消融，用户比较后再全站落地。约束：`--text-scale` 三档保留；390 命中区 ≥44 不变；不引新字体；WK-69 层级与 WK-94 边框角色不动。
+第 0 项（WK-126 ⑦，M-15）：B 态（视图切换）顶带内容不再居中到 740，而是对齐文档面左缘（gutter），沿 CC-S 对 Settings 顶带的做法；断言一条。
+
+按 WK-112：先约束后变体，一次只变一个维度（密度 → 字阶，材质另单）。约束表已写：[type-density-constraints](../../../../design/type-density-constraints.md)（现状 / 约束 / V1 V2 目标值 / 消融面）。原始要点：现状 ramp（title 20 / nav-title 17 / reading 15 / label 13 / section 14 / body 14 / meta 12 / caption 11；`--control` 32，触控 44；primary 550）对照目标（正文 14 不动、阅读列 15 不动；chrome 与元数据一档更细：meta 12 → 11–12、caption 11 → 10.5–11 且字重 400–450、字距 +0.01–0.02em 大写 eyebrow；桌面控件 32 → 28（触控仍 44）、按钮字号随 label 13、primary 字重 550 → 500；行高与间距随控件缩），每一项给"哪一层级因此更清"的理由与对比度门槛（contrast-report 不得降到 4.5 以下）。第二步 Opus 出两张变体（"chrome 收敛 / 正文不动" vs "全站一档"）在 Settings 与 Work 头部各一处做消融，用户比较后再全站落地。约束：`--text-scale` 三档保留；390 命中区 ≥44 不变；不引新字体；WK-69 层级与 WK-94 边框角色不动。
+
+## FE-05 · 材质与光效（`opus-wo-low`；WK-99 / 101 / 102 / 104 / 124；排 FE-05a 之后）
+
+WK-127 补充：progressive blur 配方 = 单层 `backdrop-filter: blur(var(--blur-chrome))` + `mask-image` 渐变（不做多层伪元素）；先只用于滚动 header 带，jump-latest 与沉底 composer 各做有 / 无消融；`--line` 保留为回退与并存，reduced-transparency 下清 `mask-image` 回退实色 + `--line`；<768 关闭 mask 扩采样；伪元素类名逐一登记进 lint-materials；帧时间只以真机验收（作者不得以 headless 数据宣称无代价）。
+
+WK-124 补充：交付页按 Material grammar 五节（field / surface / edge / depth / focus）组织；消融候选加 progressive blur 与 mask 扩采样（三个 chrome 候选面，与 `--line` 分割线对比）；transition blur 只在小型 text / icon 状态，禁止动画 `backdrop-filter`；field 不做（specimen board 另出）；EX-CC6 回执为实现路径与代价依据。
+
+取值与范围见 [WO-FE-round4 §FE-05](WO-FE-round4.md)（WK-104 已填：`--blur-chrome` 12 / `--blur-transient` 16；`--glass-alpha-chrome` 浅 0.86 / 深 0.10；`--glass-alpha-transient` 浅 0.92 / 深 0.16；`saturate(1.4)` 只在 transient；Fluent 式实色回退 `--float`；Appearance "Reduce transparency" 设备偏好）。
+
+### 交接契约（WK-112 §VI）
+
+```yaml
+design_task:
+  intent:
+    user_goal: 浮在滚动内容之上的 chrome 与 transient 层读得出"在上面"，正文与侧栏保持实色安静
+    primary_action: 无新动作；本单只改材质与光
+    information_priority: 层级秩序（WK-120 已由 FE-05a 定）> 材质只表达层次，不表达状态
+  constraints:
+    functional: 只动 WK-101 登记的表面（jump-latest、context popover / 未来 Inspector、Work 态沉底 composer 与滚动 header 为消融候选）；侧栏实色 --frame，内容永不 blur；无 glass-on-glass、无折射、无"越大越厚"；backdrop-filter 只在登记类名且每个都有 reduced-transparency 回退（lint-materials）
+    business_states: 状态不靠材质表达（FN-28）；reduce transparency 偏好与系统媒体查询二者任一生效即回退实色
+    navigation: 无
+    density: 沿 FE-05a 定型后的字阶；材质不改尺寸
+    responsive: 1440 / 390 浅深两宗；reduced-motion 下无过渡
+    accessibility: 回退实色时 contrast 全过；glass 上文字对比度以最差底（滚动内容最亮 / 最暗）计
+  existing_system:
+    components: .jump-latest-button、.context-popover、.connection-popover、.work-surface 卡片层
+    tokens: --glass / --glass-muted / --glass-alpha / --blur-chrome / --blur-transient / --float / --rim / --shadow-float；`:root[data-reduce-transparency]`
+    screens: Work、Settings › Models（popover）、Home（jump-latest）
+    assets: 无
+  references:
+    positive:
+      - {source: S10 Apple HIG Materials / WWDC25、Fluent Mica-Acrylic（EX-WK9）, exact_element_to_borrow: 材质分层、回退语义, why: WK-103/104 裁定来源}
+    negative:
+      - {source: Liquid Glass 的折射 / 透镜 / 越大越厚, avoid: 全部, why: WK-101 / WK-104}
+      - {source: Acrylic 噪点与色调层, avoid: 装饰, why: WK-119 补充、anti-slop}
+  unresolved:
+    - {question: Work 态沉底 composer 是否取 chrome glass, competing_constraints: 滚动时层次 vs 输入区安静}
+    - {question: 滚动时主区 header 带是否取 chrome glass, competing_constraints: 同上}
+  exploration: {variant_count: 2, require_structural_difference: false}   # 每个候选表面一张消融（有 / 无 blur）
+  review: {removal_pass: required, constraint_recheck: required, state_review: required, real_data_review: required}
+```

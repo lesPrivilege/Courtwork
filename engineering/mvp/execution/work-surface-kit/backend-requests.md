@@ -42,6 +42,8 @@
 | BE-31 | Question 的受限结构化 schema（`string` / `number` / `boolean` / `enum`，无嵌套）**连同**服务端复验 MCP "MUST NOT request sensitive information"；两句一体 | 问题卡（今日自由文本单值） | WK-115 ⑦ / FE-04 §10 |
 | BE-32 | 事件时间：`appendEventToState` 只写 `seq`，Trace 中间层（时间线）没有时间不成立 | Trace 三层披露（暂缓） | WK-115 ⑤ / FE-04 §10 |
 | BE-33（低优先） | tool 结果带未完成原因 `reason: error \| cancelled \| timeout`；今日 `Interrupted` 由"无 result 且 Run 离开活动态"推出 | tool 行元数据词；交付前用 `Unknown`（WK-115 ①） | WK-115 ① / FE-04 §10 |
+| 候选 BE-34 | 可逆变更窗口：哪些动作可撤、窗口多久、谁能撤、撤销的事件与审计形状（Undo Pill / "能 undo 就不要 confirmation" 的前提） | reversible-action（atlas）；无此契约前界面不画 Undo | WK-122 (c)(d) |
+| 候选 BE-35 | 策略级 Auto 模式：四个介入触发条件（新增权限 / 不可逆 / 关键方向 / 阻塞）的后端判定与来源字段、合并提问的载荷形状（多问一次、含选项与建议）、审计与撤销（依赖 BE-34） | Session / Run 模式词；Settings › Permissions 一档；ask_user / permission 投影 | WK-123 (a) |
 | 候选 BE-26 / BE-27 | Mail / Calendar 只读来源 adapter 最小契约（账户身份、连接状态、`lastRefreshedAt`、1–2 条摘要与深链；日历另需时区与全天事件边界） | 已有模块路线意向；具体账户、provider、scope 与接入排期待裁，当前仅候选合同研究 | WK-114 / EX-CC2 |
 
 ## Astra 后端交付（2026-09-09）
