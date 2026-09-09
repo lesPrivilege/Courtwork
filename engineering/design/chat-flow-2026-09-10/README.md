@@ -1,0 +1,11 @@
+# Chat Flow construction intake · 2026-09-10
+
+User supplied three screenshots and a full Chat Flow recommendation while the sequential Home backlog was in progress. User's actual directions: distinguish user messages with right-biased bounded bubbles/left whitespace, consider stronger bubble differentiation, and provide session management at the home of Attention. These steer this implementation. The attached report's multi-agent/runtime scope restriction describes that report; it does not cancel the already-authorized Runtime/Usage backlog.
+
+Immediate: right-aligned bounded authored bubble, asymmetric rounded corners, neutral secondary surface, no mirrored assistant bubble; remove duplicate terminal Run status beside composer. Session management joins the same actual Session owner and will be available from Attention home/recent conversations and the shared management entrance.
+
+The full supplied CF-01–10 material has been read. Adopt: user authored Markdown with separate source/copy/edit, long input disclosure; group observable tool activity within an agent response; distinct question/permission states and receipts; source/artifact controls belong to those objects; Stop belongs to the composer. Preserve immutable user records and Edit as new message. No raw reasoning request or renderer-owned authority.
+
+CF-01–09 are a construction checklist, not a claim that every proposed control already exists. Regenerate requires actual alternative-response identity and must not be labelled on an ordinary appended Run; tool retry is never generic. CF-10 Queue/Steer needs a separate runtime admission/receipt contract and remains unavailable. The screenshots are interaction/layout references, not capability or provider facts. Research URLs remain supplied leads; no new external source audit is claimed.
+
+The Chat Flow pass will follow completion of the current Usage slice and precede the remaining Tabs/Material/Overlay/Glyph/Sidebar work. Existing source/contracts and actual backend facts govern each adopted part. [Sequential backlog](../home-backlog-2026-09-10/README.md).

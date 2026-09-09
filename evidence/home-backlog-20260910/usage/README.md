@@ -1,0 +1,9 @@
+# Usage implementation and immediate message bubble correction
+
+Astra implementation after `6921dbd`. [Usage contract](../../../app/docs/usage-details.md), [queue](../../../engineering/design/home-backlog-2026-09-10/README.md), [Chat Flow steering](../../../engineering/design/chat-flow-2026-09-10/README.md).
+
+Author [full suite](tests.log)431/431 passed; color/material lint and557-document/2498-link checks passed. Targeted18/18 (Usage, existing metrics and Home); final Usage6/6 adds exact Other membership drilldown assertion. Cases include timezone-offset UTC day allocation, global/project scope, duplicate records, unknown model, retained partial/zero, endpoint grouping without endpoint disclosure, safe integer overflow, stable snapshot pagination and deletion-triggered409. Browser synthetic local-fake: Home Activity opens Usage; Overview and Models show matching12-token totals; model table down to3 actual4-token Runs; data table/cache/count labels and wide chart inspected. No paid provider or personal-data fixture.
+
+Luna performed independent read-only review and reported no concrete failure, recommending the synthetic boundary cases above; that read is not independent executable acceptance of the full surface. Fixed categorical data tokens and registered data-fill exceptions do not weaken general surface color lint. Existing no-motion behavior retained.
+
+Latest user input additionally requested stronger user-message distinction. Attention now uses a right-aligned bounded secondary bubble with asymmetric rounded corners, and duplicate completed status at the composer is removed. Browser measured638px stream with485px user bubble and129px left gap; screenshot visually confirmed assistant retains the full reading column and composer remains one line. User Markdown/clamp and home conversation management are the next Chat Flow slice, not claimed complete here.

@@ -21,7 +21,7 @@ const STATIC = new Map([
   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
-for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "coordination-view.mjs", "telemetry-view.mjs", "model-picker.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "coordination-view.mjs", "telemetry-view.mjs", "model-picker.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
 // Brand merge gate 3: the product admits the brand package's ES modules and
 // nothing else under brand/. Each path is an exact key, so brand/CONTRACT.md,
@@ -125,6 +125,8 @@ function routeService(service, req, url) {
   if (method === "GET" && tail.length === 1 && tail[0] === "bootstrap") return service.bootstrap;
   if (method === "GET" && tail.length === 1 && tail[0] === "work-activity") return () => service.getWorkMetrics("activity", url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage") return () => service.getWorkMetrics("usage", url.searchParams);
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-usage-details") return () => service.getWorkMetrics("details", url.searchParams);
+  if (method === "POST" && tail.length === 1 && tail[0] === "work-usage-runs") return async () => service.getUsageRuns(await body(req));
   if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
   if (method === "GET" && tail.length === 3 && tail[0] === "projects" && tail[2] === "work") return () => service.listWork(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();
