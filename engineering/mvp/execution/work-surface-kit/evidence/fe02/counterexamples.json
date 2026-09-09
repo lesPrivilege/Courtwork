@@ -11,12 +11,12 @@
       },
       "bound": [
         {
-          "sessionId": "d2478835-3e57-4648-b172-76f72ce506ca",
+          "sessionId": "55a6d6c0-c666-4af3-87f8-bf645919bed7",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         },
         {
-          "sessionId": "74d3e3b4-a5fc-4e21-9ca0-be5a9bc319b5",
+          "sessionId": "1cf14130-ea81-4338-8b4b-01c400d12545",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         }
@@ -30,8 +30,7 @@
     "detail": {
       "drafted": {
         "provider": "deepseek",
-        "model": "deepseek-v4-pro",
-        "displayName": "DeepSeek trial"
+        "model": "deepseek-v4-pro"
       },
       "effective": {
         "provider": "fake-openai-loopback",
@@ -55,28 +54,28 @@
         "baseUrl": null
       },
       "row": [
-        "DeepSeek trialIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"
+        "DeepSeekIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"
       ],
       "boundBefore": [
         {
-          "sessionId": "d2478835-3e57-4648-b172-76f72ce506ca",
+          "sessionId": "55a6d6c0-c666-4af3-87f8-bf645919bed7",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         },
         {
-          "sessionId": "74d3e3b4-a5fc-4e21-9ca0-be5a9bc319b5",
+          "sessionId": "1cf14130-ea81-4338-8b4b-01c400d12545",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         }
       ],
       "boundAfter": [
         {
-          "sessionId": "d2478835-3e57-4648-b172-76f72ce506ca",
+          "sessionId": "55a6d6c0-c666-4af3-87f8-bf645919bed7",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         },
         {
-          "sessionId": "74d3e3b4-a5fc-4e21-9ca0-be5a9bc319b5",
+          "sessionId": "1cf14130-ea81-4338-8b4b-01c400d12545",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         }
@@ -95,12 +94,12 @@
       },
       "bound": [
         {
-          "sessionId": "d2478835-3e57-4648-b172-76f72ce506ca",
+          "sessionId": "55a6d6c0-c666-4af3-87f8-bf645919bed7",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         },
         {
-          "sessionId": "74d3e3b4-a5fc-4e21-9ca0-be5a9bc319b5",
+          "sessionId": "1cf14130-ea81-4338-8b4b-01c400d12545",
           "provider": "fake-openai-loopback",
           "model": "fake-model"
         }

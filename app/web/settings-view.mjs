@@ -118,14 +118,12 @@ export const CONNECTION_PATHS = [
 /* 统一流程的五步。`available: false` 的两步在界面上只留位说明，不画按钮：
  * BE-17（对未保存表单 Fetch models）与 BE-18（Test connection）未交付。 */
 export const CONNECTION_STEPS = [
-  { id: "configure", title: "Configure", available: true, note: "Name it, choose the provider and the endpoint." },
+  { id: "configure", title: "Configure", available: true, note: "Choose the provider and the endpoint." },
   { id: "test", title: "Test connection", available: false, note: "Not available yet: the host has no handshake that runs without starting a chat." },
   { id: "fetch", title: "Fetch models", available: false, note: "Not available yet for an unsaved form. A saved connection lists the models the installed catalogue reports." },
   { id: "choose", title: "Choose a model", available: true, note: "From the catalogue for the provider above." },
   { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here; the API key is saved separately." },
 ];
-export const CONNECTION_NAME_LIMIT = 60;
-export const CONNECTION_NAME_PATTERN = /^[^\u0000-\u001f]{1,60}$/;
 /** 路径由已保存的事实反推，不另存一个"用户当时选了哪条"的第二真源。 */
 export function connectionPathOf(config) {
   if (!config) return "catalog";
@@ -135,14 +133,14 @@ export function connectionPathOf(config) {
 /** Connections 列表的一行。后端只持有一条生效连接，所以列表只有一行；
  * 其余目录身份是 Add provider 里的选项，不是连接 —— 把它们画成连接会让
  * 界面替后端宣布一个它没有的注册表。 */
-export function connectionRows({ config, credentialStatus, names = {} } = {}) {
+export function connectionRows({ config, credentialStatus } = {}) {
   if (!config) return [];
   const provider = config.provider;
   const path = connectionPathOf(config);
   return [
     {
       id: provider,
-      name: names[provider] || providerLabels[provider] || provider,
+      name: providerLabels[provider] || provider,
       provider: providerLabels[provider] || provider,
       path,
       model: provider === "fake-openai-loopback" ? "Local deterministic model" : config.model,
@@ -279,17 +277,6 @@ export function createSettingsView(
     generation = 0;
   const form = el("form", { className: "settings-form" });
   const list = el("div", { className: "connection-list" });
-  const name = el("input", {
-    attrs: {
-      type: "text",
-      name: "displayName",
-      autocomplete: "off",
-      spellcheck: "false",
-      maxlength: String(CONNECTION_NAME_LIMIT),
-      placeholder: "Provider name",
-      "aria-label": "Display name",
-    },
-  });
   const provider = el("select", {
     attrs: { name: "provider", "aria-label": "Provider" },
   });
@@ -391,7 +378,6 @@ export function createSettingsView(
   );
   form.append(
     addProvider,
-    row("Display name", "What this connection is called on this device.", name),
     row("Provider", "Where model requests are sent.", provider),
     row("Model", "Used for every chat you start next. Chats already open keep the model they were bound to.", model),
     advanced,
@@ -441,24 +427,12 @@ export function createSettingsView(
     });
     onRuntimeEnvironment?.({ config: snapshot, info });
   }
-  function connectionNames() {
-    return readPreferences().connectionNames;
-  }
-  function rememberName(providerId, value) {
-    const prefs = readPreferences();
-    const next = { ...prefs.connectionNames };
-    const trimmed = value.trim();
-    if (trimmed && trimmed !== providerLabels[providerId]) next[providerId] = trimmed;
-    else delete next[providerId];
-    writePreferences({ ...prefs, connectionNames: next });
-  }
   /* 一行一条连接：名字与它的四个事实（provider、端点、模型、凭据），外加它是不是
      生效的那一条。Configure 不是第二个编辑入口，它把下面同一个表单对准这一行。 */
   function renderConnections() {
     const rows = connectionRows({
       config: snapshot?.config,
       credentialStatus: snapshot?.credentialStatus,
-      names: connectionNames(),
     });
     if (!rows.length) {
       list.replaceChildren(
@@ -500,7 +474,7 @@ export function createSettingsView(
     });
     button.addEventListener("click", () => {
       addProvider.open = false;
-      name.focus();
+      provider.focus();
     });
     return button;
   }
@@ -609,10 +583,6 @@ export function createSettingsView(
     selectPath(connectionPathOf(snapshot.config));
     applyPath(connectionPathOf(snapshot.config), snapshot.config.provider);
     provider.value = snapshot.config.provider;
-    name.value =
-      connectionNames()[snapshot.config.provider] ||
-      providerLabels[snapshot.config.provider] ||
-      snapshot.config.provider;
     fillModels(snapshot.config.model);
     fillApis(snapshot.config.api);
     baseUrl.value = snapshot.config.baseUrl || "";
@@ -636,9 +606,6 @@ export function createSettingsView(
   baseUrl.addEventListener("input", () => {
     dirty = true;
   });
-  name.addEventListener("input", () => {
-    dirty = true;
-  });
   key.addEventListener("input", lock);
   function fail(err) {
     error.hidden = false;
@@ -658,9 +625,6 @@ export function createSettingsView(
     };
     try {
       snapshot = await request("/provider-config", { method: "PUT", body });
-      /* display name 只是这台设备上的叫法，和端点、模型、凭据不在一处存：
-         后端目录没有名字这个字段，前端也就不假装它有。 */
-      rememberName(body.provider, name.value);
       onConfig(snapshot);
       renderConnections();
       dirty = false;
@@ -1070,7 +1034,6 @@ const PREFERENCE_DEFAULTS = {
   textSize: "medium",
   codeFont: "",
   motion: "system",
-  connectionNames: {},
 };
 const PREFERENCE_VALUES = {
   scheme: ["system", "light", "dark"],
@@ -1081,7 +1044,7 @@ const PREFERENCE_VALUES = {
 export const CODE_FONT_PATTERN = /^[A-Za-z0-9 ,'"_-]{1,120}$/;
 export function readPreferences() {
   const stored = globalThis.__cwPrefs?.value;
-  const prefs = { ...PREFERENCE_DEFAULTS, connectionNames: {} };
+  const prefs = { ...PREFERENCE_DEFAULTS };
   if (!stored || typeof stored !== "object") return prefs;
   for (const [name, allowed] of Object.entries(PREFERENCE_VALUES))
     if (allowed.includes(stored[name])) prefs[name] = stored[name];
@@ -1089,16 +1052,6 @@ export function readPreferences() {
     prefs.codeFont = stored.codeFont;
   if (typeof stored.customSkin === "string" && stored.customSkin.length <= SKIN_LIMIT)
     prefs.customSkin = stored.customSkin;
-  /* WK-91 · 连接的 display name 是本设备上的叫法，键必须是后端目录里真有的
-     provider ID：一个界面替后端发明出来的连接名字，会让人以为那里有一条连接。 */
-  if (stored.connectionNames && typeof stored.connectionNames === "object")
-    for (const [id, value] of Object.entries(stored.connectionNames))
-      if (
-        Object.hasOwn(providerLabels, id) &&
-        typeof value === "string" &&
-        CONNECTION_NAME_PATTERN.test(value.trim())
-      )
-        prefs.connectionNames[id] = value.trim();
   return prefs;
 }
 export function writePreferences(prefs) {

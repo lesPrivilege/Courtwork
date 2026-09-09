@@ -66,7 +66,7 @@ const READ_FACTS = `(async () => {
 })()`;
 
 /** 只经产品自己的控件填表：设 value 后派发它监听的事件，处理器决定其余字段。 */
-const draft = (provider, model, displayName) => ev(`(async () => {
+const draft = (provider, model) => ev(`(async () => {
   const panel = document.getElementById("settings-models");
   const set = (node, value, type) => {
     node.value = value;
@@ -78,12 +78,10 @@ const draft = (provider, model, displayName) => ev(`(async () => {
   set(panel.querySelector('select[name="provider"]'), ${JSON.stringify(provider)}, "change");
   await new Promise((r) => setTimeout(r, 300));
   set(panel.querySelector('select[name="model"]'), ${JSON.stringify(model)}, "change");
-  set(panel.querySelector('input[name="displayName"]'), ${JSON.stringify(displayName)}, "input");
   await new Promise((r) => setTimeout(r, 200));
   return {
     provider: panel.querySelector('select[name="provider"]').value,
     model: panel.querySelector('select[name="model"]').value,
-    displayName: panel.querySelector('input[name="displayName"]').value,
   };
 })()`);
 
@@ -116,7 +114,7 @@ try {
     { effective: before.effective, bound: before.bound },
   );
 
-  const drafted = await draft("deepseek", "deepseek-v4-pro", "DeepSeek trial");
+  const drafted = await draft("deepseek", "deepseek-v4-pro");
   const during = await ev(READ_FACTS);
   record(
     "FE-T03-b",
@@ -140,7 +138,7 @@ try {
     "FN-14 / 15 · 有效值变、绑定值不变",
     after.effective.provider === "deepseek" &&
       after.effective.model === "deepseek-v4-pro" &&
-      after.row.some((text) => /DeepSeek trial/.test(text)) &&
+      after.row.some((text) => /^DeepSeekIn force/.test(text)) &&
       boundUnchanged,
     { effective: after.effective, row: after.row, boundBefore: before.bound, boundAfter: after.bound },
   );
@@ -157,7 +155,7 @@ try {
   );
   /* FE-T03-e · active Run 冻结时的诚实：后端拒绝，界面照抄原因，不发明"已排队"。 */
   await load("models", FROZEN);
-  await draft("deepseek", "deepseek-v4-pro", "Frozen attempt");
+  await draft("deepseek", "deepseek-v4-pro");
   await saveConnection();
   await sleep(600);
   const frozen = await ev(`(async () => {

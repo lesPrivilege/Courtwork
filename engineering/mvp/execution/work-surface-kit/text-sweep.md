@@ -198,7 +198,6 @@
 |---|---|---|
 | `Add provider` | **入口**：一个 disclosure，不是第二个编辑面板；展开后只决定路径 | `settings-view.mjs` |
 | `Catalog provider` · `Compatible endpoint` · `Local endpoint` | **三条 happy path 的差别本身**：端点归 provider、归用户、归宿主 | 同上 `CONNECTION_PATHS` |
-| `Display name` / `What this connection is called on this device.` | **作用域**：名字只在本设备，后端目录里没有这个字段 | 同上 |
 | `In force` | **哪一条是生效的那一条**；后端只持有一条连接，所以它同时是"唯一" | 同上 `connectionRows` |
 | `Configure` · `Test connection` · `Fetch models` · `Choose a model` · `Save connection`（流程五步） | **统一流程**：五步一次说完，未交付的两步是文本 | 同上 `CONNECTION_STEPS` |
 | `Not available yet: …`（两条） | **缺口的原因**，不是一个按不动的按钮：BE-17 / BE-18 未交付 | 同上 |

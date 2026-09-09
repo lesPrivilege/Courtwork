@@ -62,7 +62,6 @@
 | Connections | Models 组内的列表块名；一行一条已配置的连接 | Providers（作块名时）· Accounts |
 | Add provider | 加一条连接的入口（disclosure） | New connection · Connect a model |
 | Catalog provider · Compatible endpoint · Local endpoint | 三条 happy path；差别只在端点归谁决定 | Custom provider · Self-hosted |
-| Display name | 连接在**本设备**上的叫法；provider ID 由目录给，用户不填 | Label · Alias · Nickname |
 | In force | 当前生效的那一条连接 | Active · Default（作徽章时）· Current |
 | Base URL · API key · API format | 端点、凭据、线格式三件分开的事 | Endpoint URL（同义反复）· Token · Protocol |
 | Advanced | 少数人才改的一档（API format、Base URL） | Connection options · Expert · More |

@@ -19,19 +19,19 @@
 | 1 | `7125e07` | 第 0 项 `--nav` 256；Models 组重建（Connections + Add provider + 统一流程 + Advanced）；Tools 组 MCP 接入说明块；两项几何收敛；新单测 |
 | 2 | `37670b5` | copy-convention §3.3 八行与 text-sweep §7 |
 | 3 | `583aa9a` | 本页与 `evidence/fe02/` |
-| 4 | 本页最后一次提交 | 在 §1 补记 `583aa9a`。一次提交无法在自己内部写下自己的 SHA；分支头以 Astra 收到的为准 |
+| 4 | `8f3472d` · `38717bd` | 在 §1 补记 `583aa9a`；补记 fixture server 的停止日志 |
+| 5 | 本页最后一次提交 | **WK-107 ② 修订**：移除本设备 display name（代码、单测、词表、反例脚本），重跑并覆盖证据。一次提交无法在自己内部写下自己的 SHA；分支头以 Astra 收到的为准 |
 
 ## 2. 改动文件
 
 | 文件 | 改了什么 |
 |---|---|
-| `app/web/settings-view.mjs` | `CONNECTION_PATHS` / `CONNECTION_STEPS` / `MCP_INTAKE_STEPS` / `CONNECTION_NAME_PATTERN` 四个闭集与 `connectionPathOf` / `connectionRows` / `renderIntegrationsIntake` 三个纯函数；连接控制器改为「列表 + Add provider disclosure + 同一张表单」；display name 行；Advanced 改名并加 compat 边界句；`readPreferences` 增 `connectionNames`（键必须是目录里真有的 provider ID） |
+| `app/web/settings-view.mjs` | `CONNECTION_PATHS` / `CONNECTION_STEPS` / `MCP_INTAKE_STEPS` 三个闭集与 `connectionPathOf` / `connectionRows` / `renderIntegrationsIntake` 三个纯函数；连接控制器改为「列表 + Add provider disclosure + 同一张表单」；Advanced 改名并加 compat 边界句。行名取自 `providerLabels`；本设备偏好未新增任何键（WK-107 ②） |
 | `app/web/index.html` | Models 块标题 `Connection` → `Connections`；Tools 组新增 `#settings-integrations-intake` 挂载点 |
 | `app/web/styles.css` | `--nav` 250 → 256；`.connection-list` / `.connection-row` / `.connection-flow` / `.connection-paths` 四组；同一行级 input 与 select 同高同 radius；窄屏 `.segment` 命中区 44 |
-| `app/tests/models-connections.test.mjs` | 新增七条：三条路径的闭集与 provider 身份、路径反推、列表行、未交付两步、MCP 六步、display name 校验、`--nav` 取值 |
-| `app/tests/settings-preferences.test.mjs` | 偏好默认值多一个 `connectionNames: {}` |
+| `app/tests/models-connections.test.mjs` | 新增六条：三条路径的闭集与 provider 身份、路径反推、列表行、未交付两步、MCP 六步、`--nav` 取值 |
 | `engineering/design/copy-convention.md` | §3.3 增八行与一条「未交付的动作不占按钮」 |
-| `engineering/mvp/execution/work-surface-kit/text-sweep.md` | §7：四条替换 + 十条新增字符串的承重说明 |
+| `engineering/mvp/execution/work-surface-kit/text-sweep.md` | §7：四条替换 + 九条新增字符串的承重说明 |
 
 未改：`app/server`、`app/runtime`、`app/core`、`domains`、`brand`、任何 HTTP 契约（`git diff 2b6c221..HEAD -- app/server app/runtime app/core domains brand` 为空）。未新增依赖、状态、字段或端点。未画后端未交付的控件。
 
@@ -52,7 +52,6 @@
 | Connections 一行（四个事实 + `In force`） | **现在往哪里发请求、用哪个模型、凭据在不在**。之前这四件事分散在表单的选中值与凭据块的一句话里，读它们要先把表单读成状态 | `settings-view.mjs` `connectionRows` |
 | `Add provider` 三条路径 | **端点归谁**：provider 自己、用户填、宿主固定。这是三条路径唯一真正的差别，也是"我该填什么"的答案 | 同上 `CONNECTION_PATHS` |
 | 统一流程五步（两步标未交付） | **这条路一共几步、现在能走到第几步**。少了它，缺的两步只能靠"没有按钮"去推断 | 同上 `CONNECTION_STEPS` |
-| `Display name` 行 | **这台设备上叫它什么**，与 provider ID 分开：ID 是目录给的，名字是人给的 | 同上 |
 | Advanced 里的 compat 边界句 | **Advanced 里没有的东西不会偷偷生效**（headers / compat quirks 今天不可配） | 同上 |
 | Tools 组的 MCP 接入六步 | **同一形态在 MCP 上落到哪里**：三步在下方的既有块里，三步没有落点 | 同上 `MCP_INTAKE_STEPS` |
 
@@ -90,7 +89,7 @@
 
 ## 5. text-sweep 增量
 
-[text-sweep §7](text-sweep.md)：§7.1 四条替换（`Connection` → `Connections`、`Connection options` → `Advanced`、Model 行说明、Base URL placeholder 随路径），§7.2 十条新增字符串的承重说明。词表增量在 [copy-convention §3.3](../../../design/copy-convention.md)。
+[text-sweep §7](text-sweep.md)：§7.1 四条替换（`Connection` → `Connections`、`Connection options` → `Advanced`、Model 行说明、Base URL placeholder 随路径），§7.2 九条新增字符串的承重说明。词表增量在 [copy-convention §3.3](../../../design/copy-convention.md)。
 
 ## 6. 分配反例 FE-T03（结果原文）
 
@@ -98,13 +97,13 @@
 
 ```
 PASS FE-T03-a — FN-14 · 三层可分别读出
-      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[{"sessionId":"d2478835-3e57-4648-b172-76f72ce506ca","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"74d3e3b4-a5fc-4e21-9ca0-be5a9bc319b5","provider":"fake-openai-loopback","model":"fake-model"}]}
+      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[{"sessionId":"55a6d6c0-c666-4af3-87f8-bf645919bed7","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"1cf14130-ea81-4338-8b4b-01c400d12545","provider":"fake-openai-loopback","model":"fake-model"}]}
 PASS FE-T03-b — FN-14 / 16 · 请求值不冒充有效值
-      {"drafted":{"provider":"deepseek","model":"deepseek-v4-pro","displayName":"DeepSeek trial"},"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"row":["Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"],"claims":[]}
+      {"drafted":{"provider":"deepseek","model":"deepseek-v4-pro"},"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"row":["Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"],"claims":[]}
 PASS FE-T03-c — FN-14 / 15 · 有效值变、绑定值不变
-      {"effective":{"provider":"deepseek","model":"deepseek-v4-pro","baseUrl":null},"row":["DeepSeek trialIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"],"boundBefore":[…fake-model ×2],"boundAfter":[…fake-model ×2]}
+      {"effective":{"provider":"deepseek","model":"deepseek-v4-pro","baseUrl":null},"row":["DeepSeekIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"],"boundBefore":[{"sessionId":"55a6d6c0-c666-4af3-87f8-bf645919bed7","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"1cf14130-ea81-4338-8b4b-01c400d12545","provider":"fake-openai-loopback","model":"fake-model"}],"boundAfter":[{"sessionId":"55a6d6c0-c666-4af3-87f8-bf645919bed7","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"1cf14130-ea81-4338-8b4b-01c400d12545","provider":"fake-openai-loopback","model":"fake-model"}]}
 PASS FE-T03-d — FN-14 · 绑定值自始至终不被改写
-      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[…fake-model ×2]}
+      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[{"sessionId":"55a6d6c0-c666-4af3-87f8-bf645919bed7","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"1cf14130-ea81-4338-8b4b-01c400d12545","provider":"fake-openai-loopback","model":"fake-model"}]}
 PASS FE-T03-e — FN-16 · 冻结时不假装排队
       {"error":"provider config is frozen during a run","errorShown":true,"effective":"fake-openai-loopback","queueWords":[]}
 5 / 5
@@ -116,11 +115,13 @@ PASS FE-T03-e — FN-16 · 冻结时不假装排队
 
 | 套件 | 本单如何跑 | 结果 |
 |---|---|---|
-| `npm --prefix app test` | 全量（含新增七条） | **219 / 219** |
+| `npm --prefix app test` | 全量（含新增六条） | **218 / 218** |
 | Home / Work 几何（`composition-checks.mjs`，含 `--nav` 256 后的 SHELL-1 与 measure） | 端口 8887，脚本逐字复制自 `evidence/fe01/`，只改端口 | **16 / 16** |
 | RC 契约 / 反例 / 视口（新 IA 版三支） | 端口 8890，MCP fixture 8888 | **20 / 20 · 9 / 9 · 36 / 36** |
-| Settings 偏好（`settings-preferences.test.mjs`） | 默认值多一个 `connectionNames: {}`，其余断言未改 | 通过（在 219 内） |
+| Settings 偏好（`settings-preferences.test.mjs`） | 断言未改（WK-107 ② 修订后偏好默认值回到修订前的集合） | 通过（在 218 内） |
 | `lint-colors` / `lint-materials` / `contrast-report` / `smoke` | 全部 | ok / ok / 无低于门槛 / 通过（`realProvider: not_run`） |
+
+WK-107 ② 修订后重跑的是：`npm --prefix app test`（218 / 218）、`lint-colors`、`lint-materials`、`smoke`、`models-checks`（8887，16 / 16）、`counterexamples`（8889 + 8887，5 / 5），证据已覆盖。**未重跑**：RC 三支与 `composition-checks`——本次修订只从 Settings › Models 的表单里删掉一行 input，不触及 Runtime Control 的 DOM，也不触及 Home / Work 的几何或 `--nav`；上一轮的结果仍然成立，`contrast-report` 同理（配色与层级未动）。
 
 RC 视口脚本改了一处**量法**（不是断言）：视觉隐藏的 radio（1 px）本身不是命中区，命中区是包着它的 `.segment`——与脚本里既有的 `.runtime-switch` 归属同理。Models 组的三条路径是这支脚本第一次量到 segmented control。改动与理由写在 `evidence/fe02/rc/runtime-ui-viewport.mjs` 的注释里。改法之外，它确实抓到一个真缺陷：窄屏下 segment 高 39 px，已在 `styles.css` 补到 44。
 
@@ -148,7 +149,7 @@ RC 视口脚本改了一处**量法**（不是断言）：视觉隐藏的 radio�
 |---|---|---|
 | 触控（真实触屏） | `not_run` | 390 下命中区由 RC 视口逐组量过尺寸（含本单补到 44 的 segment），但没有真实触屏交互 |
 | 读屏（VoiceOver / NVDA） | `not_run` | 三条路径的 radio group、`In force` 徽章与流程列表的读法未在读屏下听过 |
-| 真实 IME | `not_run` | display name 是本单唯一的自由文本输入，未在真实输入法下测过合成态 |
+| 真实 IME | `not_run` | 本单已无自由文本输入，not_run 的理由消失，保留 not_run |
 | 200 % 浏览器缩放 | `not_run` | 只测 1440 / 390 两个 viewport |
 | 真实 provider | `not_run` | 全程 `fake-openai-loopback` 与 `deepseek` 的**配置**路径；从未发出一次真实模型请求，也未保存任何真实 key。FE-T03-c 保存的 DeepSeek 连接没有凭据，随后已改回本地 |
 | Test connection / Fetch models 的真实行为 | `not_run` | BE-17 / BE-18 未交付，本单不实现也不模拟 |
@@ -157,8 +158,8 @@ RC 视口脚本改了一处**量法**（不是断言）：视觉隐藏的 radio�
 ## 11. 待裁定
 
 1. **Connections 只有一行，是后端的事实还是产品的结论。** `ALLOWED_PROVIDER_IDS` 是三个内置身份的闭集，`/provider-config` 只持有一条连接，`credentialStatus` 也只对当前 provider 有值。本单选最保守的实现：**列表只画后端真有的那一条**，其余目录身份作为 Add provider 里的选项出现，而不是画成三行"未连接的连接"——后者会让界面替后端宣布一个它没有的注册表。若裁定要在列表里就看见全部候选身份，需要先有 BE-21（§9）。
-2. **display name 只存在本设备。** 后端目录里没有名字这个字段，本单把它放进既有的本设备偏好（与 Theme / Palette 同一处，键必须是目录里真有的 provider ID），行内写明"What this connection is called on this device."。这是"缺契约不伪造权威"与"WK-91 说 display name 用户填"之间的折中：名字是叫法不是身份。若裁定名字必须与连接同寿，则并入 BE-21。
-3. **provider ID"内部生成"在闭集下无处可生成。** WK-91 说 provider ID 由内部生成、用户只设 display name。今天 ID 由后端目录给（三个），前端既不生成也不应生成。本单按后者实现，把"生成"留给 BE-21 真正支持自定义 provider 的那一天。
+2. **display name（已结）。** WK-107 裁定：**移除**，待 BE-21 交付后作为连接的字段出现，而不是本设备偏好——后端目录今天没有这个字段，把它存进本设备偏好会造成第二真源（同一条连接在两台设备上叫两个名字），也新增了工单禁止的前端状态。本修订已执行：代码、单测、词表、text-sweep 与反例脚本中的 display name 全部删除，不留兼容分支。
+3. **provider ID"内部生成"在闭集下无处可生成。** WK-91 说 provider ID 由内部生成、用户只设 display name。今天 ID 由后端目录给（三个），前端既不生成也不应生成；display name 一侧按 WK-107 ② 已移除。本单按后者实现，把"生成"留给 BE-21 真正支持自定义 provider 的那一天。
 4. **`ui-composition-standard.md` 的侧栏宽注仍写着 250。** 本单按 WK-105 ⑤ 把 `--nav` 改成 256，但那份文档不在本单写权内（工单列的是 copy-convention / text-sweep / delivery / evidence）。请 Fable 或下一单把 §尺寸 token 表的"250（区间 256–280 的下沿，见下注）"与其后的注一并改掉，否则文档与代码互相矛盾。
 5. **`Compatible endpoint` 复用目录身份，不是一个新 provider。** 后端要求非目录 API format 必须配显式 `baseUrl`（DeepSeek）而 fixture provider 不许有 `baseUrl`，所以"兼容端点"在今天只能表现为**给一个目录身份换端点**。界面按这个事实写（路径帮助句里说明"provider 身份决定适用哪份模型目录"）。若产品要的是真正独立的第三方兼容 provider，同样落在 BE-21。
 6. **后端错误原文直出。** 冻结时界面显示的是 `provider config is frozen during a run`——后端原话，小写、工程口吻。本单未改写它（改写会让前端替后端解释失败原因，且它同时是 FE-T03-e 的证据）。若要按 copy-convention 抻平，属一次独立的错误文案裁定，涉及所有 4xx / 409 的展示。

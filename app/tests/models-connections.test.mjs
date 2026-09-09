@@ -4,8 +4,7 @@
  * (2) 已保存的事实反推路径（本地 / 兼容端点 / 目录），不另存"用户当时选了哪条"；
  * (3) Connections 列表只画后端真有的那一条连接，凭据与端点分开陈述；
  * (4) 未交付的两步（BE-17 Fetch models、BE-18 Test connection）在界面上是说明而不是按钮；
- * (5) display name 的本设备存储只收目录里真有的 provider ID；
- * (6) WK-105 ⑤ 的 `--nav` 取值。 */
+ * (5) WK-105 ⑤ 的 `--nav` 取值。 */
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
@@ -13,12 +12,10 @@ import { readFileSync } from "node:fs";
 import {
   CONNECTION_PATHS,
   CONNECTION_STEPS,
-  CONNECTION_NAME_PATTERN,
   MCP_INTAKE_STEPS,
   connectionPathOf,
   connectionRows,
   providerLabels,
-  readPreferences,
 } from "../web/settings-view.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
@@ -48,9 +45,8 @@ test("Connections 只列后端真有的那一条：一条生效连接，凭据�
   const [saved] = connectionRows({
     config: { provider: "openai", model: "gpt-4.1-mini" },
     credentialStatus: "not_configured",
-    names: { openai: "Work key" },
   });
-  assert.equal(saved.name, "Work key");
+  assert.equal(saved.name, "OpenAI");
   assert.equal(saved.endpoint, "Provider default endpoint");
   assert.equal(saved.credential, "No API key saved");
   assert.equal(saved.inForce, true);
@@ -84,25 +80,6 @@ test("MCP 走同一形态：六步，未交付的三步同样只留位", () => {
   ]);
   const pending = MCP_INTAKE_STEPS.filter(([, note]) => note.startsWith("Not available yet"));
   assert.equal(pending.length, 3);
-});
-
-test("display name 只是本设备的叫法：键必须是目录里真有的 provider ID", () => {
-  const original = globalThis.__cwPrefs;
-  globalThis.__cwPrefs = {
-    value: {
-      connectionNames: {
-        openai: "  Work key  ",
-        "invented-provider": "Looks like a connection",
-        deepseek: "a".repeat(90),
-      },
-    },
-  };
-  assert.deepEqual(readPreferences().connectionNames, { openai: "Work key" });
-  globalThis.__cwPrefs = undefined;
-  assert.deepEqual(readPreferences().connectionNames, {});
-  globalThis.__cwPrefs = original;
-  assert.equal(CONNECTION_NAME_PATTERN.test("a".repeat(61)), false);
-  assert.equal(CONNECTION_NAME_PATTERN.test(""), false);
 });
 
 test("WK-105 ⑤ · 侧栏宽落进 256–280 的下沿", () => {
