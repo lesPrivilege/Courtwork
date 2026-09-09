@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-10。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -10,8 +10,8 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
-| 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
-| 通用工作面 / Workbench | CC-W与r4d指定提交已合流；WK-122…127与合流补丁边界见下 | Fable从最终main提交新建清洁树派CC-D0-a（Low）→ FE-05a → FE-05 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
+| 对外口径 / README / Pages | PS-24 与 public-copy-v2 准备包已合流；WO-PS-01 仍待正式回执，主线尚无新 site/workflow | Astra 接手回执复核；按 [当前发布面批次](release/publishing-surface-2026-09-09/README.md) 接收 PS-01，再处理 PS-02 |
+| 通用工作面 / Workbench | CC-D0-a 与 r4d 5b4c981 已合流（4f7278f），验证与归因见页末 | Astra 接手清账；后续 FE-05a → FE-05 → ATT-FE-01 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
 | 领域主链 | ES-01文件候选与Attention后端已合流（当前Core3/app4，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -198,3 +198,9 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 从实际 main `7c07ef6` 隔离，依次接收 CC-D0-a `30014cf`（含 Fable §16 非作者接受）与 r4d `5b4c981`，两次无冲突。Home 模块带与 Scout v2、V1 基线和 FE-05a 提示词进入主线；[合流证据](../evidence/ccd0a-main-integration-20260910/README.md)分列本轮验证与既有 Fable 浏览器复核。共享树既有未提交证据原样保留。
 
 Astra 按本次换序授权裁定：**FE-05a → FE-05 → ATT-FE-01 → CC-I**，覆盖此前队列。Attention 后端已稳定且不依赖 CC-I；四项文档前置仍由 Fable 补齐，grant 编辑器仍归候选 CC-P，PropertyRow modified/reset 仍归 CC-I。FE-05a 只落 V1，消费 M-15/16/17、Shape 与 M-18，由 Fable 从最终 main SHA 新建树派单；本次未派 writer。真实 provider、发布、Paper 与 G1–G5不变。
+
+## 发布面 / 品牌接口清账（2026-09-10）
+
+Astra 接手 Claude limit 后的清账。从实际 `4f7278f` 承接已合流的 CC-D0-a / r4d，接收发布面与品牌准备包固定头 `dcae9d7`。[本节点回执](../evidence/cleanup-20260910/README.md)记录范围与未结项。PS-24：公共站七行问题归 PS 批次，施工中不派 sweep；交付四轴复核判弱后才按“30 样本 → 3 候选 → specimen”补一次。真实 pricing 不适用与第 07 段概念研究稿并存。60fps 只作为品牌第 3 层（06）的 motion donor；第 1、2 层不派 sweep，站点继续零运动。
+
+WK-136 换序沿 `4f7278f` 裁定：FE-05a → FE-05 → ATT-FE-01 → CC-I。当前 Opus 在途仍为 WO-PS-01 站点、WO-BR-01 glyph 板；分支中间提交不视为正式回执或接受。Astra 接收回执后复核，glyph 选向仍归用户，PS-02 待 PS-01。此节点只合流准备文档并对齐账本，不接收两条在途实现，不关闭 G1–G5。

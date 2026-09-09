@@ -13,12 +13,12 @@
 | CC-S Settings 替换全局导航（改约 WK-116） | 合流（414b196） | — |
 | CC-W 工作面分档 + tab strip（改约 WK-113/116） | 合流（0b5ccd2；Astra 补丁 48693ad 双影子占位，WK-131 复核通过） | — |
 | （后端）harness-next ES 文件候选 / permission CAS / 依赖守卫 | 合流（fa90763；app/web 未动） | — |
-| CC-D0-a Home 版面偏好 + 模块带（准入合同 home-modules.md） | 交付 + Fable 复核接受（WK-138）；待 Astra 合流（先 cc-d0a，后 r4d） | `claude/cc-d0a-home-modules` |
+| CC-D0-a Home 版面偏好 + 模块带（准入合同 home-modules.md） | 已合流（4f7278f；产品 30014cf，WK-138） | `claude/cc-d0a-home-modules` |
 | （后端）ATT-BE-01 Attention | 合流（0480c17，产品 d37704e；Fable 非作者复跑 305/305 + 披露探针 5/5，WK-136） | — |
 
 ## 2. 队列（WK-120 / 用户 2026-09-09）
 
-**CC-D0-a 已交付并复核接受（WK-138）**，等 Astra 合流；树 `/private/tmp/se-agent-ccd0a` 合流后删除。FE-05a（字阶与密度 V1 + 第 0 项 M-15/16/17 + 第 0b 项 Shape 落地 WK-128 + 第 0c 项 M-18，`opus-wo-low`；提示词已备好 [WO-FE05A-dispatch-prompt](work-orders/WO-FE05A-dispatch-prompt.md)，待 Astra 合流 cc-d0a 后建树 `/private/tmp/se-agent-fe05a`、端口 8909/8910、填 SHA 派出）→ FE-05（材质与光：Material grammar 五节，progressive blur 配方 WK-127，`opus-wo-low`）→ CC-I（共享 Inspector + contextual toolbar 可操作 payload，`opus-wo-medium`）。ATT-FE-01：ATT-BE-01 已交付（0480c17），骨架 [WO-ATT-FE01](work-orders/WO-ATT-FE01.md)；默认仍在 CC-I 之后（WK-120），Fable 建议提到 CC-I 之前，换序归用户（WK-136 (e)）。CC-D0-b（Activity / Usage）待 BE-1/3/25、BE-29；CC-P（policy editor）待 PolicyRule canonical 文本；GI（生成式身份）在品牌线。
+**CC-D0-a 已合流（4f7278f）**。当前队列：**FE-05a → FE-05 → ATT-FE-01 → CC-I**（Astra 对 WK-136 的裁定）。FE-05a 提示词已备好，含 M-15/16/17、Shape 与 M-18，从最终 main SHA 建独立树后派单；当前未派。ATT-FE-01 四项前置见下，grant 编辑器归候选 CC-P；PropertyRow modified/reset 归 CC-I。CC-D0-b 的后端 BE-1/3/25、BE-29 已交付，前端另行成单。Astra 接手清账与回执复核。
 
 ## 3. 成单前置与未闭合
 
