@@ -241,14 +241,6 @@
       "pass": true
     },
     {
-      "selector": "p.label.is-mono",
-      "text": "Replay · synthetic data · recorded at Co",
-      "size": 11,
-      "ratio": 5.22,
-      "threshold": 4.5,
-      "pass": true
-    },
-    {
       "selector": "p.note",
       "text": "标本本身是一段会话、两次 Run。第一次 Run 产生一次写入批准、一个 Que",
       "size": 14,
@@ -962,7 +954,7 @@
     },
     {
       "selector": "code",
-      "text": "ac45849",
+      "text": "cbb7448",
       "size": 12.9,
       "ratio": 14.41,
       "threshold": 4.5,
@@ -1898,7 +1890,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "172130e / ac45849",
+      "text": "172130e / cbb7448",
       "size": 13,
       "ratio": 15.98,
       "threshold": 4.5,
@@ -2179,14 +2171,6 @@
       "pass": true
     },
     {
-      "selector": "p.label.is-mono",
-      "text": "Replay · synthetic data · recorded at Co",
-      "size": 11,
-      "ratio": 9.06,
-      "threshold": 4.5,
-      "pass": true
-    },
-    {
       "selector": "p.note",
       "text": "标本本身是一段会话、两次 Run。第一次 Run 产生一次写入批准、一个 Que",
       "size": 14,
@@ -2900,7 +2884,7 @@
     },
     {
       "selector": "code",
-      "text": "ac45849",
+      "text": "cbb7448",
       "size": 12.9,
       "ratio": 16.25,
       "threshold": 4.5,
@@ -3836,7 +3820,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "172130e / ac45849",
+      "text": "172130e / cbb7448",
       "size": 13,
       "ratio": 16.25,
       "threshold": 4.5,

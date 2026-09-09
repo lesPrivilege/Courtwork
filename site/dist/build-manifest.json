@@ -1,7 +1,7 @@
 {
   "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
-  "site_sha": "ac45849b73dacbadd29a3dcba940ab5ac4337390",
-  "built_at": "2026-09-09T23:22:25+08:00",
+  "site_sha": "cbb7448491b4660e422716fe0bc66357d80beeda",
+  "built_at": "2026-09-09T23:34:33+08:00",
   "tokens": {
     "source": "app/web/styles.css",
     "source_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
@@ -51,7 +51,7 @@
     "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
   ],
   "locale_content_hashes": {
-    "zh-CN": "21d8b5e3e1ffaace7cbb96b70c9e0592dbaf4aff00d47e9b24e9e4e7fa911248"
+    "zh-CN": "0259f138f55c1886b728b421709d9ad95fd53b6cf7217894304939cad3d1ad87"
   },
   "files": [
     {
@@ -171,8 +171,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 29730,
-      "sha256": "21d8b5e3e1ffaace7cbb96b70c9e0592dbaf4aff00d47e9b24e9e4e7fa911248"
+      "bytes": 29729,
+      "sha256": "0259f138f55c1886b728b421709d9ad95fd53b6cf7217894304939cad3d1ad87"
     },
     {
       "path": "site.css",
@@ -201,8 +201,8 @@
     },
     {
       "path": "media/continue-in-work-1440-light.png",
-      "bytes": 91346,
-      "sha256": "570bd33aeba22cea9d5e8916be15b4604c5c40383fc2bc2e158314ffd5e968d9"
+      "bytes": 91289,
+      "sha256": "0bb588664c2874f5c3ab15201457ec09c7632c0284c76ebc413c2d22ee2017b9"
     },
     {
       "path": "media/home-1440-dark.png",
@@ -221,23 +221,28 @@
     },
     {
       "path": "media/manifest.json",
-      "bytes": 9935,
-      "sha256": "9983e59bb714b34cb8dfe0dc02ac41884c404b2c3f1d7f91267d0280e00c9b81"
+      "bytes": 10832,
+      "sha256": "896579aadc21cf61dea58e01517eb272bc7b199d868404cb1f8afcd6551c6e9c"
     },
     {
       "path": "media/review-1440-dark.png",
-      "bytes": 112267,
-      "sha256": "eab90df9d88581a39079c303e2740d184be03e99029d9eed0e72de71bdb475e2"
+      "bytes": 111677,
+      "sha256": "c35138f0c906b28a244faf3c8d417f42d23f72acef724afdb99a024473b572f9"
     },
     {
       "path": "media/review-1440-light.png",
-      "bytes": 110881,
-      "sha256": "ee2458bfcde3ca82de1437ff57857785c8ae96172a260801e0e8e5926c5e3a48"
+      "bytes": 110347,
+      "sha256": "a1b021bede9ed5502a67bf83618338d24e88fe9a0d5127b263c083ff2f40916e"
     },
     {
       "path": "media/review-390-light.png",
-      "bytes": 54215,
-      "sha256": "7d33ee0f2863678018255d2d03fe1fc7d4aa1e016e5aa21272505f6aaa4c5712"
+      "bytes": 53845,
+      "sha256": "1523199897bf40d52d93e57107c059990434f5a7f82219b9ea00d3bd8fdaa8ff"
+    },
+    {
+      "path": "media/settings-models-1440-dark.png",
+      "bytes": 104690,
+      "sha256": "b433a3c28eb5eaf32146227803dd1d9b1f41fb4c5b23624ec8c0555759e26184"
     },
     {
       "path": "media/settings-models-1440-light.png",

@@ -91,7 +91,6 @@ tokenUsage    input 3 · output 4 · turns 3</code></pre>
         <p class="index">02</p>
         <h2 id="matter-title" lang="en">A matter in motion</h2>
         <blockquote class="pull"><p>一段已经记录下来的工作，可以逐步重放。这里没有模型在运行；每一次点击显示的都是记录下的事实。</p></blockquote>
-        <p class="label is-mono">Replay · synthetic data · recorded at CourtWork 172130e</p>
         <iframe
           class="specimen-frame"
           src="./specimen/index.html"
@@ -216,7 +215,7 @@ tokenUsage    input 3 · output 4 · turns 3</code></pre>
             <tr><th scope="row" lang="en">Benchmark</th><td>Continuity conformance：六个用例检验正式状态在来源替换、回执重放、重启、伪造 actor 与过期 base 之下是否保持。结果只在协议内有意义。</td><td><a href="https://github.com/lesPrivilege/Courtwork/tree/main/benchmarks/continuity"><code>benchmarks/continuity/</code></a></td></tr>
             <tr><th scope="row" lang="en">Fixture</th><td>由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 sha256。</td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/main/app/tests/fixtures/work-core/nda-packets.json"><code>app/tests/fixtures/work-core/nda-packets.json</code></a></td></tr>
             <tr><th scope="row" lang="en">Tests</th><td>数字由构建时从发布 SHA 计算，不手写。</td><td>npm --prefix app test · 252 passed, 0 failed</td></tr>
-            <tr><th scope="row" lang="en">Version</th><td>Paper 9.6 <code>d78fd31</code> · 产品 <code>172130e</code> · 站点 <code>ac45849</code></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/main/PAPER.md"><code>PAPER.md</code></a></td></tr>
+            <tr><th scope="row" lang="en">Version</th><td>Paper 9.6 <code>d78fd31</code> · 产品 <code>172130e</code> · 站点 <code>cbb7448</code></td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/main/PAPER.md"><code>PAPER.md</code></a></td></tr>
             <tr><th scope="row" lang="en">Decisions</th><td>架构裁决，从第一条起可读。</td><td><a href="https://github.com/lesPrivilege/Courtwork/blob/main/engineering/decisions.md"><code>engineering/decisions.md</code></a></td></tr>
             <tr><th scope="row" lang="en">Paper revision</th><td>论文的版本级变化。</td><td><a href="https://github.com/lesPrivilege/Schema-Engineering/blob/main/CHANGELOG.md">CHANGELOG.md（Schema Engineering）</a></td></tr>
           </tbody>
@@ -268,7 +267,7 @@ npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data 
 npm --prefix app test</code></pre>
         <p class="note">需要 Node.js 22.19 以上、Python 3、Git 2.36 以上。默认 provider 是本地确定性 fake；真实 provider 在界面里配置，密钥不进入仓库、聊天或截图。</p>
         <figure class="shot">
-          <picture>
+          <picture><source srcset="./media/settings-models-1440-dark.png" media="(prefers-color-scheme: dark)" />
             <img src="./media/settings-models-1440-light.png" alt="Settings › Models：Add provider 的 Compatible endpoint 一行，Test connection 与 Fetch models 在场。" width="1440" height="900" loading="lazy" decoding="async" />
           </picture>
           <figcaption>CourtWork <code>172130e</code> · synthetic data · local deterministic provider · 1440×900 light · Settings › Models：Compatible endpoint 的两个探测控件在场，未填写端点，未存任何密钥。</figcaption>
@@ -294,7 +293,7 @@ npm --prefix app test</code></pre>
       </section>
     </main>
     <footer class="footer">
-      <p><span class="is-mono">Experimental</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork" lang="en">Source on GitHub</a><span class="dot">·</span><span class="is-mono">172130e / ac45849</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/main/LICENSE" lang="en">MIT License</a><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/main/PAPER.md" lang="en">Schema Engineering 9.6</a></p>
+      <p><span class="is-mono">Experimental</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork" lang="en">Source on GitHub</a><span class="dot">·</span><span class="is-mono">172130e / cbb7448</span><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/main/LICENSE" lang="en">MIT License</a><span class="dot">·</span><a href="https://github.com/lesPrivilege/Courtwork/blob/main/PAPER.md" lang="en">Schema Engineering 9.6</a></p>
     </footer>
     <script type="module" src="./site.mjs"></script>
   </body>

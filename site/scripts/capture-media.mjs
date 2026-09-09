@@ -379,24 +379,29 @@ try {
   });
 
   // ---- M7 · Settings › Models --------------------------------------------
-  await cdp("Page.navigate", { url: `${ORIGIN}/?media=${Date.now()}#settings/models` });
-  await waitFor("window.__V5_UI__?.state.home.data");
-  await waitFor(`document.getElementById("settings-models")?.getClientRects().length > 0`);
-  await sleep(900);
-  await evaluate(`(() => { document.querySelector(".connection-add").open = true; return true; })()`);
-  await sleep(400);
-  await evaluate(`(() => { document.getElementById("connection-path-compatible").click(); return true; })()`);
-  await sleep(600);
-  await shot({
-    id: "M7",
-    file: "settings-models-1440-light.png",
-    viewport: "1440x900",
-    theme: "light",
-    displayed_path: "/#settings/models",
-    setup_steps: "open Add provider and choose the Compatible endpoint path",
-    claim_ids: ["models"],
-    limitations: "no endpoint is entered and nothing is probed; no credential is stored",
-  });
+  // Both themes: this picture sits inside the page's own last section, and a
+  // light slab in a dark page reads as a hole rather than as a screen.
+  for (const theme of ["light", "dark"]) {
+    await viewport(1440, 900, theme);
+    await cdp("Page.navigate", { url: `${ORIGIN}/?media=${Date.now()}#settings/models` });
+    await waitFor("window.__V5_UI__?.state.home.data");
+    await waitFor(`document.getElementById("settings-models")?.getClientRects().length > 0`);
+    await sleep(900);
+    await evaluate(`(() => { document.querySelector(".connection-add").open = true; return true; })()`);
+    await sleep(400);
+    await evaluate(`(() => { document.getElementById("connection-path-compatible").click(); return true; })()`);
+    await sleep(600);
+    await shot({
+      id: "M7",
+      file: `settings-models-1440-${theme}.png`,
+      viewport: "1440x900",
+      theme,
+      displayed_path: "/#settings/models",
+      setup_steps: "open Add provider and choose the Compatible endpoint path",
+      claim_ids: ["models"],
+      limitations: "no endpoint is entered and nothing is probed; no credential is stored",
+    });
+  }
 
   // ---- now park a write on an approval, and photograph what that looks like
   console.error("parking a write on an approval…");

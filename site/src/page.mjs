@@ -181,7 +181,6 @@ function matter(fill) {
         <p class="index">${MATTER.index}</p>
         <h2 id="matter-title" lang="en">${escape(MATTER.title)}</h2>
         <blockquote class="pull"><p>${escape(MATTER.quote)}</p></blockquote>
-        <p class="label is-mono">${escape(fill(MATTER.label))}</p>
         <iframe
           class="specimen-frame"
           src="./specimen/index.html"
