@@ -51,9 +51,9 @@
 
 | 编号 | 问题 | Fable 建议 |
 |---|---|---|
-| U1 | H1 沿 WK-77 还是换成 "Work agents need governed state, not longer transcripts." | 沿 WK-77（PS-5 c）；后者作 01 段引句 |
-| U2 | Courtwork main 何时 push（135 提交）；Pages 部署随之 | 站点 WO 交付并经 Astra 核对后一次 push；本批不代行 |
-| U3 | SE 论文页页脚加 Courtwork Pages 链接（会触发 SE Pages 重建） | 与 U2 同期做，一次 `infra:` 提交 |
+| U1 | H1 沿 WK-77 还是换成 "Work agents need governed state, not longer transcripts." | **已裁（用户 2026-09-09 同意 Fable 建议）**：沿 WK-77；后者作 01 段引句 |
+| U2 | Courtwork main 何时 push；Pages 部署随之 | **已裁（用户同意）**：站点 WO 交付并经 Astra 核对后一次 push；推送由用户或 Astra 执行，Fable 不代行 |
+| U3 | SE 论文页页脚加 Courtwork Pages 链接（会触发 SE Pages 重建） | **已裁（用户同意）**：与 U2 同期，一次 `infra:` 提交，由 Fable 在 SE 仓准备、用户推送 |
 | U4 | 英文全文页 | 不在本批；中文页稳定后另立 |
 | U5 | 首帧用静态图还是互动标本 | 静态图（PS-2 a）；标本在 02，可行性已由 EX-PS3 确认（PS-18） |
 | U6 | 商业化与 Eval 两个 explore 目录何时开 | Eval 目录随 EX-PS4 回执由 Astra 在 `engineering/` 下开；商业化的页面部分已由 `commercial-surfaces/` 承接（PS-22），商业模型 explore 仍待另派 |
