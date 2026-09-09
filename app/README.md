@@ -78,7 +78,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 4 store (see below)
+  runtime-state.json        # schemaVersion 5 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -91,11 +91,10 @@ task.
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
 ```
 
-## Store schema (v4, validated v3 upgrade)
+## Store schema (v5, validated v3/v4 upgrade)
 
-`schemaVersion` is `4`. A valid v3 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v4 instead of ignoring the
-control policy layer. v1/v2, malformed and future stores remain rejected with
+`schemaVersion` is `5`. A valid v3/v4 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v5. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)

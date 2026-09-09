@@ -30,7 +30,7 @@ function stripInheritedProviderEnv(logger) {
  * extensionCatalog is the composition seam for trusted domain adapters.
  */
 export async function createRuntime({ dataDir, extensionCatalog = [], fakeResponder = null, responder = null,
-  budget, compaction, logger = () => {} } = {}) {
+  budget, compaction, asyncTaskAdapters = [], logger = () => {} } = {}) {
   if (typeof dataDir !== "string" || !dataDir.trim()) throw new TypeError("dataDir is required");
   dataDir = path.resolve(dataDir);
   const removedEnvVars = stripInheritedProviderEnv(logger);
@@ -43,7 +43,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     const modelRuntime = await createIsolatedModelRuntime();
     registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, budget, compaction, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, budget, compaction, asyncTaskAdapters, logger });
     await service.initialize();
     let closePromise;
     return {

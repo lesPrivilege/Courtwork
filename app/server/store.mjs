@@ -5,6 +5,7 @@ import { acquireRuntimeLock } from "./runtime-lock.mjs";
 import { deriveWorkMetrics } from "./work-metrics.mjs";
 import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
+import { validateAsyncTasks } from './async-task-state.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
@@ -17,10 +18,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
-  "credentialGeneration",
+  "credentialGeneration", "asyncTasks",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -28,7 +29,7 @@ function now() { return new Date().toISOString(); }
 function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
-    providerConfig: null, extensionRecords: [], credentialGeneration: 0,
+    providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [],
   };
 }
 
@@ -105,10 +106,10 @@ function validateArtifact(value, label) {
   timestamp(value.writtenAt, label + ".writtenAt");
 }
 
-function validateState(parsed) {
+function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === SCHEMA_VERSION, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 can be upgraded)`);
-  exactKeys(parsed, STATE_KEYS, "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 or 4 can be upgraded)`);
+  exactKeys(parsed, schema === 5 ? STATE_KEYS : new Set([...STATE_KEYS].filter(k => k !== 'asyncTasks')), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -202,6 +203,7 @@ function validateState(parsed) {
   nonNegativeInt(parsed.credentialGeneration, "state.credentialGeneration");
   if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig");
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
+  if (schema === 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   return structuredClone(parsed);
 }
 
@@ -277,20 +279,18 @@ export class RuntimeStore {
       if (textValue === null) { this.state = emptyState(); await this._persist(this.state); }
       else {
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if (parsed?.schemaVersion === 3) {
-          // Validate the entire old shape before touching it. Schema 4 keeps
-          // those fields but requires the runtime control execution boundary;
-          // old hosts reject it rather than silently ignoring new policies.
-          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION });
+        if ([3, 4].includes(parsed?.schemaVersion)) {
+          // Validate the old shape before writing any backup or new data.
+          // Existing backup paths are never followed or overwritten, including
+          // symlinks. Recovery after an interrupted upgrade is explicit.
+          validateState(parsed, parsed.schemaVersion);
+          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: [] });
           const digest = createHash('sha256').update(textValue).digest('hex');
-          const backup = path.join(this.dataDir, `runtime-state.schema3.${digest}.json`);
-          try { await writeFile(backup, textValue, { flag: 'wx', mode: 0o600 }); }
-          catch (error) {
-            if (error.code !== 'EEXIST' || await readFile(backup, 'utf8') !== textValue) throw error;
-          }
+          const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
+          await writeFile(backup, textValue, { flag: 'wx', mode: 0o600 });
           await this._persist(upgraded);
           this.state = upgraded;
-          this.logger('store: upgraded schema 3 to 4; original state preserved in a content-addressed schema3 backup');
+          this.logger(`store: upgraded schema ${parsed.schemaVersion} to 5; exact original state preserved in ${path.basename(backup)}`);
         } else this.state = validateState(parsed);
       }
       this.opened = true; return this;
@@ -453,6 +453,24 @@ export class RuntimeStore {
 
   async appendEvent({ runId, type, data }) {
     return this._mutate((state) => { const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found"); return appendEventToState(state, { runId, sessionId: run.sessionId, type, data }); });
+  }
+
+  async appendAsyncToolResult({ runId, type, data }) {
+    return this._mutate(state => {
+      const run = state.runs.find(r => r.id === runId); if (!run) throw new Error('run not found');
+      if (type === 'tool.result' && !data.isError) {
+        let packet; try { packet = JSON.parse(data.text); } catch { packet = null; }
+        for (const t of state.asyncTasks) {
+          const d = t.deliveries.find(d => d.runId === runId && d.callId === data.callId && data.name === 'async_' + d.kind);
+          if (d && !d.runtimeRecordedAt && packet?.id === t.id && packet.execution?.status === d.executionStatus
+            && (packet.result?.digest ?? null) === d.resultDigest) {
+            d.runtimeRecordedAt = now(); t.revision++; t.updatedAt = d.runtimeRecordedAt;
+          }
+        }
+      }
+      validateAsyncTasks(state.asyncTasks, state);
+      return appendEventToState(state, { runId, sessionId: run.sessionId, type, data });
+    });
   }
 
   async appendArtifact(runId, artifact) {
