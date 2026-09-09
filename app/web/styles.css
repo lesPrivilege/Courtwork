@@ -5537,3 +5537,36 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .message.user { margin-left:auto; }
 .user-message-content { border:1px solid var(--line); border-radius:18px 18px 6px 18px; }
 @media(max-width:600px){ .attention-agent-message.is-user { max-width:90%; padding:12px 14px; } }
+
+/* == BEGIN WO-MA2-02 · Thread consumer panel (coordination-view.mjs) ==========
+ * Appended as one block, per MA2-D16, because settings-view.mjs / styles.css are
+ * being written in parallel by CC-I. Nothing above this marker is edited here.
+ * Solid fills only: a message stream is reading matter, so no --glass and no
+ * backdrop-filter (material-grammar §41). Type sizes and control heights are
+ * inherited; FE-05a's V1 values are not pre-spent. */
+.coordination-view { margin: 0 var(--space-6) var(--space-3); font-size: var(--text-meta); }
+.coordination-view > summary { cursor: pointer; padding: var(--space-2) 0; color: var(--muted-strong); }
+.coordination-body { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3) 0 var(--space-2); min-width: 0; }
+.coordination-body > p { margin: 0; }
+.coordination-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.coordination-row.is-stacked { flex-direction: column; align-items: stretch; }
+/* In a column the shorthand's basis would become a height, so it is reset. */
+.coordination-row.is-stacked > * { flex: none; }
+.coordination-row select, .coordination-row input, .coordination-row textarea { min-width: 0; max-width: 100%; flex: 1 1 160px; }
+.coordination-row textarea { flex: none; resize: vertical; }
+.coordination-status { margin: 0; overflow-wrap: anywhere; }
+/* Bounded like the sibling Runtime & memory panel in this same dialog, so a
+ * long mailbox cannot squeeze the Attention transcript out of the frame. */
+.coordination-mailbox { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; max-height: 280px; overflow: auto; overscroll-behavior: contain; }
+.coordination-mailbox h3 { margin: var(--space-2) 0 0; font-size: var(--text-body); }
+.coordination-message { background: var(--panel-muted); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-3); min-width: 0; }
+.coordination-message-heading { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; }
+/* The settlement word is text, never a colour on its own (FN-28). */
+.coordination-message-status { color: var(--muted-strong); }
+.coordination-message-text { margin: var(--space-2) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.coordination-message > .form-help { margin: 0; }
+@media (max-width: 600px) {
+  .coordination-view { margin: 0 var(--space-4) var(--space-3); }
+  .coordination-row select, .coordination-row input { flex: 1 1 100%; }
+}
+/* == END WO-MA2-02 · Thread consumer panel =================================== */
