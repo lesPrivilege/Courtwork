@@ -101,5 +101,19 @@ test("FE-04 · 授权卡上不存在 always-allow 这一档", () => {
 });
 
 test("FE-04 · inbox 键盘没有批量键与数字键", () => {
-  assert.match(appSource, /const LIST_KEYS = new Set\(\["j", "k", "o", "ArrowDown", "ArrowUp", "Enter"\]\)/);
+  /* CC-S / WK-115 ② · 键集加了 Home / End 两个纯导航键，闭集因此逐项核对而不是
+   * 逐字比对：仍然没有 a / e / d / x、没有数字键、没有任何一键决定。 */
+  const set = /const LIST_KEYS = new Set\(\[([^\]]*)\]\)/.exec(appSource);
+  assert.ok(set, "LIST_KEYS 不再是一个字面量闭集");
+  const keys = [...set[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(keys.sort(), [
+    "ArrowDown",
+    "ArrowUp",
+    "End",
+    "Enter",
+    "Home",
+    "j",
+    "k",
+    "o",
+  ]);
 });

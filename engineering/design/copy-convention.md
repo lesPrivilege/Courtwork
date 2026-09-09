@@ -95,9 +95,18 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 |---|---|---|
 | Sending… | 这一次请求已经送出、回执还没到。控件同时被关掉，图标不换（review-projection §6） | Approving… · Cancelling… · Stopping… · Please wait · Submitting |
 
-**在途词不是状态词。** Run 的状态词（`Working` · `Stopping` · `Waiting for you` · `Cancelled` · `Failed` · `Interrupted`）只随宿主的回执改变；一次取消请求在路上时，Run 仍写它上一次被确认的那个词——**cancel requested ≠ stopped**（FN-19、FE-T06）。
+**在途词不是状态词。** Run 的状态词（`Working` · `Stopping` · `Waiting for you` · `Cancelled` · `Failed` · `Interrupted` · `Unknown`）只随宿主的回执改变；一次取消请求在路上时，Run 仍写它上一次被确认的那个词——**cancel requested ≠ stopped**（FN-19、FE-T06）。
 
 读取类请求另说：探测用它自己的动词 `Probing…`（WK-108），因为那一行说的是"正在读"而不是"已送出一个决定"。
+
+### 3.4c 离开一页（CC-S / WK-116）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Back to app | 从 Settings 回到进入前的那一屏（Home 或某个 Chat / Work）。**目的地名**，因为 Settings 在场时全局侧栏不渲染，别处没有第二条回去的路 | Back · Close · Done · Exit settings · ← |
+| Unknown | 一次工具调用没有 result，而 Run 的终态本身是未知：**不知道**它为什么没有回来 | Interrupted（那是明确的 cancelled / failed）· Failed · Timed out |
+
+`Back` 单独一个词只在目的地由上下文唯一确定时用（`Back to latest` 同理是目的地名，见 text-sweep §3）。
 
 ### 3.5 外观
 

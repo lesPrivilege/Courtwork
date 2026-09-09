@@ -193,6 +193,18 @@
             aria-expanded="false"
             aria-label="Open navigation"
           ></button>
+          <!-- WK-116 · Settings 在场时全局侧栏不渲染，所以这条带上没有可开合的导航，
+               左端那个位置改由唯一的离开动作占据：Back to app。它和侧栏折叠钮同一个
+               槽位，因此在桌面宿主下同样落在 80×52 安全区之后（安全区由 shell-strip
+               整条占住，见 docs/interface-components.md）。 -->
+          <button
+            id="settings-back-button"
+            class="quiet-button"
+            type="button"
+            hidden
+          >
+            Back to app
+          </button>
           <div class="chat-header-inner">
           <div class="chat-title-wrap">
             <h1 id="session-title" tabindex="-1">
@@ -343,22 +355,17 @@
           </div>
         </footer>
         </div>
-        <!-- WK-78 / FN-26 · Settings 是页面，不是模态：它替换主区的内容，侧栏留在原处
-             并保持可操作，所以「改设置」不是一件必须先结束才能回去做别的事的阻断步骤。
+        <!-- WK-78 / FN-26 / WK-116 · Settings 是页面，不是模态。它替换主区的内容，
+             并且 settings-active 时全局侧栏不渲染（不是隐藏后仍可聚焦）：这一页自己的
+             分组导航是此时唯一的导航，Back to app 与 Escape 回到进入前的位置。
              左列是分组导航加一个只过滤本页行的搜索框，右列是当前组的分节。
              五个组各是一个 tabpanel：同一容器内切换，用 tab 原语；深链由 hash 承担。 -->
         <div
           id="settings-page"
           class="settings-page"
-          aria-labelledby="settings-page-title"
+          aria-labelledby="session-title"
           hidden
         >
-          <header class="settings-page-head">
-            <button id="settings-back-button" class="quiet-button" type="button">
-              Back
-            </button>
-            <h2 id="settings-page-title">Settings</h2>
-          </header>
           <div class="settings-page-body">
             <div class="settings-nav-column">
               <label class="sr-only" for="settings-search">Search settings</label>

@@ -46,12 +46,18 @@
 | 行 / 控件 / 导航 glyph | 16 / 18 / 20 | `icon()` 的 `size` | IC-1；命中区另计 |
 | 命中区 | 桌面 ≥32，触屏与窄屏 ≥44 | — | FN-27 的可用性下限 |
 | 阅读 / Work measure | 740 | `--column` | 正文一行的长度；Work 的 composer 与它同宽 |
+| Settings 导航列宽 | 240（区间 240–256 的下沿） | `--settings-nav` | 九个组名读得完；**不复用 `--nav`**，settings-active 时全局侧栏不渲染，两者不再是同一条列轨 |
+| Settings 页左右 gutter | 48；≥1680 为 64；<1024 为 20；<768 为 16 | `--settings-gutter` | 桌面 ≥48、宽屏 56–80、窄屏 16–20（shell-refinement §呼吸感） |
+| Settings 内容列上限 | 820 | `--settings-measure` | 760–960 的中位；控件不拉满整个屏幕 |
+| Settings 组间距 | 40 | `--settings-group-gap` | 组与组 40–48；组内行 16–24 由 `.settings-row` 的 `--space-4` 给出 |
 | Home composer measure | 820 | `--home-column` | 略宽于阅读列（760–880），Home 的模块与它同边 |
 | 局部间距 | 4 / 8 / 12 / 16 | `--space-1…4` | 组内 |
 | 节间距 | 24 / 32 | `--space-6` / `--space-8` | 组与组之间 |
 | 带间距 | 48 / 64 起 | 由 `--home-lead` 量出 | Home 的 orientation、composer、模块三段 |
 | window-control 安全区 | 80 × `--band-top` | `--window-safe-area` | 宿主的窗口按钮区，产品不在其中放控件；契约见 [interface-components](../../docs/interface-components.md) |
 | 模糊 | 12 / 16 | `--blur-chrome` / `--blur-transient` | WK-102 的闭集；只有登记表面可用 |
+
+Settings 注（WK-116 / CC-S）：进入 Settings 后全局侧栏不渲染，这一页的两列因此是它自己的，四个 `--settings-*` 值不与 `--nav` / `--page-gutter` 共享。改其中任何一个都要同时改 `composition-checks` 的 SETTINGS-* 断言。
 
 侧栏宽注：`--nav` 原为 250（WK-42），低于视觉审查建议的 256–280 下沿 6px；WK-105 ⑤ 裁定落到 256，FE-02 第 0 项执行，Home / Work 几何断言随之更新。
 
