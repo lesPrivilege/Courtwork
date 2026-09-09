@@ -59,6 +59,8 @@ host 从当前会话取得 actor、scope、binding/generation；模型或浏览�
 
 **回退。** 删除 renderer/route binding 不改变 Core state；隐藏未交付 action 比画成可用更安全。任何新静态入口按 FE work-order allowlist 复核，前端作者不自称后端或产品接受。
 
+ATT-FE-01合流补充：消费[截图交接](../../design/attention-surface-2026-09-09/README.md)的既有UI要求。先交付常驻全局入口与独立列表/详情，再增加可选Home摘要；两面共用对象identity和service投影。移除Home摘要不删除或resolve对象，返回保留focus/scroll。默认排当前FE队列之后，不因本准备包自动插队。
+
 ## ATT-RT-01 · 手动 loop 与替换/恢复能力矩阵（后置）
 
 **问题与消费者。** 需要知道 Practice 能否在不同 Runtime 保留 discovery、disclosure、写入、取消和恢复语义，而不是只验证 JSON 能否解析。首版使用 Codex 手动 loop 与合成 fixture；不建 scheduler、常驻 sidecar、provider connector 或后台监控。

@@ -121,3 +121,9 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 ## 个人 Attention：讨论消费与 PR 准备（2026-09-09）
 
 用户授权消费“解释 GoRaven”网页讨论，并建立独立 Attention Assistant 手动 loop。本轮从实际 main `683b6d1419242bd08d20b7deec77ce12af7dcf12` 隔离开工，Luna 分别研究产品接缝、局部选型与 Paper 提案；[准备包](research/attention-2026-09-09/README.md)与[关键裁决](research/attention-2026-09-09/adjudication.md)将 Attention 独立生命周期、受策略约束的存在性发现、schema/grep渐进披露、Human Attention UI与runtime替换分单。独立个人目录只运行文件化手动实践，不成为第二产品开发线或Core状态服务；应用项目注册尚需UI添加文件夹。Paper按独立仓协议先登记候选观察，未升级本仓PAPER.md固定采用版本。此次仅研究、文档与手动起步，无产品API/schema/迁移、外部发信、定时器或真实provider验证；既有FE单writer队列、ES-01与G1–G5状态保持。
+
+## 截图复读与Attention前端衔接（2026-09-09）
+
+用户提供七张线框及两张真实agent产品截图，已做静态复读；[交接包](design/attention-surface-2026-09-09/README.md)支持B+C与D0-B有条件方向，指出长文行宽、composer缺席与Home待办下沉。Attention建议常驻全局入口/独立工作面，Home仅可选摘要，复用并行研究ATT-BE-01/ATT-FE-01/ATT-RT-01，不复制对象owner或台账；并行研究当时未合流。CC-S继续，CC-W→D0-a→FE-05次序不变，Attention待后端接缝后进入单writer队列。本次仅文档与用户图片证据，不升级为产品验收或Paper修订。
+
+本次文档合流同时接收Attention研究准备包与上述截图交接；常驻入口/独立工作面和可选Home摘要共用同一对象与service，后端接缝交付后再进入FE队列。Paper由Astra仅登记PI-22，Canonical/Practice正文不改。
