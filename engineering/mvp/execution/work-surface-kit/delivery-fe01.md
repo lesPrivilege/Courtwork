@@ -20,9 +20,8 @@
 | 2 | `24c6eaa` | 第 1–4 项：词表、Settings IA、chrome、Home / Work composition |
 | 3 | `36bd5e1` | 第 1 / 2 / 5 项的体例：copy-convention §3 改写、尺寸 token 表与 border 审计、shell layout contract、text-sweep §6 |
 | 4 | `dd8935e` | 收尾：两条重复规则与两个死选择器 |
-| 5 | `5b96e23` | 本页与 `evidence/fe01/`（两支新套件、改写后的 RC 三支、验证原文、九张 Settings 截图） |
-
-分支头 `5b96e23`。
+| 5 | `246737f` | 本页与 `evidence/fe01/`（两支新套件、改写后的 RC 三支、验证原文、九张 Settings 截图） |
+| 6 | 本页最后一次提交 | 在 §1 补记 `246737f`。一次提交无法在自己内部写下自己的 SHA，所以这一行只说明它做了什么；分支头以 Astra 收到的为准 |
 
 ## 2. 改动文件
 
