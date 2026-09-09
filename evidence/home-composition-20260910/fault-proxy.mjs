@@ -1,8 +1,10 @@
 // Synthetic local preview only. Never use this fault injector against user data.
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 const upstream = process.env.HOME_UPSTREAM || 'http://127.0.0.1:8937';
-const controls = process.env.HOME_FAULTS || '/private/tmp/cw-home-faults.json';
+const controls = process.env.HOME_FAULTS || path.join(tmpdir(), 'cw-home-faults.json');
 http.createServer(async (req,res) => {
  try {
   let rules={}; try {rules=JSON.parse(await readFile(controls,'utf8'))}catch{}

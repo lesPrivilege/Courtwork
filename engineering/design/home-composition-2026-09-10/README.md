@@ -42,3 +42,7 @@ The three supplied attachments were read fully. Their research counts remain use
 ## Delivery limits
 
 This delivers Home and a read-only Attention frontend slice plus a clearly named Assistant preview. It does not close full ATT-FE-01 actions, ATT runtime/model integration, CC-I, icon selection, native GUI acceptance or G1–G5. No personal data upgraded, paid provider run, external message or deployment.
+
+## Additional inputs received during verification
+
+The Composer Control/Runtime Telemetry text and two Tab/View-Switch texts were also read in full. Their current implementation seams and retained specimen requirements are recorded in [runtime telemetry consumption](runtime-telemetry.md) and [Tab/View-Switch grammar](tab-view-grammar.md). This extends the input disposition without inventing runtime measurements, sibling Chat identities or lifecycle controls.

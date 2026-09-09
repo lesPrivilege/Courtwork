@@ -89,3 +89,5 @@ Disposition 规则：`canonical candidate` = mature precedent + implementation l
 ## 2026-09-10 Home 消费回执
 
 [Home composition](../home-composition-2026-09-10/README.md)逐项消费 Control、Iconography/MingCute、Sidebar、Selection/List 输入；前三类既有 WK 索引保持，新增材料不重开平行 authority。Activity/Attention 真实读面已实现；Assistant 仅前端预览。Icon/Control specimen 的矩阵已登记，尚未选默认新族。
+
+随后补交的 Composer Runtime 与两份 Tab/View-Switch 输入亦已消费：[配置/观测/回合事实接缝](../home-composition-2026-09-10/runtime-telemetry.md)、[六类切换语义与 specimen 范围](../home-composition-2026-09-10/tab-view-grammar.md)。资料中的假设状态与指标不直接成为产品事实。

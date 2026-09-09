@@ -262,3 +262,5 @@ Astra作者全量395/395、smoke、色彩/对比度通过；Luna有界非作者3
 从实际 main `a0ebcf0` 隔离，无冲突接收代码 `570fda8` 与作者证据 `7a6db4a`。Astra 非作者读码与5项边界反例发现伪 typed-array tag 被接受、非法 unit 对象导致错误码丢失；集成补丁 `dc564bd` 修正，Luna 对固定源码独验8/8并补伪造tag反例（同/跨 realm），修前0/2、修后2/2。组合定向19/19、全量405/405、smoke与1,114,368组UTF-8 parity通过；[接收与归因](../evidence/markdown-review-20260910/source-coordinates-integration/README.md)分列作者原378/378与当前组合结果。
 
 本片只接受64 KiB内原始 UTF-8/codePoint/UTF-16 边界转换、字节hash与保真，不等于grapheme/parser/显示坐标。模块仍无产品调用方，既有MR-A1/T1 reader与HTTP/Core未接此模块；正式评注、重锚与Output Review范围不变。Core3/app4/Runtime5、Paper与G1–G5保持；未调用真实provider、迁移个人数据或部署。
+
+Home合流复核：产品 `d2b91e5` 与已接受main `b176738` 组合为 `1f31f0b`，产品无冲突，current双新增保留；组合414/414与smoke通过。后补Composer Runtime与两份Tab输入已进入同一[设计消费包](design/home-composition-2026-09-10/README.md)，明确现有接缝与缺口，不新增未测量TPS或虚构Chat层。

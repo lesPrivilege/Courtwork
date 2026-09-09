@@ -35,6 +35,14 @@ The preview chooses an unused loopback port and creates a separate temporary dat
 
 Optional fault injection: set `HOME_UPSTREAM` to the printed origin and run `fault-proxy.mjs`; its default listen port is 8940 and rules path can be set with `HOME_FAULTS`. JSON format: `{ "rules": [{ "path": "/work-activity", "days": 28, "delay": 1000, "fail": true }] }`. Never aim this tool at personal workspace data.
 
+## Main combination
+
+Product commit `d2b91e5` was combined with accepted main `b176738` as `1f31f0b`. No product conflict; the two appended `engineering/current.md` records were both preserved. Combined suite **414/414 pass** (60.85s), smoke passed with no real provider, and repository links passed (541 documents / 2410 links before the final input-consumption notes).
+
+Final intake checks: Settings preference tests 17/17, runtime-view syntax check and repository links 543 documents / 2421 links pass. The only post-combination product edit corrects two stale usage descriptions; no runtime behavior changed.
+
+The later Composer Runtime and two Tab inputs are also consumed in the linked design package; those additions are research disposition, not new telemetry or tab lifecycle implementation.
+
 ## Boundaries
 
 No automatic acknowledgement, resolution, provider call, external message, deployment, schema migration or native GUI acceptance. This frontend does not close full ATT-FE-01/RT, CC-I, icon-family selection, A2 model evaluation or G1–G5. Main integration does not imply product acceptance. The shared pre-existing `wk98-regression.json` edit is unrelated and preserved.

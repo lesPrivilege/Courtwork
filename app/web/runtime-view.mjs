@@ -1753,8 +1753,8 @@ export function createRuntimeView(
 
   /* The Effective Context Inspector (discussion §6): one block per ContextItem,
      with where it came from, why it is active, when it was admitted and what it
-     contributed. Sizes are characters — the host reports no token usage, so no
-     token figure is shown or estimated. */
+     contributed. Per-source sizes are characters; Run-level provider usage is a
+     separate observation and cannot be allocated back to these source rows. */
   function contextInspector() {
     const section = el(
       "section",

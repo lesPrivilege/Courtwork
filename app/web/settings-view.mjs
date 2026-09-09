@@ -11,7 +11,7 @@ export const PLANNED_CAPABILITIES = [
   ["Workflows", "No workflow runner exists to execute a saved sequence."],
   ["Hooks", "No executable hook point exists."],
   ["Registries", "Package resolution and signature checks are not implemented."],
-  ["Token counts", "The host reports no token usage, so sizes stay in characters."],
+  ["Per-source token counts", "Run usage is reported in the Run inspector. Individual context-source sizes remain character counts."],
 ];
 export function renderPlanned(container) {
   container.replaceChildren(
