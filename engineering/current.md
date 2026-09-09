@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次FE-04合流读取main基线 `015fac9331c1bcaaa368df746f2da23e434a494d`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次CC-S合流读取main基线 `3af83ebd35a09b4d029a9b8ce6e9c1979b7f6c54`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -11,7 +11,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
-| 通用工作面 / Workbench | FE-04与r4d指定提交已合流；WK-111…115与合流验证见下 | 从最终main提交新建清洁树，CC-S（Low）→ CC-W → CC-D0 → FE-05；CC-W/D0先消费只读探索与新合同；[第四轮交接](mvp/execution/work-surface-kit/handoff-round4.md)与[工单](mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md) |
+| 通用工作面 / Workbench | CC-S与r4d指定提交已合流；WK-116…121与合流验证见下 | 从最终main提交新建清洁树，CC-W（Medium）→ CC-D0-a → FE-05a → FE-05 → CC-I；CC-W/D0消费新合同；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
 | 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -49,6 +49,10 @@ FE-03已接收：Opus实现 `81390de`、交付 `fabfd22`、Fable复核 `f995778`
 FE-04已接收：Opus交付 `af29456`、Fable复核头 `4ac5ac9`，先合代码再合r4d固定头 `e8a950b`，组合产品提交 `ed9584e`；无冲突、无集成产品补丁、无新allowlist或依赖。Astra重跑237/237、两项lint、contrast、smoke、primitive11/11与FE-T07 6/6，见 [合流证据](../evidence/fe04-main-integration-20260909/README.md)。WK-115有界接收；Unknown实现、Inbox Home/End及两条列表role进入CC-S第0项，BE-30…33为待验接口，不称已有能力。下一单由Fable从最终main提交新建清洁树派CC-S（opus-wo-low），第0项显式修订Settings旧约，WK-116在派单时登记；本次未代派。
 
 WK-112研究索引作为方法输入接收，WK-113/114为设计与候选接缝输入，画布仍待用户选向；必须一并消费 [r4d接缝评审](design/clean-cool-2026-09-09/r4d-review.md) R4D-1…6。合流已限定BE-28不得用临时probe冒充已保存配置健康；CC-D0外壳与Activity依赖拆分，导航恢复及renderer失效条件保留。邮件/日历已有路线意向，具体来源、scope、接入排期待裁。public-copy、ES-01与G1–G5保持。
+
+CC-S已接收：Opus交付 `ca548ed`、Fable复核头 `45625b2`，先合为 `85c4e73`，再合r4d固定头 `66bd820` 为 `4fc3de2`，无冲突、无集成产品补丁或新依赖/allowlist。Settings-active全局导航hidden+inert、独立设置导航与Back已落地，Unknown及Home/End与列表语义已消费；七项裁定按WK-121接受，M-12视图状态整理、M-13未保存表单离开拦截仍待，不称已有跨表单dirty保护。Astra244/244、两项lint、contrast、smoke、composition32/32、Models18/18、shell12/12、探测8/8、第0项4/4（独立fixture播种→SIGKILL→重启）与RC结果见 [合流证据](../evidence/cc-s-main-integration-20260909/README.md)。下一单由Fable从最终main提交建清洁树派CC-W（opus-wo-medium），消费Back顶带槽位未决项；本次不代派。
+
+WK-120成熟感原则及队列已接收：密度收敛、留白/对齐、层级先成立，材质与光后加。CC-W → CC-D0-a → FE-05a（字阶/密度）→ FE-05（材质/光）→ CC-I；FE-05a先由Fable给约束表，再由Opus用Settings与Work头部两张变体消融，用户比较后全站落地；anti-slop hierarchy检验字号/字重能否不靠颜色与框线建立层级。ATT-FE-01仍在FE-05后按接缝交付进入，不把序列当已派单或实现。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
