@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "productSha": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+  "integrationBase": "fa90763a4da1cdede47778b6487c801c0acb74cc",
+  "author": "Astra implementation and final test execution; Luna test drafts were completed/revised by Astra",
+  "independentAcceptance": "pending separate source Astra review",
+  "checks": {
+    "npmTest": {
+      "command": "cd app && npm test",
+      "passed": 305,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "242601547682472367b01196abac15d0b87167ff126f979b808a29f2a8ca1aea"
+    },
+    "smoke": {
+      "command": "cd app && npm run smoke",
+      "result": {
+        "status": "passed",
+        "provider": "local-fake",
+        "transport": "public runtime service",
+        "checks": [
+          "material read",
+          "tool write",
+          "persisted artifact",
+          "runtime close/reopen",
+          "session continuation",
+          "revision",
+          "historical bytes"
+        ],
+        "realProvider": "not_run"
+      },
+      "logSha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea"
+    },
+    "migration": {
+      "command": "ATTENTION_CODE_SHA=de38eff022b1eea4eb705de51fe988eba3da12bd node evidence/attention-backend-20260909/migration-probe.mjs",
+      "result": {
+        "oldSha": "a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d",
+        "esSha": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c",
+        "currentSource": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+        "sourceHashes": {
+          "core.py": "39d7997e9d4214f454b055ae95d1e6cb9796344d09d31cbeb595543263b5227a",
+          "bridge.py": "7cb903b4ef245b51cac64828fe1ca3470b7a6ebd74d27848640c842c47fc2b1d",
+          "file_candidates.py": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594",
+          "attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e"
+        },
+        "cases": [
+          {
+            "appVersion": 1,
+            "first": {
+              "ready": {
+                "app_schema_version": 3,
+                "core_schema_version": 2,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 1,
+                "core": "1",
+                "app": "1"
+              }
+            },
+            "second": {
+              "ready": {
+                "app_schema_version": 4,
+                "core_schema_version": 3,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 2,
+                "core": "2",
+                "app": "3"
+              }
+            },
+            "oldBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "attentionBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "oldHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            },
+            "oldestHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            }
+          },
+          {
+            "appVersion": 2,
+            "first": {
+              "ready": {
+                "app_schema_version": 3,
+                "core_schema_version": 2,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 1,
+                "core": "1",
+                "app": "2"
+              }
+            },
+            "second": {
+              "ready": {
+                "app_schema_version": 4,
+                "core_schema_version": 3,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 2,
+                "core": "2",
+                "app": "3"
+              }
+            },
+            "oldBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "attentionBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "oldHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            },
+            "oldestHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            }
+          }
+        ],
+        "negative": {
+          "pair24": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Core/app schema pair mismatch",
+            "dbShaBefore": "dfe359c852ed6866b8db13c91aa016e906ab11d136902a0cd9b0e83a76442d0e",
+            "dbShaAfter": "dfe359c852ed6866b8db13c91aa016e906ab11d136902a0cd9b0e83a76442d0e"
+          },
+          "pair33": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Core/app schema pair mismatch",
+            "dbShaBefore": "bc0278a4ff021fc340520138fbb03aa6e1775047e94eb5c0e5bb45200d703808",
+            "dbShaAfter": "bc0278a4ff021fc340520138fbb03aa6e1775047e94eb5c0e5bb45200d703808"
+          },
+          "malformedOldAttention": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Attention tables found in older schema",
+            "dbShaBefore": "ea2f59fe070c2a97423c59a853ad869ac1dadbf79c1a6ce83c96348945068cf0",
+            "dbShaAfter": "ea2f59fe070c2a97423c59a853ad869ac1dadbf79c1a6ce83c96348945068cf0"
+          },
+          "preexistingAttentionBackup": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Attention migration backup already exists",
+            "dbShaBefore": "4b378a1daa4cdceffe3876561d27970de195a8f82c00969d431bf8f6068fb312",
+            "dbShaAfter": "4b378a1daa4cdceffe3876561d27970de195a8f82c00969d431bf8f6068fb312",
+            "sentinelShaBefore": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a",
+            "sentinelShaAfter": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a"
+          },
+          "malformedCurrentAttention": {
+            "code": "SCHEMA_INVALID",
+            "detail": "unsupported attention_event schema",
+            "dbShaBefore": "2c03a4ea12972b444b1bbc8a570791aa3826b9bbfd76977c3485cb5ebdce810e",
+            "dbShaAfter": "2c03a4ea12972b444b1bbc8a570791aa3826b9bbfd76977c3485cb5ebdce810e"
+          },
+          "missingCurrentAttention": {
+            "code": "SCHEMA_MISSING",
+            "detail": "missing owned tables: ['attention_request']",
+            "dbShaBefore": "824756609b7dc6cb72ea5ae23c8e39955c5f1bde2046312eee71b535701025c8",
+            "dbShaAfter": "824756609b7dc6cb72ea5ae23c8e39955c5f1bde2046312eee71b535701025c8"
+          }
+        },
+        "status": "passed",
+        "tempDataOnly": true
+      },
+      "logSha256": "db91863790707d68273ff6677d5c1fd5c032c9ac8e2a303eb17fbadaaabcc35a"
+    }
+  },
+  "consumerFixture": {
+    "path": "app/tests/fixtures/work-core/attention-packets.json",
+    "sha256": "21690ef34abb0dfe3a430616317dc6f3320457937985683aec8351b9460b5932",
+    "bytes": 101353,
+    "responses": [
+      "created",
+      "pending",
+      "registry",
+      "acknowledged",
+      "exactRetry",
+      "stale",
+      "snoozed",
+      "needsYou",
+      "resolved",
+      "runtimeUndisclosed",
+      "runtimeRegistryOnly",
+      "runtimeSignal",
+      "runtimeDetails",
+      "afterRun",
+      "closedAdapter",
+      "otherScope",
+      "otherScopeInspect",
+      "createRetryAfterDeletion",
+      "producerUnloaded",
+      "recovered",
+      "recoveredSource",
+      "events",
+      "receipt"
+    ]
+  },
+  "boundaries": {
+    "data": "independent synthetic directories and ports",
+    "realProvider": "not_run",
+    "userDatabase": "not_touched",
+    "credentials": "not_inspected",
+    "UI": "not_changed",
+    "deployment": "not_run",
+    "G1-G5": "not_closed"
+  }
+}
