@@ -36,6 +36,10 @@ WK11已接收：Opus实现 `644cc43`、Fable复核 `3acff2d`，从main `14ebd61`
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
+## 执行文件状态：前后端 PR 准备（2026-09-09）
+
+用户授权按第一性原理撰写前后端 PR 供后续消费，不依赖 LayerFS。[准备包](execution/2026-09-09-execution-state/README.md)从实际 `main@1688a7b` 核对既有 Core/工具接缝，分为 ES-BE-01（确切文件候选、验证绑定与接受恢复）和 ES-FE-01（既有 Work Review 的文件候选投影）。本次仅文档草案；新增 API/schema/测试尚未实施或验收。后端沿原 Core owner，前端等冻结接缝并进入单写者队列；保持 FE-01…04 与 G1–G5 当前顺序，不新增正式状态服务、不自动写回用户目录。
+
 ## 新接两单：Luna 首轮有界交付
 
 2026-09-08 用户指定“code base 优化和 harness Core 验证”，并确认“落工单并启动 Luna 有界执行”。从实际 main `429fdd68febb9998f322a0b53c323651fc8cd7fd` 建临时隔离分支 `codex/luna-maintenance-core-validation`；[两单合同](execution/2026-09-08-luna-two-orders/README.md)已形成并启动三个 Luna max 分片：clarity Finder、Core 独立反例验证、agent capability compatibility index。首阶段仅各写对应证据；代码候选必须经另一人验证后才授予修复写权。Astra 负责架构、current 与合流，不触碰 WK12/WK11 前端写权。
