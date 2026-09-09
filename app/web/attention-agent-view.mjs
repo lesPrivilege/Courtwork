@@ -4,6 +4,7 @@ import { el, action, markdown, copyAction } from './ui-controls.mjs';
 import { projectThread, toolStateWord, canAnswer, validPermission } from './thread-projection.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
 import { runLabels } from './inspector.mjs';
+import { createCoordinationView } from './coordination-view.mjs';
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
@@ -67,12 +68,15 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const runtimeBody = el('div'); runtime.append(runtimeBody);
   const composer = el('div', { className: 'attention-agent-composer' }, input, modelChoice, stop, send);
   const status = el('div', { className: 'attention-agent-status' }, feedback, runtime);
-  dialog.append(header, toolbar, recent, stream, status, composer);
+  /* WO-MA2-02 · the Thread consumer panel. It is collapsed by default, fetches
+   * only while expanded, and does not compete with the composer for focus. */
+  const coordination = createCoordinationView({ request });
+  dialog.append(header, toolbar, recent, coordination.root, stream, status, composer);
   dialog.addEventListener('close', deactivate);
   dialog.addEventListener('cancel', event => { if (event.isComposing) event.preventDefault(); });
   dialog.addEventListener('keydown', event => { if (event.key === 'Escape' && event.isComposing) event.preventDefault(); });
   function deactivate() {
-    visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate();
+    visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate(); coordination.deactivate();
     if (opener?.isConnected) opener.focus();
   }
   function close() { dialog.close(); }

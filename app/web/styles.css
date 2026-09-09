@@ -1,5 +1,4 @@
-/* ==== tier:S · skin lead-gray（铅灰）· light =============================
-   色彩三层治理（engineering/mvp/execution/work-surface-kit/contracts/color-governance.md）：
+/* ==== tier:S · skin lead-gray（铅灰）· light ======================   色彩三层治理（engineering/mvp/execution/work-surface-kit/contracts/color-governance.md）：
    S = scale（本文件三个 tier:S 块，可整体替换为另一 skin，见 app/web/skins/）；
    R = role（名称稳定，只引用 S）；U = 组件（只引用 R）。
    hex / rgb 字面量只允许出现在标为 tier:S 的块内，tools/lint-colors.mjs 检查。
@@ -38,8 +37,7 @@
   --glass-alpha: 0.86;
   --rim-alpha: 0.7;
 }
-/* ==== tier:S · skin lead-gray · dark =====================================
-   Slate · Radix Colors 3.0.0 slate-dark 1–12 逐字。深宗规则（color-governance §4）：
+/* ==== tier:S · skin lead-gray · dark ==============================   Slate · Radix Colors 3.0.0 slate-dark 1–12 逐字。深宗规则（color-governance §4）：
    canvas 取最暗步，panel 比 canvas 亮一步（层级越高越亮；Atlassian / Primer / Apple 同向，EX-WK3 表 B）；
    实心 accent 与 accent 文字分值。 */
 :root[data-theme="dark"] {
@@ -110,8 +108,7 @@
     --rim-alpha: 0.12;
   }
 }
-/* ==== tier:S · skin gray-steel（中性灰 + 钢蓝 accent）· 三宗 =====================
-   WK-78 / FN-29 · Appearance 的 Skin 行要选中它，它就必须是产品内可选能力，而不是
+/* ==== tier:S · skin gray-steel（中性灰 + 钢蓝 accent）· 三宗 ==============   WK-78 / FN-29 · Appearance 的 Skin 行要选中它，它就必须是产品内可选能力，而不是
    一份未进 STATIC 的实验文件。所以第二个 skin 与默认 skin 住在同一处治理位置：只重定义
    tier:S，由根元素的 data-skin 属性切换，token 名与层级比一字不改。逐字对照见
    app/web/skins/gray-steel.css（该文件仍是这套色阶的可独立加载副本），两处的值由
@@ -2787,8 +2784,7 @@ button[aria-disabled="true"] {
   overflow: hidden;
 }
 
-/* ===== Polish layer (UP-4) · motion, entrances, feedback ===================
-   Every transition here has a cause: a pointer arriving, a key press, a layer
+/* ===== Polish layer (UP-4) · motion, entrances, feedback ============   Every transition here has a cause: a pointer arriving, a key press, a layer
    opening, a run that is still working. Only colour, opacity and transform
    move; layout properties never do. The reduced-motion block above zeroes all
    of it, and the running pulse is the one loop, paused for reduced motion. */
@@ -3340,8 +3336,7 @@ dialog[open]::backdrop {
 .home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
 
-/* ==== WO-WK13, revised by FE-01 (WK-94 / 96) ============================
-   Today is the head of the module list below the composer, not a band above it.
+/* ==== WO-WK13, revised by FE-01 (WK-94 / 96) =====================   Today is the head of the module list below the composer, not a band above it.
    One strip, three numbers, no card frame; the gap above it is the 32–48 that
    separates the entry from the modules that hang off it. */
 .home-top-band {
@@ -3427,8 +3422,7 @@ dialog[open]::backdrop {
   color: var(--muted-strong);
 }
 
-/* ==== CC-D0-a · the secondary module band ================================
-   One band under Today, on the same 820 column as the composer and Today, so
+/* ==== CC-D0-a · the secondary module band =========================   One band under Today, on the same 820 column as the composer and Today, so
    Home still reads as one column and not as a grid that appeared. Modules are
    laid out along the remaining width and wrap rather than overflow: 820 is the
    ceiling, never a promise that two fixed widths fit inside it (WO density).
@@ -3997,8 +3991,7 @@ court-symbol {
 .runtime-context-summary .section-heading {
   margin-bottom: 0;
 }
-/* ==== WO-WK11 · Runtime Workbench ==========================================
-   The five intent groups live inside the Settings page, so every block below
+/* ==== WO-WK11 · Runtime Workbench ===================================   The five intent groups live inside the Settings page, so every block below
    sits on the page's own surface and adds no colour, radius or shadow value of
    its own. What is new here is structure only: the four-layer readout, the
    Attention list, the kind chips, the Configurable / Inventory pair and the
@@ -4296,8 +4289,7 @@ court-symbol {
   white-space: nowrap;
 }
 
-/* ============================================================================
-   WO-WK10a · module rail, alignment band, composer layer (WK-41/42/13/58/60)
+/* =====================================================================   WO-WK10a · module rail, alignment band, composer layer (WK-41/42/13/58/60)
    Every declaration below reuses an existing role token, spacing step, radius
    and shadow. The only new values in this work order are the two layout tokens
    --band-top and --col-gap declared in :root above.
@@ -4330,8 +4322,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   scrollbar-gutter: stable;
 }
 
-/* ============================================================================
-   WK-72 · The work surface is an L2 floating layer over the main column, not a
+/* =====================================================================   WK-72 · The work surface is an L2 floating layer over the main column, not a
    third column. Collapsed it is a stack of module cards anchored at the main
    column's right gutter, between the band and the composer's top edge; when the
    main column is narrower than 740 + 2·gap + 360 the cards collapse to a glyph
@@ -4900,8 +4891,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   padding-left: var(--space-6);
 }
 
-/* ===== tier:U · Settings 页（WO-WK12 / WK-78 / FN-26） =====================
-   Settings 替换主区的内容，侧栏与顶带留在原处，所以这一页没有自己的框、没有遮罩，
+/* ===== tier:U · Settings 页（WO-WK12 / WK-78 / FN-26） ==============   Settings 替换主区的内容，侧栏与顶带留在原处，所以这一页没有自己的框、没有遮罩，
    也没有第二个焦点陷阱：它就是主列现在显示的东西。左列导航 + 搜索，右列分节；
    1024 以下导航折成顶部下拉，右列单列。取色只引用高度层 role（WK-69）。 */
 .settings-page {
@@ -5611,3 +5601,35 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
   .user-message-content { --panel: Canvas; --ink: CanvasText; --muted-strong: CanvasText; background: var(--panel); color: var(--ink); border-color: CanvasText; }
   .user-message-content .markdown-body, .user-message-content a, .user-message-content summary { color: CanvasText; }
 }
+
+/* == BEGIN WO-MA2-02 · Thread consumer panel (coordination-view.mjs) === * Appended as one block, per MA2-D16, because settings-view.mjs / styles.css are
+ * being written in parallel by CC-I. Nothing above this marker is edited here.
+ * Solid fills only: a message stream is reading matter, so no --glass and no
+ * backdrop-filter (material-grammar §41). Type sizes and control heights are
+ * inherited; FE-05a's V1 values are not pre-spent. */
+.coordination-view { margin: 0 var(--space-6) var(--space-3); font-size: var(--text-meta); }
+.coordination-view > summary { cursor: pointer; padding: var(--space-2) 0; color: var(--muted-strong); }
+.coordination-body { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3) 0 var(--space-2); min-width: 0; }
+.coordination-body > p { margin: 0; }
+.coordination-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.coordination-row.is-stacked { flex-direction: column; align-items: stretch; }
+/* In a column the shorthand's basis would become a height, so it is reset. */
+.coordination-row.is-stacked > * { flex: none; }
+.coordination-row select, .coordination-row input, .coordination-row textarea { min-width: 0; max-width: 100%; flex: 1 1 160px; }
+.coordination-row textarea { flex: none; resize: vertical; }
+.coordination-status { margin: 0; overflow-wrap: anywhere; }
+/* Bounded like the sibling Runtime & memory panel in this same dialog, so a
+ * long mailbox cannot squeeze the Attention transcript out of the frame. */
+.coordination-mailbox { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; max-height: 280px; overflow: auto; overscroll-behavior: contain; }
+.coordination-mailbox h3 { margin: var(--space-2) 0 0; font-size: var(--text-body); }
+.coordination-message { background: var(--panel-muted); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-3); min-width: 0; }
+.coordination-message-heading { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; }
+/* The settlement word is text, never a colour on its own (FN-28). */
+.coordination-message-status { color: var(--muted-strong); }
+.coordination-message-text { margin: var(--space-2) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.coordination-message > .form-help { margin: 0; }
+@media (max-width: 600px) {
+  .coordination-view { margin: 0 var(--space-4) var(--space-3); }
+  .coordination-row select, .coordination-row input { flex: 1 1 100%; }
+}
+/* == END WO-MA2-02 · Thread consumer panel =================================== */
