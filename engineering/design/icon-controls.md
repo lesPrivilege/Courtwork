@@ -55,3 +55,7 @@ Icon-only control 必须有明确 accessible name；开关、展开和当前页�
 ## IC-6 · 候选家族、donor 规则与自绘验收（WK-133，2026-09-09）
 
 IC-5 的 Lucide 静态子集继续是唯一发货中的通用家族。候选家族（MingCute 主要视觉候选、Phosphor Regular 表现力局部、Remix 覆盖 donor、Hugeicons 长尾查询源）只登记在 [atlas Iconography 段](atlas/README.md)，今日零依赖。第二来源的单枚 glyph 只能作 donor 进入：归一到 canonical geometry（24 grid、2px 居中描边、round cap / join、currentColor、1px 安全边），manifest 逐枚登记来源 / sha / license，并通过 Lucide 设计指南的光学验收（circle / square 模糊对照、视觉重心居中）。同一规则约束任何自绘 glyph；WK-110 "生成图形作废"不变。Line ↔ Fill 不作状态机制，只在 boolean toggle 有 schema 后作冗余线索试验。选型裁定见 [intake-round-3 §4al](../mvp/execution/work-surface-kit/intake-round-3.md)。
+
+## IC-7 · Semantic admission refinement（2026-09-10）
+
+[Interaction vocabulary](home-composition-2026-09-10/interaction-vocabulary.md)补充五类准入、semantic key与glyph name分离及实际renderer接缝。通用动作禁止自绘重设计；IC-6 donor仅限有证据的语义缺口，不作随意混搭通道。Lucide继续发货，MingCute是优先视觉候选，尚未完成选型。展开/菜单glyph与focus语义按 [Disclosure / Overlay](home-composition-2026-09-10/disclosure-overlay.md)。

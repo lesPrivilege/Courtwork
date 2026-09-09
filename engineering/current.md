@@ -268,3 +268,5 @@ Home合流复核：产品 `d2b91e5` 与已接受main `b176738` 组合为 `1f31f0
 Material接续（2026-09-10）：从实际 `f666c09` 消费用户Material Constitution与135候选研究摘要，形成[材质token草案/组件映射](design/home-composition-2026-09-10/material-grammar.md)。限定Product glass、实际modal smoke、review tint与Pages atmosphere辖区，排除Product refraction，明确whole-skin旧接口尚未收窄为review-only主题。产品只为两处既有blur补不支持backdrop-filter及forced-colors的实色回退；未新增玻璃组件。材质/色彩定向6/6、两项lint及544文档/2426链接通过；未重跑无关全量、未宣称新specimen或原生材质验收。
 
 Data visualization 接续（2026-09-10）：从实际 `42f2ae9` 消费两张Usage截图及完整研究文本，形成 [热图/模型用量合同](design/home-composition-2026-09-10/data-visualization.md)。明确现有接口只有Run日计数与区间usage，缺少每日/model token和匹配下钻；冻结候选组件、相对分级、Top4+Other、coverage与主题边界。仅文档消费，未实现新图表或统计，不改变现有Home运行次数语义。
+
+Disclosure / vocabulary 接续（2026-09-10）：从实际 `c788764` 完整消费两份28结果/3线、38来源/4线材料，登记 [Overlay分型与D0–D4矩阵](design/home-composition-2026-09-10/disclosure-overlay.md) 和 [Semantic→Glyph治理](design/home-composition-2026-09-10/interaction-vocabulary.md)，并接回IC-7。保持Project/Matter、Session/Chat及权限/接受边界；现行24枚Lucide renderer未替换，MingCute仅候选优先。仅文档合同，未新增菜单、telemetry、semantic adapter或specimen，不宣称全量交互验收。

@@ -95,3 +95,5 @@ Disposition 规则：`canonical candidate` = mature precedent + implementation l
 Material 的后补材料收敛为 [token 草案与组件辖区](../home-composition-2026-09-10/material-grammar.md)：Product solid/glass/smoke/review 与 Pages atmosphere 分离；既有 blur 两处补能力回退，未扩大玻璃覆盖面。
 
 数据可视化后补输入见 [Activity / model Usage 消费](../home-composition-2026-09-10/data-visualization.md)：heat-graph 与 Recharts/shadcn 为 React donor，现有 vanilla Home 不新增依赖；每日/model token 接缝、缺失统计与下钻合同先于新图表。两张截图只作视觉参考。
+
+后续28结果/3线与38来源/4线两份材料依次消费为 [Disclosure / Overlay](../home-composition-2026-09-10/disclosure-overlay.md) 和 [Interaction vocabulary / glyph governance](../home-composition-2026-09-10/interaction-vocabulary.md)。研究数量为用户提供；D0–D4为待施工矩阵，MingCute提升候选优先级，未更换主族。
