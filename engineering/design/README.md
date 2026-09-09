@@ -19,6 +19,8 @@
 | [work-surface-boundaries.md](work-surface-boundaries.md) | Chrome / Domain / Expert责任，Review与commit语义、同源投影和组件adapter边界；连接Fable现有契约 |
 | [UX Polish研究包](../research/ux-polish-2026-09-08/README.md) | 材质/层级与局部motion/hover的来源、源码现状及build联调绘制切片 |
 
+[局部解耦与异步任务合流Design](../research/architecture-maintenance-2026-09-09/integration-design.md)补执行/交付/工作效力、renderer缺席、generation/typed commands与前后端共同fixture；属于后续语义设计，进入既有FE单writer队列，不改变当前视觉方向或假定后端能力已交付。
+
 ## 与工程治理的关系
 
 Design 是 M10/M11 和 RD-003 的设计输入，也可能暴露 M02/M04/M06 的接口缺口。完成面决定需要哪些可见状态；实际语义仍由 [Core 契约](../core-contracts.md) 定义。设计不自行创造 approve、cancelled 或已保存事实。

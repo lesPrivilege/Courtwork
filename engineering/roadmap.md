@@ -174,6 +174,10 @@ R3 的任务集合表达覆盖目标，不要求第一轮并行做完。R4 的�
 
 [全量来源消费与自研准备](research/local-governance-2026-09-09/README.md)为R1–R3补充只读Intake、rendition、可重建索引、typed findings与有界Explore路径；[PR施工稿](research/local-governance-2026-09-09/pr-plan.md)按LG-00…04分批，[评测](research/local-governance-2026-09-09/benchmark-plan.md)先比较冷读与exact/lexical，再按瓶颈考虑语义或并行。正式状态复用Core，运行复用Session/Run；全部为planned，不改变当前产品施工顺序。依赖仅索引，未采用。
 
+### 运行时局部解耦 / 长期维护
+
+[架构研究并账](research/architecture-maintenance-2026-09-09/README.md)沿M01…04/M08…11/M14补[AM-A…F](research/architecture-maintenance-2026-09-09/pr-plan.md)：固定能力与最终请求基线→只读异步纵切→按缺口补生命周期和前端贡献→独立维护演练，对齐Runtime R3→R4→R5。它消费前述LG/EX的工具与控制需求，不新建平行loop/ledger；全部是后续施工计划。正式选择仍需固定版本、权限/恢复/缓存证据与退出成本，不做全局插件化改造。
+
 ### NDA / Experts 验证路径
 
 [NDA 与热插拔研究](research/experts-hotplug-2026-09-08/README.md)、[H0–H5 PR 施工稿](research/experts-hotplug-2026-09-08/pr-plan.md) 和 [验证设计](research/experts-hotplug-2026-09-08/validation.md) 是 R1–R3 的第一条具体路径：H0 固定实验；H1 复用领域 Core 补规则/修订/投影契约；H2 顺序执行；H3 真实 Review 与 fallback；H4 按缺口补生命周期；H5 配对裁决。NDA 的规则结构和人工审阅强度不升为所有工作的固定模板。

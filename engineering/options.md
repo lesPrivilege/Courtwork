@@ -48,3 +48,7 @@ SQLite、UI 库、传输和校验器承担通用工程；独创性工作的精�
 迁移/导出/回滚路径
 决策人、日期、重开触发器
 ```
+
+## 2026-09-09 局部维护候选补充
+
+[局部选型index](research/architecture-maintenance-2026-09-09/source-index.md)基于当前Pi实现与既有Core评估async、生命周期、缓存和view contribution；保留本表作为历史候选集合，不据早期候选顺序推翻current的实际基线。本轮不新增正式采用决定或整体升级，AM实验后再按本页模板裁决。

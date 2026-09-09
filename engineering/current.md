@@ -58,6 +58,10 @@ BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选ke
 
 用户授权消费 [本地数据治理查询全量turn](research/local-governance-2026-09-09/source-index.md)。已读取接口返回的五个turn、九条文本和一张图片，T02未返回研究答复；30个外链完整索引，其中六个原始页面有界抽查。[准备包](research/local-governance-2026-09-09/README.md)给出只读Intake/rendition、派生索引、现有Core候选决定、Explore接缝与六层评测施工稿。仅规划和追溯交付，无新产品代码/API、模型运行或依赖；不把外文性能与示例数字记为本项目结果。沿Core历史/决定与既有Session/Run，派生缓存可重建，正式治理记录不随sidecar删除；FE串行队列、ES-01与G1–G5状态不变。
 
+## 局部解耦与长期维护：研究并账（2026-09-09）
+
+用户要求将“架构插件化调研”一并入账，并补充handoff.md；已消费一轮完整问答及366行交接原文。[准备包](research/architecture-maintenance-2026-09-09/README.md)在实际main4c1c420核对当前owner，提供AM-A…F后续PR、局部选型/来源index、缓存/维护契约草案和前后端合流Design。保持Pi与既有Core；先请求基线再两项只读慢任务纵切，区分执行/交付/接受、native/adapted和MCP协议代际。与上一单LG/EX及ES-00交叉连接，不复制任务/来源/成果owner。此次仅文档与有界只读核验，未实施async或插件平台、未运行真实provider；FE队列、ES-01及G1–G5不变。
+
 ## 新接两单：Luna 首轮有界交付
 
 2026-09-08 用户指定“code base 优化和 harness Core 验证”，并确认“落工单并启动 Luna 有界执行”。从实际 main `429fdd68febb9998f322a0b53c323651fc8cd7fd` 建临时隔离分支 `codex/luna-maintenance-core-validation`；[两单合同](execution/2026-09-08-luna-two-orders/README.md)已形成并启动三个 Luna max 分片：clarity Finder、Core 独立反例验证、agent capability compatibility index。首阶段仅各写对应证据；代码候选必须经另一人验证后才授予修复写权。Astra 负责架构、current 与合流，不触碰 WK12/WK11 前端写权。

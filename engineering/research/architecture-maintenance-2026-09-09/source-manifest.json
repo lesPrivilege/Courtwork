@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-09-09",
+  "repositoryBase": "4c1c4205a4bc9479e1699471f40342d85cbc2b75",
+  "conversationId": "6aa10937-9ad0-83ec-aaca-a63e68fe5969",
+  "title": "架构插件化调研",
+  "sourceUrl": "chatgpt-conversation://6aa10937-9ad0-83ec-aaca-a63e68fe5969",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "coverage": {
+    "turns": 1,
+    "messages": 2,
+    "returnedAttachments": 0,
+    "uploadedSupplements": 1,
+    "rawConversationCommitted": false,
+    "contentReference19": "Not resolvable through thread return; user later supplied matching-topic handoff.md, ingested as separate H01 without claiming attachment identity."
+  },
+  "textHashRule": "SHA-256 exact returned UTF-8 text; text content blocks joined with LF; no normalization",
+  "turns": [
+    {
+      "id": "e678a84d-c80e-470a-8e6b-f32c8c24fbc3",
+      "items": [
+        {
+          "id": "e678a84d-c80e-470a-8e6b-f32c8c24fbc3",
+          "type": "userMessage",
+          "characters": 536,
+          "utf8Bytes": 1358,
+          "sha256": "5d75ff7dc0a3017cb7bd9f810e227a59158618cef48c30143be116d93e09e217",
+          "headings": []
+        },
+        {
+          "id": "f10110d8-ebda-49cb-a887-8ef49b9ed545",
+          "type": "agentMessage",
+          "characters": 8025,
+          "utf8Bytes": 18329,
+          "sha256": "0f7452adc93b5ea6ae51b31678ed265f08ac3c12baed0f8fca85cfd6ea89fd72",
+          "headings": [
+            "## 一、异步工具不是孤立的 API 开关，而是一次执行语义的补全",
+            "### 第一条纵切建议选“阅卷整理”",
+            "## 二、选型上，继续以 Pi 为当前实现基础，借 DSH 的局部机制，而不是整体迁移",
+            "## 三、“原子化”应按稳定的工作含义切，不按包名，也不按每个函数切",
+            "### 兼容性也不能只有一个布尔值",
+            "### 原子化不应增加每次请求的全局开销",
+            "## 四、真正需要补齐的，是异步任务的归属、恢复与版本边界",
+            "### 有四条边界必须明确",
+            "## 五、缓存需要成为独立的架构契约，而不是性能优化尾项",
+            "### 1. 区分执行版本与模型可见版本",
+            "### 2. 当前缓存机制不能再只凭“有共同前缀”的直觉",
+            "### 3. 必须检查最终出站请求，而不只是 system prompt",
+            "## 六、长期维护的关键，不是“可以热更新”，而是“变化可控、失败可退、历史可读”",
+            "### 回滚至少要说明自己回滚了什么",
+            "### 前端也要参与同一套治理",
+            "## 七、让 Agent 自行复现和维护，需要的是“可执行维护包”，不只是更多说明文档",
+            "## 八、本轮可以派发六个有界研究与验证任务"
+          ]
+        }
+      ]
+    }
+  ],
+  "supplements": [
+    {
+      "id": "H01",
+      "name": "handoff.md",
+      "path": "inputs/handoff.md",
+      "bytes": 25484,
+      "sha256": "027af107af0100eba08c0a29397ddfbf751d0d4e64d693f1ff957236020f0ce9",
+      "lines": 366,
+      "source": "user supplied attachment",
+      "status": "fully_read; frozen source, not active instructions",
+      "headings": [
+        {
+          "line": 1,
+          "heading": "# SE / Courtwork：运行时局部解耦、异步工具与长期维护"
+        },
+        {
+          "line": 7,
+          "heading": "## 0. 固定基线与证据边界"
+        },
+        {
+          "line": 20,
+          "heading": "## 1. 本轮架构裁决建议"
+        },
+        {
+          "line": 26,
+          "heading": "## 2. 选型结论"
+        },
+        {
+          "line": 38,
+          "heading": "### 为什么不直接迁到 DSH"
+        },
+        {
+          "line": 44,
+          "heading": "## 3. 原子化的边界：按可独立验证的语义切，不按函数切"
+        },
+        {
+          "line": 57,
+          "heading": "### 包、能力、实例与版本分离"
+        },
+        {
+          "line": 70,
+          "heading": "### 原子化不等于每次请求重新发现一切"
+        },
+        {
+          "line": 76,
+          "heading": "## 4. 首条纵切：可恢复的异步工具"
+        },
+        {
+          "line": 78,
+          "heading": "### 已核实的上游边界"
+        },
+        {
+          "line": 84,
+          "heading": "### 最小演示场景"
+        },
+        {
+          "line": 90,
+          "heading": "### 内部处理序列（建议，不是现有 API）"
+        },
+        {
+          "line": 107,
+          "heading": "### 三个不能合并的状态维度"
+        },
+        {
+          "line": 115,
+          "heading": "### 最小持久关联"
+        },
+        {
+          "line": 133,
+          "heading": "### Native 与 fallback"
+        },
+        {
+          "line": 141,
+          "heading": "### 必测故障"
+        },
+        {
+          "line": 147,
+          "heading": "## 5. 缓存契约"
+        },
+        {
+          "line": 149,
+          "heading": "### 两种指纹，而非一个大版本号"
+        },
+        {
+          "line": 158,
+          "heading": "### 不能只断言“前缀没变就命中”"
+        },
+        {
+          "line": 164,
+          "heading": "### 约束"
+        },
+        {
+          "line": 175,
+          "heading": "### 测试分层"
+        },
+        {
+          "line": 181,
+          "heading": "## 6. 生命周期、前后端与回退"
+        },
+        {
+          "line": 183,
+          "heading": "### 默认政策"
+        },
+        {
+          "line": 192,
+          "heading": "### 变更通道"
+        },
+        {
+          "line": 206,
+          "heading": "### 前端约束"
+        },
+        {
+          "line": 214,
+          "heading": "## 7. Agent 可维护复现包"
+        },
+        {
+          "line": 247,
+          "heading": "### 一个容易漏掉的长期维护要求"
+        },
+        {
+          "line": 253,
+          "heading": "## 8. 可派发工单"
+        },
+        {
+          "line": 257,
+          "heading": "### A — 当前边界与能力盘点（M01–M04 / M08 / M14，优先）"
+        },
+        {
+          "line": 267,
+          "heading": "### B — 异步任务有界 PoC（M02–M04，依赖 A）"
+        },
+        {
+          "line": 275,
+          "heading": "### C — 请求与缓存回归（M01 / M09，与 B 配合，优先）"
+        },
+        {
+          "line": 283,
+          "heading": "### D — 生命周期与局部替换（M08 / M14，对齐 R3 → R4 → R5）"
+        },
+        {
+          "line": 291,
+          "heading": "### E — 前端贡献契约（M10 / M11，接入现有前端串行 writer）"
+        },
+        {
+          "line": 299,
+          "heading": "### F — 维护演练与独立审查（M14，集成门）"
+        },
+        {
+          "line": 307,
+          "heading": "### 并行边界"
+        },
+        {
+          "line": 311,
+          "heading": "## 9. 首轮集成验收门"
+        },
+        {
+          "line": 324,
+          "heading": "## 10. 来源索引"
+        },
+        {
+          "line": 328,
+          "heading": "### OpenAI 与缓存"
+        },
+        {
+          "line": 340,
+          "heading": "### Pi / MCP / DSH / GUI"
+        },
+        {
+          "line": 355,
+          "heading": "### 两仓固定来源"
+        },
+        {
+          "line": 364,
+          "heading": "## 11. 建议收束"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "S01",
+      "label": "Async tool calling",
+      "url": "https://developers.openai.com/api/docs/guides/async-tool-calling",
+      "source": "H01",
+      "line": 330,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-B",
+      "supportedScope": "GPT-6 Astra及以后模型的Responses function/custom direct calls支持async；应用执行工具，原call_id回传；hosted tools/PTC不适用，multi-agent mode不可与parallel tool calls组合。原生wait由应用定义，非内置API。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S02",
+      "label": "Prompt caching",
+      "url": "https://developers.openai.com/api/docs/guides/prompt-caching",
+      "source": "H01",
+      "line": 333,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-C",
+      "supportedScope": "按模型代际区分显式/隐式breakpoint、prefix匹配和cache读写；共享前缀不是命中保证。精确lookup数量在指南与参考检索结果间有差异，不冻结为本产品常量。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S03",
+      "label": "Anthropic tool use with prompt caching",
+      "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching",
+      "source": "H01",
+      "line": 335,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-C",
+      "supportedScope": "工具→system→messages的prefix影响层级；defer_loading/tool_reference是该provider协议特例，不能推广为任意动态toolset。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S04",
+      "label": "Claude Code prompt caching",
+      "url": "https://code.claude.com/docs/en/prompt-caching",
+      "source": "H01",
+      "line": 337,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-C",
+      "supportedScope": "Claude Code自己的追加历史、MCP deferred与prefix-loaded工具差异、模型/插件/压缩影响；不能外推为Courtwork实现。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S05",
+      "label": "Pi Extensions",
+      "url": "https://pi.dev/docs/latest/extensions",
+      "source": "H01",
+      "line": 342,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-A/C/D",
+      "supportedScope": "latest扩展文档有before_provider_request和reload生命周期；reload旧handler可能仍处于旧frame，应结束旧流程。此页面不证明锁定0.85.1全链支持。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S06",
+      "label": "MCP Tasks overview",
+      "url": "https://modelcontextprotocol.io/extensions/tasks/overview",
+      "source": "H01",
+      "line": 344,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-B",
+      "supportedScope": "新的opt-in Tasks扩展：durable handle、tasks/get含终态结果、tasks/update补输入，cancel仅确认意图；client/server协商，不默认支持。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S07",
+      "label": "MCP Tasks SEP",
+      "url": "https://modelcontextprotocol.io/seps/2663-tasks-extension",
+      "source": "H01",
+      "line": 345,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-B",
+      "supportedScope": "SEP-2663标Final；与2025-11-25实验Tasks非wire-compatible，新扩展移除tasks/result及旧task opt-in字段，取消ack不保证cancelled。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S08",
+      "label": "MCP specification",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28",
+      "source": "H01",
+      "line": 346,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-A/B",
+      "supportedScope": "2026-07-28规范入口含per-request能力与可选扩展；入口“初始化协商”概述与扩展详细流须结合实际schema核对，不能以页面版本号代表当前client支持。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S09",
+      "label": "DSH architecture",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md",
+      "source": "H01",
+      "line": 348,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-D",
+      "supportedScope": "service/typed event/reversible effect；web与一次性/stdio profile的reload策略不同。master页面是方法参考，动态包持久性仍沿既有EX-WK6的固定证据边界。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S10",
+      "label": "VS Code manifest",
+      "url": "https://code.visualstudio.com/api/references/extension-manifest",
+      "source": "H01",
+      "line": 350,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-E",
+      "supportedScope": "manifest有contributes、engines、main/browser、extensionKind，支持一个分发包组合不同贡献；不采纳VS Code产品依赖。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "S11",
+      "label": "VS Code extension host",
+      "url": "https://code.visualstudio.com/api/advanced-topics/extension-host",
+      "source": "H01",
+      "line": 352,
+      "status": "primary_page_spotchecked",
+      "dependencyAdded": false,
+      "observedOn": "2026-09-09",
+      "consumer": "AM-E",
+      "supportedScope": "local Node、web worker、remote Node host；placement由能力、entry和extensionKind等决定。host选择与权限隔离仍需独立验收。",
+      "versionPin": "not_pinned_for_implementation",
+      "license": "reuse scope not checked; no dependency adopted",
+      "verification": "official docs read only; not live API or compatibility test"
+    },
+    {
+      "id": "R01",
+      "label": "Courtwork architecture",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/62556b7f65170ecf30efb2869447ae85fe69d721/engineering/architecture.md",
+      "source": "H01",
+      "line": 357,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    },
+    {
+      "id": "R02",
+      "label": "Courtwork current",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/62556b7f65170ecf30efb2869447ae85fe69d721/engineering/current.md",
+      "source": "H01",
+      "line": 358,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    },
+    {
+      "id": "R03",
+      "label": "Source resolver contract",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/62556b7f65170ecf30efb2869447ae85fe69d721/docs/runtime-control/source-resolver.md",
+      "source": "H01",
+      "line": 359,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    },
+    {
+      "id": "R04",
+      "label": "既有 DSH explore",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/62556b7f65170ecf30efb2869447ae85fe69d721/engineering/mvp/execution/work-surface-kit/explore/ex-wk6-dsh-plugins-webui.md",
+      "source": "H01",
+      "line": 360,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    },
+    {
+      "id": "R05",
+      "label": "Dependency declaration",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/62556b7f65170ecf30efb2869447ae85fe69d721/app/package.json",
+      "source": "H01",
+      "line": 361,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    },
+    {
+      "id": "R06",
+      "label": "SE Canonical 9.6",
+      "url": "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
+      "source": "H01",
+      "line": 362,
+      "status": "historical_source_indexed",
+      "dependencyAdded": false,
+      "consumer": "provenance only; current local contracts govern",
+      "verification": "Historical remote blob not re-read this turn; local current counterparts and PAPER pointer checked"
+    }
+  ],
+  "supplementalReferences": [
+    {
+      "id": "N01",
+      "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/tasks",
+      "status": "primary_page_spotchecked",
+      "consumer": "legacy compatibility contrast only",
+      "note": "Luna spotcheck; not current extension semantics"
+    },
+    {
+      "id": "N02",
+      "url": "https://deepseek-harness.github.io/deepseek-harness/en/develop/framework/service",
+      "status": "primary_page_spotchecked",
+      "consumer": "AM-D services/disposal",
+      "note": "Luna spotcheck; preview/latest not pinned; license unverified"
+    }
+  ]
+}

@@ -47,3 +47,5 @@
 ## 本地治理与 Explore 方法索引
 
 [2026-09-09 来源包](../research/local-governance-2026-09-09/source-index.md)完整映射一份授权会话的五个turn、图片和30个明文外链；六个原始页面有界抽查，其余仅索引。每项给消费者与重查触发，manifest保存消息hash。它为后续自研/评测提供出处，不新增依赖或替代固定版本、许可和独立复现。
+
+[架构局部选型索引（2026-09-09）](../research/architecture-maintenance-2026-09-09/source-index.md)将Pi、DSH/Cordis、MCP Tasks、OpenAI/Anthropic缓存和VSCode贡献机制映射到AM施工单；保存用户handoff原件与消息hash，区分旧实验协议、新扩展与锁定实现，不新增依赖。

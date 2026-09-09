@@ -46,3 +46,5 @@ Astra 负责架构、合同冻结和集成；Luna 可承担独立、有界资料
 Intake的host adapter负责显式读取scope与派生存储；观察目录不会自动建立Core正式来源绑定。选定来源集合须按现有绑定/权限接缝进入Core；OCR与索引结果只提供可验证依据，不直接成为决定真值。具体模块位置由LG-01合同冻结，以上映射不是已授予全service写权。
 
 文档校验与有界非作者复核见 [回执](verification.json)。
+
+后续并账：[局部解耦与长期维护](../architecture-maintenance-2026-09-09/README.md)消费本包LG/EX慢工具与控制需求，补AM异步交付、请求缓存和前后端合流设计；不替换本包的Intake sidecar、派生索引与Core边界。
