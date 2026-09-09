@@ -171,3 +171,7 @@ design_task:
 ## CC-D0-b · Activity 与 Usage 接入（待 BE-1/3 + BE-25、BE-29 交付）
 
 热力图按真实日期桶（时区、去重、覆盖完整性由 BE-25 回答）；空白桶 = 无数据，unknown / 缺覆盖不显示 0；Usage token 分列、"Not reported"；尺寸从 320×120 初值起，HOME-6 复跑。Mail / Calendar 随产品裁定与 BE-26/27。
+
+## CC-I · 共享 Inspector（`opus-wo-medium`；WK-118 (b) ③ / WK-119；排 FE-05 之后，以 FE-05 消融表为前置）
+
+骨架：以 `connection-popover`（原生 `popover` + Floating UI，两锚点共享）为种子，合并为一个组件，payload kind 分只读（tool row、runtime 资源、来源 span、文件引用摘要）与可操作（permission mode，PUT 沿现有路径）；一个单点互斥状态"当前打开的是谁"（锚点身份复用 `toolScopeKey` / `{sessionId,runId,path,sha256}` / `resource.id`）；只 click / focus 触发，tooltip 保持纯文本 hover；同一浮层随锚点迁移、变尺寸、换内容，reduced-motion 下瞬切；"Open in surface" 动作接 File / Trace 的工作面导航，不做钉住；窄屏底部 sheet 且与工作面 sheet 互斥；材质 Transient（登记类名 + 回退，无 glass-on-glass，FE-05 消融后落地）；断言：焦点归还、两步 Escape、generation 竞态、安全区、窄屏、四处旧展开状态收敛后 FE-T07 与 RC 全量回归。§VI 契约头在成单时由 Fable 填写。
