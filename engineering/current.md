@@ -284,3 +284,12 @@ RuntimeStore 当前为6（Core3/app4不变）：严格校验后从3/4/5保留原
 Home handoff后续施工（2026-09-10）：用户授权按 Runtime→Usage→Tabs→Material→Overlay→Glyph→Sidebar/Control 顺序实施，统一composer writer。[队列](design/home-backlog-2026-09-10/README.md)。Runtime第一片已实施共享模型/effort选择器、host观测请求延迟、上下文启发式与独立用量详情；RuntimeStore7持久化可选effort，严格备份迁移3–6并保留global身份。全量423/423、最终定向5/5与合成浏览器验证通过；[证据及归因](../evidence/home-backlog-20260910/runtime/README.md)。原生provider TTFT/decode TPS无必要测量时仍明确不可用，不以host延迟或字符数冒充。下一片Usage施工；其余队列未闭合。
 
 Usage接续：已接每日/模型projection和快照一致的Run下钻、Overview/Models读面、精确日表/模型表、Top4+Other。模型身份固定为Run开始时配置，UTC起始日归属，缺失用量/历史覆盖保持明确，数据变化下钻返回409。全量431/431、定向18/18、最终Usage6/6及合成浏览器验证通过；[合同](../app/docs/usage-details.md)、[证据](../evidence/home-backlog-20260910/usage/README.md)。用户另补Chat Flow材料与气泡/首页会话管理要求：先落实右对齐窄气泡，余项在Usage收尾后优先接续，见[处置](design/chat-flow-2026-09-10/README.md)。
+
+
+## Multi-agent · Thread与本地通信首片（2026-09-10）
+
+本单原认领multi-agent、Thread、message other agent的入账与Harness入口；用户随后明确Attention Chat flow UI单独施工，最终交付已撤出本单全部web改动。两份原文、14项裁定、七接缝与MA-00–07在[研究账](research/multi-agent-2026-09-10/README.md)；Astra架构/实现，Luna有界只读探索与独立反例。实际从 `27d37da` 隔离，保留telemetry/effort及Usage `ee6df72`，最终产品 `105458a` 已快进合入main。
+
+RuntimeStore8持有显式Thread成员关系与本地outbox/inbox，提供受认证HTTP、模型目录/收件箱/message_other_agent；源Session/Run、target revision、同键重试、重启投递与单次权限保持明确。消息投递不启动目标Run、不改Core接受。child invoke/grant/reducer只交付可执行符合性入口；生产Pi parallel child、持久child recovery、handoff、Workflow及跨Matter Core事务仍未接通，capabilities保持false。[合同](../app/docs/coordination.md)供另单前端消费。
+
+Usage组合 `c1f2122` 全量446/446；撤出UI后定向22/22、smoke、两项lint与文档链接通过；Luna固定组合定向21/21为有界非作者证据，非完整独立产品接受，见[交付回执](../evidence/multi-agent-20260910/README.md)。Core3/app4、Paper与G1–G5保持；未迁移个人数据、调用付费provider、外发或部署。
