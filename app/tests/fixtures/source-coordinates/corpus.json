@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": 1,
+  "dataClass": "synthetic; original UTF-8 bytes + independent stdlib-only summary",
+  "generatorNote": "expected values computed with node Buffer/TextDecoder/crypto only; never by app/runtime/source-coordinates.mjs",
+  "cases": [
+    {
+      "id": "ascii-basic",
+      "text": "Hello, world!\n",
+      "hex": "48656c6c6f2c20776f726c64210a",
+      "expected": {
+        "byteLength": 14,
+        "codePointLength": 14,
+        "utf16Length": 14,
+        "contentSha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5"
+      }
+    },
+    {
+      "id": "chinese-lf-crlf",
+      "text": "中文段落。\n第二行\r\n",
+      "hex": "e4b8ade69687e6aeb5e890bde380820ae7acace4ba8ce8a18c0d0a",
+      "expected": {
+        "byteLength": 27,
+        "codePointLength": 11,
+        "utf16Length": 11,
+        "contentSha256": "4217b27a0714e12b71a61ffa1c32cfd6945025717625231e6d680941c1e97623"
+      }
+    },
+    {
+      "id": "emoji-astral-mixed",
+      "text": "A😀B🏳️‍🌈C\n",
+      "hex": "41f09f988042f09f8fb3efb88fe2808df09f8c88430a",
+      "expected": {
+        "byteLength": 22,
+        "codePointLength": 9,
+        "utf16Length": 12,
+        "contentSha256": "46787e4324dd95e51798890f56350fc619f43f656951aa101a7bb6200f4158f3"
+      }
+    },
+    {
+      "id": "combining-nfd",
+      "text": "ẹ́ café",
+      "hex": "65cc81cca32063616665cc81",
+      "expected": {
+        "byteLength": 12,
+        "codePointLength": 9,
+        "utf16Length": 9,
+        "contentSha256": "f23a12d61f629af6c3293eb0cf7c110ec2c8f7de754475d83b4bab0fc47501e5"
+      }
+    },
+    {
+      "id": "precomposed-vs-combining",
+      "text": "é é ǻ",
+      "hex": "c3a92065cc8120c7bb",
+      "expected": {
+        "byteLength": 9,
+        "codePointLength": 6,
+        "utf16Length": 6,
+        "contentSha256": "7246fe355a60b8672bb74614a4460e58f1964e2911f8abbc610a620ae3d87748"
+      }
+    },
+    {
+      "id": "bom-leading",
+      "text": "﻿# 标题\n正文\r\n",
+      "hex": "efbbbf2320e6a087e9a2980ae6ada3e696870d0a",
+      "expected": {
+        "byteLength": 20,
+        "codePointLength": 10,
+        "utf16Length": 10,
+        "contentSha256": "52531cfd60b2985842ff466667afa765b51fe619f43b253502f47134e152191c"
+      }
+    },
+    {
+      "id": "bom-internal",
+      "text": "a﻿b﻿c",
+      "hex": "61efbbbf62efbbbf63",
+      "expected": {
+        "byteLength": 9,
+        "codePointLength": 5,
+        "utf16Length": 5,
+        "contentSha256": "cfeb68414ef472d115a4393d422f3b52cc8fac5b90eff3e3b5c8d91e0a18c67c"
+      }
+    },
+    {
+      "id": "bom-only",
+      "text": "﻿",
+      "hex": "efbbbf",
+      "expected": {
+        "byteLength": 3,
+        "codePointLength": 1,
+        "utf16Length": 1,
+        "contentSha256": "f1945cd6c19e56b3c1c78943ef5ec18116907a4ca1efc40a57d48ab1db7adfc5"
+      }
+    },
+    {
+      "id": "crlf-trailing-newline",
+      "text": "line1\r\nline2\r\n",
+      "hex": "6c696e65310d0a6c696e65320d0a",
+      "expected": {
+        "byteLength": 14,
+        "codePointLength": 14,
+        "utf16Length": 14,
+        "contentSha256": "4ad3ef64dfb83f7a8f789bce6f30cc1f8d18491b14db4c875309b150d2a7d213"
+      }
+    },
+    {
+      "id": "lf-trailing-newline",
+      "text": "last line\n",
+      "hex": "6c617374206c696e650a",
+      "expected": {
+        "byteLength": 10,
+        "codePointLength": 10,
+        "utf16Length": 10,
+        "contentSha256": "95391ac833d2c98821b3dc361222b626c673ec8243812ed7821979a248d53f79"
+      }
+    },
+    {
+      "id": "empty",
+      "text": "",
+      "hex": "",
+      "expected": {
+        "byteLength": 0,
+        "codePointLength": 0,
+        "utf16Length": 0,
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "nul-and-controls",
+      "text": "a\u0000b\u001fc\u0001",
+      "hex": "6100621f7f6301",
+      "expected": {
+        "byteLength": 7,
+        "codePointLength": 7,
+        "utf16Length": 7,
+        "contentSha256": "1db55e25aa8cb1a080e15d1867fa774691715cf2eeb20b8b9f5ea2e20522ae95"
+      }
+    },
+    {
+      "id": "markdown-mixed",
+      "text": "# 标题\r\n\r\n- item one\r\n- item two\n\n```js\nconst x = \"😀\";\n```\n",
+      "hex": "2320e6a087e9a2980d0a0d0a2d206974656d206f6e650d0a2d206974656d2074776f0a0a6060606a730a636f6e73742078203d2022f09f9880223b0a6060600a",
+      "expected": {
+        "byteLength": 64,
+        "codePointLength": 57,
+        "utf16Length": 58,
+        "contentSha256": "60cceb5562250af762f24ff9e584e72de7a060d343ecd5829cb2ba0f32579768"
+      }
+    },
+    {
+      "id": "astral-alone",
+      "text": "😀",
+      "hex": "f09f9880",
+      "expected": {
+        "byteLength": 4,
+        "codePointLength": 1,
+        "utf16Length": 2,
+        "contentSha256": "f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9"
+      }
+    },
+    {
+      "id": "astral-after-ascii",
+      "text": "a😀",
+      "hex": "61f09f9880",
+      "expected": {
+        "byteLength": 5,
+        "codePointLength": 2,
+        "utf16Length": 3,
+        "contentSha256": "28e66175821bf0ad8d7c8008061930de7daf248c28814ad41a0541449257bcf7"
+      }
+    },
+    {
+      "id": "wide-4byte-cjk-ext",
+      "text": "𠀀𪛖",
+      "hex": "f0a08080f0aa9b96",
+      "expected": {
+        "byteLength": 8,
+        "codePointLength": 2,
+        "utf16Length": 4,
+        "contentSha256": "bac585241ba847859cf98eebab79f5446a855a326134368814712f66f7318b33"
+      }
+    },
+    {
+      "id": "ascii-utf16-equal",
+      "text": "plain ascii no multibyte",
+      "hex": "706c61696e206173636969206e6f206d756c746962797465",
+      "expected": {
+        "byteLength": 24,
+        "codePointLength": 24,
+        "utf16Length": 24,
+        "contentSha256": "ec36d5856842d88a78eb84f1852565d157ecafad905baec99d969a39ecf8371e"
+      }
+    }
+  ],
+  "invalidCases": [
+    {
+      "id": "truncated-2byte",
+      "hex": "e4",
+      "invalid": true
+    },
+    {
+      "id": "truncated-3byte",
+      "hex": "e4b8",
+      "invalid": true
+    },
+    {
+      "id": "truncated-4byte",
+      "hex": "f09f98",
+      "invalid": true
+    },
+    {
+      "id": "lone-continuation",
+      "hex": "80",
+      "invalid": true
+    },
+    {
+      "id": "lone-continuation-mid",
+      "hex": "618062",
+      "invalid": true
+    },
+    {
+      "id": "overlong-c0",
+      "hex": "c080",
+      "invalid": true
+    },
+    {
+      "id": "overlong-c1",
+      "hex": "c1bf",
+      "invalid": true
+    },
+    {
+      "id": "overlong-e0",
+      "hex": "e08080",
+      "invalid": true
+    },
+    {
+      "id": "surrogate-ed-a0",
+      "hex": "eda080",
+      "invalid": true
+    },
+    {
+      "id": "surrogate-ed-bf",
+      "hex": "edbfbf",
+      "invalid": true
+    },
+    {
+      "id": "above-10ffff",
+      "hex": "f4908080",
+      "invalid": true
+    },
+    {
+      "id": "f5-lead",
+      "hex": "f5808080",
+      "invalid": true
+    },
+    {
+      "id": "ff-lead",
+      "hex": "ff",
+      "invalid": true
+    },
+    {
+      "id": "bad-second-2byte",
+      "hex": "c228a1",
+      "invalid": true
+    },
+    {
+      "id": "e2-28-a1",
+      "hex": "e228a1",
+      "invalid": true
+    },
+    {
+      "id": "cont-then-lead",
+      "hex": "8041",
+      "invalid": true
+    },
+    {
+      "id": "valid-then-truncated",
+      "hex": "41e4b8",
+      "invalid": true
+    }
+  ]
+}
