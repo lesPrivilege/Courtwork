@@ -174,3 +174,20 @@ RC 视口脚本改了一处**量法**（不是断言）：视觉隐藏的 radio�
 - **`Connection options` 换成 `Advanced`。** 前者读起来像"这里还有几个连接相关的选项"，人会去看；后者读起来像"这里的东西你多半不需要"。同一个 disclosure，打开率的判断反过来了——而里面装的确实是少数人才改的两项。
 - **Model 行的说明从"用于此工作区的每次新 run"变成"用于你接下来开的每个 chat；已经开着的 chat 保持它绑定的模型"。** 前者不回答"我改了默认，正在跑的那个会怎样"；后者把 `runtime.bound` 这件架构事实翻译成一句用户世界的话，而 FE-T03-c 正是它的证据。
 - **Tools 组多了六行、少了零个控件。** 那六行没有让 MCP 多出任何能力；它让"为什么这里只能 Connect / Disconnect，不能 Add"有了答案——判断从"这个页面做得不全"变成"这一步在后端还没有"。
+
+## 13. Fable 复核（WK-107，2026-09-09）
+
+非作者复核，与 §1–§12 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only 2b6c221..HEAD` 逐一对照工单可写清单 | 无越权文件；`app/server` / `runtime` / `core` / `domains` / `brand` 差异为空 |
+| 读码 | `settings-view.mjs` / `styles.css` / `index.html` / 两个测试文件全部差异 | 三个闭集与三个纯函数与 WK-91 一致；未交付两步零控件；`--nav` 256；同行级控件一档 |
+| 单测 / lint | 交付 `38717bd`：219/219；修订 `a82c192`：218/218（少的一条即被移除的 display name 测试）；lint-colors / lint-materials ok；contrast 全通过 | 一致 |
+| 浏览器 | 自有端口 8893、新数据目录、独立 CDP 端口，`models-checks` 与 `composition-checks` 各在两次提交上重跑 | 16/16 · 16/16，两次均一致 |
+| 修订核对 | `a82c192` 后全树 grep `connectionNames` / `CONNECTION_NAME` / `displayName` / `Display name` / `rememberName` | 零命中；修订中两处连带断言改动（FE-T03-c 行标记、`connectionRows` 测试名）判断内容不变，接受 |
+| 六项待裁 | 见 [intake-round-3 §4m](intake-round-3.md) WK-107 | ① ③ ⑤ ⑥ 接受；② 移除（本修订）；④ 由 Fable 在 `claude/fable-round4c` 改正 |
+| 后端登记 | BE-21 连接注册表、BE-22 MCP server 注册 | 已入 [backend-requests](backend-requests.md) |
+| 视觉四轴 | 留用户 | 未评 |
+
+结论：接受。合流次序：先 `claude/fe02-models`（头 `a82c192` + 本条提交），再 `claude/fable-round4c`。RC 三支与 `counterexamples` 在修订后由作者重跑，Fable 未复跑（不碰其 DOM），Astra 独验时按 [evidence/fe02/README](evidence/fe02/README.md) 全量。
