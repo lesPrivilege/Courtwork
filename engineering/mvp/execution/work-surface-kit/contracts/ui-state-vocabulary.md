@@ -47,6 +47,19 @@ assistant-ui 的 `request | running | done | denied` 对应：pending → (在�
 | Activity `thought` / `plan`（Linear） | 事件流有 tool / status / artifact，无 plan 对象 | 不画 evolving plan |
 | Approval `Always allow` | 明确不采纳 | review-projection §6 |
 
+## 6. Attention（[docs/work-core/attention.md](../../../../../docs/work-core/attention.md) §Identity and state，WK-136）
+
+| 后端值 | 集合 | UI 词（待 ATT-FE-01 派单前定稿） | 备注 |
+|---|---|---|---|
+| `investigating` | status | Investigating | 创建即此态 |
+| `needs_you` | status | Needs you | **不得**写 "Waiting for you"（该词专属 Today strip 的 work-summary `pendingItems`） |
+| `waiting` | status | Waiting · <next_action.label> | 等外部 / 条件；与 Today strip 词不同对象，不共词 |
+| `later` | status | Later | snooze 结果；due_at 只显示，不计时 |
+| `resolved` | status | Resolved | 只由人 resolve；reopen 才能再动 |
+| `freshness: unknown` | freshness | （不画） | 无 stale 词（§4 规则不变） |
+| `seen: false / true` | seen | New /（不画） | acknowledge 一去不返，不是 toggle |
+| `next_action.kind` | inspect / decide / wait / follow_up / none | 动作短语由 label 承担，kind 不单独成词 | `none` 只在 resolved |
+
 ## 5. 使用规则
 
 **Auto（WK-123）**：策略层运行模式，owner 是 runtime 控制面；界面只投影它的行为契约——在授权范围内主动推进；只在新增必要权限、不可逆后果、关键方向判断、无法自行解决的阻塞时向人提问；相关问题合并为一次，给具体选项与建议；有可靠撤销（BE-34）时优先撤销而不重复确认。它不是授权卡上的 Always allow，也不是 composer 标签；在 BE-35 前不新造模式值。

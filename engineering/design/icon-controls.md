@@ -51,3 +51,7 @@ Icon-only control 必须有明确 accessible name；开关、展开和当前页�
 - **Floating UI DOM 1.8.0：有碰撞定位需求时优先 Adopt**，固定 `12d94738472e922e1b3fa31b02b2b61b9ed77e6a`。消费 `computePosition` / `offset` / `flip` / `shift` / `autoUpdate` 的成熟定位，不重写碰撞算法；只在浮层存活时维护和清理。原生按钮/菜单/tooltip语义仍由一个小的公共 adapter 接线，不引入React封装。当前更多菜单与工作面边缘的提示可作为首个真实用例。
 
 以上是可施工的取用范围，不是产品代码已合流。Luna 的 action matrix 是建议输入；发生差异时以本页 IC-1 为准。Send/Cancel 的 icon-only 不是强制项，先用图标+文字验证习惯与状态辨识，不能为减字削弱取消的意义。
+
+## IC-6 · 候选家族、donor 规则与自绘验收（WK-133，2026-09-09）
+
+IC-5 的 Lucide 静态子集继续是唯一发货中的通用家族。候选家族（MingCute 主要视觉候选、Phosphor Regular 表现力局部、Remix 覆盖 donor、Hugeicons 长尾查询源）只登记在 [atlas Iconography 段](atlas/README.md)，今日零依赖。第二来源的单枚 glyph 只能作 donor 进入：归一到 canonical geometry（24 grid、2px 居中描边、round cap / join、currentColor、1px 安全边），manifest 逐枚登记来源 / sha / license，并通过 Lucide 设计指南的光学验收（circle / square 模糊对照、视觉重心居中）。同一规则约束任何自绘 glyph；WK-110 "生成图形作废"不变。Line ↔ Fill 不作状态机制，只在 boolean toggle 有 schema 后作冗余线索试验。选型裁定见 [intake-round-3 §4al](../mvp/execution/work-surface-kit/intake-round-3.md)。

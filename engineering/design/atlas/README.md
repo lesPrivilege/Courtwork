@@ -1,6 +1,6 @@
 # Local UI Atlas · 局部行为索引
 
-> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。各段见本页末。
+> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。**Control Grammar（WK-129）**再靠前一层：Schema / intent → control；Schema constraint ≠ UI affordance。各段见本页末。**Scout 层（WK-134 / 137）**再靠上：[design/scout](../scout/README.md) 按问题寻址，只出 capture 与候选，经 disposition 才进入本页任一段；60fps 为 Motion 段 C 层 donor。
 
 WK-118 设立，WK-122 升级为六级格式：**Semantic Contract → Interaction Pattern → Anatomy → Behavior Primitive → Motion Recipe → Local Adaptation**。来源分四层（A 语义契约 / B 解剖 / C 微交互 donor / D 探索池，见 [inputs/ui-source-tiers](../../mvp/execution/work-surface-kit/inputs/ui-source-tiers-2026-09-09.md)）。语义契约的正式所在是 [ui-state-vocabulary](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md)（映射后端已有状态）、[primitive-canon](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md) 与 [review-projection](../../mvp/execution/work-surface-kit/contracts/review-projection.md) §6；A 层外部来源（Linear、Primer）只用来检查语义齐全，不替代 Core owner。upstream 是 donor 不是 runtime dependency：一律本地实现（原生 ES module），不引 React / Tailwind / Motion。本页只做索引，不复制内容；一个 entry 有实体前不建子目录。链接未经 Fable 核验。
 
@@ -27,12 +27,37 @@ FE-05 按此五节组织，取值沿 WK-104：**field**（source geometry / colo
 
 ## Identity 段（WK-124 (d)，候选轨道 GI，品牌线 owner）
 
-conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。待用户点头后派 EX-GI1。
+conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。EX-GI1 已回执（WK-130）：三方向 A Baton / B Ruled-grid / C Annotation-mark specimen 入库，选向待用户 / 品牌线。
 
 ## Shape 段（WK-125）
 
-五个语义角色 `shape.control.compact / control.default / surface / overlay / full` → 现有 token（`--radius-small` 4 / `--radius-control` 8 / `--radius-card` 12 / `--radius-container` 16 / `--radius-pill`）；公理 `R_child = max(R_min, R_parent − inset)`；密度耦合（桌面 rounded rect，capsule 只给 large / isolated / prominent；触控可更圆）；grouping topology；focus ring 派生；forbidden：arbitrary radius、primary 自动更圆、danger 换 shape、pill everywhere、父子同 radius。`corner-shape` 只 progressive enhancement。待 EX-CS1：审计、映射草案、lint-shapes、六类环境 specimen。
+五个语义角色 `shape.control.compact / control.default / surface / overlay / full` → 现有 token（`--radius-small` 4 / `--radius-control` 8 / `--radius-card` 12 / `--radius-container` 16 / `--radius-pill`）；公理 `R_child = max(R_min, R_parent − inset)`；密度耦合（桌面 rounded rect，capsule 只给 large / isolated / prominent；触控可更圆）；grouping topology；focus ring 派生；forbidden：arbitrary radius、primary 自动更圆、danger 换 shape、pill everywhere、父子同 radius。`corner-shape` 只 progressive enhancement。EX-CS1 已回执 → WK-128：三处沉睡违例、`.context-group` 重名、circle 统一 `--radius-pill`、focus 派生、lint-shapes + SHAPE 断言并入 FE-05a 第 0b 项；`corner-shape` 只进 specimen。
 
 ## Motion 段（WK-124 / WK-125）
 
 state transition（原位变态：Send → Sending…、Approve → 回执行）、focus（transition blur 只在小型 text / icon）、material response（不动画 `backdrop-filter`）、identity transition（GI 轨道）；reduced-motion 下全部瞬切；pressed shape morph 只 experimental。
+
+## Control Grammar 段（WK-129）
+
+六类；每格标"今日有 / 候选（待 schema）/ 参照"。行为语义以 React Aria / Base UI 为 donor（不引依赖）。
+
+| 类 | 今日有（schema 存在） | 候选（待后端 schema） | 参照 |
+|---|---|---|---|
+| Selection | Segmented（Settings 路径 / 模式 / 布局）、Select（provider / model）、checkbox / radio；entity picker for matter / session / run（Attention `attach_relation`，仅 ATT-FE-01 内，WK-136） | Token picker（BE-21 连接、reviewer）、ComboBox（大目录搜索）、policy editor（Attention grant → CC-P） | React Aria ToggleButtonGroup / ComboBox / TagGroup |
+| Value | — | NumberField + Stepper + ScrubArea（BE-31 number；context budget / threshold）、Slider（bounded）、Range | Base UI NumberField ScrubArea；React Aria Slider |
+| Temporal | `next_action.due_at`（Attention，单点 datetime，trigger `at` 必带；WK-136） | Date / time range（BE-25 活动区间）、Waveform / Transport（无音频 artifact 契约，仅参照） | waveform-playlist 分层 |
+| Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项） | Tiptap / Nuxt fixed-bubble-floating；cmdk |
+| Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好）、Rule builder（待 PolicyRule canonical 文本，候选 CC-P） | MetaBind Inspector；Tailscale visual editor ↔ text |
+| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped；Attention typed actions（resolve 须 reason；snooze / set_waiting 须 next_action ≠ none；按 `human_actions` 广告生成，WK-136） | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |
+
+## Iconography 段（WK-133）
+
+Visual Grammar 第五段；来源 S17，裁定 [intake §4al WK-133](../../mvp/execution/work-surface-kit/intake-round-3.md)。
+
+| 节 | 今日 | 规则 / 候选 |
+|---|---|---|
+| semantic registry | [glyph-semantics](../../mvp/execution/work-surface-kit/contracts/glyph-semantics.md)（WK-71）：语义 · 出现面 · 频率 · 裁取 · glyph · accessible name · tooltip | 不另建 registry；代码层 symbol id 仍是 Lucide 名——换族 / 引 donor 的那一单第 0 项先改为语义 id，此后换族只动 sprite |
+| geometry | 24 × 24 canvas、2px 居中描边、round cap / join、currentColor；行 16 / 控件 18 / 导航 20；命中 32 / 44 从 `--control` 来（IC-1、WK-13） | Lucide 设计指南升为验收规则：1px 安全边、圆角 2 / 1 / 2.41、元素间距 ≥ 2、circle / square 光学密度模糊对照、视觉重心居中、像素对齐、一致细节密度；适用于自绘与 donor 归一 glyph |
+| state | glyph 不承担状态（WK-71 规则 1 / FN-28）；selected / current / expanded 走 aria 状态 + `--selected` | Line ↔ Fill 配对 = "候选，待 boolean toggle schema"（最近 ATT-* watch），只作冗余线索；duotone 不进入 |
+| density | 单一 2px 重量；尺寸档三档 | compact / prominent 不引第二重量；图标与字阶的配对在 FE-05a 后定 |
+| source | canonical family = Lucide 1.41.0 静态子集 24 枚（IC-5，冻结）；Courtwork 独有语义 = brand / domain SVG 库；window chrome = 宿主 | 一时一族。候选：MingCute（主要视觉候选，Apache-2.0，Regular / Filled）、Phosphor Regular（表现力局部，六重量不采纳）、Remix（覆盖 donor）、Hugeicons（长尾查询源）。donor 单枚进入须归一 geometry + manifest 来源 / sha / license + 光学验收。EX-IC1 specimen 在 FE-05a 合流后派 |
