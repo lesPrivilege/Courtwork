@@ -7,7 +7,7 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第四轮工单 FE-03（Chat / Work / Memory shell）与第 0 项（消费 BE-17/18）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `4d9714e`）：/private/tmp/se-agent-fe03，分支 `claude/fe03-chat-work`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `4d9714e`）：<isolated-checkout>，分支 `claude/fe03-chat-work`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8895，数据目录 /private/tmp/se-agent-fe03-data（已建、为空，可按需建子目录）；MCP 线路 fixture 用 8896；CDP 端口自选 19895 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8893、8921–8923 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback，不配置真实 provider，不把任何真实 key 写进 fixture。BE-17/18 的探测只打本地 fixture 或 loopback 假端点。
 

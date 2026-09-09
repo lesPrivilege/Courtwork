@@ -2,7 +2,7 @@
 
 状态：`直接可消费`。
 
-来源：只读检查 `/Users/lesprivilege/Projects/Courtwork-fresh`，分支 `codex/fresh-courtwork`，HEAD `f8aff61`（`git log -1 --oneline` 已核）。本卷未修改任何文件（工作树自带的既有未提交改动与本次 explore 无关，未触碰）；未启动服务；未访问任何 URL；未读取数据目录或凭据文件。全部转录值直接落在本卷内（无需另建 `evidence/ex-wk1/`）。
+来源：只读检查 `<isolated-checkout>`，分支 `codex/fresh-courtwork`，HEAD `f8aff61`（`git log -1 --oneline` 已核）。本卷未修改任何文件（工作树自带的既有未提交改动与本次 explore 无关，未触碰）；未启动服务；未访问任何 URL；未读取数据目录或凭据文件。全部转录值直接落在本卷内（无需另建 `evidence/ex-wk1/`）。
 
 对照来源：`engineering/mvp/execution/work-surface-kit/inputs/courtwork_se_gui_review_runtime_index_2026-09-08.md` §3.1（五类）、§3.2（ReviewItem 信封）、§10（组件树词表）——仅作对照列，不作评价标准，未提出"应改为"。
 

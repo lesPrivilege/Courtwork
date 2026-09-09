@@ -1,6 +1,6 @@
 # Work Surface Kit · 整合交付（Fable，2026-09-09）
 
-分支 `claude/wsk-integration`，worktree `/private/tmp/se-agent-wsk`，服务 8857（数据 `/private/tmp/se-agent-wsk-data`，含 RC seed）。未推送；合流与独验归 Astra。
+分支 `claude/wsk-integration`，worktree `<isolated-checkout>`，服务 8857（数据 `/private/tmp/se-agent-wsk-data`，含 RC seed）。未推送；合流与独验归 Astra。
 
 ## 组成
 

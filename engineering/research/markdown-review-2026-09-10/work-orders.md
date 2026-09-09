@@ -23,6 +23,10 @@
 
 验收：同版本逐块 raw slice 能回原字节；emoji/combining/CRLF 无 offset 混淆；引用定义改变时正确失效；跨 scope 拒绝、迟到响应失效、分页缺失不装成全文。反例必须从独立 oracle 而非实现输出产生。**本轮 A1/T1 已施工，交付与验证见 [回执](../../../evidence/markdown-reader-a1-20260910/README.md)**。
 
+### MR-A1a · 原始文本坐标基础（有界补片）
+
+交付 `570fda8` / 作者证据 `7a6db4a`：64 KiB 内严格 UTF-8、原始 SHA-256 与 byte/codePoint/utf16 边界转换。Astra 持有最终架构，保留 Node 内部纯函数、TypeError 调用违约、大小先于 UTF-8 错误的合同；合流时修正伪类型接收与单位对象异常，验证与归因见 [合流回执](../../../evidence/markdown-review-20260910/source-coordinates-integration/README.md)。没有接入既有 reader、HTTP 或 Core；显示/parser 坐标与评注仍按 A1/A2/A3 自身范围。
+
 ### MR-T1 · Reader 表示组件（Terra）
 
 成熟工作：语义 reader、outline/find/jump、只读 block target、loading/error/unsupported、键盘与窄屏。仅在 Astra 指定的新模块及局部样式内实施；不持有 app.mjs 路由、Core、server、全局 tokens 或 FE-05a 的 shared CSS 写权。由 Astra 串行接宿主与静态 allowlist。

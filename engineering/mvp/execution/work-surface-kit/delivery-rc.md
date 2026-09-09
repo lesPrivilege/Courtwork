@@ -1,6 +1,6 @@
 # WO-RC 交付 · Runtime 控制面 UI（Opus，2026-09-08）
 
-基线 `9ef1710`（`claude/wk6-home-brand`：Home、品牌接线、CourtWork 命名、窗口控制带）。工作树 `/private/tmp/se-agent-rc`，分支 `claude/rc-runtime-ui`，端口 8850，数据目录 `/private/tmp/se-agent-rc-data`（全新目录，runtime schema 4），Node v25.9.0。
+基线 `9ef1710`（`claude/wk6-home-brand`：Home、品牌接线、CourtWork 命名、窗口控制带）。工作树 `<isolated-checkout>`，分支 `claude/rc-runtime-ui`，端口 8850，数据目录 `/private/tmp/se-agent-rc-data`（全新目录，runtime schema 4），Node v25.9.0。
 
 **真实 provider 一列全为 `not_run`**：本机 `/bootstrap` 返回 `capabilities.mode = "local-fake"`，本轮未配置也未调用任何真实 provider；MCP 用的是 loopback wire fixture（`evidence/rc/mcp-fixture.mjs`），不是线上服务。全部结论只覆盖 fixture 列。
 

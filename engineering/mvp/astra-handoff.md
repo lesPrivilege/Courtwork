@@ -27,6 +27,6 @@ MVP-02/07 增加 Codex 的版本/接口证据卡，并先通过能力和成本�
 
 ## Fresh session 的来源与工作区
 
-原始文档位于 `/Users/lesprivilege/Projects/Schema Engineering/engineering`，目前尚未提交。新任务使用项目 worktree 时不能假定这些文档会自动出现。先从原目录只读消费并将 engineering 文档建立为新 worktree 的工作基线；同时检查原目录 README/CONTRIBUTING 的当前工程治理增补。不得覆盖 worktree 中已有不同内容；差异先比较。记录来源和迁移范围，避免只看到旧 Git HEAD 便重做规划。后续文档在该 SE 项目 worktree 独立续写，原始项目/归档只读。
+原始文档位于 `<private-source>/engineering`，目前尚未提交。新任务使用项目 worktree 时不能假定这些文档会自动出现。先从原目录只读消费并将 engineering 文档建立为新 worktree 的工作基线；同时检查原目录 README/CONTRIBUTING 的当前工程治理增补。不得覆盖 worktree 中已有不同内容；差异先比较。记录来源和迁移范围，避免只看到旧 Git HEAD 便重做规划。后续文档在该 SE 项目 worktree 独立续写，原始项目/归档只读。
 
 首轮实际动作：派发 Luna 做 Codex/OpenCode/Pi 版本差异与本地既有证据消费；Astra 同时完成范围/契约/消融矩阵，随后让不同 Luna 审查证据缺口。具备输入后推进对应局部实验，逐步达到施工准入，不能仅回报一份计划即结束。

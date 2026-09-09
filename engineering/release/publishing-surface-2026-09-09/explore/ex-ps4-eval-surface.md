@@ -1,6 +1,6 @@
 # EX-PS4 · Eval 证据面：发布 SHA 下可以展示什么
 
-Sonnet，只读 explore。2026-09-09。基线 Courtwork `main` `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`（worktree `/private/tmp/se-fable-ps`）。
+Sonnet，只读 explore。2026-09-09。基线 Courtwork `main` `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`（worktree `<isolated-checkout>`）。
 
 **状态：直接可消费**（表内已含转录值与 file:line，不需再查原文件）。
 

@@ -26,7 +26,7 @@
 
 ## 未公开载荷与证据索引
 
-旧 execution archives、source bundles、SQLite/SQLite journal、logs、临时目录、运行截图和任何可能含个人/账号/凭据边界的捕获不进入公开树。原始路径、私有副本、hash manifest 和可公开摘要见 [`evidence-index.md`](evidence-index.md)。完整工程源树私有副本位于本机 `/Users/lesprivilege/Projects/Courtwork-evidence/2026-09-08/`，目录权限为 0700；该路径不属于产品仓库。
+旧 execution archives、source bundles、SQLite/SQLite journal、logs、临时目录、运行截图和任何可能含个人/账号/凭据边界的捕获不进入公开树。原始路径、私有副本、hash manifest 和可公开摘要见 [`evidence-index.md`](evidence-index.md)。完整工程源树私有副本位于本机 `<private-source>/2026-09-08/`，目录权限为 0700；该路径不属于产品仓库。
 
 ## Git 谱系计划
 

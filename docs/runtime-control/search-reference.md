@@ -62,28 +62,28 @@ Other relevant release semantics:
 ## 3. Local source evidence
 
 Worktree checked:
-`/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907`
+`<isolated-checkout>`
 
-- [`app/runtime/workspace-tools.mjs:139`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/workspace-tools.mjs:139)
+- ``app/runtime/workspace-tools.mjs:139`` (source: <isolated-checkout>)
   `listTree()` recursively enumerates files, reads every file, and hashes the
   bytes before returning entries.
-- [`app/runtime/workspace-tools.mjs:321`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/workspace-tools.mjs:321)
+- ``app/runtime/workspace-tools.mjs:321`` (source: <isolated-checkout>)
   `createWsGrepTool()` uses `listTree()` for a directory search, so a `.` query
   performs a full read/hash pre-scan before the worker starts matching.
-- [`app/runtime/workspace-tools.mjs:289`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/workspace-tools.mjs:289)
+- ``app/runtime/workspace-tools.mjs:289`` (source: <isolated-checkout>)
   runs the regex in a disposable worker with a 2,000 ms timeout and awaits
   termination on cancellation.
-- [`app/runtime/workspace-tools.mjs:19`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/workspace-tools.mjs:19)
+- ``app/runtime/workspace-tools.mjs:19`` (source: <isolated-checkout>)
   defines a 512 KiB read/grep file limit and a 200-result cap.
-- [`app/runtime/grep-worker.mjs:5`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/grep-worker.mjs:5)
+- ``app/runtime/grep-worker.mjs:5`` (source: <isolated-checkout>)
   accepts only host-enumerated relative paths and returns `{path, line, text}`
   matches. It has no files-only, count, context, or explicit query-limit mode.
-- [`app/runtime/control-plane.mjs:7`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/control-plane.mjs:7)
+- ``app/runtime/control-plane.mjs:7`` (source: <isolated-checkout>)
   enumerates distinct runtime resource kinds and scopes.
-- [`app/runtime/control-plane.mjs:130`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/control-plane.mjs:130)
+- ``app/runtime/control-plane.mjs:130`` (source: <isolated-checkout>)
   projects installed/running/exposed/health/provenance/permission state and
   binds a snapshot for a Run.
-- [`app/runtime/control-tools.mjs:6`](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/app/runtime/control-tools.mjs:6)
+- ``app/runtime/control-tools.mjs:6`` (source: <isolated-checkout>)
   implements metadata-first `runtime_load`; content loading does not grant
   tools or plugin authority.
 

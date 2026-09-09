@@ -17,6 +17,7 @@ import { copyProductModules } from "./scripts/vendor-product.mjs";
 import { release, ROOT, SITE, productBytes } from "./scripts/release.mjs";
 import { renderPage } from "./src/page.mjs";
 import { renderSpecimenPage } from "./src/specimen-page.mjs";
+import { assertPublicTree } from "./scripts/public-data.mjs";
 import { renderReadme } from "./src/readme.mjs";
 
 const DIST = path.join(SITE, "dist");
@@ -113,18 +114,17 @@ await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
 if (await exists(path.join(SITE, "media"))) await emitTree(path.join(SITE, "media"), "media");
 
 // ---- the README --------------------------------------------------------------
-// The README shares its headline, claim table and commands with the page, from
-// the same source, so it is generated rather than kept in step by hand. The
-// build refuses to leave a stale one behind: pass --write-readme to update it.
+// The public README has its own editorial source and shares run commands with
+// the page. Pass --write-readme to regenerate it after editing that source.
 const readme = renderReadme({ identity, evidence });
 const readmePath = path.join(ROOT, "README.md");
 const current = await readFile(readmePath, "utf8").catch(() => null);
 if (current !== readme) {
   if (process.argv.includes("--write-readme")) {
     await writeFile(readmePath, readme);
-    console.error("README.md rewritten from site/src/copy.mjs");
+    console.error("README.md regenerated from site/src/readme.mjs");
   } else {
-    throw new Error("README.md is out of step with site/src/copy.mjs; run: node site/build.mjs --write-readme");
+    throw new Error("README.md is out of step with site/src/readme.mjs; run: node site/build.mjs --write-readme");
   }
 }
 
@@ -146,6 +146,8 @@ const manifest = {
   files: written,
 };
 await emit("build-manifest.json", JSON.stringify(manifest, null, 2) + "\n");
+
+await assertPublicTree(DIST);
 
 for (const file of written) {
   console.log(`${file.sha256.slice(0, 12)}  ${String(file.bytes).padStart(9)}  ${file.path}`);

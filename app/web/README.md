@@ -13,9 +13,9 @@ Ask-user submissions are scoped by session/run/question. While a request is pend
 Author checks:
 
 ```sh
-node --check /private/tmp/se-agent-v6/app/web/app.mjs
-node --test /private/tmp/se-agent-v6/deferred/structural-checks/ui-v6-source-contract.test.mjs
-node --test /private/tmp/se-agent-v6/deferred/structural-checks/ui-v6-behavior.test.mjs
+node --check <isolated-checkout>/app/web/app.mjs
+node --test <isolated-checkout>/deferred/structural-checks/ui-v6-source-contract.test.mjs
+node --test <isolated-checkout>/deferred/structural-checks/ui-v6-behavior.test.mjs
 ```
 
 These checks are source-level contracts and do not simulate mounted renderer behavior, lifecycle races, or late responses. The independent browser harness separately exercises the existing V5 auth boundary, navigation, question flow, tool details, surface close/reopen gate, reading continuity, and stale navigation response fence. Renderer lifecycle and independent accessibility review remain Astra's validation scope.

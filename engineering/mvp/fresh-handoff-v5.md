@@ -4,11 +4,11 @@
 
 ## 1. 从哪里继续
 
-持久工作区：`/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema Engineering`。`/private/tmp/se-work-agent-continuation` 只是兼容符号链接。原目录 `/Users/lesprivilege/Projects/Schema Engineering` 的 engineering 较旧，保持只读，不用旧摘要覆盖本轮事实。
+持久工作区：`<isolated-checkout>`。`<isolated-checkout>` 只是兼容符号链接。原目录 `<private-source>` 的 engineering 较旧，保持只读，不用旧摘要覆盖本轮事实。
 
 先读本文、[current](../current.md)、[decisions](../decisions.md)、[governance](../governance.md)、根 CONTRIBUTING；随后读 Paper 的 [Canonical（历史路径：`../../papers/src/canonical.md`）](../../PAPER.md) 与 [Practice（历史路径：`../../papers/src/practice.md`）](../../PAPER.md)，重点 Practice §2.1–2.2、§2.7、§3、§5、§7。输入版本见 [pins（历史路径：`fresh-handoff-v5-inputs.json`）](../migration/2026-09-08/evidence-index.md)。再读 [v4结果（历史路径：`execution/framework-v4-result.md`）](../migration/2026-09-08/evidence-index.md)、[接口（历史路径：`execution/framework-contract-v4.md`）](../migration/2026-09-08/evidence-index.md)、[provider源码研究（历史路径：`execution/provider-strategy-v4.md`）](../migration/2026-09-08/evidence-index.md) 与相关 RD。完整26工单保留于 [README](README.md)，按新方向重排受影响项，不能把旧排序当新的例行开工阻塞。
 
-应用可逆源码：`/private/tmp/se-work-agent-mvp/app`。临时目录可能被清理，优先校验 [源码包（历史路径：`execution/archives/framework-v4-source.tar.gz`）](../migration/2026-09-08/evidence-index.md) 与 [manifest（历史路径：`execution/archives/framework-v4-source.json`）](../migration/2026-09-08/evidence-index.md)，在新的可写目录恢复并验hash；不要依赖仍存活的进程。包排除了 data、凭证和依赖缓存，不是正式安装包。README 包含启动方式，使用独立临时数据目录，禁止以fixture初始化重置已有库。
+应用可逆源码：`<isolated-checkout>/app`。临时目录可能被清理，优先校验 [源码包（历史路径：`execution/archives/framework-v4-source.tar.gz`）](../migration/2026-09-08/evidence-index.md) 与 [manifest（历史路径：`execution/archives/framework-v4-source.json`）](../migration/2026-09-08/evidence-index.md)，在新的可写目录恢复并验hash；不要依赖仍存活的进程。包排除了 data、凭证和依赖缓存，不是正式安装包。README 包含启动方式，使用独立临时数据目录，禁止以fixture初始化重置已有库。
 
 ## 2. 用户最新裁决（DEC-007）
 

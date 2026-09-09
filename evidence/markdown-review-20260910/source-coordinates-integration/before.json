@@ -1,0 +1,28 @@
+{
+  "passed": 3,
+  "total": 5,
+  "results": [
+    {
+      "name": "cross-realm Uint8Array is accepted",
+      "pass": true
+    },
+    {
+      "name": "spoofed typed-array tag does not admit non-byte input",
+      "pass": false,
+      "error": "Missing expected exception (TypeError)."
+    },
+    {
+      "name": "invalid unit does not call user coercion or lose the error code",
+      "pass": false,
+      "error": "The validation function is expected to return \"true\". Received false\n\nCaught error:\n\nTypeError: Cannot convert object to primitive value"
+    },
+    {
+      "name": "BOM, CRLF and astral boundaries match independently encoded prefixes",
+      "pass": true
+    },
+    {
+      "name": "copied offset view stays isolated after backing store transfer",
+      "pass": true
+    }
+  ]
+}

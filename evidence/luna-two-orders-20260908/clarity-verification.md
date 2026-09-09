@@ -4,7 +4,7 @@ Date: 2026-09-08 (Asia/Singapore). Role: Luna independent Verifier. This receipt
 
 ## Fixed snapshot and evidence basis
 
-The review ran in `/private/tmp/cw-luna-maintenance-core-validation`, branch `codex/luna-maintenance-core-validation`, at HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The assigned files had no diff against that HEAD. Their measured bytes were unchanged from the Finder snapshot:
+The review ran in `<isolated-checkout>`, branch `codex/luna-maintenance-core-validation`, at HEAD `429fdd68febb9998f322a0b53c323651fc8cd7fd`. The assigned files had no diff against that HEAD. Their measured bytes were unchanged from the Finder snapshot:
 
 | file | lines | SHA-256 |
 |---|---:|---|

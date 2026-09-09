@@ -1,7 +1,7 @@
 # evidence/wk10a · WO-WK10a 模块导轨、对齐带、composer 层级
 
 基线 `9cb1d7e`（整合支 `claude/wsk-integration`），分支 `claude/wk10-rail`，worktree
-`/private/tmp/se-agent-wk10`。App 端口 8855，数据目录 `/private/tmp/se-agent-wk10-data`
+`<isolated-checkout>`。App 端口 8855，数据目录 `/private/tmp/se-agent-wk10-data`
 （全新，runtime schema 4）。Node v25.9.0。**真实 provider：not_run** —— 该宿主报告
 `capabilities.mode = "local-fake"`，本轮未配置也未调用任何真实 provider；截图里那一次 run
 走的是宿主自带的 loopback 假 provider（`Local test`），不读任何凭据。

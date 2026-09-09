@@ -10,7 +10,7 @@
 |---|---|
 | 基线 | `main` `1688a7b`（WK11 合流后的清洁节点） |
 | 分支 | `claude/fe01-vocab-ia` |
-| 树 | `/private/tmp/se-agent-fe01` |
+| 树 | `<isolated-checkout>` |
 | 端口 / 数据目录 | 8885 / `/private/tmp/se-agent-fe01-data`（`main` 与 `rc` 两个子目录，见 §8）；MCP 线路 fixture 8886 |
 | 凭据 | 未读取任何凭据文件；全程 local-fake / loopback |
 

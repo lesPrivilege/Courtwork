@@ -4,7 +4,7 @@
 
 ## 后续执行授权 · 2026-09-08
 
-用户已授权独立品牌 icon 单开工，并指定 **Claude 当前 UI 回报与品牌单完成后，由 Astra 承担搬迁**。本次先在 `codex/brand-symbols` 独立 worktree 交付品牌包，不提前切换 Claude 工作目录，不将工作树暂时干净视为作者已交付。品牌交接见 [CW-BRAND-01](/Users/lesprivilege/.codex/worktrees/se-brand-symbols-20260908/brand/HANDOFF.md)。
+用户已授权独立品牌 icon 单开工，并指定 **Claude 当前 UI 回报与品牌单完成后，由 Astra 承担搬迁**。本次先在 `codex/brand-symbols` 独立 worktree 交付品牌包，不提前切换 Claude 工作目录，不将工作树暂时干净视为作者已交付。品牌交接见 `CW-BRAND-01` (source: <isolated-checkout>)。
 
 迁移后可保留现有 SE 项目/任务空间。建议主目录切为干净的 Courtwork fresh 持久工作区，SE Paper 作附加目录；不附加 legacy checkout 作为默认施工面。SE 空间是任务组织，SE 目录是论文仓，两者不必绑定同一主工作目录。官方说明新任务、默认 Git 和 AGENTS/skills/config 发现依主目录，且每个任务保留各自 transcript；见 [Projects and chats](https://learn.chatgpt.com/docs/projects)。保留空间有助于历史检索，但不能保证新任务自动得到全部旧上下文。续行权威应落在 fresh 的 AGENTS/current/工单证据/PAPER 索引中。
 
@@ -20,8 +20,8 @@
 
 | 对象 | 基线与边界 |
 |---|---|
-| Legacy Courtwork | `/Users/lesprivilege/Projects/Courtwork`，HEAD `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`；冻结索引已有 tag、archive branch 与四条独立历史分支。Luna 于本日 `ls-remote` 核对 main/origin、冻结 tag 与 archive refs 一致，main ahead/behind 为 0/0。当前尚有未跟踪 `.agents/`、`skills-lock.json`，不在冻结 commit 内 |
-| Fresh 集成分支 | `/private/tmp/se-agent-v9-web` 内 `codex/gui-completeness` = `b26670c8975bd9bd2666a856be55b80fcb2963fc`；独立 Git 仓，无 remote |
+| Legacy Courtwork | `.`，HEAD `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`；冻结索引已有 tag、archive branch 与四条独立历史分支。Luna 于本日 `ls-remote` 核对 main/origin、冻结 tag 与 archive refs 一致，main ahead/behind 为 0/0。当前尚有未跟踪 `.agents/`、`skills-lock.json`，不在冻结 commit 内 |
+| Fresh 集成分支 | `<isolated-checkout>` 内 `codex/gui-completeness` = `b26670c8975bd9bd2666a856be55b80fcb2963fc`；独立 Git 仓，无 remote |
 | UI Polish | 同仓 `claude/ui-design-polish` = `891aa13c57443e6458f2b12bc1a5fa329887d8cd`；临时目录检出此分支；初查干净，Luna 后续复查发现活动增量持续变化；00:44:55 快照已涉及 `app/web/app.mjs`、`index.html`、`settings-view.mjs`、`styles.css`、`ui-controls.mjs` 五文件（+456/−54）。此统计不是冻结载荷，T0 须以作者停止写入时的最终 SHA/patch hash 为准。该 SHA 不覆盖新改动；作者交付与活动增量均须分别收口，独立接受仍待完成 |
 | Runtime Control Plane | 同仓 `codex/runtime-control-plane` = `87222599b37a9571708d313ee9f7f5fa8137e251`；独立 worktree `se-runtime-control-20260907`；134/134 为交付记录，未覆盖新控制面前端或真实远端 provider |
 | 分支关系 | UI 与 Runtime 共同祖先 `b26670c…`，左右各一个提交。更改文件不重叠；尚无包含两者的新集成提交 |
@@ -32,9 +32,9 @@
 主要现场依据：
 
 - [冻结来源索引（历史路径：`ecosystem/local-sources.md`）](evidence-index.md)。
-- [UI 作者交付](/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema%20Engineering/engineering/mvp/execution/gui-completeness/ui-design-polish/delivery.md)。
-- [Runtime 接入与验收边界](/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907/docs/runtime-control/acceptance.md)。
-- [Runtime 前端接管](/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema%20Engineering/engineering/mvp/execution/gui-completeness/runtime-control-frontend/intake.md)。
+- `UI 作者交付` (source: <isolated-checkout>)。
+- `Runtime 接入与验收边界` (source: <isolated-checkout>)。
+- `Runtime 前端接管` (source: <isolated-checkout>)。
 
 这些绝对路径仅为本轮本地取证入口；迁移交付时必须改为目标仓内相对路径或已发布的 commit permalink。
 

@@ -73,7 +73,7 @@
 
 ## DSH 源码参照（本地源码，非本轮 UI 证据）
 
-源码位置：`/Users/lesprivilege/Projects/motto-dsh`。以下只抽取可复用结构，不把它当作 8816 的 live 观察：
+源码位置：`<private-source>`。以下只抽取可复用结构，不把它当作 8816 的 live 观察：
 
 - `packages/client/ui-layout/src/client/AppFrame.tsx` 与 CSS 保持 sidebar、conversation、details 三列骨架；details 可保持 mounted 并收窄到零宽，且已有拖拽、响应式收起和 reduced-motion 处理。
 - `packages/client/ui-workspace/src/client/WorkspaceBrowser.tsx`、`tree.ts` 与 CSS 提供 Workspace/session 分组、Workspace/flat 视图切换、搜索，以及新增、重命名、归档、排序入口；这支持 finding 3 的目录分组原则。

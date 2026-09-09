@@ -1,0 +1,17 @@
+{
+  "targeted.log": {
+    "tests": 19,
+    "pass": 19,
+    "fail": 0
+  },
+  "tests.log": {
+    "tests": 405,
+    "pass": 405,
+    "fail": 0
+  },
+  "utf8_sequences": 1114368,
+  "smoke": "pass",
+  "runtime_source_sha": "dc564bda92ea540348ceb3dba3d2f247a86031df",
+  "real_provider": "not_run",
+  "main_baseline": "a0ebcf026d20b052c5cab7b1ad8b0a5f7ad63b73"
+}

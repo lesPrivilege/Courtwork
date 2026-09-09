@@ -1,6 +1,6 @@
 # WO-WK10 · 右栏模块导轨、三栏对齐带、composer 层级、文本清退扫描（Opus）— 拆为 a / b（WK-62）
 
-状态：**a 已派发 2026-09-09**，基线 = 整合支 `claude/wsk-integration` `9cb1d7e`，worktree `/private/tmp/se-agent-wk10`，分支 `claude/wk10-rail`，端口 8855；b 待合流。
+状态：**a 已派发 2026-09-09**，基线 = 整合支 `claude/wsk-integration` `9cb1d7e`，worktree `<isolated-checkout>`，分支 `claude/wk10-rail`，端口 8855；b 待合流。
 
 ## 范围
 

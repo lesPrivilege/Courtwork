@@ -7,7 +7,7 @@
 | 项 | 值 |
 |---|---|
 | 基线 | `429fdd68febb9998f322a0b53c323651fc8cd7fd`（清洁 `main`，含 WK10b 第一段 + 第二段与 WK13 r2） |
-| 工作树 | `/private/tmp/se-agent-wk12` |
+| 工作树 | `<isolated-checkout>` |
 | 分支 | `claude/wk12-settings`（未 push） |
 | 实现 SHA | 代码、证据与本文件同在一次提交，分支 `claude/wk12-settings` 的唯一一次提交；该 SHA 见交付回执（一次提交无法在自己内部记录自己的 SHA） |
 | 服务端口 | 8881 |

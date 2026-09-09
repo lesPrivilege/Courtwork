@@ -3,7 +3,7 @@
 > 归档说明：Luna 只读观察快照；下文工单行号及候选状态只适用于当时工作树，后续以活动契约/current为准。Astra 校正了“无 Core API”的泛化表述，限定为通用 Review 尚未接入领域动作。
 
 **核对日期：** 2026-09-08（Asia/Singapore）  
-**Fresh checkout：** `/Users/lesprivilege/Projects/Courtwork-fresh`  
+**Fresh checkout：** `<isolated-checkout>`\
 **分支 / HEAD：** `codex/fresh-courtwork` / `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`
 
 ## 结论
@@ -14,7 +14,7 @@ Downloads 与仓库输入文件内容一致：
 
 ```text
 814ab9b0878f8ffeed851c7b9bd2a782c0aad3a7e1c32bf7618f595d30872d48
-/Users/lesprivilege/Downloads/courtwork_se_gui_review_runtime_index_2026-09-08.md
+<private-source>/courtwork_se_gui_review_runtime_index_2026-09-08.md
 engineering/mvp/execution/work-surface-kit/inputs/courtwork_se_gui_review_runtime_index_2026-09-08.md
 ```
 

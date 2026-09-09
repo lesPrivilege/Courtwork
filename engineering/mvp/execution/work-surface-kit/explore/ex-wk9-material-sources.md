@@ -72,7 +72,7 @@ RDX1 · https://www.radix-ui.com/themes/docs/theme/shadows · 沿用既有访问
 
 ## 3. 本地对照：`app/web/styles.css` 材质 token 与两处 `backdrop-filter`
 
-文件：`/private/tmp/se-fable-r4b/app/web/styles.css`（sha256 `62536da9bd08de9856d20112ca1fbc39df741dd11435ccd298333d7d828e712a`，只读，未改动）。
+文件：`<isolated-checkout>/app/web/styles.css`（sha256 `62536da9bd08de9856d20112ca1fbc39df741dd11435ccd298333d7d828e712a`，只读，未改动）。
 
 材质 token 现状（`:root` 附近，浅/深/两套备用主题四段重复定义同名变量，行号为浅宗基础段）：
 

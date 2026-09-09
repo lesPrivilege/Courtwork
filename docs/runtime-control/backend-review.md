@@ -1,6 +1,6 @@
 # Backend diff review
 
-Worktree reviewed: `/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907`
+Worktree reviewed: `<isolated-checkout>`
 Scope: read-only review of the runtime-control backend increment, MCP adapter, persistence migration, admission serialization, and related regression tests. No source files were changed by this review.
 
 ## Findings and resolution

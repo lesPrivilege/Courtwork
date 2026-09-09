@@ -1,6 +1,6 @@
 # BE-30 independent verification
 
-2026-09-09. Independently verified fixed commit `757ea768b8ea9702c7534f5f67b950bbd9dafc7d` in `/private/tmp/cw-harness-next-round`. The review read `app/docs/permission-cas.md` and the commit diff before exercising the HTTP route. Only the two files in this evidence directory were written; product sources and the author's tests were not changed or committed. The pre-existing modification to `engineering/execution/2026-09-09-harness-next/README.md` was preserved.
+2026-09-09. Independently verified fixed commit `757ea768b8ea9702c7534f5f67b950bbd9dafc7d` in `<isolated-checkout>`. The review read `app/docs/permission-cas.md` and the commit diff before exercising the HTTP route. Only the two files in this evidence directory were written; product sources and the author's tests were not changed or committed. The pre-existing modification to `engineering/execution/2026-09-09-harness-next/README.md` was preserved.
 
 ## Contract and implementation checked
 

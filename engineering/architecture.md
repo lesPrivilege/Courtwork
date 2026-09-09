@@ -1,23 +1,30 @@
 # 工程范围与模块边界
 
-状态：设计基线。技术候选见 [options](options.md)，验收事实见 [current](current.md)。
+本页提供当前模块入口与长期设计边界。技术候选见 [options](options.md)，交付记录见 [current](current.md)。
 
 全场景、交互与部署的长期设计见 [Long-life Roadmap](roadmap.md)。本页 M01–M14 保存逻辑责任与模块边界；下方“最小交付”限定首个 continuity 纵切。低后果探索可用普通工具，单次 consequential action 可仅实现 commitment boundary，不把完整 Matter 作为所有场景的前置。
 
-## 当前实现到下一轮的接缝
+## 当前实现
 
-读取基线 `d86eba49ca308fb9f47fc953fe440ffa3289da3e`；以下为源码核对，不增加产品验收。下一轮完工口径见 [公开完成度](execution/2026-09-08-main-round/public-readiness.md)。
+源码基线：`00b2f2886e04aa7b7facb588d4375a246f3e341d`。应用由一个本地 Host 组合，下表按实际写入与执行职责导航。
 
-| 当前owner / 入口 | 已存在 | 下一单必须补齐 |
+| 入口 | 职责 | 接口与说明 |
 |---|---|---|
-| `app/server/service.mjs` → Pi / control-plane | Run、配置队列、权限、记录绑定 | 真实provider回路证据；不重建loop |
-| `app/extensions/evidence-memo/core/core.py` / bridge / `humanAction` | Matter/Candidate/Artifact/Decision与可信决定、CAS、幂等 | H1在原owner上补NDA逐规则/修订；不新建Review账本 |
-| `evidence-memo/index.mjs:createBinding` | 每次创建新的matterId | H1补有归属检查的同Matter新Session绑定，不以session续跑冒充 |
-| `service.mjs:getSurface` / extension registry | 依赖已登记producer投影；record缺席返回空 | H3提供独立历史read path，UI fallback不能代替数据获取 |
-| `service.mjs:humanAction` | host拥有actor、检查generation与session绑定 | H1沿既有actions mutation；H3消费版本化合法动作，不扩大通用permission信封 |
-| `core.py:read_source/replace_source_set` | 材料字节可保留；Matter读取仅当前revision | H1补历史归属或不可变packet，禁止裸读绕过归属 |
-| `evidence-memo/index.mjs:coreProviderConfig` | 领域记录固定simulation | H2从可信Run映射真实执行身份，旧样本保持原身份 |
-| `app/runtime/source-resolver.mjs` | 无副作用inline解析；locator unsupported | BE-5仅开放inspect服务，获取/Proposal/apply另单 |
+| [`app/web/`](../app/web/) | Chat、文件、Review、Settings 与运行资源的浏览器呈现 | [界面组件](../docs/interface-components.md) |
+| [`server/runtime.mjs`](../app/server/runtime.mjs)、[`service.mjs`](../app/server/service.mjs) | Host 生命周期、Session/Run、权限、上下文、受认证的人类动作与查询 | [HTTP API](../app/docs/api-v6.md) |
+| [`runtime/pi-session-runtime.mjs`](../app/runtime/pi-session-runtime.mjs) | Pi AgentSession 与 ModelRuntime 集成 | [运行基础](../app/docs/runtime-foundation.md) |
+| [`runtime/control-plane.mjs`](../app/runtime/control-plane.mjs)、[`mcp-manager.mjs`](../app/runtime/mcp-manager.mjs) | 声明式资源、作用域、调用策略与 MCP 生命周期 | [Runtime Control](../docs/runtime-control/INDEX.md) |
+| [`server/async-tasks.mjs`](../app/server/async-tasks.mjs) | 可选的不可变异步读取任务、取消、恢复与消费记录 | [异步读取契约](../app/docs/async-tasks.md) |
+| [`core/owner.mjs`](../app/core/owner.mjs)、[`client.mjs`](../app/core/client.mjs)、[`bridge.py`](../app/core/bridge.py)、[`core.py`](../app/core/core.py) | 同一个 Work Core 与 SQLite 事务，持有 Matter、候选、来源、决定、文件候选与 Attention | [Work Core](../docs/work-core/contract.md) |
+| [`extensions/work-adapter.mjs`](../app/extensions/work-adapter.mjs)、[`domains/`](../app/domains/) | 领域输入、提议校验、绑定与呈现；NDA 和 Evidence Memo 共用 Core | [NDA](../docs/work-core/nda.md) |
+| [`web/markdown-source.mjs`](../app/web/markdown-source.mjs)、[`web/markdown-reader.mjs`](../app/web/markdown-reader.mjs) | 固定版本 Markdown 来源、分页与只读阅读；Output Review 独立持有所有输出范围 | [双边界](../docs/output-review.md) |
+| [`runtime/source-resolver.mjs`](../app/runtime/source-resolver.mjs) | 声明式来源解析，Host 提供受认证的 inspect 接口 | [来源解析](../docs/runtime-control/source-resolver.md) |
+
+### 数据归属
+
+Host 的 runtime JSON（schema 5）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 3 / bridge app schema 4 与 Host schema 5 分别演进。
+
+UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 
 ## 最小交付
 

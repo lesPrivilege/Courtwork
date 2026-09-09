@@ -3,7 +3,7 @@
 2026-09-10。有界实现单，作者交付；本目录证据不代表独立接受，不自称 Astra 已接收或已合流。
 
 - 指定基线：`85693a6d185f284ecc68324e4dda6d7d677abb03`（main HEAD 与基线一致）。
-- 独立临时 worktree：`/private/tmp/cw-am-b-t3-task-view`，分支 `codex/am-b-t3-task-view`。
+- 独立临时 worktree：`<isolated-checkout>`，分支 `codex/am-b-t3-task-view`。
 - 产品固定代码：`184e3f0`。未 merge main、未 push、未部署；共享主树未 checkout/stash/reset，他人编辑保留。
 
 ## 范围（冻结设计，未扩大）

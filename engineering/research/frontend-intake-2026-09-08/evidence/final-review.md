@@ -1,7 +1,7 @@
 # Frontend intake / Work Surface final review
 
 **日期：** 2026-09-08（Asia/Singapore）  
-**Checkout：** `/Users/lesprivilege/Projects/Courtwork-fresh`  
+**Checkout：** `<isolated-checkout>`\
 **分支 / HEAD：** `codex/fresh-courtwork` / `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`
 
 ## 结论

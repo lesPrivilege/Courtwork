@@ -2,7 +2,7 @@
 
 状态：**直接可消费**。Sonnet，只读 explore，2026-09-08。
 
-只读声明：本卷全程只用 WebFetch / WebSearch 读取工单指定的外部来源；未修改任何文件，未启动任何服务，未读取任何本地数据目录或凭据文件。本地对照来源为 `/Users/lesprivilege/Projects/Courtwork-fresh/app/web/styles.css` 的 `:root` 块（已读，行 1–94），未改动。
+只读声明：本卷全程只用 WebFetch / WebSearch 读取工单指定的外部来源；未修改任何文件，未启动任何服务，未读取任何本地数据目录或凭据文件。本地对照来源为 `<isolated-checkout>/app/web/styles.css` 的 `:root` 块（已读，行 1–94），未改动。
 
 未能直接访问 / 只取得空壳或标题的 URL（不作为转录依据，未在下表中当作已核实来源引用其原文）：
 

@@ -9,3 +9,13 @@ __pycache__/
 .env.*
 !.env.example
 credentials.json
+
+# Pages builds these from authored sources and the fixed product snapshot.
+/site/dist/
+/site/specimen/vendor-product/
+/site/specimen/copy.mjs
+/site/specimen/index.html
+/site/specimen/manifest.json
+
+# Original desktop references are not public assets.
+/engineering/design/attention-surface-2026-09-09/screenshots/

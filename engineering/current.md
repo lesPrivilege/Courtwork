@@ -249,3 +249,16 @@ T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点
 用户明确要求首页编排与逐轮视觉输入消费后，Astra从实际 `00b2f288` 隔离实现：Attention/Activity置于composer上方，分层灰阶及窄review色槽，独立Attention主从读面与明确标注的Assistant前端预览，侧栏每项目8行真实会话及所有展开项目刷新。窗口控制预留按用户纠正移到品牌左侧同一行；版本化原生几何注入只传展示事实。三份补充Control/Sidebar/Selection材料与MingCute重新逐项消费，见[当前合同](design/home-composition-2026-09-10/README.md)与[回执](../evidence/home-composition-20260910/README.md)。
 
 Astra作者全量395/395、smoke、色彩/对比度通过；Luna有界非作者392/392和竞态/DTO测试，发现返回加载残留后由Astra修复加回归。真实浏览器验证1440/390、浅深宗、只读来源、筛选、草稿保留及同一行native预留；未执行原生AppKit宿主验收。此处覆盖CC-D0-a旧默认/几何及“Activity/Attention无接缝”时点，未关闭完整ATT动作/RT、CC-I、icon选族或G1–G5；无个人数据迁移、真实provider、外发或部署。
+
+## 仓库公开内容与目录整理（2026-09-10）
+
+按用户授权，由 Luna 探查目录与公开素材，Astra 整理导航、README 架构、生成物和公开数据。`site/dist/` 与 specimen vendor 副本改为构建生成；品牌分发 SVG 保留。桌面参考图从当前树移除，保留来源哈希；当前固定快照 `9e5384f` 的机器路径作公开投影，旧标本仅留冻结来源索引。模块与验证包导航见 [仓库目录](../docs/repository-layout.md)，范围、验证与归因见 [本单回执](../evidence/public-repository-cleanup-20260910/README.md)。产品代码、数据 schema、品牌选向与 G1–G5 未改变。
+
+本次整理已合入 `cd2a5b8` 并按既有授权发布 Pages；[线上回执](../evidence/public-repository-cleanup-20260910/live-verification.json)核对页面与脱敏标本 HTTP 200、manifest/字节一致。独立干净构建46/46、浏览器17/17及文档相对路径检查通过；产品快照仍为 `9e5384f`。
+
+
+## MR-A1a · 原始文本坐标基础接收（2026-09-10）
+
+从实际 main `a0ebcf0` 隔离，无冲突接收代码 `570fda8` 与作者证据 `7a6db4a`。Astra 非作者读码与5项边界反例发现伪 typed-array tag 被接受、非法 unit 对象导致错误码丢失；集成补丁 `dc564bd` 修正，Luna 对固定源码独验8/8并补伪造tag反例（同/跨 realm），修前0/2、修后2/2。组合定向19/19、全量405/405、smoke与1,114,368组UTF-8 parity通过；[接收与归因](../evidence/markdown-review-20260910/source-coordinates-integration/README.md)分列作者原378/378与当前组合结果。
+
+本片只接受64 KiB内原始 UTF-8/codePoint/UTF-16 边界转换、字节hash与保真，不等于grapheme/parser/显示坐标。模块仍无产品调用方，既有MR-A1/T1 reader与HTTP/Core未接此模块；正式评注、重锚与Output Review范围不变。Core3/app4/Runtime5、Paper与G1–G5保持；未调用真实provider、迁移个人数据或部署。

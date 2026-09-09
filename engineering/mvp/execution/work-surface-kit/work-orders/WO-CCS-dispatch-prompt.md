@@ -7,14 +7,14 @@
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第五轮工单 CC-S（Settings 替换全局导航）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `683b6d1`）：/private/tmp/se-agent-ccs，分支 `claude/cc-s-settings-nav`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `683b6d1`）：<isolated-checkout>，分支 `claude/cc-s-settings-nav`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8899，数据目录 /private/tmp/se-agent-ccs-data（已建、为空，可建子目录）；MCP 线路 fixture 用 8900；CDP 端口自选 19925 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8898、8921–8937 是别人的，不动。
 - 不读取任何凭据文件；全程 local-fake / loopback。
 
 ## 先读（顺序，均在你树内，除注明者）
 1. engineering/mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md §CC-S —— 你的工单全文，含 §VI 交接契约头（intent / constraints / existing_system / references / unresolved）与第 0 项。
 2. engineering/mvp/execution/work-surface-kit/intake-round-3.md §4k WK-105、§4o WK-109、§4q WK-112（(c) 消融轮与 anti-slop 门、(d) 状态矩阵）、§4t WK-115（① `Unknown` 词、② Home / End 与两条列表）。
-   §4u WK-116（CC-S 改约裁定）尚未合入你的树，只读路径：/private/tmp/se-fable-r4d/engineering/mvp/execution/work-surface-kit/intake-round-3.md §4u。不要写那棵树。
+   §4u WK-116（CC-S 改约裁定）尚未合入你的树，只读路径：<isolated-checkout>/engineering/mvp/execution/work-surface-kit/intake-round-3.md §4u。不要写那棵树。
 3. engineering/design/clean-cool-2026-09-09/shell-refinement.md §"已确认的结构方向" 3、§"原生窗口控制预留"、§"呼吸感" Settings 与设置分组两行、§"Claude 拆单入口" CC-S；claude-handoff.md "不可由图稿改变"；r4d-review.md（Astra 接缝评审，CC-S 相关：安全区补 Settings 与折叠态）。
 4. docs/interface-components.md §Settings（你要改约的段）；engineering/design/frontend-layering-spec.md FN-26 注；engineering/design/ui-composition-standard.md 尺寸 token 表；engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md §3（末尾 WK-115 ① 注）；copy-convention.md §3。
 5. delivery-fe01.md §4（Settings 五轮收敛表、九组）、delivery-wk12.md（Settings 页化的原始交付，WK-78 两步 Escape）、delivery-fe04.md（体例与 §14 anti-slop 门行）。

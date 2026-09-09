@@ -29,3 +29,8 @@ Astra 复核首次回执后要求更正 HTTP(S) 文案与增加 HTTP 断言、�
 Astra 接受此有界研究与评测交付。后续产品施工从 MR-A1 开始，依赖/DDL/HTTP capability 仍待其明确施工单；本次不修改 Paper、不发布、不关闭 G1–G5。
 
 入库检查：73个本地链接无缺失，转录9,637 bytes及SHA-256与manifest一致，全部本单JSON可解析，两支新脚本语法检查通过。diff whitespace检查除逐字稿外通过；逐字稿原有两处Markdown hard break的行尾空格保留，不修改来源hash。仅显式stage本研究包、evidence包与current；共享树原有WK-98未提交证据不纳入。
+
+
+## MR-A1a · 原始文本坐标基础
+
+[作者交付](source-coordinates/README.md)与[Astra 合流复核](source-coordinates-integration/README.md)分别记录来源与接收。该纯模块未接入产品调用链，不把原始字节坐标当作 parser/显示文本坐标。

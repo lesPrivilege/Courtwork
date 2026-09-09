@@ -13,7 +13,7 @@
 1. **M-9短标签宽度**：原 `setRequestLabel` 仅预留静止词。默认字号Answer从69.73px变85.92px，Send从55.09px变85.92px，邻钮随之位移。现在静止词和Sending…分别由两个隐藏的CSS伪元素始终占同一grid格；保留按钮元素、单一真实文本子节点和显式可访问名。浏览器组件反例补前9/15，补后15/15，覆盖Answer、Send、Cancel run、Approve this write、Deny this write × 字号倍率1/1.25/2，检查宽度、邻钮位置、焦点与可访问名。它是生产CSS/函数的合成组件测试，不冒充完整发送流程或真机动效验证；产品Question/Approval在途另由primitive套件覆盖。
 2. **Unknown词表**：`TAB_ACTIVITY.unknown` 从Failed校正为Unknown，符合ui-state-vocabulary。当前 `renderSurfaceTabActivity` 只传 `currentRun()` 的活动态，unknown/failed终态不可由这个调用到达；未观察到产品误读终态，也不宣称补丁使终态记号出现。
 
-保留发现：composer初始化setAction创建图标，但renderComposer替换子节点，Send/Cancel run文字挤入icon-only圆形按钮；`172130e` 原有textContent赋值已存在同一问题。新 [用户截图10](../../engineering/design/attention-surface-2026-09-09/screenshots/10-codex-composer-stop.png) 支持后续固定主动作位置/保留停止方块的设计输入，详见 [输入说明](../../engineering/design/attention-surface-2026-09-09/README.md)。本单不改composer交互合同；须由Fable成后单，M-9补验不代表它已修复。
+保留发现：composer初始化setAction创建图标，但renderComposer替换子节点，Send/Cancel run文字挤入icon-only圆形按钮；`172130e` 原有textContent赋值已存在同一问题。新 [用户截图10的来源记录](../../engineering/design/attention-surface-2026-09-09/sources.json) 支持后续固定主动作位置/保留停止方块的设计输入，详见 [输入说明](../../engineering/design/attention-surface-2026-09-09/README.md)。本单不改composer交互合同；须由Fable成后单，M-9补验不代表它已修复。
 
 ## 结果
 

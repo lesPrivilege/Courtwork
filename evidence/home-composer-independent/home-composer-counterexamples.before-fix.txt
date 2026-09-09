@@ -28,7 +28,7 @@ test at evidence/home-composer-independent/home-composer-counterexamples.mjs:306
   -   'p2'
     ]
 
-      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/se-fresh-integration-20260908/evidence/home-composer-independent/home-composer-counterexamples.mjs:325:10)
+      at TestContext.<anonymous> (file://<isolated-checkout>/evidence/home-composer-independent/home-composer-counterexamples.mjs:325:10)
       at async Test.run (node:internal/test_runner/test:1208:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
     generatedMessage: false,

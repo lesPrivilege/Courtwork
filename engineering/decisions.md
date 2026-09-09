@@ -126,7 +126,7 @@
 ## DEC-009 · 从只读研究转为受控集成施工（2026-09-07）
 
 - 依据：用户交付施工单《Fresh Courtwork — 通用 Agent 集成至夺舍就绪》（原文快照 [pt2-integration/inputs（历史路径：`mvp/execution/pt2-integration/inputs/fable-integration-to-takeover-ready.md`）](migration/2026-09-08/evidence-index.md)，sha256 `ff75c033…`），并指定 main Fable 掌架构、Sonnet 5 explore。状态：accepted（用户授权范围），实现选择仍待证据。
-- 授权增量：允许在明确隔离的候选目录（`/private/tmp/se-agent-v9-core/`，端口 8804）安装已核定依赖、运行有界接缝探针、编写薄适配与测试、接入用户提供 key 的真实 provider、在测试资源中执行恢复与权限反例，并把候选推进到独验交付。DEC-008 中"PT2 只读 explore，不施工 runtime core"一句就此局部取代；PT2 的门仍未通过，PT 编号与其余 DEC-008 内容不变。
+- 授权增量：允许在明确隔离的候选目录（`<isolated-checkout>/`，端口 8804）安装已核定依赖、运行有界接缝探针、编写薄适配与测试、接入用户提供 key 的真实 provider、在测试资源中执行恢复与权限反例，并把候选推进到独验交付。DEC-008 中"PT2 只读 explore，不施工 runtime core"一句就此局部取代；PT2 的门仍未通过，PT 编号与其余 DEC-008 内容不变。
 - 不授权：覆盖 legacy Courtwork `main`、批量迁移或删除旧数据、读取 `~/.pi/agent/auth.json` 等既有凭证、新云服务或付费资源、生产部署、改动仍在独验或施工中的 G2/G1/Polish 活动目录、宣布 SE 理念认证。授权到 takeover-ready，不到 takeover-executed。
 - 选择单位与首个候选：host + provider + 执行环境 + 薄 GUI adapter 的可运行组合。架构裁定主候选 K1（Pi coding-agent v3 AgentSession 固定 0.85.x + DeepSeek 经 pi-ai + 本地 workspace 受限工具 + 现有 `/api/v5` service 作唯一命令 owner），对照 K0（现有简单 Agent 路径）。见 [C0 接管记录（历史路径：`mvp/execution/pt2-integration/intake.md`）](migration/2026-09-08/evidence-index.md)。这是可撤销实现选择，不是 Runtime 最终采纳。
 - 与 DEC-006 的关系（用户 2026-09-07 确认按此推进）：本阶段的**有范围的选择**是统一 provider 使用体验并复用 Pi 的 provider 实现（RD-004 的 (a)+(b)），不为体现 "Pi+DSH" 引入两个执行宿主（不取 (c)）；DeepSeek 是首个真实链验证对象，不自动成为最终唯一 provider，原有 provider/model 覆盖要求不因此缩减。这不是对 DEC-006 原文含义的裁定：若原文被确认含更强的实现承诺，差异须列为 DEC-006 的局部修订后组合才能最终接受，不得以"工作解读"隐去。K0 只作对照，不是 K1 出错后的静默生产回落。

@@ -1,7 +1,7 @@
 # SE hot plug research validation
 
 **Date:** 2026-09-08  
-**Scope:** read only validation of `/Users/lesprivilege/Downloads/se-experts-extensions-hotplug-research-index-2026-09-08.md` against the current Schema Engineering sources, the fixed CourtWork paper baseline, and five official-hosted Harvey, Ironclad, and Relativity pages (including one partner case study).  
+**Scope:** read only validation of `<private-source>/se-experts-extensions-hotplug-research-index-2026-09-08.md` against the current Schema Engineering sources, the fixed CourtWork paper baseline, and five official-hosted Harvey, Ironclad, and Relativity pages (including one partner case study).\
 **Disposition:** `Index only` for any new observation. Keep Canonical and Practice unchanged; do not upgrade CourtWork's paper binding or describe the proposed benchmark as executed.
 
 ## Authority and version boundary

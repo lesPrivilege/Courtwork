@@ -6,8 +6,8 @@
 
 完整 SE root/continuation engineering trees 已复制到本机私有目录：
 
-- `/Users/lesprivilege/Projects/Courtwork-evidence/2026-09-08/root/engineering`
-- `/Users/lesprivilege/Projects/Courtwork-evidence/2026-09-08/continuation/engineering`
+- `<private-source>/2026-09-08/root/engineering`
+- `<private-source>/2026-09-08/continuation/engineering`
 
 采样时间：2026-09-08 01:18:25 +0800。逐文件 SHA-256 manifest：`root-sha256.txt`、`continuation-sha256.txt`；副本核验记录：`copy-verification.txt`；活动 source tree 非静止快照说明：`snapshot-metadata.txt`。根 33 文件/191176 bytes，continuation 1539 文件/112862385 bytes，路径、大小和 hash 在拷贝时一致。该旧快照仍保持原字节；其后作者正式补交的4fab4bd原始delivery另存私有 `supplemental/ui-design-polish-4fab4bd-delivery.md`（SHA-256 `6cf90580ee9d87a4489a48412d2ccf96d0418bd33e8e5f2b45841b74e8246bb3`），已合入最终代码d44fb28并补验。
 
@@ -30,8 +30,8 @@
 | `engineering/mvp/execution/archives/` | 不公开。包内含 source/fixture/evidence/SQLite，且 tar member 可见 `auth.json`、`credential-sentinel.txt`、credential-file/secret counterexample 路径；未读取其内容。需要复现时只从私有副本按 manifest 解包。 |
 | `engineering/mvp/execution/**/evidence/captures/` | 不公开。包含大量 UI screenshots；其中历史文件名含 password boundary，任何个人/账号/工作区信息必须另行人工脱敏。 |
 | `engineering/mvp/execution/**/logs`, `*.json`, `*.db`, `*.db-journal`, source bundles | 不公开默认载荷。保留私有副本与 hash；公开时只摘录脱敏结论和与候选 SHA 绑定的检查结果。 |
-| `/private/tmp/se-agent-v9-web`, `/private/tmp/se-agent-v9-polish-data`, `/private/tmp/se-ui-maturity-data-20260907` | 原执行目录文本仅供定位；不复制、不当作当前路径。 |
-| `/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema Engineering/engineering` | continuation 原始树；在私有副本留存，公开树只保留本文指定 Markdown。 |
+| `<isolated-checkout>`, `/private/tmp/se-agent-v9-polish-data`, `/private/tmp/se-ui-maturity-data-20260907` | 原执行目录文本仅供定位；不复制、不当作当前路径。 |
+| `<isolated-checkout>/engineering` | continuation 原始树；在私有副本留存，公开树只保留本文指定 Markdown。 |
 
 ## 当前可复核入口
 

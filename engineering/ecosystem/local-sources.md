@@ -63,11 +63,11 @@ Career kit 是求职研究和归档库，不是另一套已运行 Work Agent。�
 
 | ID | 来源 / 类型 | 可支持的消费 | 不能外推 |
 |---|---|---|---|
-| L09 | [法律 AI 材料（历史路径：`</Users/lesprivilege/Projects/career-kit/20-投递/垂类/君合律师事务所-产品经理-法律AI方向/弹药库.md:1321>`）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 原件、claim、证据、Review 与工作包，形成 RD-003 样本候选 | 不是法律意见或实际客户验收 |
-| L10 | [ATS 材料（历史路径：`</Users/lesprivilege/Projects/career-kit/20-投递/垂类/BOSS直聘-ATS测评产品经理/弹药库.md:562>`）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 对象 identity、状态转换、actor/reason/version；作为第二责任结构 | 不证明生产招聘公平性、业务效果或系统实际能力 |
-| L11 | [Agent 规则策略（历史路径：`</Users/lesprivilege/Projects/career-kit/20-投递/垂类/拼多多集团/产品经理-Agent规则策略-上海/弹药库.md:359>`）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 规则/模型/人工分流、例外、owner、回滚；用于 activation 与失败用例 | 不把研究描述写成企业生产实践或普遍有效策略 |
-| L12 | [AlphaGPT 调研（历史路径：`</Users/lesprivilege/Projects/career-kit/_archive/垂类-历史JD-2026-07-13/iCourt(新橙科技`）](../migration/2026-09-08/evidence-index.md)/资深产品经理-诉讼AI-北京/产品实测调研-AlphaGPT具体功能与2026路线图.md:1>)；公开资料整理 | 正文说明未亲自试用；只用作产品问题和外部来源线索 | 标题“实测”不提供实测证据；产品指标需回原来源重查 |
-| L13 | [小模型与 Harness（历史路径：`</Users/lesprivilege/Projects/career-kit/_archive/垂类-历史JD-2026-07-13/调研-企业垂类Agent小模型与Harness.md:5>`）](../migration/2026-09-08/evidence-index.md)；历史归档 | 受控工具、校验、错误分层与评测候选 | 场景/测试数字为历史声明；demo/goldset 不证明长期效果 |
+| L09 | [法律 AI 材料（私有来源；定位见迁移索引）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 原件、claim、证据、Review 与工作包，形成 RD-003 样本候选 | 不是法律意见或实际客户验收 |
+| L10 | [ATS 材料（私有来源；定位见迁移索引）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 对象 identity、状态转换、actor/reason/version；作为第二责任结构 | 不证明生产招聘公平性、业务效果或系统实际能力 |
+| L11 | [Agent 规则策略（私有来源；定位见迁移索引）](../migration/2026-09-08/evidence-index.md)；垂类研究 | 规则/模型/人工分流、例外、owner、回滚；用于 activation 与失败用例 | 不把研究描述写成企业生产实践或普遍有效策略 |
+| L12 | [AlphaGPT 调研（私有历史归档；定位见迁移索引）](../migration/2026-09-08/evidence-index.md)；公开资料整理 | 正文说明未亲自试用；只用作产品问题和外部来源线索 | 标题“实测”不提供实测证据；产品指标需回原来源重查 |
+| L13 | [小模型与 Harness（私有历史归档；定位见迁移索引）](../migration/2026-09-08/evidence-index.md)；历史归档 | 受控工具、校验、错误分层与评测候选 | 场景/测试数字为历史声明；demo/goldset 不证明长期效果 |
 
 ## 在 SE 中如何别裁
 

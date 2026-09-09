@@ -2,9 +2,9 @@
 
 状态：带溯源索引
 
-来源：官方仓库 `deepseek-ai/deepseek-harness`（GitHub），固定 HEAD commit **`c389f96bf3a9b6807cb71ed6bdad5849be0df6d8`**（2026-09-08 00:46:19 +0800），`LICENSE` 为 MIT。本机一次性只读克隆：`git clone --depth 1 https://github.com/deepseek-ai/deepseek-harness.git` 至 `/private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/7ceb28df-cee0-4df5-bbef-af2d8554131f/scratchpad/dsh-official`，未 push、未改写、未安装依赖、未启动任何服务。
+来源：官方仓库 `deepseek-ai/deepseek-harness`（GitHub），固定 HEAD commit **`c389f96bf3a9b6807cb71ed6bdad5849be0df6d8`**（2026-09-08 00:46:19 +0800），`LICENSE` 为 MIT。本机一次性只读克隆：`git clone --depth 1 https://github.com/deepseek-ai/deepseek-harness.git` 至 `<isolated-checkout>/-Users-lesprivilege-Projects-Schema-Engineering/7ceb28df-cee0-4df5-bbef-af2d8554131f/scratchpad/dsh-official`，未 push、未改写、未安装依赖、未启动任何服务。
 
-对照副本（仅用于 §4 差异比对，不作转录来源）：本机受控下游 `/Users/lesprivilege/Projects/motto-dsh`，`git log -1` = `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`（2026-08-17 19:03:17 +0800，rc.7），`git remote -v` 显示 `upstream = https://github.com/deepseek-ai/deepseek-harness.git`。对该副本只执行了文件读取（`cat`/`diff` 对比已克隆的官方文件），未执行任何 git 命令（含 `fetch`），未修改任一文件。
+对照副本（仅用于 §4 差异比对，不作转录来源）：本机受控下游 `<private-source>`，`git log -1` = `99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`（2026-08-17 19:03:17 +0800，rc.7），`git remote -v` 显示 `upstream = https://github.com/deepseek-ai/deepseek-harness.git`。对该副本只执行了文件读取（`cat`/`diff` 对比已克隆的官方文件），未执行任何 git 命令（含 `fetch`），未修改任一文件。
 
 本机 skill `~/.pi/agent/skills/deepseek-harness/SKILL.md` 仅读取其 dispatch 表作索引，未套用其工作流模板（该 skill 本身也声明"routes to pinned upstream skill templates without making their repository-specific rules global"）。
 

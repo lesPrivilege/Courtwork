@@ -13,7 +13,7 @@ SE_RUNTIME_DATA_DIR=/absolute/path/to/new-v7-data PORT=8797 node server/index.mj
 
 数据目录必须是新的独立目录，不能用V5/V6旧数据作seed或让两个Host同时打开。Pi精确版本仍由package-lock锁定0.83.0，API仍为 `/api/v5`。bootstrap显示realProvider:false、local-fake、externalBrowser:false；没有真实key读取或外部provider自动回落。
 
-本机便捷源码为 `/private/tmp/se-agent-v7/app`，预览 `http://127.0.0.1:8797/`，纯合成数据 `/private/tmp/se-v7-preview-20260906`。这些临时入口可能失效，归档与恢复步骤才是交付依据。
+本机便捷源码为 `<isolated-checkout>/app`，预览 `http://127.0.0.1:8797/`，纯合成数据 `/private/tmp/se-v7-preview-20260906`。这些临时入口可能失效，归档与恢复步骤才是交付依据。
 
 ## 复核
 

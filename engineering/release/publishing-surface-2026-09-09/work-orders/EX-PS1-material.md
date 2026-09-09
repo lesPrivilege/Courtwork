@@ -20,7 +20,7 @@
 
 - `app/web/styles.css`：`--frame / --panel / --panel-muted / --float / --glass* / --shadow-* / --blur-* / --radius-*`，以及 L0–L3 的注释；
 - `engineering/design/surface-hierarchy.md` SH-3；`engineering/design/ui-composition-standard.md` 的圆角与阴影条目；
-- `/private/tmp/se-fable-r4d/engineering/mvp/execution/work-surface-kit/intake-round-3.md` §4ac（WK-124）与 §4ad（WK-125）：材质语法与 shape roles、concentricity 公理（该分支未合流 main，只读）。
+- `<isolated-checkout>/engineering/mvp/execution/work-surface-kit/intake-round-3.md` §4ac（WK-124）与 §4ad（WK-125）：材质语法与 shape roles、concentricity 公理（该分支未合流 main，只读）。
 
 ## 交付表
 

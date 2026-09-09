@@ -10,7 +10,7 @@
 |---|---|
 | 开工基线 | `62556b7f65170ecf30efb2869447ae85fe69d721`（合流第一段与 Astra 动作 / renderer 接缝后的清洁 main） |
 | 后端契约来源 | Astra `codex/work-review-actions` 冻结 `3d97beb8df20ee0061dc31e8cd72d01ac3b6afd7`；packet `fixtureVersion 2` |
-| 工作树 | `/private/tmp/se-agent-wk10b2` |
+| 工作树 | `<isolated-checkout>` |
 | 分支 | `claude/wk10b-second`（未 push） |
 | 交付 SHA | 见 §10 |
 | 服务器 | `npm --prefix app start -- --data-dir /private/tmp/se-agent-wk10b2-data --port 8874`（已随交付停机） |

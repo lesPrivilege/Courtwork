@@ -1,0 +1,21 @@
+{
+  "source_commit": "00b2f2886e04aa7b7facb588d4375a246f3e341d",
+  "source_path": "site/specimen/9e5384f.json",
+  "original_sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0",
+  "public_sha256": "2e9f0de84c4596250ce6c2575a2ad748b23cf7661a7dab698cb9ba34b6c2149c",
+  "changed_fields": [
+    ".session.workspaceDir",
+    ".runSnapshots.permission.hostSession.path",
+    ".runSnapshots.question.hostSession.path",
+    ".runs.270f1e4e-50e0-476f-9fea-214ba408821b.hostSession.path",
+    ".runs.076ee2aa-9e0a-48d6-a2f2-bbd24d80f8c9.hostSession.path",
+    ".events.270f1e4e-50e0-476f-9fea-214ba408821b.events[2].data.resources[21].filesystem",
+    ".events.076ee2aa-9e0a-48d6-a2f2-bbd24d80f8c9.events[2].data.resources[21].filesystem",
+    ".context.270f1e4e-50e0-476f-9fea-214ba408821b.binding.resources[21].filesystem",
+    ".context.076ee2aa-9e0a-48d6-a2f2-bbd24d80f8c9.binding.resources[21].filesystem"
+  ],
+  "capture_receipt_removed_fields": [
+    "data_dir"
+  ],
+  "method": "Only machine-local display paths changed. IDs, event order, decisions, content, source_sha and times are retained. This is not a new capture."
+}

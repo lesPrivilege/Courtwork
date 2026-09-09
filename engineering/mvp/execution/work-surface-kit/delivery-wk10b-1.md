@@ -9,7 +9,7 @@
 | 项 | 值 |
 |---|---|
 | 开工基线 | `a2c2e4cdda08a4976be6eca96b61237555633809`（Astra 合流后的清洁 main，WK-83） |
-| 工作树 | `/private/tmp/se-agent-wk10b` |
+| 工作树 | `<isolated-checkout>` |
 | 分支 | `claude/wk10b-first`（未 push） |
 | 交付 SHA | 见本页末「提交」 |
 | 服务器 | `npm --prefix app start -- --data-dir /private/tmp/se-agent-wk10b-data --port 8873` |

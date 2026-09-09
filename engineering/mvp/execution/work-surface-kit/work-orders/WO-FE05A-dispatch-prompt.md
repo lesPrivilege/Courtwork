@@ -1,13 +1,13 @@
 # FE-05a 派单提示词（Fable，2026-09-09；以 `opus-wo-low` 派出；待 Astra 合流 CC-D0-a 后建树、填基线 SHA、原样派出）
 
-派单方式：Agent 工具，`subagent_type: opus-wo-low`（effort: low），后台运行。派出前 Fable 做三件事：`git worktree add /private/tmp/se-agent-fe05a -b claude/fe05a-type-density <合流后 main>`；`mkdir /private/tmp/se-agent-fe05a-data`；把下文两处 `<BASE>` 换成该 SHA。端口 8909（fixture 8910）当前空闲，派出前再 `lsof` 一次。
+派单方式：Agent 工具，`subagent_type: opus-wo-low`（effort: low），后台运行。派出前 Fable 做三件事：`git worktree add <isolated-checkout> -b claude/fe05a-type-density <合流后 main>`；`mkdir /private/tmp/se-agent-fe05a-data`；把下文两处 `<BASE>` 换成该 SHA。端口 8909（fixture 8910）当前空闲，派出前再 `lsof` 一次。
 
 ---
 
 你是 Claude Opus，CourtWork 前端的单一 writer，执行第五轮工单 FE-05a（字阶与控件密度 V1 + Shape 落地）。Fable 派单，Astra 独验与合流；你只做作者验证，不自称独验。
 
 ## 树、分支、端口
-- worktree（已建好，基线 main `<BASE>`，含 CC-D0-a）：/private/tmp/se-agent-fe05a，分支 `claude/fe05a-type-density`。只在这里工作；不碰 /Users/lesprivilege/Projects/Courtwork 或其他树。
+- worktree（已建好，基线 main `<BASE>`，含 CC-D0-a）：<isolated-checkout>，分支 `claude/fe05a-type-density`。只在这里工作；不碰 . 或其他树。
 - 应用端口 8909，数据目录 /private/tmp/se-agent-fe05a-data（已建、为空，可建子目录）；MCP 线路 fixture 用 8910；CDP 端口自选 20070 起。结束后停掉自己的全部进程。8850–8861、8810、8817、8818、8887–8907、8921–8953 是别人的，不动；起服务前先 `lsof -nP -iTCP:<port> -sTCP:LISTEN`，被占就停下记录，不要换端口试探。
 - 不读取任何凭据文件；全程 local-fake / loopback。
 
@@ -15,7 +15,7 @@
 1. engineering/mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md §FE-05a —— 工单全文（第 0 / 0 补充 / 0b 项与主项）。
 2. engineering/design/type-density-constraints.md —— §2 约束（两张变体共同遵守，含"按钮完整可读"硬约束）、§3 **V1 目标值**（本单只落 V1：用户已于 WK-123 (b) 选向，不出 V2）、§4 消融面、§5 不做。
 3. engineering/design/type-density-ablation/v1/README.md + 四页 + `measurements-v1.json` —— 你的对照基线（1:1、深色、390、命中区四项前置已闭合，WK-132）；产品落地后的数值须与之对得上，对不上要解释。
-4. engineering/mvp/execution/work-surface-kit/intake-round-3.md：§4y WK-120（成熟感 = 密度 + 留白对齐 + 层级）、§4ab WK-123 (b)（选向 V1 与四项前置）、§4ae WK-126 ⑦（M-15）、§4ag WK-128（Shape 落地八条：①②③⑤⑧ + lint-shapes + SHAPE 断言进本单；⑥ 28 高控件 `--radius-control` 8 不变；⑦ circle 只给 composer 唯一浮动主动作）、§4aj WK-131（M-16）、§4ak WK-132（M-16 / M-17 修正方案）、§4aq WK-138 ②（M-18）。若某节不在你的树内，只读 /private/tmp/se-fable-r4d 下同路径；不要写那棵树。
+4. engineering/mvp/execution/work-surface-kit/intake-round-3.md：§4y WK-120（成熟感 = 密度 + 留白对齐 + 层级）、§4ab WK-123 (b)（选向 V1 与四项前置）、§4ae WK-126 ⑦（M-15）、§4ag WK-128（Shape 落地八条：①②③⑤⑧ + lint-shapes + SHAPE 断言进本单；⑥ 28 高控件 `--radius-control` 8 不变；⑦ circle 只给 composer 唯一浮动主动作）、§4aj WK-131（M-16）、§4ak WK-132（M-16 / M-17 修正方案）、§4aq WK-138 ②（M-18）。若某节不在你的树内，只读 <isolated-checkout> 下同路径；不要写那棵树。
 5. engineering/mvp/execution/work-surface-kit/explore/ex-cs1-shape-grammar.md §1–§6（radius 审计表、三处 concentricity 违例定位、lint-shapes 规则草案；§7 specimen 与 `corner-shape` 不在本单）。
 6. engineering/mvp/execution/work-surface-kit/misfit-ledger.md M-15 / M-16 / M-17 / M-18；delivery-cc-d0a.md（体例与 §16 复核格式）与 contracts/home-modules.md §2（HOME-16 首屏余量门）。
 7. 代码：app/web/styles.css（`:root` 字阶 token、`--control`、`.segment`、`.icon-only`、`.text-button`、`:focus-visible`、53 处 `border-radius`）、app.mjs 的 B 态顶带（`surfaceViewSwitch` 附近）与 composer `setAction` / `renderComposer`、settings-view.mjs（三档 `--text-scale`）、tools/lint-colors.mjs 与 lint-materials.mjs（新 lint 的样板）、evidence/cc-d0a/ 的脚本作为回归底本（composition-checks 含 HOME-1…16、SETTINGS-*、WORK-*、SHELL-1…5）。

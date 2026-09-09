@@ -1,0 +1,27 @@
+✔ MR-A1a: meta contract — version, units and byte limit are explicit (1.600625ms)
+✔ MR-A1a: plain ASCII — counts, hash and identity conversions (0.498291ms)
+✔ MR-A1a: empty content is allowed and every offset except 0 is rejected (0.256542ms)
+✔ MR-A1a: BOM is preserved, counted as one code point, never stripped (0.159708ms)
+✔ MR-A1a: CRLF and trailing newline are literal code points, not normalized (0.08375ms)
+✔ MR-A1a: combining characters are preserved; no Unicode normalization happens (0.31025ms)
+✔ MR-A1a: emoji/astral — surrogate-pair interiors are rejected, never snapped (0.184458ms)
+✔ MR-A1a: strict UTF-8 — malformed and truncated input is rejected with invalid_utf8 (0.356541ms)
+✔ MR-A1a: size boundaries — 65536 bytes accepted, 65537 rejected as source_too_large (4.790083ms)
+✔ MR-A1a: offset validation — unsafe integers, wrong ranges and bad units (0.781958ms)
+✔ MR-A1a: input is copied — later mutation never reaches the built coordinates (0.127041ms)
+✔ MR-A1a: Buffer and offset views are accepted and measured by their own bytes (0.249083ms)
+✔ MR-A1a: wrong input types are a caller contract violation (TypeError) (0.29625ms)
+✔ MR-A1a: returned object is frozen; output metadata edits cannot pollute conversions (0.391958ms)
+✔ MR-A1a: repeated builds are deterministic and independent of each other (0.094667ms)
+✔ MR-A1a: fixture corpus parity — module equals the independent oracle and the static expectations (6.379375ms)
+✔ MR-A1a: NUL and control characters are ordinary code points, never trimmed (0.127791ms)
+✔ MR-A1a integration: spoofed non-byte views are rejected by internal type (0.057958ms)
+✔ MR-A1a integration: invalid unit errors never coerce caller objects (0.107125ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 112.813666

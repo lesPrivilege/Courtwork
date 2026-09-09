@@ -2,7 +2,7 @@
 
 状态：只读 explore，Sonnet，2026-09-09，派单见 [intake-round-3 §4w WK-118 (g)](../intake-round-3.md)。
 
-只读声明：本卷只读 `/private/tmp/se-fable-r4d`（基线 `main` `d112beb`，HEAD `509c41d`）内的文档、`app/web/app.mjs`、`app/web/ui-controls.mjs`、`app/web/inspector.mjs`、`app/web/thread-projection.mjs`、`app/web/runtime-view.mjs`、`app/web/styles.css`、`app/web/index.html`、`tools/lint-materials.mjs`、`app/tests/*.test.mjs`、`evidence/fe03/`、`evidence/fe04/`。未修改任何产品代码、未 `git commit`、未启动任何服务、未新增依赖。链接与 Atlas 原文未经核验，一律标"Atlas 称"；结论标 file:line，无法核实处写"未核实"。
+只读声明：本卷只读 `<isolated-checkout>`（基线 `main` `d112beb`，HEAD `509c41d`）内的文档、`app/web/app.mjs`、`app/web/ui-controls.mjs`、`app/web/inspector.mjs`、`app/web/thread-projection.mjs`、`app/web/runtime-view.mjs`、`app/web/styles.css`、`app/web/index.html`、`tools/lint-materials.mjs`、`app/tests/*.test.mjs`、`evidence/fe03/`、`evidence/fe04/`。未修改任何产品代码、未 `git commit`、未启动任何服务、未新增依赖。链接与 Atlas 原文未经核验，一律标"Atlas 称"；结论标 file:line，无法核实处写"未核实"。
 
 ## 1. 现状盘点：今天有几类"浮出层"，各自怎么定位
 

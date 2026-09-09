@@ -10,7 +10,7 @@
 |---|---|
 | 基线 | `main` `4d9714e`（FE-02 合流后的清洁节点，WK-108） |
 | 分支 | `claude/fe03-chat-work` |
-| 树 | `/private/tmp/se-agent-fe03` |
+| 树 | `<isolated-checkout>` |
 | 端口 / 数据目录 | 8895（按用途轮换，每次换全新空目录）；FE-T03-e 的冻结源与 RC 的 MCP 线路 fixture 用 8896；探测目标目录 fixture 绑临时端口；CDP 19895–19902 |
 | 凭据 | 未读取任何凭据文件；全程 local-fake / loopback，未配置真实 provider，fixture 内无任何真实 key。探测只打本单自己起的 loopback 假目录 |
 

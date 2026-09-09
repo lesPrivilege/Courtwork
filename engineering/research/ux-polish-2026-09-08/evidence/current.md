@@ -1,6 +1,6 @@
 # CourtWork polish current inventory
 
-审阅范围：只读检查 /private/tmp/se-agent-wsk 的 claude/wsk-integration 当前源码，以及 fresh checkout 的当前 WSK 工单/回执。
+审阅范围：只读检查 <isolated-checkout> 的 claude/wsk-integration 当前源码，以及 fresh checkout 的当前 WSK 工单/回执。
 固定产品快照：整合分支 272680519b9faa4f896b68b46888c247662d6991（HEAD，2026-09-09）。
 fresh 基线：f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd。
 整合 worktree 当前只有 evidence/rc/*.json 修改；未读私有运行数据。

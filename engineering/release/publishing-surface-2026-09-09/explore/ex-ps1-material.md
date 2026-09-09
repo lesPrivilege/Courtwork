@@ -13,7 +13,7 @@
 | `app/web/styles.css` | `c09a829b4a30c9c9…` |
 | `engineering/design/surface-hierarchy.md` | `891523cfa3258ecd…` |
 | `engineering/design/ui-composition-standard.md` | `219f25ad1feb57b6…` |
-| `/private/tmp/se-fable-r4d/…/intake-round-3.md`（未合流分支，只读） | `66bef544fe8e07d6…` |
+| `<isolated-checkout>/…/intake-round-3.md`（未合流分支，只读） | `66bef544fe8e07d6…` |
 | 本工单文件 `EX-PS1-material.md` | `70f5e92277ce91cf…` |
 | `handoff-convention.md` | `7ab1df384a41845c…` |
 

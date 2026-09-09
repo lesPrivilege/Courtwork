@@ -1,6 +1,6 @@
 # WO-WK6 交付 · 品牌注入 + 首页呼吸 + 文本收编（Opus 施工，Fable 收尾，2026-09-09）
 
-分支 `claude/wk6-home-brand`，基线 `f8aff61`，工作树 `/private/tmp/se-agent-wk6`，端口 8853。Opus 在写交付前触发会话额度上限；提交与证据齐全，本记录由 Fable 依据证据文件写出。未推送。
+分支 `claude/wk6-home-brand`，基线 `f8aff61`，工作树 `<isolated-checkout>`，端口 8853。Opus 在写交付前触发会话额度上限；提交与证据齐全，本记录由 Fable 依据证据文件写出。未推送。
 
 ## 提交
 

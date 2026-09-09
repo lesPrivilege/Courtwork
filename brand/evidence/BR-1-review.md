@@ -1,6 +1,6 @@
 # BR-1 source/export review
 
-Review target: `/private/tmp/cw-brand-br1`, branch `codex/brand-host-colors`, baseline `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`. Scope was limited to static source/export consistency; no browser run and no product-tree edits.
+Review target: `<isolated-checkout>`, branch `codex/brand-host-colors`, baseline `f8aff61be8ef7ed5e3a3d2b7a1fbb631197383fd`. Scope was limited to static source/export consistency; no browser run and no product-tree edits.
 
 ## Result: PASS
 

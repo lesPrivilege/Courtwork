@@ -35,21 +35,21 @@
 
 ## Motto TUI：将终端约束转为 Web 假设
 
-定位为 `/Projects/Motto`，本次不把相邻 `motto-dsh` 当作同一设计来源。资料是旧设计/源码研究，未运行终端或 GUI；终端宽度、复制与排版方案不能直接成为 Web 实现规范。
+定位为 `<private-source>`，本次不把相邻 `motto-dsh` 当作同一设计来源。资料是旧设计/源码研究，未运行终端或 GUI；终端宽度、复制与排版方案不能直接成为 Web 实现规范。
 
 | 原始定位 / 历史语境 | 可迁移候选 | 不照搬 / 对照验证 |
 |---|---|---|
-| [TUI Thesis（历史路径：`</Users/lesprivilege/Projects/Motto/docs/TUI-THESIS.md:129>`）](../migration/2026-09-08/evidence-index.md)；以排版区分消息层级 | 短分隔与悬挂对齐形成低噪音边界，正文仍连续阅读 | 不加竖排、印章、装饰字符；UI04/07 验证 CJK 窄窗、IME、长文选择与复制，装饰不进入语义数据 |
-| [Review flow 研究（历史路径：`</Users/lesprivilege/Projects/Motto/docs/architecture/TUI-REVIEW-FLOW-RESEARCH.md:18>`）](../migration/2026-09-08/evidence-index.md)；工具日志密度治理 | 正文、成功工具摘要、异常分层；普通成功可折叠，失败与权限拒绝保持可见 | 不直接公开含秘密的 stderr；原始受保护日志与用户可见脱敏摘要分开；UI06/13/17 检查部分成功与未完义务 |
-| [卡片框研究（历史路径：`</Users/lesprivilege/Projects/Motto/docs/architecture/TUI-CARD-FRAME-RESEARCH.md:274>`）](../migration/2026-09-08/evidence-index.md)；多行文本被压扁的失败线索 | 容器不改写内容，标签与原文分离，保留逐行结构与语义复制 | 不照搬终端表格为所有 Web 卡片；UI14/15 检查缩进、多行 quote、代码及窄窗复制，渲染无权改成果 |
+| [TUI Thesis（历史路径：`<private-source>/docs/TUI-THESIS.md:129>`）](../migration/2026-09-08/evidence-index.md)；以排版区分消息层级 | 短分隔与悬挂对齐形成低噪音边界，正文仍连续阅读 | 不加竖排、印章、装饰字符；UI04/07 验证 CJK 窄窗、IME、长文选择与复制，装饰不进入语义数据 |
+| [Review flow 研究（历史路径：`<private-source>/docs/architecture/TUI-REVIEW-FLOW-RESEARCH.md:18>`）](../migration/2026-09-08/evidence-index.md)；工具日志密度治理 | 正文、成功工具摘要、异常分层；普通成功可折叠，失败与权限拒绝保持可见 | 不直接公开含秘密的 stderr；原始受保护日志与用户可见脱敏摘要分开；UI06/13/17 检查部分成功与未完义务 |
+| [卡片框研究（历史路径：`<private-source>/docs/architecture/TUI-CARD-FRAME-RESEARCH.md:274>`）](../migration/2026-09-08/evidence-index.md)；多行文本被压扁的失败线索 | 容器不改写内容，标签与原文分离，保留逐行结构与语义复制 | 不照搬终端表格为所有 Web 卡片；UI14/15 检查缩进、多行 quote、代码及窄窗复制，渲染无权改成果 |
 
 ## Deswrit kit 与 Courtwork：只取机制
 
 | 原始定位 / 历史语境 | 克制的候选机制 | 不继承的外形或绝对规则 | 对应验证 |
 |---|---|---|---|
-| [Deswrit 刊例（历史路径：`</Users/lesprivilege/Projects/Deswrit kit/03-刊例.md:19>`）](../migration/2026-09-08/evidence-index.md)；以校勘类比组织设计方法 | 检查值错、状态缺失、赘余、顺序错误；将风格评价转为有依据的 review | 古籍术语不成为用户学习负担；不把其“公理”当 SE 自动接受规则 | 对 UI01–18 缺态检查；删去装饰的任务对照 |
-| [Deswrit 谱例（历史路径：`</Users/lesprivilege/Projects/Deswrit kit/04-谱例.md:57>`）](../migration/2026-09-08/evidence-index.md)；记号和信息去重 | 一个状态标记表达可解释事实；同源信息减少重复；焦点行提供下一动作 | 不机械限制全屏只能一个数字；合理比较和可访问冗余可以保留 | UI13/16/17，用户找到阻塞与下一步，不丢判断材料 |
-| [Deswrit 谱例（历史路径：`</Users/lesprivilege/Projects/Deswrit kit/04-谱例.md:13>`）](../migration/2026-09-08/evidence-index.md)；语义色分工 | 稀缺状态色，正文稳定可读；去色后仍由文本/形状区分 | 不将“红色仅人裁”或旧色值照搬；正常人工接受未必是危险动作 | UI10/11/16，去色、暗色与对比度验证 |
+| [Deswrit 刊例（历史路径：`<private-source>/03-刊例.md:19>`）](../migration/2026-09-08/evidence-index.md)；以校勘类比组织设计方法 | 检查值错、状态缺失、赘余、顺序错误；将风格评价转为有依据的 review | 古籍术语不成为用户学习负担；不把其“公理”当 SE 自动接受规则 | 对 UI01–18 缺态检查；删去装饰的任务对照 |
+| [Deswrit 谱例（历史路径：`<private-source>/04-谱例.md:57>`）](../migration/2026-09-08/evidence-index.md)；记号和信息去重 | 一个状态标记表达可解释事实；同源信息减少重复；焦点行提供下一动作 | 不机械限制全屏只能一个数字；合理比较和可访问冗余可以保留 | UI13/16/17，用户找到阻塞与下一步，不丢判断材料 |
+| [Deswrit 谱例（历史路径：`<private-source>/04-谱例.md:13>`）](../migration/2026-09-08/evidence-index.md)；语义色分工 | 稀缺状态色，正文稳定可读；去色后仍由文本/形状区分 | 不将“红色仅人裁”或旧色值照搬；正常人工接受未必是危险动作 | UI10/11/16，去色、暗色与对比度验证 |
 | Courtwork Design 索引 `archive/courtwork-pre-takeover:docs/design/README.md:5`；tokens/principles 与编译稿的责任分离 | 选定后由一种现行语义与 token 源生成消费稿，效果图回迁为可检查设计决定 | 不复制已有 tokens 或旧 blueprint 限制；效果图无自行生效权 | D2→D3 交接，检查候选/现行/编译产物身份 |
 | Courtwork principles `archive/courtwork-pre-takeover:docs/design/principles.md:41`；原项目控件/行动约束 | 版本与来源信息按需可达、动作指向具体对象，错误提供原因和下一步 | 不在主工作面堆 commit hash、牌记、藏印或仿古边框 | UI14–17，来源回跳、返回位置、接受后果测试 |
 

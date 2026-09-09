@@ -4,17 +4,17 @@
 
 ## 从这里继续
 
-- **工作目录：`/private/tmp/se-agent-v9-web`**
+- **工作目录：`<isolated-checkout>`**
 - **集成分支：`codex/gui-completeness`**，由 `codex/ui-maturity-surface` 快进合入。
 - **最后的功能提交：`511c29c`**（后续提交仅交接说明）。
 - **浏览器：`http://127.0.0.1:8816/`**，收尾时服务将从上述集成目录启动。
 - 测试数据：`/private/tmp/se-ui-maturity-data-20260907`。这是本地 synthetic/fake-provider 数据，不是生产内容。
-- 原 UI 工作树 `/Users/lesprivilege/.codex/worktrees/se-ui-maturity-20260907` 保留作历史。请在集成目录工作，避免改了另一份代码但浏览器看不到。
+- 原 UI 工作树 `<isolated-checkout>` 保留作历史。请在集成目录工作，避免改了另一份代码但浏览器看不到。
 
 启动（端口已有服务时不要重复启动）：
 
 ```sh
-cd /private/tmp/se-agent-v9-web
+cd <isolated-checkout>
 npm --prefix app start -- --data-dir /private/tmp/se-ui-maturity-data-20260907 --port 8816
 ```
 
@@ -101,6 +101,6 @@ git diff --check
 
 ## 参考来源的边界
 
-用户提供的 Codex 截图是布局与消息操作参考。Luna 另读 Claude desktop 可见结构和本地 DSH 源码 `/Users/lesprivilege/Projects/motto-dsh`：`ui-layout`、`ui-workspace`、`ui-conversation`。DSH 3080 服务未启动，本轮没有其 live UI 证据；Codex 原生窗口未读取。不要把参考产品的全部菜单照搬进 SE。
+用户提供的 Codex 截图是布局与消息操作参考。Luna 另读 Claude desktop 可见结构和本地 DSH 源码 `<private-source>`：`ui-layout`、`ui-workspace`、`ui-conversation`。DSH 3080 服务未启动，本轮没有其 live UI 证据；Codex 原生窗口未读取。不要把参考产品的全部菜单照搬进 SE。
 
 完成后请记录具体视觉改动、实际验证的宽度/流程、保留的限制和最终 commit；保持可运行的本地 preview。

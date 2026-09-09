@@ -16,7 +16,7 @@
 
 ## 基线 SHA
 
-`main` `fa90763`；工作树 `/private/tmp/se-agent-br01`，分支 `claude/br01-brand-primitive`。
+`main` `fa90763`；工作树 `<isolated-checkout>`，分支 `claude/br01-brand-primitive`。
 
 ## 写权路径
 

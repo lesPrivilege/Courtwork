@@ -19,7 +19,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 `release.json.source_sha` 是产品证据快照。截图、标本和 benchmark 均属于 `9e5384f`；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
 
-`site_sha` 是页面原始源码与证据输入的 SHA-256，不是 Git commit；生成的 `dist/`、README 与标本副本不参与输入摘要，因此首次构建和后续重建一致。`dist/` 及 vendor-product 副本由构建生成，不手改。
+`site_sha` 是页面原始源码与证据输入的 SHA-256，不是 Git commit；生成的 `dist/`、README 与标本副本不参与输入摘要，因此首次构建和后续重建一致。`dist/` 及 vendor-product 副本由构建生成，不提交、不手改。当前录制的九个机器路径字段已作公开投影，原始哈希与逐字段变更见 [脱敏回执](../evidence/public-repository-cleanup-20260910/specimen-redaction.json)。这是同一产品采集的展示脱敏，不是重新采集。构建会拒绝公开文本中出现机器绝对路径。
 
 capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的隔离 checkout 运行，且仅用独立合成数据目录。合流后的新 main 会被 capture 守卫拒绝；这不影响离线构建。更新产品快照须一起重取媒体、标本、benchmark 与测试记录，并重新核对声称。不要通过取消来源检查来沿用旧图。
 

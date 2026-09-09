@@ -7,7 +7,7 @@
 | 项 | 值 |
 |---|---|
 | 基线 main | `14ebd61877545ab71e20ce54a720d4e1e13c6b78`（WK12 合流复验回执） |
-| 工作树 | `/private/tmp/se-agent-wk11` |
+| 工作树 | `<isolated-checkout>` |
 | 分支 | `claude/wk11-workbench`（未 push） |
 | 应用端口 | 8883，数据目录 `/private/tmp/se-agent-wk11-data`（仓外，全新） |
 | provider | `fake-openai-loopback`（local-fake），全程零外部模型请求 |

@@ -1,25 +1,25 @@
-# Fresh Work Agent — runtime and Web application
+# CourtWork runtime and Web application
 
-The Runtime Control Plane backend and new-frontend handoff are documented in
-[the runtime index](../docs/runtime-control/INDEX.md). New control endpoints extend
-the existing API without editing `web/*`.
+The local host composes the Web UI, Pi AgentSession, runtime control plane and Work Core. Start it from the [repository README](../README.md); the current HTTP contract is [api-v6.md](docs/api-v6.md).
 
-This tree combines the completed generic UI and polish delivery (`4fab4bd`)
-with the Runtime Control Plane backend (`8722259`). The new control-plane UI
-is still a subsequent assignment; ordinary provider/session/permission/workspace
-surfaces already exist. Execution remains owned by `server/service.mjs`, with
-`runtime/pi-session-runtime.mjs` driving the in-process Pi AgentSession SDK
-`@earendil-works/pi-coding-agent@0.85.1`. There is no parallel legacy runtime.
+## Modules
 
-The HTTP contract a client codes against — endpoints, fields, event types,
-error codes, and the "current file vs content version" distinction — is
-`docs/api-v6.md`.
+| Directory | Responsibility |
+|---|---|
+| `server/` | HTTP routes, session/run service, durable runtime state and asynchronous read tasks |
+| `runtime/` | Pi integration, model connections, scoped tools, permissions, resources and MCP |
+| `core/` | Python Work Core, Node bridge and shared ownership of Matter state |
+| `extensions/` | Registered work adapters and review renderers |
+| `domains/` | Domain rules, proposal validation and fixtures |
+| `web/` | Browser application and reusable presentation components |
+| `tests/` | Runtime, Core and interface regression tests |
+| `docs/` | API and runtime implementation reference |
 
-The current runtime foundation, independent entry point, model/capability API and
-shutdown behavior are documented in [runtime-foundation.md](docs/runtime-foundation.md).
-Run `npm run smoke` for the local material → tool → result → restart → revision path.
+The host owns runtime state and session journals; the Core owns candidates, evidence, versions and decisions. Work adapters pass proposals and human decisions through the Core. The UI reads projections and calls the host API.
 
-## What is real vs. fake
+See [runtime control](../docs/runtime-control/INDEX.md), [runtime foundation](docs/runtime-foundation.md), [work API](../docs/work-core/README.md) and [module architecture](../engineering/architecture.md). Run `npm run smoke` for the local material → tool → result → restart → revision path.
+
+## Model connections
 
 - **`fake-openai-loopback`** — a loopback HTTP server (`runtime/fake-provider.mjs`)
   that never leaves the process, used by every test and by default. Ordinary
@@ -56,7 +56,7 @@ the duration of a Run, same as before.
 ## Run
 
 Node.js >=22.19.0 and Git >=2.36 on PATH. Git is required for artifact writes;
-unavailable Git fails the write before workspace publication. Restore the source archive, then from its `app` directory:
+unavailable Git fails the write before workspace publication. From the `app` directory:
 
 ```sh
 npm ci --ignore-scripts
@@ -210,14 +210,9 @@ From `app`:
 node --test tests/*.test.mjs ../tests/*.test.mjs
 ```
 
-This runs the full backend/store/runtime suite (credentials, workspace path
-guard, permission wait, idempotency, cancel, restart, usage, budget,
-durability under SIGKILL, event-cursor reconnection, startup requirements) plus
-the unchanged extension/runtime-lock/renderer regressions and the source-string
-`ui-event-mapping.test.mjs` check (not itself behavior acceptance). The real
-DeepSeek path is exercised only by `evidence/c1/real-provider-e2e.mjs`, which
-prints `not_run` and exits 0 when `SE_C1_KEY_FILE` is not set — it is never
-run as part of this fixture suite and never obtains a key on its own.
+The suite covers the Host, Work Core, model and tool integration, UI contracts,
+permission waits, idempotency, cancellation, reconnection and recovery. It uses
+synthetic fixtures and local deterministic providers.
 
 ## Test-only crash points
 
@@ -228,21 +223,12 @@ tests can observe what actually survives on disk. Two rules govern it:
 - `SE_TEST_CRASH_POINT` **alone does nothing**. The hook only arms when
   `SE_TEST_MODE=1` is also set.
 - Whenever either variable is present, startup logs one line saying whether the
-  point is armed or inert. A build that can kill itself on purpose says so.
+  point is armed or inert.
 
 Neither variable is set in normal operation, and with them unset the hook
 compiles to a name comparison that never matches.
 
-## What did not change
-
-`web/*` and `extensions/*` are untouched (verified byte-identical to the G2
-r2 archive baseline in `evidence/c1/boundary-check.json`). The frontend still
-talks to `/api/v5` exactly as before; no new event *type strings* were
-removed and no existing field was renamed. New event types
-(`permission.open`, `permission.resolved`, `artifact.written`, `run.usage`,
-`run.notice`) are additions the current frontend simply does not render yet.
-
-## MX-R1 runtime increment
+## Historical artifacts and compaction
 
 Historical text bytes are now retrieved by `GET /api/v5/sessions/:id/artifacts/file`
 with the exact recorded `runId`, `path` and raw content `sha256`. Git blobs are
@@ -258,8 +244,3 @@ terminate ordinary turns; existing turn and execution deadline budgets still
 apply. Cancel is sticky at the model request boundary, including cancellation
 during pre-prompt summarization. Summary usage is counted once; missing failed
 or retried summary usage is explicitly incomplete. See [MX-R1 API](docs/api-runtime-mx-r1.md).
-
-This is a generic runtime increment. Orchestration remains an independent caller
-of public Run commands, receipts and queries; no scheduler or planner is added.
-
-2026-09-08 补充：候选另含 Home composer 与通用 UI 编排收敛，见 `engineering/current.md`。Court Work 品牌语义注入在 merge 后首轮工单由用户交 Claude。

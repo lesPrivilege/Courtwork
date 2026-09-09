@@ -11,7 +11,7 @@
 |---|---|
 | 基线 | `main` `414b196`（Astra 合流 CC-S 与 Fable WK-116…121 之后的清洁节点） |
 | 分支 | `claude/cc-w-surface-tabs` |
-| 树 | `/private/tmp/se-agent-ccw` |
+| 树 | `<isolated-checkout>` |
 | 端口 / 数据 | 8901（第二台服务器与 MCP fixture 用 8902）；`/private/tmp/se-agent-ccw-data/*`，每换一次用途换一个全新空目录 |
 | CDP | 19960–19970 |
 

@@ -1,0 +1,55 @@
+{
+  "task": "MR-A1a independent source-coordinate boundary probe",
+  "repository": "Courtwork",
+  "commit": "dc564bda92ea540348ceb3dba3d2f247a86031df",
+  "parentCommit": "348abcb210d423a950d8f6d3fdd352e75bebd5d5",
+  "sourcePath": "./app/runtime/source-coordinates.mjs",
+  "sourceSha256": "4b3e08d64e3b696d1efe69088bdfdef6ad70eb6af49ab5fd431bf68eceb95589",
+  "node": "v25.9.0",
+  "assertions": [
+    {
+      "name": "cross-realm Uint8Array is accepted and mapped",
+      "status": "pass"
+    },
+    {
+      "name": "Buffer and offset views use only the visible bytes",
+      "status": "pass"
+    },
+    {
+      "name": "spoofed and wrong typed inputs are rejected as TypeError",
+      "status": "pass"
+    },
+    {
+      "name": "unknown units and offsets do not coerce caller objects",
+      "status": "pass"
+    },
+    {
+      "name": "BOM, CRLF, combining mark and astral mappings preserve raw boundaries",
+      "status": "pass"
+    },
+    {
+      "name": "strict UTF-8 rejects malformed sequences",
+      "status": "pass"
+    },
+    {
+      "name": "built coordinates are detached from later caller mutation",
+      "status": "pass"
+    },
+    {
+      "name": "detached backing store remains an explicit TypeError",
+      "status": "pass"
+    }
+  ],
+  "detachedBackingStore": {
+    "status": "throws",
+    "error": {
+      "name": "TypeError",
+      "message": "Cannot perform %TypedArray%.prototype.set on a detached ArrayBuffer"
+    }
+  },
+  "summary": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0
+  }
+}

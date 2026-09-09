@@ -1,6 +1,6 @@
 # evidence/rc · WO-RC runtime control UI
 
-Base `9ef1710`, branch `claude/rc-runtime-ui`, worktree `/private/tmp/se-agent-rc`.
+Base `9ef1710`, branch `claude/rc-runtime-ui`, worktree `<isolated-checkout>`.
 App on port 8850 with data dir `/private/tmp/se-agent-rc-data` (fresh, runtime
 schema 4). Node v25.9.0. Real provider: **not_run** — this host reports
 `capabilities.mode = "local-fake"`, and no real provider was configured or called.

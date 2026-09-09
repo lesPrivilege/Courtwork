@@ -10,7 +10,7 @@
 
 | 项 | 值 |
 |---|---|
-| 分支 / 提交 | `claude/ui-design-polish`：`891aa13`（token 与交互状态层）→ `e6bab95`（hover 才现的消息操作、连接小卡、设置行式版式）→ `f8e3c19`（时间戳随按钮一同 hover 出现）→ `4fab4bd`（BoardUI 三处模式：分段滑块、Working 计时行、ledger 微光）→ **`dd65d2b`**（设置行内分段控件整行宽），基于 `b26670c`（`codex/gui-completeness`），目录 `/private/tmp/se-agent-v9-web` |
+| 分支 / 提交 | `claude/ui-design-polish`：`891aa13`（token 与交互状态层）→ `e6bab95`（hover 才现的消息操作、连接小卡、设置行式版式）→ `f8e3c19`（时间戳随按钮一同 hover 出现）→ `4fab4bd`（BoardUI 三处模式：分段滑块、Working 计时行、ledger 微光）→ **`dd65d2b`**（设置行内分段控件整行宽），基于 `b26670c`（`codex/gui-completeness`），目录 `<isolated-checkout>` |
 | 改动 | 相对 b26670c 五文件 +821/−120：`styles.css`（token 层、交互层、分段控件、设置行）、`ui-controls.mjs`（tooltip 截断守卫、`anchorPopover`）、`index.html`（徽章改按钮、`#connection-popover`）、`app.mjs`（`openConnectionCard`、`applySessionUpdate`、Escape 链加一层、chip 接线）、`settings-view.mjs`（`segmentedPermission`、`renderConnectionCard`、行式表单）。DOM 顺序、ARIA 角色、状态机、commandId、草稿与 renderer owner 未动 |
 | 文件 hash（dd65d2b） | styles.css `20b21e632a74…`；app.mjs `e1430cd894a0…`；index.html `bc166fad312c…`；settings-view.mjs `0d662f0e79b7…`；ui-controls.mjs `d71f60026163…`。旧列：；ui-controls.mjs `d71f60026163…`；index.html `bc166fad312c…`；app.mjs `e3263f97611d…`；settings-view.mjs `0d662f0e79b7…` |
 | 预览 | 8816（Astra 数据）与 8818（本批 fixture，数据目录 `/private/tmp/se-agent-v9-polish-data`）都从同一目录起，刷新即见 |
@@ -20,7 +20,7 @@
 ## 复验入口
 
 ```sh
-cd /private/tmp/se-agent-v9-web && git checkout claude/ui-design-polish
+cd <isolated-checkout> && git checkout claude/ui-design-polish
 npm --prefix app test                                   # 119/119（本批实跑）
 node evidence/ui-maturity/surface-counterexamples.mjs   # 9/9
 node evidence/ui-maturity/run-receipt-counterexamples.mjs   # 5/5

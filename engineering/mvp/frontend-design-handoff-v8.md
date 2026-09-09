@@ -12,7 +12,7 @@ Chat端explore目前仅获知其存在，尚未收到材料、路径、版本或
 
 ## 首读材料
 
-持久工作树：`/Users/lesprivilege/.codex/worktrees/se-continuation-v3-20260906/Schema Engineering`。原`/Users/lesprivilege/Projects/Schema Engineering`摘要较旧，保持只读。当前工程文档尚在工作树中，不能只凭git提交历史寻找交付。
+持久工作树：`<isolated-checkout>`。原`<private-source>`摘要较旧，保持只读。当前工程文档尚在工作树中，不能只凭git提交历史寻找交付。
 
 1. [当前状态](../current.md)、[治理](../governance.md)、[决策](../decisions.md)、[CONTRIBUTING（历史路径：`../../CONTRIBUTING.md`）](../migration/2026-09-08/evidence-index.md)。按具体设计问题参照[Canonical（历史路径：`../../papers/src/canonical.md`）](../../PAPER.md)与[Practice（历史路径：`../../papers/src/practice.md`）](../../PAPER.md)，不要求重新通读所有历史。
 2. [通用层范围（历史路径：`execution/general-ui-audit/scope.md`）](../migration/2026-09-08/evidence-index.md)、[九步实际截图与发现（历史路径：`execution/general-ui-audit/audit.md`）](../migration/2026-09-08/evidence-index.md)、[编排裁定和G1–G4工单（历史路径：`execution/general-ui-audit/orchestration.md`）](../migration/2026-09-08/evidence-index.md)。这些是本轮最新主线；工单是建议工程顺序，未实施，不限制Claude提出更好的设计。
@@ -56,7 +56,7 @@ Chat端explore目前仅获知其存在，尚未收到材料、路径、版本或
 
 本轮清账重新核验两包全部成员、9张审计截图及活动Web源码，均一致。当前app.mjs为`8ac0dc921eedb5c9bc16d8bdb54e6bf311b3884dec3a63d0f19c3a116a58c61b`。逐文档交接坐标见[输入清单（历史路径：`frontend-design-handoff-v8-inputs.json`）](../migration/2026-09-08/evidence-index.md)，后续材料有变更时比较差异，不能盲目覆盖。
 
-便捷入口为`/private/tmp/se-agent-v7/app`与`http://127.0.0.1:8797/`；审计曾另用8798和独立合成数据。临时进程可能失效，不是恢复依赖。本轮未做git提交、发布或后台自动推进；现有CONTRIBUTING/README的工作树修改不属于本轮清账，不应撤销。
+便捷入口为`<isolated-checkout>/app`与`http://127.0.0.1:8797/`；审计曾另用8798和独立合成数据。临时进程可能失效，不是恢复依赖。本轮未做git提交、发布或后台自动推进；现有CONTRIBUTING/README的工作树修改不属于本轮清账，不应撤销。
 
 ## 新材料回来后的消费方式
 

@@ -1,6 +1,6 @@
 # WO-WK10b 第二段 · 作者证据
 
-2026-09-08，Opus。基线 main `62556b7f65170ecf30efb2869447ae85fe69d721`，工作树 `/private/tmp/se-agent-wk10b2`，分支 `claude/wk10b-second`（未 push）。服务器 `--port 8874`，数据目录 `/private/tmp/se-agent-wk10b2-data`（每次完整跑之前删除重建）。provider 为宿主 loopback 假 provider，`capabilities.mode = "local-fake"`（见 `seed.json`）；**真实 provider not_run**，全程未配置也未读取任何凭据文件。CDP 端口 19660 / 19662 / 19664 / 19668，各自新建浏览器 profile。
+2026-09-08，Opus。基线 main `62556b7f65170ecf30efb2869447ae85fe69d721`，工作树 `<isolated-checkout>`，分支 `claude/wk10b-second`（未 push）。服务器 `--port 8874`，数据目录 `/private/tmp/se-agent-wk10b2-data`（每次完整跑之前删除重建）。provider 为宿主 loopback 假 provider，`capabilities.mode = "local-fake"`（见 `seed.json`）；**真实 provider not_run**，全程未配置也未读取任何凭据文件。CDP 端口 19660 / 19662 / 19664 / 19668，各自新建浏览器 profile。
 
 结论见 [delivery-wk10b-2](../../delivery-wk10b-2.md)。本页只登记跑法与产物。
 

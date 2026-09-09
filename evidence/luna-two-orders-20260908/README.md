@@ -1,6 +1,6 @@
 # Luna 两单执行证据 · 2026-09-08
 
-源码基线 `429fdd68febb9998f322a0b53c323651fc8cd7fd`；隔离分支 `codex/luna-maintenance-core-validation`。本地临时执行树 `/private/tmp/cw-luna-maintenance-core-validation`，不是第二持久开发入口。工单见 [派单包](../../engineering/execution/2026-09-08-luna-two-orders/README.md)。证据路径相对本仓，可在包含本包的检出中复跑。
+源码基线 `429fdd68febb9998f322a0b53c323651fc8cd7fd`；隔离分支 `codex/luna-maintenance-core-validation`。本地临时执行树 `<isolated-checkout>`，不是第二持久开发入口。工单见 [派单包](../../engineering/execution/2026-09-08-luna-two-orders/README.md)。证据路径相对本仓，可在包含本包的检出中复跑。
 
 用户明确授权本轮落单并启动 Luna 有界执行。三个 Luna max 子代理实际完成第一轮分片，并交叉复核。Astra 阅读两候选、独验回执、Core 两探针与回执，接收以下有界结果。产品源码没有修改；没有 fixer 或 post-patch 验收可声称。当前状态仍由 engineering/current.md 维护。
 

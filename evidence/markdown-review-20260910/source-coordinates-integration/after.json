@@ -1,0 +1,26 @@
+{
+  "passed": 5,
+  "total": 5,
+  "results": [
+    {
+      "name": "cross-realm Uint8Array is accepted",
+      "pass": true
+    },
+    {
+      "name": "spoofed typed-array tag does not admit non-byte input",
+      "pass": true
+    },
+    {
+      "name": "invalid unit does not call user coercion or lose the error code",
+      "pass": true
+    },
+    {
+      "name": "BOM, CRLF and astral boundaries match independently encoded prefixes",
+      "pass": true
+    },
+    {
+      "name": "copied offset view stays isolated after backing store transfer",
+      "pass": true
+    }
+  ]
+}

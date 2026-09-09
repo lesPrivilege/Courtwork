@@ -2,7 +2,7 @@
 
 # Runtime Control Plane · 前端接入接管记录（Fable 架构，2026-09-08）
 
-用户通知：后端 `codex/runtime-control-plane` 提交 `8722259`（工作树 `/Users/lesprivilege/.codex/worktrees/se-runtime-control-20260907`，基于 `b26670c`），实现资源状态、作用域与权限、运行快照、逐步加载、专家组合契约与 MCP（Streamable HTTP）接入；134/134；`app/web` 未动。索引：`docs/runtime-control/INDEX.md`；前端契约：`../../../app/runtime/control-contract.d.ts`；接入要求：`docs/runtime-control/acceptance.md` §New frontend contract。
+用户通知：后端 `codex/runtime-control-plane` 提交 `8722259`（工作树 `<isolated-checkout>`，基于 `b26670c`），实现资源状态、作用域与权限、运行快照、逐步加载、专家组合契约与 MCP（Streamable HTTP）接入；134/134；`app/web` 未动。索引：`docs/runtime-control/INDEX.md`；前端契约：`../../../app/runtime/control-contract.d.ts`；接入要求：`docs/runtime-control/acceptance.md` §New frontend contract。
 
 本页只做架构消费与裁定，不开工前端实现；按标准流程，新表面先出 explore 卷再设计（用户 2026-09-07 裁定）。
 
