@@ -3,14 +3,14 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { test } from "node:test";
 import { RuntimeStore } from "../server/store.mjs";
 
-// schemaVersion 7: the app store keeps no private conversation transcript
+// schemaVersion 9: the app store keeps no private conversation transcript
 // (_history) — the host's Pi JSONL session file is the only journal, the
 // store's own "events" array is a generic UI-facing projection, and
 // run.commandId/artifacts/usage/hostSession carry the run's own facts.
 // Version 3 adds the persisted credentialGeneration counter. There is no
 // migration in either direction: an older file is refused, not rewritten.
 
-test("RuntimeStore persists schemaVersion 8 session/run fields and the canonical user event", async () => {
+test("RuntimeStore persists schemaVersion 9 session/run fields and the canonical user event", async () => {
   const dataDir = await mkdtemp("/private/tmp/v5-store-");
   const store = await new RuntimeStore({ dataDir }).open();
   const project = await store.createProject("test project");

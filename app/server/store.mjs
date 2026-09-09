@@ -20,10 +20,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 9;
+const SCHEMA_VERSION = 10;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
-  "credentialGeneration", "asyncTasks", "coordination",
+  "credentialGeneration", "asyncTasks", "coordination", "providerConnections",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -32,6 +32,7 @@ function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
     providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
+    providerConnections: [],
   };
 }
 
@@ -60,7 +61,10 @@ function sha256Hex(value, label) { assert(typeof value === "string" && /^[0-9a-f
 
 function validateDescriptor(value, label, { allowRealProvider = false, schema = SCHEMA_VERSION } = {}) {
   assert(isRecord(value), label + " must be an object");
-  const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : [])]);
+  // Only a RUN descriptor carries connection provenance: it is a record of what
+  // one run actually used, not part of the editable configuration pointer.
+  const provenance = allowRealProvider && schema >= 9 ? ["connectionId", "credentialSource", "contextWindowSource", "capabilityNotice"] : [];
+  const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance]);
   assert(Object.keys(value).every((key) => allowed.has(key)), label + " has unsupported fields");
   id(value.provider, label + ".provider");
   id(value.model, label + ".model");
@@ -73,6 +77,10 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   }
   if (value.reasoningEffort !== undefined) assert(["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(value.reasoningEffort), label + ".reasoningEffort is invalid");
   if (allowRealProvider) assert(typeof value.realProvider === "boolean", label + ".realProvider is invalid");
+  if (value.connectionId !== undefined) id(value.connectionId, label + ".connectionId");
+  if (value.credentialSource !== undefined && value.credentialSource !== null) id(value.credentialSource, label + ".credentialSource");
+  if (value.contextWindowSource !== undefined) assert(["catalog", "user", "unknown"].includes(value.contextWindowSource), label + ".contextWindowSource is invalid");
+  if (value.capabilityNotice !== undefined && value.capabilityNotice !== null) text(value.capabilityNotice, label + ".capabilityNotice", 200);
 }
 
 function validateBinding(value, label) {
@@ -111,8 +119,8 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7 or 8 can be upgraded)`);
-  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination'))), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8 or 9 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -228,7 +236,43 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   if (schema >= 8) validateCoordination(parsed.coordination);
+  if (schema >= 10) validateConnections(parsed.providerConnections);
   return structuredClone(parsed);
+}
+
+/** A connection is the persisted unit of provider identity: one endpoint, one
+ * wire format, one model list, one credential key. `credentialStatus` is NOT
+ * stored here — the credential file is its only source of truth. */
+function validateConnections(value) {
+  assert(Array.isArray(value), "providerConnections must be an array");
+  const ids = new Set();
+  const identities = new Set();
+  for (const connection of value) {
+    exactKeys(connection, new Set(["id", "kind", "providerIdentity", "api", "baseUrl", "models"]), "providerConnection");
+    id(connection.id, "providerConnection.id");
+    assert(["catalog", "compatible"].includes(connection.kind), "providerConnection.kind is invalid");
+    id(connection.providerIdentity, "providerConnection.providerIdentity");
+    id(connection.api, "providerConnection.api");
+    assert(!ids.has(connection.id), "providerConnection.id is not unique");
+    assert(!identities.has(connection.providerIdentity), "providerConnection.providerIdentity is not unique");
+    ids.add(connection.id); identities.add(connection.providerIdentity);
+    if (connection.baseUrl !== null) {
+      id(connection.baseUrl, "providerConnection.baseUrl");
+      let parsed;
+      try { parsed = new URL(connection.baseUrl); } catch { throw invalidState("providerConnection.baseUrl is invalid"); }
+      assert(["http:", "https:"].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.search && !parsed.hash, "providerConnection.baseUrl is invalid");
+    }
+    assert(Array.isArray(connection.models), "providerConnection.models must be an array");
+    const modelIds = new Set();
+    for (const model of connection.models) {
+      exactKeys(model, new Set(["id", "contextWindow"]), "providerConnection.model");
+      id(model.id, "providerConnection.model.id");
+      assert(!modelIds.has(model.id), "providerConnection.model.id is not unique");
+      modelIds.add(model.id);
+      assert(model.contextWindow === null || (Number.isSafeInteger(model.contextWindow) && model.contextWindow > 0), "providerConnection.model.contextWindow is invalid");
+    }
+    assert(connection.kind !== "compatible" || (connection.baseUrl !== null && connection.models.length > 0), "a compatible connection requires a baseUrl and at least one model");
+  }
 }
 
 function publicSession(session) {
@@ -326,17 +370,15 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
-            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
+            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(), providerConnections: [],
             sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
-            // Every Run that existed before lineage was recorded declares no
-            // predecessor. History is never reinterpreted into a chain.
-            runs: parsed.runs.map(run => ({ ...run, supersedes: null })) });
+            runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -658,6 +700,9 @@ export class RuntimeStore {
       return expired;
     });
   }
+
+  async setProviderConnections(connections) { return this._mutate((state) => { validateConnections(connections); state.providerConnections = structuredClone(connections); return state.providerConnections; }); }
+  getProviderConnections() { return structuredClone(this.state.providerConnections); }
 
   async setProviderConfig(config) { return this._mutate((state) => { state.providerConfig = structuredClone(config); return state.providerConfig; }); }
   getProviderConfig() { return structuredClone(this.state.providerConfig); }

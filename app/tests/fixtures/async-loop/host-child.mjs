@@ -22,7 +22,7 @@ async function api(method, pathname, body) {
   const response = await fetch(host.url + '/api/v5' + pathname, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
   const text = await response.text(); return { status: response.status, json: text ? JSON.parse(text) : null };
 }
-await api('PUT', '/provider-credential', { provider: 'fake-openai-loopback', apiKey: FAKE_CREDENTIAL_KEY });
+await api('PUT', '/provider-credential', { connectionId: 'catalog-fake-openai-loopback', apiKey: FAKE_CREDENTIAL_KEY });
 const project = await api('POST', '/projects', { name: 'recovery-independent' });
 const session = await api('POST', '/sessions', { projectId: project.json.project.id, title: 'crash-window' });
 process.stdout.write(`HOST ${JSON.stringify({ stage: 'ready', projectId: project.json.project.id, sessionId: session.json.session.id, source: adapter.sources[0] })}\n`);

@@ -154,7 +154,7 @@ test('RuntimeStore6 migration preserves global scope and exact backup; corrupt l
   try{
     store=await new RuntimeStore({dataDir:dir}).open();
     const global=await store.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dir,'global'),permissionMode:'ask'});
-    await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6;delete old.coordination;
+    await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6;delete old.coordination;delete old.providerConnections;
     const raw=Buffer.from(JSON.stringify(old,null,1)+'\n');await writeFile(file,raw);
     store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,9);await store.close();
     const hash=createHash('sha256').update(raw).digest('hex');assert.deepEqual(await readFile(path.join(dir,`runtime-state.schema6.${hash}.json`)),raw);

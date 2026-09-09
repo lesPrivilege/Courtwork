@@ -168,6 +168,10 @@ function routeService(service, req, url) {
   if (method === "POST" && tail.length === 2 && tail[0] === "provider-models" && tail[1] === "discover") return async () => service.previewProvider(await body(req), 'discover');
   if (method === "POST" && tail.length === 2 && tail[0] === "provider-connection" && tail[1] === "test") return async () => service.previewProvider(await body(req), 'test');
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-models") return () => service.getProviderModels();
+  if (method === "GET" && tail.length === 1 && tail[0] === "provider-connections") return () => service.getProviderConnections();
+  if (method === "POST" && tail.length === 1 && tail[0] === "provider-connections") return async () => service.createProviderConnection(await body(req));
+  if (method === "PUT" && tail.length === 2 && tail[0] === "provider-connections") return async () => service.replaceProviderConnection(tail[1], await body(req));
+  if (method === "DELETE" && tail.length === 2 && tail[0] === "provider-connections") return () => service.deleteProviderConnection(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-config") return () => service.getProviderConfig();
   if (method === "PUT" && tail.length === 1 && tail[0] === "provider-config") return async () => service.setProviderConfig(await body(req));
   if (method === "PUT" && tail.length === 1 && tail[0] === "provider-credential") return async () => service.putProviderCredential(await body(req));

@@ -1,0 +1,187 @@
+[
+  {
+    "id": "PV-FE-1",
+    "pass": true,
+    "rendered": 3,
+    "reported": 3,
+    "rows": [
+      "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+    ]
+  },
+  {
+    "id": "PV-FE-2",
+    "pass": true,
+    "connectionId": "catalog-openai",
+    "credentialStatus": "configured",
+    "formError": "",
+    "note": "凭据键是连接 id；旧的 {provider} 字段在 BE02 之后会 400"
+  },
+  {
+    "id": "PV-FE-3",
+    "pass": true,
+    "before": {
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "api": "openai-completions",
+      "reasoningEffort": "high"
+    },
+    "after": {
+      "provider": "openai",
+      "model": "gpt-5.5",
+      "api": "openai-responses",
+      "reasoningEffort": "high"
+    },
+    "formError": "",
+    "note": "旧行为：Settings 的表单 PUT 不带 reasoningEffort，整体替换后档位被静默清掉"
+  },
+  {
+    "id": "PV-FE-4",
+    "pass": true,
+    "probe": "ok · Model directory handshake succeeded; generation was not tested.",
+    "options": [
+      "loopback-alpha",
+      "loopback-beta"
+    ],
+    "capability": "Context window: unknown. Compaction stays off for it. Reasoning effort: Off. The catalogue reports no levels for this model. | Saved locally. A model call happens only when you send an instruction."
+  },
+  {
+    "id": "PV-FE-5",
+    "pass": true,
+    "rows": [
+      "Local testLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · API key saved · No models saved on itConfigure",
+      "127.0.0.1:8912In forcehttp://127.0.0.1:8912/v1 · openai-completions · API key saved · 2 models, 2 with an unknown context windowcontext window unknown, compaction disabledConfigure"
+    ],
+    "inForceRow": "127.0.0.1:8912In forcehttp://127.0.0.1:8912/v1 · openai-completions · API key saved · 2 models, 2 with an unknown context windowcontext window unknown, compaction disabledConfigure",
+    "formError": ""
+  },
+  {
+    "id": "PV-FE-6",
+    "pass": true,
+    "capability": {
+      "contextWindow": null,
+      "contextWindowSource": "unknown",
+      "compactionEnabled": false,
+      "notice": "context window unknown, compaction disabled"
+    },
+    "config": {
+      "provider": "conn-efd0ef8b1e2e",
+      "model": "loopback-alpha",
+      "api": "openai-completions",
+      "baseUrl": "http://127.0.0.1:8912/v1"
+    }
+  },
+  {
+    "id": "PV-FE-7",
+    "pass": true,
+    "status": "completed",
+    "provider": {
+      "provider": "conn-efd0ef8b1e2e",
+      "model": "loopback-alpha",
+      "api": "openai-completions",
+      "baseUrl": "http://127.0.0.1:8912/v1",
+      "realProvider": true,
+      "connectionId": "conn-efd0ef8b1e2e",
+      "credentialSource": "runtime",
+      "contextWindowSource": "unknown",
+      "capabilityNotice": "context window unknown, compaction disabled"
+    },
+    "project": {
+      "project": {
+        "id": "e7c67054-6ab8-474e-bbd9-9c870903cf89",
+        "name": "PV-FE01",
+        "createdAt": "2026-09-09T21:40:18.444Z"
+      }
+    },
+    "sessionId": "d499913d-df67-4ab7-884e-aa857e0420a3",
+    "runId": "f490241a-2b19-475e-aace-78731e4db27c",
+    "created": {
+      "run": {
+        "id": "f490241a-2b19-475e-aace-78731e4db27c",
+        "sessionId": "d499913d-df67-4ab7-884e-aa857e0420a3",
+        "status": "running",
+        "admissionOpen": true,
+        "adapterId": "pi-coding-agent@0.85.1/agent-session",
+        "provider": {
+          "provider": "conn-efd0ef8b1e2e",
+          "model": "loopback-alpha",
+          "api": "openai-completions",
+          "baseUrl": "http://127.0.0.1:8912/v1",
+          "realProvider": true,
+          "connectionId": "conn-efd0ef8b1e2e",
+          "credentialSource": "runtime",
+          "contextWindowSource": "unknown",
+          "capabilityNotice": "context window unknown, compaction disabled"
+        },
+        "extension": null,
+        "startedAt": "2026-09-09T21:40:18.449Z",
+        "endedAt": null,
+        "error": null,
+        "commandId": "4059b2d4-7e40-4321-8567-4857cfabed62",
+        "artifacts": [],
+        "usage": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 0,
+          "missing": true
+        },
+        "hostSession": null,
+        "credentialGeneration": 2
+      }
+    }
+  },
+  {
+    "id": "PV-FE-8",
+    "pass": true,
+    "ghost": {
+      "code": "connection_model_not_in_directory",
+      "message": "the model directory does not list every selected model",
+      "status": "ok",
+      "models": [
+        "ghost-model"
+      ]
+    },
+    "rejected": {
+      "code": "connection_authentication_failed",
+      "message": "The model directory rejected authentication.",
+      "status": "authentication_failed"
+    },
+    "unreachable": {
+      "code": "connection_directory_unavailable",
+      "message": "The model directory could not be reached.",
+      "status": "unreachable"
+    }
+  },
+  {
+    "id": "PV-FE-9",
+    "pass": true,
+    "capability": "Context window: 16,384 tokens, from your entry. Reasoning effort: Off. This catalogue declares no levels for this model. | Saved locally. A model call happens only when you send an instruction.",
+    "rows": [
+      "Local testLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · API key saved · No models saved on itConfigure",
+      "127.0.0.1:8912In forcehttp://127.0.0.1:8912/v1 · openai-completions · API key saved · 2 models, 1 with an unknown context windowConfigure"
+    ],
+    "error": ""
+  },
+  {
+    "id": "PV-FE-10",
+    "pass": true,
+    "groups": [
+      "deepseek",
+      "openai",
+      "fake-openai-loopback",
+      "127.0.0.1:8912"
+    ],
+    "connectionId": "conn-efd0ef8b1e2e",
+    "providerIdentity": "conn-efd0ef8b1e2e",
+    "baseUrl": "http://127.0.0.1:8912/v1",
+    "expectedHost": "127.0.0.1:8912",
+    "note": "标签是用户自己填过的端点主机名；取不到连接列表时退回原始 id"
+  }
+]

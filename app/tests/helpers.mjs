@@ -26,7 +26,7 @@ export async function boot({ budget, compaction, fakeResponder, configureFakeCre
   }
 
   if (configureFakeCredential) {
-    await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+    await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
   }
 
   const proj = await api("POST", "/projects", { name: "test-project" });

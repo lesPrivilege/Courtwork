@@ -1,4 +1,5 @@
 import { el, action } from './ui-controls.mjs';
+import { connectionLabel, effortSelectable, projectProviderConfig, supportedEffortsOf } from './settings-view.mjs';
 
 // Shared native modal. It saves the existing host provider configuration;
 // choosing a model never performs generation or discovers credentials.
@@ -16,24 +17,56 @@ export function createModelPicker({ request, onSaved }) {
     const status = el('p', {className:'form-help',text:'Loading installed models…',attrs:{role:'status'}});
     dialog.replaceChildren(header,status); dialog.showModal(); close.focus();
     try {
-      const [catalog, current] = await Promise.all([request('/provider-models'),request('/provider-config')]);
+      /* PV-53 · 分组标签多取一次连接注册表。用户连接在目录里的身份就是它的
+       * `conn-<hex>` id，那串东西对用户没有意义；它的名字用它自己填过的端点
+       * 主机名（与 Connections 列同一处 `connectionLabel`）。取不到注册表时
+       * 这份表为空，标签退回原始 id —— 不猜，也不在前端造一个显示名。 */
+      const [catalog, current, connections] = await Promise.all([
+        request('/provider-models'),
+        request('/provider-config'),
+        request('/provider-connections').then(r=>r.connections||[]).catch(()=>[]),
+      ]);
       if (own !== epoch) return;
       if (!Array.isArray(catalog.models)) throw new Error('Model catalog unavailable');
       const models = catalog.models;
+      const groupLabels = new Map(connections.filter(c=>c.kind==='compatible').map(c=>[c.providerIdentity,connectionLabel(c)]));
       let selected = models.find(m=>m.provider===current.config.provider && m.id===current.config.model);
       let effort = current.config.reasoningEffort ?? selected?.defaultEffort ?? 'off';
       const search = el('input',{attrs:{type:'search','aria-label':'Find installed model',placeholder:'Find a model…'}});
       const select = el('select',{attrs:{'aria-label':'Installed model',size:'7'}});
       const effortSelect = el('select',{attrs:{'aria-label':'Reasoning effort'}});
+      /* PV-27 · 目录没声明档位时不出选择器：一个只有 `Off` 一项的下拉是在暗示
+       * 别处还有别的档位可选。那里只出一行字，说明这条目录报的就是没有。 */
+      const effortFixed = el('span',{className:'form-help'});
+      const effortControl = el('div',{className:'model-picker-effort'});
+      const effortRow = el('label',{},el('span',{text:'Reasoning effort'}),effortControl);
       const route = el('p',{className:'form-help'});
+      const capability = el('p',{className:'form-help'});
       const save = el('button',{text:'Use for next runs',className:'primary-button',attrs:{type:'button'}});
       const renderSelection = () => {
-        const supported = selected?.supportedEfforts || ['off'];
+        const declared = selected ? supportedEffortsOf(catalog, selected.provider, selected.id) : null;
+        const supported = declared || selected?.supportedEfforts || ['off'];
         if (!supported.includes(effort)) effort = selected?.defaultEffort ?? supported[0];
-        effortSelect.replaceChildren(...supported.map(level=>el('option',{text:level==='off'?'Off':level,attrs:{value:level}})));
-        effortSelect.value=effort; effortSelect.disabled=busy || supported.length<2;
+        if (effortSelectable(supported)) {
+          effortSelect.replaceChildren(...supported.map(level=>el('option',{text:level==='off'?'Off':level,attrs:{value:level}})));
+          effortSelect.value=effort; effortSelect.disabled=busy;
+          effortControl.replaceChildren(effortSelect);
+        } else {
+          effortFixed.textContent = selected
+            ? 'Off. The catalogue for this connection reports no reasoning levels for this model.'
+            : 'Off.';
+          effortControl.replaceChildren(effortFixed);
+        }
         const sameProvider=selected?.provider===current.config.provider;
-        route.textContent=selected ? `${selected.provider} · ${sameProvider?current.config.api:selected.api}${sameProvider && current.config.baseUrl?' · custom endpoint':''}. Context window: ${Number.isSafeInteger(selected.contextWindow)?selected.contextWindow.toLocaleString():'unavailable'} tokens.` : 'Select an installed model.';
+        /* PV-27 · 未报窗口就写 `unknown`，不写 `unavailable` 也不套用同名模型的目录值。 */
+        route.textContent=selected ? `${selected.provider} · ${sameProvider?current.config.api:selected.api}${sameProvider && current.config.baseUrl?' · custom endpoint':''}. Context window: ${Number.isSafeInteger(selected.contextWindow)?`${selected.contextWindow.toLocaleString()} tokens`:'unknown'}.` : 'Select an installed model.';
+        /* 后端为**已生效**的那条配置给出的能力原话，逐字呈现，不改写（PV-30）。 */
+        const isInForce = selected && selected.provider===current.config.provider && selected.id===current.config.model;
+        const notice = isInForce ? current.capability?.notice : null;
+        const source = isInForce && current.capability?.contextWindowSource === 'user'
+          ? 'The context window above came from your entry on this connection.' : '';
+        capability.textContent = notice || source || '';
+        capability.hidden = !capability.textContent;
         save.disabled=busy || !selected || !matchesCurrent;
       };
       const renderOptions = () => {
@@ -41,7 +74,7 @@ export function createModelPicker({ request, onSaved }) {
         const filtered=models.filter(m=>`${m.provider} ${m.name} ${m.id}`.toLowerCase().includes(q));
         select.replaceChildren();
         for(const provider of [...new Set(filtered.map(m=>m.provider))]) {
-          const group=el('optgroup',{attrs:{label:provider}});
+          const group=el('optgroup',{attrs:{label:groupLabels.get(provider) || provider}});
           for(const model of filtered.filter(m=>m.provider===provider)) group.append(el('option',{text:model.name || model.id,attrs:{value:String(models.indexOf(model))}}));
           select.append(group);
         }
@@ -57,8 +90,12 @@ export function createModelPicker({ request, onSaved }) {
         if(busy || !selected || !matchesCurrent) return;
         busy=true; save.disabled=true; select.disabled=true; effortSelect.disabled=true; status.textContent='Saving…';
         const sameProvider=selected.provider===current.config.provider;
-        const config={provider:selected.provider,model:selected.id,api:sameProvider?current.config.api:selected.api,reasoningEffort:effort,
-          ...(sameProvider && current.config.baseUrl?{baseUrl:current.config.baseUrl}:{})};
+        /* PV-M-1 · 这里不再自己拼请求体。本处只说明改了什么（身份、模型、格式、档位），
+         * 端点等未提及的字段由投影从同一份快照带过去，于是选一次模型不会清掉别处存的
+         * 字段，正如保存连接不再清掉这里选的档位。 */
+        const config=projectProviderConfig(current.config,
+          {provider:selected.provider,model:selected.id,api:sameProvider?current.config.api:selected.api,reasoningEffort:effort},
+          catalog);
         try {
           const result=await request('/provider-config',{method:'PUT',body:config});
           onSaved(result);
@@ -66,7 +103,7 @@ export function createModelPicker({ request, onSaved }) {
         } catch(error) {if(own===epoch) status.textContent=error.message;}
         finally {busy=false; if(own===epoch){select.disabled=false;renderSelection();}}
       });
-      dialog.append(search,select,el('label',{},el('span',{text:'Reasoning effort'}),effortSelect),route,
+      dialog.append(search,select,effortRow,route,capability,
         el('p',{className:'form-help',text:'Applies to all chats for future runs. Current runs keep their recorded configuration. Credentials and connection settings stay in Models.'}),save);
       renderOptions();renderSelection();search.focus();
     } catch(error) {if(own===epoch)status.textContent=error.message;}

@@ -176,7 +176,7 @@ test('compatibility: valid schema 3 upgrades with exact backup and schema 6 fenc
   const session = await h.createSession();
   await h.runtime.close();
   const file = path.join(h.dataDir, 'runtime-state.json');
-  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.asyncTasks; delete old.coordination; old.sessions.forEach(session => delete session.scope);
+  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; old.sessions.forEach(session => delete session.scope);
   const original = JSON.stringify(old);
   await writeFile(file, original);
   const next = await reopen(h.dataDir);

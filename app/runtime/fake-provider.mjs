@@ -209,6 +209,15 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
   const spentErrorOnce = new Set();
   let requestNumber = 0;
   const server = http.createServer((req, res) => {
+    // The loopback fixture also serves the OpenAI model directory, so a
+    // user-defined compatible connection (discover, save, run) can be
+    // exercised end to end without leaving loopback.
+    if (req.method === "GET" && req.url === "/v1/models") {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ object: "list", data: [{ id: MODEL_ID }] }));
+      return;
+    }
+
     if (req.method !== "POST" || req.url !== "/v1/chat/completions") {
       res.writeHead(404, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: "fake route not found" } }));

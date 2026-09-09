@@ -173,7 +173,7 @@ test('schema3 and schema4 migrate with an exact independent backup and reopen', 
     try {
       let store = await new RuntimeStore({ dataDir }).open(); await store.close();
       const file = path.join(dataDir, 'runtime-state.json'); const oldState = JSON.parse(await readFile(file, 'utf8'));
-      oldState.schemaVersion = version; delete oldState.asyncTasks; delete oldState.coordination; oldState.sessions.forEach(session => delete session.scope);
+      oldState.schemaVersion = version; delete oldState.asyncTasks; delete oldState.coordination; delete oldState.providerConnections; oldState.sessions.forEach(session => delete session.scope);
       const original = Buffer.from(JSON.stringify(oldState)); await writeFile(file, original);
       store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 9); await store.close();
       const backup = (await readdir(dataDir)).find((name) => name.startsWith(`runtime-state.schema${version}.`));
@@ -199,7 +199,7 @@ test('invalid UTF-8 schema4 input is refused before migration and its bytes rema
     let store = await new RuntimeStore({ dataDir }).open();
     await store.createProject('x'); await store.close();
     const file = path.join(dataDir, 'runtime-state.json');
-    const state = JSON.parse(await readFile(file, 'utf8')); state.schemaVersion = 4; delete state.asyncTasks; delete state.coordination; state.sessions.forEach(session => delete session.scope);
+    const state = JSON.parse(await readFile(file, 'utf8')); state.schemaVersion = 4; delete state.asyncTasks; delete state.coordination; delete state.providerConnections; state.sessions.forEach(session => delete session.scope);
     const bytes = Buffer.from(JSON.stringify(state));
     const marker = Buffer.from('"name":"x"'); const at = bytes.indexOf(marker);
     assert.notEqual(at, -1); bytes[at + marker.length - 2] = 0xff;

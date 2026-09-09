@@ -29,6 +29,9 @@ import {
   DEEPSEEK_PROVIDER_ID,
   OPENAI_PROVIDER_ID,
   API_FORMATS,
+  credentialSourceOf,
+  registerConnectionProvider,
+  unregisterConnectionProvider,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
@@ -36,7 +39,18 @@ import { createRuntimeLoadTool, governTools } from "../runtime/control-tools.mjs
 import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
 import { ArtifactHistory, ArtifactHistoryError } from "../runtime/artifact-history.mjs";
 import { ACTIVE_STATUSES, PERMISSION_MODES } from "./store.mjs";
-import { readCredentialFile, setCredential, deleteCredential } from "./credential-file.mjs";
+import { readCredentialFile, setCredential, deleteCredential, replaceCredentialFile } from "./credential-file.mjs";
+import {
+  ConnectionInputError,
+  UNKNOWN_WINDOW_NOTICE,
+  catalogConnectionId,
+  contextWindowSourceOf,
+  defaultConnections,
+  migrateCredentialKeys,
+  publicConnection,
+  registrationInput,
+  validateConnectionInput,
+} from "./provider-connections.mjs";
 
 const DEEPSEEK_API_ID = "openai-completions";
 const ALLOWED_PROVIDER_IDS = new Set([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
@@ -80,7 +94,7 @@ function publicProviderConfig(config) {
   return structuredClone(config);
 }
 
-function validateProviderDescriptor(value) {
+function validateProviderDescriptor(value, knownIdentities = ALLOWED_PROVIDER_IDS) {
   const input = requireObject(value, "provider");
   assertKeys(input, new Set(["provider", "model", "api", "baseUrl", "reasoningEffort"]));
   const result = {
@@ -105,7 +119,7 @@ function validateProviderDescriptor(value) {
     }
     result.baseUrl = baseUrl.replace(/\/$/, "");
   }
-  if (!ALLOWED_PROVIDER_IDS.has(result.provider)) {
+  if (!knownIdentities.has(result.provider)) {
     throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
   }
   return result;
@@ -153,6 +167,7 @@ export class RuntimeService {
     this.configurationQueue = Promise.resolve();
     this.questionWaiters = new Map();
     this.providerConfig = null;
+    this.connections = [];
     this.credentialsConfigured = new Set();
     this.knownSecrets = new Set();
     this.budget = {
@@ -179,12 +194,36 @@ export class RuntimeService {
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
 
-    const credentials = await readCredentialFile(this.dataDir);
-    for (const [provider, apiKey] of Object.entries(credentials)) {
-      if (!ALLOWED_PROVIDER_IDS.has(provider)) continue;
+    // Connections come back BEFORE any request can be served: every user
+    // connection is re-registered on the ModelRuntime here, so a saved route
+    // survives a restart. A connection whose model list no longer resolves
+    // still registers; it fails later at the existing Run admission gate
+    // rather than preventing the host from starting.
+    const storedConnections = this.store.getProviderConnections();
+    this.connections = storedConnections.length ? storedConnections : defaultConnections();
+    if (!storedConnections.length) await this.store.setProviderConnections(this.connections);
+    for (const connection of this.connections) {
+      if (connection.kind !== "compatible") continue;
+      try { registerConnectionProvider(this.modelRuntime, connection.providerIdentity, registrationInput(connection)); }
+      catch (error) { this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`); }
+    }
+
+    // One migration off the old provider-id credential key space. No
+    // compatibility layer: the file is rewritten under connection ids and the
+    // old key never resolves again.
+    const stored_credentials = await readCredentialFile(this.dataDir);
+    const migration = migrateCredentialKeys(stored_credentials, this.connections);
+    if (migration.changed) {
+      await replaceCredentialFile(this.dataDir, migration.entries);
+      for (const [from, to] of migration.moved) this.logger(`startup: migrated credential key ${from} to connection ${to}`);
+      if (migration.dropped.length) this.logger(`startup: dropped ${migration.dropped.length} credential key(s) naming no connection: ${migration.dropped.join(", ")}`);
+    }
+    for (const [connectionId, apiKey] of Object.entries(migration.entries)) {
+      const connection = this.#connectionById(connectionId);
+      if (!connection) continue;
       this.knownSecrets.add(apiKey);
-      await this.modelRuntime.setRuntimeApiKey(provider, apiKey);
-      this.credentialsConfigured.add(provider);
+      await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
+      this.credentialsConfigured.add(connectionId);
     }
 
     // A process restart cannot resume an in-flight AgentSession or question;
@@ -284,7 +323,7 @@ export class RuntimeService {
       source: "installed-runtime-catalog",
       apiFormats: [...API_FORMATS],
       models: this.modelRuntime.getModels()
-        .filter((model) => ALLOWED_PROVIDER_IDS.has(model.provider))
+        .filter((model) => this.#knownIdentities().has(model.provider))
         .map(model => { const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
           return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium") }; }),
     };
@@ -391,7 +430,7 @@ export class RuntimeService {
       },
       limits: { ...this.budget },
       cache: { sessionIdentity: "persistent-native-session", retention: "short", prefix: "stable-system-and-tools", dynamicContext: "append-only-on-change", providerHitGuaranteed: false },
-      compaction: model ? resolveCompactionPolicy(model, this.compaction) : null,
+      compaction: model ? this.#compactionPolicy(model) : null,
       recovery: { inFlightRun: "unknown", pendingQuestion: "expired_restart", continueWith: "new_command_id" },
       authority: { runOwner: "runtime", generatedResultIsAccepted: false, orchestration: "external_caller" },
     };
@@ -669,13 +708,143 @@ export class RuntimeService {
       sha256: artifact.sha256, text: displayed, truncated: content.length > MAX_READ_BYTES };
   }
 
+  #connectionById(connectionId) {
+    return this.connections.find((connection) => connection.id === connectionId) ?? null;
+  }
+
+  /** Provider identity and connection are one-to-one, so the saved
+   * `providerConfig.provider` names exactly one connection. */
+  #connectionByIdentity(providerIdentity) {
+    return this.connections.find((connection) => connection.providerIdentity === providerIdentity) ?? null;
+  }
+
+  #knownIdentities() {
+    return new Set(this.connections.map((connection) => connection.providerIdentity));
+  }
+
+  #credentialStatusOf(connection) {
+    return this.credentialsConfigured.has(connection.id) ? "configured" : "not_configured";
+  }
+
+  #publicConnection(connection) {
+    return publicConnection(connection, { credentialStatus: this.#credentialStatusOf(connection) });
+  }
+
+  /** What this host actually knows about the selected model's capacity. An
+   * unreported context window stays null and turns compaction off; the host
+   * never substitutes a window it invented (PV-27 / PV-30). */
+  #capabilityOf(provider) {
+    const connection = this.#connectionByIdentity(provider.provider);
+    const model = this.#resolveModel(provider);
+    const contextWindow = Number.isSafeInteger(model?.contextWindow) ? model.contextWindow : null;
+    const entry = connection?.models.find((candidate) => candidate.id === provider.model) ?? null;
+    const contextWindowSource = connection && connection.kind === "compatible"
+      ? contextWindowSourceOf(connection, entry)
+      : contextWindow === null ? "unknown" : "catalog";
+    const compactionEnabled = model ? this.#compactionPolicy(model).enabled : false;
+    return {
+      contextWindow,
+      contextWindowSource,
+      compactionEnabled,
+      notice: contextWindow === null ? UNKNOWN_WINDOW_NOTICE : null,
+    };
+  }
+
+  /** Compaction options for one model. A model whose window nobody reported
+   * gets compaction switched off explicitly, which is the honest branch
+   * `resolveCompactionPolicy` already provides, instead of a guessed window. */
+  #compactionOptions(model) {
+    const known = Number.isSafeInteger(model?.contextWindow) && model.contextWindow >= 4;
+    return known ? this.compaction : { ...this.compaction, enabled: false };
+  }
+
+  #compactionPolicy(model) {
+    return resolveCompactionPolicy(model, this.#compactionOptions(model));
+  }
+
   getProviderConfig() {
     const realProvider = this.providerConfig.provider !== FAKE_PROVIDER_ID;
+    const connection = this.#connectionByIdentity(this.providerConfig.provider);
     return {
       config: publicProviderConfig(this.providerConfig),
       execution: { mode: realProvider ? "real" : "local-fake", realProvider, adapterId: this.adapterId },
-      credentialStatus: this.credentialsConfigured.has(this.providerConfig.provider) ? "configured" : "not_configured",
+      credentialStatus: connection && this.credentialsConfigured.has(connection.id) ? "configured" : "not_configured",
+      connection: connection ? this.#publicConnection(connection) : null,
+      capability: this.#capabilityOf(this.providerConfig),
     };
+  }
+
+  getProviderConnections() {
+    return { connections: this.connections.map((connection) => this.#publicConnection(connection)) };
+  }
+
+  createProviderConnection(input) { return this.#withConfiguration(() => this.#saveProviderConnection(null, input)); }
+  replaceProviderConnection(connectionId, input) { return this.#withConfiguration(() => this.#saveProviderConnection(connectionId, input)); }
+  deleteProviderConnection(connectionId) { return this.#withConfiguration(() => this.#deleteProviderConnection(connectionId)); }
+
+  /** Save one compatible connection. The directory is probed with the key that
+   * will actually be used, so the three save failures BE-17/18 already names
+   * stay apart: authentication refused, directory unavailable, and a model the
+   * directory does not list. Probe success still says only that the directory
+   * accepted this request (PV-11). */
+  async #saveProviderConnection(connectionId, input) {
+    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
+    const existing = connectionId ? this.#connectionById(connectionId) : null;
+    if (connectionId && !existing) throw new ServiceError(404, "not_found", "connection not found");
+    if (existing && existing.kind !== "compatible") throw new ServiceError(400, "invalid_connection", "catalog connections are defined by the installed runtime catalog");
+    let parsed;
+    try { parsed = validateConnectionInput(input); }
+    catch (error) {
+      if (error instanceof ConnectionInputError) throw new ServiceError(400, error.code, error.message);
+      throw error;
+    }
+    const entries = await readCredentialFile(this.dataDir);
+    const apiKey = parsed.apiKey ?? (existing ? entries[existing.id] : undefined);
+    const probe = await this.previewProvider({
+      protocol: "openai-compatible",
+      baseUrl: parsed.record.baseUrl,
+      ...(apiKey ? { apiKey } : {}),
+    }, "discover");
+    if (probe.status === "authentication_failed") throw new ServiceError(400, "connection_authentication_failed", probe.message, { status: probe.status });
+    if (probe.status !== "ok") throw new ServiceError(400, "connection_directory_unavailable", probe.message, { status: probe.status });
+    const offered = new Set(probe.models.map((model) => model.id));
+    const missing = parsed.record.models.filter((model) => !offered.has(model.id)).map((model) => model.id);
+    if (missing.length) throw new ServiceError(400, "connection_model_not_in_directory", "the model directory does not list every selected model", { status: probe.status, models: missing });
+
+    const record = existing
+      ? { ...existing, ...parsed.record }
+      : (() => { const id = "conn-" + randomUUID().replace(/-/g, "").slice(0, 12); return { id, kind: "compatible", providerIdentity: id, ...parsed.record }; })();
+    registerConnectionProvider(this.modelRuntime, record.providerIdentity, registrationInput(record));
+    const next = existing ? this.connections.map((connection) => (connection.id === record.id ? record : connection)) : [...this.connections, record];
+    await this.store.setProviderConnections(next);
+    this.connections = next;
+    if (parsed.apiKey !== undefined) await this.#applyCredential(record, parsed.apiKey);
+    return { connection: this.#publicConnection(record) };
+  }
+
+  async #deleteProviderConnection(connectionId) {
+    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
+    const connection = this.#connectionById(connectionId);
+    if (!connection) throw new ServiceError(404, "not_found", "connection not found");
+    if (connection.kind !== "compatible") throw new ServiceError(400, "invalid_connection", "catalog connections cannot be removed");
+    if (this.providerConfig.provider === connection.providerIdentity) throw new ServiceError(409, "connection_in_use", "the selected connection cannot be removed");
+    const next = this.connections.filter((candidate) => candidate.id !== connection.id);
+    await this.store.setProviderConnections(next);
+    this.connections = next;
+    unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity);
+    await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
+    const removed = await deleteCredential(this.dataDir, connection.id);
+    this.credentialsConfigured.delete(connection.id);
+    if (removed) await this.store.bumpCredentialGeneration();
+    return { removed: true, connectionId: connection.id };
+  }
+
+  async #applyCredential(connection, apiKey) {
+    await setCredential(this.dataDir, connection.id, apiKey);
+    this.knownSecrets.add(apiKey);
+    await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
+    this.credentialsConfigured.add(connection.id);
+    await this.store.bumpCredentialGeneration();
   }
 
   #withConfiguration(operation) {
@@ -689,7 +858,17 @@ export class RuntimeService {
 
   async #setProviderConfig(input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "provider config is frozen during a run");
-    const config = validateProviderDescriptor(input);
+    const config = validateProviderDescriptor(input, this.#knownIdentities());
+    const connection = this.#connectionByIdentity(config.provider);
+    if (!connection) throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
+    if (connection.kind === "compatible") {
+      // A user connection owns its endpoint and format, and admits only the
+      // models saved on it — the discovered ids are the catalog here (PV-24).
+      if (config.api !== connection.api) throw new ServiceError(400, "invalid_provider", "this connection uses a different API format");
+      if (config.baseUrl !== undefined && config.baseUrl !== connection.baseUrl) throw new ServiceError(400, "invalid_provider", "this connection uses its own endpoint");
+      if (!connection.models.some((model) => model.id === config.model)) throw new ServiceError(400, "invalid_provider", "the model is not saved on this connection");
+      config.baseUrl = connection.baseUrl;
+    }
     const catalogModel = this.modelRuntime.getModel(config.provider, config.model);
     if (!catalogModel) throw new ServiceError(400, "invalid_provider", "unknown provider model");
     if (!API_FORMATS.includes(config.api)) throw new ServiceError(400, "invalid_provider", "unsupported API format");
@@ -710,16 +889,13 @@ export class RuntimeService {
   async #putProviderCredential(input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["provider", "apiKey"]));
-    const provider = text(value.provider, "provider", { max: 120 });
-    if (!ALLOWED_PROVIDER_IDS.has(provider)) throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
+    assertKeys(value, new Set(["connectionId", "apiKey"]));
+    const connectionId = text(value.connectionId, "connectionId", { max: 200 });
+    const connection = this.#connectionById(connectionId);
+    if (!connection) throw new ServiceError(400, "invalid_connection", "connection is not one of the saved connections");
     const apiKey = text(value.apiKey, "apiKey", { max: 4000 });
-    await setCredential(this.dataDir, provider, apiKey);
-    this.knownSecrets.add(apiKey);
-    await this.modelRuntime.setRuntimeApiKey(provider, apiKey);
-    this.credentialsConfigured.add(provider);
-    await this.store.bumpCredentialGeneration();
-    return { configured: true, provider };
+    await this.#applyCredential(connection, apiKey);
+    return { configured: true, connectionId: connection.id };
   }
 
   deleteProviderCredential(input) { return this.#withConfiguration(() => this.#deleteProviderCredential(input)); }
@@ -727,14 +903,15 @@ export class RuntimeService {
   async #deleteProviderCredential(input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["provider"]));
-    const provider = text(value.provider, "provider", { max: 120 });
-    if (!ALLOWED_PROVIDER_IDS.has(provider)) throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
-    await deleteCredential(this.dataDir, provider);
-    await this.modelRuntime.removeRuntimeApiKey(provider);
-    this.credentialsConfigured.delete(provider);
+    assertKeys(value, new Set(["connectionId"]));
+    const connectionId = text(value.connectionId, "connectionId", { max: 200 });
+    const connection = this.#connectionById(connectionId);
+    if (!connection) throw new ServiceError(400, "invalid_connection", "connection is not one of the saved connections");
+    await deleteCredential(this.dataDir, connection.id);
+    await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
+    this.credentialsConfigured.delete(connection.id);
     await this.store.bumpCredentialGeneration();
-    return { configured: false, provider };
+    return { configured: false, connectionId: connection.id };
   }
 
   createExtensionBinding(sessionId, input) { return this.#withConfiguration(() => this.#createExtensionBinding(sessionId, input)); }
@@ -1039,18 +1216,34 @@ export class RuntimeService {
       throw error;
     }
 
-    const provider = { ...this.providerConfig, realProvider: this.providerConfig.provider !== FAKE_PROVIDER_ID };
+    // Which connection this run used, and where its key came from, are frozen
+    // into the run record here: this is the traceable half of PV-24.
+    const connection = this.#connectionByIdentity(this.providerConfig.provider);
+    if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+    const capability = this.#capabilityOf(this.providerConfig);
+    const provider = {
+      ...this.providerConfig,
+      realProvider: this.providerConfig.provider !== FAKE_PROVIDER_ID,
+      connectionId: connection.id,
+      credentialSource: credentialSourceOf(this.modelRuntime, connection.providerIdentity),
+      contextWindowSource: capability.contextWindowSource,
+      capabilityNotice: capability.notice,
+    };
     if (provider.provider === FAKE_PROVIDER_ID) {
       if (provider.model !== FAKE_MODEL_ID || provider.api !== FAKE_API_ID || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
       }
-    } else if (ALLOWED_PROVIDER_IDS.has(provider.provider)) {
+    } else if (connection.kind === "compatible") {
+      if (provider.api !== connection.api || provider.baseUrl !== connection.baseUrl
+        || !connection.models.some((model) => model.id === provider.model)
+        || !this.modelRuntime.getModel(provider.provider, provider.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      }
+    } else {
       if (!API_FORMATS.includes(provider.api) || !this.modelRuntime.getModel(provider.provider, provider.model)
         || (provider.provider === DEEPSEEK_PROVIDER_ID && provider.api !== DEEPSEEK_API_ID && !provider.baseUrl)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
       }
-    } else {
-      throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
     }
 
     if (provider.reasoningEffort !== undefined && !getSupportedThinkingLevels(this.#resolveModel(provider)).includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
@@ -1105,7 +1298,7 @@ export class RuntimeService {
     if (created.idempotent) return { run: created.run };
 
     const run = created.run;
-    const credentialConfigured = provider.provider === FAKE_PROVIDER_ID || this.credentialsConfigured.has(provider.provider);
+    const credentialConfigured = provider.provider === FAKE_PROVIDER_ID || this.credentialsConfigured.has(connection.id);
     const entry = {
       session: null,
       getUsage: null,
@@ -1172,7 +1365,9 @@ export class RuntimeService {
           runId: run.id,
           sessionId: run.sessionId,
           binding: session.extensionBinding.binding,
-          provider: (() => { const { realProvider: _realProvider, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
+          // Connection provenance belongs to the run record, not to the
+          // extension descriptor, whose accepted field set is fixed.
+          provider: (() => { const { realProvider: _realProvider, connectionId: _connectionId, credentialSource: _credentialSource, contextWindowSource: _contextWindowSource, capabilityNotice: _capabilityNotice, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
           instruction,
           runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash,composition:entry.runtimeBinding.composition},
         });
@@ -1238,7 +1433,7 @@ export class RuntimeService {
         const reasons = cleanSession ? [] : ['session_history'];
         // An enabled compactor may inject a summary before an awaited hook.
         // Conservatively close eligibility before any prompt in that mode.
-        if (resolveCompactionPolicy(model, this.compaction).enabled) reasons.push('compaction_enabled');
+        if (this.#compactionPolicy(model).enabled) reasons.push('compaction_enabled');
         initializeFileInput = ({systemPrompt: actualSystemPrompt, currentContext: actualContext, cleanHistory}) => entry.extensionRun.fileMemo.initialize({
           input: { systemPrompt: actualSystemPrompt, currentContext: actualContext, runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash}, cleanSession: cleanSession && cleanHistory, reasons: cleanHistory ? reasons : [...reasons,'runtime_history'] },
           readRecordedFiles: async selectors => {
@@ -1283,7 +1478,7 @@ export class RuntimeService {
           requestPermission: ({ signal, ...payload }) => this.#waitForDecision(run.id, entry, { kind: "permission", prompt: `Permission requested for ${payload.tool}`, payload, signal }),
         }),
         maxTurns: this.budget.maxTurns,
-        compaction: this.compaction,
+        compaction: this.#compactionOptions(model),
         input: instruction,
         systemPrompt,
         currentContext,

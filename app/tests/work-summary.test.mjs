@@ -323,7 +323,7 @@ test("restart hides the old live question, exposes its unknown Run, and a new Ru
   const worker = spawnWorker({
     dataDir,
     body: `
-      await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+      await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
       const project = await api("POST", "/projects", { name: "restart-project" });
       const session = await api("POST", "/sessions", { projectId: project.json.project.id, title: "restart-summary" });
       const script = JSON.stringify([{ name: "ask_user", arguments: { prompt: "survive restart?" } }]);

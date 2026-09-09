@@ -61,7 +61,7 @@ test("T-RESTART-1: restart during waiting_user yields unknown/expired_restart an
       const res = await fetch(runtime.url + "/api/v5" + p, { method, headers, body: bodyObj ? JSON.stringify(bodyObj) : undefined });
       return { status: res.status, json: await res.json() };
     }
-    await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+    await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
     const proj = await api("POST", "/projects", { name: "p1" });
     const sess = await api("POST", "/sessions", { projectId: proj.json.project.id, title: "restart-session" });
     const script = JSON.stringify([{ name: "ask_user", arguments: { prompt: "continue?" } }]);
@@ -110,7 +110,7 @@ test("T-RESTART-1: restart during waiting_user yields unknown/expired_restart an
     const sessionBefore = (await api2("GET", `/sessions/${ready.sessionId}`)).json.session;
     const hostSessionId = sessionBefore.hostSession.id;
 
-    await api2("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+    await api2("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
     const run2 = await api2("POST", `/sessions/${ready.sessionId}/runs`, { input: "continue same conversation", commandId: "c2" });
     let run2Status = run2.json.run;
     for (let i = 0; i < 100 && !["completed", "failed", "cancelled", "unknown"].includes(run2Status.status); i += 1) {

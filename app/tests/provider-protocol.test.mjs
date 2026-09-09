@@ -47,7 +47,7 @@ async function run(api,sessionId,commandId) {
 for(const format of ['openai-completions','openai-responses']) test(`${format}: real SDK tool loop, stable consecutive prefix, cache usage and restart`,async()=>{
   const wire=await fixture();const ctx=await boot();let restarted;
   try {
-    assert.equal((await ctx.api('PUT','/provider-credential',{provider:'openai',apiKey:'local-protocol-fixture'})).status,200);
+    assert.equal((await ctx.api('PUT','/provider-credential',{connectionId:'catalog-openai',apiKey:'local-protocol-fixture'})).status,200);
     const config={provider:'openai',model:'gpt-4.1-mini',api:format,baseUrl:wire.baseUrl};
     assert.equal((await ctx.api('PUT','/provider-config',config)).status,200);
     const session=await ctx.createSession();
