@@ -7,46 +7,46 @@
 const sourceUrl = "https://github.com/lesPrivilege/Courtwork";
 
 function localDiagram() {
-  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-local-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-local-svg-title">
           <title id="pricing-local-svg-title">Local value layer: Matter store, CourtWork, and your provider.</title>
           <g class="pricing-svg-node">
-            <rect x="42" y="28" width="152" height="44" rx="8" /><text x="118" y="55">Matter store</text>
-            <line x1="118" y1="72" x2="118" y2="104" />
-            <rect x="42" y="104" width="152" height="44" rx="8" /><text x="118" y="131">CourtWork</text>
-            <line x1="118" y1="148" x2="118" y2="180" />
-            <rect x="42" y="180" width="152" height="44" rx="8" /><text x="118" y="207">Your provider</text>
+            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Matter store</text>
+            <line x1="150" y1="102" x2="150" y2="150" />
+            <rect x="30" y="150" width="240" height="72" rx="8" /><text x="150" y="192">CourtWork</text>
+            <line x1="150" y1="222" x2="150" y2="270" />
+            <rect x="30" y="270" width="240" height="72" rx="8" /><text x="150" y="312">Your provider</text>
           </g>
         </svg>`;
 }
 
 function hostedDiagram() {
-  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-hosted-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-hosted-svg-title">
           <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
           <g class="pricing-svg-node">
-            <rect x="42" y="28" width="184" height="44" rx="8" /><text x="134" y="55">Local / cloud Matter</text>
-            <line x1="134" y1="72" x2="134" y2="104" />
-            <rect x="42" y="104" width="184" height="44" rx="8" /><text x="134" y="131">CourtWork service</text>
-            <line x1="134" y1="148" x2="134" y2="180" />
-            <rect x="42" y="180" width="184" height="44" rx="8" /><text x="134" y="207">BYOK / managed model</text>
-          </g>
-          <g class="pricing-svg-note">
-            <text x="270" y="126">Sync</text><text x="270" y="154">Eval</text><text x="270" y="182">Managed runtime</text>
+            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Matter</text>
+            <line x1="150" y1="102" x2="150" y2="142" />
+            <rect x="30" y="142" width="240" height="116" rx="8" />
+            <text x="150" y="174">Sync</text><text x="150" y="202">Eval</text><text x="150" y="230">Managed runtime</text>
+            <line x1="150" y1="258" x2="150" y2="298" />
+            <rect x="30" y="298" width="240" height="72" rx="8" /><text x="150" y="340">BYOK</text>
           </g>
         </svg>`;
 }
 
 function organizationDiagram() {
-  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-organization-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-organization-svg-title">
           <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval, and provenance.</title>
           <g class="pricing-svg-node">
-            <rect x="42" y="28" width="132" height="44" rx="8" /><text x="108" y="55">Users</text>
-            <line x1="108" y1="72" x2="108" y2="104" />
-            <rect x="42" y="104" width="132" height="44" rx="8" /><text x="108" y="131">Policy · Review</text>
-            <line x1="108" y1="148" x2="108" y2="180" />
-            <rect x="42" y="180" width="132" height="44" rx="8" /><text x="108" y="207">Matter governance</text>
-          </g>
-          <g class="pricing-svg-note">
-            <text x="236" y="126">Expert runtime</text><text x="236" y="154">Audit · Eval · Provenance</text>
+            <rect x="30" y="30" width="240" height="48" rx="8" /><text x="150" y="59">Users</text>
+            <line x1="150" y1="78" x2="85" y2="112" /><line x1="150" y1="78" x2="215" y2="112" />
+            <rect x="30" y="112" width="110" height="48" rx="8" /><text x="85" y="141">Policy</text>
+            <rect x="160" y="112" width="110" height="48" rx="8" /><text x="215" y="141">Review</text>
+            <line x1="85" y1="160" x2="150" y2="190" /><line x1="215" y1="160" x2="150" y2="190" />
+            <rect x="30" y="190" width="240" height="48" rx="8" /><text x="150" y="219">Matter governance</text>
+            <line x1="150" y1="238" x2="150" y2="270" />
+            <rect x="30" y="270" width="240" height="44" rx="8" /><text x="150" y="297">Expert runtime</text>
+            <line x1="150" y1="314" x2="150" y2="340" />
+            <rect x="30" y="340" width="240" height="36" rx="8" /><text x="150" y="363">Audit · Eval · Provenance</text>
           </g>
         </svg>`;
 }
@@ -76,7 +76,7 @@ export function renderPricing() {
           <article class="pricing-card pricing-professional" aria-labelledby="pricing-professional-title">
             <div>
               <h3 id="pricing-professional-title" lang="en">Professional</h3>
-              <p class="pricing-price">$29 / month</p>
+              <p class="pricing-price"><span>$29</span><span class="pricing-price-unit"> / month</span></p>
               <p class="pricing-status">concept</p>
               <p class="pricing-summary">A maintained professional workbench.</p>
               <ul class="pricing-features">
