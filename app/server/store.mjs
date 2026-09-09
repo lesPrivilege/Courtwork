@@ -63,7 +63,7 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   assert(isRecord(value), label + " must be an object");
   // Only a RUN descriptor carries connection provenance: it is a record of what
   // one run actually used, not part of the editable configuration pointer.
-  const provenance = allowRealProvider && schema >= 9 ? ["connectionId", "credentialSource", "contextWindowSource", "capabilityNotice"] : [];
+  const provenance = allowRealProvider && schema >= 10 ? ["connectionId", "credentialSource", "contextWindowSource", "capabilityNotice"] : [];
   const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance]);
   assert(Object.keys(value).every((key) => allowed.has(key)), label + " has unsupported fields");
   id(value.provider, label + ".provider");

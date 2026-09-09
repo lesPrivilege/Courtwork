@@ -60,7 +60,7 @@ test('schema6 migration preserves both global and project sessions',async()=>{
     const b=await store.createSession({projectId:null,scope:'global',title:'global',workspaceDir:path.join(dataDir,'b')});
     await store.close();const file=path.join(dataDir,'runtime-state.json');const state=JSON.parse(await readFile(file,'utf8'));
     state.schemaVersion=6;delete state.coordination; delete state.providerConnections;await writeFile(file,JSON.stringify(state));
-    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,9);
+    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,10);
     assert.equal(store.getSession(a.id).scope,'project');assert.equal(store.getSession(b.id).scope,'global');assert.equal(store.getSession(b.id).projectId,null);
   } finally{await store?.close();await rm(dataDir,{recursive:true,force:true});}
 });

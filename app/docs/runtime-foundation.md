@@ -292,3 +292,15 @@ recoverable from the run alone. Saved connections are re-registered on the
 ModelRuntime after it exists and before the service serves a request; a
 connection whose models no longer resolve still registers and fails at the
 existing 503 `provider_unsupported` Run gate instead of stopping the host.
+
+
+### Main integration: RuntimeStore 10 (2026-09-10)
+
+Main schema 9 already records Run `supersedes`. The independent Provider
+Connections branch also proposed schema 9; its unshipped shape is not the main
+schema. The combined host uses schema 10. Validated main schemas 3–9 are backed
+up byte for byte before upgrade. Schema 9 Run lineage is preserved; only
+schemas 3–8 receive `supersedes: null`. Connections start empty and are initialized
+by the service owner. Provider connection provenance on Run descriptors belongs
+to schema 10. Older hosts must not share the upgraded directory. No personal
+store is migrated by this integration.

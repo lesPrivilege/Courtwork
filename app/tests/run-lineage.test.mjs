@@ -203,6 +203,7 @@ async function writeSchema8(dir, ids) {
   const file = path.join(dir, 'runtime-state.json');
   const state = JSON.parse(await readFile(file, 'utf8'));
   state.schemaVersion = 8;
+  delete state.providerConnections;
   for (const run of state.runs) delete run.supersedes;
   const raw = Buffer.from(JSON.stringify(state, null, 1) + '\n');
   await writeFile(file, raw);
@@ -216,7 +217,7 @@ test('BG02-T6: schema 8 upgrades once with an exact backup, and an occupied back
     const ids = await schema9Fixture(dir);
     const { file, raw } = await writeSchema8(dir, ids);
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.state.schemaVersion, 9);
+    assert.equal(store.state.schemaVersion, 10);
     assert.equal(store.listRuns().length, 4);
     for (const run of store.listRuns()) assert.equal(run.supersedes, null, 'history is never reinterpreted into a chain');
     await store.close(); store = null;
@@ -238,7 +239,7 @@ test('BG02-T6: schema 8 upgrades once with an exact backup, and an occupied back
   } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
 });
 
-test('BG02-T6: a schema 9 state with an impossible lineage fails closed, and the base host refuses schema 9 entirely', async () => {
+test('BG02-T6: a schema 10 state with an impossible lineage fails closed, and the base host refuses schema 10 entirely', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'cw-run-lineage-bad-'));
   try {
     const ids = await schema9Fixture(dir);
@@ -259,7 +260,7 @@ test('BG02-T6: a schema 9 state with an impossible lineage fails closed, and the
     }
     await writeFile(file, JSON.stringify(good, null, 2));
     const reopened = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(reopened.state.schemaVersion, 9); await reopened.close();
+    assert.equal(reopened.state.schemaVersion, 10); await reopened.close();
 
     // The pre-BG-02 host must refuse the new schema outright rather than drop
     // the field it cannot see.
@@ -272,7 +273,31 @@ test('BG02-T6: a schema 9 state with an impossible lineage fails closed, and the
     }
     const { RuntimeStore: Base } = await import(pathToFileURL(path.join(code, 'server/store.mjs')).href);
     const bytes = await readFile(file);
-    await assert.rejects(new Base({ dataDir: dir }).open(), /schemaVersion 9 is not supported/);
+    await assert.rejects(new Base({ dataDir: dir }).open(), /schemaVersion 10 is not supported/);
     assert.deepEqual(await readFile(file), bytes, 'a refusing old host does not rewrite the state');
   } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+
+test('integration: main schema 9 lineage survives schema 10 provider-connection migration', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'cw-schema9-to10-'));
+  let store;
+  try {
+    const ids = await schema9Fixture(dir);
+    const file = path.join(dir, 'runtime-state.json');
+    const old = JSON.parse(await readFile(file, 'utf8'));
+    old.schemaVersion = 9; delete old.providerConnections;
+    old.runs.find(run => run.id === ids.second).supersedes = ids.first;
+    const raw = Buffer.from(JSON.stringify(old, null, 2) + '\n');
+    await writeFile(file, raw);
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    assert.equal(store.state.schemaVersion, 10);
+    assert.deepEqual(store.state.runs, old.runs);
+    assert.deepEqual(store.getProviderConnections(), []);
+    await store.close(); store = null;
+    const digest = createHash('sha256').update(raw).digest('hex');
+    assert.deepEqual(await readFile(path.join(dir, `runtime-state.schema9.${digest}.json`)), raw);
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    assert.equal(store.getRun(ids.second).supersedes, ids.first);
+  } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
 });
