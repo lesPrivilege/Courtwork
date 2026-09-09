@@ -10,7 +10,7 @@ import {
   anchorPopover,
   sessionMode,
   sessionModeLabel,
-  requestLabel,
+  setRequestLabel,
   MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
@@ -2838,8 +2838,8 @@ function renderMessageStream() {
             "data-focus-key": `${questionKey}:answer`,
             "aria-disabled": String(submitting),
           },
-          text: requestLabel("Answer", submitting),
         });
+        setRequestLabel(submit, "Answer", submitting);
         form.append(input, submit);
         const questionError = state.questionErrors.get(questionKey);
         /* FE-04 · 提交失败在授权卡上是一条 `role="alert"`，在问题卡上原先只是一段
@@ -3220,13 +3220,14 @@ function renderComposer() {
     if (textarea.value !== state.homeDraft) textarea.value = state.homeDraft;
     textarea.placeholder = "Describe the work you want to do…";
     send.hidden = false;
-    send.textContent = requestLabel(
+    setRequestLabel(
+      send,
       COMPOSER_SEND_LABEL,
       Boolean(state.homeStart?.pending),
     );
     send.disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) || !state.homeDraft.trim() || !homeProjectId();
     cancel.hidden = true;
-    cancel.textContent = COMPOSER_CANCEL_LABEL;
+    setRequestLabel(cancel, COMPOSER_CANCEL_LABEL, false);
     cancel.disabled = true;
     if (runHint) runHint.hidden = true;
     stopWorkingClock();
@@ -3239,11 +3240,8 @@ function renderComposer() {
   // (V7 regression requirement) and only locks Send.
   textarea.disabled = !session;
   textarea.readOnly = Boolean(session) && Boolean(pendingRun);
-  send.textContent = requestLabel(COMPOSER_SEND_LABEL, Boolean(pendingRun));
-  cancel.textContent = requestLabel(
-    COMPOSER_CANCEL_LABEL,
-    Boolean(pendingCancel),
-  );
+  setRequestLabel(send, COMPOSER_SEND_LABEL, Boolean(pendingRun));
+  setRequestLabel(cancel, COMPOSER_CANCEL_LABEL, Boolean(pendingCancel));
   send.disabled =
     !session ||
     Boolean(active) ||
@@ -5156,8 +5154,8 @@ function renderPermission(row) {
       const button = element("button", {
         className: decision === "allow" ? "primary-button" : "secondary-button",
         attrs: { type: "button", "data-focus-key": `${key}:${decision}` },
-        text: requestLabel(label, inFlight),
       });
+      setRequestLabel(button, label, inFlight);
       button.setAttribute("aria-disabled", String(pending));
       button.addEventListener("click", async () => {
         if (

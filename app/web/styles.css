@@ -294,6 +294,12 @@
   --settings-gutter: 48px;
   --settings-measure: 820px;
   --settings-group-gap: 40px;
+  /* WK-113 / CC-W · 工作面按视口分档的两个数。--doc-min 是 ≥1680 三栏态里文档列的
+     下限（256 + chat ≥640 + 688 在 1680 上刚好成立）；--doc-measure 是文档面**正文**
+     一行的上限 —— 面板宽 1136 或 688 都不是一行的长度，正文沿阅读列的 740，宽表与
+     代码按内容自己横向滚动（WK-117 (b)）。登记见 ui-composition-standard 的尺寸表。 */
+  --doc-min: 688px;
+  --doc-measure: 740px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 32px;
@@ -472,6 +478,24 @@ button {
   width: var(--control);
   min-width: var(--control);
   padding: 0;
+}
+/* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与一份静止态的
+   影子标签叠在同一个 grid 格子里，按钮的宽度因此是两者的较大值：`Sending…` 出现时
+   没有一个邻居会挪位，指针已经落在半路上的用户不会点到另一个决定。影子不进无障碍
+   树（aria-hidden + visibility），也不接收指针。 */
+.request-width {
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+}
+.request-width > .request-label,
+.request-width > .request-label-ghost {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.request-label-ghost {
+  visibility: hidden;
+  pointer-events: none;
 }
 .primary-button {
   background: var(--accent);

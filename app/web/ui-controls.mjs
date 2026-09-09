@@ -236,6 +236,11 @@ export function anchorPopover(anchor, popover, { placement = "bottom-end" } = {}
       .catch(() => {});
   });
 }
+/* M-10 · 首个 tooltip 的延迟，以及"刚看过一个"的分组窗口。两个数字都在这里，
+ * 改一个不必翻两处。 */
+export const TOOLTIP_DELAY = 400;
+export const TOOLTIP_GROUP_WINDOW = 300;
+
 export function installTooltips() {
   const tip = el("div", {
     className: "ui-tooltip",
@@ -246,10 +251,16 @@ export function installTooltips() {
     cleanup = null,
     timer = null,
     closing = null,
-    generation = 0;
+    generation = 0,
+    lastHidden = 0;
+  /* M-10（WK-119 补充，CC-W 第 0 项）· 一个 provider 里的 tooltip 共享一段延迟：
+   * 第一个等 TOOLTIP_DELAY，之后 TOOLTIP_GROUP_WINDOW 之内移到相邻控件即时切换，
+   * 出了这个窗口再回到延迟。语义不变 —— 仍然是纯文本、仍然只在 hover / focus 上
+   * 出现、仍然是同一个单例浮层，改的只是"这一次要不要等"。 */
   const hide = () => {
     clearTimeout(timer);
     clearTimeout(closing);
+    if (anchor) lastHidden = Date.now();
     generation++;
     cleanup?.();
     cleanup = null;
@@ -307,7 +318,9 @@ export function installTooltips() {
     }
     if (!target || target === anchor) return;
     clearTimeout(timer);
-    timer = setTimeout(() => show(target), 400);
+    const grouped =
+      Boolean(anchor) || Date.now() - lastHidden <= TOOLTIP_GROUP_WINDOW;
+    timer = setTimeout(() => show(target), grouped ? 0 : TOOLTIP_DELAY);
   });
   listen(document, "pointerout", (event) => {
     const target = event.target.closest?.("[data-tooltip]");
@@ -375,4 +388,23 @@ export const MEMORY_SCOPE_OFF = "Memory · Off";
 export const SENDING_LABEL = "Sending…";
 export function requestLabel(label, inFlight) {
   return inFlight ? SENDING_LABEL : label;
+}
+/* M-9（WK-118 (d)，CC-W 第 0 项）· 换词是对的，换宽度不是。`Sending…` 比 `Approve`
+ * 长、比 `Cancel run` 短，于是一次决定送出的瞬间，它旁边的按钮会左右挪一下 —— 指针
+ * 已经落在半路上的用户因此可能点到另一个决定。修法不是量一次宽度存起来（那会在字号
+ * 三档、`--text-scale` 与不同字体回退下过期），而是让按钮**同时**排一份静止态标签：
+ * 两个 span 叠在同一个 grid 格子里，看得见的那个说当前的词，看不见的那个占住静止态
+ * 的宽度，按钮的宽度因此永远是两者的较大值。按钮元素本身不被替换，所以焦点不动。 */
+export function setRequestLabel(button, label, inFlight) {
+  const visible = document.createElement("span");
+  visible.className = "request-label";
+  visible.textContent = requestLabel(label, inFlight);
+  const ghost = document.createElement("span");
+  ghost.className = "request-label-ghost";
+  ghost.textContent = label;
+  ghost.setAttribute("aria-hidden", "true");
+  button.classList.add("request-width");
+  button.dataset.restingLabel = label;
+  button.replaceChildren(visible, ghost);
+  return button;
 }
