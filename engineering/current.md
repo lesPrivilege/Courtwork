@@ -184,3 +184,7 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 [非作者证据](../evidence/attention-independent-20260909/README.md)记录来源Astra独立发现旧ES前置备份悬空链接缺陷、作者修复及原反例最终通过；de38中间产品不单独接受。五组新设计披露/状态反例、固定SHA迁移矩阵、作者15项定向复跑、最终全量305/305与smoke通过。Luna被作者补写的测试初稿不计独立接受；作者和来源非作者证据分别归因，无集成产品补丁。
 
 当前Core3/app4、RuntimeStore4；支持既定旧schema经独占备份分阶段升级，回退用独立目录和对应旧host，未升级个人数据。ATT-FE可按稳定合同进入现有单writer队列，具体插入点由Fable按已排工单协调；本次无Attention UI、自动调度、外部发送、自动Pi工具安装或完整ATT-RT兼容矩阵。Core/service本轮写权交回来源Astra；Paper、真实provider、发布及G1–G5不随本单关闭。
+
+## AM-B 异步 loop：后端续行派单准备（2026-09-09）
+
+用户要求后端PR续行、Luna explore，成熟实践且验收明确的任务可派Terra，关键harness core与模型能力瓶颈由Astra亲写。从实际 `main@0480c17` 隔离形成 [可派工合同](execution/2026-09-09-async-loop/README.md)：T1协议/请求兼容探针与T2慢任务故障夹具可先并行；Astra A0冻结归属、结算、投递、选择性等待与恢复，A1实现两项只读任务的adapted纵切；固定接口后T3只读投影、T4非作者恢复演练，A2另评模型调度与native路径。Luna已开展只读探索；本轮交付派单准备，不表示Terra已启动或AM-B已有产品实现。Fable前端继续现有单writer队列；Core3/app4、Runtime4、真实provider与G1–G5保持。
