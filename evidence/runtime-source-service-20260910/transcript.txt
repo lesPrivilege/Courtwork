@@ -1,0 +1,218 @@
+BE-5 runtime-sources HTTP transcript
+code SHA 9cbae87, server booted on http://127.0.0.1:50837 (data dir removed afterwards; synthetic, no real provider)
+fixed code: /private/tmp/cw-runtime-source-service-20260910 (main baseline 85693a6 + BE-5 commit)
+
+### 1. inline reference resolves with exact UTF-8 identity
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"reference","title":"Synthetic reference","content":"Exact source bytes 条款 🙂\r\n","origin":{"uri":"https://example.invalid/declared","version":"v1"}}'
+--> HTTP 200
+{
+  "resolverVersion": 1,
+  "status": "resolved",
+  "disposition": "inspect-only",
+  "identity": {
+    "kind": "reference",
+    "contentSha256": "3db19faa524f72ccf90d1baf80f7299ddbe6b4b1b8747ac0452d5592f0279065",
+    "artifactSha256": "f897e7398d5d3b35d3b66c89b246fd79b43fe26fec5bcccf3ea786a05c880b53",
+    "bytes": 32,
+    "characters": 26
+  },
+  "provenance": {
+    "type": "supplied-inline",
+    "verified": false,
+    "declaredOrigin": {
+      "uri": "https://example.invalid/declared",
+      "version": "v1"
+    }
+  },
+  "portable": {
+    "kind": "reference",
+    "title": "Synthetic reference",
+    "content": "Exact source bytes 条款 🙂\r\n"
+  },
+  "native": [],
+  "capabilities": {
+    "declared": {},
+    "granted": []
+  },
+  "requirements": [],
+  "trust": "unverified",
+  "adapters": [
+    {
+      "id": "courtwork-declarative-source-v1",
+      "kind": "reference",
+      "status": "syntax-accepted"
+    }
+  ],
+  "diagnostics": [
+    "Resolution does not install, expose, permit, connect or execute this source."
+  ]
+}
+
+[sha256("Exact source bytes 条款 🙂\r\n") = 3db19faa524f72ccf90d1baf80f7299ddbe6b4b1b8747ac0452d5592f0279065]
+
+### 2. inline skill (frontmatter) resolves, declared metadata only
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"skill","title":"Synthetic skill","content":"---\nname: test-skill\ndescription: Synthetic\nallowed-tools: ws_write\n---\nBody with scripts/run.sh\n"}'
+--> HTTP 200
+{
+  "resolverVersion": 1,
+  "status": "resolved",
+  "disposition": "inspect-only",
+  "identity": {
+    "kind": "skill",
+    "contentSha256": "862a3c20401a411bba16c8e1930742f0d6985158d16c38c9198487237f425059",
+    "artifactSha256": "a96856e50a1b47ee74b9cd28f9c3b12a21aaad4d77b7411619bbe6ccdcb57e77",
+    "bytes": 97,
+    "characters": 97
+  },
+  "provenance": {
+    "type": "supplied-inline",
+    "verified": false
+  },
+  "portable": {
+    "kind": "skill",
+    "title": "Synthetic skill",
+    "content": "---\nname: test-skill\ndescription: Synthetic\nallowed-tools: ws_write\n---\nBody with scripts/run.sh\n"
+  },
+  "native": [],
+  "capabilities": {
+    "declared": {
+      "name": "test-skill",
+      "description": "Synthetic",
+      "requestedTools": "ws_write"
+    },
+    "granted": []
+  },
+  "requirements": [],
+  "trust": "unverified",
+  "adapters": [
+    {
+      "id": "courtwork-declarative-source-v1",
+      "kind": "skill",
+      "status": "syntax-accepted"
+    }
+  ],
+  "diagnostics": [
+    "Resolution does not install, expose, permit, connect or execute this source.",
+    "Skill scripts and bundled assets are not resolved; allowed-tools and compatibility are unverified metadata."
+  ]
+}
+
+### 3. locator stays explicit unsupported (no acquisition)
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"locator","locator":"url","value":"https://example.invalid/never-fetched"}'
+--> HTTP 200
+{
+  "resolverVersion": 1,
+  "status": "unsupported",
+  "disposition": "inspect-only",
+  "source": {
+    "type": "locator",
+    "locator": "url",
+    "value": "https://example.invalid/never-fetched"
+  },
+  "reason": "source_acquisition_not_implemented",
+  "diagnostics": [
+    "Supply explicit declarative source content. No locator was fetched, read, cloned or installed."
+  ]
+}
+
+### 4. wrong work token -> 401
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"reference","title":"t","content":"x"}'
+--> HTTP 401
+{
+  "error": {
+    "code": "unauthorized",
+    "message": "work token is required"
+  }
+}
+
+### 5. disallowed Origin -> 403
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -H 'origin: http://attacker.invalid'\
+  -d '{"type":"inline","kind":"reference","title":"t","content":"x"}'
+--> HTTP 403
+{
+  "error": {
+    "code": "origin_denied",
+    "message": "request origin is not allowed"
+  }
+}
+
+### 6. extra envelope field -> 400 invalid_runtime_source
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"reference","title":"t","content":"x","scope":{"type":"user","id":"local"}}'
+--> HTTP 400
+{
+  "error": {
+    "code": "invalid_runtime_source",
+    "message": "Unsupported source fields"
+  }
+}
+
+### 7. unsupported inline kind -> 400 invalid_runtime_config
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"plugin","title":"t","content":"export default {}"}'
+--> HTTP 400
+{
+  "error": {
+    "code": "invalid_runtime_config",
+    "message": "This host imports context content and declarative agent profiles"
+  }
+}
+
+### 8. malformed skill YAML -> 400 invalid_runtime_config
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"skill","title":"t","content":"---\nname: [\ndescription: x\n---\nbody"}'
+--> HTTP 400
+{
+  "error": {
+    "code": "invalid_runtime_config",
+    "message": "Skill frontmatter must be valid YAML"
+  }
+}
+
+### 9. mcp_server stdio transport -> 400 invalid_runtime_config
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -H 'x-work-token: <boot token>'\
+  -d '{"type":"inline","kind":"mcp_server","title":"t","content":"{\"transport\":\"stdio\",\"command\":\"echo\"}"}'
+--> HTTP 400
+{
+  "error": {
+    "code": "invalid_runtime_config",
+    "message": "Unsupported MCP configuration fields"
+  }
+}
+
+### 10. absent token -> 401
+curl -sS -X POST 'http://127.0.0.1:50837/api/v5/runtime-sources/resolve' \
+  -H 'content-type: application/json' \
+  -d '{"type":"inline","kind":"reference","title":"t","content":"x"}'
+--> HTTP 401
+{
+  "error": {
+    "code": "unauthorized",
+    "message": "work token is required"
+  }
+}
+
+(done; temp data dir removed)
