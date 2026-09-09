@@ -123,6 +123,18 @@ FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = H
 |---|---|
 | WK-105 | Opus 交付 `claude/fe01-vocab-ia` `bfefcd2`（基线 `1688a7b`，六次提交）：WK-98 两缺陷、WK-102 两 token 与回退、`tools/lint-materials.mjs` 入 `npm test`；词表与 text-sweep；Settings 九组 IA；chrome；Home / Work composition 与几何断言；尺寸 token 表、border 审计、shell contract；五轮收敛表；FE-T02 / T09 / T10 12/12、composition 16/16、RC 20/9/36；212/212。Fable 独立重跑一致，范围干净。六项待裁：① 取 WK-96 的 55 %；② 92–112 指输入本体；③ scope strip 多处挂载单一真源，接受；④ 分隔线与对象边框为两个通道，不做全站清扫；⑤ `--nav` 250 → 256 列 FE-02 第 0 项；⑥ 侧栏脚保持工具条，账户行待真实身份对象。接受，交 Astra 合流（先 `claude/fe01-vocab-ia`，再 `claude/fable-round4b`）；复核见 [delivery-fe01 §13](delivery-fe01.md)。 |
 
+## 4l. Astra 集成补丁复核 → WK-106（2026-09-09）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-106 | Astra 合流 FE-01 为 `6bdc6db` / `ccc1076`，并以自写两行补丁 `343e59b` 修 WK-98 裸 `null` 遗漏（`runtime-view.mjs` 资源 detail 两处 `append` 改为过滤缺席片段；根因是 `permissionDetail` / `sourceInspector` 可返回 `null`，原生 `append(null)` 变文本）。Fable 非作者复核：读码确认两个 helper 确有 `return null` 路径而 `layerBlock` / `sourceDetail` / `rowActions` 无；在清洁 `main` `2b6c221` 重跑 212/212；用自有端口 8893、新数据目录与新 Chrome profile 复跑 Astra 的 WK-98 追加脚本 10/10（九个深链无 401、`ws_write` 展开无裸 null）。接受；不改数据、权限算法、端点或全局 DOM 工具。清洁节点 `2b6c221`。 |
+
+## 4m. FE-02 复核 → WK-107（2026-09-09）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-107 | Opus（`opus-wo-low`，effort low）交付 `claude/fe02-models` `38717bd`（基线 `2b6c221`，五次提交）：第 0 项 `--nav` 256；Settings › Models 重建为 Connections 一行 + Add provider 三条路径 + 五步流程（BE-17/18 两步只留文本、零控件）+ Advanced；Tools 组 MCP 接入六步说明块（零 focusable）；同行级 input / select 收成 32 / 8px 一档；窄屏 segment 命中区 39 → 44（RC 视口脚本量法修正抓出，量法改为以 `.segment` 为命中区，与 `.runtime-switch` 同理，接受）。写权干净（`app/server` / `runtime` / `core` / `domains` / `brand` 差异为空，无 allowlist 请求）。Fable 独立重跑：219/219、lint-colors / lint-materials ok、contrast 全通过；自有端口 8893、新数据目录复跑 `models-checks` 16/16、`composition-checks` 16/16，结果与交付页一致。六项待裁：① Connections 只画后端真有的一条，接受，多行待 BE-21；② 本设备 display name **不接受**——它是连接属性而非设备偏好，存进偏好即第二真源，且是工单禁止的新前端状态与明确待替换的过渡实现，裁定移除，待 BE-21 作为连接字段回来（修订由第二个 `opus-wo-low` 执行为 `a82c192`，Fable 复跑 218/218 + models-checks 16/16 + composition 16/16，复核记于 delivery-fe02 §13，分支头 `565d18c`）；③ provider ID 由后端目录给，前端不生成，接受，"内部生成"归 BE-21；④ `ui-composition-standard.md` 侧栏宽注 250 → 256 由 Fable 在本支改正；⑤ Compatible endpoint 今日只能"给目录身份换端点"，按事实写，接受，独立第三方 provider 归 BE-21；⑥ 冻结错误直出后端原话，接受，错误文案抻平属一次独立裁定（涉及全部 4xx / 409 展示），列入 FE-03 后议题，不在本单。BE-21（连接注册表）、BE-22（MCP server 注册）登记入 [backend-requests](backend-requests.md)。接受，交 Astra 合流（先 `claude/fe02-models` `565d18c`，再 `claude/fable-round4c`）。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。

@@ -40,7 +40,7 @@
 
 | 角色 | 值 | token | 它回答什么 |
 |---|---|---|---|
-| 侧栏宽 | 250（区间 256–280 的下沿，见下注） | `--nav` | 项目与 Chat 名读得完，主区仍是主角 |
+| 侧栏宽 | 256（区间 256–280 的下沿） | `--nav` | 项目与 Chat 名读得完，主区仍是主角 |
 | app / title chrome 高 | 56；desktop shell 下 52 | `--band-top` | 三列共用一条带 |
 | 导航行高 | 32–36 | `--control` 32 | 一行是一个对象，不是一张卡 |
 | 行 / 控件 / 导航 glyph | 16 / 18 / 20 | `icon()` 的 `size` | IC-1；命中区另计 |
@@ -53,7 +53,7 @@
 | window-control 安全区 | 80 × `--band-top` | `--window-safe-area` | 宿主的窗口按钮区，产品不在其中放控件；契约见 [interface-components](../../docs/interface-components.md) |
 | 模糊 | 12 / 16 | `--blur-chrome` / `--blur-transient` | WK-102 的闭集；只有登记表面可用 |
 
-侧栏宽注：`--nav` 现为 250，低于视觉审查建议的 256–280 下沿 6px。这是 WK-42 已裁定的既有值，本单不动它；若要落进区间，属一次独立的带宽裁定。
+侧栏宽注：`--nav` 原为 250（WK-42），低于视觉审查建议的 256–280 下沿 6px；WK-105 ⑤ 裁定落到 256，FE-02 第 0 项执行，Home / Work 几何断言随之更新。
 
 ## Home / Work / Dashboard 三种 composition state（WK-96 / WK-97）
 
