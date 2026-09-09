@@ -98,6 +98,8 @@ function routeService(service, req, url) {
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
   if (method === "GET" && tail.length === 1 && tail[0] === "bootstrap") return service.bootstrap;
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-activity") return () => service.getWorkMetrics("activity", url.searchParams);
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-usage") return () => service.getWorkMetrics("usage", url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
   if (method === "GET" && tail.length === 3 && tail[0] === "projects" && tail[2] === "work") return () => service.listWork(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();

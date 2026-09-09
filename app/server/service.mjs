@@ -1,3 +1,4 @@
+import { utcDateRange } from "./work-metrics.mjs";
 import { previewProvider, PreviewInputError } from './provider-preview.mjs';
 import { workProjection } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
@@ -381,13 +382,30 @@ export class RuntimeService {
     return { project: await this.store.createProject(text(value.name, "name", { max: 200 })) };
   }
 
+  getWorkMetrics(kind, params = new URLSearchParams()) {
+    const options = {};
+    for (const key of params.keys()) {
+      if (!["days", "projectId"].includes(key) || params.getAll(key).length !== 1) throw new ServiceError(400, "invalid_input", "invalid metrics query");
+      const value = params.get(key);
+      if (key === "projectId") options.projectId = text(value, key, { max: 200 });
+      else {
+        if (!/^[1-9][0-9]*$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) > 366) throw new ServiceError(400, "invalid_input", "days must be between 1 and 366");
+        options.days = Number(value);
+      }
+    }
+    return this.store.getWorkMetrics(options)[kind];
+  }
+
   getWorkSummary(params = new URLSearchParams()) {
-    const allowed = new Set(["projectId", "limit", "sessionsOffset", "pendingOffset", "inspectionOffset"]);
+    const allowed = new Set(["projectId", "limit", "sessionsOffset", "pendingOffset", "inspectionOffset", "date"]);
     const options = {};
     for (const key of params.keys()) {
       if (!allowed.has(key) || params.getAll(key).length !== 1) throw new ServiceError(400, "invalid_input", "invalid summary query");
       const value = params.get(key);
-      if (key === "projectId") options[key] = text(value, key, { max: 200 });
+      if (key === "date") {
+        if (value !== "today" && !utcDateRange(value)) throw new ServiceError(400, "invalid_input", "date must be today or a UTC YYYY-MM-DD date");
+        options.date = value;
+      } else if (key === "projectId") options[key] = text(value, key, { max: 200 });
       else {
         if (!/^(0|[1-9][0-9]*)$/.test(value) || !Number.isSafeInteger(Number(value))) throw new ServiceError(400, "invalid_input", "invalid summary pagination");
         options[key] = Number(value);

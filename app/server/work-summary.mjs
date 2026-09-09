@@ -1,3 +1,4 @@
+import { utcDateRange } from "./work-metrics.mjs";
 // A synchronous projection of one published store state. Never inspect events,
 // host transcripts, workspace files, or invoke runtime/provider operations.
 const OPEN = new Set(["running", "waiting_user"]);
@@ -16,6 +17,9 @@ function page(items, offset, limit) {
 export function deriveWorkSummary(state, options, availableQuestionIds) {
   const { projectId, limit = 50, sessionsOffset = 0, pendingOffset = 0, inspectionOffset = 0 } = options;
   const observedAt = new Date().toISOString();
+  const date = options.date === 'today' ? observedAt.slice(0, 10) : options.date;
+  const range = date ? utcDateRange(date) : null;
+  const inRange = time => !range || (Date.parse(time) >= range.start && Date.parse(time) < range.end);
   const sessions = state.sessions.filter((s) => projectId === undefined || s.projectId === projectId);
   const bySession = new Map(sessions.map((s) => [s.id, s]));
   const runs = new Map();
@@ -48,10 +52,10 @@ export function deriveWorkSummary(state, options, availableQuestionIds) {
   }
   pending.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) || compareId(a.questionId, b.questionId));
   inspection.sort((a, b) => newest(a, b, "resultAt", "runId"));
-  const sessionCandidates = page(candidates, sessionsOffset, limit);
-  const pendingItems = page(pending, pendingOffset, limit);
-  const inspectionCandidates = page(inspection, inspectionOffset, limit);
+  const sessionCandidates = page(candidates.filter(item => inRange(item.recordedActivityAt)), sessionsOffset, limit);
+  const pendingItems = page(pending.filter(item => inRange(item.createdAt)), pendingOffset, limit);
+  const inspectionCandidates = page(inspection.filter(item => inRange(item.resultAt)), inspectionOffset, limit);
   const involved = new Set([...sessionCandidates.items, ...pendingItems.items, ...inspectionCandidates.items].map((item) => item.sessionId));
   const sessionVersions = [...involved].sort(compareId).map((sessionId) => ({ sessionId, lastSeq: bySession.get(sessionId)._nextSeq }));
-  return { observedAt, sessionVersions, sessionCandidates, pendingItems, inspectionCandidates };
+  return { observedAt, ...(date ? { dateFilter: { date, timeZone: 'UTC', start: new Date(range.start).toISOString(), endExclusive: new Date(range.end).toISOString(), fields: { sessionCandidates: 'recordedActivityAt', pendingItems: 'createdAt', inspectionCandidates: 'resultAt' } } } : {}), sessionVersions, sessionCandidates, pendingItems, inspectionCandidates };
 }

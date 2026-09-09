@@ -2,6 +2,7 @@ import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { acquireRuntimeLock } from "./runtime-lock.mjs";
+import { deriveWorkMetrics } from "./work-metrics.mjs";
 import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
 
@@ -331,6 +332,11 @@ export class RuntimeStore {
     // _mutate publishes by replacing this.state only after persistence. No await
     // here: all collections and high-water marks see the same published state.
     return deriveWorkSummary(this.state, options, availableQuestionIds);
+  }
+
+  getWorkMetrics(options) {
+    if (!this.opened || this.lockLost) throw new Error("runtime store is unavailable");
+    return deriveWorkMetrics(this.state, options);
   }
 
   async createProject(name) {
