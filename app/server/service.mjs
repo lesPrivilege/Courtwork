@@ -1188,12 +1188,19 @@ export class RuntimeService {
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     } else {
-      assertKeys(value, new Set(["decision"]));
+      assertKeys(value, new Set(["decision", "expectedContentSha256", "expectedToolCallId"]));
+      const expected = {};
+      if (value.expectedContentSha256 !== undefined) {
+        if (typeof value.expectedContentSha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.expectedContentSha256)) throw new ServiceError(400, "invalid_input", "expectedContentSha256 must be a lowercase SHA-256 digest");
+        expected.expectedContentSha256 = value.expectedContentSha256;
+      }
+      if (value.expectedToolCallId !== undefined) expected.expectedToolCallId = text(value.expectedToolCallId, "expectedToolCallId", { max: 200 });
       resolvedValue = text(value.decision, "decision", { max: 10 });
       if (resolvedValue !== "allow" && resolvedValue !== "deny") throw new ServiceError(400, "invalid_input", "decision must be allow or deny");
       try {
-        await this.store.resolveQuestion({ runId, questionId, decision: resolvedValue });
+        await this.store.resolveQuestion({ runId, questionId, decision: resolvedValue, ...expected });
       } catch (error) {
+        if (error.code === "version_mismatch") throw new ServiceError(409, "version_mismatch", "permission payload no longer matches the reviewed request");
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     }
