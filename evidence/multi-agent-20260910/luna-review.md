@@ -30,6 +30,21 @@ Those tests cover Thread identity/membership, idempotent outbox replay, stale an
 
 The broader command `node --test app/tests/*.test.mjs tests/*.test.mjs` was also run. It produced 440 tests with 439 passed and one failure: `app/tests/runtime-foundation.test.mjs:81`, `CLI SIGTERM settles a waiting Run and the same data directory reopens`, timed out at its polling condition. This is recorded as an unresolved broader-suite result; the targeted coordination verification is green, and the full suite must not be described as green from this run.
 
+## Fixed-combination follow-up: `c1f212275ffa8d42fad711cf65b47418e5ca6755`
+
+The final targeted review was run at the fixed combination commit `c1f2122`:
+
+```text
+node --test app/tests/coordination.test.mjs app/tests/usage-details.test.mjs
+21 tests, 21 passed, 0 failed
+```
+
+The coordination cases specifically rechecked runtime tool permission, exact source Session/Thread membership, target Thread revision and reply lineage, queued outbox replay after SIGKILL, no automatic recipient Run, and child helper grant, identity, cancellation, timeout, and late-completion behavior. The usage-details cases passed against retained Run records and scope/date/model filters; this read surface did not alter coordination ownership.
+
+The human-facing coordination directory retains its explicit 256-Thread storage/list ceiling (`app/harness/coordination-state.mjs:20`, `app/harness/coordination.mjs:42`). Model-facing `thread_directory` and `thread_mailbox` responses are independently paged with a maximum page size of 20 (`app/harness/coordination.mjs:14,29-33,106-111`; `app/harness/tools.mjs:4,13-16`). The model directory applies exact project scope filtering while global Attention has the explicitly wider view.
+
+The earlier broader result of 439 passed / 1 timed-out test belongs to the previous pre-`c1f2122` review round and is historical evidence only; I did not rerun the full suite in this follow-up. The targeted result above is the current bounded verification.
+
 ## Still unproved
 
 Native Pi parallel lanes in Courtwork, persistent child intent/runtime references, child recovery across restart, real-provider child execution, permission escalation/duplicate approval, Core cross-Matter transactional proposals, ownership handoff, and durable Workflow execution remain outside this evidence. No paid provider, external message, deployment, or product acceptance was performed.

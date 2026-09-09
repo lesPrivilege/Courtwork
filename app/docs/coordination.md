@@ -129,7 +129,7 @@ in a **separate** data directory. This does not downgrade or erase the upgraded
 directory. Development and migration tests use independent synthetic data only.
 Core3 / bridge app4 and Paper remain unchanged.
 
-## Child-execution entry and UI
+## Child-execution entry
 
 `harness/child-execution.mjs` is an executable conformance entry, not an installed
 production scheduler. It takes an exact adapter ID/version and stable
@@ -146,10 +146,11 @@ The result remains finding-only, undelivered and unaccepted. There is no synthes
 or Core commit path. Production capabilities truthfully report Explore, handoff
 and Workflow as false; Pi native lanes are not wired to this contract yet.
 
-Attention → **Threads & messages** hosts the human entry. Choose a working
-conversation explicitly, create/attach a Thread, then choose a destination and
-send. Raw message text uses textContent. Unknown send receipts keep the original
-ID/payload for retry, including when the target becomes unavailable; changing a
-conversation cannot retarget a pending send. Closing stops read refresh only.
-Unsent drafts are per-conversation, in-page only. Thread membership shares this
-inbox across its conversations; it does not import their model transcripts.
+## Frontend handoff
+
+Attention Chat flow UI is owned by a separate user-directed task. This delivery
+provides the authenticated HTTP contract and model tools only. A future consumer
+must select source Session and target Thread explicitly, retain the exact message
+ID/payload after an unknown receipt, and show delivery separately from a model
+Run or Core acceptance. Thread membership shares an inbox; it does not import
+member conversations' model transcripts.

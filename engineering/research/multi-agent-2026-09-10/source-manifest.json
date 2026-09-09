@@ -19,5 +19,7 @@
       "provenance": "User supplied research text, 2026-09-10; preserved verbatim",
       "evidenceLevel": "proposal; external source claims require independent verification"
     }
-  ]
+  ],
+  "integratedUsageMain": "ee6df7294990d28690d68fea3a8e88e7ca2a6002",
+  "uiScope": "Attention Chat flow UI excluded by subsequent user instruction"
 }

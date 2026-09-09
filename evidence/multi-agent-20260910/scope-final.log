@@ -1,0 +1,30 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (3082.253333ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (2000.495041ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (2333.628625ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (4.993958ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (1.033875ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (2.889375ms)
+✔ Thread identity and membership are durable, explicit and not Session identity (1544.304291ms)
+✔ outbox replay is idempotent; conflicting payload and invented source are refused (692.704542ms)
+✔ late delivery retains origin and distinguishes stale target from missing target (625.5985ms)
+✔ reply lineage requires a delivered reverse envelope, not an unrelated latest message (831.2045ms)
+✔ delete and scope change do not recreate a recipient or reroute queued messages (905.08675ms)
+✔ RuntimeStore6 migration preserves global scope and exact backup; corrupt ledger fails closed (2083.678084ms)
+✔ child grant monotonically narrows and reducer retains source attribution and conflicts under permutation (4.091667ms)
+✔ child tool boundary denies widening and completion remains undelivered/unaccepted (4.720667ms)
+✔ cancel, timeout, late completion and mutated caller input cannot change child settlement or origin (22.553666ms)
+✔ authenticated HTTP Thread/message entry reaches a real inbox without starting a model (1237.396667ms)
+✔ SIGKILL after outbox persistence recovers exactly one local delivery without a Run (9601.223875ms)
+✔ model messages require a real permission decision and cannot auto-run the recipient (1123.408625ms)
+✔ read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes (875.43225ms)
+✔ schema7 effort survives upgrade; fixed old host refuses schema8 and restores only the separate original backup (1665.588125ms)
+✔ mailbox pagination preserves ordered identities and refuses duplicate or oversized queries (592.115ms)
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (40718.481ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62969.56575
