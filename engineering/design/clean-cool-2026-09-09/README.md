@@ -4,6 +4,8 @@
 
 结论：现有状态边界值得保留；下一轮最有价值的变化是缩短从进入界面到判断、行动的距离。Home 的已有工作应更早出现，Models 应围绕一次配置任务组织，Review 应让来源和未决问题成为阅读中心。
 
+**后续用户补充优先：** [模块首页、独立Settings与标签式右区](shell-refinement.md)确认保留dashboard版本，Settings用专用导航替换全局侧栏，工作区展开采用tab chrome，并强化边距与留白。上一轮Models双重侧栏已被此方向取代；新图/完整prompt见`refinement-prompts.json`。
+
 - [审查与提交索引](review.md)：当前截图、问题、实现与待做工单的对应关系。
 - [Claude 交接](claude-handoff.md)：自由度、不可变条件、拆单和验证。
 - [生成提示词](prompts.json)：原始完整 prompt、实际引用截图、生成方式。

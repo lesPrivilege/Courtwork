@@ -1,0 +1,12 @@
+{
+  "baseline": "cc99571a0b4e67b51eeef9f20e9f495ca78655e7",
+  "sourceScreenshotsVisuallyConsumed": 7,
+  "rawPrivateScreenshotsCommitted": false,
+  "generatedImagesVisuallyInspected": 3,
+  "outputHashesVerified": 3,
+  "localLinksChecked": 12,
+  "productCodeChanged": false,
+  "productTests": "not run: design documentation and image references only",
+  "knownVisualDeviations": "shell-refinement.md: per-image corrections and brand rejection",
+  "independentAcceptance": "not claimed"
+}
