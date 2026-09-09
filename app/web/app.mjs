@@ -8,6 +8,9 @@ import {
   markdown,
   installTooltips,
   anchorPopover,
+  sessionMode,
+  sessionModeLabel,
+  MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
 // WK-30 · window-control reservation is opt-in: a desktop shell sets
@@ -1818,10 +1821,20 @@ function renderProjectList() {
                 "data-nav-key": `session:${session.id}`,
               },
             },
-            element("span", {
-              className: "session-name",
-              text: session.title || "Untitled chat",
-            }),
+            /* WK-92 · 导航里一行会话只多说一件事：它是不是 Work。Chat 是默认的那一
+             * 种，所以它不带标记 —— 给每一行都挂一个词只会让两种模式都不显眼。标记
+             * 与标题同一行，标题先省略号，行高因此不随模式改变。 */
+            element(
+              "span",
+              { className: "session-line" },
+              element("span", {
+                className: "session-name",
+                text: session.title || "Untitled chat",
+              }),
+              sessionMode(session) === "work"
+                ? element("span", { className: "session-mode-tag", text: "Work" })
+                : null,
+            ),
           );
           sessionButton.addEventListener(
             "click",
@@ -1945,7 +1958,7 @@ function renderExtensionList() {
         const bindButton = element("button", {
           className: "secondary-button",
           attrs: { type: "button" },
-          text: "Bind to chat",
+          text: "Continue in Work",
         });
         bindButton.addEventListener("click", () => {
           state.bindingExtensionId = extension.id;
@@ -1968,7 +1981,7 @@ function renderExtensionList() {
         });
         releaseButton.setAttribute(
           "aria-label",
-          "Release this chat's binding; the recorded work stays in this project",
+          "Return this Work to Chat. The recorded work stays in this project.",
         );
         releaseButton.addEventListener("click", () => void releaseBinding(extension.id));
         actions.append(releaseButton);
@@ -2083,7 +2096,7 @@ function existingProjectWork(extension, session) {
 
 function continueExistingSegment(entries, submitExisting) {
   const segment = element("section", { className: "binding-segment" });
-  segment.append(element("h4", { text: "Continue existing" }));
+  segment.append(element("h4", { text: "Existing work in this project" }));
   const list = element("div", { className: "binding-entries" });
   for (const entry of entries) {
     const matter = entry.matter;
@@ -2129,12 +2142,12 @@ function renderBindingPanel() {
   panel.hidden = false;
   const inner = element("div", { className: "binding-panel-inner" });
   inner.append(
-    element("h3", { text: `Bind ${extension.title || extension.id}` }),
+    element("h3", { text: "Continue in Work" }),
   );
   inner.append(
     element("p", {
       className: "binding-panel-note",
-      text: "The extension validates these fields. The generic UI only renders the manifest declaration.",
+      text: `This chat keeps its history and its project; continuing in Work binds it to a Matter that ${extension.title || extension.id} owns. Nothing is copied and nothing is moved. That extension validates the fields below; this page only renders what its manifest declares.`,
     }),
   );
   const submitExisting = async (matterId, control) => {
@@ -2167,7 +2180,7 @@ function renderBindingPanel() {
     }
   };
   const created = element("section", { className: "binding-segment" });
-  created.append(element("h4", { text: "Create new" }));
+  created.append(element("h4", { text: "New work" }));
   const form = element("form", { className: "binding-form" });
   const fields = Array.isArray(extension.bindingFields)
     ? extension.bindingFields
@@ -2217,7 +2230,7 @@ function renderBindingPanel() {
   const submit = element("button", {
     className: "primary-button",
     attrs: { type: "submit" },
-    text: "Create binding",
+    text: "Continue in Work",
   });
   actions.append(submit);
   form.append(actions);
@@ -2247,7 +2260,7 @@ function renderBindingPanel() {
       renderAll();
       await loadSurface(state.sessionEpoch);
       await loadWorkThread(state.sessionEpoch);
-      showToast("Extension bound to this chat.");
+      showToast("This chat continues in Work.");
     } catch (error) {
       submit.disabled = false;
       showToast(`Could not create binding: ${error.message}`, "error");
@@ -2984,9 +2997,25 @@ function renderChatHeader() {
     : state.view === "home"
       ? "Home"
       : session?.title || "Loading chat…";
-  $("session-meta").replaceChildren();
-  if (!settingsOpen && session && currentRun())
-    appendRunBadge($("session-meta"), currentRun().status);
+  /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
+   * scope。Chat 与 Work 是同一个对象的两种模式，所以它们共用一条标题行，模式词
+   * 作为陈述跟在后面，而不是两个分开的界面。`Memory · Off` 只在 Work 上出现：
+   * scope 位属于 Matter header，而没有绑定 Matter 的会话没有可作用域的东西。 */
+  const meta = $("session-meta");
+  meta.replaceChildren();
+  if (!settingsOpen && session) {
+    meta.append(
+      element("span", {
+        className: "session-mode",
+        text: sessionModeLabel(session),
+      }),
+    );
+    if (sessionMode(session) === "work")
+      meta.append(
+        element("span", { className: "session-scope", text: MEMORY_SCOPE_OFF }),
+      );
+    if (currentRun()) appendRunBadge(meta, currentRun().status);
+  }
   $("show-surface-button").hidden = settingsOpen || !session;
   $("show-run-button").hidden = settingsOpen || !session;
   const home = state.view === "home";
