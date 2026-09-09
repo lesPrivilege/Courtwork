@@ -8,7 +8,7 @@ CourtWork 当前实现包含：通用 Agent Web UI、Pi AgentSession 运行底�
 
 - [工程状态](engineering/current.md)：已交付能力、证据边界、下一单。
 - [工程索引](engineering/README.md)：架构、设计、RD 与工单。
-- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源与权限、MCP、上下文绑定、schema 4与已合流的资源检查UI；Runtime Workbench仍属后续工单。
+- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源与权限、MCP、上下文绑定、schema 5与已合流的资源检查UI；Runtime Workbench仍属后续工单。
 - [UI 文本与编排体例](engineering/design/ui-composition-standard.md)：字阶、按钮、卡片、对齐、留白与窄屏重排。
 - [UI 组件契约](docs/interface-components.md)：布局、消息、工作面、焦点与状态 owner。
 - [品牌符号与动效](brand/README.md)：8 个语义样板、5 种材质与独立预览。
@@ -24,7 +24,7 @@ npm --prefix app ci
 npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
 ```
 
-默认使用本地 deterministic provider。真实 provider 由用户在 UI 配置，密钥不进入聊天、版本库或截图。每个服务使用独立数据目录；旧 schema 3 数据由新 host 打开时会升级到 schema 4，先备份，不与仍运行旧 host 的实例共用目录。停止用 Ctrl-C。详见 [运行与数据说明](app/README.md)。
+默认使用本地 deterministic provider。真实 provider 由用户在 UI 配置，密钥不进入聊天、版本库或截图。每个服务使用独立数据目录；旧 schema 3/4 数据经完整验证与独占备份后由新 host 升级到 schema 5，不与仍运行旧 host 的实例共用目录。停止用 Ctrl-C。详见 [运行与数据说明](app/README.md)。
 
 ## 验证
 
