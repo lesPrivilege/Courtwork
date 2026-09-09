@@ -144,3 +144,9 @@
 
 工单：[WO-PV-BE02](work-orders/WO-PV-BE02-connection-slice.md)（后端薄切片，先落）、[WO-PV-FE01](work-orders/WO-PV-FE01-connection-consumption.md)（前端消费，待 BE02 合流后填基线派出）。
 
+## 10. 前端写权（2026-09-10）
+
+**DEC-PV-e** `app/web/**` 的单一 writer 原为 Astra（Home backlog slices 3–7，见 Interaction Grammar 线的既有约束"Fable 侧工单不得进入 app/web"）。用户裁定：本轮 **Astra 让出 `app/web`**，PV 前端由 Fable 派本地 Opus 在独立分支施工。单一 writer 规则不破——写权转移，不是并列两个 writer。Astra 的 Home slices 若已在途，其与 `settings-view.mjs` / `model-picker.mjs` 的交集须在合流时由 Astra 裁决先后。
+
+WO-PV-FE01 的派出条件随之改为：WO-PV-BE02 交付后，以 `claude/pv-be02-connections` 为基线建树（不以 main 为基线），使前端能对着真实端点写，避免对空契约施工。
+
