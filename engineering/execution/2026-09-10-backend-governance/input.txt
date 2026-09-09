@@ -1,0 +1,461 @@
+有，而且这个 Attention / 跨 Matter disclosure 项目对 **SE 后端治理的启发甚至比 UI 更重要**。这轮我用 Exa 分 4 个方向扫了约 40 个结果，并深读了 7 个高信号来源。结论不是“找到一个后端照搬”，而是几个已经非常成熟的工程范式恰好能拼成 SE 所需要的 substrate。
+
+最重要的一点是：**不要把它做成一个新的 memory backend；应该借它第一次把 SE 已经存在的 Event / Governed State / Registry / Retrieval / Disclosure / Runtime durability 几个概念落实成稳定的后端 contract。**
+
+### Explore index
+
+| 成熟实践                                   | 高信号来源                                                                                                                                                                                                     | SE 可以消费什么                                                                                                             | 不应照搬什么                         |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **Event / State / Projection 分层**      | [Azure Event Sourcing](https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing)、[ReadAware data model](https://github.com/ahpxex/read-aware/blob/refs/heads/main/docs/data-model.md) | append-only history、当前状态、read projection、local index 明确分型；projection 可重建                                              | 不要把整个 CW 变成纯 Event Sourcing    |
+| **Durable state，disposable runtime**   | [Temporal Workflow](https://docs.temporal.io/workflow-execution)、[Clausey: Durable Agents on Plain Postgres](https://clausey.ai/blog/durable-agents-on-plain-postgres)                                    | runtime 死亡不丢工作；run/attempt/event/trace 分 grain；lease、retry、dead-letter                                                | 不需要现在引入 Temporal/Postgres 基础设施 |
+| **长期 Human waiting**                   | [Temporal HITL approvals](https://docs.temporal.io/guides/reliable-document-approvals)                                                                                                                    | `waiting` 是真正 durable state；timer、signal、approval 都是状态变化，不依赖活跃 session                                                | 第一版不用重型 workflow engine        |
+| **渐进式 Memory retrieval**               | [Engram](https://github.com/Gentleman-Programming/engram)                                                                                                                                                 | SQLite + FTS5、stable topic key、`search → timeline → full object`、conflict/supersedes、session handoff                  | 不采用“把一切都叫 memory”的 ontology    |
+| **跨对象 disclosure / relation**          | [Google Zanzibar](https://www.usenix.org/system/files/atc19-pang.pdf)                                                                                                                                     | `subject – relation – object` 作为一等数据；关系图本身可查询；授权在 retrieval 前完成                                                       | 单用户 CW 没必要实现全球级 ReBAC          |
+| **Local-first storage classification** | [ReadAware](https://github.com/ahpxex/read-aware/blob/refs/heads/main/docs/data-model.md)                                                                                                                 | `[event log] / [projection] / [device-local] / [local index]` 四类数据明确治理；FTS 默认、vector 后置                               | 它的事件日志为唯一真相不一定符合 SE            |
+| **External side-effect reliability**   | Temporal + Clausey                                                                                                                                                                                        | internal transaction 可以 exactly-once；邮件/GitHub/API 永远只能按 at-least-once 设计，需要 idempotency + receipt + check-before-act | 不要把“agent 已调用工具”当成“外部动作已确定完成”  |
+
+其中 **Engram 特别值得源码级消费**。它现在已经是 6k+ stars 的真实 agent-agnostic memory 项目，而且它的 agent contract 与我们刚才推导出的工作语义非常接近：
+
+```text
+orient
+  ↓
+search candidates
+  ↓
+inspect timeline
+  ↓
+fetch full observation
+  ↓
+act
+```
+
+它甚至明确说：
+
+> Search results are previews, not the complete record.
+
+这正是你说的：
+
+> **全量 memory = 知道其存在；不是全量进入 context。**
+
+它还有几个值得直接进入 index 的局部：`topic_key` 维护不断演化的同一个知识对象；`conflicts_with / supersedes / compatible` 关系；`review_after` 生命周期；FTS5 默认 retrieval；serialized write queue；project scope；session summary。
+
+---
+
+## 但最重要的架构裁决：不要纯 Event Sourcing
+
+这里反而需要避免被成熟实践带偏。
+
+Azure 自己也明确提醒：Event Sourcing 的 schema evolution、query、concurrency 和 migration 成本都很高，不应全局套用。
+
+而 SE 已经有一个比经典 Event Sourcing 更合适的三分：
+
+```text
+Event Log ≠ Governed State ≠ Compiled Context
+```
+
+尤其 Matter Schema 本身已经经过专家治理，它**不是 event log 的廉价 projection**。
+
+所以我更建议 CW 使用一种 hybrid：
+
+```text
+          ┌─ append-only Event / Provenance
+Command ──┤
+          └─ governed Current State
+
+         同一 transaction
+```
+
+例如一次：
+
+```text
+attention: waiting → needs_review
+```
+
+事务里同时产生：
+
+```text
+UPDATE attention_state ...
+
+INSERT event (
+  attention.replyReceived,
+  from_state = waiting,
+  to_state   = needs_review,
+  source     = github,
+  ...
+)
+```
+
+这样：
+
+* 当前 Matter/Attention Schema 仍是一等真相；
+* Event 保存“为什么变成这样”；
+* 不需要 replay 几万条 event 才知道当前状态；
+* UI 查询简单；
+* provenance 完整；
+* 将来依然可以做 temporal reconstruction。
+
+这比“event log 是唯一 source of truth”更符合 SE。
+
+---
+
+# 后端最值得新增的不是统一 `memory` 表，而是 Registry
+
+这次 Attention 项目把一个此前比较隐含的需求逼出来了：
+
+> **跨 Matter、跨 Role 的一级工作语义，需要一个非常便宜的 existence layer。**
+
+但这个 Registry 绝不能把各 Matter 已经调好的 Schema 压平成统一 JSON。
+
+更好的形态是：
+
+```text
+Governed Object Registry
+│
+├── Matter A
+│     schema: legal.contract-review/v3
+│     state: active
+│     disclosure: ...
+│
+├── Matter B
+│     schema: research.corpus/v2
+│
+├── Attention X
+│     schema: attention/v1
+│
+└── Artifact ...
+```
+
+Registry 只负责：
+
+```text
+id
+kind
+schema_ref
+schema_version
+descriptor
+state_class
+updated_at
+relations
+disclosure_handle
+```
+
+然后：
+
+```text
+Discover
+   ↓
+Inspect registry
+   ↓
+grep typed Matter schema
+   ↓
+retrieve bounded evidence
+   ↓
+compile context
+```
+
+Matter 自己的 Schema 完全保留。
+
+这非常关键：**Registry 是目录，不是数据库大一统。**
+
+---
+
+## Zanzibar 给跨 Matter disclosure 一个意外地好的抽象
+
+它最基础的 tuple 是：
+
+```text
+subject — relation — object
+```
+
+不需要复制 Zanzibar，但这种关系原语可以借过来。
+
+例如：
+
+```text
+attention:goraven
+    relates_to
+practice:runtime-isolation
+
+matter:courtwork-runtime
+    may_request
+attention:goraven
+
+session:codex-123
+    executing_for
+attention:goraven
+```
+
+进一步：
+
+```text
+role:legal-expert
+    requests_disclosure
+matter:prior-contract
+
+human:user
+    grants
+disclosure:abc
+```
+
+这样跨 Matter Memory 就不再等价于“全局搜索所有文件”，而是首先成为**对治理对象关系图的查询**。
+
+更重要的是 authorization/disclosure 应发生在 retrieval **之前**：
+
+```text
+discover relevant object
+        ↓
+check disclosure scope
+        ↓
+retrieve permitted fields/evidence
+        ↓
+compile
+```
+
+而不是模型看完以后再说“这些内容其实不该给它”。
+
+这对于以后 Experts 很重要。
+
+---
+
+# Temporal 对 Attention 的启发也很直接
+
+Attention 中最常见的其实不是 `active`，而是：
+
+```text
+waiting
+```
+
+传统 chat harness 对 `waiting 3 days for maintainer reply` 很不自然；Temporal 却把“等待五秒还是五个月”看作相同的 durable workflow state。
+
+CW 不需要 Temporal，但应该消费它的语义：
+
+```text
+Attention
+  state: waiting
+  waiting_on: external_person
+  wake_on:
+    - github_reply
+    - email_reply
+    - review_at: ...
+```
+
+此时没有 agent session 在运行。
+
+外部 signal 来了：
+
+```text
+GitHub reply
+     ↓
+source cursor
+     ↓
+event
+     ↓
+Attention state transition
+     ↓
+needs_review
+```
+
+**然后才唤醒 runtime。**
+
+不是一直让 Codex session 活着等。
+
+这会明显改善 token 和 runtime efficiency。
+
+---
+
+# Clausey 对 Runtime 的一个原则值得直接吸收
+
+它有一句非常好的工程判断：
+
+> durability ceiling 在 truth 所在的地方。
+
+换成 SE：
+
+```text
+Practice is durable
+Matter is durable
+Attention is durable
+
+Runtime is disposable.
+```
+
+因此 Codex/Pi/CW-native 都不应该拥有唯一的重要状态。
+
+甚至一次 execution 应该拆开：
+
+```text
+Run
+ ├─ Attempt 1
+ │    └─ failed
+ ├─ Attempt 2
+ │    └─ interrupted
+ └─ Attempt 3
+      └─ succeeded
+```
+
+而不是：
+
+```text
+task.status = success
+```
+
+这对长期 agent 特别重要，因为 retry **不能覆盖历史 attempt**。
+
+---
+
+# Gmail / GitHub 还逼出了另一个可以进 SE Practice 的 invariant
+
+Temporal 和 Clausey 都强调：
+
+```text
+内部数据库状态：
+effectively / exactly once
+
+外部世界：
+at least once
+```
+
+例如 Codex 已经执行：
+
+```text
+send email
+```
+
+然后进程在收到响应前 crash。
+
+你不能知道：
+
+```text
+没发送
+```
+
+还是：
+
+```text
+发送成功，但 receipt 没写回来
+```
+
+所以 Attention Assistant 以后所有外部 effect 应该统一：
+
+```text
+prepare
+   ↓
+human approve
+   ↓
+issue idempotency key
+   ↓
+perform external effect
+   ↓
+capture external receipt
+   ↓
+commit outcome
+```
+
+恢复时：
+
+```text
+receipt absent
+   ↓
+check external state first
+   ↓
+only then retry
+```
+
+这不仅适用于 email：
+
+```text
+GitHub comment
+PR
+calendar
+CRM mutation
+payment
+document publish
+```
+
+都一样。
+
+我认为这一条已经足够成熟，可以进入 SE Practice，而不是只留在 Attention implementation。
+
+---
+
+# 因而后端可以逐渐收敛成这一组原语
+
+```text
+┌─────────────────────────────────────┐
+│ Governed Objects                    │
+│                                     │
+│ Matter schemas     Attention schema │
+│       │                  │          │
+│       └──── Object Registry ────────┤
+│                    │                │
+│                Relations            │
+├─────────────────────────────────────┤
+│ History / Provenance                │
+│ append-only events · decisions      │
+│ attempts · external receipts        │
+├─────────────────────────────────────┤
+│ Retrieval                           │
+│ Registry → typed query → grep/FTS   │
+│ → relation traversal → semantic     │
+├─────────────────────────────────────┤
+│ Disclosure                          │
+│ requester · purpose · scope         │
+│ grant · expiry · provenance         │
+├─────────────────────────────────────┤
+│ Execution                           │
+│ run · attempt · lease · checkpoint  │
+│ Codex / Pi / CW adapter             │
+├─────────────────────────────────────┤
+│ Projections                         │
+│ Human Attention UI                  │
+│ model context bundles               │
+│ search indexes / caches             │
+└─────────────────────────────────────┘
+```
+
+这里我会特别坚持：
+
+**Schema / Registry / Relations 是一等公民；FTS 和 cache 是派生设施；vector 是 fallback；runtime 最底层且可替换。**
+
+这与你此前的：
+
+> Store → Govern → Retrieve → Compile
+
+完全吻合，但现在已经可以给每一步找到成熟工程实现的旁证。
+
+---
+
+## 对下一轮 PR 的建议
+
+这次 explore 后，我认为不应该立即做“大后端重构”。更好的顺序是让 Attention 项目作为 pressure test，先新增一个很薄的 **Governed Object / Disclosure contract**：
+
+```text
+PR Backend Governance
+─────────────────────
+Object Registry
+Schema refs + versions
+Relations + provenance
+Atomic state-transition + event
+Typed disclosure request
+FTS/grep discovery interface
+Run / attempt separation
+External-effect receipt contract
+```
+
+然后 **Human Attention UI PR** 只消费 projection；**Attention Assistant PR** 只通过 Practice/runtime adapter 操作这些 contract。
+
+这样以后法律 Expert 接进来时，不需要重新设计后台：
+
+```text
+Attention
+Legal Matter
+Research Matter
+Community Practice
+```
+
+只是在同一个治理 substrate 上新增 Schema。
+
+而且我认为这次 explore 得到的一个最重要的新判断是：
+
+> **SE 的后端不应以“agent memory system”为中心，而应以“governed object space”为中心。Memory 只是这些对象可被发现和渐进披露之后呈现出来的效果。**
+
+这是 Attention 项目对当前后端架构最有价值的反向启发。
