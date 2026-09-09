@@ -14,7 +14,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { extractTokens } from "./scripts/tokens.mjs";
 import { copyProductModules } from "./scripts/vendor-product.mjs";
-import { release, ROOT, SITE } from "./scripts/release.mjs";
+import { release, ROOT, SITE, productBytes } from "./scripts/release.mjs";
 import { renderPage } from "./src/page.mjs";
 import { renderSpecimenPage } from "./src/specimen-page.mjs";
 import { renderReadme } from "./src/readme.mjs";
@@ -47,12 +47,13 @@ await rm(DIST, { recursive: true, force: true });
 await mkdir(DIST, { recursive: true });
 
 // ---- material: the product's tokens, not the site's ------------------------
-const tokens = await extractTokens(path.join(ROOT, "app", "web", "styles.css"));
+const tokens = await extractTokens("app/web/styles.css", productBytes(identity.source_sha, "app/web/styles.css"));
 await emit("tokens.css", tokens.css);
 
 // ---- the specimen's copy of the product's rendering modules -----------------
 const vendorDestination = path.join(SITE, "specimen", "vendor-product");
-const vendor = await copyProductModules({ root: ROOT, destination: vendorDestination });
+const vendor = await copyProductModules({ root: ROOT, destination: vendorDestination,
+  readSource: (from) => productBytes(identity.source_sha, from) });
 
 // ---- the specimen recording and its receipt ---------------------------------
 const capture = JSON.parse(await readFile(path.join(SITE, "specimen", "capture.json"), "utf8"));
@@ -130,7 +131,7 @@ const manifest = {
   site_sha: identity.site_sha,
   built_at: identity.built_at,
   built_at_note: "the release commit's own date; the build stamps no wall clock, so two builds of the same sources are byte-identical",
-  site_sha_note: "a digest of the page's sources (site/src, site/scripts, site/specimen, site/media, site/build.mjs, site/release.json, README.md), not a git commit",
+  site_sha_note: "SHA-256 of authored page sources and recorded evidence; generated README, dist and specimen copies are excluded. Product tokens and modules come from source_sha Git blobs.",
   tokens: { source: "app/web/styles.css", source_sha256: tokens.sourceSha256, blocks: tokens.blocks },
   media_manifest: "media/manifest.json",
   specimen_manifest: "specimen/manifest.json",

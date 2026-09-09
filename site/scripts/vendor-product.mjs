@@ -59,12 +59,12 @@ function lineOf(text, index) {
   return line;
 }
 
-export async function copyProductModules({ root, destination }) {
+export async function copyProductModules({ root, destination, readSource = (from) => readFile(path.join(root, from)) }) {
   await rm(destination, { recursive: true, force: true });
   const files = [];
 
   for (const [from, to] of MODULES) {
-    const original = await readFile(path.join(root, from));
+    const original = await readSource(from);
     const rewrites = [];
     let text = original.toString("utf8");
 
@@ -101,10 +101,11 @@ export async function copyProductModules({ root, destination }) {
 // Runnable on its own, so the copy can be regenerated and inspected without a
 // full build: node site/scripts/vendor-product.mjs
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
-  const { release, ROOT, SITE } = await import("./release.mjs");
-  await release();
+  const { release, ROOT, SITE, productBytes } = await import("./release.mjs");
+  const identity = await release();
   const result = await copyProductModules({
     root: ROOT,
+    readSource: (from) => productBytes(identity.source_sha, from),
     destination: path.join(SITE, "specimen", "vendor-product"),
   });
   for (const file of result.files) {

@@ -31,7 +31,7 @@ const CHROME = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/G
 const CDP_PORT = Number(arg("--cdp-port", "19971"));
 const MEDIA = path.join(SITE, "media");
 
-const identity = await release();
+const identity = await release({ capture: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- the product's own API -------------------------------------------------

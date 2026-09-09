@@ -204,7 +204,7 @@ try {
       const paragraph = editorial.querySelector(".prose[data-layers]");
       paragraph.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
       const layers = [...editorial.querySelectorAll(".diagram g[data-layer]")].map((g) => {
-        const s = getComputedStyle(g);
+        const s = getComputedStyle(g.querySelector("line") || g);
         return { filter: s.filter, opacity: s.opacity, transition: s.transitionProperty };
       });
       const animated = [...document.querySelectorAll("*")].filter((n) => {
@@ -224,15 +224,25 @@ try {
   // The same section must actually dim when neither preference is set, or the
   // check above would pass on a page that never had the behaviour.
   await load();
-  const dims = await evaluate(`(() => {
+  await evaluate(`(() => {
     const editorial = document.querySelector(".editorial");
     editorial.querySelector('.prose[data-layers="commit"]').dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+  })()`);
+  await sleep(300); // Check the settled state, not blur(0px) at transition start.
+  const dims = await evaluate(`(() => {
+    const editorial = document.querySelector(".editorial");
     return [...editorial.querySelectorAll(".diagram g[data-layer]")].map((g) => ({
-      layer: g.dataset.layer, filter: getComputedStyle(g).filter,
+      layer: g.dataset.layer,
+      filter: getComputedStyle(g.querySelector("line") || g).filter,
+      opacity: getComputedStyle(g.querySelector("line") || g).opacity,
+      textSharp: [...g.querySelectorAll("text")].every(t => getComputedStyle(t).filter === "none") && getComputedStyle(g).filter === "none",
     }));
   })()`);
   record("V5 · with no preference set, the section does defocus what it is not explaining",
-    dims.some((d) => d.filter !== "none") && dims.some((d) => d.filter === "none"), { dims });
+    dims.some((d) => /blur\(1\.6px\)/.test(d.filter)) && dims.some((d) => d.filter === "none") && dims.every(d => d.textSharp), { dims });
+  await evaluate('document.querySelector(".editorial").scrollIntoView({block:"start"})');
+  await writeFile(path.join(OUT, "architecture-focus.png"), Buffer.from(
+    (await cdp("Page.captureScreenshot", { format: "png" })).data, "base64"));
 
   // ---- V6 · readable with scripting off ------------------------------------
   await cdp("Emulation.setScriptExecutionDisabled", { value: true });

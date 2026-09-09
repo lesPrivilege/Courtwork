@@ -35,6 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # source_sha evidence may precede the current product
       - uses: actions/setup-node@v4
         with:
           node-version: "22.19"
@@ -56,6 +58,9 @@ jobs:
           path: site/dist
 
   deploy:
+    # Main integration is not publication approval. Only an explicit manual
+    # run may publish this candidate after its release gates are reviewed.
+    if: github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: ubuntu-latest
     environment:

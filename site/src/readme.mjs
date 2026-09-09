@@ -30,7 +30,7 @@ _${HERO.tagline}_
 
 ${HERO.lede}
 
-发布面：<https://lesprivilege.github.io/Courtwork/>。页面与本文共用同一份声称表；页面的构建见 [\`site/\`](site/)。
+发布面候选的源码与本地预览见 [\`site/\`](site/README.md)。页面与本文共用同一份声称表；本候选尚未发布，当前工程状态见 [\`engineering/current.md\`](engineering/current.md)。
 
 ## 本地运行
 
@@ -51,7 +51,7 @@ node tools/lint-materials.mjs
 node tools/contrast-report.mjs
 \`\`\`
 
-发布 commit \`${identity.sha7}\` 上的记录：应用测试 ${evidence.tests.pass} 通过、${evidence.tests.fail} 失败；continuity conformance E ${evidence.benchmark.conditions.E.passed}/${evidence.benchmark.conditions.E.attempted}、S ${evidence.benchmark.conditions.S.passed}/${evidence.benchmark.conditions.S.attempted}，记录在 [\`${evidence.benchmark.record}\`](${evidence.benchmark.record})。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
+产品证据快照 \`${identity.sha7}\` 上的记录：应用测试 ${evidence.tests.pass} 通过、${evidence.tests.fail} 失败；continuity conformance E ${evidence.benchmark.conditions.E.passed}/${evidence.benchmark.conditions.E.attempted}、S ${evidence.benchmark.conditions.S.passed}/${evidence.benchmark.conditions.S.attempted}，记录在 [\`${evidence.benchmark.record}\`](${evidence.benchmark.record})。这些数字属于该固定快照，不代表当前 main 的测试总数。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
 
 Local / fake-provider 通过不等于真实模型验收。
 

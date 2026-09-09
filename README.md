@@ -7,7 +7,7 @@ _A place for expert work to take form._
 
 CourtWork 是一个实验中的本地 AI 工作空间：处理本地材料，检查每一次工具调用，追溯生成的文件。它正在成为可以审阅、裁定，并跨会话续行的工作面。
 
-发布面：<https://lesprivilege.github.io/Courtwork/>。页面与本文共用同一份声称表；页面的构建见 [`site/`](site/)。
+发布面候选的源码与本地预览见 [`site/`](site/README.md)。页面与本文共用同一份声称表；本候选尚未发布，当前工程状态见 [`engineering/current.md`](engineering/current.md)。
 
 ## 本地运行
 
@@ -31,7 +31,7 @@ node tools/lint-materials.mjs
 node tools/contrast-report.mjs
 ```
 
-发布 commit `172130e` 上的记录：应用测试 252 通过、0 失败；continuity conformance E 6/6、S 6/6，记录在 [`evidence/publishing-surface-2026-09-09/continuity-172130e.json`](evidence/publishing-surface-2026-09-09/continuity-172130e.json)。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
+产品证据快照 `172130e` 上的记录：应用测试 252 通过、0 失败；continuity conformance E 6/6、S 6/6，记录在 [`evidence/publishing-surface-2026-09-09/continuity-172130e.json`](evidence/publishing-surface-2026-09-09/continuity-172130e.json)。这些数字属于该固定快照，不代表当前 main 的测试总数。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
 
 Local / fake-provider 通过不等于真实模型验收。
 

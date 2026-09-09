@@ -50,8 +50,8 @@ function lineOf(css, index) {
   return line;
 }
 
-export async function extractTokens(stylesPath) {
-  const css = await readFile(stylesPath, "utf8");
+export async function extractTokens(stylesPath, sourceBytes) {
+  const css = sourceBytes ? sourceBytes.toString("utf8") : await readFile(stylesPath, "utf8");
   const sha256 = createHash("sha256").update(css).digest("hex");
   const blocks = [];
 

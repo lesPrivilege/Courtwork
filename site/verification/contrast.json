@@ -954,7 +954,7 @@
     },
     {
       "selector": "code",
-      "text": "cbb7448",
+      "text": "2e35680",
       "size": 12.9,
       "ratio": 14.41,
       "threshold": 4.5,
@@ -1890,7 +1890,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "172130e / cbb7448",
+      "text": "172130e / 2e35680",
       "size": 13,
       "ratio": 15.98,
       "threshold": 4.5,
@@ -2884,7 +2884,7 @@
     },
     {
       "selector": "code",
-      "text": "cbb7448",
+      "text": "2e35680",
       "size": 12.9,
       "ratio": 16.25,
       "threshold": 4.5,
@@ -3820,7 +3820,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "172130e / cbb7448",
+      "text": "172130e / 2e35680",
       "size": 13,
       "ratio": 16.25,
       "threshold": 4.5,

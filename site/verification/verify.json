@@ -1,5 +1,5 @@
 {
-  "origin": "http://127.0.0.1:8907/Courtwork/",
+  "origin": "http://127.0.0.1:8927/Courtwork/",
   "results": [
     {
       "id": "V1 · the page requests nothing off its own origin",
@@ -50,15 +50,21 @@
       "dims": [
         {
           "layer": "input",
-          "filter": "blur(0px)"
+          "filter": "blur(1.6px)",
+          "opacity": "0.42",
+          "textSharp": true
         },
         {
           "layer": "output",
-          "filter": "blur(0px)"
+          "filter": "blur(1.6px)",
+          "opacity": "0.42",
+          "textSharp": true
         },
         {
           "layer": "commit",
-          "filter": "none"
+          "filter": "none",
+          "opacity": "1",
+          "textSharp": true
         }
       ]
     },
@@ -73,7 +79,7 @@
         "layers": 3,
         "diagram": true
       },
-      "servedBytes": 24325
+      "servedBytes": 24310
     },
     {
       "id": "V6b · without scripting the specimen falls back to the step list with its stills",
@@ -132,7 +138,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1662734
+      "bytes": 1663157
     },
     {
       "name": "page-1440-dark.png",
@@ -140,7 +146,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1661150
+      "bytes": 1661531
     },
     {
       "name": "page-390-light.png",
@@ -148,7 +154,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1345334
+      "bytes": 1345688
     },
     {
       "name": "page-390-dark.png",
@@ -156,7 +162,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1345817
+      "bytes": 1346203
     },
     {
       "name": "page-1440-light-zoom200.png",
@@ -164,7 +170,7 @@
       "theme": "light",
       "scale": 2,
       "overflow": 0,
-      "bytes": 1442405
+      "bytes": 1442792
     }
   ]
 }

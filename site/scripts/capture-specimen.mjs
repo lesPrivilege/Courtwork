@@ -25,7 +25,7 @@ const args = process.argv.slice(2);
 const dataDirFlag = args.indexOf("--data-dir");
 const DATA_DIR = dataDirFlag === -1 ? "/private/tmp/se-agent-ps01-data" : args[dataDirFlag + 1];
 
-const { source_sha: sourceSha, sha7 } = await release();
+const { source_sha: sourceSha, sha7 } = await release({ capture: true });
 
 // The capture is repeatable, so the data directory is emptied rather than
 // reused: leftover state would put facts in the specimen that this capture

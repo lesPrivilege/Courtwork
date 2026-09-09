@@ -11,6 +11,11 @@
   --site-wide: 1040px;
   --site-section-gap: 88px;
   --site-block-gap: var(--space-6);
+  /* The one length here that is not a measurement. The product's two blur
+   * steps are for chrome floating over scrolling content and are far too
+   * strong to step a diagram back by one remove; this is a defocus, and it is
+   * named so it can be found. */
+  --site-defocus: 1.6px;
 }
 
 body {
@@ -389,20 +394,22 @@ figure.shot figcaption {
   max-width: var(--site-measure);
 }
 
-/* Defocus lives in this section and nowhere else: when the reader is on one
- * paragraph, the parts of the picture that paragraph is not talking about step
- * back. `filter` is used rather than backdrop-filter, because there is no glass
- * here and nothing behind to sample. With no interaction — and with no script
- * at all — everything is sharp. */
-.editorial[data-focus] .diagram g[data-layer] {
+/* Focus follows the paragraph. Only inactive connectors soften; the labels
+ * remain sharp so the whole argument is still readable. No scroll animation,
+ * no backdrop sampling, and no effect without reader interaction. */
+.editorial[data-focus] .diagram g[data-layer] > line {
   transition:
     filter var(--duration) var(--ease-out),
     opacity var(--duration) var(--ease-out);
 }
 
-.editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) {
-  filter: blur(1.6px);
+.editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
+  filter: blur(var(--site-defocus));
   opacity: 0.42;
+}
+
+.editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) {
+  color: var(--muted-strong);
 }
 
 .editorial[data-focus] .prose:not(.is-sharp):not(.closing) {
@@ -410,23 +417,25 @@ figure.shot figcaption {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .editorial[data-focus] .diagram g[data-layer] {
+  .editorial[data-focus] .diagram g[data-layer] > line {
     transition: none;
   }
-  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) {
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
     filter: none;
     opacity: 1;
   }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) { color: var(--ink); }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .editorial[data-focus] .diagram g[data-layer] {
+  .editorial[data-focus] .diagram g[data-layer] > line {
     transition: none;
   }
-  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) {
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) > line {
     filter: none;
     opacity: 1;
   }
+  .editorial[data-focus] .diagram g[data-layer]:not(.is-sharp) { color: var(--ink); }
 }
 
 /* ---- lists and tables --------------------------------------------------- */

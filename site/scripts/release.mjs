@@ -1,10 +1,8 @@
 // The release identity of the page (evidence contract: source_sha vs site_sha).
 //
-// source_sha is the product commit every screenshot, specimen and benchmark
-// record was taken from. site_sha is the commit of the page sources, which
-// moves with each edit here. They are allowed to differ, but the relationship
-// has to be provable: the product paths must be byte-identical between them,
-// or the evidence on the page would describe bytes that are no longer there.
+// source_sha pins the product evidence, including the rendering modules and
+// tokens. Builds read those bytes from Git, even after the product advances.
+// Capture commands additionally require matching working-tree product bytes.
 import { readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
@@ -20,7 +18,15 @@ export function git(...args) {
 
 // The page's own sources. site/dist is the output and site/verification holds
 // screenshots of it, so neither is part of the version being identified.
-const SOURCE_TREE = ["build.mjs", "release.json", "src", "scripts", "specimen", "media"];
+const SOURCE_TREE = ["build.mjs", "release.json", "src", "scripts", "media",
+  "specimen/shell.mjs", "specimen/specimen.css", "specimen/capture.json"];
+
+export function productBytes(sourceSha, relativePath) {
+  if (!/^[0-9a-f]{40}$/.test(sourceSha) || !/^(?:app|brand|docs|benchmarks)\//.test(relativePath) || relativePath.split("/").includes("..")) {
+    throw new Error("expected a full product SHA and a repository-relative source path");
+  }
+  return execFileSync("git", ["-C", ROOT, "show", `${sourceSha}:${relativePath}`], { maxBuffer: 64 * 1024 * 1024 });
+}
 
 async function digestOf(target) {
   const entries = [];
@@ -39,8 +45,10 @@ async function digestOf(target) {
   return entries;
 }
 
-export async function release() {
+export async function release({ capture = false } = {}) {
   const declared = JSON.parse(await readFile(path.join(SITE, "release.json"), "utf8"));
+  if (!/^[0-9a-f]{40}$/.test(declared.source_sha)) throw new Error("release source_sha must be a full commit SHA");
+  git("cat-file", "-e", `${declared.source_sha}^{commit}`);
 
   /* The version the page prints for itself is a digest of the page's own
    * sources, not the git commit it happens to sit on. A commit hash cannot
@@ -52,15 +60,21 @@ export async function release() {
   const files = [];
   for (const name of SOURCE_TREE)
     files.push(...(await digestOf({ absolute: path.join(SITE, name), relative: name })));
-  files.push(["README.md", createHash("sha256").update(await readFile(path.join(ROOT, "README.md"))).digest("hex")]);
+  const captureReceipt = JSON.parse(await readFile(path.join(SITE, "specimen", "capture.json"), "utf8"));
+  const recording = path.relative(SITE, path.resolve(ROOT, captureReceipt.file));
+  if (!/^specimen\/[a-f0-9]{7}\.json$/.test(recording)) throw new Error("unexpected specimen recording path");
+  files.push(...await digestOf({ absolute: path.join(SITE, recording), relative: recording }));
+  files.push(...await digestOf({ absolute: path.join(ROOT, "evidence/publishing-surface-2026-09-09"), relative: "evidence/publishing-surface-2026-09-09" }));
   const siteSha = createHash("sha256")
     .update(files.map(([name, hash]) => `${hash}  ${name}`).join("\n"))
     .digest("hex");
-  const drift = git("diff", "--name-only", declared.source_sha, "HEAD", "--", ...declared.verified_paths);
+  // Capture imports product modules from disk: include staged and unstaged
+  // changes in this check, not merely differences between committed heads.
+  const drift = capture ? git("diff", "--name-only", declared.source_sha, "--", ...declared.verified_paths) : "";
   if (drift) {
     throw new Error(
-      `product paths differ between source_sha ${declared.source_sha.slice(0, 7)} and HEAD:\n${drift}\n` +
-        "The page's evidence is taken from source_sha; either revert those paths or capture the evidence again.",
+      `capture product paths differ from source_sha ${declared.source_sha.slice(0, 7)}:\n${drift}\n` +
+        "Capture in an isolated checkout of the declared source SHA. Builds replay its pinned Git bytes.",
     );
   }
   return {

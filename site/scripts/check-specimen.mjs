@@ -40,15 +40,15 @@ export function normalise(text) {
   return { text: out, tokens: seen.size };
 }
 
-const { sha7 } = await release();
+const { sha7 } = await release({ capture: true });
 const specimen = path.join(SITE, "specimen", `${sha7}.json`);
 const scratch = await mkdtemp(path.join(tmpdir(), "ps01-specimen-check-"));
 
 const receiptPath = path.join(SITE, "specimen", "capture.json");
+const first = await readFile(specimen, "utf8");
+const firstReceipt = await readFile(receiptPath, "utf8");
 
 try {
-  const first = await readFile(specimen, "utf8");
-  const firstReceipt = await readFile(receiptPath, "utf8");
   execFileSync(process.execPath, [path.join(SITE, "scripts", "capture-specimen.mjs"), "--data-dir", path.join(scratch, "data")], {
     cwd: ROOT,
     stdio: "pipe",
@@ -79,5 +79,8 @@ try {
   );
   if (!identical) process.exitCode = 1;
 } finally {
+  // Restore even when capture throws partway through writing its receipt.
+  await writeFile(specimen, first);
+  await writeFile(receiptPath, firstReceipt);
   await rm(scratch, { recursive: true, force: true });
 }
