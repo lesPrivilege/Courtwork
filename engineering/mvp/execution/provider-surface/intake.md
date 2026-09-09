@@ -94,3 +94,9 @@
 
 **PV-23（先例的可移植半边）** OpenCode 两条列为 canonical candidate：composer 下方触发器加按 provider 分组的列表（与今日结构同形），以及 Settings 的 catalog / custom-compatible / local 三分（与 `CONNECTION_PATHS` 同形）；其"切换立即作用于当前会话"一半不可移植，与 PV-6 的每轮冻结相冲。Zed 只取星标与键盘循环（specimen），其以 provider logo 代替分组、一模型多 provider 的身份模型与 PV-3 冲突，不取。Cursor 的双入口（点击 / 循环）作 specimen，其把推理档位并入模型身份与 PV-7 冲突，不取。SaaSFrame 的 API key 解剖（遮蔽值 / 揭示 / 复制 / 上次使用时间）作 donor，`Regenerate` 不移植——Courtwork 的凭据契约只有保存与移除。Superlist 的一键 Google OAuth 作反例留档（PV-5）。BE-17 / 18 / BE-28 的验证与 stale 呈现在采集到的先例中无对应物，属 Courtwork 自有问题，须由 specimen 自行解决。
 
+## 6. 用户裁定（2026-09-10）
+
+**DEC-PV-a 首轮矩阵**：第二条取 `google` + Gemini API key，Vertex ADC 顺延第二轮。工单 [WO-PV-BE01](work-orders/WO-PV-BE01-google-admission.md)。
+
+**DEC-PV-b 队列**：PV 前端单排在 FE-05a 之后，PV-14 持有；后端主干不受此约束。
+
