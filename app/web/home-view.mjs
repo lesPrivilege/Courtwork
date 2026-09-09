@@ -1,9 +1,12 @@
-/* WO-WK13 · Home's top band and lower band.
+/* WO-WK13, revised by FE-01 item 4 (WK-94 / 96 / 97) · Home's modules below the
+ * composer.
  *
- * Home is three bands (WK-32 / 46 / 76): a top band of recorded totals, the
- * composer band, and a lower band that absorbs the rest. This module owns the
- * first and the third; the composer band is the application's own mounted
- * composer and is untouched here.
+ * Home reads from the centre downwards: orientation, then the composer as the
+ * one L1 anchor, then the modules. The three recorded totals are no longer a
+ * band above the composer — they are the head of the Today module underneath
+ * it, one strip of three numbers with no card frame (WK-94, visual review §5).
+ * This module owns the Today strip and the module list; the composer is the
+ * application's own mounted composer and is untouched here.
  *
  * Every number and every word below comes through `presentation-adapters.mjs`.
  * Nothing in this file reads the response shape, decides what a count means, or
@@ -34,8 +37,8 @@ const setLabels = {
 };
 /* One condition sentence per empty set: what would put something here. */
 const emptyLabels = {
-  pendingItems: "Questions and write requests will appear here.",
-  sessionCandidates: "Your sessions will appear here.",
+  pendingItems: "Questions and approval requests will appear here.",
+  sessionCandidates: "Your chats will appear here.",
   inspectionCandidates: "Runs recorded failed or unknown will appear here.",
 };
 const setGlyphs = {
@@ -78,10 +81,13 @@ function recordedTime(card) {
 }
 const projectLine = (name) => name ?? "Project not resolved";
 
-/* ── top band ─────────────────────────────────────────────────────────────
- * Three tiles and one planned row. SH-1: a plain statistic stays flat — the
- * tile is a control because it does something (it filters the lower band to its
- * own set, DC-2 overlap allowed), not because a frame was drawn round a number. */
+/* ── Today · the module head ──────────────────────────────────────────────
+ * Three numbers on one strip. SH-1: a plain statistic stays flat — the tile is
+ * a control because it does something (it filters the module list to its own
+ * set, DC-2 overlap allowed), not because a frame was drawn round a number.
+ * WK-94 · the Heatmap `Backend pending` row is gone: an implementation state is
+ * not production Home copy, and the day-by-day count has no data source to
+ * appear for (WK-96 "Activity / Calendar 位只在有数据源时出现"). */
 export function renderHomeBand(
   container,
   { summary, load, activeSet, onFilter },
@@ -131,18 +137,11 @@ export function renderHomeBand(
     );
     row.append(button);
   });
-  const inner = el("div", { className: "home-band-inner" }, row);
-  /* WK-27 / WK-80 · the heatmap is drawn in the canvas and is not drawn here:
-   * there is no cross-session run list and no day boundary the backend will
-   * stand behind, so a grid would be an invented reading (gaps-wk9 G-1 / G-3).
-   * One line states the capability and its boundary, and carries no control. */
-  inner.append(
-    el(
-      "p",
-      { className: "home-planned" },
-      el("span", { className: "home-planned-label", text: "Activity by day" }),
-      el("span", { className: "planned-state", text: "Backend pending" }),
-    ),
+  const inner = el(
+    "div",
+    { className: "home-band-inner" },
+    el("h3", { className: "home-module-title", text: "Today" }),
+    row,
   );
   /* ux-conventions §4 · while a read is failing the tiles keep the last values
    * they confirmed, so the band must say when that was. With no failure the
@@ -364,14 +363,34 @@ export function renderHome(
     : null;
   const home = el("div", { className: "home-view" });
   if (error) {
+    /* WK-94 / visual review §7 · an unreachable runtime is a connection state,
+     * not a horizontal panel of its own. One line says which connection is
+     * unavailable and offers the one action; the message the host actually
+     * returned is the disclosure underneath, so the diagnosis is still one
+     * click away and never the loudest thing on Home (FN-28). */
     const retry = el("button", {
-      className: "secondary-button",
+      className: "text-button",
       attrs: { type: "button", "aria-label": "Retry loading your workspace" },
       text: "Retry",
     });
     retry.addEventListener("click", onRetry);
     home.append(
-      el("div", { className: "inline-notice" }, el("p", { text: error }), retry),
+      el(
+        "div",
+        { className: "connection-line" },
+        el("span", { className: "connection-dot", attrs: { "aria-hidden": "true" } }),
+        el("span", {
+          className: "connection-line-text",
+          text: "Local runtime unavailable",
+        }),
+        retry,
+        el(
+          "details",
+          { className: "connection-diagnosis" },
+          el("summary", { text: "Details" }),
+          el("p", { className: "form-help", text: error }),
+        ),
+      ),
     );
   } else if (loading && !summary)
     home.append(

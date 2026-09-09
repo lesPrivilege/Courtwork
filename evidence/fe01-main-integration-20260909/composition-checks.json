@@ -1,0 +1,102 @@
+[
+  {
+    "id": "HOME-1",
+    "pass": true,
+    "centre": 0.56,
+    "threshold": 0.55
+  },
+  {
+    "id": "HOME-2",
+    "pass": true,
+    "aboveComposerHeight": 38
+  },
+  {
+    "id": "HOME-3",
+    "pass": true,
+    "orientation": 38,
+    "text": "Work that exists beyond the model."
+  },
+  {
+    "id": "HOME-4",
+    "pass": true,
+    "width": 820
+  },
+  {
+    "id": "HOME-5",
+    "pass": true,
+    "input": 96
+  },
+  {
+    "id": "HOME-6",
+    "pass": true
+  },
+  {
+    "id": "HOME-7",
+    "pass": true,
+    "stats": 3,
+    "planned": 0,
+    "backendPendingOnHome": false,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "id": "HOME-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "HOME-narrow-dock",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ]
+  },
+  {
+    "id": "HOME-narrow-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-1",
+    "pass": true,
+    "homePrimitives": 0,
+    "bandHidden": true
+  },
+  {
+    "id": "WORK-2",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ],
+    "width": 740
+  },
+  {
+    "id": "WORK-3",
+    "pass": true,
+    "input": 88
+  },
+  {
+    "id": "WORK-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-4",
+    "pass": true,
+    "surfaceOpen": true,
+    "readingWidth": 1190,
+    "composerMeasure": 740
+  },
+  {
+    "id": "SHELL-1",
+    "pass": true,
+    "unsafeControls": []
+  }
+]

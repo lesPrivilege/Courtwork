@@ -1,0 +1,68 @@
+{
+  "results": [
+    {
+      "id": "WK98-deeplink-general",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-appearance",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-models",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-tools",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-skills",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-memory",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-permissions",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-keyboard",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-deeplink-developer",
+      "pass": true,
+      "unauthorized": [],
+      "apiReads": 9
+    },
+    {
+      "id": "WK98-empty-explanation",
+      "pass": true,
+      "detail": {
+        "text": "ws_writebuiltinInstalledYesRunningn/aExposedExposedPermittedallowExposure: the source default. The switch overrides it for this user.Source · Requested · Effective · BoundSourcebuiltin · pi-coding-agent@0.85.1/agent-sessionno hash recordedRequestedNothing requested in the user layer.EffectiveExposed to the next runserver revision 12BoundNo recorded run is open.choose one under Recorded bindingsA later edit never changes a bound run. The hash identifies bytes only; it is not a second effective value.PermissionEffectallowStep 1 · host-ceilingallowStep 2 · host-defaultallowThe executor re-checks this against the bound policy on every call.DescriptorKindToolOwning scopeuser · localActivationalwaysHealthhealthyDefault exposureexposedPolicy actionws_writeExplain permission",
+        "missing": [],
+        "layers": true
+      }
+    }
+  ],
+  "exceptions": []
+}

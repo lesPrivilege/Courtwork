@@ -34,6 +34,54 @@
 
 权威 token 位于 `app/web/styles.css` 的 `:root`：`--text-*`、`--space-*`、`--page-gutter`、`--panel-padding`、`--card-padding`、`--column`、`--control`、`--radius-*`。新组件消费同一组 token，新增例外必须注明具体用途，不能为一个页面复制另一套按钮。
 
+## 尺寸 token（WK-94 / WK-96，2026-09-09 FE-01）
+
+层级首先来自尺寸、间距与表面高度，不来自边框。下表是**产品配置**，权威取值在 `app/web/styles.css` 的 `:root`；本页记的是每个数字回答哪一个问题，改数字必须同时改这里。
+
+| 角色 | 值 | token | 它回答什么 |
+|---|---|---|---|
+| 侧栏宽 | 250（区间 256–280 的下沿，见下注） | `--nav` | 项目与 Chat 名读得完，主区仍是主角 |
+| app / title chrome 高 | 56；desktop shell 下 52 | `--band-top` | 三列共用一条带 |
+| 导航行高 | 32–36 | `--control` 32 | 一行是一个对象，不是一张卡 |
+| 行 / 控件 / 导航 glyph | 16 / 18 / 20 | `icon()` 的 `size` | IC-1；命中区另计 |
+| 命中区 | 桌面 ≥32，触屏与窄屏 ≥44 | — | FN-27 的可用性下限 |
+| 阅读 / Work measure | 740 | `--column` | 正文一行的长度；Work 的 composer 与它同宽 |
+| Home composer measure | 820 | `--home-column` | 略宽于阅读列（760–880），Home 的模块与它同边 |
+| 局部间距 | 4 / 8 / 12 / 16 | `--space-1…4` | 组内 |
+| 节间距 | 24 / 32 | `--space-6` / `--space-8` | 组与组之间 |
+| 带间距 | 48 / 64 起 | 由 `--home-lead` 量出 | Home 的 orientation、composer、模块三段 |
+| window-control 安全区 | 80 × `--band-top` | `--window-safe-area` | 宿主的窗口按钮区，产品不在其中放控件；契约见 [interface-components](../../docs/interface-components.md) |
+| 模糊 | 12 / 16 | `--blur-chrome` / `--blur-transient` | WK-102 的闭集；只有登记表面可用 |
+
+侧栏宽注：`--nav` 现为 250，低于视觉审查建议的 256–280 下沿 6px。这是 WK-42 已裁定的既有值，本单不动它；若要落进区间，属一次独立的带宽裁定。
+
+## Home / Work / Dashboard 三种 composition state（WK-96 / WK-97）
+
+三种版面状态各有自己的读法，且互不混用。数值为产品配置，机器可检查的部分在
+`engineering/mvp/execution/work-surface-kit/evidence/fe01/composition-checks.mjs`。
+
+| | Home | Work | Dashboard |
+|---|---|---|---|
+| 读法 | 从中心向下展开 | 从顶部向底部推进 | 可组合的背景信息 |
+| L1 锚点 | composer，全页唯一 | reading column | 无；card 是模块与编排单位 |
+| composer 宽 | 760–880（现 820） | 与 reading measure 同宽（现 740） | — |
+| composer 本体初始高 | 92–112（现 96） | 80–96（现 88） | — |
+| composer 垂直位置 | 中心落在主区高的 55 % 或更下（现 56 %），由 `--home-lead` 量出 | 沉底 | — |
+| 其上非 chrome 内容 | ≤180，其中 orientation ≤120 且不含数字 | 只有 thread | — |
+| 下方 | Today 三数字 strip → Continue 行 → 有数据源才出现的 compact card；ragged layout，不填满 grid | 禁止出现任何 Home dashboard primitive | card 内无框内容，禁止 nested card |
+| 首屏下半部 | 必须有可见的 continuity 内容 | — | — |
+| 右侧 contextual surface | — | 有内容才出现；出现时正文 measure ≥640，不足则 overlay / collapse | 展开进入独立 surface |
+
+composer 是**一个** primitive 的两个 variant，不是两个组件（WK-97）。
+
+## Border 审计（WK-94，2026-09-09 FE-01）
+
+边框只留四种角色：**input**（输入面的一圈边界）、**selected**（选中态）、**floating**（浮层的描边，与阴影同用）、**error**（失败边界，含 2px 状态侧线）。其余层级由间距、字阶与表面色承担。
+
+本单据此改的：Home 的三个数字之间的竖线（改为间距）、`.home-card` 的一圈线（改为 `--panel-muted` 表面）。
+
+**未收口，留后续单**：`app/web/styles.css` 中另有约六十处 1px `--line` / `--line-strong`，绝大多数是重复行的分隔线与带脚的一条界（sidebar / chat-header / settings block）。SH-2 把「重复行分隔」列为一条独立的视觉通道并允许它，WK-94 的四角色闭集不含它——两条体例在此处冲突，须裁。在裁定之前本单只收口自己触及的表面（Home、chrome、Settings 导航），不做全站清扫：一次性拆掉六十处分隔线会改变每一个表面的读法，而那正是本轮不该在没有像素验收的情况下做的事。
+
 ## 缩放与验收
 
 当前产品没有连续缩放画布或 zoom 控件；不新增虚构缩放功能。检查重点为 viewport 变窄时的 reflow、长文案、弹窗内部滚动、动作可达性，以及 browser zoom 的实际能力边界。320px 有效宽度检查不等于已验证浏览器 200% 缩放，更不等于通过整套 WCAG。

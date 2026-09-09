@@ -29,7 +29,7 @@ export function createMaterialsView({
     controller?.abort();
     controller = new AbortController();
     list.replaceChildren(
-      el("p", { className: "form-help", text: "Loading session files…" }),
+      el("p", { className: "form-help", text: "Loading chat files…" }),
     );
     try {
       const result = await request(
@@ -73,7 +73,7 @@ export function createMaterialsView({
       if (own !== generation || err.name === "AbortError") return;
       const retry = el("button", {
         className: "secondary-button",
-        attrs: { type: "button", "aria-label": "Retry loading session files" },
+        attrs: { type: "button", "aria-label": "Retry loading chat files" },
         text: "Retry",
       });
       retry.addEventListener("click", refresh);

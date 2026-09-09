@@ -81,8 +81,12 @@
       <aside
         id="navigation-panel"
         class="sidebar"
-        aria-label="Projects and sessions"
+        aria-label="Projects and chats"
       >
+        <!-- WK-94 · 这一行只放两样东西：宿主的 window-control 安全区，和品牌。
+             项目创建不是 app-global chrome action，`+ New project` 因此下沉到
+             PROJECTS heading；折叠由 chrome 行的 panel-left 承担；`×` 只在
+             < 1024 的 overlay 侧栏里才有意义。契约见 docs/interface-components.md。 -->
         <header class="sidebar-header">
           <a class="workspace-brand" href="#home" id="workspace-home-link"
             ><court-symbol
@@ -95,34 +99,26 @@
             ></court-symbol
             >CourtWork</a
           >
-          <div class="toolbar">
-            <button
-              id="new-project-button"
-              class="quiet-button"
-              type="button"
-              aria-label="New project"
-            ></button>
-            <button
-              id="close-nav-button"
-              class="quiet-button"
-              type="button"
-              aria-label="Close navigation"
-            ></button>
-          </div>
+          <button
+            id="close-nav-button"
+            class="quiet-button"
+            type="button"
+            aria-label="Close navigation"
+          ></button>
         </header>
         <button
           id="new-session-button"
           class="nav-home quiet-button"
           type="button"
         >
-          New session
+          New chat
         </button>
         <button id="home-button" class="nav-home quiet-button" type="button">
           Home
         </button>
         <div class="nav-filter">
           <label class="sr-only" for="nav-filter-input"
-            >Find a project or session</label
+            >Find a project or chat</label
           >
           <div class="nav-filter-controls">
             <span id="search-icon" class="search-icon"></span>
@@ -130,7 +126,7 @@
               id="nav-filter-input"
               type="search"
               autocomplete="off"
-              placeholder="Find a session"
+              placeholder="Find a chat"
             />
             <button
               id="clear-nav-filter-button"
@@ -152,16 +148,23 @@
           <div class="section-heading">
             <h2 id="projects-heading">Projects</h2>
             <span id="project-count" class="count-badge">0</span>
+            <button
+              id="new-project-button"
+              class="quiet-button"
+              type="button"
+              aria-label="New project"
+            ></button>
           </div>
           <nav
             id="project-list"
             class="project-list"
-            aria-label="Project sessions"
+            aria-label="Project chats"
           ></nav>
         </section>
-        <footer class="sidebar-account" aria-label="Connection and settings">
-          <span id="account-avatar" class="account-avatar" aria-hidden="true"></span>
-          <span id="account-name" class="account-name"></span>
+        <!-- WK-94 · 连接身份在 composer 的上下文行说一次就够了；这里原本的头像盘与
+             连接名是同一屏的第二遍，而头像盘背后并没有一个可打开的身份。剩下的是
+             这一栏真正的两个动作。 -->
+        <footer class="sidebar-account" aria-label="Workspace tools">
           <span class="account-tools">
             <button
               id="refresh-button"
@@ -198,22 +201,14 @@
             </h1>
             <div id="session-meta" class="session-meta"></div>
           </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
           <div class="chat-header-actions">
-            <button
-            id="capability-badge"
-            class="status-badge quiet-button"
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded="false"
-            aria-controls="connection-popover"
-          >
-            Local test
-          </button>
             <button
               id="show-run-button"
               class="quiet-button"
               type="button"
-              aria-label="Session overview"
+              aria-label="Chat overview"
               hidden
             ></button>
             <button
@@ -286,13 +281,15 @@
                   class="quiet-button"
                   type="button"
                   aria-haspopup="dialog"
-                  aria-label="Session files"
+                  aria-label="Chat files"
                 ></button>
                 <button
                   id="model-settings-button"
                   class="composer-model quiet-button"
                   type="button"
                   aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-controls="connection-popover"
                 >
                   Local test
                 </button>
@@ -324,25 +321,25 @@
             <p id="composer-project" class="composer-project" hidden></p>
             <div id="home-composer-context" class="home-composer-context" hidden>
               <label class="home-choice">Project
-                <select id="home-project-input" aria-label="Project for new session"></select>
+                <select id="home-project-input" aria-label="Project for this chat"></select>
               </label>
               <button id="home-create-project" class="quiet-button" type="button">New project</button>
-              <label class="home-choice">File writes
-                <select id="home-permission-input" aria-label="File writes for new session">
-                  <option value="ask" aria-label="Ask before writing">Ask</option>
-                  <option value="draft" aria-label="Workspace writes allowed">Write</option>
-                  <option value="read_only" aria-label="Read only">Read</option>
-                </select>
-              </label>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select
+                id="home-permission-input"
+                class="home-choice-select"
+                aria-label="File access for this chat"
+              ></select>
             </div>
             <button
               id="permission-settings-button"
               class="permission-mode quiet-button"
               type="button"
               aria-haspopup="dialog"
-            >
-              Ask
-            </button>
+              aria-expanded="false"
+              aria-controls="connection-popover"
+            ></button>
           </div>
         </footer>
         </div>
@@ -390,6 +387,13 @@
                 role="status"
                 hidden
               ></p>
+              <!-- WK-90 · 九个组，按用户任务命名，不按架构层命名。WK11 的五个
+                   Runtime 意图块只搬家不改内容：Overview 与 Composition 落在
+                   Developer › Runtime；Instructions & context 落在 Skills；
+                   Capabilities & connections 落在 Tools & Integrations；
+                   Permissions & environment 拆成 Permissions（策略、作用域、解释）
+                   与 Models（provider / model 只读摘要，编辑仍在 Models 的
+                   Connection 里）。挂载点仍是 data-wk11-mount，控制器不变。 -->
               <section
                 id="settings-general"
                 class="settings-section"
@@ -400,10 +404,6 @@
                 <h3 id="settings-general-title" class="settings-section-title">
                   General
                 </h3>
-                <div class="settings-block">
-                  <h4 class="settings-block-title">Connection</h4>
-                  <div id="provider-panel" class="provider-panel"></div>
-                </div>
                 <div id="settings-new-sessions" class="settings-block"></div>
                 <section id="session-settings" class="settings-block" hidden></section>
                 <div id="settings-data" class="settings-block"></div>
@@ -422,6 +422,91 @@
                 <div id="settings-appearance-rows" class="settings-block"></div>
               </section>
               <section
+                id="settings-models"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-models-title"
+                hidden
+              >
+                <h3 id="settings-models-title" class="settings-section-title">
+                  Models
+                </h3>
+                <div class="settings-block">
+                  <h4 class="settings-block-title">Connection</h4>
+                  <div id="provider-panel" class="provider-panel"></div>
+                </div>
+                <div
+                  id="settings-runtime-environment"
+                  class="settings-block"
+                  data-wk11-mount="environment"
+                ></div>
+              </section>
+              <section
+                id="settings-tools"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-tools-title"
+                hidden
+              >
+                <h3 id="settings-tools-title" class="settings-section-title">
+                  Tools &amp; Integrations
+                </h3>
+                <div
+                  id="settings-runtime-capabilities"
+                  class="settings-block"
+                  data-wk11-mount="capabilities-and-connections"
+                ></div>
+              </section>
+              <section
+                id="settings-skills"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-skills-title"
+                hidden
+              >
+                <h3 id="settings-skills-title" class="settings-section-title">
+                  Skills
+                </h3>
+                <div
+                  id="settings-runtime-instructions"
+                  class="settings-block"
+                  data-wk11-mount="instructions-and-context"
+                ></div>
+              </section>
+              <section
+                id="settings-memory"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-memory-title"
+                hidden
+              >
+                <h3 id="settings-memory-title" class="settings-section-title">
+                  Memory
+                </h3>
+                <div id="settings-memory-rows" class="settings-block"></div>
+              </section>
+              <section
+                id="settings-permissions"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-permissions-title"
+                hidden
+              >
+                <h3 id="settings-permissions-title" class="settings-section-title">
+                  Permissions
+                </h3>
+                <div
+                  id="settings-runtime-permissions"
+                  class="settings-block"
+                  data-wk11-mount="permissions"
+                ></div>
+              </section>
+              <section
                 id="settings-keyboard"
                 class="settings-section"
                 role="tabpanel"
@@ -434,46 +519,6 @@
                 </h3>
                 <div id="settings-keyboard-rows" class="settings-block"></div>
               </section>
-              <!-- WK-82 / frontend-layering-spec §3.1 · Runtime 组按意图分组。五个块由
-                   WO-WK11 的 Workbench 控制器填充（app/web/runtime-view.mjs）：一个 controller
-                   持有权威快照，五个块是它的五个意图分组，没有第二份状态，也不画没有后端的控件。 -->
-              <section
-                id="settings-runtime"
-                class="settings-section"
-                role="tabpanel"
-                tabindex="-1"
-                aria-labelledby="settings-runtime-title"
-                hidden
-              >
-                <h3 id="settings-runtime-title" class="settings-section-title">
-                  Runtime
-                </h3>
-                <div
-                  id="settings-runtime-overview"
-                  class="settings-block"
-                  data-wk11-mount="overview"
-                ></div>
-                <div
-                  id="settings-runtime-composition"
-                  class="settings-block"
-                  data-wk11-mount="composition"
-                ></div>
-                <div
-                  id="settings-runtime-instructions"
-                  class="settings-block"
-                  data-wk11-mount="instructions-and-context"
-                ></div>
-                <div
-                  id="settings-runtime-capabilities"
-                  class="settings-block"
-                  data-wk11-mount="capabilities-and-connections"
-                ></div>
-                <div
-                  id="settings-runtime-permissions"
-                  class="settings-block"
-                  data-wk11-mount="permissions-and-environment"
-                ></div>
-              </section>
               <section
                 id="settings-developer"
                 class="settings-section"
@@ -485,6 +530,25 @@
                 <h3 id="settings-developer-title" class="settings-section-title">
                   Developer
                 </h3>
+                <div class="settings-block">
+                  <h4 class="settings-block-title">Runtime</h4>
+                  <p class="settings-row-help">
+                    The runtime is the architecture underneath a chat: which
+                    configuration a run was composed from, and which values it
+                    froze. Nothing here changes what a chat is allowed to do —
+                    that is Permissions.
+                  </p>
+                </div>
+                <div
+                  id="settings-runtime-overview"
+                  class="settings-block"
+                  data-wk11-mount="overview"
+                ></div>
+                <div
+                  id="settings-runtime-composition"
+                  class="settings-block"
+                  data-wk11-mount="composition"
+                ></div>
                 <div class="settings-block">
                   <div class="section-heading">
                     <h4 class="settings-block-title">Extensions</h4>
@@ -658,13 +722,13 @@
       id="context-popover"
       class="context-popover"
       popover="auto"
-      aria-label="Session overview"
+      aria-label="Chat overview"
     ></div>
     <div
       id="connection-popover"
       class="context-popover connection-popover"
       popover="auto"
-      aria-label="Connection and file writes"
+      aria-label="Connection and file access"
     ></div>
     <div
       id="toast-region"
@@ -680,7 +744,7 @@
       <div class="runtime-dialog-inner">
         <header class="runtime-dialog-header">
           <div>
-            <p class="eyebrow" id="materials-session-title">Session</p>
+            <p class="eyebrow" id="materials-session-title">Chat</p>
             <h2 id="materials-title">Files</h2>
           </div>
           <button
@@ -709,7 +773,7 @@
                 name="text"
                 rows="5"
                 required
-                placeholder="Paste the material for this session"
+                placeholder="Paste the material for this chat"
               ></textarea>
             </label>
             <label class="file-upload-label"
@@ -735,7 +799,7 @@
     >
       <form id="project-form" method="dialog">
         <h2 id="project-dialog-title">New project</h2>
-        <p class="form-help">A place for related sessions and their files.</p>
+        <p class="form-help">A place for related chats and their files.</p>
         <label for="project-name-input">Project name</label
         ><input
           id="project-name-input"
@@ -770,22 +834,18 @@
       aria-labelledby="session-dialog-title"
     >
       <form id="session-form" method="dialog">
-        <h2 id="session-dialog-title">New session</h2>
+        <h2 id="session-dialog-title">New chat</h2>
         <p id="session-project-label" class="form-help"></p>
-        <label for="session-title-input">Session title</label
+        <label for="session-title-input">Chat title</label
         ><input
           id="session-title-input"
           name="title"
           maxlength="200"
-          placeholder="Untitled session"
+          placeholder="Untitled chat"
           autocomplete="off"
         />
-        <label for="session-permission-input">File writes</label
-        ><select id="session-permission-input">
-          <option value="ask">Ask before writing</option>
-          <option value="draft">Workspace writes allowed</option>
-          <option value="read_only">Read only</option>
-        </select>
+        <label for="session-permission-input">File access</label
+        ><select id="session-permission-input"></select>
         <p
           id="session-create-error"
           class="inline-error"
@@ -801,7 +861,7 @@
           >
             Cancel</button
           ><button class="primary-button" value="default" type="submit">
-            Create session
+            Create chat
           </button>
         </div>
       </form>
