@@ -61,3 +61,7 @@ V1 的赌注：正文不动，chrome 与元数据下移一档，层级差从 1�
 ## 5. 不做
 
 不动颜色与材质（FE-05）；不动间距 token；不引新字；不做每组件单独字号；不把 `--text-scale` 三档合并成密度档（密度是设计决定，不是用户偏好）。
+
+## 6. 消融页（EX-CC4，2026-09-09）
+
+静态三栏页在 [type-density-ablation/](type-density-ablation/index.html)（`settings-general.html`、`work-header.html`），真实 DOM + 原文 styles.css + 七个变量与六类选择器覆盖，`zoom` 拼版。结果：对比度不达标 0；V1 把 chrome 与正文的字号差从 1–2px 拉到 2.5–3.5px；V2 因正文也降一档，差反而收窄到 1–2.5px——支持 Fable 推荐 V1。偏离一处：`.settings-tab.is-current` 字重取 500 而非 450，保留选中态的非颜色信号，接受。未覆盖：可变字重轴渲染、深色宗、390、`--tracking-caps` 在两处消融面无可见效果。待用户比较后 FE-05a 成单。

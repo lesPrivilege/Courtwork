@@ -1,0 +1,5448 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>EX-CC4 · Work 头部与 composer 字阶消融</title>
+<style>
+/* ==== tier:S · skin lead-gray（铅灰）· light =============================
+   色彩三层治理（engineering/mvp/execution/work-surface-kit/contracts/color-governance.md）：
+   S = scale（本文件三个 tier:S 块，可整体替换为另一 skin，见 app/web/skins/）；
+   R = role（名称稳定，只引用 S）；U = 组件（只引用 R）。
+   hex / rgb 字面量只允许出现在标为 tier:S 的块内，tools/lint-colors.mjs 检查。
+   Slate · Radix Colors 3.0.0 (MIT) 逐字；用户 2026-09-08 裁定：冷灰、冷白底、不用蓝系；
+   accent 本轮为单色（ink 实心），色相留给后续 skin；danger / success 的 3 步取 Radix，11 步自定。 */
+:root {
+  color-scheme: light;
+  --gray-1: #fcfcfd;
+  --gray-2: #f9f9fb;
+  --gray-3: #f0f0f3;
+  --gray-4: #e8e8ec;
+  --gray-5: #e0e1e6;
+  --gray-6: #d9d9e0;
+  --gray-7: #cdced6;
+  --gray-8: #b9bbc6;
+  --gray-9: #8b8d98;
+  --gray-10: #80838d;
+  --gray-11: #60646c;
+  --gray-12: #1c2024;
+  --accent-3: #e8e8ec; /* = slate-4：单色 accent 的 soft 底 */
+  --accent-9: #1c2024; /* = slate-12：实心 accent = ink */
+  --accent-10: #0b0d10; /* 自定：ink 实心 hover/pressed */
+  --accent-11: #1c2024; /* accent 文字 = ink；等待态由状态词与字重承担 */
+  --danger-3: #feebec; /* Radix red-3 */
+  --danger-11: #9b3c35; /* 自定（PD-KIT） */
+  --success-3: #e6f6eb; /* Radix green-3 */
+  --success-11: #3e704e; /* 自定（PD-KIT） */
+  --paper: #fdfdfe; /* 冷白：L1 面 */
+  --float-s: #fdfdfe; /* L2 浮层：浅宗与 L1 同白，靠阴影与 line-strong 分层（WK-69） */
+  --frame-s: #f0f0f3; /* = slate-3：应用框架（侧栏）退后一步（WK-52） */
+  --ink-max: #000;
+  --on-accent-s: #fdfdfe;
+  --alpha-ink: 28, 32, 36; /* rgba 基底：阴影、遮罩（slate-12） */
+  --alpha-paper: 253, 253, 254; /* rgba 基底：glass、rim */
+  --shadow-alpha: 0.08;
+  --glass-alpha: 0.86;
+  --rim-alpha: 0.7;
+}
+/* ==== tier:S · skin lead-gray · dark =====================================
+   Slate · Radix Colors 3.0.0 slate-dark 1–12 逐字。深宗规则（color-governance §4）：
+   canvas 取最暗步，panel 比 canvas 亮一步（层级越高越亮；Atlassian / Primer / Apple 同向，EX-WK3 表 B）；
+   实心 accent 与 accent 文字分值。 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --gray-1: #111113;
+  --gray-2: #18191b;
+  --gray-3: #212225;
+  --gray-4: #272a2d;
+  --gray-5: #2e3135;
+  --gray-6: #363a3f;
+  --gray-7: #43484e;
+  --gray-8: #5a6169;
+  --gray-9: #696e77;
+  --gray-10: #777b84;
+  --gray-11: #b0b4ba;
+  --gray-12: #edeef0;
+  --accent-3: #272a2d; /* = slate-4 dark */
+  --accent-9: #edeef0; /* = slate-12 dark：实心 accent = ink，文字取 on-accent 深色 */
+  --accent-10: #ffffff;
+  --accent-11: #edeef0;
+  --danger-3: #3b1219; /* Radix red-dark-3 */
+  --danger-11: #ff9592; /* Radix red-dark-11 */
+  --success-3: #132d21; /* Radix green-dark-3 */
+  --success-11: #3dd68c; /* Radix green-dark-11 */
+  --paper: #212225; /* = slate-3：L1 面比 L0 框架亮两步 */
+  --float-s: #272a2d; /* = slate-4：L2 浮层再亮一步（WK-69） */
+  --frame-s: #111113; /* = slate-1：深宗框架最暗（WK-52） */
+  --ink-max: #fff;
+  --on-accent-s: #111113;
+  --alpha-ink: 0, 0, 0;
+  --alpha-paper: 237, 238, 240;
+  --shadow-alpha: 0.4;
+  --glass-alpha: 0.1;
+  --rim-alpha: 0.12;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --gray-1: #111113;
+    --gray-2: #18191b;
+    --gray-3: #212225;
+    --gray-4: #272a2d;
+    --gray-5: #2e3135;
+    --gray-6: #363a3f;
+    --gray-7: #43484e;
+    --gray-8: #5a6169;
+    --gray-9: #696e77;
+    --gray-10: #777b84;
+    --gray-11: #b0b4ba;
+    --gray-12: #edeef0;
+    --accent-3: #272a2d;
+    --accent-9: #edeef0;
+    --accent-10: #ffffff;
+    --accent-11: #edeef0;
+    --danger-3: #3b1219;
+    --danger-11: #ff9592;
+    --success-3: #132d21;
+    --success-11: #3dd68c;
+    --paper: #212225;
+    --float-s: #272a2d;
+    --frame-s: #111113;
+    --ink-max: #fff;
+    --on-accent-s: #111113;
+    --alpha-ink: 0, 0, 0;
+    --alpha-paper: 237, 238, 240;
+    --shadow-alpha: 0.4;
+    --glass-alpha: 0.1;
+    --rim-alpha: 0.12;
+  }
+}
+/* ==== tier:S · skin gray-steel（中性灰 + 钢蓝 accent）· 三宗 =====================
+   WK-78 / FN-29 · Appearance 的 Skin 行要选中它，它就必须是产品内可选能力，而不是
+   一份未进 STATIC 的实验文件。所以第二个 skin 与默认 skin 住在同一处治理位置：只重定义
+   tier:S，由根元素的 data-skin 属性切换，token 名与层级比一字不改。逐字对照见
+   app/web/skins/gray-steel.css（该文件仍是这套色阶的可独立加载副本），两处的值由
+   app/tests/settings-preferences.test.mjs 断言相同，防止漂移。
+   用户自己粘贴的 token 集不写在这里：它是运行时注入的一个 style 元素，见 settings-view.mjs。 */
+:root[data-skin="gray-steel"] {
+  --gray-1: #fcfcfc;
+  --gray-2: #f9f9f9;
+  --gray-3: #f0f0f0;
+  --gray-4: #e8e8e8;
+  --gray-5: #e0e0e0;
+  --gray-6: #d9d9d9;
+  --gray-7: #cecece;
+  --gray-8: #bbbbbb;
+  --gray-9: #8d8d8d;
+  --gray-10: #838383;
+  --gray-11: #646464;
+  --gray-12: #202020;
+  --accent-3: #e6f4fe;
+  --accent-9: #315c8a;
+  --accent-10: #29507a;
+  --accent-11: #315c8a;
+  --danger-3: #feebec;
+  --danger-11: #9b3c35;
+  --success-3: #e6f6eb;
+  --success-11: #3e704e;
+  --paper: #ffffff;
+  --float-s: #ffffff;
+  --frame-s: #f0f0f0;
+  --ink-max: #000000;
+  --on-accent-s: #ffffff;
+  --alpha-ink: 32, 32, 32;
+  --alpha-paper: 255, 255, 255;
+  --shadow-alpha: 0.08;
+  --glass-alpha: 0.86;
+  --rim-alpha: 0.7;
+}
+:root[data-skin="gray-steel"][data-theme="dark"] {
+  --gray-1: #111111;
+  --gray-2: #191919;
+  --gray-3: #222222;
+  --gray-4: #2a2a2a;
+  --gray-5: #313131;
+  --gray-6: #3a3a3a;
+  --gray-7: #484848;
+  --gray-8: #606060;
+  --gray-9: #6e6e6e;
+  --gray-10: #7b7b7b;
+  --gray-11: #b4b4b4;
+  --gray-12: #eeeeee;
+  --accent-3: #0d2847;
+  --accent-9: #3a6a9e;
+  --accent-10: #4474a8;
+  --accent-11: #8fb8e6;
+  --danger-3: #3b1219;
+  --danger-11: #ff9592;
+  --success-3: #132d21;
+  --success-11: #3dd68c;
+  --paper: #222222;
+  --float-s: #2a2a2a;
+  --frame-s: #111111;
+  --ink-max: #ffffff;
+  --on-accent-s: #ffffff;
+  --alpha-ink: 0, 0, 0;
+  --alpha-paper: 255, 255, 255;
+  --shadow-alpha: 0.4;
+  --glass-alpha: 0.12;
+  --rim-alpha: 0.12;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="gray-steel"]:not([data-theme="light"]) {
+    --gray-1: #111111;
+    --gray-2: #191919;
+    --gray-3: #222222;
+    --gray-4: #2a2a2a;
+    --gray-5: #313131;
+    --gray-6: #3a3a3a;
+    --gray-7: #484848;
+    --gray-8: #606060;
+    --gray-9: #6e6e6e;
+    --gray-10: #7b7b7b;
+    --gray-11: #b4b4b4;
+    --gray-12: #eeeeee;
+    --accent-3: #0d2847;
+    --accent-9: #3a6a9e;
+    --accent-10: #4474a8;
+    --accent-11: #8fb8e6;
+    --danger-3: #3b1219;
+    --danger-11: #ff9592;
+    --success-3: #132d21;
+    --success-11: #3dd68c;
+    --paper: #222222;
+    --float-s: #2a2a2a;
+    --frame-s: #111111;
+    --ink-max: #ffffff;
+    --on-accent-s: #ffffff;
+    --alpha-ink: 0, 0, 0;
+    --alpha-paper: 255, 255, 255;
+    --shadow-alpha: 0.4;
+    --glass-alpha: 0.12;
+    --rim-alpha: 0.12;
+  }
+}
+/* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
+:root {
+  /* WK-69 · 高度层级是唯一的取色规则：L0 frame（body、侧栏、抽屉底、留位条）、
+     L1 panel（主列与 header 带；panel-muted 只作 L1 内的内收区）、L2 float（composer、
+     popover、菜单、tooltip、悬浮卡）、L3 = float 置于 scrim 之上。区域背景只许引用这些
+     层 role，由 tools/lint-colors.mjs 的第二项检查执行；见 color-governance §7。 */
+  --frame: var(--frame-s);
+  --panel: var(--paper);
+  --panel-muted: var(--gray-2); /* L1 内的内收区；深宗低于 panel 一步 */
+  --float: var(--float-s);
+  --canvas: var(--frame); /* 退役（WK-69）：不再有第二个 L0，只留别名 */
+  --hover: var(--gray-3);
+  --selected: var(--gray-4);
+  --pressed: var(--gray-5);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-8);
+  --ink: var(--gray-12);
+  --ink-strong: var(--ink-max);
+  --muted: var(--gray-10); /* non-text only: icons, hairlines, placeholders; ≥ 3:1 */
+  --muted-strong: var(--gray-11); /* every secondary text role; ≥ 4.5:1 on --panel */
+  --accent: var(--accent-9); /* 实心填充、accent-color */
+  --accent-strong: var(--accent-10);
+  --accent-soft: var(--accent-3);
+  --accent-ink: var(--accent-11); /* accent 作文字、链接、等待态状态词 */
+  --focus: var(--accent-11); /* 焦点环与聚焦边框，对相邻面 ≥ 3:1 */
+  --on-accent: var(--on-accent-s); /* 实心 accent 上的文字 */
+  --danger: var(--danger-11); /* 文字与侧线；不作整片底色 */
+  --danger-soft: var(--danger-3);
+  --success: var(--success-11);
+  --success-soft: var(--success-3);
+  --backdrop: rgba(var(--alpha-ink), 0.22);
+  --scrim: rgba(var(--alpha-ink), 0.52); /* L4-12: ≥ 3:1 against the layer it disables */
+  --shadow-float: 0 12px 30px rgba(var(--alpha-ink), var(--shadow-alpha)); /* floating layers only */
+  --shadow: var(--shadow-float);
+  --shadow-thumb: 0 1px 2px rgba(var(--alpha-ink), 0.12); /* segmented thumb */
+  --shadow-pressed: inset 0 1px 2px rgba(var(--alpha-ink), 0.25);
+  --glass: rgba(var(--alpha-paper), var(--glass-alpha)); /* translucent floating surface over blur */
+  --glass-muted: rgba(var(--alpha-paper), var(--glass-alpha));
+  --rim: inset 0 0 0 1px rgba(var(--alpha-paper), var(--rim-alpha)); /* glass edge highlight, no refraction */
+  /* WK-102 · 材质 token 闭集。模糊只有两档，组件不得私有取值：
+     --blur-chrome 给浮在滚动内容之上的 L2 控件，--blur-transient 给 popover / menu
+     一类临时层（saturate 只出现在 transient）。每一处半透明表面都必须带
+     `@media (prefers-reduced-transparency: reduce)` 的实色回退，回退到 --float。
+     两条检查在 tools/lint-materials.mjs，进 npm test。 */
+  --blur-chrome: 12px;
+  --blur-transient: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --page-gutter: 24px;
+  --section-gap: var(--space-6);
+  --panel-padding: var(--space-6);
+  --card-padding: 20px;
+  --column: 740px;
+  /* WK-94 / WK-96 · Home 的 composer 与它下方的模块共用一条略宽于阅读列的量度
+     （760–880，视觉审查的 800–920 与之相交）；Work 沿用 --column。
+     --window-safe-area 是宿主 window control 的保留区，见
+     docs/interface-components.md 的 shell layout contract。 */
+  --home-column: 820px;
+  --window-safe-area: 80px;
+  /* WK-42 · one band across the three columns, one gutter between them. The
+     sidebar wordmark row, the chat header and the rail band share --band-top;
+     every column keeps --col-gap from its own edge, so a module adds no outer
+     margin of its own. Under a desktop shell the inert 52px strip spans the
+     window and the band itself becomes 52 (WK-42, board r2). */
+  --band-top: 56px;
+  --col-gap: 24px;
+  --nav: 256px;
+  /* WK-116 / CC-S · Settings 的三个几何值。settings-active 时全局侧栏不渲染，
+     这一页因此有自己的两列，而不是借主区的列轨：--settings-nav 不复用 --nav，
+     好让侧栏宽日后再动（CC-W）时不连带把设置导航挪走。登记见
+     engineering/design/ui-composition-standard.md 的尺寸 token 表。 */
+  --settings-nav: 240px;
+  --settings-gutter: 48px;
+  --settings-measure: 820px;
+  --settings-group-gap: 40px;
+  --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
+  --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
+  --control: 32px;
+  --radius-small: 4px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-container: 16px;
+  --radius-pill: 999px;
+  --radius: var(--radius-control);
+  /* Type roles · Geist ladder (KIT-TYPE); body leading widened for CJK.
+     WK-78 · Text size 是一个根变量：每个字号角色乘 --text-scale，三档只改这一处，
+     角色之间的比例不变。角色之外写死的五处显示级字号用同一乘子，否则放大后它们独自不动。
+     命中区、间距与行高不随字号缩放（FN-27 的可用性下限另计）。 */
+  --text-scale: 1;
+  --text-title: calc(20px * var(--text-scale));
+  --text-navigation-title: calc(17px * var(--text-scale));
+  --text-reading: calc(15px * var(--text-scale));
+  --text-label: calc(13px * var(--text-scale));
+  --text-caption: calc(11px * var(--text-scale));
+  --text-section: calc(14px * var(--text-scale));
+  --text-body: calc(14px * var(--text-scale));
+  --text-meta: calc(12px * var(--text-scale));
+  --tracking-heading: -0.02em;
+  --tracking-caps: 0.06em;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  /* Motion · two durations, one exit curve; only opacity/transform/colour move */
+  --duration-fast: 120ms;
+  --duration: 180ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  font:
+    14px/1.5 ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: calc(14px * var(--text-scale));
+}
+/* WK-78 · 三档字号。属性由 Appearance 的 Text size 行写在根元素上，偏好在本设备
+   （localStorage）读出后于首帧前应用，所以没有先小后大的闪跳。 */
+:root[data-text-size="small"] {
+  --text-scale: 0.929;
+}
+:root[data-text-size="large"] {
+  --text-scale: 1.143;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--frame);
+  color: var(--ink);
+  overflow: hidden;
+  accent-color: var(--accent);
+  text-wrap: pretty;
+}
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+[hidden] {
+  display: none !important;
+}
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: var(--text-navigation-title);
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+h2 {
+  font-size: var(--text-title);
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+h3 {
+  font-size: var(--text-section);
+  font-weight: 600;
+}
+h4 {
+  font-size: var(--text-label);
+}
+a {
+  color: var(--accent-ink);
+}
+button,
+input,
+select,
+textarea,
+summary,
+a,
+[tabindex] {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.ui-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  pointer-events: none;
+}
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--control);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  background: transparent;
+  color: inherit;
+}
+.quiet-button:hover,
+.text-button:hover {
+  background: var(--hover);
+}
+.quiet-button:active,
+.text-button:active {
+  background: var(--pressed);
+}
+.icon-only {
+  width: var(--control);
+  min-width: var(--control);
+  padding: 0;
+}
+.primary-button {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 550;
+}
+.primary-button:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.primary-button:active {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  box-shadow: var(--shadow-pressed);
+}
+.secondary-button {
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+.secondary-button:hover {
+  background: var(--hover);
+}
+.secondary-button:active {
+  background: var(--selected);
+}
+.danger-button {
+  color: var(--danger);
+}
+.text-button {
+  color: var(--accent-ink);
+  padding: 3px 4px;
+  font-size: var(--text-meta);
+}
+.toolbar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.eyebrow,
+.section-heading h2,
+.message-role,
+.context-group h4 {
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--muted-strong);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.form-help,
+.empty-list,
+.surface-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+.inline-error,
+.renderer-error {
+  color: var(--danger);
+  font-size: var(--text-label);
+  overflow-wrap: anywhere;
+}
+.inline-notice,
+.renderer-error {
+  padding: 12px;
+  background: var(--panel-muted);
+  border-radius: var(--radius-control);
+  line-height: 1.6;
+}
+.inline-notice > button {
+  margin-top: 8px;
+}
+.count-badge {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.section-heading h2 {
+  margin: 0;
+}
+/* WK-72 · the shell is two columns. The work surface is not a third one: it is
+   an L2 layer anchored inside the main column's grid area, so the grid never
+   changes when it opens. */
+.app-shell {
+  height: 100dvh;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--nav) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+.app-shell.nav-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+.app-shell.nav-collapsed .sidebar {
+  display: none;
+}
+.sidebar {
+  min-width: 0;
+  min-height: 0;
+  background: var(--frame);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 12px;
+  gap: 16px;
+}
+/* WK-42 · the wordmark row is the sidebar's share of the band: full bleed, one
+   rule at its foot, text on the same 20px left edge as every nav row below. */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  flex: none;
+  height: var(--band-top);
+  margin: 0 -12px;
+  padding: 0 var(--space-4) 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+/* WK-94 · `+ New project` 属于 PROJECTS heading，不属于品牌行。 */
+.project-section > .section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.project-section > .section-heading > #new-project-button {
+  margin-left: auto;
+}
+.workspace-brand {
+  text-decoration: none;
+  color: var(--ink);
+  font-size: var(--text-label);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+/* WK-94 · collapse belongs to the chrome row's `panel-left`, in and out alike;
+   `x` closes a floating layer, so it exists only while the sidebar is one —
+   the overlay below 1024. On the desktop the sidebar header holds nothing but
+   the window-safe area and the brand. */
+@media (min-width: 1024px) {
+  #close-nav-button {
+    display: none;
+  }
+}
+.nav-home {
+  justify-content: flex-start;
+  width: 100%;
+  padding-left: 8px;
+}
+.nav-home[aria-current="page"] {
+  background: var(--selected);
+  font-weight: 600;
+}
+.nav-filter-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.search-icon {
+  position: absolute;
+  left: 9px;
+  display: flex;
+  color: var(--muted);
+  pointer-events: none;
+}
+.search-icon .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.nav-filter input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: transparent;
+  padding: 7px 30px;
+  font-size: var(--text-meta);
+}
+.nav-filter input:focus {
+  background: var(--panel);
+}
+.nav-filter input::placeholder,
+#composer-input::placeholder {
+  color: var(--muted);
+}
+#clear-nav-filter-button {
+  position: absolute;
+  right: 1px;
+}
+.filter-status {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  margin-top: 4px;
+}
+.filter-status:empty {
+  display: none;
+}
+.project-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+.project-list {
+  overflow: auto;
+  min-height: 0;
+}
+.project-row {
+  margin-bottom: 8px;
+}
+.project-toggle {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  padding: 6px 8px;
+  gap: 8px;
+  font-size: var(--text-meta);
+  font-weight: 550;
+}
+.project-toggle:hover {
+  background: var(--hover);
+}
+.project-toggle:active {
+  background: var(--pressed);
+}
+.project-chevron {
+  width: 16px;
+  display: flex;
+}
+.project-chevron .ui-icon {
+  width: 14px;
+  height: 14px;
+}
+.project-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.project-row.active > .project-toggle {
+  color: var(--ink);
+}
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 0 16px;
+}
+.session-button {
+  width: 100%;
+  align-items: flex-start;
+  text-align: left;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  line-height: 1.4;
+  border-radius: var(--radius-control);
+}
+.session-button:hover {
+  background: var(--hover);
+}
+.session-button:active {
+  background: var(--pressed);
+}
+.session-button.active,
+.session-button[aria-current="page"] {
+  background: var(--selected);
+  color: var(--ink);
+}
+.session-button-title,
+.session-title {
+  font-size: var(--text-label);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.session-button-meta,
+.session-meta-line {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+/* WK-39 · The sidebar foot is an account-style row: initial, connection name,
+   then refresh and Settings as icon-only utilities. New session moved up to the
+   first navigation row (Claude / Codex desktop pattern). */
+.sidebar-account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+  min-height: 44px;
+}
+/* WK-94 · the avatar disc and the connection name are gone with the second
+   telling of the connection; what is left is the row's two real controls. */
+.account-tools {
+  flex: 1 1 auto;
+  display: inline-flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+.chat-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  overflow: hidden;
+}
+.chat-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 var(--col-gap);
+  border-bottom: 1px solid var(--line);
+  height: var(--band-top);
+  min-height: var(--band-top);
+}
+/* WK-42 · the header content sits in the same 740 box as the prose below it, so
+   the title and the first line of the answer share one left edge. The nav
+   toggle stays outside that box and only exists while the sidebar does not. */
+.chat-header-inner {
+  min-width: 0;
+  flex: 1;
+  max-width: var(--column);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-title-wrap {
+  min-width: 0;
+  flex: 1;
+}
+.chat-title-wrap h1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex: none;
+}
+.status-badge {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  margin-right: 8px;
+}
+.session-meta {
+  display: flex;
+  gap: 8px;
+}
+.session-meta:empty {
+  display: none;
+}
+/* WK-92 · 模式词与 scope 位与 run badge 同一档字号同一档颜色：它们都是**关于这个
+   会话的陈述**，不是三种不同的东西。Work 上多出来的那一格是 scope，没有边框、
+   没有背景、没有 caret —— 它今天不可点，所以它不长得像可点。 */
+.session-mode,
+.session-scope {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  display: inline-flex;
+  align-items: center;
+}
+/* 导航里的 Work 标记。它跟在标题后面，不抢标题的宽度：标题先省略号，标记才让位。 */
+.session-mode-tag {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.run-badge,
+.extension-status {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.run-badge.running,
+.run-badge.waiting_user {
+  color: var(--accent-ink);
+}
+.run-badge.failed,
+.run-badge.unknown,
+.extension-status.invalidated {
+  color: var(--danger);
+}
+.run-badge.completed {
+  color: var(--muted-strong);
+}
+.extension-status.loaded {
+  color: var(--success);
+}
+.connection-status {
+  padding: 8px 24px;
+  font-size: var(--text-meta);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.message-stream-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+.message-stream {
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: var(--space-8) var(--page-gutter) var(--space-6);
+}
+.message-list,
+.home-view {
+  width: 100%;
+  max-width: var(--column);
+  margin: 0 auto;
+  min-width: 0;
+}
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.home-view {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+.home-intro {
+  margin-bottom: 40px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 12px;
+}
+.home-intro h2 {
+  font-size: calc(28px * var(--text-scale));
+  line-height: 1.25;
+  max-width: 530px;
+}
+.home-description {
+  max-width: 490px;
+  color: var(--muted-strong);
+  line-height: 1.7;
+}
+.home-intro > .primary-button {
+  margin-top: 4px;
+}
+.home-section {
+  margin-top: 28px;
+}
+.home-section > .section-heading {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.home-row {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  border-radius: 0;
+  padding: 14px 4px;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.home-row:hover {
+  background: var(--hover);
+}
+.home-row:active {
+  background: var(--pressed);
+}
+.home-row > .ui-icon {
+  color: var(--muted);
+  width: 18px;
+}
+.home-row-content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.home-row-title {
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-row-meta,
+.home-row-status {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+/* WO-WK13 · ux-conventions §1 / FN-28 · the colour follows the state word, not
+   the set it was listed under. `unknown` sits in the same section as `failed`
+   but is not a failure that was established, so it keeps the grey of every
+   other state word. Only a run waiting on a person and a run that failed take
+   ink, which is what holds the screen to three accents (WK-36). */
+.home-row-status.is-waiting,
+.rail-card-state.is-waiting {
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.home-row-status.is-failed,
+.rail-card-state.is-failed {
+  color: var(--danger);
+  font-weight: 600;
+}
+.empty-state {
+  max-width: var(--column);
+  margin: 10vh auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.empty-state h3 {
+  font-size: var(--text-title);
+  letter-spacing: -0.02em;
+}
+.empty-state p {
+  color: var(--muted-strong);
+  max-width: 480px;
+  line-height: 1.7;
+}
+.empty-state.compact {
+  margin: 24px 0;
+}
+.empty-state.compact h3 {
+  font-size: var(--text-reading);
+}
+.message {
+  min-width: 0;
+}
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.message-role {
+  margin: 0;
+}
+.message-header > .icon-only {
+  margin: -6px 0;
+}
+.message.user {
+  align-self: flex-end;
+  width: fit-content;
+  max-width: 82%;
+  margin: 16px 0 0;
+}
+.user-message-content {
+  background: var(--panel-muted);
+  padding: 12px 16px;
+  border-radius: var(--radius-container);
+}
+.user-message-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 4px;
+  color: var(--muted-strong);
+}
+.user-message-actions time {
+  font-size: var(--text-caption);
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.user-message-actions .ui-icon {
+  width: 14px;
+  height: 14px;
+}
+.runtime-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.edit-message-inner {
+  width: min(560px, calc(100vw - 34px));
+  padding: var(--panel-padding);
+  display: grid;
+  gap: 16px;
+}
+.edit-message-inner textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  max-height: 45dvh;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.message-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--text-reading);
+  line-height: 1.7;
+}
+.message.error {
+  border-left: 2px solid var(--danger);
+  padding: 8px 16px;
+  color: var(--danger);
+}
+.run-status-card {
+  padding: 0;
+  margin-top: -4px;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+.run-status-card .message-header {
+  justify-content: flex-start;
+  margin: 0;
+}
+.run-status-card button {
+  margin-left: 0;
+}
+.run-status-card .ui-icon {
+  width: 14px;
+  height: 14px;
+}
+.message.assistant {
+  margin-top: 8px;
+}
+.message-header > .icon-only .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+/* WK-57 · one anatomy for every Chat Flow row (tool action, question, output,
+   decided request): a 16 glyph, the object's own name, one metadata line, and
+   at most one trailing action. The glyph is decorative and the title carries
+   the object, so the row reads the same to a screen reader with the glyph
+   removed. Nothing here sets a colour: the state word inherits grey and only a
+   failed / waiting row is allowed to take one (copy-convention §2). */
+.flow-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 32px;
+  overflow-wrap: anywhere;
+}
+.flow-row > .ui-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  align-self: center;
+  color: var(--muted);
+}
+.flow-title {
+  min-width: 0;
+  flex: 1;
+}
+.flow-meta {
+  flex: none;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+  white-space: nowrap;
+}
+.flow-row.is-failed > .flow-meta,
+.activity-group.is-failed > summary > .flow-meta {
+  color: var(--danger);
+}
+/* A row that is also a disclosure keeps one visible affordance. Making the
+   summary a flex box drops the native marker, and a disclosure with no
+   affordance is a row users do not know they can open — so the chevron the
+   Activity group already used becomes the anatomy's own, in one place. */
+summary.flow-row {
+  list-style: none;
+  cursor: pointer;
+}
+summary.flow-row::-webkit-details-marker {
+  display: none;
+}
+summary.flow-row::after {
+  content: "›";
+  flex: none;
+  align-self: center;
+  color: var(--muted);
+  font-size: var(--text-navigation-title);
+  line-height: 1;
+  transition: transform var(--duration) var(--ease-out);
+}
+details[open] > summary.flow-row::after {
+  transform: rotate(90deg);
+}
+@media (max-width: 1023px) {
+  .flow-row {
+    min-height: 44px;
+  }
+}
+.tool-card {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+.tool-card summary {
+  cursor: pointer;
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+}
+.tool-detail-block {
+  padding: 12px 0;
+  display: grid;
+  gap: 8px;
+}
+.tool-detail,
+.diagnostic-text,
+.permission-preview {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  font: 12px/1.6 var(--font-mono);
+  max-height: 320px;
+  overflow: auto;
+}
+.question-card {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  padding: var(--card-padding);
+  display: grid;
+  gap: var(--space-3);
+  background: var(--panel-muted);
+}
+.question-card form {
+  display: flex;
+  gap: 8px;
+}
+.question-card input {
+  min-width: 0;
+  flex: 1;
+}
+.question-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.permission-preview {
+  background: var(--panel-muted);
+  padding: 12px;
+  border-radius: var(--radius-small);
+  margin: 0;
+}
+.permission-card details code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--text-caption);
+}
+.artifact-thread-row {
+  width: 100%;
+  justify-content: flex-start;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  text-align: left;
+  padding: 12px 0;
+}
+.artifact-thread-row > .flow-title {
+  text-align: left;
+}
+.file-name {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.notice-row {
+  font-size: var(--text-meta);
+  line-height: 1.65;
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.notice-row.attention {
+  color: var(--danger);
+}
+.jump-latest-button {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
+  border: 1px solid var(--line);
+  box-shadow: var(--rim), var(--shadow-float);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-meta);
+  white-space: nowrap;
+}
+/* WK-101 / WK-102 · 这是 Chrome 层：它浮在还在滚动的消息流之上，所以它可以是玻璃。
+   一个人关掉了系统的透明效果，它就是一块实色的 --float，其余全部不变。 */
+@media (prefers-reduced-transparency: reduce) {
+  .jump-latest-button {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.composer-area {
+  flex: none;
+  padding: 8px var(--page-gutter) 16px;
+}
+.composer-form,
+.draft-status {
+  max-width: var(--column);
+  margin-left: auto;
+  margin-right: auto;
+}
+.composer-form {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-container);
+  padding: 12px;
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+.composer-form:focus-within {
+  border-color: var(--ink);
+}
+#composer-input {
+  display: block;
+  resize: none;
+  width: 100%;
+  min-height: 88px;
+  max-height: 180px;
+  border: 0;
+  padding: 4px;
+  background: transparent;
+  outline: 0;
+  line-height: 1.65;
+  box-shadow: none;
+}
+.composer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+.composer-context,
+.composer-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.composer-model,
+.permission-mode {
+  font-size: var(--text-meta);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 6px;
+}
+.permission-mode {
+  color: var(--muted-strong);
+}
+.composer-run-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.composer-run-hint::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+  animation: se-pulse 1.6s var(--ease-out) infinite;
+}
+.composer-run-hint.is-waiting {
+  color: var(--accent-ink);
+}
+.composer-run-hint.is-waiting::before {
+  animation: none;
+}
+.draft-status {
+  font-size: var(--text-meta);
+  padding-bottom: 6px;
+  color: var(--muted-strong);
+}
+.draft-status:empty {
+  display: none;
+}
+.draft-status.error {
+  color: var(--danger);
+}
+.draft-status.saved {
+  color: var(--muted);
+}
+.draft-status-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.surface-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* WK-42 · the rail band. Collapsed it names the rail; expanded the tab strip is
+   its content and the heading keeps only the accessible name. */
+.surface-header {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 0 var(--col-gap);
+  height: var(--band-top);
+  min-height: var(--band-top);
+  border-bottom: 1px solid var(--line);
+}
+.surface-heading {
+  display: flex;
+  align-items: center;
+}
+.surface-header .toolbar {
+  margin-left: auto;
+  flex: none;
+}
+.surface-expanded .surface-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.surface-heading {
+  min-width: 0;
+}
+.surface-heading h2 {
+  font-size: var(--text-reading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.surface-tabs {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.surface-tab {
+  border: 0;
+  border-radius: 0;
+  color: var(--muted-strong);
+  padding: 0 var(--space-3);
+  height: 100%;
+  min-height: 0;
+  margin-bottom: -1px;
+  font-size: var(--text-body);
+  border-bottom: 2px solid transparent;
+}
+.surface-tab:hover {
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
+.surface-tab[aria-selected="true"] {
+  border-bottom-color: var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+.surface-content {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-6) var(--col-gap);
+  flex: 1;
+  scrollbar-gutter: stable;
+}
+.surface-content > h3 {
+  margin-bottom: 16px;
+}
+.layer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--backdrop);
+  z-index: 30;
+}
+/* WK-69 · the work surface's overlay is L3, so its ground is the scrim; the
+   navigation drawer is L0 sliding in and keeps the lighter backdrop. */
+#surface-backdrop {
+  background: var(--scrim);
+}
+.inspector-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.inspector-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.inspector-section h3 {
+  margin-bottom: 12px;
+}
+.inspector-section summary {
+  font-size: var(--text-label);
+  cursor: pointer;
+}
+.artifact-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.artifact-open {
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  justify-content: flex-start;
+}
+.artifact-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.version-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+}
+.version-line code {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.data-list {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 1.3fr);
+  gap: 8px 12px;
+  font-size: var(--text-meta);
+  margin: 12px 0;
+}
+.data-list dt {
+  color: var(--muted-strong);
+}
+.data-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: space-between;
+}
+.data-list dd .icon-only {
+  --control: 24px;
+  flex: none;
+}
+.data-list .ui-icon {
+  width: 14px;
+  height: 14px;
+}
+.usage-list dd {
+  font-variant-numeric: tabular-nums;
+}
+.event-list {
+  margin-top: 12px;
+}
+.event-row {
+  font-size: var(--text-caption);
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+.event-row summary {
+  display: flex;
+  gap: 8px;
+  overflow-wrap: anywhere;
+  font-size: var(--text-caption);
+}
+.event-row summary code {
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
+}
+.file-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+}
+.file-heading h3 {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  font-size: calc(22px * var(--text-scale));
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.file-kind {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.file-heading-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.version-details {
+  margin: 16px 0;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.version-details summary {
+  cursor: pointer;
+}
+.file-document {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.file-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 12px/1.7 var(--font-mono);
+}
+.workspace-file-row {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+.file-size {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.workspace-files > .section-heading {
+  margin-bottom: 12px;
+}
+.markdown-body {
+  white-space: normal;
+  font-size: var(--text-reading);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.markdown-body > * + * {
+  margin-top: 12px;
+}
+.markdown-body h1 {
+  font-size: calc(23px * var(--text-scale));
+}
+.markdown-body h2 {
+  font-size: var(--text-title);
+}
+.markdown-body h3 {
+  font-size: var(--text-navigation-title);
+}
+.markdown-body h4 {
+  font-size: var(--text-reading);
+}
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 24px;
+}
+.markdown-body li + li {
+  margin-top: 4px;
+}
+.markdown-body blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--line-strong);
+  color: var(--muted-strong);
+}
+.markdown-body code {
+  font: 12px/1.7 var(--font-mono);
+  background: var(--panel-muted);
+  padding: 2px 4px;
+  border-radius: var(--radius-small);
+}
+.markdown-body pre {
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  white-space: pre;
+  max-width: 100%;
+}
+.markdown-body pre code {
+  padding: 0;
+  background: none;
+}
+.code-block {
+  background: var(--panel-muted);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.code-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.table-scroll {
+  overflow: auto;
+}
+.markdown-body table {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: var(--text-meta);
+}
+.markdown-body th,
+.markdown-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+}
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+dialog {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: 0;
+  color: var(--ink);
+  background: var(--float);
+  box-shadow: var(--shadow);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+}
+dialog::backdrop {
+  background: var(--scrim);
+}
+.runtime-dialog {
+  width: 600px;
+}
+.runtime-dialog-inner {
+  padding: var(--panel-padding);
+  display: grid;
+  gap: var(--section-gap);
+}
+.runtime-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.runtime-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.runtime-section > h3,
+.provider-details > h3 {
+  margin-bottom: 12px;
+}
+.runtime-section > summary {
+  cursor: pointer;
+  font-weight: 550;
+  font-size: var(--text-label);
+}
+.runtime-info {
+  margin: 16px 0;
+}
+.settings-form,
+.credential-form,
+.material-add form {
+  display: grid;
+  gap: 12px;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.settings-form label,
+.credential-form label,
+.material-add label,
+.runtime-section > label {
+  display: grid;
+  gap: 6px;
+  font-size: var(--text-meta);
+}
+.settings-advanced {
+  font-size: var(--text-meta);
+}
+.settings-advanced summary {
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.settings-advanced label + label {
+  margin-top: 12px;
+}
+input,
+textarea,
+select {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 8px 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.settings-form > button {
+  justify-self: end;
+}
+.credential-form {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+/* WK-91 · Connections。一行是一条连接，不是一张卡：没有对象边框（WK-94 的四角色
+   闭集里没有"列表项"这一档），行与行之间只有重复行的分隔线。 */
+.connection-list {
+  display: grid;
+  margin-bottom: 20px;
+}
+.connection-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 0;
+}
+.connection-row + .connection-row {
+  border-top: 1px solid var(--line);
+}
+.connection-row-text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.connection-row-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--text-body);
+  font-weight: 500;
+}
+.connection-row-badge {
+  font-size: var(--text-meta);
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+/* 统一流程：五步一列。未交付的两步不是禁用控件，是一行说明，所以它只降对比度，
+   不画按钮形状。 */
+.connection-flow {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: connection-step;
+}
+.connection-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 8px;
+  font-size: var(--text-meta);
+  counter-increment: connection-step;
+}
+.connection-step::before {
+  content: counter(connection-step) ".";
+  color: var(--muted-strong);
+}
+.connection-step-name {
+  font-weight: 500;
+}
+.connection-step-note {
+  grid-column: 2;
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.connection-step.is-pending .connection-step-name {
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+/* WK-108 · 探测控件挂在它属于的那一步上，不是收在流程底下的一排按钮：一个动作
+   一个位置，而它的位置就是它做的那一步。 */
+.connection-step-action {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 4px;
+}
+/* 探测结果是一句陈述，不是一次成功的宣布：它只用正文色，只有失败时才借 danger。
+   成功不加勾、不加绿 —— 成功在这里只等于"那个目录接受了这次请求"。 */
+.connection-probe-result {
+  margin: 8px 0 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.connection-probe-result.is-failed {
+  color: var(--danger);
+}
+/* 目录报来的 ID 是不可信显示数据：等宽、原样、不可选中为模型，也不进下拉。 */
+.connection-probe-models {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.connection-probe-model {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.connection-paths {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.connection-paths .segment {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  padding: 4px 6px;
+  min-height: 32px;
+}
+.credential-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.form-dialog {
+  width: 420px;
+  padding: var(--panel-padding);
+}
+.form-dialog form {
+  display: grid;
+  gap: 12px;
+}
+.form-dialog label {
+  font-size: var(--text-meta);
+  margin-top: 8px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.material-add {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.material-add summary {
+  cursor: pointer;
+  font-weight: 550;
+}
+.material-add form {
+  margin-top: 16px;
+}
+.material-add textarea {
+  resize: vertical;
+}
+.file-upload-label {
+  color: var(--muted-strong);
+}
+.extension-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+.extension-row {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+.extension-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--text-label);
+}
+.extension-row-meta {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.extension-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: var(--text-meta);
+}
+/* WO-WK10b 第二段 · the panel now holds two ways of binding, so 40vh cut the
+   second one off entirely: a person who came to continue existing work saw only
+   the form for starting new work. The box still scrolls; it is tall enough that
+   both segments are on screen at the two checked widths. */
+.binding-panel {
+  padding: 16px var(--page-gutter);
+  border-bottom: 1px solid var(--line);
+  max-height: 60vh;
+  overflow: auto;
+}
+.binding-panel-inner {
+  max-width: var(--column);
+  margin: auto;
+}
+.binding-panel-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  margin: 8px 0;
+}
+.binding-fields {
+  display: grid;
+  gap: 12px;
+}
+.binding-field {
+  display: grid;
+  gap: 4px;
+  font-size: var(--text-meta);
+}
+.binding-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.surface-card,
+.surface-block {
+  display: grid;
+  gap: 12px;
+}
+/* WK10b · the unmounted contributed surface leads with the one row anatomy:
+   the producer's own name, its state word, and no control. The status pill row
+   it replaced said the same thing in a second shape. */
+.surface-state-row > .flow-title {
+  font-size: var(--text-label);
+  font-weight: 600;
+}
+.projection-item {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+.projection-key {
+  font-size: var(--text-meta);
+  font-weight: 600;
+}
+.projection-value {
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.action-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+}
+.action-label {
+  font-size: var(--text-label);
+}
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+.toast {
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  background: var(--float);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius-control);
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.toast.error {
+  color: var(--danger);
+}
+.ui-tooltip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  max-width: min(260px, calc(100vw - 16px));
+  padding: 6px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-small);
+  background: var(--float);
+  color: var(--ink);
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+}
+@media (min-width: 1680px) {
+  :root {
+    --settings-gutter: 64px;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  :root {
+    --nav: 220px;
+  }
+  .composer-controls {
+    flex-wrap: wrap;
+  }
+  .composer-context {
+    flex-wrap: wrap;
+  }
+  .composer-buttons {
+    margin-left: auto;
+  }
+}
+@media (max-width: 1023px) {
+  :root {
+    --control: 44px;
+    --settings-gutter: 20px;
+  }
+  .app-shell,
+  .app-shell.nav-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sidebar,
+  .app-shell.nav-collapsed .sidebar {
+    display: none;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(320px, calc(100vw - 48px));
+    z-index: 31;
+    box-shadow: var(--shadow);
+  }
+  .app-shell.nav-open .sidebar {
+    display: flex;
+  }
+  #close-nav-button {
+    display: inline-flex;
+  }
+  .surface-panel,
+  .surface-expanded .surface-panel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(460px, 90vw);
+    z-index: 31;
+    border-radius: 0;
+    border: 0;
+    border-left: 1px solid var(--line-strong);
+    background: var(--float);
+    box-shadow: var(--shadow-float);
+  }
+  .chat-header {
+    padding: 0 var(--col-gap);
+  }
+  .home-view {
+    padding-top: 20px;
+  }
+  .session-button {
+    min-height: 52px;
+  }
+  .surface-tab {
+    min-height: 44px;
+  }
+  .surface-header {
+    min-height: var(--band-top);
+  }
+  .question-card input,
+  /* 命中区是包着 radio 的那个 segment，不是 1px 的 radio 本身；窄屏下它和同一行
+     的 input / select 一样要够得着（RC viewport 的 44px 一条）。 */
+  .settings-form .segment,
+  .settings-row .segment {
+    min-height: 44px;
+  }
+  .settings-form input,
+  .settings-form select {
+    min-height: 44px;
+  }
+}
+@media (max-width: 767px) {
+  :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; --col-gap: 16px; --settings-gutter: 16px; }
+  .surface-panel,
+  .surface-expanded .surface-panel {
+    inset: 0;
+    width: 100%;
+    border: 0;
+  }
+  .chat-header {
+    padding: 0 var(--col-gap);
+    gap: 8px;
+  }
+  .chat-header-actions {
+    gap: 0;
+  }
+  .status-badge {
+    display: none;
+  }
+  .chat-title-wrap h1 {
+    font-size: var(--text-reading);
+  }
+  .chat-title-wrap .eyebrow {
+    font-size: var(--text-caption);
+  }
+  .message-stream {
+    padding: var(--space-6) var(--page-gutter);
+  }
+  .home-view {
+    padding-top: 16px;
+  }
+  .home-intro {
+    margin-bottom: 28px;
+  }
+  .home-intro h2 {
+    font-size: calc(25px * var(--text-scale));
+  }
+  .home-description {
+    font-size: var(--text-label);
+  }
+  .home-row {
+    gap: 8px;
+  }
+  .home-row-status {
+    font-size: var(--text-caption);
+    max-width: 88px;
+    text-align: right;
+  }
+  .home-row-title {
+    font-size: var(--text-label);
+  }
+  .home-row-meta {
+    font-size: var(--text-caption);
+  }
+  .composer-area {
+    padding: 8px var(--page-gutter) max(16px, env(safe-area-inset-bottom));
+  }
+  .composer-form {
+    padding: 8px;
+  }
+  .composer-controls {
+    gap: 4px;
+    align-items: flex-end;
+  }
+  .composer-context {
+    flex-wrap: wrap;
+    gap: 0 2px;
+    flex: 1;
+  }
+  .composer-model {
+    max-width: min(130px, 100%);
+  }
+  .permission-mode {
+    max-width: min(160px, 100%);
+    min-height: 44px;
+    padding: 4px 6px;
+  }
+  .composer-buttons {
+    align-self: flex-start;
+  }
+  .composer-buttons .primary-button {
+    padding: 0;
+  }
+  #cancel-run-button .button-label {
+    display: none;
+  }
+  #cancel-run-button {
+    width: 44px;
+    padding: 0;
+  }
+  .message-list {
+    gap: 12px;
+  }
+  .message.user {
+    max-width: 88%;
+  }
+  .user-message-content {
+    padding: 10px 14px;
+  }
+  .question-card {
+    padding: 16px;
+  }
+  .question-card form {
+    flex-direction: column;
+  }
+  .question-actions > button {
+    flex: 1;
+    min-height: 44px;
+  }
+  .artifact-thread-row > .flow-meta {
+    font-size: var(--text-caption);
+    max-width: 64px;
+    white-space: normal;
+  }
+  .runtime-dialog-inner {
+    padding: 20px 16px;
+  }
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .credential-actions {
+    flex-wrap: wrap;
+  }
+  .surface-content {
+    padding: 20px 16px;
+  }
+  .surface-header {
+    padding: 12px 16px;
+  }
+  .form-dialog {
+    padding: var(--panel-padding);
+  }
+  .binding-panel {
+    padding: 12px 16px;
+  }
+}
+@media (pointer: coarse) {
+  :root {
+    --control: 44px;
+  }
+  .session-button {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* WK-78 · Reduced motion 的强制档。同一条规则，改由 Appearance 写在根元素上的
+   data-motion 触发；「跟随系统」不写属性，媒体查询照旧生效。强制档只停动效，不改
+   任何状态词、合法动作或 Evidence 可用性（FN-09 / FN-27）。 */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  scroll-behavior: auto !important;
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion="reduce"] .activity-group.is-working > summary > .flow-title {
+  background: none;
+  color: var(--muted-strong);
+}
+
+.session-line {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  min-width: 0;
+}
+.session-name {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-more {
+  justify-content: flex-start;
+  padding-left: 10px;
+  color: var(--muted-strong);
+}
+.project-toggle > .ui-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted-strong);
+}
+.activity-group {
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+/* The group heading is the shared `summary.flow-row` anatomy; the rules it used
+   to carry for itself (flex, gap, cursor, the 32 step, the chevron and the 16
+   glyph) are all in that one place now. */
+.activity-group > .tool-card {
+  margin-left: 8px;
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+  border-bottom: 0;
+}
+.context-popover {
+  position: fixed;
+  inset: 88px 20px auto auto;
+  margin: 0;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 110px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--glass-muted);
+  -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1.4);
+  backdrop-filter: blur(var(--blur-transient)) saturate(1.4);
+  color: var(--ink);
+  box-shadow: var(--rim), var(--shadow-float);
+}
+/* WK-101 / WK-102 · Transient 层的同一条回退。 */
+@media (prefers-reduced-transparency: reduce) {
+  .context-popover {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.context-group {
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.context-group > .eyebrow {
+  margin-bottom: 8px;
+}
+.context-row {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 6px 4px;
+}
+.context-row:hover {
+  background: var(--hover);
+}
+.context-row:active {
+  background: var(--pressed);
+}
+.context-row > .ui-icon:last-child:not(:first-child) {
+  margin-left: auto;
+  width: 16px;
+}
+.context-meta {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px;
+}
+.context-popover::backdrop {
+  background: transparent;
+}
+
+.resolved-permission {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.resolved-permission .permission-preview {
+  margin-top: 8px;
+}
+
+.project-heading {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.project-heading > .project-toggle {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+.project-create {
+  --control: 32px;
+  opacity: 0;
+  flex: none;
+}
+.project-heading:hover .project-create,
+.project-heading:focus-within .project-create {
+  opacity: 1;
+}
+.project-create .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+@media (pointer: coarse), (max-width: 1023px) {
+  .project-create {
+    --control: 44px;
+    opacity: 1;
+  }
+}
+
+.resolved-question {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.resolved-question > summary > .flow-title {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.resolved-question > p {
+  margin: 8px 0 0 24px;
+}
+
+button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.intervention-scope {
+  margin: 8px 0 0 24px;
+  max-width: 64ch;
+}
+.reading-note {
+  margin: 16px 0;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+.reading-note p + p {
+  margin-top: 8px;
+}
+.reading-relation {
+  color: var(--ink);
+}
+.reading-versions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 8px 0 0;
+}
+.reading-versions dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+#send-button,
+#cancel-run-button {
+  border-radius: 50%;
+  color: var(--on-accent);
+  padding: 0;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+#send-button:hover,
+#cancel-run-button:hover,
+#send-button:active,
+#cancel-run-button:active {
+  background: var(--ink-strong);
+  border-color: var(--ink-strong);
+}
+#send-button:disabled {
+  background: var(--line-strong);
+  border-color: var(--line-strong);
+  opacity: 1;
+}
+#send-button .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+/* WK-47 / SH-1 · a folder is not an object you open or decide about, so its
+   files are a plain group of rows: a heading, a count, and the rows. The box
+   that used to wrap each folder inside the panel added a second outline without
+   adding a judgement, and it made the expanded pane a grid of nested cards. */
+.workspace-card {
+  margin-bottom: var(--space-6);
+}
+.workspace-card h4 {
+  overflow-wrap: anywhere;
+}
+.workspace-card .workspace-file-row:last-child {
+  border-bottom: 0;
+}
+.workspace-add {
+  margin-top: 4px;
+}
+.context-group {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+.context-group h4 {
+  margin-bottom: 8px;
+}
+.run-history-inner {
+  width: min(560px, calc(100vw - 34px));
+  padding: 20px;
+}
+.run-history-inner > .section-heading {
+  margin-bottom: 16px;
+}
+.run-history-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 4px 12px;
+  padding: 12px 8px;
+  text-align: left;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+}
+.run-history-row:hover {
+  background: var(--hover);
+}
+.run-history-row:active {
+  background: var(--pressed);
+}
+.run-history-title {
+  font-size: var(--text-label);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.run-history-meta {
+  grid-row: 2;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.run-history-row .ui-icon {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  width: 14px;
+  height: 14px;
+}
+
+#cancel-run-button .ui-icon {
+  width: 14px;
+  height: 14px;
+}
+.run-identity {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+.run-identity time {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.run-input-summary {
+  font-size: var(--text-label);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== Polish layer (UP-4) · motion, entrances, feedback ===================
+   Every transition here has a cause: a pointer arriving, a key press, a layer
+   opening, a run that is still working. Only colour, opacity and transform
+   move; layout properties never do. The reduced-motion block above zeroes all
+   of it, and the running pulse is the one loop, paused for reduced motion. */
+button,
+a,
+summary,
+input,
+textarea,
+select,
+.surface-tab,
+.home-row,
+.session-button,
+.project-toggle {
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+summary {
+  transition: color var(--duration-fast) var(--ease-out);
+}
+summary:hover {
+  color: var(--ink);
+}
+/* Rows that open something: the trailing chevron leans toward the destination */
+.home-row .ui-icon:last-child,
+.run-history-row .ui-icon,
+.context-row > .ui-icon:last-child:not(:first-child),
+.artifact-open .ui-icon:last-child,
+.run-status-card .ui-icon:last-child {
+  transition: transform var(--duration) var(--ease-out);
+}
+.home-row:hover .ui-icon:last-child,
+.run-history-row:hover .ui-icon,
+.context-row:hover > .ui-icon:last-child:not(:first-child),
+.artifact-open:hover .ui-icon:last-child,
+.run-status-card button:hover .ui-icon:last-child {
+  transform: translateX(2px);
+}
+/* Working: a run that is still going carries a live dot beside its status */
+.run-badge.running::before,
+.run-badge.waiting_user::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.run-badge.running::before {
+  animation: se-pulse 1.6s var(--ease-out) infinite;
+}
+@keyframes se-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+/* Busy submit keeps its label and size; the cursor and a softer fill say "sent" */
+button[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: progress;
+}
+/* After a copy: the icon turns to the success colour for the 1.6 s the label reads Copied */
+button[aria-label="Copied"] {
+  color: var(--success);
+}
+/* Entrances: layers that appear rise 4px and fade in; leaving is immediate */
+.jump-latest-button:not([hidden]),
+.toast {
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+@starting-style {
+  .jump-latest-button:not([hidden]) {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  .toast {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+dialog[open],
+.context-popover:popover-open,
+.ui-tooltip:popover-open {
+  transition:
+    opacity var(--duration) var(--ease-out),
+    transform var(--duration) var(--ease-out);
+}
+dialog[open]::backdrop {
+  transition: background-color var(--duration) var(--ease-out);
+}
+@starting-style {
+  dialog[open],
+  .context-popover:popover-open {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .ui-tooltip:popover-open {
+    opacity: 0;
+  }
+  dialog[open]::backdrop {
+    background-color: transparent;
+  }
+}
+@media (max-width: 1023px) {
+  .app-shell.nav-open .sidebar,
+  .surface-panel:not([inert]) {
+    transition:
+      transform var(--duration) var(--ease-out),
+      opacity var(--duration) var(--ease-out);
+  }
+  @starting-style {
+    .app-shell.nav-open .sidebar {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    .surface-panel:not([inert]) {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+  }
+}
+/* Scroll surfaces: content dissolves under the header instead of being cut */
+.message-stream {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px);
+  mask-image: linear-gradient(to bottom, transparent, #000 16px);
+}
+.message-stream,
+.surface-content,
+.project-list,
+.file-text,
+.tool-detail,
+.markdown-body pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-7) transparent;
+}
+/* Hover styles are pointer feedback; touch never inherits a sticky hover */
+@media (hover: none) {
+  .quiet-button:hover,
+  .text-button:hover,
+  .secondary-button:hover,
+  .project-toggle:hover,
+  .session-button:hover:not(.active),
+  .home-row:hover,
+  .context-row:hover,
+  .run-history-row:hover {
+    background: transparent;
+  }
+}
+/* Motion respects the system: transitions are removed above; the only loop pauses */
+@media (prefers-reduced-motion: reduce) {
+  .run-badge.running::before {
+    animation-play-state: paused;
+    opacity: 1;
+  }
+}
+
+/* ===== Polish layer · hover-revealed actions, secondary cards, settings rows ==
+   Frontier reference (Codex / Claude Code desktop, user screenshots 2026-09-08):
+   message utilities appear when the message is pointed at or focused, the
+   time stays; a chip opens a small card instead of the full settings dialog;
+   settings are rows: title and meaning on the left, the control on the right. */
+.user-message-actions,
+.message.assistant .message-header .icon-only {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+.message:hover .user-message-actions,
+.message:focus-within .user-message-actions,
+.message:hover .message-header .icon-only,
+.message:focus-within .message-header .icon-only {
+  opacity: 1;
+}
+@media (hover: none) {
+  .user-message-actions,
+  .message.assistant .message-header .icon-only {
+    opacity: 1;
+  }
+}
+/* The connection chip in the header is a real button that opens the card */
+.status-badge {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  margin-right: 8px;
+  min-height: 28px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+.status-badge[aria-expanded="true"],
+.composer-model[aria-expanded="true"],
+.permission-mode[aria-expanded="true"] {
+  background: var(--selected);
+  color: var(--ink);
+}
+.connection-popover {
+  inset: auto;
+  width: 340px;
+}
+.connection-popover .data-list {
+  margin: 4px 0 8px;
+}
+/* Inside the card the three options share the width and may wrap to two lines */
+.connection-popover .segmented {
+  display: grid;
+  width: 100%;
+}
+.connection-popover .segment {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  padding: 4px 6px;
+  min-height: 36px;
+}
+/* Segmented control: native radios, one track, the checked segment lifts.
+   WO-WK12 · 段数写成一个变量：Reduced motion 只有两档，滑块宽度不能再写死成三格。 */
+.segmented {
+  --segments: 3;
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  margin: 0;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--hover);
+  max-width: 100%;
+}
+/* The selected segment is a white thumb that slides, not a re-painted cell */
+.segmented::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  width: calc((100% - 4px - (var(--segments) - 1) * 2px) / var(--segments));
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: var(--shadow-thumb);
+  transition: translate var(--duration) var(--ease-out);
+  pointer-events: none;
+}
+.segmented:has(.segment:nth-child(2) input:checked)::before {
+  translate: calc(100% + 2px) 0;
+}
+.segmented:has(.segment:nth-child(3) input:checked)::before {
+  translate: calc(200% + 4px) 0;
+}
+.segmented:disabled {
+  opacity: 0.55;
+}
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+.segment input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+.segment:hover {
+  color: var(--ink);
+}
+.segment {
+  z-index: 1;
+}
+.segment:has(input:checked) {
+  color: var(--ink);
+}
+.segment:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.segmented:disabled .segment {
+  cursor: not-allowed;
+}
+/* Settings rows */
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 24px;
+  align-items: center;
+  /* 组内行 16–24（shell-refinement §呼吸感）：相邻两行内容之间是 12 + 12 = 24。
+     label / help 在第一列的同一起点，控件在第二列，因此每一行的控件共用组的
+     右边界。 */
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.settings-row:last-of-type {
+  border-bottom: 0;
+}
+.settings-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.settings-row-title {
+  font-size: var(--text-body);
+  font-weight: 500;
+}
+.settings-row-help {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.settings-row-control {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.settings-row-control select,
+.settings-row-control input {
+  min-width: 200px;
+  max-width: 100%;
+}
+/* WK-100 ③ · 同一行级的 input 与 select 是同一档控件，就得同高同 radius。
+   放着不管时 select 因为字体量度比 input 高 3–4 px，一列控件会读成两档。 */
+.settings-row-control select,
+.settings-row-control input:not([type="radio"]):not([type="checkbox"]) {
+  block-size: var(--control);
+  padding-block: 0;
+  border-radius: var(--radius-control);
+}
+/* A wide control (the segmented file-writes choice) takes the row's full width
+   under its text instead of squeezing the explanation into a sliver. */
+.settings-row:has(.segmented) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.settings-row:has(.segmented) .settings-row-control {
+  justify-content: flex-start;
+}
+.settings-row .segmented {
+  display: grid;
+  width: 100%;
+}
+.settings-row .segment {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  padding: 4px 6px;
+  min-height: 32px;
+}
+.settings-advanced > summary {
+  padding: 10px 0;
+}
+.settings-form > .form-help {
+  margin-top: 12px;
+}
+.settings-form > button {
+  margin-top: 12px;
+}
+@media (max-width: 767px) {
+  .settings-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .settings-row-control {
+    justify-content: flex-start;
+  }
+  .settings-row-control select,
+  .settings-row-control input {
+    width: 100%;
+  }
+  .segmented {
+    display: grid;
+    width: 100%;
+  }
+  .segment {
+    min-height: 44px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    padding: 4px 6px;
+  }
+  .connection-popover {
+    width: min(340px, calc(100vw - 16px));
+  }
+  .status-badge {
+    display: none;
+  }
+}
+
+/* Working ledger title: a soft highlight travels across the words while tools run */
+.activity-group.is-working > summary > .flow-title {
+  background: linear-gradient(
+    90deg,
+    var(--muted-strong) 0 40%,
+    var(--ink) 50%,
+    var(--muted-strong) 60% 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: se-shimmer 1.8s linear infinite;
+}
+@keyframes se-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-group.is-working > summary > .flow-title {
+    animation: none;
+    background: none;
+    color: var(--muted-strong);
+  }
+  .composer-run-hint::before {
+    animation: none;
+  }
+}
+
+/* Home uses the same mounted composer and command owner as a session. */
+.conversation-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.home-active .conversation-body { overflow: auto; min-height: 100%; }
+.home-active .message-stream-wrap { flex: none; }
+.home-active .message-stream { overflow: visible; padding-top: 0; }
+.home-active .home-view { padding-top: 0; }
+
+/* WK-51 · The brand symbol appears in exactly one place: the sidebar wordmark
+   (20, hierarchical, host colours). Home and the session header carry none. */
+.workspace-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* WK-11 · Home carries no title row of its own: the sidebar already names it,
+   and a second name is a divider without a fact. The nav toggle stays because a
+   collapsed sidebar has no other way back. */
+/* WK-42 / clean-evaluation §8.3 · Home keeps the band but states nothing in it:
+   there is no session, so there is no title and no run word, and the connection
+   name is already twice on this screen. The rule at the band's foot is what
+   makes it one band across the three columns. */
+.home-active .chat-header {
+  padding: 0 var(--col-gap);
+}
+.home-active .chat-title-wrap { display: none; }
+
+/* WK-11 · Vertical placement of the hero+composer group. Both offsets are
+   viewport-proportional so the group reflows with the window instead of being
+   pinned. Empty Home puts the group at about a third of the viewport; a Home
+   with rows to read keeps it near the top so the rows stay above the fold. */
+/* WK-86 (1) · WK-76 put about a fifth of the viewport above the hero because the
+   hero was then the first thing on Home: the whitespace was the top of the page.
+   With band 1 above it that space is no longer a page top but a gap between two
+   bands, so it becomes ordinary band spacing and the slack goes to band 3
+   (WK-46 (1)). The composer itself is unchanged and stays short: the group is an
+   entry point, not a document. */
+/* WK-96 · Home 从中心向下展开。composer 是唯一 L1 锚点，它的中心落在主区 55 % 以下；
+   --home-lead 由 app.mjs 量出来（那里说明了为什么是量的），这里只消费。
+   WK-94 · 空态那条 clamp(96px, 31vh, 640px) 就此退役：那不是页面顶部的留白，而是
+   两带之间的空白，现在由同一个 lead 统一承担，空态与有内容态不再是两套版面。 */
+.home-active .composer-area {
+  padding: 0 var(--page-gutter);
+  margin-top: var(--home-lead, var(--space-8));
+}
+.home-active .composer-form,
+.home-active .draft-status,
+.home-active .composer-below,
+.home-active .home-start-status { max-width: var(--home-column); }
+
+/* WK-96 · orientation：一句话，没有数字，也没有 greeting。整块不超过 120，
+   连同它与 composer 之间的间距，composer 之上的非 chrome 内容不超过 180。 */
+.home-composer-intro {
+  max-width: var(--home-column);
+  max-height: 120px;
+  overflow: hidden;
+  margin: 0 auto var(--section-gap);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.home-composer-intro h2 {
+  font-size: clamp(26px, 2.2vw, 32px);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-heading);
+}
+/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96；
+   Work 是 continuation control，初始 88。两者都随输入增长到同一个上限。 */
+.home-active #composer-input { min-height: 96px; max-height: 160px; }
+
+/* WK-12 · Project and file-writes scope join the model chip in the composer's
+   own bottom control row; Send stays at the trailing edge. */
+.home-composer-context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.home-choice { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
+.home-choice select { width: auto; max-width: 150px; min-width: 0; padding: 6px 22px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
+.home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
+.home-start-status[data-error="true"] { color: var(--danger); }
+
+/* ==== WO-WK13, revised by FE-01 (WK-94 / 96) ============================
+   Today is the head of the module list below the composer, not a band above it.
+   One strip, three numbers, no card frame; the gap above it is the 32–48 that
+   separates the entry from the modules that hang off it. */
+.home-top-band {
+  padding: var(--space-8) var(--page-gutter) 0;
+}
+.home-module-title {
+  font-size: var(--text-section);
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+.home-band-inner {
+  max-width: var(--home-column);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+/* WK-94 border 审计 · 三个数字是一条 strip，不是三个格子：竖分隔线取消，
+   间距与对齐已经把它们分开，边线留给 input / selected / floating / error。 */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+/* SH-1 · a plain statistic stays flat: no card frame, no shadow, no second
+   boundary. The tile reads as a control through hover, focus and pressed state
+   alone, and it is a control because pressing it does something — it filters
+   band 3 to this set (DC-2 allows the sets to overlap). */
+.home-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  min-width: 0;
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+}
+.stat-row > .home-stat:first-child {
+  padding-left: 0;
+}
+.home-stat:hover {
+  background: var(--hover);
+}
+.home-stat:active {
+  background: var(--pressed);
+}
+.home-stat[aria-pressed="true"] {
+  background: var(--selected);
+}
+.stat-inline {
+  display: contents;
+}
+.stat-label {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+.stat-value {
+  font-size: calc(20px * var(--text-scale));
+  line-height: 1.1;
+  letter-spacing: var(--tracking-heading);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+/* A set the answer did not carry reads as words, never as a 0 (FN-28). */
+.stat-value.is-missing {
+  font-size: var(--text-body);
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: var(--muted-strong);
+}
+.stat-caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--muted-strong);
+}
+.home-observed {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+/* WK-94 / 视觉审查 §7 · 连接不可达是一行状态，不是一整块横向面板。圆点、一句事实、
+   一个 Retry，诊断在 disclosure 里。它复用既有的状态色，不新增视觉概念。 */
+.connection-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.connection-line-text {
+  color: var(--ink);
+}
+.connection-diagnosis > summary {
+  cursor: pointer;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+.connection-diagnosis {
+  flex-basis: 100%;
+}
+
+/* Band 3 · the way back from a filtered band to the three sets. */
+.home-filter-line {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: var(--space-2);
+}
+/* WK-56 · the card state of the same WorkCard: the rail's anatomy (glyph 16,
+   object name, one state word, one action) on the L1 panel, so the boundary is
+   a hairline and not the rail card's floating material (WK-69, SH-2). */
+/* WK-94 border 审计 · 层级来自尺寸、间距与表面，不来自边框；边框留给 input、
+   selected、floating 与 error。可打开的 Work 对象仍然成卡（card is earned），
+   但它的边界是一层表面色，不是一圈线。 */
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--card-padding);
+  margin-top: var(--space-3);
+  border-radius: var(--radius-card);
+  background: var(--panel-muted);
+}
+.home-card-meta {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  /* WO-WK13 · at 390 the three tiles read as two rows rather than one line of
+     three: a 120px column cannot hold a label, a count and a definition. */
+  .stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) 0;
+  }
+  .stat-row > .home-stat:first-child {
+    padding-left: var(--space-2);
+  }
+  /* The rule between two tiles reads as a column divider; on a two-row grid the
+     third tile has no neighbour to its left, so the rule would point at nothing. */
+  .stat-row > .home-stat + .home-stat {
+    box-shadow: none;
+  }
+  .home-stat {
+    padding: var(--space-1) var(--space-2);
+  }
+  .stat-inline {
+    display: flex;
+    align-self: stretch;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .stat-value {
+    font-size: var(--text-title);
+  }
+  .home-top-band {
+    padding-top: var(--space-3);
+  }
+}
+
+/* WK-11 · One quiet section label --space-8 below the composer, no rule line:
+   the rows below already carry their own boundaries. */
+.home-active .home-view { max-width: var(--home-column); margin: 0 auto; }
+.home-active .home-section > .section-heading { border-bottom: 0; padding-bottom: var(--space-2); }
+.home-active .home-section > .section-heading h3 { font-weight: 500; color: var(--muted-strong); }
+
+@media (max-width: 600px) {
+  .home-composer-context { gap: var(--space-2); align-items: stretch; width: 100%; }
+  .home-choice { width: 100%; justify-content: space-between; }
+  .home-choice select { max-width: 75%; flex: 1; }
+  /* Send stays at the trailing bottom corner once the context row stacks. */
+  .home-active .composer-buttons { align-self: flex-end; }
+}
+
+/* Shared content rhythm: text growth and browser zoom must reflow controls. */
+.dialog-actions, .runtime-dialog-header { flex-wrap: wrap; }
+.settings-row-control { max-width: 100%; }
+.settings-row-control select, .settings-row-control input { min-width: min(200px, 100%); }
+.home-start-status, .settings-row-help, .form-help, .surface-note { overflow-wrap: anywhere; }
+.home-section { margin-top: var(--space-8); }
+.home-section:first-child { margin-top: var(--space-8); }
+@media (max-width: 767px) {
+  .runtime-dialog-inner { padding: 20px var(--page-gutter); }
+  .dialog-actions > button { min-height: 44px; }
+}
+
+.section-heading.dialog-heading h2 {
+  font-size: var(--text-title);
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: var(--tracking-heading);
+  text-transform: none;
+}
+
+/* WK-30 · macOS window-control reservation (EX-WK4). Two signals, one contract:
+   a desktop shell (Tauri Overlay) sets html[data-shell="desktop"] and gets the
+   fixed defaults; a Window Controls Overlay host (Chromium PWA / Electron
+   titleBarOverlay) overrides them through env(). The strip is a drag region with
+   nothing inside it, so the top-left 80×52 zone never holds a control. */
+.shell-strip { display: none; }
+html[data-shell="desktop"] .sidebar-header,
+html[data-shell="desktop"] .sidebar-header button,
+html[data-shell="desktop"] .sidebar-header a {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
+/* WK-46 (3) · the strip now spans the window above all three columns, so no
+   column header needs its own traffic-light reservation. */
+html[data-shell="desktop"] .chat-header button,
+html[data-shell="desktop"] .chat-header a,
+html[data-shell="desktop"] .chat-header [tabindex] {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
+/* WK-38 / BR-1 · The brand symbol takes the host's roles: the stem (actor) is
+   ink, the three record lines are the secondary-text grey, the badge ground is
+   the panel. Both schemes and any skin follow automatically. */
+court-symbol {
+  --cw-ink: var(--ink);
+  --cw-record: var(--muted-strong);
+  --cw-background: var(--panel);
+}
+
+/* WK-40 · One title line. The project name is a muted prefix shown only when the
+   sidebar cannot carry it (collapsed on desktop, drawer below 1024). */
+.title-project { color: var(--muted-strong); font-weight: 400; }
+.title-project::after { content: " · "; }
+@media (min-width: 1024px) {
+  .app-shell:not(.nav-collapsed) .title-project { display: none; }
+}
+
+/* Runtime control module (WO-RC).
+   SH-1: the catalog is rows, the permission explanation is a DataList, an MCP
+   server is an object row with indented child rows. No new colour, radius or
+   shadow value enters here — every declaration below reuses a role token. */
+.runtime-head {
+  display: grid;
+  gap: var(--space-2);
+}
+.runtime-precedence {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+.runtime-banner {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel-muted);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  display: grid;
+  gap: var(--space-2);
+}
+.runtime-banner p {
+  margin: 0;
+}
+.runtime-draft-summary {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.runtime-scopes {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.runtime-scope-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 6px var(--space-2);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.runtime-scope-tab:hover {
+  background: var(--hover);
+}
+.runtime-scope-tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 550;
+}
+.runtime-scope-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.runtime-kind {
+  margin-top: var(--space-6);
+}
+.runtime-kind > h4,
+.runtime-kind > h5 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  font-weight: 550;
+}
+.runtime-row {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.runtime-row.is-child {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--line);
+  margin-left: var(--space-2);
+}
+.runtime-row-title {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 2px 0;
+  text-align: left;
+  min-width: 0;
+  gap: var(--space-2);
+}
+.runtime-row-title:hover {
+  background: var(--hover);
+}
+.runtime-row-title .ui-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+.runtime-row-name {
+  font-size: var(--text-body);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.runtime-row-tag,
+.runtime-row-hash {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.runtime-row-hash {
+  font-family: var(--font-mono);
+}
+.runtime-dimensions {
+  display: grid;
+  /* Four columns whenever the panel can hold them, fewer when it cannot, so a
+     380px inspector and a 390px phone both keep the labels readable. */
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.runtime-dimension {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.runtime-dimension-label {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.runtime-dimension-value {
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.runtime-switch input {
+  appearance: none;
+  width: 44px;
+  height: var(--control);
+  flex: none;
+  margin: 0 -7px;
+  border: 0;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+}
+/* track */
+.runtime-switch input::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: calc(50% - 9px);
+  width: 30px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+}
+/* thumb */
+.runtime-switch input::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--muted-strong);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.runtime-switch input:checked::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.runtime-switch input:checked::after {
+  background: var(--panel);
+  transform: translateX(12px);
+}
+.runtime-switch input:disabled::before {
+  background: var(--selected);
+  border-color: var(--line);
+}
+.runtime-switch input:disabled::after {
+  background: var(--muted);
+}
+.runtime-switch-text {
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-inherit,
+.runtime-inherit-note,
+.runtime-provenance {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  color: var(--muted-strong);
+}
+.runtime-inherit {
+  justify-self: start;
+  color: var(--accent);
+}
+.runtime-mcp-line {
+  display: grid;
+  gap: var(--space-1);
+}
+.runtime-mcp-state {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.runtime-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.runtime-action-note {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.runtime-detail {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.runtime-detail-block > h5,
+.runtime-loaded + h4,
+.runtime-detail h5 {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.runtime-description {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+.runtime-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--muted-strong);
+  border-left: 2px solid var(--line-strong);
+  padding-left: var(--space-2);
+}
+.runtime-source {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.runtime-source .file-heading h5 {
+  margin: 0;
+  font-size: var(--text-reading);
+}
+.runtime-source .file-document {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  max-height: 320px;
+  overflow: auto;
+}
+.runtime-loaded-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+.runtime-loaded-row code {
+  font-family: var(--font-mono);
+  color: var(--muted-strong);
+}
+/* Settings: the next-run context bar. Buckets are told apart by grey lightness
+   and their own text label, never by hue (SH-2). */
+.context-bar {
+  display: flex;
+  height: 10px;
+  gap: 2px;
+  margin: var(--space-2) 0;
+  border-radius: var(--radius-small);
+  overflow: hidden;
+}
+.context-bar-segment {
+  flex: 1 1 0;
+  min-width: 3px;
+  background: var(--muted-strong);
+}
+.context-bar-segment[data-step="1"] {
+  background: var(--muted);
+}
+.context-bar-segment[data-step="2"] {
+  background: var(--line-strong);
+}
+.context-bar-segment[data-step="3"] {
+  background: var(--line);
+}
+.context-bar-segment[data-step="4"] {
+  background: var(--pressed);
+}
+.context-characters dd {
+  font-variant-numeric: tabular-nums;
+}
+.runtime-context-summary > p + p {
+  margin-top: var(--space-2);
+}
+.runtime-context-title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  font-weight: 550;
+}
+.runtime-context-summary .section-heading {
+  margin-bottom: 0;
+}
+/* ==== WO-WK11 · Runtime Workbench ==========================================
+   The five intent groups live inside the Settings page, so every block below
+   sits on the page's own surface and adds no colour, radius or shadow value of
+   its own. What is new here is structure only: the four-layer readout, the
+   Attention list, the kind chips, the Configurable / Inventory pair and the
+   three read-only tables. */
+.runtime-layers > dd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.runtime-layer-note {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+/* `minmax(0, 1fr)` is the load-bearing part: a grid track is min-content wide by
+   default, so one long <select> option would otherwise widen the whole block and
+   push the page sideways. */
+.runtime-attention,
+.runtime-bindings,
+.runtime-policy,
+.runtime-explainer,
+.runtime-environment {
+  margin-top: var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.runtime-attention > h5,
+.runtime-bindings > h5,
+.runtime-policy > h5,
+.runtime-explainer > h5 {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  font-weight: 550;
+}
+.runtime-attention-row {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+/* Chips are a filter and a selector, never a state word: the pressed one is
+   told apart by weight and a filled ground, and its text says what it filters. */
+.runtime-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.runtime-chip {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 4px var(--space-2);
+  min-height: 32px;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  background: transparent;
+}
+.runtime-chip:hover {
+  background: var(--hover);
+}
+.runtime-chip[aria-pressed="true"] {
+  background: var(--selected);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  font-weight: 550;
+}
+.runtime-subtabs {
+  display: flex;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  border-bottom: 1px solid var(--line);
+}
+.runtime-subtab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 6px var(--space-2);
+  min-height: 32px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.runtime-subtab:hover {
+  background: var(--hover);
+}
+.runtime-subtab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+  font-weight: 550;
+}
+.runtime-tabpanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.runtime-group-label {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+/* A wide table scrolls inside its own box; the page never scrolls sideways.
+   `min-width: 0` is what actually holds it: a grid or flex item defaults to
+   min-content, so without it the table pushes the column wider instead of
+   scrolling inside it. */
+.runtime-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+.runtime-attention,
+.runtime-bindings,
+.runtime-policy,
+.runtime-explainer,
+.runtime-environment,
+.runtime-tabpanel {
+  min-width: 0;
+}
+.runtime-context-table,
+.runtime-inventory-table,
+.runtime-policy-table {
+  min-width: 34rem;
+  margin-bottom: 0;
+}
+.runtime-context-table th[scope="row"],
+.runtime-inventory-table th[scope="row"] {
+  display: grid;
+  gap: 2px;
+  color: var(--ink);
+}
+.runtime-policy-table input,
+.runtime-policy-table select {
+  width: 100%;
+  min-width: 7rem;
+}
+.runtime-policy-row td {
+  vertical-align: middle;
+}
+.runtime-explain-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+/* A <select> is as wide as its longest option unless it is told otherwise, and
+   the longest option here is a plugin-qualified tool name. */
+.runtime-explain-form select,
+.runtime-explain-form input {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 12rem;
+}
+/* FN-16 · a frozen group still opens every explanation, trace and source; only
+   the controls that would submit a change are off. Nothing is dimmed into
+   illegibility, because a read-only group is still a group you read. */
+.settings-block[data-frozen="true"] .runtime-switch input:disabled + .runtime-switch-text {
+  color: var(--muted-strong);
+}
+/* IC-1 · 32 on a pointer, 44 on a narrow or touch viewport, measured on the
+   control itself and not on the row that holds it. */
+.runtime-explain-form select,
+.runtime-explain-form input,
+.runtime-policy-table input,
+.runtime-policy-table select {
+  min-height: 32px;
+}
+@media (max-width: 767px) {
+  .runtime-explain-form select,
+  .runtime-explain-form input {
+    flex-basis: 100%;
+  }
+  .runtime-chip,
+  .runtime-subtab,
+  .runtime-explain-form select,
+  .runtime-explain-form input,
+  .runtime-policy-table input,
+  .runtime-policy-table select {
+    min-height: 44px;
+  }
+}
+
+.planned-section > summary {
+  padding: 10px 0;
+}
+.planned-list {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+.planned-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-4);
+  align-items: baseline;
+}
+.planned-row-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.planned-state {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .runtime-dimensions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .runtime-switch input {
+    width: 40px;
+    height: 24px;
+  }
+  .runtime-switch input::after {
+    width: 18px;
+  }
+  .runtime-switch input:checked::after {
+    transform: translateX(16px);
+  }
+  /* The word is a real label, so switch + word form one 44px-tall target. */
+  .runtime-switch {
+    min-height: 44px;
+  }
+  .runtime-switch-text {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+  }
+  .planned-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runtime-switch input::after {
+    transition: none;
+  }
+}
+/* WO-RC follow-up · below the navigation breakpoint the exposure switch keeps a
+   44 px hit box whatever the pointer media query reports (touch obligation). */
+@media (max-width: 1023px) {
+  .runtime-switch input { height: 44px; }
+}
+
+/* WK-55 · The composer keeps only its stable parts (input, files, connection,
+   Send). Context that changes with Home or the session — project, file writes,
+   new project — sits in one quiet line below it, the way a launcher states
+   "Project or folder · Auto". Ids and select semantics are unchanged. */
+.composer-below {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-2) var(--space-3) 0;
+  min-height: var(--control);
+  max-width: var(--column);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.composer-below .home-composer-context { gap: var(--space-1) var(--space-4); }
+.composer-below .home-choice { font-size: var(--text-label); }
+.composer-below .home-choice select {
+  border-color: transparent;
+  background-color: transparent;
+  padding: 4px 22px 4px 6px;
+  font-size: var(--text-label);
+  max-width: 200px;
+}
+.composer-below .home-choice select:hover { background-color: var(--hover); }
+/* WK-94 · `Ask before editing ▾`：控件自己说全后果，上面不再有一个 File writes 标签。 */
+.composer-below .home-choice-select {
+  border-color: transparent;
+  background-color: transparent;
+  padding: 4px 22px 4px 6px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  max-width: 220px;
+}
+.composer-below .home-choice-select:hover { background-color: var(--hover); }
+.composer-below .permission-mode { padding-left: 6px; }
+.composer-below:not(:has(> *:not([hidden]))) { display: none; }
+/* WK-73 · the project a session writes into is a fact, not a control. */
+.composer-project {
+  margin: 0;
+  padding: 4px 6px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+   WO-WK10a · module rail, alignment band, composer layer (WK-41/42/13/58/60)
+   Every declaration below reuses an existing role token, spacing step, radius
+   and shadow. The only new values in this work order are the two layout tokens
+   --band-top and --col-gap declared in :root above.
+   ========================================================================== */
+
+/* WK-42 / WK-46 (3) · under a desktop shell the inert strip spans the window,
+   so the band beneath it is one line across all three columns and the traffic
+   lights never sit over a control. */
+html[data-shell="desktop"] .app-shell {
+  grid-template-rows: env(titlebar-area-height, 52px) minmax(0, 1fr);
+  --band-top: 52px;
+}
+html[data-shell="desktop"] .shell-strip {
+  display: block;
+  grid-column: 1 / -1;
+  height: env(titlebar-area-height, 52px);
+  border-bottom: 1px solid var(--line);
+  background: var(--frame);
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+/* WK-41 / WK-72 · the collapsed rail: one card per module, no header and no
+   layout of its own. Below 768 it is the content of the full-width sheet and
+   keeps the sheet's gutter; from 768 up it is the floating layer positioned by
+   the rules further down, and the gutter comes from the panel. */
+.surface-rail {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--col-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  scrollbar-gutter: stable;
+}
+
+/* ============================================================================
+   WK-72 · The work surface is an L2 floating layer over the main column, not a
+   third column. Collapsed it is a stack of module cards anchored at the main
+   column's right gutter, between the band and the composer's top edge; when the
+   main column is narrower than 740 + 2·gap + 360 the cards collapse to a glyph
+   strip at the same edge; expanded it is an L3 overlay over the same area, with
+   the sidebar left operable (WK-74 (1)). Below 768 nothing here applies and the
+   existing full-width sheet stands.
+   ========================================================================== */
+@media (min-width: 768px) {
+  .surface-panel.is-open:not(.is-expanded) {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    top: calc(var(--band-top) + var(--col-gap));
+    bottom: calc(var(--composer-h, 0px) + var(--col-gap));
+    right: var(--col-gap);
+    left: auto;
+    width: var(--rail-width);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    z-index: 5;
+    pointer-events: none;
+  }
+  /* The layer is a frame, not a surface: only the cards themselves take the
+     pointer, so the thread underneath still scrolls where the layer is empty. */
+  .surface-panel.is-open:not(.is-expanded) .surface-rail {
+    padding: 0;
+    pointer-events: none;
+    scrollbar-gutter: auto;
+  }
+  .surface-panel.is-open:not(.is-expanded) .rail-card,
+  .surface-panel.is-open:not(.is-expanded) .rail-strip {
+    pointer-events: auto;
+  }
+  /* WK-72 · no rail header and no rail title while the cards are showing. */
+  .surface-panel:not(.is-expanded) .surface-header {
+    display: none;
+  }
+  .surface-panel.is-open.is-strip:not(.is-expanded) {
+    width: var(--strip-width);
+  }
+  /* The reading column steps aside for the layer instead of sliding under it:
+     at 1440 the 740 column and the 360 cards coexist with one gutter between. */
+  .app-shell.surface-cards {
+    --cards-inset: calc(var(--rail-width) + var(--col-gap));
+  }
+  .app-shell.surface-cards.surface-strip {
+    --cards-inset: calc(var(--strip-width) + var(--col-gap));
+  }
+  .app-shell.surface-cards .chat-header {
+    padding-right: calc(var(--col-gap) + var(--cards-inset));
+  }
+  .app-shell.surface-cards .message-stream,
+  .app-shell.surface-cards .composer-area {
+    padding-right: calc(var(--page-gutter) + var(--cards-inset));
+  }
+}
+
+/* WK-69 / WK-72 · the glyph strip: one icon per module, the module title as the
+   accessible name, and opening one opens the overlay on it. */
+.rail-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--float);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+}
+.rail-strip > button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--muted-strong);
+}
+.rail-strip > button:hover {
+  color: var(--ink);
+}
+
+/* WK-69 L3 · expanded is an overlay over the main column: float material over
+   the scrim. The sidebar is outside the scrim and stays operable, so no
+   aria-modal is claimed here (WK-74 (1)); below 1024 the sheet is a real modal
+   and the JS says so. */
+@media (min-width: 1024px) {
+  .surface-panel.is-expanded {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    top: calc(var(--band-top) + var(--col-gap));
+    right: var(--col-gap);
+    bottom: var(--col-gap);
+    left: var(--col-gap);
+    width: auto;
+    background: var(--float);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-container);
+    box-shadow: var(--shadow-float);
+    z-index: 29;
+  }
+  /* The sheet grows out of the cards: same top edge, same right gutter. */
+  .surface-panel.is-expanded .surface-header {
+    padding: 0 var(--col-gap);
+  }
+  #surface-backdrop {
+    position: absolute;
+    grid-area: -2 / -2 / -1 / -1;
+    inset: 0;
+    z-index: 28;
+  }
+}
+/* SH-1 · a module is an object you can open as a whole, so it is a card; its
+   rows are rows. SH-2: one boundary treatment — surface, 1px line and the
+   floating shadow together mark the module, and nothing inside repeats them. */
+.rail-card {
+  background: var(--float);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.rail-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.rail-card-head > .ui-icon {
+  color: var(--muted-strong);
+}
+.rail-card-title {
+  font-size: var(--text-section);
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-card-state {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-open {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px 6px;
+}
+.rail-open:hover {
+  color: var(--ink);
+}
+.rail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-meta);
+}
+.rail-row-label {
+  color: var(--muted-strong);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-row-value {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.rail-row-value.is-mono {
+  font-family: var(--font-mono);
+}
+.rail-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.5;
+}
+.rail-group {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  padding-top: var(--space-2);
+}
+.rail-file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-1) 0;
+  margin: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  font-size: var(--text-label);
+  color: var(--ink);
+  text-align: left;
+}
+.rail-file + .rail-file {
+  border-top: 1px solid var(--line);
+}
+.rail-file .ui-icon {
+  color: var(--muted);
+}
+.rail-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-file-side {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.rail-file-open:hover {
+  background: var(--hover);
+}
+.rail-file-open:active {
+  background: var(--pressed);
+}
+
+/* WK-46 (4) · prose keeps the 740 column; a file tree, a version table or a
+   diff may widen to 960 in the expanded pane, and only there. */
+.surface-expanded .surface-content > * {
+  max-width: var(--column);
+  margin-left: auto;
+  margin-right: auto;
+}
+.surface-expanded #surface-content > *,
+.surface-expanded #file-content > * {
+  max-width: 960px;
+}
+
+/* WK-13 · three icon tiers. Row 16, control 18 (the base rule above), nav 20.
+   Hit areas are untouched: they stay on the 32 / 44 --control step. */
+.rail-card-head > .ui-icon,
+.rail-file .ui-icon,
+.project-chevron .ui-icon,
+.user-message-actions .ui-icon,
+.run-status-card .ui-icon,
+.data-list .ui-icon,
+.run-history-row .ui-icon,
+.home-row > .ui-icon,
+#cancel-run-button .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.nav-home > .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* WK-58 / WK-60 · the composer is the highest layer of the work surface. On the
+   desktop it keeps the placement WK-11 gave it (centred in the column, whitespace
+   above, moving only with the viewport). Below 768 it is docked to the bottom of
+   the frame with the safe area under it, and it takes floating material — panel
+   ground, one strong hairline, the float shadow — so the header band, the rows
+   and the composer read as three different things rather than one flat sheet. */
+@media (max-width: 767px) {
+  .composer-area {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: var(--frame);
+    border-top: 1px solid var(--line);
+    padding: var(--space-2) var(--page-gutter)
+      max(var(--space-2), env(safe-area-inset-bottom));
+  }
+  /* WK-58 · below 768 the composer is docked on Home too: the list scrolls in
+     the region above it, and an empty Home is whitespace above one input. */
+  .home-active .conversation-body {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .home-active .message-stream-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .home-active .composer-area,
+  .home-active.home-empty .composer-area {
+    padding-top: var(--space-3);
+  }
+  .home-active .home-view {
+    padding-bottom: var(--space-4);
+  }
+  .conversation-body {
+    background: var(--panel);
+  }
+}
+
+/* WO-WK10b 第二段 · the Work packet reading. One set of rules serves the
+   producer's own renderer and the host's read-only fallback, because they are
+   one reading of one object (surface-modules.mjs `renderWorkPacket`). Nothing
+   here introduces a colour: the status word of a finding inherits the row's
+   grey, and only `conflict` — the one word that says two read facts disagree —
+   takes the scarce ink, with the word itself always present (FN-28). */
+.work-packet {
+  display: grid;
+  gap: var(--space-4);
+}
+.work-block {
+  display: grid;
+  gap: var(--space-2);
+}
+.work-block > h4 {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  margin: 0;
+}
+.work-note {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.work-note.is-mono,
+.rule-anchor-ref {
+  font-family: var(--font-mono);
+}
+.work-candidate {
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
+.work-candidate-head > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.rule-rows {
+  display: grid;
+  gap: var(--space-1);
+}
+.rule-row {
+  border-top: 1px solid var(--line);
+}
+.rule-row:first-child {
+  border-top: none;
+}
+.rule-row.is-flagged > summary > .flow-meta {
+  color: var(--danger);
+}
+.rule-detail {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0 0 var(--space-2) var(--space-6);
+}
+.rule-reason {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.rule-anchor {
+  display: grid;
+  gap: var(--space-1);
+}
+.rule-anchor-ref {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
+.rule-quote {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--line);
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.rule-source-text,
+.work-artifact-text {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--panel-muted);
+  border-radius: var(--radius-control);
+  font: 12px/1.7 var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: auto;
+}
+.work-facts-block,
+.work-decision {
+  border-top: 1px solid var(--line);
+}
+.work-decision-detail,
+.work-facts-block > .projection-list {
+  padding: 0 0 var(--space-2) var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+}
+/* The controls a producer's renderer adds under a candidate. They sit inside
+   the candidate they act on, so an action can never be read as belonging to a
+   different version (FN-18). */
+.candidate-controls {
+  display: grid;
+  gap: var(--space-3);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+.candidate-actions,
+.revision-body {
+  display: grid;
+  gap: var(--space-2);
+}
+.work-field {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.work-field textarea,
+.work-field input {
+  width: 100%;
+  min-height: var(--control);
+}
+.work-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.revision-rule {
+  display: grid;
+  gap: var(--space-2);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+.revision-rule-id {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+/* frontend-entries 3.4 · the receipt is a row in the conversation, not a card
+   with a border of its own: it states one outcome and offers nothing. */
+.decision-receipt {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+}
+.decision-receipt > .flow-row > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.decision-receipt > .work-note {
+  padding-left: var(--space-6);
+}
+/* G3 · the binding panel is two segments of one panel, because «start new work»
+   and «continue work this project already owns» are two different acts on the
+   same object. */
+.binding-segment {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.binding-segment:first-of-type {
+  margin-top: var(--space-2);
+}
+.binding-segment > h4 {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted-strong);
+  margin: 0;
+}
+.binding-entries {
+  display: grid;
+  gap: var(--space-2);
+}
+.binding-entry {
+  display: grid;
+  gap: var(--space-1);
+}
+.binding-entry-open {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  color: inherit;
+  cursor: pointer;
+  min-height: var(--control);
+}
+.binding-entry-open > .flow-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+.binding-entry-open:hover {
+  background: var(--hover);
+}
+.binding-entry > .work-note {
+  padding-left: var(--space-6);
+}
+
+/* ===== tier:U · Settings 页（WO-WK12 / WK-78 / FN-26） =====================
+   Settings 替换主区的内容，侧栏与顶带留在原处，所以这一页没有自己的框、没有遮罩，
+   也没有第二个焦点陷阱：它就是主列现在显示的东西。左列导航 + 搜索，右列分节；
+   1024 以下导航折成顶部下拉，右列单列。取色只引用高度层 role（WK-69）。 */
+.settings-page {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* WK-116 · settings-active 时 .app-shell 只有一列：全局侧栏不渲染，这一页自己的
+   导航列是唯一的导航。它不借 --nav 的列轨，宽度是自己的 --settings-nav。 */
+.app-shell.settings-active {
+  grid-template-columns: minmax(0, 1fr);
+}
+.app-shell.settings-active .sidebar,
+.app-shell.settings-active.nav-open .sidebar,
+.app-shell.settings-active .layer-backdrop {
+  display: none;
+}
+/* 页标题行：左端是 Back to app，然后是这一页的名字。这一行不再把标题居中到
+   740 的阅读盒里 —— 设置不是正文，它的第一列从同一条 gutter 起。 */
+.app-shell.settings-active .chat-header {
+  padding-left: var(--settings-gutter);
+  padding-right: var(--settings-gutter);
+}
+.app-shell.settings-active .chat-header-inner {
+  max-width: none;
+  margin: 0;
+}
+/* Home 把标题收起来（名字在下面的 composer 那一屏里已经说过），但 Settings 是从
+   Home 进来的时候也得有名字：这一页的标题就是这条带上的 h1，页面的可访问名指向它。 */
+.app-shell.settings-active .chat-title-wrap {
+  display: block;
+}
+.settings-page-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--settings-nav) minmax(0, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-6) var(--settings-gutter) var(--space-6);
+}
+.settings-nav-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow: auto;
+}
+.settings-search {
+  width: 100%;
+  font-size: var(--text-meta);
+}
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* 命中区 32（IC-1），字号变化不缩小它。 */
+.settings-tab {
+  display: block;
+  width: 100%;
+  min-height: var(--control);
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted-strong);
+  font: inherit;
+  font-size: var(--text-label);
+  text-align: left;
+  cursor: pointer;
+}
+.settings-tab:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.settings-tab.is-current {
+  background: var(--selected);
+  color: var(--ink);
+  font-weight: 550;
+}
+.settings-tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.settings-nav-select {
+  display: none;
+  width: 100%;
+}
+.settings-sections {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding-right: var(--space-1);
+}
+.settings-section {
+  max-width: var(--settings-measure);
+}
+.settings-section:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-card);
+}
+.settings-section-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-title);
+  letter-spacing: var(--tracking-heading);
+}
+/* 一节 = 一张平卡：把成组的行圈起来，不额外加一层高度。 */
+.settings-block {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-2) var(--card-padding);
+  margin-bottom: var(--settings-group-gap);
+}
+.settings-block:last-child {
+  margin-bottom: 0;
+}
+.settings-block:empty {
+  display: none;
+}
+.settings-block-title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--text-section);
+}
+.settings-block > .section-heading {
+  margin-top: var(--space-3);
+}
+.settings-block > .settings-row:last-child {
+  border-bottom: 0;
+}
+.settings-readout {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.settings-jump {
+  margin: var(--space-2) 0 var(--space-3);
+}
+.settings-search-empty {
+  font-size: var(--text-body);
+  color: var(--muted-strong);
+}
+/* 快捷键只读表：键在左，后果在右，两列都是文字。 */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-meta);
+  margin-bottom: var(--space-3);
+}
+.settings-table th,
+.settings-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-weight: 400;
+}
+.settings-table thead th {
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+.settings-table kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.settings-key-row > th {
+  width: 34%;
+  color: var(--ink);
+}
+/* 预览（WK-87 (a)）：组顶一块，四行共用。一条真实的 Chat Flow 行加一段带 diff 的
+   代码块，随任一行的选择即时变化。它不可交互，读屏由外面那句 Preview 承担。 */
+.settings-preview {
+  display: grid;
+  gap: var(--space-1);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-2);
+}
+.settings-preview-label {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.settings-preview-surface {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: var(--panel-muted);
+  display: grid;
+  gap: var(--space-2);
+}
+.settings-preview-code {
+  background: var(--panel);
+}
+.settings-preview-diff {
+  margin: 0;
+  padding: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: 1.55;
+  overflow-x: auto;
+}
+.diff-line {
+  display: block;
+  padding: 0 4px;
+  border-radius: var(--radius-small);
+}
+/* 增删两行用稀缺色的 soft 底，符号 + / − 始终在场，颜色不是唯一载体（FN-28）。 */
+.diff-line[data-diff="add"] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.diff-line[data-diff="del"] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+/* 用户 token 集：一个纯文本框，逐行报错，不通过就不应用。 */
+.skin-editor {
+  padding: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+.skin-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  resize: vertical;
+}
+.skin-error-list {
+  margin: var(--space-1) 0 0;
+  padding-left: 1.2em;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.skin-error-list li {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1023px) {
+  .settings-page-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .settings-row button,
+  .settings-row select,
+  .settings-row input:not([type="checkbox"]):not([type="radio"]),
+  .settings-search {
+    min-height: 44px;
+  }
+  .settings-nav {
+    display: none;
+  }
+  .settings-nav-select {
+    display: block;
+    min-height: 44px;
+  }
+  .settings-nav-column {
+    overflow: visible;
+  }
+  .settings-tab {
+    min-height: 44px;
+  }
+  .settings-section {
+    max-width: none;
+  }
+}
+/* 一句话说明整组的现状，写在组标题下面一次，不在每个节里重复一遍（WK-12 / 文案体例）。 */
+.settings-section-note {
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  max-width: 60ch;
+}
+
+</style>
+<style>
+
+/* ===== EX-CC4 overlay — V1 "chrome 收敛，正文不动" ======================= */
+.col-v1 {
+  --text-title: 18px;
+  --text-navigation-title: 15px;
+  --text-section: 13px;
+  --text-label: 12px;
+  --text-meta: 11.5px;
+  --text-caption: 10.5px;
+  --tracking-caps: 0.08em;
+  --control: 28px;
+}
+.col-v1 h1 { font-weight: 500; }
+.col-v1 .settings-section-title { font-weight: 500; }
+.col-v1 .settings-block-title { font-weight: 500; }
+.col-v1 .settings-tab { font-weight: 450; }
+.col-v1 .settings-tab.is-current { font-weight: 500; }
+.col-v1 .session-mode,
+.col-v1 .session-scope,
+.col-v1 .run-badge { font-weight: 450; line-height: 1.45; }
+.col-v1 .settings-row-help,
+.col-v1 .permission-mode,
+.col-v1 .composer-model,
+.col-v1 #model-settings-button { line-height: 1.45; }
+.col-v1 button { font-size: var(--text-label); }
+.col-v1 .primary-button { font-weight: 500; }
+
+/* ===== EX-CC4 overlay — V2 "全站一档" ===================================== */
+.col-v2 {
+  --text-title: 18px;
+  --text-navigation-title: 15px;
+  --text-reading: 14px;
+  --text-body: 13px;
+  --text-section: 13px;
+  --text-label: 12px;
+  --text-meta: 11px;
+  --text-caption: 10.5px;
+  --tracking-caps: 0.08em;
+  --control: 28px;
+  line-height: 1.45;
+  font-size: calc(13px * var(--text-scale));
+}
+.col-v2 h1 { font-weight: 500; }
+.col-v2 .settings-section-title { font-weight: 500; }
+.col-v2 .settings-block-title { font-weight: 500; }
+.col-v2 .settings-tab { font-weight: 450; }
+.col-v2 .settings-tab.is-current { font-weight: 500; }
+.col-v2 .session-mode,
+.col-v2 .session-scope,
+.col-v2 .run-badge { font-weight: 450; }
+.col-v2 button { font-size: var(--text-label); }
+.col-v2 .primary-button { font-weight: 500; }
+
+/* ===== ablation page chrome (not app CSS — this file's own scaffolding) === */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: #f0f0f3;
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1c2024;
+}
+.page-head {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px 8px;
+}
+.page-head h1 { font-size: 20px; font-weight: 600; margin: 0 0 12px; letter-spacing: -0.02em; }
+.compare-questions {
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: #1c2024;
+}
+.compare-questions li::before { content: "— "; color: #8b8d98; }
+.cols {
+  margin: 0 auto 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 0 24px;
+  align-items: start;
+  overflow-x: auto;
+}
+.ablation-col {
+  background: #fdfdfe;
+  border: 1px solid #cdced6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.col-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-bottom: 1px solid #cdced6;
+  background: #f9f9fb;
+  color: #60646c;
+}
+.col-body { position: relative; overflow: hidden; }
+/* Real 1440-class layouts do not fit three abreast on one screen, so each
+   column renders its fragment at a realistic pixel width (the width its own
+   tokens assume -- settings-nav 240 + settings-measure 820 + gutters, or the
+   chat column's own measure) and is shrunk with CSS zoom (a real re-layout at
+   the smaller size, not a visual-only transform) so the three sit side by
+   side. Font-size RATIOS between columns are exactly what a 1:1 render would
+   show; only the absolute on-screen pixels are smaller. */
+.frame-settings { width: 1200px; zoom: 0.42; }
+.frame-work { width: 1000px; zoom: 0.5; }
+.pane-block + .pane-block { border-top: 1px solid #e8e8ec; }
+.pane-block-label {
+  font-size: 11px;
+  color: #8b8d98;
+  padding: 6px 16px 0;
+}
+table.measure-table {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto 48px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.measure-table caption {
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+table.measure-table th,
+table.measure-table td {
+  border: 1px solid #d9d9e0;
+  padding: 6px 10px;
+  text-align: left;
+}
+table.measure-table th { background: #f0f0f3; }
+td.fail { background: #feebec; color: #9b3c35; font-weight: 600; }
+.wrap-outer { max-width: 1400px; margin: 0 auto; padding: 0 24px 8px; }
+.notes { font-size: 12px; color: #60646c; max-width: 1400px; margin: 0 auto 40px; padding: 0 24px; }
+
+</style>
+</head>
+<body>
+
+  <div class="page-head">
+    <h1>Work 头部 + composer 控件 — 字阶与控件密度消融（现状 / V1 / V2）</h1>
+    <ul class="compare-questions">
+  <li>这一屏第一眼落在哪。</li>
+  <li>正文与 chrome 能否不靠颜色分开。</li>
+  <li>按钮是否仍像可按之物。</li>
+</ul>
+  </div>
+  <div class="cols">
+    <div class="ablation-col col-current">
+    <div class="col-label">现状</div>
+    <div class="col-body">
+      <div class="frame-work">
+        <header class="chat-header" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Complete NDA review</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <div class="pane-block-label">composer · idle（会话有绑定，Run 已完成，Send 可点）</div>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint" hidden="">
+              Run in progress — your input will not be sent automatically.
+            </p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" hidden="" aria-label="Cancel run" data-tooltip="Cancel run" disabled="">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+        <div class="pane-block-label">composer · run waiting on you（Cancel run + run badge）</div>
+        <header class="chat-header pane-block" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Ablation waiting run</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span><span class="run-badge waiting_user">Waiting for you</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint is-waiting">Waiting for you · 4s · your input will not be sent automatically.</p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" aria-label="Cancel run" data-tooltip="Cancel run">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send" disabled="" hidden="">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+      </div>
+    </div>
+  </div>
+    <div class="ablation-col col-v1">
+    <div class="col-label">V1 · chrome 收敛，正文不动</div>
+    <div class="col-body">
+      <div class="frame-work">
+        <header class="chat-header" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Complete NDA review</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <div class="pane-block-label">composer · idle（会话有绑定，Run 已完成，Send 可点）</div>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint" hidden="">
+              Run in progress — your input will not be sent automatically.
+            </p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" hidden="" aria-label="Cancel run" data-tooltip="Cancel run" disabled="">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+        <div class="pane-block-label">composer · run waiting on you（Cancel run + run badge）</div>
+        <header class="chat-header pane-block" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Ablation waiting run</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span><span class="run-badge waiting_user">Waiting for you</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint is-waiting">Waiting for you · 4s · your input will not be sent automatically.</p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" aria-label="Cancel run" data-tooltip="Cancel run">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send" disabled="" hidden="">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+      </div>
+    </div>
+  </div>
+    <div class="ablation-col col-v2">
+    <div class="col-label">V2 · 全站一档</div>
+    <div class="col-body">
+      <div class="frame-work">
+        <header class="chat-header" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Complete NDA review</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <div class="pane-block-label">composer · idle（会话有绑定，Run 已完成，Send 可点）</div>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint" hidden="">
+              Run in progress — your input will not be sent automatically.
+            </p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" hidden="" aria-label="Cancel run" data-tooltip="Cancel run" disabled="">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+        <div class="pane-block-label">composer · run waiting on you（Cancel run + run badge）</div>
+        <header class="chat-header pane-block" style="background:var(--panel);">
+          <div class="chat-header-inner">
+          <div class="chat-title-wrap">
+            <h1 id="session-title" tabindex="-1">
+              <span id="project-title" class="title-project">NDA review</span><span id="session-title-text">Ablation waiting run</span>
+            </h1>
+            <div id="session-meta" class="session-meta"><span class="session-mode">Work</span><span class="session-scope">Memory · Off</span><span class="run-badge waiting_user">Waiting for you</span></div>
+          </div>
+          <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
+               header 的 capability badge 因此退役。 -->
+          <div class="chat-header-actions">
+            <button id="show-run-button" class="quiet-button icon-only" type="button" aria-label="Chat overview" data-tooltip="Chat overview"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#activity"></use></svg><span class="sr-only">Chat overview</span></button>
+            <button id="show-surface-button" class="quiet-button icon-only" type="button" aria-label="Open work surface" data-tooltip="Open work surface"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#panel-right"></use></svg><span class="sr-only">Open work surface</span></button>
+          </div>
+          </div>
+        </header>
+        <footer class="pane-block" style="background:var(--panel);">
+          <footer id="composer-area" class="composer-area">
+          <div id="home-composer-intro" class="home-composer-intro" hidden="">
+            <h2>Work that exists beyond the model.</h2>
+          </div>
+          <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-run-hint" class="composer-run-hint is-waiting">Waiting for you · 4s · your input will not be sent automatically.</p>
+            <div class="composer-controls">
+              <div class="composer-context">
+                <button id="materials-button" class="quiet-button icon-only" type="button" aria-haspopup="dialog" aria-label="Chat files" data-tooltip="Chat files"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#paperclip"></use></svg><span class="sr-only">Chat files</span></button>
+                <button id="model-settings-button" class="composer-model quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="Connection · Local test · Local test">Local test</button>
+              </div>
+              <div class="composer-buttons">
+                <button id="cancel-run-button" class="quiet-button danger-button icon-only" type="button" aria-label="Cancel run" data-tooltip="Cancel run">Cancel run</button>
+                <button id="send-button" class="primary-button icon-only" type="submit" aria-label="Send" data-tooltip="Send" disabled="" hidden="">Send</button>
+              </div>
+            </div>
+          </form>
+          <!-- WK-73 · outside the box: the standing context of the session or
+               the workspace, left aligned, nothing on the right. -->
+          <p id="home-start-status" class="home-start-status" role="status" data-error="false" hidden=""></p>
+          <div id="composer-below" class="composer-below">
+            <p id="composer-project" class="composer-project">NDA review</p>
+            <div id="home-composer-context" class="home-composer-context" hidden="">
+              <label class="home-choice">Project
+                <select id="home-project-input" aria-label="Project for this chat" data-options="[[&quot;c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3&quot;,&quot;NDA review&quot;],[&quot;04af407d-ec9d-4096-b59f-e5f9a3ccd0d5&quot;,&quot;Other project&quot;]]"><option value="c19e6fa5-facd-4289-97e7-5f5a4e2ce8b3">NDA review</option><option value="04af407d-ec9d-4096-b59f-e5f9a3ccd0d5">Other project</option></select>
+              </label>
+              <button id="home-create-project" class="quiet-button" type="button" aria-label="New project"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#plus"></use></svg><span class="button-label">New project</span></button>
+              <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
+                   后果本身（Ask before editing），标签不再重复一次。 -->
+              <select id="home-permission-input" class="home-choice-select" aria-label="File access for this chat"><option value="ask">Ask before editing</option><option value="draft">Allow edits</option><option value="read_only">Read only</option></select>
+            </div>
+            <button id="permission-settings-button" class="permission-mode quiet-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="connection-popover" aria-label="File access: Allow edits" data-tooltip="File access: Allow edits"><span class="button-label">Allow edits</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ui-icon"><use href="/web/vendor/icons.svg#chevron-down"></use></svg></button>
+          </div>
+        </footer>
+        </footer>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="wrap-outer">
+    <table class="measure-table">
+  <caption>Work 头部 + composer 实测（1440，浅色）</caption>
+  <thead><tr><th>角色</th><th>元素</th><th>现状</th><th>V1</th><th>V2</th><th>对比度</th></tr></thead>
+  <tbody><tr>
+        <td>navigationTitle</td>
+        <td>h1#session-title (Settings page title & Work header title)</td>
+        <td>17px / 600 / lh 22.95</td>
+        <td>15px / 500 / lh unchanged (explicit 1.35 => 20.25)</td>
+        <td>15px / 500 / lh unchanged (explicit 1.35 => 20.25)</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>caption</td>
+        <td>.session-mode / .session-scope / .run-badge</td>
+        <td>11px / 400 / lh 16.5</td>
+        <td>10.5px / 450 / lh explicit override => 1.45 (15.225)</td>
+        <td>10.5px / 450 / lh 1.45 inherited => 15.225</td>
+        <td class="">session-mode/scope (muted-strong_on_panel): 5.84; run-badge.waiting_user (ink_on_panel): 16.12</td>
+      </tr>
+<tr>
+        <td>control</td>
+        <td>#send-button / #cancel-run-button (icon-only, --control) and .settings-row-control select/input</td>
+        <td>控件高 32px / 按钮字号 14px（inherited body size, not a role token）</td>
+        <td>控件高 28px / 按钮字号 12px（var(--text-label)）</td>
+        <td>控件高 28px / 按钮字号 12px（var(--text-label)）</td>
+        <td class="">16.12</td>
+      </tr></tbody>
+</table>
+  </div>
+  <div class="notes">composer · idle 取自会话 “Complete NDA review”（已绑定 Matter，Run 已完成，Send 常态可点，Cancel run 常态隐藏）；composer · waiting 取自另一会话，播种一个停在 waiting_user 的 Run（Cancel run 可见、run badge 常态出现），两个状态互斥，不会同屏出现——两段截自两次真实渲染，未合成。#cancel-run-button 在 waiting 状态下 outerHTML 显示纯文本 “Cancel run”（icon-only 类仍在但内容已被 renderComposer() 的 textContent 覆盖），因此撑到两行、控件高变成 44px：这是应用本身已有的渲染事实，与本消融的字阶改动无关，如实呈现，未修饰。</div>
+</body>
+</html>

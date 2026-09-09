@@ -1,0 +1,534 @@
+{
+  "source": {
+    "baseline_sha": "5ea5ff0",
+    "tree": "/private/tmp/se-fable-r4d",
+    "sampled_at": "2026-09-09T13:26:01.549Z",
+    "app_port": 8903,
+    "data_dir": "/private/tmp/se-fable-r4d-excc4-data",
+    "viewport": "1440x900",
+    "theme": "light"
+  },
+  "roles": {
+    "title": {
+      "element": ".settings-section-title (h3, \"General\")",
+      "current": {
+        "fontSize": 20,
+        "fontWeight": 600,
+        "lineHeight": 30
+      },
+      "v1": {
+        "fontSize": 18,
+        "fontWeight": 500,
+        "lineHeight": "unchanged (1.5 inherited => 27)"
+      },
+      "v2": {
+        "fontSize": 18,
+        "fontWeight": 500,
+        "lineHeight": "1.45 inherited => 26.1"
+      },
+      "contrast": {
+        "pair": "ink_on_panel",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "navigationTitle": {
+      "element": "h1#session-title (Settings page title & Work header title)",
+      "current": {
+        "fontSize": 17,
+        "fontWeight": 600,
+        "lineHeight": 22.95
+      },
+      "v1": {
+        "fontSize": 15,
+        "fontWeight": 500,
+        "lineHeight": "unchanged (explicit 1.35 => 20.25)"
+      },
+      "v2": {
+        "fontSize": 15,
+        "fontWeight": 500,
+        "lineHeight": "unchanged (explicit 1.35 => 20.25)"
+      },
+      "contrast": {
+        "pair": "ink_on_panel",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "section": {
+      "element": ".settings-block-title (h4, \"New chats\")",
+      "current": {
+        "fontSize": 14,
+        "fontWeight": 700,
+        "lineHeight": 21
+      },
+      "v1": {
+        "fontSize": 13,
+        "fontWeight": 500,
+        "lineHeight": "unchanged (1.5 inherited => 19.5)"
+      },
+      "v2": {
+        "fontSize": 13,
+        "fontWeight": 500,
+        "lineHeight": "1.45 inherited => 18.85"
+      },
+      "contrast": {
+        "pair": "ink_on_panel",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "body": {
+      "element": ".settings-row-title (\"File access\")",
+      "current": {
+        "fontSize": 14,
+        "fontWeight": 500,
+        "lineHeight": 21
+      },
+      "v1": {
+        "fontSize": 14,
+        "fontWeight": 500,
+        "lineHeight": "unchanged (21)",
+        "note": "正文不动 per V1 constraint"
+      },
+      "v2": {
+        "fontSize": 13,
+        "fontWeight": 500,
+        "lineHeight": "1.45 inherited => 18.85"
+      },
+      "contrast": {
+        "pair": "ink_on_panel",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "label": {
+      "element": ".settings-tab (\"General\", not current)",
+      "current": {
+        "fontSize": 13,
+        "fontWeight": 550,
+        "lineHeight": 19.5,
+        "controlHeight": 32
+      },
+      "v1": {
+        "fontSize": 12,
+        "fontWeight": 450,
+        "lineHeight": "1.5 inherited => 18",
+        "controlHeight": 28,
+        "note": ".is-current bumped to 500 (not 450) to keep a weight-only selected cue — see README"
+      },
+      "v2": {
+        "fontSize": 12,
+        "fontWeight": 450,
+        "lineHeight": "1.45 inherited => 17.4",
+        "controlHeight": 28,
+        "note": "same .is-current note as V1"
+      },
+      "contrast": {
+        "pair": "ink_on_panel",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "meta": {
+      "element": ".settings-row-help / #permission-settings-button / #model-settings-button",
+      "current": {
+        "fontSize": 12,
+        "fontWeight": 400,
+        "lineHeight": 18
+      },
+      "v1": {
+        "fontSize": 11.5,
+        "fontWeight": 400,
+        "lineHeight": "explicit override => 1.45 (16.675)"
+      },
+      "v2": {
+        "fontSize": 11,
+        "fontWeight": 400,
+        "lineHeight": "1.45 inherited => 15.95"
+      },
+      "contrast": {
+        "pair": "muted-strong_on_panel",
+        "ratio": 5.84,
+        "pass": true
+      }
+    },
+    "caption": {
+      "element": ".session-mode / .session-scope / .run-badge",
+      "current": {
+        "fontSize": 11,
+        "fontWeight": 400,
+        "lineHeight": 16.5
+      },
+      "v1": {
+        "fontSize": 10.5,
+        "fontWeight": 450,
+        "lineHeight": "explicit override => 1.45 (15.225)"
+      },
+      "v2": {
+        "fontSize": 10.5,
+        "fontWeight": 450,
+        "lineHeight": "1.45 inherited => 15.225"
+      },
+      "contrast": {
+        "note": ".session-mode / .session-scope use muted-strong; .run-badge.waiting_user uses accent-ink (= ink, monochrome accent)",
+        "pairs": {
+          "session-mode/scope (muted-strong_on_panel)": 5.84,
+          "run-badge.waiting_user (ink_on_panel)": 16.12
+        },
+        "pass": true
+      }
+    },
+    "control": {
+      "element": "#send-button / #cancel-run-button (icon-only, --control) and .settings-row-control select/input",
+      "current": {
+        "height": 32,
+        "buttonFontSize": 14,
+        "buttonFontSizeRole": "inherited body size, not a role token"
+      },
+      "v1": {
+        "height": 28,
+        "buttonFontSize": 12,
+        "buttonFontSizeRole": "var(--text-label)"
+      },
+      "v2": {
+        "height": 28,
+        "buttonFontSize": 12,
+        "buttonFontSizeRole": "var(--text-label)"
+      },
+      "primaryButtonWeight": {
+        "current": 550,
+        "v1": 500,
+        "v2": 500
+      },
+      "contrast": {
+        "pair": "on-accent_on_ink(button)",
+        "ratio": 16.12,
+        "pass": true
+      }
+    },
+    "settingsTabSelected": {
+      "element": ".settings-tab.is-current",
+      "current": {
+        "fontSize": 13,
+        "fontWeight": 550
+      },
+      "v1": {
+        "fontSize": 12,
+        "fontWeight": 500
+      },
+      "v2": {
+        "fontSize": 12,
+        "fontWeight": 500
+      },
+      "contrast": {
+        "pair": "ink_on_selected(tab-current)",
+        "ratio": 13.41,
+        "pass": true
+      }
+    }
+  },
+  "eyebrow_tracking": {
+    "token": "--tracking-caps",
+    "current": "0.06em",
+    "v1": "0.08em",
+    "v2": "0.08em",
+    "applies_to_these_two_panes": false,
+    "note": "Neither Settings›General nor Work header/composer currently renders an uppercase eyebrow element (.settings-preview-label, .settings-table thead th) — the token change has no visible effect in this ablation. Documented in README."
+  },
+  "contrast_failures": 0,
+  "raw_computed_style_captures": {
+    "settingsGeneral": {
+      "pageTitle": {
+        "selector": "#session-title-text",
+        "tag": "span",
+        "text": "Settings",
+        "fontSize": "17px",
+        "fontWeight": "600",
+        "lineHeight": "22.95px",
+        "letterSpacing": "-0.34px",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 20,
+        "width": 63.89
+      },
+      "sectionTitle": {
+        "selector": ".settings-section-title",
+        "tag": "h3",
+        "text": "General",
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "lineHeight": "30px",
+        "letterSpacing": "-0.4px",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 30,
+        "width": 820
+      },
+      "blockTitle": {
+        "selector": ".settings-block-title",
+        "tag": "h4",
+        "text": "New chats",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 21,
+        "width": 778
+      },
+      "rowTitle": {
+        "selector": ".settings-row-title",
+        "tag": "span",
+        "text": "File access",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 21,
+        "width": 778
+      },
+      "rowHelp": {
+        "selector": ".settings-row-help",
+        "tag": "span",
+        "text": "The value a chat starts with. It applies when the chat is cr",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "18px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 18,
+        "width": 778
+      },
+      "rowControlInput": {
+        "selector": ".settings-row-control input",
+        "tag": "input",
+        "text": "",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "15.6px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 1,
+        "width": 200
+      },
+      "rowControlSelect": {
+        "selector": ".settings-row-control select",
+        "tag": "select",
+        "text": "SlateGray steelCustom tokens",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 0,
+        "width": 0
+      },
+      "settingsTab": {
+        "selector": ".settings-tab",
+        "tag": "button",
+        "text": "General",
+        "fontSize": "13px",
+        "fontWeight": "550",
+        "lineHeight": "19.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 32,
+        "width": 240
+      },
+      "settingsTabCurrent": {
+        "selector": ".settings-tab.is-current",
+        "tag": "button",
+        "text": "General",
+        "fontSize": "13px",
+        "fontWeight": "550",
+        "lineHeight": "19.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 32,
+        "width": 240
+      },
+      "settingsSearch": {
+        "selector": "#settings-search",
+        "tag": "input",
+        "text": "",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "18px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 36,
+        "width": 240
+      },
+      "backButton": {
+        "selector": "#settings-back-button",
+        "tag": "button",
+        "text": "Back to app",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 33,
+        "width": 98.66
+      }
+    },
+    "workIdle": {
+      "navTitle": {
+        "selector": "#session-title",
+        "tag": "h1",
+        "text": "NDA reviewComplete NDA review",
+        "fontSize": "17px",
+        "fontWeight": "600",
+        "lineHeight": "22.95px",
+        "letterSpacing": "-0.34px",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 22.94,
+        "width": 660
+      },
+      "sessionMode": {
+        "selector": ".session-mode",
+        "tag": "span",
+        "text": "Work",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "16.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 16.5,
+        "width": 27.03
+      },
+      "sessionScope": {
+        "selector": ".session-scope",
+        "tag": "span",
+        "text": "Memory · Off",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "16.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 16.5,
+        "width": 68.86
+      },
+      "sendButton": {
+        "selector": "#send-button",
+        "tag": "button",
+        "text": "Send",
+        "fontSize": "14px",
+        "fontWeight": "550",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(253, 253, 254)",
+        "height": 32,
+        "width": 32
+      },
+      "permissionMode": {
+        "selector": "#permission-settings-button",
+        "tag": "button",
+        "text": "Allow edits",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "18px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 32,
+        "width": 101.41
+      },
+      "modelSettingsButton": {
+        "selector": "#model-settings-button",
+        "tag": "button",
+        "text": "Local test",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "18px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 32,
+        "width": 69.08
+      }
+    },
+    "workWaiting": {
+      "sessionMode": {
+        "selector": ".session-mode",
+        "tag": "span",
+        "text": "Work",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "16.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 16.5,
+        "width": 27.03
+      },
+      "sessionScope": {
+        "selector": ".session-scope",
+        "tag": "span",
+        "text": "Memory · Off",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "16.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 16.5,
+        "width": 68.86
+      },
+      "runBadge": {
+        "selector": ".run-badge",
+        "tag": "span",
+        "text": "Waiting for you",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "16.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(28, 32, 36)",
+        "height": 16.5,
+        "width": 89
+      },
+      "cancelButton": {
+        "selector": "#cancel-run-button",
+        "tag": "button",
+        "text": "Cancel run",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(253, 253, 254)",
+        "height": 44,
+        "width": 32
+      },
+      "permissionMode": {
+        "selector": "#permission-settings-button",
+        "tag": "button",
+        "text": "Allow edits",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "18px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(96, 100, 108)",
+        "height": 32,
+        "width": 101.41
+      }
+    }
+  }
+}

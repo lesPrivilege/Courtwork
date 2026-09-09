@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>EX-CC4 · 字阶与控件密度消融（FE-05a）</title>
+<style>
+
+/* ===== EX-CC4 overlay — V1 "chrome 收敛，正文不动" ======================= */
+.col-v1 {
+  --text-title: 18px;
+  --text-navigation-title: 15px;
+  --text-section: 13px;
+  --text-label: 12px;
+  --text-meta: 11.5px;
+  --text-caption: 10.5px;
+  --tracking-caps: 0.08em;
+  --control: 28px;
+}
+.col-v1 h1 { font-weight: 500; }
+.col-v1 .settings-section-title { font-weight: 500; }
+.col-v1 .settings-block-title { font-weight: 500; }
+.col-v1 .settings-tab { font-weight: 450; }
+.col-v1 .settings-tab.is-current { font-weight: 500; }
+.col-v1 .session-mode,
+.col-v1 .session-scope,
+.col-v1 .run-badge { font-weight: 450; line-height: 1.45; }
+.col-v1 .settings-row-help,
+.col-v1 .permission-mode,
+.col-v1 .composer-model,
+.col-v1 #model-settings-button { line-height: 1.45; }
+.col-v1 button { font-size: var(--text-label); }
+.col-v1 .primary-button { font-weight: 500; }
+
+/* ===== EX-CC4 overlay — V2 "全站一档" ===================================== */
+.col-v2 {
+  --text-title: 18px;
+  --text-navigation-title: 15px;
+  --text-reading: 14px;
+  --text-body: 13px;
+  --text-section: 13px;
+  --text-label: 12px;
+  --text-meta: 11px;
+  --text-caption: 10.5px;
+  --tracking-caps: 0.08em;
+  --control: 28px;
+  line-height: 1.45;
+  font-size: calc(13px * var(--text-scale));
+}
+.col-v2 h1 { font-weight: 500; }
+.col-v2 .settings-section-title { font-weight: 500; }
+.col-v2 .settings-block-title { font-weight: 500; }
+.col-v2 .settings-tab { font-weight: 450; }
+.col-v2 .settings-tab.is-current { font-weight: 500; }
+.col-v2 .session-mode,
+.col-v2 .session-scope,
+.col-v2 .run-badge { font-weight: 450; }
+.col-v2 button { font-size: var(--text-label); }
+.col-v2 .primary-button { font-weight: 500; }
+
+/* ===== ablation page chrome (not app CSS — this file's own scaffolding) === */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: #f0f0f3;
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1c2024;
+}
+.page-head {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px 8px;
+}
+.page-head h1 { font-size: 20px; font-weight: 600; margin: 0 0 12px; letter-spacing: -0.02em; }
+.compare-questions {
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: #1c2024;
+}
+.compare-questions li::before { content: "— "; color: #8b8d98; }
+.cols {
+  margin: 0 auto 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 0 24px;
+  align-items: start;
+  overflow-x: auto;
+}
+.ablation-col {
+  background: #fdfdfe;
+  border: 1px solid #cdced6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.col-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-bottom: 1px solid #cdced6;
+  background: #f9f9fb;
+  color: #60646c;
+}
+.col-body { position: relative; overflow: hidden; }
+/* Real 1440-class layouts do not fit three abreast on one screen, so each
+   column renders its fragment at a realistic pixel width (the width its own
+   tokens assume -- settings-nav 240 + settings-measure 820 + gutters, or the
+   chat column's own measure) and is shrunk with CSS zoom (a real re-layout at
+   the smaller size, not a visual-only transform) so the three sit side by
+   side. Font-size RATIOS between columns are exactly what a 1:1 render would
+   show; only the absolute on-screen pixels are smaller. */
+.frame-settings { width: 1200px; zoom: 0.42; }
+.frame-work { width: 1000px; zoom: 0.5; }
+.pane-block + .pane-block { border-top: 1px solid #e8e8ec; }
+.pane-block-label {
+  font-size: 11px;
+  color: #8b8d98;
+  padding: 6px 16px 0;
+}
+table.measure-table {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto 48px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.measure-table caption {
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+table.measure-table th,
+table.measure-table td {
+  border: 1px solid #d9d9e0;
+  padding: 6px 10px;
+  text-align: left;
+}
+table.measure-table th { background: #f0f0f3; }
+td.fail { background: #feebec; color: #9b3c35; font-weight: 600; }
+.wrap-outer { max-width: 1400px; margin: 0 auto; padding: 0 24px 8px; }
+.notes { font-size: 12px; color: #60646c; max-width: 1400px; margin: 0 auto 40px; padding: 0 24px; }
+
+body { background: #fdfdfe; }
+a.ablation-link { display: block; padding: 16px 20px; margin: 0 24px 16px; border: 1px solid #cdced6; border-radius: 8px; text-decoration: none; color: #1c2024; background: #f9f9fb; }
+a.ablation-link strong { display: block; font-size: 16px; margin-bottom: 4px; }
+a.ablation-link span { font-size: 13px; color: #60646c; }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>EX-CC4 · 字阶与控件密度消融（FE-05a / WK-120 / M-11）</h1>
+    <p style="font-size:13px;color:#60646c;max-width:900px;">
+      基线 <code>5ea5ff0</code>（<code>/private/tmp/se-fable-r4d</code>），
+      取样 2026-09-09T13:26:01.549Z，应用端口 8903，
+      数据目录 <code>/private/tmp/se-fable-r4d-excc4-data</code>，视口 1440x900，light。
+      规格：<code>engineering/design/type-density-constraints.md</code>。产品代码未改动，本页与其余文件均在
+      <code>engineering/design/type-density-ablation/</code> 之外无写入。
+    </p>
+  </div>
+  <a class="ablation-link" href="./settings-general.html">
+    <strong>Settings › General</strong>
+    <span>导航、分节标题、行标题/说明、控件（select / input / tab）— 现状 / V1 / V2 三列并排</span>
+  </a>
+  <a class="ablation-link" href="./work-header.html">
+    <strong>Work 头部 + composer 控件</strong>
+    <span>导航标题、模式词、scope 位、run badge、Send / Cancel run / 权限控件 — 现状 / V1 / V2 三列并排</span>
+  </a>
+  <div class="wrap-outer">
+    <table class="measure-table">
+  <caption>全部角色实测汇总（两处消融面合并；逐面明细见各自页面）</caption>
+  <thead><tr><th>角色</th><th>元素</th><th>现状</th><th>V1</th><th>V2</th><th>对比度</th></tr></thead>
+  <tbody><tr>
+        <td>title</td>
+        <td>.settings-section-title (h3, "General")</td>
+        <td>20px / 600 / lh 30</td>
+        <td>18px / 500 / lh unchanged (1.5 inherited => 27)</td>
+        <td>18px / 500 / lh 1.45 inherited => 26.1</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>navigationTitle</td>
+        <td>h1#session-title (Settings page title & Work header title)</td>
+        <td>17px / 600 / lh 22.95</td>
+        <td>15px / 500 / lh unchanged (explicit 1.35 => 20.25)</td>
+        <td>15px / 500 / lh unchanged (explicit 1.35 => 20.25)</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>section</td>
+        <td>.settings-block-title (h4, "New chats")</td>
+        <td>14px / 700 / lh 21</td>
+        <td>13px / 500 / lh unchanged (1.5 inherited => 19.5)</td>
+        <td>13px / 500 / lh 1.45 inherited => 18.85</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>body</td>
+        <td>.settings-row-title ("File access")</td>
+        <td>14px / 500 / lh 21</td>
+        <td>14px / 500 / lh unchanged (21)</td>
+        <td>13px / 500 / lh 1.45 inherited => 18.85</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>label</td>
+        <td>.settings-tab ("General", not current)</td>
+        <td>13px / 550 / lh 19.5 / ctl 32px</td>
+        <td>12px / 450 / lh 1.5 inherited => 18 / ctl 28px</td>
+        <td>12px / 450 / lh 1.45 inherited => 17.4 / ctl 28px</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>meta</td>
+        <td>.settings-row-help / #permission-settings-button / #model-settings-button</td>
+        <td>12px / 400 / lh 18</td>
+        <td>11.5px / 400 / lh explicit override => 1.45 (16.675)</td>
+        <td>11px / 400 / lh 1.45 inherited => 15.95</td>
+        <td class="">5.84</td>
+      </tr>
+<tr>
+        <td>caption</td>
+        <td>.session-mode / .session-scope / .run-badge</td>
+        <td>11px / 400 / lh 16.5</td>
+        <td>10.5px / 450 / lh explicit override => 1.45 (15.225)</td>
+        <td>10.5px / 450 / lh 1.45 inherited => 15.225</td>
+        <td class="">session-mode/scope (muted-strong_on_panel): 5.84; run-badge.waiting_user (ink_on_panel): 16.12</td>
+      </tr>
+<tr>
+        <td>control</td>
+        <td>#send-button / #cancel-run-button (icon-only, --control) and .settings-row-control select/input</td>
+        <td>控件高 32px / 按钮字号 14px（inherited body size, not a role token）</td>
+        <td>控件高 28px / 按钮字号 12px（var(--text-label)）</td>
+        <td>控件高 28px / 按钮字号 12px（var(--text-label)）</td>
+        <td class="">16.12</td>
+      </tr>
+<tr>
+        <td>settingsTabSelected</td>
+        <td>.settings-tab.is-current</td>
+        <td>13px / 550</td>
+        <td>12px / 500</td>
+        <td>12px / 500</td>
+        <td class="">13.41</td>
+      </tr></tbody>
+</table>
+  </div>
+  <div class="notes">
+    对比度不达标（&lt;4.5:1）项：<strong>0</strong>。本消融不改任何颜色 token，
+    所有文字颜色与背景色在三列间完全相同，因此对比度只需算一次、三列共用；上表按角色列出的比值即三列的比值。
+    <br/>eyebrow 大写字距 <code>--tracking-caps</code>（0.06em → 0.08em）在这两处消融面上均无可见对象（两面都没有用到
+    <code>text-transform: uppercase</code> 的说明/eyebrow 元素），已按 §3 覆盖该 token，但视觉上无差异，详见 README「未覆盖项」。
+  </div>
+</body>
+</html>
