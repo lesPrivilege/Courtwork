@@ -5450,3 +5450,18 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .runtime-package-resources input { width: auto; }
 [data-package-editor] > label { display: block; margin-top: 12px; }
 [data-package-editor] > label > span { display: block; margin-bottom: 6px; }
+
+/* Shared model configuration, with native focus containment and selection. */
+.model-picker-dialog { width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--float); color: var(--ink); overflow: auto; }
+.model-picker-dialog::backdrop { background: var(--scrim); }
+.model-picker-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.model-picker-header h2 { margin: 0; font-size: 20px; }
+.model-picker-dialog > input, .model-picker-dialog > select { width: 100%; margin: 8px 0; }
+.model-picker-dialog > select { height: 220px; padding: 8px; }
+.model-picker-dialog label { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; }
+.model-picker-dialog label select { width: 50%; }
+.attention-agent-composer .attention-model-choice { max-width: 108px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-meta); padding: 0 8px; }
+.request-measurements { padding: 8px 0; }
+.request-measurements h4 { margin: 12px 0 8px; font-size: var(--text-meta); }
+.request-measurements .data-list { font-size: var(--text-meta); }
+@media(max-width:600px) { .attention-agent-composer .attention-model-choice { max-width: 80px; } }

@@ -9,6 +9,7 @@ import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promis
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { StringDecoder } from "node:string_decoder";
+import { getSupportedThinkingLevels, clampThinkingLevel } from "@earendil-works/pi-ai";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 
 import {
@@ -77,12 +78,16 @@ function publicProviderConfig(config) {
 
 function validateProviderDescriptor(value) {
   const input = requireObject(value, "provider");
-  assertKeys(input, new Set(["provider", "model", "api", "baseUrl"]));
+  assertKeys(input, new Set(["provider", "model", "api", "baseUrl", "reasoningEffort"]));
   const result = {
     provider: text(input.provider, "provider", { max: 120 }),
     model: text(input.model, "model", { max: 240 }),
     api: text(input.api, "api", { max: 120 }),
   };
+  if (input.reasoningEffort !== undefined) {
+    if (!["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(input.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "unsupported reasoning effort");
+    result.reasoningEffort = input.reasoningEffort;
+  }
   if (input.baseUrl !== undefined) {
     const baseUrl = text(input.baseUrl, "baseUrl", { max: 2048 });
     let parsed;
@@ -274,8 +279,8 @@ export class RuntimeService {
       apiFormats: [...API_FORMATS],
       models: this.modelRuntime.getModels()
         .filter((model) => ALLOWED_PROVIDER_IDS.has(model.provider))
-        .map(({ id, name, provider, api, contextWindow, maxTokens, reasoning }) =>
-          ({ id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning })),
+        .map(model => { const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
+          return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium") }; }),
     };
   }
 
@@ -671,8 +676,9 @@ export class RuntimeService {
     if (config.provider === DEEPSEEK_PROVIDER_ID && config.api !== DEEPSEEK_API_ID && !config.baseUrl) {
       throw new ServiceError(400, "invalid_provider", "a non-catalog API format requires an explicit compatible endpoint");
     }
-    this.providerConfig = config;
+    if (config.reasoningEffort !== undefined && !getSupportedThinkingLevels(catalogModel).includes(config.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "reasoning effort is not supported by this model");
     await this.store.setProviderConfig(config);
+    this.providerConfig = config;
     return this.getProviderConfig();
   }
 
@@ -983,6 +989,8 @@ export class RuntimeService {
       throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
     }
 
+    if (provider.reasoningEffort !== undefined && !getSupportedThinkingLevels(this.#resolveModel(provider)).includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
+
     let extension = null;
     if (session.extensionBinding) {
       const record = this.extensionRegistry.getRecord(session.extensionBinding.extensionId);
@@ -1190,6 +1198,8 @@ export class RuntimeService {
         agentDir: path.join(this.dataDir, "pi-agent"),
         modelRuntime: this.modelRuntime,
         model,
+        reasoningEffort: provider.reasoningEffort,
+        onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
         sessionManager: entry.sessionManager,
         customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...attentionTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;

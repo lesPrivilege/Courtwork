@@ -284,3 +284,5 @@ RuntimeStore 当前为6（Core3/app4不变）：严格校验后从3/4/5保留原
 ## Backend Governance 认领（2026-09-10）
 
 用户授权认领后端治理PR并由Luna explore。Astra从实际 `main@27d37da` 建立 `codex/backend-governance-20260910` 隔离分支，形成[认领与首片合同](execution/2026-09-10-backend-governance/README.md)。沿既有Attention原子state/event/receipt及default-deny披露，首片BG-01聚焦Attention/Matter目录与渐进披露；Matter通用disclosure仍须先冻结，不能继承全局agent权限。Run/attempt和外部effect分别接执行owner与DS-04，不新建memory事实库。Luna只读源码探索与作者文档检查不等于产品实施或独立接受；未创建远端PR，不变更schema或产品门。探索基线Runtime6；提交前另一个writer已将main推进至 `6921dbd` / Runtime7，后续实现须重新对齐。
+
+Home handoff后续施工（2026-09-10）：用户授权按 Runtime→Usage→Tabs→Material→Overlay→Glyph→Sidebar/Control 顺序实施，统一composer writer。[队列](design/home-backlog-2026-09-10/README.md)。Runtime第一片已实施共享模型/effort选择器、host观测请求延迟、上下文启发式与独立用量详情；RuntimeStore7持久化可选effort，严格备份迁移3–6并保留global身份。全量423/423、最终定向5/5与合成浏览器验证通过；[证据及归因](../evidence/home-backlog-20260910/runtime/README.md)。原生provider TTFT/decode TPS无必要测量时仍明确不可用，不以host延迟或字符数冒充。下一片Usage施工；其余队列未闭合。

@@ -1,3 +1,4 @@
+import { observeRequestStream } from "./request-telemetry.mjs";
 import {
   createAgentSession,
   createExtensionRuntime,
@@ -163,6 +164,8 @@ export async function createSessionRun({
   beforeTool,
   beforeExtraInput,
   beforeInitialInput,
+  reasoningEffort,
+  onTelemetry,
 }) {
   const compactionPolicy = resolveCompactionPolicy(model, compaction);
   const { session } = await createAgentSession({
@@ -170,6 +173,7 @@ export async function createSessionRun({
     agentDir,
     modelRuntime,
     model,
+    ...(reasoningEffort !== undefined ? { thinkingLevel: reasoningEffort } : {}),
     noTools: "builtin",
     customTools: customTools.map(tool => ({...tool, execute: async (...args) => {
       await drain();
@@ -189,15 +193,17 @@ export async function createSessionRun({
   // its Agent had an active abort controller. Keep cancellation sticky across
   // that transition and enforce it at the public transport seam.
   let stopped = false;
+  let requestOrdinal = 0;
+  let requestPurpose = "agent";
   const nativeStream = session.agent.streamFunction;
   session.agent.streamFunction = (requestModel, context, options) => {
     if (stopped) {
       const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
     }
-    return nativeStream(requestModel, context, {
-      ...options,
-      sessionId: sessionManager.getSessionId(),
-      cacheRetention: options?.cacheRetention ?? "short",
+    return observeRequestStream({ model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
+      requestedEffort: reasoningEffort ?? null, effectiveEffort: session.thinkingLevel,
+      record: data => forward(onTelemetry, data),
+      start: () => nativeStream(requestModel, context, { ...options, sessionId: sessionManager.getSessionId(), cacheRetention: options?.cacheRetention ?? "short" }),
     });
   };
   const abort = async () => {
@@ -256,6 +262,7 @@ export async function createSessionRun({
         break;
       }
       case "compaction_start":
+        requestPurpose = "compaction";
         forward(beforeExtraInput, "compaction");
         compactionCount += 1;
         forward(onNotice, { kind: "compaction_start", reason: event.reason });
@@ -268,6 +275,7 @@ export async function createSessionRun({
         }
         break;
       case "compaction_end": {
+        requestPurpose = "agent";
         const aborted = stopped || !!event.aborted;
         const successful = !!event.result && !aborted && !event.errorMessage;
         if (event.result?.usage) addUsage(counters, event.result.usage);
