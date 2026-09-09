@@ -62,14 +62,110 @@ delivery-cc-s.md 沿 delivery-fe04.md 体例：基线、commit 表、改动文�
 
 ---
 
-## CC-W · 三面贯通与 tab strip（待用户在 [画布](https://claude.ai/code/artifact/f0b8d9b9-01fc-4dff-bcdb-390ad6f2a24c) 选向后成单）
+## CC-W · 工作面：1440 主次切换 + tab strip，≥1680 三栏（`opus-wo-medium`；选向 B + C，WK-116；视觉复核待用户）
 
-骨架（WK-113 + WK-116 R4D-3/4/5）：第 0 项显式改约（`interface-components.md` §工作面定性按视口分档、`ui-composition-standard.md` §右侧 contextual surface、≥1680 断点、WORK-5… 断言）；1440 主次切换 + tab strip（四个类型 tab + 至多一个可关闭文档 tab，关闭区与选中区分离，截断保留全名）；≥1680 真三栏；Memory scope 位搬到工作面标题带（M-2）；tab 显示 key 复用既有身份但 renderer 失效判定保留 `status` / `modulePath`；单文档阶段仍保留聊天与当前阅读面的滚动、草稿与返回焦点（不建多文档 map ≠ 可丢位置）；B / C 均补展开态、返回、断点两侧、短高度、200% 与安全区断言；多实例等 BE-2。effort：`opus-wo-medium`（几何合同与 tab 生命周期需逐项判断）。
+### 交接契约（WK-112 §VI）
 
-## CC-D0 · Home 模块带（WK-116 R4D-2 拆两片：D0-a 外壳与现有事实投影，不依赖新后端，按产品收益排期；D0-b Activity 待 BE-1/3 + BE-25）
+```yaml
+design_task:
+  intent:
+    user_goal: 打开一份文档或 Run 时，阅读面与聊天在同一顶部 chrome 下各自滚动；宽屏并列，普通桌面一键切换
+    primary_action: 在工作面里读（打开 / 切换 / 关闭对象）；决定动作仍由 packet 的 decide 描述符门控，不在本单
+    information_priority: 当前阅读对象 > 它属于哪个 Matter（scope）> 其余类型 tab > 返回聊天
+  constraints:
+    functional: 复用 state.surface 单值形状、surfaceModules 四类型、renderer 挂载 / 卸载与 restoreLayerFocus；不新增端点、字段、状态容器（多文档 map 等 BE-2）
+    business_states: 第一段只有一个受信活动文档；折叠 / 展开 / 切换 / 返回不重发命令、不取消 Run、不丢草稿、不换读取版本（FN-23，FE-T07）；聊天与当前阅读面的滚动位置、草稿、返回焦点必须保留（R4D-3）；renderer 失效仍按 sessionId / extensionId / generation / status / modulePath（R4D-4）
+    navigation: 1024–1679 主次切换（B）：展开态文档面占主区 1136（1440），strip 左端 ← Chat；≥1680 三栏（C）：nav 256 · chat ≥640 · doc ≥688，共享顶部 chrome 基线，各自滚动；<1024 全屏 sheet 不变；tab strip 40–44 高，正文距其 24–32；方向键 / Home / End 沿现有 tablist，关闭有明确动作（Delete / 关闭钮），关闭活跃 tab 选邻近，全部关闭回紧凑目录
+    density: 四个类型 tab + 至多一个文档 tab；文档 tab 关闭命中区与选中区分离；截断保留可访问全名
+    responsive: 1440 / 1680 / 1024 / 390 四档；断点两侧（1679 / 1680）、短高度（≤720）、200%（1440 一次）
+    accessibility: 安全区 80×52 在展开态与三栏态零可聚焦元素（SHELL-4 / SHELL-5）；tablist 语义与焦点归还沿现状
+  existing_system:
+    components: app.mjs surface 段（3236–3321 一带）、surface-modules.mjs 宿主边界、#surface-tabs、#surface-backdrop、.work-surface 折叠 / 展开 CSS（styles.css 4008–4131）
+    tokens: --nav 256/220、--column 740、--rail-width 360、--col-gap 24、--page-gutter 24、--band-top 56；新增断点 ≥1680 与 --doc-min 688（登记）
+    screens: Work（Chat 与 Work 两态）、Review 阅读面
+    assets: 现有 brand 包；无新图形
+  references:
+    positive:
+      - {source: shell-refinement §三个上下贯通的工作面 / §标签式右区宿主契约草案, exact_element_to_borrow: 共享顶部 chrome 基线、独立滚动、tab 组织可读对象, why: 用户方向}
+      - {source: EX-CC1 §3 / §4, exact_element_to_borrow: 既有 identity 字段组合、WAI-ARIA tablist、关闭区分离与截断保留全名, why: 已冻结条款与通行做法}
+      - {source: 画布 WorkB / WorkC 画板, exact_element_to_borrow: 列宽与 strip 位置, why: 选向依据（工程），视觉待复核}
+    negative:
+      - {source: images/work-tabs.png, avoid: 550 中列、多余目录 / Help / 头像 / 模拟法律文字, why: 生成偏差}
+      - {source: 现有展开态, avoid: 遮罩压暗聊天与大圆角模态卡作为默认, why: Astra R4D 总体意见——互斥可见与模态外观分开裁定}
+      - {source: 方案 A, avoid: 导航收图标列, why: 本轮未裁，无 token}
+  unresolved:
+    - {question: B 态下 ← Chat 放在 strip 左端还是顶部 chrome 的返回位, competing_constraints: strip 是对象组织 vs 返回是导航}
+    - {question: 三栏态 chat 列固定 640 还是 flex 至 740 上限, competing_constraints: 阅读列稳定 vs 宽屏利用}
+    - {question: 文档 tab 的标题来源（文件名 / Run 标题 / 来源 id）与截断规则, competing_constraints: 可读 vs identity 不由标题充当}
+  exploration: {variant_count: 3, require_structural_difference: true}   # 已出 A / B / C，选 B + C
+  review: {removal_pass: required, constraint_recheck: required, state_review: required, real_data_review: required}
+```
 
-骨架（WK-114）：Appearance `Home layout: Simple / Modules`（本设备偏好，默认 Simple）；模块带契约（次级带、显隐预置、折叠 / 移除、六态显示约定）；Today strip 原位演进；Activity 随 BE-1/3/25，Usage 随 BE-29；Mail / Calendar 待产品裁定；0.56 不动；不放死模块。effort：`opus-wo-low`。
+### 第 0 项（显式改约，单独提交）
+- `docs/interface-components.md` §工作面定性："not a third column" 改为按视口分档（≥1680 第三栏；1024–1679 覆盖 / 折叠 + tab strip；<1024 sheet），标注 WK-113 / WK-116。
+- `engineering/design/ui-composition-standard.md` §右侧 contextual surface 同步；尺寸 token 表加 ≥1680 断点与 `--doc-min` 688。
+- `composition-checks` 新增 WORK-5…（B 展开态：doc 1136、chat 隐藏但 DOM 与草稿保留；C 三栏：nav 256 / chat ≥640 / doc ≥688、各自 `overflow: auto`、顶部 chrome 同一基线）、SHELL-4 / SHELL-5（展开态与三栏态安全区）、断点两侧各一次。
 
-## Astra 合流接缝限定（2026-09-09）
+### 做什么
+1. tab strip：四类型 tab + 一个文档 tab 的组织；关闭动作与邻近选择；全部关闭回紧凑目录；焦点归还复用 restoreLayerFocus；截断保留 `title` / 可访问名。
+2. B（1024–1679）：展开态 = 主区视图切换（不套遮罩与模态卡外观），strip 顶部；← Chat 返回并恢复聊天滚动与草稿；chat 面 DOM 保留（`hidden` + `inert`）。
+3. C（≥1680）：三栏 grid（nav / chat / doc），各自滚动，顶部 chrome 同一基线；chat ≥640；断点切换时不重挂 renderer、不丢滚动 / 草稿。
+4. Memory scope 位从会话 meta 行搬到工作面标题带（M-2；只在 Work 上，仍零控件）。
+5. FE-T07 全部重跑 + 新增：断点跨越（1679 ↔ 1680）不重发命令、不重挂、位置与草稿不丢；关闭文档 tab 后返回焦点落在打开它的控件。
+6. 消融轮 + anti-slop 门。
 
-成单时必须消费 [r4d 设计接缝评审](../../../../design/clean-cool-2026-09-09/r4d-review.md) R4D-1…6；WK-113/114历史裁定保留，不能用其简写覆盖现行owner合同。CC-W保留原renderer status/modulePath失效条件，以及聊天/当前阅读面的滚动、草稿与返回焦点；B/C均补展开与断点两侧几何验证。CC-D0拆为现有事实的布局外壳与Activity接入：仅后者依赖BE-1/3/25；外壳是否先做按选向与产品收益裁定。临时probe不构成连接健康记录；邮件/日历保留路线意向，具体来源与接入排期另定。CC-S可沿既定结构接单；本次未代派。
+### 写权与禁令
+- 可写：app/web/**、app/tests/**、docs/interface-components.md §工作面段、ui-composition-standard.md、copy-convention.md、text-sweep.md、delivery-cc-w.md、evidence/cc-w/。
+- 不改：app/server、app/runtime、app/core、domains、brand、HTTP 契约、review-projection.md、presentation-primitives.d.ts；不做多文档 map、不新增 identity 字段。
+
+### 交付
+delivery-cc-w.md 沿 delivery-fe04.md 体例；五轮收敛表按 1440 B 态、1680 C 态、390 各一张；状态矩阵（strip、文档 tab、类型 tab、← Chat）；FE-T07 + 新增反例原文；SHELL-1…5；既有回归全量；未检项；待裁定；anti-slop 门自查。
+
+## CC-D0-a · Home 模块带外壳与现有事实投影（`opus-wo-low`；D0-B 选向，WK-114 / WK-116 R4D-2；排期按产品收益）
+
+### 交接契约（WK-112 §VI）
+
+```yaml
+design_task:
+  intent:
+    user_goal: 进入 Home 先能开始一个 Chat；其次一眼看到今天等我的事
+    primary_action: composer 发送（不变）
+    information_priority: composer > Today strip（Waiting for you / In progress / Needs a look）> 次级模块带 > 列表
+  constraints:
+    functional: 只用 work-summary 与 provider-config 已加载的数据；不新增读取、端点、字段；模块显隐为 cw:prefs 本设备偏好；Simple 为默认布局
+    business_states: 六态显示约定（loading / ready / empty / not connected / unavailable / stale）逐模块声明，缺接缝的模块不安装（Activity / Usage / Mail / Calendar 本片不安装，留契约不留死模块）
+    navigation: Settings › Appearance 增 Home layout: Simple / Modules；模块带可折叠 / 移除
+    density: 主区外边距 24–40；模块 gap 20–24；卡内 20–24；同一行模块标题共基线；不强制同高
+    responsive: 1440 / 390；900 与 1058 两个视口高各量一次 HOME-1 / HOME-6
+    accessibility: 键盘顺序 composer → Today → 模块带 → 列表；模块折叠控件 ≥44
+  existing_system:
+    components: home-view.mjs 三带、renderHomeBand、StatTile、WorkCard、presentation-adapters；settings-view.mjs 偏好通道
+    tokens: --home-column 820、--page-gutter 24、--card-padding 20、--space-*
+    screens: Home（Simple / Modules 两态）
+  references:
+    positive:
+      - {source: shell-refinement §首页模块退为辅助 / §模块首页的解耦约定, exact_element_to_borrow: composer 主位、模块带次级、显隐预置、六态, why: 用户方向}
+      - {source: 画布 HomeBand 画板, exact_element_to_borrow: composer 820 + 次级带（Today 480 + 模块位 320）, why: 选向 D0-B}
+    negative:
+      - {source: images/home-modular.png, avoid: 四块大卡、大热力图、演示数字, why: 尺寸目标已被用户撤回}
+      - {source: 上一版"上带", avoid: 把模块放回 composer 之上, why: WK-96 / EX-CC2 §2}
+  unresolved:
+    - {question: Modules 布局下 Today strip 是否与模块带同一行（480 + 320）还是各自整行, competing_constraints: 首屏高度 vs 扫读}
+    - {question: Models 入口行放模块带还是沿 composer chip 后的一行, competing_constraints: 不重复展示（WK-114 ⑤）vs 发现性}
+  exploration: {variant_count: 3, require_structural_difference: true}   # 已出 现状 / D0-B / D0-C，选 D0-B
+  review: {removal_pass: required, constraint_recheck: required, state_review: required, real_data_review: required}
+```
+
+### 做什么
+1. Appearance `Home layout` 偏好（cw:prefs，默认 Simple）；Modules 态渲染次级模块带于 composer 之后；Simple 态与现状逐像素一致（HOME-1…7 不变）。
+2. 模块带契约：模块注册表（id、标题、数据来源、六态、折叠 / 移除）、显隐偏好、键盘顺序；本片只安装 Today（原位）与 Models 入口行；Activity / Usage / Mail / Calendar 只在 contracts 里声明六态，不渲染。
+3. HOME-1 / HOME-6 在 900 与 1058 两高各量一次；390 沉底顺序不变。
+4. 消融轮 + anti-slop 门（特别是 "fake dashboard density" 与 "gratuitous cards"）。
+
+### 写权与禁令
+- 可写：app/web/**、app/tests/**、contracts/home-modules.md（新）、copy-convention.md、text-sweep.md、delivery-cc-d0a.md、evidence/cc-d0a/。
+- 不改：server / runtime / core / domains / brand / HTTP 契约；不新增读取；不画热力图。
+
+## CC-D0-b · Activity 与 Usage 接入（待 BE-1/3 + BE-25、BE-29 交付）
+
+热力图按真实日期桶（时区、去重、覆盖完整性由 BE-25 回答）；空白桶 = 无数据，unknown / 缺覆盖不显示 0；Usage token 分列、"Not reported"；尺寸从 320×120 初值起，HOME-6 复跑。Mail / Calendar 随产品裁定与 BE-26/27。
