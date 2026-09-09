@@ -3027,9 +3027,12 @@ dialog[open]::backdrop {
   gap: var(--space-2);
   min-width: 0;
 }
+/* WK-94 border 审计 · 三个数字是一条 strip，不是三个格子：竖分隔线取消，
+   间距与对齐已经把它们分开，边线留给 input / selected / floating / error。 */
 .stat-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
 }
 /* SH-1 · a plain statistic stays flat: no card frame, no shadow, no second
    boundary. The tile reads as a control through hover, focus and pressed state
@@ -3047,11 +3050,6 @@ dialog[open]::backdrop {
   border: 0;
   border-radius: var(--radius-control);
   background: none;
-}
-/* WK-94 border 审计 · 三个数字是一条 strip，不是三个格子：分隔线取消，
-   间距与对齐已经把它们分开，边线留给 input / selected / floating / error。 */
-.stat-row {
-  gap: var(--space-4);
 }
 .stat-row > .home-stat:first-child {
   padding-left: 0;
@@ -3621,8 +3619,7 @@ court-symbol {
 .runtime-attention > h5,
 .runtime-bindings > h5,
 .runtime-policy > h5,
-.runtime-explainer > h5,
-.runtime-environment > h5 {
+.runtime-explainer > h5 {
   margin: 0;
   font-size: var(--text-caption);
   letter-spacing: var(--tracking-caps);
