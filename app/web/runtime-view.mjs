@@ -1535,8 +1535,10 @@ export function createRuntimeView(
       note(
         "The agent profile a run is composed from, what it depends on and where it applies. Saving a runtime configuration is not publishing a verified Work Expert: that needs a work semantics, a scope it applies to and an acceptance, none of which a profile carries.",
       ),
-      ...scopeStrip({ where: "composition" }),
     );
+    /* Composition shares Developer › Runtime with Overview, and Overview already
+       carries the scope strip; a second one in the same group would be a second
+       tab stop for one choice. */
     const scope = activeScope();
     const profiles = (snapshot.resources || []).filter(
       (resource) => resource.kind === "agent_profile",

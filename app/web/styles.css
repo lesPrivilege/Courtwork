@@ -3134,15 +3134,17 @@ dialog[open]::backdrop {
 /* WK-56 · the card state of the same WorkCard: the rail's anatomy (glyph 16,
    object name, one state word, one action) on the L1 panel, so the boundary is
    a hairline and not the rail card's floating material (WK-69, SH-2). */
+/* WK-94 border 审计 · 层级来自尺寸、间距与表面，不来自边框；边框留给 input、
+   selected、floating 与 error。可打开的 Work 对象仍然成卡（card is earned），
+   但它的边界是一层表面色，不是一圈线。 */
 .home-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--card-padding);
   margin-top: var(--space-3);
-  border: 1px solid var(--line);
   border-radius: var(--radius-card);
-  background: var(--panel);
+  background: var(--panel-muted);
 }
 .home-card-meta {
   font-size: var(--text-meta);

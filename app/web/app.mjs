@@ -1753,7 +1753,7 @@ function renderProjectList() {
     });
     const create = action(
       "plus",
-      `New session in ${project.name}`,
+      `New chat in ${project.name}`,
       () => startNewSession({ projectId: project.id }),
       {
         className: "quiet-button project-create",
