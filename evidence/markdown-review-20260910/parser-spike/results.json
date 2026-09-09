@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "author": "Astra",
+  "scope": "isolated parser behavior; no product implementation or browser acceptance",
+  "node": "v25.9.0",
+  "platform": "darwin/arm64",
+  "dependencies": {
+    "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "unified": "11.0.5"
+  },
+  "lockSha256": "8ae314199ff95a91ef4cef55e105eebfb3a082f9d454d8e916f07cf8bdcc09b2",
+  "passed": 10,
+  "total": 10,
+  "rows": [
+    {
+      "id": "P01-utf16-is-not-codepoints",
+      "status": "passed",
+      "observation": {
+        "utf16": 5,
+        "codepoints": 4,
+        "utf8Bytes": 7
+      }
+    },
+    {
+      "id": "P02-bom-naive-source-slice-is-wrong",
+      "status": "passed",
+      "observation": {
+        "naive": " 测试\ud83d",
+        "corrected": "测试😀",
+        "sourceSha256": "bdb8e3c70e34b0b8d15ff69446fe4939607ca3301e9124890f04a228052df69d",
+        "parserInputSha256": "c4154aeafc5740e0cedc26be342ba1264eae2f589c686bfb997c06d5666bc624"
+      }
+    },
+    {
+      "id": "P03-crlf-source-is-not-normalized",
+      "status": "passed",
+      "observation": {
+        "raw": "第一行\r\n第二行",
+        "sourceBytes": 34
+      }
+    },
+    {
+      "id": "P04-entity-node-range-is-not-character-map",
+      "status": "passed",
+      "observation": {
+        "displayed": "A & B",
+        "raw": "A &amp; B"
+      }
+    },
+    {
+      "id": "P05-code-delimiters-are-not-display-text",
+      "status": "passed",
+      "observation": {
+        "value": "const x = 1;",
+        "raw": "```js\nconst x = 1;\n```"
+      }
+    },
+    {
+      "id": "P06-later-definition-changes-earlier-semantics",
+      "status": "passed",
+      "observation": {
+        "before": "text",
+        "after": "linkReference",
+        "consequence": "closed visual blocks can still depend on later definitions"
+      }
+    },
+    {
+      "id": "P07-content-hash-does-not-identify-duplicate-block",
+      "status": "passed",
+      "observation": {
+        "equalHash": true,
+        "offsets": [
+          0,
+          14
+        ]
+      }
+    },
+    {
+      "id": "P08-no-unicode-normalization-of-canonical-bytes",
+      "status": "passed",
+      "observation": {
+        "codepoints": 2,
+        "normalizedCodepoints": 1
+      }
+    },
+    {
+      "id": "P09-gfm-table-has-syntax-outside-cell-text",
+      "status": "passed",
+      "observation": {
+        "tableType": "table",
+        "rows": 2,
+        "raw": "| A | B |\n| - | - |\n| 中 | 😀 |"
+      }
+    },
+    {
+      "id": "P10-ast-is-not-sanitization",
+      "status": "passed",
+      "observation": {
+        "type": "html",
+        "requiresSeparateRenderPolicy": true
+      }
+    }
+  ]
+}

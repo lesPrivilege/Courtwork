@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "scope": "Future review-anchor oracle fixtures only. The browser renderer is deliberately not evaluated against these expectations.",
+  "pairs": [
+    {
+      "id": "prefix-insert",
+      "before": "Anchor paragraph.\n\nLater paragraph.",
+      "after": "Inserted before.\n\nAnchor paragraph.\n\nLater paragraph.",
+      "anchor": "anchor:base:prefix-insert:paragraph-0",
+      "expectation": "immutable-anchor",
+      "beforeSha256": "43cba5c4bd9b49220050c11c8bd14f0c6769a2cede3ec75d51a269376d781670",
+      "afterSha256": "1f1bbe79afedb448fddd3308bcc07ce54a5e6c0ec6bafd7434d951b1a4876e88"
+    },
+    {
+      "id": "move-paragraph",
+      "before": "Anchor paragraph.\n\nMiddle.\n\nLast.",
+      "after": "Middle.\n\nLast.\n\nAnchor paragraph.",
+      "anchor": "anchor:base:move-paragraph:paragraph-0",
+      "expectation": "immutable-anchor",
+      "beforeSha256": "76a2017b80792ff2ed642faf946c32dd7924972934f71ab478d37af789761d4d",
+      "afterSha256": "8dafd3a315b46a2681ca977d595bfe316885d5a6d86aecb3b16949baa75cf9c6"
+    },
+    {
+      "id": "duplicate-paragraph",
+      "before": "Unique source.\n\nAnchor paragraph.",
+      "after": "Anchor paragraph.\n\nUnique source.\n\nAnchor paragraph.",
+      "anchor": "anchor:base:duplicate-paragraph:paragraph-1",
+      "expectation": "ambiguous",
+      "beforeSha256": "d200eaf1337e7573315167bcf8dd96e7508b689efa6b9f62983b14791526e198",
+      "afterSha256": "f87fd4016b81d43aa77a2c5d88fdf958974f638446f36fdc9f085f065f7e1d8f"
+    },
+    {
+      "id": "rewrite-paragraph",
+      "before": "Anchor wording that will be rewritten.",
+      "after": "Rewritten wording with no exact anchor text.",
+      "anchor": "anchor:base:rewrite-paragraph:paragraph-0",
+      "expectation": "no-silent-relocation",
+      "beforeSha256": "ea7a1e33b063c6ccb922741d97657964644cf4a037185f00ef1615a32555a14b",
+      "afterSha256": "9a22bf902ffba066e3b14c829101a7e9aa1da21c438c767e12c49aade06669c7"
+    },
+    {
+      "id": "delete-paragraph",
+      "before": "Keep.\n\nAnchor deleted.\n\nKeep two.",
+      "after": "Keep.\n\nKeep two.",
+      "anchor": "anchor:base:delete-paragraph:paragraph-1",
+      "expectation": "immutable-anchor",
+      "beforeSha256": "e723c37b0fa3cca6311ba36b1fb866933c5a8868a0904756f9573b6726de8d86",
+      "afterSha256": "16ad68415869fc744cd25d6864bb69b038308d0fba01825b2a115b3d5ec23fee"
+    },
+    {
+      "id": "crlf-normalization",
+      "before": "First line.\r\n\r\nAnchor CRLF.\r\n",
+      "after": "First line.\n\nAnchor CRLF.\n",
+      "anchor": "anchor:base:crlf-normalization:paragraph-1",
+      "expectation": "immutable-anchor",
+      "beforeSha256": "9848e780304f0e7b57528f1ed86a4e6e7d65ea5646eb912991cbd9b150008ff2",
+      "afterSha256": "12e8c30abe4b13d894623bacebead24e161c0a3cc6c2fd6a6abbfa89a69dc746"
+    },
+    {
+      "id": "emoji-change",
+      "before": "Anchor 👩🏽‍💻⚖️.",
+      "after": "Anchor 👩🏽‍💻.",
+      "anchor": "anchor:base:emoji-change:paragraph-0",
+      "expectation": "no-silent-relocation",
+      "beforeSha256": "e298edc81133aa41ed4590735621f0d562f6c1d9be4e37e6c4241e01c1d3cf41",
+      "afterSha256": "564915e08b81d05de271747bcc0ae02c15dca6286d625e6c7bbd68ee0ff1d198"
+    }
+  ]
+}
