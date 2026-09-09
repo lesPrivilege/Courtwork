@@ -4,7 +4,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const sourceRoot = path.resolve(process.argv[2] ?? '/private/tmp/cw-terra-async-protocol');
+const sourceRoot = path.resolve(process.argv[2] ?? '.');
 const { MCPManager } = await import(pathToFileURL(path.join(sourceRoot, 'app/runtime/mcp-manager.mjs')).href);
 
 function sourceCommit() {

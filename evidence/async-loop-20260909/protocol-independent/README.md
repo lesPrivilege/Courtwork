@@ -2,15 +2,13 @@
 
 Reviewer: Luna, non-author. This directory is an independent review artifact;
 it does not alter the Terra T1 source, the Courtwork product, package locks, or
-the author test. The pinned Terra source is
-`/private/tmp/cw-terra-async-protocol` at
-`aaba970520a76aefd6a6e612bf7d089992349a00`.
+the author test. Run it from a checkout containing the pinned Terra T1 source
+at `aaba970520a76aefd6a6e612bf7d089992349a00`.
 
 Run the probe against that source tree:
 
 ```sh
-node evidence/async-loop-20260909/protocol-independent/run-modern-legacy.mjs \
-  /private/tmp/cw-terra-async-protocol
+node evidence/async-loop-20260909/protocol-independent/run-modern-legacy.mjs .
 ```
 
 The script starts two local HTTP loopbacks and drives the pinned

@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const sourceRoot = path.resolve(process.argv[2] ?? '/private/tmp/cw-terra-async-fixture');
+const sourceRoot = path.resolve(process.argv[2] ?? '.');
 const expectFixed = process.argv.includes('--expect-fixed');
 const fixtureRoot = path.join(sourceRoot, 'app/tests/fixtures/async-loop');
 const { createAsyncLoopFixture, fixtureInput } = await import(pathToFileURL(path.join(fixtureRoot, 'index.mjs')).href);

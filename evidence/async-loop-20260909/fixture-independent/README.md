@@ -2,8 +2,7 @@
 
 Reviewer: Luna, non-author. This directory is an independent review artifact;
 it does not alter the Terra T2 source, the Courtwork product, or the author
-fixture/test. The historical Terra source reviewed here is
-`/private/tmp/cw-terra-async-fixture` at
+fixture/test. The historical Terra source reviewed here is the checkout at
 `0c5db70cf7544a7a754d9ed72c7a5370e85c646a` (Terra author). Its self-test
 passed 5/5, but that result is not an independent product acceptance. Terra's
 repair is `95f118db8870a2e8be330f10bac31b4e6d6f89a3`; its self-test passes 7/7.
@@ -11,15 +10,13 @@ repair is `95f118db8870a2e8be330f10bac31b4e6d6f89a3`; its self-test passes 7/7.
 Run against the pinned source tree:
 
 ```sh
-node evidence/async-loop-20260909/fixture-independent/verify.mjs \
-  /private/tmp/cw-terra-async-fixture
+node evidence/async-loop-20260909/fixture-independent/verify.mjs .
 ```
 
 For the repaired source, use `--expect-fixed`:
 
 ```sh
-node evidence/async-loop-20260909/fixture-independent/verify.mjs \
-  /private/tmp/cw-terra-async-fixture-fixed-review --expect-fixed
+node evidence/async-loop-20260909/fixture-independent/verify.mjs . --expect-fixed
 ```
 
 The script records three independent observations:
