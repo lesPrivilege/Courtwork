@@ -97,6 +97,7 @@ design_task:
     - {question: B 态下 ← Chat 放在 strip 左端（strip 之外的同行控件）还是顶部 chrome 的返回位, competing_constraints: strip 是对象组织 vs 返回是导航；两者都不把返回控件放进 tablist（WK-117 (b)）}
     - {question: 三栏态 chat 列固定 640 还是 flex 至 740 上限, competing_constraints: 阅读列稳定 vs 宽屏利用}
     - {question: 文档 tab 的标题来源（文件名 / Run 标题 / 来源 id）与截断规则, competing_constraints: 可读 vs identity 不由标题充当}
+    - {question: 顶带槽位——Back to app（Settings 态）与侧栏开合钮共用左端槽位（WK-121 ②），CC-W 若给顶带加 ← Chat 或 strip 相关控件须重裁该槽位, competing_constraints: 一个槽位一种离开动作 vs 顶带承载更多}
   exploration: {variant_count: 3, require_structural_difference: true}   # 已出 A / B / C，选 B + C
   review: {removal_pass: required, constraint_recheck: required, state_review: required, real_data_review: required}
 ```
