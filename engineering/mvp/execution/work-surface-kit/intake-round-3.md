@@ -276,6 +276,12 @@ FE-04 派单：`opus-wo-medium`（逐 primitive 判断），树 `/private/tmp/se
 |---|---|
 | WK-131 | Astra 合流 CC-W 为 `main` `0b5ccd2`（`fedd250` + `73ce524`，263/263、浏览器回归、lint、contrast、smoke），并以自写补丁 `48693ad` 修 M-9 的短标签：原 `setRequestLabel` 只预留静止词，`Answer` / `Send` 比 `Sending…` 短，在途时按钮仍变宽、邻钮位移；补丁用 `::before` / `::after` 两份影子分别预留静止词与在途词（`data-resting-label` / `data-sending-label`），按钮元素与单一真实文本子节点不变，按钮以 aria-label 显式命名；顺带把 `TAB_ACTIVITY.unknown` 由 `Failed` 改 `Unknown`（与 WK-115 ① 一致）。Fable 非作者复核：读码（13 增 6 删，只在 `app.mjs` / `styles.css` / `ui-controls.mjs`，无新状态）；在 `0b5ccd2` 清洁树重跑 263/263、两项 lint；自有端口 8893、新空目录复跑 Astra 的 `request-width-checks` 15/15（五个按钮 × 1 / 1.25 / 2 三档缩放，宽度与左缘在途前后逐位相同、焦点不丢）与 `cc-w-checks` 9/9。接受。Astra 另登记后单：composer 重绘丢失停止图标（`renderComposer` 替换子节点后 Send / Cancel run 文字挤入 icon-only 圆形按钮，`172130e` 已有同源问题）——记 misfit M-16，归 FE-05a 第 0 项同批（composer 控件在 28 高与 V1 下重做 icon / label 槽位）。清洁节点 `0b5ccd2`；CC-D0-a 从此派。 |
 
+## 4ak. EX-CC5 回执 → WK-132（2026-09-09，FE-05a 前置闭合）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-132 | Sonnet EX-CC5 交 V1 单栏 1:1 页（[type-density-ablation/v1](../../../design/type-density-ablation/v1/README.md)：Settings › General 与 Work 头部 + composer 各 1440 / 390，页内切浅 / 深宗，8 张截图，`measurements-v1.json`）。结果：深色对比度不达标 **0**（一次假阳性为脚手架 bug 已修）；390 命中区不达标 3 处——Settings › General 的 File access 分段控件三个选项 32px——与纯 `styles.css` 基线对照相同，**是应用现状缺陷**（44 规则未覆盖 `.segment` 这个 `<label>`，CC-S SETTINGS-6 只量了 button / select / input），记 misfit **M-17**；Send / Cancel run 折行病根是渲染纯文字时仍带 `.icon-only`（锁成 `--control` 见方、零 padding），1:1 同样复现，与 zoom 拼版无关，V1 的 28 高只是放大了后果——与 Astra 登记的 M-16 同根；修正 = `white-space: nowrap` + 恢复 `padding: 5px 10px` + 静止标签量得的 min-width（Send 52 / Cancel run 84），复测 0 折行。裁定：**FE-05a 四项前置闭合**（1:1、深色、390、命中区）；FE-05a 第 0 项 = M-15（B 态顶带对齐）+ M-16/M-17 修正（`.icon-only` 类名同步、`.segment` 入 44 规则，各一条断言）；V1 目标值不变；派单时把 v1 页与 measurements 作为作者的对照基线。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
