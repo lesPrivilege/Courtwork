@@ -147,6 +147,11 @@ const SETTINGS = `(() => {
     navRects: nav.getClientRects().length,
     navFocusable: [...nav.querySelectorAll(focusable)].filter((n) => n.getClientRects().length).length,
     backLabel: document.getElementById("settings-back-button")?.textContent.trim() ?? null,
+    pageTitle: (document.getElementById("session-title")?.getClientRects().length ?? 0) > 0
+      ? document.getElementById("session-title").textContent.trim() : null,
+    settingsWordsOnScreen: [...document.querySelectorAll("h1, h2, h3")]
+      .filter((n) => n.getClientRects().length && n.textContent.trim() === "Settings").length,
+    labelledBy: document.getElementById("settings-page").getAttribute("aria-labelledby"),
     backVisible: (document.getElementById("settings-back-button")?.getClientRects().length ?? 0) > 0,
     toggleNavHidden: document.getElementById("toggle-nav-button").hidden === true,
     column: rect(column),
@@ -322,6 +327,14 @@ try {
   record("SETTINGS-back-label", t.backLabel === "Back to app" && t.backVisible === true, {
     backLabel: t.backLabel, backVisible: t.backVisible,
   });
+  /* 页标题说一次：这一页的名字在带上的 h1 里，页面的可访问名指向它。 */
+  record(
+    "SETTINGS-title",
+    t.pageTitle === "Settings" &&
+      t.settingsWordsOnScreen === 1 &&
+      t.labelledBy === "session-title",
+    { pageTitle: t.pageTitle, settingsHeadingsOnScreen: t.settingsWordsOnScreen, labelledBy: t.labelledBy },
+  );
   record("SETTINGS-1440-overflow", t.overflow <= 1, { overflow: t.overflow });
 
   /* Back to app returns to what was behind, with the focus handed back. */

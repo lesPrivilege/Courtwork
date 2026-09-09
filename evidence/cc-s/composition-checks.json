@@ -146,6 +146,13 @@
     "backVisible": true
   },
   {
+    "id": "SETTINGS-title",
+    "pass": true,
+    "pageTitle": "Settings",
+    "settingsHeadingsOnScreen": 1,
+    "labelledBy": "session-title"
+  },
+  {
     "id": "SETTINGS-1440-overflow",
     "pass": true,
     "overflow": 0

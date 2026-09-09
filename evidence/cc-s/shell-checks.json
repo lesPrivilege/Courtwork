@@ -27,7 +27,7 @@
       "binding": {
         "extensionId": "inbound-nda",
         "binding": {
-          "matterId": "matter-3453603f-87c0-4e15-8949-1237f191b6fa"
+          "matterId": "matter-92c5f270-fff8-40cf-9984-a60024bcaff0"
         }
       },
       "mode": "Work",
@@ -106,12 +106,12 @@
     "pass": true,
     "actual": {
       "boundRow": {
-        "id": "2650ccec-592f-46ab-89e2-0cc3886a0f2c",
+        "id": "9833e472-c815-4c26-b0b2-a69647087efa",
         "tag": "Work",
         "height": 38
       },
       "chatRow": {
-        "id": "4719ab01-8df6-4b3c-9ec8-e24fbbe35b81",
+        "id": "7d2ac7a2-3dcb-48b8-bf50-b0d1fe2b4b21",
         "tag": null,
         "height": 38
       },
@@ -140,13 +140,13 @@
     "name": "CW-7 · 同一个会话：id、项目与历史条数逐字不变，没有第二个会话被造出来",
     "pass": true,
     "actual": {
-      "id": "4719ab01-8df6-4b3c-9ec8-e24fbbe35b81",
-      "projectId": "7bb3616b-51c1-4e49-8b3e-a4b7eda5b8fd",
+      "id": "7d2ac7a2-3dcb-48b8-bf50-b0d1fe2b4b21",
+      "projectId": "db2b05fa-7e2b-4646-849c-537898a5142d",
       "events": [
         0,
         0
       ],
-      "matterId": "matter-3453603f-87c0-4e15-8949-1237f191b6fa"
+      "matterId": "matter-92c5f270-fff8-40cf-9984-a60024bcaff0"
     }
   },
   {

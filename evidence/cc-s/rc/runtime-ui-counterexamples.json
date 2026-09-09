@@ -7,7 +7,7 @@
       "id": "inherit-is-removal",
       "obligation": "inherit sends exposed:null and the sentence follows the returned snapshot (RC-2)",
       "pass": true,
-      "detail": "button=\"Inherit the user setting\" body={\"operation\":\"exposure\",\"id\":\"tool:ws_grep\",\"scope\":{\"type\":\"session\",\"id\":\"390808de-6625-4afa-9870-1f0f431a0d3e\"},\"exposed\":null,\"revision\":8} before=\"Exposure: from session · your session override.\" after=\"Exposure: the source default. The switch overrides it for this session.\""
+      "detail": "button=\"Inherit the user setting\" body={\"operation\":\"exposure\",\"id\":\"tool:ws_grep\",\"scope\":{\"type\":\"session\",\"id\":\"d28ecc1a-33ab-4b30-91fc-30c253bc0d0b\"},\"exposed\":null,\"revision\":8} before=\"Exposure: from session · your session override.\" after=\"Exposure: the source default. The switch overrides it for this session.\""
     },
     {
       "id": "mcp-lifecycle",
