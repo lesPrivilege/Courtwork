@@ -434,9 +434,9 @@
                 </h3>
                 <div id="settings-keyboard-rows" class="settings-block"></div>
               </section>
-              <!-- WK-82 / frontend-layering-spec §3.1 · Runtime 组按意图分组。本单只把
-                   已有的 runtime 入口与上下文摘要搬进 Overview；其余四节是 WO-WK11 的挂载点，
-                   现在各写一句它收纳什么、今天在哪里可读，不画没有后端的控件（WK-27）。 -->
+              <!-- WK-82 / frontend-layering-spec §3.1 · Runtime 组按意图分组。五个块由
+                   WO-WK11 的 Workbench 控制器填充（app/web/runtime-view.mjs）：一个 controller
+                   持有权威快照，五个块是它的五个意图分组，没有第二份状态，也不画没有后端的控件。 -->
               <section
                 id="settings-runtime"
                 class="settings-section"
@@ -448,28 +448,11 @@
                 <h3 id="settings-runtime-title" class="settings-section-title">
                   Runtime
                 </h3>
-                <p class="settings-section-note">
-                  These readings are in the Runtime module today. This page names
-                  the groups they will be organised into; it does not organise
-                  them yet.
-                </p>
-                <div class="settings-block" data-wk11-mount="overview">
-                  <h4 class="settings-block-title" id="settings-runtime-overview-title">
-                    Overview
-                  </h4>
-                  <section
-                    id="runtime-control-settings"
-                    aria-labelledby="settings-runtime-overview-title"
-                    hidden
-                  >
-                    <div id="runtime-control-entry" class="runtime-control-entry"></div>
-                    <div
-                      id="runtime-context-summary"
-                      class="runtime-context-summary"
-                    ></div>
-                  </section>
-                  <div id="settings-runtime-overview-absent"></div>
-                </div>
+                <div
+                  id="settings-runtime-overview"
+                  class="settings-block"
+                  data-wk11-mount="overview"
+                ></div>
                 <div
                   id="settings-runtime-composition"
                   class="settings-block"
@@ -561,16 +544,6 @@
               Workspace
             </button>
             <button
-              id="surface-runtime-tab"
-              class="surface-tab"
-              role="tab"
-              aria-controls="runtime-content"
-              aria-selected="false"
-              type="button"
-            >
-              Runtime
-            </button>
-            <button
               id="surface-run-tab"
               class="surface-tab"
               role="tab"
@@ -617,14 +590,6 @@
           role="tabpanel"
           aria-labelledby="surface-preview-tab"
           tabindex="0"
-        ></div>
-        <div
-          id="runtime-content"
-          class="surface-content"
-          role="tabpanel"
-          aria-labelledby="surface-runtime-tab"
-          tabindex="0"
-          hidden
         ></div>
         <div
           id="run-content"

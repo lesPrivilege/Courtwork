@@ -1,5 +1,4 @@
 import { el, action, flowRow } from "./ui-controls.mjs";
-import { renderContextBar } from "./runtime-view.mjs";
 
 /* WK-27: capabilities the backend does not have are drawn nowhere except this
    list. Text rows only — no switch, no button, nothing focusable, so the page
@@ -162,15 +161,14 @@ export function renderConnectionCard(
 }
 export function createSettingsView(
   container,
-  { request, onConfig, getSession, onSession, notify, onOpenRuntime, page },
+  { request, onConfig, getSession, onSession, notify, onRuntimeEnvironment, page },
 ) {
   let snapshot = null,
     catalog = null,
     info = null,
     dirty = false,
     busy = false,
-    generation = 0,
-    runtimeContext = null;
+    generation = 0;
   const form = el("form", { className: "settings-form" });
   const provider = el("select", {
     attrs: { name: "provider", "aria-label": "Provider" },
@@ -263,10 +261,9 @@ export function createSettingsView(
   );
   container.replaceChildren(form, credential);
   renderPlanned(document.getElementById("planned-capabilities"));
-  /* RC-1 / RC-5: Settings keeps two runtime entries — the door into the
-     runtime module, and the size of what the next run will actually carry. */
-  /* Settings 页的只读节（Data、Runtime › Models）读的是本控制器已经取到的同一份
-     快照，不另开一路请求：一个事实一个来源（FN-07 的可失效缓存，不是第二真源）。 */
+  /* Settings 页的只读节读的是本控制器已经取到的同一份快照，不另开一路请求：
+     一个事实一个来源（FN-07 的可失效缓存，不是第二真源）。Runtime 组的五个块由
+     WO-WK11 的 Workbench 控制器拥有，这里只把连接快照转给它，供 Models 只读行使用。 */
   function pushToPage() {
     page?.update({
       config: snapshot,
@@ -274,30 +271,7 @@ export function createSettingsView(
       session: getSession()?.session || null,
       active: Boolean(getSession()?.active),
     });
-  }
-  function runtimePanel() {
-    const panel = document.getElementById("runtime-control-settings");
-    const current = getSession();
-    panel.hidden = !current?.session;
-    if (!current?.session) return;
-    const entry = document.getElementById("runtime-control-entry");
-    if (!entry.dataset.wired) {
-      entry.dataset.wired = "true";
-      entry.append(
-        action("settings-2", "Open runtime resources", () => onOpenRuntime?.(), {
-          visible: true,
-          className: "context-row",
-        }),
-        el("p", {
-          className: "settings-row-help",
-          text: "Tools, MCP servers, skills, plugins and instructions, with the scope each value comes from.",
-        }),
-      );
-    }
-    renderContextBar(
-      document.getElementById("runtime-context-summary"),
-      runtimeContext,
-    );
+    onRuntimeEnvironment?.({ config: snapshot, info });
   }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
@@ -547,34 +521,25 @@ export function createSettingsView(
         resetFields();
       lock();
       sessionPanel();
-      runtimePanel();
       pushToPage();
     },
     async refresh() {
       const own = ++generation;
       error.hidden = true;
-      const session = getSession()?.session;
       try {
-        const [config, models, runtime, context] = await Promise.all([
+        const [config, models, runtime] = await Promise.all([
           request("/provider-config"),
           request("/provider-models"),
           request("/runtime-info"),
-          session
-            ? request(
-                `/runtime-context?sessionId=${encodeURIComponent(session.id)}`,
-              ).catch(() => null)
-            : Promise.resolve(null),
         ]);
         if (own !== generation) return;
         snapshot = config;
         catalog = models;
         info = runtime;
-        runtimeContext = context;
         onConfig(config);
         if (!dirty) resetFields();
         lock();
         sessionPanel();
-        runtimePanel();
         pushToPage();
         const debug = document.getElementById("runtime-info");
         debug.replaceChildren();
@@ -737,6 +702,72 @@ export function validateSkinTokens(input) {
   return { ok: true, css, values, missing: [], errors: [] };
 }
 
+/* WK-87 (b) · 用户 skin 接受前的对比度警告。对照对与门槛逐条取自
+ * tools/contrast-report.mjs（同一组角色 × 底面 × 门槛）；那份工具是 node 侧的构建检查，
+ * 这里是浏览器侧的同一次计算，两处若要改必须一起改。做法上不重写解析器：把候选 tier:S
+ * token 挂在一个探针元素上，让浏览器按它自己的替换规则解出 tier:R 的角色值，所以这里
+ * 没有第二份 S→R 映射，也就没有漂移的余地。
+ * 裁定是「警告，不阻止」（WK-87 (b)）：低于门槛的 skin 仍然接受，只是把哪一对、差多少
+ * 说清楚 —— 一个人有权用自己的色阶，但不该在不知情的情况下用。 */
+export const CONTRAST_PAIRS = [
+  ["ink", "panel", 4.5], ["ink", "float", 4.5], ["ink", "frame", 4.5],
+  ["muted-strong", "frame", 4.5], ["muted-strong", "panel", 4.5], ["muted-strong", "float", 4.5],
+  ["muted", "panel", 3], ["accent-ink", "panel", 4.5], ["accent-ink", "float", 4.5],
+  ["on-accent", "accent", 4.5], ["on-accent", "accent-strong", 4.5],
+  ["danger", "panel", 4.5], ["success", "panel", 4.5],
+  ["focus", "panel", 3], ["focus", "float", 3],
+  ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],
+  ["danger", "danger-soft", 4.5],
+];
+function hexChannels(value) {
+  const text = String(value || "").trim();
+  if (!/^#/.test(text)) return null;
+  let body = text.slice(1);
+  if (body.length === 3) body = [...body].map((digit) => digit + digit).join("");
+  if (body.length === 8) body = body.slice(0, 6);
+  if (body.length !== 6 || !/^[0-9a-f]{6}$/i.test(body)) return null;
+  return [0, 2, 4].map((index) => parseInt(body.slice(index, index + 2), 16));
+}
+function relativeLuminance([r, g, b]) {
+  const channel = (raw) => {
+    const value = raw / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+}
+export function contrastRatio(a, b) {
+  const [high, low] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
+  return (high + 0.05) / (low + 0.05);
+}
+/** Resolve the tier:R roles a candidate tier:S set produces, then measure the
+ *  same pairs the build-time report measures. Returns the pairs below their
+ *  threshold; an empty array means every pair the report checks is met. */
+export function skinContrastWarnings(values, { probeHost = globalThis.document?.body } = {}) {
+  if (!probeHost) return [];
+  const probe = document.createElement("div");
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
+  for (const [name, value] of Object.entries(values || {}))
+    probe.style.setProperty(name, value);
+  probeHost.append(probe);
+  try {
+    const computed = getComputedStyle(probe);
+    const role = (name) => hexChannels(computed.getPropertyValue(`--${name}`));
+    const problems = [];
+    for (const [foreground, background, minimum] of CONTRAST_PAIRS) {
+      const a = role(foreground);
+      const b = role(background);
+      if (!a || !b) continue;
+      const ratio = contrastRatio(a, b);
+      if (ratio < minimum)
+        problems.push({ foreground, background, ratio, minimum });
+    }
+    return problems;
+  } finally {
+    probe.remove();
+  }
+}
+
 /* WK-78 (5) · 偏好只在本设备。读、写、应用三件事各一处；应用那一份住在 index.html 的
  * 首帧内联脚本里，因为它必须在第一次绘制之前跑完，这里复用同一个函数，不写第二份。 */
 const PREFERENCE_DEFAULTS = {
@@ -780,8 +811,8 @@ export function writePreferences(prefs) {
 }
 
 /* 一行的解剖与既有 settings-row 完全相同：标题 + 一句作用域或后果 + 右侧单一控件。
- * 外面再包一层 entry，是因为 Appearance 的四行下面还挂着一块预览，过滤时它们要一起走。 */
-function settingsRow(title, help, control, { id, preview } = {}) {
+ * WK-87 (a) 之后预览只有一块、住在组顶，所以行不再需要外面那层 entry 包装。 */
+function settingsRow(title, help, control, { id } = {}) {
   const controlId = id || control.id || `settings-${Math.random().toString(36).slice(2, 8)}`;
   if (!control.id) control.id = controlId;
   const labelTag = control.matches?.("fieldset") ? "span" : "label";
@@ -800,7 +831,7 @@ function settingsRow(title, help, control, { id, preview } = {}) {
     ),
     el("div", { className: "settings-row-control" }, control),
   );
-  return preview ? el("div", { className: "settings-entry" }, row, preview) : row;
+  return row;
 }
 /** 与 segmentedPermission 同一个控件，只是选项由调用者给：原生 radio、一条轨、
  *  被选中的那格是滑块。段数写进 --segments，滑块宽度才不会被写死成三格。 */
@@ -823,9 +854,12 @@ function segmented({ name, label, options, value, onChange }) {
   }
   return fieldset;
 }
-/* WK-78 (3) · 预览是真实产品片段，不是色卡：一条 Chat Flow 行（同一 flowRow 解剖）
- * 加一段带 diff 的代码块。它不可交互，也不该被读屏再念一遍界面，所以整块 aria-hidden，
- * 由外面那句 "Preview" 承担名字。 */
+/* WK-78 (3) / WK-87 (a) · 预览是真实产品片段，不是色卡：一条 Chat Flow 行（同一 flowRow
+ * 解剖）加一段带 diff 的代码块。它不可交互，也不该被读屏再念一遍界面，所以整块 aria-hidden，
+ * 由外面那句 "Preview" 承担名字。
+ * WK-87 (a)：四行共用组顶这一块。四份一模一样的预览各自跟在一行下面时，人要在四处之间
+ * 来回比对同一件事；一块放在最上面，改宗、改 skin、改字号、改代码字体都在同一处看见结果，
+ * 消融掉的只是重复，不是任何判断。 */
 function appearancePreview() {
   const code = el(
     "div",
@@ -874,28 +908,10 @@ const SHORTCUTS = [
   ["Enter", "In the composer, send. Shift + Enter starts a new line instead."],
   ["Escape", "Close the layer on top: the navigation, then the work surface, then this page."],
 ];
-const RUNTIME_MOUNTS = [
-  [
-    "settings-runtime-composition",
-    "Composition",
-    "The agent profile a run is composed from, what it depends on, and where it applies. Choosing a profile is not exposing a resource, and neither is a verified Work Expert.",
-  ],
-  [
-    "settings-runtime-instructions",
-    "Instructions & context",
-    "Instructions, skills, references and prompt templates, each with whether it is injected, listed, loaded on demand, or still a draft.",
-  ],
-  [
-    "settings-runtime-capabilities",
-    "Capabilities & connections",
-    "Tools, MCP servers and host-trusted plugins. Configured, connected, exposed and permitted are four different states.",
-  ],
-];
-
 /** Settings 页自己的控制器：分组切换、只过滤本页行的搜索、Appearance 偏好、
  *  Keyboard 只读表、Data 只读事实，以及 Runtime 组留给 WK11 的节位。
  *  页面的开合、hash、Escape 与焦点归还不在这里，在 app.mjs。 */
-export function createSettingsPage({ home, onSection, onEditConnection }) {
+export function createSettingsPage({ home, onSection, onEditConnection, onOpenRuntimeResource }) {
   const nav = document.getElementById("settings-nav");
   const dropdown = document.getElementById("settings-nav-select");
   const search = document.getElementById("settings-search");
@@ -970,6 +986,20 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
     applyFilter();
   });
   search.addEventListener("keydown", (event) => {
+    /* WO-WK11 · in the Runtime group the search is also the resource finder:
+       Enter opens the one resource still showing. Opening means expanding the
+       row and reading its recorded source — it installs nothing and applies
+       nothing. With no query, or more than one match, Enter does nothing. */
+    if (event.key === "Enter" && !event.isComposing && section === "runtime" && query) {
+      const matches = [
+        ...panels.get("runtime").querySelectorAll(".runtime-row:not([hidden])"),
+      ].filter((row) => !row.closest(".runtime-row.is-child[hidden]"));
+      if (matches.length === 1) {
+        event.preventDefault();
+        onOpenRuntimeResource?.(matches[0].dataset.resource);
+      }
+      return;
+    }
     if (event.key !== "Escape" || event.isComposing) return;
     if (!search.value) return;
     /* 有查询词时 Escape 先清查询，不退出整页：否则一个人想取消筛选，
@@ -984,15 +1014,19 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
   function rowText(node) {
     return `${node.textContent || ""}`.replace(/\s+/g, " ").trim().toLowerCase();
   }
+  /* WO-WK11 · the Runtime group's own objects are rows of this page too, so one
+     search finds a setting and a runtime resource alike. A resource row carries
+     its title, id, kind, source word and admission word in its text, which is
+     exactly what someone types looking for it. */
+  const ROW_SELECTOR =
+    ".settings-row, .planned-row, .settings-key-row, .runtime-row, .runtime-context-row, .runtime-inventory-row";
   function applyFilter() {
-    const rows = (panel) => [
-      ...panel.querySelectorAll(".settings-row, .planned-row, .settings-key-row"),
-    ];
+    const rows = (panel) => [...panel.querySelectorAll(ROW_SELECTOR)];
     if (!query) {
       searchEmpty.hidden = true;
       for (const [id, panel] of panels) {
         panel.hidden = id !== section;
-        for (const row of rows(panel)) (row.closest(".settings-entry") || row).hidden = false;
+        for (const row of rows(panel)) row.hidden = false;
         for (const block of panel.querySelectorAll(".settings-block")) block.hidden = false;
       }
       return;
@@ -1002,13 +1036,11 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
       let hits = 0;
       for (const row of rows(panel)) {
         const hit = rowText(row).includes(query);
-        (row.closest(".settings-entry") || row).hidden = !hit;
+        row.hidden = !hit;
         if (hit) hits += 1;
       }
       for (const block of panel.querySelectorAll(".settings-block")) {
-        const blockRows = [
-          ...block.querySelectorAll(".settings-row, .planned-row, .settings-key-row"),
-        ];
+        const blockRows = [...block.querySelectorAll(ROW_SELECTOR)];
         block.hidden = !blockRows.some((row) => rowText(row).includes(query));
       }
       panel.hidden = hits === 0;
@@ -1093,12 +1125,32 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
       );
       return;
     }
+    /* WK-87 (b) · 对比度是警告不是门。先接受，再把低于门槛的对照对逐条说清楚：
+       拒绝一套合法的 Tier S 色阶会把「你的 token」变成「我们批准的 token」。 */
     savePrefs({ skin: "custom", customSkin: result.css });
     skinDraft = "custom";
     renderSkinEditor();
+    const problems = skinContrastWarnings(result.values);
     skinErrors.append(
       el("p", { className: "form-help", text: "Applied on this device." }),
     );
+    if (problems.length)
+      skinErrors.append(
+        el("p", {
+          className: "settings-row-help",
+          attrs: { "data-contrast-warning": String(problems.length) },
+          text: `Applied, with ${problems.length} contrast ${problems.length === 1 ? "pair" : "pairs"} below the threshold this build checks. Text in these roles may be hard to read; nothing else about the interface changes.`,
+        }),
+        el(
+          "ul",
+          { className: "skin-error-list" },
+          ...problems.map((problem) =>
+            el("li", {
+              text: `${problem.foreground} on ${problem.background}: ${problem.ratio.toFixed(2)}:1, below ${problem.minimum}:1.`,
+            }),
+          ),
+        ),
+      );
   });
   skinRemove.addEventListener("click", () => {
     savePrefs({ skin: "slate", customSkin: "" });
@@ -1190,30 +1242,27 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
       onChange: (value) => savePrefs({ motion: value }),
     });
     appearance.replaceChildren(
+      appearancePreview(),
       settingsRow(
         "Scheme",
         "Light, dark, or whatever this device is set to. It is kept on this device and never sent to the host.",
         scheme,
-        { preview: appearancePreview() },
       ),
       settingsRow(
         "Skin",
         "Swaps the colour scale only. State words, legal actions and what a control does stay exactly as they are.",
         skin,
-        { preview: appearancePreview() },
       ),
       skinEditor,
       settingsRow(
         "Text size",
         "Scales every text role together. Hit regions, spacing and keyboard order do not change with it.",
         textSize,
-        { preview: appearancePreview() },
       ),
       settingsRow(
         "Code font",
         "A monospaced family already installed on this device. Nothing is downloaded, and an unavailable name falls back to the default stack.",
         codeFont,
-        { preview: appearancePreview() },
       ),
       codeFontError,
       settingsRow(
@@ -1327,57 +1376,13 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
     );
   }
 
-  /* ── Runtime 组：Overview 之外的四个意图分组 ──────────────────────── */
-  function renderRuntime() {
-    document.getElementById("settings-runtime-overview-absent").replaceChildren(
-      latest.session
-        ? null
-        : el("p", {
-            className: "settings-row-help",
-            text: "A runtime is composed for a session. Open a session to read what its next run would carry.",
-          }),
-    );
-    for (const [id, title, help] of RUNTIME_MOUNTS)
-      document.getElementById(id).replaceChildren(
-        el("h4", { className: "settings-block-title", text: title }),
-        el("p", { className: "settings-row-help", text: help }),
-      );
-    /* WK-78 (5) · Models 与 General › Connection 是同一份数据，只在 General 编辑。
-       这里只读，并给出去那一处的路。 */
-    const config = latest.config?.config;
-    const rows = [
-      ["Provider", "Where model requests are sent.", config ? providerLabels[config.provider] || config.provider : "Not loaded"],
-      ["Model", "Used for every new run in this workspace.", config ? (config.provider === "fake-openai-loopback" ? "Fake local model" : config.model || "—") : "Not loaded"],
-      ["API format", "Wire format the provider expects.", config?.api || "—"],
-      ["Base URL", "Empty means the provider default.", config?.baseUrl || "Provider default"],
-      [
-        "API key",
-        "Stored on this device only; it is never shown.",
-        latest.config?.credentialStatus === "configured" ? "Saved" : "Not saved",
-      ],
-    ];
-    document.getElementById("settings-runtime-permissions").replaceChildren(
-      el("h4", { className: "settings-block-title", text: "Permissions & environment" }),
-      el("p", {
-        className: "settings-row-help",
-        text: "Policy, model and provider, budgets and sandbox facts belong here. The connection below is the same record General edits — a run freezes the value it was admitted with, and this reading is of the next run, not of one already going.",
-      }),
-      ...rows.map(([title, help, value]) => readOnlyRow(title, help, value)),
-      action("settings-2", "Edit in General", () => onEditConnection?.(), {
-        visible: true,
-        className: "quiet-button settings-jump",
-      }),
-    );
-  }
-
-  /* 只有 Data 与 Runtime › Models 依赖服务器快照，所以只有它们跟着 update 重画。
-   * Appearance、Keyboard 与 New sessions 是本地的，画一次就够：让轮询每秒重建一次
-   * 分段控件，会把焦点从人正在用的那个控件上夺走（FN-27 键盘可用性）。 */
+  /* 只有 Data 依赖服务器快照，所以只有它跟着 update 重画。Appearance、Keyboard 与
+   * New sessions 是本地的，画一次就够：让轮询每秒重建一次分段控件，会把焦点从人正在
+   * 用的那个控件上夺走（FN-27 键盘可用性）。Runtime 组由 WO-WK11 的 Workbench 自己
+   * 重画，这一页只在它重画之后重跑一次过滤。 */
   function render() {
     if (!document.getElementById("settings-data").contains(document.activeElement))
       renderData();
-    if (!document.getElementById("settings-runtime").contains(document.activeElement))
-      renderRuntime();
     syncNewSessions();
     applyFilter();
   }
@@ -1405,6 +1410,13 @@ export function createSettingsPage({ home, onSection, onEditConnection }) {
       search.value = "";
       query = "";
       applyFilter();
+    },
+    /* The Workbench rebuilds its own DOM; the page re-applies its one filter
+       afterwards so a query survives a snapshot arriving. */
+    refilter: applyFilter,
+    focusSearch() {
+      search.focus();
+      search.select?.();
     },
     update(next) {
       latest = { ...latest, ...next };

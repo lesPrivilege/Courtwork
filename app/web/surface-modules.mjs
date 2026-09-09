@@ -423,32 +423,36 @@ const workspaceModule = {
 };
 
 /* ---- runtime ---------------------------------------------------------------
- * The WO-RC module joins the rail as the fourth peer. Its pane is the module's
- * own view object, untouched; the card reads the snapshot summary that view
- * exposes, so the rail adds no second fetch and no second state machine. */
+ * WK-66 · two grains, one reading. The rail card is the coarse first level: how
+ * much the next run carries, whether a run has frozen it, and what needs
+ * attention. The fine grain — every object, its four facts and its four layers —
+ * is the Workbench in Settings › Runtime (WO-WK11), so this card has no pane of
+ * its own and there is no second place the same catalogue is drawn. The card
+ * reads the summary the Workbench's own snapshot produces: no second fetch, no
+ * second state machine, nothing the rail can write back. */
 const runtimeModule = {
   kind: "runtime",
   title: "Runtime",
   icon: "settings-2",
-  tabId: "surface-runtime-tab",
-  contentId: "runtime-content",
   adapter({ sessionId, runtime }) {
     if (!sessionId) return null;
     return runtime || { loaded: false };
   },
   card(schema, host) {
     const rows = [];
-    /* RC-4: while a run holds the runtime, a change is not refused — it is
-     * deferred. That consequence is the one sentence this card keeps. */
+    /* FN-16 · while a run holds the runtime the group is read only. The card
+     * keeps that consequence and does not promise a later application. */
     if (schema.frozen)
       rows.push(
         el("p", {
           className: "rail-note",
-          text: "Frozen until this run ends.",
+          text: "Read only while this run is going.",
         }),
       );
     for (const [label, count] of schema.rows || [])
       rows.push(railRow(label, String(count)));
+    if (Number.isFinite(schema.attention))
+      rows.push(railRow("Attention", String(schema.attention)));
     return railCard(
       runtimeModule,
       {
@@ -458,14 +462,11 @@ const runtimeModule = {
             : `${schema.total} resources`
           : null,
         open: openAction("Open runtime", "rail-open:runtime", () =>
-          host.open("runtime"),
+          host.openRuntimeSettings(),
         ),
       },
       ...rows,
     );
-  },
-  pane(schema, host) {
-    host.loadRuntime();
   },
 };
 

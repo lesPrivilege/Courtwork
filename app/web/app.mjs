@@ -126,19 +126,6 @@ const state = {
   messageReading: new Map(),
   bindingExtensionId: null,
   extensions: [],
-  /* WK-43 / 45 (1) · what the selected agent profile declares about UI slots.
-   * `known` is false until the runtime module has read `/runtime-control` once
-   * in this session; an unread declaration is reported as unread, never as
-   * "this profile declares no slot" (FN-28: missing ≠ empty). */
-  slotDeclaration: {
-    known: false,
-    sessionId: null,
-    revision: null,
-    profileId: null,
-    status: null,
-    missing: [],
-    slots: [],
-  },
   providerConfig: null,
   /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：
    * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着
@@ -1019,10 +1006,9 @@ async function pollEvents(epoch) {
       if (state.surface.open && state.surface.kind === "run" && changed)
         void readRunDetails();
       if (hadActiveRun && !state.runs.some(isActiveRun)) {
-        // A run ending lifts the runtime freeze; the module reads the fact
+        // A run ending lifts the runtime freeze; the Workbench reads the fact
         // from a fresh snapshot rather than deciding it locally.
-        if (state.surface.open && state.surface.kind === "runtime")
-          void runtimeView?.refresh();
+        void runtimeView?.refresh();
         await loadSurface(epoch);
         void refreshRunDetails(
           state.runs.find((run) => run.id === state.surface.runId)?.id ||
@@ -3207,8 +3193,13 @@ function surfaceIsModal() {
   );
 }
 
+/* A module without a tab has no pane of its own: it is a rail card that opens
+ * somewhere else (the Runtime card opens Settings › Runtime). */
+function surfacePaneModules() {
+  return surfaceModules.filter((module) => module.tabId);
+}
 function visibleSurfaceKinds() {
-  return surfaceModules
+  return surfacePaneModules()
     .filter((module) =>
       module.kind === "run"
         ? Boolean(state.surface.runId)
@@ -3360,7 +3351,7 @@ function renderSurfaceVisibility() {
   $("surface-expand-button").hidden =
     window.matchMedia("(max-width: 767px)").matches && !expanded;
   const kinds = visibleSurfaceKinds();
-  for (const module of surfaceModules) {
+  for (const module of surfacePaneModules()) {
     const tab = $(module.tabId),
       selected = state.surface.kind === module.kind;
     tab.hidden = !kinds.includes(module.kind);
@@ -3395,45 +3386,28 @@ function surfaceKindTitle(kind) {
 }
 /* WK-41 · the host's facts. Every module reads this object and nothing else;
  * none of them reaches into `state`. */
-/* FN-07 / WK-45 (1) · the Runtime module is the one reader of
- * `/runtime-control`, and the host owns the client it hands that module. The
- * slot declaration is therefore read off that single response: no second
- * request, no second state machine, and nothing the surface can write back.
- * Until the module has read once in this session, `known` stays false and the
- * host says the declaration is unread rather than reporting no slot. */
-function runtimeControlRequest(path, options) {
-  const result = request(path, options);
-  if (typeof path === "string" && path.startsWith("/runtime-control")) {
-    const sessionId = state.activeSessionId;
-    void result.then(
-      (snapshot) => {
-        if (sessionId !== state.activeSessionId) return;
-        const composition = snapshot?.composition;
-        if (!composition) return;
-        state.slotDeclaration = {
-          known: true,
-          sessionId,
-          revision: snapshot.revision ?? null,
-          profileId: composition.id || null,
-          /* The declaration is carried with the status the server gave it. An
-           * incompatible composition still declares its slots; it just cannot
-           * be the reason anything is mounted, and the missing ids are the
-           * explanation the Runtime module already prints (FN-20, FE-T05). */
-          status: composition.status || null,
-          missing: Array.isArray(composition.missing) ? [...composition.missing] : [],
-          slots: Array.isArray(composition.uiSlots) ? [...composition.uiSlots] : [],
-        };
-        if (state.surface.open) renderSurfaceRail();
-      },
-      () => {},
-    );
-  }
-  return result;
-}
-
+/* WK10b-1 registered item · the profile's slot declaration is read off the one
+ * `/runtime-control` response the Runtime Workbench already fetched, through
+ * that module's own summary. No second request, no second state machine, and
+ * no wrapper around the client the host hands it. `known` stays false until the
+ * Workbench has read once in this session, so an unread declaration is reported
+ * as unread rather than as "this profile declares no slot" (FN-28). */
 function slotDeclaration() {
-  const declaration = state.slotDeclaration;
-  return declaration.sessionId === state.activeSessionId ? declaration : null;
+  const summary = runtimeView?.summary();
+  if (!summary?.loaded || summary.sessionId !== state.activeSessionId) return null;
+  return {
+    known: true,
+    sessionId: summary.sessionId,
+    revision: summary.revision,
+    profileId: summary.profileId,
+    /* The declaration carries the status the server gave it. An incompatible
+     * composition still declares its slots; it just cannot be the reason
+     * anything is mounted, and the missing ids are the explanation the
+     * Workbench already prints (FN-20, FE-T05). */
+    status: summary.status,
+    missing: summary.missing,
+    slots: summary.uiSlots,
+  };
 }
 
 /* WK-43 / 45 · the host's own reading of the `work.surface` slot for this
@@ -3484,6 +3458,9 @@ const railHost = {
     if (ref) void fileView.load(ref);
   },
   loadRuntime: () => void runtimeView.load(),
+  /* WK-66 · the coarse card opens the fine reading, which is the Runtime group
+   * of the Settings page. One entry, one controller, one admission (FN-05). */
+  openRuntimeSettings: () => openSettings("runtime"),
   openMaterials: () => {
     $("material-add").open = true;
     openDialog("materials-dialog", "material-name");
@@ -3538,7 +3515,7 @@ function renderSurfacePanes() {
 }
 function loadSurfaceKind(kind) {
   const module = surfaceModule(kind);
-  if (!module) return;
+  if (!module?.pane) return;
   if (kind === "preview") {
     void loadSurface(state.sessionEpoch);
     return;
@@ -3554,7 +3531,7 @@ function loadRailFacts() {
   void runtimeView?.load();
 }
 function activateSurface(kind) {
-  if (!currentSession()) return;
+  if (!currentSession() || !surfaceModule(kind)?.tabId) return;
   if (!state.surface.open) state.surface.returnFocus = document.activeElement;
   state.navigationOpen = false;
   state.surface.kind = kind;
@@ -3563,7 +3540,6 @@ function activateSurface(kind) {
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
   fileView?.pause();
-  if (kind !== "runtime") runtimeView?.pause();
   renderSurfaceVisibility();
   writeUiState();
   $(`surface-${kind}-tab`).focus();
@@ -5131,6 +5107,9 @@ function openSettings(section = state.settings.section, { trigger, hash = true }
   /* 进这一页，焦点落在 Back：出去的路和 Escape 指的是同一件事，一开始就摆在手边。 */
   if (!$("settings-page").contains(document.activeElement)) $("settings-back-button").focus();
   void settingsView.refresh();
+  /* The Workbench reads for the Runtime group and for the rail card alike, so
+   * it loads with the page rather than with one of its five blocks. */
+  void runtimeView?.load();
 }
 function closeSettings({ restoreFocus = true, hash = true } = {}) {
   if (!state.settings.open) return;
@@ -5183,6 +5162,22 @@ function openListItem(item) {
       "button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [tabindex='0']",
     )
     ?.focus();
+}
+/* WO-WK11 · `/` opens the finder for the Runtime group. It is a navigation key
+ * and nothing else: it focuses the search this page already has, and the only
+ * thing Enter does there is open one readable resource. It never fires while
+ * someone is typing — a text entry, a contenteditable, an IME composition or a
+ * modifier combination all keep the slash as a character (FN-27, FE-T10). */
+function handleRuntimeFinderKey(event) {
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
+  if (event.key !== "/") return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
+  if (!state.settings.open || state.settings.section !== "runtime") return;
+  const active = document.activeElement;
+  if (active?.closest(TEXT_ENTRY) || active?.isContentEditable) return;
+  if (document.querySelector("dialog[open]")) return;
+  event.preventDefault();
+  settingsPage.focusSearch();
 }
 function handleListKeys(event) {
   if (event.defaultPrevented || event.isComposing || event.keyCode === 229)
@@ -5469,7 +5464,7 @@ function wireEvents() {
     closeDialog("materials-dialog"),
   );
   $("materials-dialog").addEventListener("close", () => materialsView.close());
-  for (const module of surfaceModules)
+  for (const module of surfacePaneModules())
     $(module.tabId).addEventListener("click", () => activateSurface(module.kind));
   $("surface-tabs").addEventListener("keydown", (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -5542,6 +5537,7 @@ function wireEvents() {
     state.editMessageCandidate = null;
   });
   document.addEventListener("keydown", handleSurfaceEscape);
+  document.addEventListener("keydown", handleRuntimeFinderKey);
   document.addEventListener("keydown", handleListKeys);
   for (const dialog of document.querySelectorAll("dialog")) {
     dialog.addEventListener("cancel", (event) => {
@@ -5742,6 +5738,9 @@ async function init() {
       settingsPage.select("general", { focusPanel: false });
       $("provider-panel").querySelector("select,input,button")?.focus();
     },
+    /* WO-WK11 · the finder's open action. It expands the resource and reads its
+     * recorded source; it installs nothing and applies nothing. */
+    onOpenRuntimeResource: (id) => runtimeView?.openResource(id),
   });
   settingsView = createSettingsView($("provider-panel"), {
     page: settingsPage,
@@ -5756,23 +5755,46 @@ async function init() {
     },
     onSession: applySessionUpdate,
     notify: showToast,
-    onOpenRuntime: () => {
-      // The module takes the focus the page would otherwise hand back.
-      closeSettings({ restoreFocus: false });
-      activateSurface("runtime");
+    onRuntimeEnvironment: (next) => runtimeView?.setEnvironment(next),
+  });
+  /* WO-WK11 · the Runtime Workbench lives in the five intent blocks of the
+   * Settings page. One controller owns the control-plane snapshot; the rail
+   * card and the host's slot resolution read its summary. The `Bound` layer
+   * reads the recorded-binding cache this file already keeps per run id, so a
+   * run's binding is still fetched once and held in one place. */
+  runtimeView = createRuntimeView(
+    {
+      overview: $("settings-runtime-overview"),
+      composition: $("settings-runtime-composition"),
+      instructions: $("settings-runtime-instructions"),
+      capabilities: $("settings-runtime-capabilities"),
+      permissions: $("settings-runtime-permissions"),
     },
-  });
-  runtimeView = createRuntimeView($("runtime-content"), {
-    request: runtimeControlRequest,
-    getSessionId: () => state.activeSessionId,
-    notify: showToast,
-    onDraft: (text, title) =>
-      applyComposerDraft(state.activeSessionId, text, {
-        unavailable:
-          "The composer is unavailable. The template has not been used.",
-        done: `Draft from "${title}" is ready. Nothing has been sent.`,
-      }),
-  });
+    {
+      request,
+      getSessionId: () => state.activeSessionId,
+      notify: showToast,
+      onDraft: (text, title) =>
+        applyComposerDraft(state.activeSessionId, text, {
+          unavailable:
+            "The composer is unavailable. The template has not been used.",
+          done: `Draft from "${title}" is ready. Nothing has been sent.`,
+        }),
+      getRuns: () => state.runs,
+      getBinding: (runId) => state.recordedContext.get(runId) || null,
+      loadBinding: (runId) => readRecordedContext(runId, state.activeSessionId),
+      onEditConnection: () => {
+        settingsPage.select("general", { focusPanel: false });
+        $("provider-panel").querySelector("select,input,button")?.focus();
+      },
+      /* The Workbench rebuilds its own five blocks; the page re-applies its one
+       * search filter afterwards, and the rail card re-reads the summary. */
+      onRendered: () => {
+        settingsPage.refilter();
+        if (state.surface.open) renderSurfaceRail();
+      },
+    },
+  );
   fileView = createFileView($("file-content"), { request });
   materialsView = createMaterialsView({
     request,

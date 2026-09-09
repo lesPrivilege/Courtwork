@@ -63,7 +63,7 @@
 ## 4. 本轮未处理
 
 1. `Load more` 与 `Show more` 在不同表面表达同一动作。`Show more` 是 `docs/ui-composition.md` 已记的措辞；统一到一个词属编排体例的一次裁定，不在本单自决。
-2. `runtime-view.mjs` 的长句（见上表末行）：可收敛处不少，但与 RC 的契约检查同源，须同批改，留 WO-WK11。
+2. ~~`runtime-view.mjs` 的长句：可收敛处不少，但与 RC 的契约检查同源，须同批改，留 WO-WK11。~~ **已结清（WO-WK11，2026-09-09）**：`runtime-view.mjs` 与三支 RC 检查在同一批内改。删去的与改写的逐条见 [delivery-wk11 §8](delivery-wk11.md)；被断言引用的原句在 [evidence/wk11/rc](evidence/wk11/rc/) 的副本内同步更新，且每处改动都在脚本注释里写明改的是什么、为什么改的不是断言本身。
 3. 窄屏顶带只放侧栏开合按钮，未按画布 §8.3 再放 wordmark。品牌符号只允许出现在侧栏 wordmark 一处（WK-51），在顶带另置一份需要先裁定。
 
 ## 5. 后续轮次的增量
@@ -76,3 +76,4 @@
 | WO-WK10b 第二段（2026-09-08，NDA 逐规则 Review、决定与修订、回执、续行、只读历史） | [delivery-wk10b-2 §5](delivery-wk10b-2.md)（D-14…D-16、W-17 / W-18、24 条新增字符串的承重说明）；语义 → glyph 见同上对照表第 3 / 4 节 |
 | WO-WK13（2026-09-08，Home 三带、StatTile / WorkCard adapter、列表键盘、绑定面顺序） | [delivery-wk13 §6](delivery-wk13.md)（D-17 / D-18、W-19…W-21、16 条新增字符串的承重说明）；W-19 的集合命名（`In progress` 与 `Continue`）为待裁项 |
 | WO-WK12（2026-09-09，Settings 整页、外观自定义、用户 skin、快捷键只读表） | [delivery-wk12 §7](delivery-wk12.md)（D-19 / D-20、W-22、38 条新增字符串的承重说明）；词表新增 Scheme · Skin · Text size · Code font 见 [copy-convention §3](../../../design/copy-convention.md) |
+| WO-WK11（2026-09-09，Runtime Workbench、四层、Configurable / Inventory、policy 编辑、WK-87 两条） | [delivery-wk11 §8](delivery-wk11.md)（D-21…D-26、W-23 / W-24、41 条新增字符串的承重说明）；本页 §4 第 2 条（`runtime-view.mjs` 长句与 RC 检查同源）在该单结清 |
