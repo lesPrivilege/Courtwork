@@ -3,3 +3,4 @@
 > node server/index.mjs --data-dir /private/tmp/se-agent-fe02-data/main --port 8887
 
 http://127.0.0.1:8887
+Runtime shutdown did not complete cleanly; reopen to reconcile interrupted work.
