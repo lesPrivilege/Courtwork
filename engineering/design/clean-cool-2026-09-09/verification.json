@@ -14,5 +14,9 @@
     "no live providers or decisions submitted",
     "no full keyboard, screen reader, contrast or motion audit",
     "generated mock text deviations are listed in claude-handoff.md"
-  ]
+  ],
+  "fixtureShutdown": {
+    "reviewInstance": "exit 0",
+    "homeModelsInstance": "exit 1: Runtime shutdown did not complete cleanly; reopen to reconcile interrupted work. Fixture retained a waiting_user run. No product recovery claim; isolated data retained."
+  }
 }
