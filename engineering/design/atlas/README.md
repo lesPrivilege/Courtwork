@@ -27,7 +27,7 @@ FE-05 按此五节组织，取值沿 WK-104：**field**（source geometry / colo
 
 ## Identity 段（WK-124 (d)，候选轨道 GI，品牌线 owner）
 
-conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。待用户点头后派 EX-GI1。
+conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。EX-GI1 已回执（WK-130）：三方向 A Baton / B Ruled-grid / C Annotation-mark specimen 入库，选向待用户 / 品牌线。
 
 ## Shape 段（WK-125）
 

@@ -20,7 +20,7 @@ CC-D0-a（Home 模块带外壳与现有事实投影，`opus-wo-low`）→ FE-05a
 ## 3. 成单前置与未闭合
 
 - FE-05a：EX-CC5 回执（V1 1:1 / 深色 / 390 / 命中区、Send / Cancel run 折行诊断）——**在途**；约束表 [type-density-constraints](../../../design/type-density-constraints.md)；消融页 [type-density-ablation](../../../design/type-density-ablation/index.html)。
-- Specimen board（Shape / Material / Identity / Control）：Shape 项来自 EX-CS1 §7；Material 项来自 WK-127（header 带有 / 无 progressive、round vs squircle 只在此并排）；Identity 来自 EX-GI1（**在途**）；Control 只放今日有 schema 的控件（WK-129 (g)）。载体：Claude Design 画布或静态页（画布曾加载失败，静态页为回退）。
+- Specimen board（Shape / Material / Identity / Control）：Shape 项来自 EX-CS1 §7；Material 项来自 WK-127（header 带有 / 无 progressive、round vs squircle 只在此并排）；Identity 来自 EX-GI1（已回执，WK-130：三方向 specimen [identity-specimen](../../../design/identity-specimen/index.html)，选向归用户 / 品牌线，Fable 建议 A）；Control 只放今日有 schema 的控件（WK-129 (g)）。载体：Claude Design 画布或静态页（画布曾加载失败，静态页为回退）。
 - 后端（Astra 已接）：BE-2、BE-1/3/25、BE-30…33、BE-28/29、BE-19/20、BE-21/22、ATT-BE-01；候选 BE-34（可逆窗口）、BE-35（Auto 模式）、BE-26/27（Mail / Calendar）。
 - 仍开：public-copy 同步、G1–G5、错误文案抻平（M-3）、M-12/13/14 状态模型簇。
 
