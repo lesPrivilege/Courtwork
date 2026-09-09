@@ -8,7 +8,7 @@
 
 BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governance.md)由既有Core owner查询领域对象；目录不落第二份状态，新增持久记录只保存Matter披露政策、事件与请求回执。Runtime工具只在全局Attention注入，Host每次捕获执行身份，Core每次检查对象范围与当前披露。
 
-源码基线：`00b2f2886e04aa7b7facb588d4375a246f3e341d`。应用由一个本地 Host 组合，下表按实际写入与执行职责导航。
+模块表起始基线：`00b2f2886e04aa7b7facb588d4375a246f3e341d`；当前交付与后续合流以 [current](current.md) 为准。应用由一个本地 Host 组合，下表按实际写入与执行职责导航。
 
 | 入口 | 职责 | 接口与说明 |
 |---|---|---|
@@ -16,6 +16,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 | [`server/runtime.mjs`](../app/server/runtime.mjs)、[`service.mjs`](../app/server/service.mjs) | Host 生命周期、Session/Run、权限、上下文、受认证的人类动作与查询 | [HTTP API](../app/docs/api-v6.md) |
 | [`runtime/pi-session-runtime.mjs`](../app/runtime/pi-session-runtime.mjs) | Pi AgentSession 与 ModelRuntime 集成 | [运行基础](../app/docs/runtime-foundation.md) |
 | [`runtime/control-plane.mjs`](../app/runtime/control-plane.mjs)、[`mcp-manager.mjs`](../app/runtime/mcp-manager.mjs) | 声明式资源、作用域、调用策略与 MCP 生命周期 | [Runtime Control](../docs/runtime-control/INDEX.md) |
+| [`harness/`](../app/harness/) | CW Thread交互成员关系与本地通信；child执行合同的有界入口，非第二个模型loop | [Thread / messaging](../app/docs/coordination.md) |
 | [`server/async-tasks.mjs`](../app/server/async-tasks.mjs) | 可选的不可变异步读取任务、取消、恢复与消费记录 | [异步读取契约](../app/docs/async-tasks.md) |
 | [`core/owner.mjs`](../app/core/owner.mjs)、[`client.mjs`](../app/core/client.mjs)、[`bridge.py`](../app/core/bridge.py)、[`core.py`](../app/core/core.py) | 同一个 Work Core 与 SQLite 事务，持有 Matter、候选、来源、决定、文件候选与 Attention | [Work Core](../docs/work-core/contract.md) |
 | [`extensions/work-adapter.mjs`](../app/extensions/work-adapter.mjs)、[`domains/`](../app/domains/) | 领域输入、提议校验、绑定与呈现；NDA 和 Evidence Memo 共用 Core | [NDA](../docs/work-core/nda.md) |
@@ -24,7 +25,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 5）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 3 / bridge app schema 4 与 Host schema 5 分别演进。
+Host 的 runtime JSON（schema 8）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 3 / bridge app schema 4 与 Host schema 8 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 

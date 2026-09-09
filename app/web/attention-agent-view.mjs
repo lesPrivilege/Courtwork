@@ -64,7 +64,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     history.value = state.conversationId || '';
     updateControls();
     const run = controller.active() || state.runs.at(-1);
-    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : run ? `Run ${run.status}` : '');
+    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : controller.active() ? `Run ${run.status}` : '');
     feedback.hidden = !feedback.textContent;
     const provider = getProvider?.();
     modelChoice.textContent = provider?.config?.provider === "fake-openai-loopback" ? "Local test" : provider?.config?.model || "Model";

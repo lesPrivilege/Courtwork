@@ -1,4 +1,7 @@
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
+import { COORDINATION_TOOLS, coordinationTools } from '../harness/tools.mjs';
+import { Coordination } from '../harness/coordination.mjs';
+import { selectUsageRuns } from "./usage-details.mjs";
 import { createAttentionAdapter } from '../extensions/attention-adapter.mjs';
 import { ATTENTION_TOOL_NAMES, createAttentionTools } from '../runtime/attention-tools.mjs';
 import { AsyncTasks, ASYNC_TOOL_NAMES } from './async-tasks.mjs';
@@ -132,6 +135,7 @@ function redact(message, secrets) {
 export class RuntimeService {
   constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, asyncTaskAdapters = [], logger = () => {} }) {
     this.store = store;
+    this.coordination = new Coordination(store);
     this.fakeProvider = fakeProvider;
     this.extensionRegistry = extensionRegistry;
     this.workCore = workCore;
@@ -199,6 +203,7 @@ export class RuntimeService {
     }
     await this.store.expireQuestionsForRestart();
     await this.asyncTasks.recover();
+    await this.coordination.recover();
     await this.#reconcileInterruptedWorkspaces(interrupted);
     return this;
   }
@@ -289,7 +294,7 @@ export class RuntimeService {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
     return this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
-      additionalTools: session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && !session?.extensionBinding ? ASYNC_TOOL_NAMES : [] });
+      additionalTools: [...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
   }
 
   changeRuntimeControl(sessionId, input) {
@@ -449,7 +454,24 @@ export class RuntimeService {
         options.days = Number(value);
       }
     }
+    if (kind === "details") return this.store.getUsageDetails(options).overview;
     return this.store.getWorkMetrics(options)[kind];
+  }
+
+  getUsageRuns(input) {
+    const value = requireObject(input, "usage query");
+    assertKeys(value, new Set(["days","projectId","snapshotId","date","modelKeys","offset","limit"]));
+    const days = value.days ?? 30;
+    if (!Number.isSafeInteger(days) || days < 1 || days > 366) throw new ServiceError(400,"invalid_input","invalid days");
+    const projectId = value.projectId === undefined ? undefined : text(value.projectId,"projectId",{max:200});
+    if (typeof value.snapshotId !== "string" || !/^[a-f0-9]{64}$/.test(value.snapshotId)) throw new ServiceError(400,"invalid_input","snapshotId required");
+    if (value.date !== undefined && (typeof value.date !== "string" || !utcDateRange(value.date))) throw new ServiceError(400,"invalid_input","invalid date");
+    if (value.modelKeys !== undefined && (!Array.isArray(value.modelKeys) || !value.modelKeys.length || value.modelKeys.length > 1000 || value.modelKeys.some(key=>typeof key!=="string" || !/^(unknown|[a-f0-9]{64})$/.test(key)) || new Set(value.modelKeys).size !== value.modelKeys.length)) throw new ServiceError(400,"invalid_input","invalid model keys");
+    const offset = value.offset ?? 0, limit = value.limit ?? 50;
+    if (!Number.isSafeInteger(offset) || offset<0 || !Number.isSafeInteger(limit) || limit<1 || limit>100) throw new ServiceError(400,"invalid_input","invalid page");
+    const result = selectUsageRuns(this.store.getUsageDetails({days,projectId}), {...value,offset,limit});
+    if (result.conflict) throw new ServiceError(409,"usage_snapshot_changed","Usage changed. Refresh the chart before opening these runs.");
+    return result;
   }
 
   getWorkSummary(params = new URLSearchParams()) {
@@ -1183,6 +1205,7 @@ export class RuntimeService {
       const attentionTools = session.scope === 'global' ? createAttentionTools({ store: this.store,
         adapterForProject: projectId => this.attentionRuntimeAdapter(session.id, run.id, projectId),
         governanceForProject: projectId => this.governanceRuntimeAdapter(session.id, run.id, projectId) }) : [];
+      const collaborationTools = !session.extensionBinding && this.coordination.list(session.id).currentThreadId ? coordinationTools(this.coordination,session.id,run.id) : [];
       const asyncTools = this.asyncTasks.enabled && session.scope !== 'global' && !session.extensionBinding ? this.asyncTasks.tools(run.id) : [];
       const asyncContext = asyncTools.length ? 'Host-catalogued immutable async read sources: ' + JSON.stringify(this.asyncTasks.catalog())
         + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
@@ -1230,7 +1253,7 @@ export class RuntimeService {
         reasoningEffort: provider.reasoningEffort,
         onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
         sessionManager: entry.sessionManager,
-        customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...attentionTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+        customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           await this.#appendNotice(run.id, { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail });
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {

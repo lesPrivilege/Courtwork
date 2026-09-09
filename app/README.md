@@ -7,6 +7,7 @@ The local host composes the Web UI, Pi AgentSession, runtime control plane and W
 | Directory | Responsibility |
 |---|---|
 | `server/` | HTTP routes, session/run service, durable runtime state and asynchronous read tasks |
+| `harness/` | Explicit Thread membership, local communication and child contract conformance |
 | `runtime/` | Pi integration, model connections, scoped tools, permissions, resources and MCP |
 | `core/` | Python Work Core, Node bridge and shared ownership of Matter state |
 | `extensions/` | Registered work adapters and review renderers |
@@ -55,7 +56,7 @@ the duration of a Run, same as before.
 
 ## Governed object reads
 
-Global Attention can discover explicitly disclosed Matter/Attention objects and progressively read bounded source/accepted Artifact pages. Human disclosure is an authenticated API in this backend slice; no new policy editor UI is included. Core4/app5 adds three same-owner disclosure tables, with an exclusive `.pre-governance-core-v4-app-v5.bak` before upgrading validated Core3/app4 (older supported pairs migrate in stages). Old Core3 hosts refuse the upgraded database; restore only into a separate directory with the matching host. See the [governance contract](../docs/work-core/governance.md) for scope, current-content grants, revocation, schema support and recovery. RuntimeStore7 is unchanged by BG-01.
+Global Attention can discover explicitly disclosed Matter/Attention objects and progressively read bounded source/accepted Artifact pages. Human disclosure is an authenticated API in this backend slice; no new policy editor UI is included. Core4/app5 adds three same-owner disclosure tables, with an exclusive `.pre-governance-core-v4-app-v5.bak` before upgrading validated Core3/app4 (older supported pairs migrate in stages). Old Core3 hosts refuse the upgraded database; restore only into a separate directory with the matching host. See the [governance contract](../docs/work-core/governance.md) for scope, current-content grants, revocation, schema support and recovery. RuntimeStore8 is unchanged by BG-01.
 
 ## Run
 
@@ -82,7 +83,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 5 store (see below)
+  runtime-state.json        # schemaVersion 8 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -95,10 +96,13 @@ task.
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
 ```
 
-## Store schema (v7, validated v3/v4/v5/v6 upgrade)
+<a id="store-schema-v5-validated-v3v4-upgrade"></a>
+<a id="store-schema-v7-validated-v3v4v5v6-upgrade"></a>
 
-`schemaVersion` is `7`. A valid v3/v4/v5/v6 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v7. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
+## Store schema (v8, validated v3/v4/v5/v6/v7 upgrade)
+
+`schemaVersion` is `8`. A valid v3/v4/v5/v6/v7 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v8. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)

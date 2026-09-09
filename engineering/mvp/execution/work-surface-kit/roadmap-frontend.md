@@ -44,3 +44,13 @@ WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵�
 ## Astra 合流与队列裁定（2026-09-10）
 
 CC-D0-a `30014cf` 与 r4d `5b4c981` 已按顺序无冲突组合，合流证据见 [回执](../../../../evidence/ccd0a-main-integration-20260910/README.md)。本段覆盖上文等待合流与旧队列：FE-05a → FE-05 → ATT-FE-01 → CC-I。Attention 已有稳定后端合同且不依赖 CC-I，提前消费；PropertyRow modified/reset 仍归 CC-I，不扩入 Attention。Fable 补齐四项文档前置后派 Attention；FE-05a 仍由 Fable 从最终 main SHA 建树、填基线、派单，本次未启动 writer。
+
+## CC-I 输入补齐（Interaction Grammar，2026-09-10）
+
+[WK-139…149](intake-round-3.md) 把三件事交给 CC-I，接手者不必回读转交原文：
+
+1. **PropertyRow 的完整解剖**：label · description / help? · 当前值与继承值 · control · validation state · modified indicator · reset / revert · **provenance**。最后一列是本轮唯一实打实的增量（`Context budget 64k ← Expert policy`、`threshold .75 modified locally`）——它把 Inspector 从 setting form 变成 governed state editor；取值必须是 owner 事实，UI 不得推断。先做本设备偏好那六行（schema 最小），它同时是 **Value 类今日唯一的落地机会**（EX-PG1 §3 Q1：全仓零数值输入控件）。
+2. **两阶段 commit**（已核验，Base UI NumberField）：交互中即时的 `onValueChange` 与 blur / 指针释放才提交的 `onValueCommitted` 分开——一个数值多种 modality（键入 / 键盘 step / ± / 滚轮 / scrub）而不产生五个控件，靠的就是这条分层。
+3. **placement 由 applicability 推导**，不是选一个 toolbar variant：action 声明 `appliesTo / requiresSelection / requiresCapability / risk / frequency / preferredSurface`，再推出 fixed chrome / contextual toolbar / context menu / command palette / inspector / approval surface。
+
+另附 CC-I 第 0 项候选（EX-PG1 §3 Q1 发现，非本轮裁定）：`ui-controls.mjs` 的 `el()` 与 `app.mjs` 本地别名 `element()` 两个 element builder 共存（43 / 58 处），任何 control grammar 的机械检查与后续换族都要同时覆盖两条路径；收敛它属于 CC-I 的整备，不单独成单。

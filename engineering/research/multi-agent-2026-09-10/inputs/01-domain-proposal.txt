@@ -1,0 +1,451 @@
+初步结论是：**Courtwork 不宜把“multi-agent”本身提升成核心领域模型。** 更稳的做法是由 CW 自己定义 `Matter / Thread / Attention / Expert / Explore / Workflow` 的稳定语义；Pi、DSH、OpenCode、Claude Code、OpenAI Agents SDK、LangGraph 等只作为 execution/orchestration adapter。这样未来更换 harness，不会把 Matter 与长期数据治理一起换掉。这个方向也与现有 SE 的 Event Log / Matter State / Compiled Context 分层是一致的。
+
+仓库侧我先检查了 Courtwork 当前公开面：没有可以作为规范依据的公开 PR 队列，所以这一轮应把 `main` 中已经落下的研究/工程约束作为基线，而不是从 PR 讨论反推架构。结合外部第一轮，OpenCode 和 Pi 恰好提供了两个很好的边界样本：OpenCode 把 `Explore` 明确产品化成 isolated child session / fresh context / restricted permissions 的 subagent；Pi 则刻意保持 kernel 很薄，不把 subagent 作为不可绕开的核心抽象，而让扩展、自举 agent/process 承担这部分。**CW 更适合“OpenCode 的产品语义 + Pi/DSH 的底层克制”。**
+
+### 我建议先冻结这六个概念
+
+| 概念                      | 本质                                       |                    生命周期 | 是否是 Agent         | 应不应该拥有自己的 Thread |
+| ----------------------- | ---------------------------------------- | ----------------------: | ----------------- | ---------------- |
+| **Matter**              | 一个持续工作的治理边界                              |                 durable | 否                 | 是，1…N            |
+| **Thread**              | Matter 内的一条有序交互/事件工作线                    |                 durable | 否                 | 自身即工作线           |
+| **Attention Assistant** | 全局 human-attention actor；底层也是一个特殊 Matter |       singleton/durable | 是                 | 有自己的 Home Thread |
+| **Expert**              | 可复用、可治理的专业 actor/spec                    |                 durable | 是                 | 需要持续工作时可以有       |
+| **Explore**             | 隔离 context 的临时调查执行模式                     |               ephemeral | 是                 | **默认不创建**        |
+| **Workflow**            | 显式 orchestration graph / state machine   | spec durable，run 临时/可恢复 | **不是一个“大 Agent”** | 可挂在来源 Thread 上   |
+
+这里最重要的是 **Thread ≠ session ≠ context ≠ agent**。
+
+一个 Thread 可以经历几十次模型 session；一个 session 可以为一次 Explore 临时生成；compiled context 每次甚至可以不同。Thread 应更接近一条 durable work/event lane。
+
+---
+
+## 1. `subagent → Explore`：我赞成，而且最好只在产品面使用这个名字
+
+OpenCode 的做法说明 `Explore` 已经是容易理解的成熟语义：主 Agent 遇到范围较大的查找任务，把问题交给 fresh-context child；child 通常读多写少，结束后把结果归并回来。
+
+CW 可以进一步治理：
+
+```text
+Origin Thread
+    │
+    ├── Agent Run
+    │     └── Explore Run
+    │           ├── search/read
+    │           ├── Expert invocation × n
+    │           └── Finding
+    │
+    └── Finding appended to origin Thread
+```
+
+因此我反而**不建议每次 Explore 自动生成一个 Thread**。否则长期以后会得到大量“查一下这个”“读一下那个”的僵尸 thread。
+
+Explore 默认只产生：
+
+```text
+ExploreResult
+  answer
+  claims[]
+  sources[]
+  artifacts[]
+  open_questions[]
+  suggested_actions[]
+  trace_ref
+```
+
+这些以 governed event 回到原 Thread。
+
+只有满足“需要独立持续推进、后续 human/agent 要重新进入、已经形成独立工作对象”时，才执行：
+
+```text
+Explore → Promote to Thread
+```
+
+甚至进一步：
+
+```text
+Explore → Promote to Matter
+```
+
+这比“所有 subagent 都是一条聊天”干净得多。
+
+---
+
+## 2. “权限集成 Experts？”——不要把 Expert 和权限揉成同一个对象
+
+这是我目前比较明确的反对项。
+
+`Expert` 应表达：
+
+> **谁 / 有何专业能力 / 使用何种 runtime contract**
+
+而 capability policy 表达：
+
+> **本次调用允许它做什么**
+
+两者要正交。
+
+例如一个 Legal Review Expert 平时声明自己支持：
+
+```text
+read_documents
+annotate_document
+search_sources
+generate_review
+request_attention
+spawn_explore
+```
+
+但在某个 Matter 中实际得到的 grant 可能只有：
+
+```text
+read_documents
+search_sources
+generate_review
+```
+
+最重要的 delegation rule 可以非常简单：
+
+```text
+child grant
+=
+parent grant
+∩ matter policy
+∩ invoked-agent capabilities
+∩ caller delegation policy
+```
+
+也就是**默认权限单调递减**。child agent 不能因为“我是 Expert”突然获得父 agent 没有的能力。
+
+需要更多权限：
+
+```text
+Explore / Expert
+    → ApprovalRequested
+    → Attention Assistant
+    → Human
+```
+
+这会比 CrewAI/AutoGen 那类“给每个角色几个 tools 然后大家聊天”更符合 SE。
+
+---
+
+## 3. Attention Assistant：可以参考 OpenClaw，但应该把它降格成一个治理良好的特殊 Matter
+
+你提出：
+
+> attention assistant 可以创建 matters 或 experts；expert 可以反过来 message attention，但不能创建 attention。
+
+我认为这个不对称关系是合理的，而且值得**刻进 schema，而不是 prompt**。
+
+结构可以是：
+
+```text
+Attention Matter
+├── Home Thread
+├── Attention Assistant
+├── Attention Index
+│   ├── open decisions
+│   ├── approvals
+│   ├── interruptions
+│   └── cross-matter references
+│
+├── create → Matter
+└── create/register → Expert
+
+Matter A ─┐
+Matter B ─┼── AttentionRaised ──→ Attention Matter
+Expert X ─┘
+```
+
+于是根本没有必要存在：
+
+```text
+create_attention_assistant
+```
+
+这个 capability。
+
+Expert 只有诸如：
+
+```text
+message_attention
+raise_attention
+request_approval
+```
+
+Attention 才拥有受治理的：
+
+```text
+create_matter
+archive_matter
+create_expert
+register_expert
+change_global_policy
+```
+
+### OpenClaw 值得取什么
+
+不是复制它“万能个人助手”的 ontology，而是消费它在这些局部积累的实践：
+
+全局入口、多 channel/event 的聚合、skill/tool 的渐进披露、后台事件主动转成 human attention、长期个人工作入口与具体执行 session 的分离。
+
+CW 则多加三层约束：
+
+```text
+everything has a Matter provenance
+everything crosses boundaries by typed event
+everything executes under a capability grant
+```
+
+所以 Attention Assistant 并不是 root/sudo Agent，只是具有特殊治理权限的 actor。
+
+---
+
+## 4. Expert 与 Explore 其实应该形成非常漂亮的一横一纵
+
+这是这轮最值得继续发展的结构：
+
+|          | **Explore**          | **Expert**                                |
+| -------- | -------------------- | ----------------------------------------- |
+| 主要差异     | execution mode       | durable specialization                    |
+| context  | fresh / isolated     | governed / persistent                     |
+| lifetime | 一次 run               | 长期                                        |
+| memory   | 默认无长期 private memory | 可以有受治理 state                              |
+| tools    | 当前任务授予               | 声明可用集合，再由 Matter 缩减                       |
+| 最适合      | 搜索、调查、验证、并行取证        | 法律、财务、code review 等稳定方法                   |
+| 能否组合     | 可以调用多个 Expert        | 可以 spawn Explore                          |
+| 输出       | Finding              | ExpertResult / Artifact / AttentionRaised |
+
+于是一个真正有价值的“multi-agent research”可能是：
+
+```text
+             Explore coordinator
+          /        |         \
+Legal Expert   Web Explore   Repo Expert
+     │              │             │
+     └──────── Findings ──────────┘
+                    │
+                 Reducer
+                    │
+              Origin Thread
+```
+
+这已经是 multi-agent，但 UI 根本没必要告诉普通用户：
+
+> “启动了四个 Agents。”
+
+用户看到的是：
+
+> **Explore · 3 sources · 2 experts · 1 unresolved question**
+
+multi-agent 是 execution detail。
+
+---
+
+## 5. Workflow Agent Cluster 应比 Explore 再高一级，但不宜伪装成一个 Agent
+
+这里 Google ADK 的思路尤其值得 CW 消费：它明确区分 LLM Agent 与 deterministic workflow agent，例如 sequential / parallel / loop。这个区分比“所有东西都是 Agent”健康。
+
+CW 可定义：
+
+```text
+WorkflowSpec
+├── nodes
+│   ├── ExpertInvocation
+│   ├── Explore
+│   ├── ToolCall
+│   ├── Transform
+│   ├── Reducer
+│   └── HumanApproval
+├── edges
+├── concurrency
+├── budgets
+├── retry_policy
+└── approval_policy
+```
+
+运行时是：
+
+```text
+WorkflowRun
+```
+
+而不是：
+
+```text
+MegaAgent
+```
+
+这样将来法律阅卷可以自然变成：
+
+```text
+ingest
+  ↓
+parallel {
+    chronology expert
+    party/entity expert
+    issue explorer
+}
+  ↓
+evidence reconciliation
+  ↓
+human review
+  ↓
+matter-state commit
+```
+
+普通 Courtwork 可以只有几种经过验证的 presets；**developer edition 再开放 WorkflowSpec 编辑/注册**。
+
+---
+
+## 6. 外部体系我目前会这样分级消费
+
+| 来源                                 | CW 应取的东西                                                                     | 不建议照搬                                 |
+| ---------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| **Pi**                             | 极薄 agent loop、extension-first、模型/provider/tool 解耦                            | 把产品级 orchestration 全留给脚本              |
+| **DSH**                            | session/event log、agent seam、scope、可替换 runtime 思路                            | 把具体 harness 实现固化成 CW schema           |
+| **OpenCode**                       | primary/subagent 区分、Explore、custom agents、细粒度 tools/permissions              | coding-centric ontology               |
+| **Claude Code subagents**          | isolated context、per-agent tools/model/permissions                           | `.md agent = architecture`            |
+| **Anthropic multi-agent Research** | coordinator + parallel research workers + synthesis，适合 breadth-heavy Explore | 所有任务都并行；成本会迅速放大                       |
+| **OpenAI Agents SDK**              | `agent-as-tool` 与 `handoff` 的明确区别、guardrails、sessions/tracing                | 把 handoff 当作普通 expert invocation      |
+| **Google ADK**                     | workflow agent 与 LLM agent 分离；sequential/parallel/loop                       | SDK 自己成为 Matter runtime               |
+| **LangGraph**                      | checkpoint / interrupt / fan-out / reducer / durable graph                   | Graph state 取代 Courtwork Matter State |
+| **Temporal / Restate**             | 真正长运行 workflow 的 durability、retry、idempotency                                | 现在就为简单 Explore 引入重基础设施                |
+| **MCP**                            | Tool interoperability                                                        | Agent identity/orchestration          |
+| **A2A**                            | 以后连接外部 remote agent / enterprise experts                                     | CW 内部 agent 间通信                       |
+
+这里还对应一个很重要的 OpenAI Agents SDK 区分：
+
+**Expert 通常更像 `agent-as-tool`，而不是 handoff。**
+
+如果主 Attention / Matter Agent 仍然负责任务，只是问法律 Expert 一个问题：
+
+```text
+agent-as-tool
+```
+
+只有真正把这一段工作的 ownership 交过去：
+
+```text
+handoff
+```
+
+CW 应把二者也区分成不同 event，而不是都叫“调用另一个 Agent”。
+
+---
+
+## 7. 我会给开发者版本开放的不是“创建 agent”一个按钮，而是一组正交接口
+
+大致可冻结成：
+
+```ts
+AgentSpec {
+  identity
+  instructions
+  modelPolicy
+  contextPolicy
+  tools
+  declaredCapabilities
+  budgetPolicy
+}
+
+ExpertSpec {
+  agentSpec
+  domainContract
+  inputSchema
+  outputSchema
+  durableStatePolicy
+}
+
+ExploreProfile {
+  agentSpec
+  searchPolicy
+  maxFanout
+  reducer
+}
+
+WorkflowSpec {
+  nodes
+  edges
+  concurrency
+  retryPolicy
+  approvalPolicy
+  budgetPolicy
+}
+```
+
+再独立：
+
+```ts
+CapabilityGrant
+ProviderConfig
+ToolRegistry
+MCPRegistry
+ContextCompiler
+RuntimeAdapter
+```
+
+因此用户能够注册“自己的 Expert”，也可以自编排 workflow，而不会获得修改 CW Core semantics 的能力。
+
+---
+
+## 8. Runtime 选型目前不建议押一个“多 Agent Framework”
+
+我会把第一版工程路线收敛成：
+
+```text
+Courtwork Domain
+Matter / Thread / Event / Expert / Attention
+             │
+       Capability Layer
+             │
+      Orchestration API
+       /           \
+Explore Run       Workflow Run
+       \           /
+        RuntimeAdapter
+     /       |        \
+  native    Pi/DSH   other
+             │
+        Tool adapters
+          MCP etc.
+```
+
+其中 **CW 自己拥有**：
+
+`Matter、Thread、Event schema、capability、AgentSpec/ExpertSpec、WorkflowSpec、provenance、approval、context-policy interface`。
+
+外部 runtime 只拥有：
+
+`模型调用、tool loop、streaming、child execution、provider compatibility`。
+
+这是避免 Courtwork 日后被某个一两年后过气的 agent framework 锁死的关键。
+
+对于 workflow engine，我甚至建议分阶段：现阶段先做很薄的 graph/state-machine；真正出现数小时/数日 execution、外部 side effect、crash recovery 后，再根据实际需求接 Temporal/Restate。LangGraph 可以做 developer adapter，却不值得成为 Core。
+
+---
+
+### 可以先立的架构裁决
+
+我建议后续本地 Explore 最终验证这几条，而不是继续泛泛枚举产品：
+
+1. **Thread 是 Matter 内 durable work lane，不是 model session。**
+2. **Attention Assistant 是一个特殊 Matter 上的 singleton actor，不是系统 root Agent。**
+3. **Expert 是 durable specialization；capability 与 Expert 正交。**
+4. **Explore 是 Courtwork 对 ephemeral subagent 的正式产品名称。**
+5. **Explore 默认 child session，不默认 child Thread。**
+6. **Agent delegation 权限默认单调递减。**
+7. **Expert 可 `message/raise attention`，不存在创建 Attention 的权限。**
+8. **Attention 可创建 Matter / Expert，但所有操作仍走 governed event。**
+9. **Multi-agent 是 Explore/Workflow 的 execution topology，不是新的 domain entity。**
+10. **Workflow 是显式 graph/state machine；普通版提供 presets，developer 版开放 spec。**
+11. **Expert invocation 与 ownership handoff 分开。**
+12. **MCP 管 tools；未来 A2A 管外部 agent interoperability；二者均不定义 CW 内部 ontology。**
+
+这样一来，未来即使出现 `Explore × 16`、多 Expert reducer、长运行 workflow cluster，Courtwork 的核心仍然只是：
+
+> **Store → Govern → Retrieve → Compile → Execute**
+
+而不是再创造一套 `manager agent / worker agent / supervisor agent / swarm memory` 的临时术语。
+
+这也是我认为下一轮应该继续深挖的重点：**不再比较“哪个 multi-agent framework 最强”，而是分别为 `child execution / delegation / capability / reducer / durable workflow / cross-Matter messaging / tracing` 做技术选型 index。**那会直接成为可以 handoff 给本地 agent 的工程索引。

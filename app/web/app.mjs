@@ -22,7 +22,8 @@ import { createAttentionWorkspace } from "./attention-view.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
-let attentionWorkspace, attentionAgent, modelPicker;
+import { createUsageView } from "./usage-view.mjs";
+let attentionWorkspace, attentionAgent, modelPicker, usageView;
 import {
   createSettingsPage,
   createSettingsView,
@@ -5227,6 +5228,7 @@ function renderHomeState() {
       attention: state.homeAttention,
       projects: state.projects,
       onOpenAttentionWorkspace: () => openAttentionWorkspace(state.homeAttention.projectId, state.homeAttention.selectedId),
+      onOpenUsage: () => usageView.open(),
       onActivityDays: (days) => { state.homeActivity.days = days; void loadHomeActivity(); },
       onActivityRetry: () => loadHomeActivity(),
       onAttentionProject: (projectId) => loadHomeAttention(projectId),
@@ -6437,6 +6439,7 @@ async function init() {
       ),
     );
   }
+  usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {

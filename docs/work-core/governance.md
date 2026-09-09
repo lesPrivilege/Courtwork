@@ -1,6 +1,6 @@
 # Governed object directory and Matter disclosure v1 · BG-01
 
-Astra implementation contract, 2026-09-10; base `6921dbd` (Core3/app4, Runtime7). The new persistence boundary is Core4/app5; Runtime7 is unchanged. The [recognition and exploration](../../engineering/execution/2026-09-10-backend-governance/README.md) explains the consumer and source mapping. This document specifies BG-01, not Run attempts, scheduling or external effects.
+Astra implementation contract, 2026-09-10; base `6921dbd` (Core3/app4, Runtime7). The new persistence boundary is Core4/app5. Integration includes main `b4e3f71` and its Runtime8; BG-01 does not change RuntimeStore. The [recognition and exploration](../../engineering/execution/2026-09-10-backend-governance/README.md) explains the consumer and source mapping. This document specifies BG-01, not Run attempts, scheduling or external effects.
 
 ## Authority and identity
 
@@ -33,6 +33,6 @@ Directory entries carry registry_version, object_ref, schema_ref/schema_version,
 
 ## Persistence, verification and limits
 
-Core4/app5 adds only disclosure tables. Existing validated Core3/app4 receives an exclusive `.pre-governance-core-v4-app-v5.bak` SQLite backup before an atomic schema+marker transaction. Older supported pairs first pass their existing staged migrations. Existing backup paths (including symlinks), malformed/current missing tables and unsupported pairs refuse without repair. An old Core3 host refuses Core4; recovery uses a backup in a separate directory with its matching host. Runtime7 data must not be handed to an older runtime. New empty databases need no migration backup. No personal data is used in tests.
+Core4/app5 adds only disclosure tables. Existing validated Core3/app4 receives an exclusive `.pre-governance-core-v4-app-v5.bak` SQLite backup before an atomic schema+marker transaction. Older supported pairs first pass their existing staged migrations. Existing backup paths (including symlinks), malformed/current missing tables and unsupported pairs refuse without repair. An old Core3 host refuses Core4; recovery uses a backup in a separate directory with its matching host. Runtime8 data must not be handed to an older runtime. New empty databases need no migration backup. No personal data is used in tests.
 
 Evidence must distinguish author and non-author runs, fix the product SHA, and exercise actual authenticated HTTP/Runtime packets. Critical counterexamples are hidden fields/counts/relations, same-ID scope confusion, stale pages, revoke/expiry, changed replay, crash before commit/after commit before ACK, producer/Session absence, missing/corrupt source bytes, unknown schema and runtime attempts to mutate policy. BG-01 does not close real-provider, UI, native, Paper or G1–G5 gates.

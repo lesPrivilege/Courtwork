@@ -25,6 +25,12 @@ function matches(pattern, value) {
   // Deliberately small, documented glob: * matches any sequence, including /.
   return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
 }
+export function hostToolCeiling(name, permissionMode) {
+  if (name === 'message_other_agent') return permissionMode === 'read_only' ? 'deny' : 'ask';
+  if (name === 'ws_write') return permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow';
+  return 'allow';
+}
+
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
@@ -187,7 +193,7 @@ export class RuntimeControlPlane {
           reason: parent?.running === false ? 'parent not running' : 'parent not exposed', parentId: resource.parent });
       }
       if (resource.kind === 'tool') {
-        const ceiling = resource.id === 'tool:ws_write' ? session?.permissionMode === 'read_only' ? 'deny' : session?.permissionMode === 'ask' ? 'ask' : 'allow' : 'allow';
+        const ceiling = hostToolCeiling(resource.action, session?.permissionMode);
         resource.permission = evaluatePolicy(policies, resource.action, '*', ceiling, resource.mcp ? 'ask' : 'allow');
         if (!resource.exposed) resource.permission = { effect: 'deny', trace: [{ source: 'exposure', effect: 'deny' }] };
         resource.permission.resourceSpecific = policies.some(p => p.rules.some(r => matches(r.action, resource.action) && r.resource !== '*'));
@@ -205,7 +211,7 @@ export class RuntimeControlPlane {
       for (const resource of resources) {
         if ((resource.kind === 'tool' || CONTENT_KINDS.has(resource.kind)) && !composition.resourceIds.includes(resource.id)) { resource.exposed = false; resource.provenance.push({ scope: { type: 'agent', id: profileId }, value: false, reason: 'profile capability ceiling' }); }
         if (resource.kind === 'tool') {
-          const ceiling = resource.id === 'tool:ws_write' ? session?.permissionMode === 'read_only' ? 'deny' : session?.permissionMode === 'ask' ? 'ask' : 'allow' : 'allow';
+          const ceiling = hostToolCeiling(resource.action, session?.permissionMode);
           resource.permission = resource.exposed ? evaluatePolicy(policies, resource.action, '*', ceiling, resource.mcp ? 'ask' : 'allow') : { effect: 'deny', trace: [{ source: 'exposure', effect: 'deny' }] };
           resource.permission.resourceSpecific = policies.some(p => p.rules.some(r => matches(r.action, resource.action) && r.resource !== '*'));
         }
