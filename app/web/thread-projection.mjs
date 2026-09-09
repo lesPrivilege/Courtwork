@@ -38,6 +38,9 @@ export function projectThread(events, runs, sessionId) {
       }
       row.text = data.text ?? data.delta ?? data.message ?? row.text;
       row.pending = type === "assistant/delta";
+      // A final closes this message. Later cumulative deltas/finals belong to
+      // a new message even when no tool or question separates the outputs.
+      if (type === "assistant/final") nextSegment(runId);
     } else if (["tool/start", "tool/update", "tool/result"].includes(type)) {
       nextSegment(runId);
       const callId = data.callId || data.id || data.name || event.seq,
