@@ -8,6 +8,8 @@
 export const STEPS = [
   {
     id: "home",
+    // The still this step falls back to when there is no scripting.
+    still: "M1",
     seen: "Home",
     text: "写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask before editing、Allow edits，或 Read only。",
     status: "runs locally",
@@ -18,6 +20,8 @@ export const STEPS = [
   },
   {
     id: "run",
+    // The still this step falls back to when there is no scripting.
+    still: "M2",
     seen: "Run",
     text: "每一次工具调用在发生时显示，不藏在摘要后面。",
     status: "verified with synthetic data",
@@ -28,6 +32,8 @@ export const STEPS = [
   },
   {
     id: "approval",
+    // The still this step falls back to when there is no scripting.
+    still: "M2",
     seen: "Approval",
     text: "写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次写入。",
     status: "verified with synthetic data",
@@ -38,6 +44,8 @@ export const STEPS = [
   },
   {
     id: "question",
+    // The still this step falls back to when there is no scripting.
+    still: "M3",
     seen: "Question",
     text: "需要一个事实时 Agent 提问；回答随 Run 一起记录。回答不等于授权。",
     status: "verified with synthetic data",
@@ -48,6 +56,8 @@ export const STEPS = [
   },
   {
     id: "file",
+    // The still this step falls back to when there is no scripting.
+    still: "M4",
     seen: "File",
     text: "打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。",
     status: "verified with synthetic data",
@@ -71,6 +81,8 @@ export const STEPS = [
   },
   {
     id: "continue",
+    // The still this step falls back to when there is no scripting.
+    still: "M5",
     seen: "Continue in Work",
     text: "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复制，不迁移。",
     status: "verified with synthetic data · Astra 核对",
@@ -81,6 +93,8 @@ export const STEPS = [
   },
   {
     id: "candidate",
+    // The still this step falls back to when there is no scripting.
+    still: "M6",
     seen: "Candidate → Decision",
     text: "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
     status: "verified with synthetic data · Astra 核对",

@@ -1,7 +1,7 @@
 {
   "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
-  "site_sha": "d3e9e74c25b4b7f95d78412e3b33c0996a7a57a2",
-  "built_at": "2026-09-09T22:41:28+08:00",
+  "site_sha": "7487dd6b26942c06207082a3bf88b0f2e10b0cd7",
+  "built_at": "2026-09-09T23:02:15+08:00",
   "tokens": {
     "source": "app/web/styles.css",
     "source_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
@@ -51,7 +51,7 @@
     "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
   ],
   "locale_content_hashes": {
-    "zh-CN": "d234e0dee385fd0ec65e56c5628f5236af463aafa890b8e54e4f236e89a4eaa3"
+    "zh-CN": "6ff7f32c155813672c4655f225842e3683dde5c591d5476ea83ee20ba7db7f68"
   },
   "files": [
     {
@@ -71,13 +71,13 @@
     },
     {
       "path": "specimen/copy.mjs",
-      "bytes": 3767,
-      "sha256": "25835679531541b919d418f9a93314b45773a5d8b51a79c748909bd5e929cac9"
+      "bytes": 4369,
+      "sha256": "3ff27efa1ce12d9210c96ad45d0c7cb3b01cd4d236625cad4a3e87379ab63e1b"
     },
     {
       "path": "specimen/index.html",
-      "bytes": 3727,
-      "sha256": "c5556b93f2a480fa29b4f1cd8b5e07bba02f58e6845fc0e936710d88f3521097"
+      "bytes": 4685,
+      "sha256": "c499a10de9072c16fcf4c4ed0d277a4fbb78351b9df51c896ad3bbdc9d1f8979"
     },
     {
       "path": "specimen/manifest.json",
@@ -91,8 +91,8 @@
     },
     {
       "path": "specimen/specimen.css",
-      "bytes": 5916,
-      "sha256": "b66fc4750b1aed730578f5bc88f0ba2796e9cd9c2952c03bf23f08bd4a78e115"
+      "bytes": 6085,
+      "sha256": "4b82fd8920d47cb941f51786ef35d314189eca914d887c7e3a9e1f86f1cd585b"
     },
     {
       "path": "specimen/vendor-product/extensions/inbound-nda/renderer.mjs",
@@ -171,8 +171,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 28760,
-      "sha256": "d234e0dee385fd0ec65e56c5628f5236af463aafa890b8e54e4f236e89a4eaa3"
+      "bytes": 29641,
+      "sha256": "6ff7f32c155813672c4655f225842e3683dde5c591d5476ea83ee20ba7db7f68"
     },
     {
       "path": "site.css",
@@ -183,6 +183,66 @@
       "path": "site.mjs",
       "bytes": 2551,
       "sha256": "68b0b077d26bfc2f7e3a894efeae9311ee7ca2583df3f5a7fc9c68c58514b53a"
+    },
+    {
+      "path": "media/chat-approval-1440-light.png",
+      "bytes": 97059,
+      "sha256": "6ad397e73c5764e9dbda7d2fdbb68ed5b63aab038ee6762bf9ca217bbff5ea80"
+    },
+    {
+      "path": "media/chat-file-1440-light.png",
+      "bytes": 84828,
+      "sha256": "0babdc95b36f101f32949b8a9c85461b71804c825eb4ebd1040e5971243c0dac"
+    },
+    {
+      "path": "media/chat-question-1440-light.png",
+      "bytes": 106844,
+      "sha256": "b7322b0cdbb1a97cbfd28602531b7f017775c9ec214695d6604eed3ff0041dc1"
+    },
+    {
+      "path": "media/continue-in-work-1440-light.png",
+      "bytes": 91346,
+      "sha256": "570bd33aeba22cea9d5e8916be15b4604c5c40383fc2bc2e158314ffd5e968d9"
+    },
+    {
+      "path": "media/home-1440-dark.png",
+      "bytes": 75904,
+      "sha256": "0f7784f89e8b3110c371e9b1fc27e98abfb91971a8d886e0e89423aeddb7b413"
+    },
+    {
+      "path": "media/home-1440-light.png",
+      "bytes": 74988,
+      "sha256": "77188b767447abbc78a5bc8a76a440e7fe3fd0997224067d9a94ac4099861f7a"
+    },
+    {
+      "path": "media/home-390-light.png",
+      "bytes": 50040,
+      "sha256": "8b96406e300536c349537d7bd4f2276cf8ca66d7bfd791f023f475933f6b0bbe"
+    },
+    {
+      "path": "media/manifest.json",
+      "bytes": 9935,
+      "sha256": "9983e59bb714b34cb8dfe0dc02ac41884c404b2c3f1d7f91267d0280e00c9b81"
+    },
+    {
+      "path": "media/review-1440-dark.png",
+      "bytes": 112267,
+      "sha256": "eab90df9d88581a39079c303e2740d184be03e99029d9eed0e72de71bdb475e2"
+    },
+    {
+      "path": "media/review-1440-light.png",
+      "bytes": 110881,
+      "sha256": "ee2458bfcde3ca82de1437ff57857785c8ae96172a260801e0e8e5926c5e3a48"
+    },
+    {
+      "path": "media/review-390-light.png",
+      "bytes": 54215,
+      "sha256": "7d33ee0f2863678018255d2d03fe1fc7d4aa1e016e5aa21272505f6aaa4c5712"
+    },
+    {
+      "path": "media/settings-models-1440-light.png",
+      "bytes": 103756,
+      "sha256": "1173d1ada00d1f13e15644f782f0ab1e25109fc5dd2ec5b063a595f26fae4fc4"
     }
   ]
 }

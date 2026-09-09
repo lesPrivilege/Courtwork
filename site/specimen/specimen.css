@@ -318,3 +318,12 @@ body.specimen-page {
 .specimen-card + .specimen-card {
   margin-top: var(--space-3);
 }
+
+.fallback-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}

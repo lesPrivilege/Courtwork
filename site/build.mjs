@@ -85,16 +85,27 @@ await writeFile(path.join(SITE, "specimen", "manifest.json"), JSON.stringify(spe
 // copy so the iframe can import them, and its document is generated from the
 // same source so the no-script list cannot drift from the interactive one.
 await writeFile(path.join(SITE, "specimen", "copy.mjs"), await readFile(path.join(SITE, "src", "steps.mjs")));
-await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity }));
+
+// ---- the recorded evidence the page is allowed to state as numbers ---------
+const { readEvidence } = await import("./scripts/evidence.mjs");
+const evidence = await readEvidence({ root: ROOT, identity });
+const media = JSON.parse(await readFile(path.join(SITE, "media", "manifest.json"), "utf8"));
+if (media.source_sha !== identity.source_sha) {
+  throw new Error(`the media were captured at ${String(media.source_sha).slice(0, 7)}, not at ${identity.sha7}`);
+}
+for (const entry of media.media) {
+  const bytes = await readFile(path.join(ROOT, entry.asset_path));
+  if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
+}
+
+await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity, media }));
 
 await emitTree(path.join(SITE, "specimen"), "specimen");
 
 // ---- the page ---------------------------------------------------------------
-const { readEvidence } = await import("./scripts/evidence.mjs");
-const evidence = await readEvidence({ root: ROOT, identity });
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
-await emit("index.html", renderPage({ identity, evidence, recording, diagram }));
+await emit("index.html", renderPage({ identity, evidence, recording, diagram, media }));
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
 await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
 if (await exists(path.join(SITE, "media"))) await emitTree(path.join(SITE, "media"), "media");

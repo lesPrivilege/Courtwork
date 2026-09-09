@@ -32,7 +32,26 @@ function entryLink(entry, fill) {
 const STATUS_CLASS = (status) =>
   status.startsWith("verified") ? "is-verified" : status.startsWith("runs") ? "is-local" : "is-not-yet";
 
-export function renderPage({ identity, evidence, recording, diagram }) {
+export function renderPage({ identity, evidence, recording, diagram, media }) {
+  // Media are addressed by id, so a picture the copy asks for and the capture
+  // never produced stops the build instead of becoming a broken image.
+  const shot = (id, { alt, caption, theme = "light", viewport = "1440x900" }) => {
+    const entries = media.media.filter((entry) => entry.id === id);
+    const light = entries.find((entry) => entry.viewport === viewport && entry.theme === theme);
+    if (!light) throw new Error(`media ${id} (${viewport}, ${theme}) was never captured`);
+    const dark = entries.find((entry) => entry.viewport === viewport && entry.theme === "dark");
+    const [w, h] = light.viewport.split("x");
+    const source = dark
+      ? `<source srcset="./media/${escape(path(dark))}" media="(prefers-color-scheme: dark)" />`
+      : "";
+    return `<figure class="shot">
+          <picture>${source}
+            <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="lazy" decoding="async" />
+          </picture>
+          <figcaption>${caption}</figcaption>
+        </figure>`;
+  };
+  const path = (entry) => entry.asset_path.replace("site/media/", "");
   // Placeholders the copy carries, filled from the release identity.
   const fill = (text) =>
     text
@@ -54,13 +73,13 @@ export function renderPage({ identity, evidence, recording, diagram }) {
     <a class="skip" href="#main">跳到正文</a>
     ${header()}
     <main id="main">
-      ${hero(fill)}
+      ${hero(fill, shot)}
       ${rawGoverned(fill, recording)}
       ${matter(fill)}
       ${architecture(fill, diagram)}
-      ${review(fill)}
+      ${review(fill, shot)}
       ${evidenceSection(fill, evidence)}
-      ${build(fill)}
+      ${build(fill, shot)}
     </main>
     ${footer(fill, identity)}
     <script type="module" src="./site.mjs"></script>
@@ -78,20 +97,20 @@ function header() {
     </header>`;
 }
 
-function hero(fill) {
+function hero(fill, shot) {
   return `<section class="hero" aria-labelledby="h1">
         <h1 id="h1"><span lang="en">${escape(HERO.h1[0])}</span><span>${escape(HERO.h1[1])}</span></h1>
         <p class="lede">${escape(HERO.lede)}</p>
         <p class="actions">${HERO.actions
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
           .join("")}</p>
-        <figure class="shot">
-          <img src="./media/home-1440-light.png" alt="CourtWork Home：两个 Project，Today 带三格，一个 Chat 在 Waiting for you。" width="1440" height="900" />
-          <figcaption>${inline(
+${shot("M1", {
+          alt: "CourtWork Home：两个 Project，Today 带三格，一个 Chat 在 Waiting for you。",
+          caption: inline(
             "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Home：两个 Project，一个 Chat 在等待一次写入批准。",
             fill,
-          )}</figcaption>
-        </figure>
+          ),
+        })}
       </section>`;
 }
 
@@ -208,7 +227,7 @@ function architecture(fill, diagram) {
       </section>`;
 }
 
-function review(fill) {
+function review(fill, shot) {
   return `<section class="section" id="review" aria-labelledby="review-title">
         <p class="index">${REVIEW.index}</p>
         <h2 id="review-title" lang="en">${escape(REVIEW.title)}</h2>
@@ -219,13 +238,13 @@ function review(fill) {
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
-        <figure class="shot">
-          <img src="./media/review-1440-light.png" alt="Work Review：一条候选待决定，依据与来源版本可见。" width="1440" height="900" />
-          <figcaption>${inline(
+${shot("M6", {
+          alt: "Work Review：一条候选待决定，依据与来源版本可见。",
+          caption: inline(
             "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Work Review：一条候选待决定。",
             fill,
-          )}</figcaption>
-        </figure>
+          ),
+        })}
       </section>`;
 }
 
@@ -277,12 +296,19 @@ function evidenceSection(fill, evidence) {
       </section>`;
 }
 
-function build(fill) {
+function build(fill, shot) {
   return `<section class="section" id="build" aria-labelledby="build-title">
         <p class="index">${BUILD.index}</p>
         <h2 id="build-title" lang="en">${escape(BUILD.title)}</h2>
         <pre class="commands"><code>${BUILD.commands.map(escape).join("\n")}</code></pre>
         <p class="note">${escape(BUILD.note)}</p>
+        ${shot("M7", {
+          alt: "Settings › Models：Add provider 的 Compatible endpoint 一行，Test connection 与 Fetch models 在场。",
+          caption: inline(
+            "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Settings › Models：Compatible endpoint 的两个探测控件在场，未填写端点，未存任何密钥。",
+            fill,
+          ),
+        })}
         <table class="table">
           <thead><tr><th>入口</th><th>文案</th></tr></thead>
           <tbody>
