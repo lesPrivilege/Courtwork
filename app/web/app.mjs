@@ -71,6 +71,10 @@ const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 // WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
 // the placement itself is viewport-dependent and not only its padding.
 const narrowQuery = window.matchMedia("(max-width: 767px)");
+/* WK-113 ① / CC-W · 工作面按视口分档的那条线。从 1680 起 nav 256 + chat ≥640 +
+ * doc ≥688 在算术上成立，工作面因此是真正的第三栏；1024–1679 它是主区内的视图
+ * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */
+const surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");
 
 const state = {
   token: null,
@@ -3016,6 +3020,12 @@ function renderMessageStream() {
     followLatest,
     scrollTop: previousScrollTop,
   };
+  /* R4D-3 · 没有布局盒的时候（B 态展开，聊天列 `hidden`）什么都不写：此刻
+   * scrollTop 与 scrollHeight 都是 0，照写会把记住的阅读位置抹成 0。 */
+  if (!stream.clientHeight && !stream.scrollHeight) {
+    setJumpLatestVisible(!reading.followLatest);
+    return;
+  }
   if (reading.followLatest) stream.scrollTop = stream.scrollHeight;
   else
     stream.scrollTop = Math.min(
@@ -3045,7 +3055,7 @@ function renderChatHeader() {
    * 会话本身没有被离开，所以标题一收起页面就回来。 */
   const settingsOpen = state.settings.open;
   $("settings-page").hidden = !settingsOpen;
-  $("conversation-body").hidden = settingsOpen;
+  renderConversationBodyVisibility();
   $("app-shell").classList.toggle("settings-active", settingsOpen);
   /* WK-116 · 进入 Settings 后全局侧栏不渲染。`hidden` 让它离开无障碍树，`inert`
    * 让它离开焦点顺序：视觉上藏起来但 Tab 仍能走进去的侧栏，会让「这一页的分组导航是
@@ -3068,8 +3078,8 @@ function renderChatHeader() {
       : session?.title || "Loading chat…";
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
    * scope。Chat 与 Work 是同一个对象的两种模式，所以它们共用一条标题行，模式词
-   * 作为陈述跟在后面，而不是两个分开的界面。`Memory · Off` 只在 Work 上出现：
-   * scope 位属于 Matter header，而没有绑定 Matter 的会话没有可作用域的东西。 */
+   * 作为陈述跟在后面，而不是两个分开的界面。M-2 / WK-113 ③ 之后 `Memory · Off`
+   * 不再挂在这一行上：scope 位属于工作面的标题带，由 `renderSurfaceScope()` 画。 */
   const meta = $("session-meta");
   meta.replaceChildren();
   if (!settingsOpen && session) {
@@ -3079,10 +3089,6 @@ function renderChatHeader() {
         text: sessionModeLabel(session),
       }),
     );
-    if (sessionMode(session) === "work")
-      meta.append(
-        element("span", { className: "session-scope", text: MEMORY_SCOPE_OFF }),
-      );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
   $("show-surface-button").hidden = settingsOpen || !session;
@@ -3328,6 +3334,12 @@ function renderChat() {
 function setSurfaceExpanded(expanded, { focus = true } = {}) {
   const next = Boolean(expanded && state.surface.open && currentSession());
   const was = state.surface.expanded;
+  /* R4D-3 · B 态展开会把聊天列从屏幕上拿走（`hidden` + `inert`）。一个没有布局盒的
+   * 元素的 scrollTop 是 0，所以阅读位置必须在它离开屏幕**之前**记下来，回来时由
+   * `renderMessageStream()` 从同一个 Map 还原。草稿本来就在 `state.draftCache` 与
+   * textarea 的 value 里，不受显隐影响。 */
+  if (next && !was && $("message-stream").clientHeight)
+    rememberMessageReading($("message-stream"));
   state.surface.expanded = next;
   if (next && !was) {
     if (!visibleSurfaceKinds().includes(state.surface.kind))
@@ -3336,9 +3348,14 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   }
   writeUiState();
   renderSurfaceVisibility();
+  /* 回到聊天：DOM 一直在，位置由 `state.messageReading` 还原。 */
+  if (!next && was) renderMessageStream();
   /* Returning lands on the cards, because the cards are what the overlay came
    * from; there is no rail header to return to (WK-72). */
-  if (focus) next ? $("surface-expand-button")?.focus() : focusSurfaceRail();
+  if (focus)
+    next
+      ? (surfaceTabButton(state.surface.kind) ?? $("surface-expand-button"))?.focus()
+      : focusSurfaceRail();
 }
 
 /* The panel is a modal only where it really covers the work: below 1024 the
@@ -3347,6 +3364,23 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
  * floating card layer that disables nothing, and from 1024 up the expanded
  * sheet leaves the sidebar operable (WK-74 (1)); claiming aria-modal in either
  * case would describe a trap that does not exist. */
+/* B 态判定的单一出处：展开、桌面、且没到三栏那一档。`renderChatHeader` 与
+ * `renderSurfaceVisibility` 都从这里读，免得两处各写一遍同一个条件、又互相覆盖。 */
+function surfaceViewSwitch() {
+  return Boolean(
+    state.surface.open &&
+      state.surface.expanded &&
+      currentSession() &&
+      !surfaceOverlayQuery.matches &&
+      !surfaceThreePaneQuery.matches,
+  );
+}
+function renderConversationBodyVisibility() {
+  const body = $("conversation-body");
+  const switched = surfaceViewSwitch();
+  body.hidden = state.settings.open || switched;
+  body.inert = switched && !state.settings.open;
+}
 function surfaceIsModal() {
   return (
     state.surface.open &&
@@ -3370,6 +3404,95 @@ function visibleSurfaceKinds() {
           : true,
     )
     .map((module) => module.kind);
+}
+
+/* WK-113 ④ ⑥ · 文档实例 tab 与类型 tab 是两种东西。类型 tab 是档位，没有关闭区；
+ * 文档 tab 说的是**哪一份**文档，选中区与关闭区分开。第一段只有一份受信活动文档
+ * （BE-2 未交付），所以这里没有数组、没有 map、没有位置表：文档 tab 在不在，就是
+ * `state.surface.fileRef` 在不在。 */
+function surfaceDocumentRef() {
+  const ref = state.surface.fileRef;
+  return ref && ref.sessionId === state.activeSessionId ? ref : null;
+}
+/* FN-22 · 显示 key 由已有身份字段拼出，不新增 `scope` 字段：scope 由 sessionId 推出。
+ * 这个字符串只用来判断"tab 说的还是不是同一个对象"，renderer 的失效判定仍然是
+ * `sameSurfaceIdentity`（含 status / modulePath，R4D-4），两者不共用一个值。 */
+function surfaceDocumentKey(ref) {
+  if (!ref) return "";
+  return [
+    ref.sessionId,
+    ref.path,
+    ref.kind,
+    ref.sha256 || "",
+    ref.runId || "",
+  ].join("\u0000");
+}
+function documentTabTitle(ref) {
+  const name = ref.path.split("/").filter(Boolean).at(-1) || ref.path;
+  return { name, full: ref.path };
+}
+/* 选中一个 kind 时该聚焦哪个按钮：file 档在有文档 tab 时由文档 tab 承担，类型 tab
+ * 此刻不画（同一个面画两个 tab 是多余的一格）。 */
+function surfaceTabButton(kind) {
+  if (kind === "file" && surfaceDocumentRef()) return $("surface-document-select");
+  const module = surfaceModule(kind);
+  return module?.tabId ? $(module.tabId) : null;
+}
+function surfaceTabButtons() {
+  return [...$("surface-tabs").querySelectorAll('[role="tab"]')].filter(
+    (tab) => !tab.hidden && tab.closest("[hidden]") === null,
+  );
+}
+/* 关闭活跃文档 tab：回紧凑目录，并把焦点还给打开它的那个控件（restoreLayerFocus）。 */
+function closeDocumentTab() {
+  if (!surfaceDocumentRef()) return;
+  const opener = state.surface.returnFocus;
+  /* 打开它的那一行在聊天流里，回来时那条流会重画一遍，于是原来那个节点已经不在
+     文档里了。既有的 `data-focus-key`（Chat Flow 的行本来就带着它）说的正是"重画
+     之后还是同一行"，所以按它把焦点找回来，而不是按节点身份。 */
+  const openerKey = opener?.dataset?.focusKey ?? null;
+  state.surface.fileRef = null;
+  if (state.surface.kind === "file") state.surface.kind = "preview";
+  fileView?.pause();
+  $("file-content").replaceChildren();
+  setSurfaceExpanded(false, { focus: false });
+  renderSurfaceVisibility();
+  const again =
+    openerKey && !opener?.isConnected
+      ? $("message-stream").querySelector(
+          `[data-focus-key="${CSS.escape(openerKey)}"]`,
+        )
+      : opener;
+  restoreLayerFocus(again, $("show-surface-button"));
+}
+/* WK-118 ⑤ · agent activity 以微型 indicator 入对应类型 tab，不造 banner。形状与
+ * 文字各说一遍，不只靠颜色（FN-28）：running 实心、waiting_user 空心环、failed 方块，
+ * 每个都带一句 sr-only 的话。没有新图形、没有新色 —— 颜色沿 run-badge 的三档。 */
+const TAB_ACTIVITY = {
+  running: "Running",
+  created: "Running",
+  stopping: "Running",
+  waiting_user: "Waiting for you",
+  failed: "Failed",
+  unknown: "Failed",
+};
+/* run 的状态在每一次 render 里都可能变，而 `renderSurfaceVisibility` 只在布局变化时
+ * 跑；记号因此从 `renderInspector` 一起画，那是 rail 与 pane 的同一次重绘。 */
+function renderSurfaceTabActivity() {
+  const tab = $("surface-run-tab");
+  renderTabActivity(tab, tab.hidden ? null : (currentRun()?.status ?? null));
+}
+function renderTabActivity(tab, status) {
+  const word = status ? TAB_ACTIVITY[status] : null;
+  const existing = tab.querySelector(".tab-activity");
+  if (!word) {
+    existing?.remove();
+    return;
+  }
+  const mark = existing ?? element("span", { className: "tab-activity" });
+  mark.className = `tab-activity ${status}`;
+  mark.replaceChildren(element("span", { className: "sr-only", text: word }));
+  if (!existing) tab.append(mark);
 }
 
 function closeSurface({ restoreFocus = true } = {}) {
@@ -3452,6 +3575,10 @@ function renderSurfaceVisibility() {
   const open = Boolean(state.surface.open && currentSession()),
     expanded = open && state.surface.expanded;
   const overlay = surfaceOverlayQuery.matches;
+  /* WK-113 ① · 展开态有两种，不是一种：≥1680 三栏并列（C），1024–1679 主区内的
+   * 视图切换（B）。<1024 仍是那张全屏 sheet。 */
+  const threePane = expanded && surfaceThreePaneQuery.matches && !overlay;
+  const viewSwitch = expanded && !overlay && !threePane;
   const modal = surfaceIsModal(),
     navModal = overlay && state.navigationOpen && !open;
   const wasModal = panel.getAttribute("aria-modal") === "true";
@@ -3461,10 +3588,14 @@ function renderSurfaceVisibility() {
   shell.classList.toggle("surface-cards", cards);
   shell.classList.toggle("surface-strip", cards && state.surface.strip);
   shell.classList.toggle("surface-expanded", expanded);
+  shell.classList.toggle("surface-three-pane", threePane);
+  shell.classList.toggle("surface-view-switch", viewSwitch);
   shell.classList.toggle("nav-open", navModal);
   shell.classList.toggle("nav-collapsed", state.sidebarCollapsed);
   panel.classList.toggle("is-open", open);
   panel.classList.toggle("is-expanded", expanded);
+  panel.classList.toggle("is-three-pane", threePane);
+  panel.classList.toggle("is-view-switch", viewSwitch);
   panel.classList.toggle("is-strip", cards && state.surface.strip);
   panel.hidden = !open;
   panel.inert = !open;
@@ -3486,14 +3617,19 @@ function renderSurfaceVisibility() {
     nav.removeAttribute("role");
     nav.removeAttribute("aria-modal");
   }
-  /* The expanded pane replaces the chat column on the desktop; a column that is
-   * not on screen must not stay in the keyboard or accessibility tree
-   * (docs/surface-assignment.md §3). */
-  chat.inert = Boolean(modal || navModal || (expanded && !overlay));
+  /* B（1024–1679）· 展开是**主区内的视图切换**：文档面占主区，聊天列的 DOM 一直在
+   * （滚动位置与草稿因此不丢，R4D-3），但它不在屏幕上，所以也不能留在焦点顺序与无障碍
+   * 树里 —— `hidden` + `inert` 一起给。顶带那一行不属于聊天列的内容，它是这一屏的
+   * chrome（侧栏开合钮、会话名），所以留在原地可用。C（≥1680）三面同时在场，什么都
+   * 不藏。 */
+  renderConversationBodyVisibility();
+  chat.inert = Boolean(modal || navModal);
   chat.setAttribute("aria-hidden", String(chat.inert));
   /* WK-69 · an L3 overlay sits over the scrim; the collapsed cards are L2 and
    * disable nothing, so the ground stays clear under them. */
-  $("surface-backdrop").hidden = !(modal || expanded);
+  /* 遮罩只画在它真的挡住工作的地方：<1024 的那张 sheet。B 的视图切换不压暗任何
+   * 东西（被切走的那一面根本不在屏幕上），C 三栏并列更没有可压暗的对象。 */
+  $("surface-backdrop").hidden = !modal;
   $("nav-backdrop").hidden = !navModal;
   $("toggle-nav-button").setAttribute(
     "aria-expanded",
@@ -3504,23 +3640,44 @@ function renderSurfaceVisibility() {
     "panel-right",
     open && !expanded ? "Close work surface" : "Open work surface",
   );
+  /* C 态两面并列，"回到聊天"这句话没有对象可指：那里的同一个控件说的是把文档面收回
+   * 紧凑目录。B 态由 strip 左端的 ← Chat 承担返回，展开钮此刻不画，免得一行里出现
+   * 两个说同一件事的控件。 */
   setAction(
     $("surface-expand-button"),
     expanded ? "minimize-2" : "maximize-2",
-    expanded ? "Return to chat" : "Expand work surface",
+    expanded ? "Collapse work surface" : "Expand work surface",
   );
   $("surface-expand-button").setAttribute("aria-expanded", String(expanded));
   $("surface-expand-button").hidden =
-    window.matchMedia("(max-width: 767px)").matches && !expanded;
+    viewSwitch || (window.matchMedia("(max-width: 767px)").matches && !expanded);
+  const back = $("surface-back-button");
+  back.hidden = !viewSwitch;
+  if (viewSwitch) {
+    /* 纯文字。sprite 里没有一个"往回"的 glyph，而 glyph-semantics 是本单不可写的
+     * 契约文件；与其为一个控件新造一个图形，不如让这个控件就说 `Chat`。它也因此在
+     * 一排 tab 里一眼可辨：tab 是下划线，它是一个带框的按钮。 */
+    back.replaceChildren(
+      element("span", { className: "button-label", text: "Chat" }),
+    );
+    back.setAttribute("aria-label", "Back to chat");
+    back.dataset.tooltip = "Back to chat";
+  }
   const kinds = visibleSurfaceKinds();
+  const documentRef = surfaceDocumentRef();
   for (const module of surfacePaneModules()) {
     const tab = $(module.tabId),
       selected = state.surface.kind === module.kind;
-    tab.hidden = !kinds.includes(module.kind);
-    tab.setAttribute("aria-selected", String(selected));
-    tab.tabIndex = selected ? 0 : -1;
+    /* file 档在有文档 tab 的时候由那个 tab 承担：同一个面不画两个 tab。 */
+    tab.hidden =
+      !kinds.includes(module.kind) ||
+      (module.kind === "file" && Boolean(documentRef));
+    tab.setAttribute("aria-selected", String(selected && !tab.hidden));
+    tab.tabIndex = selected && !tab.hidden ? 0 : -1;
     $(module.contentId).hidden = !(expanded && selected);
   }
+  renderSurfaceTabActivity();
+  renderDocumentTab(documentRef);
   /* WK-42 · the band names the whole rail while the cards are showing, and the
    * open kind once a pane is showing; the tab strip is the band's content then,
    * so the heading steps back to the accessible name only. */
@@ -3528,6 +3685,7 @@ function renderSurfaceVisibility() {
   $("surface-title").textContent = expanded
     ? surfaceKindTitle(state.surface.kind)
     : "Work surface";
+  renderSurfaceScope(expanded);
   renderSurfaceRail();
   if (
     modal &&
@@ -3536,9 +3694,40 @@ function renderSurfaceVisibility() {
     (!panel.contains(document.activeElement) ||
       !document.activeElement?.getClientRects().length)
   )
-    (expanded && $(`surface-${state.surface.kind}-tab`)?.hidden === false
-      ? $(`surface-${state.surface.kind}-tab`)?.focus()
+    (expanded && surfaceTabButton(state.surface.kind)
+      ? surfaceTabButton(state.surface.kind).focus()
       : focusSurfaceRail());
+}
+function renderDocumentTab(ref) {
+  const wrap = $("surface-document-tab"),
+    select = $("surface-document-select"),
+    close = $("surface-document-close");
+  wrap.hidden = !ref;
+  if (!ref) {
+    // 文档 tab 不在时，file 面的可访问名回到类型 tab 上。
+    $("file-content").setAttribute("aria-labelledby", "surface-file-tab");
+    return;
+  }
+  const { name, full } = documentTabTitle(ref);
+  const selected = state.surface.kind === "file";
+  select.textContent = name;
+  /* 截断只发生在看的那一层：完整名字仍在可访问名与 title 上（通行做法，EX-CC1 §4）。 */
+  select.title = full;
+  select.setAttribute("aria-label", full);
+  select.setAttribute("aria-selected", String(selected));
+  select.tabIndex = selected ? 0 : -1;
+  select.dataset.documentKey = surfaceDocumentKey(ref);
+  setAction(close, "x", `Close ${full}`);
+  $("file-content").setAttribute("aria-labelledby", "surface-document-select");
+}
+/* M-2 · scope 位现在是工作面标题带上的一句陈述。只在 Work 会话上，只在这条带真的
+ * 在屏幕上时（展开态）；BE-19 之前它仍然没有控件、仍然只有一个值。 */
+function renderSurfaceScope(expanded) {
+  const scope = $("surface-scope"),
+    session = currentSession();
+  const show = Boolean(expanded && session && sessionMode(session) === "work");
+  scope.hidden = !show;
+  scope.textContent = show ? MEMORY_SCOPE_OFF : "";
 }
 function surfaceKindTitle(kind) {
   if (kind === "run") return "Run details";
@@ -3705,7 +3894,7 @@ function activateSurface(kind) {
   fileView?.pause();
   renderSurfaceVisibility();
   writeUiState();
-  $(`surface-${kind}-tab`).focus();
+  surfaceTabButton(kind)?.focus();
   loadRailFacts();
   loadSurfaceKind(kind);
 }
@@ -3715,6 +3904,11 @@ function openRun(runId) {
 }
 function openFile(ref) {
   if (ref.sessionId !== state.activeSessionId) return;
+  /* 关闭这份文档时焦点要回到**打开它的那个控件**，所以在这里记下来。沿用既有的
+     `returnFocus` 字段，不新增状态。 */
+  const opener = document.activeElement;
+  if (opener && opener !== document.body && opener.isConnected)
+    state.surface.returnFocus = opener;
   state.surface.fileRef = ref;
   activateSurface("file");
 }
@@ -3723,6 +3917,7 @@ function openFile(ref) {
 function renderInspector() {
   renderSurfaceRail();
   renderSurfacePanes();
+  renderSurfaceTabActivity();
 }
 /** The binding a Run was created with is a property of that Run, so it is read
  * once per Run id and never re-derived from the current configuration. */
@@ -5667,11 +5862,27 @@ function wireEvents() {
   $("materials-dialog").addEventListener("close", () => materialsView.close());
   for (const module of surfacePaneModules())
     $(module.tabId).addEventListener("click", () => activateSurface(module.kind));
+  $("surface-document-select").addEventListener("click", () =>
+    activateSurface("file"),
+  );
+  $("surface-document-close").addEventListener("click", closeDocumentTab);
+  $("surface-back-button").addEventListener("click", () =>
+    setSurfaceExpanded(false),
+  );
   $("surface-tabs").addEventListener("keydown", (event) => {
+    /* 关闭是一个明确的动作：关闭钮，或焦点在文档 tab 上时的 Delete / Backspace。
+       类型 tab 上按它什么也不发生 —— 档位不可关闭。 */
+    if (
+      (event.key === "Delete" || event.key === "Backspace") &&
+      document.activeElement === $("surface-document-select")
+    ) {
+      event.preventDefault();
+      closeDocumentTab();
+      return;
+    }
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-    const tabs = [...$("surface-tabs").querySelectorAll("button")].filter(
-      (tab) => !tab.hidden,
-    );
+    // 只在 role="tab" 之间走：关闭钮不是这条 tablist 的一站。
+    const tabs = surfaceTabButtons();
     const index = tabs.indexOf(document.activeElement);
     if (index < 0) return;
     event.preventDefault();
@@ -5776,6 +5987,12 @@ function wireEvents() {
     state.surface.expanded ? setSurfaceExpanded(false) : closeSurface(),
   );
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
+  /* 断点跨越（1679 ↔ 1680）只改布局：不卸载 renderer、不重发命令、不重读，
+   * 所以这里只是一次重绘。R4D-3 的位置与草稿因此也不动。 */
+  surfaceThreePaneQuery.addEventListener("change", () => {
+    renderSurfaceVisibility();
+    if (!surfaceViewSwitch()) renderMessageStream();
+  });
   narrowQuery.addEventListener("change", () => {
     renderChatHeader();
     renderComposer();

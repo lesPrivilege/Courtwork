@@ -399,12 +399,13 @@ export function setRequestLabel(button, label, inFlight) {
   const visible = document.createElement("span");
   visible.className = "request-label";
   visible.textContent = requestLabel(label, inFlight);
-  const ghost = document.createElement("span");
-  ghost.className = "request-label-ghost";
-  ghost.textContent = label;
-  ghost.setAttribute("aria-hidden", "true");
   button.classList.add("request-width");
+  /* 影子是一条 CSS 生成内容（`::after` 读这个属性），不是一个真的子节点：真的子节点
+   * 会进 `textContent`，而既有的反例脚本正是按 `textContent` 认这几个按钮的。生成
+   * 内容在无障碍树里可能被读到，所以可访问名由 `aria-label` 显式说一遍，与看得见的
+   * 字一字不差。 */
   button.dataset.restingLabel = label;
-  button.replaceChildren(visible, ghost);
+  button.setAttribute("aria-label", requestLabel(label, inFlight));
+  button.replaceChildren(visible);
   return button;
 }
