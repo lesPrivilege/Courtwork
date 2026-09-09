@@ -1,0 +1,40 @@
+{
+  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "tokens": {
+    "source": "app/web/styles.css",
+    "source_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
+    "blocks": [
+      {
+        "selector": ":root",
+        "lines": "1-40"
+      },
+      {
+        "selector": ":root[data-theme=\"dark\"]",
+        "lines": "40-77"
+      },
+      {
+        "selector": "@media (prefers-color-scheme: dark) > :root:not([data-theme=\"light\"])",
+        "lines": "77-112"
+      },
+      {
+        "selector": ":root",
+        "lines": "217-335"
+      },
+      {
+        "selector": ":root[data-text-size=\"small\"]",
+        "lines": "335-340"
+      },
+      {
+        "selector": ":root[data-text-size=\"large\"]",
+        "lines": "340-343"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "tokens.css",
+      "bytes": 9632,
+      "sha256": "296853b6f78c412822f564c804ffc87b9662b867c6041af161cf494011444292"
+    }
+  ]
+}
