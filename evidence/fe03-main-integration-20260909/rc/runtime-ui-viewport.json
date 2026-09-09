@@ -1,0 +1,293 @@
+{
+  "app": "http://127.0.0.1:8937/",
+  "results": [
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "light"
+    },
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "dark"
+    },
+    {
+      "viewport": "1440",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "touch-targets",
+      "obligation": "every enabled control keeps a usable height on desktop",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=true moving=0",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "1440",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "light"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=false moving=0",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "dark"
+    },
+    {
+      "viewport": "390",
+      "id": "no-horizontal-overflow",
+      "obligation": "every group holding a runtime block fits its column with no horizontal scroll",
+      "pass": true,
+      "detail": "developer: document=0px panel=0px spills=none | skills: document=0px panel=0px spills=none | tools: document=0px panel=0px spills=none | permissions: document=0px panel=0px spills=none | models: document=0px panel=0px spills=none",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "touch-targets",
+      "obligation": "every enabled control is at least 44px tall at 390",
+      "pass": true,
+      "detail": "all controls pass",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "scope-tab-keyboard",
+      "obligation": "scope tabs move with arrow / Home / End and keep one tab stop",
+      "pass": true,
+      "detail": "right=workspace end=session home=user tabstops=1",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "capability-tab-keyboard",
+      "obligation": "Configurable / Inventory move with arrow keys and keep one tab stop",
+      "pass": true,
+      "detail": "ArrowRight focused inventory, tabstops=1, back to configurable",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "reduced-motion",
+      "obligation": "with reduced motion requested the module animates nothing",
+      "pass": true,
+      "detail": "reduce=true moving=0",
+      "media": "light + reduced motion"
+    },
+    {
+      "viewport": "390",
+      "id": "rail-card-opens-the-group",
+      "obligation": "the rail card opens Settings › Developer › Runtime, puts the rail away, and Escape leaves the page",
+      "pass": true,
+      "detail": "onGroup=true, page hidden after Escape=true, focus=session-title",
+      "media": "light + reduced motion"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "name": "late response after address edit",
+      "pass": false,
+      "afterEdit": {
+        "hidden": true,
+        "text": ""
+      },
+      "afterResponse": {
+        "hidden": false,
+        "text": "ok · Model directory handshake succeeded; generation was not tested."
+      }
+    },
+    {
+      "name": "late response after key edit",
+      "pass": false,
+      "afterEdit": {
+        "hidden": true,
+        "text": ""
+      },
+      "afterResponse": {
+        "hidden": false,
+        "text": "ok · Model directory handshake succeeded; generation was not tested."
+      }
+    },
+    {
+      "name": "late response after provider edit",
+      "pass": false,
+      "afterEdit": {
+        "hidden": false,
+        "text": "Probing…"
+      },
+      "afterResponse": {
+        "hidden": false,
+        "text": "ok · Model directory handshake succeeded; generation was not tested."
+      }
+    }
+  ]
+}

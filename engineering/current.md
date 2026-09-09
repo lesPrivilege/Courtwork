@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次FE-02合流读取main基线 `c529923f158f702bcdb8a2952e9fc245d906d212`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次FE-03合流读取main基线 `386fbc65530d97b8f620fdd76141c8d4fa5967ef`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -11,7 +11,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
-| 通用工作面 / Workbench | FE-02修订与Fable round4c已合流；WK-106/107与合流验证见下 | 从最终main提交新建清洁工作树，Opus FE-03（Low）→ FE-04（Medium），FE-05后置；BE-17/18界面接入仍待；[第四轮交接](mvp/execution/work-surface-kit/handoff-round4.md)与[工单](mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md) |
+| 通用工作面 / Workbench | FE-03与Fable round4d指定提交已合流；WK-109/110与合流验证见下 | 从最终main提交新建清洁树，FE-04（Medium）→ CC-S → CC-W → CC-D0 → FE-05；CC-W/D0先消费只读探索与新合同；[第四轮交接](mvp/execution/work-surface-kit/handoff-round4.md)与[工单](mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md) |
 | 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -40,7 +40,11 @@ FE-01节点交接时安排Fable以agent定义文件Low档派Opus FE-02，现已�
 
 FE-02修订已接收：初版 `38717bd`、移除本设备display name修订 `a82c192`、Fable复核头 `565d18c`，与当前main `c529923` 合流为 `a9d1d15`；再合r4c `7026b09` 为 `2ab0193`。唯一冲突在backend-requests末尾，保留BE-17/18既有交付说明并加入BE-21/22，不回退后端接缝。--nav已256；Connections只画后端现有的一条，不以设备偏好制造连接属性；WK-107其余裁定按 [delivery-fe02§13](mvp/execution/work-surface-kit/delivery-fe02.md)接收。Astra组合版本全量219/219（FE-02修订218 + 主线provider preview 1）、两项lint、contrast、smoke、Models16/16、composition16/16；FE-T03与RC结果见 [本次合流证据](../evidence/fe02-main-integration-20260909/README.md)。无集成产品代码补丁、无新增allowlist。
 
-FE-02按旧基线完成有界界面交付：Test/Fetch仍无按钮，主线BE-17/18探测后端已可用但本单未接入，界面“host has no handshake”沿旧基线，须在消费接缝时同步更正；不能再记为后端未交付，也不称完整Models连接工作流已验收。BE-21连接注册表（含display name与独立provider身份）、BE-22 MCP注册未交付；错误文案统一为FE-03后议题，尚未排期。下一单Fable从最终main提交新建清洁树，以opus-wo-low派FE-03，FE-04用opus-wo-medium；本次未代为启动。public-copy及G1–G5状态不变。
+FE-02节点按旧基线完成有界界面交付，当时Test/Fetch未接入且两句旧说明待更正；现由下述FE-03第0项消费并改正。不称完整Models连接工作流已验收。BE-21连接注册表（含display name与独立provider身份）、BE-22 MCP注册未交付；错误文案统一为FE-03后议题，尚未排期。该节点安排Fable派FE-03（Low），现已交付；FE-04用opus-wo-medium。public-copy及G1–G5状态不变。
+
+FE-03已接收：Opus实现 `81390de`、交付 `fabfd22`、Fable复核 `f995778`，与main `386fbc6` 无冲突合流为 `6c77b54`；再合r4d固定提交 `00e33f9` 为 `f3d1785`，保留研究/设计包。BE-17/18已在compatible表单接入，结果只作目录探测显示，不注入Model、不保存配置；Chat/Work只读extensionBinding、Continue in Work复用原路由、Memory Off与Temporary chat均无控件。七项裁定按WK-109接收；BE-23无项目Chat创建仍待，BE-19/20/21/22不关闭。Astra全量228/228、两项lint、contrast、smoke及全部分配浏览器回归见 [合流证据](../evidence/fe03-main-integration-20260909/README.md)。
+
+合流补验发现延迟探测回包会在地址/key/provider改变后重新显示旧ok；Astra补丁 `4b6aef4` 给结果加失效标记，改变表单后不消费旧回包，无新API或权限变化。延迟反例补前0/3、补后3/3，原探测8/8与Models18/18复跑通过；该补丁为Astra作者验证，待Fable非作者补核，WK-109不自动覆盖新补丁。下一单由Fable从最终main提交建清洁树派FE-04（opus-wo-medium），本次未代派。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
@@ -52,7 +56,7 @@ FE-02按旧基线完成有界界面交付：Test/Fetch仍无按钮，主线BE-17
 
 用户授权后端先行，关键设计与实现由 Astra light 亲自撰写，explore 用 Luna 集群。本轮从 `main@a431650` 建隔离树，[派工包](execution/2026-09-09-backend-dispatch/README.md)启动三个 Luna max 只读分片，已返回后端/文件状态/前端消费事实；两个 Astra `gpt-6-astra/low` 分片分别交付 BE-17/18 代码 `f58c28c` 和 ES-00 施工合同 `42a4c2f`。根 Astra 非作者复读与集成，在纳入 FE-01 主线 `2b6c221` 后的 `f4774e5` 复跑全量213/213、smoke通过；原a431650基底209/209另列。实际结果见 [证据包](../evidence/backend-dispatch-20260909/README.md)。
 
-BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选key完成有界模型目录探测，不持久配置、不读保存key、不建Run、不注册模型。后续前端接缝按 [实际协议](../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718)消费；握手不证明key被验证或模型可推理，custom compatible/local的保存与执行另单。ES-00改为受信Run recorded artifacts → 完整历史字节 → Core的选定文件版本集合，避免inline提议冒充执行证据；ES-01代码仍待按合同实施，不称已有文件接受能力。前端实际进度以本页FE-02合流记录为准，单写者顺序及G1–G5保持。
+BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选key完成有界模型目录探测，不持久配置、不读保存key、不建Run、不注册模型。后续前端接缝按 [实际协议](../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718)消费；握手不证明key被验证或模型可推理，custom compatible/local的保存与执行另单。ES-00改为受信Run recorded artifacts → 完整历史字节 → Core的选定文件版本集合，避免inline提议冒充执行证据；ES-01代码仍待按合同实施，不称已有文件接受能力。前端实际进度以本页FE-03合流记录为准，单写者顺序及G1–G5保持。
 
 ## 本地资料治理：后续研究与 PR 准备（2026-09-09）
 
@@ -63,6 +67,8 @@ BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选ke
 用户要求将“架构插件化调研”一并入账，并补充handoff.md；已消费一轮完整问答及366行交接原文。[准备包](research/architecture-maintenance-2026-09-09/README.md)在实际main4c1c420核对当前owner，提供AM-A…F后续PR、局部选型/来源index、缓存/维护契约草案和前后端合流Design。保持Pi与既有Core；先请求基线再两项只读慢任务纵切，区分执行/交付/接受、native/adapted和MCP协议代际。与上一单LG/EX及ES-00交叉连接，不复制任务/来源/成果owner。此次仅文档与有界只读核验，未实施async或插件平台、未运行真实provider；FE队列、ES-01及G1–G5不变。
 
 ## Clean and Cool：前端视觉审查与 Claude 输入（2026-09-09）
+
+WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素合同；80×52安全区既有合同保留，Settings/折叠态缺口并入CC-S。三面贯通与tab strip需先修订composition law、宽度折叠策略和tab identity，1440不得静默压窄中面；模块Home为布局版本，不替代简洁Home。次序FE-04 → CC-S → CC-W → CC-D0 → FE-05，CC-D1…随各数据源合同。用户回执称Sonnet EX-CC1/CC2已派，本次只接收r4d@00e33f9，不纳入尚未裁定的探索结果、不代派新代理；前端单writer，探索不构成实施或验收。
 
 最新用户补充已并入设计交接：桌面window control安全区、左/中/右三面上下贯通、composer优先且热力图/统计缩为辅助模块；熟悉的frontier交互范式作为默认参照。沿既有shell合同，旧图不相容尺寸退为参考；本次仅文档，无产品实现或验收。
 

@@ -1,0 +1,42 @@
+{
+ "session": "bf635483-8b62-47f5-a230-f3e91960d7a9",
+ "project": "2c3dfb54-bc2e-42f2-94bb-dc79ffa35a0a",
+ "revision": 21,
+ "mcp": 200,
+ "policies": [
+  {
+   "scope": {
+    "type": "user",
+    "id": "local"
+   },
+   "rules": []
+  },
+  {
+   "scope": {
+    "type": "workspace",
+    "id": "2c3dfb54-bc2e-42f2-94bb-dc79ffa35a0a"
+   },
+   "rules": [
+    {
+     "action": "ws_write",
+     "resource": "materials/*",
+     "effect": "deny"
+    },
+    {
+     "action": "ws_write",
+     "resource": "out/*",
+     "effect": "ask"
+    }
+   ]
+  },
+  {
+   "scope": {
+    "type": "session",
+    "id": "bf635483-8b62-47f5-a230-f3e91960d7a9"
+   },
+   "rules": []
+  }
+ ],
+ "composition": "agent:general",
+ "activeRuns": 0
+}

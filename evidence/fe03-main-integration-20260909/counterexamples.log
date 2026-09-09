@@ -1,0 +1,11 @@
+PASS FE-T03-a — FN-14 · 三层可分别读出
+      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[{"sessionId":"ccf920ef-a5bb-4a59-b97a-3f9a7b316a99","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"aa2f9fd6-0498-41f3-bc0a-187f92ad6a1b","provider":"fake-openai-loopback","model":"fake-model"}]}
+PASS FE-T03-b — FN-14 / 16 · 请求值不冒充有效值
+      {"drafted":{"provider":"deepseek","model":"deepseek-v4-pro"},"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"row":["Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"],"claims":[]}
+PASS FE-T03-c — FN-14 / 15 · 有效值变、绑定值不变
+      {"effective":{"provider":"deepseek","model":"deepseek-v4-pro","baseUrl":null},"row":["DeepSeekIn forceDeepSeek · deepseek-v4-pro · Provider default endpoint · No API key savedConfigure"],"boundBefore":[{"sessionId":"ccf920ef-a5bb-4a59-b97a-3f9a7b316a99","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"aa2f9fd6-0498-41f3-bc0a-187f92ad6a1b","provider":"fake-openai-loopback","model":"fake-model"}],"boundAfter":[{"sessionId":"ccf920ef-a5bb-4a59-b97a-3f9a7b316a99","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"aa2f9fd6-0498-41f3-bc0a-187f92ad6a1b","provider":"fake-openai-loopback","model":"fake-model"}]}
+PASS FE-T03-d — FN-14 · 绑定值自始至终不被改写
+      {"effective":{"provider":"fake-openai-loopback","model":"fake-model","baseUrl":null},"bound":[{"sessionId":"ccf920ef-a5bb-4a59-b97a-3f9a7b316a99","provider":"fake-openai-loopback","model":"fake-model"},{"sessionId":"aa2f9fd6-0498-41f3-bc0a-187f92ad6a1b","provider":"fake-openai-loopback","model":"fake-model"}]}
+PASS FE-T03-e — FN-16 · 冻结时不假装排队
+      {"error":"provider config is frozen during a run","errorShown":true,"effective":"fake-openai-loopback","queueWords":[]}
+5 / 5

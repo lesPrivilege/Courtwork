@@ -1,0 +1,38 @@
+[
+  {
+    "name": "late response after address edit",
+    "pass": true,
+    "afterEdit": {
+      "hidden": true,
+      "text": ""
+    },
+    "afterResponse": {
+      "hidden": true,
+      "text": ""
+    }
+  },
+  {
+    "name": "late response after key edit",
+    "pass": true,
+    "afterEdit": {
+      "hidden": true,
+      "text": ""
+    },
+    "afterResponse": {
+      "hidden": true,
+      "text": ""
+    }
+  },
+  {
+    "name": "late response after provider edit",
+    "pass": true,
+    "afterEdit": {
+      "hidden": true,
+      "text": ""
+    },
+    "afterResponse": {
+      "hidden": true,
+      "text": ""
+    }
+  }
+]

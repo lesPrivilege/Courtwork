@@ -1,0 +1,51 @@
+{
+  "projectId": "2c3dfb54-bc2e-42f2-94bb-dc79ffa35a0a",
+  "sessionId": "bf635483-8b62-47f5-a230-f3e91960d7a9",
+  "revision": 7,
+  "resources": [
+    "tool:tool:ask_user",
+    "tool:tool:ws_list",
+    "tool:tool:ws_read",
+    "tool:tool:ws_write",
+    "tool:tool:ws_grep",
+    "tool:tool:runtime_load",
+    "plugin:plugin:evidence-memo",
+    "tool:tool:se_read_source",
+    "tool:tool:se_submit_candidate",
+    "tool:tool:se_read_artifact",
+    "plugin:plugin:inbound-nda",
+    "tool:tool:se_read_source",
+    "tool:tool:se_submit_candidate",
+    "tool:tool:se_read_artifact",
+    "plugin:plugin:probe",
+    "instruction:local:conventions",
+    "skill:local:citation",
+    "reference:local:brief",
+    "prompt_template:local:review",
+    "agent_profile:local:reader",
+    "mcp_server:local:docs-mcp",
+    "tool:tool:mcp_50696bf82a9bbeb4de5c4d80",
+    "tool:tool:mcp_73c977231c0a2c4086308141",
+    "agent_profile:agent:general",
+    "provider:provider:current",
+    "model:model:current",
+    "secret:secret:provider",
+    "sandbox:sandbox:workspace",
+    "permission_policy:policy:host",
+    "session_context:context:session"
+  ],
+  "scopes": [
+    {
+      "type": "user",
+      "id": "local"
+    },
+    {
+      "type": "workspace",
+      "id": "2c3dfb54-bc2e-42f2-94bb-dc79ffa35a0a"
+    },
+    {
+      "type": "session",
+      "id": "bf635483-8b62-47f5-a230-f3e91960d7a9"
+    }
+  ]
+}
