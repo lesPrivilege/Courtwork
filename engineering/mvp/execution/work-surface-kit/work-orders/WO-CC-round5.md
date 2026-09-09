@@ -76,7 +76,7 @@ design_task:
     functional: 复用 state.surface 单值形状、surfaceModules 四类型、renderer 挂载 / 卸载与 restoreLayerFocus；不新增端点、字段、状态容器（多文档 map 等 BE-2）
     business_states: 第一段只有一个受信活动文档；折叠 / 展开 / 切换 / 返回不重发命令、不取消 Run、不丢草稿、不换读取版本（FN-23，FE-T07）；聊天与当前阅读面的滚动位置、草稿、返回焦点必须保留（R4D-3）；renderer 失效仍按 sessionId / extensionId / generation / status / modulePath（R4D-4）
     navigation: 1024–1679 主次切换（B）：展开态文档面占主区 1136（1440），strip 左端 ← Chat；≥1680 三栏（C）：nav 256 · chat ≥640 · doc ≥688，共享顶部 chrome 基线，各自滚动；<1024 全屏 sheet 不变；tab strip 40–44 高，正文距其 24–32；方向键 / Home / End 沿现有 tablist，关闭有明确动作（Delete / 关闭钮），关闭活跃 tab 选邻近，全部关闭回紧凑目录
-    density: 四个类型 tab + 至多一个文档 tab；文档 tab 关闭命中区与选中区分离；截断保留可访问全名
+    density: 四个类型 tab + 至多一个文档 tab；文档 tab 关闭命中区与选中区分离；截断保留可访问全名；面板宽 ≠ 正文行宽——B 态文档面 1136 内正文行宽上限沿 --column 740 起（可读上限登记为 token），宽表 / 代码按内容允许扩展；消息不默认全部卡片化（WK-117 (b)）
     responsive: 1440 / 1680 / 1024 / 390 四档；断点两侧（1679 / 1680）、短高度（≤720）、200%（1440 一次）
     accessibility: 安全区 80×52 在展开态与三栏态零可聚焦元素（SHELL-4 / SHELL-5）；tablist 语义与焦点归还沿现状
   existing_system:
@@ -94,7 +94,7 @@ design_task:
       - {source: 现有展开态, avoid: 遮罩压暗聊天与大圆角模态卡作为默认, why: Astra R4D 总体意见——互斥可见与模态外观分开裁定}
       - {source: 方案 A, avoid: 导航收图标列, why: 本轮未裁，无 token}
   unresolved:
-    - {question: B 态下 ← Chat 放在 strip 左端还是顶部 chrome 的返回位, competing_constraints: strip 是对象组织 vs 返回是导航}
+    - {question: B 态下 ← Chat 放在 strip 左端（strip 之外的同行控件）还是顶部 chrome 的返回位, competing_constraints: strip 是对象组织 vs 返回是导航；两者都不把返回控件放进 tablist（WK-117 (b)）}
     - {question: 三栏态 chat 列固定 640 还是 flex 至 740 上限, competing_constraints: 阅读列稳定 vs 宽屏利用}
     - {question: 文档 tab 的标题来源（文件名 / Run 标题 / 来源 id）与截断规则, competing_constraints: 可读 vs identity 不由标题充当}
   exploration: {variant_count: 3, require_structural_difference: true}   # 已出 A / B / C，选 B + C
@@ -111,7 +111,7 @@ design_task:
 2. B（1024–1679）：展开态 = 主区视图切换（不套遮罩与模态卡外观），strip 顶部；← Chat 返回并恢复聊天滚动与草稿；chat 面 DOM 保留（`hidden` + `inert`）。
 3. C（≥1680）：三栏 grid（nav / chat / doc），各自滚动，顶部 chrome 同一基线；chat ≥640；断点切换时不重挂 renderer、不丢滚动 / 草稿。
 4. Memory scope 位从会话 meta 行搬到工作面标题带（M-2；只在 Work 上，仍零控件）。
-5. FE-T07 全部重跑 + 新增：断点跨越（1679 ↔ 1680）不重发命令、不重挂、位置与草稿不丢；关闭文档 tab 后返回焦点落在打开它的控件。
+5. FE-T07 全部重跑 + 新增：断点跨越（1679 ↔ 1680）不重发命令、不重挂、位置与草稿不丢；关闭文档 tab 后返回焦点落在打开它的控件；C 态 composer 完整可见、长文与短高度（≤720）不溢出；B 态正文行宽 ≤ 上限、宽表 / 代码可横向滚动。
 6. 消融轮 + anti-slop 门。
 
 ### 写权与禁令
@@ -130,7 +130,7 @@ design_task:
   intent:
     user_goal: 进入 Home 先能开始一个 Chat；其次一眼看到今天等我的事
     primary_action: composer 发送（不变）
-    information_priority: composer > Today strip（Waiting for you / In progress / Needs a look）> 次级模块带 > 列表
+    information_priority: composer > 具体待办（Waiting for you 列表）与 Today strip > 次级模块带（本片只有 Models 入口行）；统计不得把首屏具体待办推出可见区（WK-117 (b)，HOME-6 保持）
   constraints:
     functional: 只用 work-summary 与 provider-config 已加载的数据；不新增读取、端点、字段；模块显隐为 cw:prefs 本设备偏好；Simple 为默认布局
     business_states: 六态显示约定（loading / ready / empty / not connected / unavailable / stale）逐模块声明并逐态注明事实来源（端点与字段，file:line）；没有时间戳语义的模块不展示 stale，没有连接语义的模块不展示 not connected（写 not_applicable + 理由），不为凑齐六态编造状态；缺接缝的模块不安装（Activity / Usage / Mail / Calendar 本片不安装，留契约不留死模块）
@@ -158,7 +158,7 @@ design_task:
 
 ### 做什么
 1. Appearance `Home layout` 偏好（cw:prefs，默认 Simple）；Modules 态渲染次级模块带于 composer 之后；Simple 态与现状逐像素一致（HOME-1…7 不变）。
-2. 模块带契约：模块注册表（id、标题、数据来源、六态各自的事实来源或 not_applicable、折叠 / 移除）、显隐偏好、键盘顺序、宽度分配与换行规则（≤820）；本片只安装 Today（原位）与 Models 入口行；Activity / Usage / Mail / Calendar 只在 contracts 里声明六态，不渲染。
+2. 模块带契约：模块注册表（id、标题、数据来源、六态各自的事实来源或 not_applicable、折叠 / 移除）、显隐偏好、键盘顺序、宽度分配与换行规则（≤820）；本片只安装 Today（原位）与 Models 入口行；Activity / Usage / Mail / Calendar / Attention 只在 contracts 里声明，不渲染、不占位、不写 "until BE-nn" 类文案；模块 id 与导航位置为未来 Attention 摘要留可扩展性，不画空卡、不造通用插件框架（WK-117）。
 3. HOME-1 / HOME-6 在 900 与 1058 两高各量一次；390 沉底顺序不变。
 4. 消融轮 + anti-slop 门（特别是 "fake dashboard density" 与 "gratuitous cards"）。
 

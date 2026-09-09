@@ -10,3 +10,5 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | M-4 | Work 1440 | 展开工作面时 256 + 640 + 文档面容不下（X ≤ 496），现行为覆盖层盖满主区（EX-CC1 §1） | major | 1 | composition law WK-96/97 | false | WK-113：≥1680 三栏，1440 主次切换 + strip |
 | M-5 | Work surface | 收起 → 展开重读一次 `/surface`（FE-T07 读数 0 → 2）；复用上次读取需失效规则 | minor | 1 | surface read cache / stale revision | false | WK-115 ③ |
 | M-6 | Approval / Question | 在途记号与幂等记号共用 `questionSubmitting`，两种粒度键 | minor | 1 | in-flight state shape | true | WK-115 ⑥；下次触碰拆两个 Set |
+| M-7 | Home | 具体待办排在计数之后、上半页留白大（图 6）；次级带若加统计会再下压待办（图 7） | major | 2 | information priority: todos vs counts; 0.56 baseline | false | WK-117 (b)；CC-D0-a 具体待办优先，0.56 改动需显式修订 |
+| M-8 | Work 消息流 | 每条消息、每类工具都是框，层级过平（图 1 对照） | minor | 1 | message container vocabulary | false | WK-117 (b)；CC-W 不默认全部卡片化 |
