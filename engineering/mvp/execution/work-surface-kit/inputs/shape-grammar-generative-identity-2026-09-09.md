@@ -1,0 +1,21 @@
+# 用户转交 · Corner / Shape grammar 与 Generative Identity 约束（Exa 36 结果 / 4 workstream，2026-09-09）
+
+用户以两段消息转交，Fable 转录要点，链接未经核验。消费裁定见 [intake-round-3 §4ad WK-125](../intake-round-3.md)。
+
+## Shape：圆角不是审美数值，而是组件类别、尺度、嵌套关系与交互状态共同决定的 shape contract
+- 体例：Shape = role（detail / control / container / structural surface）× radius（固定 token 刻度）× curve（round / capsule / squircle-superellipse / exceptional asymmetric）× relation（standalone / nested / grouped）× density（compact desktop / spacious-touch）× state（resting / hover / pressed / selected / focus）。写法：Button → control/default → radius.control → rounded-rect → compact-density。
+- Apple concentricity（WWDC25 356）：fixed / capsule（r = h/2）/ concentric（子 = 父 − padding）；macOS Mini / Small / Medium 控件保持 rounded rectangle，Large / X-Large 才趋向 capsule——桌面信息密度。Courtwork：dense work UI → restrained rounded rect；large / prominent / floating action → capsule allowed；touch 可更圆。**Pill 是有语义的 shape，不是时代风格**；避开 "44px high rounded-full everywhere" 的 slop。
+- 嵌套：R_inner ≈ R_outer − padding（Apple concentricity / Material 3 optical roundness）；例 outer 16 / padding 6 / inner 10；派生规则 `R_child = max(R_min, R_parent − inset)`，覆盖 card → preview、composer shell → textarea、popover → selected item、dialog → content well、artifact shell → rendered artifact、floating chrome → nested controls。
+- Grouped topology：standalone 四角；segmented / joined 只有 group 周界拥有外圆角、内部接缝 ≈ 0；attached panel 只圆暴露边；nested 派生。Material 3 已把 asymmetric inner corners 用于 split / grouped，进基线而非 hack。
+- Button specimen 矩阵：height × radius × curve × density × state；compact toolbar 小圆角矩形、default 中等、primary 不因 primary 自动 pill、large prominent 可 capsule、icon action 依 chrome 不自动 circle、segmented 外内角分治、destructive 的 shape 不承担 danger 语义、touch 可更圆；rest / hover / pressed / focus 同看；Material 3 Expressive 的 pressed shape morph 只作 experimental column。
+- Atlassian 体例：2 detail / 4 supporting-compact / 6 controls / 8 cards-floating / 12 large containers-modal / 16 exceptional / full；focus offset 2px、focus radius = component radius + 2px。照抄治理方式（component class → semantic radius token，非 designer → arbitrary px），不照抄数值。建议少量稳定语义 + 派生几何：`shape.control.compact / shape.control.default / shape.surface / shape.overlay / shape.full`，尺寸刻度不直接暴露给施工 agent。
+- MUST NOT：arbitrary border-radius；primary = 自动更圆；danger = 不同 shape；每个现代按钮 = pill；父子盲目同 radius。
+- CSS `corner-shape`（round / squircle / superellipse(k) / bevel / scoop / notch / square）把 radius（弯多大）与 curve（怎么弯）拆开；非 Baseline（Safari / Firefox 不足）→ Core 不依赖、specimen 测试、progressive enhancement 允许、第一阶段不引 runtime polyfill（hyperellipse 等）。
+
+## Identity：生成身份必须有不动的 invariant
+- Evri（Monotype）：近 20 万组合仍先做 master logo，严格 glyph metrics，整体轮廓一致；Emblème 把 type / pictogram / motif / color / motion / interaction 打包进 variable-font grammar。Courtwork：Invariant（stroke grammar、proportions、grid、limited marks、recognizable silhouette、color roles、baseline / cap 关系、canonical static mark）× Variable（word、state、revision mark、motion、composition、local displacement、material field）；**必须先有 canonical static state**，生成态是派生。与 SE 同构：稳定 schema + 有界 variation。
+- Measured Facet 范式：人写 palette rules / SVG primitives / composition constraints / art-direction constraints → agent 写 p5.js generator → generator 探索合法状态空间 → 人选择 / 拒绝 → 接受的规则成为 governed。
+- ADC Living Identity（CLEVER°FRANKE，约 60 参数 + 语义 embedding + 选择反馈）：L3/L4 research reference，不近期实施（引入"品牌自己学习"的动态治理问题）。近期：input → deterministic schema → versioned generator → reproducible visual（matter title + type + revision state → deterministic seed → 同一 mark 每次相同，可复现可审计）。
+
+## 合成：Canonical Visual Grammar
+VISUAL GRAMMAR = SHAPE（semantic role / density / radius / curve / concentricity / grouping topology）+ MATERIAL（field / blur / tint / edge / depth）+ IDENTITY（invariant grammar / glyph-mark / deterministic variation / export）+ MOTION（state transition / focus / material response / identity transition）；其下才映射 Button / Composer / Chat message / Tool / Ask user / Artifact / Popover / Chrome / Matter / Expert。Button 不拥有"8px 圆角"这种事实，它声明 shape role，视觉由 grammar 解算：semantic role → component class → density → shape token → material token → state contract → motion token。下一步不改正式 UI，建独立 Shape / Material / Identity specimen board：真实控件、同内容同尺寸、每轮只换一个变量；圆角要在 button / composer / card / popover / nested preview / modal 六类真实环境同看；裁定输出为 tokens + invariants + forbidden rules。

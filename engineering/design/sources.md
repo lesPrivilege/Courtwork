@@ -27,6 +27,8 @@
 
 | S14 / 材质语法与生成式身份 | 用户 Exa（48 结果 / 5 方向）：Figma Effects（Layer / Progressive Blur、Glass 参数）、Apple SwiftUI Material、Apple Adopting Liquid Glass、Josh Comeau Next-level backdrop-filter、web.dev backdrop-filter 性能；OpenCode Font 页、nexu-io open-design 的 opencode 分析 | Material grammar（field / surface / edge / depth / focus）作 FE-05 结构；progressive blur 与 mask 扩采样进 chrome 候选面消融；field / 氛围层只作 specimen；生成式身份立 GI 轨道（品牌线），不复制 OpenCode 风格 | 转录 [inputs/material-grammar-2-generative-identity-2026-09-09](../mvp/execution/work-surface-kit/inputs/material-grammar-2-generative-identity-2026-09-09.md)；WK-124。链接未经 Fable 核验 |
 
+| S15 / Shape grammar 与生成式身份 | 用户 Exa（36 结果 / 4 workstream）：Apple WWDC25 356（concentricity、capsule 与桌面密度）、Material 3 Shape / Buttons（optical roundness、shape morph）、Atlassian Radius（体例与 focus 派生）、MDN `corner-shape`；Monotype × Evri、Otherwhere Emblème、Measured Facet、CLEVER°FRANKE ADC | Shape 五角色 + concentricity 公理 + grouping topology + forbidden rules；corner-shape 只 progressive enhancement；Identity invariant / variation、确定性生成、Facet 范式 | 转录 [inputs/shape-grammar-generative-identity-2026-09-09](../mvp/execution/work-surface-kit/inputs/shape-grammar-generative-identity-2026-09-09.md)；WK-125。链接未经 Fable 核验 |
+
 ## 从 Agent GUI 文档提取的完成面
 
 | ID / 证据入口 | 文档明确支持的观察 | 对应本项目要求 / 剩余验证 |

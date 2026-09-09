@@ -1,5 +1,7 @@
 # Local UI Atlas · 局部行为索引
 
+> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。各段见本页末。
+
 WK-118 设立，WK-122 升级为六级格式：**Semantic Contract → Interaction Pattern → Anatomy → Behavior Primitive → Motion Recipe → Local Adaptation**。来源分四层（A 语义契约 / B 解剖 / C 微交互 donor / D 探索池，见 [inputs/ui-source-tiers](../../mvp/execution/work-surface-kit/inputs/ui-source-tiers-2026-09-09.md)）。语义契约的正式所在是 [ui-state-vocabulary](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md)（映射后端已有状态）、[primitive-canon](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md) 与 [review-projection](../../mvp/execution/work-surface-kit/contracts/review-projection.md) §6；A 层外部来源（Linear、Primer）只用来检查语义齐全，不替代 Core owner。upstream 是 donor 不是 runtime dependency：一律本地实现（原生 ES module），不引 React / Tailwind / Motion。本页只做索引，不复制内容；一个 entry 有实体前不建子目录。链接未经 Fable 核验。
 
 | entry | 1 semantic contract | 2 interaction pattern | 3 anatomy（B 层） | 4 behavior primitive | 5 motion recipe（C 层，只取行为） | 6 local adaptation / 状态 |
@@ -26,3 +28,11 @@ FE-05 按此五节组织，取值沿 WK-104：**field**（source geometry / colo
 ## Identity 段（WK-124 (d)，候选轨道 GI，品牌线 owner）
 
 conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。待用户点头后派 EX-GI1。
+
+## Shape 段（WK-125）
+
+五个语义角色 `shape.control.compact / control.default / surface / overlay / full` → 现有 token（`--radius-small` 4 / `--radius-control` 8 / `--radius-card` 12 / `--radius-container` 16 / `--radius-pill`）；公理 `R_child = max(R_min, R_parent − inset)`；密度耦合（桌面 rounded rect，capsule 只给 large / isolated / prominent；触控可更圆）；grouping topology；focus ring 派生；forbidden：arbitrary radius、primary 自动更圆、danger 换 shape、pill everywhere、父子同 radius。`corner-shape` 只 progressive enhancement。待 EX-CS1：审计、映射草案、lint-shapes、六类环境 specimen。
+
+## Motion 段（WK-124 / WK-125）
+
+state transition（原位变态：Send → Sending…、Approve → 回执行）、focus（transition blur 只在小型 text / icon）、material response（不动画 `backdrop-filter`）、identity transition（GI 轨道）；reduced-motion 下全部瞬切；pressed shape morph 只 experimental。
