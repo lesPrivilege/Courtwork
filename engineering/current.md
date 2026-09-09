@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次CC-S合流读取main基线 `3af83ebd35a09b4d029a9b8ce6e9c1979b7f6c54`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次CC-W合流读取main基线 `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -11,7 +11,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
-| 通用工作面 / Workbench | CC-S与r4d指定提交已合流；WK-116…121与合流验证见下 | 从最终main提交新建清洁树，CC-W（Medium）→ CC-D0-a → FE-05a → FE-05 → CC-I；CC-W/D0消费新合同；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
+| 通用工作面 / Workbench | CC-W与r4d指定提交已合流；WK-122…127与合流补丁边界见下 | Fable从最终main提交新建清洁树派CC-D0-a（Low）→ FE-05a → FE-05 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
 | 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -55,6 +55,12 @@ CC-S已接收：Opus交付 `ca548ed`、Fable复核头 `45625b2`，先合为 `85c
 WK-120成熟感原则及队列已接收：密度收敛、留白/对齐、层级先成立，材质与光后加。CC-W → CC-D0-a → FE-05a（字阶/密度）→ FE-05（材质/光）→ CC-I；FE-05a先由Fable给约束表，再由Opus用Settings与Work头部两张变体消融，用户比较后全站落地；anti-slop hierarchy检验字号/字重能否不靠颜色与框线建立层级。ATT-FE-01仍在FE-05后按接缝交付进入，不把序列当已派单或实现。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
+
+CC-W已接收：先合Opus/Fable固定交付 `67a6d8d`，再合r4d固定头 `c8d8ddb`，组合提交 `73ce524`；无冲突，无新增依赖、后端写入或allowlist。视口分档、单文档tab、关闭焦点归还、scope标题带与activity记号按WK-126接受，M-14视图状态双写与M-15 B态标题对齐留既定后单。[合流证据](../evidence/cc-w-main-integration-20260909/README.md)分列原交付复验与补丁作者验证；全量263/263包含并行后端新增8项，不能与作者255项直接混称。
+
+Astra补丁 `48693ad`：短标签Answer/Send发送时原有影子只预留静止态，补前浏览器组件检查9/15，补后15/15；现在静止/在途两种标签始终占位。同步将未被终态调用的activity映射unknown改为Unknown，不称已验证终态记号展示。两处为Astra作者补丁，待Fable非作者复核，不套用WK-126对旧交付的接受。既有composer重绘丢失图标、文字挤入圆形按钮另记在[截图10输入](design/attention-surface-2026-09-09/README.md)，未声称由本补丁解决。
+
+WK-122…127作为设计/契约输入接收：Visual Grammar在atlas之上，Shape/Identity仍待specimen与后续成单；WK-127单层backdrop blur + mask渐变只先用于滚动header，保留line回退、reduced-transparency清mask、<768关闭扩采样，帧时间只以真机验收。现不宣称材质实现或性能接受。下一步由Fable从最终main回执SHA建树派CC-D0-a（opus-wo-low），范围仍为现有事实与模块外壳；BE-1/3/25、BE-29已交付也不自动扩大到D0-b。EX-CC5/CS1/GI1仍沿原任务回执消费，r4d工作树保留，本次未代派、未push/部署；G1–G5不关闭。
 
 ## 执行文件状态：前后端 PR 准备（2026-09-09）
 

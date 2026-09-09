@@ -61,5 +61,12 @@
     "sha256": "aa2b24c7c6e3fa8dfe4f8bb921cd6322db9ac68199b302cfa6f1cea35d7ec577",
     "bytes": 890104,
     "retention": "用户提供的真实产品截图已目视；含个人任务上下文，不复制进产品仓库。仅记录结构观察与hash。"
+  },
+  {
+    "id": "10-codex-composer-stop",
+    "original_name": "Screenshot 2026-09-09 at 22.17.42.png",
+    "sha256": "f2a576d1b131b0026376ec35f26448cbfb63d7d823257f246f711fe4ea4b5ffa",
+    "bytes": 36799,
+    "file": "screenshots/10-codex-composer-stop.png"
   }
 ]

@@ -1,0 +1,332 @@
+[
+  {
+    "id": "HOME-1",
+    "pass": true,
+    "centre": 0.56,
+    "threshold": 0.55
+  },
+  {
+    "id": "HOME-2",
+    "pass": true,
+    "aboveComposerHeight": 38
+  },
+  {
+    "id": "HOME-3",
+    "pass": true,
+    "orientation": 38,
+    "text": "Work that exists beyond the model."
+  },
+  {
+    "id": "HOME-4",
+    "pass": true,
+    "width": 820
+  },
+  {
+    "id": "HOME-5",
+    "pass": true,
+    "input": 96
+  },
+  {
+    "id": "HOME-6",
+    "pass": true
+  },
+  {
+    "id": "HOME-7",
+    "pass": true,
+    "stats": 3,
+    "planned": 0,
+    "backendPendingOnHome": false,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "id": "HOME-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "HOME-narrow-dock",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ]
+  },
+  {
+    "id": "HOME-narrow-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-1",
+    "pass": true,
+    "homePrimitives": 0,
+    "bandHidden": true
+  },
+  {
+    "id": "WORK-2",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "composer-area"
+    ],
+    "width": 740
+  },
+  {
+    "id": "WORK-3",
+    "pass": true,
+    "input": 88
+  },
+  {
+    "id": "WORK-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-4",
+    "pass": true,
+    "surfaceOpen": true,
+    "readingWidth": 1184,
+    "composerMeasure": 740
+  },
+  {
+    "id": "SHELL-1",
+    "pass": true,
+    "unsafeControls": []
+  },
+  {
+    "id": "SETTINGS-1",
+    "pass": true,
+    "settingsActive": true,
+    "navHidden": true,
+    "navInert": true,
+    "navRects": 0,
+    "navFocusable": 0,
+    "toggleNavHidden": true
+  },
+  {
+    "id": "SETTINGS-2",
+    "pass": true,
+    "navColumn": 240,
+    "contentColumn": 820,
+    "leftGutter": 48,
+    "rightGutter": 48
+  },
+  {
+    "id": "SETTINGS-3",
+    "pass": true,
+    "blockGaps": [
+      40
+    ],
+    "rowPaddingTopBottom": [
+      12,
+      12
+    ],
+    "rowSpacing": 24
+  },
+  {
+    "id": "SETTINGS-4",
+    "pass": true,
+    "labelLeftEdges": [
+      341
+    ],
+    "controlRightEdges": [
+      1119
+    ]
+  },
+  {
+    "id": "SETTINGS-back-label",
+    "pass": true,
+    "backLabel": "Back to app",
+    "backVisible": true
+  },
+  {
+    "id": "SETTINGS-title",
+    "pass": true,
+    "pageTitle": "Settings",
+    "settingsHeadingsOnScreen": 1,
+    "labelledBy": "session-title"
+  },
+  {
+    "id": "SETTINGS-1440-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-5",
+    "pass": true,
+    "settingsOpen": false,
+    "view": "home",
+    "sidebarBack": true,
+    "focus": "quiet-button icon-only"
+  },
+  {
+    "id": "SETTINGS-1680-gutter",
+    "pass": true,
+    "leftGutter": 64,
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-1024-overflow",
+    "pass": true,
+    "overflow": 0,
+    "sidebarRendered": 0
+  },
+  {
+    "id": "SETTINGS-6",
+    "pass": true,
+    "selectVisible": true,
+    "navListVisible": false,
+    "gutter": 16,
+    "controlsUnder44": [],
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-7",
+    "pass": true,
+    "overflow": 0,
+    "cssViewport": 720
+  },
+  {
+    "id": "SHELL-2",
+    "pass": true,
+    "host": "desktop",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-3",
+    "pass": true,
+    "host": "desktop",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-2-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "SHELL-3-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "WORK-5",
+    "pass": true,
+    "shape": "app-shell surface-expanded surface-view-switch",
+    "docPane": 1136,
+    "strip": 44,
+    "proseGap": 24,
+    "backdropHidden": true,
+    "shadow": "none",
+    "radius": "0px",
+    "chatColumn": {
+      "hidden": true,
+      "inert": true,
+      "inDom": true
+    },
+    "overflow": 0
+  },
+  {
+    "id": "WORK-6",
+    "pass": true,
+    "shape": "app-shell surface-expanded surface-three-pane",
+    "columns": "256px 688px 736px",
+    "position": "static",
+    "nav": 256,
+    "chat": 688,
+    "doc": 688,
+    "docMin": 688,
+    "scrolls": {
+      "doc": "auto",
+      "chat": "auto",
+      "nav": "visible"
+    },
+    "chromeBaseline": {
+      "chat": {
+        "top": 0,
+        "left": 256,
+        "width": 687,
+        "height": 56,
+        "bottom": 56
+      },
+      "doc": {
+        "top": 0,
+        "left": 944,
+        "width": 736,
+        "height": 56,
+        "bottom": 56
+      }
+    },
+    "composerWhole": true,
+    "overflow": 0
+  },
+  {
+    "1679": {
+      "shape": "app-shell surface-expanded surface-view-switch",
+      "doc": 1375,
+      "overflow": 0
+    },
+    "1680": {
+      "shape": "app-shell surface-expanded surface-three-pane",
+      "doc": 688,
+      "chat": 688,
+      "overflow": 0
+    },
+    "id": "WORK-7",
+    "pass": true
+  },
+  {
+    "id": "WORK-8",
+    "pass": true,
+    "height": 720,
+    "composerWhole": true,
+    "composer": {
+      "top": 484,
+      "left": 280,
+      "width": 639,
+      "height": 180,
+      "bottom": 664
+    },
+    "overflow": 0
+  },
+  {
+    "id": "WORK-9",
+    "pass": true,
+    "cssViewport": 720,
+    "shape": "app-shell surface-expanded",
+    "overflow": 0
+  },
+  {
+    "id": "SHELL-4",
+    "pass": true,
+    "host": "desktop",
+    "shape": "app-shell surface-expanded surface-view-switch",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-5",
+    "pass": true,
+    "host": "desktop",
+    "shape": "app-shell surface-expanded surface-three-pane",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-4-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "SHELL-5-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  }
+]

@@ -59,3 +59,11 @@ GoRaven对话 `6aa122d3-ac50-83ec-bbb3-a7959c28d9d3` 已通过read_thread读取�
 ## 本轮验证与未检
 
 只做截图静态复核、来源/同名PR比对、路径与文档diff检查；没有运行产品测试、模型、连接真实账户、外发消息或部署。图片像素受浏览器窗口和缩放影响，不能直接换算CSS；截图不能证明交互或accessibility合规。仓库共享目录原WK98未提交JSON保持不动。
+
+## 补充输入：动态 composer 与停止按钮（22:17）
+
+用户提供 [截图10](screenshots/10-codex-composer-stop.png)，作为设计参考。静态可见：输入区与底部控件行分层；左端附件/权限，右端模型/effort、语音与圆形停止钮；停止钮以实心方块识别；变更摘要在输入框上方独立显示。截图中的 Full access 是参考产品自己的权限说明，不映射为 CourtWork 新权限或本次执行授权。
+
+可消费原则：composer 的高度随输入内容变化时，底栏与主动作保持可预测位置；发送/终止的形状应容易识别，命中区不随状态词伸缩；改动摘要只投影真实变更来源。动态高度、动效曲线、切换时序、interrupt/reduced-motion 行为不能由一张截图确认，须另有交互证据后成单。当前只登记输入，不添加语音、Auto 模式、新权限或 PR 控件。
+
+合流截图另发现 CourtWork 既有 composer 图标丢失问题：初始化 `setAction` 创建 icon-only 的 Send/Cancel run，后续 `renderComposer` 替换子节点，文本挤入圆形按钮；CC-W 前 `172130e` 已用 textContent 覆盖，同样丢图标，非本单引入。见 [CC-W合流证据](../../../evidence/cc-w-main-integration-20260909/README.md)。后续 composer 单须保留图标身份、更新可访问名与 tooltip，证明发送/取消在途以及重绘后仍有正确图标与稳定命中区；当前 M-9 短文本按钮补丁不宣称解决此问题。由 Fable 纳入后续单写者工单，未自行扩大 CC-D0-a。

@@ -1,0 +1,7 @@
+PASS T11-1 · 换源后旧候选的四条状态词逐个不变；当前来源已无该条款 {"before":[["purpose-limitation","pass"],["need-to-know-recipients","pass"],["security-and-notice","pass"],["term-duration","pass"]],"after":[["purpose-limitation","pass"],["need-to-know-recipients","pass"],["security-and-notice","pass"],["term-duration","pass"]],"currentHasClause":false}
+PASS T11-2 · 旧候选的 term-duration 锚点与引文不变 {"anchor":["source-86e870c7-a2b9-47c2-95cc-7aec0d0a1a86:1 [672, 765] 4. Term. These confidentiality obligations continue for three years after the Effective Date."],"unchanged":true,"sourceVersion":1}
+PASS T11-3 · 按冻结 revision 读历史来源，字节里仍含该条款；当前来源不含 {"bytes":765,"hasClause":true}
+PASS T11-4 · 重放原 request_id 得到同一条 Decision，不新增不撤销 {"replayStatus":200,"decisions":1,"same":true}
+PASS T11-5 · 对旧 base 的新决定被拒，不静默改写 {"status":409,"error":{"code":"CANDIDATE_CLOSED","message":"CANDIDATE_CLOSED: accepted"}}
+PASS T11-6 · producer 卸载后历史来源仍可读 {"unload":200,"read":200,"bytes":765}
+6 / 6

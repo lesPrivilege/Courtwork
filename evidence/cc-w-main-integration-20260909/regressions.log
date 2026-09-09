@@ -1,0 +1,19 @@
+seed 0
+models 0
+rows 0
+probe 0
+empty 0
+seed 0
+primitive 0
+seed 1
+Traceback (most recent call last):
+  File "/private/tmp/cw-ccw-integration/evidence/cc-w-main-integration-20260909/run-regressions.py", line 54, in <module>
+    group('history',[('seed','work-seed.mjs',{}),('fe-t11','fe-t11.mjs',{})])
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/cw-ccw-integration/evidence/cc-w-main-integration-20260909/run-regressions.py", line 38, in group
+    run(label,['node',str(output/script)],{**env,**overrides},output)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/cw-ccw-integration/evidence/cc-w-main-integration-20260909/run-regressions.py", line 14, in run
+    if result.returncode: raise RuntimeError(name)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: seed
