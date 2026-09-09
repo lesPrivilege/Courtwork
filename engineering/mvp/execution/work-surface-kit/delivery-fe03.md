@@ -225,3 +225,20 @@
 - **模型 ID 用等宽列出来，但下拉框一个都没多。** 两处相邻，差别一眼可见：上面是目录报的，下面是这个 build 能用的。判断从「我发现了新模型，现在能用了吗」变成「我看到目录里有这些，但这个 build 还不能保存它们」——后者是真的。
 - **改一个字符，上一次的结果就消失。** 一句关于旧地址的 `ok` 留在新地址旁边，是这一屏能犯的最严重的错误。它现在活不过一次 `input` 事件。
 - **Memory 组从两段变成两段，但换了一段。** 之前第二段说 Sources「配置在别处」；现在说 Sources **不是** Memory。前者回答「去哪里改」，后者回答「关掉记忆会不会让它看不见我的文件」——只有后者是读这一节的人真正在问的。
+
+## 13. Fable 复核（WK-109，2026-09-09）
+
+非作者复核，与 §1–§12 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only 4d9714e..HEAD` 对照工单可写清单 | 无越权；server / runtime / core / domains / brand 差异为空；证据目录在仓根 `evidence/fe03/`（仓根已有 wk6 / wk7 / rc 先例），接受 |
+| 读码 | `settings-view.mjs`（探测请求体、结果映射、路径限定、锁）、`ui-controls.mjs`、`app.mjs`、两个测试文件全部差异 | 请求体与协议逐字一致；`discover` 的 ID 只显示不注入；Chat / Work 只读 `extensionBinding`，无新状态 |
+| 单测 / lint | 228/228；lint-colors / lint-materials ok；contrast 76 行全通过 | 一致 |
+| 浏览器 | 自有端口 8893、三个新空数据目录、独立 CDP：`models-checks` 18/18、`composition-checks` 16/16、`probe-checks` 8/8、`shell-checks` 12/12（先 `work-seed`） | 一致 |
+| 断言变更 | MOD-4 / MOD-5 因 BE-17/18 交付而重写为按路径断言 | 更严不更松，接受 |
+| 七项待裁 | 见 [intake-round-3 §4o](intake-round-3.md) WK-109 | 全部接受；① 登记 BE-23；② 位置待 CC-W 后再议 |
+| 未复跑 | FE-T01 / FE-T11 / FE-T03 / RC 三支 | 作者结果原文在 §7–§8；Astra 独验按 `evidence/fe03/README.md`，`shell-checks` / `fe-t11` 须换空目录 |
+| 视觉四轴 | 留用户 | 未评 |
+
+结论：接受。合流次序：先 `claude/fe03-chat-work`（头 = 本条提交），再 `claude/fable-round4d`（已变基到 `386fbc6`，含 WK-108…110、BE-23、FE-03 提示词）。
