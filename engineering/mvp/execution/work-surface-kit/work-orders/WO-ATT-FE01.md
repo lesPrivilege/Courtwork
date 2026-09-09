@@ -63,3 +63,37 @@ design_task:
   exploration: {variant_count: 3, require_structural_difference: true}
   review: {removal_pass: required, constraint_recheck: required, state_review: required, real_data_review: required}
 ```
+
+---
+
+## 2026-09-10 重新划界（Fable，WK-152…WK-160）
+
+上文（WK-136 骨架）写于 ATT-BE-01 刚合流时。此后 Astra 已交付 [全局助手与 Runtime 组合](../../../../design/attention-agent-2026-09-10/README.md)（AG-1…AG-6），**切片 a 与切片 b 已以只读形态存在**：
+
+| 原切片 | 现状 | 位置 |
+|---|---|---|
+| a 常驻入口 + 独立工作面 | 已交付，但入口打开的是**助手对话**不是事项面；事项面本身只读 | `app/web/index.html:119`；`app/web/app.mjs:6018`、`:6444-6445`；`app/web/attention-view.mjs` |
+| b Home 可选摘要 | 已交付 | `app/web/app.mjs:5228-5230`；`home-view.mjs` |
+| c grant 编辑器 | 不变，仍归 CC-P | — |
+
+因此本单**不重做 a / b**，改为一件事：**把已有的后端权能接到人手里**。完整裁定见 [attention-triage-2026-09-10](../../../../design/attention-triage-2026-09-10/README.md)。
+
+### 新切片 d · 处置面（唯一待派）
+
+| # | 交付 | 裁定 |
+|---|---|---|
+| 1 | 侧栏入口直达事项面；助手降为面内持续可见的显式入口 | WK-155（**需 Astra 确认**：反转已交付落点；退路见裁定） |
+| 2 | `All states` 下拉改为显式状态视图组（All 默认 · Needs you · Investigating · Waiting · Later · Resolved）；Later 不折叠不隐藏 | WK-156 / WK-160 |
+| 3 | 行内渲染 `updated_at` 相对时间（投影已有、未使用）；**不加** `reason` / `next_action` / source 字段 | WK-157 |
+| 4 | 详情出 typed actions：只为 `human_actions` 广告者出按钮；带 inspect 的 `revision`；`request_id` 按对象保存到确认为止；`resolve` reason 必填且不加确认对话；`snooze` / `set_waiting` 出 `{kind,label,trigger,due_at}` 编辑器（`at` 必带 due_at）；**无批量** | WK-158；动词表 [copy-convention §3.8](../../../../design/copy-convention.md) |
+| 5 | M-3 九条 409 文案 + `role="alert"` 播报 | WK-158（文案已定稿于设计页 §3.4） |
+| 6 | 列表 `J`/`K`、`Enter` 进详情、`Escape` 回列表；沿用现有 `data-attention-focus` 保持机制 | WK-157 / 设计页 §3.7 |
+| 7 | proposal 模块位：只留位置，**不渲染任何内容**，不出占位卡、不出 "until BE-XX" | WK-159 |
+
+**写权**：只 `app/web/`（`attention-view.mjs` 为主，`app.mjs` 入口一行、`presentation-adapters.mjs` 若需）。不改 `app/core/`、`app/server/`、`app/runtime/`。单一 writer 规则不变（WK-150：本地 Opus 写 `app/web`）。
+
+**前置**：[BE-40](../backend-requests.md) 排序口径（不阻塞第 3–7 项，只阻塞第 2 项的默认序主张）；WK-155 的 Astra 确认（不阻塞第 2–7 项）。[EX-AT1](../explore/ex-at1-attention-triage.md) 只影响记账，不阻塞。
+
+**明确不在本单**（留待后续施工）：source-aware 行与 source-native 详情（等 HL-A0 typed 观察快照）、proposal 的实际渲染与批准流（等 HL-A1）、批量动作、saved views、密度档、batching / bundles / delivery schedule（需 scheduler owner）、TPS 与 live instrumentation（已冻结为 null）、真实 Email / GitHub 接入（需真实账户与外发授权，均未授权）。
+
+**四项派单前置已全部关闭**：词表 §6 已定（WK-136）；M-3 定稿（WK-158）；入口位置由既有事实关闭（侧栏 `index.html:119`，与 `New chat` / `Home` 同排——unresolved ① 消解）；动作动词表见 copy-convention §3.8。原 unresolved ②（详情在 Attention 面内还是作为 Work surface 一个 tab 类型）由既有事实关闭：详情已在 Attention 面内，四类型合同未动。

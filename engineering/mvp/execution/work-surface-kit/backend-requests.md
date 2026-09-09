@@ -77,3 +77,12 @@ ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限
 ## BE-5 HTTP检查接缝接收（2026-09-10）
 
 作者 `9cbae87` / `470498b` 的认证inspect-only服务经Astra非作者复核接收，见 [合流证据](../../../../evidence/runtime-source-service-integration-20260910/README.md) 与 [HTTP合同](../../../../docs/runtime-control/api.md)。现有解析器可经POST调用；不新增locator获取、安装、权限或模型工具。UI与完整R2获取仍未实现；共享body超限断连事实已明确，不宣称可见JSON 413。
+
+
+## BE-40 · Attention registry 排序口径（Fable，2026-09-10）
+
+| 编号 | 请求 | 依据 |
+|---|---|---|
+| BE-40 | **`GET /attention/registry` 与 `query{kind:registry}` 的返回顺序写进合同。** 现合同 §Queries 定义了 `items / count / offset / next_offset / truncated / disclosure`，但没有声明排序。triage 面的默认顺序是产品事实，前端不能在分页边界上自行重排（客户端排序跨页错乱）。请求默认序 `needs_you > investigating > waiting > later > resolved`，同档内 `updated_at` 降序，并在合同写明；若 `app/core/attention.py` 已有确定顺序，写明现状即可，不必改实现 | WK-156 / WK-157；[设计页 §2](../../../design/attention-triage-2026-09-10/README.md) |
+
+**明确不请求**（附理由，免得后续 session 重开）：registry 加 `reason` 摘要——合同刻意的最小视图边界，WO 约束表原话「不把 registry 当详情权限」；每状态计数——WK-117 (b) 不以 count 代替条目，且需五次查询；snooze 到期自动回归——需 scheduler owner，合同明说 due time 不是调度器。

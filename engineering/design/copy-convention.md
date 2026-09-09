@@ -164,3 +164,20 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 ## Astra 联调补充：通用工具授权
 
 MCP 与策略设为 ask 的非写工具也沿既有 permission 事件请求一次调用授权。仅 `payload.tool === ws_write` 使用 Write / `Approve this write`；非写请求的状态使用 Action，决定按钮使用 `Approve this action` / `Deny this action`；标题按事实区分 `Approve this tool action?` 与 `Approve this remote tool call?`。远程调用显示该 Run 的 recorded runtime.bound 中 tool/server/source。Home summary 未提供具体 tool 时只称 Approval requested。历史缺少 tool 或 binding 时不推断为文件写入，不使用当前 catalog 回填来源。此为既有执行事实的文案修正，不新增授权、Review 接受或 WK10b 能力。
+
+### 3.8 Attention 的动作动词（ATT-FE / WK-158）
+
+按钮词只用合同 `human_actions` 的动作名，一动作一词，不造同义词；只为服务端当前广告的动作出词。
+
+| 合同 action | 按钮词 | 说明 |
+|---|---|---|
+| `acknowledge` | Mark as seen | 一去不返，不是 toggle；不写 "Read" / "Got it" |
+| `snooze` | Snooze | 必带下一动作；结果状态词是 Later（词表 §6） |
+| `set_waiting` | Set waiting | 必带下一动作；不写 "Waiting for you"（该词专属 Today strip） |
+| `resume` | Resume | 回 Investigating 或 Needs you |
+| `resolve` | Resolve | reason 必填；不写 "Done" / "Complete" / "Archive"；无一键 resolve |
+| `reopen` | Reopen | 只从 Resolved |
+| `attach_relation` | Link · Unlink | 按 `operation` 分词 |
+| `request_disclosure` | —（首单不出控件） | grant 编辑器归 CC-P；首单只显示当前 grant 有无与到期 |
+
+可访问名 = 动作全名 + 对象标题（例：`Resolve · Contract renewal reply`）。外发批准落地后的 `Approve` **不得**复用 Resolve 一词，两者是不同授权（WK-159）。
