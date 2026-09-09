@@ -49,6 +49,9 @@ const LEVEL_BACKGROUNDS = new Set([
 const KEYWORDS = /^(transparent|none|inherit|currentColor|initial|unset)$/;
 /* 登记的非区域填充：选择器 → 它是什么。只有实心控件与数据标记可以入表。 */
 const FILL = new Map([
+  ...[0,1,2,3,4].map(level => [`.usage-heat.level-${level}`, "Reported token intensity; retained-scope data mark, outside review themes"]),
+  [".usage-stacked-bar button", "Configured model token series; exact values/table and native forced-colors fallback"],
+  [".usage-series-label::before", "Categorical model legend mark, paired with text and exact table"],
   ...[1, 2, 3, 4].map(level => [` .home-heatmap-cell[data-level="${level}"]`.trim(), "UTC retained-run count intensity; neutral data mark, never review attention"]),
   ["#send-button", "圆形主控件的实心填充"],
   ["#cancel-run-button", "同槽的 Stop，实心填充"],

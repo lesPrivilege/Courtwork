@@ -1,3 +1,4 @@
+import { deriveUsageDetails } from "./usage-details.mjs";
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
@@ -346,6 +347,11 @@ export class RuntimeStore {
   getWorkMetrics(options) {
     if (!this.opened || this.lockLost) throw new Error("runtime store is unavailable");
     return deriveWorkMetrics(this.state, options);
+  }
+
+  getUsageDetails(options) {
+    if (!this.opened || this.lockLost) throw new Error("runtime store is unavailable");
+    return deriveUsageDetails(this.state, options);
   }
 
   async createProject(name) {

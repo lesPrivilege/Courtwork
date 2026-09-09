@@ -183,7 +183,7 @@ function moduleMessage(container, state, noun, retry) {
     homeButton("Retry", retry, `retry-${noun}`),
     el("details", {}, el("summary", { text: "Details" }), el("p", { text: state.error }))));
 }
-function activityCard({ activity, onActivityDays, onActivityRetry }) {
+function activityCard({ activity, onActivityDays, onActivityRetry, onOpenUsage }) {
   const data = toHomeActivity(activity.data, activity.days);
   const card = el("section", { className: "home-insight-card home-activity", attrs: { "aria-label": "Recorded activity" } });
   const ranges = el("div", { className: "home-range", attrs: { "aria-label": "Activity period" } });
@@ -192,7 +192,7 @@ function activityCard({ activity, onActivityDays, onActivityRetry }) {
     button.setAttribute("aria-pressed", String(activity.days === days));
     ranges.append(button);
   }
-  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("activity", { size: 16 }), el("h3", { text: "Activity" })), ranges));
+  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("activity", { size: 16 }), el("h3", {}, onOpenUsage ? homeButton("Activity", onOpenUsage, "open-usage") : el("span", {text:"Activity"}))), ranges));
   moduleMessage(card, activity, "Activity", onActivityRetry);
   if (!data) {
     if (!activity.loading && !activity.error) card.append(el("p", { className: "form-help", text: "Activity records are not available." }));

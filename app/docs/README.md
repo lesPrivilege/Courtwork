@@ -26,3 +26,5 @@
 模块位置见 [应用入口](../README.md#modules)，验证记录与当前交付见 [工程状态](../../engineering/current.md)。
 
 - [Attention global agent](attention-agent.md)：全局对话、渐进历史读取与共享 Runtime 配置。
+
+- [Usage detail and snapshot drilldown](usage-details.md)：每日、模型与精确Run读面。
