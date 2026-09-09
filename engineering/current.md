@@ -66,6 +66,10 @@ BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选ke
 
 用户要求将“架构插件化调研”一并入账，并补充handoff.md；已消费一轮完整问答及366行交接原文。[准备包](research/architecture-maintenance-2026-09-09/README.md)在实际main4c1c420核对当前owner，提供AM-A…F后续PR、局部选型/来源index、缓存/维护契约草案和前后端合流Design。保持Pi与既有Core；先请求基线再两项只读慢任务纵切，区分执行/交付/接受、native/adapted和MCP协议代际。与上一单LG/EX及ES-00交叉连接，不复制任务/来源/成果owner。此次仅文档与有界只读核验，未实施async或插件平台、未运行真实provider；FE队列、ES-01及G1–G5不变。
 
+## 数据系统原则：研究吸收与候选 PR（2026-09-09）
+
+用户授权从第一性原理消费“架构设计参考”及672行（671个换行符）报告。已在实际main `af95bcb`核对Core/RuntimeStore/ArtifactHistory责任，并有界补查七个原始来源；[准备包](research/data-systems-2026-09-09/README.md)保留原文hash、来源限度、基线和DS-00…04候选计划。回执/确切接受复用Core及ES，重建并LG，兼容/替换并AM；外部效果对账仅保留条件触发。此次为文档交付，未实现新API/schema/迁移、安装依赖或运行产品/模型测试；不改变Paper、FE队列、ES-01与G1–G5状态。
+
 ## Clean and Cool：前端视觉审查与 Claude 输入（2026-09-09）
 
 WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素合同；80×52安全区既有合同保留，Settings/折叠态缺口并入CC-S。三面贯通与tab strip需先修订composition law、宽度折叠策略和tab identity，1440不得静默压窄中面；模块Home为布局版本，不替代简洁Home。次序FE-04 → CC-S → CC-W → CC-D0 → FE-05，CC-D1…随各数据源合同。用户回执称Sonnet EX-CC1/CC2已派，本次只接收r4d@00e33f9，不纳入尚未裁定的探索结果、不代派新代理；前端单writer，探索不构成实施或验收。

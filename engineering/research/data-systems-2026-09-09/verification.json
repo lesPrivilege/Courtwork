@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "author": "Astra",
+  "verificationRole": "author documentation checks; not independent acceptance",
+  "baseline": "af95bcb94d8373ae424462eb4a09535a6992d04b",
+  "checks": {
+    "newDocumentRelativeLinks": 32,
+    "brokenLinks": 0,
+    "sourceArchiveByteIdentity": true,
+    "sourceArchiveSha256": "601e89f9e7041bdf12cdbf6582449ae5fb3ec56edfa71f567573482c3f9cb06a",
+    "gitDiffCheck": "Authored documents pass; frozen input has 12 original Markdown hard-break trailing-space lines, preserved byte-for-byte.",
+    "scope": "research package and current/roadmap references only"
+  },
+  "productTests": "not run: documentation-only change",
+  "independentReview": "not performed",
+  "limitations": [
+    "No full source security audit",
+    "Seven primary pages checked at bounded scope; no paper experiment reproduction",
+    "Conversation returned no deep research answer; supplemental report is the research text",
+    "No new APIs, schema migration, provider runs, dependency adoption or deployment"
+  ]
+}

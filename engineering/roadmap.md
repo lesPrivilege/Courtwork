@@ -178,6 +178,10 @@ R3 的任务集合表达覆盖目标，不要求第一轮并行做完。R4 的�
 
 [架构研究并账](research/architecture-maintenance-2026-09-09/README.md)沿M01…04/M08…11/M14补[AM-A…F](research/architecture-maintenance-2026-09-09/pr-plan.md)：固定能力与最终请求基线→只读异步纵切→按缺口补生命周期和前端贡献→独立维护演练，对齐Runtime R3→R4→R5。它消费前述LG/EX的工具与控制需求，不新建平行loop/ledger；全部是后续施工计划。正式选择仍需固定版本、权限/恢复/缓存证据与退出成本，不做全局插件化改造。
 
+### 数据系统原则 / 后续验证增量
+
+[DDIA研究消费](research/data-systems-2026-09-09/README.md)从状态持有、确切接受、派生重建与长期解释需求推导[DS-00…04候选PR](research/data-systems-2026-09-09/pr-plan.md)：先状态/写者清单与回执核对，派生重建并入LG-02/04，兼容/替换并入AM-F与ES迁移，外部效果对账等实际消费者触发。复用M01–M14与R0–R5，不另造正式状态owner，不默认引入event sourcing、outbox或workflow平台；报告六周日历与建议分数不成为工期/验收标准。本包仅规划，产品顺序及G1–G5不变。
+
 ### NDA / Experts 验证路径
 
 [NDA 与热插拔研究](research/experts-hotplug-2026-09-08/README.md)、[H0–H5 PR 施工稿](research/experts-hotplug-2026-09-08/pr-plan.md) 和 [验证设计](research/experts-hotplug-2026-09-08/validation.md) 是 R1–R3 的第一条具体路径：H0 固定实验；H1 复用领域 Core 补规则/修订/投影契约；H2 顺序执行；H3 真实 Review 与 fallback；H4 按缺口补生命周期；H5 配对裁决。NDA 的规则结构和人工审阅强度不升为所有工作的固定模板。

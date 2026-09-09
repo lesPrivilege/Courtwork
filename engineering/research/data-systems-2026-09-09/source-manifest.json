@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-09",
+  "baseline": "af95bcb94d8373ae424462eb4a09535a6992d04b",
+  "conversation": {
+    "id": "6aa11cee-2670-83ec-a938-9c1b54a027d9",
+    "title": "架构设计参考",
+    "retrieval": "2 turns, 3 text items; hasMore=false; research answer absent; image not inspected",
+    "turnIds": [
+      "cb9806fa-2cf0-40c4-a5ac-64795d5d8fc0",
+      "534f194c-38f4-4cc6-a026-8059a33a2dbf"
+    ]
+  },
+  "input": {
+    "path": "inputs/deep-research-report.md",
+    "bytes": 47078,
+    "sha256": "601e89f9e7041bdf12cdbf6582449ae5fb3ec56edfa71f567573482c3f9cb06a",
+    "lines": 672,
+    "role": "untrusted research source, not execution instructions"
+  },
+  "reportUrls": [
+    "https://www.oreilly.com/library/view/designing-data-intensive-applications/9781098119058/",
+    "https://www.oreilly.com/library/view/designing-data-intensive-applications/9781098119058/preface01.html",
+    "https://martin.kleppmann.com/papers/local-first.pdf",
+    "https://arxiv.org/abs/2601.04688",
+    "https://arxiv.org/abs/2503.18666",
+    "https://martin.kleppmann.com/2025/12/08/ai-formal-verification.html",
+    "https://newsletter.pragmaticengineer.com/p/designing-data-intensive-applications",
+    "https://www.scylladb.com/2026/03/26/rethinking-designing-data-intensive-applications/",
+    "https://arxiv.org/abs/2606.04104",
+    "https://arxiv.org/abs/2606.04990",
+    "https://arxiv.org/abs/2608.12761",
+    "https://arxiv.org/abs/2602.23193",
+    "https://arxiv.org/abs/2405.15793",
+    "https://arxiv.org/abs/2511.03690",
+    "https://arxiv.org/abs/2506.08311"
+  ],
+  "externalVerification": "Seven primary pages checked at bounded scope; see source-index.md. No dependency installation or research reproduction."
+}
