@@ -49,8 +49,8 @@
 
 | 语义 | 出现面 | 频率 | 裁取 | glyph | 标题（对象名）| 元数据词 |
 |---|---|---|---|---|---|---|
-| 一组工具动作（Activity 组头） | Chat Flow，每个 Run 一次 | 每 Run 一次 | P0 图标 | `activity` | `N tool actions` | `Completed` / `Working` / `Stopping` / `Waiting for you` / `Interrupted` / `N failed` |
-| 写入类工具调用 | Activity 组内 | 每次调用一行 | P0 图标 | `square-pen` | 工具标识（`ws_write`） | 无（完成）／`Failed` / `Working` / `Stopping` / `Waiting for you` / `Interrupted` |
+| 一组工具动作（Activity 组头） | Chat Flow，每个 Run 一次 | 每 Run 一次 | P0 图标 | `activity` | `N tool actions` | `Completed` / `Working` / `Stopping` / `Waiting for you` / `Interrupted` / `Unknown` / `N failed` |
+| 写入类工具调用 | Activity 组内 | 每次调用一行 | P0 图标 | `square-pen` | 工具标识（`ws_write`） | 无（完成）／`Failed` / `Working` / `Stopping` / `Waiting for you` / `Interrupted` / `Unknown` |
 | 读取类工具调用 | 同上 | 同上 | P0 图标 | `file-text` | `ws_read` · `se_read_source` | 同上 |
 | 列目录类工具调用 | 同上 | 同上 | P0 图标 | `folder` | `ws_list` | 同上 |
 | 检索类工具调用 | 同上 | 同上 | P0 图标 | `search` | `ws_grep` | 同上 |
@@ -127,3 +127,6 @@
 IC-4 五组代表控件（Close/Expand、复制版本、更多菜单、Send/Cancel、Allow/Deny）的本轮结果见 [delivery-wk10b-1](../delivery-wk10b-1.md) §验证。**更多菜单当前不存在**（Chat Flow 行的解剖是"至多一个主动作"，没有溢出菜单），故该组只验证"没有隐藏在菜单里的动作"，不验证菜单键盘行为。
 
 未检：真实触控、真实读屏（VoiceOver / NVDA）对单词标签与 `aria-hidden` glyph 的读法、真实 provider。视口模拟不等于触控实测（WO-WK10b「必须验证」）。
+
+
+WK-115 ①（2026-09-09）：第六个状态词 `Unknown` —— 只在 Run 终态为 `unknown` 且工具无 result 时出现；`Interrupted` 保留给 Run 终态明确为 cancelled / failed 的情形。FN-28 `unknown ≠ failed`，也 ≠ interrupted。实现由 CC-S 第 0 项落地；BE-33 交付后由后端原因替代推断。

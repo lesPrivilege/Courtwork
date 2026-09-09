@@ -8,3 +8,5 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | M-2 | Work header | Memory scope 位落在会话 meta 行而非工作面标题带（delivery-fe03 §11 ②） | minor | 1 | no dedicated Matter header | false | CC-W（WK-113 ③ 搬到工作面标题带） |
 | M-3 | 全站错误 | 4xx / 409 直出后端原话，未按文风抻平（WK-107 ⑥） | minor | 2 | error copy convention absent | false | 独立裁定 |
 | M-4 | Work 1440 | 展开工作面时 256 + 640 + 文档面容不下（X ≤ 496），现行为覆盖层盖满主区（EX-CC1 §1） | major | 1 | composition law WK-96/97 | false | WK-113：≥1680 三栏，1440 主次切换 + strip |
+| M-5 | Work surface | 收起 → 展开重读一次 `/surface`（FE-T07 读数 0 → 2）；复用上次读取需失效规则 | minor | 1 | surface read cache / stale revision | false | WK-115 ③ |
+| M-6 | Approval / Question | 在途记号与幂等记号共用 `questionSubmitting`，两种粒度键 | minor | 1 | in-flight state shape | true | WK-115 ⑥；下次触碰拆两个 Set |
