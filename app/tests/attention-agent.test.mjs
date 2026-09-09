@@ -76,8 +76,8 @@ test('schema5 with retained records migrates exactly and global/project invarian
     const session=await store.createSession({projectId:project.id,title:'fixture',workspaceDir:path.join(dataDir,'ws')});
     await store.setDraft(session.id,'old draft'); await store.close();
     const file=path.join(dataDir,'runtime-state.json'); const old=JSON.parse(await readFile(file,'utf8'));
-    old.schemaVersion=5; delete old.coordination; old.sessions.forEach(s=>delete s.scope); const bytes=Buffer.from(JSON.stringify(old,null,1)+'\n'); await writeFile(file,bytes);
-    store=await new RuntimeStore({dataDir}).open(); assert.equal(store.state.schemaVersion,8); assert.equal(store.getSession(session.id).scope,'project');
+    old.schemaVersion=5; delete old.coordination; delete old.providerConnections; old.sessions.forEach(s=>delete s.scope); const bytes=Buffer.from(JSON.stringify(old,null,1)+'\n'); await writeFile(file,bytes);
+    store=await new RuntimeStore({dataDir}).open(); assert.equal(store.state.schemaVersion,9); assert.equal(store.getSession(session.id).scope,'project');
     const digest=createHash('sha256').update(bytes).digest('hex'); assert.deepEqual(await readFile(path.join(dataDir,`runtime-state.schema5.${digest}.json`)),bytes);
     assert.equal(store.getSession(session.id).draft,'old draft');
     const global=await store.createSession({scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dataDir,'global')});

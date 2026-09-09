@@ -15,7 +15,7 @@ test("SE_TEST_CRASH_POINT alone is inert, and the server says so at startup", as
     dataDir,
     env: { SE_TEST_CRASH_POINT: "before_tool", SE_TEST_MODE: "" },
     body: `
-      await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+      await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
       const proj = await api("POST", "/projects", { name: "p" });
       const sess = await api("POST", "/sessions", { projectId: proj.json.project.id, title: "inert" });
       const script = JSON.stringify([{ name: "ws_write", arguments: { path: "out/x.md", text: "written anyway" } }]);

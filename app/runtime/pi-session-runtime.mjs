@@ -98,6 +98,30 @@ export function registerFakeProvider(modelRuntime, fakeProviderHandle) {
   modelRuntime.registerNativeProvider(provider);
 }
 
+/**
+ * Register one user-defined connection as its OWN provider id, merging fields
+ * into any previous registration (`registerProvider`, not
+ * `registerNativeProvider`): the credential lane is a single slot per provider
+ * id, so a compatible endpoint must never be registered onto a catalog
+ * identity. `config` comes from `server/provider-connections.mjs`; this module
+ * only performs the registration.
+ */
+export function registerConnectionProvider(modelRuntime, providerId, config) {
+  modelRuntime.registerProvider(providerId, config);
+}
+
+export function unregisterConnectionProvider(modelRuntime, providerId) {
+  modelRuntime.unregisterProvider(providerId);
+}
+
+/** Credential provenance as pi-coding-agent itself grades it
+ * (`runtime` / `stored` / `environment`, plus its other configured sources).
+ * The host does not invent a classification of its own. */
+export function credentialSourceOf(modelRuntime, providerId) {
+  const status = modelRuntime.getProviderAuthStatus(providerId);
+  return status?.configured ? (status.source ?? null) : null;
+}
+
 /** Usage counters only. Whether the accounting is COMPLETE is a terminal-state
  * judgement, so `missing` belongs to the service (the run's status owner), not
  * to this host wrapper: the wrapper's job is to never lose a number it saw. */

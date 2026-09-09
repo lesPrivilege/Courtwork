@@ -123,6 +123,8 @@ a second authority or requires a generic workflow engine inside the runtime.
 ## API selection and cache continuity
 
 Real providers are `openai` and `deepseek`; the deterministic fixture is separate.
+Both, and any user-defined compatible connection, are reached through the
+connection registry described below.
 `GET /api/v5/provider-models` gives installed catalog model IDs and supported
 adapter formats. `PUT /api/v5/provider-config` accepts, for example:
 
@@ -134,7 +136,9 @@ Choose `openai-completions` for Chat Completions. Optional `baseUrl` is actually
 applied to the selected model. Model IDs must exist in the installed catalog;
 the model and endpoint must support the chosen format. The descriptor exposes
 provider/model/API/baseUrl only: it does not accept custom headers, alternate
-auth-header policies, custom model IDs or compat overrides. Gateways requiring
+auth-header policies or compat overrides. For a user connection the model must
+be one saved on that connection, and the connection owns its endpoint and
+format. Gateways requiring
 those options are outside this interface. DeepSeek defaults to its
 Chat API; choosing Responses requires an explicit compatible endpoint and does
 not assert that DeepSeek's official endpoint implements Responses. Credentials
@@ -228,9 +232,63 @@ statuses/limits; no redirected target receives the supplied key.
 
 The helper has no store, ModelRuntime or credential-file dependency. It does
 not read saved keys, persist configuration, register models, create Runs or
-change Session bindings. Existing GET `/api/v5/provider-models` remains the
+change Session bindings. The connection save path below calls the same helper
+and supplies the key itself; the helper is still the only prober. Existing GET `/api/v5/provider-models` remains the
 installed runtime catalog. Probe success means the directory endpoint accepted this request. Success does
 not prove a supplied key was checked or valid: an endpoint that permits anonymous
 access may ignore it. Saving arbitrary compatible/local providers
-and binding them for execution remains unsupported by the existing allowlist;
-this delivery does not close the full FE-02 connection journey.
+and binding them for execution is delivered by the connection slice below.
+
+## Provider connections (WO-PV-BE02)
+
+A CONNECTION is the unit of provider identity: one endpoint, one wire format,
+one credential, one model list. The three catalog providers are connections too
+(`catalog-openai`, `catalog-deepseek`, `catalog-fake-openai-loopback`), so there
+is one shape and one key space rather than two.
+
+| Field | Meaning |
+|---|---|
+| `id` | `catalog-<provider>` for the shipped catalog, `conn-<12 hex>` for a user connection. The credential-file key. |
+| `kind` | `catalog` or `compatible` |
+| `providerIdentity` | The runtime provider id. For a catalog connection it is the catalog id; for a user connection it is the connection id, so a compatible endpoint never registers onto a catalog identity whose credential slot is single. |
+| `api` | `openai-completions` or `openai-responses` |
+| `baseUrl` | The endpoint, `null` for a catalog connection |
+| `models` | `[{id, contextWindow}]`; `contextWindow` is `null` when nobody reported one |
+| `credentialStatus` | Derived from the credential file, never stored on the record |
+
+`GET /api/v5/provider-connections` lists them. `POST /api/v5/provider-connections`
+and `PUT /api/v5/provider-connections/:id` save one compatible connection from
+`{api, baseUrl, models, apiKey?}`; `DELETE /api/v5/provider-connections/:id`
+removes one, unregisters its provider and deletes its key. All four share the
+configuration queue and are frozen during a Run, exactly like provider config and
+credentials. A save probes the directory with the key that will actually be used
+and separates three failures: `connection_authentication_failed` and
+`connection_directory_unavailable` (consuming the BE-17/18 status enum, reported
+in `error.status`) and `connection_model_not_in_directory`, which the probe enum
+does not name. Probe success still means only that the directory accepted the
+request.
+
+`PUT /api/v5/provider-credential` and its DELETE now take `{connectionId, …}`.
+`credentials.json` is keyed by connection id: two connections onto the same
+protocol keep separate keys instead of overwriting one another. On first start
+after this change the old provider-id keys are migrated once onto the default
+catalog connections and anything naming no connection is dropped; both are
+logged. There is no compatibility layer, and a provider id no longer resolves.
+
+A user connection's model records carry an explicit zero cost, because pi-ai's
+cost calculation dereferences the field; no endpoint or view of this host states
+a price, so that zero cannot be read as a reported charge. An unreported
+`contextWindow` stays `null`: the host does not guess and does not borrow a
+same-named catalog model's value. Such a route runs with compaction switched
+off, and `GET /api/v5/provider-config` (`capability`) and the run record
+(`contextWindowSource`, `capabilityNotice`) both state
+`context window unknown, compaction disabled`. Typing a window turns compaction
+back on and records `contextWindowSource: "user"`.
+
+Every run record carries `connectionId` and `credentialSource`, the latter taken
+verbatim from `ModelRuntime.getProviderAuthStatus` (`runtime` / `stored` /
+`environment`), so which connection ran and where its key came from is
+recoverable from the run alone. Saved connections are re-registered on the
+ModelRuntime after it exists and before the service serves a request; a
+connection whose models no longer resolve still registers and fails at the
+existing 503 `provider_unsupported` Run gate instead of stopping the host.

@@ -92,10 +92,10 @@ test("T-CRED-4: PUT/DELETE credential during an active run is 409 and the run fi
     assert.equal(waiting.status, "waiting_user");
     assert.equal(waiting.credentialGeneration, startGeneration, "the run froze the generation it started under");
 
-    const put = await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: "a-different-key" });
+    const put = await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: "a-different-key" });
     assert.equal(put.status, 409);
     assert.equal(put.json.error.code, "active_run");
-    const del = await api("DELETE", "/provider-credential", { provider: "fake-openai-loopback" });
+    const del = await api("DELETE", "/provider-credential", { connectionId: "catalog-fake-openai-loopback" });
     assert.equal(del.status, 409);
     assert.equal(del.json.error.code, "active_run");
     assert.equal(runtime.service.credentialGeneration, startGeneration, "a refused change must not bump the generation");
@@ -107,7 +107,7 @@ test("T-CRED-4: PUT/DELETE credential during an active run is 409 and the run fi
     assert.equal(finished.credentialGeneration, startGeneration);
 
     // Once nothing is running, the change is accepted and the generation moves.
-    assert.equal((await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: "a-different-key" })).status, 200);
+    assert.equal((await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: "a-different-key" })).status, 200);
     assert.equal(runtime.service.credentialGeneration, startGeneration + 1);
   } finally {
     await runtime.close();
@@ -151,7 +151,7 @@ test("T-CRED-5: a sentinel HOME auth.json and env var are never used as credenti
     // Branch 2: with an application credential, the key the provider actually
     // receives is that one.
     await api("PUT", "/provider-config", { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions" });
-    await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+    await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
     const session = await createSession();
     const created = await api("POST", `/sessions/${session.id}/runs`, { input: "hello there", commandId: "cmd-2" });
     assert.equal((await pollRun(created.json.run.id)).status, "completed");

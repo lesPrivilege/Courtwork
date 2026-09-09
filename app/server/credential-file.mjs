@@ -3,7 +3,9 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 
 // Provider credentials live in their own file, independent of
-// runtime-state.json, and are never embedded in store events or logs.
+// runtime-state.json, and are never embedded in store events or logs. The key
+// is the CONNECTION id, not a provider id: two connections onto the same wire
+// protocol each keep their own key instead of overwriting one another.
 
 function filePath(dataDir) {
   return path.join(dataDir, "credentials.json");
@@ -30,16 +32,26 @@ async function writeCredentialFile(dataDir, entries) {
   await rename(tempPath, target);
 }
 
-export async function setCredential(dataDir, provider, apiKey) {
+export async function setCredential(dataDir, connectionId, apiKey) {
   const entries = await readCredentialFile(dataDir);
-  entries[provider] = apiKey;
+  entries[connectionId] = apiKey;
   await writeCredentialFile(dataDir, entries);
 }
 
-export async function deleteCredential(dataDir, provider) {
+/** Rewrite the whole file, used once at startup to move the old provider-id
+ * key space onto connection ids. */
+export async function replaceCredentialFile(dataDir, entries) {
+  if (Object.keys(entries).length === 0) {
+    await unlink(filePath(dataDir)).catch(() => {});
+    return;
+  }
+  await writeCredentialFile(dataDir, entries);
+}
+
+export async function deleteCredential(dataDir, connectionId) {
   const entries = await readCredentialFile(dataDir);
-  if (!(provider in entries)) return false;
-  delete entries[provider];
+  if (!(connectionId in entries)) return false;
+  delete entries[connectionId];
   if (Object.keys(entries).length === 0) {
     await unlink(filePath(dataDir)).catch(() => {});
   } else {

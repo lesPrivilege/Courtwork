@@ -216,7 +216,7 @@ test('SIGKILL after history or rename leaves an orphan version that no later Run
  for(const point of ['after_history','after_write']){
   const dataDir=await mkdtemp(path.join(tmpdir(),'cw-es-orphan-'));let next;
   const worker=spawnWorker({dataDir,env:{SE_TEST_MODE:'1',SE_TEST_CRASH_POINT:point},body:`
-   await api('PUT','/provider-credential',{provider:'fake-openai-loopback',apiKey:FAKE_CREDENTIAL_KEY});
+   await api('PUT','/provider-credential',{connectionId:'catalog-fake-openai-loopback',apiKey:FAKE_CREDENTIAL_KEY});
    await api('POST','/extensions/evidence-memo/lifecycle',{action:'load'});
    const project=(await api('POST','/projects',{name:'orphan fixture'})).json.project;
    const session=(await api('POST','/sessions',{projectId:project.id,title:'orphan fixture'})).json.session;

@@ -73,7 +73,7 @@ async function harness({ extensionCatalog = {} } = {}) {
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
   }
-  await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+  await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
   return {
     runtime,
     api,

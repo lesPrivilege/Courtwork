@@ -19,7 +19,7 @@ const CRASH_ENV = (point) => ({ SE_TEST_MODE: "1", SE_TEST_CRASH_POINT: point })
 /** Drive one scripted ws_write in a child that is armed to die mid-way. */
 function writeWorkerBody({ commandId = "c1", text = "crash-content" } = {}) {
   return `
-    await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+    await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
     const proj = await api("POST", "/projects", { name: "p1" });
     const sess = await api("POST", "/sessions", { projectId: proj.json.project.id, title: "crash-session" });
     const script = JSON.stringify([{ name: "ws_write", arguments: { path: "out/crash.md", text: ${JSON.stringify(text)} } }]);
@@ -139,7 +139,7 @@ test("T-DUR-4: a crash during a store write keeps the last complete state and di
     dataDir,
     env: CRASH_ENV("store_write:with-run"),
     body: `
-      await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+      await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
       const proj = await api("POST", "/projects", { name: "p1" });
       const sess = await api("POST", "/sessions", { projectId: proj.json.project.id, title: "store-crash" });
       emit({ sessionId: sess.json.session.id, projectId: proj.json.project.id, stage: "ready" });
@@ -160,7 +160,7 @@ test("T-DUR-4: a crash during a store write keeps the last complete state and di
   assert.equal(tmps.length, 1, "the interrupted write must have left exactly one tmp behind");
 
   const beforeRestart = JSON.parse(await readFile(path.join(dataDir, "runtime-state.json"), "utf8"));
-  assert.equal(beforeRestart.schemaVersion, 8, "runtime-state.json is a complete, valid state");
+  assert.equal(beforeRestart.schemaVersion, 9, "runtime-state.json is a complete, valid state");
   assert.equal(beforeRestart.sessions.length, 1, "it is the last state that was fully written");
   assert.equal(beforeRestart.runs.length, 0, "the run from the interrupted write never landed");
   const tmpContent = JSON.parse(await readFile(path.join(dataDir, tmps[0]), "utf8"));

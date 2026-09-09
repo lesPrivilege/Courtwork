@@ -1,0 +1,189 @@
+// A CONNECTION is the unit of provider identity in this host: one endpoint,
+// one wire format, one credential, one model list. Every route runs through a
+// connection, including the three catalog ones, so there is exactly one shape
+// to reason about and exactly one credential key space (the connection id).
+//
+// This module is pure: no store, no ModelRuntime, no credential file. It owns
+// the record shape, the identity derivation and the honest reading of a model
+// whose capabilities the directory never reported.
+
+import { API_FORMATS, DEEPSEEK_PROVIDER_ID, FAKE_API_ID, FAKE_PROVIDER_ID, OPENAI_PROVIDER_ID } from "../runtime/pi-session-runtime.mjs";
+
+/** Catalog provider identities: the closed set this build ships with. */
+export const CATALOG_PROVIDER_IDS = Object.freeze([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
+
+export const CATALOG_CONNECTION_PREFIX = "catalog-";
+export const USER_CONNECTION_PREFIX = "conn-";
+
+/** The exact sentence a run record and /provider-config state when a model's
+ * context window was never reported. The host does not invent a window, and
+ * does not pretend compaction is running. */
+export const UNKNOWN_WINDOW_NOTICE = "context window unknown, compaction disabled";
+
+const MIN_CONTEXT_WINDOW = 4;
+const MAX_CONTEXT_WINDOW = 100_000_000;
+const MAX_MODELS_PER_CONNECTION = 200;
+
+/** Connection id of the default connection for a catalog provider identity.
+ * Disjoint from `USER_CONNECTION_PREFIX` and from the provider ids themselves. */
+export function catalogConnectionId(providerId) {
+  return CATALOG_CONNECTION_PREFIX + providerId;
+}
+
+/** Runtime provider id of a connection. For a catalog connection it is the
+ * catalog identity; for a user connection it is the connection id itself,
+ * which can never collide with a catalog id because of the `conn-` prefix.
+ * This is the PV-31 requirement: a user connection never registers onto a
+ * catalog provider id, whose credential slot is single. */
+export function providerIdentityOf(connection) {
+  return connection.providerIdentity;
+}
+
+export function isUserConnection(connection) {
+  return connection.kind === "compatible";
+}
+
+export function defaultConnections(catalogApiFor = defaultCatalogApi) {
+  return CATALOG_PROVIDER_IDS.map((providerId) => ({
+    id: catalogConnectionId(providerId),
+    kind: "catalog",
+    providerIdentity: providerId,
+    api: catalogApiFor(providerId),
+    baseUrl: null,
+    models: [],
+  }));
+}
+
+function defaultCatalogApi(providerId) {
+  return providerId === FAKE_PROVIDER_ID ? FAKE_API_ID : API_FORMATS[0];
+}
+
+/** Where a model's context window came from. `catalog` means the installed
+ * runtime catalog reported it; `user` means a person typed it; `unknown` means
+ * nobody knows and the host refuses to guess (PV-27 / PV-30). */
+export function contextWindowSourceOf(connection, entry) {
+  if (connection.kind === "catalog") return "catalog";
+  return Number.isSafeInteger(entry?.contextWindow) ? "user" : "unknown";
+}
+
+/** The record as served over HTTP: persisted fields plus derived ones.
+ * `credentialStatus` is derived from the credential file rather than stored,
+ * so there is only one source of truth for "is a key present". */
+export function publicConnection(connection, { credentialStatus }) {
+  return {
+    id: connection.id,
+    kind: connection.kind,
+    providerIdentity: connection.providerIdentity,
+    api: connection.api,
+    baseUrl: connection.baseUrl,
+    models: connection.models.map((entry) => ({
+      id: entry.id,
+      contextWindow: entry.contextWindow,
+      contextWindowSource: contextWindowSourceOf(connection, entry),
+    })),
+    credentialStatus,
+  };
+}
+
+export class ConnectionInputError extends Error {
+  constructor(message, code = "invalid_connection") {
+    super(message);
+    this.code = code;
+  }
+}
+
+function invalid(message) {
+  throw new ConnectionInputError(message);
+}
+
+function normalizedBaseUrl(value) {
+  if (typeof value !== "string" || !value.trim() || value.length > 2048 || /[\s\\]/.test(value)) invalid("baseUrl is invalid");
+  let parsed;
+  try { parsed = new URL(value); } catch { invalid("baseUrl is invalid"); }
+  if (!["http:", "https:"].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) {
+    invalid("baseUrl is not an allowed endpoint");
+  }
+  return value.replace(/\/+$/, "");
+}
+
+function normalizedModels(value) {
+  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_MODELS_PER_CONNECTION) invalid("models must be a non-empty list");
+  const seen = new Set();
+  return value.map((entry) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) invalid("model entry is invalid");
+    const keys = Object.keys(entry);
+    if (keys.some((key) => !["id", "contextWindow"].includes(key))) invalid("model entry has unsupported fields");
+    const id = entry.id;
+    if (typeof id !== "string" || !id.trim() || id.length > 240 || /[\x00-\x1f\x7f]/.test(id)) invalid("model id is invalid");
+    if (seen.has(id)) invalid("model ids must be unique");
+    seen.add(id);
+    let contextWindow = null;
+    if (entry.contextWindow !== undefined && entry.contextWindow !== null) {
+      if (!Number.isSafeInteger(entry.contextWindow) || entry.contextWindow < MIN_CONTEXT_WINDOW || entry.contextWindow > MAX_CONTEXT_WINDOW) {
+        invalid("contextWindow must be a positive integer or omitted");
+      }
+      contextWindow = entry.contextWindow;
+    }
+    return { id, contextWindow };
+  });
+}
+
+/** Validate the body of a compatible-connection create/replace request.
+ * `apiKey` is returned separately: it never becomes part of the record. */
+export function validateConnectionInput(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) invalid("body must be an object");
+  const keys = Object.keys(value);
+  if (keys.some((key) => !["api", "baseUrl", "models", "apiKey"].includes(key))) invalid("body has unsupported fields");
+  if (typeof value.api !== "string" || !API_FORMATS.includes(value.api)) invalid("unsupported API format");
+  const baseUrl = normalizedBaseUrl(value.baseUrl);
+  const models = normalizedModels(value.models);
+  let apiKey;
+  if (value.apiKey !== undefined) {
+    if (typeof value.apiKey !== "string" || value.apiKey.length === 0 || value.apiKey.length > 4000 || !/^[\x21-\x7e]+$/.test(value.apiKey)) {
+      invalid("apiKey is invalid");
+    }
+    apiKey = value.apiKey;
+  }
+  return { record: { api: value.api, baseUrl, models }, apiKey };
+}
+
+/** Cost is an explicit zero so pi-ai's calculateCost cannot dereference an
+ * undefined `cost`. It is NOT a claim that the route is free: this host has no
+ * cost surface at all (no endpoint or view reports a price), so no reader can
+ * mistake this zero for a reported charge. `contextWindow` and `maxTokens` stay
+ * undefined when unknown — the honest reading, not a fabricated ceiling. */
+export function registrationInput(connection) {
+  return {
+    name: `Compatible connection ${connection.id}`,
+    baseUrl: connection.baseUrl,
+    api: connection.api,
+    models: connection.models.map((entry) => ({
+      id: entry.id,
+      name: entry.id,
+      api: connection.api,
+      baseUrl: connection.baseUrl,
+      reasoning: false,
+      input: ["text"],
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+      ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
+    })),
+  };
+}
+
+/** Old `credentials.json` keys were provider ids. Re-home each onto that
+ * provider's default connection; drop anything that names no connection.
+ * One migration, no compatibility layer: the file is rewritten in the new
+ * key space and the old key never resolves again. */
+export function migrateCredentialKeys(entries, connections) {
+  const byId = new Set(connections.map((connection) => connection.id));
+  const migrated = {};
+  const moved = [];
+  const dropped = [];
+  for (const [key, apiKey] of Object.entries(entries)) {
+    if (byId.has(key)) { migrated[key] = apiKey; continue; }
+    const target = connections.find((connection) => connection.kind === "catalog" && connection.providerIdentity === key);
+    if (target) { migrated[target.id] = apiKey; moved.push([key, target.id]); continue; }
+    dropped.push(key);
+  }
+  return { entries: migrated, moved, dropped, changed: moved.length > 0 || dropped.length > 0 };
+}

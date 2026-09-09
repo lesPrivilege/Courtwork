@@ -58,7 +58,7 @@ async function crashDuringHistory(point, { text = "history-crash\n" } = {}) {
     dataDir,
     env: crashEnv(point),
     body: `
-      await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+      await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
       const project = await api("POST", "/projects", { name: "history-crash-project" });
       const session = await api("POST", "/sessions", { projectId: project.json.project.id, title: "history-crash-session" });
       const script = JSON.stringify([{ name: "ws_write", arguments: { path: "out/crash.md", text: ${JSON.stringify(text)} } }]);

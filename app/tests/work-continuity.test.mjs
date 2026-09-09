@@ -50,7 +50,7 @@ test('provider provenance is host-derived and preserves prior simulation records
   await h.api('POST','/extensions/evidence-memo/lifecycle',{action:'load'});
   const s=await h.createSession();await h.api('POST',`/sessions/${s.id}/extension`,{extensionId:'evidence-memo',input:{title:'Provenance',sourceText:'Synthetic source'}});
   const first=await h.api('POST',`/sessions/${s.id}/runs`,{commandId:'simulation',input:'Read the current work'});await h.pollRun(first.json.run.id);
-  await h.api('PUT','/provider-credential',{provider:'openai',apiKey:'synthetic-protocol-only'});
+  await h.api('PUT','/provider-credential',{connectionId:'catalog-openai',apiKey:'synthetic-protocol-only'});
   const configured=await h.api('PUT','/provider-config',{provider:'openai',model:'gpt-4.1-mini',api:'openai-completions',baseUrl:h.runtime.fakeProvider.baseUrl});assert.equal(configured.status,200);
   const second=await h.api('POST',`/sessions/${s.id}/runs`,{commandId:'protocol-real-route',input:'Read the current work again'});assert.equal((await h.pollRun(second.json.run.id)).status,'completed');
   const p=(await h.api('GET',`/sessions/${s.id}/surface`)).json.projection;
