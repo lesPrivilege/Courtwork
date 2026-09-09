@@ -1,8 +1,14 @@
 # Runtime R2: explicit declarative source resolution
 
-Status: isolated backend slice, 2026-09-08. This is the local source parser for BE-5 / WK-64–65; it does not complete the Runtime R2 acquisition stage, the Roadmap R2 gate, R3 adapter compatibility, R4 proposals or R5 apply/rollback. Frontend integration waits for Fable's new delivery. No HTTP route or model tool is enabled by this slice.
+Status: isolated backend slice, 2026-09-08, with a bounded HTTP service seam added 2026-09-10 (BE-5). This is the local source parser for BE-5 / WK-64–65; it does not complete the Runtime R2 acquisition stage, the Roadmap R2 gate, R3 adapter compatibility, R4 proposals or R5 apply/rollback. Frontend integration waits for Fable's new delivery. No model tool or install path is enabled by this slice.
 
 The implementation is `app/runtime/source-resolver.mjs`; the input/result contract is `app/runtime/source-resolver.d.ts`. It reuses `validateRuntimeSource` from the existing control-plane import validator. The existing importer still owns IDs, target scope, inventory limits, CAS, persistence and exposure. No persisted schema changes.
+
+## HTTP service seam (BE-5, 2026-09-10)
+
+A thin, sessionless seam exposes the same pure resolver over the authenticated HTTP boundary as `POST /api/v5/runtime-sources/resolve` (`RuntimeService#resolveRuntimeSource` in `app/server/service.mjs`, one route in `app/server/index.mjs`). The request body is directly the resolver input — no proposal envelope — and the response is directly the `ResolvedRuntimeArtifact | UnsupportedRuntimeSource` union. The route inherits the host `x-work-token`, origin protections and 1 MiB body cap. Resolver 400s carry their own code on a plain `Error`; the service adapts them to the host `ServiceError` shape so the HTTP layer reports the same 4xx (`invalid_runtime_source` / `invalid_runtime_config`). See the [HTTP contract](api.md) for the request/response examples and exact boundaries.
+
+The seam changes none of the resolver semantics: inline keeps exact bytes/hash, declared `origin` stays `verified: false`, `capabilities.granted` stays empty, disposition stays `inspect-only`, and locators stay explicitly `unsupported`. Resolution touches no store, configuration, revision, resource directory or mutation queue, so it also works while a Run is active without altering that Run's binding or capabilities, and it never imports. No model tool is registered and request bodies are not logged.
 
 ## Contract
 

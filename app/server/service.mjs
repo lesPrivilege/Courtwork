@@ -27,6 +27,7 @@ import {
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
 import { createRuntimeLoadTool, governTools } from "../runtime/control-tools.mjs";
+import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
 import { ArtifactHistory, ArtifactHistoryError } from "../runtime/artifact-history.mjs";
 import { ACTIVE_STATUSES, PERMISSION_MODES } from "./store.mjs";
 import { readCredentialFile, setCredential, deleteCredential } from "./credential-file.mjs";
@@ -382,6 +383,21 @@ export class RuntimeService {
       recovery: { inFlightRun: "unknown", pendingQuestion: "expired_restart", continueWith: "new_command_id" },
       authority: { runOwner: "runtime", generatedResultIsAccepted: false, orchestration: "external_caller" },
     };
+  }
+
+  /** Inspect-only declarative source resolution over the authenticated HTTP
+   * boundary. A thin wrapper around the pure runtime resolver: no session,
+   * target/scope, store, revision, audit or mutation is touched and nothing
+   * is imported, connected or executed. The resolver reports input and
+   * validation failures as 400 on a plain Error; adapt them to the host
+   * ServiceError shape so the HTTP layer returns the same 4xx boundary. */
+  resolveRuntimeSource(input) {
+    const value = requireObject(input, 'body');
+    try { return resolveDeclarativeSource(value); }
+    catch (error) {
+      if (error?.status && Number.isInteger(error.status)) throw new ServiceError(error.status, error.code ?? 'invalid_runtime_source', error.message);
+      throw error;
+    }
   }
 
   listProjects() {
