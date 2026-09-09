@@ -192,3 +192,9 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 ## Attention human decision queue：handoff 消费（2026-09-09）
 
 从实际 `main@fb50d21` 隔离消费用户 Email/GitHub handoff，[研究与派单增量](research/attention-human-loop-2026-09-09/README.md)保留原文hash、全部显式来源核验和Luna只读映射。采用先记录人类判断证据再治理偏好；五对象映射现有owner，不复制Attention状态；邮件disposition独立于生命周期。Gmail/GitHub离线同步反例与trace合成向量可派Terra，生产DTO/来源持久化、proposal批准、effect核对与恢复由Astra先冻结，继续AM-B只读主路径。Trace从P0记录，P5再分析；原生draft也属写操作，旧批准不覆盖新payload/目标版本。此包仅文档、未启动Terra或真实账户/外发/自动化，不将SDK的same-run恢复当Pi已实现。前端仍由Fable原队列，Core3/app4、Runtime4、Paper与G1–G5保持。
+
+## CC-D0-a / Scout v2：合流与前端队列（2026-09-10）
+
+从实际 main `7c07ef6` 隔离，依次接收 CC-D0-a `30014cf`（含 Fable §16 非作者接受）与 r4d `5b4c981`，两次无冲突。Home 模块带与 Scout v2、V1 基线和 FE-05a 提示词进入主线；[合流证据](../evidence/ccd0a-main-integration-20260910/README.md)分列本轮验证与既有 Fable 浏览器复核。共享树既有未提交证据原样保留。
+
+Astra 按本次换序授权裁定：**FE-05a → FE-05 → ATT-FE-01 → CC-I**，覆盖此前队列。Attention 后端已稳定且不依赖 CC-I；四项文档前置仍由 Fable 补齐，grant 编辑器仍归候选 CC-P，PropertyRow modified/reset 仍归 CC-I。FE-05a 只落 V1，消费 M-15/16/17、Shape 与 M-18，由 Fable 从最终 main SHA 新建树派单；本次未派 writer。真实 provider、发布、Paper 与 G1–G5不变。

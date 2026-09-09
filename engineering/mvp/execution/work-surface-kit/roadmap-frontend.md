@@ -40,3 +40,7 @@ WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵�
 3. EX-CC5 / EX-GI1 均已收（WK-132 / WK-130）；FE-05a 提示词已含第 0 / 0b / 0c 项、V1 目标值与 v1 对照基线。
 4. 出 specimen board（一次一变量，真实控件）交用户裁定；裁定输出 tokens + invariants + forbidden rules。
 5. 每单复核沿 §13/§14/§16 体例：写权、读码、独立重跑、待裁逐项、anti-slop 门、合流次序。
+
+## Astra 合流与队列裁定（2026-09-10）
+
+CC-D0-a `30014cf` 与 r4d `5b4c981` 已按顺序无冲突组合，合流证据见 [回执](../../../../evidence/ccd0a-main-integration-20260910/README.md)。本段覆盖上文等待合流与旧队列：FE-05a → FE-05 → ATT-FE-01 → CC-I。Attention 已有稳定后端合同且不依赖 CC-I，提前消费；PropertyRow modified/reset 仍归 CC-I，不扩入 Attention。Fable 补齐四项文档前置后派 Attention；FE-05a 仍由 Fable 从最终 main SHA 建树、填基线、派单，本次未启动 writer。

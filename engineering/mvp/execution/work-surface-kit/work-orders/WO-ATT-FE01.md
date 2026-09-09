@@ -1,6 +1,6 @@
 # WO-ATT-FE01 · Attention 前端切片（骨架，WK-136，2026-09-09）
 
-后端合同：[docs/work-core/attention.md](../../../../../docs/work-core/attention.md)（ATT-BE-01，main `0480c17`，产品 `d37704e`，Astra 非作者接受；Fable 非作者复跑 305/305 + 披露探针 5/5，hash 与 [独验记录](../../../../../evidence/attention-independent-20260909/README.md) 一致）。设计输入：[attention-surface §常驻Attention与Home](../../../../design/attention-surface-2026-09-09/README.md)。队列位置：FE-05 之后（WK-117 默认；WK-120 队列 CC-I 之后，换序归用户）。派单方式待定（`opus-wo-medium` 倾向：需按 human_actions 描述符逐项判断）。
+后端合同：[docs/work-core/attention.md](../../../../../docs/work-core/attention.md)（ATT-BE-01，main `0480c17`，产品 `d37704e`，Astra 非作者接受；Fable 非作者复跑 305/305 + 披露探针 5/5，hash 与 [独验记录](../../../../../evidence/attention-independent-20260909/README.md) 一致）。设计输入：[attention-surface §常驻Attention与Home](../../../../design/attention-surface-2026-09-09/README.md)。队列位置：FE-05 → ATT-FE-01 → CC-I（Astra 2026-09-10 裁定，按本次交接授权换序；四项文档前置仍须补齐）。派单方式待定（`opus-wo-medium` 倾向：需按 human_actions 描述符逐项判断）。
 
 ## 切片
 
