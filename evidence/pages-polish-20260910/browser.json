@@ -1,0 +1,225 @@
+{
+  "origin": "http://127.0.0.1:8957/Courtwork/",
+  "results": [
+    {
+      "id": "V1 · the page requests nothing off its own origin",
+      "pass": true,
+      "requests": 24,
+      "foreign": []
+    },
+    {
+      "id": "V2 · the specimen requests nothing off its own origin",
+      "pass": true,
+      "entries": 17,
+      "foreign": []
+    },
+    {
+      "id": "V3 · all eight specimen steps are reachable and the tablist walks with the arrow keys",
+      "pass": true,
+      "tabs": 8,
+      "reached": [
+        "Step 1 of 8",
+        "Step 2 of 8",
+        "Step 3 of 8",
+        "Step 4 of 8",
+        "Step 5 of 8",
+        "Step 6 of 8",
+        "Step 7 of 8",
+        "Step 8 of 8"
+      ],
+      "afterArrow": "Step 2 of 8",
+      "tabStops": 1
+    },
+    {
+      "id": "V3b · frozen source lookup, negative identities and replay refusal",
+      "pass": true,
+      "valid": true,
+      "wrongCandidate": null,
+      "wrongVersion": null,
+      "wrongBytes": null,
+      "selected": "step-candidate",
+      "refusal": "replay · not sent这是当时记录下的 decide 请求。它没有被发出。{\n  \"request_id\": \"decide-df144b6f-77ed-46ed-acc5-a084ddd9dddd\",\n  \"candidate_id\": \"candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c\",\n  \"base_version\": 0,\n  \"action\": \"accept\",\n  \"reason\": \"Synthetic replay inspection\"\n}",
+      "source": "Recorded sourcesSourcesource-9495d3ef-6ef3-4117-825a-f53b90dc6a7aVersion1SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+      "links": 7
+    },
+    {
+      "id": "V3c · pricing panels and keyboard selection",
+      "pass": true,
+      "count": 3,
+      "reached": [
+        true,
+        true,
+        true
+      ],
+      "arrow": "pricing-tab-hosted",
+      "concepts": "CONCEPT PLANS · NOT CURRENTLY OFFERED",
+      "cards": 3
+    },
+    {
+      "id": "V3d · one decorative object, three projections, capture pending",
+      "pass": true,
+      "seen": [
+        {
+          "projection": "events",
+          "same": true,
+          "visible": 1
+        },
+        {
+          "projection": "surface",
+          "same": true,
+          "visible": 1
+        },
+        {
+          "projection": "context",
+          "same": true,
+          "visible": 1
+        }
+      ],
+      "instant": true,
+      "caption": "Concept study · 工作对象的视觉演绎",
+      "slot": "awaiting-home-completion"
+    },
+    {
+      "id": "V4 · prefers-reduced-motion: nothing is dimmed and nothing moves",
+      "pass": true,
+      "focusEngaged": true,
+      "dimmed": [],
+      "animated": []
+    },
+    {
+      "id": "V4 · prefers-reduced-transparency: nothing is dimmed and nothing moves",
+      "pass": true,
+      "focusEngaged": true,
+      "dimmed": [],
+      "animated": []
+    },
+    {
+      "id": "V5 · with no preference set, the section does defocus what it is not explaining",
+      "pass": true,
+      "dims": [
+        {
+          "layer": "input",
+          "filter": "blur(1.6px)",
+          "opacity": "0.42",
+          "textSharp": true
+        },
+        {
+          "layer": "output",
+          "filter": "blur(1.6px)",
+          "opacity": "0.42",
+          "textSharp": true
+        },
+        {
+          "layer": "commit",
+          "filter": "none",
+          "opacity": "1",
+          "textSharp": true
+        }
+      ]
+    },
+    {
+      "id": "V6 · without scripting the first screen and sections 03 / 05 / 06 are complete",
+      "pass": true,
+      "evaluatedInPage": {
+        "hero": true,
+        "architecture": true,
+        "evidence": true,
+        "build": true,
+        "layers": 6,
+        "diagram": true
+      },
+      "servedBytes": 34396
+    },
+    {
+      "id": "V6b · without scripting the specimen falls back to the step list with its stills",
+      "pass": true,
+      "stills": 7
+    },
+    {
+      "id": "V7 · contrast · light",
+      "pass": true,
+      "measured": 340,
+      "minimum": 4.59,
+      "failures": []
+    },
+    {
+      "id": "V7 · contrast · dark",
+      "pass": true,
+      "measured": 340,
+      "minimum": 5.9,
+      "failures": []
+    },
+    {
+      "id": "V8 · 1440px light does not scroll sideways",
+      "pass": true,
+      "overflow": 0,
+      "file": "site/verification/page-1440-light.png"
+    },
+    {
+      "id": "V8 · 1440px dark does not scroll sideways",
+      "pass": true,
+      "overflow": 0,
+      "file": "site/verification/page-1440-dark.png"
+    },
+    {
+      "id": "V8 · 390px light does not scroll sideways",
+      "pass": true,
+      "overflow": 0,
+      "file": "site/verification/page-390-light.png"
+    },
+    {
+      "id": "V8 · 390px dark does not scroll sideways",
+      "pass": true,
+      "overflow": 0,
+      "file": "site/verification/page-390-dark.png"
+    },
+    {
+      "id": "V8 · 1440px light at 200% does not scroll sideways",
+      "pass": true,
+      "overflow": 0,
+      "file": "site/verification/page-1440-light-zoom200.png"
+    }
+  ],
+  "shots": [
+    {
+      "name": "page-1440-light.png",
+      "width": 1440,
+      "theme": "light",
+      "scale": 1,
+      "overflow": 0,
+      "bytes": 1842740
+    },
+    {
+      "name": "page-1440-dark.png",
+      "width": 1440,
+      "theme": "dark",
+      "scale": 1,
+      "overflow": 0,
+      "bytes": 1831027
+    },
+    {
+      "name": "page-390-light.png",
+      "width": 390,
+      "theme": "light",
+      "scale": 1,
+      "overflow": 0,
+      "bytes": 1334927
+    },
+    {
+      "name": "page-390-dark.png",
+      "width": 390,
+      "theme": "dark",
+      "scale": 1,
+      "overflow": 0,
+      "bytes": 1335414
+    },
+    {
+      "name": "page-1440-light-zoom200.png",
+      "width": 1440,
+      "theme": "light",
+      "scale": 2,
+      "overflow": 0,
+      "bytes": 1470538
+    }
+  ]
+}

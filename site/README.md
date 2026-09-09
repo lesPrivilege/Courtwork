@@ -30,3 +30,9 @@ capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的
 用户 2026-09-10 允许 Pages 按需使用 blur，且可以比产品更有表现力。当前仅在读者聚焦第 03 段时柔化非当前连接线；文字保持清晰，不自动播放。减弱动效/透明度偏好下连接线保持静态。此处不改变产品材质合同，也不启动新设计方向或 sweep。
 
 完整回执见 [delivery-ps-01](../engineering/release/publishing-surface-2026-09-09/delivery-ps-01.md)。
+
+## Pages polish / campaign ownership（2026-09-10）
+
+本轮用户授权页面比产品更激进，Astra认领并裁定Archival Instrument；此前本页“仅连接线blur”“不启动新方向”的范围由本条覆盖。独立campaign材质、字阶与解释动效位于 `src/site.css`，产品标本仍保留固定token与来源守卫。`scripts/check-material.mjs`只检查标本；campaign通过浏览器对比度、重排和偏好验证。
+
+Hero中的纸层是明确标注的概念作品。新版Home完成前，`data-capture-slot="home"`保留待补状态；旧M1只在展开后显示且标明9e5384f。完成后先在对应快照隔离树运行capture，统一重取媒体、标本、benchmark与测试记录，再更新release与槽位；不把旧图标成新Home。完整实现、验证和发布范围见 [polish回执](../evidence/pages-polish-20260910/README.md)。

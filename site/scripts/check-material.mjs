@@ -1,22 +1,10 @@
 #!/usr/bin/env node
-// The site declares no material of its own.
-//
-// Colour, shadow and corner radius belong to the product's stylesheet and
-// reach the page through the tokens the build extracts. This check reads the
-// site's own two stylesheets and fails on any literal that would quietly start
-// a second design system: a hex or rgb() colour, a shadow written out, a
-// radius in pixels, or a font stack. Measurements are allowed and are the only
-// thing the site is permitted to declare for itself.
-//
-//   node site/scripts/check-material.mjs
-//
+// Campaign materials are independent; the recorded product specimen remains token-only.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { SITE } from "./release.mjs";
 
 const SHEETS = [
-  path.join(SITE, "src", "site.css"),
-  path.join(SITE, "src", "pricing.css"),
   path.join(SITE, "specimen", "specimen.css"),
 ];
 
@@ -62,6 +50,14 @@ for (const sheet of SHEETS) {
     }
   }
   for (const [match] of code.matchAll(DECLARED)) declared.add(match.slice(0, -1));
+}
+
+// Pages may own materials, but must not redefine product semantic tokens.
+for (const file of ["site.css", "pricing.css"]) {
+  const code = (await readFile(path.join(SITE, "src", file), "utf8")).replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const match of code.matchAll(/(--[a-z0-9-]+)\s*:/g)) {
+    if (!/^--(?:campaign|site|pricing)-/.test(match[1])) problems.push({file: `src/${file}`, why: "campaign must not redefine product tokens", text: match[1]});
+  }
 }
 
 console.log(JSON.stringify({ sheets: SHEETS.length, site_declared_variables: [...declared], problems, pass: problems.length === 0 }, null, 2));
