@@ -8,6 +8,8 @@
 
 Pages消费既有21e8a9b六子页，保留叙事与纸层视觉并展示实际新版Home；15份合成实录分离于9e5384f旧标本。用户随后指定本轮新讨论的核心自研理念，已消费研究370b891并加入确定性资料治理→Spark可重建派生/恢复→稀疏Attention，以及角色/执行分离与全生命周期质量/成本方向；均明确研究与待实现，不视为ME-01–10交付。[合流、验证与边界](../evidence/pages-main-visual-20260910/README.md)。共享未提交证据保持；未部署、未跑真实provider、未迁移个人数据，不关闭G1–G5。
 
+Paper/Tour入口接续：用户指定“Paper承载理念、Tour承载编排”。首页首屏叙事后加入两大原生展开章节，位于Home实录之前；Paper接独立论文与明确标注的本轮产品研究，Tour接四步工作路径及既有11节点实录。六子页导航同步，当前Home与来源固定保持。[交付与浏览器验证](../evidence/pages-primary-entries-20260910/README.md)。仅Pages UI，无产品runtime/schema变更，未部署。
+
 ## 多专家全turn与long-life施工准备（2026-09-10）
 
 从实际 `main@8b1e0b143f7091da0acba3ee24af58595e721eb8` 独立分支消费《多专家实现调研》可访问全部23个turn/44条消息；三页至hasMore=false，T07/T13无回复、T12原文末句中断及不可恢复citation均保留。按用户分工，Luna探索外部索引，Astra负责取舍、owner与PR。[研究包](research/multi-experts-2026-09-10/README.md)提供逐turn处置、44个唯一外链的阅读范围、选型/21模式负索引、接缝、ME-01…10候选PR、原HC/RA/AT全映射和long-life验证；[roadmap](roadmap.md#10-当前切片与扩展触发)已并入依赖顺序。

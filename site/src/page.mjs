@@ -77,7 +77,8 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
-      ${paperEntry()}
+      ${primaryEntries()}
+      ${currentHome(fill, shot)}
       ${rawGoverned(fill, recording)}
       ${matter(fill)}
       ${architecture(fill, diagram)}
@@ -118,7 +119,11 @@ function hero(fill, shot) {
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
           <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
         </figure>
-        <section class="home-capture-slot current-home" data-capture-slot="home" data-capture-status="captured" aria-labelledby="current-home-title">
+      </section>`;
+}
+
+function currentHome(fill, shot) {
+  return `        <section class="home-capture-slot current-home" data-capture-slot="home" data-capture-status="captured" aria-labelledby="current-home-title">
           <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看用量，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
 ${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("Recorded Home · `{sha7}` · synthetic data · local deterministic provider · 1440×900", fill), eager: true })}
           <nav class="home-product-links" aria-label="Explore the product">
@@ -129,8 +134,7 @@ ${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口
             <a href="./models.html">Models <span>配置你的模型</span></a>
             <a href="./data.html">Data boundaries <span>了解数据的去向</span></a>
           </nav>
-        </section>
-      </section>`;
+        </section>`;
 }
 
 /** The three layers, filled with a real excerpt of the recording. */
@@ -412,4 +416,18 @@ function closingShot() { return `<section class="closing-shot" aria-label="Court
 // this lockup conveys identity, never review or acceptance state.
 export function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
 
-function paperEntry() { return `<aside class="paper-entry" aria-labelledby="paper-entry-title"><div><p class="index">RESEARCH FOUNDATION / SCHEMA ENGINEERING</p><h2 id="paper-entry-title">The paper behind<br>the work.</h2></div><div><p>事件、工作状态、模型上下文，各有自己的边界。Schema Engineering 提出这套研究框架；Courtwork 将它带入可运行、可检验的工作面。</p><p class="paper-links"><a class="paper-read" href="${PAPER_ENTRY.href}">Read the paper ↗</a><a href="${PAPER_ENTRY.baseline}">采用基线 · 9.6</a><a href="#evidence">Implementation &amp; evidence →</a></p></div></aside>`; }
+function primaryEntries() {
+  return `<section class="primary-entries" aria-label="Paper 理念与 Tour 编排">
+    <div class="entry-heading"><p class="index">TWO WAYS INTO COURTWORK</p><p>从理念理解它，沿工作看它展开。</p></div>
+    <div class="entry-grid">
+      <details class="entry-chapter entry-paper" id="paper" name="primary-entry">
+        <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper<span>理念</span></span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">展开理念</span><span class="entry-open">收起理念</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
+        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 分开事件记录、工作状态与运行上下文，讨论工作如何跨越一次运行持续存在。</p><p class="entry-actions"><a href="${PAPER_ENTRY.href}">阅读 Paper ↗</a><a href="${PAPER_ENTRY.baseline}">采用基线 · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK / RESEARCH DIRECTION</p><p>本轮产品研究沿这条基础，继续探索确定性资料治理、Spark 可重建派生与稀疏 Attention。</p><a href="#long-work">展开新的自研理念 →</a></div></div>
+      </details>
+      <details class="entry-chapter entry-tour" id="tour" name="primary-entry">
+        <summary><span class="entry-kicker">02 / THE ORCHESTRATION</span><span class="entry-title">Tour<span>编排</span></span><span class="entry-description">从一次行动，到人的介入，再到留下的工作。</span><span class="entry-cover entry-cover-tour" aria-hidden="true"><span>START</span><i>→</i><span>ACT</span><i>→</i><span>REVIEW</span><i>→</i><span>CONTINUE</span></span><span class="entry-toggle"><span class="entry-closed">展开工作路径</span><span class="entry-open">收起工作路径</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
+        <div class="entry-content"><h3>Follow the work as it unfolds.</h3><ol class="entry-flow"><li><a href="./tour.html#home"><span>01</span><div><strong>开始工作</strong><p>从 Home 找到项目与当前事项。</p></div><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#attention"><span>02</span><div><strong>执行与介入</strong><p>看工具行动，处理具体的批准请求。</p></div><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#review"><span>03</span><div><strong>查看成果与依据</strong><p>文件、候选和正式决定各有位置。</p></div><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#continuity"><span>04</span><div><strong>把工作继续下去</strong><p>查看 Continue in Work 与固定回放。</p></div><span aria-hidden="true">↗</span></a></li></ol><p class="entry-actions"><a href="./tour.html">进入完整 Tour →</a></p><p class="caption">实际界面与合成录制；运行中画面及完整连续性范围在各节点单独说明。</p></div>
+      </details>
+    </div>
+  </section>`;
+}

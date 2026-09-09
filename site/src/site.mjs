@@ -70,3 +70,19 @@ if (editorial) {
   }
   editorial.addEventListener("pointerleave", clear);
 }
+
+// Primary chapters remain native disclosures without JavaScript. Hash links
+// open the matching chapter; unrelated anchors keep their normal behavior.
+const openEntry = () => {
+  if (location.hash !== "#paper" && location.hash !== "#tour") return;
+  const chapter = document.querySelector(location.hash);
+  if (!chapter) return;
+  chapter.open = true;
+  chapter.scrollIntoView({ block: "start", behavior: "instant" });
+};
+window.addEventListener("hashchange", openEntry);
+document.addEventListener("click", event => {
+  const link = event.target.closest('a[href="#paper"], a[href="#tour"]');
+  if (link && link.hash === location.hash) openEntry();
+});
+openEntry();

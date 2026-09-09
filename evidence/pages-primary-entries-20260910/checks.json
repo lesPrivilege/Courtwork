@@ -1,0 +1,58 @@
+[
+  {
+    "command": [
+      "node",
+      "site/build.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "e5364fe55e9f      10364  tokens.css\n2e9f0de84c45     298134  specimen/9e5384f.json\na36f29e1406c        899  specimen/capture.json\n1b834b13cae3       4184  specimen/copy.mjs\n1f96a4e1b0d9       4737  specimen/index.html\n1c32ff5a6275       7403  specimen/manifest.json\n5af4aecad561       1359  specimen/recorded-source.mjs\n622f7e40591d      17675  specimen/shell.mjs\n42070e59fccd       6225  specimen/specimen.css\n710365c1221e      14950  specimen/vendor-product/extensions/inbound-nda/renderer.mjs\n3e6b1cda8e93      14599  specimen/vendor-product/web/inspector.mjs\n7f84ffa9f2ce       7389  specimen/vendor-product/web/presentation-adapters.mjs\n5b3693f6d995     106415  specimen/vendor-product/web/runtime-view.mjs\n3d52c7a6831a     134422  specimen/vendor-product/web/styles.css\n2409c1a732d5      40646  specimen/vendor-product/web/surface-modules.mjs\n3cb84b522fa9       6472  specimen/vendor-product/web/thread-projection.mjs\n7bb69be918a8      15203  specimen/vendor-product/web/ui-controls.mjs\nf15f404df2cd       1366  specimen/vendor-product/web/user-message.mjs\n28ba9753d069      21148  specimen/vendor-product/web/vendor/LICENSES.txt\n694dfdfd6583      15842  specimen/vendor-product/web/vendor/floating.mjs\n1e0528478d5e       3941  specimen/vendor-product/web/vendor/icons.svg\n05e41134d075      43800  specimen/vendor-product/web/vendor/marked.mjs\ne7d8182ea0aa     133141  specimen/vendor-product/web/vendor/purify.mjs\nea51d3b1f001       4546  specimen/vendor-product/web/workspace-view.mjs\nd13abfe1946f     291114  evidence/continuity-9e5384f.json\n03cd7a935713       8351  evidence/continuity-9e5384f.json.attempts.json\na044a3da7c41     158833  evidence/continuity-9e5384f.json.journal.jsonl\ndc03e0890e7f      39411  evidence/tests.log\n1f75df393539        427  icon.svg\n955ce680b636      47232  index.html\n3a1469b954ca      15942  tour.html\n26408011478b       5369  get.html\n379423908817       4775  cli.html\n985325e9ad0a       4795  changelog.html\n943f1fac1d79       5119  models.html\n42da49576690       4448  data.html\n49bd31447590       8399  product-pages.css\nf280234fee56       4704  product-pages.mjs\n6348c2cb4a21      31291  site.css\n36f4eb5cf837       4686  pricing.css\n5809535edf9f       3719  site.mjs\nc80f8f22b947      96376  media/chat-approval-1440-light.png\n7751fe03a0a2      83804  media/chat-file-1440-light.png\n893fa5c688aa     106268  media/chat-question-1440-light.png\nb60af27f2812      90826  media/continue-in-work-1440-light.png\n778884b9c27e      75287  media/home-1440-dark.png\n6c471419014c      74430  media/home-1440-light.png\ne6f8de96a152      49423  media/home-390-light.png\nc3102d889b95      58746  media/main/attention-conversation-1440-light.jpg\n5e51df2de24e      65458  media/main/chat-approval-1440-light.jpg\nc1d9f5ce10a3      56836  media/main/chat-file-1440-light.jpg\ncf88f8653a07      75378  media/main/chat-question-1440-light.jpg\ne587b50d57bf      65712  media/main/continue-in-work-1440-light.jpg\n82f9060b4911      78668  media/main/home-1440-dark.jpg\n0ef992556d7c      75077  media/main/home-1440-light.jpg\n5f18c1f75b16      34989  media/main/home-390-light.jpg\n47c4a9150a9f      15499  media/main/manifest.json\nc3bb9e642e57      81968  media/main/review-1440-dark.jpg\n8097aeb9ab29      79100  media/main/review-1440-light.jpg\n58481f5a20a5      39297  media/main/review-390-light.jpg\n861567375673      68943  media/main/settings-appearance-1440-light.jpg\n9f237853fb7b      87138  media/main/settings-integrations-1440-light.jpg\n090332cb1b6c      73746  media/main/settings-models-1440-dark.jpg\nd8add841487e      72211  media/main/settings-models-1440-light.jpg\nc33deb18622b      10832  media/manifest.json\n8bc0fc26af68     102200  media/review-1440-dark.png\nc16272eafa72     101440  media/review-1440-light.png\nb194f4c6e0dc      54111  media/review-390-light.png\nb433a3c28eb5     104690  media/settings-models-1440-dark.png\n1173d1ada00d     103756  media/settings-models-1440-light.png\na5c44f479d26      14090  build-manifest.json\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "node",
+      "site/scripts/check-links.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"files\": 71,\n  \"local_references_checked\": 184,\n  \"problems\": [],\n  \"pass\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "node",
+      "site/scripts/check-material.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"sheets\": 1,\n  \"site_declared_variables\": [],\n  \"problems\": [],\n  \"pass\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "node",
+      "--test",
+      "site/scripts/public-data.test.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "✔ public projection preserves facts and does not mutate the recording (1.873291ms)\n✔ unexpected private content fails closed (0.22725ms)\n✔ publication rejects injected machine paths and accepts synthetic paths (6.067334ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 99.758792\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "node",
+      "tools/check-doc-links.mjs"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pass\": true,\n  \"documents\": 633,\n  \"checked\": 2814,\n  \"problems\": []\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

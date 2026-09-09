@@ -89,3 +89,14 @@
 
 #cli-form[hidden] { display: none; }
 .command-reference button:disabled { cursor: default; text-decoration: none; }
+
+.orchestration-path { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); }
+.orchestration-path a { display: flex; flex-direction: column; gap: 12px; padding: 28px 20px; text-decoration: none; }
+.orchestration-path a + a { border-left: 1px solid var(--line); }
+.orchestration-path span { font: 11px var(--font-mono); color: var(--muted-strong); }
+.orchestration-path strong { font-size: 20px; }
+.orchestration-path small { font-size: 14px; color: var(--muted-strong); }
+.orchestration-path a:hover strong { text-decoration: underline; }
+.tour-directory { margin-top: 40px; }
+.tour-directory summary { cursor: pointer; padding: 16px 0; }
+@media (max-width: 720px) { .orchestration-path { grid-template-columns: repeat(2, minmax(0, 1fr)); } .orchestration-path a:nth-child(3) { border-left: 0; } .orchestration-path a:nth-child(n+3) { border-top: 1px solid var(--line); } .orchestration-path a { padding: 24px 12px; } .orchestration-path strong { font-size: 17px; } }

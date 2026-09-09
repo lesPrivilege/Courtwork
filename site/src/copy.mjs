@@ -7,8 +7,8 @@ export const PAPER_ENTRY = {
   baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
 };
 export const NAV = [
-  { label: "Product tour", href: "./tour.html" },
-  { label: "Paper ↗", href: PAPER_ENTRY.href },
+  { label: "Tour · 编排", href: "#tour" },
+  { label: "Paper · 理念", href: "#paper" },
   { label: "Get Courtwork", href: "./get.html" },
 ];
 
@@ -19,8 +19,8 @@ export const HERO = {
   lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
   actions: [
     { label: "Get Courtwork", href: "./get.html" },
-    { label: "Product tour", href: "./tour.html" },
-    { label: "Source", href: "https://github.com/lesPrivilege/Courtwork" },
+    { label: "Tour · 编排", href: "#tour" },
+    { label: "Paper · 理念", href: "#paper" },
   ],
 };
 

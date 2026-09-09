@@ -1,0 +1,41 @@
+[
+  {
+    "check": "Tour hash opens matching chapter",
+    "pass": true,
+    "scrollWidth": 1195,
+    "width": 1195
+  },
+  {
+    "check": "Paper hash opens matching chapter",
+    "paperLink": "https://lesprivilege.github.io/Schema-Engineering/",
+    "pass": true
+  },
+  {
+    "check": "Paper mobile",
+    "open": true,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "check": "Tour mobile",
+    "open": true,
+    "scrollWidth": 390,
+    "width": 390
+  },
+  {
+    "check": "Tour Review link reaches actual captured state",
+    "pass": true,
+    "url": "http://127.0.0.1:8983/Courtwork/tour.html#review"
+  },
+  {
+    "allStates": 11,
+    "check": "four-stage Tour mobile",
+    "scrollWidth": 390,
+    "stages": 4,
+    "width": 390
+  },
+  {
+    "check": "native click then Return collapses Tour; opening Tour closes Paper",
+    "pass": true
+  }
+]
