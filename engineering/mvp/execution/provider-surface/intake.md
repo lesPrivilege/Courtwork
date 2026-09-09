@@ -127,6 +127,8 @@
 | PV-D1 | Vertex ADC（ambient credentials）：pi 侧纯配置已具备，Courtwork 侧须显式开一类新凭据来源，代价四项见 PV-20 | 记录，未开工（DEC-PV-d） |
 | PV-D2 | 自定义网关的完整形态（任意 provider 身份 + 手工模型录入），在 PV-25 的最小层之后 | 记录 |
 | PV-D3 | BE-38 错误类；BE-28 `lastVerifiedAt`；BE-12 已部分交付 | 记录 |
+| PV-D4 | 成本面：上线前须先有"成本未知"的表达位，否则用户连接的显式零成本会变成谎（PV-48） | 记录 |
+| PV-D5 | `streamSimple` 路径：若日后有路径走它，`clampMaxTokensToContext` 会拿到 `undefined` 的 `maxTokens`，须重新裁定（PV-49） | 记录 |
 
 ## 9. EX-PV4 回执与增补裁定（2026-09-10）
 
@@ -179,4 +181,36 @@ WO-PV-FE01 的派出条件随之改为：WO-PV-BE02 交付后，以 `claude/pv-b
 **PV-43（toast 留给保存，不给冒烟）** `notify("Connection saved.")` 一类瞬时提示继续用于保存成功；冒烟结果不上 toast——理由与既有注释同源：它是要回头再读的证据，不是一闪而过的确认。
 
 **留待消融的一个变量**：回执行显示模型回复原文（截断一行）还是只显示"已回答 + 用时/字数"。我选原文——它是唯一自证的东西；若真机上原文噪声太大（模型寒暄、多语言、控制字符），再退回计数，一次一变量，记进 misfit。
+
+## 13. WO-PV-BE02 复核（Fable，2026-09-10）
+
+交付页 [delivery-pv-be02](delivery-pv-be02.md)，分支 `claude/pv-be02-connections`，基线 `b4e3f71`，两提交 `d4b5fa6` / `e61c9d5`。Fable 非作者复核：读码抽验四处 + 独立重跑测试。独立重跑结果 **456/456，fail 0，exit 0**（Fable 自跑，非引用作者日志），与作者所报一致。
+
+抽验成立：`conn-` 与 `catalog-` 两个前缀使用户连接的 provider id 不可能落到目录身份上（`provider-connections.mjs:13-47`，PV-31）；注册与注销走 `registerProvider` / `unregisterProvider`（`pi-session-runtime.mjs:103-114`，PV-31）；凭据键改连接 id 且以 `replaceCredentialFile` 一次迁移、无兼容层（`credential-file.mjs`，PV-32）；未知窗口有唯一常量 `UNKNOWN_WINDOW_NOTICE = "context window unknown, compaction disabled"`，被 `/provider-config` 的 capability 与 run 记录共同消费，压缩显式关闭（`service.mjs:733-761,1187`，PV-27 / PV-30）。`app/web/**` 零改动，写权边界守住。
+
+逐项裁定（对交付页 §8）：
+
+**PV-44（①基线）** 接受以 `b4e3f71` 为事实。工单写 `ee6df72` 是我派单时的旧头，作者取代码为准是对的。EX-PV1 的 `SCHEMA_VERSION = 7` 同此——探索是某一刻的转录，不是长期契约，后续引用须以代码为准。
+
+**PV-45（②合流单元）** **BE02 不单独合流**。凭据请求体改字段会让 Settings 的存/删密钥 400，这段窗口不接受。合流单元是 BE02 + FE01：FE01 从 `claude/pv-be02-connections` 分出，Astra 合流 FE01 分支时一并带入 BE02 的两个提交。作者按裁定不碰 `app/web` 是对的，代价由合流次序消化，不由作者越界消化。
+
+**PV-46（③第三类失败）** 接受服务层错误码 `connection_model_not_in_directory`，不改探测枚举。探测契约是"目录握手"的契约，"模型不在目录"是保存动作的判断，两者不该混进一个枚举。FE01 按错误码显示，不自行归类（PV-34）。
+
+**PV-47（④凭据来源，修订 PV-33）** 我原写"三档"，实为六值，且本宿主只可能取到 `runtime`。修订：run 记录原样落 pi 返回的值，不裁剪、不改写；FE01 **不得**为另外五个值造分支或选择器——今日不可达的值不进 UI（无契约不画，WK-122）。何时可达由后续变更再裁。
+
+**PV-48（⑤成本）** 接受。宿主没有成本面，显式零成本不会被读成 `$0`；新增断言把"没有价格面"钉住，是正解。日后要上成本面，前置条件是先有"成本未知"的表达位——记入待办 PV-D4。
+
+**PV-49（⑥ `maxTokens`）** 接受留空。填任何值都是宿主编造。约束记死：本宿主走 `stream`；若日后有路径走 `streamSimple`，`clampMaxTokensToContext` 会拿到 `undefined`，须重新裁定——记入待办 PV-D5。
+
+**PV-50（⑦ WK-108 用例）** 该用例断言的是前端事实，后端能力变了而前端未变，故仍成立且仍应通过。由 FE01 改写，并在交付页写明改的是哪一条、为何不再成立（FE01 第 1 项已含）。
+
+**PV-51（⑧ schema 8→9）** 接受。版本号是事实，随迁移更新既有用例不是放宽断言；作者已核每条断言强度未降。
+
+**PV-52（⑨ `credentialStatus` 派生不落盘）** 采纳作者做法，**修订工单字段表**：凭据文件是"有没有 key"的唯一真相，落进 state 会造第二个真相源。工单原表列它是我写漏了边界，以此裁定为准。
+
+⑩ fixture 增 `GET /v1/models` 接受——它使兼容连接的完整旅程能在不联网下端到端验证，且未改 fake 的对话行为。
+
+未检项照收：真实 provider `not_run`（凭据只在 UI 输入）；`openai-responses` 的兼容连接无真实 fixture 佐证；网关完整形态、`lastVerifiedAt`、错误分类、Vertex 均按既有裁定不在本单。
+
+**结论：接受（作者验证级）。** 独立验收仍归 Astra（C4 体例）。下一步按 PV-45 派 WO-PV-FE01，基线 `e61c9d5`。
 

@@ -13,7 +13,7 @@
 
 ## 做什么
 
-1. **连接身份**：新增持久化的连接记录，字段至少 `{id, providerIdentity, api, baseUrl, models:[{id, contextWindow|null}], credentialStatus}`。运行期为每条用户连接注册一个**独立的 provider id**（由连接 id 派生，与目录身份 `openai` / `deepseek` / `google` 的命名空间不重叠），用 `registerProvider` 注册，删除时 `unregisterProvider`。禁止把用户连接注册到目录 provider id 上——凭据单槽会互相覆盖（PV-26）。
+1. **连接身份**：新增持久化的连接记录，字段至少 `{id, providerIdentity, api, baseUrl, models:[{id, contextWindow|null}]}`（`credentialStatus` 为服务层派生值，不落盘——凭据文件是唯一真相，PV-52 修订）。运行期为每条用户连接注册一个**独立的 provider id**（由连接 id 派生，与目录身份 `openai` / `deepseek` / `google` 的命名空间不重叠），用 `registerProvider` 注册，删除时 `unregisterProvider`。禁止把用户连接注册到目录 provider id 上——凭据单槽会互相覆盖（PV-26）。
 2. **连接作用域凭据**：`credentials.json` 的键从 provider id 改为连接 id（目录连接也各自是一条连接）。这是破坏性改动，按项目惯例直接迁移，不留兼容层：迁移一次，旧键按其 provider 对应的默认连接归位，迁移写进交付页。
 3. **发现模型准入**：`POST /provider-models/discover` 的结果可被选中并保存到连接的 `models` 列表；保存后 `#setProviderConfig` 的"模型必须命中已装目录"判断对用户连接改为"必须命中该连接自己的模型列表"。目录连接的判断不变。
 4. **未知能力如实处理（PV-27 / PV-30）**：发现来的模型 `contextWindow` 为 `null`。**不猜值、不套同名模型**。首次 Run 不得因此抛错：对未知窗口的连接，压缩策略走 `resolveCompactionPolicy` 的既有诚实分支（`enabled:false` 时返回降级策略而不抛），即该连接默认关闭压缩，并在 run 记录与 `/provider-config` 响应里显式标出"context window unknown, compaction disabled"。用户可选填一个窗口值以启用压缩；填了就按填的值走，并记录该值来源是用户输入而非目录。
