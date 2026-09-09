@@ -18,8 +18,10 @@ delivery hook, its prepared record lacks `runtimeRecordedAt` and no
 `async_get` tool-result event claims delivery.
 
 The independent store checks use real schema 3/4 input bytes and verify exact
-backup/reopen, and reject invalid UTF-8 before a decoder can substitute bytes
-or rewrite the file. A local detached worktree at fixed old main
+backup/reopen. Each backup is copied to its own directory and opened by the
+corresponding fixed historical host (schema 3: `b26670c`; schema 4: `7c07ef6`),
+then invalid UTF-8 is rejected before a decoder can substitute bytes or rewrite
+the file. A local detached worktree at fixed old main
 `7c07ef6b5a19f0eb2c45b8894ab9911de87ea979` imports that old RuntimeStore and
 proves it refuses a schema-5 file without changing its bytes. This exercises a
 version boundary; it does not claim machine-power-loss durability, automatic
