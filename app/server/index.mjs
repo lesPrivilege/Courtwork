@@ -104,6 +104,10 @@ function routeService(service, req, url) {
     if (method === 'GET' && tail.length <= 2) return () => service.readAsyncTasks(tail[1] ?? null, url.searchParams);
     if (method === 'POST' && tail.length === 3 && ['reconcile','cancel'].includes(tail[2])) return async () => service.actOnAsyncTask(tail[1], tail[2], await body(req));
   }
+  if (tail[0] === 'governance') {
+    if (method === 'POST' && tail.length === 2 && tail[1] === 'query') return async () => service.queryGovernance(await body(req));
+    if (method === 'POST' && tail.length === 4 && tail[1] === 'matters' && tail[3] === 'disclosure') return async () => service.setMatterDisclosure(tail[2], await body(req));
+  }
   if (tail[0] === 'attention') {
     if (tail.length === 2 && tail[1] === 'conversations' && method === 'GET') return () => service.listAttentionConversations();
     if (tail.length === 2 && tail[1] === 'conversations' && method === 'POST') return async () => service.createAttentionConversation(await body(req));

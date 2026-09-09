@@ -6,6 +6,8 @@
 
 ## 当前实现
 
+BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governance.md)由既有Core owner查询领域对象；目录不落第二份状态，新增持久记录只保存Matter披露政策、事件与请求回执。Runtime工具只在全局Attention注入，Host每次捕获执行身份，Core每次检查对象范围与当前披露。
+
 源码基线：`00b2f2886e04aa7b7facb588d4375a246f3e341d`。应用由一个本地 Host 组合，下表按实际写入与执行职责导航。
 
 | 入口 | 职责 | 接口与说明 |

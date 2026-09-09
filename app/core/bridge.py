@@ -45,9 +45,11 @@ from file_candidates import FILE_SCHEMA, FILE_CONTRACT
 
 from attention import ATTENTION_SCHEMA
 import attention
+import governance
+from governance import GOVERNANCE_SCHEMA, GOVERNANCE_TABLES
 
-APP_SCHEMA_VERSION = 4
-CORE_SCHEMA_VERSION = 3
+APP_SCHEMA_VERSION = 5
+CORE_SCHEMA_VERSION = 4
 RUN_STATUSES = frozenset({"running", "stopping", "completed", "failed", "cancelled", "unknown"})
 ACTIVE_RUN_STATUSES = frozenset({"running", "stopping"})
 PUBLIC_PROVIDER_KEYS = frozenset({
@@ -205,14 +207,17 @@ def validate_owned_schema(conn: sqlite3.Connection, app_version: str, *, complet
     reference = sqlite3.connect(':memory:')
     try:
         reference.executescript(SCHEMA)
-        for statement in FILE_SCHEMA + APP_SCHEMA + ATTENTION_SCHEMA: reference.execute(statement)
+        for statement in FILE_SCHEMA + APP_SCHEMA + ATTENTION_SCHEMA + GOVERNANCE_SCHEMA: reference.execute(statement)
         file_tables = {'file_run_basis','candidate_file_bundle','candidate_file','candidate_verification','artifact_file_bundle'}
         optional_v1 = {'source_history','app_run_context','app_work_data','app_work_scope'}
         known = required_tables(reference) - {'sqlite_sequence'}
         attention_tables = {'attention','attention_event','attention_request'}
-        expected = known if app_version == '4' else known - attention_tables
+        expected = known if app_version == '5' else known - GOVERNANCE_TABLES
+        if app_version not in {'4','5'}: expected -= attention_tables
+        if app_version != '5' and required_tables(conn) & GOVERNANCE_TABLES:
+            raise CoreError('SCHEMA_INVALID','disclosure tables found in older schema')
         if app_version in {'1','2'} and not complete: expected -= file_tables
-        if app_version != '4' and present_attention(conn):
+        if app_version not in {'4','5'} and present_attention(conn):
             raise CoreError('SCHEMA_INVALID','Attention tables found in older schema')
         present = required_tables(conn)
         if app_version in {'1','2'} and not complete and present & file_tables:
@@ -320,7 +325,7 @@ def ensure_file_schema(store: Store, *, allow_initialize: bool = False) -> None:
         raise
 
 
-def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
+def ensure_attention_schema(store: Store, *, allow_initialize: bool = False) -> None:
     tables=required_tables(store.conn)
     prior=store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in tables else None
     if prior and prior[0]=='4':
@@ -342,6 +347,33 @@ def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
         store.conn.execute("UPDATE meta SET value='3' WHERE key='schema_version'")
         store.conn.execute('PRAGMA user_version=3')
         store.conn.commit()
+    except Exception:
+        store.conn.rollback()
+        raise
+
+
+
+def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
+    prior=store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in required_tables(store.conn) else None
+    if prior and prior[0]=='5':
+        validate_owned_schema(store.conn,'5',complete=True)
+        return
+    backup=Path(str(store.db_path)+'.pre-governance-core-v4-app-v5.bak')
+    if not allow_initialize and os.path.lexists(backup):
+        raise CoreError('SCHEMA_INVALID','governance migration backup already exists')
+    ensure_attention_schema(store,allow_initialize=allow_initialize)
+    validate_owned_schema(store.conn,'4',complete=True)
+    if not allow_initialize: exclusive_migration_backup(store,backup)
+    store.conn.execute('BEGIN IMMEDIATE')
+    try:
+        for statement in GOVERNANCE_SCHEMA: store.conn.execute(statement)
+        validate_owned_schema(store.conn,'5',complete=True)
+        store.conn.execute("UPDATE app_meta SET value='5' WHERE key='schema_version'")
+        store.conn.execute("UPDATE meta SET value='4' WHERE key='schema_version'")
+        store.conn.execute('PRAGMA user_version=4')
+        store.hooks.hit('governance_migration_before_commit')
+        store.conn.commit()
+        store.hooks.hit('governance_migration_after_commit')
     except Exception:
         store.conn.rollback()
         raise
@@ -380,7 +412,7 @@ def open_or_initialize(db_path: str | Path) -> Store:
             store.conn.execute(f"PRAGMA user_version={CORE_SCHEMA_VERSION}")
         else:
             user_version = int(store.conn.execute("PRAGMA user_version").fetchone()[0])
-            if user_version not in {1, 2, CORE_SCHEMA_VERSION}:
+            if user_version not in {1, 2, 3, CORE_SCHEMA_VERSION}:
                 raise CoreError("SCHEMA_UNSUPPORTED", f"unsupported Core user_version={user_version}")
             meta_rows = {
                 row["key"]: row["value"]
@@ -390,7 +422,7 @@ def open_or_initialize(db_path: str | Path) -> Store:
                 raise CoreError("SCHEMA_UNSUPPORTED", "Core meta is not supported B0 schema v1")
         if existed:
             av = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in required_tables(store.conn) else None
-            if av and (user_version,av[0]) not in {(1,'1'),(1,'2'),(2,'3'),(3,'4')}:
+            if av and (user_version,av[0]) not in {(1,'1'),(1,'2'),(2,'3'),(3,'4'),(4,'5')}:
                 raise CoreError('SCHEMA_INVALID','Core/app schema pair mismatch')
         ensure_app_schema(store, allow_initialize=not existed)
         recover_inflight_runs(store)
@@ -800,6 +832,12 @@ def read_artifact(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
 
 def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) -> Any:
     op = request.get("op")
+    if op == 'governance_action':
+        p=request_payload(request,{'context','request'})
+        return governance.action(store,p['context'],p['request'])
+    if op == 'governance_query':
+        p=request_payload(request,{'context','query'})
+        return governance.query(store,p['context'],p['query'])
     if op == 'attention_action':
         p=request_payload(request,{'context','request','provenance'})
         return attention.action(store,p['context'],p['request'],p['provenance'])

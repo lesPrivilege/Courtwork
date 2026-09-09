@@ -14,6 +14,7 @@
 - [Activity 与 Usage](work-metrics.md)：已记录的运行指标。
 - [异步读取任务](async-tasks.md)：任务状态、取消、恢复与消费。
 - [Runtime Control Plane](../../docs/runtime-control/INDEX.md)：资源、策略、来源解析与 MCP。
+- [Governed objects](../../docs/work-core/governance.md)：Attention/Matter目录、披露策略与精确来源/成果读取。
 - [Work Core](../../docs/work-core/README.md)：候选、来源、决定与领域工作。
 
 ## 集成与来源

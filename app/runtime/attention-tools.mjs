@@ -1,7 +1,8 @@
+import { GOVERNANCE_TOOL_NAMES, createGovernanceTools } from './governance-tools.mjs';
 import { createHash } from 'node:crypto';
 import { Type } from '@earendil-works/pi-ai';
 
-export const ATTENTION_TOOL_NAMES = Object.freeze(['attention_projects', 'attention_list', 'attention_inspect', 'memory_list', 'memory_read']);
+export const ATTENTION_TOOL_NAMES = Object.freeze(['attention_projects', 'attention_list', 'attention_inspect', 'memory_list', 'memory_read', ...GOVERNANCE_TOOL_NAMES]);
 const hash = text => createHash('sha256').update(text).digest('hex');
 const result = value => ({ content: [{ type: 'text', text: JSON.stringify(value) }], details: value });
 const project = Type.String({ minLength: 1, maxLength: 200 });
@@ -26,8 +27,9 @@ function page(items, args) {
 // Only the global Attention runtime admits these tools. Every executor is also
 // wrapped by governTools; source bodies are loaded by explicit identity, never
 // automatically placed in a system prompt. No connector or credentials here.
-export function createAttentionTools({ store, adapterForProject }) {
+export function createAttentionTools({ store, adapterForProject, governanceForProject }) {
   return [
+    ...(governanceForProject ? createGovernanceTools({ adapterForProject: governanceForProject }) : []),
     {
       name: 'attention_projects', label: 'Discover projects',
       description: 'Discover project names and identities for explicit project-scoped Attention queries. This is a project directory, not permission to read every attention item.',

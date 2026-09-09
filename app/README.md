@@ -53,6 +53,10 @@ clear it. Both endpoints (and `PUT /provider-config`) return `409 active_run`
 while a Run is active — credentials and provider descriptor are frozen for
 the duration of a Run, same as before.
 
+## Governed object reads
+
+Global Attention can discover explicitly disclosed Matter/Attention objects and progressively read bounded source/accepted Artifact pages. Human disclosure is an authenticated API in this backend slice; no new policy editor UI is included. Core4/app5 adds three same-owner disclosure tables, with an exclusive `.pre-governance-core-v4-app-v5.bak` before upgrading validated Core3/app4 (older supported pairs migrate in stages). Old Core3 hosts refuse the upgraded database; restore only into a separate directory with the matching host. See the [governance contract](../docs/work-core/governance.md) for scope, current-content grants, revocation, schema support and recovery. RuntimeStore7 is unchanged by BG-01.
+
 ## Run
 
 Node.js >=22.19.0 and Git >=2.36 on PATH. Git is required for artifact writes;

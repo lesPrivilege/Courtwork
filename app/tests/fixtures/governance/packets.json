@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "source": "synthetic authenticated HTTP and actual local-fake Pi tool events",
+  "packets": {
+    "undisclosed": {
+      "collection_version": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "count": 0,
+      "count_scope": "visible",
+      "items": [],
+      "next_offset": null,
+      "offset": 0,
+      "registry_version": 1,
+      "truncated": false
+    },
+    "grantReceipt": {
+      "event_id": "disclosure-16d7ea70-d4b4-4615-97e2-5eb67195825d",
+      "matter_id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+      "policy_revision": 1,
+      "request_id": "grant-runtime",
+      "schema_version": 1
+    },
+    "registry": {
+      "collection_version": "573cd3fe38268a7720cee30842fba5ce91cadbd2c1910e38f7989b9d247ae9a5",
+      "count": 1,
+      "count_scope": "visible",
+      "items": [
+        {
+          "availability": "retained",
+          "descriptor": {
+            "title": "Governed fixture"
+          },
+          "disclosure_handle": {
+            "policy": "matter-disclosure-v1",
+            "revision": 1
+          },
+          "object_ref": {
+            "id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+            "kind": "matter",
+            "project_id": "cb23ac7a-4f33-49c1-a859-87d99a8795b3"
+          },
+          "object_revision": 0,
+          "object_version": "7792174b485bf6534bb90fcd763f98393a202e6a15a713b314e1bba04ce7888d",
+          "registry_version": 1,
+          "schema_ref": "se-contract-v5.0",
+          "schema_version": 1,
+          "state_class": "unknown",
+          "updated_at": null
+        }
+      ],
+      "next_offset": null,
+      "offset": 0,
+      "registry_version": 1,
+      "truncated": false
+    },
+    "inspect": {
+      "artifact": null,
+      "availability": "retained",
+      "descriptor": {
+        "title": "Governed fixture"
+      },
+      "details": {
+        "contract_version": "se-contract-v5.0",
+        "domain": null,
+        "obligations": [],
+        "source_version": 1,
+        "version": 0
+      },
+      "disclosure": {
+        "fields": [
+          "artifacts",
+          "details",
+          "registry",
+          "sources"
+        ],
+        "purpose": "attention-runtime"
+      },
+      "disclosure_handle": {
+        "policy": "matter-disclosure-v1",
+        "revision": 1
+      },
+      "object_ref": {
+        "id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+        "kind": "matter",
+        "project_id": "cb23ac7a-4f33-49c1-a859-87d99a8795b3"
+      },
+      "object_revision": 0,
+      "object_version": "7792174b485bf6534bb90fcd763f98393a202e6a15a713b314e1bba04ce7888d",
+      "registry_version": 1,
+      "schema_ref": "se-contract-v5.0",
+      "schema_version": 1,
+      "sources": [
+        {
+          "availability": "retained",
+          "digest": "2b1f52dcccb9b6a1a1aa9e17393115dacbfe7d95a14031946eaf72c726a63046",
+          "integrity": "unchecked",
+          "kind": "core",
+          "matter_id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+          "source_id": "source-a4b65edf-5977-4273-950d-0d1c18fa8e57",
+          "source_ref": "9238ce3821f99f4e8e7a73586eb0fc229e48b4b69b4466fa7794302d14c631d2",
+          "version": 1
+        }
+      ],
+      "state_class": "unknown",
+      "updated_at": null
+    },
+    "sourcePage": {
+      "availability": "retained",
+      "end": 12,
+      "length": 39,
+      "next_offset": 12,
+      "object_ref": {
+        "id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+        "kind": "matter",
+        "project_id": "cb23ac7a-4f33-49c1-a859-87d99a8795b3"
+      },
+      "object_version": "7792174b485bf6534bb90fcd763f98393a202e6a15a713b314e1bba04ce7888d",
+      "offset": 0,
+      "registry_version": 1,
+      "source": {
+        "availability": "retained",
+        "digest": "2b1f52dcccb9b6a1a1aa9e17393115dacbfe7d95a14031946eaf72c726a63046",
+        "integrity": "unchecked",
+        "kind": "core",
+        "matter_id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+        "source_id": "source-a4b65edf-5977-4273-950d-0d1c18fa8e57",
+        "source_ref": "9238ce3821f99f4e8e7a73586eb0fc229e48b4b69b4466fa7794302d14c631d2",
+        "version": 1
+      },
+      "text": "Synthetic go",
+      "unit": "codepoint"
+    },
+    "revoked": {
+      "callId": "fake-script-9-0",
+      "name": "governance_read",
+      "text": "NOT_FOUND: governed object unavailable",
+      "isError": true
+    },
+    "producerAndOriginalSessionAbsent": {
+      "collection_version": "d5895c6ef1126d6ba61e2defe255a5011acda7f6f88a7054859128a3dad1fc25",
+      "count": 1,
+      "count_scope": "visible",
+      "items": [
+        {
+          "availability": "retained",
+          "descriptor": {
+            "title": "Governed fixture"
+          },
+          "disclosure_handle": {
+            "policy": "matter-disclosure-v1",
+            "revision": 3
+          },
+          "object_ref": {
+            "id": "matter-b4a828af-839b-4f61-b0ae-7c7f913c3726",
+            "kind": "matter",
+            "project_id": "cb23ac7a-4f33-49c1-a859-87d99a8795b3"
+          },
+          "object_revision": 0,
+          "object_version": "e54817de6dd6ffeb210dfacbd33f65cd0d42d0a0847722409f6c3ca174b9204f",
+          "registry_version": 1,
+          "schema_ref": "se-contract-v5.0",
+          "schema_version": 1,
+          "state_class": "unknown",
+          "updated_at": null
+        }
+      ],
+      "next_offset": null,
+      "offset": 0,
+      "registry_version": 1,
+      "truncated": false
+    }
+  }
+}
