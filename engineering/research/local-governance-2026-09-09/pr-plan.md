@@ -18,7 +18,7 @@
 
 交付语义：一次观察记录作用域、相对路径、来源身份、内容 hash、字节数/MIME、观察时间与读取失败；身份与路径分离。读取中前后变化要检测并重试或标 unstable，不能声称普通目录遍历是原子快照。目录外符号链接默认不跟随；读取权限按输入 scope，不由文档指令扩大。
 
-确切字节接入现有历史保存边界；只有 metadata 时明确 source bytes unavailable，不能承诺删除原件后重放。rendition cache key 至少含 source hash、extractor/OCR 版本与配置摘要；记录失败/partial、语言与页映射。文本 offset 的单位与编码须冻结；PDF page/bbox/rotation 与 OCR 坐标规范必须能回到对应来源版本。保留原文与派生文本两者区别。
+用户目录的确切字节与不可变manifest由未来Intake sidecar owner保存；现有ArtifactHistory限于受信Run-recorded artifacts，不授予Intake写权。选定来源按binding/Core接缝进入治理状态。只有metadata、尚未读取字节时，明确contentHash和source bytes unavailable，不声称已知内容digest或可在删除原件后重放。rendition cache key 至少含 source hash、extractor/OCR 版本与配置摘要；记录失败/partial、语言与页映射。文本 offset 的单位与编码须冻结；PDF page/bbox/rotation 与 OCR 坐标规范必须能回到对应来源版本。保留原文与派生文本两者区别。
 
 验证：同源同配置命中；变字节/变配置失效；更名不重复 OCR，副本观察仍保留；原文件只读 hash 不变；扫描误识别不被 roundtrip 测试伪装成正确；半途失败不发布 complete rendition。退出/回滚：关闭新 reader，历史来源保持可读；只删除本单派生缓存。保留/删除来源的权限与策略不随 cache eviction 改变。
 

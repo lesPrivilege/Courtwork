@@ -16,7 +16,7 @@
 | 层 | 保留什么 | 谁可改变；退出/恢复边界 |
 |---|---|---|
 | 用户原目录 | 文件与人工组织方式；路径仅是观察位置 | Intake 只读，禁止隐式重命名、移动、写回；目录发生变化形成新观察 |
-| 来源记录与确切字节 | 捕获身份、hash、观察记录、已引用来源版本 | 沿现有 ArtifactHistory/Core 接缝；受保留策略管理，不能随索引删除，否则历史引用不能保证重现 |
+| 来源记录与确切字节 | 捕获身份、hash、观察记录、已引用来源版本 | Intake确切字节/manifest由未来sidecar owner持有，选定来源经binding/Core接缝治理；受保留策略管理，不随索引删除 |
 | rendition / 派生索引 | 抽取文本、OCR、结构、词法/向量视图、查询缓存 | 可按固定来源版本与处理配置重建；派生缓存不持有接受决定 |
 | 治理与正式状态 | 接受/拒绝、修订链、责任主体、依据与关联 | 仍由既有 Core/domain 决定合同持有；不可称全部可删除 sidecar |
 | runtime / context | 执行事件、进度、选入来源和预算、恢复引用 | Session/Run 表达执行；context 是派生工作集，不替代正式状态或完整来源 |
@@ -27,7 +27,7 @@ T03 所说“原目录不改”采纳；“sidecar 全部可删重建”收窄�
 
 ## 与当前工程的关系
 
-[执行文件状态合同](../../execution/2026-09-09-execution-state/backend-contract-draft.md)处理受信 Run recorded artifacts → 完整历史字节 → Core 的选定版本集合；本包处理用户资料 → 只读捕获 → 派生视图 → findings 的输入方向。两者共享历史与决定边界，不重复建设 ArtifactHistory、版本身份或接受服务。
+[执行文件状态合同](../../execution/2026-09-09-execution-state/backend-contract-draft.md)处理受信 Run recorded artifacts → 完整历史字节 → Core 的选定版本集合；本包处理用户资料 → 只读捕获 → 派生视图 → findings 的输入方向。两者共享来源可追溯与决定边界；ArtifactHistory当前只服务session内受信Run-recorded artifacts，不接收任意用户目录。未来Intake sidecar持有捕获字节/manifest，经明确绑定进入Core，不复制Core版本身份或接受服务。
 
 [SE 连续性协议](../se-continuity-2026-09-08/README.md)继续负责已有 S/E 条件、观察关系和续行证据；本包只补来源与检索维度，不另造“SE 总分”。[PAPER.md](../../../PAPER.md)固定独立 doctrine 来源；对话中的 SE 解释是研究输入，不更改论文或替代产品证据。
 
@@ -44,3 +44,5 @@ Astra 负责架构、合同冻结和集成；Luna 可承担独立、有界资料
 | [连续性入口](../../../benchmarks/continuity/courtwork.mjs)、[观察合同](../../../benchmarks/continuity/observation-contract.md) | 已有连续性测试不覆盖OCR、检索质量或索引性能；新维度单列 |
 
 Intake的host adapter负责显式读取scope与派生存储；观察目录不会自动建立Core正式来源绑定。选定来源集合须按现有绑定/权限接缝进入Core；OCR与索引结果只提供可验证依据，不直接成为决定真值。具体模块位置由LG-01合同冻结，以上映射不是已授予全service写权。
+
+文档校验与有界非作者复核见 [回执](verification.json)。
