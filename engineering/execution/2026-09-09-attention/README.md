@@ -1,6 +1,6 @@
 # ATT-BE-01 implementation contract
 
-Owner: Astra. Preparation began at clean `0b5ccd27e9d0be5940714e913f4fc197f9ec7a05`; implementation must start only after source Astra confirms ES integration. ES source inspected: `95cfb165ed368e8b4c6afca7ab5c8c838cb4653c` (product `b1ff74b08c053fa0e3ab47fb20f510eabb9440e9`). Source Astra owns main, current and the shared delivery ledger. This task owns its isolated Core/service change, contract and tests. No UI, provider, credential, scheduler, external effect, Paper or deployment work.
+Owner: Astra. Preparation began at clean `0b5ccd27e9d0be5940714e913f4fc197f9ec7a05`; source Astra confirmed ES integration at `fa90763a4da1cdede47778b6487c801c0acb74cc`, merged here as `f571464312bab567683e128fb8e6baf832298312` before Core/service implementation. ES source inspected: `95cfb165ed368e8b4c6afca7ab5c8c838cb4653c` (product `b1ff74b08c053fa0e3ab47fb20f510eabb9440e9`). Source Astra owns main, current and the shared delivery ledger. This task owns its isolated Core/service change, contract and tests. No UI, provider, credential, scheduler, external effect, Paper or deployment work.
 
 ## Decisions
 
@@ -33,3 +33,6 @@ Create payload is `{descriptor:{title,summary},reason,next_action,source_refs,re
 HTTP routes use the existing token protection: GET `/attention/registry?projectId=…`, GET `/attention/:id?projectId=…`, POST `/attention/query` with `{projectId,query}`, POST `/attention` with `{projectId,request}` for create, POST `/attention/:id/actions` with `{projectId,request}` for other actions. The path must match request identity. Unknown envelope fields (including actor/context) fail. A project selector is validated against the local host catalog and narrowed to one scope before Core access.
 
 Query schema_version is1; kinds are registry/inspect/exact/grep/relation/events/source/request. Single-object kinds require attention_id. Query filters and pagination are explicit and unknown fields fail. Registry/exact/grep/relation return only visible entries and visible counts; offsets refer to that visible result, not hidden database rows. Limit1–50, at most1000 objects per project and32KiB per stored object bound local scans; no unlimited capacity claim. Source reads are code-point pages up to4000 characters; event/receipt reads remain scoped and policy-checked. No raw external retrieval or semantic search is implemented.
+
+
+Actual implemented wire, state-specific action descriptors, scoped composite identity, integrity links and limits are frozen in [the consumer contract](../../../docs/work-core/attention.md). This page records the implementation decisions; the consumer contract supersedes preliminary omissions here.

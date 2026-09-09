@@ -97,6 +97,12 @@ function routeService(service, req, url) {
   const method = req.method ?? "GET";
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
+  if (tail[0] === 'attention') {
+    if (method === 'GET' && tail.length === 2) return () => service.readAttention(tail[1] === 'registry' ? null : tail[1],url.searchParams);
+    if (method === 'POST' && tail.length === 1) return async () => service.actOnAttention(null,await body(req));
+    if (method === 'POST' && tail.length === 2 && tail[1] === 'query') return async () => service.queryAttention(await body(req));
+    if (method === 'POST' && tail.length === 3 && tail[2] === 'actions') return async () => service.actOnAttention(tail[1],await body(req));
+  }
   if (method === "GET" && tail.length === 1 && tail[0] === "bootstrap") return service.bootstrap;
   if (method === "GET" && tail.length === 1 && tail[0] === "work-activity") return () => service.getWorkMetrics("activity", url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage") return () => service.getWorkMetrics("usage", url.searchParams);

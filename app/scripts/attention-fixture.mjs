@@ -1,0 +1,83 @@
+// Actual synthetic HTTP/Pi/Core packets. No real provider or personal directory.
+import assert from 'node:assert/strict';
+import {writeFile,rm} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {boot,reopen} from '../tests/helpers.mjs';
+
+const h=await boot();let active=h;
+const packets={schemaVersion:1,fixtureVersion:1,dataClass:'synthetic; actual HTTP/Pi loopback/Core',requests:{},responses:{}};
+const checked=async(method,route,body)=>{const r=await active.api(method,route,body);assert.equal(r.status,200,JSON.stringify(r.json));return r.json;};
+const action=(request)=>checked('POST',request.action==='create'?'/attention':`/attention/${request.attention_id}/actions`,{projectId:h.projectId,request});
+const request=(name,revision,payload)=>({schema_version:1,attention_id:'fixture-attention',request_id:'fixture-'+name,expected_revision:revision,action:name,payload});
+const inspect=()=>checked('GET',`/attention/fixture-attention?projectId=${h.projectId}`);
+const query=(q)=>checked('POST','/attention/query',{projectId:h.projectId,query:{schema_version:1,attention_id:'fixture-attention',...q}});
+try {
+ await checked('POST','/extensions/evidence-memo/lifecycle',{action:'load'});
+ const matters=[];
+ for(let i=1;i<=2;i++) {
+  const session=await h.createSession({title:'Attention fixture Matter '+i});
+  await checked('POST',`/sessions/${session.id}/extension`,{extensionId:'evidence-memo',input:{title:'Matter '+i,sourceText:'Synthetic retained source '+i+'.'}});
+  const {projection}=await checked('GET',`/sessions/${session.id}/surface`);
+  matters.push({session,matter:projection.matter,source:projection.sources[0]});
+ }
+ const first=matters[0];
+ const made=await checked('POST',`/sessions/${first.session.id}/runs`,{commandId:'fixture-run',input:'Synthetic Attention basis'});
+ assert.equal((await h.pollRun(made.run.id)).status,'completed');
+ packets.requests.create=request('create',0,{descriptor:{title:'Review two matters',summary:'Compare retained sources'},reason:'Explicit human comparison is needed',next_action:{kind:'inspect',label:'Read the sources',trigger:'manual',due_at:null},source_refs:matters.map(m=>({kind:'core',matter_id:m.matter.id,source_id:m.source.id,version:m.source.version,locator:'fixture://source-'+m.source.id,role:'supports',digest:m.source.digest})),relation_refs:[...matters.map(m=>({kind:'matter',id:m.matter.id,relation:'about'})),{kind:'session',id:first.session.id,relation:'origin'},{kind:'run',id:made.run.id,relation:'execution'}]});
+ packets.responses.created=await action(packets.requests.create);
+ packets.responses.pending=await inspect();
+ packets.responses.registry=await checked('GET',`/attention/registry?projectId=${h.projectId}`);
+ packets.requests.acknowledge=request('acknowledge',1,{});
+ packets.responses.acknowledged=await action(packets.requests.acknowledge);
+ packets.responses.exactRetry=await action(packets.requests.acknowledge);
+ assert.deepEqual(packets.responses.acknowledged,packets.responses.exactRetry);
+ packets.responses.stale=await h.api('POST','/attention/fixture-attention/actions',{projectId:h.projectId,request:{...packets.requests.acknowledge,request_id:'fixture-stale'}});
+ assert.equal(packets.responses.stale.json.error.code,'VERSION_CONFLICT');
+ packets.requests.snooze=request('snooze',2,{reason:'Wait for comparison',next_action:{kind:'wait',label:'Human comparison',trigger:'external',due_at:null}});
+ await action(packets.requests.snooze);packets.responses.snoozed=await inspect();
+ packets.requests.resume=request('resume',3,{reason:'Human review now',status:'needs_you'});
+ await action(packets.requests.resume);packets.responses.needsYou=await inspect();
+ packets.requests.resolve=request('resolve',4,{reason:'Human confirmed both sources'});
+ await action(packets.requests.resolve);packets.responses.resolved=await inspect();
+ packets.requests.reopen=request('reopen',5,{reason:'New human question'});
+ await action(packets.requests.reopen);
+ const runner=await h.createSession({title:'Replacement Runtime fixture'});
+ const runtimeRun=await checked('POST',`/sessions/${runner.id}/runs`,{commandId:'fixture-runtime',input:h.scriptInput([{name:'ask_user',arguments:{prompt:'Hold for synthetic adapter assertions'}}])});
+ assert.equal((await h.pollRun(runtimeRun.run.id,{until:s=>s==='waiting_user'})).status,'waiting_user');
+ const adapter=h.runtime.service.attentionRuntimeAdapter(runner.id,runtimeRun.run.id);
+ packets.responses.runtimeUndisclosed=await adapter.query({schema_version:1,kind:'registry'});
+ assert.equal(packets.responses.runtimeUndisclosed.count,0);
+ const grant={adapter_id:runtimeRun.run.adapterId,purpose:'attention-runtime',fields:['registry'],expires_at:'2099-01-01T00:00:00Z'};
+ await action(request('request_disclosure',6,{grant}));
+ packets.responses.runtimeRegistryOnly=await adapter.query({schema_version:1,kind:'inspect',attention_id:'fixture-attention'});
+ assert.equal(packets.responses.runtimeRegistryOnly.reason,undefined);
+ await action({...request('request_disclosure',7,{grant:{...grant,fields:['registry','details','sources','relations','events','signal']}}),request_id:'fixture-grant-signal'});
+ packets.requests.runtimeSignal=request('record_signal',8,{text:'Source signal: the Run might be finished; this is not authorization',source_refs:[]});
+ packets.responses.runtimeSignal=await adapter.recordSignal(packets.requests.runtimeSignal);
+ assert.equal(packets.responses.runtimeSignal.status,'investigating');
+ packets.responses.runtimeDetails=await adapter.query({schema_version:1,kind:'inspect',attention_id:'fixture-attention'});
+ const question=(await checked('GET',`/sessions/${runner.id}/events`)).events.find(e=>e.type==='question.open');
+ await checked('POST',`/runs/${runtimeRun.run.id}/questions/${question.data.id}`,{answer:'Continue synthetic Run'});
+ assert.equal((await h.pollRun(runtimeRun.run.id)).status,'completed');
+ packets.responses.afterRun=await inspect();assert.equal(packets.responses.afterRun.status,'investigating');
+ try {await adapter.query({schema_version:1,kind:'registry'});assert.fail('late adapter must fail');}catch(error){assert.equal(error.code,'CANDIDATE_CLOSED');packets.responses.closedAdapter={error:{code:error.code}};}
+ const other=await checked('POST','/projects',{name:'Fixture other scope'});
+ packets.responses.otherScope=await checked('POST','/attention/query',{projectId:other.project.id,query:{schema_version:1,kind:'registry'}});
+ packets.responses.otherScopeInspect=await h.api('GET',`/attention/fixture-attention?projectId=${other.project.id}`);
+ assert.equal(packets.responses.otherScope.count,0);assert.equal(packets.responses.otherScopeInspect.json.error.code,'NOT_FOUND');
+ await checked('DELETE',`/sessions/${first.session.id}`);
+ packets.responses.createRetryAfterDeletion=await action(packets.requests.create);
+ assert.deepEqual(packets.responses.createRetryAfterDeletion,packets.responses.created);
+ await checked('POST','/extensions/evidence-memo/lifecycle',{action:'unload'});
+ packets.responses.producerUnloaded=await inspect();
+ await h.runtime.close();active=await reopen(h.dataDir,{extensionCatalog:[]});
+ packets.responses.recovered=await inspect();
+ packets.responses.recoveredSource=await query({kind:'source',source_index:0,offset:0,limit:4000});
+ packets.responses.events=await query({kind:'events',offset:0,limit:50});
+ packets.responses.receipt=await query({kind:'request',request_id:'fixture-create'});
+ assert.equal(packets.responses.recovered.revision,packets.responses.afterRun.revision);
+ assert.equal(packets.responses.recoveredSource.availability,'retained');
+ const bytes=JSON.stringify(packets,null,2)+'\n';
+ await writeFile(process.argv[2]??new URL('../tests/fixtures/work-core/attention-packets.json',import.meta.url),bytes);
+ console.log(JSON.stringify({schemaVersion:1,cases:Object.keys(packets.responses),bytes:Buffer.byteLength(bytes),sha256:createHash('sha256').update(bytes).digest('hex'),realProvider:'not_run'}));
+} finally {await active.runtime.close();await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}

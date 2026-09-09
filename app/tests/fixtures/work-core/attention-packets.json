@@ -1,0 +1,3403 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": 1,
+  "dataClass": "synthetic; actual HTTP/Pi loopback/Core",
+  "requests": {
+    "create": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-create",
+      "expected_revision": 0,
+      "action": "create",
+      "payload": {
+        "descriptor": {
+          "title": "Review two matters",
+          "summary": "Compare retained sources"
+        },
+        "reason": "Explicit human comparison is needed",
+        "next_action": {
+          "kind": "inspect",
+          "label": "Read the sources",
+          "trigger": "manual",
+          "due_at": null
+        },
+        "source_refs": [
+          {
+            "kind": "core",
+            "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+            "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+            "version": 1,
+            "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+            "role": "supports",
+            "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0"
+          },
+          {
+            "kind": "core",
+            "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+            "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+            "version": 1,
+            "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+            "role": "supports",
+            "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b"
+          }
+        ],
+        "relation_refs": [
+          {
+            "kind": "matter",
+            "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+            "relation": "about"
+          },
+          {
+            "kind": "matter",
+            "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+            "relation": "about"
+          },
+          {
+            "kind": "session",
+            "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+            "relation": "origin"
+          },
+          {
+            "kind": "run",
+            "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+            "relation": "execution"
+          }
+        ]
+      }
+    },
+    "acknowledge": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-acknowledge",
+      "expected_revision": 1,
+      "action": "acknowledge",
+      "payload": {}
+    },
+    "snooze": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-snooze",
+      "expected_revision": 2,
+      "action": "snooze",
+      "payload": {
+        "reason": "Wait for comparison",
+        "next_action": {
+          "kind": "wait",
+          "label": "Human comparison",
+          "trigger": "external",
+          "due_at": null
+        }
+      }
+    },
+    "resume": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-resume",
+      "expected_revision": 3,
+      "action": "resume",
+      "payload": {
+        "reason": "Human review now",
+        "status": "needs_you"
+      }
+    },
+    "resolve": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-resolve",
+      "expected_revision": 4,
+      "action": "resolve",
+      "payload": {
+        "reason": "Human confirmed both sources"
+      }
+    },
+    "reopen": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-reopen",
+      "expected_revision": 5,
+      "action": "reopen",
+      "payload": {
+        "reason": "New human question"
+      }
+    },
+    "runtimeSignal": {
+      "schema_version": 1,
+      "attention_id": "fixture-attention",
+      "request_id": "fixture-record_signal",
+      "expected_revision": 8,
+      "action": "record_signal",
+      "payload": {
+        "text": "Source signal: the Run might be finished; this is not authorization",
+        "source_refs": []
+      }
+    }
+  },
+  "responses": {
+    "created": {
+      "attention_id": "fixture-attention",
+      "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+      "request_id": "fixture-create",
+      "revision": 1,
+      "schema_version": 1,
+      "status": "investigating"
+    },
+    "pending": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 1,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "unknown",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 1,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Read the sources",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": null,
+        "version": 1
+      },
+      "reason": "Explicit human comparison is needed",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 1,
+      "schema_version": 1,
+      "seen": false,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.004+00:00"
+    },
+    "registry": {
+      "count": 1,
+      "disclosure": {
+        "count_scope": "visible",
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "items": [
+        {
+          "attention_id": "fixture-attention",
+          "descriptor": {
+            "title": "Review two matters"
+          },
+          "disclosure": {
+            "fields": [
+              "details",
+              "events",
+              "registry",
+              "relations",
+              "signal",
+              "sources"
+            ],
+            "policy": "local-attention-v1",
+            "purpose": "human-attention"
+          },
+          "freshness": "unknown",
+          "revision": 1,
+          "schema_version": 1,
+          "status": "investigating",
+          "updated_at": "2026-09-09T15:13:19.004+00:00"
+        }
+      ],
+      "next_offset": null,
+      "offset": 0,
+      "schema_version": 1,
+      "truncated": false
+    },
+    "acknowledged": {
+      "attention_id": "fixture-attention",
+      "event_id": "attevt-e560ea1f-01c8-4c4b-8a59-bf21a44139ef",
+      "request_id": "fixture-acknowledge",
+      "revision": 2,
+      "schema_version": 1,
+      "status": "investigating"
+    },
+    "exactRetry": {
+      "attention_id": "fixture-attention",
+      "event_id": "attevt-e560ea1f-01c8-4c4b-8a59-bf21a44139ef",
+      "request_id": "fixture-acknowledge",
+      "revision": 2,
+      "schema_version": 1,
+      "status": "investigating"
+    },
+    "stale": {
+      "status": 409,
+      "json": {
+        "error": {
+          "code": "VERSION_CONFLICT",
+          "message": "VERSION_CONFLICT: Attention revision changed"
+        }
+      }
+    },
+    "snoozed": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-3de48d64-f9d3-4ea4-b23d-829b2f70b772",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 3,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "current",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 3,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-3de48d64-f9d3-4ea4-b23d-829b2f70b772",
+      "next_action": {
+        "due_at": null,
+        "kind": "wait",
+        "label": "Human comparison",
+        "trigger": "external"
+      },
+      "policy": {
+        "grant": null,
+        "version": 1
+      },
+      "reason": "Wait for comparison",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 3,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "later",
+      "updated_at": "2026-09-09T15:13:19.011+00:00"
+    },
+    "needsYou": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-eea00f12-facf-4583-bf43-9da11c496037",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 4,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "current",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 4,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-eea00f12-facf-4583-bf43-9da11c496037",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Inspect",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": null,
+        "version": 1
+      },
+      "reason": "Human review now",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 4,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "needs_you",
+      "updated_at": "2026-09-09T15:13:19.013+00:00"
+    },
+    "resolved": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-03c4f906-064c-4da3-9c2f-5f59e6d8ea80",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 5,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "current",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 5,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 5,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "reopen",
+          "expected_revision": 5,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 5,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-03c4f906-064c-4da3-9c2f-5f59e6d8ea80",
+      "next_action": {
+        "due_at": null,
+        "kind": "none",
+        "label": "No next action",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": null,
+        "version": 1
+      },
+      "reason": "Human confirmed both sources",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 5,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "resolved",
+      "updated_at": "2026-09-09T15:13:19.014+00:00"
+    },
+    "runtimeUndisclosed": {
+      "count": 0,
+      "disclosure": {
+        "count_scope": "visible",
+        "policy": "local-attention-v1",
+        "purpose": "attention-runtime"
+      },
+      "items": [],
+      "next_offset": null,
+      "offset": 0,
+      "schema_version": 1,
+      "truncated": false
+    },
+    "runtimeRegistryOnly": {
+      "attention_id": "fixture-attention",
+      "descriptor": {
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "registry"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "attention-runtime"
+      },
+      "freshness": "current",
+      "revision": 7,
+      "schema_version": 1,
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.364+00:00"
+    },
+    "runtimeSignal": {
+      "attention_id": "fixture-attention",
+      "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+      "request_id": "fixture-record_signal",
+      "revision": 9,
+      "schema_version": 1,
+      "status": "investigating"
+    },
+    "runtimeDetails": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 9,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "attention-runtime"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "unknown",
+      "last_event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Inspect",
+        "trigger": "manual"
+      },
+      "reason": "New human question",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 9,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.418+00:00"
+    },
+    "afterRun": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 9,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "unknown",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Inspect",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "expires_at": "2099-01-01T00:00:00Z",
+          "fields": [
+            "registry",
+            "details",
+            "sources",
+            "relations",
+            "events",
+            "signal"
+          ],
+          "issued_revision": 8,
+          "purpose": "attention-runtime"
+        },
+        "version": 3
+      },
+      "reason": "New human question",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 9,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.418+00:00"
+    },
+    "closedAdapter": {
+      "error": {
+        "code": "CANDIDATE_CLOSED"
+      }
+    },
+    "otherScope": {
+      "count": 0,
+      "disclosure": {
+        "count_scope": "visible",
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "items": [],
+      "next_offset": null,
+      "offset": 0,
+      "schema_version": 1,
+      "truncated": false
+    },
+    "otherScopeInspect": {
+      "status": 409,
+      "json": {
+        "error": {
+          "code": "NOT_FOUND",
+          "message": "NOT_FOUND: Attention unavailable"
+        }
+      }
+    },
+    "createRetryAfterDeletion": {
+      "attention_id": "fixture-attention",
+      "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+      "request_id": "fixture-create",
+      "revision": 1,
+      "schema_version": 1,
+      "status": "investigating"
+    },
+    "producerUnloaded": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 9,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "unknown",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Inspect",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "expires_at": "2099-01-01T00:00:00Z",
+          "fields": [
+            "registry",
+            "details",
+            "sources",
+            "relations",
+            "events",
+            "signal"
+          ],
+          "issued_revision": 8,
+          "purpose": "attention-runtime"
+        },
+        "version": 3
+      },
+      "reason": "New human question",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 9,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.418+00:00"
+    },
+    "recovered": {
+      "attention_id": "fixture-attention",
+      "basis": {
+        "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+        "execution_availability": "historical_observation_only",
+        "external_availability": "unknown",
+        "revision": 9,
+        "sources": "exact_version_refs"
+      },
+      "descriptor": {
+        "summary": "Compare retained sources",
+        "title": "Review two matters"
+      },
+      "disclosure": {
+        "fields": [
+          "details",
+          "events",
+          "registry",
+          "relations",
+          "signal",
+          "sources"
+        ],
+        "policy": "local-attention-v1",
+        "purpose": "human-attention"
+      },
+      "execution_provenance": [
+        {
+          "adapter_id": null,
+          "availability": "observed",
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        },
+        {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "availability": "observed",
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "observed_at": "2026-09-09T15:13:19.003Z",
+          "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+          "session_id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964"
+        }
+      ],
+      "freshness": "unknown",
+      "human_actions": [
+        {
+          "action": "acknowledge",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {},
+            "required": [],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "attach_relation",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "enum": [
+                  "add",
+                  "remove"
+                ]
+              },
+              "relation": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "matter",
+                      "session",
+                      "run",
+                      "external"
+                    ]
+                  },
+                  "relation": {
+                    "enum": [
+                      "about",
+                      "execution",
+                      "origin"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "relation"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "operation",
+              "relation"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "request_disclosure",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "grant": {
+                "additionalProperties": false,
+                "properties": {
+                  "adapter_id": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "expires_at": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "fields": {
+                    "items": {
+                      "enum": [
+                        "details",
+                        "events",
+                        "registry",
+                        "relations",
+                        "signal",
+                        "sources"
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "purpose": {
+                    "const": "attention-runtime"
+                  }
+                },
+                "required": [
+                  "adapter_id",
+                  "purpose",
+                  "fields",
+                  "expires_at"
+                ],
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "grant"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resolve",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "resume",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "investigating",
+                  "needs_you"
+                ]
+              }
+            },
+            "required": [
+              "reason"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "set_waiting",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        },
+        {
+          "action": "snooze",
+          "expected_revision": 9,
+          "payload_schema": {
+            "additionalProperties": false,
+            "properties": {
+              "next_action": {
+                "additionalProperties": false,
+                "properties": {
+                  "due_at": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "inspect",
+                      "decide",
+                      "wait",
+                      "follow_up",
+                      "none"
+                    ]
+                  },
+                  "label": {
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "enum": [
+                      "manual",
+                      "at",
+                      "after",
+                      "external"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label",
+                  "trigger",
+                  "due_at"
+                ],
+                "type": "object"
+              },
+              "reason": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "next_action"
+            ],
+            "type": "object"
+          },
+          "schema_version": 1
+        }
+      ],
+      "last_event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+      "next_action": {
+        "due_at": null,
+        "kind": "inspect",
+        "label": "Inspect",
+        "trigger": "manual"
+      },
+      "policy": {
+        "grant": {
+          "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+          "expires_at": "2099-01-01T00:00:00Z",
+          "fields": [
+            "registry",
+            "details",
+            "sources",
+            "relations",
+            "events",
+            "signal"
+          ],
+          "issued_revision": 8,
+          "purpose": "attention-runtime"
+        },
+        "version": 3
+      },
+      "reason": "New human question",
+      "relation_refs": [
+        {
+          "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "kind": "matter",
+          "relation": "about"
+        },
+        {
+          "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+          "kind": "session",
+          "relation": "origin"
+        },
+        {
+          "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+          "kind": "run",
+          "relation": "execution"
+        }
+      ],
+      "revision": 9,
+      "schema_version": 1,
+      "seen": true,
+      "source_refs": [
+        {
+          "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+          "kind": "core",
+          "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+          "role": "supports",
+          "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+          "version": 1
+        },
+        {
+          "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+          "kind": "core",
+          "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+          "role": "supports",
+          "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+          "version": 1
+        }
+      ],
+      "status": "investigating",
+      "updated_at": "2026-09-09T15:13:19.418+00:00"
+    },
+    "recoveredSource": {
+      "availability": "retained",
+      "end": 28,
+      "length": 28,
+      "next_offset": null,
+      "offset": 0,
+      "revision": 9,
+      "schema_version": 1,
+      "source": {
+        "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+        "kind": "core",
+        "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+        "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+        "role": "supports",
+        "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+        "version": 1
+      },
+      "text": "Synthetic retained source 1."
+    },
+    "events": {
+      "events": [
+        {
+          "action": "create",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+          "payload": {
+            "descriptor": {
+              "summary": "Compare retained sources",
+              "title": "Review two matters"
+            },
+            "next_action": {
+              "due_at": null,
+              "kind": "inspect",
+              "label": "Read the sources",
+              "trigger": "manual"
+            },
+            "reason": "Explicit human comparison is needed",
+            "relation_refs": [
+              {
+                "id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+                "kind": "matter",
+                "relation": "about"
+              },
+              {
+                "id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+                "kind": "matter",
+                "relation": "about"
+              },
+              {
+                "id": "bf913ddd-e73e-4bb8-a1a7-2e54fedc9964",
+                "kind": "session",
+                "relation": "origin"
+              },
+              {
+                "id": "63c1a02d-fda5-4809-b5c3-3b2fc030cfc2",
+                "kind": "run",
+                "relation": "execution"
+              }
+            ],
+            "source_refs": [
+              {
+                "digest": "768293e2a89868976f2333b8af1b98fe48bc03546de5ec6334b60e75aeeb84f0",
+                "kind": "core",
+                "locator": "fixture://source-source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+                "matter_id": "matter-3598f75b-14a8-4c03-9d5c-53f0f8783380",
+                "role": "supports",
+                "source_id": "source-8031294e-5ff9-4b02-95e5-40b9891ba7a5",
+                "version": 1
+              },
+              {
+                "digest": "0a1ed1f4c23a37362e7fa4ba9bc9800c4ece4e72ea9810668a8809c33409a90b",
+                "kind": "core",
+                "locator": "fixture://source-source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+                "matter_id": "matter-b388c55c-cf27-4bb2-9376-e8a69321ab96",
+                "role": "supports",
+                "source_id": "source-74d8cd94-dc55-46dc-8a15-419de4d1b0e0",
+                "version": 1
+              }
+            ]
+          },
+          "previous_revision": 0,
+          "recorded_at": "2026-09-09T15:13:19.004+00:00",
+          "request_id": "fixture-create",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+            "request_id": "fixture-create",
+            "revision": 1,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 1,
+          "schema_version": 1,
+          "state_digest": "4ee696d7c8b22cac2eb7b44d5a8f43173f9b2a80eb2d0a10d88ad5d5b76af45a"
+        },
+        {
+          "action": "acknowledge",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-e560ea1f-01c8-4c4b-8a59-bf21a44139ef",
+          "payload": {},
+          "previous_revision": 1,
+          "recorded_at": "2026-09-09T15:13:19.007+00:00",
+          "request_id": "fixture-acknowledge",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-e560ea1f-01c8-4c4b-8a59-bf21a44139ef",
+            "request_id": "fixture-acknowledge",
+            "revision": 2,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 2,
+          "schema_version": 1,
+          "state_digest": "1a5aac0edb76115bac890a4cf0d3cb68784a3a17f9086a874e24cdf10149ff0c"
+        },
+        {
+          "action": "snooze",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-3de48d64-f9d3-4ea4-b23d-829b2f70b772",
+          "payload": {
+            "next_action": {
+              "due_at": null,
+              "kind": "wait",
+              "label": "Human comparison",
+              "trigger": "external"
+            },
+            "reason": "Wait for comparison"
+          },
+          "previous_revision": 2,
+          "recorded_at": "2026-09-09T15:13:19.011+00:00",
+          "request_id": "fixture-snooze",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-3de48d64-f9d3-4ea4-b23d-829b2f70b772",
+            "request_id": "fixture-snooze",
+            "revision": 3,
+            "schema_version": 1,
+            "status": "later"
+          },
+          "revision": 3,
+          "schema_version": 1,
+          "state_digest": "9aae7e8b14236274e5181d485283b6f286fc19e683ca8a0baeaecc128f36aa30"
+        },
+        {
+          "action": "resume",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-eea00f12-facf-4583-bf43-9da11c496037",
+          "payload": {
+            "reason": "Human review now",
+            "status": "needs_you"
+          },
+          "previous_revision": 3,
+          "recorded_at": "2026-09-09T15:13:19.013+00:00",
+          "request_id": "fixture-resume",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-eea00f12-facf-4583-bf43-9da11c496037",
+            "request_id": "fixture-resume",
+            "revision": 4,
+            "schema_version": 1,
+            "status": "needs_you"
+          },
+          "revision": 4,
+          "schema_version": 1,
+          "state_digest": "3a1ce470b4f11efb269988747de7e295ac9a34ce80fd1405a8458780c6e26fac"
+        },
+        {
+          "action": "resolve",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-03c4f906-064c-4da3-9c2f-5f59e6d8ea80",
+          "payload": {
+            "reason": "Human confirmed both sources"
+          },
+          "previous_revision": 4,
+          "recorded_at": "2026-09-09T15:13:19.014+00:00",
+          "request_id": "fixture-resolve",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-03c4f906-064c-4da3-9c2f-5f59e6d8ea80",
+            "request_id": "fixture-resolve",
+            "revision": 5,
+            "schema_version": 1,
+            "status": "resolved"
+          },
+          "revision": 5,
+          "schema_version": 1,
+          "state_digest": "7d157cce9c63ce2cf5725a2252b7c5d4123ab7fc9c9f2e73cc238be27ad96482"
+        },
+        {
+          "action": "reopen",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-43485e5d-10da-4b48-b294-4e3208d3bb74",
+          "payload": {
+            "reason": "New human question"
+          },
+          "previous_revision": 5,
+          "recorded_at": "2026-09-09T15:13:19.016+00:00",
+          "request_id": "fixture-reopen",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-43485e5d-10da-4b48-b294-4e3208d3bb74",
+            "request_id": "fixture-reopen",
+            "revision": 6,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 6,
+          "schema_version": 1,
+          "state_digest": "9e488a9b395ba54ca051071b8058344141982a75652d021603df1867eb2f5f60"
+        },
+        {
+          "action": "request_disclosure",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-2017978b-3900-427f-89cd-b8743855ea9c",
+          "payload": {
+            "grant": {
+              "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+              "expires_at": "2099-01-01T00:00:00Z",
+              "fields": [
+                "registry"
+              ],
+              "purpose": "attention-runtime"
+            }
+          },
+          "previous_revision": 6,
+          "recorded_at": "2026-09-09T15:13:19.364+00:00",
+          "request_id": "fixture-request_disclosure",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-2017978b-3900-427f-89cd-b8743855ea9c",
+            "request_id": "fixture-request_disclosure",
+            "revision": 7,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 7,
+          "schema_version": 1,
+          "state_digest": "ecfc9d360cdcdbdc641719d87e3aa365c858b7332c4dcfabf90b2057d5cdf11d"
+        },
+        {
+          "action": "request_disclosure",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "local-user",
+            "execution": null,
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "human-attention"
+          },
+          "event_id": "attevt-bc218105-e4f8-4711-8cc0-657e32eecf1b",
+          "payload": {
+            "grant": {
+              "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+              "expires_at": "2099-01-01T00:00:00Z",
+              "fields": [
+                "registry",
+                "details",
+                "sources",
+                "relations",
+                "events",
+                "signal"
+              ],
+              "purpose": "attention-runtime"
+            }
+          },
+          "previous_revision": 7,
+          "recorded_at": "2026-09-09T15:13:19.416+00:00",
+          "request_id": "fixture-grant-signal",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-bc218105-e4f8-4711-8cc0-657e32eecf1b",
+            "request_id": "fixture-grant-signal",
+            "revision": 8,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 8,
+          "schema_version": 1,
+          "state_digest": "7807ebda245d85aedebb8f81b14d52018b62bcc4a570e4a6c6247d34eb4d7072"
+        },
+        {
+          "action": "record_signal",
+          "attention_id": "fixture-attention",
+          "context": {
+            "actor": "runtime",
+            "execution": {
+              "adapter_id": "pi-coding-agent@0.85.1/agent-session",
+              "run_id": "2574adea-f42d-4b15-af64-776026fc2e21",
+              "session_id": "f6e19aed-3547-4a14-b46d-3dca309fea4c"
+            },
+            "project_id": "0704ad92-b204-4254-ab93-64234cae1692",
+            "purpose": "attention-runtime"
+          },
+          "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+          "payload": {
+            "source_refs": [],
+            "text": "Source signal: the Run might be finished; this is not authorization"
+          },
+          "previous_revision": 8,
+          "recorded_at": "2026-09-09T15:13:19.418+00:00",
+          "request_id": "fixture-record_signal",
+          "result": {
+            "attention_id": "fixture-attention",
+            "event_id": "attevt-84007e2a-ce4e-4a19-82cb-68bc0fa4bf69",
+            "request_id": "fixture-record_signal",
+            "revision": 9,
+            "schema_version": 1,
+            "status": "investigating"
+          },
+          "revision": 9,
+          "schema_version": 1,
+          "state_digest": "51b36ec198ef3e64f09903b2fee9b8635ad1aad2cdadf29e9173285995248e21"
+        }
+      ],
+      "next_offset": null,
+      "revision": 9,
+      "schema_version": 1,
+      "truncated": false
+    },
+    "receipt": {
+      "result": {
+        "attention_id": "fixture-attention",
+        "event_id": "attevt-c2ccc476-912f-40ff-b6dc-c46f5f1112ca",
+        "request_id": "fixture-create",
+        "revision": 1,
+        "schema_version": 1,
+        "status": "investigating"
+      },
+      "schema_version": 1
+    }
+  }
+}

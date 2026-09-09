@@ -324,7 +324,7 @@ class Store(FileCandidateMixin):
         self.conn.row_factory = sqlite3.Row
         self._configure()
         schema_version = self.conn.execute("PRAGMA user_version").fetchone()[0]
-        if schema_version > 2:
+        if schema_version > 3:
             self.conn.close()
             raise CoreError("SCHEMA_NEWER", f"unsupported user_version={schema_version}")
 

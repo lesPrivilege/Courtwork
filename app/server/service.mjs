@@ -1,3 +1,4 @@
+import { createAttentionAdapter } from '../extensions/attention-adapter.mjs';
 import { utcDateRange } from "./work-metrics.mjs";
 import { previewProvider, PreviewInputError } from './provider-preview.mjs';
 import { workProjection } from '../core/owner.mjs';
@@ -725,6 +726,62 @@ export class RuntimeService {
       // workspace/journal bytes are retained; this is not secure erasure.
       return this.store.deleteSession(sessionId);
     });
+  }
+
+  #attentionContext(projectId) {
+    text(projectId, 'projectId', {max:200});
+    if (!this.store.listProjects().some(p => p.id === projectId)) throw new ServiceError(404,'not_found','project not found');
+    return {actor:'local-user',project_id:projectId,purpose:'human-attention',execution:null};
+  }
+
+  async queryAttention(input) {
+    const value=requireObject(input,'body');
+    assertKeys(value,new Set(['projectId','query']));
+    return this.workCore.call('attention_query',{context:this.#attentionContext(value.projectId),query:requireObject(value.query,'query')});
+  }
+
+  async readAttention(attentionId, params) {
+    for (const key of params.keys()) if (key!=='projectId' || params.getAll(key).length!==1) throw new ServiceError(400,'invalid_input','invalid Attention query');
+    return this.queryAttention({projectId:params.get('projectId'),query:{schema_version:1,kind:attentionId===null?'registry':'inspect',...(attentionId===null?{}:{attention_id:attentionId})}});
+  }
+
+  async actOnAttention(attentionId, input) {
+    const value=requireObject(input,'body');
+    assertKeys(value,new Set(['projectId','request']));
+    const request=requireObject(value.request,'request');
+    const context=this.#attentionContext(value.projectId);
+    if ((attentionId===null && request.action!=='create') || (attentionId!==null && (request.attention_id!==attentionId || request.action==='create'))) throw new ServiceError(400,'invalid_input','Attention route/action mismatch');
+    if (request.action==='record_signal') throw new ServiceError(400,'invalid_input','signals require the Runtime adapter');
+    // Serialize catalog observations with deletion so an execution reference is
+    // captured from this project's real retained records before Core commits.
+    return this.#withConfiguration(async () => {
+      // Reconcile a committed request before re-reading replaceable execution
+      // records: exact retries remain valid after their Session was deleted.
+      try {
+        const receipt=await this.workCore.call('attention_query',{context,query:{schema_version:1,kind:'request',attention_id:request.attention_id,request_id:request.request_id}});
+        if (receipt.result) return this.workCore.call('attention_action',{context,request,provenance:[]});
+      } catch (error) { if (error.code!=='NOT_FOUND') throw error; }
+      const refs=request.action==='create'?request.payload?.relation_refs:request.action==='attach_relation' && request.payload?.operation==='add'?[request.payload.relation]:[];
+      const provenance=[];
+      if (Array.isArray(refs)) for (const ref of refs) {
+        if (!ref || !['session','run'].includes(ref.kind)) continue;
+        const run=ref.kind==='run'?this.store.getRun(ref.id):null;
+        const session=this.store.getSession(ref.kind==='run'?run?.sessionId:ref.id);
+        if (!session || session.projectId!==value.projectId) throw new ServiceError(404,'not_found','relation unavailable');
+        if (!provenance.some(p=>p.kind===ref.kind && p.id===ref.id)) provenance.push({kind:ref.kind,id:ref.id,project_id:session.projectId,session_id:session.id,adapter_id:run?.adapterId??null,observed_at:new Date().toISOString(),availability:'observed'});
+      }
+      return this.workCore.call('attention_action',{context,request,provenance});
+    });
+  }
+
+  attentionRuntimeAdapter(sessionId, runId) {
+    // No HTTP route exposes this constructor. A captured execution identity is
+    // rechecked before each capability call; caller/model payload cannot swap it.
+    return createAttentionAdapter({core:this.workCore,getExecution:()=>{
+      const session=this.store.getSession(sessionId), run=this.store.getRun(runId);
+      if (!session || !run || run.sessionId!==sessionId) return null;
+      return {projectId:session.projectId,sessionId,runId,adapterId:run.adapterId,admissionOpen:run.admissionOpen && ['running','waiting_user'].includes(run.status)};
+    }});
   }
 
   async listWork(projectId) {

@@ -43,8 +43,11 @@ from core import (
 
 from file_candidates import FILE_SCHEMA, FILE_CONTRACT
 
-APP_SCHEMA_VERSION = 3
-CORE_SCHEMA_VERSION = 2
+from attention import ATTENTION_SCHEMA
+import attention
+
+APP_SCHEMA_VERSION = 4
+CORE_SCHEMA_VERSION = 3
 RUN_STATUSES = frozenset({"running", "stopping", "completed", "failed", "cancelled", "unknown"})
 ACTIVE_RUN_STATUSES = frozenset({"running", "stopping"})
 PUBLIC_PROVIDER_KEYS = frozenset({
@@ -202,11 +205,15 @@ def validate_owned_schema(conn: sqlite3.Connection, app_version: str, *, complet
     reference = sqlite3.connect(':memory:')
     try:
         reference.executescript(SCHEMA)
-        for statement in FILE_SCHEMA + APP_SCHEMA: reference.execute(statement)
+        for statement in FILE_SCHEMA + APP_SCHEMA + ATTENTION_SCHEMA: reference.execute(statement)
         file_tables = {'file_run_basis','candidate_file_bundle','candidate_file','candidate_verification','artifact_file_bundle'}
         optional_v1 = {'source_history','app_run_context','app_work_data','app_work_scope'}
         known = required_tables(reference) - {'sqlite_sequence'}
-        expected = known if complete or app_version == '3' else known - file_tables
+        attention_tables = {'attention','attention_event','attention_request'}
+        expected = known if app_version == '4' else known - attention_tables
+        if app_version in {'1','2'} and not complete: expected -= file_tables
+        if app_version != '4' and present_attention(conn):
+            raise CoreError('SCHEMA_INVALID','Attention tables found in older schema')
         present = required_tables(conn)
         if app_version in {'1','2'} and not complete and present & file_tables:
             raise CoreError('SCHEMA_INVALID','file tables found in an older schema')
@@ -232,7 +239,11 @@ def validate_owned_schema(conn: sqlite3.Connection, app_version: str, *, complet
         reference.close()
 
 
-def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
+def present_attention(conn):
+    return required_tables(conn) & {'attention','attention_event','attention_request'}
+
+
+def ensure_file_schema(store: Store, *, allow_initialize: bool = False) -> None:
     tables = required_tables(store.conn)
     core_tables = {"meta", "matter", "source", "source_set", "candidate", "artifact", "request_result", "decision", "audit", "event"}
     if not core_tables.issubset(tables):
@@ -279,15 +290,48 @@ def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
                 version = int(existing[0])
             except (TypeError, ValueError) as exc:
                 raise CoreError("SCHEMA_INVALID", "invalid app schema version") from exc
-            if version not in {1, 2, APP_SCHEMA_VERSION}:
+            if version not in {1, 2, 3}:
                 raise CoreError("SCHEMA_NEWER", f"unsupported app_schema_version={version}")
         store.conn.execute(
             "INSERT OR REPLACE INTO app_meta(key,value) VALUES('schema_version',?)",
-            (str(APP_SCHEMA_VERSION),),
+            (str(3),),
         )
-        validate_owned_schema(store.conn,str(APP_SCHEMA_VERSION),complete=True)
-        store.conn.execute("UPDATE meta SET value=? WHERE key='schema_version'",(str(CORE_SCHEMA_VERSION),))
-        store.conn.execute(f"PRAGMA user_version={CORE_SCHEMA_VERSION}")
+        validate_owned_schema(store.conn,str(3),complete=True)
+        store.conn.execute("UPDATE meta SET value=? WHERE key='schema_version'",(str(2),))
+        store.conn.execute(f"PRAGMA user_version={2}")
+        store.conn.commit()
+    except Exception:
+        store.conn.rollback()
+        raise
+
+
+def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
+    tables=required_tables(store.conn)
+    prior=store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in tables else None
+    if prior and prior[0]=='4':
+        validate_owned_schema(store.conn,'4',complete=True)
+        return
+    if not allow_initialize and os.path.lexists(str(store.db_path)+'.pre-attention-core-v3-app-v4.bak'):
+        raise CoreError('SCHEMA_INVALID','Attention migration backup already exists')
+    if not prior or prior[0]!='3':
+        ensure_file_schema(store,allow_initialize=allow_initialize)
+    validate_owned_schema(store.conn,'3',complete=True)
+    if not allow_initialize:
+        backup=Path(str(store.db_path)+'.pre-attention-core-v3-app-v4.bak')
+        # Exclusive creation also refuses dangling symlinks and never unlinks a
+        # preexisting recovery copy. The database lock serializes host migration.
+        fd=os.open(backup,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
+        os.close(fd)
+        target=sqlite3.connect(backup)
+        try: store.conn.backup(target)
+        finally: target.close()
+    store.conn.execute('BEGIN IMMEDIATE')
+    try:
+        for statement in ATTENTION_SCHEMA: store.conn.execute(statement)
+        validate_owned_schema(store.conn,'4',complete=True)
+        store.conn.execute("UPDATE app_meta SET value='4' WHERE key='schema_version'")
+        store.conn.execute("UPDATE meta SET value='3' WHERE key='schema_version'")
+        store.conn.execute('PRAGMA user_version=3')
         store.conn.commit()
     except Exception:
         store.conn.rollback()
@@ -327,7 +371,7 @@ def open_or_initialize(db_path: str | Path) -> Store:
             store.conn.execute(f"PRAGMA user_version={CORE_SCHEMA_VERSION}")
         else:
             user_version = int(store.conn.execute("PRAGMA user_version").fetchone()[0])
-            if user_version not in {1, CORE_SCHEMA_VERSION}:
+            if user_version not in {1, 2, CORE_SCHEMA_VERSION}:
                 raise CoreError("SCHEMA_UNSUPPORTED", f"unsupported Core user_version={user_version}")
             meta_rows = {
                 row["key"]: row["value"]
@@ -337,7 +381,7 @@ def open_or_initialize(db_path: str | Path) -> Store:
                 raise CoreError("SCHEMA_UNSUPPORTED", "Core meta is not supported B0 schema v1")
         if existed:
             av = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in required_tables(store.conn) else None
-            if av and ((user_version == 1 and av[0] == '3') or (user_version == 2 and av[0] != '3')):
+            if av and (user_version,av[0]) not in {(1,'1'),(1,'2'),(2,'3'),(3,'4')}:
                 raise CoreError('SCHEMA_INVALID','Core/app schema pair mismatch')
         ensure_app_schema(store, allow_initialize=not existed)
         recover_inflight_runs(store)
@@ -747,6 +791,12 @@ def read_artifact(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
 
 def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) -> Any:
     op = request.get("op")
+    if op == 'attention_action':
+        p=request_payload(request,{'context','request','provenance'})
+        return attention.action(store,p['context'],p['request'],p['provenance'])
+    if op == 'attention_query':
+        p=request_payload(request,{'context','query'})
+        return attention.query(store,p['context'],p['query'])
     if op == 'initialize_file_run':
         p=request_payload(request,{'context','input'})
         return store.initialize_file_run(p['context'],p['input'])
