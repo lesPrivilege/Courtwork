@@ -182,7 +182,9 @@ design_task:
 
 按 WK-112：先约束后变体，一次只变一个维度（密度 → 字阶，材质另单）。约束表已写：[type-density-constraints](../../../../design/type-density-constraints.md)（现状 / 约束 / V1 V2 目标值 / 消融面）。原始要点：现状 ramp（title 20 / nav-title 17 / reading 15 / label 13 / section 14 / body 14 / meta 12 / caption 11；`--control` 32，触控 44；primary 550）对照目标（正文 14 不动、阅读列 15 不动；chrome 与元数据一档更细：meta 12 → 11–12、caption 11 → 10.5–11 且字重 400–450、字距 +0.01–0.02em 大写 eyebrow；桌面控件 32 → 28（触控仍 44）、按钮字号随 label 13、primary 字重 550 → 500；行高与间距随控件缩），每一项给"哪一层级因此更清"的理由与对比度门槛（contrast-report 不得降到 4.5 以下）。第二步 Opus 出两张变体（"chrome 收敛 / 正文不动" vs "全站一档"）在 Settings 与 Work 头部各一处做消融，用户比较后再全站落地。约束：`--text-scale` 三档保留；390 命中区 ≥44 不变；不引新字体；WK-69 层级与 WK-94 边框角色不动。
 
-## FE-05 · 材质与光效（`opus-wo-low`；WK-99 / 101 / 102 / 104；排 FE-05a 之后）
+## FE-05 · 材质与光效（`opus-wo-low`；WK-99 / 101 / 102 / 104 / 124；排 FE-05a 之后）
+
+WK-124 补充：交付页按 Material grammar 五节（field / surface / edge / depth / focus）组织；消融候选加 progressive blur 与 mask 扩采样（三个 chrome 候选面，与 `--line` 分割线对比）；transition blur 只在小型 text / icon 状态，禁止动画 `backdrop-filter`；field 不做（specimen board 另出）；EX-CC6 回执为实现路径与代价依据。
 
 取值与范围见 [WO-FE-round4 §FE-05](WO-FE-round4.md)（WK-104 已填：`--blur-chrome` 12 / `--blur-transient` 16；`--glass-alpha-chrome` 浅 0.86 / 深 0.10；`--glass-alpha-transient` 浅 0.92 / 深 0.16；`saturate(1.4)` 只在 transient；Fluent 式实色回退 `--float`；Appearance "Reduce transparency" 设备偏好）。
 

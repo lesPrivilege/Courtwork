@@ -14,6 +14,15 @@ WK-118 设立，WK-122 升级为六级格式：**Semantic Contract → Interacti
 | tool-card | Run / 工具行词表 §1；`Unknown` 第六词 | pending → running → completed / failed / cancelled / unknown | assistant-ui Tool UI；AI Elements Tool | `<details>` 原位展开（现有） | — | 已对齐；partial args 待 runtime 事件 |
 | approval | Question / Permission 词表 §2；**无 Always allow** | 同一张卡原位变化；批准后成为回执行 | assistant-ui Approval Card（不含 Always allow） | 焦点与 alert（FE-04） | — | 已对齐 |
 | process-trace | 事件流；时间线待 BE-32 | collapsed → timeline → raw 三层 | assistant-ui Reasoning Panel（process 范式）；S12 Codex Review 面 | — | Skeleton Reveal 不用于 trace | 待后端 |
+| question-card | Question 词表 §2；Auto 行为契约（WK-123） | 合并提问：正文 + 编号选项 + 自由回复 + Skip；给选项与建议 | S12 Codex ask-user 卡；assistant-ui / AI Elements 的 elicitation | 现有问题卡（`Answer`、`Sending…`、alert） | — | 结构化选项待 BE-31 |
 | reversible-action | **无契约**（词表 §4；候选 BE-34 可逆窗口） | 能 undo 就不要 confirmation（Primer）；摩擦来自 reversibility / blast radius / authority | — | — | Undo Pill（A，仅 motion 参照）；Hold to Confirm 只限特殊 destructive，SE 今日无 | 候选，等后端 |
 
 附：Astra [chat-space 研究索引](../../research/chat-space-2026-09-09/README.md)（main `5ea5ff0`）的 CS-01…10 只作设计检查表，不替换现有消息 / question / permission / run / File / Artifact / Core 对象；Markdown 是显示能力，先评估复用 marked + DOMPurify；回答、授权、执行、接受分别成立；下载绑定确切成果。队列不变。
+
+## Material 段（WK-124）
+
+FE-05 按此五节组织，取值沿 WK-104：**field**（source geometry / color / blur / noise——只作 specimen，不进内容与侧栏）、**translucent surface**（tint / backdrop blur / saturation / vibrancy——Chrome 与 Transient 两档，登记类名 + reduced-transparency 回退）、**edge**（`--rim` 描边 / highlight；无折射）、**depth**（`--shadow-float` / 层级 L0–L3，无新 elevation）、**focus**（progressive blur 与 transition blur——前者只在浮于滚动内容之上的 chrome，后者只在小型 text / icon 状态，禁止动画 `backdrop-filter`）。原则：prefer generated fields over painted decoration；材质表达层次不表达状态（FN-28）。
+
+## Identity 段（WK-124 (d)，候选轨道 GI，品牌线 owner）
+
+conventional（wordmark / icon / typography，现有 brand 包）与 generative（glyph grammar / procedural wordmark / semantic mark / state glyph / exportable artifact）。载体：公共站 hero、Home 空态字标、matter initials、`REV nn`、完成 seal。约束：从文书母题生成，不复制 OpenCode 风格；state glyph 只投影 ui-state-vocabulary 里已有状态。待用户点头后派 EX-GI1。
