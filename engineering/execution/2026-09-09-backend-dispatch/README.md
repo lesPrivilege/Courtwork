@@ -33,8 +33,10 @@
 
 | 单元 | 执行 | 完成条件 |
 | --- | --- | --- |
-| [BE-PREVIEW / BE-17/18](WO-BE-PREVIEW.md) | Astra low 亲自实现，已派发 | 受认证的有界探测接口、配置状态不变、合成 HTTP 反例与固定契约 |
+| [BE-PREVIEW / BE-17/18](WO-BE-PREVIEW.md) | Astra low 已交付代码 `f58c28c`，根 Astra 集成复核 | 受认证的有界探测接口、配置状态不变、合成 HTTP 反例与[实际契约](../../../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718) |
 | [ES-00](../2026-09-09-execution-state/backend-contract-draft.md) | Astra low 已交付施工合同 `42a4c2f` | 受信 recorded artifact → Core 文件候选/正式 Artifact；明确身份、迁移和验收，不以 inline 提议冒充执行证据；代码待 ES-01 |
 | Luna evidence | 三个只读分片已返回首轮事实，ArtifactHistory 接缝定向补查 | 来源路径、范围与未检项；不写关键实现 |
 
 具体结果在 [证据包](../../../evidence/backend-dispatch-20260909/README.md) 分列。ES-01 的文件候选代码要消费 ES-00 的具体施工合同；本轮没有同时放开另一位 service/core writer。
+
+集成期间主线已推进到 `2b6c221`（FE-01 合流及回执）；根 Astra 在本轮隔离树合入该节点为 `f4774e5` 后重新跑组合验证。初始探索记录保留其 a431650 时点，不能再据旧观察称 FE-01 尚未合流。后端最终相对该主线的产品 diff 只含 provider helper/service/routes/test/doc，不修改前端实现。

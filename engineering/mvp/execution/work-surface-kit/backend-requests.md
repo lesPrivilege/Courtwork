@@ -32,3 +32,9 @@
 | BE-18 | Test connection（不创建 Run 的最小握手），返回可显示的失败原因 | FE-02 | WK-91 |
 | BE-19 | Memory adapter（Matter memory / Global memory，来源可披露、可关闭） | FE-03 Memory scope 与 Settings › Memory | WK-92 |
 | BE-20 | Temporary chat（不读写持久 memory 的会话标记） | FE-03 | WK-92 |
+
+## Astra 后端交付（2026-09-09）
+
+BE-17/18 的有界探测部分已交付：作者代码 `f58c28c`，纳入 FE-01 主线后的组合节点 `f4774e5` 全量213/213与smoke通过。[实际协议](../../../../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718)冻结 `POST /api/v5/provider-models/discover` 与 `/api/v5/provider-connection/test`：临时 `protocol:'openai-compatible'`、API根 `baseUrl`、可选 `apiKey`，返回目录握手状态和发现的模型ID；保留旧GET本地catalog语义，不修改保存配置、凭据、Run或Session绑定。作者与非作者结果见 [证据](../../../../evidence/backend-dispatch-20260909/README.md)。
+
+消费边界：成功只说明目录接受该请求，不证明key被检查、可推理或已配置。任意compatible/local provider与目录新发现模型的保存/执行仍受现有allowlist限制，需要独立的registry/credential/Session绑定单；不得以本次探测交付关闭完整FE-02。无key时省略字段，API根自己包含需要的`/v1`，服务仅追加`/models`。前端按当前单写者队列消费，不由本记录代为开工。

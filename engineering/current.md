@@ -36,7 +36,7 @@ WK11已接收：Opus实现 `644cc43`、Fable复核 `3acff2d`，从main `14ebd61`
 
 FE-01已接收：Opus交付 `bfefcd2`、Fable复核 `2694001`，从当前main `a431650` 无冲突合流为 `6bdc6db`；随后Fable文档 `3eba008` 合流为 `ccc1076`，保留执行文件状态PR准备文档。产品词表、Settings九组、chrome与Home/Work composition已实现；WK-105六项裁定按 [交付§13](mvp/execution/work-surface-kit/delivery-fe01.md)接收。合流复跑212/212、两项lint、contrast、smoke、composition16/16与FE-T02/T09/T10反例12/12；新版RC与WK-98追加回归见 [本次证据](../evidence/fe01-main-integration-20260909/README.md)。Astra补修资源展开面把可选DOM的null写成文本的遗漏；该补丁为Astra作者验证，非作者复核仍待，不套用Fable对2694001的接受。
 
-下一单由Fable按用户安排以agent定义文件Low档派Opus FE-02，本次不代为启动。第0项--nav 250→256附几何断言；Fetch models/Test connection继续等BE-17/18，未交付不画。FE-03 Low、FE-04 Medium沿串行队列；FE-05按WK-104补本设备Reduce transparency等材质接缝。FE-01完成不等于public-copy已同步：发布面仍有旧Session/Ask/Write/Read词与旧截图基线说明，须按当前UI和证据另行更新后再施工README/Pages。G1–G5保持未闭合。
+下一单由Fable按用户安排以agent定义文件Low档派Opus FE-02，本次不代为启动。第0项--nav 250→256附几何断言；Fetch models/Test connection现可消费下述BE-17/18固定契约，任意compatible/local provider的保存与执行仍未交付，不因探测成功画成可用。FE-03 Low、FE-04 Medium沿串行队列；FE-05按WK-104补本设备Reduce transparency等材质接缝。FE-01完成不等于public-copy已同步：发布面仍有旧Session/Ask/Write/Read词与旧截图基线说明，须按当前UI和证据另行更新后再施工README/Pages。G1–G5保持未闭合。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
@@ -46,9 +46,9 @@ FE-01已接收：Opus交付 `bfefcd2`、Fable复核 `2694001`，从当前main `a
 
 ## 后端独立派工（2026-09-09）
 
-用户授权后端先行，关键设计与实现由 Astra light 亲自撰写，explore 用 Luna 集群。本轮从 `main@a431650` 建隔离树，[派工包](execution/2026-09-09-backend-dispatch/README.md)启动三个 Luna max 只读分片，已返回后端/文件状态/前端消费事实；两个 Astra `gpt-6-astra/low` 分片分别承担 BE-17/18 的有界未保存连接探测实现和 ES-00 的 recorded-file 候选契约。实际结果见 [证据包](../evidence/backend-dispatch-20260909/README.md)，本段不将派工计作完成。
+用户授权后端先行，关键设计与实现由 Astra light 亲自撰写，explore 用 Luna 集群。本轮从 `main@a431650` 建隔离树，[派工包](execution/2026-09-09-backend-dispatch/README.md)启动三个 Luna max 只读分片，已返回后端/文件状态/前端消费事实；两个 Astra `gpt-6-astra/low` 分片分别交付 BE-17/18 代码 `f58c28c` 和 ES-00 施工合同 `42a4c2f`。根 Astra 非作者复读与集成，在纳入 FE-01 主线 `2b6c221` 后的 `f4774e5` 复跑全量213/213、smoke通过；原a431650基底209/209另列。实际结果见 [证据包](../evidence/backend-dispatch-20260909/README.md)。
 
-Luna另核对到 FE-01 作者交付 `bfefcd2`，尚未进入本次main；原前端顺序保持，作者通过数不作本轮独验。BE-17/18可先供 FE-02 消费，但 custom compatible/local 的保存与执行需要另单；ES-01代码等 ES-00 具体合同，不让另一位 writer 同时修改 service/core。前端源码、工单与 G1–G5不因后端开工而被改写。
+BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选key完成有界模型目录探测，不持久配置、不读保存key、不建Run、不注册模型。FE-02按 [实际协议](../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718)消费；握手不证明key被验证或模型可推理，custom compatible/local的保存与执行另单。ES-00改为受信Run recorded artifacts → 完整历史字节 → Core的选定文件版本集合，避免inline提议冒充执行证据；ES-01代码仍待按合同实施，不称已有文件接受能力。前端实际进度以本页FE-01合流记录为准，单写者顺序及G1–G5保持。
 
 ## 新接两单：Luna 首轮有界交付
 

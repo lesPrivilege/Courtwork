@@ -42,4 +42,18 @@ BE-PREVIEW 已派发给 `astra_provider_preview`（`gpt-6-astra / low`），基�
 
 ## 验证边界
 
-当前记录为派工和只读来源核对。后续新增 runtime/协议用例的运行结果按作者代码 SHA 与命令另记；不能用既有 FE 作者通过数证明后端新功能。G1–G5 保持开放。
+BE-PREVIEW 作者代码 `f58c28cfb7e20b19cc0631e53022763451b67f26`，作者回执见 [provider-preview-author](provider-preview-author.md)。根 Astra 亲读 helper、route/service、完整 HTTP 用例和契约，核对：逐 chunk 响应上限与真实取消、headers/body 共同超时、拒绝重定向、固定失败信息、token 先验和探测状态不变；修正握手口径为“目标接受该请求”，即使携带 key 也不保证匿名目录确实验证 key。该文案修正已包含在作者固定提交，无根作者产品代码补丁。
+
+初次隔离集成 `3a0b27a`：`npm --prefix app test` 209/209，无失败/跳过；[原始日志](pre-fe01-tests.log)。`npm --prefix app run smoke` local-fake 七项通过，[日志](pre-fe01-smoke.log)。这些是根 Astra 非作者复跑，不是作者结果的转述。
+
+随后发现主线已推进至 `2b6c221`：FE-01 已合流，覆盖上面的初始只读观察；在隔离树合入为 `f4774e5d360d70294b37e46d7c66b115da669891`，无冲突、保留前端变更。因为代码基线变化而重跑组合验证，最终结果见收口记录。G1–G5 保持开放；provider真实外连/推理与ES文件代码未运行/未实现，不以合成握手关闭完整FE-02。
+
+### 最终组合检查与接收
+
+在固定组合代码 `f4774e5`、独立合成数据/端口0执行：
+
+- `npm --prefix app test`：213/213，0失败、0跳过，35.7秒；[完整日志](integration-tests.log)。包含新provider实际HTTP、既有credentials/protocol及FE-01应用回归。
+- `npm --prefix app run smoke`：local-fake七项通过，realProvider not_run；[日志](integration-smoke.log)。
+- diff复核确认相对FE-01主线仅新增本单后端接缝/测试/契约及工程证据，没有前端产品补丁、schema迁移或lockfile变化。文档链接、显式暂存路径与diff whitespace另检查。
+
+根 Astra 接收 BE-17/18 的目录发现/握手范围供前端消费；接收 ES-00 作为待实施合同。未声称新UI、真实供应商推理、custom provider保存、ES文件接受、完整FE-02或产品G1–G5完成。没有push、部署或外部消息。前端合流期间的新增改动按原作者/既有FE回执保留，不把本次后端验证改称其独立视觉验收。

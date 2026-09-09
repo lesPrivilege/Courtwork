@@ -1,6 +1,6 @@
 # BE-PREVIEW · 未保存连接的模型发现与最小握手
 
-状态：本轮实际派工；覆盖 BE-17/18 的探测范围，作者/验证结果见证据包。实现作者配置 `gpt-6-astra / low`，不向 Luna 转派关键代码。基线 `a431650`，分支 `codex/astra-provider-preview`。
+状态：本轮已交付并通过根 Astra 非作者有界复核；覆盖 BE-17/18 的探测范围，[作者/验证结果](../../../evidence/backend-dispatch-20260909/README.md)分列。实现作者配置 `gpt-6-astra / low`，不向 Luna 转派关键代码。基线 `a431650`，分支 `codex/astra-provider-preview`，作者代码 `f58c28c`；与FE-01主线组合为`f4774e5`后全量213/213、smoke通过。
 
 ## 问题与现状
 
