@@ -1,0 +1,232 @@
+diff --git a/app/server/index.mjs b/app/server/index.mjs
+index 5c6e62f..ff3a2be 100644
+--- a/app/server/index.mjs
++++ b/app/server/index.mjs
+@@ -21,7 +21,7 @@ const STATIC = new Map([
+   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
+ ]);
+ 
+-for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
++for (const name of ["surface-modules.mjs", "preview-seats.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+ STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
+ // Brand merge gate 3: the product admits the brand package's ES modules and
+ // nothing else under brand/. Each path is an exact key, so brand/CONTRACT.md,
+diff --git a/app/web/app.mjs b/app/web/app.mjs
+index d006307..6f13a5d 100644
+--- a/app/web/app.mjs
++++ b/app/web/app.mjs
+@@ -1,3 +1,4 @@
++import { createPreviewSeats } from "./preview-seats.mjs";
+ import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";
+ import {
+   el,
+@@ -160,6 +161,7 @@ const state = {
+     kind: "preview",
+     runId: null,
+     fileRef: null,
++    previews: createPreviewSeats(surfaceDocumentKey),
+     returnFocus: null,
+     runReadGeneration: 0,
+     runReadController: null,
+@@ -1438,6 +1440,7 @@ async function selectSession(
+   state.surface.kind = "preview";
+   state.surface.runId = null;
+   state.surface.fileRef = null;
++  state.surface.previews.clear();
+   state.surface.workspace = null;
+   state.surface.workspaceGeneration++;
+   state.surface.runReadController?.abort();
+@@ -1508,6 +1511,7 @@ function clearActiveSession() {
+   state.surface.open = false;
+   state.surface.kind = "preview";
+   state.surface.fileRef = null;
++  state.surface.previews.clear();
+   state.surface.workspace = null;
+   state.surface.workspaceGeneration++;
+   state.surface.runId = null;
+@@ -3479,8 +3483,17 @@ function surfaceTabButtons() {
+   );
+ }
+ /* 关闭活跃文档 tab：回紧凑目录，并把焦点还给打开它的那个控件（restoreLayerFocus）。 */
+-function closeDocumentTab() {
++function closeDocumentTab(key = state.surface.previews.selected()?.key) {
+   if (!surfaceDocumentRef()) return;
++  const activeKey = surfaceDocumentKey(state.surface.fileRef);
++  const next = state.surface.previews.close(key);
++  if (key !== activeKey) { renderSurfaceVisibility(); surfaceTabButton(state.surface.kind)?.focus(); return; }
++  if (next) {
++    state.surface.fileRef = next.ref;
++    fileView?.dispose();
++    activateSurface("file");
++    return;
++  }
+   const opener = state.surface.returnFocus;
+   /* 打开它的那一行在聊天流里，回来时那条流会重画一遍，于是原来那个节点已经不在
+      文档里了。既有的 `data-focus-key`（Chat Flow 的行本来就带着它）说的正是"重画
+@@ -3736,6 +3749,7 @@ function renderDocumentTab(ref) {
+   const wrap = $("surface-document-tab"),
+     select = $("surface-document-select"),
+     close = $("surface-document-close");
++  for (const extra of $("surface-tabs").querySelectorAll(".surface-kept-document")) extra.remove();
+   wrap.hidden = !ref;
+   if (!ref) {
+     // 文档 tab 不在时，file 面的可访问名回到类型 tab 上。
+@@ -3751,6 +3765,28 @@ function renderDocumentTab(ref) {
+   select.setAttribute("aria-selected", String(selected));
+   select.tabIndex = selected ? 0 : -1;
+   select.dataset.documentKey = surfaceDocumentKey(ref);
++  const seats = state.surface.previews.list();
++  const currentKey = surfaceDocumentKey(ref);
++  const currentSeat = seats.find(seat => seat.key === currentKey);
++  wrap.classList.toggle("is-preview", !currentSeat?.kept);
++  select.title = `${full} · ${currentSeat?.kept ? 'Kept open' : 'Temporary preview'}`;
++  $("surface-document-keep").hidden = Boolean(currentSeat?.kept);
++  $("surface-document-keep").setAttribute("aria-label", `Keep ${full} open`);
++  for (const seat of seats) {
++    if (seat.key === currentKey) { $("surface-tabs").append(wrap); continue; }
++    const title = documentTabTitle(seat.ref);
++    const tab = element("button", { className: "surface-tab-select", text: title.name, attrs: {
++      type: "button", role: "tab", "aria-controls": "file-content", "aria-selected": "false", tabindex: "-1",
++      "aria-label": title.full, title: `${title.full} · ${seat.kept ? 'Kept open' : 'Temporary preview'}`, "data-preview-key": seat.key,
++    } });
++    tab.addEventListener("click", () => {
++      const selected = state.surface.previews.select(seat.key);
++      if (!selected) return;
++      state.surface.fileRef = selected.ref; activateSurface("file");
++    });
++    const remove = action("x", `Close ${title.full}`, () => closeDocumentTab(seat.key), { className: "surface-tab-close" });
++    $("surface-tabs").append(element("span", { className: `surface-tab surface-document-tab surface-kept-document${seat.kept ? '' : ' is-preview'}`, attrs: { role: "presentation" } }, tab, remove));
++  }
+   setAction(close, "x", `Close ${full}`);
+   $("file-content").setAttribute("aria-labelledby", "surface-document-select");
+ }
+@@ -3943,7 +3979,7 @@ function openFile(ref) {
+   const opener = document.activeElement;
+   if (opener && opener !== document.body && opener.isConnected)
+     state.surface.returnFocus = opener;
+-  state.surface.fileRef = ref;
++  state.surface.fileRef = state.surface.previews.open(ref).ref;
+   activateSurface("file");
+ }
+ /* The rail and its open pane are one render: a run that moves changes the Run
+@@ -6062,7 +6098,13 @@ function wireEvents() {
+   $("surface-document-select").addEventListener("click", () =>
+     activateSurface("file"),
+   );
+-  $("surface-document-close").addEventListener("click", closeDocumentTab);
++  $("surface-document-close").addEventListener("click", () => closeDocumentTab());
++  $("surface-document-keep").addEventListener("click", () => {
++    state.surface.previews.keep(); renderSurfaceVisibility(); $("surface-document-select").focus();
++  });
++  $("surface-document-select").addEventListener("dblclick", () => {
++    state.surface.previews.keep(); renderSurfaceVisibility();
++  });
+   $("surface-back-button").addEventListener("click", () =>
+     setSurfaceExpanded(false),
+   );
+@@ -6071,10 +6113,10 @@ function wireEvents() {
+        类型 tab 上按它什么也不发生 —— 档位不可关闭。 */
+     if (
+       (event.key === "Delete" || event.key === "Backspace") &&
+-      document.activeElement === $("surface-document-select")
++      (document.activeElement === $("surface-document-select") || document.activeElement?.dataset.previewKey)
+     ) {
+       event.preventDefault();
+-      closeDocumentTab();
++      closeDocumentTab(document.activeElement?.dataset.previewKey || state.surface.previews.selected()?.key);
+       return;
+     }
+     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+diff --git a/app/web/index.html b/app/web/index.html
+index e4e1f1a..70691fa 100644
+--- a/app/web/index.html
++++ b/app/web/index.html
+@@ -672,6 +672,7 @@
+                 aria-selected="false"
+                 type="button"
+               ></button>
++              <button id="surface-document-keep" class="surface-tab-keep" type="button" aria-label="Keep preview open">Keep</button>
+               <button
+                 id="surface-document-close"
+                 class="surface-tab-close"
+diff --git a/app/web/styles.css b/app/web/styles.css
+index ce535cc..b514ba1 100644
+--- a/app/web/styles.css
++++ b/app/web/styles.css
+@@ -5579,3 +5579,11 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
+   .user-message-content { --panel: Canvas; --ink: CanvasText; --muted-strong: CanvasText; background: var(--panel); color: var(--ink); border-color: CanvasText; }
+   .user-message-content .markdown-body, .user-message-content a, .user-message-content summary { color: CanvasText; }
+ }
++
++/* Object chrome and inspector lenses retain distinct visual grammar. */
++.surface-tab:not(.surface-document-tab) { border-radius: 0; }
++.surface-document-tab { border: 1px solid var(--line); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--panel-muted); }
++.surface-document-tab:has([aria-selected="true"]) { background: var(--panel); border-color: var(--line-strong); }
++.surface-document-tab.is-preview .surface-tab-select { font-style: italic; }
++.surface-tab-keep { padding: 4px 6px; margin: 0 2px; border: 0; background: transparent; color: var(--muted-strong); font-size: var(--text-caption); }
++.surface-tabs { overflow-x: auto; max-width: 100%; }
+diff --git a/app/web/preview-seats.mjs b/app/web/preview-seats.mjs
+new file mode 100644
+index 0000000..4fcd305
+--- /dev/null
++++ b/app/web/preview-seats.mjs
+@@ -0,0 +1,30 @@
++// UI reading seats only. Identity is supplied by the existing file contract;
++// keeping a seat does not pin an artifact, write bytes or accept a review.
++export function createPreviewSeats(keyOf) {
++  let scope = null, current = null, transient = null;
++  const seats = new Map();
++  function clear() { seats.clear(); scope = null; current = null; transient = null; }
++  function open(ref) {
++    if (!ref?.sessionId) throw new Error('A preview needs a session identity');
++    if (scope !== ref.sessionId) { clear(); scope = ref.sessionId; }
++    const key = keyOf(ref);
++    if (!key) throw new Error('A preview needs a file identity');
++    if (!seats.has(key)) {
++      if (transient) seats.delete(transient);
++      seats.set(key, { key, ref: structuredClone(ref), kept: false }); transient = key;
++    }
++    current = key; return selected();
++  }
++  function selected() { return seats.has(current) ? structuredClone(seats.get(current)) : null; }
++  return { open, clear, selected,
++    list() { return [...seats.values()].map(seat => structuredClone(seat)); },
++    select(key) { if (!seats.has(key)) return null; current = key; return selected(); },
++    keep(key = current) { const seat = seats.get(key); if (!seat) return false; seat.kept = true; if (transient === key) transient = null; return true; },
++    close(key = current) {
++      const keys = [...seats.keys()], index = keys.indexOf(key); if (index < 0) return selected();
++      seats.delete(key); if (transient === key) transient = null;
++      if (current === key) current = [...seats.keys()][Math.min(index, seats.size - 1)] || null;
++      return selected();
++    },
++  };
++}
+diff --git a/app/tests/preview-seats.test.mjs b/app/tests/preview-seats.test.mjs
+new file mode 100644
+index 0000000..72622ac
+--- /dev/null
++++ b/app/tests/preview-seats.test.mjs
+@@ -0,0 +1,23 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {createPreviewSeats} from '../web/preview-seats.mjs';
++const key = ref => [ref.sessionId,ref.path,ref.kind,ref.sha256].join(':');
++const ref = (path,sha256='v1',sessionId='a') => ({sessionId,path,sha256,kind:'artifact',runId:'r'});
++test('one transient preview is replaced; explicit kept versions survive', () => {
++  const seats=createPreviewSeats(key);
++  seats.open(ref('one')); seats.open(ref('two')); assert.deepEqual(seats.list().map(s=>s.ref.path),['two']);
++  seats.keep(); seats.open(ref('three')); seats.open(ref('four'));
++  assert.deepEqual(seats.list().map(s=>[s.ref.path,s.kept]),[['two',true],['four',false]]);
++  seats.open(ref('two')); assert.equal(seats.selected().kept,true); assert.equal(seats.list().length,2);
++  seats.open(ref('two','v2')); assert.deepEqual(seats.list().map(s=>s.ref.sha256),['v1','v2']);
++  const returned=seats.selected();returned.ref.sha256='changed';assert.equal(seats.selected().ref.sha256,'v2');
++});
++test('closing only removes a seat; neighboring selection and scope reset are explicit', () => {
++  const seats=createPreviewSeats(key);const a=ref('one'),b=ref('two');
++  seats.open(a);seats.keep();seats.open(b);seats.keep();
++  seats.select(key(a));assert.equal(seats.close().ref.path,'two');assert.deepEqual(a,ref('one'));
++  assert.equal(seats.close(),null);assert.equal(seats.list().length,0);
++  seats.open(a);seats.keep();seats.open(ref('other','v1','b'));
++  assert.equal(seats.list().length,1);assert.equal(seats.select(key(a)),null);
++  seats.clear();assert.equal(seats.selected(),null);assert.equal(seats.list().length,0);
++});

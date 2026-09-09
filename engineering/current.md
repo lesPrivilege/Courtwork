@@ -286,3 +286,5 @@ Home handoff后续施工（2026-09-10）：用户授权按 Runtime→Usage→Tab
 Usage接续：已接每日/模型projection和快照一致的Run下钻、Overview/Models读面、精确日表/模型表、Top4+Other。模型身份固定为Run开始时配置，UTC起始日归属，缺失用量/历史覆盖保持明确，数据变化下钻返回409。全量431/431、定向18/18、最终Usage6/6及合成浏览器验证通过；[合同](../app/docs/usage-details.md)、[证据](../evidence/home-backlog-20260910/usage/README.md)。用户另补Chat Flow材料与气泡/首页会话管理要求：先落实右对齐窄气泡，余项在Usage收尾后优先接续，见[处置](design/chat-flow-2026-09-10/README.md)。
 
 Chat Flow接续：按用户补充裁决接入共享用户Markdown/原文/长消息展开、深色用户气泡与气泡下方消息级复制/编辑，assistant整条复制在正文下方，内部文字/代码卡保留独立复制。Attention首页接真实会话搜索/最近列表/Open/New及Session持久化Rename，按实际Run聚合工具与回复并区分问题/权限回执。[证据与有界归因](../evidence/home-backlog-20260910/chat-flow/README.md)。Luna发现的重绘焦点键缺口已修复；定向7/7、有界并发全量432/432与浏览器验证通过（原无界并发9项超时/锁失败另存），没有新增Regenerate、Queue/Steer或虚构归档能力，不关闭其余Home队列与G1–G5。
+
+Attention Chat交接（2026-09-10）：用户改为另行唤醒Opus收尾，Astra已停止扩展施工；[交接入口](design/attention-agent-2026-09-10/opus-handoff.md)汇总固定产品f4f2436、Chat收尾反例、Home3–7与main并行WK139–144/EX-PG1待合流裁定。Tabs早期代码只留未验收patch，已移出活动产品；不称已交付。交接实读main仍ee6df72且文档writer在途，f4f2436合流暂缓以保留其编辑，未另建任务。
