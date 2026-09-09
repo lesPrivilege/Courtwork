@@ -16,7 +16,7 @@
 - 实际HTTP/Pi loopback从ws_write回执读取hash再提交，验证accept、跨Session、producer缺席；覆盖MCP调用前持久unknown、历史/compaction/ask/runtime_load/ws读取、steering与Stop竞态、coverage marker失败、丢失/损坏history及两种未record写入故障。
 - `node app/scripts/file-candidate-fixture.mjs`生成[实际消费包](../../app/tests/fixtures/work-core/file-candidate-packets.json)，含ready/unknown/failed/stale/accepted/rejected/unsupported/missing-bytes/producer-absent。未检状态不冒充pending-unchecked：验证和保存同事务。
 
-Astra拥有Core/bridge/service/Pi/迁移和最终集成；Luna实现有界adapter/policy，Astra复读并修正Unicode边界。作者验证不称独立接受。非作者迁移与消费复验位于 `evidence/harness-next-20260909/`，固定SHA后追加。来源Astra负责最新main合流及current/台账，G1–G5保持未闭合。
+Astra拥有Core/bridge/service/Pi/迁移和最终集成；Luna实现有界adapter/policy，Astra复读并修正Unicode边界。作者验证不称独立接受。非作者迁移与Core反例复验已按最终SHA通过，见 [最终交付包](../harness-next-20260909/README.md)；其有界范围不冒称独立GUI或全部service验收。来源Astra负责最新main合流及current/台账，G1–G5保持未闭合。
 
 最终复读补强：验证记录增加完整record摘要，防止result/reasons单字段损坏被当作可信PASS；accept再查file专属必需来源证据。新增损坏记录和协调修改checksum的无证据反例均拒绝，不产生决定。后继独验按包含修正的最终SHA运行。
 

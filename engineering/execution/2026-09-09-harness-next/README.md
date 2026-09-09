@@ -32,4 +32,4 @@ AM规则探索阶段只读，后续写权另记。ES写权沿 [ES-00](../2026-09
 
 ## 本分支交付
 
-BE-30代码 `757ea76`、独验 `3c8e8b1`；AM import边界与正负反例 `fe73001`。ES-01已实现完整后端纵切，作者279/279与smoke通过；[实施回执](../../../evidence/backend-dispatch-20260909/es01-implementation.md)列能力和未检项，固定SHA后补独验。Attention按用户安排在ES稳定交付后另开fresh Astra任务；main/current/台账仍由来源Astra整合。
+BE-30代码 `757ea76`、独验 `3c8e8b1`；AM import边界与正负反例 `fe73001`。ES-01已实现完整后端纵切，作者279/279与smoke通过；[实施回执](../../../evidence/backend-dispatch-20260909/es01-implementation.md)列能力和未检项，[最终交付包](../../../evidence/harness-next-20260909/README.md)已收齐固定SHA的迁移与Core反例独验；先前验证记录损坏缺陷已修复复验。Attention按用户安排在ES稳定交付后另开fresh Astra任务；main/current/台账仍由来源Astra整合。
