@@ -1,0 +1,115 @@
+[
+  {
+    "id": "NAV-1",
+    "pass": true,
+    "navWidth": 256
+  },
+  {
+    "id": "MOD-1",
+    "pass": true,
+    "rowCount": 1,
+    "rowText": [
+      "Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"
+    ],
+    "badge": [
+      "In force"
+    ]
+  },
+  {
+    "id": "MOD-2",
+    "pass": true,
+    "primaryActions": 1
+  },
+  {
+    "id": "MOD-3",
+    "pass": true,
+    "addOpen": false
+  },
+  {
+    "id": "MOD-5",
+    "pass": true,
+    "promises": []
+  },
+  {
+    "id": "MOD-11",
+    "pass": true
+  },
+  {
+    "id": "MOD-10",
+    "pass": true,
+    "blurred": 0
+  },
+  {
+    "id": "MOD-3b",
+    "pass": true,
+    "pathRadios": [
+      "catalog",
+      "compatible",
+      "local"
+    ],
+    "pathTabStops": 1
+  },
+  {
+    "id": "MOD-4",
+    "pass": true,
+    "stepCount": 5,
+    "pendingSteps": [
+      "Test connection",
+      "Fetch models"
+    ],
+    "pendingControls": 0
+  },
+  {
+    "id": "MOD-6",
+    "pass": true,
+    "advancedOpen": [
+      true
+    ],
+    "saveDisabled": true
+  },
+  {
+    "id": "MOD-7",
+    "pass": true,
+    "baseUrlDisabled": true,
+    "credentialVisible": false
+  },
+  {
+    "id": "MOD-8",
+    "pass": true,
+    "heights": [
+      32
+    ],
+    "radii": [
+      "8px"
+    ]
+  },
+  {
+    "id": "MOD-9",
+    "pass": true,
+    "titleLefts": [
+      533
+    ],
+    "controlRights": [
+      1131
+    ]
+  },
+  {
+    "id": "MOD-13 · 1440",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "MOD-12",
+    "pass": true,
+    "intake": {
+      "steps": 6,
+      "pending": 3,
+      "focusable": 0
+    }
+  },
+  {
+    "id": "MOD-13 · 390",
+    "pass": true,
+    "overflow": 0
+  }
+]
