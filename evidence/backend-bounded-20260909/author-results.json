@@ -1,0 +1,58 @@
+{
+  "base": "5ea5ff00cdfe5280f255c372e359dca9e48c88c7",
+  "code": "fd3861b15ce4875b37af674d8c9dd0798d258fd4",
+  "author": "Astra",
+  "independentAcceptance": false,
+  "environment": {
+    "node": "25.9.0",
+    "data": "independent synthetic temp directories",
+    "port": 0,
+    "provider": "loopback"
+  },
+  "checks": [
+    {
+      "cwd": "app",
+      "command": "node --test tests/work-metrics.test.mjs tests/work-summary.test.mjs",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "cwd": "app",
+      "command": "npm test",
+      "passed": 249,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "cwd": "app",
+      "command": "npm run smoke",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "notRun": [
+    "real provider",
+    "paid provider",
+    "GUI",
+    "deployment",
+    "Core migration",
+    "native async"
+  ],
+  "combined": {
+    "commit": "87c8818",
+    "command": "cd app && npm test",
+    "passed": 252,
+    "failed": 0,
+    "skipped": 0
+  },
+  "amNonAuthorReview": {
+    "reviewer": "Astra",
+    "author": "Luna",
+    "command": "cd app && node --test tests/architecture-maintenance.test.mjs",
+    "passed": 3,
+    "failed": 0
+  }
+}
