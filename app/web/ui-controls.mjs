@@ -399,6 +399,21 @@ export function setRequestLabel(button, label, inFlight) {
   const visible = document.createElement("span");
   visible.className = "request-label";
   visible.textContent = requestLabel(label, inFlight);
+  // Icon actions already have fixed geometry. Preserve the glyph installed by
+  // setAction through every repaint; only their accessible name and tooltip
+  // change while a request is in flight. Text actions still reserve both labels.
+  const glyph = button.classList.contains?.("icon-only")
+    ? button.querySelector(":scope > svg.ui-icon") : null;
+  if (glyph) {
+    visible.className = "request-label sr-only";
+    button.classList.remove("request-width");
+    delete button.dataset.restingLabel;
+    delete button.dataset.sendingLabel;
+    button.dataset.tooltip = visible.textContent;
+    button.setAttribute("aria-label", visible.textContent);
+    button.replaceChildren(glyph, visible);
+    return button;
+  }
   button.classList.add("request-width");
   /* 影子是 CSS 生成内容（`::before` / `::after` 读两个属性），不是一个真的子节点：真的子节点
    * 会进 `textContent`，而既有的反例脚本正是按 `textContent` 认这几个按钮的。生成
