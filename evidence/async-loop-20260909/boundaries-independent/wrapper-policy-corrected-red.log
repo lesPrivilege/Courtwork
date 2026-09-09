@@ -1,0 +1,34 @@
+✔ catalog staleness keeps durable result readable and refuses further adapter work (67.595ms)
+✔ policy rejection records dependency before adapter I/O, leaving Run unresolved (54.615167ms)
+✔ late query cannot overwrite cancellation and lost cancel ACK remains unresolved (107.67325ms)
+✔ stopped Run forbids dispatch and wait stays inside local budget (126.450667ms)
+✖ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (172.435958ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1829.913209
+
+✖ failing tests:
+
+test at app/tests/async-boundaries-independent.test.mjs:184:1
+✖ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (172.435958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'completed'
+  - 'unknown'
+
+      at TestContext.<anonymous> (file:///private/tmp/cw-async-wrapper-old.duA2PK/app/tests/async-boundaries-independent.test.mjs:228:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'completed',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -11,3 +11,7 @@ The current product head `35f4bf0` was merged into this review tree after the in
 ## Wrapper pre-consumption regression
 
 `host/Pi wrapper denial of an old async_get leaves the new Run unresolved` is a deliberate red test at `35f4bf0`. Its host/Pi setup first creates an unresolved task, applies a session policy that denies `async_get`, then has a new Run request the old task. The wrapper rejects before `AsyncTasks.consume` records the delivery. The old product incorrectly completes the new Run; the expected state is `unknown`, with no adapter query I/O and an unrecorded delivery receipt. The red output is retained in `wrapper-policy-red.log`; this test must turn green only with the product correction.
+
+The original `wrapper-policy-red.log` used a responder counter across the whole retained Pi history. Its second Run returned `final` before making `async_get`, so it is retained only as a rejected probe and does not evidence the wrapper behavior.
+
+The corrected responder counts tool messages after the latest user message. At fixed old product `35f4bf0`, it produced the intended red result: the second Run requested `async_get` and completed although the expected state is `unknown`; see `wrapper-policy-corrected-red.log`. At fix head `74944d052fd84644413f99411243b5a66ef86144`, it passes with a `tool.start` for `async_get`, a policy-denied error result, zero adapter query calls, and a pre-recorded delivery whose `runtimeRecordedAt` remains null; see `wrapper-policy-green.log`.

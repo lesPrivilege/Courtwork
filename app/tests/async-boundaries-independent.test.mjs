@@ -174,7 +174,7 @@ test('stopped Run forbids dispatch and wait stays inside local budget', async ()
 
 
 function piTool(id, name, args) {
-  return { kind: 'tool', id, created: 1, toolCallId: id, name, arguments: args };
+  return { kind: 'tool', id: 'response-' + id, created: 1, toolCallId: 'call-' + id, name, arguments: args };
 }
 
 function piFinal() {
@@ -191,7 +191,8 @@ test('host/Pi wrapper denial of an old async_get leaves the new Run unresolved',
     asyncTaskAdapters: [adapter.adapter],
     logger: () => {},
     responder: ({ body }) => {
-      const completedTools = body.messages.filter(message => message.role === 'tool').length;
+      const start = body.messages.findLastIndex(message => message.role === 'user');
+      const completedTools = body.messages.slice(start + 1).filter(message => message.role === 'tool').length;
       if (phase === 'launch') {
         return completedTools ? piFinal() : piTool('launch', 'async_launch', { adapterId: 'reader', sourceId: 'source' });
       }
@@ -225,6 +226,10 @@ test('host/Pi wrapper denial of an old async_get leaves the new Run unresolved',
     await until(() => ['unknown', 'completed', 'failed', 'cancelled'].includes(host.store.getRun(second.id)?.status));
 
     assert.equal(host.store.getRun(second.id).status, 'unknown');
+    const events = host.store.listEvents({ sessionId: session.id, runId: second.id });
+    assert(events.some(event => event.type === 'tool.start' && event.data.name === 'async_get'));
+    assert(events.some(event => event.type === 'tool.result' && event.data.name === 'async_get'
+      && event.data.isError && event.data.text.includes('Runtime policy denied async_get')));
     assert.equal(adapter.calls.query, 0);
     const task = host.store.state.asyncTasks[0];
     assert.equal(task.deliveries.some(delivery => delivery.runId === second.id), true);
