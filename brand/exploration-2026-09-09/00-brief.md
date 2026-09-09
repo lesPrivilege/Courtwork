@@ -12,6 +12,7 @@
 | 材质参考板 `brand/references/material-board.png`（Imagegen，三材质，只取光与材质，不取几何）；视觉来源索引 10 项 | `brand/references/README.md`；`brand/sources/visual-runtime-index.json` |
 | EX-GI1 三向字形语法 specimen（A Baton / B Ruled-grid / C Annotation-mark）；用户同意 A 为字标基线，GI 不开 generator 单 | WK-130 |
 | WK-133：Lucide 设计指南升为 icon grammar 验收规则（24 grid、2px 描边、round cap / join、1px 安全边、光学密度对照）；WK-110：agent 自绘 glyph 只在 specimen 内，准入须过规则 | intake-round-3 §4al |
+| Scout Index v2（r4d WK-137，头 `6bd8fb0`）：60fps（2,060 shots / 108 tags / 67 storyboards）升为 C 层 motion donor，只取行为与时序，不复制录屏——第 3 层（06）成单时的合法时序来源；本线第 1、2 层不派 sweep | 用户转达 WK-137 |
 | 素材库 = Design Scout 层索引 `engineering/design/scout/`（r4d，WK-134 / WK-135，头 `5d1cf16`）；本线直接来源另有 `brand/sources/`、`brand/references/`、`engineering/design/identity-specimen/` | 用户 2026-09-09；本批检索 |
 
 ## 2. 裁定
