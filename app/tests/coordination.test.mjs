@@ -79,7 +79,7 @@ test('RuntimeStore6 migration preserves global scope and exact backup; corrupt l
     const global=await store.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dir,'global'),permissionMode:'ask'});
     await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6;delete old.coordination;
     const raw=Buffer.from(JSON.stringify(old,null,1)+'\n');await writeFile(file,raw);
-    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,8);await store.close();
+    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,9);await store.close();
     const hash=createHash('sha256').update(raw).digest('hex');assert.deepEqual(await readFile(path.join(dir,`runtime-state.schema6.${hash}.json`)),raw);
     const bad=JSON.parse(await readFile(file,'utf8'));bad.coordination.messages.push({id:'forged'});await writeFile(file,JSON.stringify(bad));
     await assert.rejects(new RuntimeStore({dataDir:dir}).open());
@@ -186,7 +186,7 @@ test('read-only tool metadata agrees with dispatch denial; project model directo
   }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
 });
 
-test('schema7 effort survives upgrade; fixed old host refuses schema8 and restores only the separate original backup',async()=>{
+test('schema7 effort survives upgrade; fixed old host refuses schema9 and restores only the separate original backup',async()=>{
   const dir=await mkdtemp(path.join(tmpdir(),'cw-coordination-schema7-'));let store,oldStore;
   try{
     const code=path.join(dir,'old-code'),data=path.join(dir,'data'),restore=path.join(dir,'restore');
@@ -201,9 +201,9 @@ test('schema7 effort survives upgrade; fixed old host refuses schema8 and restor
     await oldStore.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Synthetic global',workspaceDir:path.join(dir,'ws'),permissionMode:'ask'});
     await oldStore.setProviderConfig({provider:'fake-openai-loopback',model:'fake-local-model',api:'openai-completions',reasoningEffort:'off'});
     await oldStore.close();const raw=await readFile(path.join(data,'runtime-state.json'));
-    store=await new RuntimeStore({dataDir:data}).open();assert.equal(store.state.schemaVersion,8);assert.equal(store.getProviderConfig().reasoningEffort,'off');assert.equal(store.listSessions()[0].scope,'global');await store.close();
+    store=await new RuntimeStore({dataDir:data}).open();assert.equal(store.state.schemaVersion,9);assert.equal(store.getProviderConfig().reasoningEffort,'off');assert.equal(store.listSessions()[0].scope,'global');await store.close();
     const upgraded=await readFile(path.join(data,'runtime-state.json'));
-    await assert.rejects(new Old({dataDir:data}).open(),/schemaVersion 8 is not supported/);assert.deepEqual(await readFile(path.join(data,'runtime-state.json')),upgraded);
+    await assert.rejects(new Old({dataDir:data}).open(),/schemaVersion 9 is not supported/);assert.deepEqual(await readFile(path.join(data,'runtime-state.json')),upgraded);
     const digest=createHash('sha256').update(raw).digest('hex'),backup=await readFile(path.join(data,`runtime-state.schema7.${digest}.json`));assert.deepEqual(backup,raw);
     await mkdir(restore);await writeFile(path.join(restore,'runtime-state.json'),backup);
     oldStore=await new Old({dataDir:restore}).open();assert.equal(oldStore.state.schemaVersion,7);await oldStore.close();

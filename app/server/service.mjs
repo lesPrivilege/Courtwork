@@ -1009,9 +1009,12 @@ export class RuntimeService {
 
   async #createRun(sessionId, input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["input", "commandId"]));
+    assertKeys(value, new Set(["input", "commandId", "supersedes"]));
     const instruction = text(value.input, "input", { max: 100000 });
     const commandId = text(value.commandId, "commandId", { max: 200 });
+    // A continuation names the Run it takes over. It is set here, at creation,
+    // and never afterwards; the prior Run's prompt is not copied or replayed.
+    const supersedes = value.supersedes === undefined ? null : text(value.supersedes, "supersedes", { max: 200 });
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
 
@@ -1019,7 +1022,7 @@ export class RuntimeService {
     // Resolve it before provider/extension availability checks, which apply
     // only to new work. New admission still rechecks atomically in the store.
     try {
-      const receipt = this.store.getCommandReceipt(sessionId, commandId, instruction);
+      const receipt = this.store.getCommandReceipt(sessionId, commandId, instruction, supersedes);
       if (receipt) return { run: receipt.run };
     } catch (error) {
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
@@ -1071,12 +1074,20 @@ export class RuntimeService {
         provider,
         extension,
         commandId,
+        supersedes,
         runtimeSnapshot: { revision: runtimeBinding.revision, hash: runtimeBinding.hash, sessionScope: {kind:session.scope, projectId:session.projectId}, composition: runtimeBinding.composition, resources: runtimeBinding.resources, content: runtimeBinding.content, policies: runtimeBinding.policies, context: runtimeBinding.context },
         workspaceHostSession: null,
         credentialGeneration: this.credentialGeneration,
       });
     } catch (error) {
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
+      // Lineage refusals carry no caller data: a Run of another Session is
+      // indistinguishable from a Run that does not exist.
+      if (error?.code === "SUPERSEDE_NOT_FOUND") throw new ServiceError(404, "not_found", "run not found");
+      if (error?.code === "SUPERSEDE_NOT_TERMINAL") throw new ServiceError(409, "supersede_active", "the run being continued has not ended");
+      if (error?.code === "SUPERSEDE_COMPLETED") throw new ServiceError(409, "supersede_completed", "a completed run cannot be continued");
+      if (error?.code === "SUPERSEDE_CONFLICT") throw new ServiceError(409, "supersede_conflict", "the run being continued already has a continuation");
+      if (error?.code === "EFFECT_UNRECONCILED") throw new ServiceError(409, "effect_unreconciled", "the run being continued left unreconciled external effects");
       if (error?.message === "active run exists") throw new ServiceError(409, "active_run", "only one active run is allowed");
       if (error?.message === "session not found") throw new ServiceError(404, "not_found", "session not found");
       throw error;

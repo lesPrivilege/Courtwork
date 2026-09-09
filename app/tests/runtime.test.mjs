@@ -59,7 +59,7 @@ test("RuntimeStore persists schemaVersion 8 session/run fields and the canonical
   assert.equal(stored.artifacts[0].kind, "content-version");
   assert.ok(!Number.isNaN(Date.parse(stored.artifacts[0].writtenAt)));
   assert.equal(stored.usage.missing, false);
-  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 8);
+  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 9);
   await reopened.close();
 });
 

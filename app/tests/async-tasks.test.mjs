@@ -128,7 +128,7 @@ test('schema3/4 migrate through exclusive backup and refuse existing backup path
     const file = path.join(dir, 'runtime-state.json'), state = JSON.parse(await readFile(file, 'utf8'));
     state.schemaVersion = version; delete state.asyncTasks; delete state.coordination; state.sessions.forEach(session => delete session.scope);
     const old = JSON.stringify(state); await writeFile(file, old);
-    store = await new RuntimeStore({ dataDir: dir }).open(); assert.equal(store.state.schemaVersion, 8); await store.close();
+    store = await new RuntimeStore({ dataDir: dir }).open(); assert.equal(store.state.schemaVersion, 9); await store.close();
     const backup = (await readdir(dir)).find(p => p.startsWith('runtime-state.schema' + version));
     assert.equal(await readFile(path.join(dir, backup), 'utf8'), old);
     await writeFile(file, old);

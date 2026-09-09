@@ -182,7 +182,7 @@ test('compatibility: valid schema 3 upgrades with exact backup and schema 6 fenc
   const next = await reopen(h.dataDir);
   try {
     const state = JSON.parse(await readFile(file, 'utf8'));
-    assert.equal(state.schemaVersion, 8);
+    assert.equal(state.schemaVersion, 9);
     assert.equal(next.runtime.store.getSession(session.id).id, session.id);
     const backups = (await readdir(h.dataDir)).filter(name => name.startsWith('runtime-state.schema3.'));
     assert.equal(backups.length, 1);

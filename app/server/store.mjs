@@ -20,7 +20,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 8;
+const SCHEMA_VERSION = 9;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination",
@@ -111,7 +111,7 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6 or 7 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7 or 8 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -148,6 +148,7 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
     exactKeys(run, new Set([
       "id", "sessionId", "status", "admissionOpen", "adapterId", "provider", "extension",
       "startedAt", "endedAt", "error", "commandId", "artifacts", "usage", "hostSession", "credentialGeneration",
+      ...(schema >= 9 ? ["supersedes"] : []),
     ]), "run");
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
@@ -172,6 +173,20 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
     validateUsage(run.usage, "run.usage");
     validateHostSession(run.hostSession, "run.hostSession");
     nonNegativeInt(run.credentialGeneration, "run.credentialGeneration");
+  }
+  // Lineage is validated after every Run is known, because a superseding Run
+  // may be stored before its target. A stored link must still name a
+  // terminated Run of the SAME Session: a file that lost that guarantee is a
+  // corrupt ledger, not a recoverable state, so the host fails closed.
+  if (schema >= 9) {
+    const runsById = new Map(parsed.runs.map((run) => [run.id, run]));
+    for (const run of parsed.runs) {
+      assert(run.supersedes === null || typeof run.supersedes === "string", "run.supersedes is invalid");
+      if (run.supersedes === null) continue;
+      const target = runsById.get(run.supersedes);
+      assert(target && target.sessionId === run.sessionId, "run.supersedes does not name a Run of the same session");
+      assert(TERMINAL_STATUSES.has(target.status), "run.supersedes names a Run that has not ended");
+    }
   }
   const eventSeq = new Map();
   for (const event of parsed.events) {
@@ -234,16 +249,37 @@ function appendEventToState(state, { runId, sessionId, type, data }) {
 
 // Receipt lookup and new-run admission share the same identity comparison.
 // Existing receipts remain readable when today's execution route is unavailable.
-function commandReceipt(state, sessionId, commandId, input) {
+function commandReceipt(state, sessionId, commandId, input, supersedes = null) {
   const existing = state.runs.find((run) => run.sessionId === sessionId && run.commandId === commandId);
   if (!existing) return null;
   const priorInputEvent = state.events.find((event) => event.runId === existing.id && event.type === "user.message");
-  if (priorInputEvent && priorInputEvent.data.text !== input) {
+  // Command identity includes the lineage claim: the same commandId asking to
+  // continue a DIFFERENT prior Run is a different intent, not a retry of this
+  // receipt.
+  if ((priorInputEvent && priorInputEvent.data.text !== input) || (existing.supersedes ?? null) !== supersedes) {
     const conflict = new Error("command conflict");
     conflict.code = "COMMAND_CONFLICT";
     throw conflict;
   }
   return { run: publicRun(existing), idempotent: true };
+}
+
+function lineageError(code, message) { const error = new Error(message); error.code = code; return error; }
+
+/**
+ * D03: a superseding Run may only continue a Run of the same Session that has
+ * already ended in `unknown|failed|cancelled`, is not already continued by
+ * another Run (lineage is a chain, never a tree) and left no unreconciled
+ * external effect. A missing Run and a Run of another Session are one answer,
+ * so lineage cannot be used to probe another Session's Run IDs.
+ */
+function assertSupersedable(state, sessionId, supersedes) {
+  const target = state.runs.find((run) => run.id === supersedes);
+  if (!target || target.sessionId !== sessionId) throw lineageError("SUPERSEDE_NOT_FOUND", "superseded run not found");
+  if (!TERMINAL_STATUSES.has(target.status)) throw lineageError("SUPERSEDE_NOT_TERMINAL", "superseded run has not ended");
+  if (target.status === "completed") throw lineageError("SUPERSEDE_COMPLETED", "superseded run completed");
+  if (state.runs.some((run) => run.supersedes === supersedes)) throw lineageError("SUPERSEDE_CONFLICT", "superseded run is already continued");
+  if (target.error?.code === "mcp_effect_unknown") throw lineageError("EFFECT_UNRECONCILED", "superseded run left unreconciled external effects");
 }
 
 export class RuntimeStore {
@@ -290,13 +326,17 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
-            coordination: emptyCoordination(), sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })) });
+            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
+            sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
+            // Every Run that existed before lineage was recorded declares no
+            // predecessor. History is never reinterpreted into a chain.
+            runs: parsed.runs.map(run => ({ ...run, supersedes: null })) });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -387,7 +427,7 @@ export class RuntimeStore {
   listSessions(projectId) { return this.state.sessions.filter((session) => projectId === undefined || session.projectId === projectId).map(publicSession); }
   listRuns(sessionId) { return this.state.runs.filter((run) => !sessionId || run.sessionId === sessionId).map(publicRun); }
   getRun(id) { return publicRun(this.state.runs.find((run) => run.id === id)); }
-  getCommandReceipt(sessionId, commandId, input) { return commandReceipt(this.state, sessionId, commandId, input); }
+  getCommandReceipt(sessionId, commandId, input, supersedes = null) { return commandReceipt(this.state, sessionId, commandId, input, supersedes); }
   getQuestion(id) { return structuredClone(this.state.questions.find((question) => question.id === id)); }
   /** The session's current event high-water mark. A snapshot reader resumes
    * from exactly this seq; a cursor beyond it is ahead of the server. */
@@ -445,18 +485,22 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null }) {
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
-      const receipt = commandReceipt(state, sessionId, commandId, input);
+      const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
       if (receipt) return receipt;
+      // Lineage admission shares this serialized closure with the commandId
+      // check, so two requests racing to continue the same Run still observe
+      // each other in order and only one of them wins.
+      if (supersedes !== null) assertSupersedable(state, sessionId, supersedes);
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       const timestamp = now();
       const run = {
         id: randomUUID(), sessionId, status: "running", admissionOpen: true, adapterId,
         provider: structuredClone(provider), extension: extension ? structuredClone(extension) : null,
         startedAt: timestamp, endedAt: null, error: null,
-        commandId, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
+        commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
         credentialGeneration,
       };

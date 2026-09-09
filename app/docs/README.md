@@ -29,4 +29,5 @@
 - [Attention global agent](attention-agent.md)：全局对话、渐进历史读取与共享 Runtime 配置。
 
 - [Thread / local messaging](coordination.md)：持久工作线、本地outbox/inbox、权限与child conformance边界。
+- [Run attempts and lineage](run-attempts.md)：Run 显式承接（`supersedes`）、合法目标与不可分叉的链。
 - [Usage detail and snapshot drilldown](usage-details.md)：每日、模型与精确Run读面。
