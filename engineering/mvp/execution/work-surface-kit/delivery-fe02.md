@@ -18,7 +18,8 @@
 |---|---|---|
 | 1 | `7125e07` | 第 0 项 `--nav` 256；Models 组重建（Connections + Add provider + 统一流程 + Advanced）；Tools 组 MCP 接入说明块；两项几何收敛；新单测 |
 | 2 | `37670b5` | copy-convention §3.3 八行与 text-sweep §7 |
-| 3 | 本页最后一次提交 | 本页与 `evidence/fe02/`。一次提交无法在自己内部写下自己的 SHA；分支头以 Astra 收到的为准 |
+| 3 | `583aa9a` | 本页与 `evidence/fe02/` |
+| 4 | 本页最后一次提交 | 在 §1 补记 `583aa9a`。一次提交无法在自己内部写下自己的 SHA；分支头以 Astra 收到的为准 |
 
 ## 2. 改动文件
 
