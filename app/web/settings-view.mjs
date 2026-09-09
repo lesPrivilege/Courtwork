@@ -419,7 +419,7 @@ export function createSettingsView(
   const probeCatalogue = el("p", { className: "form-help", attrs: { hidden: true } });
   const probeModels = el("ul", { className: "connection-probe-models", attrs: { hidden: true } });
   const probeNote = el("p", { className: "form-help", attrs: { hidden: true } });
-  let probeBusy = false;
+  let probeBusy = false, probeRevision = 0;
   function renderProbeResult(reading) {
     probeStatus.hidden = false;
     probeStatus.textContent = probeLine(reading);
@@ -435,6 +435,8 @@ export function createSettingsView(
     );
   }
   function clearProbeResult() {
+    // Any changed form invalidates responses still in flight for its old values.
+    probeRevision += 1;
     probeStatus.hidden = true;
     probeStatus.textContent = "";
     probeStatus.classList.remove("is-failed");
@@ -449,12 +451,15 @@ export function createSettingsView(
     lock();
     button.dataset.pending = "true";
     clearProbeResult();
+    const requestedRevision = probeRevision;
     probeStatus.hidden = false;
     probeStatus.textContent = "Probing…";
     try {
       const result = await request(PROBE_ENDPOINT[operation], { method: "POST", body });
+      if (requestedRevision !== probeRevision) return;
       renderProbeResult(probeReading(result, operation));
     } catch (err) {
+      if (requestedRevision !== probeRevision) return;
       /* 传输层或 4xx 的失败不是一次完成的探测；它按 host 的原话报，不冒充一个
        * `status`。 */
       probeStatus.hidden = false;
@@ -664,6 +669,7 @@ export function createSettingsView(
           : "Provider default";
     if (entry.endpoint === "host") baseUrl.value = "";
     if (entry.endpoint === "required") advanced.open = true;
+    clearProbeResult();
     renderFlow();
     fillModels(snapshot?.config?.model);
     lock();
@@ -752,6 +758,7 @@ export function createSettingsView(
   provider.addEventListener("change", () => {
     dirty = true;
     key.value = "";
+    clearProbeResult();
     fillModels();
     lock();
   });
