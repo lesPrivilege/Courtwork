@@ -104,6 +104,8 @@ design_task:
 ### 第 0 项（显式改约，单独提交）
 - `docs/interface-components.md` §工作面定性："not a third column" 改为按视口分档（≥1680 第三栏；1024–1679 覆盖 / 折叠 + tab strip；<1024 sheet），标注 WK-113 / WK-116。
 - `engineering/design/ui-composition-standard.md` §右侧 contextual surface 同步；尺寸 token 表加 ≥1680 断点与 `--doc-min` 688。
+- M-9：决定类与 composer 按钮在 `Sending…` 态保持静止态宽度（min-width 由静止标签量得），焦点不丢；断言一条。
+- Atlas ④⑤（WK-118）：tab 是状态容器——文档 tab 保留 scroll / draft / run state；agent activity（running / waiting-human / error）以微型 indicator 入类型 tab，不造 banner。
 - `composition-checks` 新增 WORK-5…（B 展开态：doc 1136、chat 隐藏但 DOM 与草稿保留；C 三栏：nav 256 / chat ≥640 / doc ≥688、各自 `overflow: auto`、顶部 chrome 同一基线）、SHELL-4 / SHELL-5（展开态与三栏态安全区）、断点两侧各一次。
 
 ### 做什么
