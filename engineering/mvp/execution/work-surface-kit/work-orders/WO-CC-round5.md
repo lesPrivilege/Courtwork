@@ -64,9 +64,9 @@ delivery-cc-s.md 沿 delivery-fe04.md 体例：基线、commit 表、改动文�
 
 ## CC-W · 三面贯通与 tab strip（待用户在 [画布](https://claude.ai/code/artifact/f0b8d9b9-01fc-4dff-bcdb-390ad6f2a24c) 选向后成单）
 
-骨架（WK-113）：第 0 项显式改约（`interface-components.md` §工作面定性按视口分档、`ui-composition-standard.md` §右侧 contextual surface、≥1680 断点、WORK-5… 断言）；1440 主次切换 + tab strip（四个类型 tab + 至多一个可关闭文档 tab，关闭区与选中区分离，截断保留全名）；≥1680 真三栏；Memory scope 位搬到工作面标题带（M-2）；tab key 复用既有身份；多实例等 BE-2。effort：`opus-wo-medium`（几何合同与 tab 生命周期需逐项判断）。
+骨架（WK-113 + WK-116 R4D-3/4/5）：第 0 项显式改约（`interface-components.md` §工作面定性按视口分档、`ui-composition-standard.md` §右侧 contextual surface、≥1680 断点、WORK-5… 断言）；1440 主次切换 + tab strip（四个类型 tab + 至多一个可关闭文档 tab，关闭区与选中区分离，截断保留全名）；≥1680 真三栏；Memory scope 位搬到工作面标题带（M-2）；tab 显示 key 复用既有身份但 renderer 失效判定保留 `status` / `modulePath`；单文档阶段仍保留聊天与当前阅读面的滚动、草稿与返回焦点（不建多文档 map ≠ 可丢位置）；B / C 均补展开态、返回、断点两侧、短高度、200% 与安全区断言；多实例等 BE-2。effort：`opus-wo-medium`（几何合同与 tab 生命周期需逐项判断）。
 
-## CC-D0 · Home 模块带（待 BE-1/3 + BE-25 交付后成单）
+## CC-D0 · Home 模块带（WK-116 R4D-2 拆两片：D0-a 外壳与现有事实投影，不依赖新后端，按产品收益排期；D0-b Activity 待 BE-1/3 + BE-25）
 
 骨架（WK-114）：Appearance `Home layout: Simple / Modules`（本设备偏好，默认 Simple）；模块带契约（次级带、显隐预置、折叠 / 移除、六态显示约定）；Today strip 原位演进；Activity 随 BE-1/3/25，Usage 随 BE-29；Mail / Calendar 待产品裁定；0.56 不动；不放死模块。effort：`opus-wo-low`。
 
