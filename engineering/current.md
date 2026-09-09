@@ -280,3 +280,5 @@ Chat / Attention Assistant施工交接（2026-09-10）：用户明确二者可�
 最新用户裁决将 Chat 与 Assistant 收为单一 Attention 全局 agent：角色唯一、会话可多；与 Matter Experts 共用 Runtime 配置机制，当前不新增 Experts 导航。Astra 从 `444f80d` 隔离并接入 `405ad76` 实施全局 Session、真实 Run 对话与渐进历史读取、显式项目 Attention 查询和配置打包表单。输入框依最新要求为单行圆角方框，配套圆角方按钮；空态保留 “Attention is all you need!”。此段覆盖此前仅前端 Assistant preview 的状态与分离 Chat 方向。
 
 RuntimeStore 当前为6（Core3/app4不变）：严格校验后从3/4/5保留原始字节备份迁移，旧会话标记project，全局会话无project/Matter绑定。全量418/418、最终定向6/6（含新增两项竞态）、smoke及色彩/材质lint通过，合成浏览器验证对话、工具、问答、单行发送与配置保存/选择；[证据及作者归因](../evidence/attention-agent-20260910/README.md)、[架构/后续边界](design/attention-agent-2026-09-10/README.md)。Luna仅有界复核，不冒充完整独立接受；连接器认证、派发Experts、通用记忆写回、原生与G1–G5未关闭，未运行真实provider、个人数据迁移或部署。
+
+Home handoff后续施工（2026-09-10）：用户授权按 Runtime→Usage→Tabs→Material→Overlay→Glyph→Sidebar/Control 顺序实施，统一composer writer。[队列](design/home-backlog-2026-09-10/README.md)。Runtime第一片已实施共享模型/effort选择器、host观测请求延迟、上下文启发式与独立用量详情；RuntimeStore7持久化可选effort，严格备份迁移3–6并保留global身份。全量423/423、最终定向5/5与合成浏览器验证通过；[证据及归因](../evidence/home-backlog-20260910/runtime/README.md)。原生provider TTFT/decode TPS无必要测量时仍明确不可用，不以host延迟或字符数冒充。下一片Usage施工；其余队列未闭合。

@@ -1,3 +1,4 @@
+import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { projectMarkdown, readCoreFile, MAX_MARKDOWN_BYTES } from "./markdown-source.mjs";
 import { createMarkdownReader } from "./markdown-reader.mjs";
 import { el, icon, action, copyAction, markdown } from "./ui-controls.mjs";
@@ -207,6 +208,7 @@ export function renderRun(
       ),
     );
   }
+  container.append(renderRequestMeasurements(records, run.id));
   const notices = records.filter((e) => e.type === "run.notice");
   if (notices.length) {
     const list = el("div", { className: "notice-list" });
