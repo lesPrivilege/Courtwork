@@ -59,4 +59,6 @@
 
 作者定向 12/12（`ui-event-mapping` 与 `settings-navigation`）、18/18（attention / 架构边界 / 呈现适配器 / renderer 准入）；色彩、材质两项 lint 与对比度报告通过；有界并发全量见 [本单证据](../../../evidence/attention-chat-closure-20260910/README.md)。合成宿主与浏览器会话同时在跑时的一次全量记为 431/434，其中两项为 `CORE_UNAVAILABLE: bridge ready timeout`，单独运行分别 0.4 秒与 0.2 秒通过；未放宽超时、未删断言。
 
+第二次提交那一行 CSS 的确认性全量记为 433/434（`full-confirming.log`）。唯一失败在 `tests/work-summary.test.mjs` 自带的 `recursiveSnapshot`：它逐项读取运行时状态目录，并发下另一处 store 的原子写在 `readdir` 与 `readFile` 之间把 `runtime-state.json.<uuid>.tmp` 改名移走。该文件单独运行 6/6。本片不写运行时状态，`attention-agent-dialog` 在测试与契约中均无引用。快照把临时文件计入，本身也会把一次原子写读成差异，故跳过临时项既更稳也更准；该套件不属本片，此处只记录，不改。
+
 未运行真实 provider，未迁移个人数据，未发送外部消息，未部署。本节点不关闭 FE-05a、FE-05、CC-I、ATT-FE-01 或 G1–G5。

@@ -34,6 +34,8 @@ An independent synthetic host on its own port and data directory, local-fake loo
 - Full bounded suite: `node --test --test-concurrency=2 app/tests/*.test.mjs tests/*.test.mjs` — **434/434**, `full-bounded.log`.
 - `tools/lint-colors.mjs`, `tools/lint-materials.mjs`, `tools/contrast-report.mjs` — pass. `tools/check-doc-links.mjs` — 562 documents, 2530 links, no problems.
 
+The confirming run for the second commit's one CSS line recorded 433/434, `full-confirming.log`. Its single failure is a race inside `tests/work-summary.test.mjs`'s own `recursiveSnapshot`: it reads the runtime state directory entry by entry, and under concurrency a store's atomic write renamed `runtime-state.json.<uuid>.tmp` away between `readdir` and `readFile`. The file runs 6/6 alone. Nothing in this slice writes runtime state, and no test reads the changed rule (`attention-agent-dialog` appears in no test or contract). The snapshot would also report a transient temp file as a spurious difference, so skipping temp entries would make the assertion more exact as well as stable; that suite is not this slice's to change, and the flake is recorded here rather than patched.
+
 An earlier full run recorded 431/434 while the synthetic host and the browser session were running beside it, kept in `full-under-load.log`. Two of the three were `CORE_UNAVAILABLE: bridge ready timeout` under that load and pass in 0.4 s and 0.2 s when run alone; the third was the WK-115 ① source guard, which this slice then updated. No timeout was relaxed and no assertion removed.
 
 ## Not fixed here
