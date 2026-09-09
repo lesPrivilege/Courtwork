@@ -172,3 +172,65 @@ changes share the configuration/admission queue and remain frozen during Runs.
 
 See [upstream integration boundaries](upstream-integration.md) for the source
 comparison and the difference between inherited, adapted and host-owned behavior.
+
+## Unsaved provider preview (BE-17/18)
+
+Authenticated POST `/api/v5/provider-models/discover` and
+`/api/v5/provider-connection/test` accept exactly:
+
+```json
+{"protocol":"openai-compatible","baseUrl":"http://127.0.0.1:1234/v1","apiKey":"explicit-optional-key"}
+```
+
+`protocol` and `baseUrl` are required. The only protocol is
+`openai-compatible`; local deployment does not imply Ollama's native protocol.
+`baseUrl` is an explicit HTTP(S) API root, at most 2048 characters, with no
+whitespace, backslash, userinfo (including empty userinfo), query or fragment.
+All trailing path slashes are removed before appending `/models`; `/v1` is
+never added implicitly. HTTP and loopback are allowed. No other destinations
+are searched. An optional key must contain 1–4096 printable ASCII characters
+without spaces; omit it for unauthenticated endpoints. It is sent only as
+`Authorization: Bearer …`. Custom headers and unknown request fields are rejected.
+The existing JSON parser applies (1 MiB request cap; malformed/non-object JSON
+400, unsupported media type 415, oversized request 413). Valid JSON with invalid
+preview fields returns 400 `invalid_provider_preview`, with a fixed message.
+
+Both endpoints return HTTP 200 for completed probe outcomes:
+
+```json
+{"operation":"discover","protocol":"openai-compatible","check":"model-directory","status":"ok","message":"Model directory handshake succeeded; generation was not tested.","models":[{"id":"example-model"}]}
+```
+
+`operation` is `discover` or `test`. `test` always returns an empty `models`
+array, but validates the same complete directory. `discover` returns IDs only
+on success. No context, reasoning, effort, display name or inference capability
+is inferred. Empty `data` is a successful directory handshake with no available
+models, not inference readiness. IDs remain untrusted display data.
+
+| Status | Meaning |
+|---|---|
+| `ok` | Valid JSON object with a `data` array of models |
+| `authentication_failed` | Upstream 401 or 403 |
+| `unsupported` | Upstream 404, 405 or 501 |
+| `http_error` | Other unsuccessful HTTP status |
+| `redirect_rejected` | Any 3xx; never followed, even on the same origin |
+| `malformed_directory` | Invalid UTF-8/JSON, missing data array, invalid/duplicate ID, excessive model count or echoed request key in an ID |
+| `response_too_large` | Decoded response body exceeds 262144 bytes |
+| `timeout` | 5000 ms elapsed, including headers and complete body |
+| `unreachable` | Network/TLS/stream failure before completion |
+
+The directory is limited to 1000 entries. Each ID must be a nonblank string
+of at most 240 JavaScript characters, without ASCII control characters.
+Unknown upstream fields are discarded. Responses contain fixed messages;
+upstream bodies, headers, URLs, error messages/stacks and request keys are not
+included in errors or logged. The response body is cancelled after rejected
+statuses/limits; no redirected target receives the supplied key.
+
+The helper has no store, ModelRuntime or credential-file dependency. It does
+not read saved keys, persist configuration, register models, create Runs or
+change Session bindings. Existing GET `/api/v5/provider-models` remains the
+installed runtime catalog. Probe success means the directory endpoint accepted this request. Success does
+not prove a supplied key was checked or valid: an endpoint that permits anonymous
+access may ignore it. Saving arbitrary compatible/local providers
+and binding them for execution remains unsupported by the existing allowlist;
+this delivery does not close the full FE-02 connection journey.

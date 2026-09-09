@@ -130,6 +130,8 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "PUT") return async () => service.changeRuntimeControl(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 2 && tail[0] === "runtime-resources" && method === "GET") return () => service.getRuntimeResource(url.searchParams.get("sessionId"), tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo();
+  if (method === "POST" && tail.length === 2 && tail[0] === "provider-models" && tail[1] === "discover") return async () => service.previewProvider(await body(req), 'discover');
+  if (method === "POST" && tail.length === 2 && tail[0] === "provider-connection" && tail[1] === "test") return async () => service.previewProvider(await body(req), 'test');
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-models") return () => service.getProviderModels();
   if (method === "GET" && tail.length === 1 && tail[0] === "provider-config") return () => service.getProviderConfig();
   if (method === "PUT" && tail.length === 1 && tail[0] === "provider-config") return async () => service.setProviderConfig(await body(req));

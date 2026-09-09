@@ -1,3 +1,4 @@
+import { previewProvider, PreviewInputError } from './provider-preview.mjs';
 import { workProjection } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
 import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promises";
@@ -244,6 +245,14 @@ export class RuntimeService {
       capabilities: { realProvider, mode: realProvider ? "real" : "local-fake", externalBrowser: false },
       adapterId: this.adapterId,
     };
+  }
+
+  async previewProvider(input, operation) {
+    try { return await previewProvider(input, operation); }
+    catch (error) {
+      if (error instanceof PreviewInputError) throw new ServiceError(400, 'invalid_provider_preview', error.message);
+      throw error;
+    }
   }
 
   getProviderModels() {
