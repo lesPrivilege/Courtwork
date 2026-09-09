@@ -1,5 +1,7 @@
 # TeamAI：多专家讨论消费与局部实践索引
 
+**后续增量：** 同一讨论已扩展为4个turn、8条文本；[MyContext / Attention追加索引](attention-delta.md)消费新增两轮。下文保留首次2-turn快照及原核验时点。
+
 2026-09-09。Courtwork读取基线 `3af83ebd35a09b4d029a9b8ce6e9c1979b7f6c54`。本次是研究入账；不安装TeamAI，不实现产品功能，不调整前端队列，不修订Paper或其采用版本。
 
 ## 原始来源与完整性

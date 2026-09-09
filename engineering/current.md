@@ -134,6 +134,8 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 
 ## 多专家资源治理：TeamAI研究入账（2026-09-09）
 
+后续同一讨论扩展为4个turn、8条文本；[增量索引](research/teamai-2026-09-09/attention-delta.md)补入MyContext与Attention两轮。核验来源采集/依赖负例、去重抑制、snooze和介入策略；保留原2-turn证据。Context快照可持久用于审计，不能替代正式状态；抑制通知不承诺事件永存。复用ATT/LG/AM，未启动产品或Paper施工。
+
 用户授权消费“多专家架构分析”，本轮完整读取2个turn、4条文本与唯一上游仓库入口。从实际main `3af83eb` 隔离核对，[TeamAI索引](research/teamai-2026-09-09/README.md)将scope、原生格式转换、资源生命周期、recall来源锚点、friction与owned patch映射至已有AM/LG/ATT和Runtime接缝。原回答的12个内部citation没有URL映射，不冒称恢复原检索；上游另行有界核验。仅研究入账，不安装TeamAI、不新增并行registry或编排平台，不改变Paper、现有施工顺序及G1–G5。
 
 ## 设计方法与Chat Space：研究入账（2026-09-09）

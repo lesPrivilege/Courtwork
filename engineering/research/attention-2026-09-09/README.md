@@ -1,5 +1,7 @@
 # Personal Attention：研究吸收与 Courtwork PR 准备
 
+[MyContext / Attention追加研究](../teamai-2026-09-09/attention-delta.md)补充来源采集、去重/抑制、条件唤回、介入时机与权限的外部实践及反例；复用本包ATT计划，不另建状态服务或施工队列。
+
 日期：2026-09-09。基线为 Courtwork `683b6d1419242bd08d20b7deec77ce12af7dcf12`，Paper 采用版本为 `d78fd312955c1f594e59cbdcbb0d3074ac355940`（9.6）。本包是研究、契约草案和候选施工设计；没有产品代码、API、schema、迁移、依赖、外发或产品验收。
 
 本轮已完整消费 13 个 turn 和 1 张截图；消费入口是 [来源索引](source-index.md)，外部成熟实践按索引登记原始定位、核验等级和未检项。原始对话只作为个人资料保留，后续公开工程材料不把未核验网页主张写成 Courtwork 事实。`engineering/current.md` 仍是产品状态权威；本包不改变 FE 单 writer 队列、ES-01、G1–G5 或 Paper。Paper 正文不在本包修订；候选观察只按 Index 流程登记。
