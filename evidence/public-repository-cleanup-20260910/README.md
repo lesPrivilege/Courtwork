@@ -27,3 +27,7 @@ Astra owns integration, architecture navigation, README, generated-file separati
 No product code or data schema changed, no personal runtime directory was opened/upgraded, and no real provider ran. This removes identified private references from current source and publication; it does not purge old Git commits. Existing frozen archives and provenance remain historical sources. Product acceptance gates and the deferred brand direction are unchanged.
 
 Final documentation handoff: the observed Markdown delta included 119 files (including parent edits), removing 84 user-root and 160 actual-worktree path occurrences. Generic fixture paths and historical SHA references remain. Astra reviewed the change scope, source-index semantics, original hash provenance and final relative-link checks; no actual user-root path remains in tracked text, excluding deliberately synthetic test strings.
+
+## Publication
+
+The authorized Pages update succeeded in [workflow run 34383995556](https://github.com/lesPrivilege/Courtwork/actions/runs/34383995556), deploying `cd2a5b889150f2bff7d6e0ef49074b7df6464967`. [Live verification](live-verification.json) binds the exact manifest and HTTP 200 byte matches for the page, public specimen and capture receipt. Product source remains `9e5384f`; page input digest is `186079ffa65e29a5f68956ad68522a47b95f9f81155e4a17c5fad60976ecdc4f`.

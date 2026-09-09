@@ -1,0 +1,32 @@
+{
+  "deployment_run": 34383995556,
+  "deployment_commit": "cd2a5b889150f2bff7d6e0ef49074b7df6464967",
+  "verified_at": "2026-09-09T17:38:09.991531+00:00",
+  "url": "https://lesprivilege.github.io/Courtwork/",
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+  "site_sha": "186079ffa65e29a5f68956ad68522a47b95f9f81155e4a17c5fad60976ecdc4f",
+  "manifest_matches_local": true,
+  "checks": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "bb342df22cd05b680fdfc64a71373640592bc1c287df3dc98350e206a12fb857",
+      "matches_local": true,
+      "machine_path_matches": 0
+    },
+    {
+      "path": "specimen/9e5384f.json",
+      "status": 200,
+      "sha256": "2e9f0de84c4596250ce6c2575a2ad748b23cf7661a7dab698cb9ba34b6c2149c",
+      "matches_local": true,
+      "machine_path_matches": 0
+    },
+    {
+      "path": "specimen/capture.json",
+      "status": 200,
+      "sha256": "a36f29e1406c3c9d2325ee64aaf644fbb5073ec3f48c3345c56eba28024964df",
+      "matches_local": true,
+      "machine_path_matches": 0
+    }
+  ]
+}

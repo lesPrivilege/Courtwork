@@ -248,3 +248,5 @@ T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点
 ## 仓库公开内容与目录整理（2026-09-10）
 
 按用户授权，由 Luna 探查目录与公开素材，Astra 整理导航、README 架构、生成物和公开数据。`site/dist/` 与 specimen vendor 副本改为构建生成；品牌分发 SVG 保留。桌面参考图从当前树移除，保留来源哈希；当前固定快照 `9e5384f` 的机器路径作公开投影，旧标本仅留冻结来源索引。模块与验证包导航见 [仓库目录](../docs/repository-layout.md)，范围、验证与归因见 [本单回执](../evidence/public-repository-cleanup-20260910/README.md)。产品代码、数据 schema、品牌选向与 G1–G5 未改变。
+
+本次整理已合入 `cd2a5b8` 并按既有授权发布 Pages；[线上回执](../evidence/public-repository-cleanup-20260910/live-verification.json)核对页面与脱敏标本 HTTP 200、manifest/字节一致。独立干净构建46/46、浏览器17/17及文档相对路径检查通过；产品快照仍为 `9e5384f`。
