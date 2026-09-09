@@ -79,3 +79,18 @@
 **PV-17（探测结果不落盘是现状而非缺陷）** discover / test 的结果只活在一次前端渲染里，刷新即失。BE-28 落地前，UI 不得把探测结果呈现为连接的持久健康状态；BE-28 的 `lastVerifiedAt` 须绑定被检查的配置与凭据代次（既有裁定），并与 `credentialStatus` 的布尔语义分列两列。
 
 **PV-18（遥测缺口按现状披露）** `providerTtftMs` 与 `decodeTokensPerSecond` 今日恒为 `null`（`request-telemetry.mjs:20` 自陈 `missing:['provider_token_timing','token_deltas']`），且失败只落 `phase`，无错误类别字段。PV-13 所需的 error class 因此是一条新后端条目（候选 BE-38），不能由前端从文案反推分类。
+
+**EX-PV2 收（2026-09-10，Fable 复核接受）**：[explore/ex-pv2-reference-anatomy.md](explore/ex-pv2-reference-anatomy.md)。Fable 非作者抽验四处成立：`google` provider 的 auth 只有 `envApiKeyAuth("Gemini API key", ["GEMINI_API_KEY"])`（`dist/providers/google.js:10`）；pi 的 OAuth 只给 anthropic / github-copilot / kimi-coding / openai-codex / openrouter / radius / xai，**不含 google**；`vertexAuth.resolve` 的 ADC 分支读 `GOOGLE_APPLICATION_CREDENTIALS` 或 `~/.config/gcloud/application_default_credentials.json` 加 `GOOGLE_CLOUD_PROJECT` / `GOOGLE_CLOUD_LOCATION`，并回报 `source`（`dist/providers/google-vertex.js:4,59-83`）；D1 / D2 已核实。
+
+**PV-19（`google` + Gemini API key 的真实成本）** pi 侧纯配置，且免费得到完整目录（contextWindow / maxTokens / thinkingLevelMap）。Courtwork 侧成本三处：允许集加一条、`API_FORMATS` 与 `pi-session-runtime` 的 `api` 派发表加 `google-generative-ai`、目录暴露照旧。不新增抽象，可作首轮第二条。
+
+**PV-20（Google Auth 的瓶颈不在 pi，在凭据教条）** 消费级 Login with Google：pi 本体未实现，Google 亦已停该路径并在条款上禁止第三方借道（D1 / D2 verified），PV-5 因此有据。Vertex ADC：pi 0.85.1 已实现且是标准路径，瓶颈在 Courtwork——今日的凭据教条明确剥离继承的环境变量、拒绝把 ambient 文件当凭据来源（T-CRED-1 / 3 / 5），而 ADC 本质就是 ambient。采纳 ADC 等于显式开一类新的凭据来源，须同时满足：① 逐 run 披露凭据来源（pi 的 `resolve` 已回报 `source`，直接消费，不自造）；② 仍不读其他产品的登录态（`~/.pi/agent/auth.json` 之禁不变）；③ 增补对应 T-CRED-* 级测试；④ 连接行须显示来源与所属 GCP project / location，不得呈现为"已连接"而不说来源。未经用户裁定不实施。
+
+**PV-21（自定义兼容网关排在内置 provider 之后）** 消费侧 `createProvider` 可描述任意网关，但不获得任何内置目录，每条 Model 记录须手写；这正是 PV-17 所述"探测结果不落盘"的另一面。次序：先第二个内置 provider（PV-19），后网关（须与 BE-21 的兼容连接与模型录入路径一并成单）。
+
+**PV-22（DSH 增量按需取用）** 取其错误分类学作 BE-38 的形状参照；catalog 覆盖与 drift gate 今日无对应需求（Courtwork 不覆写目录字段），replay envelope 不入本批次；凭据分离与既有做法一致，无须移植。
+
+**EX-PV3 收（2026-09-10，Fable 复核接受）**：[explore/ex-pv3-precedent.md](explore/ex-pv3-precedent.md)。两问各 3 候选，淘汰原因齐备。
+
+**PV-23（先例的可移植半边）** OpenCode 两条列为 canonical candidate：composer 下方触发器加按 provider 分组的列表（与今日结构同形），以及 Settings 的 catalog / custom-compatible / local 三分（与 `CONNECTION_PATHS` 同形）；其"切换立即作用于当前会话"一半不可移植，与 PV-6 的每轮冻结相冲。Zed 只取星标与键盘循环（specimen），其以 provider logo 代替分组、一模型多 provider 的身份模型与 PV-3 冲突，不取。Cursor 的双入口（点击 / 循环）作 specimen，其把推理档位并入模型身份与 PV-7 冲突，不取。SaaSFrame 的 API key 解剖（遮蔽值 / 揭示 / 复制 / 上次使用时间）作 donor，`Regenerate` 不移植——Courtwork 的凭据契约只有保存与移除。Superlist 的一键 Google OAuth 作反例留档（PV-5）。BE-17 / 18 / BE-28 的验证与 stale 呈现在采集到的先例中无对应物，属 Courtwork 自有问题，须由 specimen 自行解决。
+
