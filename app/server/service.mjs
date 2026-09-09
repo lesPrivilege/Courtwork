@@ -708,7 +708,10 @@ export class RuntimeService {
     if (!record) return { extension: null, projection: null };
     const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
     if (record.status !== 'loaded' || this.store.hasActiveRun()) { projection.humanActions = []; projection.readOnly = true; }
-    return {extension:record,projection};
+    // The existing memo renderer predates file review. It must not mount on
+    // this contract; the generic fallback remains readable until ES-FE ships.
+    return {extension: projection.contractVersion === 'se-file-memo-v1'
+      ? {...record,surface:{...record.surface,module:null}} : record,projection};
   }
 
   deleteSession(sessionId) {
@@ -735,6 +738,13 @@ export class RuntimeService {
     if (!binding || !['evidence-memo','inbound-nda'].includes(binding.extensionId)) throw new ServiceError(404,'not_found','work binding not found');
     const matterId = binding.binding.matterId;
     const kind = params.get('kind');
+    if (['file-manifest','file-content','file-diff'].includes(kind)) {
+      const offset = params.has('offset') ? Number(params.get('offset')) : 0;
+      const limit = params.has('limit') ? Number(params.get('limit')) : kind === 'file-manifest' ? 16 : 4000;
+      return this.workCore.call('file_query', { matter_id: matterId, context: null, kind,
+        candidate_id: params.get('candidateId'), artifact_id: params.get('artifactId'),
+        path: params.get('path'), offset, limit });
+    }
     if (kind === 'request') {
       const result = await this.workCore.queryRequest(text(params.get('requestId'),'requestId',{max:256}));
       if (result && result.matter_id !== matterId) throw new ServiceError(409,'binding_mismatch','request belongs to another Matter');
@@ -748,7 +758,7 @@ export class RuntimeService {
 
   async humanAction(sessionId, input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["extensionId", "generation", "action", "payload", "actor"]));
+    assertKeys(value, new Set(["extensionId", "generation", "action", "payload", "actor", "fileCapabilityVersion"]));
     if (value.actor !== undefined) throw new ServiceError(400, "unknown_field", "actor is host-owned");
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
@@ -757,6 +767,13 @@ export class RuntimeService {
     const record = this.extensionRegistry.getRecord(value.extensionId);
     if (!record || record.status !== "loaded" || record.generation !== value.generation) throw new ServiceError(409, "generation_mismatch", "extension generation is not active");
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "human action is unavailable during a run");
+    if (['evidence-memo','inbound-nda'].includes(binding.extensionId)) {
+      const matter = (await this.workCore.getMatter(binding.binding.matterId)).matter;
+      if (matter.contract_version === 'se-file-memo-v1' && value.fileCapabilityVersion !== 1)
+        throw new ServiceError(409,'CONTRACT_UNSUPPORTED','This action requires file capability version 1');
+      if (matter.contract_version !== 'se-file-memo-v1' && value.fileCapabilityVersion !== undefined)
+        throw new ServiceError(400,'unknown_field','fileCapabilityVersion is not supported for this contract');
+    }
     return {
       result: await this.extensionRegistry.humanAction({
         extensionId: value.extensionId,
@@ -986,14 +1003,61 @@ export class RuntimeService {
         saveHistory: (content, digest, options) => this.artifactHistory.save(run.sessionId, content, digest, options),
       });
 
+      // Pi forwards tool content to the model, not host-only details. This
+      // opt-in projection exposes the receipt only after appendArtifact has
+      // succeeded, so a real model can select the recorded version by hash.
+      const selectedWorkspaceTools = entry.extensionRun?.fileMemo ? workspaceTools.map(tool => tool.name !== 'ws_write' ? tool : {
+        ...tool, execute: async (...args) => {
+          const result = await tool.execute(...args);
+          return {...result, content: [...result.content, {type:'text', text:JSON.stringify({recordedFile:result.details})}]};
+        },
+      }) : workspaceTools;
+
       if (typeof extensionContext !== "string" || extensionContext.length > 100_000) throw new Error("invalid extension context");
+      const systemPrompt = this.#runSystemPrompt(entry.permissionMode);
+      const currentContext = [extensionContext, compileControlContext(entry.runtimeBinding)].filter(Boolean).join("\n\n");
+      let initializeFileInput;
+      if (entry.extensionRun?.fileMemo) {
+        const cleanSession = entry.sessionManager.getEntries().length === 0
+          && this.store.listRuns().filter(r => r.sessionId === session.id).length === 1;
+        const reasons = cleanSession ? [] : ['session_history'];
+        // An enabled compactor may inject a summary before an awaited hook.
+        // Conservatively close eligibility before any prompt in that mode.
+        if (resolveCompactionPolicy(model, this.compaction).enabled) reasons.push('compaction_enabled');
+        initializeFileInput = ({systemPrompt: actualSystemPrompt, currentContext: actualContext, cleanHistory}) => entry.extensionRun.fileMemo.initialize({
+          input: { systemPrompt: actualSystemPrompt, currentContext: actualContext, runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash}, cleanSession: cleanSession && cleanHistory, reasons: cleanHistory ? reasons : [...reasons,'runtime_history'] },
+          readRecordedFiles: async selectors => {
+            const selected = structuredClone(selectors);
+            const current = this.store.getRun(run.id);
+            if (!current?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
+            if (current.sessionId !== session.id || this.store.getSession(session.id)?.extensionBinding?.binding?.matterId !== session.extensionBinding.binding.matterId) throw Object.assign(new Error('Run binding mismatch'),{code:'BINDING_MISMATCH'});
+            if (!Array.isArray(selected) || !selected.length || selected.length > 16) throw Object.assign(new Error('file count'),{code:'FILE_LIMIT'});
+            const records = structuredClone(current.artifacts);
+            const files = [];
+            for (const selector of selected) {
+              if (!selector || Object.keys(selector).sort().join(',') !== 'path,sha256') throw Object.assign(new Error('selector shape'),{code:'INVALID'});
+              const recordIndex = records.findIndex(r => r.path === selector.path && r.sha256 === selector.sha256);
+              const record = records[recordIndex];
+              if (!record || record.kind !== 'content-version') throw Object.assign(new Error('recorded version unavailable'),{code:'BINDING_MISMATCH'});
+              if (record.bytes > 65536) throw Object.assign(new Error('file byte limit'),{code:'FILE_LIMIT'});
+              const bytes = await this.artifactHistory.read(session.id,record.sha256,record.bytes);
+              let content;
+              try { content = new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes); }
+              catch { throw Object.assign(new Error('invalid file UTF-8'),{code:'INVALID'}); }
+              files.push({...record,sessionId:session.id,runId:run.id,recordIndex,content});
+            }
+            if (!this.store.getRun(run.id)?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
+            return files;
+          },
+        });
+      }
       const started = await createSessionRun({
         cwd: entry.workspaceDir,
         agentDir: path.join(this.dataDir, "pi-agent"),
         modelRuntime: this.modelRuntime,
         model,
         sessionManager: entry.sessionManager,
-        customTools: governTools([askUserTool, ...workspaceTools, ...extensionTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+        customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           await this.#appendNotice(run.id, { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail });
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
@@ -1004,8 +1068,11 @@ export class RuntimeService {
         maxTurns: this.budget.maxTurns,
         compaction: this.compaction,
         input: instruction,
-        systemPrompt: this.#runSystemPrompt(entry.permissionMode),
-        currentContext: [extensionContext, compileControlContext(entry.runtimeBinding)].filter(Boolean).join("\n\n"),
+        systemPrompt,
+        currentContext,
+        beforeInitialInput: initializeFileInput,
+        beforeTool: (name,args) => entry.extensionRun?.fileMemo?.beforeTool(name,args),
+        beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
         onEvent: (event) => this.#onSessionEvent(run.id, event, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
       });
@@ -1188,12 +1255,19 @@ export class RuntimeService {
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     } else {
-      assertKeys(value, new Set(["decision"]));
+      assertKeys(value, new Set(["decision", "expectedContentSha256", "expectedToolCallId"]));
+      const expected = {};
+      if (value.expectedContentSha256 !== undefined) {
+        if (typeof value.expectedContentSha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.expectedContentSha256)) throw new ServiceError(400, "invalid_input", "expectedContentSha256 must be a lowercase SHA-256 digest");
+        expected.expectedContentSha256 = value.expectedContentSha256;
+      }
+      if (value.expectedToolCallId !== undefined) expected.expectedToolCallId = text(value.expectedToolCallId, "expectedToolCallId", { max: 200 });
       resolvedValue = text(value.decision, "decision", { max: 10 });
       if (resolvedValue !== "allow" && resolvedValue !== "deny") throw new ServiceError(400, "invalid_input", "decision must be allow or deny");
       try {
-        await this.store.resolveQuestion({ runId, questionId, decision: resolvedValue });
+        await this.store.resolveQuestion({ runId, questionId, decision: resolvedValue, ...expected });
       } catch (error) {
+        if (error.code === "version_mismatch") throw new ServiceError(409, "version_mismatch", "permission payload no longer matches the reviewed request");
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     }

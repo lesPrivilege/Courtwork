@@ -58,3 +58,10 @@ BE-17/18 的有界探测部分已交付：作者代码 `f58c28c`，纳入 FE-01 
 BE-1/3/25与BE-29由`fd3861b`实现，交付头`52f75dd`；正式消费沿[work-metrics协议](../../../../app/docs/work-metrics.md)。新增认证只读`GET /api/v5/work-activity`、`work-usage`（days 1–366、可选projectId），以及work-summary的可选UTC日期过滤；按Run id去重与startedAt归日。coverage只承诺保留记录范围，删除Chat后的历史完整性为unknown；usage保留partial/missing，不能当账单。summary日期过滤可能排除往日仍待处理的问题，全量待办应继续使用不带date的查询。
 
 [合流证据](../../../../evidence/backend-bounded-main-integration-20260909/README.md)分列作者、Luna独验和来源Astra组合验证。前端未改；CC-D0后续模块须按既有单writer队列消费。极端usage总和超安全整数时两个metrics端点均返回错误，作为明确可用性限制保留；不返回舍入数字。无schema/迁移/新依赖。BE-2、BE-14/15/16、BE-30…33、ES-01、Attention及原生async不随本交付关闭。
+
+
+## Astra 后端合流：BE-30 / AM / ES-01（2026-09-09）
+
+BE-30后端已交付并合流：可选expectedContentSha256/expectedToolCallId在排队resolve事务内比较，409 version_mismatch无副作用，旧body保持兼容。前端Approval卡按[协议](../../../../app/docs/permission-cas.md)消费，不静默换hash重试；前端消费未随本单完成。
+
+ES-01完整文件候选后端以最终 `b1ff74b`（证据 `95cfb16`）合流，Core2/app3、Runtime4；[正式合同](../../../../docs/work-core/contract.md#es-01-opt-in-recorded-file-memo)与[集成证据](../../../../evidence/harness-next-main-integration-20260909/README.md)给出范围、迁移和290/290组合验证。文件profile无创建GUI，旧renderer只读fallback，文件Review前端需按capability/version显式消费。AM import负例同时合流，不是完整安全解析。Attention接下轮后端，BE-31/32/33与真实provider等不随此单关闭。

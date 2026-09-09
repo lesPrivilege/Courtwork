@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次CC-W合流读取main基线 `172130e8d0ba1e6642e967ac0c1e0938e221d4a8`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次BE-30/AM/ES-01合流读取main基线 `0b5ccd27e9d0be5940714e913f4fc197f9ec7a05`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -12,7 +12,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 |---|---|---|
 | 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
 | 通用工作面 / Workbench | CC-W与r4d指定提交已合流；WK-122…127与合流补丁边界见下 | Fable从最终main提交新建清洁树派CC-D0-a（Low）→ FE-05a → FE-05 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
-| 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
+| 领域主链 | ES-01文件候选后端已合流（Core2/app3，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
@@ -166,3 +166,12 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 ## Review Surface：CodeRabbit自研PR入账（2026-09-09）
 
 用户授权消费“分析CodeRabbit巧思”，从实际main `a7a08f0` 隔离完整读取1轮2条文本、核验6个显式官方URL。[准备包](research/review-surface-2026-09-09/README.md)将15项机制归入历史定位/版本提示、阅读分组、领域比较与覆盖、Attention/局部对话四个有界PR建议，复用Core/ES/ATT与既有前端队列。分组不授予接受权，缺席不表示已解决，历史读取与逐动作当前基线分别成立。仅文档入账；未实现、未建立远端PR、未改Paper或关闭产品门。ES后端在途交付应由实际固定SHA另行接受。
+
+
+## BE-30 / AM / ES-01：后端合流（2026-09-09）
+
+从最新CC-W main `0b5ccd2` 无冲突接收 `95cfb16`，最终产品 `b1ff74b` 已包含 `429a2f2` 的验证记录损坏修复，不单独接受旧中间提交。BE-30可选permission载荷CAS在resolve事务内检查，AM有界依赖正负例已合流；ES-01完成opt-in file-memo-v1记录字节→Core候选/验证→人类接受→跨Session/producer缺席读取。正式接口、limits和输入覆盖见[协议](../docs/work-core/contract.md#es-01-opt-in-recorded-file-memo)。本段更新此前ES待做/仅探索的时点记录。
+
+[合流证据](../evidence/harness-next-main-integration-20260909/README.md)：来源Astra代码审阅、组合290/290与smoke通过，BE-30七组及固定SHA迁移/Core反例复跑通过；作者与两位Luna证据分列，无集成产品补丁。Core2/app3仅从验证过的Core1/app1或app2备份迁移；旧host拒新库，恢复用独立目录。RuntimeStore仍4；没有升级用户数据。
+
+文件GUI/catalog创建入口未做，旧renderer只读fallback；完整输入coverage限洁净Session且compaction禁用，额外输入保守unknown；结构PASS不等于专业质量。Attention fresh Astra任务已启动边界准备，本次合流后从最终main接Core/service写权；前端继续CC-D0-a → FE-05a → FE-05 → CC-I，main/current/台账由来源Astra持有。真实provider、Paper、发布和G1–G5保持原边界。

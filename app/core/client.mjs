@@ -151,6 +151,7 @@ export class CoreClient {
     const id = `core-${++this.sequence}-${randomUUID()}`;
     const request = { id, op, ...payload };
     const text = `${JSON.stringify(request)}\n`;
+    if (['initialize_file_run','mark_file_input','save_file_candidate','file_query'].includes(op) && (text.length > 1_000_000 || Buffer.byteLength(text) > 1_000_000)) throw new CoreClientError('FILE_LIMIT', 'file request wire limit', op);
     if (text.length > MAX_WIRE_LINE) throw new CoreClientError('INVALID', 'Core request exceeds size limit', op);
     const response = new Promise((resolveResponse, rejectResponse) => {
       this.pending.set(id, { resolve: resolveResponse, reject: rejectResponse, operation: op });

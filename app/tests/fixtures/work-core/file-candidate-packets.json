@@ -1,0 +1,3238 @@
+{
+  "matter": {
+    "matter_id": "m",
+    "title": "Files",
+    "source": {
+      "id": "s",
+      "version": 1,
+      "text": "Approved source.",
+      "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e"
+    },
+    "contract_version": "se-file-memo-v1",
+    "draft": ""
+  },
+  "context": {
+    "matter_id": "m",
+    "run_id": "r"
+  },
+  "input": {
+    "systemPrompt": "Host",
+    "currentContext": "Fixed",
+    "runtimeProfile": {
+      "revision": 1,
+      "hash": "d92c6a81b2ff50096bcda80885427d1f59a25b5f483f7055523504925d16ab23"
+    },
+    "cleanSession": true,
+    "reasons": []
+  },
+  "run": {
+    "run_id": "r",
+    "matter_id": "m",
+    "base_version": 0,
+    "source_version": 1,
+    "contract_version": "se-file-memo-v1",
+    "preset_version": "fixture",
+    "session_ref": "session",
+    "instruction": "Use fixed sources",
+    "provider": null,
+    "model": null,
+    "provider_config": {}
+  },
+  "payload": {
+    "id": "c",
+    "matter_id": "m",
+    "run_id": "r",
+    "base_version": 0,
+    "source_version": 1,
+    "contract_version": "se-file-memo-v1",
+    "artifact_text": "Memo",
+    "evidence": [
+      {
+        "source_id": "s",
+        "source_version": 1,
+        "start": 0,
+        "end": 16,
+        "quote": "Approved source.",
+        "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e"
+      }
+    ],
+    "obligations": []
+  },
+  "files": [
+    {
+      "path": "out/a.md",
+      "sha256": "462e6587411899423fa9d529e699fe37d5626d404f622285a48d558a40de419e",
+      "bytes": 6,
+      "content": "A😀\n",
+      "sessionId": "session",
+      "runId": "r",
+      "recordIndex": 0,
+      "kind": "content-version",
+      "writtenAt": "2026-09-09T00:00:00.000Z"
+    }
+  ],
+  "finish": {
+    "run_id": "r",
+    "status": "completed",
+    "admission_open": false,
+    "error": null,
+    "candidate_id": "c",
+    "ended_at": null
+  },
+  "decision": {
+    "request_id": "d",
+    "matter_id": "m",
+    "candidate_id": "c",
+    "base_version": 0,
+    "action": "accept",
+    "reason": "reviewed"
+  },
+  "consumerFixtures": {
+    "schemaVersion": 1,
+    "dataClass": "synthetic; actual HTTP/Pi loopback/Core",
+    "cases": {
+      "ready": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture ready",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-ready",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-b4f56b1f-5998-457d-948b-1cc885e50ca7\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": null,
+        "receipt": null,
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-16a72127-d5b2-4207-b273-c9502a473c26",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "title": "File fixture ready",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-b4f56b1f-5998-457d-948b-1cc885e50ca7",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-b4f56b1f-5998-457d-948b-1cc885e50ca7",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": true,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "291143c98b9949fbf0aa6998187f35fcf41588754e47d89461fa3b2cce5d2290",
+                    "runtimeProfile": {
+                      "hash": "0c1ca8fafde3137d1fd8759e06d3bab654e192d3b8d6a5a064fb6b777f47fd7e",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "f680e4f31d4fa0c901707fdc4441890d2264e373ac7a24a17c0e45caab64d2c8"
+                  },
+                  "basisFingerprint": "2c06de1aa6d1d60de7d27c3545a3e76afba03c661e5f163ce9fc5a7592ee3c0b",
+                  "bundleDigest": "d943e0f508c55b23b1e2cd87fdd15d31e2f86bf99324910b581f2f1dd90987f2",
+                  "byteLength": 16,
+                  "candidateDigest": "c7122ce83d66f833df776f743313bec028eded077a8610c1fce62ae2cfe1eaa2",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+                "matter_id": "matter-16a72127-d5b2-4207-b273-c9502a473c26",
+                "obligations": [],
+                "run_id": "9da75f86-0e91-4f0e-a9c5-2ab228584d0b",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:50.545+00:00",
+                "error": null,
+                "id": "9da75f86-0e91-4f0e-a9c5-2ab228584d0b",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-b4f56b1f-5998-457d-948b-1cc885e50ca7\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-16a72127-d5b2-4207-b273-c9502a473c26",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "e90d2d3f-387e-4c79-94a4-6965f9e065eb",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:50.278+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-16a72127-d5b2-4207-b273-c9502a473c26",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "0c1ca8fafde3137d1fd8759e06d3bab654e192d3b8d6a5a064fb6b777f47fd7e",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-16a72127-d5b2-4207-b273-c9502a473c26\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-b4f56b1f-5998-457d-948b-1cc885e50ca7\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-b4f56b1f-5998-457d-948b-1cc885e50ca7",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "b0a40efab746891a2e22ad99cc32ef342fe56b045c1246147d3323605a3ee772",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": [
+              {
+                "schemaVersion": 2,
+                "fileCapabilityVersion": 1,
+                "action": "decide",
+                "label": "Review candidate candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+                "payloadSchema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "request_id",
+                    "candidate_id",
+                    "base_version",
+                    "action",
+                    "reason"
+                  ],
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    },
+                    "candidate_id": {
+                      "const": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a"
+                    },
+                    "base_version": {
+                      "const": 0
+                    },
+                    "action": {
+                      "enum": [
+                        "accept",
+                        "reject",
+                        "request_evidence"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "d943e0f508c55b23b1e2cd87fdd15d31e2f86bf99324910b581f2f1dd90987f2",
+          "candidateDigest": "c7122ce83d66f833df776f743313bec028eded077a8610c1fce62ae2cfe1eaa2",
+          "candidateId": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "9da75f86-0e91-4f0e-a9c5-2ab228584d0b",
+              "sessionId": "e90d2d3f-387e-4c79-94a4-6965f9e065eb",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:50.467Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "d943e0f508c55b23b1e2cd87fdd15d31e2f86bf99324910b581f2f1dd90987f2",
+          "byteLength": 16,
+          "candidateDigest": "c7122ce83d66f833df776f743313bec028eded077a8610c1fce62ae2cfe1eaa2",
+          "candidateId": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "d943e0f508c55b23b1e2cd87fdd15d31e2f86bf99324910b581f2f1dd90987f2",
+          "byteLength": 16,
+          "candidateDigest": "c7122ce83d66f833df776f743313bec028eded077a8610c1fce62ae2cfe1eaa2",
+          "candidateId": "candidate-1b0b1e81f694bf9981d4f7595756bc27b72c2f7359f0951a0b6ffe5ccd5dfa3a",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "unknown": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture unknown",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-unknown",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-89dc8f94-40f1-4c1d-a609-c24f02e70b31\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": null,
+        "receipt": null,
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-a1c71951-816f-48db-abf4-a6f9a2a26a8e",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "title": "File fixture unknown",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-89dc8f94-40f1-4c1d-a609-c24f02e70b31",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-89dc8f94-40f1-4c1d-a609-c24f02e70b31",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "90528d2c7f50a9e9842730437cce1759271598542d6d1d37eeb66d59148ca593",
+                    "runtimeProfile": {
+                      "hash": "b3684db9d5f1dbc27abdc4e52e505ecbcf42c5ec7f1bd9cb706250acf4e22666",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "ba3a6b62198436127e101879fc67cf9968a08435155749995eda35067dbdcdae"
+                  },
+                  "basisFingerprint": "4406540ff032fe8da6dbb9db5da31e019fad83f8aa2779e12b9288a4b79887fe",
+                  "bundleDigest": "1613e95f0c461d0ccab2d3c02527cf6f9ecdb9012c9b4cb767c97fa0fc5ae5ad",
+                  "byteLength": 16,
+                  "candidateDigest": "0e148e677174ca2960d4a7c8661f3090a27ef896ca0135382d04721416c615b7",
+                  "coverage": "unknown",
+                  "fileCount": 1,
+                  "reasons": [
+                    "tool:ws_list",
+                    "DEPENDENCY_INCOMPLETE"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "unknown",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+                "matter_id": "matter-a1c71951-816f-48db-abf4-a6f9a2a26a8e",
+                "obligations": [],
+                "run_id": "9ae597f2-69eb-4704-8db1-3115ad813474",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:50.905+00:00",
+                "error": null,
+                "id": "9ae597f2-69eb-4704-8db1-3115ad813474",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-89dc8f94-40f1-4c1d-a609-c24f02e70b31\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-a1c71951-816f-48db-abf4-a6f9a2a26a8e",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "9e4aa078-c5b0-43aa-a33d-91b7ee438798",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:50.685+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-a1c71951-816f-48db-abf4-a6f9a2a26a8e",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "b3684db9d5f1dbc27abdc4e52e505ecbcf42c5ec7f1bd9cb706250acf4e22666",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-a1c71951-816f-48db-abf4-a6f9a2a26a8e\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-89dc8f94-40f1-4c1d-a609-c24f02e70b31\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-89dc8f94-40f1-4c1d-a609-c24f02e70b31",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "b4c7c1dd5d9b7b942696c7a68b8795fb605c5087266937bd8b5bf326eb27cbf4",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": [
+              {
+                "schemaVersion": 2,
+                "fileCapabilityVersion": 1,
+                "action": "decide",
+                "label": "Review candidate candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+                "payloadSchema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "request_id",
+                    "candidate_id",
+                    "base_version",
+                    "action",
+                    "reason"
+                  ],
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    },
+                    "candidate_id": {
+                      "const": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1"
+                    },
+                    "base_version": {
+                      "const": 0
+                    },
+                    "action": {
+                      "enum": [
+                        "reject",
+                        "request_evidence"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "1613e95f0c461d0ccab2d3c02527cf6f9ecdb9012c9b4cb767c97fa0fc5ae5ad",
+          "candidateDigest": "0e148e677174ca2960d4a7c8661f3090a27ef896ca0135382d04721416c615b7",
+          "candidateId": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "9ae597f2-69eb-4704-8db1-3115ad813474",
+              "sessionId": "9e4aa078-c5b0-43aa-a33d-91b7ee438798",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:50.820Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "1613e95f0c461d0ccab2d3c02527cf6f9ecdb9012c9b4cb767c97fa0fc5ae5ad",
+          "byteLength": 16,
+          "candidateDigest": "0e148e677174ca2960d4a7c8661f3090a27ef896ca0135382d04721416c615b7",
+          "candidateId": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "1613e95f0c461d0ccab2d3c02527cf6f9ecdb9012c9b4cb767c97fa0fc5ae5ad",
+          "byteLength": 16,
+          "candidateDigest": "0e148e677174ca2960d4a7c8661f3090a27ef896ca0135382d04721416c615b7",
+          "candidateId": "candidate-18fc25805ccb5b221364da35ec34fb7ed3cb39429bbc55f9a5663a4da180d4e1",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "failed": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture failed",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-failed",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": null,
+        "receipt": null,
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-28985886-0e24-47ac-b7c8-a4ff5ce5faa1",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "title": "File fixture failed",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-714bf04a-0cf0-4edf-89d5-e904e18b4768",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "93dc5b2ede6ced19caa4cc4f08091c8e060e68209a650629f137515be16cd7d3",
+                    "runtimeProfile": {
+                      "hash": "8ccc54cfbc5ed50dd30b037eb2a314d79cb23f55ef668d8e1a4a5af955b68e08",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "bd8241f1b5af8454fdd656824509fb548b9fe9b6a44260b53f002d6ef6142631"
+                  },
+                  "basisFingerprint": "29d39ff720f21e7f7ce1f6b9662d1dd3ac0afbdd01c765a3fe040ea8350c3f99",
+                  "bundleDigest": "3383b0d1545a300a212c1e9bc9f23b0db70b886603b1263f5cc726160cf9bfbc",
+                  "byteLength": 16,
+                  "candidateDigest": "2eb7b2081385c1a2aa1c062add1f415455b903a9d34aa46ce41aa5cda21f638e",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "EVIDENCE_REQUIRED",
+                    "VERIFICATION_REQUIRED"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "failed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+                "matter_id": "matter-28985886-0e24-47ac-b7c8-a4ff5ce5faa1",
+                "obligations": [],
+                "run_id": "9679b52f-222b-4524-88ab-78330449465a",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:51.240+00:00",
+                "error": null,
+                "id": "9679b52f-222b-4524-88ab-78330449465a",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-28985886-0e24-47ac-b7c8-a4ff5ce5faa1",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "8c89b016-5c6b-42d9-9e6c-d24e58fbf5a4",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:51.020+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-28985886-0e24-47ac-b7c8-a4ff5ce5faa1",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "8ccc54cfbc5ed50dd30b037eb2a314d79cb23f55ef668d8e1a4a5af955b68e08",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-28985886-0e24-47ac-b7c8-a4ff5ce5faa1\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-714bf04a-0cf0-4edf-89d5-e904e18b4768\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [],
+            "stateVersion": "2148c48dde84a334bf6dd6e020011ec601b133046fbeb7054ee9ded4b678fcdc",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": [
+              {
+                "schemaVersion": 2,
+                "fileCapabilityVersion": 1,
+                "action": "decide",
+                "label": "Review candidate candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+                "payloadSchema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "request_id",
+                    "candidate_id",
+                    "base_version",
+                    "action",
+                    "reason"
+                  ],
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    },
+                    "candidate_id": {
+                      "const": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594"
+                    },
+                    "base_version": {
+                      "const": 0
+                    },
+                    "action": {
+                      "enum": [
+                        "reject",
+                        "request_evidence"
+                      ]
+                    },
+                    "reason": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "3383b0d1545a300a212c1e9bc9f23b0db70b886603b1263f5cc726160cf9bfbc",
+          "candidateDigest": "2eb7b2081385c1a2aa1c062add1f415455b903a9d34aa46ce41aa5cda21f638e",
+          "candidateId": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "9679b52f-222b-4524-88ab-78330449465a",
+              "sessionId": "8c89b016-5c6b-42d9-9e6c-d24e58fbf5a4",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:51.157Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "3383b0d1545a300a212c1e9bc9f23b0db70b886603b1263f5cc726160cf9bfbc",
+          "byteLength": 16,
+          "candidateDigest": "2eb7b2081385c1a2aa1c062add1f415455b903a9d34aa46ce41aa5cda21f638e",
+          "candidateId": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "3383b0d1545a300a212c1e9bc9f23b0db70b886603b1263f5cc726160cf9bfbc",
+          "byteLength": 16,
+          "candidateDigest": "2eb7b2081385c1a2aa1c062add1f415455b903a9d34aa46ce41aa5cda21f638e",
+          "candidateId": "candidate-bdf02864e4e62496cec7d172c4654a1320b98213523c28bbafde626a199fb594",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "stale": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture stale",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-stale",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": {
+          "extensionId": "evidence-memo",
+          "generation": 0,
+          "fileCapabilityVersion": 1,
+          "action": "replace_sources",
+          "payload": {
+            "sources": [
+              {
+                "digest": "31236aba920be09ac69bd6281258cc0b38d0bdf0c49d9f978974b0f9797fd2d4",
+                "id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "text": "Changed source.",
+                "version": 2
+              }
+            ],
+            "revision": 2
+          }
+        },
+        "receipt": {
+          "result": {
+            "artifact": null,
+            "audits": [],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "aeb9e3a0fa5582effc1e7ea4ce69645854a8003ad0593b7cb7bd47eaa63e058c",
+                    "runtimeProfile": {
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "d5c72d81a1666783fe5f40c1d016fe66dcf1bc3e0308a483b7be5e705910eeea"
+                  },
+                  "basisFingerprint": "e6c78802c1fcbf0775928ef7a8131bbd23e979e174902d1301afa57c5c86e8f8",
+                  "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+                  "byteLength": 16,
+                  "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "obligations": [],
+                "run_id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "core_state_digest": "52dc03d4be22e24035d04b997d5628c1d3ddcde3f03aedaf9163a1a458a94aeb",
+            "decisions": [],
+            "domain": null,
+            "draft": "",
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+              "obligations": [],
+              "source_version": 2,
+              "version": 0
+            },
+            "request_results": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:51.953+00:00",
+                "error": null,
+                "id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "c9f0ab67-9ea0-47e9-adde-4a323c5c2282",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:51.719+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-a263b8c0-b57e-4284-a05e-7b749f891bc8\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "digest": "31236aba920be09ac69bd6281258cc0b38d0bdf0c49d9f978974b0f9797fd2d4",
+                "id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "text": "Changed source.",
+                "version": 2
+              }
+            ],
+            "title": "File fixture stale"
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+              "obligations": [],
+              "source_version": 2,
+              "version": 0
+            },
+            "title": "File fixture stale",
+            "sources": [
+              {
+                "digest": "31236aba920be09ac69bd6281258cc0b38d0bdf0c49d9f978974b0f9797fd2d4",
+                "id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "text": "Changed source.",
+                "version": 2
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "aeb9e3a0fa5582effc1e7ea4ce69645854a8003ad0593b7cb7bd47eaa63e058c",
+                    "runtimeProfile": {
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "d5c72d81a1666783fe5f40c1d016fe66dcf1bc3e0308a483b7be5e705910eeea"
+                  },
+                  "basisFingerprint": "e6c78802c1fcbf0775928ef7a8131bbd23e979e174902d1301afa57c5c86e8f8",
+                  "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+                  "byteLength": 16,
+                  "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "obligations": [],
+                "run_id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:51.953+00:00",
+                "error": null,
+                "id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "c9f0ab67-9ea0-47e9-adde-4a323c5c2282",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:51.719+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-a263b8c0-b57e-4284-a05e-7b749f891bc8\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "52dc03d4be22e24035d04b997d5628c1d3ddcde3f03aedaf9163a1a458a94aeb",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+              "obligations": [],
+              "source_version": 2,
+              "version": 0
+            },
+            "title": "File fixture stale",
+            "sources": [
+              {
+                "digest": "31236aba920be09ac69bd6281258cc0b38d0bdf0c49d9f978974b0f9797fd2d4",
+                "id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "text": "Changed source.",
+                "version": 2
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "aeb9e3a0fa5582effc1e7ea4ce69645854a8003ad0593b7cb7bd47eaa63e058c",
+                    "runtimeProfile": {
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "d5c72d81a1666783fe5f40c1d016fe66dcf1bc3e0308a483b7be5e705910eeea"
+                  },
+                  "basisFingerprint": "e6c78802c1fcbf0775928ef7a8131bbd23e979e174902d1301afa57c5c86e8f8",
+                  "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+                  "byteLength": 16,
+                  "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "obligations": [],
+                "run_id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:51.953+00:00",
+                "error": null,
+                "id": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "c9f0ab67-9ea0-47e9-adde-4a323c5c2282",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:51.719+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-a263b8c0-b57e-4284-a05e-7b749f891bc8",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "23b5cb10262e469b12f38a882a07e5bad1012233896b6a6edb824035fcd96b42",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-a263b8c0-b57e-4284-a05e-7b749f891bc8\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-93d26da4-2e13-426f-9d81-c4df2c727e95\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-93d26da4-2e13-426f-9d81-c4df2c727e95",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "52dc03d4be22e24035d04b997d5628c1d3ddcde3f03aedaf9163a1a458a94aeb",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+          "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+          "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "e9b5f302-2f2d-45fc-b4f2-e60c86a33b6c",
+              "sessionId": "c9f0ab67-9ea0-47e9-adde-4a323c5c2282",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:51.865Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+          "byteLength": 16,
+          "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+          "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "c9e251c9abe4f4a0794cb0dfa075b562923ad21a7eb0f69237b1ff5e807bc374",
+          "byteLength": 16,
+          "candidateDigest": "c77f0d034ee97d04e5807918166cf3b0f6a9b1d4f32a884e53425029938900d0",
+          "candidateId": "candidate-25a426a2d57f197ddc66152d0c5773bebffe893f8c47536cd7e8ac51ab15252f",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "accepted": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture accepted",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-accepted",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": {
+          "extensionId": "evidence-memo",
+          "generation": 0,
+          "fileCapabilityVersion": 1,
+          "action": "decide",
+          "payload": {
+            "request_id": "fixture-accepted",
+            "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+            "base_version": 0,
+            "action": "accept",
+            "reason": "Synthetic reviewed fixture"
+          }
+        },
+        "receipt": {
+          "result": {
+            "action": "accept",
+            "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+            "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+            "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+            "request_id": "fixture-accepted",
+            "version": 1
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+              "obligations": [],
+              "source_version": 1,
+              "version": 1
+            },
+            "title": "File fixture accepted",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "d71f755a5590bd7b12fc7ac5dfbfedcb0dfacc67c088387e40572dbe3ee46676",
+                    "runtimeProfile": {
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "cde34a454f9f22418d6dba6dc9a1b0cfb7c57592e51d62fcb3203e94918f840e"
+                  },
+                  "basisFingerprint": "d787500f21c8882170715ae7d99fd418eb883c3a3ff4a984ca41f4aadd501edb",
+                  "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+                  "byteLength": 16,
+                  "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "CANDIDATE_CLOSED",
+                    "VERSION_CONFLICT",
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "obligations": [],
+                "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "artifact": {
+              "candidate_hash": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+              "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+              "content": "Source-backed file memo.",
+              "content_digest": "5595a17a5677b44d1240609d9ffa1b48afc300066c022651bc39d3f97ae97b97",
+              "id": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1"
+            },
+            "draft": "",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "reason": "Synthetic reviewed fixture",
+                "request_id": "fixture-accepted",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "request_id": "fixture-accepted",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15"
+                }
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:52.251+00:00",
+                "error": null,
+                "id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "3fbe7e02-fa48-473e-8bd2-f542c750afcd",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:52.027+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-e378e487-1fac-4e8b-bde7-dce8d7f22420\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "6f82b2c3e5cdfbfc4a5ba233d0998847397ef9fe00693170496aad9937b03138",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+              "obligations": [],
+              "source_version": 1,
+              "version": 1
+            },
+            "title": "File fixture accepted",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "d71f755a5590bd7b12fc7ac5dfbfedcb0dfacc67c088387e40572dbe3ee46676",
+                    "runtimeProfile": {
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "cde34a454f9f22418d6dba6dc9a1b0cfb7c57592e51d62fcb3203e94918f840e"
+                  },
+                  "basisFingerprint": "d787500f21c8882170715ae7d99fd418eb883c3a3ff4a984ca41f4aadd501edb",
+                  "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+                  "byteLength": 16,
+                  "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "CANDIDATE_CLOSED",
+                    "VERSION_CONFLICT",
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "obligations": [],
+                "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "artifact": {
+              "candidate_hash": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+              "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+              "content": "Source-backed file memo.",
+              "content_digest": "5595a17a5677b44d1240609d9ffa1b48afc300066c022651bc39d3f97ae97b97",
+              "id": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1"
+            },
+            "draft": "",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "reason": "Synthetic reviewed fixture",
+                "request_id": "fixture-accepted",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "request_id": "fixture-accepted",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15"
+                }
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:52.251+00:00",
+                "error": null,
+                "id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "3fbe7e02-fa48-473e-8bd2-f542c750afcd",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:52.027+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-e378e487-1fac-4e8b-bde7-dce8d7f22420\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "6f82b2c3e5cdfbfc4a5ba233d0998847397ef9fe00693170496aad9937b03138",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+          "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+          "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+              "sessionId": "3fbe7e02-fa48-473e-8bd2-f542c750afcd",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:52.163Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+          "byteLength": 16,
+          "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+          "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+          "byteLength": 16,
+          "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+          "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "rejected": {
+        "bindingRequest": {
+          "extensionId": "evidence-memo",
+          "input": {
+            "title": "File fixture rejected",
+            "sourceText": "Approved source.",
+            "profile": "file-memo-v1"
+          }
+        },
+        "runRequest": {
+          "commandId": "file-fixture-rejected",
+          "input": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-9e75101a-5855-4cad-b308-58fd807652bf\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]"
+        },
+        "actionRequest": {
+          "extensionId": "evidence-memo",
+          "generation": 0,
+          "fileCapabilityVersion": 1,
+          "action": "decide",
+          "payload": {
+            "request_id": "fixture-rejected",
+            "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+            "base_version": 0,
+            "action": "reject",
+            "reason": "Synthetic reviewed fixture"
+          }
+        },
+        "receipt": {
+          "result": {
+            "action": "reject",
+            "active_artifact": null,
+            "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+            "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+            "request_id": "fixture-rejected",
+            "version": 1
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+              "obligations": [],
+              "source_version": 1,
+              "version": 1
+            },
+            "title": "File fixture rejected",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "5930395ab322916364df70fb6a108f52e675a03c7247d81d99746283410e7a2a",
+                    "runtimeProfile": {
+                      "hash": "97f027e83aef213f2ca4c10b6395b627675ebff1ce73bb72fdfd7d97485036cb",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "fd17d584e1c85305601cd04f2ea2ceae56fe360fd7480da068558e92b61538e5"
+                  },
+                  "basisFingerprint": "55454d062d1ba7c06d4f919b7dce4034babd1ab6ab01caa04d4402acd993531f",
+                  "bundleDigest": "4a31c775f808fb6e64601a3277d02a976011f153dc6400abf9ce9e7907e9133e",
+                  "byteLength": 16,
+                  "candidateDigest": "b3f85f8b9094eacaf9a5ed809cd144613a0970d7033921f001551d48b0da1020",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "CANDIDATE_CLOSED",
+                    "VERSION_CONFLICT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "obligations": [],
+                "run_id": "282989aa-65dd-438e-84ca-c9bb8d377d72",
+                "source_version": 1,
+                "status": "rejected"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [
+              {
+                "action": "reject",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "reason": "Synthetic reviewed fixture",
+                "request_id": "fixture-rejected",
+                "result": {
+                  "action": "reject",
+                  "active_artifact": null,
+                  "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                  "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                  "request_id": "fixture-rejected",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                  "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                  "run_id": "282989aa-65dd-438e-84ca-c9bb8d377d72"
+                }
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:53.001+00:00",
+                "error": null,
+                "id": "282989aa-65dd-438e-84ca-c9bb8d377d72",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-9e75101a-5855-4cad-b308-58fd807652bf\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "ac6e9394-e4a9-4e03-8015-3b110d75bf70",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:52.758+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "97f027e83aef213f2ca4c10b6395b627675ebff1ce73bb72fdfd7d97485036cb",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-376b1488-bba2-41fb-8df6-391aef1d53ce\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-9e75101a-5855-4cad-b308-58fd807652bf\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "18e6edd4dd068d8b99884b58e14ae2e576d11cd726adcaf550ece8471b4ff2d2",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 0,
+            "status": "loaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": null
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "extension": {
+              "id": "evidence-memo",
+              "version": "0.1.0",
+              "releaseStatus": "development"
+            },
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+              "obligations": [],
+              "source_version": 1,
+              "version": 1
+            },
+            "title": "File fixture rejected",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "5930395ab322916364df70fb6a108f52e675a03c7247d81d99746283410e7a2a",
+                    "runtimeProfile": {
+                      "hash": "97f027e83aef213f2ca4c10b6395b627675ebff1ce73bb72fdfd7d97485036cb",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "fd17d584e1c85305601cd04f2ea2ceae56fe360fd7480da068558e92b61538e5"
+                  },
+                  "basisFingerprint": "55454d062d1ba7c06d4f919b7dce4034babd1ab6ab01caa04d4402acd993531f",
+                  "bundleDigest": "4a31c775f808fb6e64601a3277d02a976011f153dc6400abf9ce9e7907e9133e",
+                  "byteLength": 16,
+                  "candidateDigest": "b3f85f8b9094eacaf9a5ed809cd144613a0970d7033921f001551d48b0da1020",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "CANDIDATE_CLOSED",
+                    "VERSION_CONFLICT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "obligations": [],
+                "run_id": "282989aa-65dd-438e-84ca-c9bb8d377d72",
+                "source_version": 1,
+                "status": "rejected"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [
+              {
+                "action": "reject",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "reason": "Synthetic reviewed fixture",
+                "request_id": "fixture-rejected",
+                "result": {
+                  "action": "reject",
+                  "active_artifact": null,
+                  "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                  "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                  "request_id": "fixture-rejected",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                  "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                  "run_id": "282989aa-65dd-438e-84ca-c9bb8d377d72"
+                }
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:53.001+00:00",
+                "error": null,
+                "id": "282989aa-65dd-438e-84ca-c9bb8d377d72",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-9e75101a-5855-4cad-b308-58fd807652bf\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "ac6e9394-e4a9-4e03-8015-3b110d75bf70",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:52.758+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-376b1488-bba2-41fb-8df6-391aef1d53ce",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "97f027e83aef213f2ca4c10b6395b627675ebff1ce73bb72fdfd7d97485036cb",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-376b1488-bba2-41fb-8df6-391aef1d53ce\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-9e75101a-5855-4cad-b308-58fd807652bf\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-9e75101a-5855-4cad-b308-58fd807652bf",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "18e6edd4dd068d8b99884b58e14ae2e576d11cd726adcaf550ece8471b4ff2d2",
+            "readOnly": false,
+            "compatibility": "supported",
+            "humanActions": []
+          }
+        },
+        "manifest": {
+          "artifactId": null,
+          "bundleDigest": "4a31c775f808fb6e64601a3277d02a976011f153dc6400abf9ce9e7907e9133e",
+          "candidateDigest": "b3f85f8b9094eacaf9a5ed809cd144613a0970d7033921f001551d48b0da1020",
+          "candidateId": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+          "end": 1,
+          "fileCount": 1,
+          "files": [
+            {
+              "bytes": 16,
+              "kind": "content-version",
+              "path": "out/memo.txt",
+              "recordIndex": 0,
+              "runId": "282989aa-65dd-438e-84ca-c9bb8d377d72",
+              "sessionId": "ac6e9394-e4a9-4e03-8015-3b110d75bf70",
+              "sha256": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+              "writtenAt": "2026-09-09T14:21:52.911Z"
+            }
+          ],
+          "nextOffset": null,
+          "offset": 0,
+          "schemaVersion": 1
+        },
+        "page": {
+          "artifactId": null,
+          "bundleDigest": "4a31c775f808fb6e64601a3277d02a976011f153dc6400abf9ce9e7907e9133e",
+          "byteLength": 16,
+          "candidateDigest": "b3f85f8b9094eacaf9a5ed809cd144613a0970d7033921f001551d48b0da1020",
+          "candidateId": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+          "codePointLength": 13,
+          "end": 4,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": 4,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exac"
+        },
+        "diff": {
+          "artifactId": null,
+          "bundleDigest": "4a31c775f808fb6e64601a3277d02a976011f153dc6400abf9ce9e7907e9133e",
+          "byteLength": 16,
+          "candidateDigest": "b3f85f8b9094eacaf9a5ed809cd144613a0970d7033921f001551d48b0da1020",
+          "candidateId": "candidate-0db2f3ce0515705c3e596f677c0ba3a3eef0ccffb0c7e59fbe158783fbd1bdb4",
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "path": "out/memo.txt",
+          "reason": "no_corresponding_record",
+          "schemaVersion": 1,
+          "status": "unavailable"
+        }
+      },
+      "unsupported": {
+        "faultInjection": "unknown file schema in a synthetic candidate",
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 1,
+            "status": "unloaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": "/extensions/evidence-memo/renderer.mjs"
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "matter": {
+              "active_artifact": null,
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-225491c6-2db4-49ea-9f3c-d5f7b4e75e08",
+              "obligations": [],
+              "source_version": 1,
+              "version": 0
+            },
+            "title": "File fixture unsupported",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-d40eb47e-67e3-4e12-bfca-40418df511eb",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-d40eb47e-67e3-4e12-bfca-40418df511eb",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "candidateDigest": "727376c5057dd13a5a27cff33f17697754f23333d7c39b1b032d171e8e01dce9",
+                  "coverage": "unknown",
+                  "reasons": [
+                    "CONTRACT_UNSUPPORTED"
+                  ],
+                  "schemaVersion": null,
+                  "verification": "unknown"
+                },
+                "id": "candidate-d572d7b1eb2eb86733b12d7e0597fb6c01a7c6c2e06cd47c8ba6b3251b6fcc7b",
+                "matter_id": "matter-225491c6-2db4-49ea-9f3c-d5f7b4e75e08",
+                "obligations": [],
+                "run_id": "63e5e0a3-c03c-4685-b475-c34408de86bc",
+                "source_version": 1,
+                "status": "pending"
+              }
+            ],
+            "artifact": null,
+            "draft": "",
+            "decisions": [],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-d572d7b1eb2eb86733b12d7e0597fb6c01a7c6c2e06cd47c8ba6b3251b6fcc7b",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:53.475+00:00",
+                "error": null,
+                "id": "63e5e0a3-c03c-4685-b475-c34408de86bc",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-d40eb47e-67e3-4e12-bfca-40418df511eb\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-225491c6-2db4-49ea-9f3c-d5f7b4e75e08",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "ec5c0739-47fe-42e3-99f2-4fdbd2a1d4a3",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:53.224+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-225491c6-2db4-49ea-9f3c-d5f7b4e75e08",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "51166e4db180a800bcd3b48c65ce64f3c546ac326e9dc150985c1c6bf9cae3a5",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-225491c6-2db4-49ea-9f3c-d5f7b4e75e08\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-d40eb47e-67e3-4e12-bfca-40418df511eb\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-d40eb47e-67e3-4e12-bfca-40418df511eb",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "69662c4c61b328a333ff46c8e81b2ab8183ecc8e6346c4dd40e227c387c2511d",
+            "readOnly": true,
+            "compatibility": "read_only",
+            "humanActions": []
+          }
+        },
+        "metadata": {
+          "artifactId": null,
+          "candidateId": "candidate-d572d7b1eb2eb86733b12d7e0597fb6c01a7c6c2e06cd47c8ba6b3251b6fcc7b",
+          "metadata": {
+            "acceptable": false,
+            "candidateDigest": "727376c5057dd13a5a27cff33f17697754f23333d7c39b1b032d171e8e01dce9",
+            "coverage": "unknown",
+            "reasons": [
+              "CONTRACT_UNSUPPORTED"
+            ],
+            "schemaVersion": null,
+            "verification": "unknown"
+          },
+          "schemaVersion": 1,
+          "status": "unsupported"
+        }
+      },
+      "missing-bytes": {
+        "faultInjection": "deleted synthetic file row",
+        "response": {
+          "status": 409,
+          "json": {
+            "error": {
+              "code": "INTEGRITY_REFUSAL",
+              "message": "INTEGRITY_REFUSAL: file membership"
+            }
+          }
+        }
+      },
+      "producer-absent": {
+        "packet": {
+          "extension": {
+            "id": "evidence-memo",
+            "version": "0.1.0",
+            "generation": 1,
+            "status": "unloaded",
+            "kind": "development-extension",
+            "releaseStatus": "development",
+            "title": "Evidence Memo (development)",
+            "surface": {
+              "id": "evidence-memo",
+              "title": "Evidence Memo",
+              "module": "/extensions/evidence-memo/renderer.mjs"
+            },
+            "tools": [
+              "se_read_source",
+              "se_submit_candidate",
+              "se_read_artifact",
+              "se_read_candidate_file",
+              "se_read_artifact_file"
+            ],
+            "bindingFields": [
+              {
+                "name": "title",
+                "label": "Title",
+                "multiline": false,
+                "required": true,
+                "maxLength": 120
+              },
+              {
+                "name": "sourceText",
+                "label": "Source text",
+                "multiline": true,
+                "required": true,
+                "maxLength": 100000
+              }
+            ]
+          },
+          "projection": {
+            "fileCapability": {
+              "schemaVersion": 1,
+              "contractVersion": "se-file-memo-v1",
+              "queries": [
+                "file-manifest",
+                "file-content",
+                "file-diff"
+              ]
+            },
+            "schemaVersion": 1,
+            "contractVersion": "se-file-memo-v1",
+            "domain": null,
+            "matter": {
+              "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+              "contract_version": "se-file-memo-v1",
+              "id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+              "obligations": [],
+              "source_version": 1,
+              "version": 1
+            },
+            "title": "File fixture accepted",
+            "sources": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "text": "Approved source.",
+                "version": 1
+              }
+            ],
+            "candidates": [
+              {
+                "artifact_text": "Source-backed file memo.",
+                "base_version": 0,
+                "contract_version": "se-file-memo-v1",
+                "evidence": [
+                  {
+                    "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                    "end": 16,
+                    "quote": "Approved source.",
+                    "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                    "source_version": 1,
+                    "start": 0
+                  }
+                ],
+                "files": {
+                  "acceptable": false,
+                  "basis": {
+                    "base": null,
+                    "inputDigest": "d71f755a5590bd7b12fc7ac5dfbfedcb0dfacc67c088387e40572dbe3ee46676",
+                    "runtimeProfile": {
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "schema": "file-memo-fixed-basis-v1",
+                    "sourceFingerprint": "cde34a454f9f22418d6dba6dc9a1b0cfb7c57592e51d62fcb3203e94918f840e"
+                  },
+                  "basisFingerprint": "d787500f21c8882170715ae7d99fd418eb883c3a3ff4a984ca41f4aadd501edb",
+                  "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+                  "byteLength": 16,
+                  "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+                  "coverage": "complete",
+                  "fileCount": 1,
+                  "reasons": [
+                    "CANDIDATE_CLOSED",
+                    "VERSION_CONFLICT",
+                    "STALE_INPUT"
+                  ],
+                  "schemaVersion": 1,
+                  "verification": "passed",
+                  "verifier": {
+                    "id": "file-memo-structure-v1",
+                    "policyDigest": "53a2fcd3c5089959bd88741249912ebc7b5377954f86a4bd182af53b18fdb1ca",
+                    "rules": [
+                      "recorded-utf8-v1",
+                      "source-evidence-required-v1",
+                      "obligations-v1",
+                      "fixed-basis-v1"
+                    ],
+                    "version": 1
+                  }
+                },
+                "id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "obligations": [],
+                "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "source_version": 1,
+                "status": "accepted"
+              }
+            ],
+            "artifact": {
+              "candidate_hash": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+              "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+              "content": "Source-backed file memo.",
+              "content_digest": "5595a17a5677b44d1240609d9ffa1b48afc300066c022651bc39d3f97ae97b97",
+              "id": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1"
+            },
+            "draft": "",
+            "decisions": [
+              {
+                "action": "accept",
+                "actor": {
+                  "id": "reviewer-1",
+                  "kind": "local_reviewer"
+                },
+                "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "reason": "Synthetic reviewed fixture",
+                "request_id": "fixture-accepted",
+                "result": {
+                  "action": "accept",
+                  "active_artifact": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "request_id": "fixture-accepted",
+                  "version": 1
+                },
+                "scope": {
+                  "base_version": 0,
+                  "candidate_id": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                  "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                  "run_id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15"
+                }
+              }
+            ],
+            "runs": [
+              {
+                "admissionOpen": false,
+                "base_version": 0,
+                "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+                "contract_version": "se-file-memo-v1",
+                "endedAt": "2026-09-09T14:21:52.251+00:00",
+                "error": null,
+                "id": "7bf7b6e5-9ec5-4a9d-a375-e14a0647ef15",
+                "instruction": "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/memo.txt\",\"text\":\"Exact file 😀\\n\"}},{\"name\":\"se_submit_candidate\",\"arguments\":{\"artifact_text\":\"Source-backed file memo.\",\"evidence\":[{\"source_id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"source_version\":1,\"start\":0,\"end\":16,\"quote\":\"Approved source.\",\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"obligations\":[],\"recordedFiles\":[{\"path\":\"out/memo.txt\",\"sha256\":\"808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474\"}]}}]",
+                "matter_id": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                "mode": "simulation",
+                "model": "fake-model",
+                "preset_version": "evidence-memo-development-1",
+                "provider": "fake-openai-loopback",
+                "providerConfig": {
+                  "api": "openai-completions",
+                  "credentialStatus": "configured",
+                  "executionMode": "simulation",
+                  "model": "fake-model",
+                  "provider": "fake-openai-loopback"
+                },
+                "session_ref": "3fbe7e02-fa48-473e-8bd2-f542c750afcd",
+                "source_version": 1,
+                "startedAt": "2026-09-09T14:21:52.027+00:00",
+                "status": "completed",
+                "workContext": {
+                  "provenance": {
+                    "characters": 388,
+                    "contractVersion": "se-file-memo-v1",
+                    "limit": 24000,
+                    "matterId": "matter-e378e487-1fac-4e8b-bde7-dce8d7f22420",
+                    "omitted": [
+                      "artifact body available through se_read_artifact",
+                      "source bodies available through scoped read tool",
+                      "closed candidates and execution trace"
+                    ],
+                    "runtimeProfile": {
+                      "composition": {
+                        "id": "agent:general",
+                        "missing": [],
+                        "resourceIds": null,
+                        "status": "compatible",
+                        "uiSlots": [
+                          "runtime.inspector",
+                          "work.surface"
+                        ],
+                        "version": "builtin"
+                      },
+                      "hash": "0c17915040cda14e3b95bcc67ed1835e1aab28ead69457e8d34b327475020b83",
+                      "revision": 0
+                    },
+                    "selected": [
+                      "active artifact identity and input basis",
+                      "obligations",
+                      "pending candidates and input basis",
+                      "source references"
+                    ],
+                    "sourceVersion": 1,
+                    "stateVersion": 0
+                  },
+                  "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-file-memo-v1\",\"id\":\"matter-e378e487-1fac-4e8b-bde7-dce8d7f22420\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c\",\"version\":1,\"digest\":\"c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e\"}],\"pending\":[]}"
+                }
+              }
+            ],
+            "evidence": [
+              {
+                "digest": "c968fdc1a07380a77357f7c41fe42d7c58ba377c3a6ddc2b1abfc63224c3cb5e",
+                "end": 16,
+                "quote": "Approved source.",
+                "source_id": "source-dcf2fb0a-7152-4f19-9106-cf213e5cd93c",
+                "source_version": 1,
+                "start": 0
+              }
+            ],
+            "stateVersion": "6f82b2c3e5cdfbfc4a5ba233d0998847397ef9fe00693170496aad9937b03138",
+            "readOnly": true,
+            "compatibility": "read_only",
+            "humanActions": []
+          }
+        },
+        "page": {
+          "artifactId": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+          "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+          "byteLength": 16,
+          "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+          "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+          "codePointLength": 13,
+          "end": 13,
+          "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+          "nextOffset": null,
+          "offset": 0,
+          "path": "out/memo.txt",
+          "schemaVersion": 1,
+          "text": "Exact file 😀\n"
+        }
+      }
+    },
+    "continuation": {
+      "producerSessionDeleted": true,
+      "page": {
+        "artifactId": "artifact-candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95-1",
+        "bundleDigest": "76de3a87b22e959575c7dc1b3d46d4e816d7c4ceada0bbab6ce60132e05ad1c2",
+        "byteLength": 16,
+        "candidateDigest": "e6c66a39f51454f98732c7833335f140bfb50cf586838a5d6514dd2cfebdb1eb",
+        "candidateId": "candidate-70cc5cf9c514844419191b56f0653cffeda6670aff8789ba2b199a2bba7fbf95",
+        "codePointLength": 13,
+        "end": 13,
+        "fileDigest": "808c580cde13cb48998a6a65f19f69ada257c34219974f9bbeffd2604c2e8474",
+        "nextOffset": null,
+        "offset": 0,
+        "path": "out/memo.txt",
+        "schemaVersion": 1,
+        "text": "Exact file 😀\n"
+      }
+    },
+    "unrepresentable": {
+      "pendingUnchecked": "Not emitted: candidate, files and immutable verification commit together."
+    }
+  }
+}

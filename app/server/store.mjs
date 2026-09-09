@@ -490,13 +490,22 @@ export class RuntimeStore {
     });
   }
 
-  async resolveQuestion({ runId, questionId, answer = null, decision = null }) {
+  async resolveQuestion({ runId, questionId, answer = null, decision = null, expectedContentSha256, expectedToolCallId }) {
     return this._mutate((state) => {
       const question = state.questions.find((item) => item.id === questionId && item.runId === runId); if (!question) throw new Error("question not found"); if (question.status !== "pending") throw new Error("question already resolved");
       const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found");
       // Recheck in the same queued mutation as the answer. The service's
       // earlier read may precede a cancel/terminal mutation that queued first.
       if (!run.admissionOpen || !["running", "waiting_user"].includes(run.status)) throw new Error("question is not available");
+      if (expectedContentSha256 !== undefined || expectedToolCallId !== undefined) {
+        if (question.kind !== "permission") throw new Error("expected payload is only valid for permission questions");
+        if ((expectedContentSha256 !== undefined && expectedContentSha256 !== question.payload.contentSha256)
+          || (expectedToolCallId !== undefined && expectedToolCallId !== question.payload.toolCallId)) {
+          const error = new Error("permission payload no longer matches the reviewed request");
+          error.code = "version_mismatch";
+          throw error;
+        }
+      }
       question.status = "resolved"; question.answer = answer; question.decision = decision; run.status = "running";
       const eventType = question.kind === "permission" ? "permission.resolved" : "question.resolved";
       appendEventToState(state, { runId, sessionId: run.sessionId, type: eventType, data: question.kind === "permission" ? { id: questionId, kind: question.kind, decision } : { id: questionId, kind: question.kind, answer } });
