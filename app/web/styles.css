@@ -5405,7 +5405,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 
 /* Attention uses the existing solid reading/material roles. A real modal
    dialog supplies inert background and focus containment; no simulated glass. */
-.attention-agent-dialog { width: min(640px, calc(100vw - 40px)); max-width: none; height: min(780px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto 20px auto auto; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--ink); box-shadow: var(--shadow-float); overflow: hidden; }
+.attention-agent-dialog { width: min(640px, calc(100vw - 40px)); max-width: none; height: min(780px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto 20px auto auto; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--ink); box-shadow: var(--shadow-float); overflow: clip; }
 .attention-agent-dialog[open] { display: flex; flex-direction: column; }
 .attention-agent-dialog::backdrop { background: var(--scrim); }
 .attention-agent-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px 12px; }
