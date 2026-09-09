@@ -4,18 +4,22 @@
 
 体例：一页，中文为主。English 保留在字标、H1、段标题、产品 UI 词、Paper 术语、命令与代码。产品路径只用 [界面文案体例](../../design/copy-convention.md) §3 词表；命题段只用 Paper 词；两套词不混。状态三档：**verified with synthetic data**（固定 SHA、合成材料、确定性 provider）· **runs locally**（可启动可操作，未做独立验收）· **not yet**（目标）。不用 beta、alpha、coming soon、planned for。页面不出现内部编号。
 
-## 0. 骨架
+## 0. 骨架（PS-21 校准后）
 
 ```text
 首屏          字标 · 导航 · H1 · 定位段 · 三个动作 · 一张真实 Home
-01           Raw → Governed          同一事实的三个层级
-02           A matter in motion      一段已记录工作的只读重放
+01           Anatomy of a governed matter   七节点条 + 同一事实的三个层级
+02           A matter in motion             一段已记录工作的只读重放
 03           Work that exists beyond the model.   命题与一图
 04           Review is a first-class surface      候选、证据、决定、来源
-05           Evidence                声称表 · Eval 八问
-06           Build / inspect / reproduce
+05           Evidence                       声称表 · Eval 八问
+06           Architecture & portability     组成三句 · 上游归属 · 模型用量分离
+07           Where the value would sit      商业化研究稿（concept，见 commercial-surfaces/pricing-specimen.md）
+08           Build / inspect / reproduce
 页脚          Experimental · Source · 版本 · MIT · Paper
 ```
+
+06 与 08 的文案都在本页 §7；07 的文案在 [pricing-specimen](commercial-surfaces/pricing-specimen.md)。
 
 每段先给证据入口，再给文案；证据不足的段落降为"目标"口径，不删段。
 
@@ -42,7 +46,23 @@ H1：
 
 无 JS 时首屏到此完整可读。
 
-## 2. 01 · Raw → Governed
+## 2. 01 · Anatomy of a governed matter
+
+标题：**Anatomy of a governed matter** / **一件受治理工作的解剖**
+
+七节点条（段首；每个节点是链接）：
+
+`Source → Event → Matter state → Run → Review → Decision → Provenance`
+
+| 节点 | 指向 |
+|---|---|
+| Source | 02 步 1 与标本里的源文本 |
+| Event | 本段 Event log tab |
+| Matter state | 本段 Work state tab |
+| Run | 02 步 2–6 |
+| Review | 04 段 |
+| Decision | 02 步 8 |
+| Provenance | 04 段 Provenance 一行 |
 
 引句：
 
@@ -212,7 +232,15 @@ Updated state ◀─────────────────────
 
 not yet 行只写目标，不写日期。Astra 核对"Astra 核对"行的证据路径在发布 SHA 下成立；不成立者降档，不删行。
 
-## 7. 06 · Build / inspect / reproduce
+## 7. 06 · Architecture & portability 与 08 · Build / inspect / reproduce
+
+06 段：下面的组成三句与上游归属，加一句模型用量分离：
+
+> **Model usage is separate.** 模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模型账单。
+
+08 段：命令、说明句与入口表。
+
+### 08 · Build / inspect / reproduce
 
 标题：**Build / inspect / reproduce**
 
