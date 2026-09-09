@@ -135,3 +135,7 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 ## 多专家资源治理：TeamAI研究入账（2026-09-09）
 
 用户授权消费“多专家架构分析”，本轮完整读取2个turn、4条文本与唯一上游仓库入口。从实际main `3af83eb` 隔离核对，[TeamAI索引](research/teamai-2026-09-09/README.md)将scope、原生格式转换、资源生命周期、recall来源锚点、friction与owned patch映射至已有AM/LG/ATT和Runtime接缝。原回答的12个内部citation没有URL映射，不冒称恢复原检索；上游另行有界核验。仅研究入账，不安装TeamAI、不新增并行registry或编排平台，不改变Paper、现有施工顺序及G1–G5。
+
+## 设计方法与Chat Space：研究入账（2026-09-09）
+
+用户授权消费“设计索引方法论”，从实际main `f9bafb6` 隔离完整读取5个turn、8条文本及1张截图。[研究索引](research/chat-space-2026-09-09/README.md)把约束/方案/减法方法、用户Markdown、ask_user/permission和File/Artifact下载映射至既有WK-112、前端工作面与服务合同。外部协议/库建议按原文与本轮核验分列；共享局部UI不合并状态owner，输入accept、工具allow、执行完成和Core接受分别成立。仅文档入账，不安装依赖或实现新状态/API，不改Paper、单writer队列、ES-01及G1–G5。

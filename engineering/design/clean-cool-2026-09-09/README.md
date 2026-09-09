@@ -10,6 +10,7 @@
 
 - [审查与提交索引](review.md)：当前截图、问题、实现与待做工单的对应关系。
 - [Claude 交接](claude-handoff.md)：自由度、不可变条件、拆单和验证。
+- [设计方法与Chat Space研究索引](../../research/chat-space-2026-09-09/README.md)：完整讨论、局部选型来源及当前实现映射；补充WK-112消费依据，不新增施工队列。
 - [生成提示词](prompts.json)：原始完整 prompt、实际引用截图、生成方式。
 - [图稿与证据清单](manifest.json)：图片路径、尺寸、SHA-256、预览序号。
 
