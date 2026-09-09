@@ -14,3 +14,5 @@ WK-118（2026-09-09）设立。按用户看到的**局部语义**组织，每个
 | tool-card | canon §2.4 / §3.4；`Unknown` 第六词（WK-115 ①） | assistant-ui Tool UI / AI Elements tool.tsx 状态机 | FE-05 | partial args streaming 待 runtime 事件 |
 | approval | canon §2.5 / §3.5；review-projection §6 | assistant-ui Approval Card（**Always allow 不采纳**：策略级放行属 runtime 控制面） | FE-05 | 已对齐 |
 | process-trace | canon §2.8 / §3.8；三层披露待 BE-32 事件时间 | assistant-ui Reasoning Panel 作为 process 视觉范式，不绑 CoT 展示；S12 Codex Review 面（轮次选择 + 计数 + 逐文件折叠，与聊天并列） | FE-05 | 待后端 |
+
+附：Astra [chat-space 研究索引](../../research/chat-space-2026-09-09/README.md)（main `5ea5ff0`）的 CS-01…10 只作设计检查表，不替换现有消息 / question / permission / run / File / Artifact / Core 对象；Markdown 是显示能力，先评估复用 marked + DOMPurify；回答、授权、执行、接受分别成立；下载绑定确切成果。队列不变。
