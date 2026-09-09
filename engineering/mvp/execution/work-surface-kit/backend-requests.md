@@ -34,6 +34,7 @@
 | BE-20 | Temporary chat（不读写持久 memory 的会话标记） | FE-03 | WK-92 |
 | BE-21 | 连接注册表：多条连接各自持有 provider 身份、端点、凭据状态与 display name；provider ID 由后端生成；兼容端点作为独立连接而非"给目录身份换端点" | FE-02 Connections 多行、Display name 行、Compatible endpoint 独立身份（今日只画后端真有的一条） | WK-107 ①②③⑤ |
 | BE-22 | MCP server 注册端点（新增一条 server 的 endpoint / transport），`/mcp/:id/lifecycle` 今日只对已声明的 server 动作 | FE-02 Tools › Adding an MCP server 的 Add / Configure 两步（今日只留位） | WK-107 |
+| BE-23 | 无项目的 Chat：`POST /api/v5/sessions` 不带 `projectId`（不建 `workspaceDir`）的创建路径，或一个宿主默认容器 | FE-03 Chat 两态（今日只在既有能力上说清，不画无项目入口） | WK-109 ① |
 
 ## Astra 后端交付（2026-09-09）
 
