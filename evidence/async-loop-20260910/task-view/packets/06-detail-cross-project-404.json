@@ -1,0 +1,6 @@
+{
+  "error": {
+    "code": "task_unavailable",
+    "message": "Async task is unavailable"
+  }
+}

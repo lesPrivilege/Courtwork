@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "schemaVersion": 1,
+      "id": "07ffdc5b-07ca-4c54-939c-0c283c5e54bc",
+      "revision": 7,
+      "origin": {
+        "projectId": "4ed9ec18-9deb-40e6-8759-5a009f0fa939",
+        "sessionId": "023808fa-dcd9-4b6b-a0bf-a70960c72d29",
+        "runId": "9a730196-c3d9-4136-9f27-983479c81de7",
+        "callId": "call-1"
+      },
+      "adapter": {
+        "id": "read-doc",
+        "version": "impl1"
+      },
+      "source": {
+        "id": "doc-beta",
+        "version": "v1",
+        "digest": "5063a51acd920b5e3a98944cd5fb259881464183a574aeab959919fd47ed8f31"
+      },
+      "createdAt": "2026-09-09T16:54:01.431Z",
+      "updatedAt": "2026-09-09T16:54:01.511Z",
+      "execution": {
+        "status": "succeeded",
+        "dispatchCount": 1,
+        "cancelRequestedAt": null,
+        "cancelAttempted": false,
+        "reason": null
+      },
+      "availability": "current"
+    }
+  ],
+  "count": 2,
+  "offset": 1,
+  "nextOffset": null
+}

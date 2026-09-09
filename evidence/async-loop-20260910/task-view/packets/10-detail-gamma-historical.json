@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "11720bb2-cf8b-4c66-b4c4-e98e1d1f0b38",
+  "revision": 7,
+  "origin": {
+    "projectId": "c46008da-4f39-4932-9a4f-30e8d1f32327",
+    "sessionId": "845b8d38-cff2-4d55-af85-f1f5951a6bc6",
+    "runId": "87b88f04-b9e2-44c8-aa3d-a874bd3d3a7d",
+    "callId": "call-0"
+  },
+  "adapter": {
+    "id": "read-doc",
+    "version": "impl1"
+  },
+  "source": {
+    "id": "doc-gamma",
+    "version": "v1",
+    "digest": "30aebac31870c24bb6b84208f73ded58efb0956bc9713534c548b342fc388b3b"
+  },
+  "createdAt": "2026-09-09T16:54:01.913Z",
+  "updatedAt": "2026-09-09T16:54:01.937Z",
+  "execution": {
+    "status": "succeeded",
+    "dispatchCount": 1,
+    "cancelRequestedAt": null,
+    "cancelAttempted": false,
+    "reason": null
+  },
+  "result": {
+    "text": "Gamma packet: independent synthetic read C.",
+    "bytes": 43,
+    "digest": "30aebac31870c24bb6b84208f73ded58efb0956bc9713534c548b342fc388b3b"
+  },
+  "deliveries": [
+    {
+      "runId": "87b88f04-b9e2-44c8-aa3d-a874bd3d3a7d",
+      "callId": "call-1",
+      "kind": "wait",
+      "taskRevision": 5,
+      "executionStatus": "succeeded",
+      "resultDigest": "30aebac31870c24bb6b84208f73ded58efb0956bc9713534c548b342fc388b3b",
+      "preparedAt": "2026-09-09T16:54:01.931Z",
+      "runtimeRecordedAt": "2026-09-09T16:54:01.937Z",
+      "provider": "unknown"
+    }
+  ],
+  "availability": "historical"
+}
