@@ -132,6 +132,19 @@ export function projectThread(events, runs, sessionId) {
       });
   return { rows: ordered, statuses };
 }
+/* WK-57 · a tool row's state is a word in its own slot, never a lower-case
+ * suffix glued to the tool's name. A finished tool carries no state word: the
+ * run's own state already says how the run ended. Both chat presentations read
+ * this one function so the vocabulary cannot drift between them. */
+export const unfinishedToolWord = (status) =>
+  status === "cancelled" || status === "failed" ? "Interrupted" : "Unknown";
+export function toolStateWord(row, status) {
+  if (row.isError) return "Failed";
+  if (row.phase === "result") return null;
+  if (["created", "running", "waiting_user", "stopping"].includes(status))
+    return status === "waiting_user" ? "Waiting for you" : status === "stopping" ? "Stopping" : "Working";
+  return unfinishedToolWord(status);
+}
 export function canAnswer(row, run) {
   return Boolean(
     row &&

@@ -5422,8 +5422,8 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .attention-agent-message { margin-bottom: 22px; font-size: var(--text-body); }
 .attention-agent-message-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .attention-agent-message-heading button { margin-left: auto; }
-.attention-agent-message.is-user { padding: 12px 14px; border-radius: var(--radius-card); background: var(--panel-muted); }
 .attention-agent-message pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; font-size: var(--text-meta); }
+.attention-tool-state { margin-left: 8px; color: var(--muted-strong); font-size: var(--text-meta); }
 .attention-agent-message.is-permission, .attention-agent-message.is-question { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-card); }
 .attention-agent-message.is-permission > button { margin-right: 8px; }
 .attention-agent-status { padding: 0 24px; }
@@ -5530,13 +5530,8 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 @media(forced-colors:active) { .usage-stacked-bar button { background:CanvasText; border:1px solid Canvas; } }
 
 /* Authored input is a right-aligned, bounded secondary bubble. */
-.attention-agent-message.is-user { width:fit-content; max-width:86%; margin-left:auto; padding:14px 18px; border-radius:18px 18px 6px 18px; background:var(--panel-muted); border:1px solid var(--line); }
-.attention-agent-message.is-user .attention-agent-message-heading strong { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
-.attention-agent-message.is-user .attention-agent-message-heading { margin:0; }
-.attention-agent-message.is-user .attention-agent-message-heading button { margin-top:-6px; margin-bottom:2px; }
 .message.user { margin-left:auto; }
 .user-message-content { border:1px solid var(--line); border-radius:18px 18px 6px 18px; }
-@media(max-width:600px){ .attention-agent-message.is-user { max-width:90%; padding:12px 14px; } }
 
 /* Authored content remains readable independently of assistant output. */
 .user-message-content .markdown-body { min-width: 0; overflow-wrap: anywhere; }
@@ -5547,17 +5542,31 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .attention-authored-message { display: flex; justify-content: flex-end; }
 .attention-authored-message .message.user { max-width: 86%; min-width: 0; }
 .attention-recents { padding: 12px 0; }
+/* Managing conversations hides the message stream. Nothing else grew, so the
+   composer used to float in the middle of the dialog: the list takes the free
+   height and the composer keeps its edge. */
+.attention-recents:has(~ .attention-agent-stream[hidden]) { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.attention-recents:has(~ .attention-agent-stream[hidden]) .attention-recent-list { flex: 1; max-height: none; }
 .attention-recents-heading, .attention-recent-row, .attention-rename-form { display: flex; align-items: center; gap: 10px; }
 .attention-recents-heading { justify-content: space-between; }
 .attention-recents h3 { margin: 0; font-size: var(--text-body); }
 .attention-recents > input { width: 100%; margin: 12px 0; }
 .attention-recent-list { max-height: 240px; overflow: auto; }
 .attention-recent-row { padding: 8px 0; border-bottom: 1px solid var(--line); }
-.attention-recent-row > button:first-child { flex: 1; text-align: left; overflow-wrap: anywhere; }
+.attention-recent-row > button:first-child { flex: 1; justify-content: flex-start; text-align: left; overflow-wrap: anywhere; }
 .attention-rename-form { width: 100%; }
 .attention-rename-form input { flex: 1; min-width: 0; }
 
-.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); }
+/* One rule for message-level utilities in both presentations: the whole-response
+   copy reveals with its message, exactly like the authored message's copy/edit,
+   and stays put where there is no pointer. Card-internal copy inside a fenced
+   block belongs to that block and keeps its own persistent control. */
+.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); opacity: 0; transition: opacity var(--duration-fast) var(--ease-out); }
+.message:hover .assistant-message-actions,
+.message:focus-within .assistant-message-actions,
+.attention-agent-message:hover .assistant-message-actions,
+.attention-agent-message:focus-within .assistant-message-actions { opacity: 1; }
+@media (hover: none) { .assistant-message-actions { opacity: 1; } }
 .message .code-block, .attention-agent-message .code-block { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
 .message .code-toolbar, .attention-agent-message .code-toolbar { background: var(--panel-muted); color: var(--muted-strong); }
 

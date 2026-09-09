@@ -1,0 +1,822 @@
+✔ 颜色字面量只出现在 tier:S 块内 (109.146333ms)
+✔ 两 skin × 两宗的角色对比度不低于门槛 (88.742833ms)
+✔ renderer is a neutral projection surface and dispatches typed actions without actor fields (2.487042ms)
+✔ catalog exposes development evidence-memo and business-free probe factories (1.883792ms)
+✔ manifest is machine-marked development and advertises generic binding fields (0.087916ms)
+✔ legacy transport import resolves the single shared Core owner (0.616958ms)
+✔ createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft (138.305542ms)
+✔ begin exposes only namespaced source/propose tools and Core rejects late candidate calls after close (119.558791ms)
+✔ humanAction accepts only host-derived local-user and uses the same Review route for formal Artifact (131.708542ms)
+✔ close gates admission before cleanup and finish maps cancellation without acceptance (123.9885ms)
+✔ same data directory admits one POSIX flock owner and keeps the inode after release (204.97325ms)
+✔ unexpected holder death invokes onLost and the next host can safely reacquire (138.723708ms)
+✔ owner SIGKILL closes the parent pipe and does not require deleting the lock file (343.030583ms)
+✔ answer admission race: ask_user queued behind cancel returns 409 (353.598875ms)
+✔ answer admission race: permission queued behind cancel returns 409 (267.965125ms)
+✔ normal ask_user answer still resolves and completes the run (719.908417ms)
+✔ double permission answer records one decision and rejects the other (767.95275ms)
+✔ the limited scanner recognizes imports while ignoring comments and strings (1.941208ms)
+✔ legal and forbidden synthetic edges exercise all approved boundaries (1.002375ms)
+✔ the current Core, runtime, renderer, and composition-root graph obeys ownership (56.741667ms)
+✔ AM-C final wire golden and no-op are stable after temporary path canonicalization (1066.807667ms)
+✔ AM-C separates request shape, old prefix, and semantic tool diffs (992.05875ms)
+✔ AM-C records description, schema, and permission changes as expected diffs (2000.338083ms)
+✔ history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them (507.427042ms)
+✔ history cancellation waits for the Git process to exit and the next save repairs interrupted init (3514.350375ms)
+✔ existing non-blob history object is an integrity failure (238.84125ms)
+✔ R1-HIST-1: v1 and v2 remain readable after current-file deletion (779.437042ms)
+✔ R1-HIST-2: cross-session, wrong-record, and unrecorded lookups are 404 and reads are pure (584.555ms)
+✔ R1-HIST-3: historical text truncates on a UTF-8 boundary with full bytes/hash (605.606541ms)
+✔ R1-HIST-4: a recorded legacy artifact without history returns 410 history_unavailable (444.991791ms)
+✔ R1-HIST-5: object/metadata byte mismatch returns 500 artifact_integrity_failed (639.837125ms)
+✔ R1-HIST-6: SIGKILL after history and before rename exposes neither file nor artifact (1269.336542ms)
+✔ R1-HIST-7: SIGKILL after rename and before record leaves current file unrecorded (1215.640583ms)
+✔ R1-HIST-8: SIGKILL after record preserves historical bytes across restart (1328.41275ms)
+✔ catalog staleness keeps durable result readable and refuses further adapter work (76.373084ms)
+✔ policy rejection records dependency before adapter I/O, leaving Run unresolved (51.683084ms)
+✔ late query cannot overwrite cancellation and lost cancel ACK remains unresolved (110.785958ms)
+✔ stopped Run forbids dispatch and wait stays inside local budget (132.267291ms)
+✔ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (179.860291ms)
+✔ fixture independently releases two documents without timing assertions (163.779208ms)
+✔ fixture makes delivery identity idempotent and exposes launch/result acknowledgement loss (130.761458ms)
+✔ fixture keeps cancel-before-success and cancel-after-success distinct (120.023834ms)
+✔ SIGKILLs the state-owning provider and queries persisted synthetic settlement after restart (346.922542ms)
+✔ in-flight provider SIGKILL retains the accepted synthetic record without implicit resume or relaunch (250.062917ms)
+✔ concurrent launches publish complete synthetic state before their barriers open (232.170917ms)
+✔ reused job IDs reject a changed immutable request without incrementing the launch attempt (112.550166ms)
+✔ AM-B-T1 captures the final MCP payload and preserves the synchronous loop (47.110875ms)
+✔ AM-B-T1 records task-shaped responses as unsupported and shows the current continuation gap (9.32075ms)
+✔ AM-B-T1 does not treat partial args as a completed tool result, and exposes current wire gaps (6.171583ms)
+✔ AM-B-T1 observes Pi 0.85.1 final HTTP encoding and waits for complete streamed tool arguments (32.577416ms)
+✔ independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches (1053.597167ms)
+✔ independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches (945.035584ms)
+✔ independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches (2222.100542ms)
+✔ independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches (1513.631167ms)
+✔ fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes (1559.850416ms)
+✔ schema3 and schema4 migrate with an exact independent backup and reopen (1574.227125ms)
+✔ invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched (92.135084ms)
+✔ current: full schemaVersion:1 view is an independent literal copy with availability last (3.223709ms)
+✔ availability classes follow the frozen priority with no inference (0.587167ms)
+✔ options omit result and/or deliveries but never rewrite the rest (0.181125ms)
+✔ nulls and prepared-but-unrecorded delivery facts are preserved, never filled in (0.078333ms)
+✔ succeeded and cancelRequestedAt coexist; terminal evidence is immutable in the view (1.168584ms)
+✔ an older delivery snapshot is projected as-is and never repaired into newer facts (0.144417ms)
+✔ no invented fields and no auto-recovery in the projection (0.107375ms)
+✔ a stale source never projects as current even when a result exists (0.090375ms)
+✔ HTTP list/detail packets: real host + synthetic adapter, scoped and paged (614.710167ms)
+✔ two durable reads use actual host/Pi tools and wait only on the selected source (198.835084ms)
+✔ premature final and lost launch ACK preserve query-only recovery, then a later Run consumes the original task (387.174ms)
+✔ source/implementation absence remains readable; corrupt bytes and cross-session consumption are refused (494.528084ms)
+✔ schema3/4 migrate through exclusive backup and refuse existing backup paths (391.957417ms)
+✔ invalid UTF-8 schema4 is refused before backup or replacement (89.851584ms)
+✔ global Attention has replayable identity, shared configuration and a real governed Run (215.5765ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (376.233917ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (146.443709ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.655334ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.157625ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.146291ms)
+✔ conversation rename persists metadata without changing history, scope or draft (70.159166ms)
+✔ Attention CAS, full request identity, typed transitions and immutable receipt (98.180416ms)
+✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (88.535333ms)
+✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (86.207291ms)
+✔ explicit signal policy records observations without status, seen or authorization changes (88.689625ms)
+✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (99.791375ms)
+✔ source references bind exact retained Core bytes and scope; external locators stay unknown (92.596166ms)
+✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (327.80575ms)
+✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (94.475375ms)
+✔ missing audit/receipt or rewritten receipt is refused before a new state change (454.345ms)
+✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (1.680125ms)
+✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.242542ms)
+✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.394125ms)
+✔ GitHub fixture rejects contradictory scripts (0.080125ms)
+✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (1.620042ms)
+✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (0.470583ms)
+✔ Gmail fixture rejects malformed and contradictory scripted responses (0.163375ms)
+✔ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (793.253709ms)
+✔ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (160.49525ms)
+✔ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (646.961709ms)
+✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (1.518042ms)
+✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (254.014958ms)
+✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (206.598167ms)
+✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (1.644666ms)
+✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.221583ms)
+✔ trace fixture validation runner is executable within the fixture directory (66.641ms)
+✔ T-CANCEL-2: cancelling while waiting for the first token yields stopping then cancelled (728.5245ms)
+✔ T-CANCEL-3: cancelling during ask_user closes the question and refuses a late answer (206.764209ms)
+✔ T-CANCEL-4: a late allow after cancelling a permission is refused and writes nothing (655.451708ms)
+✔ T-CANCEL-5: cancelling a run that is not in this process reports unknown, not cancelled (158.879334ms)
+✔ T-PERM-6: concurrent allow and deny on one permission — first wins, second is 409 (996.434459ms)
+✔ T-PERM-7: read_only makes ws_write absent, not present-and-refused (353.769167ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.499917ms)
+✔ WK-92 · Continue in Work 只走既有的 extension 路由；不新增端点、不复制、不迁移 (0.839583ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.428167ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.255458ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.183791ms)
+✔ native compaction cancel settles with no persisted partial summary (633.186ms)
+✔ native compaction deadline settles with no persisted partial summary (417.535917ms)
+✔ native overflow recovery persists a summary and a restarted host uses it (999.56725ms)
+✔ automatic threshold persists a summary and sends it in the next request (202.570125ms)
+✔ failed summary leaves the journal unchanged and marks run usage missing (403.925625ms)
+✔ native summary retry succeeds but usage stays missing and counts only reported values (2500.56175ms)
+✔ maxCompactions disables later automatic summaries while the ordinary turn completes (500.212042ms)
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (204.612375ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (419.692875ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (0.668042ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (223.695666ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (772.478416ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (1.058125ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (224.713333ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (276.445292ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (135.7835ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (127.989584ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (451.630792ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (782.581333ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (697.860167ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (519.053041ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (325.347708ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (129.836791ms)
+✔ T-CRED-1: missing credential fails the run without touching HOME/.pi (154.614792ms)
+✔ T-CRED-2: a credential written via the API flows through and never leaks (177.993084ms)
+✔ T-CRED-3: inherited DEEPSEEK_API_KEY is stripped at startup and logged (79.311833ms)
+✔ T-CRED-4: PUT/DELETE credential during an active run is 409 and the run finishes on its own key (683.6265ms)
+✔ T-CRED-5: a sentinel HOME auth.json and env var are never used as credentials (530.674459ms)
+✔ T-DUR-1: a crash before the tool runs leaves no file, no artifact and no replay (1272.014958ms)
+✔ T-DUR-2: a crash between the write and the record surfaces the file as unrecorded (1411.997459ms)
+✔ T-DUR-3: a crash after the record is persisted keeps artifact and file in agreement (1427.110375ms)
+✔ T-DUR-4: a crash during a store write keeps the last complete state and discards the tmp (1126.479667ms)
+✔ a corrupt leftover tmp never affects the state that is loaded (115.243333ms)
+✔ T-IDEM-5: replaying a commandId after a restart returns the original unknown run (1616.902917ms)
+✔ file candidate identity, exact replay, immutable pages, closed admission and atomic acceptance (134.022ms)
+✔ coverage is monotone; frozen candidate precedes later unknown input; semantic failures stay diagnostic (112.649709ms)
+✔ failed deterministic checks cannot accept, and source membership changes invalidate file basis (113.676125ms)
+✔ illegal provenance, encoding, count, path and byte limits reject without candidate side effects (112.921041ms)
+✔ SIGKILL file save and accept commit boundaries leave zero or one complete durable effect (1509.717209ms)
+✔ metadata byte boundary, escaped wire envelope, file/path/count boundaries and empty files are exact (175.928167ms)
+✔ file diff binds only frozen base, uses linear replacement, preserves newlines and refuses oversized output (117.94075ms)
+✔ corrupt bytes, manifest, column bindings and a verification record copied from another identity refuse reads and acceptance (1249.900833ms)
+✔ a changed trusted policy cannot accept an old PASS; empty evidence is diagnostic failed (255.357708ms)
+✔ unknown file schema exposes scoped bounded metadata but cannot decode or accept (223.567167ms)
+✔ verification outcome corruption is refused and acceptance rechecks required evidence (200.527458ms)
+✔ file runs require a concrete Session identity at the private bridge boundary (97.3585ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (1510.293292ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (995.720292ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (4837.315958ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (1963.117959ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1339.405417ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (855.052875ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (4019.338708ms)
+✔ extension restart: loaded binding continues; invalidation and unload keep their generations (1334.865ms)
+✔ extension restart: changed version requires reload; empty composition preserves dormant records (230.312792ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (375.288916ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (224.701167ms)
+✔ worker preserves regex matches, line numbers and Unicode (27.474459ms)
+✔ pathological regex times out while the service event loop stays responsive (2003.149083ms)
+✔ abort terminates pathological matching before its worker timeout (154.392708ms)
+✔ already aborted search cannot start matching (1.825542ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (3.1765ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.479791ms)
+✔ Home Attention detail accepts only the display contract (0.224375ms)
+✔ standalone Attention ignores an older project query after a newer open (3.597167ms)
+✔ standalone Attention ignores a stale detail after project selection changes (1.925ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.261791ms)
+✔ Back to items clears a pending detail and rejects its late response (0.642292ms)
+✔ T-IDEM-1: replaying the same commandId with the same input returns the same run (144.424417ms)
+✔ T-IDEM-2: replaying the same commandId with a different input is 409 command_conflict (71.376958ms)
+✔ T-IDEM-3: two concurrent creates with the same commandId produce exactly one run (73.418042ms)
+✔ T-IDEM-4: a lost response then a resend returns the same run and executes once (305.161292ms)
+✔ T-IDEM-6: the same commandId in another session is a different command (995.203083ms)
+✔ C4: unloaded extension preserves old receipts but still blocks new work (516.254959ms)
+✔ T-CANCEL-1: cancel during tool execution leaves no partial file (135.052917ms)
+✔ cancelling a run with no pending question also ends cancelled (467.9065ms)
+startup: reconciled workspace of session fc482bcc-e1c7-4c35-a481-b6b2791672a1 after an interrupted run; 0 file(s) are not covered by a recorded content version
+✔ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (1724.917584ms)
+✔ T-USAGE-1: a completed run records non-zero usage with missing:false (432.366125ms)
+✔ T-USAGE-2: cancelling in the second turn keeps the first turn's usage and marks missing (600.663625ms)
+✔ T-USAGE-3: a provider error after a good turn fails the run without erasing usage (14398.516958ms)
+✔ T-BUDGET-1: waiting_user time is excluded from the execution deadline (3118.101917ms)
+✔ T-USAGE-4: a retried provider call is surfaced as a notice and counted once (2453.306125ms)
+✔ T-USAGE-5: a long waiting_user then an answer completes with whole usage and no budget trip (3058.41875ms)
+✔ real HTTP candidate pages preserve Markdown bytes, and wrong Matter scope is refused (644.556375ms)
+✔ accepted Artifact pages remain exact after producer deletion and extension unload (481.008167ms)
+✔ independent SHA-256 and code-point helpers agree with the browser source contract (3.694125ms)
+✔ readCoreManifest returns verified file refs and sends a bounded candidate query (1.131417ms)
+✔ readCoreManifest uses the explicit Artifact selector and preserves its identity (0.14775ms)
+✔ readCoreManifest rejects wrong identities, holes, duplicate paths and unsupported pages (0.482416ms)
+✔ readCoreFile assembles pages using server code-point cursors and an independent final hash (1.725125ms)
+✔ readCoreFile accepts an exact empty terminal page (0.258666ms)
+✔ readCoreFile rejects wrong IDs, hash swaps, path swaps and pagination holes (0.420083ms)
+✔ readCoreFile rejects a continuation replay or changed duplicate page (0.135833ms)
+✔ readCoreFile rejects a changed identity on any page and a wrong final digest (0.42575ms)
+✔ readCoreFile aborts before and after a delayed page, without returning partial source (0.278625ms)
+✔ coreFileSubjects exposes only supported, scoped Core file refs (0.146375ms)
+✔ projectMarkdown preserves BOM, CRLF, combining marks, duplicate block ranges and safe semantic nodes (10.131792ms)
+✔ projectMarkdown parses complete definitions, keeps unsafe links inert, and emits bounded warnings (2.880458ms)
+✔ projectMarkdown refuses malformed identity, source text, and size (0.459375ms)
+✔ projectMarkdown creates a revision-local key and never claims writable review state (1.896334ms)
+✔ sha256Text does not silently normalize source (0.258667ms)
+✔ readCoreFile propagates producer absence as an exact read, not a fallback (0.255209ms)
+lint-materials: 2 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+✔ 产品样式表通过材质 lint 两项 (82.292083ms)
+✔ 未登记的类名上出现 backdrop-filter 会被拒绝 (71.427958ms)
+✔ 半透明表面缺少 reduced-transparency 回退会被拒绝 (72.16675ms)
+✔ 私有 blur 取值会被拒绝 (68.549125ms)
+✔ 三条 happy path 是闭集，且每条只用后端目录里真有的 provider 身份 (2.097042ms)
+✔ 路径由已保存的事实反推，不是第二个真源 (0.092875ms)
+✔ Connections 只列后端真有的那一条：一条生效连接，凭据与端点分开陈述 (0.09925ms)
+✔ WK-108 · 两步不再是留位说明：BE-17 / BE-18 交付后各自是一个控件 (0.290042ms)
+✔ WK-108 · 探测控件只出现在表单里写得出 Base URL 的那条路径上 (0.087042ms)
+✔ WK-108 · 请求体逐字按文档：三个字段，无 key 省略字段，不加 header (0.119459ms)
+✔ WK-108 · 结果原样呈现后端 status 与 message；ok 不被改写成一句更强的话 (0.189375ms)
+✔ WK-108 · 目录报来的模型 ID 不进 Model 下拉，也不进保存的配置 (0.249042ms)
+✔ MCP 走同一形态：六步，未交付的三步同样只留位 (0.102333ms)
+✔ WK-105 ⑤ · 侧栏宽落进 256–280 的下沿 (0.121625ms)
+✔ bounded NDA playbook and fixture manifest are versioned and serializable (1.811167ms)
+✔ buildReview produces the four frozen gold outcomes with source-aware anchors (2.632625ms)
+✔ verifyReview rejects self-reported conclusions, missing coverage and duplicate rules (1.052125ms)
+✔ verifyReview rejects bad source anchors and reconciliation tampering (0.89925ms)
+✔ candidate adapters are serializable and preserve proposal-only obligations (0.3665ms)
+✔ a missing source clause remains unresolved and a forged pass is rejected (0.262ms)
+✔ source conflict and unsupported clause stay visible with bounded evidence (0.524458ms)
+✔ development and holdout fixtures are distinct but obey the same deterministic contract (0.497958ms)
+✔ the delivered NDA renderer is served at its declared path and carries no data channel of its own (191.374333ms)
+✔ the packet reading takes the rules, the status words and the lineage the packet actually carries (0.470792ms)
+✔ only the advertised decisions are readable as controls, and none in read-only history (0.414583ms)
+✔ a domain payload this build cannot decode is not read as findings (0.152958ms)
+✔ NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context (1828.480333ms)
+✔ NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail (797.788166ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (1.002833ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.818167ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.135083ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.21025ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.174125ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.074875ms)
+✔ permission CAS mismatches leave pending question, waiter, events and persisted bytes untouched (1142.613875ms)
+✔ each expectation is independently optional and malformed expectations are 400 (1271.496083ms)
+✔ CAS comparison happens inside the mutation queue after a stale service read (321.466625ms)
+✔ two matching concurrent answers still resolve at most once (575.8005ms)
+✔ ask_user does not accept permission expectations (828.998167ms)
+✔ T-PERM-1: ask mode + allow lets ws_write succeed (1141.741292ms)
+✔ T-PERM-2: ask mode + deny returns isError and writes nothing (496.781917ms)
+✔ T-PERM-3: cancel while waiting on a permission leaves no file and Run cancelled (515.919166ms)
+✔ read_only permission mode never injects ws_write (416.170666ms)
+✔ T-PERM-4: the allowed write matches the approved contentSha256 (1008.416959ms)
+✔ T-PERM-5: changed parameters open a new permission and the old questionId is dead (1103.707291ms)
+✔ toStatTiles reads the three sets' totals in the window the backend can express (1.566834ms)
+✔ a set the answer did not carry reads as words, never as a zero (0.090667ms)
+✔ the caption states the scope it was actually given (0.070708ms)
+✔ toWorkCards passes recorded fields through and names the missing ones (0.161333ms)
+✔ pending rows keep the server's own request word and invent no run state (0.107375ms)
+✔ inspection rows keep unknown apart from failed and report a missing code as null (0.097458ms)
+✔ adapters do not read the clock (0.082375ms)
+✔ FE-04 · 在途词只有一个，且只在在途时出现 (1.126209ms)
+✔ FE-04 / M-9 · 五个送出一次决定的控件都经过同一个在途词，且保持静止态宽度 (0.346959ms)
+✔ FE-04 · cancel requested 不把 Run 说成 stopped (0.099625ms)
+✔ FE-04 · 在途的是哪一个决定也是事实，回执到达时一并撤掉 (0.096583ms)
+✔ FE-04 · 重试之前撤掉上一次的失败，两卡一致 (0.105542ms)
+✔ FE-04 · 问题卡的提交失败会被读出来 (0.121875ms)
+✔ FE-04 · Failed 与 Interrupted 由两个不同的事实给出 (0.283916ms)
+✔ FE-04 · 授权卡上不存在 always-allow 这一档 (0.297708ms)
+✔ FE-04 · inbox 键盘没有批量键与数字键 (1.114292ms)
+✔ provider preview HTTP contract, bounds, authentication and unchanged runtime (10737.247792ms)
+✔ openai-completions: real SDK tool loop, stable consecutive prefix, cache usage and restart (1177.950459ms)
+✔ openai-responses: real SDK tool loop, stable consecutive prefix, cache usage and restart (1026.648459ms)
+✔ HYP-01: abort before openQuestion waiter is installed does not hang (174.353709ms)
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (771.158083ms)
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (2.610333ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.8085ms)
+✔ effort is capability checked and recorded by real local SDK requests (600.992458ms)
+✔ malformed measurement records are omitted before rendering (0.174125ms)
+✔ schema6 migration preserves both global and project sessions (107.789667ms)
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (902.805958ms)
+✔ a Run waits for its final event to persist before publishing completion (493.966417ms)
+✔ event persistence failure is reported as runtime failure instead of completion (356.00475ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (3693.438084ms)
+✔ runtime projection: parent/profile gates are explanations, not removable overrides (1.196541ms)
+✔ runtime projection: historical counts stay partial; new catalogs count admitted text only (0.113959ms)
+✔ BE-5: POST /runtime-sources/resolve returns exact UTF-8 identity for all six inline kinds; provenance stays unverified and nothing is imported (307.114792ms)
+✔ BE-5: token, origin, content-type and body-size guards plus malformed/extra-field input follow the existing host boundaries (451.224292ms)
+✔ BE-5: every locator kind stays explicitly unsupported over real HTTP with an exact echo, and no content identity is invented (257.1165ms)
+✔ BE-5: an isolated child probe proves locator and inline MCP resolution performs no file read, socket connect, HTTP request, fetch or child process (2952.703542ms)
+✔ BE-5: pure resolution stays available during an active Run while config, disk, revision and the Run binding remain unchanged and nothing imports (609.719083ms)
+✔ BE-5: the service seam mirrors the pure resolver and adapts its 400s to the host error shape (239.445458ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (4.471667ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (1.403625ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.172292ms)
+✔ contrast: the browser warning checks exactly the build report pairs (1.136709ms)
+✔ RuntimeStore persists schemaVersion 7 session/run fields and the canonical user event (312.167ms)
+✔ RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay (99.502875ms)
+✔ RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it (206.702417ms)
+✔ T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen (197.247833ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.155209ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.233792ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (8.677ms)
+✖ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (22.242333ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.455084ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.318125ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.107625ms)
+✔ 一组完整的 Tier S token 通过，并被规范成可以直接落进样式表的声明 (2.918542ms)
+✔ styles.css 与 skins/gray-steel.css 的两个 skin 块都能通过同一套校验 (0.9025ms)
+✔ 产品内的 gray-steel 与 skins/gray-steel.css 逐字相同：两处不许漂移 (1.361208ms)
+✔ 不是既有 token 名的声明被逐行拒绝，整组不落地 (0.152ms)
+✔ 颜色 token 只接受 hex：命名色、函数与变量都不行 (0.781291ms)
+✔ url( · expression · @import · 转义 · 标记这些形状先于逐行解析被拒绝 (0.511541ms)
+✔ 半套色阶被拒绝，并把缺的名字说出来 (0.118375ms)
+✔ 行号指回原文，一次报完所有问题 (0.164541ms)
+✔ 两个 rgb 基底与三个 alpha 是数值不是颜色，各按自己的形状校验 (1.286875ms)
+✔ 一次只收一个块：粘贴整份 skin 文件被拒绝而不是只应用第一段 (0.400375ms)
+✔ 空输入与超长输入各有自己的话，不是同一句错误 (0.182583ms)
+✔ 代码字体只收字体族名，收不下分号与括号 (0.339625ms)
+✔ 读偏好只认闭集里的值：坏掉的存储读成默认，不是读成垃圾 (0.291167ms)
+✔ Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不是读成第三种版面 (0.251083ms)
+✔ Home 模块只安装有既定读取接缝的 Activity 与 Attention (0.143542ms)
+✔ Models 模块不复述 composer chip 的事实：它没有自己的读取 (0.064375ms)
+✔ 页面的九个组是闭集，未知的节名落回 General (0.073667ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (4.274125ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.361542ms)
+✔ MR-A1a: meta contract — version, units and byte limit are explicit (3.276834ms)
+✔ MR-A1a: plain ASCII — counts, hash and identity conversions (0.639958ms)
+✔ MR-A1a: empty content is allowed and every offset except 0 is rejected (0.30825ms)
+✔ MR-A1a: BOM is preserved, counted as one code point, never stripped (0.785125ms)
+✔ MR-A1a: CRLF and trailing newline are literal code points, not normalized (0.126167ms)
+✔ MR-A1a: combining characters are preserved; no Unicode normalization happens (0.182458ms)
+✔ MR-A1a: emoji/astral — surrogate-pair interiors are rejected, never snapped (0.206792ms)
+✔ MR-A1a: strict UTF-8 — malformed and truncated input is rejected with invalid_utf8 (0.406208ms)
+✔ MR-A1a: size boundaries — 65536 bytes accepted, 65537 rejected as source_too_large (12.328875ms)
+✔ MR-A1a: offset validation — unsafe integers, wrong ranges and bad units (0.526417ms)
+✔ MR-A1a: input is copied — later mutation never reaches the built coordinates (0.156375ms)
+✔ MR-A1a: Buffer and offset views are accepted and measured by their own bytes (0.285125ms)
+✔ MR-A1a: wrong input types are a caller contract violation (TypeError) (0.279583ms)
+✔ MR-A1a: returned object is frozen; output metadata edits cannot pollute conversions (0.210375ms)
+✔ MR-A1a: repeated builds are deterministic and independent of each other (0.087208ms)
+✔ MR-A1a: fixture corpus parity — module equals the independent oracle and the static expectations (63.155208ms)
+✔ MR-A1a: NUL and control characters are ordinary code points, never trimmed (0.541125ms)
+✔ MR-A1a integration: spoofed non-byte views are rejected by internal type (0.10975ms)
+✔ MR-A1a integration: invalid unit errors never coerce caller objects (0.420708ms)
+✔ R2: six inline kinds resolve without changing config, then explicit imports preserve exact bytes (72.80525ms)
+✔ R2: hashes bind bytes and interpretation; origin is only a caller assertion and outputs own their data (0.884167ms)
+✔ R2: skill/profile declarations remain unverified requirements without new capabilities (1.171958ms)
+✔ R2: MCP and locators never fetch, connect or read their declared target (0.472709ms)
+✔ R2: malformed, executable and ambiguous sources cannot be silently reinterpreted (2.442ms)
+✔ R2: invalid YAML and cyclic projected metadata fail before config persistence (136.6235ms)
+✔ SE_TEST_CRASH_POINT alone is inert, and the server says so at startup (4600.738208ms)
+✔ T-SELF-2: with no python3 on PATH the server refuses to start and names the reason (2835.720708ms)
+✔ T-SYNC-1: afterSeq past the server's last seq is 400 cursor_ahead and reports nextSeq (1138.357708ms)
+✔ T-SYNC-2: repeating a request for the same seq is idempotent and the sequence has no gaps (1886.793375ms)
+✔ T-SYNC-3: snapshot lastSeq joins the event stream with no gap and no overlap, 50x under concurrent writes (7743.67475ms)
+✔ T-SYNC-4: polling and re-cancelling after a terminal state changes nothing (450.201958ms)
+✔ thread projection scopes runs and resolves exact permission request (34.5335ms)
+✔ tool calls with identical IDs in different runs remain separate and require live admission (16.472208ms)
+✔ permission display distinguishes remote actions from writes using only the recorded binding (6.589375ms)
+✔ one tool state vocabulary serves both chat presentations (5.386042ms)
+✔ the long-message preview reads as words and never replaces the original (8.830209ms)
+✔ Usage keeps UTC start-day, route identity, partial/zero/unknown and global scope (54.917958ms)
+✔ model route keys include exact endpoint without leaking endpoint in overview (7.0055ms)
+✔ chart series and Other membership sum exactly and ties never split heatmap levels (14.092375ms)
+✔ matching runs require same snapshot and preserve model/date filter through pagination (0.825583ms)
+✔ combined token overflow fails closed and malformed frontend DTOs are rejected (0.93825ms)
+✔ HTTP Usage scope, strict input and changed-snapshot rejection use actual retained Runs (3525.024334ms)
+✔ versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions (9653.741125ms)
+✔ unresolved and source-stale parents can be revised only with currently verified NDA input (6688.002125ms)
+✔ host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation (5860.48325ms)
+✔ artifact read is paged by code point and bound to an open trusted Matter/Run (1603.000083ms)
+✔ model and human projections preserve source/contract/base applicability without granting authority (25.150334ms)
+✔ HTTP accepted short/25k/100k text resumes in new Session with scoped artifact pages; URLs are content (18022.478458ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (6459.307959ms)
+✔ provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture) (7348.047375ms)
+✔ concurrent Session admission is serialized before either execution starts (2736.091333ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (3114.500041ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (2126.62925ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (15367.987417ms)
+✖ v1 migration backs up original, retains current source membership; failed schema migration rolls back (25713.407125ms)
+✖ missing application metadata fails closed; terminal Run cannot change or claim another candidate (7227.162166ms)
+✔ Core SIGKILL before commit / after commit before ACK, followed by HTTP receipt reconciliation and continuation (30096.5535ms)
+ℹ {"stage":"before_commit","signal":"SIGKILL","receiptBeforeRetry":null,"artifactBeforeRetry":null,"afterRetry":{"candidate_hash":"afc359067d4390866921d510ce3dd2e8b2f8a50e7fb37dc22a210c416a04eed3","candidate_id":"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1"},"durable":{"work":{"id":"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1","candidate_id":"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107","candidate_hash":"afc359067d4390866921d510ce3dd2e8b2f8a50e7fb37dc22a210c416a04eed3","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654","candidate_id":"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107\",\"matter_id\":\"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654\",\"run_id\":\"290c1cd8-3e6e-4a34-b8d9-7b6d3cf7ff3a\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1\",\"candidate_id\":\"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107\",\"matter_id\":\"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654","candidate_id":"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107\",\"matter_id\":\"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654\",\"run_id\":\"290c1cd8-3e6e-4a34-b8d9-7b6d3cf7ff3a\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1\",\"candidate_id\":\"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107\",\"matter_id\":\"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"886b41469daee27368812ef16b39a2d2310a3f98ab816f234438067520fdc95a","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107-1\",\"candidate_id\":\"candidate-2d31077238f5705ddfa0b530b3d713f0008ce02c64ae4e153067c1dd77fc6107\",\"matter_id\":\"matter-8aabd99a-40aa-4e2a-b368-4765bf7ae654\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"b1de6f5e9294e3edb8ae11fa59a4aaea521ef4e8f29718a005a4ad2b78f5141a","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+ℹ {"stage":"after_commit_before_ack","signal":"SIGKILL","receiptBeforeRetry":{"action":"accept","active_artifact":"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","matter_id":"matter-f454faa3-455e-4014-8935-543a79255c85","request_id":"crash-request","version":1},"artifactBeforeRetry":{"candidate_hash":"cc711d5c5daa204b15e08f7c9e5c17defab76e08e9a05e2e27a969d721ad904c","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1"},"afterRetry":{"candidate_hash":"cc711d5c5daa204b15e08f7c9e5c17defab76e08e9a05e2e27a969d721ad904c","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1"},"durable":{"work":{"id":"matter-f454faa3-455e-4014-8935-543a79255c85","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","candidate_hash":"cc711d5c5daa204b15e08f7c9e5c17defab76e08e9a05e2e27a969d721ad904c","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-f454faa3-455e-4014-8935-543a79255c85","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525\",\"matter_id\":\"matter-f454faa3-455e-4014-8935-543a79255c85\",\"run_id\":\"b1e859b0-f18e-40a6-9a9d-2cc544cfd576\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1\",\"candidate_id\":\"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525\",\"matter_id\":\"matter-f454faa3-455e-4014-8935-543a79255c85\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-f454faa3-455e-4014-8935-543a79255c85","candidate_id":"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525\",\"matter_id\":\"matter-f454faa3-455e-4014-8935-543a79255c85\",\"run_id\":\"b1e859b0-f18e-40a6-9a9d-2cc544cfd576\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1\",\"candidate_id\":\"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525\",\"matter_id\":\"matter-f454faa3-455e-4014-8935-543a79255c85\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"97077e5cedbaba2c9e6e9ad95a9d05df04fd34fa42617012b1bab60f4d68f2a8","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525-1\",\"candidate_id\":\"candidate-5ec08cfa63d03b0a0774c930cc393a1f3447a71e98c5c1b155d37f4c0eaed525\",\"matter_id\":\"matter-f454faa3-455e-4014-8935-543a79255c85\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"ab016081e397786ffff7c446032c9de4dad8a0acaeff12d2e22c637ee56621e0","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+✔ HTTP stale source refusal, producer unload/read-only/reload and legal revised completion (3454.187666ms)
+✔ UTC bins count unique retained run IDs, every status, and start time rather than end time (152.600417ms)
+✔ empty differs from reported zero and aggregate overflow fails instead of rounding (4.988291ms)
+✔ summary UTC filter uses each collection timestamp before pagination (9.501042ms)
+✔ authenticated HTTP metrics are read-only, survive restart, and honestly shrink after deletion (11332.515292ms)
+✔ read during an unpublished mutation sees the whole previous snapshot (2002.627791ms)
+✔ Pro R-01: before-write never reports completed or discards settlement error (1883.816916ms)
+✔ Pro R-01: after-write-ack-loss never reports completed or discards settlement error (1064.618208ms)
+✔ Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error (1321.596041ms)
+✔ Pro R-02: ordinary first instruction discovers scoped source refs only from host context (888.974708ms)
+✔ Pro R-04: intermediate tool updates stay nonterminal until end (6.016625ms)
+✔ summary sees one published view across paused resolve persistence (431.533875ms)
+✔ summary sees one published view across paused cancel persistence (365.954167ms)
+✔ work summary distinguishes empty, no-run, completed, failed and unknown (1657.245375ms)
+✔ live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409 (2082.860541ms)
+✔ summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq (806.533959ms)
+✔ restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID (9836.919666ms)
+✔ summary keeps project sources separate and has deterministic tie ordering, offsets and bounds (531.107791ms)
+✔ summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results (745.802583ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (2.076958ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.26075ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.589458ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.341584ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (133.580666ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (2.382333ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.507208ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (3.171542ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (1.685208ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.860917ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (1.625792ms)
+✔ T-WS-1: '..' path segments are rejected (17.774417ms)
+✔ T-WS-2: absolute paths are rejected (90.479083ms)
+✔ T-WS-3: symlink escape is rejected (105.883291ms)
+✔ T-WS-4: an over-limit file is rejected by ws_read (throws; pi-agent-core turns a thrown tool error into isError:true) (9.009708ms)
+✔ T-WS-5: ws_read then ws_write round-trips through the workspace endpoints (2144.526541ms)
+✔ materials endpoint rejects path separators in the name (229.475792ms)
+✔ addMaterial rejects content over the 1 MiB limit (service-level, below the HTTP body cap) (195.947208ms)
+✔ T-WS-6: repeated writes yield two content versions and one current file (2596.230333ms)
+✔ addMaterial routes through the shared path guard, which rejects a '..' name (351.167708ms)
+✔ T-ART-1: a completed run with no write has no artifacts and no acceptance field (262.224541ms)
+✔ T-ART-2: two writes to one path keep both content versions and one current file (1661.761958ms)
+✔ ws_grep rejects nested quantifiers and over-long patterns before compiling them (505.72325ms)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (401.131084ms)
+✔ a second run in a continued session revises the first run's file (1762.424875ms)
+ℹ tests 434
+ℹ suites 0
+ℹ pass 431
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 365764.000875
+
+✖ failing tests:
+
+test at tests/settings-navigation.test.mjs:75:1
+✖ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (22.242333ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /: unfinishedToolWord\(status\);/. Input:
+  
+  'import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";\n' +
+    'import {\n' +
+    '  el,\n' +
+    '  icon,\n' +
+    '  flowRow,\n' +
+    '  action,\n' +
+    '  setAction,\n' +
+    '  copyAction,\n' +
+    '  markdown,\n' +
+    '  installTooltips,\n' +
+    '  anchorPopover,\n' +
+    '  sessionMode,\n' +
+    '  sessionModeLabel,\n' +
+    '  setRequestLabel,\n' +
+    '  MEMORY_SCOPE_OFF,\n' +
+    '} from "./ui-controls.mjs";\n' +
+    '\n' +
+    'import { installShellLayout } from "./shell-layout.mjs";\n' +
+    'installShellLayout({ window, document, navigator });\n' +
+    'import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";\n' +
+    'import { createAttentionWorkspace } from "./attention-view.mjs";\n' +
+    'import { createAttentionAgent } from "./attention-agent-view.mjs";\n' +
+    'import { renderRequestMeasurements } from "./telemetry-view.mjs";\n' +
+    'import { createModelPicker } from "./model-picker.mjs";\n' +
+    'import { createUsageView } from "./usage-view.mjs";\n' +
+    'let attentionWorkspace, attentionAgent, modelPicker, usageView;\n' +
+    'import {\n' +
+    '  createSettingsPage,\n' +
+    '  createSettingsView,\n' +
+    '  isSettingsSection,\n' +
+    '  permissionLabels,\n' +
+    '  providerLabels,\n' +
+    '  renderConnectionCard,\n' +
+    '  readPreferences,\n' +
+    '  DEFAULT_SECTION,\n' +
+    '} from "./settings-view.mjs";\n' +
+    'import {\n' +
+    '  renderRun,\n' +
+    '  createFileView,\n' +
+    '  runLabels,\n' +
+    '  noticeText,\n' +
+    '  formatBytes,\n' +
+    '} from "./inspector.mjs";\n' +
+    'import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";\n' +
+    'import { createMaterialsView } from "./materials-view.mjs";\n' +
+    'import {\n' +
+    '  renderHome,\n' +
+    '  renderHomeBand,\n' +
+    '  renderHomeModuleBand,\n' +
+    '  homeSets,\n' +
+    '} from "./home-view.mjs";\n' +
+    'import {\n' +
+    '  projectThread,\n' +
+    '  toolStateWord,\n' +
+    '  canAnswer,\n' +
+    '  validPermission,\n' +
+    '  permissionPresentation,\n' +
+    '} from "./thread-projection.mjs";\n' +
+    '\n' +
+    'import {\n' +
+    '  renderSessionOverview,\n' +
+    '  renderRunHistory,\n' +
+    '} from "./workspace-view.mjs";\n' +
+    'import {\n' +
+    '  surfaceModules,\n' +
+    '  surfaceModule,\n' +
+    '  resolveSurfaceSlot,\n' +
+    '  slotStatusLine,\n' +
+    '  workPacket,\n' +
+    '  renderWorkPacket,\n' +
+    '  decisionWords,\n' +
+    '  shortRef,\n' +
+    '} from "./surface-modules.mjs";\n' +
+    'import { renderUserMessage } from "./user-message.mjs";\n' +
+    '\n' +
+    'const API_BASE = "/api/v5";\n' +
+    'const UI_STORAGE_KEY = "schema-engineering.ui.v6";\n' +
+    'const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;\n' +
+    'const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");\n' +
+    '// WK-58 · below 768 the composer docks at the foot of the frame on Home too, so\n' +
+    '// the placement itself is viewport-dependent and not only its padding.\n' +
+    'const narrowQuery = window.matchMedia("(max-width: 767px)");\n' +
+    '/* WK-113 ① / CC-W · 工作面按视口分档的那条线。从 1680 起 nav 256 + chat ≥640 +\n' +
+    ' * doc ≥688 在算术上成立，工作面因此是真正的第三栏；1024–1679 它是主区内的视图\n' +
+    ' * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */\n' +
+    'const surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");\n' +
+    '\n' +
+    'const state = {\n' +
+    '  token: null,\n' +
+    '  editMessageCandidate: null,\n' +
+    '  view: "home",\n' +
+    '  navigationOpen: false,\n' +
+    '  sidebarCollapsed: false,\n' +
+    '  attentionOpen: false,\n' +
+    '  homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },\n' +
+    '  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },\n' +
+    '  home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },\n' +
+    '  homeDraft: "",\n' +
+    '  homeProjectId: null,\n' +
+    '  homePermissionMode: "ask",\n' +
+    '  homeStart: null,\n' +
+    '  homeProjectRequest: false,\n' +
+    '  sessionListErrors: new Map(),\n' +
+    '  unconfirmedRuns: new Map(),\n' +
+    '  createAttempts: new Map(),\n' +
+    '  startAfterProject: false,\n' +
+    '  newSessionProjectId: null,\n' +
+    '  runtimeInfo: null,\n' +
+    '  capabilities: null,\n' +
+    '  adapterId: null,\n' +
+    '  projects: [],\n' +
+    '  sessionsByProject: new Map(),\n' +
+    '  openProjectIds: new Set(),\n' +
+    '  activeProjectId: null,\n' +
+    '  activeSessionId: null,\n' +
+    '  restoreSessionId: null,\n' +
+    '  navigationEpoch: 0,\n' +
+    '  navigationFilter: "",\n' +
+    '  session: null,\n' +
+    '  events: [],\n' +
+    '  runs: [],\n' +
+    '  lastSeq: 0,\n' +
+    '  sessionEpoch: 0,\n' +
+    '  pollController: null,\n' +
+    '  pollTimer: null,\n' +
+    '  recordedContext: new Map(),\n' +
+    '  draftCache: new Map(),\n' +
+    '  draftDirty: new Set(),\n' +
+    '  draftTimers: new Map(),\n' +
+    '  draftRevisions: new Map(),\n' +
+    '  draftQueues: new Map(),\n' +
+    '  pendingRuns: new Map(),\n' +
+    '  pendingCancels: new Map(),\n' +
+    '  sessionMutationVersions: new Map(),\n' +
+    '  sessionReadTokens: new Map(),\n' +
+    '  operationSequence: 0,\n' +
+    '  questionDrafts: new Map(),\n' +
+    '  questionControls: new Map(),\n' +
+    '  questionSubmitting: new Set(),\n' +
+    '  questionSubmitted: new Set(),\n' +
+    '  questionErrors: new Map(),\n' +
+    '  toolOpen: new Map(),\n' +
+    '  navigationLimits: new Map(),\n' +
+    '  longMessageOpen: new Map(),\n' +
+    '  messageReading: new Map(),\n' +
+    '  bindingExtensionId: null,\n' +
+    '  extensions: [],\n' +
+    '  providerConfig: null,\n' +
+    '  /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：\n' +
+    '   * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着\n' +
+    '   * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */\n' +
+    '  settings: { open: false, section: DEFAULT_SECTION, returnFocus: null },\n' +
+    '  focusIntentEpoch: 0,\n' +
+    '  feedback: new Map(),\n' +
+    '  connectionLost: false,\n' +
+    '  connectionEpoch: 0,\n' +
+    '  recoveryProbeTimer: null,\n' +
+    '  recoveryProbeController: null,\n' +
+    '  surface: {\n' +
+    '    open: false,\n' +
+    '    kind: "preview",\n' +
+    '    runId: null,\n' +
+    '    fileRef: null,\n' +
+    '    returnFocus: null,\n' +
+    '    runReadGeneration: 0,\n' +
+    '    runReadController: null,\n' +
+    '    workspaceGeneration: 0,\n' +
+    '    // WK-41 · the workspace tree is fetched once by the host and handed to both\n' +
+    '    // rail states, so collapsing and expanding never re-reads the same tree.\n' +
+    '    workspace: null,\n' +
+    '    expanded: false,\n' +
+    '    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条\n' +
+    '     * 与否，以及 composer 当前占去的高度。 */\n' +
+    '    strip: false,\n' +
+    '    composerHeight: 0,\n' +
+    '    requestId: 0,\n' +
+    '    fetchRequestId: 0,\n' +
+    '    fetchController: null,\n' +
+    '    controller: null,\n' +
+    '    context: null,\n' +
+    '    info: null,\n' +
+    '    rendererUnavailableContext: null,\n' +
+    '    projection: null,\n' +
+    '    module: null,\n' +
+    '    ownedContainer: null,\n' +
+    '    mounted: null,\n' +
+    '  },\n' +
+    "  /* WO-WK10b 第二段 · the formal decisions of the session's bound work, and the\n" +
+    '   * committed receipt for each. The Chat Flow row is drawn from the receipt,\n' +
+    '   * not from the decision: a decision the server cannot confirm has no receipt,\n' +
+    '   * and a null receipt never becomes a success row (frontend-entries 3.4).\n' +
+    '   * This store is read for a bound session whether or not the work surface is\n' +
+    '   * open, because the receipt row belongs to the conversation. */\n' +
+    '  work: { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null },\n' +
+    '  /* Which rule rows of the read-only fallback are open. A disclosure is a view\n' +
+    '   * state, not a formal one, and it survives a re-read (FN-23). */\n' +
+    '  surfaceRuleOpen: new Set(),\n' +
+    '  /* WO-WK10b 第二段 · the work this project already owns, read once when the\n' +
+    '   * binding panel opens. The route is per project, so work of another project\n' +
+    '   * is not in this list and cannot be offered here. */\n' +
+    '  projectWork: { projectId: null, extensionId: null, matters: null, error: null },\n' +
+    '};\n' +
+    '\n' +
+    'const $ = (id) => document.getElementById(id);\n' +
+    'let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;\n' +
+    'const dialogReturns = new Map();\n' +
+    'const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";\n' +
+    'function storeUnconfirmedRuns() {\n' +
+    '  try {\n' +
+    '    window.sessionStorage.setItem(\n' +
+    '      COMMAND_STORAGE_KEY,\n' +
+    '      JSON.stringify([...state.unconfirmedRuns]),\n' +
+    '    );\n' +
+    '  } catch {\n' +
+    '    /* receipt remains in memory */\n' +
+    '  }\n' +
+    '}\n' +
+    'function setWorkspaceTitle(title) {\n' +
+    '  if (state.surface.kind === "preview") $("surface-title").textContent = title;\n' +
+    '}\n' +
+    'function restoreLayerFocus(preferred, fallback = $("session-title")) {\n' +
+    '  const target =\n' +
+    '    preferred?.isConnected &&\n' +
+    '    !preferred.closest("[inert]") &&\n' +
+    '    preferred.getClientRects().length\n' +
+    '      ? preferred\n' +
+    '      : fallback;\n' +
+    '  target?.focus();\n' +
+    '}\n' +
+    '\n' +
+    'function element(tag, options = {}, ...children) {\n' +
+    '  const item = document.createElement(tag);\n' +
+    '  if (options.className) item.className = options.className;\n' +
+    '  if (options.text !== undefined) item.textContent = String(options.text);\n' +
+    '  if (options.attrs) {\n' +
+    '    for (const [name, value] of Object.entries(options.attrs)) {\n' +
+    '      if (value !== undefined && value !== null)\n' +
+    '        item.setAttribute(name, String(value));\n' +
+    '    }\n' +
+    '  }\n' +
+    '  for (const child of children) {\n' +
+    '    if (child === null || child === undefined || child === false) continue;\n' +
+    '    item.append(\n' +
+    '      typeof child === "string" ? document.createTextNode(child) : child,\n' +
+    '    );\n' +
+    '  }\n' +
+    '  return item;\n' +
+    '}\n' +
+    '\n' +
+    'function clear(item) {\n' +
+    '  while (item.firstChild) item.removeChild(item.firstChild);\n' +
+    '}\n' +
+    '\n' +
+    'function readUiState() {\n' +
+    '  try {\n' +
+    '    if (!window.localStorage) return {};\n' +
+    '    const raw = window.localStorage.getItem(UI_STORAGE_KEY);\n' +
+    '    if (!raw) return {};\n' +
+    '    const parsed = JSON.parse(raw);\n' +
+    '    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))\n' +
+    '      return {};\n' +
+    '    return parsed;\n' +
+    '  } catch {\n' +
+    '    return {};\n' +
+    '  }\n' +
+    '}\n' +
+    '\n' +
+    'function writeUiState() {\n' +
+    '  try {\n' +
+    '    if (!window.localStorage) return;\n' +
+    '    window.localStorage.setItem(\n' +
+    '      UI_STORAGE_KEY,\n' +
+    '      JSON.stringify({\n' +
+    '        activeProjectId:\n' +
+    '          typeof state.activeProjectId === "string"\n' +
+    '            ? state.activeProjectId\n' +
+    '            : null,\n' +
+    '        activeSessionId:\n' +
+    '          typeof state.activeSessionId === "string"\n' +
+    '            ? state.activeSessionId\n' +
+    '            : null,\n' +
+    '        openProjectIds: [...state.openProjectIds].filter(\n' +
+    '          (id) => typeof id === "string",\n' +
+    '        ),\n' +
+    '        surfaceOpen: state.surface.open !== false,\n' +
+    '      }),\n' +
+    '    );\n' +
+    '  } catch {\n' +
+    '    // Storage is a convenience for UI markers. A blocked or malformed store must not block startup.\n' +
+    '  }\n' +
+    '}\n' +
+    '\n' +
+    'function storeHomeDraft() {\n' +
+    '  try {\n' +
+    '    const start = state.homeStart;\n' +
+    '    window.sessionStorage?.setItem(HOME_DRAFT_KEY, JSON.stringify({\n' +
+    '      draft: state.homeDraft,\n' +
+    '      projectId: state.homeProjectId,\n' +
+    '      permissionMode: state.homePermissionMode,\n' +
+    '      start: start ? {\n' +
+    '        projectId: start.projectId, commandId: start.commandId,\n' +
+    '        session: start.session || null,\n' +
+    '        unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),\n' +
+    '        error: start.error || "",\n' +
+    '      } : null,\n' +
+    '    }));\n' +
+    '  } catch { /* A blocked browser store must not block composing. */ }\n' +
+    '}\n' +
+    'function restoreHomeDraft() {\n' +
+    '  try {\n' +
+    '    const saved = JSON.parse(window.sessionStorage?.getItem(HOME_DRAFT_KEY) || "null");\n' +
+    '    if (typeof saved?.draft !== "string") return;\n' +
+    '    state.homeDraft = saved.draft.slice(0, 100000);\n' +
+    '    state.homeProjectId = typeof saved.project'... 231751 more characters
+  
+      at TestContext.<anonymous> (file://<checkout>/app/tests/settings-navigation.test.mjs:79:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";\nimport {\n  el,\n  icon,\n  flowRow,\n  action,\n  setAction,\n  copyAction,\n  markdown,\n  installTooltips,\n  anchorPopover,\n  sessionMode,\n  sessionModeLabel,\n  setRequestLabel,\n  MEMORY_SCOPE_OFF,\n} from "./ui-controls.mjs";\n\nimport { installShellLayout } from "./shell-layout.mjs";\ninstallShellLayout({ window, document, navigator });\nimport { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";\nimport { createAttentionWorkspace } from "./attention-view.mjs";\nimport { createAttentionAgent } from "./attention-agent-view.mjs";\nimport { renderRequestMeasurements } from "./telemetry-view.mjs";\nimport { createModelPicker } from "./model-picker.mjs";\nimport { createUsageView } from "./usage-view.mjs";\nlet attentionWorkspace, attentionAgent, modelPicker, usageView;\nimport {\n  createSettingsPage,\n  createSettingsView,\n  isSettingsSection,\n  permissionLabels,\n  providerLabels,\n  renderConnectionCard,\n  readPreferences,\n  DEFAULT_SECTION,\n} from "./settings-view.mjs";\nimport {\n  renderRun,\n  createFileView,\n  runLabels,\n  noticeText,\n  formatBytes,\n} from "./inspector.mjs";\nimport { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";\nimport { createMaterialsView } from "./materials-view.mjs";\nimport {\n  renderHome,\n  renderHomeBand,\n  renderHomeModuleBand,\n  homeSets,\n} from "./home-view.mjs";\nimport {\n  projectThread,\n  toolStateWord,\n  canAnswer,\n  validPermission,\n  permissionPresentation,\n} from "./thread-projection.mjs";\n\nimport {\n  renderSessionOverview,\n  renderRunHistory,\n} from "./workspace-view.mjs";\nimport {\n  surfaceModules,\n  surfaceModule,\n  resolveSurfaceSlot,\n  slotStatusLine,\n  workPacket,\n  renderWorkPacket,\n  decisionWords,\n  shortRef,\n} from "./surface-modules.mjs";\nimport { renderUserMessage } from "./user-message.mjs";\n\nconst API_BASE = "/api/v5";\nconst UI_STORAGE_KEY = "schema-engineering.ui.v6";\nconst HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;\nconst surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");\n// WK-58 · below 768 the composer docks at the foot of the frame on Home too, so\n// the placement itself is viewport-dependent and not only its padding.\nconst narrowQuery = window.matchMedia("(max-width: 767px)");\n/* WK-113 ① / CC-W · 工作面按视口分档的那条线。从 1680 起 nav 256 + chat ≥640 +\n * doc ≥688 在算术上成立，工作面因此是真正的第三栏；1024–1679 它是主区内的视图\n * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */\nconst surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");\n\nconst state = {\n  token: null,\n  editMessageCandidate: null,\n  view: "home",\n  navigationOpen: false,\n  sidebarCollapsed: false,\n  attentionOpen: false,\n  homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },\n  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },\n  home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },\n  homeDraft: "",\n  homeProjectId: null,\n  homePermissionMode: "ask",\n  homeStart: null,\n  homeProjectRequest: false,\n  sessionListErrors: new Map(),\n  unconfirmedRuns: new Map(),\n  createAttempts: new Map(),\n  startAfterProject: false,\n  newSessionProjectId: null,\n  runtimeInfo: null,\n  capabilities: null,\n  adapterId: null,\n  projects: [],\n  sessionsByProject: new Map(),\n  openProjectIds: new Set(),\n  activeProjectId: null,\n  activeSessionId: null,\n  restoreSessionId: null,\n  navigationEpoch: 0,\n  navigationFilter: "",\n  session: null,\n  events: [],\n  runs: [],\n  lastSeq: 0,\n  sessionEpoch: 0,\n  pollController: null,\n  pollTimer: null,\n  recordedContext: new Map(),\n  draftCache: new Map(),\n  draftDirty: new Set(),\n  draftTimers: new Map(),\n  draftRevisions: new Map(),\n  draftQueues: new Map(),\n  pendingRuns: new Map(),\n  pendingCancels: new Map(),\n  sessionMutationVersions: new Map(),\n  sessionReadTokens: new Map(),\n  operationSequence: 0,\n  questionDrafts: new Map(),\n  questionControls: new Map(),\n  questionSubmitting: new Set(),\n  questionSubmitted: new Set(),\n  questionErrors: new Map(),\n  toolOpen: new Map(),\n  navigationLimits: new Map(),\n  longMessageOpen: new Map(),\n  messageReading: new Map(),\n  bindingExtensionId: null,\n  extensions: [],\n  providerConfig: null,\n  /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：\n   * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着\n   * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */\n  settings: { open: false, section: DEFAULT_SECTION, returnFocus: null },\n  focusIntentEpoch: 0,\n  feedback: new Map(),\n  connectionLost: false,\n  connectionEpoch: 0,\n  recoveryProbeTimer: null,\n  recoveryProbeController: null,\n  surface: {\n    open: false,\n    kind: "preview",\n    runId: null,\n    fileRef: null,\n    returnFocus: null,\n    runReadGeneration: 0,\n    runReadController: null,\n    workspaceGeneration: 0,\n    // WK-41 · the workspace tree is fetched once by the host and handed to both\n    // rail states, so collapsing and expanding never re-reads the same tree.\n    workspace: null,\n    expanded: false,\n    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条\n     * 与否，以及 composer 当前占去的高度。 */\n    strip: false,\n    composerHeight: 0,\n    requestId: 0,\n    fetchRequestId: 0,\n    fetchController: null,\n    controller: null,\n    context: null,\n    info: null,\n    rendererUnavailableContext: null,\n    projection: null,\n    module: null,\n    ownedContainer: null,\n    mounted: null,\n  },\n  /* WO-WK10b 第二段 · the formal decisions of the session\'s bound work, and the\n   * committed receipt for each. The Chat Flow row is drawn from the receipt,\n   * not from the decision: a decision the server cannot confirm has no receipt,\n   * and a null receipt never becomes a success row (frontend-entries 3.4).\n   * This store is read for a bound session whether or not the work surface is\n   * open, because the receipt row belongs to the conversation. */\n  work: { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null },\n  /* Which rule rows of the read-only fallback are open. A disclosure is a view\n   * state, not a formal one, and it survives a re-read (FN-23). */\n  surfaceRuleOpen: new Set(),\n  /* WO-WK10b 第二段 · the work this project already owns, read once when the\n   * binding panel opens. The route is per project, so work of another project\n   * is not in this list and cannot be offered here. */\n  projectWork: { projectId: null, extensionId: null, matters: null, error: null },\n};\n\nconst $ = (id) => document.getElementById(id);\nlet tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;\nconst dialogReturns = new Map();\nconst COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";\nfunction storeUnconfirmedRuns() {\n  try {\n    window.sessionStorage.setItem(\n      COMMAND_STORAGE_KEY,\n      JSON.stringify([...state.unconfirmedRuns]),\n    );\n  } catch {\n    /* receipt remains in memory */\n  }\n}\nfunction setWorkspaceTitle(title) {\n  if (state.surface.kind === "preview") $("surface-title").textContent = title;\n}\nfunction restoreLayerFocus(preferred, fallback = $("session-title")) {\n  const target =\n    preferred?.isConnected &&\n    !preferred.closest("[inert]") &&\n    preferred.getClientRects().length\n      ? preferred\n      : fallback;\n  target?.focus();\n}\n\nfunction element(tag, options = {}, ...children) {\n  const item = document.createElement(tag);\n  if (options.className) item.className = options.className;\n  if (options.text !== undefined) item.textContent = String(options.text);\n  if (options.attrs) {\n    for (const [name, value] of Object.entries(options.attrs)) {\n      if (value !== undefined && value !== null)\n        item.setAttribute(name, String(value));\n    }\n  }\n  for (const child of children) {\n    if (child === null || child === undefined || child === false) continue;\n    item.append(\n      typeof child === "string" ? document.createTextNode(child) : child,\n    );\n  }\n  return item;\n}\n\nfunction clear(item) {\n  while (item.firstChild) item.removeChild(item.firstChild);\n}\n\nfunction readUiState() {\n  try {\n    if (!window.localStorage) return {};\n    const raw = window.localStorage.getItem(UI_STORAGE_KEY);\n    if (!raw) return {};\n    const parsed = JSON.parse(raw);\n    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))\n      return {};\n    return parsed;\n  } catch {\n    return {};\n  }\n}\n\nfunction writeUiState() {\n  try {\n    if (!window.localStorage) return;\n    window.localStorage.setItem(\n      UI_STORAGE_KEY,\n      JSON.stringify({\n        activeProjectId:\n          typeof state.activeProjectId === "string"\n            ? state.activeProjectId\n            : null,\n        activeSessionId:\n          typeof state.activeSessionId === "string"\n            ? state.activeSessionId\n            : null,\n        openProjectIds: [...state.openProjectIds].filter(\n          (id) => typeof id === "string",\n        ),\n        surfaceOpen: state.surface.open !== false,\n      }),\n    );\n  } catch {\n    // Storage is a convenience for UI markers. A blocked or malformed store must not block startup.\n  }\n}\n\nfunction storeHomeDraft() {\n  try {\n    const start = state.homeStart;\n    window.sessionStorage?.setItem(HOME_DRAFT_KEY, JSON.stringify({\n      draft: state.homeDraft,\n      projectId: state.homeProjectId,\n      permissionMode: state.homePermissionMode,\n      start: start ? {\n        projectId: start.projectId, commandId: start.commandId,\n        session: start.session || null,\n        unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),\n        error: start.error || "",\n      } : null,\n    }));\n  } catch { /* A blocked browser store must not block composing. */ }\n}\nfunction restoreHomeDraft() {\n  try {\n    const saved = JSON.parse(window.sessionStorage?.getItem(HOME_DRAFT_KEY) || "null");\n    if (typeof saved?.draft !== "string") return;\n    state.homeDraft = saved.draft.slice(0, 100000);\n    state.homeProjectId = typeof saved.project'... 231751 more characters,
+    expected: /: unfinishedToolWord\(status\);/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/work-core.test.mjs:80:1
+✖ v1 migration backs up original, retains current source membership; failed schema migration rolls back (25713.407125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    Comparison {
+  +   code: 'CORE_UNAVAILABLE'
+  -   code: 'SCHEMA_INVALID'
+    }
+  
+      at async file://<checkout>/app/tests/work-core.test.mjs:88:17
+      at async fixture (file://<checkout>/app/tests/work-core.test.mjs:14:8)
+      at async TestContext.<anonymous> (file://<checkout>/app/tests/work-core.test.mjs:81:38)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: CoreClientError: CORE_UNAVAILABLE: bridge ready timeout
+        at Timeout.<anonymous> (file://<checkout>/app/core/client.mjs:99:54)
+        at listOnTimeout (node:internal/timers:605:17)
+        at process.processTimers (node:internal/timers:541:7),
+    expected: { code: 'SCHEMA_INVALID' },
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at tests/work-core.test.mjs:95:1
+✖ missing application metadata fails closed; terminal Run cannot change or claim another candidate (7227.162166ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file://<checkout>/app/core/client.mjs:99:54)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }

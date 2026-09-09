@@ -51,6 +51,8 @@ import {
 } from "./home-view.mjs";
 import {
   projectThread,
+  toolStateWord,
+  unfinishedToolWord,
   canAnswer,
   validPermission,
   permissionPresentation,
@@ -2429,9 +2431,6 @@ function decisionReceiptRows(runId) {
  * `unknown`（或根本没有对应的 Run 记录）时，它为什么没有回来同样是未知的，写
  * `Interrupted` 是对未知事实的正面断言（FN-28）。第六个词因此是 `Unknown`
  * （glyph-semantics §3）。BE-33 交付后原因改由后端给出，这里的推断随之退役。 */
-const unfinishedToolWord = (status) =>
-  status === "cancelled" || status === "failed" ? "Interrupted" : "Unknown";
-
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
@@ -2623,17 +2622,7 @@ function renderMessageStream() {
        * still carries no state word: the group summary above it already says
        * the run completed, and repeating it on every row answers nothing
        * (WK-47 ablation C-2). */
-      const toolState = row.isError
-        ? "Failed"
-        : row.phase === "result"
-          ? null
-          : toolStillActive
-            ? status === "waiting_user"
-              ? "Waiting for you"
-              : status === "stopping"
-                ? "Stopping"
-                : "Working"
-            : unfinishedToolWord(status);
+      const toolState = toolStateWord(row, status);
       details.append(
         flowRow("summary", {
           glyph: toolGlyph(row.name),

@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   projectThread,
+  toolStateWord,
   canAnswer,
   validPermission,
 } from "../web/thread-projection.mjs";
+import { messageSummary } from "../web/user-message.mjs";
 test("thread projection scopes runs and resolves exact permission request", () => {
   const run = { id: "r", sessionId: "s", status: "completed" };
   const payload = {
@@ -114,4 +116,49 @@ test('permission display distinguishes remote actions from writes using only the
   assert.equal(permissionPresentation({ tool: 'ws_write', path: 'out/a.txt' }).target, 'out/a.txt');
   assert.equal(permissionPresentation({ tool: 'ws_write', path: 'out/a.txt' }).noun, 'write');
   assert.equal(permissionPresentation({ tool: 'ws_read', path: 'materials/a.txt' }).noun, 'action');
+});
+
+test("one tool state vocabulary serves both chat presentations", () => {
+  assert.equal(toolStateWord({ isError: true, phase: "result" }, "completed"), "Failed");
+  // A returned tool carries no state word; the run's own state already answers.
+  assert.equal(toolStateWord({ phase: "result" }, "completed"), null);
+  assert.equal(toolStateWord({ phase: "started" }, "running"), "Working");
+  assert.equal(toolStateWord({ phase: "started" }, "waiting_user"), "Waiting for you");
+  assert.equal(toolStateWord({ phase: "started" }, "stopping"), "Stopping");
+  assert.equal(toolStateWord({ phase: "started" }, "cancelled"), "Interrupted");
+  assert.equal(toolStateWord({ phase: "started" }, "failed"), "Interrupted");
+  assert.equal(toolStateWord({ phase: "started" }, "completed"), "Unknown");
+  assert.equal(toolStateWord({ phase: "started" }, undefined), "Unknown");
+});
+
+test("the long-message preview reads as words and never replaces the original", () => {
+  const source = [
+    "# Comparison request",
+    "",
+    "See <https://example.com/a> and [the second reference](https://example.com/b).",
+    "",
+    "| Source | Version |",
+    "|:--|--:|",
+    "| One | v1 |",
+    "",
+    "```json",
+    '{"kept": true}',
+    "```",
+    "",
+    "> Quoted line.",
+    "1. First item",
+  ].join("\n");
+  const summary = messageSummary(source);
+  assert.equal(
+    summary,
+    "Comparison request See https://example.com/a and the second reference. Source · Version One · v1 Quoted line. First item",
+  );
+  for (const mark of ["#", "|", "```", "](", "<https"]) assert.ok(!summary.includes(mark), mark);
+  // Emphasis is unwrapped only in pairs, so an identifier survives intact.
+  assert.equal(messageSummary("**bold** keeps some_variable_name"), "bold keeps some_variable_name");
+  // A message that is only a fenced block still previews its words.
+  assert.equal(messageSummary("```\nonly code here\n```"), "only code here");
+  assert.equal(messageSummary("x".repeat(400)), "x".repeat(280) + "…");
+  // The preview is bounded; the exact original is what Copy and Source carry.
+  assert.equal(messageSummary(source).length <= 281, true);
 });

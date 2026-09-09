@@ -1,8 +1,9 @@
 import { renderUserMessage } from "./user-message.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { el, action, markdown, copyAction } from './ui-controls.mjs';
-import { projectThread, canAnswer, validPermission } from './thread-projection.mjs';
+import { projectThread, toolStateWord, canAnswer, validPermission } from './thread-projection.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
+import { runLabels } from './inspector.mjs';
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
@@ -105,7 +106,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     const recentKey = JSON.stringify([state.conversations, state.busy, Boolean(state.command)]);
     if (recentSignature !== recentKey) { recentSignature = recentKey; renderRecent(); }
     const run = controller.active() || state.runs.at(-1);
-    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : controller.active() ? `Run ${run.status}` : '');
+    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : controller.active() ? (runLabels[run.status] || runLabels.unknown) : '');
     feedback.hidden = !feedback.textContent;
     const provider = getProvider?.();
     modelChoice.textContent = provider?.config?.provider === "fake-openai-loopback" ? "Local test" : provider?.config?.model || "Model";
@@ -126,7 +127,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       const selection = focused ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
       const expanded = new Set([...stream.querySelectorAll('details[open]')].map(node => node.dataset.row));
       stream.replaceChildren();
-      const rows = projectThread(state.events, state.runs, state.session?.id).rows;
+      const { rows, statuses: runStatuses } = projectThread(state.events, state.runs, state.session?.id);
       if (!rows.length) stream.append(el('div', { className: 'attention-agent-empty' }, el('h3', { text: 'What matters next?' }),
         el('p', { text: 'Bring a question, find context from earlier work, or ask for a next step.' }),
         el('small', { className: 'attention-easter-egg', text: 'Attention is all you need!' })));
@@ -148,11 +149,14 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
             onEdit: () => { controller.setDraft(row.text); input.value = row.text; updateControls(); input.focus(); }
           }));
         } else if (row.kind === 'assistant') {
-          block.append(el('div', { className: 'attention-agent-message-heading' }, el('strong', { text: 'Attention' })),
+          block.append(el('div', { className: 'attention-agent-message-heading' }, el('span', { className: 'message-role', text: 'Attention' })),
             markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
           if (!row.pending) block.append(el('footer', { className: 'assistant-message-actions' }, copyAction(row.text, 'Copy response', row.id)));
         } else if (row.kind === 'tool') {
-          const detail = el('details', { attrs: { 'data-row': row.id } }, el('summary', { text: `${row.name} · ${row.phase}${row.isError ? ' · failed' : ''}` }),
+          const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);
+          const summary = el('summary', { text: row.name });
+          if (word) summary.append(el('span', { className: 'attention-tool-state', text: word }));
+          const detail = el('details', { attrs: { 'data-row': row.id } }, summary,
             el('pre', { text: JSON.stringify({ request: row.request, result: row.result }, null, 2) }));
           detail.open = expanded.has(row.id); block.append(detail);
         } else if (row.kind === 'question' || row.kind === 'permission') {
@@ -177,7 +181,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
               button.addEventListener('click', () => controller.answer(row.runId, row.id, { answer: answer.value })); block.append(answer, button);
             }
           } else block.append(el('p', { className: 'form-help', text: row.questionStatus === 'pending' ? 'This Run is no longer accepting answers.' : `Request ${row.questionStatus}` }));
-        } else if (row.kind === 'run-status') block.append(el('p', { className: 'form-help', text: `Run ${row.status || 'unknown'}` }));
+        } else if (row.kind === 'run-status') block.append(el('p', { className: 'form-help', text: runLabels[row.status] || runLabels.unknown }));
         else if (row.kind === 'error') block.append(el('p', { text: row.text }));
         else if (row.kind === 'artifact') block.append(el('p', { text: `Recorded file: ${row.file.path}. Open the conversation to inspect this version.` }));
         else if (row.kind === 'notice') block.append(el('p', { className: 'form-help', text: row.data.message || row.data.code || 'Runtime notice' }));
