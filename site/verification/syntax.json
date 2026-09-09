@@ -1,24 +1,23 @@
 {
-  "passed": 19,
+  "pass": true,
   "files": [
-    "site/src/specimen-page.mjs",
-    "site/src/page.mjs",
-    "site/src/site.mjs",
     "site/src/copy.mjs",
+    "site/src/page.mjs",
+    "site/src/pricing.mjs",
     "site/src/readme.mjs",
+    "site/src/site.mjs",
+    "site/src/specimen-page.mjs",
     "site/src/steps.mjs",
-    "site/scripts/check-links.mjs",
-    "site/scripts/vendor-product.mjs",
-    "site/scripts/release.mjs",
-    "site/scripts/evidence.mjs",
-    "site/scripts/capture-specimen.mjs",
     "site/scripts/capture-media.mjs",
+    "site/scripts/capture-specimen.mjs",
+    "site/scripts/check-links.mjs",
     "site/scripts/check-material.mjs",
-    "site/scripts/verify.mjs",
-    "site/scripts/preview.mjs",
     "site/scripts/check-specimen.mjs",
+    "site/scripts/evidence.mjs",
+    "site/scripts/preview.mjs",
+    "site/scripts/release.mjs",
     "site/scripts/tokens.mjs",
-    "site/build.mjs",
-    "site/specimen/shell.mjs"
+    "site/scripts/vendor-product.mjs",
+    "site/scripts/verify.mjs"
   ]
 }

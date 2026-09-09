@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-09-09T16:53:10.995Z",
+  "worktree": "<isolated-pages-checkout>",
+  "preview": "http://127.0.0.1:8941/Courtwork/",
+  "cdp_port": 19993,
+  "profile": "independent ephemeral Chrome profile",
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+  "checks": [
+    {
+      "id": "independent-cdp-verify",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "port": 19993,
+        "resultCount": 17,
+        "failed": []
+      }
+    },
+    {
+      "id": "assume-unchanged-bypass-is-rejected",
+      "pass": true,
+      "severity": "P0",
+      "details": {
+        "status": 1,
+        "reportsPath": true,
+        "output": "capture product paths differ from source_sha 9e5384f:\napp/web/styles.css\nCapture in an isolated checkout of the declared source SHA. Builds replay its pinned Git bytes.\n"
+      }
+    },
+    {
+      "id": "recorded-source-identity-digest-quote",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "candidateId": "candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c",
+        "sourceId": "source-9495d3ef-6ef3-4117-825a-f53b90dc6a7a",
+        "version": 1,
+        "valid": true,
+        "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+        "wrongCandidate": true,
+        "wrongSource": true,
+        "wrongVersion": true,
+        "changedText": true,
+        "changedDigest": true,
+        "changedQuote": true,
+        "pass": true
+      }
+    },
+    {
+      "id": "seven-anatomy-links",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "links": 7,
+        "labels": "Source → Event → Matter state → Run → Review → Decision → Provenance"
+      }
+    },
+    {
+      "id": "pricing-panels-and-keyboard",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "count": 3,
+        "cards": 3,
+        "reached": [
+          true,
+          true,
+          true
+        ],
+        "arrow": "pricing-tab-hosted"
+      }
+    },
+    {
+      "id": "pricing-mobile-overflow",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "viewportChecks": [
+          {
+            "id": "V8 · 390px light does not scroll sideways",
+            "pass": true,
+            "overflow": 0
+          },
+          {
+            "id": "V8 · 390px dark does not scroll sideways",
+            "pass": true,
+            "overflow": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "pricing-graph-and-font-source-contract",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "fontPass": true,
+        "materialPass": true,
+        "pricingSvgFunctions": 3,
+        "cssToken": "--font-mono / --text-body"
+      }
+    },
+    {
+      "id": "no-js-eight-step-fallback",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "stills": 7,
+        "fallback": "eight steps / seven stills"
+      }
+    },
+    {
+      "id": "material-and-local-links",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "material": {
+          "sheets": 3,
+          "site_declared_variables": [
+            "--site-measure",
+            "--site-wide",
+            "--site-section-gap",
+            "--site-block-gap",
+            "--site-defocus"
+          ],
+          "problems": [],
+          "pass": true
+        },
+        "links": {
+          "files": 46,
+          "local_references_checked": 27,
+          "problems": [],
+          "pass": true
+        }
+      }
+    },
+    {
+      "id": "specimen-recapture-stable",
+      "pass": true,
+      "severity": "P1",
+      "details": {
+        "specimen": "site/specimen/9e5384f.json",
+        "bytes": 298756,
+        "sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0",
+        "normalised_sha256": "4ea723b7682cb8de6ad95fe39e55ef2088244998a9d3e7f8aac135fad219df5b",
+        "second_capture_normalised_sha256": "4ea723b7682cb8de6ad95fe39e55ef2088244998a9d3e7f8aac135fad219df5b",
+        "volatile_tokens": {
+          "first": 32,
+          "second": 32
+        },
+        "identical_after_normalising_ids_and_timestamps": true
+      }
+    }
+  ],
+  "passed": 10,
+  "failed": 0,
+  "observations": {
+    "current_checkout_capture": {
+      "pass": false,
+      "details": {
+        "pass": false,
+        "error": "capture product paths differ from source_sha 9e5384f:\napp/README.md\napp/docs/api-v6.md\napp/docs/async-tasks.md\napp/runtime/control-plane.mjs\napp/runtime/pi-session-runtime.mjs\napp/server/async-task-state.mjs\napp/server/async-tasks.mjs\napp/server/index.mjs\napp/server/runtime.mjs\napp/server/service.mjs\napp/server/store.mjs\napp/tests/async-boundaries-independent.test.mjs\napp/tests/async-fixture.test.mjs\napp/tests/async-protocol.test.mjs\napp/tests/async-recovery-independent.test.mjs\napp/tests/async-tasks.test.mjs\napp/tests/attention-github-fixture.test.mjs\napp/tests/attention-gmail-fixture.test.mjs\napp/tests/attention-trace-fixture.test.mjs\napp/tests/control-plane.test.mjs\napp/tests/durability.test.mjs\napp/tests/fixtures/async-loop/contract.mjs\napp/tests/fixtures/async-loop/fixture-child.mjs\napp/tests/fixtures/async-loop/fixture-provider.mjs\napp/tests/fixtures/async-loop/host-adapter.mjs\napp/tests/fixtures/async-loop/host-child.mjs\napp/tests/fixtures/async-loop/index.mjs\napp/tests/fixtures/async-protocol/cancel-receipt.json\napp/tests/fixtures/async-protocol/legacy-task-created.json\napp/tests/fixtures/async-protocol/malformed-async-fields.json\napp/tests/fixtures/async-protocol/modern-task-accepted.json\napp/tests/fixtures/async-protocol/partial-arguments.json\napp/tests/fixtures/async-protocol/sync-call-result.json\napp/tests/fixtures/attention-ingest/github/scripted-notifications.mjs\napp/tests/fixtures/attention-ingest/gmail/scripted-gmail.mjs\napp/tests/fixtures/attention-trace/run-validation.mjs\napp/tests/fixtures/attention-trace/validate.mjs\napp/tests/fixtures/attention-trace/vectors.mjs\napp/tests/runtime.test.mjs\ndocs/runtime-control/INDEX.md\ndocs/runtime-control/architecture.md\nCapture in an isolated checkout of the declared source SHA. Builds replay its pinned Git bytes."
+      }
+    },
+    "interpretation": "The current checkout has product files newer than release.json source_sha. The static page verification uses the pinned source snapshot; future captures must run from an isolated checkout of source_sha as the guard message requires."
+  },
+  "evidence_files": {
+    "verify": "/private/tmp/cw-pages-independent-verify/verify.json",
+    "guard": "/private/tmp/cw-pages-guard-result.json",
+    "recorded": "/private/tmp/cw-pages-recorded-source-result.json"
+  }
+}

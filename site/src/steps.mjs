@@ -47,7 +47,7 @@ export const STEPS = [
     // The still this step falls back to when there is no scripting.
     still: "M3",
     seen: "Question",
-    text: "需要一个事实时 Agent 提问；回答随 Run 一起记录。回答不等于授权。",
+    text: "需要补充信息时，直接回答 Agent 的提问。问答随 Run 一起保留。",
     status: "verified with synthetic data",
     view: "run",
     key: "question",

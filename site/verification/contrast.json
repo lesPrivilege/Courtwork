@@ -1058,7 +1058,7 @@
     },
     {
       "selector": "code",
-      "text": "0c2ce2e",
+      "text": "5d7d63b",
       "size": 12.9,
       "ratio": 14.41,
       "threshold": 4.5,
@@ -1858,7 +1858,7 @@
     },
     {
       "selector": "p.lede",
-      "text": "这一节回答的是“从个人工作，到团队协作”，不是报价。CourtWork 现在不出",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
       "size": 15,
       "ratio": 14.41,
       "threshold": 4.5,
@@ -2426,7 +2426,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "Experimental",
+      "text": "Open source",
       "size": 13,
       "ratio": 15.98,
       "threshold": 4.5,
@@ -2458,7 +2458,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "9e5384f / 0c2ce2e",
+      "text": "9e5384f / 5d7d63b",
       "size": 13,
       "ratio": 15.98,
       "threshold": 4.5,
@@ -3556,7 +3556,7 @@
     },
     {
       "selector": "code",
-      "text": "0c2ce2e",
+      "text": "5d7d63b",
       "size": 12.9,
       "ratio": 16.25,
       "threshold": 4.5,
@@ -4356,7 +4356,7 @@
     },
     {
       "selector": "p.lede",
-      "text": "这一节回答的是“从个人工作，到团队协作”，不是报价。CourtWork 现在不出",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
       "size": 15,
       "ratio": 16.25,
       "threshold": 4.5,
@@ -4924,7 +4924,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "Experimental",
+      "text": "Open source",
       "size": 13,
       "ratio": 16.25,
       "threshold": 4.5,
@@ -4956,7 +4956,7 @@
     },
     {
       "selector": "span.is-mono",
-      "text": "9e5384f / 0c2ce2e",
+      "text": "9e5384f / 5d7d63b",
       "size": 13,
       "ratio": 16.25,
       "threshold": 4.5,

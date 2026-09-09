@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "site/dist/build-manifest.json",
-      "sha256": "dd637f77d84b3f86a3f6f7f71f92163edf0533b5d31aec68696ea38505e3e3ef"
+      "sha256": "cd691d7df283f58060ed8cc923ea804a68623e14e5560e52ef76a27547ab9ff9"
     },
     {
       "path": "site/dist/evidence/continuity-9e5384f.json",
@@ -24,7 +24,7 @@
     },
     {
       "path": "site/dist/index.html",
-      "sha256": "93edd28cfa58912fa01274101e7037151d49329a43ea2bb3cdecb8ebe84eab7a"
+      "sha256": "05b82704523799e12a2dde86a4cb610a06c6b0aa940702c39ec9776eec78133b"
     },
     {
       "path": "site/dist/media/chat-approval-1440-light.png",
@@ -100,11 +100,11 @@
     },
     {
       "path": "site/dist/specimen/copy.mjs",
-      "sha256": "8f9c9cf67361790fcf13fa3f075f84b6e4fb413494353fd1f8dae98b9de10182"
+      "sha256": "1b834b13cae305b1e4f2120b10a8d1688eeff6e1faa2e5feb3f616a8a0f192e1"
     },
     {
       "path": "site/dist/specimen/index.html",
-      "sha256": "2a9208684e78cd51de79658c15d9b5b0f56a6850b128e327872b6ac133828c5f"
+      "sha256": "1f96a4e1b0d9b405574ab54616846bde2524ef341754074e26616befa277cb57"
     },
     {
       "path": "site/dist/specimen/manifest.json",

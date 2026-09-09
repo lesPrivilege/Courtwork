@@ -38,7 +38,7 @@
       "wrongVersion": null,
       "wrongBytes": null,
       "selected": "step-candidate",
-      "refusal": "replay · not sent这是当时记录下的 decide 请求。它没有被发出。{\n  \"request_id\": \"decide-a073bf7b-7a0a-4f16-a719-0bed6f449c60\",\n  \"candidate_id\": \"candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c\",\n  \"base_version\": 0,\n  \"action\": \"accept\",\n  \"reason\": \"Synthetic replay inspection\"\n}",
+      "refusal": "replay · not sent这是当时记录下的 decide 请求。它没有被发出。{\n  \"request_id\": \"decide-c9f6b6d0-b54a-4e92-97f4-63230898cc5c\",\n  \"candidate_id\": \"candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c\",\n  \"base_version\": 0,\n  \"action\": \"accept\",\n  \"reason\": \"Synthetic replay inspection\"\n}",
       "source": "Recorded sourcesSourcesource-9495d3ef-6ef3-4117-825a-f53b90dc6a7aVersion1SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
       "links": 7
     },
@@ -104,7 +104,7 @@
         "layers": 6,
         "diagram": true
       },
-      "servedBytes": 32685
+      "servedBytes": 32617
     },
     {
       "id": "V6b · without scripting the specimen falls back to the step list with its stills",
@@ -163,7 +163,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1657199
+      "bytes": 1641345
     },
     {
       "name": "page-1440-dark.png",
@@ -171,7 +171,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1653312
+      "bytes": 1637594
     },
     {
       "name": "page-390-light.png",
@@ -179,7 +179,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1331925
+      "bytes": 1318061
     },
     {
       "name": "page-390-dark.png",
@@ -187,7 +187,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1332276
+      "bytes": 1318439
     },
     {
       "name": "page-1440-light-zoom200.png",
@@ -195,7 +195,7 @@
       "theme": "light",
       "scale": 2,
       "overflow": 0,
-      "bytes": 1446262
+      "bytes": 1432560
     }
   ]
 }

@@ -1,6 +1,6 @@
 # 发布面候选
 
-本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。八段叙事、Anatomy 七节点导航、概念定价、README 与离线标本已经接入，未部署。品牌探索后置。
+本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。八段叙事、Anatomy 七节点导航、概念定价、README 与离线标本已经接入。用户已授权本轮 GitHub Pages 部署，最终线上状态见交付回执。品牌探索后置。
 
 ```sh
 node site/build.mjs
@@ -23,7 +23,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的隔离 checkout 运行，且仅用独立合成数据目录。合流后的新 main 会被 capture 守卫拒绝；这不影响离线构建。更新产品快照须一起重取媒体、标本、benchmark 与测试记录，并重新核对声称。不要通过取消来源检查来沿用旧图。
 
-修改文案先同步对应 public-copy 文档与 `src/copy.mjs`，然后 `node site/build.mjs --write-readme`。普通 push 只构建，只有显式手动运行 Pages workflow 才可能部署；手动发布前仍需完成产品发布门与视觉裁定。
+修改文案先同步对应 public-copy 文档与 `src/copy.mjs`，然后 `node site/build.mjs --write-readme`。普通 push 只构建，只有显式手动运行 Pages workflow 才可能部署；本轮用户已授权手动部署，随后独立 review；产品门按工程合同继续。
 
 ## 表现与边界
 

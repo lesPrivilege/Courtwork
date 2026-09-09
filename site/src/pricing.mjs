@@ -56,7 +56,7 @@ export function renderPricing() {
         <p class="index">07</p>
         <p class="pricing-concept">Concept pricing</p>
         <h2 id="pricing-title"><span lang="en">Plans for the way you work</span><span class="zh">从个人工作，到团队协作</span></h2>
-        <p class="lede">这一节回答的是“从个人工作，到团队协作”，不是报价。CourtWork 现在不出售任何东西。三条轨道是一份产品模型的研究稿，把 local-first、自带模型、Expert、Eval、治理与组织保证压成一眼能懂的形状。</p>
+        <p class="lede">在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作基础。</p>
         <blockquote class="pull pricing-premise"><p lang="en">Your work. Your models. Room to grow.</p><p>工作留在手里，模型自由选择。</p></blockquote>
 
         <div class="pricing-grid">

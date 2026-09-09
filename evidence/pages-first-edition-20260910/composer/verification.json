@@ -1,0 +1,415 @@
+{
+  "source": {
+    "origin": "http://127.0.0.1:8938",
+    "projectId": "4771fa84-b700-40e7-9727-ef43820cacb7",
+    "sessions": {
+      "chat": "f0c6a66d-629a-47ed-b08d-6201c3096a9d",
+      "work": "18d49b6c-99ca-43a5-b11c-88de525fd1d0",
+      "failure": "1c59e08d-7657-48b3-8891-dce086eedf77",
+      "answer": "56742e68-86d5-4264-b209-c3ac22c8e664"
+    },
+    "providerMode": "local deterministic fake-openai-loopback; synthetic only",
+    "realProvider": false,
+    "fixturePort": 8939,
+    "cdpPort": 19988
+  },
+  "home": {
+    "state": {
+      "view": "home",
+      "activeSessionId": null,
+      "activeRun": null,
+      "runs": []
+    },
+    "resting": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" disabled=\"\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": true,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1213,
+        "y": 547.015625,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": null
+    },
+    "screenshot": "evidence/pages-first-edition-20260910/composer/home-resting.png",
+    "afterRepeatRender": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" disabled=\"\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": true,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1213,
+        "y": 547.015625,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": null
+    },
+    "repeatSvgPreserved": true
+  },
+  "chat": {
+    "state": {
+      "view": "session",
+      "activeSessionId": "f0c6a66d-629a-47ed-b08d-6201c3096a9d",
+      "activeRun": null,
+      "runs": []
+    },
+    "resting": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "session-title"
+    },
+    "restingFocus": {
+      "before": true,
+      "after": true,
+      "activeId": "send-button"
+    },
+    "sendInFlight": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" aria-label=\"Sending\u2026\" data-tooltip=\"Sending\u2026\" disabled=\"\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Sending\u2026</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Sending\u2026</span>",
+      "textContent": "Sending\u2026",
+      "ariaLabel": "Sending\u2026",
+      "tooltip": "Sending\u2026",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": true,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "composer-input"
+    },
+    "sendInFlightFocus": {
+      "before": false,
+      "after": false,
+      "activeId": "composer-input"
+    },
+    "activeBeforeCancel": {
+      "selector": "#cancel-run-button",
+      "outerHTML": "<button id=\"cancel-run-button\" class=\"quiet-button danger-button icon-only\" type=\"button\" aria-label=\"Cancel run\" data-tooltip=\"Cancel run\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Cancel run</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Cancel run</span>",
+      "textContent": "Cancel run",
+      "ariaLabel": "Cancel run",
+      "tooltip": "Cancel run",
+      "classes": "quiet-button danger-button icon-only",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "composer-input"
+    },
+    "cancelInFlight": {
+      "selector": "#cancel-run-button",
+      "outerHTML": "<button id=\"cancel-run-button\" class=\"quiet-button danger-button icon-only\" type=\"button\" aria-label=\"Sending\u2026\" data-tooltip=\"Sending\u2026\" disabled=\"\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Sending\u2026</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Sending\u2026</span>",
+      "textContent": "Sending\u2026",
+      "ariaLabel": "Sending\u2026",
+      "tooltip": "Sending\u2026",
+      "classes": "quiet-button danger-button icon-only",
+      "hidden": false,
+      "disabled": true,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "composer-input"
+    },
+    "afterCancel": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "composer-input"
+    },
+    "screenshot": "evidence/pages-first-edition-20260910/composer/chat-after-cancel.png"
+  },
+  "work": {
+    "state": {
+      "view": "session",
+      "activeSessionId": "18d49b6c-99ca-43a5-b11c-88de525fd1d0",
+      "activeRun": null,
+      "runs": []
+    },
+    "resting": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "session-title"
+    },
+    "cancelResting": {
+      "selector": "#cancel-run-button",
+      "outerHTML": "<button id=\"cancel-run-button\" class=\"quiet-button danger-button icon-only\" type=\"button\" aria-label=\"Cancel run\" data-tooltip=\"Cancel run\" hidden=\"\" disabled=\"\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Cancel run</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#square\"></use></svg><span class=\"request-label sr-only\">Cancel run</span>",
+      "textContent": "Cancel run",
+      "ariaLabel": "Cancel run",
+      "tooltip": "Cancel run",
+      "classes": "quiet-button danger-button icon-only",
+      "hidden": true,
+      "disabled": true,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "display": "none",
+      "borderRadius": "50%",
+      "activeElement": "session-title"
+    },
+    "surface": {
+      "binding": {
+        "extensionId": "evidence-memo",
+        "binding": {
+          "matterId": "matter-aea0dab1-7543-4966-99e5-b0862a809093"
+        }
+      },
+      "extensionRoot": false,
+      "text": null
+    },
+    "screenshot": "evidence/pages-first-edition-20260910/composer/work-resting.png"
+  },
+  "failure": {
+    "state": {
+      "view": "session",
+      "activeSessionId": "1c59e08d-7657-48b3-8891-dce086eedf77",
+      "activeRun": null,
+      "runs": [
+        {
+          "id": "c1034f70-542a-4efa-b91f-31dd931e63d3",
+          "status": "failed"
+        }
+      ]
+    },
+    "afterFailedRun": {
+      "selector": "#send-button",
+      "outerHTML": "<button id=\"send-button\" class=\"primary-button icon-only\" type=\"submit\" aria-label=\"Send\" data-tooltip=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span></button>",
+      "innerHTML": "<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#arrow-up\"></use></svg><span class=\"request-label sr-only\">Send</span>",
+      "textContent": "Send",
+      "ariaLabel": "Send",
+      "tooltip": "Send",
+      "classes": "primary-button icon-only",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "svg.ui-icon",
+        "SPAN.request-label sr-only"
+      ],
+      "rect": {
+        "x": 1173,
+        "y": 712,
+        "width": 32,
+        "height": 32
+      },
+      "display": "flex",
+      "borderRadius": "50%",
+      "activeElement": "composer-input"
+    },
+    "screenshot": "evidence/pages-first-edition-20260910/composer/chat-after-failure.png"
+  },
+  "answer": {
+    "state": {
+      "view": "session",
+      "activeSessionId": "56742e68-86d5-4264-b209-c3ac22c8e664",
+      "activeRun": "waiting_user",
+      "runs": [
+        {
+          "id": "0745292a-aa50-4489-8887-840d73ec8109",
+          "status": "waiting_user"
+        }
+      ]
+    },
+    "resting": {
+      "selector": ".question-card button[type='submit']",
+      "outerHTML": "<button class=\"secondary-button request-width\" type=\"submit\" data-focus-key=\"56742e68-86d5-4264-b209-c3ac22c8e664:0745292a-aa50-4489-8887-840d73ec8109:8de89f92-7122-4838-a92c-3c401399f43b:answer\" aria-disabled=\"false\" data-resting-label=\"Answer\" data-sending-label=\"Sending\u2026\" aria-label=\"Answer\"><span class=\"request-label\">Answer</span></button>",
+      "innerHTML": "<span class=\"request-label\">Answer</span>",
+      "textContent": "Answer",
+      "ariaLabel": "Answer",
+      "tooltip": null,
+      "classes": "secondary-button request-width",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "SPAN.request-label"
+      ],
+      "rect": {
+        "x": 1111.078125,
+        "y": 306.5,
+        "width": 85.921875,
+        "height": 39
+      },
+      "display": "grid",
+      "borderRadius": "8px",
+      "activeElement": "session-title"
+    },
+    "restingFocus": {
+      "before": true,
+      "after": false,
+      "activeId": null
+    },
+    "inFlight": {
+      "selector": ".question-card button[type='submit']",
+      "outerHTML": "<button class=\"secondary-button request-width\" type=\"submit\" data-focus-key=\"56742e68-86d5-4264-b209-c3ac22c8e664:0745292a-aa50-4489-8887-840d73ec8109:8de89f92-7122-4838-a92c-3c401399f43b:answer\" aria-disabled=\"true\" data-resting-label=\"Answer\" data-sending-label=\"Sending\u2026\" aria-label=\"Sending\u2026\"><span class=\"request-label\">Sending\u2026</span></button>",
+      "innerHTML": "<span class=\"request-label\">Sending\u2026</span>",
+      "textContent": "Sending\u2026",
+      "ariaLabel": "Sending\u2026",
+      "tooltip": null,
+      "classes": "secondary-button request-width",
+      "hidden": false,
+      "disabled": false,
+      "readOnly": false,
+      "childTags": [
+        "SPAN.request-label"
+      ],
+      "rect": {
+        "x": 1111.078125,
+        "y": 306.5,
+        "width": 85.921875,
+        "height": 39
+      },
+      "display": "grid",
+      "borderRadius": "8px",
+      "activeElement": null
+    },
+    "afterResponse": null,
+    "screenshot": "evidence/pages-first-edition-20260910/composer/answer-after-response.png"
+  },
+  "textAction": {
+    "resting": {
+      "width": 138.859375,
+      "height": 33,
+      "focus": true,
+      "html": "<button class=\"secondary-button request-width\" type=\"button\" data-resting-label=\"Approve this write\" data-sending-label=\"Sending\u2026\" aria-label=\"Approve this write\"><span class=\"request-label\">Approve this write</span></button>"
+    },
+    "sending": {
+      "width": 138.859375,
+      "height": 33,
+      "focus": true,
+      "html": "<button class=\"secondary-button request-width\" type=\"button\" data-resting-label=\"Approve this write\" data-sending-label=\"Sending\u2026\" aria-label=\"Sending\u2026\"><span class=\"request-label\">Sending\u2026</span></button>"
+    },
+    "stableWidth": true,
+    "focusPreserved": true
+  },
+  "browser": {
+    "exceptions": 0
+  }
+}

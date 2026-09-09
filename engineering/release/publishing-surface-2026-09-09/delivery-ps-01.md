@@ -1,6 +1,6 @@
 # PS-01 / PS-02 第一版发布版面回执
 
-日期：2026-09-10（Asia/Singapore）。本轮范围为本地完整发布版面及真实 composer 图标回退修复，未 push、未部署。品牌方向探索后置；不关闭 G1–G5，不把页面完备性当产品验收。
+日期：2026-09-10（Asia/Singapore）。本轮范围为本地完整发布版面及真实 composer 图标回退修复，用户随后以 PS-27 授权 push 与 Pages 部署；发布结果另记。品牌方向探索后置；不关闭 G1–G5，不把页面完备性当产品验收。
 
 ## 来源与归因
 
@@ -31,6 +31,14 @@
 
 ## 次日接续
 
-入口仍为 Courtwork main 与 engineering/current.md。本版面可从 `node site/build.mjs`、`node site/scripts/preview.mjs --port 8941` 重建预览。普通 push 只构建，手动 workflow 才部署。本轮没有执行任何外部发布。
+入口仍为 Courtwork main 与 engineering/current.md。本版面可从 `node site/build.mjs`、`node site/scripts/preview.mjs --port 8941` 重建预览。普通 push 只构建，手动 workflow 才部署。本轮按 PS-27 推送并部署 Courtwork Pages，用户随后独立 review；不修改 SE 论文站。
 
 品牌恢复产物 `codex/br01-resume` 的 `15b6464` 留在独立树；不要合入含品牌的旧 cleanup 分支。FE-05a 等产品队列按 current 继续，不因本回执改派。真实 provider、产品门和用户最终视觉裁定仍按各自合同处理。
+
+## 文案与发布修订
+
+PS-26 覆盖旧逐字旁白：使用 [public-copy-v3](public-copy-v3.md)，直接写产品与工作价值；定价仅保留 Concept pricing 一处短标记，Explore 为页内图表入口。PS-27 明确授权本轮推送与 Pages 部署，用户随后提交独立 review。README 合流保留 schema 5 的验证、独占备份与旧 host 隔离要求。
+
+## 非作者接收与集成
+
+Luna 的 [页面功能复核](../../../evidence/pages-first-edition-20260910/independent-review.md) 未发现有界功能阻塞；17/17 浏览器、assume-unchanged 隐藏字节反例、来源 ID/版本/digest/quote 反例通过。另有 [真实 composer 复核](../../../evidence/pages-first-edition-20260910/composer/README.md)：发送/取消/失败/重复渲染仍保留 32×32 SVG，文字按钮宽度与焦点保持。合流当前 main 后相关前端 20/20，未将固定快照 308 项重标成当前全量。用户最终视觉 review 后续提交。

@@ -7,7 +7,7 @@ _A place for expert work to take form._
 
 在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。
 
-发布面候选的源码与本地预览见 [`site/`](site/README.md)。页面与本文共用同一份声称表；本候选尚未发布，当前工程状态见 [`engineering/current.md`](engineering/current.md)。
+[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [站点源码与本地预览](site/README.md) · [工程状态](engineering/current.md)。
 
 ## 本地运行
 
@@ -36,7 +36,7 @@ node tools/contrast-report.mjs
 
 产品证据快照 `9e5384f` 上的记录：应用测试 308 通过、0 失败；continuity conformance E 6/6、S 6/6，记录在 [`evidence/publishing-surface-2026-09-09/continuity-9e5384f.json`](evidence/publishing-surface-2026-09-09/continuity-9e5384f.json)。这些数字属于该固定快照，不代表当前 main 的测试总数。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
 
-Local / fake-provider 通过不等于真实模型验收。
+真实模型验证：待完成。
 
 ## 声称表
 
