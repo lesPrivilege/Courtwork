@@ -6,7 +6,7 @@
 |---|---|---|---|---|---|
 | EX-WK9 材质来源 | Sonnet | 只读，无服务 | [EX-WK9](work-orders/EX-WK9-material-sources.md) | [ex-wk9](explore/ex-wk9-material-sources.md) | 已回执，消费为 WK-104 |
 | FE-01 词表 + IA + chrome + composition | Opus | `/private/tmp/se-agent-fe01` · `claude/fe01-vocab-ia` · 8885 · 数据 `/private/tmp/se-agent-fe01-data` | [WO-FE-round4 §FE-01](work-orders/WO-FE-round4.md)（含 WK-100 / WK-102 追加项） | [delivery-fe01](delivery-fe01.md) `bfefcd2` + 复核 | 已回执，WK-105 接受，待 Astra 合流 |
-| FE-02 Models & Connections | Opus，agent 定义 `opus-wo-low`（effort: low） | `/private/tmp/se-agent-fe02` · `claude/fe02-models` · 8887（MCP fixture 8888）· 数据 `/private/tmp/se-agent-fe02-data`，基线 `2b6c221` | WO-FE-round4 §FE-02（第 0 项 `--nav` 256；BE-17/18 未交付不画按钮） | `delivery-fe02.md` | 已派（2026-09-09，新会话，`opus-wo-low` effort: low，后台）；提示词原样见 [WO-FE02-dispatch-prompt](work-orders/WO-FE02-dispatch-prompt.md)，仅附一行：§4l WK-106 未在 `2b6c221` 树内，只读 r4c 路径 |
+| FE-02 Models & Connections | Opus，agent 定义 `opus-wo-low`（effort: low） | `/private/tmp/se-agent-fe02` · `claude/fe02-models` · 8887（MCP fixture 8888）· 数据 `/private/tmp/se-agent-fe02-data`，基线 `2b6c221` | WO-FE-round4 §FE-02（第 0 项 `--nav` 256；BE-17/18 未交付不画按钮） | `delivery-fe02.md` | 已交付 `38717bd`，Fable 复核 WK-107（[intake-round-3 §4m](intake-round-3.md)）：六项待裁裁毕，② display name 移除交第二个 `opus-wo-low` 修订；修订到位后交 Astra 合流。提示词见 [WO-FE02-dispatch-prompt](work-orders/WO-FE02-dispatch-prompt.md) |
 | FE-03 → FE-04 | Opus（FE-03 `opus-wo-low`；FE-04 `opus-wo-medium`） | 各自从上一单合流后的清洁 main 建树 | 同工单 | `delivery-fe0n.md` | 排队 |
 | FE-05 材质与光效 | Opus | FE-04 合流后 | WO-FE-round4 §FE-05 + EX-WK9 | `delivery-fe05.md` | 待 EX-WK9 回执后由 Fable 填值 |
 

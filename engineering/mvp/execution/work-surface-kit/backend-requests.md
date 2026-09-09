@@ -32,3 +32,5 @@
 | BE-18 | Test connection（不创建 Run 的最小握手），返回可显示的失败原因 | FE-02 | WK-91 |
 | BE-19 | Memory adapter（Matter memory / Global memory，来源可披露、可关闭） | FE-03 Memory scope 与 Settings › Memory | WK-92 |
 | BE-20 | Temporary chat（不读写持久 memory 的会话标记） | FE-03 | WK-92 |
+| BE-21 | 连接注册表：多条连接各自持有 provider 身份、端点、凭据状态与 display name；provider ID 由后端生成；兼容端点作为独立连接而非"给目录身份换端点" | FE-02 Connections 多行、Display name 行、Compatible endpoint 独立身份（今日只画后端真有的一条） | WK-107 ①②③⑤ |
+| BE-22 | MCP server 注册端点（新增一条 server 的 endpoint / transport），`/mcp/:id/lifecycle` 今日只对已声明的 server 动作 | FE-02 Tools › Adding an MCP server 的 Add / Configure 两步（今日只留位） | WK-107 |
