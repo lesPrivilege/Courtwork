@@ -1,0 +1,196 @@
+我用 Exa 做了 6 个 workstream、扫了约 58 个结果，并重点读了 7 份一手文档。结论相当收敛：
+
+> **Attention Assistant 不宜被定义为“跨邮件 + GitHub 的 AI inbox”，而应定义为一个 human decision queue。**
+> Provider 负责事实与执行；Assistant 负责发现“什么需要我判断”、准备 proposal、等待 human decision、执行并验证；所有 human loop 都形成独立 trace。
+
+这比继续向一个全能 personal agent 扩张，更适合作为后续 CourtWork human loop 的前置实验场。
+
+### 1. 最值得直接消费的成熟模式
+
+| 来源                                                                                                                                  | 已经成熟的局部                                                                                                | 建议消费到 Attention Assistant                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| [OpenLoomi Loop](https://openloomi.ai/docs/loop)                                                                                    | Email / GitHub / Slack / Linear → typed decision card → confidence → dry-run → Approve → writeback     | **最接近整体产品形态**。统一 signal，不统一 provider；`email_reply / review_pr / todo` 等只是 action kind        |
+| [Superhuman Email Assistant](https://help.superhuman.com/hc/en-us/articles/46005854346893-Email-Assistant-by-Superhuman-Mail-Gmail) | `Respond / Waiting / FYI / Notifications / Promotions / News`；Auto Draft 永不自动发送；低风险项才 Auto Archive     | 消费 `Respond / Waiting / FYI` 这一组极稳定的人类 attention semantics；draft 应直接成为 provider-native draft |
+| [Notion Custom Agents Mail](https://www.notion.com/help/connect-mail-to-custom-agents)                                              | `Modify / Draft / Send` 权限拆开；trigger/filter 独立；可逐 action `Require confirmation`                        | **权限 envelope** 很成熟：read、organize、draft、outbound 不应共享一个“邮箱权限”                                |
+| [GitHub Notifications](https://docs.github.com/en/subscriptions-and-notifications/concepts/about-notifications)                     | `reason:review-requested / mention / assign / participating`；Done / Saved / Unsubscribe                | GitHub 不必再发明分类 ontology，优先消费 provider 已有的 interaction semantics                              |
+| [CodeRabbit Triage](https://docs.coderabbit.ai/triage)                                                                              | value / risk / effort / review state；`Needs human review`、`Needs author action`；latest commit 改变后旧分析失效 | Git interaction 中最值得借的不是 AI review，而是 **“为什么现在需要人” + proposal validity**                     |
+| [Hermes Email Inbox Triage](https://hermes-agent.nousresearch.com/docs/user-guide/skills/bundled/email/email-email-inbox-triage)    | bounded scope → 完整 thread → classify → approval batch → apply → provider readback verify               | 几乎可以直接作为 Codex 第一版 email loop 的 operational spec                                             |
+| [OpenAI HITL](https://developers.openai.com/api/docs/guides/agents/guardrails-approvals)                                            | tool side-effect 前 interrupt；approve/reject；保存 resumable state 后继续原 run                                | 后端不要“用户点批准后重新 prompt 一遍”，而应恢复 **同一个 interrupted run**                                        |
+
+OpenLoomi 尤其值得注意：它已经把问题表述为“**今天什么事情需要我本人处理？**”，而非“有多少未读”。这正好说明 attention 是一等语义，不应等同于 unread、notification 或 task。
+
+但我不会照搬它的 memory 设计。它倾向于 `Read → Judge → Write memory`；对 SE/CW 更合适的是：
+
+**Event → Proposal → Human Decision → Effect → Governed Learning**
+
+而不是每个 click 直接进入长期 memory。
+
+---
+
+## 2. 建议冻结的最小数据模型
+
+这可能是本次 explore 最重要的产物。先让 Codex 积累下面五种对象，未来 CW 可以原样复用：
+
+| 对象               | 含义                      | 典型字段                                                              |
+| ---------------- | ----------------------- | ----------------------------------------------------------------- |
+| `provider_event` | 外部世界实际发生了什么，append-only | source、provider ID、thread/PR、observed_at、resource_version、raw_ref |
+| `attention_item` | 当前需要人处理的物化状态            | disposition、priority、why_now、responsible_party、deadline           |
+| `proposal`       | Agent 建议做什么             | action_kind、arguments、draft、confidence、risk、model/runtime version |
+| `human_decision` | 人到底怎么裁决                 | approve / edit / reject / defer / dismiss、edited_delta、reason     |
+| `effect`         | Provider 实际发生的副作用       | action ID、idempotency key、result、verified_at、failure              |
+
+关键在于 **proposal 与 effect 绝不能合并**。
+
+例如：
+
+`GitHub comment arrived`
+→ `proposal: reply with X`
+→ `human: edited X→Y`
+→ `effect: comment #938271 created`
+→ `verified`
+
+于是后续 CW 真正有价值的 human loop trace 不是聊天 transcript，而是：
+
+**模型看到什么 → 建议什么 → 人改了什么 → 世界最终发生什么。**
+
+这天然就是 eval corpus。
+
+---
+
+## 3. Email 第一版已经几乎可以定型
+
+Superhuman + Hermes + Notion 三者高度收敛，没必要重新发明。
+
+Attention state 建议先只有：
+
+`needs_reply / waiting / action_required / reference / noise`
+
+`urgent` 不应成为与它们并列的类型，而应是独立 priority/risk axis。这样“urgent + waiting”之类状态仍然合法。
+
+默认权限则可以是：
+
+| 操作                           | 默认             |
+| ---------------------------- | -------------- |
+| Read/search/thread retrieval | 自动             |
+| Classification/summarize     | 自动             |
+| Create provider-native draft | 自动             |
+| Label/archive/snooze         | 可配置、默认低风险      |
+| Send/reply                   | human approval |
+| Delete/unsubscribe/block     | human approval |
+| 修改外部业务状态                     | human approval |
+
+这比“confidence > 0.9 就 auto-send”更适合当前实验阶段。**第一阶段的目标不是减少点击，而是收集高质量 decision trace。**
+
+而且 Superhuman 有一个反例值得专门超越：它允许用户删除错误 Auto Label，但官方明确说这**不会教会系统以后如何分类类似邮件**。Attention Assistant 则应该把：
+
+`proposed disposition → corrected disposition`
+
+完整保存下来。
+
+但先保存为 evidence，不立即把一次修正升级成 preference。
+
+---
+
+## 4. GitHub 应该做得比“GitHub 邮件通知”更原生
+
+GitHub 自己已经提供相当好的 attention primitive：
+
+`review_requested`、`mention`、`assign`、`author`、`participating`、`ci_activity`……
+
+所以第一层可以直接消费 [Notifications REST API](https://docs.github.com/en/rest/activity/notifications?apiVersion=2026-03-10)，不让 LLM 从零猜“为什么用户收到这个”。
+
+然后再 enrichment：
+
+**provider reason + repository state + PR state + human history → attention judgment**
+
+例如：
+
+> Review requested
+> `CourtWork #184`
+> **Why now:** 你是 reviewer；CI 已通过；最新 push 后尚未重新 review；风险=medium
+> **Proposed action:** review PR
+> `[Open review] [Defer] [Dismiss]`
+
+CodeRabbit 有一个特别值得收编的原则：
+
+> **analysis 必须绑定具体 revision。**
+
+PR HEAD 从 `abc123` 变成 `def456` 后，以旧 diff 生成的 summary、risk judgment、draft review 都应该自动变成 `stale`，而不是继续展示成当前事实。
+
+这对以后 CourtWork 的 document/matter review 同样适用。
+
+还有一个工程陷阱：GitHub Notifications 的 `reason` 是**可变的**。例如原先因为 `author` 收到，后来被 @mention，REST API 以后可能显示 `mention`；普通通知也不是长期存档。因此必须在 ingest 时保存自己的 snapshot，不能把 GitHub Notifications 当 Event Log。
+
+---
+
+## 5. Provider 接入也已经有很清楚的选型
+
+Gmail 不建议一直 brute-force polling。官方当前推荐：
+
+[Gmail push notifications](https://developers.google.com/workspace/gmail/api/guides/push)
+
+`users.watch`
+→ Pub/Sub notification
+→ `historyId`
+→ `history.list`
+→ fetch changed thread/message
+
+但 Gmail 文档也明确留下两个工程约束：
+
+* watch 最长会过期，至少每 7 天续一次，官方建议每天 renew；
+* push 极端情况下可能延迟/丢失，因此仍需 periodic reconciliation。
+
+GitHub 则恰好相反：Notifications API 本身对 polling 做了优化，提供 `Last-Modified / 304 / X-Poll-Interval`。
+
+所以**不要为了架构整齐强迫两个 provider 走同一种 ingestion transport**。
+
+统一的是内部 Event Schema，不是 transport。
+
+---
+
+## 6. Human-loop trace 应从第一天就为 CW 留好
+
+我会要求 Codex 暂时不要做复杂“学习系统”，先保证下面这些 trace 全部可查询：
+
+1. 每个 surfaced item 最终是 `approve / edit / reject / defer / dismiss` 哪一种；
+2. Agent proposal 与最终 human action 的 delta；
+3. disposition/priority 被人修改了什么；
+4. proposal 的 confidence 与真实 accept rate 是否校准；
+5. 从 surfaced 到 decision 花了多久；
+6. proposal 是否因 provider state 改变而 stale；
+7. side effect 是否成功、重试、重复、回滚；
+8. 哪些 dismissed signal 后来证明其实应该被 surface；
+9. 同类操作经过多少次稳定重复后，才值得生成 `preference_candidate`；
+10. model / prompt / runtime / classifier rule 版本是什么。
+
+其中尤其建议保留：
+
+**edit delta，而不是只保存 edited final text。**
+
+以后你真正能够研究的是：
+
+> Agent 在哪些判断上稳定需要 human correction？
+
+这比“用户最后发送了什么”有价值得多。
+
+---
+
+## 7. 给 Codex 的施工顺序
+
+我会把本轮 handoff 收敛成这一条，而不让它提前建设“大 personal agent”：
+
+1. **P0 Read-only ingest**：Gmail + GitHub → append-only provider events；去重、增量同步、reconciliation。
+2. **P1 Attention projection**：生成统一 `attention_item`；先只展示，不执行。
+3. **P2 Proposal**：email draft / GitHub proposed reply、review/open action；每条记录 model/runtime/version。
+4. **P3 Human gate**：approve / edit / reject / defer / dismiss；outbound 一律 gated。
+5. **P4 Effect + verify**：使用 provider-native mutation；执行后 readback；全过程 idempotent。
+6. **P5 Trace/Eval**：accept rate、edit delta、false surface、staleness、time-to-decision、execution failures。
+7. **P6 Governed learning**：从多次 trace 提议 preference/rule，**由 human promote**，而不是模型自动把历史变成长记忆。
+
+第一版 UI 甚至不用复杂：一个 `Today / Needs attention` queue + card detail 就够。复杂 dashboard、长期 memory、跨 matter analytics 都可以等真实 trace 出现以后再长出来。
+
+### 最值得冻结的一句设计约束
+
+> **Attention Assistant stores evidence of human judgment before it stores preferences inferred from human judgment.**
+
+这样这个个人邮件/GitHub assistant 就不仅是一个实用工具，而会自然成为 CourtWork 后续 human-loop、approval surface、preference governance、confidence calibration 和 eval 的真实 trace 发生器。

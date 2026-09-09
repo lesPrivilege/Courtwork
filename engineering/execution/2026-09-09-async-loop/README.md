@@ -89,3 +89,7 @@ BE-31 含敏感输入约束、BE-32 含事件时间/历史迁移、BE-33 含可�
 - Luna 确认 T1/T2 可先派、T3/T4 依赖 A1，无重大范围冲突。三项收窄已纳入：仅 async-specific 增量、不把 T2 fixture API 当产品合同、MCP 只报告锁定 client 实际接受/拒绝。四段 native 链缺任一段，native 保持未验证，adapted 必须另有其实际证据。
 
 本节是源码探索与拆单意见，不是产品测试或独立接受。主单完成本包本地链接检查与 `git diff --check`；没有产品代码变更，未重跑全量与 smoke。
+
+## Email/GitHub human-loop 后续输入
+
+用户补充 handoff 已入 [Attention human-loop 包](../../research/attention-human-loop-2026-09-09/README.md)。新增可派的仅为 provider 响应/故障夹具和 trace 合成向量；生产来源/trace DTO 及外发 gate/effect 沿 Astra 合同、AM恢复与DS-04接续。它们不阻塞本单两只读任务，也不将本单升级为发信/PR mutation。SDK resumable state 是参考，本仓 Pi 持久恢复仍须 A0/A1 实现验证。

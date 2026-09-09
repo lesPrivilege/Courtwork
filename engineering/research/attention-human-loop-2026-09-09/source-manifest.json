@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-09-09",
+  "base_sha": "fb50d2125c4674ea07380298c600f0039e1da4a8",
+  "source_kind": "user-pasted-handoff",
+  "source_path": "inputs/handoff.txt",
+  "sha256": "70f91116ffe50e0d0c6bdb6a65a9094acd86891360b3549b2ac0072908930e79",
+  "bytes": 12282,
+  "lines": 196,
+  "explicit_urls": [
+    "https://openloomi.ai/docs/loop",
+    "https://help.superhuman.com/hc/en-us/articles/46005854346893-Email-Assistant-by-Superhuman-Mail-Gmail",
+    "https://www.notion.com/help/connect-mail-to-custom-agents",
+    "https://docs.github.com/en/subscriptions-and-notifications/concepts/about-notifications",
+    "https://docs.coderabbit.ai/triage",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/skills/bundled/email/email-email-inbox-triage",
+    "https://developers.openai.com/api/docs/guides/agents/guardrails-approvals",
+    "https://docs.github.com/en/rest/activity/notifications?apiVersion=2026-03-10",
+    "https://developers.google.com/workspace/gmail/api/guides/push"
+  ],
+  "additional_verified_url": "https://developers.google.com/workspace/gmail/api/guides/sync",
+  "upstream_search_scale": "author_reported_not_independently_verified",
+  "verification": "public-official-pages-only; see sources.md",
+  "product_tests": "not_run_docs_only",
+  "provider_operations": "not_run",
+  "luna_review": "read-only owner and dispatch mapping; see README.md",
+  "checks": {
+    "source_hash": "passed",
+    "local_links": 16,
+    "missing_links": [],
+    "diff_check": "passed"
+  }
+}
