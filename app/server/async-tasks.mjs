@@ -205,6 +205,30 @@ export class AsyncTasks {
     }
     return this.view(t);
   }
+  async requestConsumption(runId, callId, kind, args) {
+    taskAssert(['get', 'wait'].includes(kind));
+    taskObject(args, kind === 'wait' ? ['taskId','waitMs'] : ['taskId']); taskId(args.taskId); taskId(callId);
+    const { session } = this.#origin(this.store.state, runId);
+    const scope = { projectId: session.projectId, sessionId: session.id };
+    const t = this.#find(this.store.state, args.taskId); this.#scope(t, scope);
+    // Runs retain valid, scoped requests even when the outer policy wrapper
+    // denies execution. This is dependency evidence, never adapter permission.
+    await this.#mutate(state => {
+      this.#origin(state, runId);
+      const current = this.#find(state, t.id); this.#scope(current, scope);
+      const previous = state.asyncTasks.flatMap(task => task.deliveries.map(d => ({ task, d })))
+        .find(({ d }) => d.runId === runId && d.callId === callId);
+      if (previous) {
+        taskAssert(previous.task.id === t.id && previous.d.kind === kind && !previous.d.runtimeRecordedAt,
+          'task_delivery_conflict', 'Consumption call identity was already used', 409);
+        return;
+      }
+      taskAssert(current.deliveries.length < DELIVERY_LIMIT, 'task_delivery_limit', 'Async task delivery retention limit reached', 409);
+      current.deliveries.push({ runId, callId, kind, taskRevision: current.revision, executionStatus: current.execution.status,
+        resultDigest: current.result?.digest ?? null, preparedAt: now(), runtimeRecordedAt: null, provider: 'unknown' });
+      this.#touch(current);
+    });
+  }
   async consume(runId, callId, kind, args, signal) {
     taskObject(args, kind === 'wait' ? ['taskId','waitMs'] : ['taskId']); taskId(args.taskId); taskId(callId);
     const waitMs = kind === 'wait' ? args.waitMs ?? 1000 : 0;
@@ -212,17 +236,7 @@ export class AsyncTasks {
     const { session } = this.#origin(this.store.state, runId), scope = { projectId: session.projectId, sessionId: session.id };
     let t = this.#find(this.store.state, args.taskId); this.#scope(t, scope);
     const tool = kind === 'wait' ? 'async_wait' : 'async_get';
-    // Record the requested dependency before adapter/policy I/O can fail. Failed
-    // reads must not disappear from the Run's completion gate.
-    await this.#mutate(state => {
-      this.#origin(state, runId);
-      const current = this.#find(state, t.id);
-      taskAssert(!current.deliveries.some(d => d.runId === runId && d.callId === callId), 'task_delivery_conflict', 'Consumption call was already recorded; use a new get/wait call', 409);
-      taskAssert(current.deliveries.length < DELIVERY_LIMIT, 'task_delivery_limit', 'Async task delivery retention limit reached', 409);
-      current.deliveries.push({ runId, callId, kind, taskRevision: current.revision, executionStatus: current.execution.status,
-        resultDigest: current.result?.digest ?? null, preparedAt: now(), runtimeRecordedAt: null, provider: 'unknown' });
-      this.#touch(current);
-    });
+    await this.requestConsumption(runId, callId, kind, args);
     this.#permission(t, tool); this.#adapter(t);
     const deadline = Date.now() + waitMs;
     do {

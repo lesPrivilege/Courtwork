@@ -1164,7 +1164,10 @@ export class RuntimeService {
         systemPrompt,
         currentContext,
         beforeInitialInput: initializeFileInput,
-        beforeTool: (name,args) => entry.extensionRun?.fileMemo?.beforeTool(name,args),
+        beforeTool: async (name, args, callId) => {
+          await entry.extensionRun?.fileMemo?.beforeTool(name, args);
+          if (['async_get', 'async_wait'].includes(name)) await this.asyncTasks.requestConsumption(run.id, callId, name.slice(6), args);
+        },
         beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
         onEvent: (event) => this.#onSessionEvent(run.id, event, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),

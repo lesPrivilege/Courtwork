@@ -67,7 +67,7 @@ and the current binding are checked again at dispatch and read boundaries.
 
 Launch returns the persisted identity. Get/wait produces its own ordinary tool
 result, not a late result spliced into the original launch call. Each consumption
-records the requested dependency before adapter access, then updates task revision, execution status and result digest before returning;
+records a valid scoped requested dependency before the policy wrapper or adapter access, then updates task revision, execution status and result digest before returning;
 the tool-result event and runtime-recorded receipt commit together. Provider delivery
 remains `unknown`: a tool result in local transcript is not provider acknowledgement
 or proof of model understanding. Repeated explicit get/wait calls may return the same
