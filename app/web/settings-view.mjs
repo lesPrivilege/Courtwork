@@ -7,7 +7,7 @@ export const PLANNED_CAPABILITIES = [
   ["MCP OAuth", "Only unauthenticated Streamable HTTP servers can connect today."],
   ["MCP stdio transport", "Local process servers cannot be launched or supervised."],
   ["Third-party plugin isolation", "Only host-trusted extensions load; there is no sandbox for outside code."],
-  ["Memory providers", "No adapter stores or retrieves memory between runs."],
+  ["Memory providers", "Attention reads retained conversation messages. External and derived providers remain pending."],
   ["Workflows", "No workflow runner exists to execute a saved sequence."],
   ["Hooks", "No executable hook point exists."],
   ["Registries", "Package resolution and signature checks are not implemented."],
@@ -276,7 +276,7 @@ export function segmentedPermission({
  * read the current connection, change file writes in place, or jump to Settings. */
 export function renderConnectionCard(
   container,
-  { config, session, active, onClose, onChangeConnection, onPermission },
+  { config, session, active, onClose, onChangeConnection, onChooseModel, onPermission, measurements },
 ) {
   const header = el(
     "div",
@@ -305,6 +305,7 @@ export function renderConnectionCard(
         el("dt", { text: "Model" }),
         el("dd", { text: modelName }),
       ),
+      onChooseModel ? action("settings-2", "Choose model & effort", onChooseModel, { visible:true, className:"context-row" }) : null,
       action("settings-2", "Change connection", onChangeConnection, {
         visible: true,
         className: "context-row",
@@ -333,7 +334,7 @@ export function renderConnectionCard(
       ),
     );
   }
-  container.replaceChildren(header, ...groups);
+  container.replaceChildren(header, ...groups, ...(measurements ? [measurements] : []));
   return header;
 }
 export function createSettingsView(

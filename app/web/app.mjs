@@ -20,7 +20,9 @@ installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
-let attentionWorkspace, attentionAgent;
+import { renderRequestMeasurements } from "./telemetry-view.mjs";
+import { createModelPicker } from "./model-picker.mjs";
+let attentionWorkspace, attentionAgent, modelPicker;
 import {
   createSettingsPage,
   createSettingsView,
@@ -5113,6 +5115,8 @@ function openConnectionCard(anchor) {
         popover.hidePopover();
         state.connectionCardAnchor?.focus?.();
       },
+      measurements: renderRequestMeasurements(state.events, (currentRun() || state.runs.at(-1))?.id, {compact:true}),
+      onChooseModel: () => { popover.hidePopover(); void modelPicker.open(); },
       onChangeConnection: () => {
         popover.hidePopover();
         openSettings("models");
@@ -6433,7 +6437,8 @@ async function init() {
       ),
     );
   }
-  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
+  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;
     attentionWorkspace.deactivate();

@@ -1,0 +1,13 @@
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (3.576917ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.393708ms)
+✔ effort is capability checked and recorded by real local SDK requests (400.683125ms)
+✔ malformed measurement records are omitted before rendering (0.170958ms)
+✔ schema6 migration preserves both global and project sessions (91.165333ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1725.721833

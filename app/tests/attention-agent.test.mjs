@@ -77,7 +77,7 @@ test('schema5 with retained records migrates exactly and global/project invarian
     await store.setDraft(session.id,'old draft'); await store.close();
     const file=path.join(dataDir,'runtime-state.json'); const old=JSON.parse(await readFile(file,'utf8'));
     old.schemaVersion=5; delete old.coordination; old.sessions.forEach(s=>delete s.scope); const bytes=Buffer.from(JSON.stringify(old,null,1)+'\n'); await writeFile(file,bytes);
-    store=await new RuntimeStore({dataDir}).open(); assert.equal(store.state.schemaVersion,7); assert.equal(store.getSession(session.id).scope,'project');
+    store=await new RuntimeStore({dataDir}).open(); assert.equal(store.state.schemaVersion,8); assert.equal(store.getSession(session.id).scope,'project');
     const digest=createHash('sha256').update(bytes).digest('hex'); assert.deepEqual(await readFile(path.join(dataDir,`runtime-state.schema5.${digest}.json`)),bytes);
     assert.equal(store.getSession(session.id).draft,'old draft');
     const global=await store.createSession({scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dataDir,'global')});

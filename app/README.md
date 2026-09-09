@@ -91,10 +91,10 @@ task.
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
 ```
 
-## Store schema (v6, validated v3/v4/v5 upgrade)
+## Store schema (v7, validated v3/v4/v5/v6 upgrade)
 
-`schemaVersion` is `6`. A valid v3/v4/v5 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v6. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
+`schemaVersion` is `7`. A valid v3/v4/v5/v6 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v7. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)

@@ -10,7 +10,7 @@ import { RuntimeStore } from "../server/store.mjs";
 // Version 3 adds the persisted credentialGeneration counter. There is no
 // migration in either direction: an older file is refused, not rewritten.
 
-test("RuntimeStore persists schemaVersion 7 session/run fields and the canonical user event", async () => {
+test("RuntimeStore persists schemaVersion 8 session/run fields and the canonical user event", async () => {
   const dataDir = await mkdtemp("/private/tmp/v5-store-");
   const store = await new RuntimeStore({ dataDir }).open();
   const project = await store.createProject("test project");
@@ -59,7 +59,7 @@ test("RuntimeStore persists schemaVersion 7 session/run fields and the canonical
   assert.equal(stored.artifacts[0].kind, "content-version");
   assert.ok(!Number.isNaN(Date.parse(stored.artifacts[0].writtenAt)));
   assert.equal(stored.usage.missing, false);
-  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 7);
+  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 8);
   await reopened.close();
 });
 

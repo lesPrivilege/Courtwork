@@ -12,7 +12,7 @@ import { boot, spawnWorker } from './helpers.mjs';
 async function fixture() {
   const dir=await mkdtemp(path.join(tmpdir(),'cw-coordination-'));
   const store=await new RuntimeStore({dataDir:dir}).open(), c=new Coordination(store);
-  const project=await store.createProject({name:'synthetic'});
+  const project=await store.createProject('synthetic');
   const makeSession=()=>store.createSession({projectId:project.id,title:'synthetic',workspaceDir:path.join(dir,randomUUID()),permissionMode:'ask'});
   const a=await makeSession(),b=await makeSession();
   const ta=await c.create({threadId:'thread-a',sessionId:a.id,title:'A'}),tb=await c.create({threadId:'thread-b',sessionId:b.id,title:'B'});
@@ -39,7 +39,7 @@ test('outbox replay is idempotent; conflicting payload and invented source are r
     assert.equal(f.c.mailbox(f.tb.id).messages.length,1);
     await assert.rejects(f.c.send({...input,text:'changed'}),{code:'coordination_conflict'});
     await assert.rejects(f.c.send(f.input({sourceSessionId:f.b.id})),{code:'coordination_binding'});
-    assert.equal(f.store.listRuns().length,0);assert.equal(f.store.listEvents().length,0);
+    assert.equal(f.store.listRuns().length,0);assert.equal(f.store.snapshot().events.length,0);
   }finally{await f.close();}
 });
 test('late delivery retains origin and distinguishes stale target from missing target',async()=>{
@@ -76,7 +76,7 @@ test('RuntimeStore6 migration preserves global scope and exact backup; corrupt l
     const global=await store.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dir,'global'),permissionMode:'ask'});
     await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6;delete old.coordination;
     const raw=Buffer.from(JSON.stringify(old,null,1)+'\n');await writeFile(file,raw);
-    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,7);await store.close();
+    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,8);await store.close();
     const hash=createHash('sha256').update(raw).digest('hex');assert.deepEqual(await readFile(path.join(dir,`runtime-state.schema6.${hash}.json`)),raw);
     const bad=JSON.parse(await readFile(file,'utf8'));bad.coordination.messages.push({id:'forged'});await writeFile(file,JSON.stringify(bad));
     await assert.rejects(new RuntimeStore({dataDir:dir}).open());
