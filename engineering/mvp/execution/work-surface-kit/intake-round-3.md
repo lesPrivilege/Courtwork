@@ -101,6 +101,20 @@ FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = H
 |---|---|
 | WK-98 | Opus 交付 `claude/wk11-workbench` `644cc43`（基线 `14ebd61`）：Runtime 目录入 Settings 五个意图节，四层 Source / Requested / Effective / Bound，profile / policy 编辑、权限解释、Context inspector、Configurable / Inventory、`/` 查找、FN-16 冻结无"排队"，host 清理（删 `runtimeControlRequest`），WK-87 两项；208/208，RC 20 / 9 / 36，FE-T03 / T04 作者通过。裁定：接受删除 L2 Runtime 面板（导轨卡保留粗读数）；RC 断言变更按理由接受；裸 `null` 与深链 401 竞态列 FE-01 首项；BE-13 未复现保留。复核见 [delivery-wk11 §17](delivery-wk11.md)。 |
 
+## 4j. 材质层级与"完成度"次序 → WK-99 … WK-103（2026-09-09）
+
+输入：[材质层级提案](inputs/material-grammar-2026-09-09.md)（用户"仅供参考"；Apple HIG / WWDC25 / Fluent 为转述，图未随附）。基线 main `1688a7b`。与 WK-15 / 52 / 58 / 69 / 88 / 95 与 UP-11 对照后裁决；不新增高度层，不改 WK-69。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-99 | **完成度次序采纳。** Information → Geometry → Components → Material → Light / Motion 为公开表面的完成次序，与 WK-88 / WK-95 同向：FE-01…04 覆盖前三层，材质与光效为 **FE-05**，位于 FE-04 之后；前三层未收敛的表面不得进入 FE-05。"功能已实现"不是页面完成标准。 |
+| WK-100 | **五轮收敛为验收字段。** 每单交付对其触及的每个公开表面附一张五轮收敛表：① 信息层级（同语义 label 同字号 / weight；说明文本退出主视觉；每个表面唯一 primary action，沿 WK-25）；② 光学对齐（标签起点、输入框宽度、行距、图标 optical size 而非 bounding box）；③ 组件几何（同级 input 同高同 radius；相似控件同宽或服从 grid；divider / border / shadow 只用固定 token，沿 WK-94 border 审计）；④ 材质层级（背景只用 WK-69 四层 role；blur 只出现在 WK-101 登记的表面语义）；⑤ 交互状态（SH-4 七态加 running / error）。①②③⑤ 自 FE-01 起验；④ 在 FE-05 前只验"不越层、无未登记 blur"。机械化检查：`tools/lint-colors.mjs` 已管背景 role，FE-01 增加两条——`backdrop-filter` 只出现在登记类名；每处 `backdrop-filter` 有 `prefers-reduced-transparency` 回退（可入 lint-colors 或新 `tools/lint-materials.mjs`，进 `npm test`）。表格式：表面 · 轮次 · 检查项 · 结果 · file:line。 |
+| WK-101 | **材质语法映射到 WK-69，六层不新增高度。** Foundation = L0 `--frame`（body、侧栏）：实色、无 blur；**侧栏不做 glass**（WK-52 保留；对应 Fluent 中 Mica 作长期背景的角色），提案中"sidebar / toolbar 入 Chrome glass"不采。Content = L1 `--panel` / `--panel-muted`：近实色，层级靠间距 / 分组 / 1 px line，永不 blur。Chrome = L2 中**浮在滚动内容之上**的控件：`.jump-latest-button`（已是）、Work 态沉底 composer（候选，FE-05 二择）、内容滚过时的主区 header 带（候选）——允许 `--glass` + `--blur-chrome`；Home 态 composer 下无滚动内容，保持 `--float` 实色。Transient = L2 popover / menu / 命令面板 / model picker：`--glass-muted` + `--blur-transient` + `--shadow-float` + `--rim`。Focus = 局部：`--accent-soft` ring、selected 表面、运行中 shimmer（UP-16）；无整屏发光。Modal = L3：`--scrim` + `--float`。禁令：glass-on-glass（transient 打开于 glass chrome 之上时，二者只留一层 glass，FE-05 以消融表二择）；内容区整体玻璃化；折射 / lensing、随尺寸变厚的动态材质不采（UP-11 不变）。 |
+| WK-102 | **材质 token 闭集。** blur 只两档：`--blur-chrome` 12 px、`--blur-transient` 16 px（现有两处硬编码收为 token）；`saturate()` 只在 transient；`--glass` / `--glass-muted` / `--rim` / `--shadow-float` 与上述两档为全部材质 token，组件不得私有取值。每处半透明表面必须有 `@media (prefers-reduced-transparency: reduce)` 回退到对应实色 role（`--float`）；现两处（`.jump-latest-button` styles.css:1250、context popover styles.css:2243）无回退，列 **FE-01 第 0 项**。Light / Motion 沿 WK-15（140 ms 档、不循环、hero `summon` 一次、reduced-motion 静态），FE-05 不引运动库。 |
+| WK-103 | **来源先行。** 提案三处引用工程内无索引行；派 Sonnet [EX-WK9](work-orders/EX-WK9-material-sources.md) 转录（URL、访问日、许可、取值段落、消费模式 REFERENCE）并列 `prefers-reduced-transparency` 支持面；EX-WK9 与 FE-01…04 并行，FE-05 工单取值在其回执后由 Fable 填写。未公开数值不估算。 |
+
+未采纳项一览：侧栏 / toolbar 常态 glass；"控件大则更厚"的动态材质；折射 / lensing；以 blur 数值表达层级。派单见 [dispatch-round-4](dispatch-round-4.md)。
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
