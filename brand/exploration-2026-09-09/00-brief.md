@@ -12,7 +12,7 @@
 | 材质参考板 `brand/references/material-board.png`（Imagegen，三材质，只取光与材质，不取几何）；视觉来源索引 10 项 | `brand/references/README.md`；`brand/sources/visual-runtime-index.json` |
 | EX-GI1 三向字形语法 specimen（A Baton / B Ruled-grid / C Annotation-mark）；用户同意 A 为字标基线，GI 不开 generator 单 | WK-130 |
 | WK-133：Lucide 设计指南升为 icon grammar 验收规则（24 grid、2px 描边、round cap / join、1px 安全边、光学密度对照）；WK-110：agent 自绘 glyph 只在 specimen 内，准入须过规则 | intake-round-3 §4al |
-| 仓内可作"素材库"的四处：`brand/sources/`、`brand/references/`、`engineering/design/identity-specimen/`、`engineering/design/scout/`；仓外未找到用户所指的库 | 本批检索 |
+| 素材库 = Design Scout 层索引 `engineering/design/scout/`（r4d，WK-134 / WK-135，头 `5d1cf16`）；本线直接来源另有 `brand/sources/`、`brand/references/`、`engineering/design/identity-specimen/` | 用户 2026-09-09；本批检索 |
 
 ## 2. 裁定
 
@@ -44,5 +44,5 @@ brand/exploration-2026-09-09/
 
 | 编号 | 问题 | Fable 建议 |
 |---|---|---|
-| BU-1 | "本地已收入的 brand Design 素材库"指哪里 | 暂按 §1 第 7 行四处；不阻塞第 1 阶段 |
+| BU-1 | "本地已收入的 brand Design 素材库"指哪里 | **已解（用户 2026-09-09）**：即 r4d 线的 Design Scout 层索引 `engineering/design/scout/README.md`（WK-134 设立、WK-135 修订，r4d 头 `5d1cf16`；本分支尚未合流该文件）。它是 pull-not-push 的发现层索引，不存资产，不产生规则；EX-SC1 试点 8 条 capture 全部 ignore（X 聚合站几乎全是个人探索帖，"成熟先例 + 实现路径"命中 0/8）。对本线的含义：第 1 层 glyph 不从 Scout 取形；第 2 层材质研究若需新奇局部，按 WK-134 (d) 由 Fable 派一次 Identity / Iconography focus 的 sweep（≤ 10 条），回执裁 disposition 后才可作 specimen 参照，永不作 canonical candidate。§1 第 7 行的另外三处（`brand/sources`、`brand/references`、`identity-specimen`）仍是本线的直接来源。 |
 | BU-2 | 选向（03 板出后） | 待板 |
