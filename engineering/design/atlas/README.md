@@ -31,7 +31,7 @@ conventional（wordmark / icon / typography，现有 brand 包）与 generative�
 
 ## Shape 段（WK-125）
 
-五个语义角色 `shape.control.compact / control.default / surface / overlay / full` → 现有 token（`--radius-small` 4 / `--radius-control` 8 / `--radius-card` 12 / `--radius-container` 16 / `--radius-pill`）；公理 `R_child = max(R_min, R_parent − inset)`；密度耦合（桌面 rounded rect，capsule 只给 large / isolated / prominent；触控可更圆）；grouping topology；focus ring 派生；forbidden：arbitrary radius、primary 自动更圆、danger 换 shape、pill everywhere、父子同 radius。`corner-shape` 只 progressive enhancement。待 EX-CS1：审计、映射草案、lint-shapes、六类环境 specimen。
+五个语义角色 `shape.control.compact / control.default / surface / overlay / full` → 现有 token（`--radius-small` 4 / `--radius-control` 8 / `--radius-card` 12 / `--radius-container` 16 / `--radius-pill`）；公理 `R_child = max(R_min, R_parent − inset)`；密度耦合（桌面 rounded rect，capsule 只给 large / isolated / prominent；触控可更圆）；grouping topology；focus ring 派生；forbidden：arbitrary radius、primary 自动更圆、danger 换 shape、pill everywhere、父子同 radius。`corner-shape` 只 progressive enhancement。EX-CS1 已回执 → WK-128：三处沉睡违例、`.context-group` 重名、circle 统一 `--radius-pill`、focus 派生、lint-shapes + SHAPE 断言并入 FE-05a 第 0b 项；`corner-shape` 只进 specimen。
 
 ## Motion 段（WK-124 / WK-125）
 

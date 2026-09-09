@@ -182,6 +182,8 @@ design_task:
 
 第 0 项（WK-126 ⑦，M-15）：B 态（视图切换）顶带内容不再居中到 740，而是对齐文档面左缘（gutter），沿 CC-S 对 Settings 顶带的做法；断言一条。
 
+第 0b 项（WK-128，Shape 落地）：三处 concentricity 沉睡违例改显式派生值（popover → context-row、composer 外壳 → `#composer-input`、dialog → content well）；`.context-group` 拆两类；circle 统一 `--radius-pill` 禁 `50%`（显式规则：只给 composer 唯一浮动主动作）；focus ring 派生 offset 2 / radius + 2；`6px` 写作 `calc(var(--radius-control) - 2px)`；新增 `tools/lint-shapes.mjs`（禁游离数值，允许 token / 0 / calc(token ± px)）入 `npm test`；composition-checks 新增 SHAPE-1…（父子 radius 与 inset 实测）；ui-composition-standard 尺寸表登记五个 shape 角色 → token。`corner-shape` 不进本单。
+
 按 WK-112：先约束后变体，一次只变一个维度（密度 → 字阶，材质另单）。约束表已写：[type-density-constraints](../../../../design/type-density-constraints.md)（现状 / 约束 / V1 V2 目标值 / 消融面）。原始要点：现状 ramp（title 20 / nav-title 17 / reading 15 / label 13 / section 14 / body 14 / meta 12 / caption 11；`--control` 32，触控 44；primary 550）对照目标（正文 14 不动、阅读列 15 不动；chrome 与元数据一档更细：meta 12 → 11–12、caption 11 → 10.5–11 且字重 400–450、字距 +0.01–0.02em 大写 eyebrow；桌面控件 32 → 28（触控仍 44）、按钮字号随 label 13、primary 字重 550 → 500；行高与间距随控件缩），每一项给"哪一层级因此更清"的理由与对比度门槛（contrast-report 不得降到 4.5 以下）。第二步 Opus 出两张变体（"chrome 收敛 / 正文不动" vs "全站一档"）在 Settings 与 Work 头部各一处做消融，用户比较后再全站落地。约束：`--text-scale` 三档保留；390 命中区 ≥44 不变；不引新字体；WK-69 层级与 WK-94 边框角色不动。
 
 ## FE-05 · 材质与光效（`opus-wo-low`；WK-99 / 101 / 102 / 104 / 124；排 FE-05a 之后）
