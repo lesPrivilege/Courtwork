@@ -29,6 +29,7 @@ import {
   permissionLabels,
   providerLabels,
   renderConnectionCard,
+  readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
 import {
@@ -40,7 +41,12 @@ import {
 } from "./inspector.mjs";
 import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
-import { renderHome, renderHomeBand, homeSets } from "./home-view.mjs";
+import {
+  renderHome,
+  renderHomeBand,
+  renderHomeModuleBand,
+  homeSets,
+} from "./home-view.mjs";
 import {
   projectThread,
   canAnswer,
@@ -3104,6 +3110,7 @@ function renderChatHeader() {
   const body = $("conversation-body"),
     composer = $("composer-area"),
     band = $("home-top-band"),
+    modules = $("home-module-band"),
     stream = $("message-stream").closest(".message-stream-wrap");
   /* WK-96 · Home reads from the centre downwards: orientation and composer
    * first, then the modules that hang off it — Today's three numbers, then the
@@ -3113,10 +3120,16 @@ function renderChatHeader() {
    * (WK-58 / WK-97), so the order reads modules, work, composer. The DOM order
    * is the reading order in every case: nothing is moved by CSS. */
   band.hidden = !home;
+  /* CC-D0-a · the module band belongs to one Home layout only. In `Simple` it
+   * is not in the document at all, which is why `Simple` is pixel-for-pixel the
+   * Home that was there before this band existed. */
+  const bandLayout = home && homeLayoutPreference() === "modules";
+  modules.hidden = !bandLayout;
   /* WK-96 · in Work the Home dashboard primitives leave the document, not just
    * the screen: a hidden band is still a rendered band, and the next reader of
    * this DOM would find three Home statistics inside a chat. */
   if (!home) band.replaceChildren();
+  if (!bandLayout) modules.replaceChildren();
   const centred = home && !narrowQuery.matches;
   if (centred) {
     if (body.firstElementChild !== composer) body.prepend(composer);
@@ -3126,6 +3139,10 @@ function renderChatHeader() {
     if (band.nextElementSibling !== stream) band.after(stream);
     if (body.lastElementChild !== composer) body.append(composer);
   }
+  /* Today keeps its own place in both layouts; the module band follows it, so
+   * the order reads composer → Today → modules → list at 1440, and
+   * Today → modules → list → composer at 390 (WK-58 / WK-97 unchanged). */
+  if (bandLayout && band.nextElementSibling !== modules) band.after(modules);
   measureHomeLead();
   const config = state.providerConfig?.config;
   const model =
@@ -3295,6 +3312,15 @@ function renderComposer() {
  * It applies only to the wide Home, where the composer floats in the column. In
  * a session and on a narrow screen the composer is docked at the foot and there
  * is no lead to compute (WK-97). */
+/* CC-D0-a · the Home layout and the band's fold live in the same this-device
+ * preference channel as Appearance (`cw:prefs`, WK-114 ⑥). They are display
+ * preferences over facts the app already loaded, so they are not a second
+ * source of truth for anything (WK-107 ②). Reading them here rather than
+ * caching a copy in `state` keeps one value in one place. */
+const homeLayoutPreference = () => readPreferences().homeLayout;
+const homeModuleBandCollapsed = () =>
+  readPreferences().homeModuleBand === "collapsed";
+
 const HOME_COMPOSER_CENTRE = 0.56;
 function measureHomeLead() {
   const shell = $("app-shell");
@@ -5158,6 +5184,18 @@ function renderHomeState() {
          * leaves the focus on the tile that now states the filter. */
       },
     });
+  if (state.view === "home" && homeLayoutPreference() === "modules")
+    renderHomeModuleBand($("home-module-band"), {
+      collapsed: homeModuleBandCollapsed(),
+      onCollapse: (collapsed) => {
+        settingsPage?.setHomeModuleBand(collapsed ? "collapsed" : "expanded");
+        renderHomeState();
+        $("home-module-band")
+          .querySelector('[data-focus-key="home-module-collapse"]')
+          ?.focus();
+      },
+      onManageConnections: () => openSettings("models"),
+    });
   renderHome($("message-stream"), {
     summary: state.home.data,
     error: state.home.error,
@@ -6166,6 +6204,13 @@ async function init() {
     /* WO-WK11 · the finder's open action. It expands the resource and reads its
      * recorded source; it installs nothing and applies nothing. */
     onOpenRuntimeResource: (id) => runtimeView?.openResource(id),
+    /* Changing the Home layout in Settings must reach Home, and only Home:
+       the band's presence is decided in `renderChatHeader`, so both are redrawn
+       and neither Settings nor Home writes the other's DOM. */
+    onHomeLayout: () => {
+      renderChatHeader();
+      if (state.view === "home") renderHomeState();
+    },
   });
   settingsView = createSettingsView($("provider-panel"), {
     page: settingsPage,
