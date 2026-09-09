@@ -19,6 +19,8 @@
 
 官方与第三方的区分是来源责任，不是拒绝社区经验。可变远程 skill 在将来实际使用前需保存版本坐标和检查适用范围；不因安装/读取 skill 就允许其改写本项目 Authority 或发起未经授权的发布。
 
+| S11 / Local UI Atlas | 用户 Exa 扫描（85 结果 / 7 workstream）：assistant-ui Composer / Tool UI / Approval Card / Reasoning Panel、Vercel AI Elements PromptInput / tool.tsx、chromium-tabs、Atuin Tabs、Termany HTabBar、Base UI Popover / Tooltip / Button、Radix Popover / Hover Card、Primer Button、React Aria、Supabase Button、cmdk、Sonner 笔记、21st / VLLNT / uiw heatmap | 局部行为范式与状态机；只取行为不引依赖；`Always allow` 不采纳 | 转录 [inputs/local-ui-atlas-2026-09-09](../mvp/execution/work-surface-kit/inputs/local-ui-atlas-2026-09-09.md)；索引 [atlas](atlas/README.md)；WK-118。链接未经 Fable 核验 |
+
 ## 从 Agent GUI 文档提取的完成面
 
 | ID / 证据入口 | 文档明确支持的观察 | 对应本项目要求 / 剩余验证 |
