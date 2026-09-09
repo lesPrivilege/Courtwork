@@ -83,7 +83,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 8 store (see below)
+  runtime-state.json        # schemaVersion 9 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -99,10 +99,11 @@ task.
 <a id="store-schema-v5-validated-v3v4-upgrade"></a>
 <a id="store-schema-v7-validated-v3v4v5v6-upgrade"></a>
 
-## Store schema (v8, validated v3/v4/v5/v6/v7 upgrade)
+<a id="store-schema-v8-validated-v3v4v5v6v7-upgrade"></a>
+## Store schema (v9, validated v3/v4/v5/v6/v7/v8 upgrade)
 
-`schemaVersion` is `8`. A valid v3/v4/v5/v6/v7 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v8. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
+`schemaVersion` is `9`. A valid v3/v4/v5/v6/v7/v8 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v9. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)

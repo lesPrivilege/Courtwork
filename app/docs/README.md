@@ -5,7 +5,7 @@
 - [Runtime foundation](runtime-foundation.md)：Host、Pi 集成、模型与能力接口、关闭与恢复。
 - [HTTP 基础契约](api-v6.md)：`/api/v5` 下的会话、运行、凭据、文件与事件。
 - [历史文件与 compaction](api-runtime-mx-r1.md)：MX-R1 增量接口。
-- [运行数据与迁移](../README.md#store-schema-v8-validated-v3v4v5v6v7-upgrade)：当前 Host schema 8。
+- [运行数据与迁移](../README.md#store-schema-v9-validated-v3v4v5v6v7v8-upgrade)：当前 Host schema 9。
 - [权限 CAS](permission-cas.md)：批准动作的 payload 与版本条件。
 
 ## 工作与运行投影
