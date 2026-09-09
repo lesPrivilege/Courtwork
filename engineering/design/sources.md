@@ -21,6 +21,8 @@
 
 | S11 / Local UI Atlas | 用户 Exa 扫描（85 结果 / 7 workstream）：assistant-ui Composer / Tool UI / Approval Card / Reasoning Panel、Vercel AI Elements PromptInput / tool.tsx、chromium-tabs、Atuin Tabs、Termany HTabBar、Base UI Popover / Tooltip / Button、Radix Popover / Hover Card、Primer Button、React Aria、Supabase Button、cmdk、Sonner 笔记、21st / VLLNT / uiw heatmap | 局部行为范式与状态机；只取行为不引依赖；`Always allow` 不采纳 | 转录 [inputs/local-ui-atlas-2026-09-09](../mvp/execution/work-surface-kit/inputs/local-ui-atlas-2026-09-09.md)；索引 [atlas](atlas/README.md)；WK-118。链接未经 Fable 核验 |
 
+| S12 / frontier 桌面端结构参照 | 用户 2026-09-09 提供的三张截图（Claude Code 桌面端两张、Codex 桌面端一张），已由 Fable 目视；截图不入库，只记结构观察 | tab strip：每 tab 自带关闭区、末尾 +、活动 tab 高亮、与内容面共享顶部 chrome；侧栏与内容面同一顶带下贯通；文件卡 hover 出现两个局部动作（"Start a side chat / Reply"）而非常驻按钮；Codex 的 Review 面：轮次选择器 + 增删计数 + 逐文件折叠 diff，与聊天面并列且顶部相接；两端都无假窗口控制、左上留原生安全区 | 只借结构与行为（tab chrome、局部动作浮出、并列复核面），不复制品牌、图标、精确栏目或私人内容；对应 atlas 的 tab-chrome / popover-inspector / process-trace 三行；WK-119 补充 |
+
 ## 从 Agent GUI 文档提取的完成面
 
 | ID / 证据入口 | 文档明确支持的观察 | 对应本项目要求 / 剩余验证 |
