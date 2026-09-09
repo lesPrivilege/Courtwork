@@ -57,4 +57,4 @@
 | U4 | 英文全文页 | 不在本批；中文页稳定后另立 |
 | U5 | 首帧用静态图还是互动标本 | 静态图（PS-2 a）；标本在 02，可行性已由 EX-PS3 确认（PS-18） |
 | U6 | 商业化与 Eval 两个 explore 目录何时开 | Eval 目录随 EX-PS4 回执由 Astra 在 `engineering/` 下开；商业化的页面部分已由 `commercial-surfaces/` 承接（PS-22），商业模型 explore 仍待另派 |
-| U7 | 研究稿里的 $29 概念价与 Professional / Organization 两列的项目清单 | 沿用户草案；Local 列的 Core Expert runtime 改为 Local runtime（今天没有 Expert 发布件） |
+| U7 | 研究稿里的 $29 概念价与 Professional / Organization 两列的项目清单 | **已裁（用户 2026-09-09 同意）**：沿草案；Local 列改 Local runtime。用户定性：fake price 只是展示 Pages 完备性的"游戏"，不是商业承诺——段首标记因此不可省 |
