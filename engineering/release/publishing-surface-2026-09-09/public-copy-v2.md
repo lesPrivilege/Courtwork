@@ -57,9 +57,9 @@ H1：
 
 | Tab | 文案 | 数据来源 | 状态 |
 |---|---|---|---|
-| **Event log** | 这次 Run 里发生的每件事，按发生顺序：请求、工具调用、批准、回答、结果。它是原始历史；这里没有任何一条自己就能生效。 | Run 事件（EX-PS3 核实端点） | verified with synthetic data |
+| **Event log** | 这次 Run 里发生的每件事，按发生顺序：请求、工具调用、批准、回答、结果。它是原始历史；这里没有任何一条自己就能生效。 | `sessions/:id/events`（EX-PS3 表 2） | verified with synthetic data |
 | **Work state** | 这次 Run 之后，Work 里正式成立的东西：候选、证据、决定、版本。只有通过验证与裁定的变化才写到这里。 | Core surface 投影（`nda-packets.json`） | verified with synthetic data |
-| **Compiled context** | 下一次 Run 开始时模型实际拿到的内容：从 Work state 编译出的最小充分投影，不是整段历史。 | 记录的 Context（EX-PS3 核实） | verified with synthetic data |
+| **Compiled context** | 这次 Run 实际绑定的内容：resource 修订与 hash、加载了什么、用了多少 token。它是从治理状态编译出的最小充分投影，不是整段历史。这段记录里没有加载任何 skill 或 reference，页面如实显示。 | `runtime-context`（EX-PS3 表 2） | verified with synthetic data |
 
 图注：`synthetic data · recorded at CourtWork <sha7> · 三个视图读取同一份记录`。
 
@@ -87,6 +87,13 @@ H1：
 | 8 | Candidate → Decision | 候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。 | verified with synthetic data · Astra 核对 |
 
 步 7、8 的证据在发布 SHA 下由 Astra 核对；不成立者降为 runs locally，不删行。真实模型下的同一路径是 not yet，写在 05 段声称表，不写在这里。
+
+标本本身（PS-18）：一段会话、两次 Run。第一次 Run 产生一次写入批准、一个 Question 与一个文件；第二次 Run 产生候选，随后是决定与修订。每一步同时可看 01 段的三个层级。无 JS 时这一段退为六步条与静态图。
+
+标本内的固定说明句：
+
+> This is a replay. Nothing here is sent anywhere; the decide and revise buttons show what a recorded request looked like.
+> 这是重放。这里没有任何东西被发出；决定与修订按钮只显示当时记录下的请求。
 
 ## 4. 03 · Work that exists beyond the model.
 

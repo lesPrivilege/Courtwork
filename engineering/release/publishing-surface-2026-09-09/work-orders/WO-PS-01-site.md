@@ -39,9 +39,16 @@
 5. 发布 SHA 上重跑 `node benchmarks/continuity/run.mjs --output <绝对路径>`：输出 JSON、`.attempts.json`、`.journal.jsonl` 三文件入 `evidence/publishing-surface-<date>/`（PS-16 c）；页面 Eval 块的 E / S 通过数只从该输出读取，构建时校验文件存在且 `git.head` 等于发布 SHA；
 6. `delivery-ps-01.md`：SHA、改动文件、验证命令与原文、未验证清单、"哪一像素改变了哪一判断"、五轮收敛表（WK-100）。
 
+## 标本（PS-18）
+
+- 捕获：`site/scripts/capture-specimen.mjs`，沿 `app/tests/helpers.mjs` 的 `boot()` 与 `app/scripts/work-core-fixture.mjs`；序列与落盘键按 [EX-PS3 表 3](../explore/ex-ps3-specimen-feasibility.md)；Run A 用 `permissionMode:"ask"` + `/fixture script` 的 `ws_write` 与 `ask_user`，Run B 绑定 inbound-nda 后 `se_submit_candidate`，再 `decide`、`revise_candidate`、`unload`。输出 `site/specimen/<sha7>.json`，manifest 记 sha256、`dataClass`、`source_sha`、捕获日期与命令。
+- 复制：构建时从 `app/web`（`ui-controls.mjs` 及 `vendor/`、`surface-modules.mjs`、`thread-projection.mjs`、`presentation-adapters.mjs`、`user-message.mjs`、`workspace-view.mjs`、`inspector.mjs`、`runtime-view.mjs`、`styles.css`）与 `app/extensions/inbound-nda/renderer.mjs` 复制到 `site/specimen/vendor-product/`，改写 EX-PS3 表 4 的 7 处根相对路径为相对路径；每文件源 sha256 与改写位置写入 manifest；不手改副本，不改产品源。
+- 壳：`site/specimen/shell.mjs` 只做"按步骤从 JSON 取快照喂给纯渲染函数"；`dispatch` 桩返回 replay 拒绝态并在界面显示"replay · not sent"，`query` 桩返回打包源文本，`request` 桩查表。
+- 承载：`site/specimen/index.html` 以 iframe 挂到 02 段；无 JS 时 `<noscript>` 六步条与静态图；步骤可键盘切换；无任何网络请求。
+
 ## 必须验证
 
-fixture 列：构建可复现（两次构建产物 hash 一致）；`/Courtwork/` 子路径下无断链、无绝对根路径；无 JS 时首屏与 03 / 05 / 06 段完整可读；reduced-motion 与 reduced-transparency 下无退焦、无运动；键盘可达所有标本步骤；1440 / 390、浅 / 深、200% 缩放截图；对比度报告；页面无任何网络请求（除同源）。真实列：无（站点不接真实 provider）。
+fixture 列：标本 JSON 由捕获脚本两次生成后除时间戳外一致；iframe 内 `performance.getEntriesByType('resource')` 只含同源文件；构建可复现（两次构建产物 hash 一致）；`/Courtwork/` 子路径下无断链、无绝对根路径；无 JS 时首屏与 03 / 05 / 06 段完整可读；reduced-motion 与 reduced-transparency 下无退焦、无运动；键盘可达所有标本步骤；1440 / 390、浅 / 深、200% 缩放截图；对比度报告；页面无任何网络请求（除同源）。真实列：无（站点不接真实 provider）。
 
 ## 验收者
 
