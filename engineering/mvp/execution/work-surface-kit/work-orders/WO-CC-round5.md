@@ -69,3 +69,7 @@ delivery-cc-s.md 沿 delivery-fe04.md 体例：基线、commit 表、改动文�
 ## CC-D0 · Home 模块带（待 BE-1/3 + BE-25 交付后成单）
 
 骨架（WK-114）：Appearance `Home layout: Simple / Modules`（本设备偏好，默认 Simple）；模块带契约（次级带、显隐预置、折叠 / 移除、六态显示约定）；Today strip 原位演进；Activity 随 BE-1/3/25，Usage 随 BE-29；Mail / Calendar 待产品裁定；0.56 不动；不放死模块。effort：`opus-wo-low`。
+
+## Astra 合流接缝限定（2026-09-09）
+
+成单时必须消费 [r4d 设计接缝评审](../../../../design/clean-cool-2026-09-09/r4d-review.md) R4D-1…6；WK-113/114历史裁定保留，不能用其简写覆盖现行owner合同。CC-W保留原renderer status/modulePath失效条件，以及聊天/当前阅读面的滚动、草稿与返回焦点；B/C均补展开与断点两侧几何验证。CC-D0拆为现有事实的布局外壳与Activity接入：仅后者依赖BE-1/3/25；外壳是否先做按选向与产品收益裁定。临时probe不构成连接健康记录；邮件/日历保留路线意向，具体来源与接入排期另定。CC-S可沿既定结构接单；本次未代派。

@@ -36,13 +36,13 @@
 | BE-22 | MCP server 注册端点（新增一条 server 的 endpoint / transport），`/mcp/:id/lifecycle` 今日只对已声明的 server 动作 | FE-02 Tools › Adding an MCP server 的 Add / Configure 两步（今日只留位） | WK-107 |
 | BE-23 | 无项目的 Chat：`POST /api/v5/sessions` 不带 `projectId`（不建 `workspaceDir`）的创建路径，或一个宿主默认容器 | FE-03 Chat 两态（今日只在既有能力上说清，不画无项目入口） | WK-109 ① |
 | BE-25 | `GET /work-activity`（BE-1/3）落地时附带并发写入下的去重规则（按 run id 而非计数增量）与"覆盖是否完整"的回答；时区声明沿 BE-3 | CC-D0 Activity 模块（热力图）；落地前不安装 | WK-114 / EX-CC2 |
-| BE-28 | `provider-config`（或 `runtime-info`）增加连接健康时间戳（`lastVerifiedAt`，可复用 BE-17/18 探测结果时间），使 Models 摘要能诚实呈现 stale | CC-D0 Models 入口行；Settings › Models 连接行 | WK-114 / EX-CC2 |
+| BE-28 | `provider-config`（或 `runtime-info`）增加连接健康时间戳（`lastVerifiedAt`；须绑定被检查配置/凭据版本与 check kind，配置改变即失效，临时 BE-17/18 表单探测不得直接更新全局健康时间），使 Models 摘要能诚实呈现 stale | CC-D0 Models 入口行；Settings › Models 连接行 | WK-114 / EX-CC2 |
 | BE-29 | 跨 run / 会话的 usage 聚合端点：输入 / 输出 / 缓存 token 分列、计费来源是否等于账单、统计区间与时区、聚合层面的 "Not reported"（对应单 run `missing`） | CC-D0 Usage 模块；落地前不安装 | WK-114 / EX-CC2 |
 | BE-30 | 授权决定的乐观并发：`POST /runs/:id/questions/:qid` 接受可选 `expectedContentSha256` / `expectedToolCallId`，与服务端未决载荷比对，不一致返回 409 `version_mismatch`；前端不自造版本号 | Approval 卡（今日请求体只有 `{decision}`） | WK-115 / FE-04 §10 |
 | BE-31 | Question 的受限结构化 schema（`string` / `number` / `boolean` / `enum`，无嵌套）**连同**服务端复验 MCP "MUST NOT request sensitive information"；两句一体 | 问题卡（今日自由文本单值） | WK-115 ⑦ / FE-04 §10 |
 | BE-32 | 事件时间：`appendEventToState` 只写 `seq`，Trace 中间层（时间线）没有时间不成立 | Trace 三层披露（暂缓） | WK-115 ⑤ / FE-04 §10 |
 | BE-33（低优先） | tool 结果带未完成原因 `reason: error \| cancelled \| timeout`；今日 `Interrupted` 由"无 result 且 Run 离开活动态"推出 | tool 行元数据词；交付前用 `Unknown`（WK-115 ①） | WK-115 ① / FE-04 §10 |
-| 候选 BE-26 / BE-27 | Mail / Calendar 只读来源 adapter 最小契约（账户身份、连接状态、`lastRefreshedAt`、1–2 条摘要与深链；日历另需时区与全天事件边界） | 是否要邮件 / 日历模块属产品裁定，待用户；未裁定前不登记为请求 | WK-114 / EX-CC2 |
+| 候选 BE-26 / BE-27 | Mail / Calendar 只读来源 adapter 最小契约（账户身份、连接状态、`lastRefreshedAt`、1–2 条摘要与深链；日历另需时区与全天事件边界） | 已有模块路线意向；具体账户、provider、scope 与接入排期待裁，当前仅候选合同研究 | WK-114 / EX-CC2 |
 
 ## Astra 后端交付（2026-09-09）
 
