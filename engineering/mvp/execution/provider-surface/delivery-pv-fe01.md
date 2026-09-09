@@ -17,8 +17,8 @@
 
 | SHA | 标题 |
 |---|---|
-| （见 `git log`） | `feat: let the connection and model surfaces consume the real connection registry` |
-| （分支 HEAD） | `docs: record the FE01 delivery` —— 本页与证据目录自身的提交 |
+| `062170c` | `feat: let the connection and model surfaces consume the real connection registry` |
+| `5a27f09` | `docs: record the FE01 delivery and its loopback evidence` —— 本页与证据目录自身的提交（分支 HEAD） |
 
 均为显式路径 `git add`，无 `git add -A`。作者验证的六条命令与九条浏览器断言跑在第一条提交的树上。
 
