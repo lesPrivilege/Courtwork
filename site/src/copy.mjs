@@ -2,12 +2,14 @@
 //
 // Copy is shared by the page and README. Version/count placeholders are filled
 // from the fixed evidence receipt. The current editorial policy is PS-26.
+export const PAPER_ENTRY = {
+  href: "https://lesprivilege.github.io/Schema-Engineering/",
+  baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
+};
 export const NAV = [
   { label: "Product tour", href: "./tour.html" },
+  { label: "Paper ↗", href: PAPER_ENTRY.href },
   { label: "Get Courtwork", href: "./get.html" },
-  { label: "GitHub", href: "https://github.com/lesPrivilege/Courtwork" },
-  { label: "Paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
-  { label: "Docs", href: "https://github.com/lesPrivilege/Courtwork/tree/main/docs" },
 ];
 
 export const HERO = {

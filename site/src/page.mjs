@@ -3,7 +3,7 @@
 // One document, Chinese-led, no framework and no build-time templating engine:
 // the copy is data (copy.mjs), this file arranges it, and every number it
 // prints comes from the recorded evidence rather than from the copy.
-import { NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
+import { PAPER_ENTRY, NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
 import { renderPricing } from "./pricing.mjs";
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
 
@@ -77,6 +77,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
+      ${paperEntry()}
       ${rawGoverned(fill, recording)}
       ${matter(fill)}
       ${architecture(fill, diagram)}
@@ -378,3 +379,5 @@ function closingShot() { return `<section class="closing-shot" aria-label="Court
 // Static mono use of brand/geometry/mark.svg. Exact canonical rectangles;
 // this lockup conveys identity, never review or acceptance state.
 export function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
+
+function paperEntry() { return `<aside class="paper-entry" aria-labelledby="paper-entry-title"><div><p class="index">RESEARCH FOUNDATION / SCHEMA ENGINEERING</p><h2 id="paper-entry-title">The paper behind<br>the work.</h2></div><div><p>事件、工作状态、模型上下文，各有自己的边界。Schema Engineering 提出这套研究框架；Courtwork 将它带入可运行、可检验的工作面。</p><p class="paper-links"><a class="paper-read" href="${PAPER_ENTRY.href}">Read the paper ↗</a><a href="${PAPER_ENTRY.baseline}">采用基线 · 9.6</a><a href="#evidence">Implementation &amp; evidence →</a></p></div></aside>`; }

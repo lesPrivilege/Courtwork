@@ -4,7 +4,7 @@
     {
       "id": "V1 · the page requests nothing off its own origin",
       "pass": true,
-      "requests": 24,
+      "requests": 6,
       "foreign": []
     },
     {
@@ -38,7 +38,7 @@
       "wrongVersion": null,
       "wrongBytes": null,
       "selected": "step-candidate",
-      "refusal": "replay · not sent这是当时记录下的 decide 请求。它没有被发出。{\n  \"request_id\": \"decide-41a7b7cc-3497-4d76-b944-52d264bcbc1e\",\n  \"candidate_id\": \"candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c\",\n  \"base_version\": 0,\n  \"action\": \"accept\",\n  \"reason\": \"Synthetic replay inspection\"\n}",
+      "refusal": "replay · not sent这是当时记录下的 decide 请求。它没有被发出。{\n  \"request_id\": \"decide-8a0af75b-1927-4487-99a2-cddebe356e43\",\n  \"candidate_id\": \"candidate-60bc7de10cbe7dc158a7157f019589109e42eaf73ad9630ccd096867241e614c\",\n  \"base_version\": 0,\n  \"action\": \"accept\",\n  \"reason\": \"Synthetic replay inspection\"\n}",
       "source": "Recorded sourcesSourcesource-9495d3ef-6ef3-4117-825a-f53b90dc6a7aVersion1SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
       "links": 7
     },
@@ -128,7 +128,7 @@
         "layers": 6,
         "diagram": true
       },
-      "servedBytes": 35736
+      "servedBytes": 36242
     },
     {
       "id": "V6b · without scripting the specimen falls back to the step list with its stills",
@@ -138,14 +138,14 @@
     {
       "id": "V7 · contrast · light",
       "pass": true,
-      "measured": 352,
+      "measured": 356,
       "minimum": 4.69,
       "failures": []
     },
     {
       "id": "V7 · contrast · dark",
       "pass": true,
-      "measured": 352,
+      "measured": 356,
       "minimum": 6.85,
       "failures": []
     },
@@ -187,7 +187,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1854195
+      "bytes": 1900695
     },
     {
       "name": "page-1440-dark.png",
@@ -195,7 +195,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1838607
+      "bytes": 1881204
     },
     {
       "name": "page-390-light.png",
@@ -203,7 +203,7 @@
       "theme": "light",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1350382
+      "bytes": 1388733
     },
     {
       "name": "page-390-dark.png",
@@ -211,7 +211,7 @@
       "theme": "dark",
       "scale": 1,
       "overflow": 0,
-      "bytes": 1341931
+      "bytes": 1380082
     },
     {
       "name": "page-1440-light-zoom200.png",
@@ -219,7 +219,7 @@
       "theme": "light",
       "scale": 2,
       "overflow": 0,
-      "bytes": 1486804
+      "bytes": 1525158
     }
   ]
 }

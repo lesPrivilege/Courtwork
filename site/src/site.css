@@ -711,3 +711,13 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 @media (forced-colors: active) { .brand-icon rect:not(:first-child) { fill: CanvasText; } }
 
 .product-footer-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 24px; font-size: 14px; }
+
+/* Paper is a primary research entrance, alongside product and acquisition. */
+.global-nav { display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: 14px; }
+.paper-entry { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 88px; padding: 40px 0; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line); }
+.paper-entry h2 { font-family: var(--campaign-serif); font-size: clamp(32px, 4vw, 52px); font-weight: 400; letter-spacing: -.04em; }
+.paper-entry .index { font-size: 12px; margin-bottom: 20px; }
+.paper-entry p { margin-top: 0; }
+.paper-links { display: flex; flex-wrap: wrap; gap: 16px 24px; font-size: 14px; }
+.paper-links .paper-read { flex-basis: 100%; font-size: 18px; font-weight: 500; }
+@media (max-width: 700px) { .paper-entry { grid-template-columns: 1fr; gap: 20px; margin-top: 56px; } }

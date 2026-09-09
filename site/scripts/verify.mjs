@@ -157,8 +157,13 @@ try {
   // ---- V2 · the iframe requests nothing off its own origin ----------------
   const frameResources = await evaluate(`(async () => {
     const frame = document.querySelector("iframe.specimen-frame");
+    const loaded = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("specimen did not load after scrolling")), 15000);
+      frame.addEventListener("load", () => { clearTimeout(timeout); resolve(); }, { once: true });
+    });
     frame.src = frame.src;
-    await new Promise((resolve) => frame.addEventListener("load", resolve, { once: true }));
+    frame.scrollIntoView();
+    await loaded;
     await new Promise((resolve) => setTimeout(resolve, 2500));
     const inner = frame.contentWindow;
     const entries = inner.performance.getEntriesByType("resource").map((e) => e.name);
