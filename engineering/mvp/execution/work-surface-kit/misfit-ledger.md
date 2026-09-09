@@ -28,3 +28,5 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | 位置与语义 | M-2（scope 位位置）、M-3（错误文案直出） | M-2 已由 CC-W 承接；M-3 是一次独立文案裁定（全部 4xx / 409） | CC-W；错误文案裁定待排 |
 
 结论：三簇里只有"局部可修"可以不经裁定直接进单；其余两簇每条都对应一个约束或后端接缝，不因单条反馈加控件。下一轮聚类在 CC-W 交付后。
+| M-14 | Work surface | `state.surface.returnFocus` 两处写，语义"最后一次打开这层的控件"（CC-W §13 ⑥） | minor | 1 | view/focus state model | false | WK-126 ⑥；并入 M-12 簇 |
+| M-15 | Work 顶带（B 态） | 视图切换态顶带标题仍居中到 740，与从 280 起的文档面左缘不齐（CC-W §13 ⑦） | minor | 1 | header alignment per shell state | true | WK-126 ⑦；FE-05a 第 0 项，沿 CC-S Settings 顶带做法 |
