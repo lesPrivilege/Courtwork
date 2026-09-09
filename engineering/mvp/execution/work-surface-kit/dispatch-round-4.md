@@ -17,6 +17,7 @@
 | EX-CC6 progressive blur 可行性 | Sonnet（只读） | 端口 8904 | WK-124 (e) | `explore/ex-cc6-progressive-blur.md` | 已回执，消费为 WK-127（[intake §4af](intake-round-3.md)）：单层 blur + mask，先只 header 带 |
 | EX-GI1 生成式身份：invariant / variation 草案与三个字形语法 specimen | Sonnet（只读） | 读 `brand/`，输出 `engineering/design/identity-specimen/` | WK-124 (d) / WK-125 (d) | `explore/ex-gi1-generative-identity.md` | 已派（2026-09-09，用户同意） |
 | EX-CS1 Shape grammar：radius 审计、concentricity 违例、topology、corner-shape 支持、映射草案与 lint-shapes | Sonnet（只读） | 端口 8905 | WK-125 (b)(c)(e) | `explore/ex-cs1-shape-grammar.md` | 已回执，消费为 WK-128（[intake §4ag](intake-round-3.md)）：并入 FE-05a 第 0b 项 |
+| 收敛节点 | Fable | [roadmap-frontend](roadmap-frontend.md) | WK-105…129 | — | 2026-09-09 写就，供 fresh Fable 续接 |
 | CC-S → CC-W → CC-D0-a → FE-05a → FE-05 → CC-I（WK-120） | Opus 串行 | 各自从上一单合流后的清洁 main | [WO-CC-round5](work-orders/WO-CC-round5.md) | `delivery-cc-*.md` | CC-S 已交付 `ca548ed`，Fable 复核 WK-121（[intake §4z](intake-round-3.md)）接受，§16 在分支头；交 Astra 合流；CC-W 已交付 `264e3b6`，Fable 复核 WK-126（[intake §4ae](intake-round-3.md)）接受，§16 在分支头；交 Astra 合流；CC-D0 拆 D0-a / D0-b（R4D-2）；排期定为 CC-S → CC-W → CC-D0-a → FE-05（用户 2026-09-09）；九图复核与 Attention 路线消费为 WK-117（[intake §4v](intake-round-3.md)），ATT-FE-01 默认排 FE-05 之后；画板静态文件在 [design/…/boards](../../../design/clean-cool-2026-09-09/boards/README.md) |
 | FE-05 材质与光效 | Opus | FE-04 合流后 | WO-FE-round4 §FE-05 + EX-WK9 | `delivery-fe05.md` | 待 EX-WK9 回执后由 Fable 填值 |
 

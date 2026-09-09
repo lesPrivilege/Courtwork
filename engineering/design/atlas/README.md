@@ -1,6 +1,6 @@
 # Local UI Atlas · 局部行为索引
 
-> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。各段见本页末。
+> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。**Control Grammar（WK-129）**再靠前一层：Schema / intent → control；Schema constraint ≠ UI affordance。各段见本页末。
 
 WK-118 设立，WK-122 升级为六级格式：**Semantic Contract → Interaction Pattern → Anatomy → Behavior Primitive → Motion Recipe → Local Adaptation**。来源分四层（A 语义契约 / B 解剖 / C 微交互 donor / D 探索池，见 [inputs/ui-source-tiers](../../mvp/execution/work-surface-kit/inputs/ui-source-tiers-2026-09-09.md)）。语义契约的正式所在是 [ui-state-vocabulary](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md)（映射后端已有状态）、[primitive-canon](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md) 与 [review-projection](../../mvp/execution/work-surface-kit/contracts/review-projection.md) §6；A 层外部来源（Linear、Primer）只用来检查语义齐全，不替代 Core owner。upstream 是 donor 不是 runtime dependency：一律本地实现（原生 ES module），不引 React / Tailwind / Motion。本页只做索引，不复制内容；一个 entry 有实体前不建子目录。链接未经 Fable 核验。
 
@@ -36,3 +36,16 @@ conventional（wordmark / icon / typography，现有 brand 包）与 generative�
 ## Motion 段（WK-124 / WK-125）
 
 state transition（原位变态：Send → Sending…、Approve → 回执行）、focus（transition blur 只在小型 text / icon）、material response（不动画 `backdrop-filter`）、identity transition（GI 轨道）；reduced-motion 下全部瞬切；pressed shape morph 只 experimental。
+
+## Control Grammar 段（WK-129）
+
+六类；每格标"今日有 / 候选（待 schema）/ 参照"。行为语义以 React Aria / Base UI 为 donor（不引依赖）。
+
+| 类 | 今日有（schema 存在） | 候选（待后端 schema） | 参照 |
+|---|---|---|---|
+| Selection | Segmented（Settings 路径 / 模式 / 布局）、Select（provider / model）、checkbox / radio | Token / entity picker（BE-21 连接、reviewer）、ComboBox（大目录搜索） | React Aria ToggleButtonGroup / ComboBox / TagGroup |
+| Value | — | NumberField + Stepper + ScrubArea（BE-31 number；context budget / threshold）、Slider（bounded）、Range | Base UI NumberField ScrubArea；React Aria Slider |
+| Temporal | — | Date / time range（BE-25 活动区间）、Waveform / Transport（无音频 artifact 契约，仅参照） | waveform-playlist 分层 |
+| Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项） | Tiptap / Nuxt fixed-bubble-floating；cmdk |
+| Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好）、Rule builder（待 PolicyRule canonical 文本，候选 CC-P） | MetaBind Inspector；Tailscale visual editor ↔ text |
+| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |

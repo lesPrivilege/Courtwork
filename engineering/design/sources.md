@@ -29,6 +29,8 @@
 
 | S15 / Shape grammar 与生成式身份 | 用户 Exa（36 结果 / 4 workstream）：Apple WWDC25 356（concentricity、capsule 与桌面密度）、Material 3 Shape / Buttons（optical roundness、shape morph）、Atlassian Radius（体例与 focus 派生）、MDN `corner-shape`；Monotype × Evri、Otherwhere Emblème、Measured Facet、CLEVER°FRANKE ADC | Shape 五角色 + concentricity 公理 + grouping topology + forbidden rules；corner-shape 只 progressive enhancement；Identity invariant / variation、确定性生成、Facet 范式 | 转录 [inputs/shape-grammar-generative-identity-2026-09-09](../mvp/execution/work-surface-kit/inputs/shape-grammar-generative-identity-2026-09-09.md)；WK-125。链接未经 Fable 核验 |
 
+| S16 / Control Grammar | 用户 Exa（56 结果 / 5 workstream）：React Aria Components 目录、Base UI NumberField（ScrubArea）/ Slider、MetaBind Inspector、waveform-playlist、Nuxt / Tiptap Editor Toolbar（fixed / bubble / floating）、Tailscale Visual Policy Editor；两张控件截图（未入库） | Schema / intent → control 的 canonical mapping；Schema constraint ≠ UI affordance；控件是编辑器不是事实源；行为 donor 不引依赖；只建有 schema 的控件 | 转录 [inputs/control-grammar-2026-09-09](../mvp/execution/work-surface-kit/inputs/control-grammar-2026-09-09.md)；atlas Control Grammar 段；WK-129。链接未经 Fable 核验 |
+
 ## 从 Agent GUI 文档提取的完成面
 
 | ID / 证据入口 | 文档明确支持的观察 | 对应本项目要求 / 剩余验证 |
