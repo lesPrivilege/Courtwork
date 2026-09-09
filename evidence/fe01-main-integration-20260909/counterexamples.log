@@ -1,0 +1,25 @@
+PASS FE-T02-a — the first work row opens the same chat by pointer and by keyboard (FN-05)
+      pointer=499c54c7-192e-4fd5-a270-8727264c3839 keyboard=499c54c7-192e-4fd5-a270-8727264c3839 focusAfterJ=home:pendingItems:33ecdf19-4047-4a62-9ec9-a34cbf57d522
+PASS FE-T02-b — the Settings button and the deep link reach one page with one section state; the retired `runtime` section falls back rather than redirecting (FN-05 / WK-90)
+      {"fromButton":{"open":true,"section":"general","hash":"#settings/general"},"fromHash":{"open":true,"section":"models","tab":"true","panelVisible":true},"retired":"general"}
+PASS FE-T02-c — one capability, one visible entry: the connection card is opened from the composer's context row alone and the connection is named once (FN-05 / WK-94)
+      {"visible":["model-settings-button"],"badgeRemoved":true,"connectionNamedTimes":1}
+PASS FE-T09 · palette · gray steel — state words and legal actions are unchanged by appearance, size and motion (FN-09 / 10 / 27 / 29)
+      {"missing":[],"added":[],"states":6}
+PASS FE-T09 · text size · large — state words and legal actions are unchanged by appearance, size and motion (FN-09 / 10 / 27 / 29)
+      {"missing":[],"added":[],"states":6}
+PASS FE-T09 · reduced motion — state words and legal actions are unchanged by appearance, size and motion (FN-09 / 10 / 27 / 29)
+      {"missing":[],"added":[],"states":6}
+PASS FE-T09 · 390 wide — state words and legal actions are unchanged by appearance, size and motion (FN-09 / 10 / 27 / 29)
+      {"missing":[],"added":[],"states":6}
+PASS FE-T09 · dark — state words and legal actions are unchanged by appearance, size and motion (FN-09 / 10 / 27 / 29)
+      {"missing":[],"added":[],"states":6}
+PASS FE-T10-a — arrow keys move focus in the settings tab list and Enter activates, handing focus to the panel (FN-26)
+      arrow=settings-tab-appearance enter={"active":"settings-appearance","section":"appearance"}
+PASS FE-T10-b — a `/` inside an IME composition stays a character; the finder does not take it (FN-27)
+      {"before":"settings-appearance","after":"settings-appearance","prevented":false}
+PASS FE-T10-c — a dialog holds the focus and returns it to the control that opened it (FN-26 / 27)
+      {"inside":true,"closed":true,"returned":"materials-button"}
+PASS FE-T10-d — with the work surface open the focused composer is not covered by it (FN-27)
+      {"surfaceOpen":true,"hidden":0}
+12 / 12

@@ -1,6 +1,6 @@
 # 当前工程状态
 
-更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次WK11与第四轮交接合流读取main基线 `14ebd61877545ab71e20ce54a720d4e1e13c6b78`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
+更新：2026-09-09。唯一开发入口为 `Courtwork`，主线 `main`。本次FE-01合流读取main基线 `a431650b8c4726adc10905485aaadfdb1983689c`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 本轮责任与完工节点
 
@@ -10,8 +10,8 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 
 | 面 | 本轮实际状态 | 下一步与owner |
 |---|---|---|
-| 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | 等FE-01同步public-copy词表，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
-| 通用工作面 / Workbench | WK10b两段、WK13 r2、WK12、WK11及Fable第四轮交接已合流；WK11合流验证见下 | 从最终清洁main建树，Opus串行FE-01 → FE-02 → FE-03 → FE-04；[第四轮交接](mvp/execution/work-surface-kit/handoff-round4.md)与[工单](mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md) |
+| 对外口径 / README / Pages | 准备包和事实输入已固定；当前主线尚无新site/workflow，根README仍待Opus重写 | FE-01界面词表已交付；public-copy尚需同步，再按 [发布面交接](release/2026-09-08/opus-public-surface-handoff.md)施工；Astra核对证据 |
+| 通用工作面 / Workbench | FE-01与Fable round4b已合流；WK-105裁定与合流验证见下 | 从最终清洁main建树，Opus FE-02（Low，先改--nav为256）→ FE-03（Low）→ FE-04（Medium），FE-05后置；[第四轮交接](mvp/execution/work-surface-kit/handoff-round4.md)与[工单](mvp/execution/work-surface-kit/work-orders/WO-FE-round4.md) |
 | 领域主链 | H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
 | Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
@@ -33,6 +33,10 @@ WK12已接收：Opus实现 `7599a91`、Fable复核 `a2223e2`，与main `7982663`
 WK11已接收：Opus实现 `644cc43`、Fable复核 `3acff2d`，从main `14ebd61` 无冲突合流为 `f8643f8`；随后Fable第四轮文档 `19deb1e` 无冲突合流为 `54c0d24`。Astra全量208/208、lint、contrast、smoke与RC 20/9/36通过；FE-T03/T04及MCP unknown的实际范围见 [合流证据](../evidence/wk11-main-integration-20260909/README.md)。没有集成产品代码修补或静态准入变更。WK-98接受删除L2 Runtime面板，导轨卡打开Settings Runtime；WK-87两项已实施。Explain permission裸`null`与深链bootstrap 401竞态交FE-01首项，BE-13未复现仍保留。
 
 第四轮WK-88…98与交接已进入主线。三项前置判断已定：恢复Chat用户词、Runtime移入Developer、Home以composer为唯一L1锚点；空态31vh退役随FE-01实施，覆盖此前“等待裁定”，不称已改代码。前端单一writer串行FE-01 → FE-02 → FE-03 → FE-04，材质/动效后置；BE-1/3、12、14…20按 [后端台账](mvp/execution/work-surface-kit/backend-requests.md)提供实际接缝，FE-02/FE-03未交付能力不画可用按钮。此处只接收交接，未启动新的执行会话；G4/G5等FE-01词表后施工。
+
+FE-01已接收：Opus交付 `bfefcd2`、Fable复核 `2694001`，从当前main `a431650` 无冲突合流为 `6bdc6db`；随后Fable文档 `3eba008` 合流为 `ccc1076`，保留执行文件状态PR准备文档。产品词表、Settings九组、chrome与Home/Work composition已实现；WK-105六项裁定按 [交付§13](mvp/execution/work-surface-kit/delivery-fe01.md)接收。合流复跑212/212、两项lint、contrast、smoke、composition16/16与FE-T02/T09/T10反例12/12；新版RC与WK-98追加回归见 [本次证据](../evidence/fe01-main-integration-20260909/README.md)。Astra补修资源展开面把可选DOM的null写成文本的遗漏；该补丁为Astra作者验证，非作者复核仍待，不套用Fable对2694001的接受。
+
+下一单由Fable按用户安排以agent定义文件Low档派Opus FE-02，本次不代为启动。第0项--nav 250→256附几何断言；Fetch models/Test connection继续等BE-17/18，未交付不画。FE-03 Low、FE-04 Medium沿串行队列；FE-05按WK-104补本设备Reduce transparency等材质接缝。FE-01完成不等于public-copy已同步：发布面仍有旧Session/Ask/Write/Read词与旧截图基线说明，须按当前UI和证据另行更新后再施工README/Pages。G1–G5保持未闭合。
 
 本表“可接单/下一步”不代表每张工单已有执行会话在运行。各作者回执记录实际开工SHA、worktree/端口、结果与未检项；Astra统一合流，不维护第二份产品状态表。
 
