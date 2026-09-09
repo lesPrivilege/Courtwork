@@ -1,0 +1,8 @@
+ "stage": "failed",
+ "sessions": 3,
+ "totals": {
+  "pendingItems": 0,
+  "sessionCandidates": 3,
+  "inspectionCandidates": 1
+ }
+}
