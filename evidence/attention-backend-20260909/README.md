@@ -1,6 +1,6 @@
 # ATT-BE-01 backend delivery
 
-Product: `de38eff022b1eea4eb705de51fe988eba3da12bd`, branch `codex/attention-backend-20260909`. Source Astra's ES integration base is `fa90763a4da1cdede47778b6487c801c0acb74cc`; the task merged that base before changing Core/service. Source Astra owns main/current/shared ledgers. This packet records a bounded backend delivery, not product G1–G5 acceptance or deployment.
+Final product: `d37704e2e4f9c7bac7e982d9ddd26b795dfb8574`, branch `codex/attention-backend-20260909`. Source Astra's ES integration base is `fa90763a4da1cdede47778b6487c801c0acb74cc`; the task merged that base before changing Core/service. Source Astra owns main/current/shared ledgers. This packet records a bounded backend delivery, not product G1–G5 acceptance or deployment.
 
 ## Delivered behavior
 
@@ -12,25 +12,32 @@ The [consumer contract](../../docs/work-core/attention.md) freezes the actual wi
 
 ## Author verification
 
-[Machine results](results.json) bind product SHA, exact source hashes for the migration materialization, fixture hash, test totals and log digests. All final checks used the fixed product version above.
+[Final machine results](results-fixed.json) bind product SHA, exact source hashes for the migration materialization, fixture hash, test totals and log digests. All final checks used the fixed product version above.
 
 | Check | Result / scope |
 |---|---|
 | `cd app && npm test` | 305 pass / 0 fail / 0 skip; includes 9 Attention Core, 4 HTTP/fixture and 2 SIGKILL tests, plus existing regressions |
 | `cd app && npm run smoke` | passed; public runtime service, local-fake, realProvider not_run |
-| `ATTENTION_CODE_SHA=de38eff022b1eea4eb705de51fe988eba3da12bd node evidence/attention-backend-20260909/migration-probe.mjs` | passed; fixed old/ES/current Core sources, migration/restore and refusal matrix |
-| `node app/scripts/attention-fixture.mjs` | actual synthetic packets generated and checked; fixture SHA/bytes in results.json |
+| `ATTENTION_CODE_SHA=d37704e2e4f9c7bac7e982d9ddd26b795dfb8574 node evidence/attention-backend-20260909/migration-probe.mjs` | passed; fixed old/ES/current Core sources, migration/restore and refusal matrix |
+| `node app/scripts/attention-fixture.mjs` | actual synthetic packets generated and checked; fixture SHA/bytes in results-fixed.json; generated on the unchanged domain/HTTP seam at de38eff and validated again by final tests |
 | `git diff --check` | passed; explicit staged paths reviewed |
 
 Core tests include correct and simultaneous CAS, exact/changed replay, explicit needs_you and resolution/reopen, unknown input/schema, source bytes/history, corrupt state/audit/receipt, scoped duplicate IDs, and registry-only disclosure. HTTP tests exercise two Matters with source/Session/Run refs, typed transitions, origin deletion plus exact replay, replacement Session, producer unload and empty-catalog restart, all query categories across scopes, actor/context spoofing, a real active Pi loopback Run, signal restrictions and late-adapter rejection. SIGKILL tests separately demonstrate zero committed effects before commit and one complete effect after commit before acknowledgement, then exact reconciliation without duplicate events.
 
-Astra authored product code and final test execution. Luna supplied the migration and HTTP/recovery test drafts but hit a usage limit before completing review; Astra repaired and extended those drafts. Their provenance is retained, but these final author runs do **not** claim non-author acceptance. Source Astra has received the fixed product for a separate bounded review; its findings and any repair/recheck must be recorded separately before integration acceptance.
+Astra authored product code and final test execution. Luna supplied the migration and HTTP/recovery test drafts but hit a usage limit before completing review; Astra repaired and extended those drafts. Their provenance is retained, but these final author runs do **not** claim non-author acceptance. Source Astra has independently found and rechecked the migration defect described below. Its full independent acceptance and integration records remain source-owned and are not predeclared by this author packet.
+
+
+## Non-author migration finding and repair
+
+Initial `de38eff` is an intermediate product, not the final accepted delivery. Source Astra's independently designed backup-symlink probe found that the inherited Core1/app1/app2 ES backup check used `Path.exists()`. A dangling `.pre-file-core-v2-app-v3.bak` link passed that check; the old backup helper followed it, created a target and upgraded the source database. The initial author checks in [results.json](results.json) are preserved unchanged; they did not cover this counterexample.
+
+Repair `d37704e` gives both migration stages the shared `exclusive_migration_backup`, using `lexists` and exclusive file creation instead of the helper that can unlink an existing backup. The author migration matrix now includes both dangling-link paths. Final fixed-SHA author full305/305, smoke and migration checks pass; results-fixed.json records their hashes and exact materialized Core sources. Source Astra reported that its original probe also passes on fixed `d37704e`: both stages return SCHEMA_INVALID, preserve database bytes and the symlink, and do not create its target. Source Astra owns the independent scripts, original failure output, final recheck and acceptance record; this author document does not substitute for them.
 
 ## Migration and rollback
 
 Core3/app4 leaves RuntimeStore4 unchanged. The probe covers legitimate Core1/app1 and Core1/app2 both directly through the current host and through fixed ES Core2/app3, preserving Matter digest and Decision receipt. It opens each backup in a separate directory using the corresponding old host. Core1 and Core2 hosts reject the final database without changing its bytes.
 
-The negative matrix checks Core/app pair mismatch, an Attention table appearing in an older schema, an existing Attention backup sentinel, and malformed/missing current Attention tables. Database/sentinel hashes remain unchanged on refusal. Missing older application metadata and malformed legacy table behavior are also retained in the existing Core tests. Migration is staged: a failure after the ES transaction may leave valid Core2/app3 plus backups; recovery must inspect that exact stage. Backups are never overwritten automatically. No user database was opened or upgraded.
+The negative matrix checks Core/app pair mismatch, an Attention table appearing in an older schema, an existing Attention backup sentinel, dangling backup symlinks in both migration stages, and malformed/missing current Attention tables. Database/sentinel hashes remain unchanged on refusal. Missing older application metadata and malformed legacy table behavior are also retained in the existing Core tests. Migration is staged: a failure after the ES transaction may leave valid Core2/app3 plus backups; recovery must inspect that exact stage. Backups are never overwritten automatically. No user database was opened or upgraded.
 
 ## Limits and next consumer
 

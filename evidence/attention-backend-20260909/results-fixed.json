@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "productSha": "d37704e2e4f9c7bac7e982d9ddd26b795dfb8574",
+  "integrationBase": "fa90763a4da1cdede47778b6487c801c0acb74cc",
+  "author": "Astra implementation and final test execution; Luna test drafts were completed/revised by Astra",
+  "independentAcceptance": "source Astra confirmed the original symlink counterexample now refuses correctly; final independent acceptance/integration recorded separately by source Astra",
+  "checks": {
+    "npmTest": {
+      "command": "cd app && npm test",
+      "passed": 305,
+      "failed": 0,
+      "skipped": 0,
+      "logSha256": "72bb2805dbf7590ff1d1320f18d29e079671347755ddd7ebbd24cd8700a1572e"
+    },
+    "smoke": {
+      "command": "cd app && npm run smoke",
+      "result": {
+        "status": "passed",
+        "provider": "local-fake",
+        "transport": "public runtime service",
+        "checks": [
+          "material read",
+          "tool write",
+          "persisted artifact",
+          "runtime close/reopen",
+          "session continuation",
+          "revision",
+          "historical bytes"
+        ],
+        "realProvider": "not_run"
+      },
+      "logSha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea"
+    },
+    "migration": {
+      "command": "ATTENTION_CODE_SHA=d37704e2e4f9c7bac7e982d9ddd26b795dfb8574 node evidence/attention-backend-20260909/migration-probe.mjs",
+      "result": {
+        "oldSha": "a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d",
+        "esSha": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c",
+        "currentSource": "d37704e2e4f9c7bac7e982d9ddd26b795dfb8574",
+        "sourceHashes": {
+          "core.py": "39d7997e9d4214f454b055ae95d1e6cb9796344d09d31cbeb595543263b5227a",
+          "bridge.py": "6e88d730ada6be46271af1ae5f45311d20e00d4f341d54f87c00aab53aff6201",
+          "file_candidates.py": "6d94023cf4d92b84ee710089eb87f0b1c2ef1494ceea0b6f6312afef9974c594",
+          "attention.py": "649eab00b3a009d6a735b15ead75c89f1ec3a1b635fbae906014b28cece4c12e"
+        },
+        "cases": [
+          {
+            "appVersion": 1,
+            "first": {
+              "ready": {
+                "app_schema_version": 3,
+                "core_schema_version": 2,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 1,
+                "core": "1",
+                "app": "1"
+              }
+            },
+            "second": {
+              "ready": {
+                "app_schema_version": 4,
+                "core_schema_version": 3,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 2,
+                "core": "2",
+                "app": "3"
+              }
+            },
+            "oldBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "attentionBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "oldHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            },
+            "oldestHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            }
+          },
+          {
+            "appVersion": 2,
+            "first": {
+              "ready": {
+                "app_schema_version": 3,
+                "core_schema_version": 2,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 1,
+                "core": "1",
+                "app": "2"
+              }
+            },
+            "second": {
+              "ready": {
+                "app_schema_version": 4,
+                "core_schema_version": 3,
+                "mode": "b0",
+                "ready": true
+              },
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              },
+              "backup": {
+                "user_version": 2,
+                "core": "2",
+                "app": "3"
+              }
+            },
+            "oldBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "attentionBackupRestore": {
+              "digest": "5a5d4af72a43a12a5ee581c7a61ba09e25c89726f0b27879cc43994faeedbd16",
+              "receipt": {
+                "action": "accept",
+                "active_artifact": "artifact-legacy-candidate-1",
+                "candidate_id": "legacy-candidate",
+                "matter_id": "legacy-matter",
+                "request_id": "legacy-decision",
+                "version": 1
+              }
+            },
+            "oldHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            },
+            "oldestHostReject": {
+              "code": "SCHEMA_NEWER",
+              "detail": "unsupported user_version=3"
+            }
+          }
+        ],
+        "negative": {
+          "pair24": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Core/app schema pair mismatch",
+            "dbShaBefore": "9885e509e468e89ee769b79028c760395540bf457a0d05950824c114d38b09c9",
+            "dbShaAfter": "9885e509e468e89ee769b79028c760395540bf457a0d05950824c114d38b09c9"
+          },
+          "pair33": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Core/app schema pair mismatch",
+            "dbShaBefore": "04142d24387c1265c557c75f1dd079bb6e69d8806a2b3583eeb6206eced9a098",
+            "dbShaAfter": "04142d24387c1265c557c75f1dd079bb6e69d8806a2b3583eeb6206eced9a098"
+          },
+          "malformedOldAttention": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Attention tables found in older schema",
+            "dbShaBefore": "bfc5ae8768c8065a6ee888b19a8ac95724808eb438819d5dbcd3300a1bef149d",
+            "dbShaAfter": "bfc5ae8768c8065a6ee888b19a8ac95724808eb438819d5dbcd3300a1bef149d"
+          },
+          "preexistingAttentionBackup": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Attention migration backup already exists",
+            "dbShaBefore": "472cb6a67eedb79c0772c25ac9f978f2758a1e499cfab5e32243b704b0144591",
+            "dbShaAfter": "472cb6a67eedb79c0772c25ac9f978f2758a1e499cfab5e32243b704b0144591",
+            "sentinelShaBefore": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a",
+            "sentinelShaAfter": "bc329a961dcc18d93dc30820a14d8e7f6daf29f0aaf4dc5d4661302ec7de843a"
+          },
+          "malformedCurrentAttention": {
+            "code": "SCHEMA_INVALID",
+            "detail": "unsupported attention_event schema",
+            "dbShaBefore": "bb078b9bb53236664a6962ae34efebdfcf4898172ae18df2d25051bd2e017118",
+            "dbShaAfter": "bb078b9bb53236664a6962ae34efebdfcf4898172ae18df2d25051bd2e017118"
+          },
+          "missingCurrentAttention": {
+            "code": "SCHEMA_MISSING",
+            "detail": "missing owned tables: ['attention_request']",
+            "dbShaBefore": "2766ed8397311200918c5a019a15ceff53b37cf9a1cfd626286cf150e44b946e",
+            "dbShaAfter": "2766ed8397311200918c5a019a15ceff53b37cf9a1cfd626286cf150e44b946e"
+          },
+          "legacyFileBackupDanglingSymlink": {
+            "code": "SCHEMA_INVALID",
+            "detail": "migration backup already exists; restore or inspect it explicitly",
+            "dbShaBefore": "59cb0f6a40881e983e74619ec2a5fc493698fbcd240b07471c59787c8cbf69fd",
+            "dbShaAfter": "59cb0f6a40881e983e74619ec2a5fc493698fbcd240b07471c59787c8cbf69fd",
+            "linkPreserved": true,
+            "targetCreated": false
+          },
+          "attentionBackupDanglingSymlink": {
+            "code": "SCHEMA_INVALID",
+            "detail": "Attention migration backup already exists",
+            "dbShaBefore": "472cb6a67eedb79c0772c25ac9f978f2758a1e499cfab5e32243b704b0144591",
+            "dbShaAfter": "472cb6a67eedb79c0772c25ac9f978f2758a1e499cfab5e32243b704b0144591",
+            "linkPreserved": true,
+            "targetCreated": false
+          }
+        },
+        "status": "passed",
+        "tempDataOnly": true
+      },
+      "logSha256": "5948fd4496fdf2ffdd4369b9e6863762865f9b6f9e69221b10320215351985de"
+    }
+  },
+  "consumerFixture": {
+    "path": "app/tests/fixtures/work-core/attention-packets.json",
+    "sha256": "21690ef34abb0dfe3a430616317dc6f3320457937985683aec8351b9460b5932",
+    "bytes": 101353,
+    "responses": [
+      "created",
+      "pending",
+      "registry",
+      "acknowledged",
+      "exactRetry",
+      "stale",
+      "snoozed",
+      "needsYou",
+      "resolved",
+      "runtimeUndisclosed",
+      "runtimeRegistryOnly",
+      "runtimeSignal",
+      "runtimeDetails",
+      "afterRun",
+      "closedAdapter",
+      "otherScope",
+      "otherScopeInspect",
+      "createRetryAfterDeletion",
+      "producerUnloaded",
+      "recovered",
+      "recoveredSource",
+      "events",
+      "receipt"
+    ],
+    "generatedOnProductSha": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+    "finalProductValidation": "unchanged domain/HTTP seam; fixture assertions passed in final 305-test run"
+  },
+  "boundaries": {
+    "data": "independent synthetic directories and ports",
+    "realProvider": "not_run",
+    "userDatabase": "not_touched",
+    "credentials": "not_inspected",
+    "UI": "not_changed",
+    "deployment": "not_run",
+    "G1-G5": "not_closed"
+  },
+  "supersedesProductSha": "de38eff022b1eea4eb705de51fe988eba3da12bd",
+  "repair": {
+    "findingAuthor": "source Astra non-author review",
+    "finding": "Core1/app1/app2 ES pre-file backup check followed a dangling symlink, upgraded the DB and created the symlink target",
+    "fix": "shared exclusive_migration_backup with lexists and O_CREAT|O_EXCL for both migration stages; no unlinking backup_to call",
+    "authorCounterexamples": "both stages refuse SCHEMA_INVALID, DB bytes unchanged, link preserved, target absent",
+    "originalEvidence": "results.json preserves initial author run and is not independent acceptance"
+  }
+}
