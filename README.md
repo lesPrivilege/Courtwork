@@ -13,7 +13,7 @@ _A place for expert work to take form._
 
 需要 Node.js 22.19 以上、Python 3、Git 2.36 以上。默认 provider 是本地确定性 fake；真实 provider 在界面里配置，密钥不进入仓库、聊天或截图。
 
-每个服务使用独立数据目录。当前主线的数据版本、迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
+每个服务使用独立数据目录。当前主线使用 schema 5，旧 schema 3/4 经完整验证与独占备份后升级；迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
 
 ```sh
 git clone https://github.com/lesPrivilege/Courtwork.git

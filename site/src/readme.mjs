@@ -36,7 +36,7 @@ ${HERO.lede}
 
 ${BUILD.note}
 
-每个服务使用独立数据目录。当前主线的数据版本、迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
+每个服务使用独立数据目录。当前主线使用 schema 5，旧 schema 3/4 经完整验证与独占备份后升级；迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
 
 \`\`\`sh
 ${BUILD.commands.join("\n")}

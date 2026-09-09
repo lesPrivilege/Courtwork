@@ -1,0 +1,9 @@
+{
+  "resultType": "task",
+  "taskId": "task-modern-1",
+  "status": "working",
+  "ttlMs": null,
+  "createdAt": "2026-09-09T00:00:00Z",
+  "lastUpdatedAt": "2026-09-09T00:00:00Z",
+  "pollIntervalMs": 1000
+}

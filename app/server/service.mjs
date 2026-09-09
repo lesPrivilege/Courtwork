@@ -1,4 +1,5 @@
 import { createAttentionAdapter } from '../extensions/attention-adapter.mjs';
+import { AsyncTasks, ASYNC_TOOL_NAMES } from './async-tasks.mjs';
 import { utcDateRange } from "./work-metrics.mjs";
 import { previewProvider, PreviewInputError } from './provider-preview.mjs';
 import { workProjection } from '../core/owner.mjs';
@@ -121,7 +122,7 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, asyncTaskAdapters = [], logger = () => {} }) {
     this.store = store;
     this.fakeProvider = fakeProvider;
     this.extensionRegistry = extensionRegistry;
@@ -147,6 +148,13 @@ export class RuntimeService {
       deadlineMs: Number.isFinite(budget.deadlineMs) && budget.deadlineMs > 0 ? budget.deadlineMs : DEFAULT_BUDGET.deadlineMs,
     };
     registerFakeProvider(this.modelRuntime, this.fakeProvider);
+    this.asyncTasks = new AsyncTasks({ store, adapters: asyncTaskAdapters, canUse: (name, sessionId) => {
+      try {
+        const snapshot = this.getRuntimeControl(sessionId);
+        const tool = snapshot.resources.find(r => r.id === 'tool:' + name);
+        return Boolean(tool?.exposed && evaluatePolicy(snapshot.policies, name, '*', 'allow', 'allow').effect !== 'deny');
+      } catch { return false; }
+    } });
   }
 
   get credentialGeneration() {
@@ -182,6 +190,7 @@ export class RuntimeService {
       }
     }
     await this.store.expireQuestionsForRestart();
+    await this.asyncTasks.recover();
     await this.#reconcileInterruptedWorkspaces(interrupted);
     return this;
   }
@@ -271,7 +280,8 @@ export class RuntimeService {
   getRuntimeControl(sessionId = null) {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
-    return this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length });
+    return this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
+      additionalTools: this.asyncTasks?.enabled && !session?.extensionBinding ? ASYNC_TOOL_NAMES : [] });
   }
 
   changeRuntimeControl(sessionId, input) {
@@ -364,6 +374,7 @@ export class RuntimeService {
         sessionContinuation: true,
         nativeCompaction: true,
         shell: false, browser: false, fork: false, subagents: false, scheduler: false,
+        asyncReadTasks: { mode: this.asyncTasks.enabled ? 'adapted' : 'unavailable', native: false, retainedRead: true },
       },
       limits: { ...this.budget },
       cache: { sessionIdentity: "persistent-native-session", retention: "short", prefix: "stable-system-and-tools", dynamicContext: "append-only-on-change", providerHitGuaranteed: false },
@@ -375,6 +386,27 @@ export class RuntimeService {
 
   listProjects() {
     return { projects: this.store.listProjects() };
+  }
+
+  readAsyncTasks(id, params) {
+    const allowed = id ? ['projectId'] : ['projectId','offset','limit'];
+    for (const key of params.keys()) if (!allowed.includes(key) || params.getAll(key).length !== 1) throw new ServiceError(400, 'invalid_input', 'Invalid async query');
+    const projectId = text(params.get('projectId'), 'projectId', { max: 200 });
+    if (id) return this.asyncTasks.inspect(id, { projectId });
+    const paging = {};
+    for (const key of ['offset','limit']) if (params.has(key)) {
+      if (!/^\d+$/.test(params.get(key))) throw new ServiceError(400, 'invalid_input', 'Invalid async query');
+      paging[key] = Number(params.get(key));
+    }
+    return this.asyncTasks.list(projectId, paging);
+  }
+
+  actOnAsyncTask(id, operation, input) {
+    const value = requireObject(input, 'body'); assertKeys(value, new Set(['projectId','expectedRevision']));
+    const projectId = text(value.projectId, 'projectId', { max: 200 });
+    if (!Number.isSafeInteger(value.expectedRevision) || value.expectedRevision < 1) throw new ServiceError(400, 'invalid_input', 'expectedRevision is required');
+    return operation === 'cancel' ? this.asyncTasks.cancel(id, { projectId }, value.expectedRevision)
+      : this.asyncTasks.reconcile(id, { projectId }, { expectedRevision: value.expectedRevision });
   }
 
   async createProject(input) {
@@ -875,6 +907,7 @@ export class RuntimeService {
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
+    await this.asyncTasks.close();
     await this.mcp.close();
     if (rejected.length) throw new AggregateError(rejected.map((result) => result.reason), "runtime shutdown did not settle every Run");
   }
@@ -1072,7 +1105,10 @@ export class RuntimeService {
 
       if (typeof extensionContext !== "string" || extensionContext.length > 100_000) throw new Error("invalid extension context");
       const systemPrompt = this.#runSystemPrompt(entry.permissionMode);
-      const currentContext = [extensionContext, compileControlContext(entry.runtimeBinding)].filter(Boolean).join("\n\n");
+      const asyncTools = this.asyncTasks.enabled && !session.extensionBinding ? this.asyncTasks.tools(run.id) : [];
+      const asyncContext = asyncTools.length ? 'Host-catalogued immutable async read sources: ' + JSON.stringify(this.asyncTasks.catalog())
+        + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
+      const currentContext = [extensionContext, compileControlContext(entry.runtimeBinding), asyncContext].filter(Boolean).join("\n\n");
       let initializeFileInput;
       if (entry.extensionRun?.fileMemo) {
         const cleanSession = entry.sessionManager.getEntries().length === 0
@@ -1114,7 +1150,7 @@ export class RuntimeService {
         modelRuntime: this.modelRuntime,
         model,
         sessionManager: entry.sessionManager,
-        customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+        customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           await this.#appendNotice(run.id, { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail });
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
@@ -1128,7 +1164,10 @@ export class RuntimeService {
         systemPrompt,
         currentContext,
         beforeInitialInput: initializeFileInput,
-        beforeTool: (name,args) => entry.extensionRun?.fileMemo?.beforeTool(name,args),
+        beforeTool: async (name, args, callId) => {
+          await entry.extensionRun?.fileMemo?.beforeTool(name, args);
+          if (['async_get', 'async_wait'].includes(name)) await this.asyncTasks.requestConsumption(run.id, callId, name.slice(6), args);
+        },
         beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
         onEvent: (event) => this.#onSessionEvent(run.id, event, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
@@ -1141,6 +1180,10 @@ export class RuntimeService {
       const outcome = await started.run();
       usageComplete = outcome.status === "completed" && !outcome.turnBudgetExceeded && !entry.budget.reason;
       extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "aborted" ? "canceled" : "failed";
+      if (outcome.status === 'completed' && this.asyncTasks.unresolved(run.id).length) {
+        extensionOutcome = 'unknown'; usageComplete = false;
+        await appendError('async_dependencies_unresolved', 'Requested async evidence is pending, historical, or not consumed');
+      }
 
       if (outcome.status === "error") {
         const rawMessage = outcome.errorMessage || "runtime failed";
@@ -1250,7 +1293,8 @@ export class RuntimeService {
     if (!mapped) return;
     if (mapped.data?.errorMessage) mapped.data.errorMessage = redact(mapped.data.errorMessage, this.knownSecrets);
     if (!run.admissionOpen && !mapped.type.startsWith("run.")) return;
-    await this.store.appendEvent({ runId, ...mapped });
+    if (mapped.type === 'tool.result' && ['async_get','async_wait'].includes(mapped.data.name)) await this.store.appendAsyncToolResult({ runId, ...mapped });
+    else await this.store.appendEvent({ runId, ...mapped });
   }
 
   async #appendNotice(runId, notice) {
@@ -1356,6 +1400,7 @@ export class RuntimeService {
       return { run: unknown };
     }
     entry.cancelRequested = true;
+    await this.asyncTasks.cancelOrigin(runId);
     if (entry.extensionRun?.close) {
       try {
         await entry.extensionRun.close("cancel");

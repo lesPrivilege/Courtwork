@@ -171,18 +171,18 @@ test('control config: corrupt or future version fails closed without overwriting
   assert.equal(await readFile(file, 'utf8'), input);
 });
 
-test('compatibility: valid schema 3 upgrades with exact backup and schema 4 fence', async () => {
+test('compatibility: valid schema 3 upgrades with exact backup and schema 5 fence', async () => {
   const h = await boot();
   const session = await h.createSession();
   await h.runtime.close();
   const file = path.join(h.dataDir, 'runtime-state.json');
-  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3;
+  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.asyncTasks;
   const original = JSON.stringify(old);
   await writeFile(file, original);
   const next = await reopen(h.dataDir);
   try {
     const state = JSON.parse(await readFile(file, 'utf8'));
-    assert.equal(state.schemaVersion, 4);
+    assert.equal(state.schemaVersion, 5);
     assert.equal(next.runtime.store.getSession(session.id).id, session.id);
     const backups = (await readdir(h.dataDir)).filter(name => name.startsWith('runtime-state.schema3.'));
     assert.equal(backups.length, 1);

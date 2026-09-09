@@ -93,3 +93,9 @@ BE-31 含敏感输入约束、BE-32 含事件时间/历史迁移、BE-33 含可�
 ## Email/GitHub human-loop 后续输入
 
 用户补充 handoff 已入 [Attention human-loop 包](../../research/attention-human-loop-2026-09-09/README.md)。新增可派的仅为 provider 响应/故障夹具和 trace 合成向量；生产来源/trace DTO 及外发 gate/effect 沿 Astra 合同、AM恢复与DS-04接续。它们不阻塞本单两只读任务，也不将本单升级为发信/PR mutation。SDK resumable state 是参考，本仓 Pi 持久恢复仍须 A0/A1 实现验证。
+
+## 2026-09-10 执行增量
+
+用户已同意派单，以上“未启动/仅准备”为原始时点。Terra T1/T2与HL三项离线夹具已交付，Astra亲写A0/A1，正式合同为 [adapted read tasks](../../../app/docs/async-tasks.md)，[本轮证据](../../../evidence/async-loop-20260909/README.md)区分作者与非作者。A1 Runtime schema5新增asyncTasks，Core3/app4不变。T4写权具体化为新增 `app/tests/async-recovery-independent.test.mjs`、`app/tests/fixtures/async-loop/{host-child,host-adapter}.mjs` 与 `evidence/async-loop-20260909/recovery-independent/`；额外边界独验写 `async-boundaries-independent.test.mjs` 与独立证据目录。均不授予Terra产品修复权。
+
+Astra在A1提供最小owner读视图与认证路由；T3专门纯投影/前端packets尚未派，避免从尚未接受的实现抢派前端。A2真实模型评测及native能力另单。本批不启动生产Gmail/GitHub摄取、写入或自动跟进。Fable队列由current的最新裁定维护。

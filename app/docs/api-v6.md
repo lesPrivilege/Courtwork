@@ -287,9 +287,7 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
   the flock on the data directory in its own process, which is what makes an owner
   SIGKILL release the lock. If it is missing the server refuses to start
   (`LOCK_NO_PYTHON`); there is no unlocked fallback.
-- The state file is `schemaVersion` 3. An older file is refused with a clear error
-  and left untouched: there is no migration in either direction, and data
-  directories are per-batch.
+- The current state file is `schemaVersion` 5. Fully validated schema 3/4 upgrades through an exclusive exact-byte backup; other versions refuse. Restore separately with a matching old host. See [async task persistence](async-tasks.md).
 
 ## What is not here
 

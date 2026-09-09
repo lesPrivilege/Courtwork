@@ -173,7 +173,7 @@ export async function createSessionRun({
     noTools: "builtin",
     customTools: customTools.map(tool => ({...tool, execute: async (...args) => {
       await drain();
-      await beforeTool?.(tool.name,args[1]);
+      await beforeTool?.(tool.name,args[1],args[0]);
       return tool.execute(...args);
     }})).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
     resourceLoader: createEmptyResourceLoader(systemPrompt),
