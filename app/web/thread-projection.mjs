@@ -162,7 +162,9 @@ export function permissionPresentation(payload, binding) {
   );
   const remote = Boolean(resource?.mcp);
   return {
-    title: write ? "Allow this file write?" : remote ? "Allow this remote tool call?" : "Allow this tool action?",
+    /* WK-89 · 一次动作是 Approval，不是 permission：permission 属于持久策略。
+       标题按事实区分三种调用，动作词统一为 Approve / Deny。 */
+    title: write ? "Approve this file write?" : remote ? "Approve this remote tool call?" : "Approve this tool action?",
     /* IC-1 · the glyph states the kind of call the row records; it never stands
      * in for the authorisation words, which stay as text. A remote call and a
      * local file write are not allowed to share one glyph. */

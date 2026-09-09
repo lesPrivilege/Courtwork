@@ -66,6 +66,7 @@
 2. ~~`runtime-view.mjs` 的长句：可收敛处不少，但与 RC 的契约检查同源，须同批改，留 WO-WK11。~~ **已结清（WO-WK11，2026-09-09）**：`runtime-view.mjs` 与三支 RC 检查在同一批内改。删去的与改写的逐条见 [delivery-wk11 §8](delivery-wk11.md)；被断言引用的原句在 [evidence/wk11/rc](evidence/wk11/rc/) 的副本内同步更新，且每处改动都在脚本注释里写明改的是什么、为什么改的不是断言本身。
 3. 窄屏顶带只放侧栏开合按钮，未按画布 §8.3 再放 wordmark。品牌符号只允许出现在侧栏 wordmark 一处（WK-51），在顶带另置一份需要先裁定。
 
+
 ## 5. 后续轮次的增量
 
 同一体例（删 / 单词化 / 保留并注明承重）逐轮追加在该轮交付内，本页只登记入口：
@@ -77,3 +78,105 @@
 | WO-WK13（2026-09-08，Home 三带、StatTile / WorkCard adapter、列表键盘、绑定面顺序） | [delivery-wk13 §6](delivery-wk13.md)（D-17 / D-18、W-19…W-21、16 条新增字符串的承重说明）；W-19 的集合命名（`In progress` 与 `Continue`）为待裁项 |
 | WO-WK12（2026-09-09，Settings 整页、外观自定义、用户 skin、快捷键只读表） | [delivery-wk12 §7](delivery-wk12.md)（D-19 / D-20、W-22、38 条新增字符串的承重说明）；词表新增 Scheme · Skin · Text size · Code font 见 [copy-convention §3](../../../design/copy-convention.md) |
 | WO-WK11（2026-09-09，Runtime Workbench、四层、Configurable / Inventory、policy 编辑、WK-87 两条） | [delivery-wk11 §8](delivery-wk11.md)（D-21…D-26、W-23 / W-24、41 条新增字符串的承重说明）；本页 §4 第 2 条（`runtime-view.mjs` 长句与 RC 检查同源）在该单结清 |
+| WO-FE-01（2026-09-09，产品词表、Settings IA、chrome、Home / Work composition） | 本页 §6（旧词 · 新词 · 位置三列，D-27…D-30 与 13 条新增字符串的承重说明）；改写后的词表见 [copy-convention §3](../../../design/copy-convention.md)，其余见 [delivery-fe01](delivery-fe01.md) |
+
+
+## 6. FE-01 词表替换（2026-09-09，WK-89）
+
+前五节是**逐条克制**（删 / 单词化 / 保留）；本节是一次**词表替换**：概念本身换了词，所以三列是 **旧词 · 新词 · 位置**。裁定见 [intake-round-3 WK-89](intake-round-3.md)，改写后的词表在 [copy-convention §3](../../../design/copy-convention.md)。位置一列给的是可见字符串的落点，不是每一处代码引用。
+
+### 6.1 会话对象 → Chat
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `New session` | `New chat` | `index.html` 侧栏按钮；`app.mjs` `setAction` accessible name；`index.html` 新建弹窗标题 |
+| `New session in <project>` | `New chat in <project>` | `app.mjs` 项目行的新建入口 |
+| `Create session` | `Create chat` | `index.html` 新建弹窗主动作 |
+| `Session title` | `Chat title` | `index.html` 新建弹窗字段标签 |
+| `Untitled session` | `Untitled chat` | `app.mjs` 项目列表项、tooltip、创建默认名 |
+| `Find a session` · `Find a project or session` | `Find a chat` · `Find a project or chat` | `index.html` 侧栏过滤框与其 label |
+| `Projects and sessions` · `Project sessions` | `Projects and chats` · `Project chats` | `index.html` 侧栏与项目导航的 aria-label |
+| `Session overview` | `Chat overview` | `index.html` `#context-popover`；`app.mjs` `show-run-button` |
+| `Session files` | `Chat files` | `index.html` `materials-button`；`app.mjs` accessible name |
+| `Session`（材料弹窗 eyebrow） | `Chat` | `index.html` `#materials-session-title` |
+| `Loading session…` | `Loading chat…` | `app.mjs` 顶带标题占位 |
+| `Select a session to chat` | `Select a chat to continue` | `app.mjs` composer placeholder |
+| `No session selected` · `Choose a session from the left or create one.` · `Create a project and session from the left.` | `No chat selected` · `Choose a chat from the left or create one.` · `Create a project and a chat from the left.` | `app.mjs` 空态 |
+| `Your sessions will appear here.` | `Your chats will appear here.` | `home-view.mjs` 空态条件句 |
+| `Loading sessions…` · `No sessions yet.` · `Retry loading sessions` | `Loading chats…` · `No chats yet.` · `Retry loading chats` | `app.mjs` 项目组三态 |
+| `Loading session files…` · `Retry loading session files` | `Loading chat files…` · `Retry loading chat files` | `materials-view.mjs` |
+| `Open session` | `Open chat` | `presentation-adapters.mjs` 三处缺名回退 |
+| `This session` | `This chat` | `settings-view.mjs` Settings 块标题；`workspace-view.mjs` 概览标题 |
+| `New sessions` | `New chats` | `settings-view.mjs` General 块标题 |
+| `Sessions with recorded activity, …` | `Chats with recorded activity, …` | `presentation-adapters.mjs` Today 第二个 tile 的定义句 |
+| `Bind to session` · `Release this session's binding…` · `Extension bound to this session.` · `This session continues the existing work.` | 同句，`session` → `chat` | `app.mjs` 绑定面与其 toast |
+| `Session creation is unconfirmed…` · `Session created; …` · `Session creation returned no matching receipt.` | `Creating the chat is unconfirmed…` · `The chat was created; …` · `Creating the chat returned no matching receipt.` | `app.mjs` Home 起始流程的三条回执 |
+| `Check session history before retrying.` | `Check this chat’s history before retrying.` | `app.mjs` 两条不确定回执 |
+| `Starting your session…` · `Your session is ready. Send to continue in it.` | `Starting your chat…` · `Your chat is ready. Send to continue in it.` | `app.mjs` `#home-start-status` |
+| `The session changed before the read completed.` | `The chat changed before the read completed.` | `app.mjs` 只读历史读取 |
+| `Choose a session to load its local renderer slot.` | `Choose a chat to load its local renderer slot.` | `app.mjs` 工作面缺席态 |
+| `…every run of this session` · `No run has been recorded in this session yet.` · `…beyond the session's own history.` · `A runtime is composed for a session.` · `Session context` | 同句，`session` → `chat` | `runtime-view.mjs`（Skills / Tools / Developer 三组内的用户可见句） |
+
+`Session` 仍出现在 Developer › Runtime 的架构叙述、代码标识符、HTTP 契约与 DOM id 里，按 WK-89 §3.6 保留。
+
+### 6.2 一次动作 → Approval
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `Allow this file write?` · `Allow this remote tool call?` · `Allow this tool action?` | `Approve this file write?` · `Approve this remote tool call?` · `Approve this tool action?` | `thread-projection.mjs` `permissionPresentation` |
+| `Allow this write` · `Allow this action` | `Approve this write` · `Approve this action` | `app.mjs` `renderPermission` 主动作 |
+| `Deny write` · `Deny action` | `Deny this write` · `Deny this action` | 同上，次动作 |
+| `Write allowed` · `Action allowed` | `Write approved` · `Action approved` | `app.mjs` 已决行的状态词与已决说明 |
+| `Permission recorded for this exact write.` · `Permission denied for this exact write.` · `Permission for this exact write only` | `Approval recorded…` · `Approval denied…` · `Approval for this exact write only` | `app.mjs` 已决行与待决卡 |
+| `Questions and write requests will appear here.` | `Questions and approval requests will appear here.` | `home-view.mjs` 空态条件句 |
+| `Open questions and write requests, …` | `Open questions and approval requests, …` | `presentation-adapters.mjs` Today 第一个 tile 的定义句 |
+
+### 6.3 文件模式 → File access
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `File writes`（标签）+ `Ask` / `Write` / `Read`（单词） | 一个控件，写全 `Ask before editing` ▾ | `index.html` composer 上下文行；`app.mjs` `renderChatHeader` |
+| `Ask before writing` · `Workspace writes allowed` · `Read only` | `Ask before editing` · `Allow edits` · `Read only` | `settings-view.mjs` `permissionLabels`（Home 选择器、新建弹窗、Settings 两处、连接卡共用） |
+| `permissionWords`（`Ask` / `Write` / `Read` 三个单词的第二套说法） | 取消导出；全部改用整句 | `settings-view.mjs`（导出移除）、`app.mjs`（引用移除） |
+| `File writes for new sessions` · `Session file writes` | `File access for new chats` · `File access for this chat` | `settings-view.mjs` 分段控件 accessible name |
+| `File writes · this session` | `File access · this chat` | `settings-view.mjs` 连接卡分组标题 |
+| `File writes: <sentence>`（toast） | `File access: <sentence>` | `app.mjs` 连接卡改模式后的回执 |
+| `Each write asks first. Allowing one write never accepts the result.` | `Each edit asks first. Approving one edit never accepts the result.` | `settings-view.mjs` `permissionHelp` |
+| `Connection and file writes` | `Connection and file access` | `index.html` 连接卡 aria-label |
+
+### 6.4 外观
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `Scheme` | `Theme` | `settings-view.mjs` Appearance 行标题与分段控件 label |
+| `Skin` | `Palette`，并退到 `Advanced` disclosure 内 | `settings-view.mjs` Appearance |
+| `Your tokens` | `Custom tokens` | 同上，Palette 的第三档 |
+
+存储键（`scheme` / `skin` / `customSkin`）与 `data-skin` 属性不变：那是实现，不是用户词。
+
+### 6.5 删
+
+| # | 字符串 | 位置 | 去掉后失去的判断 | 结果 |
+|---|---|---|---|---|
+| D-27 | `Local test`（header capability badge） | `index.html` `#capability-badge` | 无。连接身份在同一屏的 composer 上下文行已说过一次（视觉审查 §7「同一事实一屏只说一次」） | ✅ 删（连同 DOM 节点与 `setCapabilityBadge`） |
+| D-28 | 侧栏脚的头像盘与连接名 | `index.html` `#account-avatar` / `#account-name` | 无。这是同一屏的第三遍，且头像盘背后没有一个可打开的身份（WK-39 自陈「it is a label, not a menu」）；一个不指向任何东西的圆盘正是 WK-94 禁的持久装饰物 | ✅ 删 |
+| D-29 | `Activity by day` + `Backend pending` | `home-view.mjs` `renderHomeBand` | 无。实现态文案不上 production Home（WK-94 (6)）；能力缺口仍逐条登记在 Settings › Developer › Planned | ✅ 删 |
+| D-30 | `Model, provider and environment`（h5） | `runtime-view.mjs` `environmentFacts` | 无。它现在落在 Models 组的 `In force` 块标题之下，两个标题说同一件事 | ✅ 删 |
+
+### 6.6 新增字符串（承重说明）
+
+| 字符串 | 承担什么 | 位置 |
+|---|---|---|
+| `Today` | Home 下方第一个模块的名字；三个数字属于它 | `home-view.mjs` |
+| `Local runtime unavailable` | **对象身份 + 状态**：不可达的是本地 runtime，不是"工作区" | `home-view.mjs` 连接行 |
+| `Details`（disclosure） | 后果分级：宿主原话是诊断，不是首屏事实 | 同上 |
+| `Ask before editing` ▾ 等三句 | **后果**：这个 Chat 往后对文件能做什么 | `settings-view.mjs` `permissionLabels` |
+| `CourtWork does not carry memory between chats. …` | **能力边界**：现在没有跨 Chat 记忆，也没有可复核可删除的东西 | `settings-view.mjs` Memory 组 |
+| `Instructions, Skills and references are configured under Skills, …` | **范围**：sources 不是 memory | 同上 |
+| `Policy` · `In force` | 两个块标题，分别落在 Permissions 与 Models | `runtime-view.mjs` |
+| `Instructions, skills and references` · `Tools, MCP servers and plugins` | 块标题按其所在组的用户词重述，不再用内部意图名 | 同上 |
+| `The runtime is the architecture underneath a chat: …` | **定义 + 边界**：Developer › Runtime 说明它不是 Permissions | `index.html` Developer 组 |
+| `The same record the Connection above edits, read back from the host. …` | **来源 + 时点**：只读，且描述的是下一次 Run | `runtime-view.mjs` `environmentFacts` |
+| `The runtime answered without an effect for this capability, …` | **缺数据 ≠ 空值**（FN-28），替代原先渲染出的裸 `null` | `runtime-view.mjs` `explanationBlock` |
+| `Advanced`（Appearance disclosure） | **分级**：换色阶是少数人做的事 | `settings-view.mjs` |
+| `Connection · <provider> · <model>`（accessible name） | icon 化后的 composer 连接控件的完整读法 | `app.mjs` `renderChatHeader` |

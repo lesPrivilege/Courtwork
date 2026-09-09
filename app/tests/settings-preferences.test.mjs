@@ -165,10 +165,14 @@ test("读偏好只认闭集里的值：坏掉的存储读成默认，不是读�
   globalThis.__cwPrefs = original;
 });
 
-test("页面的五个组是闭集，未知的节名落回 General", () => {
+/* WK-90 · 九个组按用户任务命名。`runtime` 不再是一个组：它是架构词，落在
+   Developer 里，旧深链因此落回 General（不保留向后兼容）。 */
+test("页面的九个组是闭集，未知的节名落回 General", () => {
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.id), [
-    "general", "appearance", "keyboard", "runtime", "developer",
+    "general", "appearance", "models", "tools", "skills",
+    "memory", "permissions", "keyboard", "developer",
   ]);
   assert.equal(isSettingsSection("appearance"), true);
+  assert.equal(isSettingsSection("runtime"), false);
   assert.equal(isSettingsSection("billing"), false);
 });

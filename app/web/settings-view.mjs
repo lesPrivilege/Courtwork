@@ -34,28 +34,25 @@ export function renderPlanned(container) {
     ),
   );
 }
+/* WK-89 · 文件模式是 File access，不是 permission：permission 适合持久策略，
+   一次动作是 Approval。三档说的是后果本身，不是内部枚举。 */
 export const permissionLabels = {
-  ask: "Ask before writing",
-  draft: "Workspace writes allowed",
+  ask: "Ask before editing",
+  draft: "Allow edits",
   read_only: "Read only",
 };
-/* WK-73 / WK-59 · in the quiet line below the composer the mode shows as one
- * word; the sentence above stays the accessible name and the tooltip, because
- * a permission scope is a consequence and must never be read as a state word
- * alone (IC-1 "text first"). */
-export const permissionWords = {
-  ask: "Ask",
-  draft: "Write",
-  read_only: "Read",
-};
+/* WK-94 · the one-word form (`Ask` / `Write` / `Read`) is retired with its
+ * export: `File writes  Ask` said the same fact twice and said neither half
+ * completely. Every caller now uses the whole sentence, and the control carries
+ * a disclosure caret instead of a second label. */
 export const providerLabels = {
   openai: "OpenAI",
   deepseek: "DeepSeek",
   "fake-openai-loopback": "Local test",
 };
 const permissionHelp = {
-  ask: "Each write asks first. Allowing one write never accepts the result.",
-  draft: "The agent may write inside this session's workspace without asking.",
+  ask: "Each edit asks first. Approving one edit never accepts the result.",
+  draft: "The agent may edit files inside this chat's workspace without asking.",
   read_only: "Materials can be read; nothing is written.",
 };
 /** Native radios styled as one segmented control. `onChange(value)` may
@@ -65,7 +62,7 @@ export function segmentedPermission({
   value,
   disabled = false,
   name,
-  label = "Session file writes",
+  label = "File access for this chat",
   onChange,
 }) {
   const fieldset = el("fieldset", {
@@ -140,7 +137,7 @@ export function renderConnectionCard(
       el(
         "section",
         { className: "context-group" },
-        el("h4", { text: "File writes · this session" }),
+        el("h4", { text: "File access · this chat" }),
         segmentedPermission({
           value: mode,
           disabled: active,
@@ -494,19 +491,19 @@ export function createSettingsView(
       },
     });
     panel.replaceChildren(
-      el("h4", { className: "settings-block-title", text: "This session" }),
+      el("h4", { className: "settings-block-title", text: "This chat" }),
       el(
         "div",
         { className: "settings-row" },
         el(
           "div",
           { className: "settings-row-text" },
-          el("span", { className: "settings-row-title", text: "File writes" }),
+          el("span", { className: "settings-row-title", text: "File access" }),
           el("span", {
             className: "settings-row-help",
             text: current.active
               ? "Available after this run ends."
-              : "Applies to this session. Asking authorizes one exact write; it does not accept the result.",
+              : "Applies to this chat. Approving one edit authorizes that exact write; it does not accept the result.",
           }),
         ),
         el("div", { className: "settings-row-control" }, mode),
@@ -576,11 +573,18 @@ export function createSettingsView(
  * app.mjs（FN-07：宿主拥有导航与焦点栈），这里只回答「这一页有哪些组、每组画什么」。
  */
 
+/* WK-90 · 组按用户任务命名。`Runtime` 不再是顶层组：它是架构词，落在 Developer 里
+   （语义审查 §1）。旧的 `#settings/runtime` 深链因此不再解析，按「不保留向后兼容」
+   落回 General，而不是加一层重定向。 */
 export const SETTINGS_GROUPS = [
   { id: "general", title: "General", panel: "settings-general" },
   { id: "appearance", title: "Appearance", panel: "settings-appearance" },
+  { id: "models", title: "Models", panel: "settings-models" },
+  { id: "tools", title: "Tools & Integrations", panel: "settings-tools" },
+  { id: "skills", title: "Skills", panel: "settings-skills" },
+  { id: "memory", title: "Memory", panel: "settings-memory" },
+  { id: "permissions", title: "Permissions", panel: "settings-permissions" },
   { id: "keyboard", title: "Keyboard", panel: "settings-keyboard" },
-  { id: "runtime", title: "Runtime", panel: "settings-runtime" },
   { id: "developer", title: "Developer", panel: "settings-developer" },
 ];
 export const DEFAULT_SECTION = "general";
@@ -902,7 +906,7 @@ function appearancePreview() {
 /* WK-4 · 已经存在的键，逐条读出来，不发明第二套。「重绑定」没有后端也没有登记表，
  * 所以它是一行 Planned 文字，不是一个按不动的按钮（WK-27）。 */
 const SHORTCUTS = [
-  ["j · ↓", "Move to the next item in a list — Home's work band, or the pending cards in a session."],
+  ["j · ↓", "Move to the next item in a list — Home's work modules, or the pending cards in a chat."],
   ["k · ↑", "Move to the previous item in the same list."],
   ["Enter · o", "Open the item that holds the focus. It never answers a request for you."],
   ["Enter", "In the composer, send. Shift + Enter starts a new line instead."],
@@ -990,9 +994,14 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
        Enter opens the one resource still showing. Opening means expanding the
        row and reading its recorded source — it installs nothing and applies
        nothing. With no query, or more than one match, Enter does nothing. */
-    if (event.key === "Enter" && !event.isComposing && section === "runtime" && query) {
+    if (event.key === "Enter" && !event.isComposing && query) {
+      /* WK-90 · the runtime's own rows are spread over four groups now, so the
+         finder looks across the whole page rather than in one panel. Enter
+         still opens only when exactly one resource row is left standing. */
       const matches = [
-        ...panels.get("runtime").querySelectorAll(".runtime-row:not([hidden])"),
+        ...document.querySelectorAll(
+          ".settings-section:not([hidden]) .runtime-row:not([hidden])",
+        ),
       ].filter((row) => !row.closest(".runtime-row.is-child[hidden]"));
       if (matches.length === 1) {
         event.preventDefault();
@@ -1177,16 +1186,19 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   function renderAppearance() {
     const scheme = segmented({
       name: "settings-scheme",
-      label: "Scheme",
+      label: "Theme",
       options: [["light", "Light"], ["dark", "Dark"], ["system", "System"]],
       value: prefs.scheme,
       onChange: (value) => savePrefs({ scheme: value }),
     });
-    const skin = el("select", { attrs: { "aria-label": "Skin" } });
+    /* WK-89 · `Skin` 退役：它不是成熟软件的 IA 词。同一件事叫 Palette，并且退到
+       Advanced 里 —— 换色阶是少数人做的事，不该与 Theme 争第一层注意力。存储键与
+       `data-skin` 属性不变：那是实现，不是用户词。 */
+    const skin = el("select", { attrs: { "aria-label": "Palette" } });
     for (const [value, text] of [
       ["slate", "Slate"],
       ["gray-steel", "Gray steel"],
-      ["custom", "Your tokens"],
+      ["custom", "Custom tokens"],
     ])
       skin.append(el("option", { attrs: { value }, text }));
     skin.value = skinDraft;
@@ -1241,19 +1253,25 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       value: prefs.motion,
       onChange: (value) => savePrefs({ motion: value }),
     });
-    appearance.replaceChildren(
-      appearancePreview(),
+    const advanced = el(
+      "details",
+      { className: "settings-advanced" },
+      el("summary", { text: "Advanced" }),
       settingsRow(
-        "Scheme",
-        "Light, dark, or whatever this device is set to. It is kept on this device and never sent to the host.",
-        scheme,
-      ),
-      settingsRow(
-        "Skin",
+        "Palette",
         "Swaps the colour scale only. State words, legal actions and what a control does stay exactly as they are.",
         skin,
       ),
       skinEditor,
+    );
+    advanced.open = prefs.skin !== "slate";
+    appearance.replaceChildren(
+      appearancePreview(),
+      settingsRow(
+        "Theme",
+        "Light, dark, or whatever this device is set to. It is kept on this device and never sent to the host.",
+        scheme,
+      ),
       settingsRow(
         "Text size",
         "Scales every text role together. Hit regions, spacing and keyboard order do not change with it.",
@@ -1270,9 +1288,27 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         "Always reduce stops transitions and animations. Nothing a control does changes with it.",
         motion,
       ),
+      advanced,
     );
     renderSkinEditor();
     applyFilter();
+  }
+
+  /* ── Memory ───────────────────────────────────────────────────────
+   * WK-90 / WK-92 · 一句用户世界的句子，没有控件。没有 memory adapter（BE-19）之前，
+   * 这里画任何开关都会声明一个不存在的能力（WK-27 / FN-28）；说清楚现在是什么，
+   * 比留一个按不动的开关诚实。Planned 行仍在 Developer 里逐条登记。 */
+  function renderMemory() {
+    document.getElementById("settings-memory-rows").replaceChildren(
+      el("p", {
+        className: "settings-row-help",
+        text: "CourtWork does not carry memory between chats. Each chat reads only its own messages and the files in its project; nothing you say in one chat is recalled in another, and there is nothing stored here to review or delete.",
+      }),
+      el("p", {
+        className: "settings-row-help",
+        text: "Instructions, Skills and references are configured under Skills, and the files a chat can read are its project's own. Those are sources, not memory.",
+      }),
+    );
   }
 
   /* ── Keyboard ─────────────────────────────────────────────────────── */
@@ -1328,18 +1364,18 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   function renderNewSessions() {
     const control = segmented({
       name: "settings-new-session-permission",
-      label: "File writes for new sessions",
-      options: Object.entries(permissionWords),
+      label: "File access for new chats",
+      options: Object.entries(permissionLabels),
       value: home.get(),
       onChange: (value) => home.set(value),
     });
     for (const input of control.querySelectorAll("input"))
       input.parentElement.setAttribute("aria-label", permissionLabels[input.value]);
     document.getElementById("settings-new-sessions").replaceChildren(
-      el("h4", { className: "settings-block-title", text: "New sessions" }),
+      el("h4", { className: "settings-block-title", text: "New chats" }),
       settingsRow(
-        "File writes",
-        "The value a session starts with. It applies when the session is created; changing it never changes a session that already exists.",
+        "File access",
+        "The value a chat starts with. It applies when the chat is created; changing it never changes a chat that already exists.",
         control,
       ),
     );
@@ -1396,6 +1432,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   }
   renderAppearance();
   renderKeyboard();
+  renderMemory();
   renderNewSessions();
   select(DEFAULT_SECTION);
 

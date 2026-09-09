@@ -77,7 +77,7 @@ export function renderSessionOverview(
   const header = el(
     "div",
     { className: "section-heading" },
-    el("h3", { text: "This session" }),
+    el("h3", { text: "This chat" }),
     action("x", "Close session overview", onClose),
   );
   const group = (title, ...children) =>
@@ -133,7 +133,7 @@ export function renderRunHistory(container, { runs, events, onRun }) {
     container.append(
       el("p", {
         className: "empty-list",
-        text: "No runs recorded in this session.",
+        text: "No runs recorded in this chat.",
       }),
     );
     return;

@@ -101,7 +101,8 @@ test('permission display distinguishes remote actions from writes using only the
   const payload = { tool: 'mcp_opaque', path: '*' };
   const binding = { resources: [{ id: 'tool:mcp_opaque', mcp: { name: 'send', serverId: 'local:mail' }, source: { uri: 'http://127.0.0.1:19000/original' } }] };
   const remote = permissionPresentation(payload, binding);
-  assert.equal(remote.title, 'Allow this remote tool call?');
+  // WK-89 · 一次动作是 Approval；标题仍按事实区分三种调用。
+  assert.equal(remote.title, 'Approve this remote tool call?');
   assert.equal(remote.target, 'send · local:mail');
   assert.equal(remote.source, 'http://127.0.0.1:19000/original');
   assert.equal(remote.noun, 'action');

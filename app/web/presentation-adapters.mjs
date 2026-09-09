@@ -71,12 +71,12 @@ export function toStatTiles(summary, { scope, observedAt, load }) {
     tile(
       "Waiting for you",
       "pendingItems",
-      `Open questions and write requests, ${where}, right now.`,
+      `Open questions and approval requests, ${where}, right now.`,
     ),
     tile(
       "In progress",
       "sessionCandidates",
-      `Sessions with recorded activity, ${where}, right now.`,
+      `Chats with recorded activity, ${where}, right now.`,
     ),
     tile(
       "Needs a look",
@@ -99,7 +99,7 @@ export function toWorkCards(summary, projects) {
   return {
     items: (page?.items ?? []).map((item) => ({
       sessionId: item.sessionId,
-      title: item.title || "Open session",
+      title: item.title || "Open chat",
       projectName: projectName(projects, item.projectId),
       projectId: item.projectId,
       runStatus: item.latestRun?.status ?? null,
@@ -147,7 +147,7 @@ export function toPendingRows(summary, projects) {
       sessionId: item.sessionId,
       projectId: item.projectId,
       projectName: projectName(projects, item.projectId),
-      title: titles.get(item.sessionId) || "Open session",
+      title: titles.get(item.sessionId) || "Open chat",
       runId: item.runId,
       questionId: item.questionId,
       kind: item.kind,
@@ -177,7 +177,7 @@ export function toInspectionRows(summary, projects) {
       sessionId: item.sessionId,
       projectId: item.projectId,
       projectName: projectName(projects, item.projectId),
-      title: titles.get(item.sessionId) || "Open session",
+      title: titles.get(item.sessionId) || "Open chat",
       runId: item.runId,
       status: item.status,
       errorCode: item.errorCode ?? null,

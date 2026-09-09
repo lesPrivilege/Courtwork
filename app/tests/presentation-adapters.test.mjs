@@ -135,7 +135,7 @@ test("toWorkCards passes recorded fields through and names the missing ones", ()
   // A session with no run says so; it does not borrow a terminal word.
   assert.equal(second.runStatus, null);
   assert.equal(second.missingRunLabel, "No run recorded");
-  assert.equal(second.title, "Open session");
+  assert.equal(second.title, "Open chat");
   // A project the answer could not resolve is null, not the id and not a guess.
   assert.equal(second.projectName, null);
   // Pagination facts are the server's, verbatim: 41 recorded, 2 on this page.

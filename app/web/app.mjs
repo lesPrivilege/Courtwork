@@ -23,7 +23,6 @@ import {
   createSettingsView,
   isSettingsSection,
   permissionLabels,
-  permissionWords,
   providerLabels,
   renderConnectionCard,
   DEFAULT_SECTION,
@@ -297,7 +296,7 @@ function restoreHomeDraft() {
     if (saved.start && typeof saved.start.projectId === "string" && typeof saved.start.commandId === "string") {
       state.homeStart = { ...saved.start, pending: false };
       if (saved.start.unconfirmed)
-        state.homeStart.error = "Session creation is unconfirmed. Refresh and check recent sessions before trying again. Your instruction is kept.";
+        state.homeStart.error = "Creating the chat is unconfirmed. Refresh and check recent chats before trying again. Your instruction is kept.";
     }
   } catch { /* Ignore malformed tab-local state. */ }
 }
@@ -644,7 +643,7 @@ function scrollToLatestMessage() {
 const ERROR_COPY = {
   "run:uncertain": {
     text: () =>
-      "Could not confirm run admission. Check session history before retrying.",
+      "Could not confirm run admission. Check this chat’s history before retrying.",
     retryable: false,
     nextAction: "view-history",
   },
@@ -655,7 +654,7 @@ const ERROR_COPY = {
   },
   "cancel:uncertain": {
     text: () =>
-      "Could not confirm run cancellation. Check session history before retrying.",
+      "Could not confirm run cancellation. Check this chat’s history before retrying.",
     retryable: false,
     nextAction: "view-history",
   },
@@ -1754,7 +1753,7 @@ function renderProjectList() {
     });
     const create = action(
       "plus",
-      `New session in ${project.name}`,
+      `New chat in ${project.name}`,
       () => startNewSession({ projectId: project.id }),
       {
         className: "quiet-button project-create",
@@ -1773,7 +1772,7 @@ function renderProjectList() {
       if (state.sessionListErrors.has(project.id)) {
         const retry = element("button", {
           className: "text-button",
-          attrs: { type: "button", "aria-label": "Retry loading sessions" },
+          attrs: { type: "button", "aria-label": "Retry loading chats" },
           text: "Retry",
         });
         retry.addEventListener("click", async () => {
@@ -1789,11 +1788,11 @@ function renderProjectList() {
         );
       } else if (!sessions) {
         sessionList.append(
-          element("p", { className: "empty-list", text: "Loading sessions…" }),
+          element("p", { className: "empty-list", text: "Loading chats…" }),
         );
       } else if (!sessions.length) {
         sessionList.append(
-          element("p", { className: "empty-list", text: "No sessions yet." }),
+          element("p", { className: "empty-list", text: "No chats yet." }),
         );
       } else {
         const limit = state.navigationFilter
@@ -1815,13 +1814,13 @@ function renderProjectList() {
                 type: "button",
                 "aria-current":
                   session.id === state.activeSessionId ? "page" : null,
-                "data-tooltip": session.title || "Untitled session",
+                "data-tooltip": session.title || "Untitled chat",
                 "data-nav-key": `session:${session.id}`,
               },
             },
             element("span", {
               className: "session-name",
-              text: session.title || "Untitled session",
+              text: session.title || "Untitled chat",
             }),
           );
           sessionButton.addEventListener(
@@ -1946,7 +1945,7 @@ function renderExtensionList() {
         const bindButton = element("button", {
           className: "secondary-button",
           attrs: { type: "button" },
-          text: "Bind to session",
+          text: "Bind to chat",
         });
         bindButton.addEventListener("click", () => {
           state.bindingExtensionId = extension.id;
@@ -1969,7 +1968,7 @@ function renderExtensionList() {
         });
         releaseButton.setAttribute(
           "aria-label",
-          "Release this session's binding; the recorded work stays in this project",
+          "Release this chat's binding; the recorded work stays in this project",
         );
         releaseButton.addEventListener("click", () => void releaseBinding(extension.id));
         actions.append(releaseButton);
@@ -2160,7 +2159,7 @@ function renderBindingPanel() {
       renderAll();
       await loadSurface(state.sessionEpoch);
       await loadWorkThread(state.sessionEpoch);
-      showToast("This session continues the existing work.");
+      showToast("This chat continues the existing work.");
     } catch (error) {
       control.disabled = false;
       showToast(`Could not continue this work: ${error.message}`, "error");
@@ -2248,7 +2247,7 @@ function renderBindingPanel() {
       renderAll();
       await loadSurface(state.sessionEpoch);
       await loadWorkThread(state.sessionEpoch);
-      showToast("Extension bound to this session.");
+      showToast("Extension bound to this chat.");
     } catch (error) {
       submit.disabled = false;
       showToast(`Could not create binding: ${error.message}`, "error");
@@ -2278,19 +2277,17 @@ function focusBindingEntry() {
 }
 
 
-// WK-40 · the header connection badge is icon-only; the connection name stays
-// visible in the composer's context row and in this control's accessible name.
-function setCapabilityBadge(label) {
-  setAction($("capability-badge"), "plug", `Connection · ${label}`);
-}
+/* WK-94 · the header capability badge is retired. The connection identity is a
+ * standing fact of the composer's context row and is stated there once; the
+ * header said the same thing a second time in a band that has nothing else to
+ * say. `#model-settings-button` is now the single entry to the connection card
+ * on this screen (FN-05). */
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
   const config = state.providerConfig?.config;
-  if (config) {
+  if (config)
     $("model-settings-button").textContent =
       config.provider === "fake-openai-loopback" ? "Local test" : config.model;
-    setCapabilityBadge(providerLabels[config.provider] || config.provider);
-  }
 }
 
 function appendRunBadge(container, status) {
@@ -2428,11 +2425,11 @@ function renderMessageStream() {
       element(
         "div",
         { className: "empty-state" },
-        element("h3", { text: "No session selected" }),
+        element("h3", { text: "No chat selected" }),
         element("p", {
           text: state.projects.length
-            ? "Choose a session from the left or create one."
-            : "Create a project and session from the left.",
+            ? "Choose a chat from the left or create one."
+            : "Create a project and a chat from the left.",
         }),
       ),
     );
@@ -2986,13 +2983,12 @@ function renderChatHeader() {
     ? "Settings"
     : state.view === "home"
       ? "Home"
-      : session?.title || "Loading session…";
+      : session?.title || "Loading chat…";
   $("session-meta").replaceChildren();
   if (!settingsOpen && session && currentRun())
     appendRunBadge($("session-meta"), currentRun().status);
   $("show-surface-button").hidden = settingsOpen || !session;
   $("show-run-button").hidden = settingsOpen || !session;
-  $("capability-badge").hidden = settingsOpen;
   const home = state.view === "home";
   $("composer-area").hidden = settingsOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
@@ -3003,39 +2999,57 @@ function renderChatHeader() {
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"),
     composer = $("composer-area"),
-    band = $("home-top-band");
-  /* WK-11 / WK-58 / WK-32 · the bands in reading order. On a wide Home: recorded
-   * totals, composer, work. On a session, and on any narrow view, the composer
-   * is docked at the foot (WK-58), so the order reads totals, work, composer.
-   * The DOM order is the reading order in every case: nothing is moved by CSS. */
-  if (body.firstElementChild !== band) body.prepend(band);
+    band = $("home-top-band"),
+    stream = $("message-stream").closest(".message-stream-wrap");
+  /* WK-96 · Home reads from the centre downwards: orientation and composer
+   * first, then the modules that hang off it — Today's three numbers, then the
+   * work list. The recorded totals used to lead the page; a band of numbers
+   * above the one entry made the entry the second thing on the screen. On a
+   * session, and on any narrow view, the composer is docked at the foot
+   * (WK-58 / WK-97), so the order reads modules, work, composer. The DOM order
+   * is the reading order in every case: nothing is moved by CSS. */
   band.hidden = !home;
-  const lead = home && !narrowQuery.matches;
-  if (lead && band.nextElementSibling !== composer) band.after(composer);
-  else if (!lead && body.lastElementChild !== composer) body.append(composer);
+  /* WK-96 · in Work the Home dashboard primitives leave the document, not just
+   * the screen: a hidden band is still a rendered band, and the next reader of
+   * this DOM would find three Home statistics inside a chat. */
+  if (!home) band.replaceChildren();
+  const centred = home && !narrowQuery.matches;
+  if (centred) {
+    if (body.firstElementChild !== composer) body.prepend(composer);
+    if (composer.nextElementSibling !== band) composer.after(band);
+  } else {
+    if (body.firstElementChild !== band) body.prepend(band);
+    if (band.nextElementSibling !== stream) band.after(stream);
+    if (body.lastElementChild !== composer) body.append(composer);
+  }
+  measureHomeLead();
   const config = state.providerConfig?.config;
   const model =
     config?.provider === "fake-openai-loopback"
       ? "Local test"
       : config?.model || "Model settings";
   $("model-settings-button").textContent = model;
-  // WK-39 · the sidebar foot names the connection the way an account row would;
-  // it is a label, not a menu: there is no user identity to open.
-  $("account-name").textContent = model;
-  $("account-avatar").textContent = model.trim().charAt(0).toUpperCase() || "·";
-  setCapabilityBadge(providerLabels[config?.provider] || config?.provider || "Connection");
+  $("model-settings-button").setAttribute(
+    "aria-label",
+    `Connection · ${providerLabels[config?.provider] || config?.provider || "Not loaded"} · ${model}`,
+  );
   /* WK-73 · the quiet line below the composer states the standing context of
    * this session: which project it writes into, and what it may do to files.
    * The word is visible, the sentence is the accessible name and the tooltip. */
   const projectLine = $("composer-project");
   projectLine.textContent = project?.name || "";
   projectLine.hidden = home || !session || !project?.name;
+  /* WK-94 · `File writes  Ask` 收成一个控件：可见文字就是后果本身，后面一个
+   * disclosure 记号说明它可以打开。同一事实不再分成一个标签加一个单词。 */
   const permission = $("permission-settings-button"),
     mode = session?.permissionMode;
-  const permissionSentence = permissionLabels[mode] || "File permissions";
-  permission.textContent = permissionWords[mode] || "File writes";
-  permission.setAttribute("aria-label", `File writes: ${permissionSentence}`);
-  permission.dataset.tooltip = `File writes: ${permissionSentence}`;
+  const permissionSentence = permissionLabels[mode] || "File access";
+  permission.replaceChildren(
+    element("span", { className: "button-label", text: permissionSentence }),
+    icon("chevron-down", { size: 16 }),
+  );
+  permission.setAttribute("aria-label", `File access: ${permissionSentence}`);
+  permission.dataset.tooltip = `File access: ${permissionSentence}`;
   $("home-button").setAttribute(
     "aria-current",
     !settingsOpen && state.view === "home" ? "page" : "false",
@@ -3144,11 +3158,45 @@ function renderComposer() {
     textarea.placeholder = "What would you like to work on?";
   } else {
     textarea.value = "";
-    textarea.placeholder = "Select a session to chat";
+    textarea.placeholder = "Select a chat to continue";
   }
   /* The floating layer stops at the composer's top edge, so the composer's own
    * height is one of its two measurements (WK-72). */
   measureSurfaceLayout();
+}
+
+/* WK-96 · one machine-checkable fact about Home's first screen: the composer is
+ * the optical anchor, so its centre sits at least 55 % of the way down the main
+ * area. The height above it is not fixed — the orientation line, the theme's
+ * text size and the window all move it — so the lead is measured rather than
+ * guessed, and it is a measurement of the DOM as rendered, not a second layout
+ * engine: read where the composer's centre is now, and add the difference.
+ *
+ * It applies only to the wide Home, where the composer floats in the column. In
+ * a session and on a narrow screen the composer is docked at the foot and there
+ * is no lead to compute (WK-97). */
+const HOME_COMPOSER_CENTRE = 0.56;
+function measureHomeLead() {
+  const shell = $("app-shell");
+  const body = $("conversation-body");
+  const form = $("composer-form");
+  if (!shell.classList.contains("home-active") || narrowQuery.matches || $("composer-area").hidden) {
+    shell.style.removeProperty("--home-lead");
+    return;
+  }
+  const current = Number.parseFloat(
+    getComputedStyle(shell).getPropertyValue("--home-lead"),
+  );
+  const lead = Number.isFinite(current) ? current : 0;
+  const area = body.getBoundingClientRect();
+  const box = form.getBoundingClientRect();
+  if (!area.height || !box.height) return;
+  const centre = box.top + box.height / 2 - area.top;
+  const next = Math.max(
+    32,
+    Math.round(lead + (HOME_COMPOSER_CENTRE * area.height - centre)),
+  );
+  if (Math.abs(next - lead) >= 1) shell.style.setProperty("--home-lead", `${next}px`);
 }
 
 function renderChat() {
@@ -3458,9 +3506,10 @@ const railHost = {
     if (ref) void fileView.load(ref);
   },
   loadRuntime: () => void runtimeView.load(),
-  /* WK-66 · the coarse card opens the fine reading, which is the Runtime group
-   * of the Settings page. One entry, one controller, one admission (FN-05). */
-  openRuntimeSettings: () => openSettings("runtime"),
+  /* WK-66 / WK-90 · the coarse card opens the fine reading, which is now the
+   * Runtime block of Settings › Developer. One entry, one controller, one
+   * admission (FN-05); only the path changed. */
+  openRuntimeSettings: () => openSettings("developer"),
   openMaterials: () => {
     $("material-add").open = true;
     openDialog("materials-dialog", "material-name");
@@ -3668,7 +3717,7 @@ function renderSurfaceFallback() {
         { className: "empty-state compact" },
         element("h3", { text: "No work surface" }),
         element("p", {
-          text: "Choose a session to load its local renderer slot.",
+          text: "Choose a chat to load its local renderer slot.",
         }),
       ),
     );
@@ -3904,7 +3953,7 @@ async function readHistoricalSource(sessionId, epoch, input) {
     `/sessions/${encodeURIComponent(sessionId)}/work-query?${params}`,
   );
   if (epoch !== state.sessionEpoch || state.activeSessionId !== sessionId)
-    throw new Error("The session changed before the read completed.");
+    throw new Error("The chat changed before the read completed.");
   return answer?.source ?? null;
 }
 
@@ -4332,9 +4381,9 @@ function renderHomeComposerContext() {
   $("home-create-project").disabled = locked;
   const status = $("home-start-status");
   const message = state.homeStart?.pending
-    ? "Starting your session…"
+    ? "Starting your chat…"
     : state.homeStart?.error || (state.homeStart?.session
-      ? "Your session is ready. Send to continue in it."
+      ? "Your chat is ready. Send to continue in it."
       : !homeProjectId() ? "Choose or create a project to send." : "");
   status.textContent = message;
   status.hidden = !message;
@@ -4372,7 +4421,7 @@ async function submitHomeRun() {
         permissionMode: state.homePermissionMode,
       } });
       if (!result.session?.id || result.session.projectId !== operation.projectId)
-        throw new Error("Session creation returned no matching receipt.");
+        throw new Error("Creating the chat returned no matching receipt.");
       operation.session = result.session;
       storeHomeDraft();
     }
@@ -4385,7 +4434,7 @@ async function submitHomeRun() {
     state.draftDirty.add(session.id);
     await persistDraftForSession(session.id, { revision, text: input });
     if (!guardAdmitNavigation(ticket) || state.view !== "home") {
-      operation.error = "Session created; your instruction is saved there and has not been sent. Return Home to continue.";
+      operation.error = "The chat was created; your instruction is saved there and has not been sent. Return Home to continue.";
       renderProjectList();
       return;
     }
@@ -4393,7 +4442,7 @@ async function submitHomeRun() {
     state.openProjectIds.add(operation.projectId);
     await selectSession(session.id, { focus: false });
     if (state.navigationEpoch !== ticket.navEpoch + 1 || currentSession()?.id !== session.id) {
-      operation.error = "Session created; your instruction has not been sent. Return Home to continue.";
+      operation.error = "The chat was created; your instruction has not been sent. Return Home to continue.";
       return;
     }
     state.homeDraft = "";
@@ -4411,7 +4460,7 @@ async function submitHomeRun() {
   } catch (error) {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
     operation.error = operation.unconfirmed
-      ? "Session creation is unconfirmed. Refresh and check recent sessions before trying again. Your instruction is kept."
+      ? "Creating the chat is unconfirmed. Refresh and check recent chats before trying again. Your instruction is kept."
       : `Could not start: ${error.message}. Your instruction is kept.`;
   } finally {
     operation.pending = false;
@@ -4698,7 +4747,7 @@ function openConnectionCard(anchor) {
       },
       onChangeConnection: () => {
         popover.hidePopover();
-        openSettings("general");
+        openSettings("models");
       },
       onPermission: async (mode) => {
         const session = currentSession();
@@ -4709,7 +4758,7 @@ function openConnectionCard(anchor) {
             { method: "PUT", body: { permissionMode: mode } },
           );
           applySessionUpdate(result.session, session.id);
-          showToast(`File writes: ${permissionLabels[mode]}.`);
+          showToast(`File access: ${permissionLabels[mode]}.`);
         } catch (error) {
           showToast(error.message, "error");
         }
@@ -4756,7 +4805,7 @@ function openContextSummary() {
     onWorkspace: go(() => activateSurface("preview")),
     onRun: (id) => go(() => openRun(id))(),
     onHistory: go(openRunHistory),
-    onPermissions: go(() => openSettings("general")),
+    onPermissions: go(() => openSettings("permissions")),
   });
   popover.showPopover();
   header.querySelector("button").focus();
@@ -4903,7 +4952,7 @@ function renderPermission(row) {
         {
           glyph: display.glyph,
           title: display.target,
-          meta: `${display.label} ${row.decision === "allow" ? "allowed" : row.decision === "deny" ? "denied" : "closed"}`,
+          meta: `${display.label} ${row.decision === "allow" ? "approved" : row.decision === "deny" ? "denied" : "closed"}`,
           attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` },
         },
       ),
@@ -4911,9 +4960,9 @@ function renderPermission(row) {
         className: "intervention-scope",
         text:
           row.decision === "allow"
-            ? `Permission recorded for this exact ${display.noun}. Review acceptance is not recorded here.`
+            ? `Approval recorded for this exact ${display.noun}. Review acceptance is not recorded here.`
             : row.decision === "deny"
-              ? `Permission denied for this exact ${display.noun}.`
+              ? `Approval denied for this exact ${display.noun}.`
               : "This request closed without a recorded decision.",
       }),
       element("pre", {
@@ -4943,7 +4992,7 @@ function renderPermission(row) {
     card.append(
       element("p", {
         className: "form-help",
-        text: `${formatBytes(payload.bytes)} · Permission for this exact ${display.noun} only`,
+        text: `${formatBytes(payload.bytes)} · Approval for this exact ${display.noun} only`,
       }),
       element("pre", {
         className: "permission-preview",
@@ -4967,7 +5016,7 @@ function renderPermission(row) {
       element("p", {
         className: "form-help",
         text: row.decision
-          ? `${display.label} ${row.decision === "allow" ? "allowed" : "denied"}.`
+          ? `${display.label} ${row.decision === "allow" ? "approved" : "denied"}.`
           : row.questionStatus === "pending"
             ? "This request is no longer available."
             : "Request resolved.",
@@ -4975,9 +5024,11 @@ function renderPermission(row) {
     );
   else {
     const actions = element("div", { className: "question-actions" });
+    /* WK-89 / FN-18 · 动作对象化命名，不用无范围的 Approve：可见文字说清楚
+       被批准的是哪一次动作。后端的 decision 取值不变。 */
     for (const [decision, label] of [
-      ["deny", `Deny ${display.noun}`],
-      ["allow", `Allow this ${display.noun}`],
+      ["deny", `Deny this ${display.noun}`],
+      ["allow", `Approve this ${display.noun}`],
     ]) {
       const button = element("button", {
         className: decision === "allow" ? "primary-button" : "secondary-button",
@@ -5093,7 +5144,13 @@ function readSettingsHash() {
   if (!match) return null;
   return isSettingsSection(match[1]) ? match[1] : DEFAULT_SECTION;
 }
-function openSettings(section = state.settings.section, { trigger, hash = true } = {}) {
+/* `read: false` puts the page on screen without issuing its two authoritative
+ * reads. It exists for one caller: the deep link at start-up, which lands here
+ * before `/bootstrap` has returned the session token (WK-98 (4)). Reading then
+ * would spend a 401 and a retry on every `#settings/<section>` entry, so the
+ * frame is painted first and `refreshSettingsReads()` runs once the token is
+ * held. Every other caller reads, because by then the token exists. */
+function openSettings(section = state.settings.section, { trigger, hash = true, read = true } = {}) {
   const target = isSettingsSection(section) ? section : DEFAULT_SECTION;
   if (!state.settings.open) state.settings.returnFocus = trigger ?? document.activeElement;
   state.settings.open = true;
@@ -5106,9 +5163,12 @@ function openSettings(section = state.settings.section, { trigger, hash = true }
   renderChatHeader();
   /* 进这一页，焦点落在 Back：出去的路和 Escape 指的是同一件事，一开始就摆在手边。 */
   if (!$("settings-page").contains(document.activeElement)) $("settings-back-button").focus();
+  if (read) refreshSettingsReads();
+}
+/* The Workbench reads for the Runtime group and for the rail card alike, so it
+ * loads with the page rather than with one of its blocks. */
+function refreshSettingsReads() {
   void settingsView.refresh();
-  /* The Workbench reads for the Runtime group and for the rail card alike, so
-   * it loads with the page rather than with one of its five blocks. */
   void runtimeView?.load();
 }
 function closeSettings({ restoreFocus = true, hash = true } = {}) {
@@ -5122,14 +5182,14 @@ function closeSettings({ restoreFocus = true, hash = true } = {}) {
   renderChatHeader();
   if (restoreFocus) restoreLayerFocus(trigger);
 }
-function syncSettingsFromHash() {
+function syncSettingsFromHash({ read = true } = {}) {
   const section = readSettingsHash();
   if (section === null) {
     if (state.settings.open) closeSettings({ hash: false });
     return;
   }
   if (state.settings.open && state.settings.section === section) return;
-  openSettings(section, { hash: false });
+  openSettings(section, { hash: false, read });
 }
 
 /* WK-4 / review-projection §6 · one list keyboard for both inboxes: Home's lower
@@ -5172,7 +5232,9 @@ function handleRuntimeFinderKey(event) {
   if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
   if (event.key !== "/") return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
-  if (!state.settings.open || state.settings.section !== "runtime") return;
+  /* WK-90 · runtime resources are spread over four groups now, so the finder is
+   * bound to the Settings page rather than to one group of it. */
+  if (!state.settings.open) return;
   const active = document.activeElement;
   if (active?.closest(TEXT_ENTRY) || active?.isContentEditable) return;
   if (document.querySelector("dialog[open]")) return;
@@ -5301,7 +5363,7 @@ async function createEntity(event, kind) {
     kind === "project" ? "project-name-input" : "session-title-input",
   );
   const value =
-    input.value.trim() || (kind === "session" ? "Untitled session" : "");
+    input.value.trim() || (kind === "session" ? "Untitled chat" : "");
   if (!value) return;
   const projectId = state.newSessionProjectId,
     nav = state.navigationEpoch,
@@ -5388,18 +5450,18 @@ function wireEvents() {
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
     "refresh-button": ["refresh-cw", "Refresh workspace"],
     "clear-nav-filter-button": ["x", "Clear filter"],
-    "show-run-button": ["activity", "Session overview"],
+    "show-run-button": ["activity", "Chat overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["x", "Close work surface"],
     "close-materials-button": ["x", "Close files"],
-    "materials-button": ["paperclip", "Session files"],
+    "materials-button": ["paperclip", "Chat files"],
     "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
   };
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
   setAction($("runtime-setup-button"), "settings-2", "Settings");
-  setAction($("new-session-button"), "square-pen", "New session", {
+  setAction($("new-session-button"), "square-pen", "New chat", {
     visible: true,
   });
   setAction($("home-create-project"), "plus", "New project", { visible: true });
@@ -5424,11 +5486,7 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
-  for (const id of [
-    "capability-badge",
-    "model-settings-button",
-    "permission-settings-button",
-  ])
+  for (const id of ["model-settings-button", "permission-settings-button"])
     $(id).addEventListener("click", (event) =>
       openConnectionCard(event.currentTarget),
     );
@@ -5443,13 +5501,9 @@ function wireEvents() {
       const anchor = state.connectionCardAnchor;
       if (open && anchor?.isConnected)
         stopFollowing = anchorPopover(anchor, popover, {
-          placement: anchor.id === "capability-badge" ? "bottom-end" : "top-start",
+          placement: "top-start",
         });
-      for (const id of [
-        "capability-badge",
-        "model-settings-button",
-        "permission-settings-button",
-      ])
+      for (const id of ["model-settings-button", "permission-settings-button"])
         $(id).setAttribute(
           "aria-expanded",
           String(open && anchor === $(id)),
@@ -5513,7 +5567,7 @@ function wireEvents() {
       if (state.homeStart?.unconfirmed) {
         state.homeStart = null;
         storeHomeDraft();
-        showToast("Workspace refreshed. Check recent sessions before sending the kept instruction again.");
+        showToast("Workspace refreshed. Check recent chats before sending the kept instruction again.");
       } else showToast("Workspace refreshed.");
       renderComposer();
     } catch (error) {
@@ -5576,15 +5630,22 @@ function wireEvents() {
   );
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
   narrowQuery.addEventListener("change", () => {
+    renderChatHeader();
     renderComposer();
     renderSurfaceVisibility();
   });
   /* WK-72 · the layer follows the main column and the composer, not the
    * viewport: a collapsing sidebar changes the same numbers a resize does. */
-  const surfaceMetrics = new ResizeObserver(() => measureSurfaceLayout());
+  const surfaceMetrics = new ResizeObserver(() => {
+    measureSurfaceLayout();
+    measureHomeLead();
+  });
   surfaceMetrics.observe(document.querySelector(".chat-panel"));
   surfaceMetrics.observe($("composer-area"));
-  window.addEventListener("resize", () => measureSurfaceLayout());
+  window.addEventListener("resize", () => {
+    measureSurfaceLayout();
+    measureHomeLead();
+  });
   /* WK-72 · with the rail header gone, the header control is the way in and the
    * way out of the collapsed layer; Escape still walks the same two steps. */
   $("show-surface-button").addEventListener("click", () =>
@@ -5735,7 +5796,7 @@ async function init() {
         history.replaceState(null, "", settingsHash(section));
     },
     onEditConnection: () => {
-      settingsPage.select("general", { focusPanel: false });
+      settingsPage.select("models", { focusPanel: false });
       $("provider-panel").querySelector("select,input,button")?.focus();
     },
     /* WO-WK11 · the finder's open action. It expands the resource and reads its
@@ -5769,6 +5830,7 @@ async function init() {
       instructions: $("settings-runtime-instructions"),
       capabilities: $("settings-runtime-capabilities"),
       permissions: $("settings-runtime-permissions"),
+      environment: $("settings-runtime-environment"),
     },
     {
       request,
@@ -5784,10 +5846,10 @@ async function init() {
       getBinding: (runId) => state.recordedContext.get(runId) || null,
       loadBinding: (runId) => readRecordedContext(runId, state.activeSessionId),
       onEditConnection: () => {
-        settingsPage.select("general", { focusPanel: false });
+        settingsPage.select("models", { focusPanel: false });
         $("provider-panel").querySelector("select,input,button")?.focus();
       },
-      /* The Workbench rebuilds its own five blocks; the page re-applies its one
+      /* The Workbench rebuilds its own blocks; the page re-applies its one
        * search filter afterwards, and the rail card re-reads the summary. */
       onRendered: () => {
         settingsPage.refilter();
@@ -5802,44 +5864,38 @@ async function init() {
     onOpenFile: openFile,
     notify: showToast,
   });
-  /* WK-73 · in the quiet line the option reads as one word and carries the
-   * sentence as its accessible name; inside the settings dialog the sentence is
-   * the label, because there the mode is the subject of the form. */
+  /* WK-94 · 两处用同一句话：控件自己说全后果，没有第二套短词。 */
   for (const id of ["home-permission-input", "session-permission-input"]) {
     const select = $(id);
     if (!select) continue;
-    const short = id === "home-permission-input";
     select.replaceChildren(
       ...Object.entries(permissionLabels).map(([value, text]) =>
-        element("option", {
-          text: short ? permissionWords[value] : text,
-          attrs: short ? { value, "aria-label": text } : { value },
-        }),
+        element("option", { text, attrs: { value } }),
       ),
     );
   }
   wireEvents();
   renderAll();
-  /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。 */
-  syncSettingsFromHash();
+  /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。
+   * WK-98 (4) · 这一步只摆好页面，不发读取：token 还没到手，此刻发出的每个读取都是
+   * 一次 401 加一次重试。读取在 bootstrap 之后由 refreshSettingsReads 补上。 */
+  syncSettingsFromHash({ read: false });
   try {
     const bootstrap = await request("/bootstrap");
     state.token = bootstrap.sessionToken || null;
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
-    setCapabilityBadge(
-      state.capabilities?.realProvider === false ? providerLabels["fake-openai-loopback"] : "Connection",
-    )
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
     await Promise.all(
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
     );
     await loadHome();
-    // Home is the default entry; previous sessions remain in Continue.
+    // Home is the default entry; previous chats remain in Continue.
+    /* 现在 token 在手，深链落地的那一页才发它的两个读取（WK-98 (4)）。 */
+    if (state.settings.open) refreshSettingsReads();
 
     renderAll();
   } catch (error) {
-    setCapabilityBadge("Runtime unavailable");
     showToast(`Could not start workspace: ${error.message}`, "error");
     const stream = $("message-stream");
     clear(stream);
