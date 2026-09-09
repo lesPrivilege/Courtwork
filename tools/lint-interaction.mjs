@@ -21,7 +21,13 @@
 // 块注释与三种字符串（含模板串的 `${}` 嵌套），但**不认正则字面量**：若某天出现一个
 // 内含引号的正则，扫描器会错位。错位方向是把注释当代码 → 只会多报，不会漏报，交由人
 // 复核，这是 lint 该有的失败方向。
-// 用法：node tools/lint-interaction.mjs [files...]；无参数时扫描 app/web/**/*.mjs。
+// 第四项（WO-PG-01 复核补，Fable）：`markdown-reader.mjs` 用 `doc.createElement(node.tag)`，
+// tag 来自投影而非字面量，正则永远够不着它；守住那条路径的是它自己的闭集
+// `ALLOWED_TAGS`。闭集可以字面检查：一旦有人往里加 progress / meter，上面三项会全程
+// 沉默。所以本文件也检查闭集本身。
+// 扫描面含 `.html`（`lint-colors.mjs` 同样如此）：index.html 里的可见文案"Run in
+// progress"不含 `<`，不会被 `<progress` 命中；HTML 只剥 `<!-- -->`，不套 JS 的状态机。
+// 用法：node tools/lint-interaction.mjs [files...]；无参数时扫描 app/web/**/*.{mjs,html}。
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
@@ -32,7 +38,7 @@ function walk(dir, out = []) {
     const p = join(dir, name);
     if (name === "vendor" || name === "node_modules") continue;
     if (statSync(p).isDirectory()) walk(p, out);
-    else if (/\.mjs$/.test(name)) out.push(p);
+    else if (/\.(?:mjs|html)$/.test(name)) out.push(p);
   }
   return out;
 }
@@ -120,8 +126,13 @@ const CHECKS = [
 
 /* 注释区间：行注释、块注释；三种字符串按原样保留（`el("progress")` 的标签名就在串里）。
    模板串的 `${}` 用一个深度栈回到普通状态。不识别正则字面量，见文件头注的取舍说明。 */
-function commentRanges(text) {
+function commentRanges(text, isHtml = false) {
   const ranges = [];
+  if (isHtml) {
+    for (const hit of text.matchAll(/<!--[\s\S]*?-->/g))
+      ranges.push([hit.index, hit.index + hit[0].length]);
+    return ranges;
+  }
   const stack = [];
   let mode = "code";
   let start = 0;
@@ -153,15 +164,31 @@ function commentRanges(text) {
   return ranges;
 }
 
+/* 闭集本身的检查（见文件头注第四项）：名字里带 ALLOWED_TAGS 的字面 Set。 */
+const ALLOWLIST = /ALLOWED_TAGS\s*=\s*new Set\(\s*\[([^\]]*)\]/g;
+const FORBIDDEN_TAGS = ["progress", "meter"];
+
 const problems = [];
 let admitted = 0;
 
 for (const file of files) {
   const text = readFileSync(file, "utf8");
   const path = relative(root, file);
-  const ranges = commentRanges(text);
+  const ranges = commentRanges(text, /\.html$/.test(file));
   const inComment = (index) => ranges.some(([a, b]) => index >= a && index < b);
   const lineOf = (index) => text.slice(0, index).split("\n").length;
+
+  /* 闭集检查：动态 tag 的那条路径由 ALLOWED_TAGS 守，不由上面的正则守。 */
+  for (const hit of text.matchAll(ALLOWLIST)) {
+    if (inComment(hit.index)) continue;
+    const listed = [...hit[1].matchAll(/(["'`])([a-zA-Z0-9-]+)\1/g)].map((m) => m[2]);
+    for (const tag of FORBIDDEN_TAGS)
+      if (listed.includes(tag))
+        problems.push(
+          `${path}:${lineOf(hit.index)}: 动态 tag 的闭集 ALLOWED_TAGS 放进了 ${tag}——` +
+            `上面三项检查够不着 createElement(变量)，闭集一旦放行就没有第二道门（WK-146）`,
+        );
+  }
 
   for (const check of CHECKS) {
     for (const pattern of check.patterns) {
@@ -199,5 +226,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `lint-interaction: ok (${files.length} files · progress/meter、role 与 aria-valuenow、input[type=range] 三项 · 登记例外 ${REGISTERED.size} 条${admitted ? ` · 放行命中 ${admitted} 处` : ""})`,
+  `lint-interaction: ok (${files.length} files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 ${REGISTERED.size} 条${admitted ? ` · 放行命中 ${admitted} 处` : ""})`,
 );

@@ -236,3 +236,14 @@ EX-PG1 / WK-145 记的是「两个 element builder 共存」（`ui-controls.mjs:
 - **未宣称四条负规则已全部被代码检验**。本 lint 只覆盖 WK-146 允许机械检查的两条半：`running ≠ progress` 与 `estimate ≠ meter` 的元素/角色/`aria-valuenow` 形式、`numeric ≠ slider` 的空集守恒。`complex ≠ graph`（今日无拓扑对象，**不适用**）与 `high-risk ≠ confirm dialog`（由 [review-projection §6](contracts/review-projection.md)、无 Always allow、WK-122 承担）**不进 lint**，仍是评审判据。且 `numeric ≠ slider` 今日仍是**空集**而非已验证合规——lint 守的是空集不被悄悄破掉，不是这条规则已被检验（WK-146 三态记法）。
 - **未改 atlas**、未改 `intake-round-3.md`、未改 `current.md`，未合并、未 rebase、未推送。
 - **未扩大扫描面到 `.html`**、未为 `markdown-reader.mjs` 的动态标签路径写检查项，两处都只记在 §5。
+
+## Fable 复核补（同分支，2026-09-10）
+
+Fable 读码 + 独立重跑（自造 7 处反例全部命中、注释行不误报、真实扫描 ok），接受本单，并就地补两项——都来自本单交付说明里自己指出的两处空隙：
+
+1. **扫描面加 `.html`**：`lint-colors.mjs` 本来就扫 `.html`，本 lint 没有理由只看 `.mjs`。`index.html:296` 的可见文案 "Run in progress" 不含 `<`，不被 `<progress` 命中，实测仍 ok（23 files）。HTML 只剥 `<!-- -->`，不套 JS 状态机。
+2. **第四项检查：`ALLOWED_TAGS` 闭集**。`markdown-reader.mjs:15` 的 `doc.createElement(node.tag)` 是变量 tag，正则永远够不着；守它的是 `markdown-reader.mjs:4` 那个 24 项闭集。闭集本身可以字面检查——一旦有人往里加 `progress` / `meter`，前三项会全程沉默。反例（闭集里塞 progress / meter）逐条命中。
+
+命令与输出：`node tools/lint-interaction.mjs` → `ok (23 files · …四项 · 登记例外 0 条)`；反例 `b.mjs`（闭集）2 处、`c.html` 3 处、`a.mjs`（三项六形）7 处，均 exit 1。
+
+未采纳/未处理：`toHomeAttention` 的 camelCase 与 `toHomeAttentionDetail` 的 snake_case 不一致是真的，但收敛它要动 `app/web`，归 CC-I 整备（WK-151），本单不扩。`markdown-source.mjs` 的 `element()` 是语义树构造器不是 DOM builder，与 `el()` / `app.mjs` 的 `element()` 不是同一类东西，WK-145 那条"两个 element builder"的收敛不把它扫进去。
