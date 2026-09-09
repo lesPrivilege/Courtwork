@@ -10,6 +10,7 @@ import {
   anchorPopover,
   sessionMode,
   sessionModeLabel,
+  requestLabel,
   MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
@@ -892,6 +893,10 @@ function mergeEvents(events) {
         state.questionDrafts.delete(key);
         state.questionControls.delete(key);
         state.questionSubmitting.delete(key);
+        /* FE-04 · 在途记号也按 decision 登记（见 renderPermission），回执到达时
+         * 一并撤掉，否则一条已结算的授权会留着「Sending…」不放。 */
+        state.questionSubmitting.delete(`${key}:allow`);
+        state.questionSubmitting.delete(`${key}:deny`);
         state.questionSubmitted.delete(key);
         state.questionErrors.delete(key);
       }
@@ -2785,13 +2790,20 @@ function renderMessageStream() {
             "data-focus-key": `${questionKey}:answer`,
             "aria-disabled": String(submitting),
           },
-          text: submitting ? "Sending…" : "Answer",
+          text: requestLabel("Answer", submitting),
         });
         form.append(input, submit);
         const questionError = state.questionErrors.get(questionKey);
+        /* FE-04 · 提交失败在授权卡上是一条 `role="alert"`，在问题卡上原先只是一段
+         * 静默的文字。同一族原语的同一件事不该只对看得见的人说：读屏用户按下
+         * Answer 之后不会知道它没有被接受（FN-28 «loading / error 可辨»）。 */
         if (questionError)
           form.append(
-            element("p", { className: "question-error", text: questionError }),
+            element("p", {
+              className: "question-error",
+              attrs: { role: "alert" },
+              text: questionError,
+            }),
           );
         form.addEventListener("submit", async (event) => {
           event.preventDefault();
@@ -3128,6 +3140,14 @@ function stopWorkingClock() {
     state.workingClock = null;
   }
 }
+/* FE-04 · composer 的两个主控件说的是同一件事的两端，所以它们与授权卡、问题卡
+ * 用同一个在途词（`requestLabel`）：请求已经送出、回执还没到。此前这一段窗口在
+ * 屏幕上完全不存在 —— Send 被关掉但仍写着 Send，Cancel run 被关掉但仍写着
+ * Cancel run，而 run hint 仍在数「Working for 12s」。FE-T06 的另半条正是这一条：
+ * **cancel requested ≠ stopped**。状态词不动：`Stopping` 只在宿主把 Run 报成
+ * `stopping` 之后才出现，取消请求本身不把 Run 提前说成已停（FN-19）。 */
+const COMPOSER_SEND_LABEL = "Send";
+const COMPOSER_CANCEL_LABEL = "Cancel run";
 function renderComposer() {
   const session = currentSession();
   const textarea = $("composer-input");
@@ -3143,8 +3163,13 @@ function renderComposer() {
     if (textarea.value !== state.homeDraft) textarea.value = state.homeDraft;
     textarea.placeholder = "Describe the work you want to do…";
     send.hidden = false;
+    send.textContent = requestLabel(
+      COMPOSER_SEND_LABEL,
+      Boolean(state.homeStart?.pending),
+    );
     send.disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) || !state.homeDraft.trim() || !homeProjectId();
     cancel.hidden = true;
+    cancel.textContent = COMPOSER_CANCEL_LABEL;
     cancel.disabled = true;
     if (runHint) runHint.hidden = true;
     stopWorkingClock();
@@ -3157,6 +3182,11 @@ function renderComposer() {
   // (V7 regression requirement) and only locks Send.
   textarea.disabled = !session;
   textarea.readOnly = Boolean(session) && Boolean(pendingRun);
+  send.textContent = requestLabel(COMPOSER_SEND_LABEL, Boolean(pendingRun));
+  cancel.textContent = requestLabel(
+    COMPOSER_CANCEL_LABEL,
+    Boolean(pendingCancel),
+  );
   send.disabled =
     !session ||
     Boolean(active) ||
@@ -5059,10 +5089,17 @@ function renderPermission(row) {
       ["deny", `Deny this ${display.noun}`],
       ["allow", `Approve this ${display.noun}`],
     ]) {
+      /* FE-04 · review-projection §6 «pending → submitting：按钮禁用、文字
+       * "Sending…"、不换图标» 此前只落实了半条：两个按钮被 `aria-disabled`
+       * 关掉，但可见文字仍然是 Approve / Deny，屏幕上没有任何东西说这一次决定
+       * 已经送出而尚未回执。在途的是**哪一个**决定也是事实的一部分，所以在途
+       * 记号带上 decision：按下的那个换词，另一个只是关掉，读屏与目视都能看出
+       * 送出的是 Approve 还是 Deny（FN-19：不乐观晋升，也不隐瞒已送出）。 */
+      const inFlight = state.questionSubmitting.has(`${key}:${decision}`);
       const button = element("button", {
         className: decision === "allow" ? "primary-button" : "secondary-button",
         attrs: { type: "button", "data-focus-key": `${key}:${decision}` },
-        text: label,
+        text: requestLabel(label, inFlight),
       });
       button.setAttribute("aria-disabled", String(pending));
       button.addEventListener("click", async () => {
@@ -5073,6 +5110,11 @@ function renderPermission(row) {
           return;
         const epoch = state.sessionEpoch;
         state.questionSubmitting.add(key);
+        state.questionSubmitting.add(`${key}:${decision}`);
+        /* 重试之前先撤掉上一次的失败：一条 role="alert" 与一个 "Sending…"
+         * 同时在场会把「刚刚失败了」读成「这一次失败了」（FN-28 stale 可辨）。
+         * 问题卡一直是这样做的，授权卡此前不是。 */
+        state.questionErrors.delete(key);
         renderMessageStream();
         try {
           await request(
@@ -5085,6 +5127,7 @@ function renderPermission(row) {
           state.questionErrors.set(key, error.message);
         } finally {
           state.questionSubmitting.delete(key);
+          state.questionSubmitting.delete(`${key}:${decision}`);
           if (epoch === state.sessionEpoch) renderMessageStream();
         }
       });
