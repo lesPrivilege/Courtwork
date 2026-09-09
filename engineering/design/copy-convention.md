@@ -35,6 +35,10 @@
 | Matter | SE 的持久治理边界；产品 UI 现在不显 | — |
 | Workspace | **只**指一次真实的文件夹绑定 | 泛指右侧工作面、泛指 Matter |
 | Run history · Chat overview · Chat files | 上述对象的三个只读入口 | Session overview · Session files |
+| Continue in Work | 把这个 Chat 绑定到一个 Matter 的那一个动作（既有 / 新建两条都叫它） | Bind to chat · Create binding · Convert · Migrate |
+| Existing work in this project · New work | Continue in Work 面板里的两段 | Continue existing · Create new |
+
+WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两种对象：它们共用一条标题行，模式词作陈述跟在标题下面（`Chat` / `Work`），导航只对 Work 加一个标记。续用不复制、不迁移，走的是既有的绑定路由；Chat 侧因此没有"转换"一词。
 
 ### 3.2 授权与文件
 
@@ -66,13 +70,19 @@
 | Base URL · API key · API format | 端点、凭据、线格式三件分开的事 | Endpoint URL（同义反复）· Token · Protocol |
 | Advanced | 少数人才改的一档（API format、Base URL） | Connection options · Expert · More |
 
-WK-91 · 未交付的动作不占按钮：`Test connection` 与对未保存表单的 `Fetch models` 在词表里已冻结，但在 BE-18 / BE-17 交付前只作为流程里的一行说明出现（`Not available yet: …`），不画控件。
+WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已随 BE-18 / BE-17 交付而成为控件，只出现在**表单里写得出 Base URL** 的那条路径（Compatible endpoint）上；另外两条路径说明端点归谁，不画一个按不动的按钮。结果只说后端说过的话：状态词加后端原句。`ok` 不得被改写成"已验证 key"、"可推理"或"已配置"——它只说那个目录接受了这次请求。`discover` 报回的模型 ID 是**不可信显示数据**，列出来但不进 Model 下拉、不进保存的配置。
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| The directory reports N models | `discover` 成功后的第二行；说的是目录报了几个 | Found N models · N models available |
+| ok · authentication_failed · unsupported · … | 后端的状态词，原样上屏 | Success · Connected · Verified · Invalid key |
 
 ### 3.4 记忆
 
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
-| Memory | Settings 组名。本版只有一句用户世界的句子：CourtWork 不在 Chat 之间携带记忆 | Session Memory |
+| Memory | Settings 组名。本版只有一句能力边界与一行 Temporary chat 说明，零控件 | Session Memory |
+| Memory · Off | Work（Matter header）上的 scope 位。BE-19 之前只有这一个值，所以它是陈述，不是可点的选择器 | Memory: disabled · No memory（作控件时） |
 | Matter memory · Global memory | 跨 Chat 与跨 Matter 的记忆范围。**词已冻结，控件待 BE-19**，未实现前不画 | — |
 | Sources | 文件与已连接的数据；它不是记忆 | Context · Knowledge |
 | Temporary chat | 不读写持久记忆的 Chat。**词已冻结，待 BE-20** | Incognito |

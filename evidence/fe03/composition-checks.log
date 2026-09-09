@@ -1,0 +1,17 @@
+PASS HOME-1 {"centre":0.56,"threshold":0.55}
+PASS HOME-2 {"aboveComposerHeight":38}
+PASS HOME-3 {"orientation":38,"text":"Work that exists beyond the model."}
+PASS HOME-4 {"width":820}
+PASS HOME-5 {"input":96}
+PASS HOME-6 {}
+PASS HOME-7 {"stats":3,"planned":0,"backendPendingOnHome":false,"order":["composer-area","home-top-band","message-stream-wrap"]}
+PASS HOME-overflow {"overflow":0}
+PASS HOME-narrow-dock {"order":["home-top-band","message-stream-wrap","composer-area"]}
+PASS HOME-narrow-overflow {"overflow":0}
+PASS WORK-1 {"homePrimitives":0,"bandHidden":true}
+PASS WORK-2 {"order":["home-top-band","message-stream-wrap","composer-area"],"width":740}
+PASS WORK-3 {"input":88}
+PASS WORK-overflow {"overflow":0}
+PASS WORK-4 {"surfaceOpen":true,"readingWidth":1184,"composerMeasure":740}
+PASS SHELL-1 {"unsafeControls":[]}
+16 / 16

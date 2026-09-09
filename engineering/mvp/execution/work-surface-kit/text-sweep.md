@@ -204,3 +204,35 @@
 | `Custom headers and provider compatibility quirks are not configurable here yet; …` | **边界**：Advanced 里没有的东西不会偷偷生效 | 同上 Advanced |
 | `Local endpoint fixed by the host` · `No key needed` | **本地连接不是缺凭据**，它不需要凭据 | 同上 `connectionRows` |
 | `Adding an MCP server` + 六步 | MCP 走同一形态；三步在下方已有落点，三步未交付 | 同上 `MCP_INTAKE_STEPS` |
+
+## 8. FE-03 Chat / Work / Memory shell 与第 0 项增量（2026-09-09，WK-92 / WK-108）
+
+### 8.1 改（旧词 · 新词 · 位置）
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `Not available yet: the host has no handshake that runs without starting a chat.` | `Sends one request to the model directory at the Base URL below. It reports whether that directory accepted the request; it does not check that a key is valid or that a model can answer.` | `settings-view.mjs` `CONNECTION_STEPS.test` |
+| `Not available yet for an unsaved form. A saved connection lists the models the installed catalogue reports.` | `Reads the model IDs that same directory reports. They are shown as reported and are not added to the Model list below, which stays the installed catalogue.` | 同上 `.fetch` |
+| `Not available yet: the same missing handshake as a model connection.` | `Not available yet: the model-connection probe reads an OpenAI-compatible model directory. An MCP server speaks a different protocol, and there is no endpoint here that probes one.` | 同上 `MCP_INTAKE_STEPS` |
+| `Bind to chat`（按钮） | `Continue in Work` | `app.mjs` extensions 行 |
+| `Bind <extension>`（绑定面板标题） | `Continue in Work` | `app.mjs` `renderBindingPanel` |
+| `Create binding`（primary） | `Continue in Work` | 同上 |
+| `Continue existing` · `Create new`（两段小标题） | `Existing work in this project` · `New work` | 同上 |
+| `The extension validates these fields. The generic UI only renders the manifest declaration.` | `This chat keeps its history and its project; continuing in Work binds it to a Matter that <extension> owns. Nothing is copied and nothing is moved. …` | 同上 |
+| `Extension bound to this chat.`（toast） | `This chat continues in Work.` | 同上 |
+| `Release this chat's binding; the recorded work stays in this project`（accessible name） | `Return this Work to Chat. The recorded work stays in this project.` | `app.mjs` `releaseBinding` |
+| Memory 组两段（`CourtWork does not carry memory between chats. …` / `Instructions, Skills and references …`） | 一段能力边界（按语义审查 §4 的契约词重述：Matter memory · global memory · sources）+ 一行 Temporary chat 说明 | `settings-view.mjs` `renderMemory` |
+
+### 8.2 新增字符串（承重说明）
+
+| 字符串 | 承担什么 | 位置 |
+|---|---|---|
+| `Chat` / `Work`（标题行下的模式词） | **这是哪一种会话**。之前这件事只能从"右侧有没有工作面"反推 | `app.mjs` `renderChatHeader` |
+| `Work`（导航行标记） | 同一件事在**列表里**的读法；Chat 不加标记，所以标记本身有信息 | `app.mjs` 会话行 |
+| `Memory · Off` | Matter header 的 scope 位。BE-19 之前只有一个值，所以它是陈述而不是选择器 | `ui-controls.mjs` `MEMORY_SCOPE_OFF` |
+| `The two probe steps need an endpoint written in this form. On this path the endpoint is the provider's own / the address is fixed by the host, so there is nothing here to probe.` | **为什么这条路径上没有那两个控件**：说的是端点归谁，不是"暂不支持" | `settings-view.mjs` `PROBE_ABSENT_NOTE` |
+| `<status> · <backend message>` | 探测结果**逐字**是后端说过的话；前端不翻译、不升级、不安慰 | 同上 `probeLine` |
+| `The directory reports N models. They are listed as reported, and are not added to the Model list or saved.` | **报告 ≠ 可用**：ID 是不可信显示数据，保存与执行仍受 allowlist | 同上 `probeCatalogueLine` |
+| `Probing…` | 一次请求正在进行中，且它会被同一个位置的结果替换 | 同上 `runProbe` |
+| `Nothing is remembered between chats. Matter memory and global memory have no adapter in this build, …` | **能力边界**，用契约词说；并把 Sources 与 Memory 分开 | 同上 `renderMemory` |
+| `Temporary chat — a chat that neither reads nor writes durable memory — has no host support yet, …` | 词已冻结、控件待 BE-20；同时说清今天为什么等价 | 同上 |
