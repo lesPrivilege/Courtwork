@@ -1,0 +1,656 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "6aa100da-de90-83ec-8921-51d831cf16e7",
+  "title": "本地数据治理查询",
+  "sourceUrl": "chatgpt-conversation://6aa100da-de90-83ec-8921-51d831cf16e7",
+  "capturedAt": "2026-09-09T07:32:48.835823+00:00",
+  "repositoryBase": "c529923f158f702bcdb8a2952e9fc245d906d212",
+  "coverage": {
+    "turns": 5,
+    "messages": 9,
+    "hasMore": false,
+    "nextCursor": null,
+    "truncationMarkersObserved": false,
+    "missingAssistantTurns": [
+      "T02"
+    ],
+    "rawTranscriptCommitted": false,
+    "attachmentsViewed": 1
+  },
+  "textHashRule": "SHA-256 of exact returned message text encoded as UTF-8; text content blocks joined with LF; no normalization",
+  "turns": [
+    {
+      "sourceTurn": "T01",
+      "turnId": "4922ac6c-7715-4998-9501-f144c188b13f",
+      "startedAt": 1788936417.371383,
+      "items": [
+        {
+          "id": "4922ac6c-7715-4998-9501-f144c188b13f",
+          "type": "userMessage",
+          "characters": 88,
+          "utf8Bytes": 136,
+          "sha256": "33e6f0eb33a6a7e38b0fc8dba75be0bdb9f920635b54433e297b08c96aa3b617",
+          "headings": []
+        },
+        {
+          "id": "68216c6c-234e-4dae-a26b-41f606f04143",
+          "type": "agentMessage",
+          "characters": 3709,
+          "utf8Bytes": 5661,
+          "sha256": "f463de6ea6eddf5b6c5c0f446950e047757adcd19f68b51601a69ec0e86e3696",
+          "headings": [
+            "对 SE / CourtWork，我会把层级收敛成这样"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceTurn": "T02",
+      "turnId": "ff0574f4-9f5e-4bdd-a553-f7841c629110",
+      "startedAt": 1788936625.860515,
+      "items": [
+        {
+          "id": "ff0574f4-9f5e-4bdd-a553-f7841c629110",
+          "type": "userMessage",
+          "characters": 91,
+          "utf8Bytes": 193,
+          "sha256": "9f45bea42f447d5470d9e9aa59701cd665097da6a5eb6aee37c4e782cd041f4b",
+          "headings": []
+        }
+      ]
+    },
+    {
+      "sourceTurn": "T03",
+      "turnId": "eb3d4ca1-835a-474f-89ab-c9893a3ca63a",
+      "startedAt": 1788937403.238388,
+      "items": [
+        {
+          "id": "eb3d4ca1-835a-474f-89ab-c9893a3ca63a",
+          "type": "userMessage",
+          "characters": 3848,
+          "utf8Bytes": 6936,
+          "sha256": "278bea9e1a3c1dd9f4b47c44ceb53e6dd5fa6df36b2dc602d7b504d10a2b3f4c",
+          "headings": []
+        },
+        {
+          "id": "cf0003b3-1caa-49f7-9c7c-de72f23d955a",
+          "type": "agentMessage",
+          "characters": 8200,
+          "utf8Bytes": 11979,
+          "sha256": "a64c4ccf72a1b97dd7d611d045f58296541f60dad9737c0c3806c15bdffaac89",
+          "headings": [
+            "先把最重要的产品裁决定住",
+            "「阅卷整理」实际上是第一次 Compile",
+            "OCR 应当是 rendition，不是 source",
+            "这比「Memory」更适合叫 Sidecar / Governed State",
+            "Luna 集群很适合第一次 Intake，但不应该让 Luna 建立事实",
+            "Skill 也适合，但 Skill 不应该成为实现本体",
+            "三类场景其实可以共用同一动作",
+            "Legal",
+            "Codebase",
+            "Database / dataset",
+            "第一版 Legal demo 可以非常克制",
+            "`Matter Intake / 阅卷整理`",
+            "而且会产生一个非常好的产品分界",
+            "因此我会把后续自研顺序略作调整"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceTurn": "T04",
+      "turnId": "5f7d68cd-10c0-40ca-a0da-cc4f00d26046",
+      "startedAt": 1788937657.848808,
+      "items": [
+        {
+          "id": "5f7d68cd-10c0-40ca-a0da-cc4f00d26046",
+          "type": "userMessage",
+          "characters": 216,
+          "utf8Bytes": 406,
+          "sha256": "f909f2f0673d59b142a7e74231f95816dfdf8de1555e736d959a24317719311e",
+          "headings": []
+        },
+        {
+          "id": "00827b55-0a2c-46e0-af41-62b3176b576a",
+          "type": "agentMessage",
+          "characters": 15999,
+          "utf8Bytes": 21283,
+          "sha256": "7d016703fd050276cbb240f3468378c3613eac4eaa4daebf3f2d74d76a50cc50",
+          "headings": [
+            "Explore / Research Runtime Index v0",
+            "I. 先收敛本体：五个概念已经足够",
+            "II. DSH 最值得作为 Core 的结构参考",
+            "III. Pi 最值得消费的是 Session 与消息投递语义",
+            "`steer`",
+            "`followUp`",
+            "IV. OpenCode 最值得取的是产品语义，而不是 runtime 内核",
+            "V. Codex 给出了非常好的“最小 multi-agent control plane”",
+            "VI. Deep Research 应该被理解成一种 Run，而不是一种 Chat",
+            "VII. 最小 Harness Contract",
+            "VIII. Explore 应当成为第一个 first-party RunKind",
+            "IX. 不要让 Explore 每次重新读整个 workspace",
+            "X. UI：不建议把 Subagent Tree 放在主界面",
+            "Level 1 — 一张 Run Card",
+            "Level 2 — Activity Rail",
+            "Level 3 — Worker Cluster",
+            "Level 4 — Worker Inspector",
+            "XI. 一个更有 SE 辨识度的 UI：Promotion Tray",
+            "XII. Deep Research UI 还可以多一个 Plan Sheet",
+            "XIII. `steer` 也可以做成人类熟悉的 UI，而不是聊天 hack",
+            "XIV. Agent Teams 暂不进入 Core",
+            "XV. 推荐选型归纳",
+            "XVI. Core / Capability / Adapter 边界",
+            "建议作为后续施工索引的第一批主源"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceTurn": "T05",
+      "turnId": "9d9cc485-0158-4129-abd0-f7276febedc4",
+      "startedAt": 1788938017.689025,
+      "items": [
+        {
+          "id": "9d9cc485-0158-4129-abd0-f7276febedc4",
+          "type": "userMessage",
+          "characters": 50,
+          "utf8Bytes": 110,
+          "sha256": "4d675b56604477d70d65df3017fd42d1406278cdb0e18ea9b0e50c5e6a1f132d",
+          "headings": []
+        },
+        {
+          "id": "fcbcb650-6161-4f99-9894-7f302f3e09a0",
+          "type": "agentMessage",
+          "characters": 11934,
+          "utf8Bytes": 16288,
+          "sha256": "7162ce824f80076f59d19630a063f30bfd61272b83298b8afcfe34936f057c3f",
+          "headings": [
+            "1. 最接近我们的成熟实践，其实来自四个不同传统",
+            "2. SE 的 Benchmark 不应该首先测「律师回答得怎么样」",
+            "`SE MatterBench`",
+            "3. B0：Source Fidelity 应该尽量是机械证明",
+            "4. B1：Governance 不测“总结像不像”，而测对象是否建立正确",
+            "5. B2 是最核心的 SE Eval：Evidence Recall at Budget",
+            "6. 这里必须专门做一个非常重要的对照实验：Index vs Explore",
+            "7. B3：Explore 不仅测答案，还测 trajectory",
+            "`Exploration Waste`",
+            "`Rediscovery Rate`",
+            "8. B5 Continuity 可能反而是 SE 最独特的 benchmark",
+            "9. Professional Task 层可以直接从 Legal 的成熟任务里借题",
+            "10. 还应该有一个专门的 adversarial / mutation suite",
+            "11. Benchmark Corpus 可以分三级，不需要一开始自己造大数据集",
+            "12. Deep Research 社区给了另一个很重要的 benchmark 原则：固定沙箱",
+            "13. 最终不要先造一个 `SE Score`",
+            "Benchmark Index v0"
+          ]
+        }
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "name": "IMG_2376.jpeg",
+      "sha256": "32a6c641f451589ba51566aa40d0978fb993e1a28b427cec0f4778a89e238fed",
+      "bytes": 731381,
+      "sourceTurn": "T01",
+      "inspection": "visually_read",
+      "committedCopy": false
+    }
+  ],
+  "externalReferences": [
+    {
+      "sourceId": "X01",
+      "url": "https://engineering.atspotify.com/2026/9/portal-by-spotify-cut-my-claude-code-token-usage-by-90",
+      "labels": [
+        "Spotify Engineering 原文"
+      ],
+      "sourceTurns": [
+        "T01"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "文章未核验实现/数据许可",
+      "observedOn": "2026-09-09",
+      "sourceDate": "2026-09-03",
+      "supportedScope": "受控 bulk-reader/code-writer 与 PreToolUse 有界读取；默认350行是该实现参数。90%为作者场景自报，非本项目结果；线程安全漏报说明委派边界。",
+      "consumer": "LG-02 / B3",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X02",
+      "url": "https://engineering.atspotify.com/2026/6/code-with-claude-coding-is-no-longer-the-constraint",
+      "labels": [
+        "Developer Experience for Agents"
+      ],
+      "sourceTurns": [
+        "T01"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "LG-02"
+    },
+    {
+      "sourceId": "X03",
+      "url": "https://ar5iv.labs.arxiv.org/html/2607.25431",
+      "labels": [
+        "CodeNib"
+      ],
+      "sourceTurns": [
+        "T01"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "LG-02"
+    },
+    {
+      "sourceId": "X04",
+      "url": "https://commandcode.ai/docs/harness-engineering/read-tool",
+      "labels": [
+        "Command Code 的 Read Tool"
+      ],
+      "sourceTurns": [
+        "T01"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "LG-02"
+    },
+    {
+      "sourceId": "X05",
+      "url": "https://deepseek-harness.github.io/deepseek-harness/en/reference/subsystems/core",
+      "labels": [
+        "DSH Core"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "未核验许可或固定 commit",
+      "observedOn": "2026-09-09",
+      "sourceDate": "页面未标日期",
+      "supportedScope": "typed append-only SessionEvent 与 deriveMessages 投影；仅该 runtime 的权威设计。subagent seam 未由本页核验。",
+      "consumer": "EX-01",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X06",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/blob/master/.agents/notes/implemented/feature/2026-06-21-subagent-capability-seam.md",
+      "labels": [
+        "DSH Subagent Capability Seam",
+        "DSH Subagent seam"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X07",
+      "url": "https://pi.dev/docs/latest/sdk",
+      "labels": [
+        "Pi SDK"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X08",
+      "url": "https://developers.openai.com/api/docs/guides/responses-multi-agent",
+      "labels": [
+        "OpenAI Multi-agent"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X09",
+      "url": "https://opencode.ai/docs/agents/",
+      "labels": [
+        "OpenCode Agents"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X10",
+      "url": "https://opencode.ai/docs/server/",
+      "labels": [
+        "OpenCode Server"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X11",
+      "url": "https://developers.openai.com/codex/subagents",
+      "labels": [
+        "Codex Subagents"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X12",
+      "url": "https://ai.google.dev/gemini-api/docs/deep-research",
+      "labels": [
+        "Gemini Deep Research API",
+        "Gemini Deep Research"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X13",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/next-generation-gemini-deep-research/",
+      "labels": [
+        "Google Deep Research Max"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X14",
+      "url": "https://developers.openai.com/api/docs/guides/deep-research",
+      "labels": [
+        "OpenAI Deep Research API"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X15",
+      "url": "https://code.claude.com/docs/en/agent-teams",
+      "labels": [
+        "Claude Code Agent Teams"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X16",
+      "url": "https://github.com/earendil-works/pi",
+      "labels": [
+        "Pi coding-agent"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X17",
+      "url": "https://github.com/tintinweb/pi-subagents",
+      "labels": [
+        "pi-subagents"
+      ],
+      "sourceTurns": [
+        "T04"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "EX roadmap"
+    },
+    {
+      "sourceId": "X18",
+      "url": "https://trec-legal.umiacs.umd.edu/",
+      "labels": [
+        "TREC Legal Track",
+        "TREC Legal"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "各 collection distribution package 分别适用，未下载",
+      "observedOn": "2026-09-09",
+      "sourceDate": "历史轨道主页",
+      "supportedScope": "电子商业记录的法律检索、共享集合/基线与人机审阅成本；主页没有统一定义 high-recall 指标。",
+      "consumer": "B2 / B4",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X19",
+      "url": "https://arxiv.org/abs/2408.10343",
+      "labels": [
+        "LegalBench-RAG"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "publicly available 不等于再分发授权",
+      "observedOn": "2026-09-09",
+      "sourceDate": "2024-08-19",
+      "supportedScope": "法律 RAG retrieval 与最小高度相关片段；摘要规模和专家标注为作者声明，未复核数据。",
+      "consumer": "B2",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X20",
+      "url": "https://arxiv.org/html/2607.25431",
+      "labels": [
+        "CodeNib"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "论文授权不自动涵盖实现和数据",
+      "observedOn": "2026-09-09",
+      "sourceDate": "2026-07-28 v1",
+      "supportedScope": "按 repo commit 建 lexical/dense/structural views，结果映射 source ranges；独立重建与轨迹 token 减少为论文自报且有实验条件。",
+      "consumer": "LG-02 / LG-04",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X21",
+      "url": "https://arxiv.org/abs/2602.05892v1",
+      "labels": [
+        "ContextBench"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X22",
+      "url": "https://arxiv.org/html/2607.24882",
+      "labels": [
+        "Agent Retrieval Bench"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X23",
+      "url": "https://github.com/harveyai/biglaw-bench",
+      "labels": [
+        "BigLaw Bench"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X24",
+      "url": "https://www.harvey.ai/blog/legal-agent-benchmark-initial-results",
+      "labels": [
+        "Legal Agent Benchmark 初步结果",
+        "Legal Agent Benchmark"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X25",
+      "url": "https://arxiv.org/html/2608.01507v1",
+      "labels": [
+        "Deep Agentic Search for Repository-Level Code QA"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X26",
+      "url": "https://arxiv.org/html/2608.20204",
+      "labels": [
+        "ContractScrub"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "primary_page_spotchecked",
+      "dependency": "none",
+      "license": "页面标论文 CC BY-NC-SA 4.0、CUAD CC-BY-4.0；未验证数据发布及源合同再分发权",
+      "observedOn": "2026-09-09",
+      "sourceDate": "2026-08-20 v1",
+      "supportedScope": "针对合同最终 scrub review 的 annotated tasks；不能改写成全部注入缺陷。论文中的模型结果未在本项目复现。",
+      "consumer": "B4",
+      "versionPin": "not_pinned_for_implementation",
+      "verification": "read-only page spotcheck; no independent reproduction"
+    },
+    {
+      "sourceId": "X27",
+      "url": "https://doi.org/10.18653/v1/2026.findings-eacl.305",
+      "labels": [
+        "CLAUSE"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X28",
+      "url": "https://arxiv.org/html/2508.06600v1",
+      "labels": [
+        "BrowseComp-Plus"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X29",
+      "url": "https://arxiv.org/pdf/2604.14683",
+      "labels": [
+        "DR3-Eval"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    },
+    {
+      "sourceId": "X30",
+      "url": "https://arxiv.org/abs/2103.06268",
+      "labels": [
+        "CUAD"
+      ],
+      "sourceTurns": [
+        "T05"
+      ],
+      "status": "indexed_unverified",
+      "dependency": "none",
+      "license": "not_checked",
+      "consumer": "B2/B3/B4 candidate"
+    }
+  ]
+}

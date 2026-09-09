@@ -170,6 +170,10 @@ R3 的任务集合表达覆盖目标，不要求第一轮并行做完。R4 的�
 
 ## 10. 当前切片与扩展触发
 
+### 本地资料治理 / Explore 的后续输入
+
+[全量来源消费与自研准备](research/local-governance-2026-09-09/README.md)为R1–R3补充只读Intake、rendition、可重建索引、typed findings与有界Explore路径；[PR施工稿](research/local-governance-2026-09-09/pr-plan.md)按LG-00…04分批，[评测](research/local-governance-2026-09-09/benchmark-plan.md)先比较冷读与exact/lexical，再按瓶颈考虑语义或并行。正式状态复用Core，运行复用Session/Run；全部为planned，不改变当前产品施工顺序。依赖仅索引，未采用。
+
 ### NDA / Experts 验证路径
 
 [NDA 与热插拔研究](research/experts-hotplug-2026-09-08/README.md)、[H0–H5 PR 施工稿](research/experts-hotplug-2026-09-08/pr-plan.md) 和 [验证设计](research/experts-hotplug-2026-09-08/validation.md) 是 R1–R3 的第一条具体路径：H0 固定实验；H1 复用领域 Core 补规则/修订/投影契约；H2 顺序执行；H3 真实 Review 与 fallback；H4 按缺口补生命周期；H5 配对裁决。NDA 的规则结构和人工审阅强度不升为所有工作的固定模板。

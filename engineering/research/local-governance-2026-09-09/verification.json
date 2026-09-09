@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-09",
+  "scope": "documentation and source index only",
+  "integrationBase": "4d9714e61ba4f817045e7d275e11738a6b2d34fc",
+  "authorChecks": {
+    "exactReturnedMessageSha256": {
+      "passed": 9,
+      "total": 9
+    },
+    "turnCoverage": {
+      "passed": 5,
+      "total": 5
+    },
+    "externalUrlCoverage": {
+      "passed": 30,
+      "total": 30
+    },
+    "localMarkdownTargets": {
+      "passed": 30,
+      "total": 30
+    },
+    "gitDiffCheck": "passed"
+  },
+  "primarySourceSpotcheck": {
+    "performedBy": "Luna source explorer",
+    "pages": 6,
+    "independentReproduction": false
+  },
+  "productTests": "not_run; no product code changed",
+  "models": "not_run",
+  "dependenciesAdded": [],
+  "rawConversationAndImageCommitted": false,
+  "acceptanceBoundary": "Planning artifact; does not close implementation, professional-quality or G1-G5 gates."
+}
