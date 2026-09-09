@@ -275,9 +275,11 @@ export class RuntimeStore {
       this.lockHandle = await acquireRuntimeLock(this.dataDir);
       this.lockUnsubscribe = this.lockHandle.onLost((error) => { this.lockLost = true; this.opened = false; this.lockError = error; });
       await this.#sweepStaleTempFiles();
-      const textValue = await readFile(this.filePath, "utf8").catch((error) => { if (error?.code === "ENOENT") return null; throw error; });
-      if (textValue === null) { this.state = emptyState(); await this._persist(this.state); }
+      const rawState = await readFile(this.filePath).catch((error) => { if (error?.code === "ENOENT") return null; throw error; });
+      if (rawState === null) { this.state = emptyState(); await this._persist(this.state); }
       else {
+        const textValue = rawState.toString("utf8");
+        if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
         if ([3, 4].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
@@ -285,9 +287,9 @@ export class RuntimeStore {
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: [] });
-          const digest = createHash('sha256').update(textValue).digest('hex');
+          const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
-          await writeFile(backup, textValue, { flag: 'wx', mode: 0o600 });
+          await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
           await this._persist(upgraded);
           this.state = upgraded;
           this.logger(`store: upgraded schema ${parsed.schemaVersion} to 5; exact original state preserved in ${path.basename(backup)}`);

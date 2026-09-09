@@ -4,7 +4,6 @@ import { mkdtemp, rm, readFile, writeFile, readdir, symlink } from 'node:fs/prom
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { createHash } from 'node:crypto';
 import { startServer } from '../server/index.mjs';
 import { RuntimeStore } from '../server/store.mjs';
 import { digestText } from '../server/async-task-state.mjs';
@@ -141,4 +140,19 @@ test('schema3/4 migrate only after full validation and exclusive backup; current
     assert.equal(await readFile(file, 'utf8'), old);
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+
+test('invalid UTF-8 schema4 is refused before backup or replacement', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'cw-async-invalid-bytes-'));
+  try {
+    const store = await new RuntimeStore({ dataDir: dir }).open(); await store.createProject('unique-marker'); await store.close();
+    const file = path.join(dir, 'runtime-state.json');
+    const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 4; delete old.asyncTasks;
+    const encoded = Buffer.from(JSON.stringify(old)); encoded[encoded.indexOf('unique-marker')] = 0xff;
+    await writeFile(file, encoded);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), { code: 'INVALID_STATE' });
+    assert.deepEqual(await readFile(file), encoded);
+    assert(!(await readdir(dir)).some(f => f.startsWith('runtime-state.schema')));
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });
