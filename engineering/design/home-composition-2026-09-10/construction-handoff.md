@@ -1,8 +1,12 @@
-# Chat / Attention Assistant · construction handoff
+# Attention Assistant conversational surface · construction handoff
 
 2026-09-10 · Astra · user decision recorded from main `aa9f04f`. This record supersedes earlier intake language where it would prevent the newly authorized product surfaces. Read [current status](../../current.md), [Home package](README.md), relevant runtime/domain contracts and [Paper pin](../../../PAPER.md) before implementation.
 
-## User decision and authority
+## Latest steering · unified Assistant, supersedes the peer-Chat plan
+
+The user subsequently proposed letting Attention Assistant take over Chat and supply agent capabilities, with Codex as the interface reference. Adopt this as the current construction direction: one Attention Assistant product surface with a conversational Chat presentation, not a separate bare Chatbot alongside an Assistant. Preserve the frontend-first sequence when necessary, but target the actual agent/runtime integration. Codex supplies interaction/layout references only; it does not supply backend identity, capability or authority. The read-only Attention registry remains a distinct inspection view within the product. All peer-Chat wording below records the immediately preceding proposal and is superseded where it would create two assistant products.
+
+## Prior decision and continuing authority
 
 Chat and Attention Assistant may be injected as peer product surfaces. Chat is initially a temporary web Chatbot and may ship as a frontend slice before its backend is connected. This is an SE product-surface choice; absence of a nested Chat entity in today's Session model does not block building the surface. It does not by itself require a new Session → Chat database hierarchy. Astra decides backend identity, lifecycle and integration from actual service contracts.
 
