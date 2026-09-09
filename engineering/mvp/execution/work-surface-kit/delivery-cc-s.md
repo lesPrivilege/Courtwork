@@ -278,3 +278,22 @@ RC 三支、composition、shell、探测、Models、FE-T01 / T03 / T06（含在 
 | **reference fidelity** | 采纳 S01 / S06 的是**结构与对齐**（Back to app + 单导航列、分组间距、label/control 对齐）。`settings-dedicated.png` 的左栏宽度、蓝色主按钮、新品牌图形、"保存 custom 端点"一律未采纳；本单未引入任何新色、新字、新图形（lint-colors / lint-materials 全通过） |
 | **AI tells** | 没有"Manage your preferences below"一类的引导句（新增字符串为 0）；没有 emoji；没有把 `Back` 写成箭头；没有给空块画一张大空卡（`:empty { display: none }`）；没有渐变、发光或圆角堆叠 |
 | **reality** | 每个数字都从渲染出来的文档上读（`composition-checks.json`）；`unknown` 终态由宿主自己的重启恢复产生而不是被写进去；截图由脚本自己拍，不是手工裁剪；`not_run` 的四项（触控 / 读屏 / IME / 真实 provider）逐项列出，没有用几何断言冒充可访问性结论 |
+
+## 16. Fable 复核（WK-121，2026-09-09）
+
+非作者复核，与 §1–§15 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only 683b6d1..HEAD` 对照工单可写清单；server / runtime / core / domains / brand / contracts / intake 差异 | 无越权；差异为空；无 allowlist 与后端请求 |
+| 改约 | `interface-components.md` §Settings、FN-26 注与符合性表全文差异 | 与 WK-116 裁定逐句一致 |
+| 读码 | `app.mjs`（侧栏 `hidden` + `inert`、Back 槽位、`unfinishedToolWord`、`LIST_KEYS`、`appendFlowRow`）、`home-view.mjs`（每集合一条 list）、`index.html`、`styles.css`（四个 settings token、单列 grid、标题覆盖、390 搜索框 44） | 无新状态容器、字段、端点；折叠态与 settings-active 互不覆盖 |
+| 单测 / lint | 244/244；lint-colors / lint-materials ok；contrast 76 行全通过 | 一致 |
+| 浏览器 | 自有端口 8893、三个新空目录、独立 CDP：`composition-checks` 32/32（SETTINGS-1…7、SHELL-1…3 桌面宿主与普通浏览器）、`models-checks` 18/18、`shell-checks` 12/12、`cc-s-checks` 4/4（含 SIGKILL 造 `unknown` 终态） | 一致 |
+| 断言改写 | NAV-1 / `LIST_KEYS` / WK-92 扫描窗口 | 因契约改变，未放宽，接受 |
+| 七项待裁 | 见 [intake-round-3 §4z](intake-round-3.md) WK-121 | 全部接受；③ ⑤ 记 misfit M-12 / M-13；② 入 CC-W unresolved |
+| Anti-slop 门（WK-112 (c)） | necessity：删页内重复标题、无新控件；hierarchy：组间 40 / 行 24 拉开层级，字号字重未动（WK-120 留 FE-05a）；system：四个新 token 已登记，无新 radius / shadow；reference fidelity：shell-refinement + S01 / S06 两源；AI tells：无；reality：1440 / 1680 / 1024 / 390 与 200%（1440）已量 | 通过 |
+| 未复跑 | RC 三支、探测、primitive、FE-T01 / T03 / T07 / T11 | 作者结果原文在 §11；Astra 独验按 `evidence/cc-s/README.md` |
+| 视觉四轴 | 留用户 | 未评 |
+
+结论：接受。合流次序：先 `claude/cc-s-settings-nav`（头 = 本条提交），再 `claude/fable-round4d`。
