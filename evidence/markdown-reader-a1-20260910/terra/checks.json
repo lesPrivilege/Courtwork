@@ -1,0 +1,416 @@
+{
+  "origin": "http://127.0.0.1:8978",
+  "checks": [
+    {
+      "name": "actual projector preserves BOM source and code-point contract",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "safe semantic DOM has no image or inline attributes",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "copy icon references the shared sprite and has visible geometry",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "shared copy sprite is served by the fixture host",
+      "pass": true,
+      "value": {
+        "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+        "status": 200,
+        "mime": "image/svg+xml"
+      }
+    },
+    {
+      "name": "hidden inspector does not reserve a wide-reader column",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "nested link keyboard behavior is not intercepted by its block",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "repeated blocks retain unique source identities",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "selected block exposes its own original raw source",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "stub clipboard receives the exact selected raw block source",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "stub clipboard receives the exact code text",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "copy button keyboard focus does not trigger its containing block shortcut",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "740px reader keeps the document wide and shows selected source beside its block",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "outline returns focus to heading block",
+      "pass": true,
+      "value": {}
+    },
+    {
+      "name": "find excludes copy-control chrome",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "arrow navigation returns focus to the next block",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "control-f returns focus to reader find",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "find reports and selects matches",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "raw source mode is complete, disables Find, and restores mode focus",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "detached build controls are aborted",
+      "pass": true,
+      "value": {}
+    },
+    {
+      "name": "returning to rendered mode restores mode focus",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "unknown profile is rejected with visible error",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "destroy clears and blocks late rendering",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "dark reader uses dark color scheme",
+      "pass": true,
+      "value": {}
+    },
+    {
+      "name": "390px layout has no page-level horizontal overflow",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "390px selected source remains inside the reader viewport",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "long table has an internal scrolling region",
+      "pass": true,
+      "value": true
+    },
+    {
+      "name": "200 percent scale retains no page-level horizontal overflow",
+      "pass": true,
+      "value": {}
+    },
+    {
+      "name": "no runtime exceptions",
+      "pass": true,
+      "value": 0
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:8978/evidence/markdown-reader-a1-20260910/terra/fixture.html",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/styles.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-source.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/ui-controls.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/floating.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/purify.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/marked.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/favicon.ico",
+      "status": 404,
+      "mime": "text/plain"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/markdown-parser.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/evidence/markdown-reader-a1-20260910/terra/fixture.html",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/styles.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-source.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/ui-controls.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/floating.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/purify.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/marked.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/markdown-parser.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/evidence/markdown-reader-a1-20260910/terra/fixture.html",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/styles.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-source.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/ui-controls.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/floating.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/marked.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/purify.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/markdown-parser.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    },
+    {
+      "url": "http://127.0.0.1:8978/evidence/markdown-reader-a1-20260910/terra/fixture.html",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/styles.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.css",
+      "status": 200,
+      "mime": "text/css"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-reader.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/markdown-source.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/ui-controls.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/floating.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/marked.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/purify.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/markdown-parser.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
+      "url": "http://127.0.0.1:8978/web/vendor/icons.svg",
+      "status": 200,
+      "mime": "image/svg+xml"
+    }
+  ]
+}

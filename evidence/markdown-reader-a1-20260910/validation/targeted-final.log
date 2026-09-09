@@ -1,0 +1,27 @@
+✔ real HTTP candidate pages preserve Markdown bytes, and wrong Matter scope is refused (633.689ms)
+✔ accepted Artifact pages remain exact after producer deletion and extension unload (426.100333ms)
+✔ independent SHA-256 and code-point helpers agree with the browser source contract (3.563542ms)
+✔ readCoreManifest returns verified file refs and sends a bounded candidate query (1.064833ms)
+✔ readCoreManifest uses the explicit Artifact selector and preserves its identity (0.128584ms)
+✔ readCoreManifest rejects wrong identities, holes, duplicate paths and unsupported pages (0.486333ms)
+✔ readCoreFile assembles pages using server code-point cursors and an independent final hash (1.692ms)
+✔ readCoreFile accepts an exact empty terminal page (0.269875ms)
+✔ readCoreFile rejects wrong IDs, hash swaps, path swaps and pagination holes (0.418458ms)
+✔ readCoreFile rejects a continuation replay or changed duplicate page (0.137916ms)
+✔ readCoreFile rejects a changed identity on any page and a wrong final digest (0.4355ms)
+✔ readCoreFile aborts before and after a delayed page, without returning partial source (0.279792ms)
+✔ coreFileSubjects exposes only supported, scoped Core file refs (0.165125ms)
+✔ projectMarkdown preserves BOM, CRLF, combining marks, duplicate block ranges and safe semantic nodes (10.201333ms)
+✔ projectMarkdown parses complete definitions, keeps unsafe links inert, and emits bounded warnings (2.565792ms)
+✔ projectMarkdown refuses malformed identity, source text, and size (0.409125ms)
+✔ projectMarkdown creates a revision-local key and never claims writable review state (1.50475ms)
+✔ sha256Text does not silently normalize source (0.825042ms)
+✔ readCoreFile propagates producer absence as an exact read, not a fallback (0.246291ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2045.453542

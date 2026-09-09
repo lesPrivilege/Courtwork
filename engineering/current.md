@@ -220,3 +220,11 @@ Astra 完成隔离 parser 坐标 probe，Luna 负责本仓/主源核验，Terra 
 T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有锁定SDK普通loop与native缺口，不声称原生async。HL包仍只是离线响应/向量，生产DTO、摄取、proposal/effect写链路待Astra冻结。无新UI、自动续行、真实provider、外发、部署或Paper变更，G1–G5保持开放；前端和发布面队列沿上文当前裁定。
 
 本批组合实际基线 `a243a6c`，Astra合流验证346/346与smoke通过；T4四窗/分目录恢复与策略wrapper真红→绿独验已接收，详见上述回执。最小task adapter仍为opt-in，独立协议/fixture测试不授予模型native能力。
+
+## Markdown reader 与 Output Review 边界（2026-09-10）
+
+用户授权施工后，MR-A1/T1 已交付：Astra 固定版本 source/分页与 File宿主接入，Terra局部reader，Luna独立source反例与实际HTTP/Core测试。产品 `ec7f4fd` 与当前main `85693a6` 无冲突合流，最终产品/测试 `b119fc3`；[交付与归因](../evidence/markdown-reader-a1-20260910/README.md)列出365/365组合、最终19/19、组件28/28非作者复跑、真实宿主11/11及smoke/lint。Core文件入口、outline/find/raw source/块定位/复制已接现有File页；正式评注、迁移、重锚和semantic diff尚未实现。
+
+用户明确Output Review与Markdown是相交而独立的边界，已裁为[双边界架构](../docs/output-review.md)：前者接收/保留/表示所有可见模型与工具输出，后者负责包括用户/外部来源在内的Markdown格式能力，不互为完整包含关系。Chat Space copycard沿已有Code/Copy消费；复制不构成评审或接受。OR-A0先核实非文本/未知output接收与历史缺口，再冻结协议给UI；MR-A2/A3分别保持Core评注事务与Markdown版本定位范围。
+
+本单不称全output review已完成，不升级个人数据、不新增模型调用或部署；Core3/app4、已合流RuntimeStore5、Paper、G1–G5与原前端队列保持。

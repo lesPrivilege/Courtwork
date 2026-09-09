@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict';
+import {writeFile,rm} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+const productCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+import {boot} from '../../app/tests/helpers.mjs';
+const h=await boot();
+process.env.APP_URL=h.runtime.url; process.env.WK6_CDP_PORT='20279';
+const {cdp,evaluate:ev,waitFor,close,observations}=await import('./terra/browser.mjs');
+const results=[];
+const check=(name,actual)=>{results.push({name,pass:Boolean(actual)});assert.ok(actual,name);};
+const checked=async(method,p,b)=>{const r=await h.api(method,p,b);assert.equal(r.status,200,JSON.stringify(r.json));return r.json;};
+const source='\uFEFF# Fixed memo 😀\r\n\r\n[Reference][r]\r\n\r\n```js\r\nconst reviewed = true;\r\n```\r\n\r\n'+'Same paragraph 中文 😀.\r\n\r\n'.repeat(205)+'\r\n[r]: https://example.com\r\n\r\n<script>window.untrusted=1</script>';
+const hash=createHash('sha256').update(source).digest('hex');
+try {
+ await checked('POST','/extensions/evidence-memo/lifecycle',{action:'load'});
+ const session=await h.createSession({title:'Markdown browser fixture'});
+ await checked('POST',`/sessions/${session.id}/extension`,{extensionId:'evidence-memo',input:{title:'Markdown fixture',sourceText:'Approved source.',profile:'file-memo-v1'}});
+ const initial=await checked('GET',`/sessions/${session.id}/surface`); const s=initial.projection.sources[0];
+ const run=await checked('POST',`/sessions/${session.id}/runs`,{commandId:'mr-browser',input:h.scriptInput([{name:'ws_write',arguments:{path:'out/memo.md',text:source}},{name:'se_submit_candidate',arguments:{artifact_text:'Memo.',evidence:[{source_id:s.id,source_version:1,start:0,end:s.text.length,quote:s.text,digest:s.digest}],obligations:[],recordedFiles:[{path:'out/memo.md',sha256:hash}]}}])});
+ await h.pollRun(run.run.id,{timeoutMs:20000});
+ await cdp('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+ await cdp('Page.navigate',{url:h.runtime.url});
+ await waitFor(`document.querySelector('#project-list .project-toggle')`);
+ await ev(`document.querySelectorAll('#project-list .project-toggle').forEach(b=>{if(b.getAttribute('aria-expanded')==='false')b.click()})`);
+ await waitFor(`[...document.querySelectorAll('.session-button')].some(b=>b.textContent.includes('Markdown browser fixture'))`);
+ await ev(`[...document.querySelectorAll('.session-button')].find(b=>b.textContent.includes('Markdown browser fixture')).click()`);
+ await waitFor(`window.__V5_UI__?.state.activeSessionId===${JSON.stringify(session.id)}`);
+ await ev(`document.querySelector('#show-surface-button').click()`);
+ await waitFor(`document.querySelector('[data-focus-key="rail-open:preview"]')`);
+ await ev(`document.querySelector('[data-focus-key="rail-open:preview"]').click()`);
+ await waitFor(`[...document.querySelectorAll('#surface-content button')].some(b=>b.textContent.startsWith('Read candidate'))`);
+ await ev(`[...document.querySelectorAll('#surface-content button')].find(b=>b.textContent.startsWith('Read candidate')).click()`);
+ await waitFor(`[...document.querySelectorAll('#surface-content button')].some(b=>b.textContent==='out/memo.md')`);
+ await ev(`[...document.querySelectorAll('#surface-content button')].find(b=>b.textContent==='out/memo.md').click()`);
+ await waitFor(`document.querySelector('#file-content .markdown-reader')`);
+ check('Core manifest entry opens existing File tab',await ev(`window.__V5_UI__.state.surface.kind==='file' && document.querySelector('#file-content').textContent.includes('Candidate file')`));
+ check('Full source projects more than one content page and inert HTML',await ev(`document.querySelectorAll('[data-markdown-block]').length>200 && !window.untrusted && !document.querySelector('#file-content script')`));
+ await ev(`const f=document.querySelector('.markdown-reader__find');f.value='Same paragraph';f.dispatchEvent(new Event('input',{bubbles:true}));`);
+ check('Find reports all repeated blocks',await ev(`document.querySelector('[data-markdown-find-status]').textContent==='205 matching blocks'`));
+ await ev(`document.querySelector('.markdown-reader__mode').click()`);
+ check('Raw source byte-identical after HTTP pages',await ev(`document.querySelector('.markdown-reader__document-source').textContent===${JSON.stringify(source)}`));
+ await new Promise(r=>setTimeout(r,1800));
+ check('Background rendering preserves same document mode and find',await ev(`!!document.querySelector('.markdown-reader__document-source') && document.querySelector('.markdown-reader__find').value==='Same paragraph'`));
+ await ev(`document.querySelector('.markdown-reader__mode').click()`);
+ await ev(`(()=>{const f=document.querySelector('.markdown-reader__find');f.value='';f.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-markdown-block]').click()})()`);
+ check('Selected source is beside target and copy glyph is rendered',await ev(`(()=>{const b=document.querySelector('[data-markdown-block]'),i=document.querySelector('[data-markdown-inspector]'),u=i.querySelector('use');return b.nextElementSibling===i && i.getBoundingClientRect().top<innerHeight && u.getBBox().width>0})()`));
+ await writeFile(new URL('host-1440.png' ,import.meta.url),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
+ check('390px host has no page overflow',await ev(`document.documentElement.scrollWidth<=window.innerWidth`));
+ await writeFile(new URL('host-390.png',import.meta.url),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ // Directly exercise the actual File host with a delayed real payload; ownership is public factory API.
+ check('Close discards a delayed payload',await ev(`(async()=>{
+ const {createFileView}=await import('/web/inspector.mjs'); const host=document.createElement('div');document.body.append(host);
+ const data=${JSON.stringify({path:'out/memo.md',kind:'content-version',runId:run.run.id,sha256:hash,bytes:Buffer.byteLength(source),text:source,truncated:false})};
+ let resolve;const view=createFileView(host,{request:()=>new Promise(r=>resolve=r)});const pending=view.load({kind:'content-version',sessionId:${JSON.stringify(session.id)},runId:data.runId,path:data.path,sha256:data.sha256});
+ view.dispose(); resolve(data); await pending;const ok=!host.childElementCount;host.remove();return ok;
+})()`));
+ check('Switch discards late prior identity and preserves fixed instance',await ev(`(async()=>{
+ const {createFileView}=await import('/web/inspector.mjs');const host=document.createElement('div');document.body.append(host);
+ const source='# Other revision';const sha=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(source)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+ const ref={kind:'content-version',sessionId:'synthetic',runId:'r',path:'中文.md',sha256:sha};
+ const payload={...ref,text:source,bytes:new TextEncoder().encode(source).length,truncated:false};
+ let old;let calls=0;const view=createFileView(host,{request:()=>{calls++;return calls===1?new Promise(r=>old=r):Promise.resolve(payload)}});
+ const pending=view.load({...ref,path:'old.md'});await view.load(ref);const root=host.querySelector('.markdown-reader');await view.load(ref);old({...payload,path:'old.md'});await pending;
+ const ok=!!root&&host.querySelector('.markdown-reader')===root&&calls===2&&host.textContent.includes('中文.md');view.dispose();host.remove();return ok;
+})()`));
+ check('Current and truncated remain previews; digest mismatch refuses',await ev(`(async()=>{
+ const {createFileView}=await import('/web/inspector.mjs');const host=document.createElement('div');document.body.append(host);
+ const ref={kind:'content-version',sessionId:'synthetic',runId:'r',path:'memo.md',sha256:'a'.repeat(64)};
+ let data={...ref,text:'# Preview',bytes:9,truncated:true};const view=createFileView(host,{request:async()=>data});
+ await view.load(ref);const truncated=!host.querySelector('.markdown-reader')&&host.textContent.includes('truncated');view.dispose();
+ data={...data,truncated:false};await view.load(ref);const refused=host.textContent.includes('does not match its recorded version');view.dispose();
+ data={...data,kind:'current'};await view.load({...ref,kind:'current'});const current=!host.querySelector('.markdown-reader')&&host.textContent.includes('Current file');view.dispose();host.remove();return truncated&&refused&&current;
+})()`));
+ check('No browser runtime exceptions' ,observations.exceptions.length===0);
+} finally {
+ await writeFile(new URL('host-checks.json',import.meta.url),JSON.stringify({productCommit,results,exceptions:observations.exceptions},null,2)+'\n');
+ await close(); await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});
+}
+console.log(JSON.stringify(results));

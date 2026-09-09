@@ -21,13 +21,13 @@
 
 冻结 DTO 后提供真实 service packets、BOM/CRLF/entity/reference/重复段落向量和映射失败出口。默认先块级目标，不承诺任意选区。parser 候选使用 unified/remark + mdast 的隔离实验结果；是否进入 vendored 生产依赖由 Astra 在 parity/体积/许可验证后裁定。
 
-验收：同版本逐块 raw slice 能回原字节；emoji/combining/CRLF 无 offset 混淆；引用定义改变时正确失效；跨 scope 拒绝、迟到响应失效、分页缺失不装成全文。反例必须从独立 oracle 而非实现输出产生。**未派产品施工**。
+验收：同版本逐块 raw slice 能回原字节；emoji/combining/CRLF 无 offset 混淆；引用定义改变时正确失效；跨 scope 拒绝、迟到响应失效、分页缺失不装成全文。反例必须从独立 oracle 而非实现输出产生。**本轮 A1/T1 已施工，交付与验证见 [回执](../../../evidence/markdown-reader-a1-20260910/README.md)**。
 
-### MR-T1 · Reader 表示组件（Terra，等待 A1）
+### MR-T1 · Reader 表示组件（Terra）
 
 成熟工作：语义 reader、outline/find/jump、只读 block target、loading/error/unsupported、键盘与窄屏。仅在 Astra 指定的新模块及局部样式内实施；不持有 app.mjs 路由、Core、server、全局 tokens 或 FE-05a 的 shared CSS 写权。由 Astra 串行接宿主与静态 allowlist。
 
-输入：A1 冻结 profile/DTO、实际 packets、当前 V1 tokens、当前 File tab 合同。验收：1440/390、浅深、200% 缩放、长文和表格不挤压主文，outline 跳转/返回/focus 正确，read-only 不画保存成功，安全 corpus 不回退；不新增真实 fetch/model。不把“agent 能写一个漂亮页面”当作接口已成熟。**待 A1，未派**。
+输入：A1 冻结 profile/DTO、实际 packets、当前实际主线 tokens（V1 未落代码时不提前声明已采用）、当前 File tab 合同。验收：1440/390、浅深、200% 缩放、长文和表格不挤压主文，outline 跳转/返回/focus 正确，read-only 不画保存成功，安全 corpus 不回退；不新增真实 fetch/model。不把“agent 能写一个漂亮页面”当作接口已成熟。**本轮已消费 A1 DTO 施工，Astra 接宿主；见上述回执**。
 
 ### MR-A2 · 正式评注事务与回执（Astra）
 
@@ -52,3 +52,7 @@
 L1、L2、T0、A0 可并行，因为写权与验证范围独立。A1/A2 的契约结果到达后才派相应 Terra 消费，不能让 Terra 边猜 DTO 边实现。每个分片交付固定 SHA、写权差异、实际输入、复跑命令、失败/未检与依赖；Astra 先接受后串行合流。需要 long document worker 时使用 bounded job + generation cancellation；模型建议的返回不能更改用户当前选择。
 
 本单前后端决策不再转交 Fable；既有 FE-05a → FE-05 → ATT-FE-01 → CC-I 的共享文件施工顺序保留，Markdown reader 只有在 Astra 核对实际 writer/HEAD 后才接入。公共站、brand 与本单没有产品写权交叉。不会因“排单”自动建立定时守望或对外发送。
+
+## 用户目标补充 · Output Review 与 Markdown
+
+两条相交边界按 [输出评审架构](../../../docs/output-review.md)分别验收。OR-A0 先清点真实 output 接收/记录/表示缺口，再冻结接收与显示 DTO；不把媒体或未知类型静默丢弃，也不把普通 Markdown 自动升级为正式成果。MR-A1/T1 交付只关闭固定文件阅读切片，MR-A2/A3 与其他 Markdown 来源仍保留自身范围。copycard 复用既有 Code/Copy 控件，复制不产生 review 或 acceptance 回执。

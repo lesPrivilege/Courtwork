@@ -1,0 +1,50 @@
+{
+  "productCommit": "b119fc3806006cbc9ecd28773771995c1d71fb2b",
+  "results": [
+    {
+      "name": "Core manifest entry opens existing File tab",
+      "pass": true
+    },
+    {
+      "name": "Full source projects more than one content page and inert HTML",
+      "pass": true
+    },
+    {
+      "name": "Find reports all repeated blocks",
+      "pass": true
+    },
+    {
+      "name": "Raw source byte-identical after HTTP pages",
+      "pass": true
+    },
+    {
+      "name": "Background rendering preserves same document mode and find",
+      "pass": true
+    },
+    {
+      "name": "Selected source is beside target and copy glyph is rendered",
+      "pass": true
+    },
+    {
+      "name": "390px host has no page overflow",
+      "pass": true
+    },
+    {
+      "name": "Close discards a delayed payload",
+      "pass": true
+    },
+    {
+      "name": "Switch discards late prior identity and preserves fixed instance",
+      "pass": true
+    },
+    {
+      "name": "Current and truncated remain previews; digest mismatch refuses",
+      "pass": true
+    },
+    {
+      "name": "No browser runtime exceptions",
+      "pass": true
+    }
+  ],
+  "exceptions": []
+}

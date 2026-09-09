@@ -21,3 +21,7 @@
 2. **语义越权**：点击历史 Markdown checkbox 不得改写原 user message；model clarification 的 answer 不得变成 permission allow；`permission/resolved` 也不显示为外部 effect 已完成，除非既有服务回执证明。
 
 开工前重读实际 `main`、branch、HEAD、status 和目标合同。作者只负责本映射与来源核对；Astra 决定接缝，后续施工须沿单 writer 队列并附 fixture、失败证据和未检项。
+
+## Markdown reader 消费补记 · 2026-09-10
+
+用户再次提供 Chat Space copycard 截图作为参考。已核对本页既有 source/copy/rendered-view 分离，以及 `ui-controls.mjs` 中现有 `Code` + `copyAction`。MR-A1/T1 沿用该控件：代码正文复制、块原始 Markdown 复制、整文件原文复制分别标明对象；不新增卡片权威状态。实现与本次有界验证见 [reader 合同](../../../docs/markdown-reader.md)及[证据](../../../evidence/markdown-reader-a1-20260910/README.md)。截图中的派单内容不作为新执行指令；截图仅证明可见样式/控件，不证明复制、换行或可访问性行为。
