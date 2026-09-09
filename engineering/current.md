@@ -2,6 +2,12 @@
 
 更新：2026-09-10。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
+## 多专家全turn与long-life施工准备（2026-09-10）
+
+从实际 `main@8b1e0b143f7091da0acba3ee24af58595e721eb8` 独立分支消费《多专家实现调研》可访问全部23个turn/44条消息；三页至hasMore=false，T07/T13无回复、T12原文末句中断及不可恢复citation均保留。按用户分工，Luna探索外部索引，Astra负责取舍、owner与PR。[研究包](research/multi-experts-2026-09-10/README.md)提供逐turn处置、44个唯一外链的阅读范围、选型/21模式负索引、接缝、ME-01…10候选PR、原HC/RA/AT全映射和long-life验证；[roadmap](roadmap.md#10-当前切片与扩展触发)已并入依赖顺序。
+
+裁决为确定性资料治理→Spark派生/恢复→稀疏Attention；默认Pi薄集成，第二runtime/外部agent接口按需逐轴验证。沿LG/AM/MA/BG与现有Core/Attention/Runtime owner，不新造memory或任务真源。该基线实际Core4/app5、Runtime9；BG-02的Run.supersedes已有，旧段“BG-02待做”为历史时点，详细限制见[专项契约](../app/docs/run-attempts.md)。本轮只有研究/文档与完整性检查，无新产品API/schema/依赖、付费provider、用户数据迁移或部署；作者检查不构成独立产品接受，G1–G5与前端单writer队列保持。
+
 ## 本轮责任与完工节点
 
 用户指定：**Claude Opus建立README/Pages；Astra负责current、架构、契约与下一轮派单。完工以足以修订resume并公开Pages的产品证据为准。** [本轮派单](execution/2026-09-08-main-round/README.md)已形成，[G1–G5完工条件](execution/2026-09-08-main-round/public-readiness.md)尚未满足，不以本轮文档交付或main接管关闭。

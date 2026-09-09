@@ -1,0 +1,848 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-09-10",
+  "baseCommit": "8b1e0b143f7091da0acba3ee24af58595e721eb8",
+  "conversationId": "6aa1c824-d7a8-83ec-b559-5d8f855ddecb",
+  "title": "多专家实现调研",
+  "rawFile": "inputs/conversation.json",
+  "rawSha256": "d3d433d7756b2d064a283dd17a3812afa3f7dbd95241dd1fb2fb2620828835da",
+  "pages": [
+    {
+      "order": "newest_first",
+      "limit": 10,
+      "nextCursor": "5494482b-57e4-4de2-bc0c-6305a40eab95",
+      "hasMore": true
+    },
+    {
+      "order": "newest_first",
+      "limit": 10,
+      "nextCursor": "a5b7b5e4-d528-42e1-8706-499e76143dde",
+      "hasMore": true
+    },
+    {
+      "order": "newest_first",
+      "limit": 10,
+      "nextCursor": null,
+      "hasMore": false
+    }
+  ],
+  "counts": {
+    "userMessage": 23,
+    "agentMessage": 21
+  },
+  "turns": [
+    {
+      "label": "T01",
+      "turnId": "adb39d5e-6fbd-4a4d-92d2-ed84380559ef",
+      "messages": [
+        {
+          "id": "adb39d5e-6fbd-4a4d-92d2-ed84380559ef",
+          "type": "userMessage",
+          "characters": 429,
+          "utf8Sha256": "31960607d10e617091acbc8ba7c25576f7dbfd4087ab5458f7735390f3319c5f"
+        },
+        {
+          "id": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+          "type": "agentMessage",
+          "characters": 14559,
+          "utf8Sha256": "0520cec7dd1d7208359a911e3ea37dc323468a03c86a274949b491c1b07f3cf5"
+        }
+      ]
+    },
+    {
+      "label": "T02",
+      "turnId": "e7bad430-d548-480c-b738-48fd8e5d537a",
+      "messages": [
+        {
+          "id": "e7bad430-d548-480c-b738-48fd8e5d537a",
+          "type": "userMessage",
+          "characters": 21,
+          "utf8Sha256": "b5bc2f2efb0d6217e6595bf12d9ae9b2c96a18fd73b771e8db4c5685c9e36018"
+        },
+        {
+          "id": "e15c7edc-fd1e-47f5-a69e-6250135af3e8",
+          "type": "agentMessage",
+          "characters": 2268,
+          "utf8Sha256": "cda597db774d9e5ce2daf038dd5b8c10a2ee1f2eee2b5469631ba8fe2a66c75e"
+        }
+      ]
+    },
+    {
+      "label": "T03",
+      "turnId": "98d4e8a9-524c-4058-8e88-81d45f066919",
+      "messages": [
+        {
+          "id": "98d4e8a9-524c-4058-8e88-81d45f066919",
+          "type": "userMessage",
+          "characters": 86,
+          "utf8Sha256": "7a143b5914c05d64aa4a08bb2159e89b75af842181fdbb4c2c302ea3306df4a9"
+        },
+        {
+          "id": "2397d6ba-5b49-423c-806f-96ac17b6b1bd",
+          "type": "agentMessage",
+          "characters": 5960,
+          "utf8Sha256": "d952698ff2ab05d608d3f42745bd8af4165f952eaabdb9c672ea4f0e7e2f0773"
+        }
+      ]
+    },
+    {
+      "label": "T04",
+      "turnId": "a5b7b5e4-d528-42e1-8706-499e76143dde",
+      "messages": [
+        {
+          "id": "a5b7b5e4-d528-42e1-8706-499e76143dde",
+          "type": "userMessage",
+          "characters": 507,
+          "utf8Sha256": "ac99ac776cf5631e748789dcf326d2b2aefdaf3be3f0fa437173d945a2d99e1f"
+        },
+        {
+          "id": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+          "type": "agentMessage",
+          "characters": 12570,
+          "utf8Sha256": "13b51cd36c6d0115855fce536da46f7cc739050bd38d81331c1255aee425d14d"
+        }
+      ]
+    },
+    {
+      "label": "T05",
+      "turnId": "f5b212e4-a85e-4b52-bfc0-81f2f5d2e8f0",
+      "messages": [
+        {
+          "id": "f5b212e4-a85e-4b52-bfc0-81f2f5d2e8f0",
+          "type": "userMessage",
+          "characters": 264,
+          "utf8Sha256": "48668dfafff007d523c02a3065019434abc7232cebfebaaf20eb585365309a42"
+        },
+        {
+          "id": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+          "type": "agentMessage",
+          "characters": 9785,
+          "utf8Sha256": "7a9c651163f710014fc00cd10a5d0d5b43dfc7219aef249e9d83487c245eced4"
+        }
+      ]
+    },
+    {
+      "label": "T06",
+      "turnId": "8f67acbb-ea62-46b5-accc-d645d3c9ec88",
+      "messages": [
+        {
+          "id": "8f67acbb-ea62-46b5-accc-d645d3c9ec88",
+          "type": "userMessage",
+          "characters": 62,
+          "utf8Sha256": "82bd00c659565c3a481ac967089b53e3bde0106166decd56c72c215c6e9bc49b"
+        },
+        {
+          "id": "08c185c4-efbe-40a9-b38b-f762da10ec69",
+          "type": "agentMessage",
+          "characters": 3901,
+          "utf8Sha256": "a1c1dfc1e04909a029351658f5788f1bbba077471e973a6fee4f81db4c7c2d64"
+        }
+      ]
+    },
+    {
+      "label": "T07",
+      "turnId": "ef1666a9-22b9-48e6-ad02-32a2ae9d1f2c",
+      "messages": [
+        {
+          "id": "ef1666a9-22b9-48e6-ad02-32a2ae9d1f2c",
+          "type": "userMessage",
+          "characters": 177,
+          "utf8Sha256": "63587300c0d481abb8d03a27395fae6f5d10e55174f39547c5c441b486b7b581"
+        }
+      ]
+    },
+    {
+      "label": "T08",
+      "turnId": "923e63a0-62b4-445d-b109-6dd73aa9a3f3",
+      "messages": [
+        {
+          "id": "923e63a0-62b4-445d-b109-6dd73aa9a3f3",
+          "type": "userMessage",
+          "characters": 54,
+          "utf8Sha256": "2afd8f8cbbc16ba1125ab37a86b0e1037362132538eb8994d0613fff3bcbb74a"
+        },
+        {
+          "id": "59cf094f-0bec-486c-8a7e-7bed7bfca8ff",
+          "type": "agentMessage",
+          "characters": 10918,
+          "utf8Sha256": "6a181f3a16c91e8f1e8da992efec315f21799a80a652e0a3491cb1b03e055fda"
+        }
+      ]
+    },
+    {
+      "label": "T09",
+      "turnId": "bc2d916b-3cd5-4d50-ab9c-86bdeff218d4",
+      "messages": [
+        {
+          "id": "bc2d916b-3cd5-4d50-ab9c-86bdeff218d4",
+          "type": "userMessage",
+          "characters": 124,
+          "utf8Sha256": "967945bcf343bcbb764d4390b9d9b3f87a3d35bb3996372eb2aab9684d9e19a0"
+        },
+        {
+          "id": "296c56fd-51ca-41cb-9c76-6c9cd5f5e2bb",
+          "type": "agentMessage",
+          "characters": 7300,
+          "utf8Sha256": "b262fff9089442de689622ecfa698c967b4a9e8619512800dde76ea6cd0d7aeb"
+        }
+      ]
+    },
+    {
+      "label": "T10",
+      "turnId": "dfbdf6be-8b00-435c-a846-e498a048238e",
+      "messages": [
+        {
+          "id": "dfbdf6be-8b00-435c-a846-e498a048238e",
+          "type": "userMessage",
+          "characters": 190,
+          "utf8Sha256": "324f874a909310b1381075107cba01d1fbff1b1c4328d265d1450fb2dd8ff827"
+        },
+        {
+          "id": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+          "type": "agentMessage",
+          "characters": 8854,
+          "utf8Sha256": "0b28398aac647c8087a2fcda644f01d05151c868e5199189b9d63e6e33218257"
+        }
+      ]
+    },
+    {
+      "label": "T11",
+      "turnId": "f4278364-8b4c-4718-a16b-aa4f21860e47",
+      "messages": [
+        {
+          "id": "f4278364-8b4c-4718-a16b-aa4f21860e47",
+          "type": "userMessage",
+          "characters": 320,
+          "utf8Sha256": "5167c6ccbeb84e9dad3a81a46a30c659d487848203fc93b5b63139541158951b"
+        },
+        {
+          "id": "2d430fd7-6b57-42ed-966a-975142df9b1d",
+          "type": "agentMessage",
+          "characters": 7761,
+          "utf8Sha256": "f749a61cd40437550d584c1329b63931f8f8e3a7ef8978b17e54bbcb831bd083"
+        }
+      ]
+    },
+    {
+      "label": "T12",
+      "turnId": "989e9d8d-8687-4364-8992-a658ef3e2c2e",
+      "messages": [
+        {
+          "id": "989e9d8d-8687-4364-8992-a658ef3e2c2e",
+          "type": "userMessage",
+          "characters": 665,
+          "utf8Sha256": "ed63be1de3cc47ababebf21df14253af2b922b4fe421701f96c90e16905d6fbd"
+        },
+        {
+          "id": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+          "type": "agentMessage",
+          "characters": 12078,
+          "utf8Sha256": "39fb63e75db25fc0937f8b9d8255c95cb0772d168c6b85d3443936f6e2c23365"
+        }
+      ]
+    },
+    {
+      "label": "T13",
+      "turnId": "6ae5e653-d1e6-4278-b2e0-17c17e31ca3d",
+      "messages": [
+        {
+          "id": "6ae5e653-d1e6-4278-b2e0-17c17e31ca3d",
+          "type": "userMessage",
+          "characters": 248,
+          "utf8Sha256": "63a921cb1e29431b63be52548312022d8606e4124e71c71dffa947e6d94f589b"
+        }
+      ]
+    },
+    {
+      "label": "T14",
+      "turnId": "5494482b-57e4-4de2-bc0c-6305a40eab95",
+      "messages": [
+        {
+          "id": "5494482b-57e4-4de2-bc0c-6305a40eab95",
+          "type": "userMessage",
+          "characters": 15,
+          "utf8Sha256": "52a47cfe19813323fd108f2492bc3eec3a7dcc6b5bf0792b5d4db3b3ae3a18be"
+        },
+        {
+          "id": "1c2023a6-1700-4d3c-8060-4bee68617fd2",
+          "type": "agentMessage",
+          "characters": 11431,
+          "utf8Sha256": "f7343f430abcaf99a23a3f426babce106607ffe2780d44bed00ff83bd2bea284"
+        }
+      ]
+    },
+    {
+      "label": "T15",
+      "turnId": "d0b3bad9-8fa9-4ea5-930b-6ac2a4433dd6",
+      "messages": [
+        {
+          "id": "d0b3bad9-8fa9-4ea5-930b-6ac2a4433dd6",
+          "type": "userMessage",
+          "characters": 315,
+          "utf8Sha256": "0117d905fec108956ef0b7953868131d3f85bf93a610ff732499d6d1ebec0108"
+        },
+        {
+          "id": "61fa786a-d36f-4c06-b350-0cc6d54718d4",
+          "type": "agentMessage",
+          "characters": 4893,
+          "utf8Sha256": "38709ebb05144777deb0efbc2a19687d1fb8f84ecbdc07b90afa33f123a9b2b5"
+        }
+      ]
+    },
+    {
+      "label": "T16",
+      "turnId": "0b349c61-18db-4830-b445-265f17155057",
+      "messages": [
+        {
+          "id": "0b349c61-18db-4830-b445-265f17155057",
+          "type": "userMessage",
+          "characters": 84,
+          "utf8Sha256": "8ea0a497d2c67fb3966f713358aa4c89ec4a9195c147e709572fe53a0134f617"
+        },
+        {
+          "id": "5fde6873-f24d-40d5-9f09-4c3fae6f35bb",
+          "type": "agentMessage",
+          "characters": 4010,
+          "utf8Sha256": "bead212bee40a849f60590887304e8d2ad9cf2378010fe0787a8262f29699b49"
+        }
+      ]
+    },
+    {
+      "label": "T17",
+      "turnId": "41b6bc09-5c23-43f0-9d54-b3c327a1816d",
+      "messages": [
+        {
+          "id": "41b6bc09-5c23-43f0-9d54-b3c327a1816d",
+          "type": "userMessage",
+          "characters": 211,
+          "utf8Sha256": "b842049cf5189cce5685e62ed6f0c76ec243349a649d9064dfb8243b5028eb19"
+        },
+        {
+          "id": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+          "type": "agentMessage",
+          "characters": 10016,
+          "utf8Sha256": "442d9ae9a3c89b06efe8a5665cc95ce68b861fdf952b809ef424e91df81ce988"
+        }
+      ]
+    },
+    {
+      "label": "T18",
+      "turnId": "1de0e093-a911-4aa1-bd58-c268fd2801b2",
+      "messages": [
+        {
+          "id": "1de0e093-a911-4aa1-bd58-c268fd2801b2",
+          "type": "userMessage",
+          "characters": 328,
+          "utf8Sha256": "dd0af78f067d63a92f10c256c023e88ea2b536443feca11ad1cd8c84a316b292"
+        },
+        {
+          "id": "45363067-f3b9-442c-990c-5be2ebf75651",
+          "type": "agentMessage",
+          "characters": 8147,
+          "utf8Sha256": "509b6d3f2d5bf8d428c6647ae570907ebdd27a4fd5c28ea2cb8e1b621f7aa24d"
+        }
+      ]
+    },
+    {
+      "label": "T19",
+      "turnId": "c155ea3b-ab1c-4f4f-828f-e61d582ea321",
+      "messages": [
+        {
+          "id": "c155ea3b-ab1c-4f4f-828f-e61d582ea321",
+          "type": "userMessage",
+          "characters": 445,
+          "utf8Sha256": "cb12030ae256a0a6655205004b731c3f94a1a138b7d2713db1dd587a9039a762"
+        },
+        {
+          "id": "338976a7-a206-4cd1-9bed-a9c9cdbbd496",
+          "type": "agentMessage",
+          "characters": 4568,
+          "utf8Sha256": "43de5f33df0f85737fc3f5d8b0a0688c4628110e7f296b8461b8c8f416ce0347"
+        }
+      ]
+    },
+    {
+      "label": "T20",
+      "turnId": "70ebee3a-a6fc-4a04-b888-e9cbcbe85e03",
+      "messages": [
+        {
+          "id": "70ebee3a-a6fc-4a04-b888-e9cbcbe85e03",
+          "type": "userMessage",
+          "characters": 116,
+          "utf8Sha256": "b3dcc6e6695bf540548d1a893bfafabb4effd435a5c304483eb392e6057def3d"
+        },
+        {
+          "id": "9a74dd82-eab6-4fa8-bdfa-374282011d68",
+          "type": "agentMessage",
+          "characters": 2811,
+          "utf8Sha256": "85a6b1831cc418d2e6920a75f344996c6d5922dfd3f8869706c6c7e36b41b53d"
+        }
+      ]
+    },
+    {
+      "label": "T21",
+      "turnId": "e615c12c-6dc0-4c07-9622-b129d4df3043",
+      "messages": [
+        {
+          "id": "e615c12c-6dc0-4c07-9622-b129d4df3043",
+          "type": "userMessage",
+          "characters": 171,
+          "utf8Sha256": "85b9dd04c41e8be88c92721a8b4f432951a03b8f1bf2285dc8c63907461aec7f"
+        },
+        {
+          "id": "06e8ae12-9067-4a52-8b78-44e774ea2cac",
+          "type": "agentMessage",
+          "characters": 2348,
+          "utf8Sha256": "fba39053fc63a94662b224dd6bdce2cf2afe5ef0dbcffaacaf9ca71f60506269"
+        }
+      ]
+    },
+    {
+      "label": "T22",
+      "turnId": "c00d5ed1-d3cb-443b-8851-6a51e2ff849b",
+      "messages": [
+        {
+          "id": "c00d5ed1-d3cb-443b-8851-6a51e2ff849b",
+          "type": "userMessage",
+          "characters": 146,
+          "utf8Sha256": "582a5c2356069351c57ed2fa2ae60d88e7e6716e50eb964786fc7f82a35c34c1"
+        },
+        {
+          "id": "c20bced4-1ece-4f2b-921f-a161e09d650b",
+          "type": "agentMessage",
+          "characters": 4062,
+          "utf8Sha256": "e9634028b2c8c19e2daa068ff4323d8d2adf104dccfd8ad515b5930f769e534a"
+        }
+      ]
+    },
+    {
+      "label": "T23",
+      "turnId": "dd55812b-e69e-41d5-bd43-f359f6f1662b",
+      "messages": [
+        {
+          "id": "dd55812b-e69e-41d5-bd43-f359f6f1662b",
+          "type": "userMessage",
+          "characters": 34,
+          "utf8Sha256": "05d50622a273f212d43ba6574c06f4afbd5bb3a391c49ee8c7b009570934e531"
+        },
+        {
+          "id": "6283ff69-b3a3-44e3-ba56-a9b82bc2063f",
+          "type": "agentMessage",
+          "characters": 1116,
+          "utf8Sha256": "3d700339910946b3fd98e18dbf5d2ff5ccfc1d41770b520e81855734e0e20c49"
+        }
+      ]
+    }
+  ],
+  "urlOccurrences": [
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://www.harvey.ai/blog/introducing-harvey-ii"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://openai.com/index/unlocking-the-codex-harness/"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://agentclientprotocol.com/get-started/introduction"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://zed.dev/acp"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://docs.github.com/en/copilot/reference/custom-agents-configuration"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/custom-agents"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://code.claude.com/docs/en/sub-agents"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://opencode.ai/v2/docs/agents"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://learn.microsoft.com/en-us/agents/design-guidelines/agent-entry-points"
+    },
+    {
+      "turn": "T01",
+      "messageId": "f74b974e-6f17-4076-bb30-9335556b5ea6",
+      "url": "https://support.atlassian.com/jira-software-cloud/docs/collaborate-on-work-items-with-ai-agents/"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://modelcontextprotocol.io/docs/2025-03-26/develop/clients/client-best-practices"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://www.harvey.ai/blog/agentic-vault-search-and-organization"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://www.harvey.ai/blog/building-new-file-ingestion-system-to-scale-firm-knowledge"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/README.md"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://code.claude.com/docs/en/workflows"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://docs.github.com/en/copilot/concepts/agents/copilot-cli/fleet"
+    },
+    {
+      "turn": "T04",
+      "messageId": "45e70800-cce7-4c68-ae95-2df4e04ff875",
+      "url": "https://temporal.io/blog/temporal-agent-harness-durable-agent-infrastructure"
+    },
+    {
+      "turn": "T05",
+      "messageId": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+      "url": "https://arxiv.org/abs/2607.05147"
+    },
+    {
+      "turn": "T05",
+      "messageId": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2025/file/12c45a68e8433b21b91cd47731387fa4-Paper-Conference.pdf"
+    },
+    {
+      "turn": "T05",
+      "messageId": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+      "url": "https://github.com/deepseek-ai/DeepSpec"
+    },
+    {
+      "turn": "T05",
+      "messageId": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+      "url": "https://aclanthology.org/2026.findings-acl.333.pdf"
+    },
+    {
+      "turn": "T05",
+      "messageId": "7fde3910-40ea-4720-a2c6-a105e1d693f6",
+      "url": "https://arxiv.org/abs/2609.01345"
+    },
+    {
+      "turn": "T08",
+      "messageId": "59cf094f-0bec-486c-8a7e-7bed7bfca8ff",
+      "url": "https://openai.com/index/chatgpt-memory-dreaming/"
+    },
+    {
+      "turn": "T10",
+      "messageId": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+      "url": "https://linear.app/docs/delete-archive-issues"
+    },
+    {
+      "turn": "T10",
+      "messageId": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+      "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+    },
+    {
+      "turn": "T10",
+      "messageId": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+      "url": "https://developers.openai.com/cookbook/examples/agents_sdk/building_reliable_agents_memory_compaction"
+    },
+    {
+      "turn": "T10",
+      "messageId": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+      "url": "https://www.intercom.com/learning-center/ai-human-collaboration-procedures-handoffs"
+    },
+    {
+      "turn": "T10",
+      "messageId": "158b18ca-3cc0-47a6-9057-23d3ff332f8c",
+      "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://zed.dev/docs/ai/agent-settings"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://zed.dev/docs/ai/external-agents"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://openai.com/index/unlocking-the-codex-harness/"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://learn.chatgpt.com/docs/app-server.md"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://agentclientprotocol.com/protocol/v2/session-config-options"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+    },
+    {
+      "turn": "T12",
+      "messageId": "1e3301a4-4d29-467b-b644-cf48b46a715e",
+      "url": "https://developers.openai.com/codex/app/automations"
+    },
+    {
+      "turn": "T14",
+      "messageId": "1c2023a6-1700-4d3c-8060-4bee68617fd2",
+      "url": "https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models"
+    },
+    {
+      "turn": "T14",
+      "messageId": "1c2023a6-1700-4d3c-8060-4bee68617fd2",
+      "url": "https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md"
+    },
+    {
+      "turn": "T14",
+      "messageId": "1c2023a6-1700-4d3c-8060-4bee68617fd2",
+      "url": "https://developers.openai.com/codex/concepts/customization"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://github.com/google-gemini/gemini-cli/blob/f8541cf7/docs/resources/faq.md"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://developers.google.com/gemini-code-assist/docs/deprecations/code-assist-individuals"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://ai.google.dev/gemini-api/docs/interactions-overview"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://ai.google.dev/gemini-api/docs/latest-model"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://ai.google.dev/gemini-api/docs/api-key"
+    },
+    {
+      "turn": "T17",
+      "messageId": "9ebdd7d8-a5d8-4b4d-bc8d-1b02b7d1ca9d",
+      "url": "https://google-gemini.github.io/gemini-cli/docs/extensions/"
+    }
+  ],
+  "sources": [
+    {
+      "id": "S01",
+      "url": "https://www.harvey.ai/blog/introducing-harvey-ii"
+    },
+    {
+      "id": "S02",
+      "url": "https://openai.com/index/unlocking-the-codex-harness/"
+    },
+    {
+      "id": "S03",
+      "url": "https://agentclientprotocol.com/get-started/introduction"
+    },
+    {
+      "id": "S04",
+      "url": "https://zed.dev/acp"
+    },
+    {
+      "id": "S05",
+      "url": "https://docs.github.com/en/copilot/reference/custom-agents-configuration"
+    },
+    {
+      "id": "S06",
+      "url": "https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/custom-agents"
+    },
+    {
+      "id": "S07",
+      "url": "https://code.claude.com/docs/en/sub-agents"
+    },
+    {
+      "id": "S08",
+      "url": "https://opencode.ai/v2/docs/agents"
+    },
+    {
+      "id": "S09",
+      "url": "https://learn.microsoft.com/en-us/agents/design-guidelines/agent-entry-points"
+    },
+    {
+      "id": "S10",
+      "url": "https://support.atlassian.com/jira-software-cloud/docs/collaborate-on-work-items-with-ai-agents/"
+    },
+    {
+      "id": "S11",
+      "url": "https://modelcontextprotocol.io/docs/2025-03-26/develop/clients/client-best-practices"
+    },
+    {
+      "id": "S12",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    },
+    {
+      "id": "S13",
+      "url": "https://www.harvey.ai/blog/agentic-vault-search-and-organization"
+    },
+    {
+      "id": "S14",
+      "url": "https://www.harvey.ai/blog/building-new-file-ingestion-system-to-scale-firm-knowledge"
+    },
+    {
+      "id": "S15",
+      "url": "https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/README.md"
+    },
+    {
+      "id": "S16",
+      "url": "https://code.claude.com/docs/en/workflows"
+    },
+    {
+      "id": "S17",
+      "url": "https://docs.github.com/en/copilot/concepts/agents/copilot-cli/fleet"
+    },
+    {
+      "id": "S18",
+      "url": "https://temporal.io/blog/temporal-agent-harness-durable-agent-infrastructure"
+    },
+    {
+      "id": "S19",
+      "url": "https://arxiv.org/abs/2607.05147"
+    },
+    {
+      "id": "S20",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2025/file/12c45a68e8433b21b91cd47731387fa4-Paper-Conference.pdf"
+    },
+    {
+      "id": "S21",
+      "url": "https://github.com/deepseek-ai/DeepSpec"
+    },
+    {
+      "id": "S22",
+      "url": "https://aclanthology.org/2026.findings-acl.333.pdf"
+    },
+    {
+      "id": "S23",
+      "url": "https://arxiv.org/abs/2609.01345"
+    },
+    {
+      "id": "S24",
+      "url": "https://openai.com/index/chatgpt-memory-dreaming/"
+    },
+    {
+      "id": "S25",
+      "url": "https://linear.app/docs/delete-archive-issues"
+    },
+    {
+      "id": "S26",
+      "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+    },
+    {
+      "id": "S27",
+      "url": "https://developers.openai.com/cookbook/examples/agents_sdk/building_reliable_agents_memory_compaction"
+    },
+    {
+      "id": "S28",
+      "url": "https://www.intercom.com/learning-center/ai-human-collaboration-procedures-handoffs"
+    },
+    {
+      "id": "S29",
+      "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+    },
+    {
+      "id": "S30",
+      "url": "https://zed.dev/docs/ai/agent-settings"
+    },
+    {
+      "id": "S31",
+      "url": "https://zed.dev/docs/ai/external-agents"
+    },
+    {
+      "id": "S32",
+      "url": "https://learn.chatgpt.com/docs/app-server.md"
+    },
+    {
+      "id": "S33",
+      "url": "https://agentclientprotocol.com/protocol/v2/session-config-options"
+    },
+    {
+      "id": "S34",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+    },
+    {
+      "id": "S35",
+      "url": "https://developers.openai.com/codex/app/automations"
+    },
+    {
+      "id": "S36",
+      "url": "https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models"
+    },
+    {
+      "id": "S37",
+      "url": "https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/skill-creator/SKILL.md"
+    },
+    {
+      "id": "S38",
+      "url": "https://developers.openai.com/codex/concepts/customization"
+    },
+    {
+      "id": "S39",
+      "url": "https://github.com/google-gemini/gemini-cli/blob/f8541cf7/docs/resources/faq.md"
+    },
+    {
+      "id": "S40",
+      "url": "https://developers.google.com/gemini-code-assist/docs/deprecations/code-assist-individuals"
+    },
+    {
+      "id": "S41",
+      "url": "https://ai.google.dev/gemini-api/docs/interactions-overview"
+    },
+    {
+      "id": "S42",
+      "url": "https://ai.google.dev/gemini-api/docs/latest-model"
+    },
+    {
+      "id": "S43",
+      "url": "https://ai.google.dev/gemini-api/docs/api-key"
+    },
+    {
+      "id": "S44",
+      "url": "https://google-gemini.github.io/gemini-cli/docs/extensions/"
+    }
+  ],
+  "limitations": [
+    "T07 and T13 have no returned assistant message",
+    "T12 ends mid-sentence in both paginated and single-turn reads",
+    "Opaque citations and image references are not restored external sources",
+    "Accessible pagination coverage does not establish external full-text coverage"
+  ]
+}
