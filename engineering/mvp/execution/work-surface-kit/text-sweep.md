@@ -180,3 +180,27 @@
 | `The runtime answered without an effect for this capability, …` | **缺数据 ≠ 空值**（FN-28），替代原先渲染出的裸 `null` | `runtime-view.mjs` `explanationBlock` |
 | `Advanced`（Appearance disclosure） | **分级**：换色阶是少数人做的事 | `settings-view.mjs` |
 | `Connection · <provider> · <model>`（accessible name） | icon 化后的 composer 连接控件的完整读法 | `app.mjs` `renderChatHeader` |
+
+## 7. FE-02 Models & Connections 增量（2026-09-09，WK-91）
+
+### 7.1 改（旧词 · 新词 · 位置）
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `Connection`（Models 组的块标题） | `Connections` | `index.html` Models 组 |
+| `Connection options`（disclosure summary） | `Advanced` | `settings-view.mjs` 连接表单 |
+| `Used for every new run in this workspace.`（Model 行说明） | `Used for every chat you start next. Chats already open keep the model they were bound to.` | 同上 |
+| `Leave empty for the provider default.`（Base URL，恒定一句） | 同句保留，但 placeholder 随路径变：`Provider default` / `https://host/v1` / `Fixed by the host` | 同上 |
+
+### 7.2 新增字符串（承重说明）
+
+| 字符串 | 承担什么 | 位置 |
+|---|---|---|
+| `Add provider` | **入口**：一个 disclosure，不是第二个编辑面板；展开后只决定路径 | `settings-view.mjs` |
+| `Catalog provider` · `Compatible endpoint` · `Local endpoint` | **三条 happy path 的差别本身**：端点归 provider、归用户、归宿主 | 同上 `CONNECTION_PATHS` |
+| `In force` | **哪一条是生效的那一条**；后端只持有一条连接，所以它同时是"唯一" | 同上 `connectionRows` |
+| `Configure` · `Test connection` · `Fetch models` · `Choose a model` · `Save connection`（流程五步） | **统一流程**：五步一次说完，未交付的两步是文本 | 同上 `CONNECTION_STEPS` |
+| `Not available yet: …`（两条） | **缺口的原因**，不是一个按不动的按钮：BE-17 / BE-18 未交付 | 同上 |
+| `Custom headers and provider compatibility quirks are not configurable here yet; …` | **边界**：Advanced 里没有的东西不会偷偷生效 | 同上 Advanced |
+| `Local endpoint fixed by the host` · `No key needed` | **本地连接不是缺凭据**，它不需要凭据 | 同上 `connectionRows` |
+| `Adding an MCP server` + 六步 | MCP 走同一形态；三步在下方已有落点，三步未交付 | 同上 `MCP_INTAKE_STEPS` |

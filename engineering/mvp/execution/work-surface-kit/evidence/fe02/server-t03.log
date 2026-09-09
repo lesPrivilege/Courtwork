@@ -1,0 +1,5 @@
+
+> se-agent-v5-runtime@0.1.0 start
+> node server/index.mjs --data-dir /private/tmp/se-agent-fe02-data/t03 --port 8889
+
+http://127.0.0.1:8889

@@ -1,0 +1,17 @@
+PASS NAV-1 {"navWidth":256}
+PASS MOD-1 {"rowCount":1,"rowText":["Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"],"badge":["In force"]}
+PASS MOD-2 {"primaryActions":1}
+PASS MOD-3 {"addOpen":false}
+PASS MOD-5 {"promises":[]}
+PASS MOD-11 {}
+PASS MOD-10 {"blurred":0}
+PASS MOD-3b {"pathRadios":["catalog","compatible","local"],"pathTabStops":1}
+PASS MOD-4 {"stepCount":5,"pendingSteps":["Test connection","Fetch models"],"pendingControls":0}
+PASS MOD-6 {"advancedOpen":[true],"saveDisabled":true}
+PASS MOD-7 {"baseUrlDisabled":true,"credentialVisible":false}
+PASS MOD-8 {"heights":[32],"radii":["8px"]}
+PASS MOD-9 {"titleLefts":[533],"controlRights":[1131]}
+PASS MOD-13 · 1440 {"overflow":0}
+PASS MOD-12 {"intake":{"steps":6,"pending":3,"focusable":0}}
+PASS MOD-13 · 390 {"overflow":0}
+16 / 16
