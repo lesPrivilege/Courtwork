@@ -254,6 +254,7 @@ function review(fill, shot) {
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
+<p class="review-attention" data-attention="review"><span aria-hidden="true"></span>待人审阅 <small>· 录制中的候选状态</small></p>
 ${shot("M6", {
           alt: "Work Review：一条候选待决定，依据与来源版本可见。",
           caption: inline(

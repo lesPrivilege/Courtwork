@@ -695,3 +695,17 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
   .brand-lockup-small .brand-name { font-size: 16px; }
   .brand-lockup-small .brand-icon { width: 20px; height: 20px; }
 }
+
+/* Narrow attention.review slot: a recorded pending candidate, not brand accent. */
+:root { --campaign-attention-review: #b3262d; }
+.review-attention { display: flex; align-items: center; gap: 8px; margin: 32px 0 12px; color: var(--campaign-attention-review); font-size: 14px; font-weight: 500; }
+.review-attention > span { width: 5px; height: 5px; flex: none; border-radius: 50%; background: currentColor; }
+.review-attention > small { color: var(--muted-strong); font-size: inherit; font-weight: 400; }
+@media (prefers-color-scheme: dark) { :root { --campaign-attention-review: #ed9396; } }
+@media (forced-colors: active) { .review-attention { color: CanvasText; } }
+
+/* Record bars recede; the stem retains the identity's primary ink. */
+:root { --campaign-mark-record: #8b9298; }
+.brand-icon rect:not(:first-child) { fill: var(--campaign-mark-record); }
+@media (prefers-color-scheme: dark) { :root { --campaign-mark-record: #90979d; } }
+@media (forced-colors: active) { .brand-icon rect:not(:first-child) { fill: CanvasText; } }
