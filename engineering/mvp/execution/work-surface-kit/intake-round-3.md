@@ -162,6 +162,12 @@ FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = H
 
 FE-04 派单：`opus-wo-medium`（逐 primitive 判断），树 `/private/tmp/se-agent-fe04`、分支 `claude/fe04-primitives`、基线 `af95bcb`、端口 8897（MCP fixture 8898）、数据 `/private/tmp/se-agent-fe04-data`；提示词全文 [WO-FE04-dispatch-prompt](work-orders/WO-FE04-dispatch-prompt.md)。
 
+## 4r. EX-CC1 回执 → WK-113（2026-09-09，CC-W 几何与 tab 契约）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-113 | Sonnet [EX-CC1](explore/ex-cc1-three-pane-tabs.md) 回执（六条待裁）。事实：`.app-shell` 两栏 grid，工作面是主区内的悬浮层（折叠 360 卡片列）/ 覆盖层（展开盖满主区），`docs/interface-components.md:5` 明定"不是第三栏"；`state.surface` 单值（BE-2 未交付，多文档 tab 无后端形状）；`#surface-tabs` 是四个固定类型 tab（run / file / workspace / runtime），方向键已是 WAI-ARIA 自动激活；FN-22 已冻结 tab key 规则；1440 算术 256 + 24 + 640 + 24 + X → X ≤ 496。裁定：① **不整体推翻"不是第三栏"，改为按视口分档**：≥1680 工作面成为真正的第三栏（三面上下贯通、独立滚动、共享顶部 chrome 基线），1024–1679 保持覆盖 / 折叠语义并加 tab strip（主次视图切换，中面 ≥640 不动），<1024 全屏 sheet 不变；这是显式契约修订，CC-W 第 0 项先改 `interface-components.md` §工作面定性、`ui-composition-standard.md` §右侧 contextual surface、新增 ≥1680 断点与几何断言（WORK-5…），不伪装成 CSS 修复；② 1440 下选 **B**（主次切换 + tab strip），**A**（导航收图标列）不在本轮，无用户裁定不设新宽度 token；③ tab key 复用既有身份（文件 / Run `{sessionId, path, kind, sha256, runId}`，领域渲染器 `{sessionId, extensionId, generation}`，来源 `{artifactId, version, digest}`），**不新增 `scope` 字段**，scope 由 `sessionId` 推出；Memory scope 位随 CC-W 从会话 meta 行搬到工作面标题带（结 M-2）；④ 第一段**只有一个受信活动文档**，不做前端伪多实例，多文档 tab 等 BE-2；tab strip 第一段 = 四个固定类型 tab + 至多一个可关闭的文档实例 tab，关闭回紧凑目录并归还焦点（复用 `restoreLayerFocus`）；⑤ 每 tab 独立滚动位置随 BE-2 多实例一并做，第一段共享阅读位置；⑥ 固定类型 tab 保留为档位，与文档实例 tab 并存但视觉区分（类型 tab 无关闭区；文档 tab 关闭命中区与选中区分离，截断保留可访问全名）。tab strip 高 40–44、正文距其 24–32 为待验初值。按 WK-112 (b)，CC-W 施工前出结构变体供用户比较：A 导航收图标（1440 三面）/ B 主次切换 + strip（1440）/ C 宽屏三栏（1680）三张线框画板，与 CC-D0 的变体同一画布（EX-CC2 回执后由 Fable 出）；Fable 推荐 B + C。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
