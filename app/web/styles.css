@@ -5402,3 +5402,51 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
     backdrop-filter: none;
   }
 }
+
+/* Attention uses the existing solid reading/material roles. A real modal
+   dialog supplies inert background and focus containment; no simulated glass. */
+.attention-agent-dialog { width: min(640px, calc(100vw - 40px)); max-width: none; height: min(780px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto 20px auto auto; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--ink); box-shadow: var(--shadow-float); overflow: hidden; }
+.attention-agent-dialog[open] { display: flex; flex-direction: column; }
+.attention-agent-dialog::backdrop { background: var(--scrim); }
+.attention-agent-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px 12px; }
+.attention-agent-header h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.attention-agent-header p { margin: 5px 0 0; }
+.attention-agent-toolbar { display: flex; align-items: center; gap: 8px; padding: 0 24px 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.attention-agent-toolbar select { flex: 1; width: auto; min-width: 160px; }
+.attention-agent-toolbar .text-button { font-size: var(--text-meta); }
+.attention-agent-stream { flex: 1; min-height: 80px; overflow: auto; padding: 20px 24px; overscroll-behavior: contain; overflow-wrap: anywhere; }
+.attention-agent-empty { padding: 48px 0; color: var(--muted-strong); }
+.attention-agent-empty h3 { color: var(--ink); font-size: 24px; margin: 0 0 12px; }
+.attention-agent-empty p { line-height: 1.6; }
+.attention-easter-egg { display: block; margin-top: 28px; font-size: var(--text-meta); }
+.attention-agent-message { margin-bottom: 22px; font-size: var(--text-body); }
+.attention-agent-message-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.attention-agent-message-heading button { margin-left: auto; }
+.attention-agent-message.is-user { padding: 12px 14px; border-radius: var(--radius-card); background: var(--panel-muted); }
+.attention-agent-message pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; font-size: var(--text-meta); }
+.attention-agent-message.is-permission, .attention-agent-message.is-question { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-card); }
+.attention-agent-message.is-permission > button { margin-right: 8px; }
+.attention-agent-status { padding: 0 24px; }
+.attention-agent-status > p { margin: 0 0 6px; }
+.attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: 12px 20px 16px; padding: 5px 6px 5px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--float); }
+.attention-agent-composer:focus-within { border-color: var(--muted-strong); }
+.attention-agent-composer input { flex: 1; min-width: 0; width: 100%; height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.attention-agent-composer input:focus { outline: none; }
+.attention-agent-composer button { flex: 0 0 auto; border-radius: 10px; }
+.attention-agent-runtime { flex: 1; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
+.attention-agent-runtime > div { max-height: 160px; overflow: auto; }
+.attention-agent-runtime p { margin: 8px 0; line-height: 1.5; }
+@media (max-width: 600px) {
+  .attention-agent-dialog { width: calc(100vw - 16px); height: calc(100dvh - 16px); max-height: calc(100dvh - 16px); margin: auto; }
+  .attention-agent-header, .attention-agent-stream { padding: 16px; }
+  .attention-agent-toolbar { padding: 0 16px 10px; }
+  .attention-agent-composer { margin: 10px 12px 12px; }
+ .attention-agent-status { padding: 0 16px; }
+  .attention-agent-dialog button, .attention-agent-dialog summary { min-height: 44px; }
+  .attention-agent-toolbar select { width: calc(100% - 52px); }
+}
+.runtime-package-resources { max-height: 280px; overflow: auto; margin: 16px 0; }
+.runtime-package-resources label { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.runtime-package-resources input { width: auto; }
+[data-package-editor] > label { display: block; margin-top: 12px; }
+[data-package-editor] > label > span { display: block; margin-bottom: 6px; }

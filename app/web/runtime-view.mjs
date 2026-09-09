@@ -8,9 +8,9 @@ import { el, icon, action, copyAction } from "./ui-controls.mjs";
    its own is a set of local drafts plus the request epoch that discards a late
    reply (FN-07 / FN-24). */
 
-const SCOPE_ORDER = ["user", "workspace", "session"];
-const SCOPE_LABELS = { user: "user", workspace: "workspace", session: "session" };
-const SCOPE_TAB_LABELS = { user: "User", workspace: "Workspace", session: "Session" };
+const SCOPE_ORDER = ["user", "workspace", "agent", "session"];
+const SCOPE_LABELS = { user: "user", workspace: "workspace", agent: "Attention", session: "session" };
+const SCOPE_TAB_LABELS = { user: "User", workspace: "Workspace", agent: "Attention", session: "Session" };
 export const PRECEDENCE_SENTENCE =
   "Session overrides workspace, and workspace overrides user. A narrower scope cannot loosen a deny or ask that a wider one set.";
 export const CHARACTER_NOTE = "characters, not tokens";
@@ -93,7 +93,7 @@ const SOURCE_LABELS = {
    authority that does not exist. The backend request that would put a control
    back is named beside each one. */
 const PLANNED_ROWS = [
-  ["memory_provider", "Memory providers", "No adapter stores or retrieves memory between runs.", "BE-11"],
+  ["memory_provider", "Memory providers", "Attention can read retained conversation messages. External and derived memory providers remain pending.", "BE-11"],
   ["workflow", "Workflows", "No workflow runner exists to execute a saved sequence.", "BE-11"],
   ["hook", "Hooks", "No executable hook point exists.", "BE-11"],
   ["registry", "Registries", "Package resolution and signature checks are not implemented.", "BE-11"],
@@ -253,6 +253,7 @@ export function createRuntimeView(
      the server has not accepted. Keyed by object and scope so two edits never
      overwrite each other, and never resent on their own (FN-19). */
   const drafts = new Map();
+  const packageDrafts = new Map();
   const open = new Set();
   const filters = new Map();
 
@@ -513,7 +514,7 @@ export function createRuntimeView(
       el("p", {
         className: "runtime-precedence",
         attrs: primary ? { id: "runtime-precedence" } : {},
-        text: PRECEDENCE_SENTENCE,
+        text: snapshot?.sessionScope?.kind === "global" ? "Session overrides Attention, and Attention overrides user. Narrower scopes cannot loosen a wider deny or ask." : PRECEDENCE_SENTENCE,
       }),
       scopeTabs(where),
       el("p", {
@@ -1524,6 +1525,46 @@ export function createRuntimeView(
 
   /* ── Composition ───────────────────────────────────────────────────── */
 
+  function renderPackageEditor(scope) {
+    const key = scopeKey(scope);
+    const box = el("details", { className: "runtime-detail-block", attrs: { "data-package-editor": key } }, el("summary", { text: "Package Runtime configuration" }));
+    let draft = packageDrafts.get(key);
+    if (!draft) {
+      draft = { id: `local:profile-${crypto.randomUUID().slice(0, 8)}`, title: "", version: "1.0.0", selected: new Set((snapshot.resources || []).filter(r => r.exposed && ["tool", "instruction", "skill", "reference", "prompt_template"].includes(r.kind)).map(r => r.id)), message: "", open: false };
+      packageDrafts.set(key, draft);
+    }
+    box.open = draft.open;
+    box.addEventListener("toggle", () => { draft.open = box.open; });
+    box.append(note("Attention and Matter experts use the same Runtime profiles. Choose required capabilities and context, save the profile, then select it above. Saving does not activate it or publish a verified Expert. Host permissions remain in force."));
+    for (const [key, label] of [["title", "Configuration name"], ["id", "Profile ID"], ["version", "Version"]]) {
+      const input = el("input", { attrs: { "aria-label": label, "data-focus-key": `package:${key}`, maxlength: key === "title" ? "200" : "80" } });
+      input.value = draft[key]; input.disabled = busy || frozen();
+      input.addEventListener("input", () => { draft[key] = input.value; });
+      box.append(el("label", {}, el("span", {text:label}), input));
+    }
+    const choices = el("div", { className: "runtime-package-resources" });
+    for (const resource of (snapshot.resources || []).filter(r => ["tool", "instruction", "skill", "reference", "prompt_template"].includes(r.kind))) {
+      const check = el("input", { attrs: { type: "checkbox", "data-focus-key": `package:resource:${resource.id}` } });
+      check.checked = draft.selected.has(resource.id); check.disabled = busy || frozen();
+      check.addEventListener("change", () => { if (check.checked) draft.selected.add(resource.id); else draft.selected.delete(resource.id); });
+      choices.append(el("label", {}, check, el("span", { text: `${resource.title} · ${resource.exposed ? "exposed" : "not exposed"}` })));
+    }
+    const save = el("button", { text: "Save profile", attrs: { type: "button", "data-focus-key": "package:save" } });
+    save.disabled = busy || frozen() || !scope;
+    save.addEventListener("click", async () => {
+      if (!draft.title.trim() || !/^local:[a-z0-9][a-z0-9._-]{0,79}$/.test(draft.id) || !draft.version.trim() || draft.selected.size > 100) {
+        draft.message = "Enter a name, a local: profile ID and a version; select at most 100 resources."; render(); return;
+      }
+      const rules = (snapshot.policies || []).filter(p => p.scope.type === "agent" && p.scope.id === snapshot.composition?.id).flatMap(p => p.rules);
+      const content = JSON.stringify({ schemaVersion: 1, version: draft.version.trim(), resourceIds: [...draft.selected].sort(), rules, uiSlots: snapshot.composition?.uiSlots || [] }, null, 2);
+      const applied = await submit({ operation: "put", resource: { id: draft.id, kind: "agent_profile", title: draft.title.trim(), scope, content } }, { key: `package:${key}`, label: draft.title.trim() });
+      draft.message = applied ? "Profile saved. Select it above to use it; no running conversation was changed." : "Profile was not saved. Review the error and retry explicitly.";
+      render();
+    });
+    box.append(el("p", { className: "form-help", text: "The list is an explicit capability ceiling. Missing resources remain unavailable in another scope; a profile never installs plugins or grants access. Wider policies remain live." }), choices, save, el("p", { className: "form-help", text: draft.message, attrs: { role: "status" } }));
+    return box;
+  }
+
   function renderComposition() {
     const mount = mounts.composition;
     mount.replaceChildren(blockTitle("Composition"));
@@ -1579,6 +1620,7 @@ export function createRuntimeView(
         el("div", { className: "settings-row-control" }, select),
       ),
     );
+    mount.append(renderPackageEditor(scope));
     const composition = snapshot.composition;
     const draft = draftFor(`profile:${scopeKey(scope)}`);
     const layers = el("dl", { className: "data-list runtime-layers" });
@@ -2413,6 +2455,7 @@ export function createRuntimeView(
         snapshot = null;
         context = null;
         drafts.clear();
+        packageDrafts.clear();
         policyDraft = null;
         explanation = null;
         unknownEffect = null;

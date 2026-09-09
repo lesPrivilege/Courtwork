@@ -6,7 +6,7 @@ export type ResourceKind = 'tool' | 'mcp_server' | 'skill' | 'plugin' | 'instruc
   | 'sandbox' | 'registry' | 'session_context';
 export type ScopeKind = 'org' | 'user' | 'workspace' | 'agent' | 'session' | 'invocation';
 export interface Scope { type: ScopeKind; id: string }
-export interface ConfigurableScope extends Scope { type: 'user' | 'workspace' | 'session' }
+export interface ConfigurableScope extends Scope { type: 'user' | 'workspace' | 'agent' | 'session' }
 export type Effect = 'allow' | 'ask' | 'deny';
 export interface PolicyRule { action: string; resource: string; effect: Effect }
 export interface ScopedPolicy { scope: Scope; rules: PolicyRule[] }

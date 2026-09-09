@@ -4,7 +4,7 @@ This contract freezes the first host-owned async slice. It is opt-in through tru
 `asyncTaskAdapters` in `createRuntime`/`startServer`, with no adapters installed by
 default. Only bounded, immutable document reads are admitted. Adapter registration
 is an embedding seam, not a model-installable plugin, HTTP URL input or scheduler.
-Pi remains the model loop. Core3/app4 and Attention are unchanged.
+Pi remains the model loop. Core3/app4 are unchanged. Current Attention scope and schema6 migration are described in [Attention](attention-agent.md).
 
 ## Identity, storage and migration
 

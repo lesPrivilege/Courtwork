@@ -1,12 +1,11 @@
 import { el, icon } from './ui-controls.mjs';
 import { attentionLabels, toHomeAttention, toHomeAttentionDetail } from './presentation-adapters.mjs';
 
-// A read-only consumer of the same Core queries used by Home. The assistant
-// is an explicitly labelled local design preview: it never starts a Run.
-export function createAttentionWorkspace(container, { request, onBack }) {
+// A read-only consumer of the same Core queries used by Home. The independent agent is opened explicitly; reading never starts a Run.
+export function createAttentionWorkspace(container, { request, onBack, onOpenAssistant }) {
   const state = { projects: [], projectId: null, filter: 'all', data: null, detail: null,
     selectedId: null, loading: false, error: null, detailError: null, detailLoading: false,
-    generation: 0, detailGeneration: 0, draft: '', preview: '' };
+    generation: 0, detailGeneration: 0 };
   const time = value => value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString() : 'Not available';
   function button(text, fn, key, className='text-button') {
     const node = el('button', { text, className, attrs: {type:'button','data-attention-focus':key} });
@@ -16,7 +15,7 @@ export function createAttentionWorkspace(container, { request, onBack }) {
     const focused = container.contains(document.activeElement) ? document.activeElement?.dataset.attentionFocus : null;
     const root = el('div',{className:'attention-workspace-inner'});
     root.append(el('div',{className:'attention-workspace-heading'},
-      el('div',{},el('p',{className:'attention-eyebrow',text:'YOUR WORKSPACE'}),el('h1',{text:'Attention'}),
+      el('div',{},el('p',{className:'attention-eyebrow',text:'YOUR WORKSPACE'}),el('h1',{text:'Attention items'}),
         el('p',{className:'form-help',text:'Keep the next human decision in view.'})),
       button('Back to workspace',onBack,'back')));
     const scope = el('select',{attrs:{'aria-label':'Attention workspace project','data-attention-focus':'project'}});
@@ -77,22 +76,9 @@ export function createAttentionWorkspace(container, { request, onBack }) {
       }
       detail.append(refs);
     }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},icon('file-text',{size:28}),el('h2',{text:'A little context, before the next step.'}),el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
-    detail.append(assistant());
+    if (onOpenAssistant) detail.append(button('Open Attention', onOpenAssistant, 'open-assistant'));
     columns.append(list,detail);root.append(columns);container.replaceChildren(root);
     if(focused)(container.querySelector(`[data-attention-focus="${CSS.escape(focused)}"]`)??container.querySelector('[data-attention-focus="project"]'))?.focus();
-  }
-  function assistant(){
-    const panel=el('section',{className:'attention-assistant',attrs:{'aria-label':'Attention Assistant design preview'}});
-    panel.append(el('div',{className:'attention-assistant-heading'},el('h3',{text:'Attention Assistant'}),el('span',{className:'attention-preview-label',text:'Design preview'})),
-      el('p',{className:'form-help',text:'Explore a briefing, a comparison or a follow-up. Prompts stay in this preview; no assistant runs or messages are sent.'}));
-    const suggestions=el('div',{className:'attention-suggestions'});
-    for(const [label,prompt] of [['Brief me','Brief me on the items that need a human decision.'],['Compare changes','Compare the recorded context and identify what changed.'],['Plan a follow-up','Help me plan the next follow-up for this item.']]) suggestions.append(button(label,()=>{state.draft=prompt;state.preview='';render();container.querySelector('[data-attention-focus="assistant-draft"]')?.focus();},`suggest-${label}`));
-    const input=el('textarea',{attrs:{rows:'2',placeholder:'Ask about your attention items…','aria-label':'Assistant preview prompt','data-attention-focus':'assistant-draft'}});input.value=state.draft;
-    const previewButton=button('Preview prompt',()=>{state.preview=state.draft.trim();render();},'preview-prompt');previewButton.disabled=!state.draft.trim();
-    input.addEventListener('input',()=>{state.draft=input.value;previewButton.disabled=!state.draft.trim();});
-    panel.append(suggestions,el('div',{className:'attention-assistant-composer'},input,previewButton));
-    if(state.preview)panel.append(el('div',{className:'attention-prompt-preview',attrs:{role:'status'}},el('strong',{text:'Prompt preview'}),el('p',{text:state.preview}),el('p',{className:'form-help',text:'Saved in this page only. No model response has been generated.'})));
-    return panel;
   }
   async function load(offset=0, selectedId=null){
     const own=++state.generation;state.detailGeneration++;state.selectedId=null;state.detail=null;state.detailError=null;state.detailLoading=false;

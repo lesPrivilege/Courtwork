@@ -21,7 +21,7 @@ const STATIC = new Map([
   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
-for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
 // Brand merge gate 3: the product admits the brand package's ES modules and
 // nothing else under brand/. Each path is an exact key, so brand/CONTRACT.md,
@@ -105,6 +105,8 @@ function routeService(service, req, url) {
     if (method === 'POST' && tail.length === 3 && ['reconcile','cancel'].includes(tail[2])) return async () => service.actOnAsyncTask(tail[1], tail[2], await body(req));
   }
   if (tail[0] === 'attention') {
+    if (tail.length === 2 && tail[1] === 'conversations' && method === 'GET') return () => service.listAttentionConversations();
+    if (tail.length === 2 && tail[1] === 'conversations' && method === 'POST') return async () => service.createAttentionConversation(await body(req));
     if (method === 'GET' && tail.length === 2) return () => service.readAttention(tail[1] === 'registry' ? null : tail[1],url.searchParams);
     if (method === 'POST' && tail.length === 1) return async () => service.actOnAttention(null,await body(req));
     if (method === 'POST' && tail.length === 2 && tail[1] === 'query') return async () => service.queryAttention(await body(req));

@@ -19,7 +19,8 @@ import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
-let attentionWorkspace;
+import { createAttentionAgent } from "./attention-agent-view.mjs";
+let attentionWorkspace, attentionAgent;
 import {
   createSettingsPage,
   createSettingsView,
@@ -1972,7 +1973,7 @@ function renderExtensionList() {
         () => void lifecycle(extension.id, "reload"),
       );
       actions.append(reloadButton);
-      if (session && !session.extensionBinding) {
+      if (session && session.scope !== "global" && !session.extensionBinding) {
         const bindButton = element("button", {
           className: "secondary-button",
           attrs: { type: "button" },
@@ -2153,7 +2154,7 @@ function renderBindingPanel() {
     (item) => item.id === state.bindingExtensionId,
   );
   const session = currentSession();
-  if (!extension || !session || session.extensionBinding) {
+  if (!extension || !session || session.scope === "global" || session.extensionBinding) {
     panel.hidden = true;
     return;
   }
@@ -2571,7 +2572,7 @@ function renderMessageStream() {
       const header = element(
         "div",
         { className: "message-header" },
-        element("span", { className: "message-role", text: "Assistant" }),
+        element("span", { className: "message-role", text: currentSession()?.scope === "global" ? "Attention" : "Assistant" }),
       );
       header.append(
         action(
@@ -3097,7 +3098,7 @@ function renderChatHeader() {
     meta.append(
       element("span", {
         className: "session-mode",
-        text: sessionModeLabel(session),
+        text: session.scope === "global" ? "Attention" : sessionModeLabel(session),
       }),
     );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
@@ -6008,7 +6009,7 @@ function wireEvents() {
   });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
-  $("attention-button").addEventListener("click", () => openAttentionWorkspace());
+  $("attention-button").addEventListener("click", () => attentionAgent.open());
   $("workspace-home-link").addEventListener("click", (event) => {
     event.preventDefault();
     void goHome();
@@ -6432,7 +6433,8 @@ async function init() {
       ),
     );
   }
-  attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onBack: () => {
+  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;
     attentionWorkspace.deactivate();
     renderAll();

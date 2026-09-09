@@ -17,7 +17,7 @@ function keys(value, allowed) { check(value && typeof value === 'object' && !Arr
 function string(value, max = 200) { return typeof value === 'string' && value.length > 0 && value.length <= max; }
 function scope(value) {
   keys(value, ['type', 'id']);
-  check(['user', 'workspace', 'session'].includes(value.type), 'This host can configure user, workspace and session scopes');
+  check(['user', 'workspace', 'session'].includes(value.type) || (value.type === 'agent' && value.id === 'attention'), 'This host can configure user, workspace, Attention and session scopes');
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
@@ -145,7 +145,7 @@ export class RuntimeControlPlane {
     this.config = next;
   }
   inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp, additionalTools = [] }) {
-    const scopes = [{ type: 'user', id: 'local' }, ...(session ? [{ type: 'workspace', id: session.projectId }, { type: 'session', id: session.id }] : [])];
+    const scopes = [{ type: 'user', id: 'local' }, ...(session ? [...(session.scope === 'global' ? [{ type: 'agent', id: 'attention' }] : [{ type: 'workspace', id: session.projectId }]), { type: 'session', id: session.id }] : [])];
     const applies = value => scopes.some(s => sameScope(s, value));
     const policies = scopes.flatMap(s => this.config.policies.filter(p => sameScope(s, p.scope)));
     const descriptor = (id, kind, title, extra = {}) => ({ id, kind, title, source: { type: 'builtin', version: adapterId }, scope: { type: 'user', id: 'local' }, activation: 'always', installed: true, running: null, exposed: true, health: 'healthy', configurable: false, ...extra });
@@ -165,7 +165,7 @@ export class RuntimeControlPlane {
       const skill = item.kind === 'skill' ? parseFrontmatter(item.content).frontmatter : null;
       resources.push(descriptor(item.id, item.kind, item.title, { scope: clone(item.scope), source: { type: 'local-config', hash: hash(item.content) }, configurable: item.kind !== 'agent_profile', exposed: item.kind !== 'agent_profile', activation: item.kind === 'instruction' ? 'always' : item.kind === 'prompt_template' ? 'user-invoked' : 'manual', ...(skill ? { description: skill.description, compatibility: skill.compatibility ?? null, requestedTools: skill['allowed-tools'] ?? null } : {}), characters: item.content.length }));
     }
-    resources.push(descriptor('agent:general', 'agent_profile', 'General', { composition: session?.extensionBinding?.extensionId ?? null }));
+    resources.push(descriptor('agent:general', 'agent_profile', session?.scope === 'global' ? 'Attention default' : 'General', { composition: session?.extensionBinding?.extensionId ?? null }));
     resources.push(descriptor('provider:current', 'provider', provider.config.provider));
     resources.push(descriptor('model:current', 'model', provider.config.model));
     resources.push(descriptor('secret:provider', 'secret', 'Provider credential', { installed: provider.credentialStatus === 'configured', exposed: false, credentialStatus: provider.credentialStatus }));
@@ -232,12 +232,12 @@ export class RuntimeControlPlane {
     }));
     const supported = new Set(resources.map(r => r.kind));
     IMPORT_KINDS.forEach(k => supported.add(k));
-    return { protocolVersion: 1, revision: this.config.revision, sessionId: session?.id ?? null, scopes, activeRuns, adapterId, resources, composition, profileSelections: clone(this.config.profileSelections.filter(p => applies(p.scope))), policies: clone(policies), context, audit: clone(this.config.audit), kinds: RESOURCE_KINDS.map(kind => ({ kind, support: supported.has(kind) ? 'available' : 'adapter-required' })), compatibility: { scopes: SCOPES, configurableScopes: ['user', 'workspace', 'session'], hotSwap: 'between-runs', workStateOwner: 'extension/system-of-record', pluginCode: 'trusted catalog only', mcp: { sdk: '@modelcontextprotocol/client@2.0.0', transport: 'streamable-http', protocols: ['2026-07-28', 'legacy-2025'], authentication: 'unauthenticated-only', remoteResources: 'catalog-only', remotePrompts: 'catalog-only' } } };
+    return { protocolVersion: 1, revision: this.config.revision, sessionId: session?.id ?? null, sessionScope: session ? {kind:session.scope, projectId:session.projectId} : null, scopes, activeRuns, adapterId, resources, composition, profileSelections: clone(this.config.profileSelections.filter(p => applies(p.scope))), policies: clone(policies), context, audit: clone(this.config.audit), kinds: RESOURCE_KINDS.map(kind => ({ kind, support: supported.has(kind) ? 'available' : 'adapter-required' })), compatibility: { scopes: SCOPES, configurableScopes: [...new Set(scopes.map(scope => scope.type))], hotSwap: 'between-runs', workStateOwner: 'extension/system-of-record', pluginCode: 'trusted catalog only', mcp: { sdk: '@modelcontextprotocol/client@2.0.0', transport: 'streamable-http', protocols: ['2026-07-28', 'legacy-2025'], authentication: 'unauthenticated-only', remoteResources: 'catalog-only', remotePrompts: 'catalog-only' } } };
   }
   bind(snapshot) {
     const resources = clone(snapshot.resources);
     const content = this.config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
-    return { revision: snapshot.revision, resources, composition: clone(snapshot.composition), policies: clone(snapshot.policies), context: clone(snapshot.context), content: clone(content), hash: hash({ revision: snapshot.revision, resources, composition: snapshot.composition, policies: snapshot.policies }) };
+    return { revision: snapshot.revision, sessionScope: clone(snapshot.sessionScope ?? null), resources, composition: clone(snapshot.composition), policies: clone(snapshot.policies), context: clone(snapshot.context), content: clone(content), hash: hash({ revision: snapshot.revision, sessionScope: snapshot.sessionScope ?? null, resources, composition: snapshot.composition, policies: snapshot.policies }) };
   }
 }
 

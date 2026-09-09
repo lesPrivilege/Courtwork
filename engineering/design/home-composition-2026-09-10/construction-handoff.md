@@ -37,3 +37,7 @@ Two supplied screenshots (2026-09-10 02:26:14 and 02:26:23) were viewed inline. 
 - Previous ephemeral preview was on port 57282 with synthetic data; verify process/liveness before reusing, or create an independent preview. Do not assume prior tool sessions or full transcripts transfer.
 
 Acceptance of this handoff means the decision and scope are recorded and the new task is dispatched. It does not claim Chat backend, full Attention actions/runtime, new chart specimens or G1–G5 complete.
+
+## 2026-09-10 实施接续
+
+以上施工方向现由 [Attention global agent / shared Runtime composition](../attention-agent-2026-09-10/README.md) 收敛并实施。Chat 是唯一全局 Attention 的对话表现；Attention 与 Matter Experts 共用配置抽象，当前只交付公共 Runtime 打包界面。最新输入样式为单行圆角方框与协调方按钮。实际验证与未完成范围以 [交付证据](../../../evidence/attention-agent-20260910/README.md) 为准。

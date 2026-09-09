@@ -309,30 +309,17 @@ test("standalone Attention ignores a stale detail after project selection change
   });
 });
 
-test("Attention prompt preview stays local and makes no model request", async () => {
+test("Attention registry opens the global agent explicitly without a model request", async () => {
   await withTinyDom(async (container) => {
-    const query = deferred();
-    const calls = [];
-    const request = (path, options = {}) => {
-      calls.push({ path, options });
-      return query.promise;
-    };
-    const workspace = createAttentionWorkspace(container, { request, onBack() {} });
-    const opening = workspace.open({ projects: [{ id: "p1", name: "One" }], projectId: "p1" });
-    query.resolve(attentionPage([]));
-    await opening;
-    await flush();
+    const calls = []; let opened = 0;
+    const request = async (path, options) => { calls.push({path, options}); return attentionPage([]); };
+    const workspace = createAttentionWorkspace(container, { request, onBack() {}, onOpenAssistant() { opened++; } });
+    await workspace.open({ projects: [{ id: "p1", name: "One" }], projectId: "p1" });
     const before = calls.length;
-    container.querySelector('[data-attention-focus="suggest-Brief me"]').click();
-    const input = container.querySelector('[data-attention-focus="assistant-draft"]');
-    input.value = "local preview only";
-    input.dispatchEvent({ type: "input", target: input });
-    container.querySelector('[data-attention-focus="preview-prompt"]').click();
-    await flush();
+    container.querySelector('[data-attention-focus="open-assistant"]').click();
+    assert.equal(opened, 1);
     assert.equal(calls.length, before);
-    assert.match(container.textContent, /local preview only/);
-    assert.match(container.textContent, /no assistant runs or messages are sent/i);
-    assert.ok(calls.every((call) => call.path === "/attention/query" || call.path.startsWith("/attention/")));
+    assert.doesNotMatch(container.textContent, /Design preview/);
   });
 });
 

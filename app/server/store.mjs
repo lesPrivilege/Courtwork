@@ -18,7 +18,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks",
@@ -108,8 +108,8 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 or 4 can be upgraded)`);
-  exactKeys(parsed, schema === 5 ? STATE_KEYS : new Set([...STATE_KEYS].filter(k => k !== 'asyncTasks')), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4 or 5 can be upgraded)`);
+  exactKeys(parsed, schema >= 5 ? STATE_KEYS : new Set([...STATE_KEYS].filter(k => k !== 'asyncTasks')), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -121,9 +121,14 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
   }
   const sessionIds = new Set();
   for (const session of parsed.sessions) {
-    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession"]), "session");
+    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : [])]), "session");
     id(session.id, "session.id"); assert(!sessionIds.has(session.id), "duplicate session id"); sessionIds.add(session.id);
-    assert(projectIds.has(session.projectId), "session references missing project");
+    if (schema >= 6 && session.scope === 'global') {
+      assert(session.projectId === null && session.extensionBinding === null, 'global session cannot own a project or Matter binding');
+    } else {
+      assert(schema < 6 || session.scope === 'project', 'session scope is invalid');
+      assert(projectIds.has(session.projectId), "session references missing project");
+    }
     text(session.title, "session.title", 200); text(session.draft, "session.draft", 100_000); timestamp(session.createdAt, "session.createdAt");
     assert(Number.isSafeInteger(session._nextSeq) && session._nextSeq >= 0, "session._nextSeq is invalid");
     text(session.workspaceDir, "session.workspaceDir", 4000);
@@ -203,7 +208,7 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
   nonNegativeInt(parsed.credentialGeneration, "state.credentialGeneration");
   if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig");
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
-  if (schema === 5) validateAsyncTasks(parsed.asyncTasks, parsed);
+  if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   return structuredClone(parsed);
 }
 
@@ -281,18 +286,19 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
-          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: [] });
+          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
+            sessions: parsed.sessions.map(session => ({ ...session, scope: 'project' })) });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
           await this._persist(upgraded);
           this.state = upgraded;
-          this.logger(`store: upgraded schema ${parsed.schemaVersion} to 5; exact original state preserved in ${path.basename(backup)}`);
+          this.logger(`store: upgraded schema ${parsed.schemaVersion} to ${SCHEMA_VERSION}; exact original state preserved in ${path.basename(backup)}`);
         } else this.state = validateState(parsed);
       }
       this.opened = true; return this;
@@ -347,12 +353,21 @@ export class RuntimeStore {
 
   listProjects() { return structuredClone(this.state.projects); }
 
-  async createSession({ id: sessionId = randomUUID(), projectId, title, workspaceDir, permissionMode = "draft" }) {
+  async createSession({ id: sessionId = randomUUID(), projectId, title, workspaceDir, permissionMode = "draft", scope = 'project' }) {
     return this._mutate((state) => {
-      if (!state.projects.some((project) => project.id === projectId)) throw new Error("project not found");
+      assert(scope === 'project' || scope === 'global', 'session scope is invalid');
+      if (scope === 'project' && !state.projects.some((project) => project.id === projectId)) throw new Error("project not found");
+      assert(scope !== 'global' || projectId === null, 'global session project must be null');
+      const existing = state.sessions.find(session => session.id === sessionId);
+      if (existing) {
+        // The dedicated Attention create route accepts only the identity; its
+        // defaults cannot mutate a recovered conversation or its permissions.
+        assert(scope === 'global' && existing.scope === 'global', 'session identity conflict');
+        return publicSession(existing);
+      }
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
       const session = {
-        id: sessionId, projectId, title, draft: "", extensionBinding: null, createdAt: now(), _nextSeq: 0,
+        id: sessionId, scope, projectId, title, draft: "", extensionBinding: null, createdAt: now(), _nextSeq: 0,
         workspaceDir, permissionMode, hostSession: null,
       };
       state.sessions.push(session); return publicSession(session);
@@ -360,7 +375,7 @@ export class RuntimeStore {
   }
 
   getSession(id) { return publicSession(this.state.sessions.find((session) => session.id === id)); }
-  listSessions(projectId) { return this.state.sessions.filter((session) => !projectId || session.projectId === projectId).map(publicSession); }
+  listSessions(projectId) { return this.state.sessions.filter((session) => projectId === undefined || session.projectId === projectId).map(publicSession); }
   listRuns(sessionId) { return this.state.runs.filter((run) => !sessionId || run.sessionId === sessionId).map(publicRun); }
   getRun(id) { return publicRun(this.state.runs.find((run) => run.id === id)); }
   getCommandReceipt(sessionId, commandId, input) { return commandReceipt(this.state, sessionId, commandId, input); }
@@ -412,7 +427,7 @@ export class RuntimeStore {
   }
 
   async bindExtension(sessionId, extensionBinding) {
-    return this._mutate((state) => { const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found"); if (session.extensionBinding) throw new Error("session already has an extension binding"); session.extensionBinding = structuredClone(extensionBinding); return publicSession(session); });
+    return this._mutate((state) => { const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found"); if (session.scope === "global") throw new Error("global session cannot bind a Matter expert"); if (session.extensionBinding) throw new Error("session already has an extension binding"); session.extensionBinding = structuredClone(extensionBinding); return publicSession(session); });
   }
 
   /**

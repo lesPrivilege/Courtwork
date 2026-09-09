@@ -199,7 +199,7 @@ function activityCard({ activity, onActivityDays, onActivityRetry }) {
     return card;
   }
   card.append(el("p", { className: "home-activity-total" }, el("strong", { text: String(data.total) }),
-    el("span", { text: ` recorded runs · ${data.days} days · all projects` })));
+    el("span", { text: ` recorded runs · ${data.days} days · all retained work` })));
   const selected = el("p", { className: "home-activity-day", text: `${data.buckets[0].date} — ${data.buckets.at(-1).date}`, attrs: { "aria-live": "polite" } });
   const grid = el("div", { className: "home-heatmap", attrs: { role: "group", "aria-label": "Daily retained runs, UTC. Arrow keys move between days." } });
   const offset = (new Date(`${data.buckets[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;

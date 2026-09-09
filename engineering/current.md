@@ -274,3 +274,9 @@ Disclosure / vocabulary 接续（2026-09-10）：从实际 `c788764` 完整消�
 Chat / Attention Assistant施工交接（2026-09-10）：用户明确二者可作为同级产品面注入，Chat可先做临时网页Chatbot前端、后接后端；不以现有Session无Chat子实体阻挡产品面。用户输入文档按与消息同级的attention优先级裁决消费，区分研究引用与实际指令。已形成 [新Astra施工交接](design/home-composition-2026-09-10/construction-handoff.md)，授权新任务轻量上下文、Luna有界探查、Astra前后端合流；不另建Fresh开发线，不宣称功能已完工。
 
 最新收敛：用户随后提出由Attention Assistant承接Chat并提供agent能力，仅界面参考Codex；当前施工方向更新为单一Assistant的对话面，不另建纯Chatbot产品。已覆盖 [交接最新裁决](design/home-composition-2026-09-10/construction-handoff.md)，前端可先行，实际agent/runtime随后接通。
+
+## Attention global agent / shared Runtime composition（2026-09-10）
+
+最新用户裁决将 Chat 与 Assistant 收为单一 Attention 全局 agent：角色唯一、会话可多；与 Matter Experts 共用 Runtime 配置机制，当前不新增 Experts 导航。Astra 从 `444f80d` 隔离并接入 `405ad76` 实施全局 Session、真实 Run 对话与渐进历史读取、显式项目 Attention 查询和配置打包表单。输入框依最新要求为单行圆角方框，配套圆角方按钮；空态保留 “Attention is all you need!”。此段覆盖此前仅前端 Assistant preview 的状态与分离 Chat 方向。
+
+RuntimeStore 当前为6（Core3/app4不变）：严格校验后从3/4/5保留原始字节备份迁移，旧会话标记project，全局会话无project/Matter绑定。全量418/418、最终定向6/6（含新增两项竞态）、smoke及色彩/材质lint通过，合成浏览器验证对话、工具、问答、单行发送与配置保存/选择；[证据及作者归因](../evidence/attention-agent-20260910/README.md)、[架构/后续边界](design/attention-agent-2026-09-10/README.md)。Luna仅有界复核，不冒充完整独立接受；连接器认证、派发Experts、通用记忆写回、原生与G1–G5未关闭，未运行真实provider、个人数据迁移或部署。

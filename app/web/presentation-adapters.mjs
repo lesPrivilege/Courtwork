@@ -40,7 +40,7 @@ function pageFacts(page) {
 /* `scope.projectId === null` means every project; the caption says which,
  * because a count without a scope is not a fact about anything. */
 const scopeWords = (scope) =>
-  scope.projectId === null ? "every project" : "this project";
+  scope.projectId === null ? "all retained work" : "this project";
 
 /**
  * work-summary → the three tiles of Home's top band (WK-37).
@@ -87,7 +87,7 @@ export function toStatTiles(summary, { scope, observedAt, load }) {
 }
 
 const projectName = (projects, id) =>
-  projects.find((project) => project.id === id)?.name ?? null;
+  id === null ? "Global Attention" : projects.find((project) => project.id === id)?.name ?? null;
 
 /**
  * work-summary.sessionCandidates → the lower band's WorkCards. The row state and

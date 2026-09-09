@@ -32,7 +32,7 @@ Remote endpoints require HTTPS except HTTP loopback. Only unauthenticated Stream
 
 ## Persistence upgrade
 
-Runtime store schema 3 or 4 is fully validated before upgrade, backed up byte-for-byte to `runtime-state.schema<N>.<sha256>.json` with mode 0600, then atomically persisted as schema 5. Every preexisting backup path (including symlinks) refuses migration. Invalid or newer state/config fails closed. Earlier hosts reject schema 5. Restore an exact backup in a separate directory with its matching old host; never share upgraded data with an old host. Control config is separate and mode 0600. This remains the host's local durability model. The opt-in [async read-task contract](../../app/docs/async-tasks.md) defines retained task facts and query-only recovery; it does not upgrade Core or confer domain acceptance.
+Runtime store schema 3, 4 or 5 is fully validated before upgrade, backed up byte-for-byte to `runtime-state.schema<N>.<sha256>.json` with mode 0600, then atomically persisted as schema 6. Every preexisting backup path (including symlinks) refuses migration. Invalid or newer state/config fails closed. Earlier hosts reject schema 6. Restore an exact backup in a separate directory with its matching old host; never share upgraded data with an old host. Control config is separate and mode 0600. This remains the host's local durability model. The opt-in [async read-task contract](../../app/docs/async-tasks.md) defines retained task facts and query-only recovery; it does not upgrade Core or confer domain acceptance.
 
 ## Search boundary
 

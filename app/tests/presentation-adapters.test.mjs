@@ -97,7 +97,7 @@ test("toStatTiles reads the three sets' totals in the window the backend can exp
   for (const tile of tiles) {
     assert.deepEqual(tile.window, { kind: "current" });
     assert.equal(tile.observedAt, OBSERVED);
-    assert.match(tile.caption, /every project/);
+    assert.match(tile.caption, /all retained work/);
     assert.match(tile.caption, /right now\.$/);
     // gaps-wk9 G-3: there is no day filter behind these counts, so no caption
     // may claim one.
