@@ -23,3 +23,9 @@ Home产品前端施工队列不变。本分支为本地polish候选；尚未合�
 - Evidence：确认Home槽与9e5384f历史折叠实录边界；禁止同id/viewport/theme混放新旧M1。未来新图须统一重取证，不仅替换PNG。GitHub Pages沿既有手动workflow_dispatch，不另建托管项目。
 
 三路均只读，Astra为实现作者；没有独立全产品接受。
+
+## 底纸取色修订
+
+用户指出暖纸与原有灰阶不协调，引用“泛化陌生化设计”及Dystopia色板。Astra撤回黄纸/橄榄灰方向：底纸改冷白灰、承托层改浅蓝灰、纸张单独使用白色raised，墨色/边线/阴影同步退去绿相；暗色对应中性炭灰。纸层构图与动效保持，色彩不再承担复古材料叙事。此修订不新增红色装饰，不改变产品确定性色或attention.review注入范围。
+
+用户随后要求右上角CourtWork字样加强设计并加入icon：Hero右上登记栏与页眉共享字标组合，使用Avenir/system字体栈、分级字重和收紧字距；复用brand/geometry/mark.svg的四枚原始矩形，保留比例与圆角，静态单色、装饰SVG隐藏于辅助技术。并非另立新glyph方向。

@@ -96,7 +96,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
 
 function header() {
   return `<header class="masthead">
-      <p class="wordmark">${escape(HERO.wordmark)}<span class="tagline">${escape(HERO.tagline)}</span></p>
+      <a class="wordmark brand-lockup" href="#main" aria-label="CourtWork · 回到顶部">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></a>
       <nav aria-label="Site">
         ${NAV.map((item) => `<a href="${escape(item.href)}">${escape(item.label)}</a>`).join("\n        ")}
       </nav>
@@ -111,7 +111,7 @@ function hero(fill, shot) {
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
           .join("")}</p>
         <figure class="hero-object" aria-labelledby="object-caption">
-          <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span>COURTWORK</span></div>
+          <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
           <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
         </figure>
@@ -371,3 +371,7 @@ function footer(fill, identity) {
 }
 
 function closingShot() { return `<section class="closing-shot" aria-label="Courtwork"><p>The model can leave.<br><em>The work remains.</em></p><a href="#main" aria-label="Courtwork · Back to top">COURTWORK<span aria-hidden="true">↗</span></a></section>`; }
+
+// Static mono use of brand/geometry/mark.svg. Exact canonical rectangles;
+// this lockup conveys identity, never review or acceptance state.
+function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
