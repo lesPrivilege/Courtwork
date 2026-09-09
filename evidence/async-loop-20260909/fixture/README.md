@@ -13,6 +13,16 @@ It exposes fixture controls for the
 four barriers: launch accepted, execution start, result generation, and receipt
 send. No assertion relies on an elapsed-time threshold.
 
+Fixture persistence is a single serialized writer that publishes JSON only by
+atomic temp-file rename. Each durable barrier opens only after its associated
+synthetic record is published; concurrent launches are separately checked
+across a provider SIGKILL/restart.
+
+A repeated launch is an observable attempt only when its document provenance
+and input version, digest, and exact content equal the retained immutable
+request. A changed request receives explicit `409 job_identity_conflict` and
+does not increment the launch count.
+
 The provider's JSON record is fixture-owned synthetic state, used only to model
 an explicit query after its owning process is killed and restarted. It is not a
 Courtwork task store, continuation implementation, or product authority.

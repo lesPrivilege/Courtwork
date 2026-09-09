@@ -42,9 +42,9 @@ test('fixture makes delivery identity idempotent and exposes launch/result ackno
   assert.equal(retried.status, 202); assert.deepEqual(await fixture.launchCounts(), { 'lost-launch': 2 });
   await fixture.release('lost-launch', 'startExecution'); await fixture.barrier('lost-launch', 'startExecution');
   await fixture.release('lost-launch', 'resultGenerated'); await fixture.barrier('lost-launch', 'resultGenerated');
-  const waitingReceipt = fixture.receipt('lost-launch', 'receipt-first');
-  await fixture.barrier('lost-launch', 'sendReceipt'); await fixture.release('lost-launch', 'sendReceipt');
-  const first = await waitingReceipt, duplicate = await fixture.receipt('lost-launch', 'receipt-second');
+  await fixture.release('lost-launch', 'sendReceipt');
+  const first = await fixture.receipt('lost-launch', 'receipt-first'); await fixture.barrier('lost-launch', 'sendReceipt');
+  const duplicate = await fixture.receipt('lost-launch', 'receipt-second');
   assert.deepEqual(duplicate.json, first.json, 'duplicate delivery reply preserves the first stable identity');
   await complete(fixture, 'lost-result', fixture.documents.B.id, { dropResultAck: true });
   await assert.rejects(fixture.query('lost-result'), TypeError);
@@ -88,4 +88,25 @@ test('in-flight provider SIGKILL retains the accepted synthetic record without i
   assert.equal(retained.json.status, 'accepted');
   assert.equal(retained.json.result, null);
   assert.deepEqual(await fixture.launchCounts(), { 'restart-in-flight': 1 });
+}));
+
+test('concurrent launches publish complete synthetic state before their barriers open', async () => withFixture(async (fixture) => {
+  await Promise.all([fixture.launch('atomic-A', fixture.documents.A.id), fixture.launch('atomic-B', fixture.documents.B.id)]);
+  await Promise.all([fixture.barrier('atomic-A', 'launchAccepted'), fixture.barrier('atomic-B', 'launchAccepted')]);
+  await fixture.killProvider('SIGKILL'); await fixture.restartProvider();
+  assert.equal((await fixture.query('atomic-A')).json.status, 'accepted');
+  assert.equal((await fixture.query('atomic-B')).json.status, 'accepted');
+  assert.deepEqual(await fixture.launchCounts(), { 'atomic-A': 1, 'atomic-B': 1 });
+}));
+
+test('reused job IDs reject a changed immutable request without incrementing the launch attempt', async () => withFixture(async (fixture) => {
+  await fixture.launch('identity', fixture.documents.A.id);
+  const changedDocument = await fixture.launch('identity', fixture.documents.B.id);
+  assert.deepEqual(changedDocument, { status: 409, json: { error: 'job identity conflicts with the retained immutable request', code: 'job_identity_conflict' } });
+  const unchangedInput = fixtureInput('identity');
+  const changedInput = await fixture.launch('identity', fixture.documents.A.id, { input: { ...unchangedInput, version: '2' } });
+  assert.equal(changedInput.status, 409);
+  assert.deepEqual(await fixture.launchCounts(), { identity: 1 });
+  assert.equal((await fixture.launch('identity', fixture.documents.A.id)).status, 202);
+  assert.deepEqual(await fixture.launchCounts(), { identity: 2 });
 }));
