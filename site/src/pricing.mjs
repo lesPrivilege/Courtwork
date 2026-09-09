@@ -1,0 +1,123 @@
+// PS-22 · a concept-only pricing specimen.  This module deliberately owns only
+// the complete Section 07 fragment; page.mjs mounts it after its existing 06
+// section.  The tab contract is the page's existing [data-tabs] protocol:
+// without site.mjs every panel remains visible, and site.mjs supplies click and
+// left/right-arrow selection when it is present.
+
+const sourceUrl = "https://github.com/lesPrivilege/Courtwork";
+
+function localDiagram() {
+  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-local-svg-title">
+          <title id="pricing-local-svg-title">Local value layer: Matter store, CourtWork, and your provider.</title>
+          <g class="pricing-svg-node">
+            <rect x="42" y="28" width="152" height="44" rx="8" /><text x="118" y="55">Matter store</text>
+            <line x1="118" y1="72" x2="118" y2="104" />
+            <rect x="42" y="104" width="152" height="44" rx="8" /><text x="118" y="131">CourtWork</text>
+            <line x1="118" y1="148" x2="118" y2="180" />
+            <rect x="42" y="180" width="152" height="44" rx="8" /><text x="118" y="207">Your provider</text>
+          </g>
+        </svg>`;
+}
+
+function hostedDiagram() {
+  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-hosted-svg-title">
+          <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
+          <g class="pricing-svg-node">
+            <rect x="42" y="28" width="184" height="44" rx="8" /><text x="134" y="55">Local / cloud Matter</text>
+            <line x1="134" y1="72" x2="134" y2="104" />
+            <rect x="42" y="104" width="184" height="44" rx="8" /><text x="134" y="131">CourtWork service</text>
+            <line x1="134" y1="148" x2="134" y2="180" />
+            <rect x="42" y="180" width="184" height="44" rx="8" /><text x="134" y="207">BYOK / managed model</text>
+          </g>
+          <g class="pricing-svg-note">
+            <text x="270" y="126">Sync</text><text x="270" y="154">Eval</text><text x="270" y="182">Managed runtime</text>
+          </g>
+        </svg>`;
+}
+
+function organizationDiagram() {
+  return `<svg viewBox="0 0 620 240" role="img" aria-labelledby="pricing-organization-svg-title">
+          <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval, and provenance.</title>
+          <g class="pricing-svg-node">
+            <rect x="42" y="28" width="132" height="44" rx="8" /><text x="108" y="55">Users</text>
+            <line x1="108" y1="72" x2="108" y2="104" />
+            <rect x="42" y="104" width="132" height="44" rx="8" /><text x="108" y="131">Policy · Review</text>
+            <line x1="108" y1="148" x2="108" y2="180" />
+            <rect x="42" y="180" width="132" height="44" rx="8" /><text x="108" y="207">Matter governance</text>
+          </g>
+          <g class="pricing-svg-note">
+            <text x="236" y="126">Expert runtime</text><text x="236" y="154">Audit · Eval · Provenance</text>
+          </g>
+        </svg>`;
+}
+
+export function renderPricing() {
+  return `<section class="section pricing" id="pricing" aria-labelledby="pricing-title">
+        <p class="index">07</p>
+        <p class="pricing-concept">Concept pricing · commercialization study · not currently for sale</p>
+        <h2 id="pricing-title"><span lang="en">Where the value would sit</span><span class="zh">商业价值会落在哪一层</span></h2>
+        <p class="lede">这一节回答的是“商业价值会落在哪一层”，不是报价。CourtWork 现在不出售任何东西。三条轨道是一份产品模型的研究稿，把 local-first、自带模型、Expert、Eval、治理与组织保证压成一眼能懂的形状。</p>
+        <blockquote class="pull pricing-premise"><p lang="en">Keep intelligence portable; charge for coordination, assurance and operation.</p><p>智能保持可迁移；收费的是协调、保证与运维。</p></blockquote>
+
+        <div class="pricing-grid">
+          <article class="pricing-card pricing-local" aria-labelledby="pricing-local-title">
+            <div>
+              <h3 id="pricing-local-title" lang="en">Local</h3>
+              <p class="pricing-price">$0</p>
+              <p class="pricing-status">what the repository is today</p>
+              <p class="pricing-summary">Your work stays yours.</p>
+              <ul class="pricing-features">
+                <li>Local Matter store</li><li>Event log &amp; provenance</li><li>Local runtime, bring your own provider or local models</li><li>Public eval suite</li><li>Exportable schemas</li><li>MIT source</li>
+              </ul>
+            </div>
+            <p class="pricing-action"><a href="${sourceUrl}">View source</a></p>
+          </article>
+
+          <article class="pricing-card pricing-professional" aria-labelledby="pricing-professional-title">
+            <div>
+              <h3 id="pricing-professional-title" lang="en">Professional</h3>
+              <p class="pricing-price">$29 / month</p>
+              <p class="pricing-status">concept</p>
+              <p class="pricing-summary">A maintained professional workbench.</p>
+              <ul class="pricing-features">
+                <li>Signed desktop builds</li><li>Managed updates</li><li>Cloud sync &amp; backup</li><li>Hosted runtime</li><li>Continuous private eval</li><li>Managed integrations</li><li>Longer history</li>
+              </ul>
+            </div>
+            <p class="pricing-action">concept · nothing to buy</p>
+          </article>
+
+          <article class="pricing-card pricing-organization" aria-labelledby="pricing-organization-title">
+            <div>
+              <h3 id="pricing-organization-title" lang="en">Organization</h3>
+              <p class="pricing-price">Custom</p>
+              <p class="pricing-status">concept</p>
+              <p class="pricing-summary">Governed work at organizational scale.</p>
+              <ul class="pricing-features">
+                <li>Shared Matters</li><li>Policy &amp; review controls</li><li>RBAC / SSO</li><li>Audit exports</li><li>Private deployment</li><li>Sovereign-model support</li><li>Expert lifecycle management</li><li>SLA / deployment assistance</li>
+              </ul>
+            </div>
+            <p class="pricing-action">concept · nothing to buy</p>
+          </article>
+        </div>
+
+        <p class="pricing-model-note"><strong>Model usage is separate.</strong> Bring your own provider, use local models, or use managed inference with a spending cap.<br />模型用量另计：自带 provider、用本地模型，或用带上限的托管推理。</p>
+
+        <div class="pricing-tabs tabs" data-tabs="pricing-value">
+          <div class="tab-strip" role="tablist" aria-label="Where the value would sit">
+            <button type="button" role="tab" id="pricing-tab-local" aria-controls="pricing-panel-local" aria-selected="true" tabindex="0">Local</button>
+            <button type="button" role="tab" id="pricing-tab-hosted" aria-controls="pricing-panel-hosted" aria-selected="false" tabindex="-1">Hosted</button>
+            <button type="button" role="tab" id="pricing-tab-organization" aria-controls="pricing-panel-organization" aria-selected="false" tabindex="-1">Organization</button>
+          </div>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-local" role="tabpanel" aria-labelledby="pricing-tab-local">
+            ${localDiagram()}
+          </section>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-hosted" role="tabpanel" aria-labelledby="pricing-tab-hosted">
+            ${hostedDiagram()}
+          </section>
+          <section class="tab-panel pricing-diagram" id="pricing-panel-organization" role="tabpanel" aria-labelledby="pricing-tab-organization">
+            ${organizationDiagram()}
+          </section>
+        </div>
+        <p class="caption">三张图里，Matter store、event log、schema 与 eval 在每一层都在，且可导出；变化的只是谁来运维、谁来保证、谁来治理。</p>
+      </section>`;
+}

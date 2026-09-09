@@ -1,0 +1,171 @@
+/* PS-22 · Section 07 only.  Every colour, radius, shadow, and type role below
+ * comes from the product token surface.  The parent that mounts this fragment
+ * injects --pricing-dark-* from the product's extracted dark-token block; the
+ * role-token fallbacks keep the fragment legible before that assembly step. */
+
+.pricing-concept {
+  margin: 0 0 var(--space-3);
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.pricing-premise {
+  margin-bottom: var(--space-8);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--panel-muted);
+}
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.pricing-card h3 {
+  margin: 0;
+}
+
+.pricing-price {
+  margin: var(--space-6) 0 var(--space-2);
+  color: var(--ink-strong);
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: var(--tracking-heading);
+}
+
+.pricing-status,
+.pricing-action {
+  margin: 0;
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.pricing-summary {
+  margin: var(--space-6) 0 var(--space-4);
+  font-weight: 600;
+}
+
+.pricing-features {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-8);
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-body);
+}
+
+.pricing-features li {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line);
+}
+
+.pricing-professional {
+  border-top: 4px solid var(--accent);
+}
+
+/* The value names form the integration interface.  Their fallback values are
+ * current product roles only; mounting code replaces them with the extracted
+ * product dark-token block, so the Organization card is locally inverted
+ * without this stylesheet carrying a second palette. */
+.pricing-organization {
+  --pricing-organization-frame: var(--pricing-dark-frame, var(--frame));
+  --pricing-organization-panel: var(--pricing-dark-panel, var(--panel));
+  --pricing-organization-ink: var(--pricing-dark-ink, var(--ink));
+  --pricing-organization-ink-strong: var(--pricing-dark-ink-strong, var(--ink-strong));
+  --pricing-organization-muted: var(--pricing-dark-muted-strong, var(--muted-strong));
+  --pricing-organization-line: var(--pricing-dark-line, var(--line));
+  background: var(--pricing-organization-frame);
+  border-color: var(--pricing-organization-line);
+  color: var(--pricing-organization-ink);
+}
+
+.pricing-organization .pricing-price {
+  color: var(--pricing-organization-ink-strong);
+}
+
+.pricing-organization .pricing-status,
+.pricing-organization .pricing-action {
+  color: var(--pricing-organization-muted);
+}
+
+.pricing-organization .pricing-features li {
+  border-bottom-color: var(--pricing-organization-line);
+}
+
+.pricing-organization a {
+  color: var(--pricing-organization-ink-strong);
+}
+
+.pricing-model-note {
+  margin: var(--space-6) 0 var(--space-8);
+  padding: var(--space-4);
+  border-left: 2px solid var(--line-strong);
+  background: var(--panel);
+}
+
+.pricing-tabs .tab-strip {
+  margin-bottom: var(--space-3);
+}
+
+.pricing-diagram {
+  max-width: none;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.pricing-diagram + .pricing-diagram {
+  margin-top: var(--space-3);
+}
+
+.pricing-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+}
+
+.pricing-svg-node rect {
+  fill: var(--panel-muted);
+  stroke: var(--line-strong);
+}
+
+.pricing-svg-node line {
+  stroke: currentColor;
+}
+
+.pricing-svg-node text,
+.pricing-svg-note text {
+  fill: currentColor;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  text-anchor: middle;
+}
+
+.pricing-svg-note text {
+  text-anchor: start;
+}
+
+@media (max-width: 720px) {
+  .pricing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
