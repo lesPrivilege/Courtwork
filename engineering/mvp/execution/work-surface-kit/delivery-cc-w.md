@@ -351,3 +351,22 @@ PASS · CC-W · 1679 ↔ 1680 跨越只换形状：不重发命令、不重读�
 | **reference fidelity** | 采纳 shell-refinement 的是**结构**（共享顶部 chrome 基线、独立滚动、tab 组织可读对象），采纳 Atlas / EX-CC1 §4 的是**行为**（关闭区与选中区分离、截断保留全名、tablist 方向键）。`work-tabs.png` 的 550 中列、多余目录 / Help / 头像 / 模拟法律文字一律未采纳；画板上的像素距离没有当作几何验收依据（几何全部来自 §8 的实测） |
 | **AI tells** | 新增可见字符串只有三个（`Chat`、`Close <路径>`、三个状态词），没有引导句、没有 emoji、没有把返回写成箭头（sprite 里没有这个 glyph，而 glyph 契约本单不可写——这一点写进了 text-sweep 而不是悄悄加一个图形）；空状态不画空卡（没有文档就没有文档 tab）；没有渐变、发光、圆角堆叠 |
 | **reality** | 每个数字都从渲染出来的文档上读（`composition-checks.json` / `cc-w-checks.json`）；文档 tab 由一次真的 `ws_write` 记录出来再由 Chat Flow 那一行打开，不是注入的；M-9 的在途窗口用扣住传输的手法观察，答案照常由服务端给；M-10 的两次悬停是 CDP 的真实鼠标事件；截图由脚本自己拍；`not_run` 的八项逐条列出，没有用几何断言冒充可访问性或触控结论 |
+
+## 16. Fable 复核（WK-126，2026-09-09）
+
+非作者复核，与 §1–§15 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only 414b196..HEAD` 对照工单可写清单；server / runtime / core / domains / brand / contracts / intake 差异 | 无越权；差异为空；无 allowlist 与后端请求 |
+| 改约 | `interface-components.md` §工作面定性与顶带槽位段、`ui-composition-standard.md` 四个新 token 行 | 与 WK-113 / WK-116 / WK-121 ② 逐句一致 |
+| 读码 | `app.mjs`（`surfaceViewSwitch` / `renderConversationBodyVisibility`、文档 tab 身份键、`closeDocumentTab` 按 `data-focus-key` 归还焦点、`TAB_ACTIVITY` 记号、`renderSurfaceScope`、`surfaceThreePaneQuery`）、`ui-controls.mjs`（`setRequestLabel` 生成内容占位、tooltip 400 / 300 窗口）、`index.html`、`styles.css` | 只有文档 tab 开合与 strip 选择是新前端状态；无多文档 map；renderer 失效条件未动 |
+| 单测 / lint | 255/255；lint-colors / lint-materials ok；contrast 76 行全通过 | 一致 |
+| 浏览器 | 自有端口 8893、三个新空目录、独立 CDP：`composition-checks` 41/41（WORK-5…9、SHELL-4/5 桌面宿主与普通浏览器）、`fe-t07` 8/8、`shell-checks` 12/12、`cc-w-checks` 9/9（M-9 宽度不变、M-10 405 / 1 / 407ms） | 一致 |
+| 断言改写 | shell-checks CW-1/2/4/8、primitive 在途词五处、chat-work-shell scope 位 | 因契约改变，未放宽，接受 |
+| 七项待裁 | 见 [intake-round-3 §4ae](intake-round-3.md) WK-126 | ①…⑥ 接受（⑥ 并入 M-12 簇为 M-14）；⑦ 记 M-15 入 FE-05a 第 0 项 |
+| Anti-slop 门（WK-112 (c)） | necessity：文档 tab 只在有实例时出现、无 banner；hierarchy：strip 与类型 tab 靠位置与下划线分层，字号字重未动（FE-05a 留）；system：四个新 token 已登记，无新 radius / shadow；reference fidelity：EX-CC1 + shell-refinement + S12 三源；AI tells：无遮罩无浮层材质；reality：1440 / 1680 / 1679 / 1024 / 390 / 720 高 / 200%（1440）已量 | 通过 |
+| 未复跑 | RC 三支、探测、Models、primitive、FE-T01 / T03 / T06 / T11、cc-s-checks | 作者结果原文在 §10；Astra 独验按 `evidence/cc-w/README.md` |
+| 视觉四轴 | 留用户 | 未评 |
+
+结论：接受。合流次序：先 `claude/cc-w-surface-tabs`（头 = 本条提交），再 `claude/fable-round4d`。
