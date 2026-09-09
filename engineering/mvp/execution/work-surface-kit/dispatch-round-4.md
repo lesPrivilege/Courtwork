@@ -11,7 +11,8 @@
 | FE-04 Primitive reconciliation | Opus，`opus-wo-medium`（effort: medium） | `/private/tmp/se-agent-fe04` · `claude/fe04-primitives` · 8897（MCP fixture 8898）· 数据 `/private/tmp/se-agent-fe04-data`，基线 `af95bcb` | WO-FE-round4 §FE-04 + EX-WK8 台账 + WK-112 (d) 状态矩阵 | `delivery-fe04.md` | 已派（2026-09-09）；提示词 [WO-FE04-dispatch-prompt](work-orders/WO-FE04-dispatch-prompt.md) |
 | EX-CC1 三面贯通 + tab strip 宿主契约探索 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (c) | `explore/ex-cc1-three-pane-tabs.md` | 已回执，消费为 WK-113（[intake §4r](intake-round-3.md)） |
 | EX-CC2 模块首页量测与数据接缝 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (d) | `explore/ex-cc2-home-modules.md` | 已回执，消费为 WK-114（[intake §4s](intake-round-3.md)）；CC-D0 以 BE-1/3 为前置 |
-| CC-S → CC-W → CC-D0 → FE-05 | Opus 串行 | 各自从上一单合流后的清洁 main | WK-110 次序 | `delivery-cc-*.md` | 排队（CC-W / CC-D0 待探索回执与几何合同修订） |
+| 变体画布（WK-112 (b)） | Fable，Claude Design 画布 | https://claude.ai/code/artifact/f0b8d9b9-01fc-4dff-bcdb-390ad6f2a24c | WK-113 / WK-114 | 七张线框画板：Work 现状 / A / B / C，Home 现状 / D0-B / D0-C | 已出（2026-09-09），待用户比较选向；Fable 推荐 B + C、D0-B |
+| CC-S → CC-W → CC-D0 → FE-05 | Opus 串行 | 各自从上一单合流后的清洁 main | WK-110 次序 | `delivery-cc-*.md` | 排队：CC-S 可直接成单；CC-W 待用户选向后改几何合同再派；CC-D0 以 BE-1/3 为前置 |
 | FE-05 材质与光效 | Opus | FE-04 合流后 | WO-FE-round4 §FE-05 + EX-WK9 | `delivery-fe05.md` | 待 EX-WK9 回执后由 Fable 填值 |
 
 规则：Opus 单一 writer 串行；每单固定 SHA、消融表、text-sweep 增量、分配反例、五轮收敛表（WK-100）；作者验证与 Astra 独验分列；视觉四轴留用户。后端前置 BE-1/3、12、14…20 仍由 [backend-requests](backend-requests.md) 维护；FE-02 / FE-03 未交付能力不画可用按钮。
