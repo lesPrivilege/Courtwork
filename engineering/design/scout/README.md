@@ -34,6 +34,7 @@ Scout（发现）→ Section / Product precedent（成熟产品怎么做）→ D
 | navigation · 常驻入口与侧栏分区 | Product precedent（SaaSFrame product settings / dashboard 导航；S12）→ A 层 Linear / Primer → 本地 | ATT-FE-01 unresolved ①；**不用 Navbar Gallery**（网站导航） |
 | composer | B 层 assistant-ui / AI Elements → 60fps `Chat` / `Button` / `Morph` → 本地 | 已定型（FE-03 / CC-W）；M-16 入 FE-05a |
 | control · 控件形态 | B 层 React Aria / Base UI → 60fps `Tabs` / `Drag` / `Toggle` → specimen | 只对有 schema 的控件（WK-129）；Attention 首次给出 datetime / entity picker schema（WK-136） |
+| projection · 读态形态（如何读一个事实） | 本地 adapter 层（`presentation-adapters` / `usage-projection` / `thread-projection`）→ A 层 LangSmith / Braintrust 的多投影 → specimen | Projection Grammar 段（WK-139）；四 + 一条负规则（WK-140）；无测量不投影——TPS / TTFT / context meter 当期不成立（WK-141 (b)）；[EX-PG1](../../mvp/execution/work-surface-kit/explore/ex-pg1-projection-inventory.md) 在途 |
 | inspector / contextual toolbar | Product precedent（SaaSFrame product interfaces；Linear / Raycast / Figma 官方文档）→ 60fps `Bottom Sheet` / `Morph` → CC-I | CC-I（FE-05 后）；不再走 X（WK-135） |
 | approval / governed action | review-projection §6（硬边界）→ Primer scenario patterns → SaaSFrame flows（confirm / destructive）作先例 | 已定型；无 Always allow；undo over confirmation（WK-122） |
 | dashboard / home 模块 | SaaSFrame dashboards + onboarding flows → WK-117（具体待办优先于统计）→ CC-D0-b | CC-D0-a 在途；D0-b 待 BE-1/3/25 |

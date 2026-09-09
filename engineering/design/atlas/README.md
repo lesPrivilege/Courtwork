@@ -1,6 +1,6 @@
 # Local UI Atlas · 局部行为索引
 
-> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。**Control Grammar（WK-129）**再靠前一层：Schema / intent → control；Schema constraint ≠ UI affordance。各段见本页末。**Scout 层（WK-134 / 137）**再靠上：[design/scout](../scout/README.md) 按问题寻址，只出 capture 与候选，经 disposition 才进入本页任一段；60fps 为 Motion 段 C 层 donor。
+> **Visual Grammar（WK-125）**：SHAPE / MATERIAL / IDENTITY / MOTION 位于本页组件条目之上；组件只声明角色（shape role、material tier、state contract），视觉由 grammar 解算。**Interaction Grammar** 再靠前一层：Schema / intent → **Projection Grammar（如何读，WK-139）** + **Control Grammar（如何改，WK-129）**；Schema constraint ≠ UI affordance；投影不得创造事实。各段见本页末。**Scout 层（WK-134 / 137）**再靠上：[design/scout](../scout/README.md) 按问题寻址，只出 capture 与候选，经 disposition 才进入本页任一段；60fps 为 Motion 段 C 层 donor。
 
 WK-118 设立，WK-122 升级为六级格式：**Semantic Contract → Interaction Pattern → Anatomy → Behavior Primitive → Motion Recipe → Local Adaptation**。来源分四层（A 语义契约 / B 解剖 / C 微交互 donor / D 探索池，见 [inputs/ui-source-tiers](../../mvp/execution/work-surface-kit/inputs/ui-source-tiers-2026-09-09.md)）。语义契约的正式所在是 [ui-state-vocabulary](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md)（映射后端已有状态）、[primitive-canon](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md) 与 [review-projection](../../mvp/execution/work-surface-kit/contracts/review-projection.md) §6；A 层外部来源（Linear、Primer）只用来检查语义齐全，不替代 Core owner。upstream 是 donor 不是 runtime dependency：一律本地实现（原生 ES module），不引 React / Tailwind / Motion。本页只做索引，不复制内容；一个 entry 有实体前不建子目录。链接未经 Fable 核验。
 
@@ -37,6 +37,25 @@ conventional（wordmark / icon / typography，现有 brand 包）与 generative�
 
 state transition（原位变态：Send → Sending…、Approve → 回执行）、focus（transition blur 只在小型 text / icon）、material response（不动画 `backdrop-filter`）、identity transition（GI 轨道）；reduced-motion 下全部瞬切；pressed shape morph 只 experimental。
 
+## Projection Grammar 段（WK-139）
+
+与 Control Grammar 并列：Projection = 如何读，Control = 如何改；二者合称 Interaction Grammar，位置仍在 Schema / intent 之下、Component anatomy 之上。**本段不是新层，是给已有的一层命名**——`app/web/presentation-adapters.mjs` / `usage-projection.mjs` / `thread-projection.mjs` 已是纯 adapter，规则见 [presentation-primitives.d.ts](../../mvp/execution/work-surface-kit/contracts/presentation-primitives.d.ts)（WK-34 / WK-80）：① 服务器 UTC 原样透传，adapter 不算相对时间也不重切日界；② 缺失事实是显式 `null`，不是 `0` 也不是 `""`；③ adapter 纯函数（无 fetch / 无缓存 / 无 `Date.now()` / 不覆盖服务器排序）；④ **投影不得创造事实**（WK-139）：没有 unit / scope / timezone 就不投影，形态不得强于事实。
+
+原则句（WK-139 (d)）：**不要求一种 projection 同时解释 agent 的全部事实**；同一份事实可有多个投影，但每个投影必须自报口径。
+
+| 类 | 今日有（owner fact 存在） | 候选（待 owner fact） | 参照 |
+|---|---|---|---|
+| plain value / table | 绝大多数事实：`dl` 数据行（telemetry 请求测量）、Usage 精确日表 / 模型表、settings 行、stat tiles（`toStatTiles`）；缺失走 `Not available` / `No run recorded` 而非 0 | — | 本段第 ①②③ 条即其全部规则 |
+| status | Run / 工具行词表（[ui-state-vocabulary](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md) §1）、Attention 五状态（§6）、`Sending…` 在途、`cancel requested ≠ stopped` | partial args、并发工具 grouped row | assistant-ui Tool UI（B 层） |
+| meter | **今日无，且这条拒绝已在代码里执行**：`runtime-view.mjs:2483-2486` 逐字拒绝把 context 画成 percentage-of-limit / free space / quota；telemetry 的 context 是启发式估算（`serialized text ÷ 4`），按 WK-140 第五条 `estimate ≠ meter` 不得画刻度 | 需 owner 给出 current / limit 同口径测量后方可立项；review score 与可编辑 threshold 必须分开 | React Aria Meter（只取语义，不引依赖） |
+| timeline | **今日无**（BE-32 前） | run / subagent span；`process-trace` 的 collapsed → timeline → raw 第二层。`thread-projection.mjs` 今日只产出线性消息序列，不是带刻度的时间轴 | LangSmith 三投影**未核验**（原 URL 重定向到总览页）；Braintrust 的 spans / thread / timeline 三视图**经核验不成立**，已撤（WK-149 (a)）。本地依据改为 Usage 一个 dialog 内 heatmap / 堆叠 / 明细表三投影并存 |
+| tree | 工作面 workspace 文件树 | nested / subagent 执行（拓扑本身是要读的事实时才用） | — |
+| graph | **不设**。只有拓扑关系本身是被读的事实才考虑；今日无此事实，也无需求（WK-140 `complex ≠ graph`） | — | — |
+| distribution | **今日有**：`renderContextBar`（`runtime-view.mjs:2487-2549`）按 kind 分桶的比例条（`role=img`，无固定上限——**是构成不是余量**）；Usage 的模型堆叠图。单次 run 的量给数值，群体观察才谈分布 | latency / TTFT 分布须先有测量与样本口径（WK-141 (b)：今日无 per-token 时钟） | NVIDIA inference dashboard（线索级，未核验） |
+| heatmap | Home 活动格（固定刻度、日 Run 计数、方向键 + 每格 accessible name）、Usage 热图（`quantileLevels` P50 / P75 / P90，零单列一级） | 只用于真正二维离散 / 分箱（day × hour、model × day、tool × error）；单值百分比、单模型速率、单 run 过程一律不用 | [data-visualization](../home-composition-2026-09-10/data-visualization.md)（口径、覆盖率、色彩边界） |
+
+负规则（WK-140 / WK-146，与 Control Grammar 共用），按证据强度三态记，**禁止简写成"四条已通过"**：`running ≠ progress` **已验证合规**（`home-view.mjs:354`、`surface-modules.mjs:57`、`runtime-view.mjs:2483-2486` 三处正面证据）、`high-risk ≠ confirm dialog` **已验证合规**（原位两钮卡，全仓 `confirm(` 零命中）、`numeric ≠ slider` **空集**（从无数值输入控件，未被违反≠已被验证）、`complex ≠ graph` **当前不适用**（无拓扑对象）、`estimate ≠ meter` **已验证合规**（本地新增，代码已执行）。机械可查的三项（`progress` / `meter` / `role=meter` / `aria-valuenow` 的登记制、`input[type=range]` 的空集守恒）由 `tools/lint-interaction.mjs` 承担（WO-PG-01）。
+
 ## Control Grammar 段（WK-129）
 
 六类；每格标"今日有 / 候选（待 schema）/ 参照"。行为语义以 React Aria / Base UI 为 donor（不引依赖）。
@@ -44,11 +63,11 @@ state transition（原位变态：Send → Sending…、Approve → 回执行）
 | 类 | 今日有（schema 存在） | 候选（待后端 schema） | 参照 |
 |---|---|---|---|
 | Selection | Segmented（Settings 路径 / 模式 / 布局）、Select（provider / model）、checkbox / radio；entity picker for matter / session / run（Attention `attach_relation`，仅 ATT-FE-01 内，WK-136） | Token picker（BE-21 连接、reviewer）、ComboBox（大目录搜索）、policy editor（Attention grant → CC-P） | React Aria ToggleButtonGroup / ComboBox / TagGroup |
-| Value | — | NumberField + Stepper + ScrubArea（BE-31 number；context budget / threshold）、Slider（bounded）、Range | Base UI NumberField ScrubArea；React Aria Slider |
+| Value | — | NumberField + Stepper + ScrubArea（BE-31 number；context budget / threshold）、Slider（bounded）、Range。**本类今日为空；第一个实例是 CC-I 的 PropertyRow（本设备偏好，schema 最小），不是 specimen board 上的第六 / 第七号**（WK-144 (b)） | Base UI NumberField（**已核验**：typing / 键盘 stepping / ± 按钮 / 滚轮 `allowWheelScrub` / `ScrubArea` 五种 modality，同一值多 modality 而不产生五个控件；**两阶段 commit**：`onValueChange` 交互中即时、`onValueCommitted` blur 或指针释放才提交——这条直接进 PropertyRow）；React Aria Slider |
 | Temporal | `next_action.due_at`（Attention，单点 datetime，trigger `at` 必带；WK-136） | Date / time range（BE-25 活动区间）、Waveform / Transport（无音频 artifact 契约，仅参照） | waveform-playlist 分层 |
-| Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项） | Tiptap / Nuxt fixed-bubble-floating；cmdk |
-| Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好）、Rule builder（待 PolicyRule canonical 文本，候选 CC-P） | MetaBind Inspector；Tailscale visual editor ↔ text |
-| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped；Attention typed actions（resolve 须 reason；snooze / set_waiting 须 next_action ≠ none；按 `human_actions` 广告生成，WK-136） | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |
+| Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项）。**placement 由 action 的 applicability 推导**（`appliesTo / requiresSelection / requiresCapability / risk / frequency / preferredSurface` → fixed chrome / contextual toolbar / context menu / palette / inspector / approval surface），不是选一个 toolbar variant（WK-143） | Tiptap / Nuxt fixed-bubble-floating；cmdk；Unity Contextual Tooling（线索级） |
+| Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好；**加 Provenance 列**——值从何而来 / 是否本地改写，取 owner 事实不作 UI 推断，使 Inspector 成为 governed state editor 而非 setting form，WK-143）、Rule builder **今日已有一个**：`runtime-view.mjs:2066-2170` 的工具权限 CAS 规则表（action / resource / effect，分层收紧）——与 CC-P 候选的 Attention grant 是两个不同的 policy 对象（WK-147 (b)）；PolicyRule canonical 文本仍待 | MetaBind Inspector；Tailscale visual editor ↔ canonical（GitOps 下 GUI 只 search / filter / preview，不是事实源） |
+| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped；Attention typed actions（resolve 须 reason；snooze / set_waiting 须 next_action ≠ none；按 `human_actions` 广告生成，WK-136）——**后端合同已有、前端未建**：`human_actions` 只在 `app/core/attention.py`，`attention-view.mjs` 自称只读、`attention-agent-view.mjs` 只有 allow / deny，施工单是 ATT-FE-01（WK-147 (c)） | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P）。**scope 可视化先于 scope 按钮**：`once / this run / 1 hour / always` 是在编辑 authorization scope，不是四个并列按钮；待 grant scope schema 方可立项，无 Always allow 不变（WK-142） | review-projection §6；Primer undo over confirmation；Cloudflare Agents HITL（线索级，不引入 reviewer 身份 / policy version / 到期钟等今日无 owner 的对象） |
 
 ## Iconography 段（WK-133）
 
