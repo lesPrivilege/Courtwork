@@ -327,3 +327,5 @@ Interaction Grammar 施工第一节点（2026-09-10）：两单已接受合流�
 Chat Flow接续：按用户补充裁决接入共享用户Markdown/原文/长消息展开、深色用户气泡与气泡下方消息级复制/编辑，assistant整条复制在正文下方，内部文字/代码卡保留独立复制。Attention首页接真实会话搜索/最近列表/Open/New及Session持久化Rename，按实际Run聚合工具与回复并区分问题/权限回执。[证据与有界归因](../evidence/home-backlog-20260910/chat-flow/README.md)。Luna发现的重绘焦点键缺口已修复；定向7/7、有界并发全量432/432与浏览器验证通过（原无界并发9项超时/锁失败另存），没有新增Regenerate、Queue/Steer或虚构归档能力，不关闭其余Home队列与G1–G5。
 
 Attention Chat交接（2026-09-10）：用户改为另行唤醒Opus收尾，Astra已停止扩展施工；[交接入口](design/attention-agent-2026-09-10/opus-handoff.md)汇总固定产品f4f2436、Chat收尾反例、Home3–7与main并行WK139–144/EX-PG1待合流裁定。Tabs早期代码只留未验收patch，已移出活动产品；不称已交付。交接实读main仍ee6df72且文档writer在途，f4f2436合流暂缓以保留其编辑，未另建任务。
+
+Attention Chat 收尾独立验收与证据合流（2026-09-10）：当前 `main@9157bbb` 的独立树复核 Attention 定向 12/12、跨层接缝 18/18，主线完整套件 522/522；smoke、颜色/材质 lint、对比度与文档链接（632 份文档 / 2811 条链接）均通过。`4431dd7` 与 `0bff8b5` 的产品代码此前已在main祖先中；因此仅接收 `claude/attention-chat-closure@f552e22` 的 closure 文档与完整确认日志，非作者独立验收后以 `0d3297d` 合流。作者确认日志中 433/434 的唯一失败是 `work-summary` 测试自身递归快照在并发原子写 rename 窗口的竞态，非本片代码路径；其单独运行通过，已保留原始记录。收尾余项（会话读失败态、完整无障碍矩阵/原生宿主）与 FE-05a、FE-05、CC-I、ATT-FE-01 及 G1–G5 仍开放；未跑真实provider、未迁移个人数据、未部署。
