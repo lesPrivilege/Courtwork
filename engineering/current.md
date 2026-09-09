@@ -204,3 +204,11 @@ Astra 按本次换序授权裁定：**FE-05a → FE-05 → ATT-FE-01 → CC-I**�
 Astra 接手 Claude limit 后的清账。从实际 `4f7278f` 承接已合流的 CC-D0-a / r4d，接收发布面与品牌准备包固定头 `dcae9d7`。[本节点回执](../evidence/cleanup-20260910/README.md)记录范围与未结项。PS-24：公共站七行问题归 PS 批次，施工中不派 sweep；交付四轴复核判弱后才按“30 样本 → 3 候选 → specimen”补一次。真实 pricing 不适用与第 07 段概念研究稿并存。60fps 只作为品牌第 3 层（06）的 motion donor；第 1、2 层不派 sweep，站点继续零运动。
 
 WK-136 换序沿 `4f7278f` 裁定：FE-05a → FE-05 → ATT-FE-01 → CC-I。当前 Opus 在途仍为 WO-PS-01 站点、WO-BR-01 glyph 板；分支中间提交不视为正式回执或接受。Astra 接收回执后复核，glyph 选向仍归用户，PS-02 待 PS-01。此节点只合流准备文档并对齐账本，不接收两条在途实现，不关闭 G1–G5。
+
+## AM-B：持久只读异步任务与离线 human-loop 夹具（2026-09-10）
+
+用户同意派单后，Terra完成T1最终协议/Pi出站探针、T2真实子进程故障夹具，以及Gmail/GitHub/trace三项离线夹具。Astra亲写A0/A1：host登记不可变read source、持久handle、至多一次dispatch尝试、选择性get/wait、独立取消/执行/投递记录与query-only重启恢复。具体实现和作者/非作者证据见 [本轮回执](../evidence/async-loop-20260909/README.md)，正式边界见 [合同](../app/docs/async-tasks.md)。此前派单准备段的“未启动/Runtime4”是历史时点。
+
+当前RuntimeStore5，Core3/app4保持。schema3/4经完整验证和独占原字节备份升级；已有备份路径/非法UTF-8拒绝，旧host拒新库，恢复使用独立目录。没有升级个人数据。adapter默认缺席；仅不绑定domain的Session可用，防止绕过ES完整输入覆盖。旧任务/来源历史可读，任务成功不授予Core接受或解决Attention；未读取终态的final保持unknown。
+
+T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有锁定SDK普通loop与native缺口，不声称原生async。HL包仍只是离线响应/向量，生产DTO、摄取、proposal/effect写链路待Astra冻结。无新UI、自动续行、真实provider、外发、部署或Paper变更，G1–G5保持开放；前端和发布面队列沿上文当前裁定。
