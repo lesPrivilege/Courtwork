@@ -59,6 +59,15 @@
 | Skills | 可复用的 instruction / workflow / resource 包 | Abilities · Recipes |
 | Plugins | 可安装的能力包 | Add-ons · Extensions（见 §3.6） |
 | Instructions · Skills · References · Prompt templates | 取代泛用的 Context 抽屉；四种不同的准入 | Context（作万能名词） |
+| Connections | Models 组内的列表块名；一行一条已配置的连接 | Providers（作块名时）· Accounts |
+| Add provider | 加一条连接的入口（disclosure） | New connection · Connect a model |
+| Catalog provider · Compatible endpoint · Local endpoint | 三条 happy path；差别只在端点归谁决定 | Custom provider · Self-hosted |
+| Display name | 连接在**本设备**上的叫法；provider ID 由目录给，用户不填 | Label · Alias · Nickname |
+| In force | 当前生效的那一条连接 | Active · Default（作徽章时）· Current |
+| Base URL · API key · API format | 端点、凭据、线格式三件分开的事 | Endpoint URL（同义反复）· Token · Protocol |
+| Advanced | 少数人才改的一档（API format、Base URL） | Connection options · Expert · More |
+
+WK-91 · 未交付的动作不占按钮：`Test connection` 与对未保存表单的 `Fetch models` 在词表里已冻结，但在 BE-18 / BE-17 交付前只作为流程里的一行说明出现（`Not available yet: …`），不画控件。
 
 ### 3.4 记忆
 
