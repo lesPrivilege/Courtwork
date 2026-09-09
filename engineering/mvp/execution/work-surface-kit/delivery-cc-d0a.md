@@ -324,3 +324,20 @@ PASS HOME-15 {"before":false,"afterSwitchToModules":true,"afterSwitchBack":false
 ## 15. 下一单
 
 CC-D0-b 待 BE-1/3 + BE-25、BE-29 交付；本单的准入合同 [home-modules §4](contracts/home-modules.md) 是那一单的入口条件。队列其余不变：FE-05a（M-11）→ FE-05 → CC-I；ATT-FE-01 在 ATT-BE-01 真实交付后按既定次序进入。
+
+## 16. Fable 复核（WK-138，2026-09-09）
+
+非作者复核，与 §1–§15 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only fa90763..HEAD` 对照工单可写清单；server / runtime / core / domains / brand / 其他 contracts / intake 差异 | 无越权；无 allowlist 与后端请求 |
+| 读码 | `home-view.mjs`（`homeModules` 注册表只含已安装两项、`renderHomeModuleBand` 折叠后控件与 `aria-expanded` 常在、焦点经 `data-focus-key` 归还）、`app.mjs`（带的在场只由 `renderChatHeader` 决定，`hidden` + `replaceChildren` 离开两棵树；偏好不缓存进 `state`）、`settings-view.mjs`（闭集 `PREFERENCE_VALUES`、越界回默认、`onHomeLayout` 回执不碰 Home DOM）、`index.html`、`styles.css`（`--space-5` 一档、Modules-only 的 section margin、桌面折叠钮沿 `button` 基规则 `min-height: var(--control)` 32、390 44） | 与合同一致。一处过期注释：`renderHomeModuleBand` 的 docblock 仍说"折叠保留标题"，而标题行已消融——不改语义，合流补丁或下次触碰时改 |
+| 单测 / lint | 293/293；lint-colors / lint-materials ok；contrast 76 行全通过 | 一致 |
+| 浏览器 | 自有端口 8893、新空数据目录、独立 CDP 20060：`composition-checks` **71/71**（HOME-16-modules-900 visible 16 / 门槛 12；HOME-11-modules-900 todoTop 940 < 956；HOME-10 带内 1 行、0 卡、0 框、无数字、不含 chip 值 `Local test`；HOME-4-modules 820 / 438 = composer；HOME-14 折叠钮 94×44、overflow 0）、`cc-w-checks` 9/9、`shell-checks` 12/12、`fe-t07` 8/8 | 与作者数一致 |
+| 消融 | §3 四删五增逐条读；标题行消融由 HOME-11 反例逼出（992 → 940） | 接受；这是本轮最好的一条"像素改判断" |
+| anti-slop 门 | §14 八项与读码对照：带内零数字、零卡、零徽章、零占位、零 "until BE" | 通过 |
+| 五项待裁 | 见 [intake-round-3 §4aq](intake-round-3.md) WK-138 | ① 接受：per-module 显隐 UI 等第二个模块（ATT-FE-01 切片 b）落带时一起做；② 记 M-18 入 FE-05a 第 0c 项（三档 text-size 跑 HOME-16；过不了则显式修订 0.56 并记反例，不做小视口自动折叠）；③ PropertyRow 并入 CC-I（Structure 类 Inspector PropertyRow，Appearance 六行一起），不开新单、不进 FE-05a；④ 接受，第三种版面出现时再裁；⑤ 已记录，无动作 |
+| 合流次序 | 先 `claude/cc-d0a-home-modules`（本 §16 提交为头；main 已前进到 `0480c17`，app/web 未动，平凡变基，预期全量 308），后 `claude/fable-round4d` | 交 Astra |
+
+结论：**接受**。新增 segmented `Home layout` 沿用 `.segment`，继承 M-17（FE-05a 第 0 项已含）。
