@@ -2407,6 +2407,14 @@ function decisionReceiptRows(runId) {
   return rows;
 }
 
+/* WK-115 ① · 一个没有 result 的工具调用有两种不同的事实，不能共用一个词。
+ * Run 明确 cancelled / failed 时，这次调用确实是被打断的；Run 的终态本身是
+ * `unknown`（或根本没有对应的 Run 记录）时，它为什么没有回来同样是未知的，写
+ * `Interrupted` 是对未知事实的正面断言（FN-28）。第六个词因此是 `Unknown`
+ * （glyph-semantics §3）。BE-33 交付后原因改由后端给出，这里的推断随之退役。 */
+const unfinishedToolWord = (status) =>
+  status === "cancelled" || status === "failed" ? "Interrupted" : "Unknown";
+
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
@@ -2483,7 +2491,34 @@ function renderMessageStream() {
   const streamList = element("div", { className: "message-list" });
   let list = streamList,
     runtimeRunId = null,
-    activityGroup = null;
+    activityGroup = null,
+    pendingList = null;
+  /* WK-115 ② · Chat Flow 的未决卡是一条列表，Home 下带的行是另一条：一条是这一个
+   * 会话里等着人回答或授权的东西，一条是跨会话的收件箱。两者各自 `role="list"`，
+   * 不合并成一条 —— 合并会让读屏把「本会话 3 项」读成整个工作区的计数。列表键
+   * （j / k / o / Enter / Home / End）在两条上行为一致，但走的是各自的那一条。
+   * 除未决卡以外的流内容不是列表项，遇到它就把这一段收口。 */
+  const appendFlowRow = (node) => {
+    if (!node?.matches?.("[data-nav-item]")) {
+      pendingList = null;
+      list.append(node);
+      return;
+    }
+    if (!pendingList || pendingList.parentElement !== list) {
+      pendingList = element("div", {
+        className: "pending-list",
+        attrs: { role: "list" },
+      });
+      list.append(pendingList);
+    }
+    pendingList.append(
+      element(
+        "div",
+        { className: "pending-list-item", attrs: { role: "listitem" } },
+        node,
+      ),
+    );
+  };
   for (const row of rows) {
     if (row.kind === "user") {
       list = streamList;
@@ -2502,7 +2537,7 @@ function renderMessageStream() {
       runStatuses.get(row.runId) ||
       state.runs.find((run) => run.id === row.runId)?.status;
     if (row.kind === "user") {
-      list.append(
+      appendFlowRow(
         renderUserMessage(row, {
           onCopy: async (text) => {
             try {
@@ -2546,7 +2581,7 @@ function renderMessageStream() {
         row.text,
         sessionScopeKey("assistant", row.id),
       );
-      list.append(wrapper);
+      appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
       /* WK-47 ablation · the whole row no longer turns red. A failed tool is
        * named by its state word, and the failure text itself is inside; colour
@@ -2578,7 +2613,7 @@ function renderMessageStream() {
               : status === "stopping"
                 ? "Stopping"
                 : "Working"
-            : "Interrupted";
+            : unfinishedToolWord(status);
       details.append(
         flowRow("summary", {
           glyph: toolGlyph(row.name),
@@ -2617,16 +2652,27 @@ function renderMessageStream() {
           errors: 0,
           working: 0,
           interrupted: 0,
+          unknown: 0,
         };
         summary.append(activityGroup.meta);
-        list.append(group);
+        appendFlowRow(group);
       }
       activityGroup.count++;
       activityGroup.errors += row.isError ? 1 : 0;
       activityGroup.working +=
         row.phase !== "result" && toolStillActive ? 1 : 0;
       activityGroup.interrupted +=
-        row.phase !== "result" && !toolStillActive ? 1 : 0;
+        row.phase !== "result" &&
+        !toolStillActive &&
+        unfinishedToolWord(status) === "Interrupted"
+          ? 1
+          : 0;
+      activityGroup.unknown +=
+        row.phase !== "result" &&
+        !toolStillActive &&
+        unfinishedToolWord(status) === "Unknown"
+          ? 1
+          : 0;
       activityGroup.title.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}`;
       activityGroup.meta.textContent = activityGroup.errors
         ? `${activityGroup.errors} failed`
@@ -2638,7 +2684,9 @@ function renderMessageStream() {
               : "Working"
           : activityGroup.interrupted
             ? "Interrupted"
-            : "Completed";
+            : activityGroup.unknown
+              ? "Unknown"
+              : "Completed";
       activityGroup.node.classList.toggle("is-failed", activityGroup.errors > 0);
       activityGroup.node.classList.toggle(
         "is-working",
@@ -2682,7 +2730,7 @@ function renderMessageStream() {
         history.addEventListener("toggle", () =>
           state.toolOpen.set(openKey, history.open),
         );
-        list.append(history);
+        appendFlowRow(history);
         continue;
       }
       const card = element("article", {
@@ -2854,9 +2902,9 @@ function renderMessageStream() {
         });
         card.append(form);
       }
-      list.append(card);
+      appendFlowRow(card);
     } else if (row.kind === "permission") {
-      list.append(renderPermission(row));
+      appendFlowRow(renderPermission(row));
     } else if (row.kind === "artifact") {
       if (
         row.file?.kind !== "content-version" ||
@@ -2887,16 +2935,16 @@ function renderMessageStream() {
           sha256: row.file.sha256,
         }),
       );
-      list.append(button);
+      appendFlowRow(button);
     } else if (row.kind === "notice") {
-      list.append(
+      appendFlowRow(
         element("p", {
           className: `notice-row ${row.data?.kind === "unrecorded_files" ? "attention" : ""}`,
           text: noticeText(row.data),
         }),
       );
     } else if (row.kind === "error") {
-      list.append(
+      appendFlowRow(
         element(
           "article",
           { className: "message error" },
@@ -2917,12 +2965,12 @@ function renderMessageStream() {
         }),
       );
       card.append(header);
-      list.append(card);
+      appendFlowRow(card);
       /* frontend-entries 3.4 · the Run's formal outcome, one read-only row
        * after the Run it belongs to. It restates nothing the decision changed:
        * which version was decided, how, and at which work state. There is no
        * button, and no fourth Home band (WK13 keeps three). */
-      for (const receipt of decisionReceiptRows(row.runId)) list.append(receipt);
+      for (const receipt of decisionReceiptRows(row.runId)) appendFlowRow(receipt);
     }
   }
   if (!streamList.childElementCount) {
@@ -2999,6 +3047,15 @@ function renderChatHeader() {
   $("settings-page").hidden = !settingsOpen;
   $("conversation-body").hidden = settingsOpen;
   $("app-shell").classList.toggle("settings-active", settingsOpen);
+  /* WK-116 · 进入 Settings 后全局侧栏不渲染。`hidden` 让它离开无障碍树，`inert`
+   * 让它离开焦点顺序：视觉上藏起来但 Tab 仍能走进去的侧栏，会让「这一页的分组导航是
+   * 唯一导航」成为一句假话。折叠态由 .nav-collapsed 各自负责，两者互不覆盖。 */
+  const navigationPanel = $("navigation-panel");
+  navigationPanel.hidden = settingsOpen;
+  navigationPanel.inert = settingsOpen;
+  /* 没有可开合的侧栏，就没有开合它的按钮；那个槽位在这一页上由 Back to app 占据。 */
+  $("toggle-nav-button").hidden = settingsOpen;
+  $("settings-back-button").hidden = !settingsOpen;
   // WK-40 · one title line: the project name is a prefix only when the sidebar
   // cannot show it (collapsed or narrow); Home carries no eyebrow at all.
   const projectTitle = $("project-title");
@@ -5230,6 +5287,9 @@ function openSettings(section = state.settings.section, { trigger, hash = true, 
   /* 悬浮的工作面锚在主区右侧，会盖住这一页；这一页替换的正是主区的内容，所以进设置
    * 就收起工作面，而不是让两层叠在一起（FN-27：焦点不被悬浮层遮住）。 */
   if (state.surface.open) closeSurface({ restoreFocus: false });
+  /* WK-116 · 侧栏在这一页上不渲染，所以抽屉不能停在「开着」的状态里：那样 Escape
+   * 的第一步会指向一个不存在的层。两步序本身不变（抽屉 / 工作面 → 这一页）。 */
+  if (state.navigationOpen) closeNavigation({ restoreFocus: false });
   settingsPage.select(target);
   if (hash && location.hash !== settingsHash(target)) location.hash = settingsHash(target);
   renderChatHeader();
@@ -5278,7 +5338,18 @@ function syncSettingsFromHash({ read = true } = {}) {
  * input, a textarea, a select or contenteditable, and never during IME
  * composition. Arrow keys are only taken when a list item already holds the
  * focus, so ordinary scrolling is untouched. */
-const LIST_KEYS = new Set(["j", "k", "o", "ArrowDown", "ArrowUp", "Enter"]);
+/* WK-115 ② · `Home` / `End` 跳到这条列表的第一项与最后一项。它们和方向键同一档：
+ * 只有焦点已经在列表里才接管，否则整页的 Home / End 滚动会被一个看不见的列表夺走。 */
+const LIST_KEYS = new Set([
+  "j",
+  "k",
+  "o",
+  "ArrowDown",
+  "ArrowUp",
+  "Enter",
+  "Home",
+  "End",
+]);
 const TEXT_ENTRY =
   "input, textarea, select, [contenteditable=''], [contenteditable='true']";
 function openListItem(item) {
@@ -5337,6 +5408,12 @@ function handleListKeys(event) {
     if (event.key === "Enter" && current.matches("button")) return;
     event.preventDefault();
     openListItem(current);
+    return;
+  }
+  if (event.key === "Home" || event.key === "End") {
+    if (index < 0) return;
+    event.preventDefault();
+    items[event.key === "Home" ? 0 : items.length - 1].focus();
     return;
   }
   const arrow = event.key === "ArrowDown" || event.key === "ArrowUp";

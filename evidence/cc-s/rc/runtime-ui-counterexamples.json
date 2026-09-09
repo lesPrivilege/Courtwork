@@ -1,0 +1,61 @@
+{
+  "app": "http://127.0.0.1:8899/",
+  "viewport": "1440x900",
+  "media": "light",
+  "results": [
+    {
+      "id": "inherit-is-removal",
+      "obligation": "inherit sends exposed:null and the sentence follows the returned snapshot (RC-2)",
+      "pass": true,
+      "detail": "button=\"Inherit the user setting\" body={\"operation\":\"exposure\",\"id\":\"tool:ws_grep\",\"scope\":{\"type\":\"session\",\"id\":\"390808de-6625-4afa-9870-1f0f431a0d3e\"},\"exposed\":null,\"revision\":8} before=\"Exposure: from session · your session override.\" after=\"Exposure: the source default. The switch overrides it for this session.\""
+    },
+    {
+      "id": "mcp-lifecycle",
+      "obligation": "connect / disconnect change the state words only through the returned snapshot (RC-6)",
+      "pass": true,
+      "detail": "before=\"configured connected\" disconnected=\"configured\" reconnected=\"configured connected\""
+    },
+    {
+      "id": "conflict-draft",
+      "obligation": "409 runtime_conflict refreshes, keeps the edit as a draft and never resends (RC-4)",
+      "pass": true,
+      "detail": "puts=1 banner=\"The runtime changed while you were editing. Your change was not applied and is kept here as a draft.ws_read · do not expose at sessionSubmit this changeDiscard \""
+    },
+    {
+      "id": "conflict-draft-apply",
+      "obligation": "the kept draft is applied only when the user asks, on the fresh revision",
+      "pass": true,
+      "detail": "resent revision=10 (server was 10)"
+    },
+    {
+      "id": "active-run-freeze",
+      "obligation": "409 active_run makes the whole module read-only, and it stays readable (RC-4)",
+      "pass": true,
+      "detail": "switch was disabled before the attempt: false; 25 controls disabled, 21 rows still open on click"
+    },
+    {
+      "id": "freeze-lifts",
+      "obligation": "the freeze lifts from a fresh snapshot once the run ends",
+      "pass": true,
+      "detail": "banner gone=true, ws_read switch disabled=false"
+    },
+    {
+      "id": "template-draft-only",
+      "obligation": "invoking a template fills the composer and starts nothing (RC-7)",
+      "pass": true,
+      "detail": "runs 1 -> 1; composer=\"Review the current draft for unsupported claims and list the\""
+    },
+    {
+      "id": "source-inspector",
+      "obligation": "a disabled resource still reads for the local user, and says the model may not (RC-8)",
+      "pass": true,
+      "detail": "exposed=false hash=88089e88d674"
+    },
+    {
+      "id": "no-retry",
+      "obligation": "no control in the module replays an operation whose effect is unknown (RC-4)",
+      "pass": true,
+      "detail": "75 buttons, 0 named like a retry"
+    }
+  ]
+}

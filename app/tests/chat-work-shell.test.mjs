@@ -55,8 +55,11 @@ test("WK-92 · Matter header 的 scope 位是陈述，不是控件", () => {
     /sessionMode\(session\) === "work"\s*\)?\s*[\s\S]{0,160}className: "session-scope", text: MEMORY_SCOPE_OFF/,
   );
   // 没有 popover、没有按钮、没有 caret 挂在它身上。
+  /* CC-S · 取的是画这条 meta 行的那一段，而不是整个 renderChatHeader：WK-116 之后
+   * 这个函数还负责隐藏侧栏与它的开合按钮，函数级的字符串扫描会把那些 id 里的
+   * "button" 当成挂在 scope 位上的控件。 */
   const header = appSource.slice(
-    appSource.indexOf("function renderChatHeader"),
+    appSource.indexOf("const meta = $(\"session-meta\")"),
     appSource.indexOf("$(\"show-surface-button\")"),
   );
   assert(header.includes("session-scope"), "scope 位在这段里");

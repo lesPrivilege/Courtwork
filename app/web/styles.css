@@ -286,6 +286,14 @@
   --band-top: 56px;
   --col-gap: 24px;
   --nav: 256px;
+  /* WK-116 / CC-S · Settings 的三个几何值。settings-active 时全局侧栏不渲染，
+     这一页因此有自己的两列，而不是借主区的列轨：--settings-nav 不复用 --nav，
+     好让侧栏宽日后再动（CC-W）时不连带把设置导航挪走。登记见
+     engineering/design/ui-composition-standard.md 的尺寸 token 表。 */
+  --settings-nav: 240px;
+  --settings-gutter: 48px;
+  --settings-measure: 820px;
+  --settings-group-gap: 40px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 32px;
@@ -2098,6 +2106,11 @@ select {
   box-shadow: var(--shadow);
   pointer-events: auto;
 }
+@media (min-width: 1680px) {
+  :root {
+    --settings-gutter: 64px;
+  }
+}
 @media (min-width: 1024px) and (max-width: 1199px) {
   :root {
     --nav: 220px;
@@ -2115,6 +2128,7 @@ select {
 @media (max-width: 1023px) {
   :root {
     --control: 44px;
+    --settings-gutter: 20px;
   }
   .app-shell,
   .app-shell.nav-collapsed {
@@ -2175,7 +2189,7 @@ select {
   }
 }
 @media (max-width: 767px) {
-  :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; --col-gap: 16px; }
+  :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; --col-gap: 16px; --settings-gutter: 16px; }
   .surface-panel,
   .surface-expanded .surface-panel {
     inset: 0;
@@ -2938,7 +2952,10 @@ dialog[open]::backdrop {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 4px 24px;
   align-items: center;
-  padding: 14px 0;
+  /* 组内行 16–24（shell-refinement §呼吸感）：相邻两行内容之间是 12 + 12 = 24。
+     label / help 在第一列的同一起点，控件在第二列，因此每一行的控件共用组的
+     右边界。 */
+  padding: var(--space-3) 0;
   border-bottom: 1px solid var(--line);
 }
 .settings-row:last-of-type {
@@ -4597,25 +4614,38 @@ html[data-shell="desktop"] .shell-strip {
   display: flex;
   flex-direction: column;
 }
-.settings-page-head {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--col-gap) var(--space-2);
+/* WK-116 · settings-active 时 .app-shell 只有一列：全局侧栏不渲染，这一页自己的
+   导航列是唯一的导航。它不借 --nav 的列轨，宽度是自己的 --settings-nav。 */
+.app-shell.settings-active {
+  grid-template-columns: minmax(0, 1fr);
 }
-.settings-page-head h2 {
+.app-shell.settings-active .sidebar,
+.app-shell.settings-active.nav-open .sidebar,
+.app-shell.settings-active .layer-backdrop {
+  display: none;
+}
+/* 页标题行：左端是 Back to app，然后是这一页的名字。这一行不再把标题居中到
+   740 的阅读盒里 —— 设置不是正文，它的第一列从同一条 gutter 起。 */
+.app-shell.settings-active .chat-header {
+  padding-left: var(--settings-gutter);
+  padding-right: var(--settings-gutter);
+}
+.app-shell.settings-active .chat-header-inner {
+  max-width: none;
   margin: 0;
-  font-size: var(--text-navigation-title);
-  letter-spacing: var(--tracking-heading);
+}
+/* Home 把标题收起来（名字在下面的 composer 那一屏里已经说过），但 Settings 是从
+   Home 进来的时候也得有名字：这一页的标题就是这条带上的 h1，页面的可访问名指向它。 */
+.app-shell.settings-active .chat-title-wrap {
+  display: block;
 }
 .settings-page-body {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 208px minmax(0, 1fr);
-  gap: var(--space-6);
-  padding: 0 var(--col-gap) var(--space-6);
+  grid-template-columns: var(--settings-nav) minmax(0, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-6) var(--settings-gutter) var(--space-6);
 }
 .settings-nav-column {
   display: flex;
@@ -4672,7 +4702,7 @@ html[data-shell="desktop"] .shell-strip {
   padding-right: var(--space-1);
 }
 .settings-section {
-  max-width: 640px;
+  max-width: var(--settings-measure);
 }
 .settings-section:focus-visible {
   outline: 2px solid var(--focus);
@@ -4689,7 +4719,10 @@ html[data-shell="desktop"] .shell-strip {
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   padding: var(--space-2) var(--card-padding);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--settings-group-gap);
+}
+.settings-block:last-child {
+  margin-bottom: 0;
 }
 .settings-block:empty {
   display: none;
@@ -4821,6 +4854,12 @@ html[data-shell="desktop"] .shell-strip {
   .settings-page-body {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
+  }
+  .settings-row button,
+  .settings-row select,
+  .settings-row input:not([type="checkbox"]):not([type="radio"]),
+  .settings-search {
+    min-height: 44px;
   }
   .settings-nav {
     display: none;
