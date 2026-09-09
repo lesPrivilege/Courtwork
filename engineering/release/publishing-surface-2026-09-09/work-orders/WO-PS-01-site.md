@@ -32,11 +32,11 @@
 
 ## 页面结构（按 [public-copy-v2](../public-copy-v2.md) §0–§8 逐段取词，不改一字；改动回到该文件）
 
-首屏（静态 Home 图 M1）→ 01 三个 tab（Event log / Work state / Compiled context，同一 Run）→ 02 标本 iframe（无 JS 退六步条）→ 03 editorial 与一图（静态 SVG；退焦只此段，`filter` 实现，reduced-motion / reduced-transparency 全锐化）→ 04 四词与 M6 → 05 证据清单、Eval 八问、声称表 → 06 命令与入口 → 深色页脚。导航三项：GitHub · Paper · Docs。语言：一页，中文为主，`lang="zh-CN"`。
+首屏（静态 Home 图 M1）→ 01 三个 tab（Event log / Work state / Compiled context，同一 Run）→ 02 标本 iframe（无 JS 退六步条）→ 03 editorial 与一图（静态 SVG；当前层墨色、其余层次级灰，只改颜色，无 blur，reduced-motion 下无过渡——PS-20 撤回了退焦 blur）→ 04 四词与 M6 → 05 证据清单、Eval 八问、声称表 → 06 命令与入口 → 深色页脚。导航三项：GitHub · Paper · Docs。语言：一页，中文为主，`lang="zh-CN"`。
 
 ## 材质（PS-3 / PS-19）
 
-构建时从产品 `app/web/styles.css` 抽取 `:root` 及深色块生成 `site/dist/tokens.css`（抽取范围与源 sha256 写入 manifest）；页面 `site.css` 只引用这些 token，新增变量仅限布局尺寸。浮层只用 `--shadow-float`；无 backdrop-filter；圆角只用产品既有档位。字体沿产品字体栈；无 webfont。
+构建时从产品 `app/web/styles.css` 抽取 `:root` 及深色块生成 `site/dist/tokens.css`（抽取范围与源 sha256 写入 manifest）；页面 `site.css` 只引用这些 token，新增变量仅限布局尺寸。浮层只用 `--shadow-float`；全站零 `filter: blur` 与零 `backdrop-filter`（PS-20）；圆角只用产品既有档位。字体沿产品字体栈；无 webfont。
 
 ## 媒体（PS-9 / PS-17）
 

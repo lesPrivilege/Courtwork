@@ -8,7 +8,7 @@ Courtwork GitHub Pages 与根 README 的筹备批次。承接 [2026-09-08 发布
 | [public-copy-v2.md](public-copy-v2.md) | 页面与 README 的全部文案、声称表、媒体清单、词表核对 | Fable 初稿，待 EX 回执后定 02 与 05 的细节 |
 | [inputs/exa-design-index-2026-09-09.md](inputs/exa-design-index-2026-09-09.md) | 输入一：设计索引与页面骨架 | 已转录 |
 | [inputs/commercialization-eval-2026-09-09.md](inputs/commercialization-eval-2026-09-09.md) | 输入二：商业化与 Eval 两条线 | 已转录，商业化本批不裁 |
-| [work-orders/EX-PS1-material.md](work-orders/EX-PS1-material.md) | 材质治理来源转录（Cal.com 实值、产品 token 对照） | 已派 Sonnet；不阻塞站点（PS-19），回执消费到 FE-05 |
+| [work-orders/EX-PS1-material.md](work-orders/EX-PS1-material.md) | 材质治理来源转录（Cal.com 实值、产品 token 对照） | 已回执 [ex-ps1](explore/ex-ps1-material.md)，消费为 PS-20：站点零 blur；Cal.com 实值转到 FE-05 来源行 |
 | [work-orders/EX-PS2-proof-patterns.md](work-orders/EX-PS2-proof-patterns.md) | 六站解剖与仓内素材映射 | 已回执 [ex-ps2](explore/ex-ps2-proof-patterns.md)，消费为 PS-17 |
 | [work-orders/EX-PS3-specimen-feasibility.md](work-orders/EX-PS3-specimen-feasibility.md) | 互动标本可行性（模块、数据源、子路径、ABI） | 已回执 [ex-ps3](explore/ex-ps3-specimen-feasibility.md)，消费为 PS-18：可行 |
 | [work-orders/EX-PS4-eval-surface.md](work-orders/EX-PS4-eval-surface.md) | Eval 证据面八问对照 | 已回执 [ex-ps4](explore/ex-ps4-eval-surface.md)，消费为 PS-16 |

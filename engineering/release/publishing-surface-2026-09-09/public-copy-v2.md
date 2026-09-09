@@ -99,7 +99,7 @@ H1：
 
 标题：**Work that exists beyond the model.** / **让工作存在于模型之外**
 
-正文（editorial，无卡片；退焦只在这一段：解释到哪一层，哪一层锐化）：
+正文（editorial，无卡片。三段各对应一图中的一层：当前解释的层用墨色，其余用次级灰；切换只改颜色，无 blur，reduced-motion 下无过渡）：
 
 > 概率模型已经能搜索、比较、解释、起草和调用工具，却不能凭一次输出取得正式工作所需的事实效力、行动权限、完成状态和责任归属。一次 Run 会结束，模型会替换，上下文会压缩；Matter、Artifact、Review decision 与未完义务必须继续存在。
 
