@@ -1208,10 +1208,9 @@ const PREFERENCE_DEFAULTS = {
   textSize: "medium",
   codeFont: "",
   motion: "system",
-  /* CC-D0-a (WK-114 ②) · Home 的版面是一个本设备偏好，不是一个新首页：Simple 是
-     默认，与模块带出现之前逐像素相同；Modules 在 composer 之后多一条次级带。
+  /* CC-D0-a (WK-114 ②) · Home 的版面是一个本设备偏好，不是一个新首页：Modules 默认展示已接入的数据卡；既有 Simple 选择保持，沿旧几何。
      `homeModuleBand` 是那条带的折叠状态，与显隐同一条通道（WK-114 ⑥）。 */
-  homeLayout: "simple",
+  homeLayout: "modules",
   homeModuleBand: "expanded",
 };
 const PREFERENCE_VALUES = {
@@ -1737,7 +1736,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       ),
       settingsRow(
         "Home layout",
-        "Modules adds one secondary band under the composer on Home. Nothing is read that Simple does not already read, and the composer, Today and your work list stay where they are.",
+        "Modules shows project attention and recorded activity above the composer. Simple keeps a quieter starting page.",
         homeLayout,
       ),
       advanced,

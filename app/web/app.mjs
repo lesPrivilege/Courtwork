@@ -15,14 +15,11 @@ import {
   MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
-// WK-30 · window-control reservation is opt-in: a desktop shell sets
-// data-shell, a Chromium/Electron overlay reports itself, a fixture may ask
-// for it with ?shell=desktop. Plain browser tabs reserve nothing.
-{
-  const wanted = new URLSearchParams(location.search).get("shell") === "desktop";
-  const overlay = navigator.windowControlsOverlay?.visible === true;
-  if (wanted || overlay) document.documentElement.dataset.shell = "desktop";
-}
+import { installShellLayout } from "./shell-layout.mjs";
+installShellLayout({ window, document, navigator });
+import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
+import { createAttentionWorkspace } from "./attention-view.mjs";
+let attentionWorkspace;
 import {
   createSettingsPage,
   createSettingsView,
@@ -89,6 +86,9 @@ const state = {
   view: "home",
   navigationOpen: false,
   sidebarCollapsed: false,
+  attentionOpen: false,
+  homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },
+  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },
   home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },
   homeDraft: "",
   homeProjectId: null,
@@ -1405,6 +1405,8 @@ async function selectSession(
   { navigationEpoch: suppliedNavigationEpoch = null, focus = true } = {},
 ) {
   if (!sessionId) return;
+  state.attentionOpen = false;
+  attentionWorkspace?.deactivate();
   /* 侧栏在 Settings 在场时是可点的（这正是页面而非模态的意思），所以走到一个会话
    * 就得让这一页退场：否则会话在底下换好了，顶带还写着 Settings。焦点交给下面的
    * 会话流程，不还给打开设置的那个控件。 */
@@ -1492,6 +1494,8 @@ async function selectSession(
 }
 
 function clearActiveSession() {
+  state.attentionOpen = false;
+  attentionWorkspace?.deactivate();
   stopPolling();
   void disposeSurfaceRenderer();
   state.sessionEpoch += 1;
@@ -1541,17 +1545,14 @@ async function refreshNavigationAndSession() {
   const navigationEpoch = state.navigationEpoch + 1;
   state.navigationEpoch = navigationEpoch;
   await loadProjects();
-  if (navigationEpoch !== state.navigationEpoch || !state.activeProjectId)
-    return;
-  const sessions = await loadSessionsForProject(state.activeProjectId, {
-    force: true,
-  });
+  if (navigationEpoch !== state.navigationEpoch) return;
+  const projectIds = new Set([...state.openProjectIds, state.activeProjectId].filter(Boolean));
+  await Promise.all([...projectIds].map(id => loadSessionsForProject(id, { force: true })));
+  if (navigationEpoch !== state.navigationEpoch) return;
+  renderProjectList();
+  if (state.view === "home") { await loadHome(); return; }
+  const sessions = state.sessionsByProject.get(state.activeProjectId);
   if (navigationEpoch !== state.navigationEpoch || !sessions) return;
-  if (state.view === "home") {
-    renderProjectList();
-    await loadHome();
-    return;
-  }
   if (
     state.activeSessionId &&
     sessions.some((session) => session.id === state.activeSessionId)
@@ -1817,7 +1818,7 @@ function renderProjectList() {
       } else {
         const limit = state.navigationFilter
           ? sessions.length
-          : state.navigationLimits.get(project.id) || 5;
+          : state.navigationLimits.get(project.id) || 8;
         const visible = [...sessions]
           .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
           .slice(0, limit);
@@ -1862,7 +1863,7 @@ function renderProjectList() {
       }
       if (
         sessions &&
-        sessions.length > (state.navigationLimits.get(project.id) || 5) &&
+        sessions.length > (state.navigationLimits.get(project.id) || 8) &&
         !state.navigationFilter
       ) {
         const more = element("button", {
@@ -1873,7 +1874,7 @@ function renderProjectList() {
         more.addEventListener("click", () => {
           state.navigationLimits.set(
             project.id,
-            (state.navigationLimits.get(project.id) || 5) + 10,
+            (state.navigationLimits.get(project.id) || 8) + 10,
           );
           renderProjectList();
         });
@@ -3063,6 +3064,8 @@ function renderChatHeader() {
    * 会话本身没有被离开，所以标题一收起页面就回来。 */
   const settingsOpen = state.settings.open;
   $("settings-page").hidden = !settingsOpen;
+  $("attention-workspace").hidden = !state.attentionOpen || settingsOpen;
+  $("app-shell").classList.toggle("attention-active", state.attentionOpen && !settingsOpen);
   renderConversationBodyVisibility();
   $("app-shell").classList.toggle("settings-active", settingsOpen);
   /* WK-116 · 进入 Settings 后全局侧栏不渲染。`hidden` 让它离开无障碍树，`inert`
@@ -3081,7 +3084,7 @@ function renderChatHeader() {
   projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
   $("session-title-text").textContent = settingsOpen
     ? "Settings"
-    : state.view === "home"
+    : state.attentionOpen ? "Attention" : state.view === "home"
       ? "Home"
       : session?.title || "Loading chat…";
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
@@ -3099,10 +3102,10 @@ function renderChatHeader() {
     );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
-  $("show-surface-button").hidden = settingsOpen || !session;
-  $("show-run-button").hidden = settingsOpen || !session;
-  const home = state.view === "home";
-  $("composer-area").hidden = settingsOpen || (!home && !session);
+  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || !session;
+  $("show-run-button").hidden = settingsOpen || state.attentionOpen || !session;
+  const home = state.view === "home" && !state.attentionOpen;
+  $("composer-area").hidden = settingsOpen || state.attentionOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
@@ -3114,19 +3117,13 @@ function renderChatHeader() {
     band = $("home-top-band"),
     modules = $("home-module-band"),
     stream = $("message-stream").closest(".message-stream-wrap");
-  /* WK-96 · Home reads from the centre downwards: orientation and composer
-   * first, then the modules that hang off it — Today's three numbers, then the
-   * work list. The recorded totals used to lead the page; a band of numbers
-   * above the one entry made the entry the second thing on the screen. On a
-   * session, and on any narrow view, the composer is docked at the foot
-   * (WK-58 / WK-97), so the order reads modules, work, composer. The DOM order
-   * is the reading order in every case: nothing is moved by CSS. */
+  // DOM order is reading order: Modules overview precedes the desktop composer;
+  // Simple keeps the centred composer, while mobile docks it below the work list.
   band.hidden = !home;
-  /* CC-D0-a · the module band belongs to one Home layout only. In `Simple` it
-   * is not in the document at all, which is why `Simple` is pixel-for-pixel the
-   * Home that was there before this band existed. */
+  // Simple removes the overview from layout and the accessibility tree.
   const bandLayout = home && homeLayoutPreference() === "modules";
   modules.hidden = !bandLayout;
+  $("app-shell").classList.toggle("home-modules-active", bandLayout);
   /* WK-96 · in Work the Home dashboard primitives leave the document, not just
    * the screen: a hidden band is still a rendered band, and the next reader of
    * this DOM would find three Home statistics inside a chat. */
@@ -3141,10 +3138,10 @@ function renderChatHeader() {
     if (band.nextElementSibling !== stream) band.after(stream);
     if (body.lastElementChild !== composer) body.append(composer);
   }
-  /* Today keeps its own place in both layouts; the module band follows it, so
-   * the order reads composer → Today → modules → list at 1440, and
-   * Today → modules → list → composer at 390 (WK-58 / WK-97 unchanged). */
-  if (bandLayout && band.nextElementSibling !== modules) band.after(modules);
+  // User refinement: attention and recorded activity orient Home above the
+  // composer. DOM order is reading/tab order. Mobile keeps its docked composer.
+  if (bandLayout && body.firstElementChild !== modules) body.prepend(modules);
+  $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
   const model =
@@ -3175,7 +3172,7 @@ function renderChatHeader() {
   permission.dataset.tooltip = `File access: ${permissionSentence}`;
   $("home-button").setAttribute(
     "aria-current",
-    !settingsOpen && state.view === "home" ? "page" : "false",
+    !settingsOpen && !state.attentionOpen && state.view === "home" ? "page" : "false",
   );
 }
 
@@ -3340,10 +3337,11 @@ function measureHomeLead() {
   const box = form.getBoundingClientRect();
   if (!area.height || !box.height) return;
   const centre = box.top + box.height / 2 - area.top;
-  const next = Math.max(
-    32,
-    Math.round(lead + (HOME_COMPOSER_CENTRE * area.height - centre)),
-  );
+  // Modules have a finite top lead instead of the old 56%-height anchor:
+  // their records and the first pending item must fit in the same first screen.
+  const next = homeLayoutPreference() === "modules"
+    ? 24
+    : Math.max(32, Math.round(lead + (HOME_COMPOSER_CENTRE * area.height - centre)));
   if (Math.abs(next - lead) >= 1) shell.style.setProperty("--home-lead", `${next}px`);
 }
 
@@ -3396,7 +3394,7 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
  * `renderSurfaceVisibility` 都从这里读，免得两处各写一遍同一个条件、又互相覆盖。 */
 function surfaceViewSwitch() {
   return Boolean(
-    state.surface.open &&
+    !state.attentionOpen && state.surface.open &&
       state.surface.expanded &&
       currentSession() &&
       !surfaceOverlayQuery.matches &&
@@ -3406,12 +3404,12 @@ function surfaceViewSwitch() {
 function renderConversationBodyVisibility() {
   const body = $("conversation-body");
   const switched = surfaceViewSwitch();
-  body.hidden = state.settings.open || switched;
-  body.inert = switched && !state.settings.open;
+  body.hidden = state.settings.open || state.attentionOpen || switched;
+  body.inert = state.attentionOpen || (switched && !state.settings.open);
 }
 function surfaceIsModal() {
   return (
-    state.surface.open &&
+    !state.attentionOpen && state.surface.open &&
     surfaceOverlayQuery.matches &&
     (state.surface.expanded || narrowQuery.matches)
   );
@@ -3600,7 +3598,7 @@ function renderSurfaceVisibility() {
     panel = $("surface-panel"),
     nav = $("navigation-panel"),
     chat = shell.querySelector(".chat-panel");
-  const open = Boolean(state.surface.open && currentSession()),
+  const open = Boolean(!state.attentionOpen && state.surface.open && currentSession()),
     expanded = open && state.surface.expanded;
   const overlay = surfaceOverlayQuery.matches;
   /* WK-113 ① · 展开态有两种，不是一种：≥1680 三栏并列（C），1024–1679 主区内的
@@ -5220,6 +5218,24 @@ function renderHomeState() {
     });
   if (state.view === "home" && homeLayoutPreference() === "modules")
     renderHomeModuleBand($("home-module-band"), {
+      activity: state.homeActivity,
+      attention: state.homeAttention,
+      projects: state.projects,
+      onOpenAttentionWorkspace: () => openAttentionWorkspace(state.homeAttention.projectId, state.homeAttention.selectedId),
+      onActivityDays: (days) => { state.homeActivity.days = days; void loadHomeActivity(); },
+      onActivityRetry: () => loadHomeActivity(),
+      onAttentionProject: (projectId) => loadHomeAttention(projectId),
+      onAttentionRetry: () => loadHomeAttention(state.homeAttention.projectId),
+      onAttentionPage: (offset) => loadHomeAttention(state.homeAttention.projectId, offset),
+      onAttentionOpen: (id) => openHomeAttention(id),
+      onAttentionBack: () => {
+        const id = state.homeAttention.selectedId;
+        state.homeAttention.detailGeneration++;
+        state.homeAttention.selectedId = null;
+        state.homeAttention.detail = null;
+        renderHomeState();
+        $("home-module-band").querySelector(`[data-focus-key="attention-item-${CSS.escape(id)}"]`)?.focus();
+      },
       collapsed: homeModuleBandCollapsed(),
       onCollapse: (collapsed) => {
         settingsPage?.setHomeModuleBand(collapsed ? "collapsed" : "expanded");
@@ -5249,7 +5265,90 @@ function renderHomeState() {
     },
   });
 }
+// Independent reads: a failed Activity request must not clear Attention or
+// pending questions. New scope/period clears old records before rendering.
+async function loadHomeActivity() {
+  const target = state.homeActivity;
+  const own = ++target.generation;
+  const days = target.days;
+  if (target.data?.interval?.days !== days) target.data = null;
+  target.loading = true; target.error = null;
+  if (state.view === "home") renderHomeState();
+  try {
+    const data = await request(`/work-activity?days=${days}`);
+    if (!toHomeActivity(data, days)) throw new Error("Unsupported activity records.");
+    if (own === target.generation) target.data = data;
+  } catch (error) {
+    if (own === target.generation) target.error = error.message;
+  } finally {
+    if (own === target.generation) {
+      target.loading = false;
+      if (state.view === "home") renderHomeState();
+    }
+  }
+}
+async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId(), offset = 0) {
+  const target = state.homeAttention;
+  const own = ++target.generation;
+  target.detailGeneration++;
+  target.selectedId = null; target.detail = null; target.detailError = null; target.detailLoading = false;
+  if (target.projectId !== projectId || target.data?.offset !== offset) target.data = null;
+  target.preview = null; target.previewError = null;
+  target.projectId = projectId;
+  target.loading = Boolean(projectId); target.error = null;
+  if (state.view === "home") renderHomeState();
+  if (!projectId) return;
+  try {
+    const data = await request("/attention/query", { method: "POST", body: { projectId, query: { schema_version: 1, kind: "registry", limit: 2, offset } } });
+    if (own !== target.generation) return;
+    const page = toHomeAttention(data);
+    if (!page) throw new Error("Unsupported attention records.");
+    target.data = data;
+    target.loadedAt = new Date().toISOString(); // time this browser received the registry, not a service observation
+    if (page.items[0]) {
+      try {
+        const first = await request(`/attention/${encodeURIComponent(page.items[0].id)}?${new URLSearchParams({ projectId })}`);
+        if (own === target.generation && toHomeAttentionDetail(first) && first.attention_id === page.items[0].id && first.revision === page.items[0].revision) target.preview = first;
+      } catch (error) {
+        if (own === target.generation) target.previewError = error.message;
+      }
+    }
+  } catch (error) {
+    if (own === target.generation) target.error = error.message;
+  } finally {
+    if (own === target.generation) {
+      target.loading = false;
+      if (state.view === "home") renderHomeState();
+    }
+  }
+}
+async function openHomeAttention(id) {
+  const target = state.homeAttention;
+  const own = ++target.detailGeneration;
+  const projectId = target.projectId;
+  target.selectedId = id; target.detail = null; target.detailError = null; target.detailLoading = true;
+  renderHomeState();
+  $("home-module-band").querySelector('[data-focus-key="attention-back"]')?.focus();
+  try {
+    const data = await request(`/attention/${encodeURIComponent(id)}?${new URLSearchParams({ projectId })}`);
+    if (!toHomeAttentionDetail(data) || data.attention_id !== id) throw new Error("Unsupported attention item.");
+    if (own === target.detailGeneration && projectId === target.projectId) target.detail = data;
+  } catch (error) {
+    if (own === target.detailGeneration) target.detailError = error.message;
+  } finally {
+    if (own === target.detailGeneration) {
+      target.detailLoading = false;
+      if (state.view === "home") renderHomeState();
+    }
+  }
+}
+function loadHomeModules() {
+  if (homeLayoutPreference() !== "modules") return;
+  void loadHomeActivity();
+  void loadHomeAttention();
+}
 async function loadHome(key = null, offset = 0) {
+  if (!key) loadHomeModules();
   const own = ++state.home.generation;
   state.home.loading = true;
   state.home.error = null;
@@ -5287,7 +5386,20 @@ async function loadHome(key = null, offset = 0) {
     }
   }
 }
+async function openAttentionWorkspace(projectId = state.homeAttention.projectId || homeProjectId(), attentionId = null) {
+  const own = ++state.navigationEpoch;
+  await persistCurrentDraft();
+  if (own !== state.navigationEpoch) return;
+  closeSettings({ restoreFocus: false });
+  state.attentionOpen = true;
+  closeNavigation({ restoreFocus: false });
+  renderAll();
+  void attentionWorkspace.open({ projects: state.projects, projectId, attentionId });
+  $("attention-workspace").querySelector('[data-attention-focus="project"]')?.focus();
+}
 async function goHome() {
+  state.attentionOpen = false;
+  attentionWorkspace?.deactivate();
   closeSettings({ restoreFocus: false });
   const own = ++state.navigationEpoch;
   await persistCurrentDraft();
@@ -5874,6 +5986,7 @@ function wireEvents() {
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
+  setAction($("attention-button"), "message-square", "Attention", { visible: true });
   setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat", {
     visible: true,
@@ -5895,6 +6008,7 @@ function wireEvents() {
   });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
+  $("attention-button").addEventListener("click", () => openAttentionWorkspace());
   $("workspace-home-link").addEventListener("click", (event) => {
     event.preventDefault();
     void goHome();
@@ -6242,6 +6356,7 @@ async function init() {
        the band's presence is decided in `renderChatHeader`, so both are redrawn
        and neither Settings nor Home writes the other's DOM. */
     onHomeLayout: () => {
+      loadHomeModules();
       renderChatHeader();
       if (state.view === "home") renderHomeState();
     },
@@ -6317,6 +6432,12 @@ async function init() {
       ),
     );
   }
+  attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onBack: () => {
+    state.attentionOpen = false;
+    attentionWorkspace.deactivate();
+    renderAll();
+    $("attention-button").focus();
+  } });
   wireEvents();
   renderAll();
   /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。
@@ -6329,6 +6450,9 @@ async function init() {
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
+    // Only a new device gets the initial overview; an explicitly collapsed tree stays collapsed.
+    if (!Array.isArray(savedUi.openProjectIds))
+      state.openProjectIds = new Set(state.projects.slice(0, 2).map(project => project.id));
     await Promise.all(
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
     );

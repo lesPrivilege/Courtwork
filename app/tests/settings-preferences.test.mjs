@@ -162,14 +162,14 @@ test("读偏好只认闭集里的值：坏掉的存储读成默认，不是读�
   globalThis.__cwPrefs = undefined;
   assert.deepEqual(readPreferences(), {
     scheme: "system", skin: "slate", customSkin: "", textSize: "medium", codeFont: "", motion: "system",
-    homeLayout: "simple", homeModuleBand: "expanded",
+    homeLayout: "modules", homeModuleBand: "expanded",
   });
   globalThis.__cwPrefs = original;
 });
 
 /* CC-D0-a · 版面偏好走的是同一条窄闸。它决定 Home 上有没有一条带，所以一个被手改的
-   localStorage 不能把它读成第三种版面：闭集外的值一律读回 Simple。 */
-test("Home 版面偏好是闭集：默认 Simple，坏值读回 Simple 而不是读成第三种版面", () => {
+   localStorage 不能把它读成第三种版面：闭集外的值一律读回 Modules。 */
+test("Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不是读成第三种版面", () => {
   const original = globalThis.__cwPrefs;
   globalThis.__cwPrefs = { value: { homeLayout: "modules", homeModuleBand: "collapsed" } };
   assert.deepEqual(
@@ -179,7 +179,7 @@ test("Home 版面偏好是闭集：默认 Simple，坏值读回 Simple 而不是
   for (const value of ["dashboard", "", 1, null, {}, "Modules"]) {
     globalThis.__cwPrefs = { value: { homeLayout: value, homeModuleBand: value } };
     const read = readPreferences();
-    assert.equal(read.homeLayout, "simple", String(value));
+    assert.equal(read.homeLayout, "modules", String(value));
     assert.equal(read.homeModuleBand, "expanded", String(value));
   }
   globalThis.__cwPrefs = original;
@@ -188,14 +188,14 @@ test("Home 版面偏好是闭集：默认 Simple，坏值读回 Simple 而不是
 /* WO-CC-D0-a 第 2 项 · 注册表是合同：只有六态逐态指得出事实来源（或写明
    not_applicable）的模块才允许安装。没有接缝的模块不在代码里，只在
    contracts/home-modules.md 里声明——所以这条测的是"没有多出来的模块"。 */
-test("Home 模块注册表只装了 Today 与 Models，且带上只画 Models 一行", () => {
-  assert.deepEqual(homeModules.map((module) => module.id), ["today", "models"]);
+test("Home 模块只安装有既定读取接缝的 Activity 与 Attention", () => {
+  assert.deepEqual(homeModules.map((module) => module.id), ["today", "activity", "attention", "models"]);
   assert.deepEqual(
     homeModules.map((module) => [module.id, module.place, module.installed]),
-    [["today", "band", true], ["models", "modules", true]],
+    [["today", "band", true], ["activity", "modules", true], ["attention", "modules", true], ["models", "modules", true]],
   );
-  assert.deepEqual(homeBandModules().map((module) => module.id), ["models"]);
-  for (const absent of ["activity", "usage", "mail", "calendar", "attention"])
+  assert.deepEqual(homeBandModules().map((module) => module.id), ["activity", "attention", "models"]);
+  for (const absent of ["usage", "mail", "calendar"])
     assert.equal(
       homeModules.some((module) => module.id === absent),
       false,
@@ -208,7 +208,7 @@ test("Home 模块注册表只装了 Today 与 Models，且带上只画 Models �
 test("Models 模块不复述 composer chip 的事实：它没有自己的读取", () => {
   const models = homeModules.find((module) => module.id === "models");
   assert.equal(models.source, null);
-  assert.equal(typeof models.row, "function");
+  assert.equal(models.place, "modules");
   const today = homeModules.find((module) => module.id === "today");
   assert.equal(today.source, "work-summary");
   assert.equal(today.row, undefined);

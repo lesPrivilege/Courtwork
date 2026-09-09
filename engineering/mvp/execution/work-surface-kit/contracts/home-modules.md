@@ -1,5 +1,7 @@
 # Home 模块契约（CC-D0-a）
 
+> 2026-09-10 更新：以下保留 CC-D0-a 时点记录；本轮用户明确重编 Home，Activity/Attention 已有真实读取接缝，默认 Modules、composer 上方概览及首屏几何由 [当前 Home composition 合同](../../../../design/home-composition-2026-09-10/README.md) 覆盖。Models 现在是 footer 导航，不是事实卡。旧“不可安装 / Simple 默认 / 顶部控制条”不再描述当前实现。
+
 2026-09-09，Claude Opus（`opus-wo-low`），**作者验证**（Astra 独验另计，本页不代它写结论）。
 基线 `main` `fa90763`，分支 `claude/cc-d0a-home-modules`，树 `/private/tmp/se-agent-ccd0a`。
 上游裁定：[WK-114](../intake-round-3.md)（CC-D0 范围）、[WK-116 R4D-2](../intake-round-3.md)（D0-a / D0-b 拆分）、[WK-117 (b)](../intake-round-3.md)（不装占位、具体待办优先）、[WK-120](../intake-round-3.md)（成熟感来自秩序）、[WK-129](../intake-round-3.md)（Control grammar）。

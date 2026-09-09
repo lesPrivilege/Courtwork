@@ -72,7 +72,6 @@
   </head>
   <body>
     <div id="app-shell" class="app-shell">
-      <div class="shell-strip" aria-hidden="true"></div>
       <div
         id="nav-backdrop"
         class="layer-backdrop"
@@ -117,6 +116,7 @@
         <button id="home-button" class="nav-home quiet-button" type="button">
           Home
         </button>
+        <button id="attention-button" class="nav-home quiet-button" type="button">Attention</button>
         <div class="nav-filter">
           <label class="sr-only" for="nav-filter-input"
             >Find a project or chat</label
@@ -196,8 +196,7 @@
           ></button>
           <!-- WK-116 · Settings 在场时全局侧栏不渲染，所以这条带上没有可开合的导航，
                左端那个位置改由唯一的离开动作占据：Back to app。它和侧栏折叠钮同一个
-               槽位，因此在桌面宿主下同样落在 80×52 安全区之后（安全区由 shell-strip
-               整条占住，见 docs/interface-components.md）。 -->
+               槽位；桌面宿主下落在同一行的原生窗口控制区右侧。 -->
           <button
             id="settings-back-button"
             class="quiet-button"
@@ -243,6 +242,7 @@
           Connection lost. Reconnecting…
         </div>
         <div id="binding-panel" class="binding-panel" hidden></div>
+        <section id="attention-workspace" class="attention-workspace" aria-label="Attention workspace" hidden></section>
         <div id="conversation-body" class="conversation-body">
         <!-- WK-32 / 46 · Home's top band: three recorded totals and one planned
              row. It leads the reading order on Home and is hidden in a session,
@@ -253,11 +253,8 @@
           aria-label="Recorded totals"
           hidden
         ></section>
-        <!-- CC-D0-a · the secondary module band. It exists only in the
-             `Modules` Home layout (Settings › Appearance, this device only) and
-             only on Home; in `Simple` it is not rendered at all. It sits after
-             the composer and after Today, so the reading and keyboard order is
-             composer → Today → modules → your work list. -->
+        <!-- Home overview precedes the composer on desktop. Mobile keeps
+             the overview in reading order and the composer docked below. -->
         <section
           id="home-module-band"
           class="home-module-band"

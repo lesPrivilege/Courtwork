@@ -16,6 +16,10 @@
 import { el, icon, action } from "./ui-controls.mjs";
 import { runLabels } from "./inspector.mjs";
 import {
+  toHomeActivity,
+  toHomeAttention,
+  toHomeAttentionDetail,
+  attentionLabels,
   toStatTiles,
   toWorkCards,
   toPendingRows,
@@ -157,104 +161,156 @@ export function renderHomeBand(
   container.replaceChildren(inner);
 }
 
-/* ── the secondary module band (CC-D0-a) ───────────────────────
- * `Home layout: Modules` (Settings › Appearance, this device only) adds one
- * secondary band after the composer. It is a band, not a dashboard: the entry
- * stays the loudest thing on Home, Today keeps its own place above the band,
- * and the concrete to-dos below are never pushed off the first screen
- * (WK-117 (b), HOME-6).
- *
- * The registry is the contract. A module may only be installed here when every
- * one of the six display states it can reach names a fact this frontend already
- * loads, or is written `not_applicable` with the reason. Activity, Usage, Mail,
- * Calendar and the future Attention summary are declared in
- * `contracts/home-modules.md` and are NOT here: no seam, no module. Nothing on
- * this band renders a placeholder, a "coming soon", or an implementation state
- * (WK-114 ③, WK-117 (b)).
- *
- * `Today` carries `place: "band"` — it is the existing `#home-top-band` and is
- * rendered where it already was, unchanged, in both layouts. Only modules with
- * `place: "modules"` are drawn here. The id is the extension point a later
- * Attention summary uses (ATT-FE-01 切片 b); there is no plugin framework and
- * no empty slot waiting for one. */
+/* Home composition, 2026-09-10. Registry entries consume existing read-only
+ * services. All requests and identity/generation guards remain in app.mjs. */
 export const homeModules = [
-  {
-    id: "today",
-    title: "Today",
-    place: "band",
-    /* `GET /api/v5/work-summary` → pendingItems / sessionCandidates /
-     * inspectionCandidates, through `toStatTiles`. */
-    source: "work-summary",
-    installed: true,
-  },
-  {
-    id: "models",
-    title: "Models",
-    place: "modules",
-    /* No read of its own. WK-114 ⑤: the model name is already stated once, on
-     * the composer's own chip; a second display of one fact would be a second
-     * vocabulary for it (copy-convention §3). This module states no fact — it
-     * is the way to the place where the connection is stated and edited. */
-    source: null,
-    installed: true,
-    /* One line, one way out: the entry to Settings › Models. It states no
-     * connection fact, so it has no loading, empty, stale or not-connected
-     * state to be honest or dishonest about (home-modules.md §3). */
-    row: ({ onManageConnections }) => {
-      const link = el("button", {
-        className: "text-button",
-        attrs: { type: "button", "data-focus-key": "home-module-models" },
-        text: "Manage connections",
-      });
-      link.addEventListener("click", onManageConnections);
-      return link;
-    },
-  },
+  { id: "today", title: "Today", place: "band", source: "work-summary", installed: true },
+  { id: "activity", render: activityCard, title: "Activity", place: "modules", source: "work-activity", installed: true },
+  { id: "attention", render: attentionCard, title: "Attention", place: "modules", source: "attention/query", installed: true },
+  { id: "models", title: "Models", place: "modules", source: null, installed: true },
 ];
-export const homeBandModules = () =>
-  homeModules.filter((module) => module.installed && module.place === "modules");
+export const homeBandModules = () => homeModules.filter(m => m.installed && m.place === "modules");
 
-/** The band: one heading, one collapse control, and the installed rows.
- *  Collapsing hides the rows and keeps the heading, so the control that undoes
- *  it is still on the screen — there is no one-way door here. */
-export function renderHomeModuleBand(
-  container,
-  { collapsed, onCollapse, onManageConnections },
-) {
-  const modules = homeBandModules();
-  /* 消融 · 这条带原本有一个自己的标题行（"Modules"）加一排行。一个模块的带
-   * 上，那一行标题只是在为一行内容再画一层结构——而它换来的高度，实测把
-   * "Waiting for you" 的第一条具体待办推出了 900 高视口的首屏（HOME-11 反例，
-   * todoTop 992 > 可见区 956）。具体待办优先于统计（WK-117 (b)），所以标题行
-   * 被消融掉：带的名字由 `aria-label` 承担，折叠控件自己说出它折的是什么。 */
-  const toggle = el("button", {
-    className: "home-module-collapse",
-    attrs: {
-      type: "button",
-      "aria-expanded": String(!collapsed),
-      "aria-controls": "home-module-list",
-      "data-focus-key": "home-module-collapse",
-    },
-    text: collapsed ? "Show modules" : "Hide modules",
+function homeButton(text, handler, key, className = "text-button") {
+  const button = el("button", { text, className, attrs: { type: "button", "data-focus-key": key } });
+  button.addEventListener("click", handler);
+  return button;
+}
+function moduleMessage(container, state, noun, retry) {
+  if (state.loading) container.append(el("p", { className: "form-help", text: `Loading ${noun}…`, attrs: { role: "status" } }));
+  if (state.error) container.append(el("div", { className: "home-module-error", attrs: { role: "status" } },
+    el("span", { text: `${noun} unavailable. ${state.data ? "Showing the last loaded records." : ""}` }),
+    homeButton("Retry", retry, `retry-${noun}`),
+    el("details", {}, el("summary", { text: "Details" }), el("p", { text: state.error }))));
+}
+function activityCard({ activity, onActivityDays, onActivityRetry }) {
+  const data = toHomeActivity(activity.data, activity.days);
+  const card = el("section", { className: "home-insight-card home-activity", attrs: { "aria-label": "Recorded activity" } });
+  const ranges = el("div", { className: "home-range", attrs: { "aria-label": "Activity period" } });
+  for (const days of [28, 84]) {
+    const button = homeButton(`${days}d`, () => onActivityDays(days), `activity-days-${days}`);
+    button.setAttribute("aria-pressed", String(activity.days === days));
+    ranges.append(button);
+  }
+  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("activity", { size: 16 }), el("h3", { text: "Activity" })), ranges));
+  moduleMessage(card, activity, "Activity", onActivityRetry);
+  if (!data) {
+    if (!activity.loading && !activity.error) card.append(el("p", { className: "form-help", text: "Activity records are not available." }));
+    return card;
+  }
+  card.append(el("p", { className: "home-activity-total" }, el("strong", { text: String(data.total) }),
+    el("span", { text: ` recorded runs · ${data.days} days · all projects` })));
+  const selected = el("p", { className: "home-activity-day", text: `${data.buckets[0].date} — ${data.buckets.at(-1).date}`, attrs: { "aria-live": "polite" } });
+  const grid = el("div", { className: "home-heatmap", attrs: { role: "group", "aria-label": "Daily retained runs, UTC. Arrow keys move between days." } });
+  const offset = (new Date(`${data.buckets[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;
+  grid.style.setProperty("--heatmap-weeks", String(Math.ceil((offset + data.buckets.length) / 7)));
+  for (let i = 0; i < offset; i++) grid.append(el("span", { attrs: { "aria-hidden": "true" } }));
+  const cells = data.buckets.map((bucket, index) => {
+    const button = homeButton("", () => { selected.textContent = bucket.label; }, `activity-day-${bucket.date}`, "home-heatmap-cell");
+    button.dataset.level = String(bucket.level);
+    button.title = bucket.label;
+    button.setAttribute("aria-label", bucket.label);
+    button.tabIndex = index === data.buckets.length - 1 ? 0 : -1;
+    button.addEventListener("focus", () => {
+      cells.forEach(cell => { cell.tabIndex = cell === button ? 0 : -1; });
+      selected.textContent = bucket.label;
+    });
+    button.addEventListener("keydown", event => {
+      const row = (offset + index) % 7;
+      const delta = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: row === 0 ? 0 : -1, ArrowDown: row === 6 ? 0 : 1 }[event.key];
+      if (delta === undefined && event.key !== "Home" && event.key !== "End") return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? cells.length - 1 : Math.max(0, Math.min(cells.length - 1, index + delta));
+      cells[next].focus();
+    });
+    return button;
   });
-  toggle.addEventListener("click", () => onCollapse(!collapsed));
-  const list = el("div", {
-    className: "home-module-list",
-    attrs: { id: "home-module-list", role: "list" },
-  });
-  if (!collapsed)
-    for (const module of modules)
-      list.append(
-        el(
-          "div",
-          { className: "home-module-row", attrs: { role: "listitem" } },
-          el("h4", { className: "home-module-name", text: module.title }),
-          module.row({ onManageConnections }),
-        ),
-      );
-  container.replaceChildren(
-    el("div", { className: "home-module-band-inner" }, list, toggle),
-  );
+  grid.append(...cells);
+  card.append(grid, selected, el("p", { className: "home-insight-note", text: data.coverage }));
+  if (activity.error) card.append(el("p", { className: "home-insight-note", text: `Last confirmed ${stamp(data.observedAt)}.` }));
+  return card;
+}
+function attentionCard({ attention, projects, onAttentionProject, onAttentionRetry, onAttentionPage, onAttentionOpen, onAttentionBack, onOpenAttentionWorkspace }) {
+  const data = toHomeAttention(attention.data);
+  const card = el("section", { className: "home-insight-card home-attention", attrs: { "aria-label": "Attention" } });
+  const project = el("select", { className: "home-attention-project", attrs: { "aria-label": "Attention project", "data-focus-key": "attention-project" } });
+  project.append(...projects.map(p => el("option", { text: p.name, attrs: { value: p.id } })));
+  project.value = attention.projectId ?? "";
+  project.hidden = !projects.length;
+  project.addEventListener("change", () => onAttentionProject(project.value));
+  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("message-square", { size: 16 }), homeButton("Attention", onOpenAttentionWorkspace, "attention-workspace-link", "home-attention-heading-link")), project));
+  if (!projects.length) {
+    card.append(el("p", { className: "form-help", text: attention.loading ? "Loading projects…" : "Create a project to keep track of what needs attention." }));
+    return card;
+  }
+  moduleMessage(card, attention, "Attention", onAttentionRetry);
+  if (attention.selectedId) {
+    card.append(homeButton("Back to items", onAttentionBack, "attention-back"));
+    if (attention.detailLoading) card.append(el("p", { className: "form-help", text: "Loading item…", attrs: { role: "status" } }));
+    if (attention.detailError) card.append(el("p", { className: "form-help", text: `Item unavailable. ${attention.detailError}`, attrs: { role: "status" } }), homeButton("Retry item", () => onAttentionOpen(attention.selectedId), "attention-retry-item"));
+    const d = toHomeAttentionDetail(attention.detail);
+    if (attention.detail && !d) card.append(el("p", { className: "form-help", text: "This item uses an unsupported format." }));
+    if (d) card.append(el("div", { className: "home-attention-detail" },
+      el("h4", { text: d.descriptor.title }),
+      el("span", { className: "home-attention-state", text: attentionLabels[d.status] ?? "Not available" }),
+      d.descriptor.summary ? el("p", { text: d.descriptor.summary }) : null,
+      el("p", { text: d.reason }),
+      d.next_action?.kind !== "none" ? el("p", { text: `Next: ${d.next_action?.label ?? "Not available"}` }) : null,
+      d.next_action?.due_at ? el("p", { text: `Recorded due time: ${stamp(d.next_action.due_at)}` }) : null,
+      el("p", { className: "home-insight-note", text: `Updated ${stamp(d.updated_at)} · Revision ${d.revision}. Read-only.` })));
+    return card;
+  }
+  if (!data) {
+    if (!attention.loading && !attention.error) card.append(el("p", { className: "form-help", text: "Attention records are not available." }));
+    return card;
+  }
+  card.append(el("p", { className: "home-insight-note", text: `${data.count} ${data.count === 1 ? "item" : "items"} · all states` }));
+  if (!data.items.length) card.append(el("p", { className: "home-attention-empty", text: "No attention items recorded in this project." }));
+  const list = el("div", { className: "home-attention-list", attrs: { role: "list" } });
+  for (const item of data.items) {
+    const button = homeButton("", () => onAttentionOpen(item.id), `attention-item-${item.id}`, "home-attention-item");
+    button.dataset.status = item.status;
+    const preview = item.id === data.items[0]?.id ? toHomeAttentionDetail(attention.preview) : null;
+    button.classList.toggle("home-attention-featured", Boolean(preview));
+    button.append(el("span", { className: "home-attention-item-title", text: item.title }),
+      el("span", { className: `home-attention-state ${item.status === "needs_you" ? "is-waiting" : ""}`, text: item.label }), icon("chevron-right", { size: 14 }));
+    if (preview) button.append(el("span", { className: "home-attention-reason", text: preview.reason }),
+      preview.next_action?.kind !== "none" ? el("span", { className: "home-attention-next", text: `Next · ${preview.next_action?.label ?? "Not available"}` }) : null);
+    list.append(el("div", { attrs: { role: "listitem" } }, button));
+  }
+  card.append(list);
+  if (attention.previewError) card.append(el("p", { className: "home-insight-note", text: "Preview unavailable. Open an item to retry its details." }));
+  if (attention.error && attention.loadedAt) card.append(el("p", { className: "home-insight-note", text: `Last loaded ${stamp(attention.loadedAt)}.` }));
+  if (data.offset > 0 || data.nextOffset !== null) {
+    const pages = el("div", { className: "home-attention-pages" });
+    if (data.offset > 0) pages.append(homeButton("Previous", () => onAttentionPage(Math.max(0, data.offset - 2)), "attention-prev"));
+    pages.append(el("span", { className: "home-insight-note", text: `${data.offset + 1}–${data.offset + data.items.length} of ${data.count}` }));
+    if (data.nextOffset !== null) pages.append(homeButton("Next", () => onAttentionPage(data.nextOffset), "attention-next"));
+    card.append(pages);
+  }
+  return card;
+}
+export function renderHomeModuleBand(container, options) {
+  const focusKey = container.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
+  const { collapsed, onCollapse, onManageConnections } = options;
+  const toggle = homeButton(collapsed ? "Show modules" : "Hide modules", () => onCollapse(!collapsed), "home-module-collapse", "home-module-collapse");
+  toggle.setAttribute("aria-expanded", String(!collapsed));
+  toggle.setAttribute("aria-controls", "home-module-list");
+  const list = el("div", { className: "home-module-list", attrs: { id: "home-module-list" } });
+  if (!collapsed) {
+    for (const id of ["attention", "activity"]) {
+      const module = homeBandModules().find(module => module.id === id);
+      if (module?.render) list.append(module.render(options));
+    }
+  }
+  container.replaceChildren(el("div", { className: "home-module-band-inner" }, list,
+    el("div", { className: "home-module-footer" }, homeButton("Manage connections", onManageConnections, "home-module-models"), toggle)));
+  if (focusKey) {
+    const target = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)
+      ?? (/attention/i.test(focusKey) ? container.querySelector('.home-attention-project') :
+          /activity/i.test(focusKey) ? container.querySelector('.home-range button[aria-pressed="true"]') : null);
+    target?.focus();
+  }
 }
 
 /* ── lower band ───────────────────────────────────────────────────────────

@@ -27,9 +27,13 @@ console.log("# WK7 对比度表（WCAG 2.x 相对亮度）\n\n生成：`node too
 for (const [skin, css] of Object.entries(skins)) {
   const R = blocks(css, ":root");
   for (const scheme of ["light", "dark"]) {
-    const S = scheme === "light" ? R : { ...R, ...blocks(css, ':root[data-theme="dark"]') };
+    let S = scheme === "light" ? R : { ...R, ...blocks(css, ':root[data-theme="dark"]') };
+    if (skin === "lead-gray") {
+      if (scheme === "dark") S = { ...S, ...blocks(css, 'html[data-theme="dark"]') };
+      S = { ...S, ...blocks(css, 'html:not([data-skin="custom"]):not([data-skin="gray-steel"])') };
+    }
     console.log(`## ${skin} · ${scheme}\n\n| 角色 | 底面 | 比值 | 门槛 | 结果 |\n|---|---|---:|---:|---|`);
-    for (const [fg, bg, min] of pairs) {
+    for (const [fg, bg, min] of [...pairs, ...(skin === "lead-gray" ? [["home-attention-review-foreground", "panel", 4.5], ["home-attention-review-foreground", "float", 4.5], ["muted-strong", "panel-muted", 4.5]] : [])]) {
       const a = hex(resolve(S, S[fg] ?? "")), b = hex(resolve(S, S[bg] ?? ""));
       if (!a || !b) { console.log(`| ${fg} | ${bg} | 无法解析 | ${min} | 跳过 |`); continue; }
       const r = ratio(a, b); const ok = r >= min; if (!ok) fail++;

@@ -85,3 +85,7 @@ Disposition 规则：`canonical candidate` = mature precedent + implementation l
 |---|---|---|---|---|
 | EX-SC1（capture 试点） | material / blur、inspector / toolbar、icon treatment | 2026-09-09 Sonnet，≤ 8 | [ex-sc1-scout-pilot](../../mvp/execution/work-surface-kit/explore/ex-sc1-scout-pilot.md) | WK-135：8/8 ignore；来源与 schema 修订 |
 | （下一个）section sweep · inspector / toolbar | CC-I 成单前，走 SaaSFrame product interfaces + 官方文档 | 待 FE-05 合流 | — | — |
+
+## 2026-09-10 Home 消费回执
+
+[Home composition](../home-composition-2026-09-10/README.md)逐项消费 Control、Iconography/MingCute、Sidebar、Selection/List 输入；前三类既有 WK 索引保持，新增材料不重开平行 authority。Activity/Attention 真实读面已实现；Assistant 仅前端预览。Icon/Control specimen 的矩阵已登记，尚未选默认新族。

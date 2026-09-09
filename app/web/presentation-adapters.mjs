@@ -188,3 +188,66 @@ export function toInspectionRows(summary, projects) {
     page: pageFacts(page),
   };
 }
+
+
+/** Home read adapters reject unsupported or internally inconsistent packets.
+ * Server-owned UTC buckets are never rebuilt from paginated summary rows. */
+const validStamp = value => typeof value === "string" && Number.isFinite(Date.parse(value));
+const nonnegative = value => Number.isSafeInteger(value) && value >= 0;
+const DAY_MS = 86_400_000;
+export function toHomeActivity(data, expectedDays = null) {
+  if (!data || data.schemaVersion !== 1 || data.timeZone !== "UTC" || !validStamp(data.observedAt) ||
+      data.coverage?.retainedRecords !== "complete" || data.coverage?.historical !== "unknown" ||
+      data.scope?.kind !== "retained-recorded-runs" || data.scope.projectId !== null ||
+      !Array.isArray(data.buckets) || !data.buckets.length || !nonnegative(data.recordedRunCount) ||
+      !Number.isSafeInteger(data.interval?.days) || data.interval.days !== data.buckets.length ||
+      (expectedDays !== null && data.interval.days !== expectedDays) || data.interval.runTimeField !== "startedAt" ||
+      data.deduplicationKey !== "run.id") return null;
+  const start = Date.parse(data.interval.start);
+  if (!Number.isFinite(start) || new Date(start).toISOString().slice(11) !== "00:00:00.000Z" ||
+      Date.parse(data.interval.endExclusive) !== start + data.interval.days * DAY_MS) return null;
+  let total = 0;
+  for (const [i,bucket] of data.buckets.entries()) {
+    if (!bucket || bucket.date !== new Date(start + i * DAY_MS).toISOString().slice(0,10) || !nonnegative(bucket.recordedRunCount)) return null;
+    total += bucket.recordedRunCount;
+    if (!Number.isSafeInteger(total)) return null;
+  }
+  if (total !== data.recordedRunCount) return null;
+  return {
+    observedAt: data.observedAt, total, days: data.interval.days,
+    coverage: "UTC · Retained runs only. Deleted-chat history is unknown.",
+    buckets: data.buckets.map(({date, recordedRunCount: count}) => ({
+      date, count, level: count === 0 ? 0 : count === 1 ? 1 : count < 4 ? 2 : count < 8 ? 3 : 4,
+      label: `${date} · ${count} retained ${count === 1 ? "run" : "runs"} (UTC)`,
+    })),
+  };
+}
+export const attentionLabels = {
+  investigating: "Investigating", needs_you: "Needs you", waiting: "Waiting", later: "Later", resolved: "Resolved",
+};
+const validAttention = item => item && item.schema_version === 1 &&
+  typeof item.attention_id === "string" && item.attention_id.length > 0 && typeof item.descriptor?.title === "string" && item.descriptor.title.trim().length > 0 &&
+  Object.hasOwn(attentionLabels,item.status) && Number.isSafeInteger(item.revision) && item.revision > 0 &&
+  validStamp(item.updated_at) && ["current","unknown"].includes(item.freshness);
+export function toHomeAttention(data) {
+  if (!data || data.schema_version !== 1 || !Array.isArray(data.items) || !nonnegative(data.count) || !nonnegative(data.offset) ||
+      typeof data.truncated !== "boolean" || data.truncated !== (data.next_offset !== null) || data.disclosure?.count_scope !== "visible" ||
+      data.items.some(item => !validAttention(item)) || new Set(data.items.map(i=>i.attention_id)).size !== data.items.length ||
+      (data.items.length && data.offset + data.items.length > data.count) ||
+      (data.next_offset !== null && (!nonnegative(data.next_offset) || data.next_offset !== data.offset + data.items.length || data.next_offset <= data.offset || data.next_offset >= data.count || !data.truncated))) return null;
+  return { count:data.count, offset:data.offset, nextOffset:data.next_offset,
+    items:data.items.map(item=>({id:item.attention_id,title:item.descriptor.title,status:item.status,label:attentionLabels[item.status],revision:item.revision,updatedAt:item.updated_at})),
+  };
+}
+export function toHomeAttentionDetail(data) {
+  if (!validAttention(data) || typeof data.reason !== "string" ||
+      (data.descriptor.summary !== null && typeof data.descriptor.summary !== "string")) return null;
+  const next=data.next_action;
+  if (!next || !["inspect","decide","wait","follow_up","none"].includes(next.kind) ||
+      typeof next.label !== "string" || !["manual","at","after","external"].includes(next.trigger) ||
+      (next.due_at !== null && !validStamp(next.due_at)) || (next.trigger === "at" && next.due_at === null)) return null;
+  // Display fields only; grants and action descriptors never become controls.
+  return { descriptor:{title:data.descriptor.title,summary:data.descriptor.summary}, status:data.status,
+    reason:data.reason,next_action:{kind:next.kind,label:next.label,trigger:next.trigger,due_at:next.due_at},
+    updated_at:data.updated_at,revision:data.revision,freshness:data.freshness };
+}

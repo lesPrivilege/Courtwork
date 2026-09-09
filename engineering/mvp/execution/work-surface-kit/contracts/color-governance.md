@@ -68,3 +68,7 @@
 3. 实心控件与数据标记不是"区域"（圆形 Send / Stop、开关滑块、用量数据条、`background-clip: text` 的渐变）；每一处逐条登记在 `tools/lint-colors.mjs` 的 `FILL` 表内，新增一处必须同时写下它是什么。
 4. `tools/lint-colors.mjs` 由此有两项检查：颜色字面量只出现在 `tier:S` 块内；`app/web/**/*.css|mjs` 的每一条 `background` / `background-color` 满足第 2 条或已登记。两项任一失败即退出码 1，`tests/color-governance.test.mjs` 纳入 `npm --prefix app test`。
 5. 对比表（§6）的底面集合随之改为 `panel` / `float` / `frame` 三个层 role，`canvas` 不再作为底面出现。
+
+## 2026-09-10 · Home review slot
+
+用户授权丰富灰阶和极少量 Attention colour。默认 slate 的新 neutral scale 通过全局既有 R roles 消费；新增 `--attention-review` 只用于 Attention `needs_you` 短标签。默认 slate 映射专用 review scale，custom/gray-steel 回退其自身 `accent-ink`，不强塞固定红色。它不是 danger、selection、focus、send 或 activity intensity。`tools/contrast-report.mjs` 已覆盖新角色/浅深宗；[当前视觉消费](../../../../design/home-composition-2026-09-10/README.md)。

@@ -243,3 +243,9 @@ T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点
 用户明确Output Review与Markdown是相交而独立的边界，已裁为[双边界架构](../docs/output-review.md)：前者接收/保留/表示所有可见模型与工具输出，后者负责包括用户/外部来源在内的Markdown格式能力，不互为完整包含关系。Chat Space copycard沿已有Code/Copy消费；复制不构成评审或接受。输出链已完成有界调查，另在 `5f17cde` 修复连续完整assistant消息覆盖（Luna独立反例修前4/6、修后6/6）；OR-A0继续冻结非文本/未知output接收与历史协议给UI；MR-A2/A3分别保持Core评注事务与Markdown版本定位范围。
 
 本单不称全output review已完成，不升级个人数据、不新增模型调用或部署；Core3/app4、已合流RuntimeStore5、Paper、G1–G5与原前端队列保持。
+
+## Home composition / Attention 只读前端（2026-09-10）
+
+用户明确要求首页编排与逐轮视觉输入消费后，Astra从实际 `00b2f288` 隔离实现：Attention/Activity置于composer上方，分层灰阶及窄review色槽，独立Attention主从读面与明确标注的Assistant前端预览，侧栏每项目8行真实会话及所有展开项目刷新。窗口控制预留按用户纠正移到品牌左侧同一行；版本化原生几何注入只传展示事实。三份补充Control/Sidebar/Selection材料与MingCute重新逐项消费，见[当前合同](design/home-composition-2026-09-10/README.md)与[回执](../evidence/home-composition-20260910/README.md)。
+
+Astra作者全量395/395、smoke、色彩/对比度通过；Luna有界非作者392/392和竞态/DTO测试，发现返回加载残留后由Astra修复加回归。真实浏览器验证1440/390、浅深宗、只读来源、筛选、草稿保留及同一行native预留；未执行原生AppKit宿主验收。此处覆盖CC-D0-a旧默认/几何及“Activity/Attention无接缝”时点，未关闭完整ATT动作/RT、CC-I、icon选族或G1–G5；无个人数据迁移、真实provider、外发或部署。
