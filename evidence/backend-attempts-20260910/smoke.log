@@ -1,0 +1,22 @@
+command: npm --prefix app run smoke (cwd /private/tmp/se-bg02)
+concurrency: single process
+git rev-parse HEAD: c1e75953d665e837c8c84c6c22a4c3ed7182f178
+
+> se-agent-v5-runtime@0.1.0 smoke
+> node scripts/runtime-smoke.mjs
+
+{
+  "status": "passed",
+  "provider": "local-fake",
+  "transport": "public runtime service",
+  "checks": [
+    "material read",
+    "tool write",
+    "persisted artifact",
+    "runtime close/reopen",
+    "session continuation",
+    "revision",
+    "historical bytes"
+  ],
+  "realProvider": "not_run"
+}
