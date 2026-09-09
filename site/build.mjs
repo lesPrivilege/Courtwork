@@ -95,10 +95,16 @@ const media = JSON.parse(await readFile(path.join(SITE, "media", "manifest.json"
 if (media.source_sha !== identity.source_sha) {
   throw new Error(`the media were captured at ${String(media.source_sha).slice(0, 7)}, not at ${identity.sha7}`);
 }
-for (const entry of media.media) {
-  const bytes = await readFile(path.join(ROOT, entry.asset_path));
-  if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
-}
+const pageMedia = JSON.parse(await readFile(path.join(SITE, "media", "main", "manifest.json"), "utf8"));
+const validateMedia = async (manifest, label) => {
+  if (!/^[0-9a-f]{40}$/.test(manifest.source_sha)) throw new Error(`${label} source_sha is not a full commit SHA`);
+  for (const entry of manifest.media) {
+    const bytes = await readFile(path.join(ROOT, entry.asset_path));
+    if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
+  }
+};
+await validateMedia(media, "published media");
+await validateMedia(pageMedia, "current-main page media");
 
 await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity, media }));
 
@@ -111,7 +117,7 @@ const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), 
 await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media }));
 const packageVersion = JSON.parse(productBytes(identity.source_sha, "app/package.json").toString("utf8")).version;
-for (const [name, html] of Object.entries(renderProductPages({identity, media, recording, packageVersion}))) await emit(name, html);
+for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);
 await emit("product-pages.css", await readFile(path.join(SITE, "src", "product-pages.css")));
 await emit("product-pages.mjs", await readFile(path.join(SITE, "src", "product-interactions.mjs")));
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
@@ -143,6 +149,8 @@ const manifest = {
   site_sha_note: "SHA-256 of authored page sources and recorded evidence; generated README, dist and specimen copies are excluded. Product tokens and modules come from source_sha Git blobs.",
   tokens: { source: "app/web/styles.css", source_sha256: tokens.sourceSha256, blocks: tokens.blocks },
   media_manifest: "media/manifest.json",
+  product_media_manifest: "media/main/manifest.json",
+  product_media_source_sha: pageMedia.source_sha,
   specimen_manifest: "specimen/manifest.json",
   evidence_links: evidence.links,
   supported_platforms: ["local run from source on macOS and Linux"],

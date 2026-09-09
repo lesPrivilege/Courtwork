@@ -20,7 +20,7 @@ import path from "node:path";
 import { buildReview } from "../../app/domains/inbound-nda/index.mjs";
 import { SYNTHETIC_SOURCES, NORMAL_FACTS } from "../../app/domains/inbound-nda/fixtures.mjs";
 import { FAKE_CREDENTIAL_KEY } from "../../app/runtime/pi-session-runtime.mjs";
-import { release, ROOT, SITE } from "./release.mjs";
+import { git, release, ROOT, SITE } from "./release.mjs";
 
 const arg = (name, fallback) => {
   const index = process.argv.indexOf(name);
@@ -29,9 +29,24 @@ const arg = (name, fallback) => {
 const ORIGIN = arg("--origin", "http://127.0.0.1:8908");
 const CHROME = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 const CDP_PORT = Number(arg("--cdp-port", "19971"));
-const MEDIA = path.join(SITE, "media");
+const SOURCE_SHA = arg("--source-sha", null);
+const MEDIA = path.resolve(SITE, arg("--media-dir", "media"));
 
-const identity = await release({ capture: true });
+// The original capture remains pinned to the published evidence snapshot.
+// A separate source-sha/media-dir pair lets Pages take a fresh, explicitly
+// labelled capture from the current product main without relabelling the
+// older specimen and benchmark evidence as if it had been recaptured.
+const identity = SOURCE_SHA
+  ? { source_sha: SOURCE_SHA, sha7: SOURCE_SHA.slice(0, 7) }
+  : await release({ capture: true });
+if (SOURCE_SHA) {
+  if (!/^[0-9a-f]{40}$/.test(SOURCE_SHA)) throw new Error("--source-sha must be a full commit SHA");
+  git("cat-file", "-e", `${SOURCE_SHA}^{commit}`);
+  const verified = ["app", "benchmarks", "brand", "docs", "PAPER.md", "LICENSE"];
+  const drift = git("diff", "--name-only", SOURCE_SHA, "--", ...verified);
+  const extra = git("ls-files", "-z", "--others", "--exclude-standard", "--", ...verified);
+  if (drift || extra) throw new Error(`current-main capture product paths differ from ${SOURCE_SHA.slice(0, 7)}:\n${drift}${extra}`);
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- the product's own API -------------------------------------------------
@@ -229,8 +244,8 @@ async function shot(entry) {
     data_kind: "synthetic",
     provider_mode: "local deterministic fake (fake-openai-loopback); no real provider",
     capture_command: "node site/scripts/capture-media.mjs",
-    asset_path: `site/media/${file}`,
-    evidence_path: `site/media/manifest.json`,
+    asset_path: path.relative(ROOT, target).split(path.sep).join("/"),
+    evidence_path: path.relative(ROOT, path.join(MEDIA, "manifest.json")).split(path.sep).join("/"),
     sha256: createHash("sha256").update(png).digest("hex"),
     bytes: png.length,
     ...rest,
@@ -459,5 +474,5 @@ try {
 } finally {
   socket.close();
   chrome.kill();
-  await rm(profile, { recursive: true, force: true });
+  await rm(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 }).catch(() => {});
 }

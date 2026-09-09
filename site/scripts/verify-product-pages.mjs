@@ -180,7 +180,8 @@ try {
   const closed=await evaluate('!document.querySelector("#preview-dialog").open');
   record('Dialog Escape closes',closed,{});
   const install=await evaluate('document.querySelector("#install-command").textContent');
-  record('Install pins evidence and external data directory',install.includes('git checkout 9e5384fcabdac432259b3ffab7928251bea49859') && install.includes('ci --ignore-scripts') && install.includes('$HOME/.courtwork-preview-9e5384f'),{});
+  const checkout = install.match(/git checkout ([0-9a-f]{40})/);
+  record('Install pins evidence and external data directory',Boolean(checkout) && install.includes('ci --ignore-scripts') && install.includes(`$HOME/.courtwork-preview-${checkout[1].slice(0,7)}`),{source_sha:checkout?.[1] ?? null});
   await evaluate(`Object.defineProperty(navigator, 'clipboard', {configurable:true,value:{writeText:()=>Promise.reject(new Error('test denied'))}}); document.querySelector('[data-copy-command]').click()`);
   await waitFor(`document.querySelector('[data-copy-status]').textContent.includes('manual copy')`);
   record('Denied clipboard retains manual copy',await evaluate(`getSelection().toString() === document.querySelector('#install-command').textContent`),{});
