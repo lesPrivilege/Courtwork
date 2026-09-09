@@ -1,0 +1,99 @@
+userMessage d55013ce-a38b-4331-97a3-327d7e6d74a7
+Markdown 相关阅读器，会承载一个很好的 review 面，因为这契合语言模型的底层，尽管下沉市场有其他的 office 格式，但那是 output 的步骤，中间产物和 review 时，依然需要好的 md 渲染，不仅是 massage（这首先要借助模型的输出），可以单独作为一种能力评估前后端，以达到 clean 和 cool 的界面，原 motto git repo 提出了一些 tui 的陌生化巧思，可以仅取理念，同时 explore 更广泛的选型 @Exa
+
+agentMessage bbfa2874-c444-4be5-884a-aed622fb3aae
+这个方向值得从 Chat Message 中正式抽出来，定义成一项独立的 **Markdown Review Surface**。更准确地说，Markdown 在这里不是“最终文档格式”，而可以承担一种 **review IR / human-readable working representation**：模型天然善于稳定地产生和修改它，人也容易阅读、diff、批注和逐段确认；DOCX/PDF/Office 更适合作为最后的 export / delivery adapter，而不是反过来支配中间工作面。
+
+我用 Exa 扫了 **62 个搜索结果，分 7 个方向**：AI streaming renderer、Markdown review 工具、reading-first reader、AST/source mapping、annotation 标准、document diff、editorial/marginalia 视觉。一个很明显的结论是：2026 年新出了大量“AI Markdown renderer”，但真正值得 Courtwork 消费的技术增量，已经从“多支持几个 Markdown 语法”转向了 **稳定 block identity、source position、annotation anchoring、revision drift/rebase，以及 human/agent 共用一份 review state**。
+
+### 我会这样收敛选型
+
+| 层 | 首选方向 | 参考实现 | Courtwork 应如何消费 |
+|---|---|---|---|
+| Markdown canonical model | `unified / remark / mdast` | [unist](https://github.com/syntax-tree/unist)、[remark](https://github.com/remarkjs/remark) | **强参考 / 可作为架构底座**。AST 节点原生携带 source position；renderer 可替换 |
+| 静态渲染 | semantic HTML + 自有 component map | `react-markdown` / unified pipeline | 不让 UI library 定义文档模型 |
+| AI streaming | 增量 block renderer | [Streamdown](https://github.com/vercel/streamdown) | 若最终 React，可直接重点评估；否则主要消费其 incomplete-block、memoization、security 设计 |
+| Review anchor | position + quote + revision | [W3C Web Annotation](https://www.w3.org/TR/annotation-model/) | **非常适合作为稳定 Schema 来源** |
+| Highlight | DOM 外的 Range overlay | [CSS Custom Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API) | 推荐。批注不必给正文套大量 `<span>`，避免破坏 DOM 与排版 |
+| Review lifecycle | sidecar/backend state | [mdProbe](https://github.com/henryavila/mdprobe)、[md-review-server](https://github.com/tracyxiong1/md-review-server) | **取原理，不建议直接依赖**；两个项目都很新、采用量很低 |
+| Revision comparison | rendered semantic diff | [markdown-diff-viewer](https://github.com/PiotrTrzpil/markdown-diff-viewer) | 段落/block 对齐值得取；raw line diff 退居 secondary surface |
+| Reader UX | reading-first | [upmark](https://github.com/captured-ventures/upmark)、[Tufte CSS](https://edwardtufte.github.io/tufte-css/) | 消费排版和信息层级，不照搬皮肤 |
+
+其中最重要的技术决策，反而不是 renderer。
+
+**Annotation 不应只有 line number。** W3C 已经给了相当好的原语：`TextPositionSelector(start,end)` 加 `TextQuoteSelector(exact,prefix,suffix)`。Courtwork 可以再增加自己的 `revision_id + block_id + content_hash / heading_path`。这样一次批注不是“DOM 第 37 行黄色区域”，而是一个可治理、可迁移的对象：
+
+```text
+ReviewAnchor
+  document_revision
+  block_id
+  source_range { start, end }
+  quote { exact, prefix, suffix }
+  block_hash
+  confidence
+
+ReviewThread
+  id
+  anchor
+  actor { human | agent | system }
+  status { open | resolved | drifted | orphan }
+  replies[]
+  suggestion?
+```
+
+这点从 [mdProbe](https://github.com/henryavila/mdprobe) 特别值得取资。它已经遇到了真实的 review 问题：文档修改后 annotation 不能默默错位，因此做了 `hash → exact quote → fuzzy → mdast tree path → keyword` 的恢复链，并明确暴露 `drifted / orphan`，而不是假装重新定位成功。**“不得 silent mis-anchor”本身就可以成为 Courtwork Review Surface 的 invariant。**
+
+### UI 上，“陌生化”可以发生在 control plane，而不是正文
+
+Motto TUI 的理念可以留下，但不需要把网页做成 terminal。正文最好极度安静，因为 review 的首要目标仍然是长时间阅读。
+
+我更推荐一种 **cold shell / quiet page**：
+
+外层 Courtwork chrome 可以保持较冷、较薄、偏工具性的质感；中央 Markdown 列则近乎纸面，较宽松的 leading、稳定 measure、极少 card 边界。右侧 margin 不是普通“聊天侧栏”，而成为真正的 **proof / review rail**：citation、comment、agent finding、unresolved marker 都在对应段落的同一水平附近出现。这里可直接吸收 Tufte sidenote 的信息学，而不要复制 Tufte 的古典字体和书籍美学。
+
+所谓陌生化则放在这些地方：段落边缘极细的 proof mark；`OPEN / FIXED / ?` 一类小型 mono 状态；悬停才显现的 selection toolbar；`j/k` 在 unresolved review 之间跳转；command palette；一条极薄的 document minimap / revision trace。正文里不出现一层层 rounded card，也不把每个 AI finding 做成气泡。
+
+这比“给 Markdown 加玻璃、blur、渐变”更有辨识度，因为视觉形式来自 **review 语义本身**。
+
+CSS Custom Highlight API 对这个方向尤其合适：现代浏览器已经可以直接给任意 Range 着色而**不改变底层 DOM structure**。这意味着涂乙式标记、agent evidence underline、多重 reviewer overlay，都能作为 presentation layer 叠上去；正文树仍保持干净。
+
+### Diff 也应该重新定义
+
+普通 Git diff 对代码很好，对长篇 prose 并不好。Markdown review 默认面建议是：
+
+**Rendered → block alignment → inline semantic changes**。
+
+也就是标题对应标题、段落对应段落、列表对应列表；修改段落内部再做 word/character diff。如果两段已经彻底重写，就不要强行制造红绿字符汤，而是 old/new block 成对呈现。`markdown-diff-viewer` 正在做这种 AST/block matching，可以作为算法索引。
+
+而 code fence 是一个很自然的例外：进入代码块后局部切换成标准 code diff。于是 Markdown Surface 实际上可以容纳不同类型的 **review renderer**，而不是整个页面只有一种 diff。
+
+这也带来一个很好的能力边界：
+
+> Markdown renderer 负责“如何显示一个 block”；  
+> Review Surface 负责“这个 block 是什么、来自哪里、发生了什么、谁审过”；  
+> Agent/runtime 只通过稳定 review state 与它交互。
+
+这样 Message 里的 Markdown 与完整 Document Review 可以共享 parser、typography、code/math/mermaid 等 primitives，但**不共享生命周期假设**。Message 是 transient stream；Document 是 revisioned artifact。
+
+### 前后端 Eval 也因此能独立建立
+
+我建议不要测“Markdown 看起来不错”这种主观项目，而建立下面这一套能力矩阵：
+
+| 面 | 必测项 | 关键失败条件 |
+|---|---|---|
+| Render fidelity | GFM、CJK、table、code、math、Mermaid、footnote、relative asset | source/render 语义错位 |
+| Streaming | incomplete bold/fence/table/math，block settling | flicker、全文重复布局 |
+| Long document | 数百 KB、数千 block、outline/find/jump | 滚动抖动、selection 丢失 |
+| Annotation | inline、cross-inline、cross-block、code/table | 错锚但未告警 |
+| Revision | 前方插入、段落移动、局部重写、删除 | annotation silent migration |
+| Diff | prose/code/table/list | 大段“字符汤”、错误 block pairing |
+| Security | raw HTML、URL、image、Mermaid | model output 获得 executable surface |
+| Human/agent loop | comment/reply/resolve/suggest/accept | agent 有一套旁路状态 |
+| Accessibility | selection、keyboard、focus、contrast、zoom | review 只能靠颜色表达 |
+| Visual | 375/768/1280/1440 + dark/light | margin annotation 挤压主文 |
+
+其中可以直接做一套 **Markdown Review torture fixture**，以后不仅评自研，也评所有 renderer 更新。它实际上会成为 Courtwork 很好的局部 benchmark。
+
+还有一个明确的负向选择：像 CriticMarkup、`md-redline` 那样**把 review marker 直接写回 Markdown source**，可以保留为 interchange/export codec，但我不会把它作为 canonical persistence。对 Courtwork/SE 更合适的结构仍是 Markdown Matter 保持清洁，review thread / suggestion / resolution 作为独立治理状态或事件存在；需要给外部 agent 或 Git 携带时，再导出 sidecar 或 annotated Markdown。这样 Office output、Markdown source、human review trace 三者不会混成一个层。
+
+所以首版其实不需要做得很大：**`mdast/source-map → clean reader → selection/annotation → review rail → drift/orphan → semantic revision diff`** 已经构成一个相当完整、而且具有产品辨识度的垂直能力。Streamdown、mdProbe、Tufte、Motto 分别提供 streaming、review mechanics、margin information design、陌生化原则；它们应当在这一层被重新组合，而不是任选一个仓库作为“Markdown reader”。

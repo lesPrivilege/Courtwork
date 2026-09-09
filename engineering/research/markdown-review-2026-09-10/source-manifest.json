@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "6aa181a2-6754-83ec-bf91-9721bb63b53e",
+  "title": "Markdown评审方案",
+  "readDate": "2026-09-10",
+  "turnIds": [
+    "d55013ce-a38b-4331-97a3-327d7e6d74a7"
+  ],
+  "turnCount": 1,
+  "messageCount": 2,
+  "hasMore": false,
+  "truncated": false,
+  "attachments": [],
+  "transcript": {
+    "path": "inputs/conversation.txt",
+    "bytes": 9637,
+    "sha256": "9470a797488ddc0ba55f5e49b640a64f9a91071b01dec878c009c20a12d95ae6"
+  },
+  "explicitUrls": [
+    "https://github.com/syntax-tree/unist",
+    "https://github.com/remarkjs/remark",
+    "https://github.com/vercel/streamdown",
+    "https://www.w3.org/TR/annotation-model/",
+    "https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API",
+    "https://github.com/henryavila/mdprobe",
+    "https://github.com/tracyxiong1/md-review-server",
+    "https://github.com/PiotrTrzpil/markdown-diff-viewer",
+    "https://github.com/captured-ventures/upmark",
+    "https://edwardtufte.github.io/tufte-css/"
+  ],
+  "limitations": [
+    "Exa 62 results / 7 directions is an upstream assistant self-report; search result set not supplied.",
+    "Motto, CriticMarkup and md-redline mentioned without specific repository URLs; no identity inferred."
+  ]
+}

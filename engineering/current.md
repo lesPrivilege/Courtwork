@@ -204,3 +204,9 @@ Astra 按本次换序授权裁定：**FE-05a → FE-05 → ATT-FE-01 → CC-I**�
 Astra 接手 Claude limit 后的清账。从实际 `4f7278f` 承接已合流的 CC-D0-a / r4d，接收发布面与品牌准备包固定头 `dcae9d7`。[本节点回执](../evidence/cleanup-20260910/README.md)记录范围与未结项。PS-24：公共站七行问题归 PS 批次，施工中不派 sweep；交付四轴复核判弱后才按“30 样本 → 3 候选 → specimen”补一次。真实 pricing 不适用与第 07 段概念研究稿并存。60fps 只作为品牌第 3 层（06）的 motion donor；第 1、2 层不派 sweep，站点继续零运动。
 
 WK-136 换序沿 `4f7278f` 裁定：FE-05a → FE-05 → ATT-FE-01 → CC-I。当前 Opus 在途仍为 WO-PS-01 站点、WO-BR-01 glyph 板；分支中间提交不视为正式回执或接受。Astra 接收回执后复核，glyph 选向仍归用户，PS-02 待 PS-01。此节点只合流准备文档并对齐账本，不接收两条在途实现，不关闭 G1–G5。
+
+## Markdown Review Surface：Astra 架构与评测（2026-09-10）
+
+用户指定本单前后端架构/关键实现/异步节奏由 Astra 持有，Luna explore，成熟有界部分可派 Terra。从实际 main `1f437a98` 隔离完整消费“Markdown评审方案”1轮2条文本；[架构与工单包](research/markdown-review-2026-09-10/README.md)记录来源、接缝和执行状态。原始文件字节与既有 owner identity 为真源；AST/outline/diff 为可重建投影。首个正式评注限定 Core file Candidate/Artifact，评注处置与定位状态分开，跨版本仅产候选、不静默迁移；普通 Markdown 只读阅读不自动创建 Matter。
+
+Astra 完成隔离 parser 坐标 probe，Luna 负责本仓/主源核验，Terra 实施当前 renderer 的真实浏览器基线与未来 revision oracle；具体结果和作者/非作者范围见包内回执，不称评注、精确inline或semantic diff已交付。下一产品单 MR-A1 身份/源投影、MR-A2 Core评注事务/迁移由 Astra 亲写；Terra reader/rail 等冻结 DTO 后派，不猜接口。生产代码、schema、vendor、Paper和G1–G5未变；既有FE共享文件单writer顺序保留，本单架构不再转交Fable。
