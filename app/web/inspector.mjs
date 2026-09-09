@@ -392,6 +392,7 @@ export function createFileView(container, { request }) {
           copyAction(payload.sha256, "Copy file version hash"),
         ),
       );
+      if (next.kind === "core-file") version.append(el("p", {text:next.artifactId ? `Artifact ${next.artifactId}` : `Candidate ${next.candidateId}`}), el("code", {text:`Bundle ${next.bundleDigest}`}));
       const view = el("div", { className: "file-document" });
       let projection = null;
       if (/\.md$/i.test(next.path) && next.kind !== "current" && !payload.truncated && new TextEncoder().encode(payload.text).length <= MAX_MARKDOWN_BYTES) {
@@ -421,7 +422,7 @@ export function createFileView(container, { request }) {
         el("p", {
           text:
             next.kind === "core-file"
-              ? `Fixed Core file version · ${next.artifactId ? `Artifact ${next.artifactId}` : `Candidate ${next.candidateId}`}.`
+              ? (next.artifactId ? "Fixed file from the accepted artifact." : "Fixed file from this candidate. Review acceptance is not recorded here.")
               : next.kind === "content-version"
                 ? "Saved by this run. Review acceptance is not recorded here."
                 : "Workspace file at the time of loading.",

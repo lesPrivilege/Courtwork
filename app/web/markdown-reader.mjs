@@ -1,3 +1,5 @@
+import { copyAction } from './ui-controls.mjs';
+
 const PROFILE = 'cw-markdown-block-v1';
 const ALLOWED_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'del', 'code', 'pre', 'br', 'hr', 'blockquote', 'ol', 'ul', 'li', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td']);
 
@@ -36,6 +38,14 @@ function appendSemantic(doc, parent, node) {
   }
   if (node.tag === 'ol' && Number.isSafeInteger(node.start) && node.start > 0) element.start = node.start;
   for (const child of node.children ?? []) appendSemantic(doc, element, child);
+  if (node.tag === 'pre') {
+    const wrap = make(doc, 'div', 'code-block');
+    const toolbar = make(doc, 'div', 'code-toolbar');
+    toolbar.append(make(doc, 'span', '', 'Code'), copyAction(element.textContent, 'Copy code'));
+    wrap.append(toolbar, element);
+    parent.append(wrap);
+    return;
+  }
   parent.append(element);
 }
 
@@ -72,14 +82,19 @@ export function createMarkdownReader(container) {
       inspector.replaceChildren();
       if (selected) {
         inspector.hidden = false;
-        const label = make(doc, 'div', 'markdown-reader__inspector-label', `Source · code points ${selected.start}–${selected.end}`);
+        const sourceCopy = make(doc, 'div', 'code-block markdown-reader__source-copy');
+        const toolbar = make(doc, 'div', 'code-toolbar');
+        const label = make(doc, 'span', 'markdown-reader__inspector-label', `Source · code points ${selected.start}–${selected.end}`);
         const source = make(doc, 'pre', 'markdown-reader__raw-source');
         source.append(doc.createTextNode(selected.raw));
-        inspector.append(label, source);
+        toolbar.append(label, copyAction(selected.raw, 'Copy block source'));
+        sourceCopy.append(toolbar, source);
+        inspector.append(sourceCopy);
       } else inspector.hidden = true;
     }
     const target = container.querySelector(`[data-markdown-block="${CSS.escape(id)}"]`);
     if (target) {
+      if (selected && inspector) target.after(inspector);
       target.scrollIntoView({block: 'nearest'});
       if (focus) target.focus();
     }
@@ -93,7 +108,8 @@ export function createMarkdownReader(container) {
     }
     const blocks = [...container.querySelectorAll('[data-markdown-block]')];
     const term = findTerm.trim().toLocaleLowerCase();
-    const matches = term ? blocks.filter((block) => block.textContent.toLocaleLowerCase().includes(term)) : [];
+    const semanticText = new Map((projection?.blocks ?? []).map((block) => [block.id, visibleText(block.nodes).toLocaleLowerCase()]));
+    const matches = term ? blocks.filter((block) => semanticText.get(block.dataset.markdownBlock)?.includes(term)) : [];
     for (const block of blocks) block.classList.toggle('is-match', matches.includes(block));
     if (status) status.textContent = term ? `${matches.length} matching block${matches.length === 1 ? '' : 's'}` : '';
     return matches;
@@ -176,7 +192,10 @@ export function createMarkdownReader(container) {
       blockElement.tabIndex = 0;
       blockElement.setAttribute('aria-label', `Markdown ${block.type}, code points ${block.start} to ${block.end}`);
       for (const semanticNode of block.nodes) appendSemantic(doc, blockElement, semanticNode);
-      blockElement.addEventListener('click', () => select(block.id), {signal: buildEvents.signal});
+      blockElement.addEventListener('click', (event) => {
+        if (event.target.closest('a, button')) return;
+        select(block.id);
+      }, {signal: buildEvents.signal});
       blockElement.addEventListener('keydown', (event) => {
         if (event.target !== blockElement) return;
         if (event.key === 'Enter' || event.key === ' ') { select(block.id); event.preventDefault(); }
