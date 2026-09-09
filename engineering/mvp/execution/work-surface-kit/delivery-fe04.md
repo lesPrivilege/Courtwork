@@ -238,3 +238,22 @@ FN-23 禁的是折叠 / 展开**重发命令、取消 Run、丢草稿、换读�
 | 授权卡重试时那条红字先消失，再出现 `Sending…` | **「刚刚失败了」与「这一次失败了」。** 不撤掉旧的那条，一条 alert 和一个在途词会同时在场，读起来像"这次也失败了" |
 | `ws_read / Failed` 与（未发生的）`ws_write / Interrupted` 是两个不同的词 | **工具失败与因取消而未完成是两件事。** 台账把这条标成"未核实"，审计的结论是它一直成立，只是没有人钉住过它——现在有钉子了 |
 | 没有一个像素叫 `Always allow` | **一次授权与一条策略不共用一个按钮。** 十个成熟来源里有四个把它们合成一个 Approve，本单没有迁移那一格，并给它加了一条会红的测试 |
+
+## 14. Fable 复核（WK-115，2026-09-09）
+
+非作者复核，与 §1–§13 的作者验证分列；Astra 独验另页。
+
+| 项 | Fable 所做 | 结果 |
+|---|---|---|
+| 写权 | `git diff --name-only af95bcb..HEAD` 对照工单可写清单；server / runtime / core / domains / brand / review-projection / glyph-semantics 差异 | 无越权；差异为空；无 allowlist 请求 |
+| 读码 | `app.mjs`、`ui-controls.mjs` 全部差异与九条新单测 | 一个在途词四处共用；状态词（Working / Stopping / Cancelled）不受在途影响；不新增状态容器、字段或端点 |
+| 单测 / lint | 237/237；lint-colors / lint-materials ok；contrast 76 行全通过 | 一致 |
+| 浏览器 | 自有端口 8893、两个新空目录、独立 CDP：`primitive-checks` 11/11（FE-T06 含另半条）、`fe-t07` 6/6（先 `work-seed`） | 一致 |
+| 读数差 | 三次折叠 / 展开 `/surface` 0 → 2 | 读取非命令，按事实接受；记 misfit M-5 |
+| 七项待裁 | 见 [intake-round-3 §4t](intake-round-3.md) WK-115 | ① 登记第六个词 `Unknown`（glyph-semantics 已改）、② Home / End 与两条列表各自 role → CC-S 第 0 项；③④⑤⑥⑦ 接受 |
+| 后端草案 | §10 的 BE-24…27 重编为 BE-30…33 入 backend-requests（BE-24…29 已被 EX-CC2 占用） | 已登记 |
+| Anti-slop 门（WK-112 (c)） | necessity：新增只有一个词与一条 alert，无新控件 / icon / badge；hierarchy：在途按钮换词不换权重；system：复用 `ui-controls`，无新 radius / spacing；reference fidelity：review-projection §6 + assistant-ui 两源；AI tells：无；reality：long text / 窄屏未涉，在途态截图 not_run | 通过 |
+| 未复跑 | RC 三支、composition、shell、探测、Models、FE-T01 / T03 / T11 | 作者结果原文在 §9；Astra 独验按 `evidence/fe04/README.md` |
+| 视觉四轴 | 留用户 | 未评 |
+
+结论：接受。合流次序：先 `claude/fe04-primitives`（头 = 本条提交），再 `claude/fable-round4d`。
