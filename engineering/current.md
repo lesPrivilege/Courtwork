@@ -146,3 +146,10 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 用户授权fresh Astra与Luna explore并行推进后端。本轮交付`codex/backend-bounded-20260909@52f75dd`，基线`5ea5ff0`；BE-1/3/25、BE-29代码`fd3861b`提供认证只读Activity/Usage与summary UTC日期过滤，无Core/Runtime schema迁移、前端、新依赖或静态准入变化。[正式协议](../app/docs/work-metrics.md)明确保留记录complete、历史unknown，partial/missing非账单；极端usage溢出时两端点均报错，未作为已修复缺陷。
 
 AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，不称原生async或真实cache收益。[合流证据](../evidence/backend-bounded-main-integration-20260909/README.md)记录代码审阅与组合验证，原作者/Luna独验在[交付包](../evidence/backend-bounded-20260909/README.md)分列。ES-01只完成可信record/history、输入覆盖与迁移边界探索；Attention仍研究。BE-2按最新CC-W范围交合同owner，不新增backend tab账本；后续前端模块消费沿现有队列，G1–G5不关闭。
+
+
+## 可选浏览能力：研究入账（2026-09-09）
+
+后端任务消费用户“考虑解耦提供”讨论，研究提交`5163ae95c3ce950dcc2b380ef93c37cedd84dbec`基于`751be02`。[Browser研究包](research/browser-capability-2026-09-09/README.md)完整登记1轮2条文本，固定上游`browser-use/browser-use-pi@e0df2743e680125a4378d4d578420917620711f2`；Astra/Luna只读核验后裁为可选Browser Agent adapter候选，Driver资源归属单列，不采用原答复的ADOPT结论。hooks不是sandbox、导航域名规则不是网络隔离、partial/事件日志不是持久成果或Core接受；Browser输入不能绕过ES输入覆盖。
+
+来源Astra复读研究包、原文及合同/PR边界，核对逐字稿hash、15个本地链接和diff后接收文档。上游21文件hash由研究作者核验，不冒称本次重复独立核验。未安装/执行上游、浏览器或模型，npm发布artifact未验；不启动BR-01…03、Core或前端施工，不改Paper及G1–G5。
