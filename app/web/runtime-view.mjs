@@ -57,7 +57,7 @@ const KIND_LABELS = {
   permission_policy: "Permission policy",
   secret: "Secret",
   sandbox: "Sandbox",
-  session_context: "Session context",
+  session_context: "Chat context",
 };
 const KIND_PLURALS = {
   tool: "Tools",
@@ -76,7 +76,7 @@ const ADMISSION_WORDS = {
   "user-invoked": "draft only",
 };
 const ADMISSION_SENTENCES = {
-  instructions: "Its text is injected into every run of this session.",
+  instructions: "Its text is injected into every run of this chat.",
   "catalog-only":
     "Its name and description are listed in the catalog; the body loads only when the agent asks for it.",
   "user-invoked":
@@ -498,7 +498,34 @@ export function createRuntimeView(
 
   /* ── shared pieces ─────────────────────────────────────────────────── */
 
-  function scopeTabs() {
+  /* WK-90 · the scope strip used to sit once, at the head of one Runtime group.
+     The five intent blocks now live in five Settings groups, and four of them
+     carry editable layers — a policy list, an exposure switch, a profile — so a
+     group that can be edited has to say which layer is being edited. This is
+     the same control, not a second one: it reads and writes the controller's
+     one `scopeType`, so choosing a layer in Permissions is the same choice
+     Developer › Runtime shows. Only the primary instance carries the id the
+     acceptance suite anchors on; the others are the same strip repeated. */
+  function scopeStrip({ primary = false, where = "overview" } = {}) {
+    if (!snapshot) return [];
+    const scope = activeScope();
+    return [
+      el("p", {
+        className: "runtime-precedence",
+        attrs: primary ? { id: "runtime-precedence" } : {},
+        text: PRECEDENCE_SENTENCE,
+      }),
+      scopeTabs(where),
+      el("p", {
+        className: "runtime-scope-note",
+        text: scope
+          ? `Editing the ${SCOPE_LABELS[scope.type]} layer · ${scope.id}. Revision ${snapshot.revision}.`
+          : `No writable scope. Revision ${snapshot.revision}.`,
+      }),
+    ];
+  }
+
+  function scopeTabs(where = "overview") {
     const list = el("div", {
       className: "runtime-scopes",
       attrs: { role: "tablist", "aria-label": "Configuration scope" },
@@ -516,15 +543,18 @@ export function createRuntimeView(
           "aria-selected": String(selected),
           tabindex: selected ? 0 : -1,
           "data-scope": scope.type,
-          "data-focus-key": `scope:${scope.type}`,
+          /* One key per instance: the strip is repeated in every group that can
+             be edited, and focus must come back to the strip the person used,
+             not to the first one in the document (FN-27). */
+          "data-focus-key": `scope:${where}:${scope.type}`,
         },
       });
       tab.addEventListener("click", () => {
         scopeType = scope.type;
         policyDraft = null;
         render();
-        mounts.overview
-          .querySelector(`.runtime-scope-tab[data-scope="${scope.type}"]`)
+        mounts[where]
+          ?.querySelector(`.runtime-scope-tab[data-scope="${scope.type}"]`)
           ?.focus();
       });
       list.append(tab);
@@ -1333,7 +1363,7 @@ export function createRuntimeView(
       mount.append(
         error
           ? el("p", { className: "inline-error", text: error.message })
-          : note(sessionId ? "Loading the runtime…" : "A runtime is composed for a session. Open a session to read what its next run would carry."),
+          : note(sessionId ? "Loading the runtime…" : "A runtime is composed for a chat. Open a chat to read what its next run would carry."),
       );
       if (error)
         mount.append(
@@ -1346,21 +1376,10 @@ export function createRuntimeView(
       el(
         "div",
         { className: "section-heading" },
-        el("span", { className: "settings-row-help", text: "The runtime the next run in this session would be composed from." }),
+        el("span", { className: "settings-row-help", text: "The runtime the next run in this chat would be composed from." }),
         action("refresh-cw", "Refresh the runtime snapshot", () => void read()),
       ),
-      el("p", {
-        className: "runtime-precedence",
-        attrs: { id: "runtime-precedence" },
-        text: PRECEDENCE_SENTENCE,
-      }),
-      scopeTabs(),
-      el("p", {
-        className: "runtime-scope-note",
-        text: scope
-          ? `Editing the ${SCOPE_LABELS[scope.type]} layer · ${scope.id}. Revision ${snapshot.revision}.`
-          : `No writable scope. Revision ${snapshot.revision}.`,
-      }),
+      ...scopeStrip({ primary: true }),
       ...banners(),
     );
     /* FN-24 · a failed read leaves the last confirmed snapshot on screen and
@@ -1441,7 +1460,7 @@ export function createRuntimeView(
       note("What a run actually froze. Later edits never change these records."),
     );
     if (!runs.length) {
-      section.append(note("No run has been recorded in this session yet."));
+      section.append(note("No run has been recorded in this chat yet."));
       return section;
     }
     const bar = el("div", { className: "runtime-chips", attrs: { role: "group", "aria-label": "Recorded runs" } });
@@ -1516,6 +1535,7 @@ export function createRuntimeView(
       note(
         "The agent profile a run is composed from, what it depends on and where it applies. Saving a runtime configuration is not publishing a verified Work Expert: that needs a work semantics, a scope it applies to and an acceptance, none of which a profile carries.",
       ),
+      ...scopeStrip({ where: "composition" }),
     );
     const scope = activeScope();
     const profiles = (snapshot.resources || []).filter(
@@ -1681,7 +1701,7 @@ export function createRuntimeView(
 
   function renderInstructions() {
     const mount = mounts.instructions;
-    mount.replaceChildren(blockTitle("Instructions & context"));
+    mount.replaceChildren(blockTitle("Instructions, skills and references"));
     if (!snapshot) {
       mount.append(note("The runtime has not been read yet."));
       return;
@@ -1690,6 +1710,7 @@ export function createRuntimeView(
       note(
         "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft.",
       ),
+      ...scopeStrip({ where: "instructions" }),
       kindChips("instructions", CONTEXT_KINDS),
     );
     const resources = (snapshot.resources || []).filter((resource) =>
@@ -1748,7 +1769,7 @@ export function createRuntimeView(
     }
     const items = context.context || [];
     if (!items.length) {
-      section.append(note("Nothing is admitted into the next run beyond the session's own history."));
+      section.append(note("Nothing is admitted into the next run beyond the chat's own history."));
       return section;
     }
     const historical = items.some((item) => !Number.isFinite(item.admittedCharacters));
@@ -1804,7 +1825,7 @@ export function createRuntimeView(
 
   function renderCapabilities() {
     const mount = mounts.capabilities;
-    mount.replaceChildren(blockTitle("Capabilities & connections"));
+    mount.replaceChildren(blockTitle("Tools, MCP servers and plugins"));
     if (!snapshot) {
       mount.append(note("The runtime has not been read yet."));
       return;
@@ -1813,6 +1834,7 @@ export function createRuntimeView(
       note(
         "Configured, connected, exposed and permitted are four different facts. A connected server grants the model nothing; an exposed tool still answers to the policy on every call.",
       ),
+      ...scopeStrip({ where: "capabilities" }),
     );
     const tabs = el("div", {
       className: "runtime-subtabs",
@@ -2185,10 +2207,10 @@ export function createRuntimeView(
     const sandbox = (snapshot.resources || []).find((resource) => resource.kind === "sandbox");
     const sessionContext = (snapshot.resources || []).find((resource) => resource.kind === "session_context");
     const hostPolicy = (snapshot.resources || []).find((resource) => resource.kind === "permission_policy");
-    const section = el("section", { className: "runtime-environment" }, el("h5", { text: "Model, provider and environment" }));
+    const section = el("section", { className: "runtime-environment" });
     section.append(
       note(
-        "The connection below is the same record General edits; this reading describes the next run, not one already going. Budgets and the sandbox are facts the host reports, not settings.",
+        "The same record the Connection above edits, read back from the host. It describes the next run, not one already going; a chat already running keeps the values its run froze. Budgets and the sandbox are facts the host reports, not settings.",
       ),
       readOnlyRow("Provider", "Where model requests are sent.", provider?.title || config?.provider || "Not loaded"),
       readOnlyRow("Model", "Used for every new run in this workspace.", model?.title || config?.model || "Not loaded"),
@@ -2245,9 +2267,13 @@ export function createRuntimeView(
     return section;
   }
 
+  /* WK-90 · `Permissions & environment` 是一个意图，落在两个组里：策略、作用域与
+     解释属于 Permissions；provider / model / sandbox 的只读摘要属于 Models，编辑仍
+     只在 Models 的 Connection 里（FN-05：一个能力一个编辑入口）。两块读同一份快照，
+     所以这不是第二个真源，只是同一读数的两处落位。 */
   function renderPermissions() {
     const mount = mounts.permissions;
-    mount.replaceChildren(blockTitle("Permissions & environment"));
+    mount.replaceChildren(blockTitle("Policy"));
     if (!snapshot) {
       mount.append(note("The runtime has not been read yet."));
       return;
@@ -2256,10 +2282,20 @@ export function createRuntimeView(
       note(
         "A requested value, the effective value the server computed, the host ceiling and the value a running run froze are four different readings. Only the first is edited here.",
       ),
+      ...scopeStrip({ where: "permissions" }),
       policyEditor(),
       permissionExplainer(),
-      environmentFacts(),
     );
+  }
+  function renderEnvironment() {
+    const mount = mounts.environment;
+    if (!mount) return;
+    mount.replaceChildren(blockTitle("In force"));
+    if (!snapshot) {
+      mount.append(note("The runtime has not been read yet."));
+      return;
+    }
+    mount.append(environmentFacts());
   }
 
   /* ── render ────────────────────────────────────────────────────────── */
@@ -2287,6 +2323,7 @@ export function createRuntimeView(
       ["instructions", renderInstructions],
       ["capabilities", renderCapabilities],
       ["permissions", renderPermissions],
+      ["environment", renderEnvironment],
     ]) {
       const mount = mounts[name];
       if (!mount) continue;
@@ -2435,7 +2472,7 @@ export function renderContextBar(container, payload) {
     container.append(
       el("p", {
         className: "form-help",
-        text: "Nothing is admitted into the next run beyond the session's own history.",
+        text: "Nothing is admitted into the next run beyond the chat's own history.",
       }),
     );
     return;

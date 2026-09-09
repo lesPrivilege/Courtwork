@@ -272,6 +272,12 @@
   --panel-padding: var(--space-6);
   --card-padding: 20px;
   --column: 740px;
+  /* WK-94 / WK-96 · Home 的 composer 与它下方的模块共用一条略宽于阅读列的量度
+     （760–880，视觉审查的 800–920 与之相交）；Work 沿用 --column。
+     --window-safe-area 是宿主 window control 的保留区，见
+     docs/interface-components.md 的 shell layout contract。 */
+  --home-column: 820px;
+  --window-safe-area: 80px;
   /* WK-42 · one band across the three columns, one gutter between them. The
      sidebar wordmark row, the chat header and the rail band share --band-top;
      every column keeps --col-gap from its own edge, so a module adds no outer
@@ -585,6 +591,15 @@ button {
   padding: 0 var(--space-4) 0 20px;
   border-bottom: 1px solid var(--line);
 }
+/* WK-94 · `+ New project` 属于 PROJECTS heading，不属于品牌行。 */
+.project-section > .section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.project-section > .section-heading > #new-project-button {
+  margin-left: auto;
+}
 .workspace-brand {
   text-decoration: none;
   color: var(--ink);
@@ -592,14 +607,11 @@ button {
   font-weight: 650;
   letter-spacing: -0.025em;
 }
-/* WK-39 · the sidebar carries its own collapse control; the header toggle is
-   the way back in and shows only while the sidebar is off screen. */
+/* WK-94 · collapse belongs to the chrome row's `panel-left`, in and out alike;
+   `x` closes a floating layer, so it exists only while the sidebar is one —
+   the overlay below 1024. On the desktop the sidebar header holds nothing but
+   the window-safe area and the brand. */
 @media (min-width: 1024px) {
-  .app-shell:not(.nav-collapsed) #toggle-nav-button {
-    display: none;
-  }
-}
-@media (max-width: 1023px) {
   #close-nav-button {
     display: none;
   }
@@ -756,31 +768,12 @@ button {
   padding-top: var(--space-3);
   min-height: 44px;
 }
-.account-avatar {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-pill);
-  background: var(--selected);
-  color: var(--ink);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.account-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--text-label);
-  color: var(--muted-strong);
-}
+/* WK-94 · the avatar disc and the connection name are gone with the second
+   telling of the connection; what is left is the row's two real controls. */
 .account-tools {
-  flex: none;
+  flex: 1 1 auto;
   display: inline-flex;
+  justify-content: flex-end;
   gap: var(--space-1);
 }
 .chat-panel {
@@ -1295,7 +1288,7 @@ details[open] > summary.flow-row::after {
   display: block;
   resize: none;
   width: 100%;
-  min-height: 48px;
+  min-height: 88px;
   max-height: 180px;
   border: 0;
   padding: 4px;
@@ -2956,8 +2949,7 @@ dialog[open]::backdrop {
 .home-active .chat-header {
   padding: 0 var(--col-gap);
 }
-.home-active .chat-title-wrap,
-.home-active #capability-badge { display: none; }
+.home-active .chat-title-wrap { display: none; }
 
 /* WK-11 · Vertical placement of the hero+composer group. Both offsets are
    viewport-proportional so the group reflows with the window instead of being
@@ -2969,11 +2961,25 @@ dialog[open]::backdrop {
    bands, so it becomes ordinary band spacing and the slack goes to band 3
    (WK-46 (1)). The composer itself is unchanged and stays short: the group is an
    entry point, not a document. */
-.home-active .composer-area { padding: var(--section-gap) var(--page-gutter) 0; }
-.home-active.home-empty .composer-area { padding-top: clamp(96px, 31vh, 640px); }
+/* WK-96 · Home 从中心向下展开。composer 是唯一 L1 锚点，它的中心落在主区 55 % 以下；
+   --home-lead 由 app.mjs 量出来（那里说明了为什么是量的），这里只消费。
+   WK-94 · 空态那条 clamp(96px, 31vh, 640px) 就此退役：那不是页面顶部的留白，而是
+   两带之间的空白，现在由同一个 lead 统一承担，空态与有内容态不再是两套版面。 */
+.home-active .composer-area {
+  padding: 0 var(--page-gutter);
+  margin-top: var(--home-lead, var(--space-8));
+}
+.home-active .composer-form,
+.home-active .draft-status,
+.home-active .composer-below,
+.home-active .home-start-status { max-width: var(--home-column); }
 
+/* WK-96 · orientation：一句话，没有数字，也没有 greeting。整块不超过 120，
+   连同它与 composer 之间的间距，composer 之上的非 chrome 内容不超过 180。 */
 .home-composer-intro {
-  max-width: var(--column);
+  max-width: var(--home-column);
+  max-height: 120px;
+  overflow: hidden;
   margin: 0 auto var(--section-gap);
   display: flex;
   align-items: center;
@@ -2984,7 +2990,9 @@ dialog[open]::backdrop {
   line-height: 1.2;
   letter-spacing: var(--tracking-heading);
 }
-.home-active #composer-input { min-height: 64px; max-height: 160px; }
+/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96；
+   Work 是 continuation control，初始 88。两者都随输入增长到同一个上限。 */
+.home-active #composer-input { min-height: 96px; max-height: 160px; }
 
 /* WK-12 · Project and file-writes scope join the model chip in the composer's
    own bottom control row; Send stays at the trailing edge. */
@@ -3000,18 +3008,20 @@ dialog[open]::backdrop {
 .home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
 
-/* ==== WO-WK13 · Home's three bands ======================================
-   Band 1 states what is recorded, band 2 is the composer, band 3 absorbs the
-   rest (WK-32 / 46 / 76). Only band 1 and band 3 are described here; band 2 is
-   the application's own composer and keeps the rules above it unchanged. */
-
-/* Band 1 · recorded totals. WK-46 (1): the band is bounded at 160 so the
-   composer and the work below stay on the first screen. */
+/* ==== WO-WK13, revised by FE-01 (WK-94 / 96) ============================
+   Today is the head of the module list below the composer, not a band above it.
+   One strip, three numbers, no card frame; the gap above it is the 32–48 that
+   separates the entry from the modules that hang off it. */
 .home-top-band {
-  padding: var(--space-6) var(--page-gutter) 0;
+  padding: var(--space-8) var(--page-gutter) 0;
+}
+.home-module-title {
+  font-size: var(--text-section);
+  font-weight: 600;
+  color: var(--muted-strong);
 }
 .home-band-inner {
-  max-width: var(--column);
+  max-width: var(--home-column);
   margin: 0 auto;
   display: grid;
   gap: var(--space-2);
@@ -3030,7 +3040,7 @@ dialog[open]::backdrop {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 2px;
+  gap: 0;
   min-width: 0;
   text-align: left;
   padding: var(--space-2) var(--space-4);
@@ -3038,11 +3048,13 @@ dialog[open]::backdrop {
   border-radius: var(--radius-control);
   background: none;
 }
+/* WK-94 border 审计 · 三个数字是一条 strip，不是三个格子：分隔线取消，
+   间距与对齐已经把它们分开，边线留给 input / selected / floating / error。 */
+.stat-row {
+  gap: var(--space-4);
+}
 .stat-row > .home-stat:first-child {
   padding-left: 0;
-}
-.stat-row > .home-stat + .home-stat {
-  box-shadow: inset 1px 0 0 var(--line);
 }
 .home-stat:hover {
   background: var(--hover);
@@ -3062,7 +3074,7 @@ dialog[open]::backdrop {
   color: var(--muted-strong);
 }
 .stat-value {
-  font-size: calc(25px * var(--text-scale));
+  font-size: calc(20px * var(--text-scale));
   line-height: 1.1;
   letter-spacing: var(--tracking-heading);
   color: var(--ink);
@@ -3080,24 +3092,37 @@ dialog[open]::backdrop {
   line-height: 1.4;
   color: var(--muted-strong);
 }
-/* WK-27 · the planned reading is one line with no control: the day-by-day count
-   has no endpoint and no declared day boundary behind it. */
-.home-planned {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--line);
-  font-size: var(--text-caption);
-  color: var(--muted-strong);
-}
-.home-planned-label {
-  font-weight: 600;
-}
 .home-observed {
   font-size: var(--text-caption);
   color: var(--muted-strong);
+}
+
+/* WK-94 / 视觉审查 §7 · 连接不可达是一行状态，不是一整块横向面板。圆点、一句事实、
+   一个 Retry，诊断在 disclosure 里。它复用既有的状态色，不新增视觉概念。 */
+.connection-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+}
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.connection-line-text {
+  color: var(--ink);
+}
+.connection-diagnosis > summary {
+  cursor: pointer;
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+}
+.connection-diagnosis {
+  flex-basis: 100%;
 }
 
 /* Band 3 · the way back from a filtered band to the three sets. */
@@ -3160,6 +3185,7 @@ dialog[open]::backdrop {
 
 /* WK-11 · One quiet section label --space-8 below the composer, no rule line:
    the rows below already carry their own boundaries. */
+.home-active .home-view { max-width: var(--home-column); margin: 0 auto; }
 .home-active .home-section > .section-heading { border-bottom: 0; padding-bottom: var(--space-2); }
 .home-active .home-section > .section-heading h3 { font-weight: 500; color: var(--muted-strong); }
 
@@ -3838,6 +3864,16 @@ court-symbol {
   max-width: 200px;
 }
 .composer-below .home-choice select:hover { background-color: var(--hover); }
+/* WK-94 · `Ask before editing ▾`：控件自己说全后果，上面不再有一个 File writes 标签。 */
+.composer-below .home-choice-select {
+  border-color: transparent;
+  background-color: transparent;
+  padding: 4px 22px 4px 6px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  max-width: 220px;
+}
+.composer-below .home-choice-select:hover { background-color: var(--hover); }
 .composer-below .permission-mode { padding-left: 6px; }
 .composer-below:not(:has(> *:not([hidden]))) { display: none; }
 /* WK-73 · the project a session writes into is a fact, not a control. */
