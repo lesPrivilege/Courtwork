@@ -270,3 +270,5 @@ Material接续（2026-09-10）：从实际 `f666c09` 消费用户Material Consti
 Data visualization 接续（2026-09-10）：从实际 `42f2ae9` 消费两张Usage截图及完整研究文本，形成 [热图/模型用量合同](design/home-composition-2026-09-10/data-visualization.md)。明确现有接口只有Run日计数与区间usage，缺少每日/model token和匹配下钻；冻结候选组件、相对分级、Top4+Other、coverage与主题边界。仅文档消费，未实现新图表或统计，不改变现有Home运行次数语义。
 
 Disclosure / vocabulary 接续（2026-09-10）：从实际 `c788764` 完整消费两份28结果/3线、38来源/4线材料，登记 [Overlay分型与D0–D4矩阵](design/home-composition-2026-09-10/disclosure-overlay.md) 和 [Semantic→Glyph治理](design/home-composition-2026-09-10/interaction-vocabulary.md)，并接回IC-7。保持Project/Matter、Session/Chat及权限/接受边界；现行24枚Lucide renderer未替换，MingCute仅候选优先。仅文档合同，未新增菜单、telemetry、semantic adapter或specimen，不宣称全量交互验收。
+
+Chat / Attention Assistant施工交接（2026-09-10）：用户明确二者可作为同级产品面注入，Chat可先做临时网页Chatbot前端、后接后端；不以现有Session无Chat子实体阻挡产品面。用户输入文档按与消息同级的attention优先级裁决消费，区分研究引用与实际指令。已形成 [新Astra施工交接](design/home-composition-2026-09-10/construction-handoff.md)，授权新任务轻量上下文、Luna有界探查、Astra前后端合流；不另建Fresh开发线，不宣称功能已完工。

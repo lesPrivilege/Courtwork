@@ -52,3 +52,5 @@ Material continuation: [token draft and component map](material-grammar.md) cons
 Data visualization continuation: [Activity / model-usage grammar](data-visualization.md) consumes both usage screenshots and the chart research. It fixes donor choices, scale/series rules, data coverage and drilldown boundaries. Daily/model token projections and chart specimens remain future work; current Home retains recorded-Run semantics.
 
 Disclosure/overlay and interaction-vocabulary continuation: [family contracts and D0–D4 specimens](disclosure-overlay.md) separate value selection, commands, inline content and rich overlays; [semantic → glyph governance](interaction-vocabulary.md) establishes five admission classes and local terminology boundaries. These are design contracts; specimen boards, semantic adapter and icon-family migration remain pending.
+
+2026-09-10 user decision: [Chat / Attention Assistant construction handoff](construction-handoff.md) authorizes peer product surfaces and frontend-first temporary web Chatbot. Earlier absence-of-Chat-entity statements describe the backend baseline, not a prohibition on this surface.

@@ -64,3 +64,5 @@ Acceptance for future registry wiring: enumerate migrated consumers and semantic
 Checked primary [Lucide naming](https://lucide.dev/contribute/icons/naming-conventions) supports separating visual asset names from product usage; [Carbon Button](https://carbondesignsystem.com/components/button/usage/) supports action labels and recognizable icon-only controls. Earlier MingCute/Lucide primary-source findings are retained in the linked source intake and Home record; supplied counts are not rerun here.
 
 Apple Icons, Atlassian Iconography, VS Code Agents, AI Elements and assistant-ui remain supplied vocabulary/design leads in this intake, not proof that all products share the same object hierarchy. No product vocabulary sweep or default-family acceptance is claimed.
+
+2026-09-10 user decision: [Chat / Attention Assistant construction handoff](construction-handoff.md) authorizes peer product surfaces and frontend-first temporary web Chatbot. Earlier absence-of-Chat-entity statements describe the backend baseline, not a prohibition on this surface.
