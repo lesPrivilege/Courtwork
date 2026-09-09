@@ -1,0 +1,43 @@
+{
+  "format": 1,
+  "provenance": "All strings in this corpus are synthetic and authored for this baseline.",
+  "cases": [
+    {
+      "id": "gfm-structure",
+      "markdown": "# Heading one\n\n## Heading two\n\n- alpha\n  - beta\n- gamma\n\n1. first\n2. second\n\n| Name | Score |\n| --- | ---: |\n| A | 10 |\n| B | 20 |\n\n```js\nconst answer = 42;\n```"
+    },
+    {
+      "id": "unicode-inline",
+      "markdown": "CJK：法院 · emoji 👩🏽‍💻⚖️ · combining e\u0301 / n\u0303\n\nThis is **strong**, *emphasis*, ~~deleted~~, and [visible HTTPS](https://example.test/path?q=1)."
+    },
+    {
+      "id": "paragraphs-repeated",
+      "markdown": "Same paragraph.\n\nSame paragraph.\n\nAcross paragraphs begins here.\n\nAcross paragraphs ends here."
+    },
+    {
+      "id": "unsafe-inputs",
+      "markdown": "<script>window.__markdownPwned = 'script'</script>\n\n<img src=x onerror=\"window.__markdownPwned = 'image'\">\n\n[javascript](javascript:window.__markdownPwned='link') [data](data:text/html,boom) [relative](./asset.png) [plain HTTP](http://plain.example.test/x) [secure HTTPS](https://safe.example.test/x)\n\n![synthetic image](https://safe.example.test/i.png)"
+    },
+    {
+      "id": "unsupported-syntax",
+      "markdown": "Inline math $x^2$ stays source text.\n\n```mermaid\ngraph TD; A-->B\n```\n\nFootnote marker[^1].\n\n[^1]: synthetic note\n\n[relative asset](./diagram.svg)"
+    },
+    {
+      "id": "incomplete-fence",
+      "markdown": "Before fence.\n\n```js\nconst unfinished = '<script>window.__markdownPwned = 1</script>';"
+    },
+    {
+      "id": "incomplete-inline-code",
+      "markdown": "Before `unclosed inline <img src=x onerror=window.__markdownPwned=1>"
+    },
+    {
+      "id": "incomplete-link",
+      "markdown": "Before [unclosed destination](javascript:window.__markdownPwned=1"
+    }
+  ],
+  "longDocument": {
+    "id": "long-200kb",
+    "targetBytes": 204800,
+    "unit": "Paragraph 你好 e\u0301 👩🏽‍💻 with **formatting** and [safe](https://safe.example.test/long).\n\n"
+  }
+}

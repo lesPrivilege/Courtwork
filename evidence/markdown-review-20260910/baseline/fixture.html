@@ -1,0 +1,13 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Courtwork markdown baseline fixture</title>
+<main id="fixture-root"></main>
+<script type="module">
+  import { markdown } from "/web/ui-controls.mjs";
+  window.__markdownPwned = null;
+  window.renderMarkdown = (source, key = "fixture") => {
+    const result = markdown(source, { key });
+    document.querySelector("#fixture-root").replaceChildren(result);
+    return result;
+  };
+</script>

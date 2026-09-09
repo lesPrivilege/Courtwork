@@ -1,0 +1,451 @@
+{
+  "format": 1,
+  "kind": "browser-executed-markdown-baseline",
+  "startedAt": "2026-09-09T16:19:08.851Z",
+  "source": {
+    "renderer": "app/web/ui-controls.mjs#markdown",
+    "corpus": "cases.json",
+    "revisionPairs": "revision-pairs.json",
+    "gitHead": "1f437a98e57cffb17cdde5c3fd864fe38ce8efd5",
+    "files": [
+      {
+        "path": "app/web/ui-controls.mjs",
+        "sha256": "7bed7fba0631ec77941f991d7155cc45ee0084aec08be36957face14a3576db7"
+      },
+      {
+        "path": "app/web/vendor/marked.mjs",
+        "sha256": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31"
+      },
+      {
+        "path": "app/web/vendor/purify.mjs",
+        "sha256": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3"
+      }
+    ]
+  },
+  "environment": {
+    "node": "v25.9.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "port": 8976,
+    "cdpPort": 20276,
+    "cdpTimeoutMs": 5000,
+    "chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "browserVersion": "Chrome/152.0.7977.83"
+  },
+  "cases": [
+    {
+      "id": "gfm-structure",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 1,
+          "h2": 1,
+          "ul": 2,
+          "ol": 1,
+          "pre": 1,
+          "code": 1,
+          "table": 1,
+          "thead": 1,
+          "tbody": 1,
+          "tr": 3,
+          "th": 2,
+          "td": 4
+        },
+        "paragraphTexts": [],
+        "textContent": "Heading one\nHeading two\n\nalpha\nbeta\n\n\ngamma\n\n\nfirst\nsecond\n\n\n\n\nName\nScore\n\n\n\nA\n10\n\n\nB\n20\n\n\nCodeCopy codeconst answer = 42;\n\n",
+        "html": "<h1>Heading one</h1>\n<h2>Heading two</h2>\n<ul>\n<li>alpha<ul>\n<li>beta</li>\n</ul>\n</li>\n<li>gamma</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<div class=\"table-scroll\" tabindex=\"0\" aria-label=\"Scrollable table\"><table>\n<thead>\n<tr>\n<th>Name</th>\n<th>Score</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>A</td>\n<td>10</td>\n</tr>\n<tr>\n<td>B</td>\n<td>20</td>\n</tr>\n</tbody></table></div>\n<div class=\"code-block\"><div class=\"code-toolbar\"><span>Code</span><button class=\"quiet-button icon-only\" type=\"button\" data-focus-key=\"gfm-structure:code:0\" aria-label=\"Copy code\" data-tooltip=\"Copy code\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#copy\"></use></svg><span class=\"sr-only\">Copy code</span></button></div><pre><code>const answer = 42;\n</code></pre></div>\n",
+        "code": [
+          "const answer = 42;\n"
+        ],
+        "toolbar": [
+          "CodeCopy code"
+        ],
+        "codeBlockText": [
+          "CodeCopy codeconst answer = 42;\n"
+        ],
+        "tableWrappers": 1,
+        "images": 0,
+        "scripts": 0,
+        "links": [],
+        "pwned": null
+      }
+    },
+    {
+      "id": "unicode-inline",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 0,
+          "code": 0,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "CJK：法院 · emoji 👩🏽‍💻⚖️ · combining é / ñ",
+          "This is strong, emphasis, deleted, and visible HTTPS."
+        ],
+        "textContent": "CJK：法院 · emoji 👩🏽‍💻⚖️ · combining é / ñ\nThis is strong, emphasis, deleted, and visible HTTPS.\n",
+        "html": "<p>CJK：法院 · emoji 👩🏽‍💻⚖️ · combining é / ñ</p>\n<p>This is <strong>strong</strong>, <em>emphasis</em>, <del>deleted</del>, and <a href=\"https://example.test/path?q=1\" target=\"_blank\" rel=\"noopener noreferrer\">visible HTTPS</a>.</p>\n",
+        "code": [],
+        "toolbar": [],
+        "codeBlockText": [],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [
+          {
+            "text": "visible HTTPS",
+            "href": "https://example.test/path?q=1",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ],
+        "pwned": null
+      }
+    },
+    {
+      "id": "paragraphs-repeated",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 0,
+          "code": 0,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "Same paragraph.",
+          "Same paragraph.",
+          "Across paragraphs begins here.",
+          "Across paragraphs ends here."
+        ],
+        "textContent": "Same paragraph.\nSame paragraph.\nAcross paragraphs begins here.\nAcross paragraphs ends here.\n",
+        "html": "<p>Same paragraph.</p>\n<p>Same paragraph.</p>\n<p>Across paragraphs begins here.</p>\n<p>Across paragraphs ends here.</p>\n",
+        "code": [],
+        "toolbar": [],
+        "codeBlockText": [],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [],
+        "pwned": null
+      }
+    },
+    {
+      "id": "unsafe-inputs",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 0,
+          "code": 0,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "javascript data relative plain HTTP secure HTTPS",
+          ""
+        ],
+        "textContent": "javascript data relative plain HTTP secure HTTPS\n\n",
+        "html": "<p><a>javascript</a> <a>data</a> <a>relative</a> <a href=\"http://plain.example.test/x\" target=\"_blank\" rel=\"noopener noreferrer\">plain HTTP</a> <a href=\"https://safe.example.test/x\" target=\"_blank\" rel=\"noopener noreferrer\">secure HTTPS</a></p>\n<p></p>\n",
+        "code": [],
+        "toolbar": [],
+        "codeBlockText": [],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [
+          {
+            "text": "javascript",
+            "href": null,
+            "target": null,
+            "rel": null
+          },
+          {
+            "text": "data",
+            "href": null,
+            "target": null,
+            "rel": null
+          },
+          {
+            "text": "relative",
+            "href": null,
+            "target": null,
+            "rel": null
+          },
+          {
+            "text": "plain HTTP",
+            "href": "http://plain.example.test/x",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          },
+          {
+            "text": "secure HTTPS",
+            "href": "https://safe.example.test/x",
+            "target": "_blank",
+            "rel": "noopener noreferrer"
+          }
+        ],
+        "pwned": null
+      }
+    },
+    {
+      "id": "unsupported-syntax",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 1,
+          "code": 1,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "Inline math $x^2$ stays source text.",
+          "Footnote marker[^1].",
+          "[^1]: synthetic note",
+          "relative asset"
+        ],
+        "textContent": "Inline math $x^2$ stays source text.\nCodeCopy codegraph TD; A-->B\n\nFootnote marker[^1].\n[^1]: synthetic note\nrelative asset\n",
+        "html": "<p>Inline math $x^2$ stays source text.</p>\n<div class=\"code-block\"><div class=\"code-toolbar\"><span>Code</span><button class=\"quiet-button icon-only\" type=\"button\" data-focus-key=\"unsupported-syntax:code:0\" aria-label=\"Copy code\" data-tooltip=\"Copy code\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#copy\"></use></svg><span class=\"sr-only\">Copy code</span></button></div><pre><code>graph TD; A--&gt;B\n</code></pre></div>\n<p>Footnote marker[^1].</p>\n<p>[^1]: synthetic note</p>\n<p><a>relative asset</a></p>\n",
+        "code": [
+          "graph TD; A-->B\n"
+        ],
+        "toolbar": [
+          "CodeCopy code"
+        ],
+        "codeBlockText": [
+          "CodeCopy codegraph TD; A-->B\n"
+        ],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [
+          {
+            "text": "relative asset",
+            "href": null,
+            "target": null,
+            "rel": null
+          }
+        ],
+        "pwned": null
+      }
+    },
+    {
+      "id": "incomplete-fence",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 1,
+          "code": 1,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "Before fence."
+        ],
+        "textContent": "Before fence.\nCodeCopy codeconst unfinished = '<script>window.__markdownPwned = 1</script>';\n\n",
+        "html": "<p>Before fence.</p>\n<div class=\"code-block\"><div class=\"code-toolbar\"><span>Code</span><button class=\"quiet-button icon-only\" type=\"button\" data-focus-key=\"incomplete-fence:code:0\" aria-label=\"Copy code\" data-tooltip=\"Copy code\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" class=\"ui-icon\"><use href=\"/web/vendor/icons.svg#copy\"></use></svg><span class=\"sr-only\">Copy code</span></button></div><pre><code>const unfinished = '&lt;script&gt;window.__markdownPwned = 1&lt;/script&gt;';\n</code></pre></div>\n",
+        "code": [
+          "const unfinished = '<script>window.__markdownPwned = 1</script>';\n"
+        ],
+        "toolbar": [
+          "CodeCopy code"
+        ],
+        "codeBlockText": [
+          "CodeCopy codeconst unfinished = '<script>window.__markdownPwned = 1</script>';\n"
+        ],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [],
+        "pwned": null
+      }
+    },
+    {
+      "id": "incomplete-inline-code",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 0,
+          "code": 0,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "Before `unclosed inline <img src=x onerror=window.__markdownPwned=1>"
+        ],
+        "textContent": "Before `unclosed inline <img src=x onerror=window.__markdownPwned=1>\n",
+        "html": "<p>Before `unclosed inline &lt;img src=x onerror=window.__markdownPwned=1&gt;</p>\n",
+        "code": [],
+        "toolbar": [],
+        "codeBlockText": [],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [],
+        "pwned": null
+      }
+    },
+    {
+      "id": "incomplete-link",
+      "pass": true,
+      "failures": [],
+      "observation": {
+        "tags": {
+          "h1": 0,
+          "h2": 0,
+          "ul": 0,
+          "ol": 0,
+          "pre": 0,
+          "code": 0,
+          "table": 0,
+          "thead": 0,
+          "tbody": 0,
+          "tr": 0,
+          "th": 0,
+          "td": 0
+        },
+        "paragraphTexts": [
+          "Before [unclosed destination](javascript:window.__markdownPwned=1"
+        ],
+        "textContent": "Before [unclosed destination](javascript:window.__markdownPwned=1\n",
+        "html": "<p>Before [unclosed destination](javascript:window.__markdownPwned=1</p>\n",
+        "code": [],
+        "toolbar": [],
+        "codeBlockText": [],
+        "tableWrappers": 0,
+        "images": 0,
+        "scripts": 0,
+        "links": [],
+        "pwned": null
+      }
+    }
+  ],
+  "revisionFixture": {
+    "checkedOnly": "schema and declared SHA-256 hashes; no renderer or anchor relocation claim",
+    "pairs": [
+      {
+        "id": "prefix-insert",
+        "expectation": "immutable-anchor",
+        "anchor": "anchor:base:prefix-insert:paragraph-0",
+        "beforeSha256": "43cba5c4bd9b49220050c11c8bd14f0c6769a2cede3ec75d51a269376d781670",
+        "afterSha256": "1f1bbe79afedb448fddd3308bcc07ce54a5e6c0ec6bafd7434d951b1a4876e88",
+        "hashesMatch": true
+      },
+      {
+        "id": "move-paragraph",
+        "expectation": "immutable-anchor",
+        "anchor": "anchor:base:move-paragraph:paragraph-0",
+        "beforeSha256": "76a2017b80792ff2ed642faf946c32dd7924972934f71ab478d37af789761d4d",
+        "afterSha256": "8dafd3a315b46a2681ca977d595bfe316885d5a6d86aecb3b16949baa75cf9c6",
+        "hashesMatch": true
+      },
+      {
+        "id": "duplicate-paragraph",
+        "expectation": "ambiguous",
+        "anchor": "anchor:base:duplicate-paragraph:paragraph-1",
+        "beforeSha256": "d200eaf1337e7573315167bcf8dd96e7508b689efa6b9f62983b14791526e198",
+        "afterSha256": "f87fd4016b81d43aa77a2c5d88fdf958974f638446f36fdc9f085f065f7e1d8f",
+        "hashesMatch": true
+      },
+      {
+        "id": "rewrite-paragraph",
+        "expectation": "no-silent-relocation",
+        "anchor": "anchor:base:rewrite-paragraph:paragraph-0",
+        "beforeSha256": "ea7a1e33b063c6ccb922741d97657964644cf4a037185f00ef1615a32555a14b",
+        "afterSha256": "9a22bf902ffba066e3b14c829101a7e9aa1da21c438c767e12c49aade06669c7",
+        "hashesMatch": true
+      },
+      {
+        "id": "delete-paragraph",
+        "expectation": "immutable-anchor",
+        "anchor": "anchor:base:delete-paragraph:paragraph-1",
+        "beforeSha256": "e723c37b0fa3cca6311ba36b1fb866933c5a8868a0904756f9573b6726de8d86",
+        "afterSha256": "16ad68415869fc744cd25d6864bb69b038308d0fba01825b2a115b3d5ec23fee",
+        "hashesMatch": true
+      },
+      {
+        "id": "crlf-normalization",
+        "expectation": "immutable-anchor",
+        "anchor": "anchor:base:crlf-normalization:paragraph-1",
+        "beforeSha256": "9848e780304f0e7b57528f1ed86a4e6e7d65ea5646eb912991cbd9b150008ff2",
+        "afterSha256": "12e8c30abe4b13d894623bacebead24e161c0a3cc6c2fd6a6abbfa89a69dc746",
+        "hashesMatch": true
+      },
+      {
+        "id": "emoji-change",
+        "expectation": "no-silent-relocation",
+        "anchor": "anchor:base:emoji-change:paragraph-0",
+        "beforeSha256": "e298edc81133aa41ed4590735621f0d562f6c1d9be4e37e6c4241e01c1d3cf41",
+        "afterSha256": "564915e08b81d05de271747bcc0ae02c15dca6286d625e6c7bbd68ee0ff1d198",
+        "hashesMatch": true
+      }
+    ]
+  },
+  "longDocument": {
+    "id": "long-200kb",
+    "requestedMinimumBytes": 204800,
+    "sourceBytes": 204816,
+    "renderedTextBytes": 126504,
+    "elapsedMs": 82.79999995231628,
+    "note": "Observed once in this environment; no performance threshold is asserted."
+  },
+  "failures": [],
+  "runtimeExceptions": [],
+  "finishedAt": "2026-09-09T16:19:12.059Z",
+  "pass": true
+}
