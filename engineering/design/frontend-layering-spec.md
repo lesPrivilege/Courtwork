@@ -60,6 +60,8 @@
 
 **FN-11 声明式优先。** 需要新可执行代码时走 Develop 入口；不得把 JavaScript、任意 HTML、全局 CSS 或动态模块 URL 藏在 profile 或 skin 字段（WK-78 用户 skin 只接受 Tier S token）。**FN-12 profile 不自证 Expert。** 保存 resources / rules / uiSlots 只是保存声明式运行配置；可分发 Work Expert 另需工作语义、适用范围、验收与发布权威（Paper 9.6 §8）。两个动作分名："Save my runtime configuration" 与 "Publish a Work Expert"，前者不因后者未成立而禁止。**FN-13 安全边界如实。** 回调式 API、类型与 DOM 容器约定不是沙箱；当前同源 renderer 按受信代码对待；接不受信代码前另验隔离、网络 / 数据访问、消息校验与资源限制（harness-core §3 同一裁定）。
 
+**2026-09-09 修订（WK-90）：** Configure 面的顶层分组改为 General / Appearance / Models / Tools & Integrations / Skills / Memory / Permissions / Keyboard / Developer；下表的意图分组保留为对象归属，落位改为 Developer › Runtime（Overview、Composition）、Skills（Instructions & context）、Tools & Integrations（Capabilities & connections）、Permissions 与 Models（Permissions & environment）。用户可见词表以 [intake-round-3 WK-89](../mvp/execution/work-surface-kit/intake-round-3.md) 为准。
+
 ### 3.1 Runtime 组按意图分组（WK-82，改写 WK-63 导航）
 
 | 意图分组 | 收纳 | 必须解释的区别 | WK-63 节点 |

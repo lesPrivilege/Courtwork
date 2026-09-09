@@ -69,6 +69,38 @@
 |---|---|
 | WK-87 | Opus 交付 `claude/wk12-settings` `7599a91`（基线 `429fdd6`）：Settings 整页壳（L3、侧栏保留、分组导航 + 搜索、hash 深链、Back / Escape 回到来处）、五组、外观自定义（Scheme / Skin / Text size / Code font / Reduced motion，用户 skin 按 lint 规则校验）、本设备偏好首帧应用、Runtime 意图分组与 WK11 挂载点；204/204，FE-T09 / T10 作者通过。裁定：预览收为一块（随 WK11）；保留 This session 行；用户 skin 对比度警告（随 WK11）；内联偏好脚本接受；BE-16 登记。复核见 [delivery-wk12 §13](delivery-wk12.md)。 |
 
+## 4g. 两份独立审查的裁决 → WK-88 … WK-95（2026-09-09）
+
+输入：[语义审查](inputs/review-semantics-2026-09-09.md)、[视觉审查](inputs/review-visual-2026-09-09.md)，均为 Request changes 且不推翻视觉骨架。工单见 [WO-FE-round4](work-orders/WO-FE-round4.md)。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-88 | **处置原则。** 保留视觉骨架、Lucide 静态 vendor 与 glyph 契约、三层视觉层级、Settings 整页壳；语义与 IA 按成熟 agent 语义收敛；Runtime / Session / adapter / compat / composition 留在架构与 Developer 层；Matter 负责持久治理，Chat / Work 只是交互模式。材质 / 动效在语义收敛后。 |
+| WK-89 | **用户可见词表（替代 copy-convention §3，FE-01 改写）。** Chat（未绑定 Matter 的会话）· Work（绑定 Matter 的会话）· Project · Run（Work 内）· Session 只在 Developer / 代码 · Workspace 只指真实文件夹绑定 · Models / Provider / Connection · MCP servers · Skills · Plugins · Extension 只在 Developer · 一次动作 = Approval（Approve this write · Approve · Deny）· 文件模式 = File access（Ask before editing · Allow edits · Read only）· Theme（Light / Dark / System）· Skin 词退役，Palette 作 Appearance 高级行 · Instructions / Skills / Sources 取代泛用 Context · Memory（Matter memory · Global memory · Sources · Temporary chat）。Paper 术语仍只在命题段；public-copy §2 随 FE-01 同步。 |
+| WK-90 | **Settings IA。** General / Appearance / Models / Tools & Integrations / Skills / Memory / Permissions / Keyboard / Developer。WK11 五节搬家不改内容：Overview + Composition → Developer › Runtime；Instructions & context → Skills；Capabilities & connections → Tools & Integrations；Permissions & environment → Permissions 与 Models。Memory 组一句用户世界句子，无控件（待 BE-19）。frontend-layering-spec §2.1 / §3.1 的 Runtime 顶层组与意图分组据此修订为 Developer 内分组。WK11 在飞，按现契约完成后由 FE-01 搬家。 |
+| WK-91 | **Provider UX：Pi 为 capability substrate，DSH 为 interaction reference。** 三条 happy path、Test → Fetch models → Save、内部 provider ID、compat 入 Advanced、credential 与 endpoint 分离、已有会话固定 `runtime.bound`；同一 Add → Configure → Test → Review permissions → Save 模式用于 MCP。后端 BE-17（对未保存连接 Fetch models）、BE-18（Test connection）登记，未交付前不画按钮。 |
+| WK-92 | **Chat / Work / Matter。** Chat = 未绑定会话，Work = 绑定 Matter 的会话，Continue in Work = 既有绑定路由，不复制；Project 为容器，Workspace 可选。Memory 前端契约按审查 §4 采用词与 scope；实现待 BE-19（memory adapter）与 BE-20（Temporary chat）。 |
+| WK-93 | **Primitive 台账。** 派 Sonnet EX-WK8 逐 primitive 标 REUSE / REVERSE / REFERENCE / PROTOCOL / AVOID-COUPLING（assistant-ui、AI Elements、Agent Elements、BoardUI、CopilotKit、OpenHands / Suna、Gatewerk / AgentGate / FlowGate、agenttrace-react、MCP / AG-UI）；Opus 据此做 Composer / Thread / Tool / Approval / Artifact / Trace 行为审计与修正，实现仍原生 ES module，不引 React。 |
+| WK-94 | **Chrome 与 Home 层级。** Lucide 冻结、brand / domain SVG 分库（已是）；sidebar header：`+ New project` 移到 PROJECTS heading，desktop 去 `×`，collapse 用 `panel-left`，`×` 只在 overlay；80px window-control safe area 升为 shell layout contract；Home 三带弱 / 强 / 中，StatTile 为一条 strip 内三个数字，Heatmap Planned 行从 Home 移除（实现态文案不上 production Home），空态 31vh 留白退役为带距（composer 唯一锚点；此前留用户的一项据此收口，用户可否决）；runtime 不可达一行 + Retry；`Local test` 只说一次（header badge 退役）；`File writes  Ask` → `Ask before editing ▾`；尺寸 token 表入 ui-composition-standard；border 只留 input / selected / floating / error。 |
+| WK-95 | **次序。** WK11 完成并合流 → FE-01（词表 + IA + chrome + Home 层级）→ FE-02（Models & Connections）→ FE-03（Chat / Work / Memory shell）→ FE-04（primitive 审计；EX-WK8 可先行并行）。四单之后才进材质 / 动效。 |
+
+## 4h. Composition law：Home / Dashboard / Work 三种版面状态 → WK-96 / WK-97
+
+输入：[版面参考与法则草案](inputs/composition-references-2026-09-09.md)（用户"仅供参考"）。与 WK-94 一致并更精确，收为可检查约束；替代 WK-46 的带高数值与 WK13 的"三带等权"读法。
+
+| 编号 | 裁定 |
+|---|---|
+| WK-96 | **三种 composition state 冻结。** Home = 中心向下：orientation（≤120，只放 hero 句与一行状态，无 greeting 人格化）→ composer（唯一 L1 锚点，宽 760–880，初始 92–112，中心不低于主区高 55%，其上非 chrome 内容 ≤180）→ standing context 行 → 32–48 → 下部 modules（Today 三数字 strip、Continue 行、Activity / Calendar 等 compact card，ragged layout，不填满 grid；首屏下半部必须有可见 continuity 内容）。WK13 的三个 StatTile 从上带移到 composer 下方作 Today 模块头，上带不再承载数字。Dashboard = 可组合背景：card 是模块与编排单位，card 内无框内容，禁止 nested card；Calendar 等窄时 compact，展开进独立 surface。Work = 顶部向下推进：Home dashboard primitive 全部退出，reading column 700–780 为 L1，composer 沉底同 measure，右侧 contextual surface 有内容才出现，正文 measure 不低于 640，不足则 overlay / collapse。层级判断只问"是否真的跨了一层"（沿 WK-69 L0–L3）。以上数值为产品配置，进 `ui-composition-standard.md`；约束进 Home / Work 几何断言。 |
+| WK-97 | **Composer 两种 variant，同一 primitive。** Home：primary entry、optical center、可略宽于阅读列、初始 96–112、controls 可完整。Work：continuation control、viewport 底部、与 reading measure 同宽、初始 80–96、controls 压成单层、不承担 hero。不新造第二个 composer 组件。WK-58 桌面居中 / 会话沉底与 WK-73 anatomy 不变。 |
+
+FE-01 第 4 项按本节实施；参考图登记标签：Fable / Cowork Home = Home vertical composition / composer prominence / modules-below-entry；ChatGPT Work = active-work reading measure / bottom composer / dashboard evacuation。
+
+## 4i. WK11 复核 → WK-98
+
+| 编号 | 裁定 |
+|---|---|
+| WK-98 | Opus 交付 `claude/wk11-workbench` `644cc43`（基线 `14ebd61`）：Runtime 目录入 Settings 五个意图节，四层 Source / Requested / Effective / Bound，profile / policy 编辑、权限解释、Context inspector、Configurable / Inventory、`/` 查找、FN-16 冻结无"排队"，host 清理（删 `runtimeControlRequest`），WK-87 两项；208/208，RC 20 / 9 / 36，FE-T03 / T04 作者通过。裁定：接受删除 L2 Runtime 面板（导轨卡保留粗读数）；RC 断言变更按理由接受；裸 `null` 与深链 401 竞态列 FE-01 首项；BE-13 未复现保留。复核见 [delivery-wk11 §17](delivery-wk11.md)。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
