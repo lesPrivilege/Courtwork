@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import os
 import json
+import re
 import sqlite3
 import sys
 import threading
@@ -40,8 +41,10 @@ from core import (
 )
 
 
-APP_SCHEMA_VERSION = 2
-CORE_SCHEMA_VERSION = 1
+from file_candidates import FILE_SCHEMA, FILE_CONTRACT
+
+APP_SCHEMA_VERSION = 3
+CORE_SCHEMA_VERSION = 2
 RUN_STATUSES = frozenset({"running", "stopping", "completed", "failed", "cancelled", "unknown"})
 ACTIVE_RUN_STATUSES = frozenset({"running", "stopping"})
 PUBLIC_PROVIDER_KEYS = frozenset({
@@ -104,7 +107,10 @@ def now_iso() -> str:
 
 
 def send(value: dict[str, Any]) -> None:
-    sys.stdout.write(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n")
+    line = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n"
+    if len(line.encode('utf-8')) > 1_000_000 or len(line.encode('utf-16-le')) // 2 > 1_000_000:
+        line = canonical_json({'id':value.get('id'),'ok':False,'error':{'code':'FILE_LIMIT','detail':'response wire limit'}}) + '\n'
+    sys.stdout.write(line)
     sys.stdout.flush()
 
 
@@ -186,6 +192,46 @@ def required_tables(conn: sqlite3.Connection) -> set[str]:
     return {str(row[0]) for row in rows}
 
 
+def validate_owned_schema(conn: sqlite3.Connection, app_version: str, *, complete: bool = False) -> None:
+    """Validate every owned table before migration and again before commit.
+
+    PRAGMA shapes cover column types/defaults/nullability, PK/unique keys and
+    foreign keys. CHECK expressions and the membership-retention trigger are
+    also pinned; CREATE IF NOT EXISTS must never hide a malformed old table.
+    """
+    reference = sqlite3.connect(':memory:')
+    try:
+        reference.executescript(SCHEMA)
+        for statement in FILE_SCHEMA + APP_SCHEMA: reference.execute(statement)
+        file_tables = {'file_run_basis','candidate_file_bundle','candidate_file','candidate_verification','artifact_file_bundle'}
+        optional_v1 = {'source_history','app_run_context','app_work_data','app_work_scope'}
+        known = required_tables(reference) - {'sqlite_sequence'}
+        expected = known if complete or app_version == '3' else known - file_tables
+        present = required_tables(conn)
+        if app_version in {'1','2'} and not complete and present & file_tables:
+            raise CoreError('SCHEMA_INVALID','file tables found in an older schema')
+        required = expected - (optional_v1 if app_version == '1' and not complete else set())
+        if not required.issubset(present):
+            raise CoreError('SCHEMA_MISSING',f'missing owned tables: {sorted(required-present)}')
+        def shape(db, table):
+            columns = [tuple(r)[1:] for r in db.execute(f'PRAGMA table_info({table})')]
+            foreign = sorted(tuple(r)[1:] for r in db.execute(f'PRAGMA foreign_key_list({table})'))
+            unique = sorted((r[3],tuple(x[2] for x in db.execute(f'PRAGMA index_info({r[1]})'))) for r in db.execute(f'PRAGMA index_list({table})') if r[2])
+            sql = db.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?",(table,)).fetchone()[0]
+            checks = sorted(re.sub(r'\s+','',v).lower() for v in re.findall(r'CHECK\s*\(([^;]+?)\)',sql,re.I))
+            return columns,foreign,unique,checks
+        for table in expected & present:
+            if shape(conn,table) != shape(reference,table):
+                raise CoreError('SCHEMA_INVALID',f'unsupported {table} schema')
+        actual = conn.execute("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='retain_source_membership'").fetchone()
+        wanted = reference.execute("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='retain_source_membership'").fetchone()
+        normalize = lambda v: re.sub(r'\s+','',v).lower().replace('ifnotexists','')
+        if (actual is None and not (app_version=='1' and not complete)) or (actual is not None and normalize(actual[0])!=normalize(wanted[0])):
+            raise CoreError('SCHEMA_INVALID','source membership trigger is unsupported')
+    finally:
+        reference.close()
+
+
 def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
     tables = required_tables(store.conn)
     core_tables = {"meta", "matter", "source", "source_set", "candidate", "artifact", "request_result", "decision", "audit", "event"}
@@ -196,15 +242,21 @@ def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
     old = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if "app_meta" in tables else None
     if not allow_initialize and old is None:
         raise CoreError("SCHEMA_INVALID", "existing database has no application schema version")
-    if old and old[0] not in {"1", "2"}:
+    if old and old[0] not in {"1", "2", "3"}:
         raise CoreError("SCHEMA_NEWER", "unsupported app schema")
-    if old and old[0] == "1":
-        store.backup_to(str(store.conn.execute("PRAGMA database_list").fetchone()[2]) + ".pre-core-v2.bak")
+    if old:
+        validate_owned_schema(store.conn,old[0])
+    if old and old[0] in {"1", "2"}:
+        backup = Path(str(store.db_path) + ".pre-file-core-v2-app-v3.bak")
+        if backup.exists(): raise CoreError("SCHEMA_INVALID", "migration backup already exists; restore or inspect it explicitly")
+        store.backup_to(backup)
     store.conn.execute("BEGIN IMMEDIATE")
     try:
         store.conn.execute("CREATE TABLE IF NOT EXISTS source_history (matter_id TEXT NOT NULL,source_id TEXT NOT NULL,source_version INTEGER NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(matter_id,revision,source_id),FOREIGN KEY(matter_id) REFERENCES matter(id),FOREIGN KEY(source_id,source_version) REFERENCES source(id,version))")
         store.conn.execute("INSERT OR IGNORE INTO source_history SELECT matter_id,source_id,source_version,revision FROM source_set")
         store.conn.execute("CREATE TRIGGER IF NOT EXISTS retain_source_membership AFTER INSERT ON source_set BEGIN INSERT OR IGNORE INTO source_history VALUES(NEW.matter_id,NEW.source_id,NEW.source_version,NEW.revision); END")
+        for statement in FILE_SCHEMA:
+            store.conn.execute(statement)
         for statement in APP_SCHEMA:
             store.conn.execute(statement)
         expected_columns = {
@@ -227,12 +279,15 @@ def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
                 version = int(existing[0])
             except (TypeError, ValueError) as exc:
                 raise CoreError("SCHEMA_INVALID", "invalid app schema version") from exc
-            if version not in {1, APP_SCHEMA_VERSION}:
+            if version not in {1, 2, APP_SCHEMA_VERSION}:
                 raise CoreError("SCHEMA_NEWER", f"unsupported app_schema_version={version}")
         store.conn.execute(
             "INSERT OR REPLACE INTO app_meta(key,value) VALUES('schema_version',?)",
             (str(APP_SCHEMA_VERSION),),
         )
+        validate_owned_schema(store.conn,str(APP_SCHEMA_VERSION),complete=True)
+        store.conn.execute("UPDATE meta SET value=? WHERE key='schema_version'",(str(CORE_SCHEMA_VERSION),))
+        store.conn.execute(f"PRAGMA user_version={CORE_SCHEMA_VERSION}")
         store.conn.commit()
     except Exception:
         store.conn.rollback()
@@ -272,14 +327,18 @@ def open_or_initialize(db_path: str | Path) -> Store:
             store.conn.execute(f"PRAGMA user_version={CORE_SCHEMA_VERSION}")
         else:
             user_version = int(store.conn.execute("PRAGMA user_version").fetchone()[0])
-            if user_version != CORE_SCHEMA_VERSION:
+            if user_version not in {1, CORE_SCHEMA_VERSION}:
                 raise CoreError("SCHEMA_UNSUPPORTED", f"unsupported Core user_version={user_version}")
             meta_rows = {
                 row["key"]: row["value"]
                 for row in store.conn.execute("SELECT key,value FROM meta").fetchall()
             }
-            if meta_rows.get("mode") != "b0" or meta_rows.get("schema_version") != str(CORE_SCHEMA_VERSION):
+            if meta_rows.get("mode") != "b0" or meta_rows.get("schema_version") != str(user_version):
                 raise CoreError("SCHEMA_UNSUPPORTED", "Core meta is not supported B0 schema v1")
+        if existed:
+            av = store.conn.execute("SELECT value FROM app_meta WHERE key='schema_version'").fetchone() if 'app_meta' in required_tables(store.conn) else None
+            if av and ((user_version == 1 and av[0] == '3') or (user_version == 2 and av[0] != '3')):
+                raise CoreError('SCHEMA_INVALID','Core/app schema pair mismatch')
         ensure_app_schema(store, allow_initialize=not existed)
         recover_inflight_runs(store)
     except Exception:
@@ -407,6 +466,9 @@ def matter_view(store: Store, matter_id: str) -> dict[str, Any]:
             "SELECT * FROM app_run WHERE matter_id=? ORDER BY started_at,id", (matter_id,)
         ).fetchall()
     ]
+    for candidate in state['candidates']:
+        if candidate['contract_version'] == FILE_CONTRACT:
+            candidate['files'] = store.file_summary(candidate['id'])
     domain = store.conn.execute("SELECT domain_json FROM app_work_data WHERE matter_id=?",(matter_id,)).fetchone()
     return {
         "domain": None if domain is None else parse_json(domain["domain_json"]),
@@ -685,6 +747,17 @@ def read_artifact(store: Store, payload: dict[str, Any]) -> dict[str, Any]:
 
 def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) -> Any:
     op = request.get("op")
+    if op == 'initialize_file_run':
+        p=request_payload(request,{'context','input'})
+        return store.initialize_file_run(p['context'],p['input'])
+    if op == 'mark_file_input':
+        p=request_payload(request,{'context','reason'})
+        return store.mark_file_input(p['context'],p['reason'])
+    if op == 'save_file_candidate':
+        p=request_payload(request,{'context','payload','files'})
+        return store.save_file_candidate(p['payload'],p['files'],p['context'])
+    if op == 'file_query':
+        return store.file_query(request_payload(request,{'matter_id','context','kind','candidate_id','artifact_id','path','offset','limit'}))
     if not isinstance(op, str):
         raise CoreError("INVALID", "missing operation")
     if op == "create_matter":
@@ -744,6 +817,8 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         return {"schemaVersion":1,"matters":[{"extensionId":r["extension_id"],"matter":matter_view(store,r["matter_id"])["matter"]} for r in rows]}
     if op == "revise_candidate":
         p = request_payload(request, {"matter_id", "candidate_id", "new_candidate_id", "base_version", "proposal"})
+        if store._matter_row(p['matter_id'])['contract_version'] == FILE_CONTRACT:
+            raise CoreError('CONTRACT_UNSUPPORTED','file revisions require a new recorded Run')
         parent = store._candidate_row(p["candidate_id"])
         matter = store._matter_row(p["matter_id"])
         if parent["matter_id"] != p["matter_id"]:
@@ -813,6 +888,8 @@ def main() -> int:
             request: dict[str, Any] | None = None
             try:
                 request = parse_json(line)
+                if request.get('op') in {'initialize_file_run','mark_file_input','save_file_candidate','file_query'} and (len(line.encode('utf-8'))>1_000_000 or len(line.encode('utf-16-le'))//2>1_000_000):
+                    raise CoreError('FILE_LIMIT','request wire limit')
                 if not isinstance(request, dict):
                     raise CoreError("INVALID", "request must be object")
                 if set(request) < {"id", "op"}:

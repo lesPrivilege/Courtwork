@@ -25,3 +25,11 @@ AM规则探索阶段只读，后续写权另记。ES写权沿 [ES-00](../2026-09
 ## 接收与回退
 
 小单、Core主单分别固定代码SHA、作者与非作者反例、全量/smoke、未检项。简单读取/依赖测试不升级为产品接受。Core2/app3采用ES原合同备份/旧host拒绝/独立恢复，runtime4仍不与旧host共享升级目录；是否发生迁移以实现回执为准。完成后来源Astra核对最新main再合流，G1–G5不自动关闭。
+
+## ES-01 精确接缝补充（Astra）
+
+实际源码核对后追加 `app/core/file_candidates.py`：同一 Core Store 的文件事务/检查/查询模块，SQLite仍唯一owner；两个file reader仅在已授权的 `app/extensions/evidence-memo/index.mjs` 工厂实例声明，基础manifest保留给NDA继承；旧Matter不安装这些工具。不增加catalog入口、绑定UI或静态路径。Astra拥有Core、service、Pi与迁移；Luna有界负责file policy/adapter，非作者复核另列。
+
+## 本分支交付
+
+BE-30代码 `757ea76`、独验 `3c8e8b1`；AM import边界与正负反例 `fe73001`。ES-01已实现完整后端纵切，作者277/277与smoke通过；[实施回执](../../../evidence/backend-dispatch-20260909/es01-implementation.md)列能力和未检项，固定SHA后补独验。Attention按用户安排在ES稳定交付后另开fresh Astra任务；main/current/台账仍由来源Astra整合。

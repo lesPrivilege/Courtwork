@@ -160,6 +160,9 @@ export async function createSessionRun({
   onEvent,
   onNotice,
   compaction = {},
+  beforeTool,
+  beforeExtraInput,
+  beforeInitialInput,
 }) {
   const compactionPolicy = resolveCompactionPolicy(model, compaction);
   const { session } = await createAgentSession({
@@ -168,7 +171,11 @@ export async function createSessionRun({
     modelRuntime,
     model,
     noTools: "builtin",
-    customTools: [...customTools].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+    customTools: customTools.map(tool => ({...tool, execute: async (...args) => {
+      await drain();
+      await beforeTool?.(tool.name,args[1]);
+      return tool.execute(...args);
+    }})).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
     resourceLoader: createEmptyResourceLoader(systemPrompt),
     sessionManager,
     settingsManager: SettingsManager.inMemory({ compaction: {
@@ -249,6 +256,7 @@ export async function createSessionRun({
         break;
       }
       case "compaction_start":
+        forward(beforeExtraInput, "compaction");
         compactionCount += 1;
         forward(onNotice, { kind: "compaction_start", reason: event.reason });
         if (compactionCount === compactionPolicy.maxCompactions) {
@@ -286,6 +294,19 @@ export async function createSessionRun({
     forward(onEvent, event, session);
   });
 
+  // These public input methods are unused by the current HTTP service, but
+  // preserve coverage before a future host forwards steering or custom text.
+  const sendFrozenContext = session.sendCustomMessage.bind(session);
+  for (const method of ['steer','followUp','sendCustomMessage']) {
+    if (typeof session[method] !== 'function') continue;
+    const original = session[method].bind(session);
+    session[method] = async (...args) => {
+      await beforeExtraInput?.(`host:${method}`);
+      return original(...args);
+    };
+  }
+  // The initial host context has already been frozen by the service. Avoid
+  // routing this one known input through the extra-input wrapper.
   let task;
   const run = () => {
     task ??= (async () => {
@@ -300,7 +321,7 @@ export async function createSessionRun({
             .find((message) => message.role === "custom" && message.customType === "runtime.context");
           const content = `Current host task context (latest update applies; it does not grant permissions):\n${currentContext || "No domain extension is active."}`;
           if ((currentContext || previous) && previous?.content !== content) {
-            await session.sendCustomMessage({ customType: "runtime.context", content, display: false }, { triggerTurn: false });
+            await sendFrozenContext({ customType: "runtime.context", content, display: false }, { triggerTurn: false });
           }
           if (!stopped) await session.prompt(input);
         }
@@ -318,6 +339,19 @@ export async function createSessionRun({
     return task;
   };
 
+  try {
+    await beforeInitialInput?.({
+      systemPrompt: session.systemPrompt,
+      currentContext: JSON.stringify({
+        message: `Current host task context (latest update applies; it does not grant permissions):\n${currentContext || "No domain extension is active."}`,
+        tools: [...customTools].sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+          .map(({name,description,parameters}) => ({name,description,parameters})),
+      }),
+      cleanHistory: session.state.messages.length === 0,
+    });
+  } catch (error) {
+    unsubscribe(); session.dispose(); throw error;
+  }
   return { session, abort, run, getUsage: () => ({ ...counters, missing: usageMissing }) };
 }
 

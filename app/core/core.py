@@ -307,7 +307,10 @@ class RunContext:
         _ident(self.run_id, "run_context.run_id")
 
 
-class Store:
+from file_candidates import FileCandidateMixin, FILE_SCHEMA, FILE_CONTRACT
+
+
+class Store(FileCandidateMixin):
     """B0 State+audit or B1 event-authority+projection store."""
 
     def __init__(self, db_path: str | Path, mode: str = "b0", hooks: HookController | None = None) -> None:
@@ -321,7 +324,7 @@ class Store:
         self.conn.row_factory = sqlite3.Row
         self._configure()
         schema_version = self.conn.execute("PRAGMA user_version").fetchone()[0]
-        if schema_version > 1:
+        if schema_version > 2:
             self.conn.close()
             raise CoreError("SCHEMA_NEWER", f"unsupported user_version={schema_version}")
 
@@ -346,9 +349,10 @@ class Store:
         store = cls(db, mode=mode)
         fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
         store.conn.executescript(SCHEMA)
+        for statement in FILE_SCHEMA: store.conn.execute(statement)
         store.conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('mode',?)", (mode,))
-        store.conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version','1')")
-        store.conn.execute("PRAGMA user_version=1")
+        store.conn.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('schema_version','2')")
+        store.conn.execute("PRAGMA user_version=2")
         initial = fixture["initial"]
         if initial_obligations is not None:
             initial = dict(initial)
@@ -437,6 +441,8 @@ class Store:
 
     def save_candidate(self, payload: dict[str, Any], context: RunContext | None = None) -> dict[str, Any]:
         validate_candidate_payload(payload)
+        if payload["contract_version"] == FILE_CONTRACT:
+            raise CoreError("CONTRACT_UNSUPPORTED", "file candidate requires recorded import")
         if context is not None:
             if (payload["matter_id"] != context.matter_id
                     or payload["run_id"] != context.run_id):
@@ -793,6 +799,8 @@ class Store:
                 raise CoreError("STALE_INPUT", "candidate contract/source revision is stale")
             candidate_obj = self._candidate_from_row(candidate)
             if request["action"] == "accept":
+                if candidate["contract_version"] == FILE_CONTRACT:
+                    self.check_file_accept(candidate["id"])
                 self._verify_evidence(candidate_obj["evidence"], matter["source_version"], request["matter_id"])
             old_obligations = parse_json(matter["obligations_json"])
             new_obligations = self._check_obligations(old_obligations, candidate_obj["obligations"], request["action"],
@@ -827,6 +835,8 @@ class Store:
                     "INSERT INTO artifact(id,candidate_id,candidate_hash,content,content_digest) VALUES(?,?,?,?,?)",
                     (artifact_id, candidate["id"], candidate["payload_hash"], content, content_digest),
                 )
+                if candidate["contract_version"] == FILE_CONTRACT:
+                    self.conn.execute("INSERT INTO artifact_file_bundle VALUES(?,?)", (artifact_id,candidate["id"]))
                 self.hooks.hit("after_artifact")
                 artifact = self._active_artifact(artifact_id)
                 if artifact is None or sha256_text(artifact["content"]) != artifact["content_digest"]:
