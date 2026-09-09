@@ -14,3 +14,4 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | M-8 | Work 消息流 | 每条消息、每类工具都是框，层级过平（图 1 对照） | minor | 1 | message container vocabulary | false | WK-117 (b)；CC-W 不默认全部卡片化 |
 | M-9 | 决定类按钮 | `Sending…` 换词改变按钮宽度，邻居位移（Atlas button 行：loading 保持宽度与焦点） | minor | 1 | in-flight label vs width | true | WK-118 (d)；CC-W 第 0 项以静止态标签预留 min-width |
 | M-10 | Tooltip | 单例 tooltip 固定 400ms 延迟，无"首个延迟、相邻即时"的分组行为（Atlas Tooltip 行；`ui-controls.mjs:310`） | minor | 1 | tooltip provider shared delay | true | WK-119 补充，用户 2026-09-09 同意；CC-W 第 0 项 |
+| M-11 | 全站字阶与控件密度 | frontier 桌面端文本更收敛、字号与按钮更小更细，层级更清（用户 2026-09-09，S12）。现状：body 14 / label 13 / meta 12 / caption 11，`--control` 32（触控 44），primary 字重 550，三档 `--text-scale`（0.929 / 1 / 1.143）只整体缩放不改层级 | major | 1 | typography ramp & control density (systemic, not local) | false | 先写约束表再变体：候选单 FE-05a 字阶与密度，排 FE-05 材质之前（材质在密度定型后再消融） |
