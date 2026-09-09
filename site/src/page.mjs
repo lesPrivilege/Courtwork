@@ -35,7 +35,7 @@ const STATUS_CLASS = (status) =>
 export function renderPage({ identity, evidence, recording, diagram, media }) {
   // Media are addressed by id, so a picture the copy asks for and the capture
   // never produced stops the build instead of becoming a broken image.
-  const shot = (id, { alt, caption, theme = "light", viewport = "1440x900" }) => {
+  const shot = (id, { alt, caption, theme = "light", viewport = "1440x900", eager = false }) => {
     const entries = media.media.filter((entry) => entry.id === id);
     const light = entries.find((entry) => entry.viewport === viewport && entry.theme === theme);
     if (!light) throw new Error(`media ${id} (${viewport}, ${theme}) was never captured`);
@@ -46,7 +46,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
       : "";
     return `<figure class="shot">
           <picture>${source}
-            <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="lazy" decoding="async" />
+            <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="${eager ? "eager" : "lazy"}" decoding="async" />
           </picture>
           <figcaption>${caption}</figcaption>
         </figure>`;
@@ -105,6 +105,7 @@ function hero(fill, shot) {
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
           .join("")}</p>
 ${shot("M1", {
+          eager: true,
           alt: "CourtWork Home：两个 Project，Today 带三格，一个 Chat 在 Waiting for you。",
           caption: inline(
             "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Home：两个 Project，一个 Chat 在等待一次写入批准。",
@@ -262,7 +263,11 @@ function evidenceSection(fill, evidence) {
           <tbody>
             ${EVIDENCE.list
               .map((row) => {
-                const entry = row.item === "Tests" ? escape(testEntry) : entryLink(row.entry, fill);
+                const entry = row.item === "Tests"
+                  ? escape(testEntry)
+                  : row.href
+                    ? `<a href="${escape(row.href)}">${escape(row.entry)}</a>`
+                    : entryLink(row.entry, fill);
                 return `<tr><th scope="row" lang="en">${escape(row.item)}</th><td>${inline(row.text, fill)}</td><td>${entry}</td></tr>`;
               })
               .join("\n            ")}

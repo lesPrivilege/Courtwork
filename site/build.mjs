@@ -17,6 +17,7 @@ import { copyProductModules } from "./scripts/vendor-product.mjs";
 import { git, release, ROOT, SITE } from "./scripts/release.mjs";
 import { renderPage } from "./src/page.mjs";
 import { renderSpecimenPage } from "./src/specimen-page.mjs";
+import { renderReadme } from "./src/readme.mjs";
 
 const DIST = path.join(SITE, "dist");
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
@@ -109,6 +110,22 @@ await emit("index.html", renderPage({ identity, evidence, recording, diagram, me
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
 await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
 if (await exists(path.join(SITE, "media"))) await emitTree(path.join(SITE, "media"), "media");
+
+// ---- the README --------------------------------------------------------------
+// The README shares its headline, claim table and commands with the page, from
+// the same source, so it is generated rather than kept in step by hand. The
+// build refuses to leave a stale one behind: pass --write-readme to update it.
+const readme = renderReadme({ identity, evidence });
+const readmePath = path.join(ROOT, "README.md");
+const current = await readFile(readmePath, "utf8").catch(() => null);
+if (current !== readme) {
+  if (process.argv.includes("--write-readme")) {
+    await writeFile(readmePath, readme);
+    console.error("README.md rewritten from site/src/copy.mjs");
+  } else {
+    throw new Error("README.md is out of step with site/src/copy.mjs; run: node site/build.mjs --write-readme");
+  }
+}
 
 // ---- publish manifest -------------------------------------------------------
 const manifest = {

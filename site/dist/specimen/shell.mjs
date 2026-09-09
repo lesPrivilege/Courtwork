@@ -110,10 +110,14 @@ const stepButtons = STEPS.map((entry, position) => {
   return button;
 });
 stepList.append(...stepButtons);
-// Left and right walk the step list, which is what a tablist promises.
+// Left and right walk the step list, which is what a tablist promises. The
+// walk starts from whichever step has focus, not from whichever is selected:
+// the two can differ once a reader has tabbed into the strip.
 stepList.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowRight") go(index + 1 === STEPS.length ? 0 : index + 1);
-  else if (event.key === "ArrowLeft") go(index === 0 ? STEPS.length - 1 : index - 1);
+  const from = stepButtons.indexOf(document.activeElement);
+  const at = from === -1 ? index : from;
+  if (event.key === "ArrowRight") go(at + 1 === STEPS.length ? 0 : at + 1);
+  else if (event.key === "ArrowLeft") go(at === 0 ? STEPS.length - 1 : at - 1);
   else return;
   event.preventDefault();
   stepButtons[index].focus();

@@ -131,7 +131,12 @@ export const EVIDENCE = {
       entry: "PAPER.md",
     },
     { item: "Decisions", text: "架构裁决，从第一条起可读。", entry: "engineering/decisions.md" },
-    { item: "Paper revision", text: "论文的版本级变化。", entry: "CHANGELOG.md（Schema Engineering）" },
+    {
+    item: "Paper revision",
+    text: "论文的版本级变化。",
+    entry: "CHANGELOG.md（Schema Engineering）",
+    href: "https://github.com/lesPrivilege/Schema-Engineering/blob/main/CHANGELOG.md",
+  },
   ],
   evalIntro:
     "固定结构，每问只显示发布 SHA 下真实存在的答案，缺者写 not yet。有界模型 pilot 未跑之前不出现任何对比分数；E 与 S 的通过数只从发布 SHA 上重跑生成的记录文件读取。",

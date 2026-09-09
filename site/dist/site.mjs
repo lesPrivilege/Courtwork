@@ -21,7 +21,8 @@ for (const group of document.querySelectorAll("[data-tabs]")) {
       const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
       if (!step) return;
       event.preventDefault();
-      const next = (index + step + tabs.length) % tabs.length;
+      const from = tabs.indexOf(document.activeElement);
+      const next = ((from === -1 ? index : from) + step + tabs.length) % tabs.length;
       select(next);
       tabs[next].focus();
     });

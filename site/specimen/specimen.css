@@ -211,10 +211,12 @@ body.specimen-page {
   font-size: var(--text-body);
 }
 
+/* Not an error: a statement that the request stopped here. It is set in the
+ * same quiet monospace as the replay label above it. */
 .specimen-refusal-head {
   font-family: var(--font-mono);
   font-size: var(--text-caption);
-  color: var(--danger);
+  color: var(--muted-strong);
 }
 
 .specimen-json {

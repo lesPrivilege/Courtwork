@@ -222,18 +222,16 @@ blockquote.pull p + p {
   font-size: var(--text-label);
 }
 
+/* The three states are told apart by their words, not by colour. The page's
+ * whole palette is one ink, one secondary grey, one link and one accent, all
+ * of them the product's; a green badge would be a fifth, and it would also
+ * make «verified with synthetic data» look like an endorsement rather than a
+ * statement about the data. The modifier classes stay as hooks and carry no
+ * colour of their own. */
 .status {
   font-family: var(--font-mono);
   font-size: var(--text-caption);
   color: var(--muted-strong);
-}
-
-.status.is-verified {
-  color: var(--success);
-}
-
-.status.is-not-yet {
-  color: var(--muted);
 }
 
 /* ---- media -------------------------------------------------------------- */
@@ -509,10 +507,28 @@ figure.shot figcaption {
 }
 
 /* ---- footer -------------------------------------------------------------- */
+/* The closing band is the darkest surface on the page. In the light theme that
+ * is the inverted pair; in the dark theme the page is already dark, and
+ * inverting again would end the page on a bright slab, so the band becomes the
+ * deepest frame with a rule above it. Both are product tokens. */
 .footer {
   background: var(--gray-12);
   color: var(--gray-1);
   padding: var(--space-8) var(--page-gutter);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .footer {
+    background: var(--frame);
+    color: var(--ink);
+    border-top: 1px solid var(--line);
+  }
+  :root:not([data-theme="light"]) .footer a {
+    color: var(--ink);
+  }
+  :root:not([data-theme="light"]) .footer .dot {
+    color: var(--muted-strong);
+  }
 }
 
 .footer p {
