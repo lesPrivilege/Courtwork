@@ -1080,7 +1080,7 @@ export function createRuntimeView(
     if (expanded) {
       if (resource.description)
         detail.append(el("p", { className: "runtime-description", text: resource.description }));
-      detail.append(layerBlock(resource, scope), permissionDetail(resource), sourceDetail(resource));
+      detail.append(...[layerBlock(resource, scope), permissionDetail(resource), sourceDetail(resource)].filter(Boolean));
       if (Array.isArray(resource.diagnostics) && resource.diagnostics.length)
         detail.append(
           el(
@@ -1092,7 +1092,7 @@ export function createRuntimeView(
             ),
           ),
         );
-      detail.append(rowActions(resource), sourceInspector(resource));
+      detail.append(...[rowActions(resource), sourceInspector(resource)].filter(Boolean));
       if (explanation?.resourceId === resource.id)
         detail.append(explanationBlock());
     }
