@@ -348,3 +348,20 @@ export function installTooltips() {
     },
   };
 }
+
+/* WK-92 · Chat 与 Work 是同一个会话的两种交互模式，不是两种对象。一个会话在绑定
+ * Matter 之前是 Chat，绑定之后是 Work；判断只读会话上**已经有**的那一个事实
+ * （`extensionBinding`），不新增字段、不新增状态、不新增端点。Project 是容器，
+ * Workspace 是可选的文件夹绑定，两者都不参与这个判断 —— 一个没有 workspace 的
+ * 会话仍然是 Chat，一个有 workspace 的未绑定会话也仍然是 Chat。 */
+export const SESSION_MODE_LABELS = { chat: "Chat", work: "Work" };
+export function sessionMode(session) {
+  return session?.extensionBinding ? "work" : "chat";
+}
+export function sessionModeLabel(session) {
+  return SESSION_MODE_LABELS[sessionMode(session)];
+}
+/* WK-92 · Matter header 的 scope 位。BE-19（memory adapter）之前它只有一个可说的
+ * 值，所以它是一句陈述而不是一个开关：没有 popover，没有控件，因为今天没有第二个
+ * 值可以切过去。画一个只能停在 Off 的选择器会许诺一个后端没有的能力。 */
+export const MEMORY_SCOPE_OFF = "Memory · Off";

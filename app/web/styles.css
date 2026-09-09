@@ -833,6 +833,23 @@ button {
 .session-meta:empty {
   display: none;
 }
+/* WK-92 · 模式词与 scope 位与 run badge 同一档字号同一档颜色：它们都是**关于这个
+   会话的陈述**，不是三种不同的东西。Work 上多出来的那一格是 scope，没有边框、
+   没有背景、没有 caret —— 它今天不可点，所以它不长得像可点。 */
+.session-mode,
+.session-scope {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  display: inline-flex;
+  align-items: center;
+}
+/* 导航里的 Work 标记。它跟在标题后面，不抢标题的宽度：标题先省略号，标记才让位。 */
+.session-mode-tag {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
 .run-badge,
 .extension-status {
   font-size: var(--text-caption);
@@ -1858,6 +1875,40 @@ select {
   font-weight: 400;
   color: var(--muted-strong);
 }
+/* WK-108 · 探测控件挂在它属于的那一步上，不是收在流程底下的一排按钮：一个动作
+   一个位置，而它的位置就是它做的那一步。 */
+.connection-step-action {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 4px;
+}
+/* 探测结果是一句陈述，不是一次成功的宣布：它只用正文色，只有失败时才借 danger。
+   成功不加勾、不加绿 —— 成功在这里只等于"那个目录接受了这次请求"。 */
+.connection-probe-result {
+  margin: 8px 0 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.connection-probe-result.is-failed {
+  color: var(--danger);
+}
+/* 目录报来的 ID 是不可信显示数据：等宽、原样、不可选中为模型，也不进下拉。 */
+.connection-probe-models {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.connection-probe-model {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+}
 .connection-paths {
   width: 100%;
   margin-bottom: 8px;
@@ -2290,8 +2341,15 @@ select {
   color: var(--muted-strong);
 }
 
+.session-line {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  min-width: 0;
+}
 .session-name {
   display: block;
+  min-width: 0;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;

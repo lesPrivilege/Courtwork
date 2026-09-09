@@ -41,7 +41,7 @@ export function renderPlanned(container) {
 export const MCP_INTAKE_STEPS = [
   ["Add", "Not available yet: a server arrives with the runtime configuration this build imports; there is no form here that registers a new one."],
   ["Configure", "Not available yet: endpoint and transport come from that same imported configuration."],
-  ["Test connection", "Not available yet: the same missing handshake as a model connection."],
+  ["Test connection", "Not available yet: the model-connection probe reads an OpenAI-compatible model directory. An MCP server speaks a different protocol, and there is no endpoint here that probes one."],
   ["Review permissions", "Below: each server and the tools it declares carry their source, scope and the rule that decided them."],
   ["Enable", "Below: Connect, Disconnect and Restart act on a declared server."],
   ["Advanced", "Below: transport, configuration hash and the tools a server exposes."],
@@ -115,15 +115,86 @@ export const CONNECTION_PATHS = [
     help: "The local test endpoint this build runs itself. It takes no key and its address is fixed by the host.",
   },
 ];
-/* 统一流程的五步。`available: false` 的两步在界面上只留位说明，不画按钮：
- * BE-17（对未保存表单 Fetch models）与 BE-18（Test connection）未交付。 */
+/* 统一流程的五步。WK-108 · BE-17 / BE-18 交付后，Test connection 与对未保存表单的
+ * Fetch models 各自成为一个控件（`probe`），但它们只对一条**在表单里写得出 Base URL**
+ * 的路径成立：目录身份的端点归 provider，本地端点由宿主固定，两者都没有可送出的
+ * `baseUrl`。所以这两步的说明分两半写：这条路上它做什么，以及它做完之后**还没有**
+ * 证明什么 —— 探测成功只说明那个目录接受了这次请求。 */
 export const CONNECTION_STEPS = [
   { id: "configure", title: "Configure", available: true, note: "Choose the provider and the endpoint." },
-  { id: "test", title: "Test connection", available: false, note: "Not available yet: the host has no handshake that runs without starting a chat." },
-  { id: "fetch", title: "Fetch models", available: false, note: "Not available yet for an unsaved form. A saved connection lists the models the installed catalogue reports." },
+  {
+    id: "test",
+    title: "Test connection",
+    available: true,
+    probe: "test",
+    note: "Sends one request to the model directory at the Base URL below. It reports whether that directory accepted the request; it does not check that a key is valid or that a model can answer.",
+  },
+  {
+    id: "fetch",
+    title: "Fetch models",
+    available: true,
+    probe: "discover",
+    note: "Reads the model IDs that same directory reports. They are shown as reported and are not added to the Model list below, which stays the installed catalogue.",
+  },
   { id: "choose", title: "Choose a model", available: true, note: "From the catalogue for the provider above." },
   { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here; the API key is saved separately." },
 ];
+/* WK-108 · 只有一条路径在表单里持有显式 Base URL；另外两条没有可送出的端点，
+ * 两个探测控件因此不出现在它们身上（不是禁用一个按不动的按钮）。 */
+export const PROBE_PATHS = new Set(["compatible"]);
+export function probeAvailableFor(pathId) {
+  return PROBE_PATHS.has(pathId);
+}
+/* 说明为什么这条路径上没有那两个控件。说的是端点归谁，不是"暂不支持"。 */
+export const PROBE_ABSENT_NOTE = {
+  catalog: "The two probe steps need an endpoint written in this form. On this path the endpoint is the provider's own, so there is nothing here to probe.",
+  local: "The two probe steps need an endpoint written in this form. On this path the address is fixed by the host, so there is nothing here to probe.",
+};
+export const PROBE_PROTOCOL = "openai-compatible";
+/* WK-108 · 请求体逐字按 `app/docs/runtime-foundation.md`：`protocol` 与 `baseUrl`
+ * 必填，`apiKey` 可选且为空时**省略字段**（不是送空串）。没有自定义 header，没有
+ * 任何未登记字段 —— 后端会拒绝它们，而前端也没有理由发明一个。 */
+export function providerProbeRequest({ baseUrl, apiKey } = {}) {
+  const url = typeof baseUrl === "string" ? baseUrl.trim() : "";
+  if (!url) return null;
+  const key = typeof apiKey === "string" ? apiKey.trim() : "";
+  return { protocol: PROBE_PROTOCOL, baseUrl: url, ...(key ? { apiKey: key } : {}) };
+}
+export const PROBE_ENDPOINT = {
+  test: "/provider-connection/test",
+  discover: "/provider-models/discover",
+};
+/* 结果映射。后端的 `status` 与 `message` 原样呈现：`ok` 不被改写成"已验证 / 可推理 /
+ * 已配置"，失败也不被改写成一句更好听的话。前端只加两件后端没说而读者要知道的事：
+ * 这一行属于哪一步，以及目录报了几个模型。模型 ID 是不可信显示数据。 */
+export function probeReading(result, operation) {
+  if (!result || typeof result !== "object")
+    return { operation, ok: false, status: "no_result", message: "The host returned no probe result.", models: [], count: 0 };
+  const status = typeof result.status === "string" ? result.status : "no_status";
+  const message = typeof result.message === "string" ? result.message : "";
+  const models = Array.isArray(result.models)
+    ? result.models.map((m) => (typeof m?.id === "string" ? m.id : null)).filter(Boolean)
+    : [];
+  return {
+    operation: typeof result.operation === "string" ? result.operation : operation,
+    ok: status === "ok",
+    status,
+    message,
+    models,
+    count: models.length,
+  };
+}
+/* 一行结果的可见文字。状态词在前，后端原话在后；两者都不被改写。 */
+export function probeLine(reading) {
+  return reading.message ? `${reading.status} · ${reading.message}` : reading.status;
+}
+/* `discover` 成功时的第二行。它说的是"目录报告了几个"，不是"你有几个可用模型"。 */
+export function probeCatalogueLine(reading) {
+  if (reading.operation !== "discover" || !reading.ok) return null;
+  return reading.count === 1
+    ? "The directory reports 1 model. It is listed as reported, and is not added to the Model list or saved."
+    : `The directory reports ${reading.count} models. They are listed as reported, and are not added to the Model list or saved.`;
+}
 /** 路径由已保存的事实反推，不另存一个"用户当时选了哪条"的第二真源。 */
 export function connectionPathOf(config) {
   if (!config) return "catalog";
@@ -338,15 +409,93 @@ export function createSettingsView(
   /* 统一流程写在界面上，未交付的两步标注为未交付而不是画一个按钮：
      一个按不动的按钮和一句"还没有"说的是同一件事，但前者先许诺再收回。 */
   const flow = el("ol", { className: "connection-flow" });
-  for (const step of CONNECTION_STEPS)
-    flow.append(
-      el(
-        "li",
-        { className: step.available ? "connection-step" : "connection-step is-pending" },
-        el("span", { className: "connection-step-name", text: step.title }),
-        el("span", { className: "connection-step-note", text: step.note }),
+  /* WK-108 · 两个探测控件与它们的结果。结果区是一个 `role="status"` 的块，不是 toast：
+   * 读者要能回头再读一次它说了什么，而它说的是后端原话。 */
+  const probeButtons = new Map();
+  const probeStatus = el("p", {
+    className: "connection-probe-result",
+    attrs: { role: "status", hidden: true },
+  });
+  const probeCatalogue = el("p", { className: "form-help", attrs: { hidden: true } });
+  const probeModels = el("ul", { className: "connection-probe-models", attrs: { hidden: true } });
+  const probeNote = el("p", { className: "form-help", attrs: { hidden: true } });
+  let probeBusy = false;
+  function renderProbeResult(reading) {
+    probeStatus.hidden = false;
+    probeStatus.textContent = probeLine(reading);
+    probeStatus.classList.toggle("is-failed", !reading.ok);
+    const catalogue = probeCatalogueLine(reading);
+    probeCatalogue.hidden = !catalogue;
+    probeCatalogue.textContent = catalogue || "";
+    probeModels.hidden = !reading.models.length;
+    probeModels.replaceChildren(
+      ...reading.models.map((id) =>
+        el("li", { className: "connection-probe-model", text: id }),
       ),
     );
+  }
+  function clearProbeResult() {
+    probeStatus.hidden = true;
+    probeStatus.textContent = "";
+    probeStatus.classList.remove("is-failed");
+    probeCatalogue.hidden = true;
+    probeModels.hidden = true;
+    probeModels.replaceChildren();
+  }
+  async function runProbe(operation, button) {
+    const body = providerProbeRequest({ baseUrl: baseUrl.value, apiKey: key.value });
+    if (!body || probeBusy) return;
+    probeBusy = true;
+    lock();
+    button.dataset.pending = "true";
+    clearProbeResult();
+    probeStatus.hidden = false;
+    probeStatus.textContent = "Probing…";
+    try {
+      const result = await request(PROBE_ENDPOINT[operation], { method: "POST", body });
+      renderProbeResult(probeReading(result, operation));
+    } catch (err) {
+      /* 传输层或 4xx 的失败不是一次完成的探测；它按 host 的原话报，不冒充一个
+       * `status`。 */
+      probeStatus.hidden = false;
+      probeStatus.classList.add("is-failed");
+      probeStatus.textContent =
+        err.message || "The host could not run this probe.";
+    } finally {
+      delete button.dataset.pending;
+      probeBusy = false;
+      lock();
+    }
+  }
+  function renderFlow() {
+    const path = activePath();
+    const probes = probeAvailableFor(path);
+    probeButtons.clear();
+    flow.replaceChildren();
+    for (const step of CONNECTION_STEPS) {
+      const usable = step.probe ? probes : step.available;
+      const item = el(
+        "li",
+        { className: usable ? "connection-step" : "connection-step is-pending" },
+        el("span", { className: "connection-step-name", text: step.title }),
+        el("span", { className: "connection-step-note", text: step.note }),
+      );
+      if (step.probe && probes) {
+        const button = el("button", {
+          className: "secondary-button connection-step-action",
+          attrs: { type: "button", "data-focus-key": `connection:${step.probe}` },
+          text: step.title,
+        });
+        button.addEventListener("click", () => void runProbe(step.probe, button));
+        probeButtons.set(step.probe, button);
+        item.append(button);
+      }
+      flow.append(item);
+    }
+    probeNote.hidden = probes;
+    probeNote.textContent = probes ? "" : PROBE_ABSENT_NOTE[path] || "";
+    if (!probes) clearProbeResult();
+  }
   const advanced = el(
     "details",
     { className: "settings-advanced" },
@@ -375,6 +524,10 @@ export function createSettingsView(
     pathFieldset,
     pathHelp,
     flow,
+    probeNote,
+    probeStatus,
+    probeCatalogue,
+    probeModels,
   );
   form.append(
     addProvider,
@@ -413,6 +566,7 @@ export function createSettingsView(
     el("div", { className: "credential-actions" }, keyDelete, keySave),
   );
   container.replaceChildren(list, form, credential);
+  renderFlow();
   renderPlanned(document.getElementById("planned-capabilities"));
   renderIntegrationsIntake(document.getElementById("settings-integrations-intake"));
   /* Settings 页的只读节读的是本控制器已经取到的同一份快照，不另开一路请求：
@@ -510,6 +664,7 @@ export function createSettingsView(
           : "Provider default";
     if (entry.endpoint === "host") baseUrl.value = "";
     if (entry.endpoint === "required") advanced.open = true;
+    renderFlow();
     fillModels(snapshot?.config?.model);
     lock();
   }
@@ -562,6 +717,11 @@ export function createSettingsView(
     const endpointMissing = path?.endpoint === "required" && !baseUrl.value.trim();
     save.disabled = busy || active || !catalog || !model.value || endpointMissing;
     if (path?.endpoint === "host") baseUrl.disabled = true;
+    /* 探测按钮与保存按钮受同一把锁：busy / active Run 时全部锁定（沿既有 `lock()`）。
+     * 除此之外它只多一个条件 —— 没有 Base URL 就没有可探测的目录。 */
+    const probable = Boolean(providerProbeRequest({ baseUrl: baseUrl.value }));
+    for (const button of probeButtons.values())
+      button.disabled = busy || active || probeBusy || !probable;
     keySave.disabled = busy || active || !key.value.trim();
     keyDelete.disabled =
       busy || active || snapshot?.credentialStatus !== "configured";
@@ -605,8 +765,15 @@ export function createSettingsView(
   });
   baseUrl.addEventListener("input", () => {
     dirty = true;
+    /* 上一次探测说的是上一个地址。地址一改，那句话就不再是关于屏幕上这条连接的
+     * 陈述，所以它离开，而不是留在那里被当成新地址的结论。 */
+    clearProbeResult();
+    lock();
   });
-  key.addEventListener("input", lock);
+  key.addEventListener("input", () => {
+    clearProbeResult();
+    lock();
+  });
   function fail(err) {
     error.hidden = false;
     error.textContent = err.message || "The setting could not be saved.";
@@ -1553,13 +1720,19 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
    * 比留一个按不动的开关诚实。Planned 行仍在 Developer 里逐条登记。 */
   function renderMemory() {
     document.getElementById("settings-memory-rows").replaceChildren(
+      /* WK-92 / 语义审查 §4 · 一句能力边界，用契约里的词说：Matter memory 与
+       * Global memory 今天都没有适配器（BE-19），所以这一节没有可读、可编辑或可
+       * 删除的条目。Sources 不是 Memory —— 它们是这个 Chat 或 Work 能读到的文件，
+       * 归 Skills 与项目管，混为一谈会让"关掉记忆"读成"看不见文件"。 */
       el("p", {
         className: "settings-row-help",
-        text: "CourtWork does not carry memory between chats. Each chat reads only its own messages and the files in its project; nothing you say in one chat is recalled in another, and there is nothing stored here to review or delete.",
+        text: "Nothing is remembered between chats. Matter memory and global memory have no adapter in this build, so a Chat or a Work reads only its own messages and the sources its project carries; there is no stored memory here to review, export or delete. Sources are files, not memory: they are configured under Skills and in the project itself, and they stay readable whatever this section later says.",
       }),
+      /* WK-92 · Temporary chat 待 BE-20：一行说明，零控件。画一个开关会许诺一个
+       * 今天不存在的第二种会话。 */
       el("p", {
         className: "settings-row-help",
-        text: "Instructions, Skills and references are configured under Skills, and the files a chat can read are its project's own. Those are sources, not memory.",
+        text: "Temporary chat — a chat that neither reads nor writes durable memory — has no host support yet, so there is no control for it here. With nothing remembered between chats, every chat in this build already behaves that way.",
       }),
     );
   }
