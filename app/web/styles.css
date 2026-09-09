@@ -5450,3 +5450,11 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .runtime-package-resources input { width: auto; }
 [data-package-editor] > label { display: block; margin-top: 12px; }
 [data-package-editor] > label > span { display: block; margin-bottom: 6px; }
+
+/* Explicit Thread communication within the Attention dialog. */
+.coordination-view { padding: 0 var(--sp-4, 16px); }
+.coordination-body { max-height: 45vh; overflow: auto; display: grid; gap: 8px; padding-block: 8px; }
+.coordination-body > div { display: grid; gap: 8px; }
+.coordination-body input, .coordination-body select, .coordination-body textarea { width: 100%; min-width: 0; }
+.coordination-body article { border-block-start: 1px solid var(--line); padding-block: 8px; overflow-wrap: anywhere; }
+.coordination-body article p { white-space: pre-wrap; }

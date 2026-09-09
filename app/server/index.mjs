@@ -21,7 +21,7 @@ const STATIC = new Map([
   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
-for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+for (const name of ["surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "coordination-view.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
 // Brand merge gate 3: the product admits the brand package's ES modules and
 // nothing else under brand/. Each path is an exact key, so brand/CONTRACT.md,
@@ -74,6 +74,7 @@ function routeParts(url) {
 }
 
 function errorResponse(error) {
+  if (error?.name === 'CoordinationError') return { status: error.status, code: error.code, message: error.message };
   if (error instanceof ServiceError) return { status: error.status, code: error.code, message: error.message, details: error.details };
   if (error instanceof AsyncTaskError) return { status: error.status, code: error.code, message: error.message };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
@@ -100,6 +101,15 @@ function routeService(service, req, url) {
   const method = req.method ?? "GET";
   if (parts[0] !== "api" || parts[1] !== "v5") return null;
   const tail = parts.slice(2);
+  if (tail[0] === 'coordination') {
+    if (url.searchParams.size) return () => { throw new ServiceError(400, 'invalid_input', 'Coordination queries use explicit paths'); };
+    if (method === 'GET' && tail.length === 1) return () => service.coordination.list();
+    if (method === 'GET' && tail.length === 3 && tail[1] === 'sessions') return () => service.coordination.list(tail[2]);
+    if (method === 'POST' && tail.length === 2 && tail[1] === 'threads') return async () => ({schemaVersion:1,thread:await service.coordination.create(await body(req))});
+    if (tail[1] === 'threads' && tail.length === 3 && method === 'GET') return () => service.coordination.mailbox(tail[2]);
+    if (tail[1] === 'threads' && tail.length === 4 && method === 'POST' && ['attach','close'].includes(tail[3])) return async () => ({schemaVersion:1,thread:await service.coordination[tail[3]](tail[2],await body(req))});
+    if (tail[1] === 'messages' && tail.length === 2 && method === 'POST') return async () => ({schemaVersion:1,message:await service.coordination.send(await body(req))});
+  }
   if (tail[0] === 'async-tasks') {
     if (method === 'GET' && tail.length <= 2) return () => service.readAsyncTasks(tail[1] ?? null, url.searchParams);
     if (method === 'POST' && tail.length === 3 && ['reconcile','cancel'].includes(tail[2])) return async () => service.actOnAsyncTask(tail[1], tail[2], await body(req));

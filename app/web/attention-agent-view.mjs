@@ -1,3 +1,4 @@
+import { createCoordinationView } from './coordination-view.mjs';
 import { el, action, markdown, copyAction } from './ui-controls.mjs';
 import { projectThread, canAnswer, validPermission } from './thread-projection.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
@@ -18,6 +19,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   full.addEventListener('click', () => { const id = controller.state.session?.id; if (id) { close(); onOpenSession(id); } });
   const configure = action('settings-2', 'Configure Attention Runtime', async () => { const own = openingEpoch; const id = await controller.ensureConversation(); if (id && visible && own === openingEpoch) { close(); onConfigure(id); } });
   const toolbar = el('div', { className: 'attention-agent-toolbar' }, history, refresh, items, full, configure);
+  const coordination = createCoordinationView({request,onOpenSession: id=>{close();onOpenSession(id);}});
   const stream = el('div', { className: 'attention-agent-stream', attrs: { 'aria-label': 'Attention conversation messages', tabindex: '0' } });
   const feedback = el('p', { className: 'form-help', attrs: { role: 'status' } });
   const input = el('input', { attrs: { type: 'text', maxlength: '100000', placeholder: 'What needs your attention?', 'aria-label': 'Message Attention' } });
@@ -29,12 +31,12 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const runtimeBody = el('div'); runtime.append(runtimeBody);
   const composer = el('div', { className: 'attention-agent-composer' }, input, stop, send);
   const status = el('div', { className: 'attention-agent-status' }, feedback, runtime);
-  dialog.append(header, toolbar, stream, status, composer);
+  dialog.append(header, toolbar, coordination.root, stream, status, composer);
   dialog.addEventListener('close', deactivate);
   dialog.addEventListener('cancel', event => { if (event.isComposing) event.preventDefault(); });
   dialog.addEventListener('keydown', event => { if (event.key === 'Escape' && event.isComposing) event.preventDefault(); });
   function deactivate() {
-    visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate();
+    coordination.deactivate(); visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate();
     if (opener?.isConnected) opener.focus();
   }
   function close() { dialog.close(); }

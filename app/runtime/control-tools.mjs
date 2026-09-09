@@ -29,7 +29,7 @@ export function governTools(tools, { binding, permissionMode, workspaceDir, requ
       let resource = tool.name === 'runtime_load' ? args.id : '*';
       if (tool.name.startsWith('ws_') && typeof args.path === 'string' && args.path) resource = (await resolveWorkspacePath(workspaceDir, args.path)).relativePath;
       const descriptor = binding.resources.find(r => r.id === 'tool:' + tool.name);
-      const ceiling = tool.name === 'ws_write' ? permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow' : 'allow';
+      const ceiling = tool.name === 'message_other_agent' ? (permissionMode === 'read_only' ? 'deny' : 'ask') : tool.name === 'ws_write' ? permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow' : 'allow';
       const decision = evaluatePolicy(binding.policies, descriptor?.action ?? tool.name, resource, ceiling, descriptor?.mcp ? 'ask' : 'allow');
       if (decision.effect === 'deny') throw new Error('Runtime policy denied ' + tool.name);
       if (decision.effect === 'ask') {

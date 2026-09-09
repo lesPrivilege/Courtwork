@@ -5,6 +5,7 @@ import { acquireRuntimeLock } from "./runtime-lock.mjs";
 import { deriveWorkMetrics } from "./work-metrics.mjs";
 import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
+import { emptyCoordination, validateCoordination } from '../harness/coordination-state.mjs';
 import { validateAsyncTasks } from './async-task-state.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
@@ -18,10 +19,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 6;
+const SCHEMA_VERSION = 7;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
-  "credentialGeneration", "asyncTasks",
+  "credentialGeneration", "asyncTasks", "coordination",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -29,7 +30,7 @@ function now() { return new Date().toISOString(); }
 function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
-    providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [],
+    providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
   };
 }
 
@@ -108,8 +109,8 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4 or 5 can be upgraded)`);
-  exactKeys(parsed, schema >= 5 ? STATE_KEYS : new Set([...STATE_KEYS].filter(k => k !== 'asyncTasks')), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5 or 6 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 7 || k !== 'coordination'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -209,6 +210,7 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
   if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig");
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
+  if (schema >= 7) validateCoordination(parsed.coordination);
   return structuredClone(parsed);
 }
 
@@ -286,13 +288,13 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
-            sessions: parsed.sessions.map(session => ({ ...session, scope: 'project' })) });
+            coordination: emptyCoordination(), sessions: parsed.sessions.map(session => ({ ...session, scope: session.scope ?? 'project' })) });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
