@@ -133,9 +133,9 @@ design_task:
     information_priority: composer > Today strip（Waiting for you / In progress / Needs a look）> 次级模块带 > 列表
   constraints:
     functional: 只用 work-summary 与 provider-config 已加载的数据；不新增读取、端点、字段；模块显隐为 cw:prefs 本设备偏好；Simple 为默认布局
-    business_states: 六态显示约定（loading / ready / empty / not connected / unavailable / stale）逐模块声明，缺接缝的模块不安装（Activity / Usage / Mail / Calendar 本片不安装，留契约不留死模块）
+    business_states: 六态显示约定（loading / ready / empty / not connected / unavailable / stale）逐模块声明并逐态注明事实来源（端点与字段，file:line）；没有时间戳语义的模块不展示 stale，没有连接语义的模块不展示 not connected（写 not_applicable + 理由），不为凑齐六态编造状态；缺接缝的模块不安装（Activity / Usage / Mail / Calendar 本片不安装，留契约不留死模块）
     navigation: Settings › Appearance 增 Home layout: Simple / Modules；模块带可折叠 / 移除
-    density: 主区外边距 24–40；模块 gap 20–24；卡内 20–24；同一行模块标题共基线；不强制同高
+    density: 主区外边距 24–40；模块 gap 20–24；卡内 20–24；同一行模块标题共基线；不强制同高。次级带宽度以 --home-column 820 为上限按剩余宽度分配（Today strip 优先取整行或 flex 主体，模块位取剩余；480 + 320 + gap 已超 820，画板尺寸不是合同），容不下即换行，绝不横向溢出
     responsive: 1440 / 390；900 与 1058 两个视口高各量一次 HOME-1 / HOME-6
     accessibility: 键盘顺序 composer → Today → 模块带 → 列表；模块折叠控件 ≥44
   existing_system:
@@ -145,7 +145,7 @@ design_task:
   references:
     positive:
       - {source: shell-refinement §首页模块退为辅助 / §模块首页的解耦约定, exact_element_to_borrow: composer 主位、模块带次级、显隐预置、六态, why: 用户方向}
-      - {source: 画布 HomeBand 画板, exact_element_to_borrow: composer 820 + 次级带（Today 480 + 模块位 320）, why: 选向 D0-B}
+      - {source: 画布 HomeBand 画板, exact_element_to_borrow: composer 820 + 次级带的相对次序（Today 在前、模块位在后）, why: 选向 D0-B；画板里的 480 / 320 是示意，合同见 density}
     negative:
       - {source: images/home-modular.png, avoid: 四块大卡、大热力图、演示数字, why: 尺寸目标已被用户撤回}
       - {source: 上一版"上带", avoid: 把模块放回 composer 之上, why: WK-96 / EX-CC2 §2}
@@ -158,7 +158,7 @@ design_task:
 
 ### 做什么
 1. Appearance `Home layout` 偏好（cw:prefs，默认 Simple）；Modules 态渲染次级模块带于 composer 之后；Simple 态与现状逐像素一致（HOME-1…7 不变）。
-2. 模块带契约：模块注册表（id、标题、数据来源、六态、折叠 / 移除）、显隐偏好、键盘顺序；本片只安装 Today（原位）与 Models 入口行；Activity / Usage / Mail / Calendar 只在 contracts 里声明六态，不渲染。
+2. 模块带契约：模块注册表（id、标题、数据来源、六态各自的事实来源或 not_applicable、折叠 / 移除）、显隐偏好、键盘顺序、宽度分配与换行规则（≤820）；本片只安装 Today（原位）与 Models 入口行；Activity / Usage / Mail / Calendar 只在 contracts 里声明六态，不渲染。
 3. HOME-1 / HOME-6 在 900 与 1058 两高各量一次；390 沉底顺序不变。
 4. 消融轮 + anti-slop 门（特别是 "fake dashboard density" 与 "gratuitous cards"）。
 

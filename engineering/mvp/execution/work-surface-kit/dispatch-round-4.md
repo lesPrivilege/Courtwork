@@ -12,7 +12,7 @@
 | EX-CC1 三面贯通 + tab strip 宿主契约探索 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (c) | `explore/ex-cc1-three-pane-tabs.md` | 已回执，消费为 WK-113（[intake §4r](intake-round-3.md)） |
 | EX-CC2 模块首页量测与数据接缝 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (d) | `explore/ex-cc2-home-modules.md` | 已回执，消费为 WK-114（[intake §4s](intake-round-3.md)）；CC-D0 以 BE-1/3 为前置 |
 | 变体画布（WK-112 (b)） | Fable，Claude Design 画布 | https://claude.ai/code/artifact/f0b8d9b9-01fc-4dff-bcdb-390ad6f2a24c | WK-113 / WK-114 | 七张线框画板：Work 现状 / A / B / C，Home 现状 / D0-B / D0-C | 已出（2026-09-09），待用户比较选向；Fable 推荐 B + C、D0-B |
-| CC-S → CC-W → CC-D0 → FE-05 | Opus 串行 | 各自从上一单合流后的清洁 main | [WO-CC-round5](work-orders/WO-CC-round5.md) | `delivery-cc-*.md` | CC-S 已派（2026-09-09，`opus-wo-low`，树 `/private/tmp/se-agent-ccs`、`claude/cc-s-settings-nav`、8899/8900、基线 `683b6d1`，改约记 WK-116）；CC-W 选向 B + C（工程支持，视觉复核待）→ Fable 改几何合同后成单；CC-D0 拆 D0-a / D0-b（R4D-2） |
+| CC-S → CC-W → CC-D0 → FE-05 | Opus 串行 | 各自从上一单合流后的清洁 main | [WO-CC-round5](work-orders/WO-CC-round5.md) | `delivery-cc-*.md` | CC-S 已派（2026-09-09，`opus-wo-low`，树 `/private/tmp/se-agent-ccs`、`claude/cc-s-settings-nav`、8899/8900、基线 `683b6d1`，改约记 WK-116）；CC-W 选向 B + C（工程支持，视觉复核待）→ Fable 改几何合同后成单；CC-D0 拆 D0-a / D0-b（R4D-2）；排期定为 CC-S → CC-W → CC-D0-a → FE-05（用户 2026-09-09，D0-a 收益不足以插队）；画板静态文件在 [design/…/boards](../../../design/clean-cool-2026-09-09/boards/README.md) |
 | FE-05 材质与光效 | Opus | FE-04 合流后 | WO-FE-round4 §FE-05 + EX-WK9 | `delivery-fe05.md` | 待 EX-WK9 回执后由 Fable 填值 |
 
 规则：Opus 单一 writer 串行；每单固定 SHA、消融表、text-sweep 增量、分配反例、五轮收敛表（WK-100）；作者验证与 Astra 独验分列；视觉四轴留用户。后端前置 BE-1/3、12、14…20 仍由 [backend-requests](backend-requests.md) 维护；FE-02 / FE-03 未交付能力不画可用按钮。
