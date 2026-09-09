@@ -2,7 +2,8 @@
  * (1) Chat 与 Work 是同一个会话的两种模式，判断只读既有的 `extensionBinding`；
  * (2) Continue in Work 走既有的 `POST /sessions/:id/extension`，没有新端点、
  *     没有复制、没有迁移；
- * (3) Matter header 的 scope 位在 BE-19 前只是一句陈述：无 popover、无控件；
+ * (3) scope 位在 BE-19 前只是一句陈述：无 popover、无控件（CC-W / M-2 之后它在
+ *     工作面的标题带上，不在会话 meta 行上）；
  * (4) Settings › Memory 不用 `Session Memory` 一词，Sources ≠ Memory，
  *     Temporary chat（BE-20）只有一行说明。 */
 import assert from "node:assert/strict";
@@ -47,29 +48,43 @@ test("WK-92 · Continue in Work 只走既有的 extension 路由；不新增端�
     assert.doesNotMatch(appSource, new RegExp(invented.replace(/[/]/g, "\\/")), invented);
 });
 
-test("WK-92 · Matter header 的 scope 位是陈述，不是控件", () => {
+/* CC-W（M-2 / WK-113 ③）· scope 位从会话 meta 行搬到工作面的标题带。断言随位置
+ * 改写：它仍然只在 Work 上出现、仍然只有一个值、仍然零控件，检查的条目一条没减，
+ * 只是换了它现在所在的那一段。 */
+test("WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件", () => {
   assert.equal(MEMORY_SCOPE_OFF, "Memory · Off");
-  // 只在 Work 上出现，且只画一个 span。
-  assert.match(
-    appSource,
-    /sessionMode\(session\) === "work"\s*\)?\s*[\s\S]{0,160}className: "session-scope", text: MEMORY_SCOPE_OFF/,
+  // 会话 meta 行上不再画它。
+  const meta = appSource.slice(
+    appSource.indexOf('const meta = $("session-meta")'),
+    appSource.indexOf('$("show-surface-button")'),
   );
+  assert(!meta.includes("session-scope"), "scope 位还留在会话 meta 行上");
+  assert(!meta.includes("MEMORY_SCOPE_OFF"), "scope 位还留在会话 meta 行上");
+  // 它现在由工作面标题带画，只在 Work 会话、只在这条带真的在屏幕上时。
+  const scopeFn = appSource.slice(
+    appSource.indexOf("function renderSurfaceScope"),
+    appSource.indexOf("function surfaceKindTitle"),
+  );
+  assert(scopeFn.includes('sessionMode(session) === "work"'), "只在 Work 上");
+  assert(scopeFn.includes("MEMORY_SCOPE_OFF"), "仍然只有一个值");
+  assert(scopeFn.includes("expanded"), "带不在屏幕上时不画");
   // 没有 popover、没有按钮、没有 caret 挂在它身上。
-  /* CC-S · 取的是画这条 meta 行的那一段，而不是整个 renderChatHeader：WK-116 之后
-   * 这个函数还负责隐藏侧栏与它的开合按钮，函数级的字符串扫描会把那些 id 里的
-   * "button" 当成挂在 scope 位上的控件。 */
-  const header = appSource.slice(
-    appSource.indexOf("const meta = $(\"session-meta\")"),
-    appSource.indexOf("$(\"show-surface-button\")"),
-  );
-  assert(header.includes("session-scope"), "scope 位在这段里");
-  for (const affordance of ["popover", "aria-haspopup", "chevron", "addEventListener", "button"])
-    assert(!header.includes(affordance), affordance);
+  for (const affordance of [
+    "popover",
+    "aria-haspopup",
+    "chevron",
+    "addEventListener",
+    "button",
+  ])
+    assert(!scopeFn.includes(affordance), affordance);
   assert.doesNotMatch(styles, /\.session-scope[^{]*\{[^}]*cursor:\s*pointer/);
   // 模式词与 scope 位没有独立的背景 / 边框：它们是句子，不是徽章。
   const scopeRule = styles.match(/\.session-mode,\s*\n\.session-scope \{[^}]*\}/);
   assert(scopeRule, "两者共用一条规则");
   assert.doesNotMatch(scopeRule[0], /background|border/);
+  const surfaceRule = styles.match(/\.surface-scope \{[^}]*\}/);
+  assert(surfaceRule, "工作面上的那一份也有自己的规则");
+  assert.doesNotMatch(surfaceRule[0], /background|border/);
 });
 
 test("WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件", () => {

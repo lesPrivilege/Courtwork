@@ -29,20 +29,25 @@ test("FE-04 · 在途词只有一个，且只在在途时出现", () => {
   assert.notEqual(SENDING_LABEL, "Cancelled");
 });
 
-test("FE-04 · 四个送出一次决定的控件都经过同一个在途词", () => {
+/* CC-W（M-9）· 五个控件仍然只经过同一个在途词，但现在经由 `setRequestLabel`：
+ * 它内部调用 `requestLabel`，并额外排一份静止态标签占宽（见 ui-controls）。断言随
+ * 调用形状改写，条数与覆盖面未放宽。 */
+test("FE-04 / M-9 · 五个送出一次决定的控件都经过同一个在途词，且保持静止态宽度", () => {
   // 授权卡的两个按钮、问题卡的 Answer、composer 的 Send 与 Cancel run。
-  const uses = appSource.match(/requestLabel\(/g) || [];
-  assert.ok(uses.length >= 5, `requestLabel 只在 ${uses.length} 处使用`);
-  assert.match(appSource, /text: requestLabel\("Answer", submitting\)/);
-  assert.match(appSource, /text: requestLabel\(label, inFlight\)/);
+  const uses = appSource.match(/setRequestLabel\(/g) || [];
+  assert.ok(uses.length >= 5, `setRequestLabel 只在 ${uses.length} 处使用`);
+  assert.match(appSource, /setRequestLabel\(submit, "Answer", submitting\)/);
+  assert.match(appSource, /setRequestLabel\(button, label, inFlight\)/);
   assert.match(
     appSource,
-    /send\.textContent = requestLabel\(\s*COMPOSER_SEND_LABEL,\s*Boolean\(pendingRun\),?\s*\)/,
+    /setRequestLabel\(send, COMPOSER_SEND_LABEL, Boolean\(pendingRun\)\)/,
   );
   assert.match(
     appSource,
-    /cancel\.textContent = requestLabel\(\s*COMPOSER_CANCEL_LABEL,\s*Boolean\(pendingCancel\),?\s*\)/,
+    /setRequestLabel\(cancel, COMPOSER_CANCEL_LABEL, Boolean\(pendingCancel\)\)/,
   );
+  // 在途词本身不再由 app.mjs 直接写，只有 ui-controls 一处产出。
+  assert.doesNotMatch(appSource, /textContent = requestLabel\(/);
 });
 
 test("FE-04 · cancel requested 不把 Run 说成 stopped", () => {

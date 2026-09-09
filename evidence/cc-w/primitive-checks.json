@@ -1,0 +1,146 @@
+[
+ {
+  "name": "FE-04 · Send 在途时说的是「已送出」，不是「已开始」",
+  "pass": true,
+  "actual": {
+   "send": "Sending…",
+   "sendHidden": false,
+   "cancel": "Cancel run",
+   "cancelHidden": true,
+   "hint": "\n              Run in progress — your input will not be sent automatically.\n            ",
+   "badges": []
+  }
+ },
+ {
+  "name": "FE-T06 · 取消请求在途：控件说 Sending…，Run 的状态词一个字没改",
+  "pass": true,
+  "actual": {
+   "send": "Send",
+   "sendHidden": true,
+   "cancel": "Sending…",
+   "cancelHidden": false,
+   "hint": "Waiting for you · 4s · your input will not be sent automatically.",
+   "badges": [
+    "Waiting for you"
+   ]
+  }
+ },
+ {
+  "name": "FE-T06 · 回执到达之后才说 Cancelled，而且控件把在途词收回",
+  "pass": true,
+  "actual": {
+   "runs": [
+    "cancelled"
+   ],
+   "send": "Send",
+   "sendHidden": false,
+   "cancel": "Cancel run",
+   "cancelHidden": true,
+   "hint": "Waiting for you · 5s · your input will not be sent automatically.",
+   "badges": [
+    "Cancelled"
+   ]
+  }
+ },
+ {
+  "name": "Approval · 闭集是两个决定，动作词带对象，没有 always-allow",
+  "pass": true,
+  "actual": {
+   "card": true,
+   "heading": "Approve this file write?",
+   "buttons": [
+    {
+     "text": "Deny this write",
+     "ariaDisabled": "false"
+    },
+    {
+     "text": "Approve this write",
+     "ariaDisabled": "false"
+    }
+   ],
+   "alert": []
+  }
+ },
+ {
+  "name": "Approval · 在途的是哪一个决定，屏幕上看得出来（review-projection §6）",
+  "pass": true,
+  "actual": {
+   "card": true,
+   "heading": "Approve this file write?",
+   "buttons": [
+    {
+     "text": "Deny this write",
+     "ariaDisabled": "true"
+    },
+    {
+     "text": "Sending…",
+     "ariaDisabled": "true"
+    }
+   ],
+   "alert": []
+  }
+ },
+ {
+  "name": "FE-T06 · 授权落成一行回执，它明说「不记录成果接受」；执行结果是另一行",
+  "pass": true,
+  "actual": {
+   "decided": [
+    "out/note.txtWrite approvedApproval recorded for this exact write. Review acceptance is not recorded here.FE-04 approval fixture"
+   ],
+   "activity": [
+    "1 tool actionCompleted"
+   ],
+   "toolRows": [
+    "ws_write"
+   ],
+   "liveCards": 0,
+   "accepted": false
+  }
+ },
+ {
+  "name": "Tool row · 失败的一次带 Failed，而且状态词在自己的槽里，不粘在工具名后面",
+  "pass": true,
+  "actual": {
+   "rows": [
+    {
+     "text": "ws_readFailed",
+     "meta": "Failed",
+     "isFailed": true,
+     "open": true
+    }
+   ],
+   "group": [
+    "1 tool action1 failed"
+   ]
+  }
+ },
+ {
+  "name": "Question · 提交失败是一条 role=alert，不是一段静默的文字（FN-28）",
+  "pass": true,
+  "actual": {
+   "present": true,
+   "role": "alert",
+   "text": "synthetic 409 for the alert check",
+   "stillPending": true
+  }
+ },
+ {
+  "name": "Question · 答案在途时用的是同一个在途词，输入框只读而不失焦，上一次的失败已撤掉",
+  "pass": true,
+  "actual": {
+   "submit": "Sending…",
+   "readOnly": true,
+   "staleError": 0
+  }
+ },
+ {
+  "name": "本单没有任何请求离开本 origin",
+  "pass": true,
+  "actual": []
+ },
+ {
+  "name": "页面没有抛出异常",
+  "pass": true,
+  "actual": []
+ }
+]

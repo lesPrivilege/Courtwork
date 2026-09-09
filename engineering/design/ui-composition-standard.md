@@ -46,6 +46,10 @@
 | 行 / 控件 / 导航 glyph | 16 / 18 / 20 | `icon()` 的 `size` | IC-1；命中区另计 |
 | 命中区 | 桌面 ≥32，触屏与窄屏 ≥44 | — | FN-27 的可用性下限 |
 | 阅读 / Work measure | 740 | `--column` | 正文一行的长度；Work 的 composer 与它同宽 |
+| 工作面文档列下限 | 688 | `--doc-min` | ≥1680 时工作面是真正的第三栏；256 + chat ≥640 + 688 在 1680 上刚好成立（WK-113 / CC-W） |
+| 工作面正文行宽上限 | 740 | `--doc-measure` | 面板宽 ≠ 正文行宽：文档面 1136 或 688 都不是一行的长度，正文沿阅读列的 740；宽表与代码按内容自己横向滚动（WK-117 (b)） |
+| 三栏断点 | ≥1680 | 媒体查询，无 token | 工作面从覆盖 / 切换变成第三栏的那一档；1024–1679 是主次切换 + tab strip，<1024 全屏 sheet（WK-113 ①） |
+| tab strip 高 | 展开态 44；≥1680 三栏态沿 `--band-top` 56 | — | B 态 strip 是文档面自己的一条 chrome；C 态它必须与 chat header 同一基线，所以取带高 |
 | Settings 导航列宽 | 240（区间 240–256 的下沿） | `--settings-nav` | 九个组名读得完；**不复用 `--nav`**，settings-active 时全局侧栏不渲染，两者不再是同一条列轨 |
 | Settings 页左右 gutter | 48；≥1680 为 64；<1024 为 20；<768 为 16 | `--settings-gutter` | 桌面 ≥48、宽屏 56–80、窄屏 16–20（shell-refinement §呼吸感） |
 | Settings 内容列上限 | 820 | `--settings-measure` | 760–960 的中位；控件不拉满整个屏幕 |
@@ -76,7 +80,7 @@ Settings 注（WK-116 / CC-S）：进入 Settings 后全局侧栏不渲染，这
 | 其上非 chrome 内容 | ≤180，其中 orientation ≤120 且不含数字 | 只有 thread | — |
 | 下方 | Today 三数字 strip → Continue 行 → 有数据源才出现的 compact card；ragged layout，不填满 grid | 禁止出现任何 Home dashboard primitive | card 内无框内容，禁止 nested card |
 | 首屏下半部 | 必须有可见的 continuity 内容 | — | — |
-| 右侧 contextual surface | — | 有内容才出现；出现时正文 measure ≥640，不足则 overlay / collapse | 展开进入独立 surface |
+| 右侧 contextual surface | — | 有内容才出现；**按视口分档（WK-113 / WK-116，CC-W）**：≥1680 是真正的第三栏（nav 256 · chat ≥640 · doc ≥`--doc-min` 688，各自滚动，顶部 chrome 同一基线）；1024–1679 折叠为悬浮卡、展开为主区内的视图切换（无遮罩、无模态卡外观，chat 列 `hidden` + `inert` 但 DOM 保留），正文 measure 仍 ≥640；<1024 全屏 sheet | 展开进入独立 surface；正文行宽另受 `--doc-measure` 约束 |
 
 composer 是**一个** primitive 的两个 variant，不是两个组件（WK-97）。
 

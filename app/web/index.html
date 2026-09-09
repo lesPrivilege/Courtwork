@@ -596,6 +596,15 @@
         inert
       >
         <header class="surface-header">
+          <!-- WK-117 (b) / WK-121 ② · 返回是导航，tab 是对象组织：← Chat 与 strip
+               同一行、在 strip 左边、不在 tablist 里，也不占顶带那个"一个槽位一种
+               离开动作"的左端槽位（那里是侧栏开合钮 / Back to app）。 -->
+          <button
+            id="surface-back-button"
+            class="quiet-button surface-back"
+            type="button"
+            hidden
+          ></button>
           <div class="surface-heading">
             <h2 id="surface-title">Work surface</h2>
           </div>
@@ -637,7 +646,33 @@
             >
               File
             </button>
+            <!-- WK-113 ④ ⑥ · 至多一个可关闭的文档实例 tab。BE-2 未交付，所以只有
+                 一份受信活动文档，没有多实例 map、没有伪多实例。选中区与关闭区是
+                 两个命中区；类型 tab 没有关闭区。 -->
+            <span
+              id="surface-document-tab"
+              class="surface-tab surface-document-tab"
+              role="presentation"
+              hidden
+            >
+              <button
+                id="surface-document-select"
+                class="surface-tab-select"
+                role="tab"
+                aria-controls="file-content"
+                aria-selected="false"
+                type="button"
+              ></button>
+              <button
+                id="surface-document-close"
+                class="surface-tab-close"
+                type="button"
+              ></button>
+            </span>
           </div>
+          <!-- M-2 / WK-113 ③ · scope 位属于工作面的标题带，不属于会话 meta 行；
+               BE-19 之前它仍然是一句陈述，没有控件。 -->
+          <p id="surface-scope" class="session-scope surface-scope" hidden></p>
           <div class="toolbar">
             <button
               id="surface-expand-button"

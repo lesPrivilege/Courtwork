@@ -108,6 +108,17 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 
 `Back` 单独一个词只在目的地由上下文唯一确定时用（`Back to latest` 同理是目的地名，见 text-sweep §3）。
 
+### 3.4d 工作面（CC-W / WK-113 / WK-118 ⑤）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Chat（可见）/ Back to chat（可访问名） | 1024–1679 展开态里从文档面回到聊天。**目的地名**，与 `Back to app` 同一条理由；它在 tab strip 那一行的左端，不在 tablist 里，也不占顶带那个"一个槽位一种离开动作"的槽位 | ← · Back · Close · Exit document |
+| Collapse work surface | 把展开的工作面收回紧凑目录。≥1680 三栏态两面同时在场，说"回到聊天"是假的 | Return to chat（三栏态）· Minimise · Hide |
+| Close <完整路径> | 关闭那一份打开的文档 tab；可见文字是截断过的文件名，动作名把路径说全 | Close · Close tab · × |
+| Running · Waiting for you · Failed | 类型 tab 上那个微型记号说的 agent activity。三个词都取自既有 run 状态词表 | Active · Busy · Attention · Error |
+
+`Memory · Off` 一字未改，只是从会话 meta 行搬到工作面的标题带（M-2 / WK-113 ③）。
+
 ### 3.5 外观
 
 | 用户词 | 它是什么 | 不用 |
