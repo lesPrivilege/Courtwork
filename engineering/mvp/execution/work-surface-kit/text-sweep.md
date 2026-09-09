@@ -236,3 +236,25 @@
 | `Probing…` | 一次请求正在进行中，且它会被同一个位置的结果替换 | 同上 `runProbe` |
 | `Nothing is remembered between chats. Matter memory and global memory have no adapter in this build, …` | **能力边界**，用契约词说；并把 Sources 与 Memory 分开 | 同上 `renderMemory` |
 | `Temporary chat — a chat that neither reads nor writes durable memory — has no host support yet, …` | 词已冻结、控件待 BE-20；同时说清今天为什么等价 | 同上 |
+
+## 9. FE-04 增量（WK-93，2026-09-09）
+
+本单没有替换任何既有字符串：十一个 primitive 的审计结论是"词表已对齐"，改的是**一段此前在屏幕上不存在的时间**——请求已送出、回执还没到。
+
+### 9.1 替换
+
+无。
+
+### 9.2 新增字符串（承重说明）
+
+| 字符串 | 承担什么 | 位置 |
+|---|---|---|
+| `Sending…` | **一次决定已经送出、回执还没到**，是既不同于送出前也不同于生效后的第三类事实（FN-19）。词本身出自 review-projection §6 的授权卡一行，本单把它落实到那张卡，并让另外三个只送一次决定的控件共用它 | `ui-controls.mjs` `SENDING_LABEL` / `requestLabel`；消费者：`app.mjs` `renderPermission`（Approve / Deny）、问题卡 `Answer`、`renderComposer` 的 `Send` 与 `Cancel run` |
+
+### 9.3 未新增而本可以新增的（记在案）
+
+| 候选 | 为什么不写 |
+|---|---|
+| tool 行在 Run 终态为 `unknown` 时的第六个状态词 | 那是 glyph-semantics §3 的词表条目，是 ontology 不是实现；且该文件不在本单写权内。列入待裁定 |
+| Trace 中间层的二十来条"事件读成人话" | 前置条件是事件时间，而事件记录里没有时间字段（BE-26 草案）。在没有时间的前提下造一条时间线，是用排版冒充一个不存在的事实 |
+| Approval 在途时的第二句解释文本 | 换掉的那个标签已经把话说完；再加一句是同一件事说两遍（消融 A-2） |

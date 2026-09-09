@@ -365,3 +365,14 @@ export function sessionModeLabel(session) {
  * 值，所以它是一句陈述而不是一个开关：没有 popover，没有控件，因为今天没有第二个
  * 值可以切过去。画一个只能停在 Off 的选择器会许诺一个后端没有的能力。 */
 export const MEMORY_SCOPE_OFF = "Memory · Off";
+
+/* FE-04 · 一个在途请求是第三类事实：既不是它出发前的状态，也不是它请求的那个结果
+ * （FN-19；review-projection §6 授权卡一行「pending → submitting：按钮禁用、文字
+ * "Sending…"、不换图标」）。同一个词由每一个只送一次决定的原语共用 —— 授权卡的
+ * Approve / Deny、问题卡的 Answer、composer 的 Send 与 Cancel run —— 于是「已送出」
+ * 与「已生效」在四处都不会被同一个标签混同。状态词（Working / Stopping / Cancelled）
+ * 不受它影响：那些说的是 Run 的状态，只能由宿主的回执改变。 */
+export const SENDING_LABEL = "Sending…";
+export function requestLabel(label, inFlight) {
+  return inFlight ? SENDING_LABEL : label;
+}

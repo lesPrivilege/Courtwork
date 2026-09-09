@@ -87,6 +87,18 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | Sources | 文件与已连接的数据；它不是记忆 | Context · Knowledge |
 | Temporary chat | 不读写持久记忆的 Chat。**词已冻结，待 BE-20** | Incognito |
 
+### 3.4b 一次请求正在路上（FE-04 / WK-93）
+
+送出一次决定与那次决定生效，是两件事；把它们写成同一个标签，等于替宿主先答应了。四个只送一次决定的控件（`Approve this write` / `Deny this write`、`Answer`、`Send`、`Cancel run`）因此共用同一个在途词。
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Sending… | 这一次请求已经送出、回执还没到。控件同时被关掉，图标不换（review-projection §6） | Approving… · Cancelling… · Stopping… · Please wait · Submitting |
+
+**在途词不是状态词。** Run 的状态词（`Working` · `Stopping` · `Waiting for you` · `Cancelled` · `Failed` · `Interrupted`）只随宿主的回执改变；一次取消请求在路上时，Run 仍写它上一次被确认的那个词——**cancel requested ≠ stopped**（FN-19、FE-T06）。
+
+读取类请求另说：探测用它自己的动词 `Probing…`（WK-108），因为那一行说的是"正在读"而不是"已送出一个决定"。
+
 ### 3.5 外观
 
 | 用户词 | 它是什么 | 不用 |
