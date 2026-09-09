@@ -1,23 +1,23 @@
 # 发布面候选
 
-本目录为 WO-PS-01 的本地交付。静态站点、README 与离线标本共用文案和证据，未部署。第 01 段改题与第 07 段概念研究稿仍属 WO-PS-02。
+本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。八段叙事、Anatomy 七节点导航、概念定价、README 与离线标本已经接入，未部署。品牌探索后置。
 
 ```sh
 node site/build.mjs
 node site/scripts/check-links.mjs
 node site/scripts/check-material.mjs
-node site/scripts/preview.mjs --port 8927
+node site/scripts/preview.mjs --port 8941
 ```
 
 预览路径为 `/Courtwork/`，不是域名根路径。页面无外部资源请求，外部链接仅在读者点击后导航；标本只回放合成数据，不连接产品服务或模型。浏览器检查使用独立 Chrome profile：
 
 ```sh
-node site/scripts/verify.mjs --origin http://127.0.0.1:8927/Courtwork/ --cdp-port 19987
+node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19991
 ```
 
 ## 版本与再取证
 
-`release.json.source_sha` 是产品证据快照。截图、标本和 benchmark 均属于 `172130e`；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
+`release.json.source_sha` 是产品证据快照。截图、标本和 benchmark 均属于 `9e5384f`；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
 
 `site_sha` 是页面原始源码与证据输入的 SHA-256，不是 Git commit；生成的 `dist/`、README 与标本副本不参与输入摘要，因此首次构建和后续重建一致。`dist/` 及 vendor-product 副本由构建生成，不手改。
 

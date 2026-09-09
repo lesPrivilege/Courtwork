@@ -31,7 +31,13 @@ for (const group of document.querySelectorAll("[data-tabs]")) {
   // Only now do the panels start hiding each other: until this line runs, all
   // three are on the page, which is what a reader without scripting gets.
   group.dataset.ready = "";
+  const selectHash = () => {
+    const at = tabs.findIndex((tab) => `#${tab.id}` === location.hash);
+    if (at >= 0) select(at);
+  };
   select(0);
+  selectHash();
+  window.addEventListener("hashchange", selectHash);
 }
 
 // ---- 03 · one paragraph at a time ------------------------------------------

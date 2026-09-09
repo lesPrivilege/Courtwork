@@ -1,5 +1,5 @@
 {
-  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
   "note": "Fixed product evidence snapshot. Builds read tokens and renderer modules from this Git commit; captures require matching product bytes in an isolated checkout. Current product main may advance independently. This is a local publishing candidate, not acceptance or deployment.",
   "verified_paths": [
     "app",
@@ -8,5 +8,11 @@
     "docs",
     "PAPER.md",
     "LICENSE"
-  ]
+  ],
+  "evidence_sha256": {
+    "continuity-9e5384f.json.journal.jsonl": "a044a3da7c41e6dc8a8c0566f85c66d4960f04ba8fab91b37074d1c959574029",
+    "tests.log": "dc03e0890e7f249a84d67cdea6533e5a873805d2b97644446ff5181880001613",
+    "continuity-9e5384f.json.attempts.json": "03cd7a93571373f08fff9d76642e72f7d5a6be1738644af2bb94c08169e4a135",
+    "continuity-9e5384f.json": "d13abfe1946f0f6cbd6651fc70abc29e89d2b98c765934b9f5f2037f769b9f06"
+  }
 }

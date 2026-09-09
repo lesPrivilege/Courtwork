@@ -23,12 +23,12 @@ function hostedDiagram() {
   return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-hosted-svg-title">
           <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
           <g class="pricing-svg-node">
-            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Matter</text>
+            <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Local / cloud Matter</text>
             <line x1="150" y1="102" x2="150" y2="142" />
             <rect x="30" y="142" width="240" height="116" rx="8" />
-            <text x="150" y="174">Sync</text><text x="150" y="202">Eval</text><text x="150" y="230">Managed runtime</text>
+            <text x="150" y="166">CourtWork service</text><text x="150" y="191">Sync · Eval</text><text x="150" y="230">Managed runtime</text>
             <line x1="150" y1="258" x2="150" y2="298" />
-            <rect x="30" y="298" width="240" height="72" rx="8" /><text x="150" y="340">BYOK</text>
+            <rect x="30" y="298" width="240" height="72" rx="8" /><text x="150" y="340">BYOK / managed model</text>
           </g>
         </svg>`;
 }
@@ -54,17 +54,17 @@ function organizationDiagram() {
 export function renderPricing() {
   return `<section class="section pricing" id="pricing" aria-labelledby="pricing-title">
         <p class="index">07</p>
-        <p class="pricing-concept">Concept pricing · commercialization study · not currently for sale</p>
-        <h2 id="pricing-title"><span lang="en">Where the value would sit</span><span class="zh">商业价值会落在哪一层</span></h2>
-        <p class="lede">这一节回答的是“商业价值会落在哪一层”，不是报价。CourtWork 现在不出售任何东西。三条轨道是一份产品模型的研究稿，把 local-first、自带模型、Expert、Eval、治理与组织保证压成一眼能懂的形状。</p>
-        <blockquote class="pull pricing-premise"><p lang="en">Keep intelligence portable; charge for coordination, assurance and operation.</p><p>智能保持可迁移；收费的是协调、保证与运维。</p></blockquote>
+        <p class="pricing-concept">Concept pricing</p>
+        <h2 id="pricing-title"><span lang="en">Plans for the way you work</span><span class="zh">从个人工作，到团队协作</span></h2>
+        <p class="lede">这一节回答的是“从个人工作，到团队协作”，不是报价。CourtWork 现在不出售任何东西。三条轨道是一份产品模型的研究稿，把 local-first、自带模型、Expert、Eval、治理与组织保证压成一眼能懂的形状。</p>
+        <blockquote class="pull pricing-premise"><p lang="en">Your work. Your models. Room to grow.</p><p>工作留在手里，模型自由选择。</p></blockquote>
 
         <div class="pricing-grid">
           <article class="pricing-card pricing-local" aria-labelledby="pricing-local-title">
             <div>
               <h3 id="pricing-local-title" lang="en">Local</h3>
               <p class="pricing-price">$0</p>
-              <p class="pricing-status">what the repository is today</p>
+              <p class="pricing-status">Open source</p>
               <p class="pricing-summary">Your work stays yours.</p>
               <ul class="pricing-features">
                 <li>Local Matter store</li><li>Event log &amp; provenance</li><li>Local runtime, bring your own provider or local models</li><li>Public eval suite</li><li>Exportable schemas</li><li>MIT source</li>
@@ -77,33 +77,33 @@ export function renderPricing() {
             <div>
               <h3 id="pricing-professional-title" lang="en">Professional</h3>
               <p class="pricing-price"><span>$29</span><span class="pricing-price-unit"> / month</span></p>
-              <p class="pricing-status">concept</p>
+              <p class="pricing-status">Managed</p>
               <p class="pricing-summary">A maintained professional workbench.</p>
               <ul class="pricing-features">
                 <li>Signed desktop builds</li><li>Managed updates</li><li>Cloud sync &amp; backup</li><li>Hosted runtime</li><li>Continuous private eval</li><li>Managed integrations</li><li>Longer history</li>
               </ul>
             </div>
-            <p class="pricing-action">concept · nothing to buy</p>
+            <p class="pricing-action"><a href="#pricing-tab-hosted">Explore hosted →</a></p>
           </article>
 
           <article class="pricing-card pricing-organization" aria-labelledby="pricing-organization-title">
             <div>
               <h3 id="pricing-organization-title" lang="en">Organization</h3>
               <p class="pricing-price">Custom</p>
-              <p class="pricing-status">concept</p>
+              <p class="pricing-status">Private deployment</p>
               <p class="pricing-summary">Governed work at organizational scale.</p>
               <ul class="pricing-features">
                 <li>Shared Matters</li><li>Policy &amp; review controls</li><li>RBAC / SSO</li><li>Audit exports</li><li>Private deployment</li><li>Sovereign-model support</li><li>Expert lifecycle management</li><li>SLA / deployment assistance</li>
               </ul>
             </div>
-            <p class="pricing-action">concept · nothing to buy</p>
+            <p class="pricing-action"><a href="#pricing-tab-organization">Explore organization →</a></p>
           </article>
         </div>
 
         <p class="pricing-model-note"><strong>Model usage is separate.</strong> Bring your own provider, use local models, or use managed inference with a spending cap.<br />模型用量另计：自带 provider、用本地模型，或用带上限的托管推理。</p>
 
         <div class="pricing-tabs tabs" data-tabs="pricing-value">
-          <div class="tab-strip" role="tablist" aria-label="Where the value would sit">
+          <div class="tab-strip" role="tablist" aria-label="Plans for the way you work">
             <button type="button" role="tab" id="pricing-tab-local" aria-controls="pricing-panel-local" aria-selected="true" tabindex="0">Local</button>
             <button type="button" role="tab" id="pricing-tab-hosted" aria-controls="pricing-panel-hosted" aria-selected="false" tabindex="-1">Hosted</button>
             <button type="button" role="tab" id="pricing-tab-organization" aria-controls="pricing-panel-organization" aria-selected="false" tabindex="-1">Organization</button>
@@ -118,6 +118,6 @@ export function renderPricing() {
             ${organizationDiagram()}
           </section>
         </div>
-        <p class="caption">三张图里，Matter store、event log、schema 与 eval 在每一层都在，且可导出；变化的只是谁来运维、谁来保证、谁来治理。</p>
+        <p class="caption">从本地到组织，材料、事件与版本始终随工作同行。</p>
       </section>`;
 }

@@ -265,6 +265,7 @@
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
   --page-gutter: 24px;
@@ -294,6 +295,12 @@
   --settings-gutter: 48px;
   --settings-measure: 820px;
   --settings-group-gap: 40px;
+  /* WK-113 / CC-W · 工作面按视口分档的两个数。--doc-min 是 ≥1680 三栏态里文档列的
+     下限（256 + chat ≥640 + 688 在 1680 上刚好成立）；--doc-measure 是文档面**正文**
+     一行的上限 —— 面板宽 1136 或 688 都不是一行的长度，正文沿阅读列的 740，宽表与
+     代码按内容自己横向滚动（WK-117 (b)）。登记见 ui-composition-standard 的尺寸表。 */
+  --doc-min: 688px;
+  --doc-measure: 740px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 32px;
@@ -472,6 +479,32 @@ button {
   width: var(--control);
   min-width: var(--control);
   padding: 0;
+}
+/* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与静止态、在途态的
+   影子标签叠在同一个 grid 格子里，按钮的宽度因此是两者的较大值：`Sending…` 出现时
+   没有一个邻居会挪位，指针已经落在半路上的用户不会点到另一个决定。影子不进无障碍
+   树（visibility），按钮用 aria-label 显式命名；影子也不接收指针。 */
+.request-width {
+  display: inline-grid;
+  grid-template-areas: "request-label";
+  align-items: center;
+  justify-items: center;
+}
+.request-width > .request-label,
+.request-width::before,
+.request-width::after {
+  grid-area: request-label;
+  white-space: nowrap;
+}
+.request-width::before {
+  content: attr(data-sending-label);
+  visibility: hidden;
+  pointer-events: none;
+}
+.request-width::after {
+  content: attr(data-resting-label);
+  visibility: hidden;
+  pointer-events: none;
 }
 .primary-button {
   background: var(--accent);
@@ -1463,6 +1496,116 @@ details[open] > summary.flow-row::after {
   border-bottom-color: var(--ink);
   color: var(--ink);
   font-weight: 600;
+}
+/* WK-113 ⑥ · 文档 tab 与类型 tab 视觉上是两种东西：类型 tab 只有一条下划线，文档
+   tab 多一个名字与一个自己的关闭命中区。两个命中区分开，指针不会想切换却按到关闭。 */
+.surface-document-tab {
+  display: inline-flex;
+  align-items: stretch;
+  min-width: 0;
+  max-width: 260px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.surface-document-tab:has(.surface-tab-select[aria-selected="true"]) {
+  border-bottom-color: var(--ink);
+}
+.surface-tab-select {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted-strong);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  font-size: var(--text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+.surface-tab-select[aria-selected="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.surface-tab-select:hover {
+  color: var(--ink);
+}
+.surface-tab-close {
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--muted-strong);
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  align-self: center;
+  margin-right: var(--space-2);
+}
+.surface-tab-close:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+/* WK-118 ⑤ · agent activity 的微型记号，进对应的类型 tab，不是一条 banner。形状与
+   一句 sr-only 的话各说一遍：running 实心、waiting_user 空心环、failed 方块。颜色沿
+   run-badge 的三档，没有新色。 */
+.tab-activity {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  flex: none;
+}
+.tab-activity.running,
+.tab-activity.created,
+.tab-activity.stopping,
+.tab-activity.waiting_user {
+  color: var(--accent-ink);
+}
+.tab-activity.running,
+.tab-activity.created,
+.tab-activity.stopping {
+  background: currentColor;
+}
+.tab-activity.failed,
+.tab-activity.unknown {
+  color: var(--danger);
+  border-radius: 0;
+  background: currentColor;
+}
+/* WK-117 (b) / WK-121 ② · 返回不是一个 tab：它有边框、在 strip 左边、不在 tablist 里。 */
+.surface-back {
+  align-self: center;
+  flex: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--muted-strong);
+  padding: 0 var(--space-3);
+  height: var(--control);
+  min-height: var(--control);
+  font-size: var(--text-label);
+}
+.surface-back:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+/* M-2 · scope 位：工作面标题带上的一句陈述，零控件、无背景无边框。 */
+.surface-scope {
+  margin: 0 0 0 auto;
+  align-self: center;
+  flex: none;
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.surface-header .surface-scope + .toolbar {
+  margin-left: var(--space-3);
 }
 .surface-content {
   min-height: 0;
@@ -3261,6 +3404,81 @@ dialog[open]::backdrop {
   color: var(--muted-strong);
 }
 
+/* ==== CC-D0-a · the secondary module band ================================
+   One band under Today, on the same 820 column as the composer and Today, so
+   Home still reads as one column and not as a grid that appeared. Modules are
+   laid out along the remaining width and wrap rather than overflow: 820 is the
+   ceiling, never a promise that two fixed widths fit inside it (WO density).
+   No card frame, no shadow, no second boundary — the band is a group of rows,
+   and a statistic that needs a frame to be read is not a statistic (SH-1). */
+.home-module-band {
+  padding: var(--space-5) var(--page-gutter) 0;
+}
+/* Modules only · the band spends height between Today and the work list, and at
+   a 900-high viewport that height comes straight out of the first concrete
+   to-do (HOME-11). The list therefore closes up by one step under the band —
+   24 rather than 32 — and `Simple` keeps its own 32 untouched, which is what
+   makes `Simple` pixel-for-pixel the Home it was. */
+#home-module-band:not([hidden]) ~ .message-stream-wrap .home-view > .home-section:first-child {
+  margin-top: var(--space-6);
+}
+/* One line: the modules along the column, the fold at its right edge. The band
+   has no heading of its own — with one module a heading over one row is a
+   second structure drawn around a single fact, and the line it costs is the
+   line that pushed the first concrete to-do off a 900-high first screen
+   (HOME-11, WK-117 (b)). The region is named by `aria-label`, and the fold says
+   what it folds. */
+.home-module-band-inner {
+  max-width: var(--home-column);
+  margin: 0 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.home-module-collapse {
+  border: 0;
+  background: none;
+  padding: var(--space-1) var(--space-2);
+  margin-right: calc(var(--space-2) * -1);
+  border-radius: var(--radius-control);
+  /* The fold and the module's own action are the same level — both are what you
+     can do here — so they take the same size. Only the module name is a step up
+     (13 / 600 against 12 / 400): the hierarchy holds without a colour or a rule
+     line (WK-120). */
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.home-module-collapse:hover {
+  background: var(--hover);
+}
+.home-module-collapse:active {
+  background: var(--pressed);
+}
+/* Modules share one row while the row holds them and wrap when it does not.
+   Each takes the width its own content needs, never a painted fixed width. */
+.home-module-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-6);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.home-module-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.home-module-name {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
 /* WK-94 / 视觉审查 §7 · 连接不可达是一行状态，不是一整块横向面板。圆点、一句事实、
    一个 Retry，诊断在 disclosure 里。它复用既有的状态色，不新增视觉概念。 */
 .connection-line {
@@ -3346,6 +3564,19 @@ dialog[open]::backdrop {
   }
   .home-top-band {
     padding-top: var(--space-3);
+  }
+  /* 390 · the one control on this band is a touch target before it is a word
+     (WO accessibility, ≥44). The label stays the same size; only the region
+     around it grows, so nothing is read differently on a phone. */
+  .home-module-band {
+    padding-top: var(--space-3);
+  }
+  .home-module-collapse {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .home-module-list {
+    gap: var(--space-2) var(--space-4);
   }
 }
 
@@ -4179,6 +4410,10 @@ html[data-shell="desktop"] .shell-strip {
    the scrim. The sidebar is outside the scrim and stays operable, so no
    aria-modal is claimed here (WK-74 (1)); below 1024 the sheet is a real modal
    and the JS says so. */
+/* WK-113 ① · B（1024–1679）：展开是**主区内的视图切换**，不是压在聊天上的一张模态
+   卡。聊天列此刻不在屏幕上（app.mjs 给它 hidden + inert），所以这里既没有遮罩可画，
+   也没有需要与之分层的东西：面板落在主区那块地方，用与页面同一张纸，不描边、不加
+   圆角、不投影。1440 下它是 1184 − 24 − 24 = 1136。 */
 @media (min-width: 1024px) {
   .surface-panel.is-expanded {
     position: absolute;
@@ -4188,21 +4423,63 @@ html[data-shell="desktop"] .shell-strip {
     bottom: var(--col-gap);
     left: var(--col-gap);
     width: auto;
-    background: var(--float);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-container);
-    box-shadow: var(--shadow-float);
+    background: var(--panel);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
     z-index: 29;
   }
   /* The sheet grows out of the cards: same top edge, same right gutter. */
   .surface-panel.is-expanded .surface-header {
     padding: 0 var(--col-gap);
   }
+  /* strip 是文档面自己的一条 chrome，40–44 高，正文距它 24（--space-6）。 */
+  .surface-panel.is-view-switch .surface-header {
+    height: 44px;
+    min-height: 44px;
+  }
   #surface-backdrop {
     position: absolute;
     grid-area: -2 / -2 / -1 / -1;
     inset: 0;
     z-index: 28;
+  }
+}
+
+/* WK-113 ① · C（≥1680）：工作面是真正的第三栏。三条列轨都在 shell 的 grid 里，
+   各自 overflow: auto 上下贯通，三条顶部 chrome 落在同一条基线上（都是 --band-top
+   高的一行，都从同一个 grid row 的顶边开始）。算术：256 + 688 + (688 + 2×24) = 1680，
+   chat 因此不低于 640，doc 不低于 --doc-min。 */
+@media (min-width: 1680px) {
+  .app-shell.surface-three-pane {
+    grid-template-columns:
+      var(--nav) minmax(640px, 1fr)
+      calc(var(--doc-min) + 2 * var(--col-gap));
+  }
+  .app-shell.surface-three-pane.nav-collapsed {
+    grid-template-columns:
+      minmax(640px, 1fr)
+      calc(var(--doc-min) + 2 * var(--col-gap));
+  }
+  .surface-panel.is-three-pane {
+    position: static;
+    inset: auto;
+    width: auto;
+    background: var(--panel);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: auto;
+  }
+  /* 两列之间的那条线画在聊天列上，不画在文档列上：文档列的 688 是合同宽度，
+     一条 1px 的边框会把它吃成 687。 */
+  .app-shell.surface-three-pane .chat-panel {
+    border-right: 1px solid var(--line);
+  }
+  /* 同一条基线：文档面的带与聊天面的带同高、同起点。 */
+  .surface-panel.is-three-pane .surface-header {
+    height: var(--band-top);
+    min-height: var(--band-top);
   }
 }
 /* SH-1 · a module is an object you can open as a whole, so it is a card; its
@@ -4326,15 +4603,30 @@ html[data-shell="desktop"] .shell-strip {
 }
 
 /* WK-46 (4) · prose keeps the 740 column; a file tree, a version table or a
-   diff may widen to 960 in the expanded pane, and only there. */
+   diff may widen to 960 in the expanded pane, and only there.
+   WK-117 (b) / CC-W · 文档面**不再**整体跟着变宽。面板宽 1136（B）或 688（C）都不是
+   一行的长度：`#file-content` 里的每一件东西都停在 `--doc-measure`，宽表与代码在自己
+   的盒子里横向滚动。960 那一档留给领域渲染器的面（`#surface-content` 的文件树 /
+   版本表 / diff），它们本来就不是正文。 */
 .surface-expanded .surface-content > * {
-  max-width: var(--column);
+  max-width: var(--doc-measure);
   margin-left: auto;
   margin-right: auto;
 }
-.surface-expanded #surface-content > *,
-.surface-expanded #file-content > * {
+.surface-expanded #surface-content > * {
   max-width: 960px;
+}
+.surface-expanded #file-content > * {
+  max-width: var(--doc-measure);
+}
+#file-content .file-document > * {
+  max-width: var(--doc-measure);
+}
+#file-content .file-text,
+#file-content pre,
+#file-content table {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 /* WK-13 · three icon tiers. Row 16, control 18 (the base rule above), nav 20.

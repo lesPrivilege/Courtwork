@@ -36,6 +36,7 @@ async function emitTree(from, into) {
   for (const entry of (await readdir(from, { withFileTypes: true })).sort((a, b) => (a.name < b.name ? -1 : 1))) {
     const source = path.join(from, entry.name);
     const relative = path.posix.join(into, entry.name);
+    if (into === "specimen" && /^[0-9a-f]{7}\.json$/.test(entry.name) && entry.name !== `${identity.sha7}.json`) continue;
     if (entry.isDirectory()) await emitTree(source, relative);
     else await emit(relative, await readFile(source));
   }
@@ -100,12 +101,14 @@ for (const entry of media.media) {
 await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity, media }));
 
 await emitTree(path.join(SITE, "specimen"), "specimen");
+for (const file of evidence.files) await emit(`evidence/${path.basename(file.path)}`, await readFile(path.join(ROOT, file.path)));
 
 // ---- the page ---------------------------------------------------------------
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media }));
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
+await emit("pricing.css", await readFile(path.join(SITE, "src", "pricing.css")));
 await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
 if (await exists(path.join(SITE, "media"))) await emitTree(path.join(SITE, "media"), "media");
 

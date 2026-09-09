@@ -575,3 +575,5 @@ figure.shot figcaption {
     height: 620px;
   }
 }
+
+.anatomy-links { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-3); margin-block:var(--space-6); font-family:var(--font-mono); font-size:var(--text-body); }

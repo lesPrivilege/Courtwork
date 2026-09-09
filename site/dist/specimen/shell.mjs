@@ -18,6 +18,7 @@ import { renderUserMessage } from "./vendor-product/web/user-message.mjs";
 import { renderRecordedContext } from "./vendor-product/web/runtime-view.mjs";
 import { mount } from "./vendor-product/extensions/inbound-nda/renderer.mjs";
 import { STEPS, REPLAY_NOTE, LAYERS } from "./copy.mjs";
+import { readRecordedSource } from "./recorded-source.mjs";
 
 const root = document.getElementById("specimen");
 const recordingUrl = root.dataset.recording;
@@ -62,9 +63,7 @@ async function dispatch(action, payload) {
 /** The product calls this to read the bytes a finding cites. */
 async function query(kind, request) {
   if (kind !== "source") return null;
-  const sources = currentProjection()?.sources ?? [];
-  const source = sources.find((entry) => entry.id === request.sourceId);
-  return source ? { text: source.text, version: request.version } : null;
+  return readRecordedSource(currentProjection(), request);
 }
 
 /** The product calls this to read a file. Answers out of the recording. */
@@ -450,3 +449,23 @@ function permissionWords(mode) {
 }
 
 render();
+
+function followHash() {
+  const id = location.hash.slice(1);
+  const at = STEPS.findIndex((entry) => `step-${entry.id}` === id);
+  if (at >= 0) { go(at); stepButtons[at].focus(); }
+  if (id === "source") {
+    go(STEPS.findIndex((entry) => entry.id === "candidate"));
+    const sources = currentProjection()?.sources ?? [];
+    const detail = el("section", { className: "specimen-card", attrs: { id: "source" } });
+    detail.append(el("h3", { text: "Recorded sources" }));
+    for (const source of sources) {
+      detail.append(field("Source", source.id), field("Version", String(source.version)),
+        el("pre", { className: "specimen-json", text: source.text }));
+    }
+    stage.prepend(detail);
+    detail.scrollIntoView();
+  }
+}
+window.addEventListener("hashchange", followHash);
+followHash();

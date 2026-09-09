@@ -4,6 +4,7 @@
 // the copy is data (copy.mjs), this file arranges it, and every number it
 // prints comes from the recorded evidence rather than from the copy.
 import { NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
+import { renderPricing } from "./pricing.mjs";
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
 
 const REPO = "https://github.com/lesPrivilege/Courtwork";
@@ -68,6 +69,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
     <meta name="description" content="${escape(HERO.lede)}" />
     <link rel="stylesheet" href="./tokens.css" />
     <link rel="stylesheet" href="./site.css" />
+    <link rel="stylesheet" href="./pricing.css" />
   </head>
   <body>
     <a class="skip" href="#main">跳到正文</a>
@@ -79,13 +81,16 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
       ${architecture(fill, diagram)}
       ${review(fill, shot)}
       ${evidenceSection(fill, evidence)}
+      ${portability(fill)}
+      ${renderPricing()}
       ${build(fill, shot)}
     </main>
     ${footer(fill, identity)}
     <script type="module" src="./site.mjs"></script>
   </body>
 </html>
-`;
+`.replaceAll(`${REPO}/blob/main/`, `${REPO}/blob/${identity.source_sha}/`)
+    .replaceAll(`${REPO}/tree/main/`, `${REPO}/tree/${identity.source_sha}/`);
 }
 
 function header() {
@@ -117,10 +122,10 @@ ${shot("M1", {
 
 /** The three layers, filled with a real excerpt of the recording. */
 function rawGoverned(fill, recording) {
-  const runA = recording.runOrder[0];
-  const events = recording.events[runA].events;
+  const runId = recording.runOrder[1];
+  const events = recording.events[runId].events;
   const projection = recording.surface.pending.projection;
-  const context = recording.context[runA];
+  const context = recording.context[runId];
 
   const excerpts = {
     events: events
@@ -146,7 +151,16 @@ function rawGoverned(fill, recording) {
 
   return `<section class="section" id="layers" aria-labelledby="layers-title">
         <p class="index">${RAW_GOVERNED.index}</p>
-        <h2 id="layers-title" lang="en">${escape(RAW_GOVERNED.title)}</h2>
+        <h2 id="layers-title"><span lang="en">${escape(RAW_GOVERNED.title)}</span><span class="zh">${escape(RAW_GOVERNED.subtitle)}</span></h2>
+        <nav class="anatomy-links" aria-label="Anatomy of a governed matter">
+          <a href="./specimen/index.html#source" target="matter-replay">Source</a><span aria-hidden="true">→</span>
+          <a href="#tab-events">Event</a><span aria-hidden="true">→</span>
+          <a href="#tab-surface">Matter state</a><span aria-hidden="true">→</span>
+          <a href="./specimen/index.html#step-run" target="matter-replay">Run</a><span aria-hidden="true">→</span>
+          <a href="#review">Review</a><span aria-hidden="true">→</span>
+          <a href="./specimen/index.html#step-candidate" target="matter-replay">Decision</a><span aria-hidden="true">→</span>
+          <a href="#review-provenance">Provenance</a>
+        </nav>
         <blockquote class="pull">
           <p lang="en">${escape(RAW_GOVERNED.quote[0])}</p>
           <p>${escape(RAW_GOVERNED.quote[1])}</p>
@@ -183,6 +197,7 @@ function matter(fill) {
         <blockquote class="pull"><p>${escape(MATTER.quote)}</p></blockquote>
         <iframe
           class="specimen-frame"
+          name="matter-replay"
           src="./specimen/index.html"
           title="${escape(MATTER.title)}"
           loading="lazy"
@@ -234,7 +249,7 @@ function review(fill, shot) {
         <blockquote class="pull"><p>${escape(REVIEW.quote)}</p></blockquote>
         <dl class="words">
           ${REVIEW.words
-            .map((entry) => `<dt lang="en">${escape(entry.word)}</dt><dd>${escape(entry.text)}</dd>`)
+            .map((entry) => `<dt lang="en"${entry.word === "Provenance" ? ' id="review-provenance"' : ""}>${escape(entry.word)}</dt><dd>${escape(entry.text)}</dd>`)
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
@@ -283,7 +298,7 @@ function evidenceSection(fill, evidence) {
         <p class="record is-mono">E ${benchmark.conditions.E.passed}/${benchmark.conditions.E.attempted} · S ${benchmark.conditions.S.passed}/${benchmark.conditions.S.attempted} · ${escape(benchmark.protocol)} · CourtWork ${escape(benchmark.git.head.slice(0, 7))} · model ${benchmark.model === null ? "null" : escape(String(benchmark.model))}</p>
         <p class="note">${escape(EVIDENCE.evalFooter)}</p>
         <p class="actions">${EVIDENCE.evalActions
-          .map((a) => `<a href="${escape(a.href)}" lang="en">${escape(a.label)}</a>`)
+          .map((a) => `<a href="${escape(fill(a.href))}" lang="en">${escape(a.label)}</a>`)
           .join("")}</p>
 
         <h3>声称表</h3>
@@ -297,6 +312,20 @@ function evidenceSection(fill, evidence) {
           </tbody>
         </table>
         <p class="note">${escape(EVIDENCE.claimsNote)}</p>
+      </section>`;
+}
+
+function portability(fill) {
+  return `<section class="section" id="portability" aria-labelledby="portability-title">
+        <p class="index">06</p>
+        <h2 id="portability-title"><span lang="en">Architecture &amp; portability</span><span class="zh">工作可以留下，智能可以迁移</span></h2>
+        <dl class="words">
+          ${BUILD.components
+            .map(([name, text]) => `<dt lang="en">${escape(name)}</dt><dd>${escape(text)}</dd>`)
+            .join("\n          ")}
+        </dl>
+        <p class="note">${inline(BUILD.upstream, fill)}</p>
+        <p class="note"><strong>Model usage is separate.</strong> 模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模型账单。</p>
       </section>`;
 }
 
@@ -321,12 +350,7 @@ function build(fill, shot) {
               .join("\n            ")}
           </tbody>
         </table>
-        <dl class="words">
-          ${BUILD.components
-            .map(([name, text]) => `<dt lang="en">${escape(name)}</dt><dd>${escape(text)}</dd>`)
-            .join("\n          ")}
-        </dl>
-        <p class="note">${inline(BUILD.upstream, fill)}</p>
+
       </section>`;
 }
 

@@ -50,6 +50,8 @@ jobs:
           node site/build.mjs
           find site/dist -type f -exec shasum -a 256 {} + | sort -k2 > /tmp/second.sha
           diff /tmp/first.sha /tmp/second.sha
+      - name: Check product material inheritance
+        run: node site/scripts/check-material.mjs
       - name: Check the sub-path
         run: node site/scripts/check-links.mjs
       - uses: actions/configure-pages@v5

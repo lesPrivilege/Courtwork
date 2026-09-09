@@ -3,7 +3,7 @@
 // source_sha pins the product evidence, including the rendering modules and
 // tokens. Builds read those bytes from Git, even after the product advances.
 // Capture commands additionally require matching working-tree product bytes.
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, lstat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -19,13 +19,41 @@ export function git(...args) {
 // The page's own sources. site/dist is the output and site/verification holds
 // screenshots of it, so neither is part of the version being identified.
 const SOURCE_TREE = ["build.mjs", "release.json", "src", "scripts", "media",
-  "specimen/shell.mjs", "specimen/specimen.css", "specimen/capture.json"];
+  "specimen/shell.mjs", "specimen/recorded-source.mjs", "specimen/specimen.css", "specimen/capture.json"];
 
 export function productBytes(sourceSha, relativePath) {
   if (!/^[0-9a-f]{40}$/.test(sourceSha) || !/^(?:app|brand|docs|benchmarks)\//.test(relativePath) || relativePath.split("/").includes("..")) {
     throw new Error("expected a full product SHA and a repository-relative source path");
   }
   return execFileSync("git", ["-C", ROOT, "show", `${sourceSha}:${relativePath}`], { maxBuffer: 64 * 1024 * 1024 });
+}
+
+async function captureDrift(declared) {
+  // Inspect actual bytes: git diff can hide edits behind assume-unchanged or
+  // skip-worktree flags, which must not stamp a changed capture as source_sha.
+  const tree = git("ls-tree", "-rz", "--full-tree", declared.source_sha, "--", ...declared.verified_paths);
+  const entries = tree.split("\0").filter(Boolean).map(row => {
+    const [meta, file] = row.split("\t");
+    const [mode, type, hash] = meta.split(" ");
+    return {mode, type, hash, file};
+  });
+  const expected = new Set(entries.map(row => row.file));
+  const drift = [];
+  for (const row of entries) {
+    try {
+      const file = path.join(ROOT, row.file);
+      const info = await lstat(file);
+      if (row.type !== "blob" || row.mode === "120000" || !info.isFile() || info.isSymbolicLink()) {
+        drift.push(row.file); continue;
+      }
+      const bytes = await readFile(file);
+      const hash = createHash("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
+      if (hash !== row.hash) drift.push(row.file);
+    } catch { drift.push(row.file); }
+  }
+  const actual = git("ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", ...declared.verified_paths);
+  for (const file of actual.split("\0").filter(Boolean)) if (!expected.has(file)) drift.push(file);
+  return [...new Set(drift)].sort().join("\n");
 }
 
 async function digestOf(target) {
@@ -70,7 +98,7 @@ export async function release({ capture = false } = {}) {
     .digest("hex");
   // Capture imports product modules from disk: include staged and unstaged
   // changes in this check, not merely differences between committed heads.
-  const drift = capture ? git("diff", "--name-only", declared.source_sha, "--", ...declared.verified_paths) : "";
+  const drift = capture ? await captureDrift(declared) : "";
   if (drift) {
     throw new Error(
       `capture product paths differ from source_sha ${declared.source_sha.slice(0, 7)}:\n${drift}\n` +

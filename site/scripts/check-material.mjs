@@ -16,6 +16,7 @@ import { SITE } from "./release.mjs";
 
 const SHEETS = [
   path.join(SITE, "src", "site.css"),
+  path.join(SITE, "src", "pricing.css"),
   path.join(SITE, "specimen", "specimen.css"),
 ];
 

@@ -36,6 +36,8 @@ ${HERO.lede}
 
 ${BUILD.note}
 
+每个服务使用独立数据目录。当前主线的数据版本、迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
+
 \`\`\`sh
 ${BUILD.commands.join("\n")}
 \`\`\`
@@ -76,7 +78,7 @@ ${BUILD.upstream}
 
 ## Paper
 
-CourtWork 按 Schema Engineering 9.6（\`d78fd31\`）建造，版本绑定与反馈路径见 [\`PAPER.md\`](PAPER.md)。论文是权威；产品状态从不修改论文。
+CourtWork 按 Schema Engineering 9.6（\`d78fd31\`）建造，版本绑定与反馈路径见 [\`PAPER.md\`](PAPER.md)。
 
 ## License
 

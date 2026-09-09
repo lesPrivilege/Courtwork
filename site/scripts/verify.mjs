@@ -195,6 +195,47 @@ try {
     keyboard,
   );
 
+  const replay = await evaluate(`(async () => {
+    const frame = document.querySelector("iframe.specimen-frame");
+    const win = frame.contentWindow;
+    const doc = win.document;
+    const capture = await (await fetch(new URL("specimen/capture.json", location.href))).json();
+    const recording = await (await fetch(new URL("specimen/" + capture.file.split("/").pop(), location.href))).json();
+    const { readRecordedSource } = await import(new URL("specimen/recorded-source.mjs", location.href));
+    const projection = recording.surface.pending.projection;
+    const candidate = projection.candidates.find(c => c.evidence?.length);
+    const anchor = candidate.evidence[0];
+    const request = {candidateId:candidate.id, sourceId:anchor.source_id, version:anchor.source_version};
+    const valid = await readRecordedSource(projection, request);
+    const wrongCandidate = await readRecordedSource(projection, {...request, candidateId:"missing"});
+    const wrongVersion = await readRecordedSource(projection, {...request, version:"missing"});
+    const changed = structuredClone(projection);
+    changed.sources.find(s => s.id === request.sourceId && s.version === request.version).text += "tampered";
+    const wrongBytes = await readRecordedSource(changed, request);
+    win.location.hash = "step-candidate";
+    await new Promise(r => setTimeout(r,200));
+    const selected = doc.querySelector('.specimen-step[aria-selected="true"]').id;
+    const decision = [...doc.querySelectorAll("button")].find(b => /Accept/.test(b.textContent));
+    const reason = doc.querySelector(".candidate-actions textarea");
+    if (reason) { reason.value = "Synthetic replay inspection"; reason.dispatchEvent(new win.Event("input", {bubbles:true})); }
+    decision?.click();
+    await new Promise(r => setTimeout(r,100));
+    const refusal = doc.querySelector(".specimen-refusal").textContent;
+    win.location.hash = "source";
+    await new Promise(r => setTimeout(r,100));
+    return {valid:!!valid, wrongCandidate, wrongVersion, wrongBytes, selected, refusal, source:doc.querySelector("#source")?.textContent, links:document.querySelectorAll(".anatomy-links a").length};
+  })()`);
+  record("V3b · frozen source lookup, negative identities and replay refusal", replay.valid && replay.wrongCandidate === null && replay.wrongVersion === null && replay.wrongBytes === null && replay.selected === "step-candidate" && /replay · not sent/.test(replay.refusal) && replay.source?.includes("Recorded sources") && replay.links === 7, replay);
+
+  const pricing = await evaluate(`(() => {
+    const tabs = [...document.querySelectorAll('[data-tabs="pricing-value"] [role="tab"]')];
+    const reached = tabs.map(tab => { tab.click(); return document.getElementById(tab.getAttribute("aria-controls")).hidden === false; });
+    tabs[0].focus();
+    tabs[0].dispatchEvent(new KeyboardEvent("keydown", {key:"ArrowRight",bubbles:true}));
+    return {count:tabs.length, reached, arrow:document.activeElement.id, concepts:document.querySelector(".pricing-concept").textContent, cards:document.querySelectorAll(".pricing-card").length};
+  })()`);
+  record("V3c · pricing panels and keyboard selection", pricing.count === 3 && pricing.cards === 3 && pricing.reached.every(Boolean) && pricing.arrow === "pricing-tab-hosted" && /Concept pricing/.test(pricing.concepts), pricing);
+
   // ---- V4 · reduced motion and reduced transparency ------------------------
   for (const feature of ["prefers-reduced-motion", "prefers-reduced-transparency"]) {
     await load(ORIGIN, { features: [{ name: feature, value: "reduce" }] });
@@ -251,7 +292,7 @@ try {
     const text = document.body.innerText;
     return {
       hero: /把 AI 的产出/.test(text),
-      architecture: /让工作存在于模型之外/.test(text) && /单次输出的质量/.test(text),
+      architecture: /让工作存在于模型之外/.test(text) && /已确认的决定/.test(text),
       evidence: /Continuity conformance/.test(text) && /声称表/.test(text),
       build: /npm --prefix app ci/.test(text) && /Domain core/.test(text),
       layers: [...document.querySelectorAll(".tab-panel")].filter((p) => p.getClientRects().length).length,
@@ -263,7 +304,7 @@ try {
   const served = await (await fetch(ORIGIN)).text();
   record("V6 · without scripting the first screen and sections 03 / 05 / 06 are complete", 
     /把 AI 的产出/.test(served) &&
-      /让工作存在于模型之外/.test(served) && /单次输出的质量/.test(served) &&
+      /让工作存在于模型之外/.test(served) && /已确认的决定/.test(served) &&
       /Continuity conformance/.test(served) && /声称表/.test(served) &&
       /npm --prefix app ci/.test(served) && /Domain core/.test(served) &&
       !/hidden/.test(served.split('class="tab-panel"')[1]?.slice(0, 80) ?? ""),
@@ -300,6 +341,8 @@ try {
     [1440, 900, "light", 2],
   ]) {
     await load(ORIGIN, { width, height, theme, scale });
+    await evaluate('document.querySelector("#pricing").scrollIntoView()');
+    await writeFile(path.join(OUT, `pricing-${width}-${theme}${scale === 2 ? "-zoom200" : ""}.png`), Buffer.from((await cdp("Page.captureScreenshot", {format:"png"})).data, "base64"));
     const overflow = await evaluate("document.documentElement.scrollWidth - window.innerWidth");
     // A whole-page screenshot outruns lazy loading, so the pictures are asked
     // for eagerly and awaited before the shutter.

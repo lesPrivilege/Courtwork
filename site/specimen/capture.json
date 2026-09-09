@@ -1,14 +1,14 @@
 {
   "id": "specimen",
   "kind": "interactive-fixture",
-  "file": "site/specimen/172130e.json",
-  "sha256": "77a496f01accc507689e55463bd810af1268ce4fb89a24d4dc53626bc076c3e0",
-  "bytes": 285410,
-  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "file": "site/specimen/9e5384f.json",
+  "sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0",
+  "bytes": 298756,
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
   "capture_date": "2026-09-09",
   "capture_command": "node site/scripts/capture-specimen.mjs",
   "dataClass": "synthetic; actual HTTP/Pi loopback/Core; no real provider",
   "data_kind": "synthetic",
   "provider_mode": "local deterministic fake (fake-openai-loopback)",
-  "data_dir": "/private/tmp/se-agent-ps01-data"
+  "data_dir": "/private/tmp/cw-pages-first-specimen-data"
 }

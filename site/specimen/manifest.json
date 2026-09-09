@@ -1,24 +1,24 @@
 {
   "id": "specimen",
   "kind": "interactive-fixture",
-  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
   "capture_date": "2026-09-09",
   "capture_command": "node site/scripts/capture-specimen.mjs",
   "data_kind": "synthetic",
   "provider_mode": "local deterministic fake (fake-openai-loopback)",
   "dataClass": "synthetic; actual HTTP/Pi loopback/Core; no real provider",
   "recording": {
-    "path": "specimen/172130e.json",
-    "bytes": 285410,
-    "sha256": "77a496f01accc507689e55463bd810af1268ce4fb89a24d4dc53626bc076c3e0"
+    "path": "specimen/9e5384f.json",
+    "bytes": 298756,
+    "sha256": "0562f6f365793fcad615bcd5761996a40a37a467489e539d0b33a478135a93c0"
   },
   "vendor_product": [
     {
       "source": "app/web/ui-controls.mjs",
-      "source_sha256": "b873fa68cb202fc0bdb178cb7aea3d5df909d143e05deec4190837f811fbf4e2",
-      "source_bytes": 12142,
+      "source_sha256": "2a3fdc941838f5ec3a18018302e491412402f6208d4da43ab3adde9a6fc79d62",
+      "source_bytes": 15187,
       "copied_to": "web/ui-controls.mjs",
-      "copied_sha256": "7564830384d1487fae32a6693a0a10b16fb4aeaa83965612a59e579e7449eed0",
+      "copied_sha256": "7bb69be918a86da087e807288887a315e1206dad851bbc7aa325c6587d1ea4b2",
       "rewrites": [
         {
           "line": 74,
@@ -85,10 +85,10 @@
     },
     {
       "source": "app/web/styles.css",
-      "source_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
-      "source_bytes": 124199,
+      "source_sha256": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "source_bytes": 134422,
       "copied_to": "web/styles.css",
-      "copied_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
+      "copied_sha256": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
       "rewrites": []
     },
     {

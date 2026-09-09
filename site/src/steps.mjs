@@ -69,7 +69,7 @@ export const STEPS = [
     id: "stop",
     seen: "Stop · reconnect",
     text: "取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。",
-    status: "verified with synthetic data",
+    status: "not recorded in this replay",
     view: "absent",
     key: "—",
     run: 0,
@@ -85,7 +85,7 @@ export const STEPS = [
     still: "M5",
     seen: "Continue in Work",
     text: "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复制，不迁移。",
-    status: "verified with synthetic data · Astra 核对",
+    status: "verified with synthetic data",
     view: "surface",
     key: "surface.bound",
     surface: "bound",
@@ -97,7 +97,7 @@ export const STEPS = [
     still: "M6",
     seen: "Candidate → Decision",
     text: "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
-    status: "verified with synthetic data · Astra 核对",
+    status: "verified with synthetic data",
     view: "surface",
     key: "surface.pending",
     surface: "pending",
@@ -110,8 +110,8 @@ export const STEPS = [
 
 // The fixed sentence the specimen carries, in both languages (public-copy-v2 §3).
 export const REPLAY_NOTE = [
-  "This is a replay. Nothing here is sent anywhere; the decide and revise buttons show what a recorded request looked like.",
-  "这是重放。这里没有任何东西被发出；决定与修订按钮只显示当时记录下的请求。",
+  "Interactive replay · synthetic NDA",
+  "逐步查看一次 NDA 工作的完整记录。",
 ];
 
 export const LAYERS = [
