@@ -14,7 +14,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { extractTokens } from "./scripts/tokens.mjs";
 import { copyProductModules } from "./scripts/vendor-product.mjs";
-import { git, release, ROOT, SITE } from "./scripts/release.mjs";
+import { release, ROOT, SITE } from "./scripts/release.mjs";
 import { renderPage } from "./src/page.mjs";
 import { renderSpecimenPage } from "./src/specimen-page.mjs";
 import { renderReadme } from "./src/readme.mjs";
@@ -42,9 +42,6 @@ async function emitTree(from, into) {
 }
 
 const identity = await release();
-// A wall clock would make two builds differ; the release commit's own date is
-// the honest, stable answer to "when was this built from".
-identity.built_at = git("show", "-s", "--format=%cI", identity.site_sha);
 
 await rm(DIST, { recursive: true, force: true });
 await mkdir(DIST, { recursive: true });
@@ -132,6 +129,8 @@ const manifest = {
   source_sha: identity.source_sha,
   site_sha: identity.site_sha,
   built_at: identity.built_at,
+  built_at_note: "the release commit's own date; the build stamps no wall clock, so two builds of the same sources are byte-identical",
+  site_sha_note: "a digest of the page's sources (site/src, site/scripts, site/specimen, site/media, site/build.mjs, site/release.json, README.md), not a git commit",
   tokens: { source: "app/web/styles.css", source_sha256: tokens.sourceSha256, blocks: tokens.blocks },
   media_manifest: "media/manifest.json",
   specimen_manifest: "specimen/manifest.json",
