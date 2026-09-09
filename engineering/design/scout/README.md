@@ -93,3 +93,5 @@ Disposition 规则：`canonical candidate` = mature precedent + implementation l
 随后补交的 Composer Runtime 与两份 Tab/View-Switch 输入亦已消费：[配置/观测/回合事实接缝](../home-composition-2026-09-10/runtime-telemetry.md)、[六类切换语义与 specimen 范围](../home-composition-2026-09-10/tab-view-grammar.md)。资料中的假设状态与指标不直接成为产品事实。
 
 Material 的后补材料收敛为 [token 草案与组件辖区](../home-composition-2026-09-10/material-grammar.md)：Product solid/glass/smoke/review 与 Pages atmosphere 分离；既有 blur 两处补能力回退，未扩大玻璃覆盖面。
+
+数据可视化后补输入见 [Activity / model Usage 消费](../home-composition-2026-09-10/data-visualization.md)：heat-graph 与 Recharts/shadcn 为 React donor，现有 vanilla Home 不新增依赖；每日/model token 接缝、缺失统计与下钻合同先于新图表。两张截图只作视觉参考。
