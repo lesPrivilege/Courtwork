@@ -243,6 +243,22 @@ def present_attention(conn):
     return required_tables(conn) & {'attention','attention_event','attention_request'}
 
 
+def exclusive_migration_backup(store: Store, backup: Path) -> None:
+    """Create a recovery copy without following or replacing an existing name."""
+    if os.path.lexists(backup):
+        raise CoreError('SCHEMA_INVALID','migration backup already exists; restore or inspect it explicitly')
+    try:
+        fd=os.open(backup,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
+    except FileExistsError as exc:
+        raise CoreError('SCHEMA_INVALID','migration backup already exists; restore or inspect it explicitly') from exc
+    os.close(fd)
+    target=sqlite3.connect(backup)
+    try:
+        store.conn.backup(target)
+    finally:
+        target.close()
+
+
 def ensure_file_schema(store: Store, *, allow_initialize: bool = False) -> None:
     tables = required_tables(store.conn)
     core_tables = {"meta", "matter", "source", "source_set", "candidate", "artifact", "request_result", "decision", "audit", "event"}
@@ -259,8 +275,7 @@ def ensure_file_schema(store: Store, *, allow_initialize: bool = False) -> None:
         validate_owned_schema(store.conn,old[0])
     if old and old[0] in {"1", "2"}:
         backup = Path(str(store.db_path) + ".pre-file-core-v2-app-v3.bak")
-        if backup.exists(): raise CoreError("SCHEMA_INVALID", "migration backup already exists; restore or inspect it explicitly")
-        store.backup_to(backup)
+        exclusive_migration_backup(store,backup)
     store.conn.execute("BEGIN IMMEDIATE")
     try:
         store.conn.execute("CREATE TABLE IF NOT EXISTS source_history (matter_id TEXT NOT NULL,source_id TEXT NOT NULL,source_version INTEGER NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(matter_id,revision,source_id),FOREIGN KEY(matter_id) REFERENCES matter(id),FOREIGN KEY(source_id,source_version) REFERENCES source(id,version))")
@@ -318,13 +333,7 @@ def ensure_app_schema(store: Store, *, allow_initialize: bool = False) -> None:
     validate_owned_schema(store.conn,'3',complete=True)
     if not allow_initialize:
         backup=Path(str(store.db_path)+'.pre-attention-core-v3-app-v4.bak')
-        # Exclusive creation also refuses dangling symlinks and never unlinks a
-        # preexisting recovery copy. The database lock serializes host migration.
-        fd=os.open(backup,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
-        os.close(fd)
-        target=sqlite3.connect(backup)
-        try: store.conn.backup(target)
-        finally: target.close()
+        exclusive_migration_backup(store,backup)
     store.conn.execute('BEGIN IMMEDIATE')
     try:
         for statement in ATTENTION_SCHEMA: store.conn.execute(statement)

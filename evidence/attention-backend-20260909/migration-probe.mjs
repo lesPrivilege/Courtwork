@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile, symlink, readlink } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
@@ -388,7 +388,7 @@ async function runMigrationCase(temp, roots, appVersion, seeded) {
   };
 }
 
-async function runNegativeCases(temp, roots, sourceDb, finalDb) {
+async function runNegativeCases(temp, roots, sourceDb, finalDb, legacyDb) {
   const negative = {};
 
   const pair24 = path.join(temp, 'negative-pair-2-4', 'state.db');
@@ -432,6 +432,20 @@ c=sqlite3.connect(sys.argv[1]); c.execute("DROP TABLE attention_event"); c.execu
 c=sqlite3.connect(sys.argv[1]); c.execute("DROP TABLE attention_request"); c.commit(); c.close()`);
   negative.missingCurrentAttention = await assertRefusal(roots.currentRoot, missingCurrent, 'SCHEMA_MISSING');
 
+  for (const [name,base,suffix] of [
+    ['legacyFileBackup',legacyDb,'.pre-file-core-v2-app-v3.bak'],
+    ['attentionBackup',sourceDb,'.pre-attention-core-v3-app-v4.bak'],
+  ]) {
+    const db=path.join(temp,'negative-dangling-'+name,'state.db');
+    await copyDb(base,db);
+    const target=path.join(temp,'must-not-create-'+name+'.db');
+    await symlink(target,db+suffix);
+    negative[name+'DanglingSymlink']=await assertRefusal(roots.currentRoot,db,'SCHEMA_INVALID');
+    assert.equal(await readlink(db+suffix),target,'backup link must be preserved');
+    await assert.rejects(readFile(target),{code:'ENOENT'});
+    negative[name+'DanglingSymlink'].linkPreserved=true;
+    negative[name+'DanglingSymlink'].targetCreated=false;
+  }
   return negative;
 }
 
@@ -464,7 +478,7 @@ async function main() {
     await copyDb(negativeDb, finalNegativeDb);
     await copyDb(`${negativeDb}.pre-file-core-v2-app-v3.bak`, `${finalNegativeDb}.pre-file-core-v2-app-v3.bak`);
     await inspect(roots.currentRoot, finalNegativeDb);
-    const negative = await runNegativeCases(temp, roots, negativeDb, finalNegativeDb);
+    const negative = await runNegativeCases(temp, roots, negativeDb, finalNegativeDb, legacyNegativeDb);
 
     const result = {
       oldSha: OLD_SHA,
