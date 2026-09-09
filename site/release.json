@@ -1,0 +1,5 @@
+{
+  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "note": "The product commit whose bytes every piece of evidence on this page was taken from. The site branch adds site/, README.md and the Pages workflow on top of it and never touches app/, benchmarks/, brand/, docs/ or PAPER.md; site/scripts/release.mjs proves that before any capture or build is allowed to run.",
+  "verified_paths": ["app", "benchmarks", "brand", "docs", "PAPER.md", "LICENSE"]
+}
