@@ -1,0 +1,12 @@
+{
+  "specimen": "site/specimen/172130e.json",
+  "bytes": 285410,
+  "sha256": "77a496f01accc507689e55463bd810af1268ce4fb89a24d4dc53626bc076c3e0",
+  "normalised_sha256": "f99f5acbff0b99441eaf72b355f5b0accb939c36032fe2c1b3835e03d7d0973b",
+  "second_capture_normalised_sha256": "f99f5acbff0b99441eaf72b355f5b0accb939c36032fe2c1b3835e03d7d0973b",
+  "volatile_tokens": {
+    "first": 32,
+    "second": 32
+  },
+  "identical_after_normalising_ids_and_timestamps": true
+}

@@ -1,0 +1,12 @@
+{
+  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "note": "Fixed product evidence snapshot. Builds read tokens and renderer modules from this Git commit; captures require matching product bytes in an isolated checkout. Current product main may advance independently. This is a local publishing candidate, not acceptance or deployment.",
+  "verified_paths": [
+    "app",
+    "benchmarks",
+    "brand",
+    "docs",
+    "PAPER.md",
+    "LICENSE"
+  ]
+}

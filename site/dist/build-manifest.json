@@ -1,0 +1,255 @@
+{
+  "source_sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+  "site_sha": "5bef912f331fcf79080f891be0d0d5d962be04b1caa281561da9c5703475713f",
+  "built_at": "2026-09-09T21:58:43+08:00",
+  "built_at_note": "the release commit's own date; the build stamps no wall clock, so two builds of the same sources are byte-identical",
+  "site_sha_note": "SHA-256 of authored page sources and recorded evidence; generated README, dist and specimen copies are excluded. Product tokens and modules come from source_sha Git blobs.",
+  "tokens": {
+    "source": "app/web/styles.css",
+    "source_sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272",
+    "blocks": [
+      {
+        "selector": ":root",
+        "lines": "1-40"
+      },
+      {
+        "selector": ":root[data-theme=\"dark\"]",
+        "lines": "40-77"
+      },
+      {
+        "selector": "@media (prefers-color-scheme: dark) > :root:not([data-theme=\"light\"])",
+        "lines": "77-112"
+      },
+      {
+        "selector": ":root",
+        "lines": "217-335"
+      },
+      {
+        "selector": ":root[data-text-size=\"small\"]",
+        "lines": "335-340"
+      },
+      {
+        "selector": ":root[data-text-size=\"large\"]",
+        "lines": "340-343"
+      }
+    ]
+  },
+  "media_manifest": "media/manifest.json",
+  "specimen_manifest": "specimen/manifest.json",
+  "evidence_links": [
+    "evidence/publishing-surface-2026-09-09/continuity-172130e.json",
+    "evidence/publishing-surface-2026-09-09/continuity-172130e.json.attempts.json",
+    "evidence/publishing-surface-2026-09-09/continuity-172130e.json.journal.jsonl",
+    "evidence/publishing-surface-2026-09-09/tests.log"
+  ],
+  "supported_platforms": [
+    "local run from source on macOS and Linux"
+  ],
+  "download_assets": [],
+  "known_limits": [
+    "development fixtures; shared author",
+    "trusted scripted clients",
+    "S is a bounded conventional transaction baseline, not a general workflow product",
+    "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
+  ],
+  "locale_content_hashes": {
+    "zh-CN": "3f26ac3b04e933a99b2b4551dfb4a0464cf173d122089d51f6e52f5c96fe50d4"
+  },
+  "files": [
+    {
+      "path": "tokens.css",
+      "bytes": 9632,
+      "sha256": "296853b6f78c412822f564c804ffc87b9662b867c6041af161cf494011444292"
+    },
+    {
+      "path": "specimen/172130e.json",
+      "bytes": 285410,
+      "sha256": "77a496f01accc507689e55463bd810af1268ce4fb89a24d4dc53626bc076c3e0"
+    },
+    {
+      "path": "specimen/capture.json",
+      "bytes": 573,
+      "sha256": "db25126684eb720846c3c0d4ad897705ab9482768fb5f8e09c69e5e376b8b0e5"
+    },
+    {
+      "path": "specimen/copy.mjs",
+      "bytes": 4369,
+      "sha256": "3ff27efa1ce12d9210c96ad45d0c7cb3b01cd4d236625cad4a3e87379ab63e1b"
+    },
+    {
+      "path": "specimen/index.html",
+      "bytes": 4685,
+      "sha256": "c499a10de9072c16fcf4c4ed0d277a4fbb78351b9df51c896ad3bbdc9d1f8979"
+    },
+    {
+      "path": "specimen/manifest.json",
+      "bytes": 7403,
+      "sha256": "26256f162571106cf28368418b3060ccc763ebf406146a3c0a27d01208db45c1"
+    },
+    {
+      "path": "specimen/shell.mjs",
+      "bytes": 16952,
+      "sha256": "224fcb4a3179b9a2b049b09f8237a26c0d5600357e67d55e8f4202830b677357"
+    },
+    {
+      "path": "specimen/specimen.css",
+      "bytes": 6225,
+      "sha256": "42070e59fccde507123b52ca0e4467859dcd66d64a51b5bf7ce9bf149ab7de9c"
+    },
+    {
+      "path": "specimen/vendor-product/extensions/inbound-nda/renderer.mjs",
+      "bytes": 14950,
+      "sha256": "710365c1221e99e79439206151a3cd2c453ecd03ca453ea969274066b037023a"
+    },
+    {
+      "path": "specimen/vendor-product/web/inspector.mjs",
+      "bytes": 14599,
+      "sha256": "3e6b1cda8e939c8182b027309315d8950f03f12944b93dafb3a52d5e7a33ee6f"
+    },
+    {
+      "path": "specimen/vendor-product/web/presentation-adapters.mjs",
+      "bytes": 7389,
+      "sha256": "7f84ffa9f2ce957a8081d6b67a2eea1d982c3cfa4edbfa92d04770c0d72bc5b3"
+    },
+    {
+      "path": "specimen/vendor-product/web/runtime-view.mjs",
+      "bytes": 106415,
+      "sha256": "5b3693f6d995669824ad7361019d03a4c0bf439290d470e2cf5fcee8b949e8e2"
+    },
+    {
+      "path": "specimen/vendor-product/web/styles.css",
+      "bytes": 124199,
+      "sha256": "c09a829b4a30c9c9409910f79eaf4ce99fc1d1d93aaac54a68deae2012793272"
+    },
+    {
+      "path": "specimen/vendor-product/web/surface-modules.mjs",
+      "bytes": 40646,
+      "sha256": "2409c1a732d573ff7f89f63009f65f7e66a349c33da99e464021163419e86d15"
+    },
+    {
+      "path": "specimen/vendor-product/web/thread-projection.mjs",
+      "bytes": 6472,
+      "sha256": "3cb84b522fa955d1233fca13be179203a078f2dc2361e17ef2a107b90095dd64"
+    },
+    {
+      "path": "specimen/vendor-product/web/ui-controls.mjs",
+      "bytes": 12158,
+      "sha256": "7564830384d1487fae32a6693a0a10b16fb4aeaa83965612a59e579e7449eed0"
+    },
+    {
+      "path": "specimen/vendor-product/web/user-message.mjs",
+      "bytes": 1366,
+      "sha256": "f15f404df2cdeb2464c25a92f11fb6f6854b1a0a8512ec7b71d40fd1e3129200"
+    },
+    {
+      "path": "specimen/vendor-product/web/vendor/LICENSES.txt",
+      "bytes": 21148,
+      "sha256": "28ba9753d069a1be742c35d6e2939291ea54c6cbea01e7af2b0912490ace0a18"
+    },
+    {
+      "path": "specimen/vendor-product/web/vendor/floating.mjs",
+      "bytes": 15842,
+      "sha256": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60"
+    },
+    {
+      "path": "specimen/vendor-product/web/vendor/icons.svg",
+      "bytes": 3941,
+      "sha256": "1e0528478d5e5bc0d2844b150a052383af5a674092309e5e33819f73b7998847"
+    },
+    {
+      "path": "specimen/vendor-product/web/vendor/marked.mjs",
+      "bytes": 43800,
+      "sha256": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31"
+    },
+    {
+      "path": "specimen/vendor-product/web/vendor/purify.mjs",
+      "bytes": 133141,
+      "sha256": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3"
+    },
+    {
+      "path": "specimen/vendor-product/web/workspace-view.mjs",
+      "bytes": 4546,
+      "sha256": "ea51d3b1f001c7cda704010da262dd8b13f89b096acbfc7e19b295006c600e5a"
+    },
+    {
+      "path": "index.html",
+      "bytes": 29714,
+      "sha256": "3f26ac3b04e933a99b2b4551dfb4a0464cf173d122089d51f6e52f5c96fe50d4"
+    },
+    {
+      "path": "site.css",
+      "bytes": 12570,
+      "sha256": "15ef83682bcd3ef29036b9949dff9e37406aad11679c79756a1b9882799ce773"
+    },
+    {
+      "path": "site.mjs",
+      "bytes": 2631,
+      "sha256": "1acf397ad103276f2ef3b5005e2d78e4a2d1fb1cfcd5f81ae65c666bb772edc6"
+    },
+    {
+      "path": "media/chat-approval-1440-light.png",
+      "bytes": 97059,
+      "sha256": "6ad397e73c5764e9dbda7d2fdbb68ed5b63aab038ee6762bf9ca217bbff5ea80"
+    },
+    {
+      "path": "media/chat-file-1440-light.png",
+      "bytes": 84828,
+      "sha256": "0babdc95b36f101f32949b8a9c85461b71804c825eb4ebd1040e5971243c0dac"
+    },
+    {
+      "path": "media/chat-question-1440-light.png",
+      "bytes": 106844,
+      "sha256": "b7322b0cdbb1a97cbfd28602531b7f017775c9ec214695d6604eed3ff0041dc1"
+    },
+    {
+      "path": "media/continue-in-work-1440-light.png",
+      "bytes": 91289,
+      "sha256": "0bb588664c2874f5c3ab15201457ec09c7632c0284c76ebc413c2d22ee2017b9"
+    },
+    {
+      "path": "media/home-1440-dark.png",
+      "bytes": 75904,
+      "sha256": "0f7784f89e8b3110c371e9b1fc27e98abfb91971a8d886e0e89423aeddb7b413"
+    },
+    {
+      "path": "media/home-1440-light.png",
+      "bytes": 74988,
+      "sha256": "77188b767447abbc78a5bc8a76a440e7fe3fd0997224067d9a94ac4099861f7a"
+    },
+    {
+      "path": "media/home-390-light.png",
+      "bytes": 50040,
+      "sha256": "8b96406e300536c349537d7bd4f2276cf8ca66d7bfd791f023f475933f6b0bbe"
+    },
+    {
+      "path": "media/manifest.json",
+      "bytes": 10832,
+      "sha256": "896579aadc21cf61dea58e01517eb272bc7b199d868404cb1f8afcd6551c6e9c"
+    },
+    {
+      "path": "media/review-1440-dark.png",
+      "bytes": 111677,
+      "sha256": "c35138f0c906b28a244faf3c8d417f42d23f72acef724afdb99a024473b572f9"
+    },
+    {
+      "path": "media/review-1440-light.png",
+      "bytes": 110347,
+      "sha256": "a1b021bede9ed5502a67bf83618338d24e88fe9a0d5127b263c083ff2f40916e"
+    },
+    {
+      "path": "media/review-390-light.png",
+      "bytes": 53845,
+      "sha256": "1523199897bf40d52d93e57107c059990434f5a7f82219b9ea00d3bd8fdaa8ff"
+    },
+    {
+      "path": "media/settings-models-1440-dark.png",
+      "bytes": 104690,
+      "sha256": "b433a3c28eb5eaf32146227803dd1d9b1f41fb4c5b23624ec8c0555759e26184"
+    },
+    {
+      "path": "media/settings-models-1440-light.png",
+      "bytes": 103756,
+      "sha256": "1173d1ada00d1f13e15644f782f0ab1e25109fc5dd2ec5b063a595f26fae4fc4"
+    }
+  ]
+}
