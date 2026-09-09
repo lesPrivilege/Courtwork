@@ -1,6 +1,6 @@
 {
   "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
-  "site_sha": "c8f633ea051d352302528d1a52fd543859cb9b2b84f8ee9cf299fbece0a38ff4",
+  "site_sha": "fc09151e3f9d9fec161dc0755946935dc949347fc27b29736901e64692558361",
   "built_at": "2026-09-10T00:30:23+08:00",
   "built_at_note": "the release commit's own date; the build stamps no wall clock, so two builds of the same sources are byte-identical",
   "site_sha_note": "SHA-256 of authored page sources and recorded evidence; generated README, dist and specimen copies are excluded. Product tokens and modules come from source_sha Git blobs.",
@@ -53,7 +53,7 @@
     "no model, host Session, GUI, SIGKILL, legal-quality or causal advantage claims"
   ],
   "locale_content_hashes": {
-    "zh-CN": "05b82704523799e12a2dde86a4cb610a06c6b0aa940702c39ec9776eec78133b"
+    "zh-CN": "906e1dabebc92534a3a797d82f657ecee9a86d5a6cb88029deae02d2b91ef332"
   },
   "files": [
     {
@@ -199,7 +199,7 @@
     {
       "path": "index.html",
       "bytes": 37080,
-      "sha256": "05b82704523799e12a2dde86a4cb610a06c6b0aa940702c39ec9776eec78133b"
+      "sha256": "906e1dabebc92534a3a797d82f657ecee9a86d5a6cb88029deae02d2b91ef332"
     },
     {
       "path": "site.css",

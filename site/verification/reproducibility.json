@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "site/dist/build-manifest.json",
-      "sha256": "cd691d7df283f58060ed8cc923ea804a68623e14e5560e52ef76a27547ab9ff9"
+      "sha256": "41678109c4c261a96b843a96500180618df122618a1f8b5112ebf17c58403de3"
     },
     {
       "path": "site/dist/evidence/continuity-9e5384f.json",
@@ -24,7 +24,7 @@
     },
     {
       "path": "site/dist/index.html",
-      "sha256": "05b82704523799e12a2dde86a4cb610a06c6b0aa940702c39ec9776eec78133b"
+      "sha256": "906e1dabebc92534a3a797d82f657ecee9a86d5a6cb88029deae02d2b91ef332"
     },
     {
       "path": "site/dist/media/chat-approval-1440-light.png",
