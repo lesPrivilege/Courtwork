@@ -17,7 +17,10 @@
 
 | SHA | 标题 |
 |---|---|
-| （见 `git log`） | `feat: make a provider connection the unit of identity, credential and admission` |
+| `d4b5fa6` | `feat: make a provider connection the unit of identity, credential and admission` |
+| （分支 HEAD） | `docs: record the BE02 commit SHA on the delivery page` —— 本页自身的提交，SHA 见 `git log` |
+
+均为显式路径 `git add`，无 `git add -A`。作者验证的三条命令跑在 `d4b5fa6` 的树上；HEAD 这条只改本页。
 
 ## 2. 改动文件
 
