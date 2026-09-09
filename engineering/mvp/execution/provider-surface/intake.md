@@ -128,3 +128,19 @@
 | PV-D2 | 自定义网关的完整形态（任意 provider 身份 + 手工模型录入），在 PV-25 的最小层之后 | 记录 |
 | PV-D3 | BE-38 错误类；BE-28 `lastVerifiedAt`；BE-12 已部分交付 | 记录 |
 
+## 9. EX-PV4 回执与增补裁定（2026-09-10）
+
+**EX-PV4 收，Fable 复核接受**：[explore/ex-pv4-runtime-registration.md](explore/ex-pv4-runtime-registration.md)。Fable 非作者抽验两处成立：`resolveCompactionPolicy` 在窗口未知且 `enabled:false` 时返回降级策略而不抛（`app/runtime/pi-session-runtime.mjs:132-136`）；`classifyRuntimeError` 只用两条正则认出 `credential_missing` 与 `provider_auth_failed`，其余一律 `provider_error`。
+
+**PV-30（未知窗口不靠猜值，靠关压缩）** 缺 `contextWindow` 会在首次 Run 抛错，但既有代码已有诚实出口：该连接默认关闭压缩并显式记录 "context window unknown, compaction disabled"，而不是给一个宿主编造的窗口值。用户可选填窗口以启用压缩，填了要标明来源是用户输入。此条优先于任何"给个保守默认值"的做法。
+
+**PV-31（用户连接用独立 provider id，用 merge 注册）** 运行期为每条用户连接派生独立 provider id，用未被调用过的 `registerProvider`（字段级合并）注册，删除走 `unregisterProvider`；禁止注册到目录身份上——凭据是"id → 单槽"，会互相覆盖。
+
+**PV-32（凭据键从 provider id 改为连接 id）** 破坏性改动，一次迁移，不留兼容层（项目工程原则）。这是 PV-26 的落点。
+
+**PV-33（凭据来源直接消费 pi 的分档）** run 记录里记 `runtime` / `stored` / `environment` 三档，取自 `getProviderAuthStatus`，不自造分类；`AuthResult.source` 是自由文本，不入契约。
+
+**PV-34（错误分类分两层）** 保存时的三类区分直接消费 BE-17/18 的 `status` 枚举；运行期分类今日只能从扁平字符串正则回收，属 BE-38（PV-D3），本轮不动，也不得在前端重新分类冒充精度。
+
+工单：[WO-PV-BE02](work-orders/WO-PV-BE02-connection-slice.md)（后端薄切片，先落）、[WO-PV-FE01](work-orders/WO-PV-FE01-connection-consumption.md)（前端消费，待 BE02 合流后填基线派出）。
+
