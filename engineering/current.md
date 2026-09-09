@@ -64,6 +64,8 @@ BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选ke
 
 ## Clean and Cool：前端视觉审查与 Claude 输入（2026-09-09）
 
+最新用户补充已并入设计交接：桌面window control安全区、左/中/右三面上下贯通、composer优先且热力图/统计缩为辅助模块；熟悉的frontier交互范式作为默认参照。沿既有shell合同，旧图不相容尺寸退为参考；本次仅文档，无产品实现或验收。
+
 用户后续用七张截图补充：保留可解耦的模块首页（热力图、邮件、日历、Attention、Models/Usage），Settings以专用导航替换全局项目/会话栏，右侧工作区展开采用标签式chrome，并保留必要边距与呼吸感。[补充交接](design/clean-cool-2026-09-09/shell-refinement.md)及三张修订图已记录；这些结构方向覆盖旧图不相容部分，具体视觉细节仍可调整。仅设计输入，尚未实施或另启Claude任务；统计、来源、多实例等后端接缝分单，前端仍单writer。
 
 用户要求复查已实现及待做前端PR/commit并提供更自由的图稿；从`main@61ab863`隔离启动local-fake，捕捉Home、Models和NDA Review的桌面流程及Models窄屏。[设计包](design/clean-cool-2026-09-09/README.md)附提交/工单索引、三张Image Gen图、完整prompt、偏差校正及Claude交接。图稿尚未选择或实施；Home几何/命名和Review全幅模式均为显式提案，BE-17/18探测不代表custom连接已可保存。仅文档与图像交付，无产品代码变更；FE单writer队列与G1–G5保持。
