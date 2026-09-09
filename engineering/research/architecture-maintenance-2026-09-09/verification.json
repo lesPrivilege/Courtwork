@@ -9,7 +9,11 @@
     "supplementByteIdentical": true,
     "originalReferenceCoverage": 17,
     "localMarkdownTargets": 38,
-    "gitDiffCheck": "passed"
+    "gitDiffCheck": {
+      "authoredDocuments": "passed; git diff --check excludes frozen source inputs/handoff.md",
+      "fullChange": "2 trailing-space warnings at frozen handoff.md lines 3 and 4",
+      "disposition": "Preserve original Markdown hard-break spaces and exact source bytes/hash; no authored-document whitespace errors"
+    }
   },
   "readOnlyReview": {
     "sourceAndCodeMapping": "Luna explorers; bounded official documentation and fixed local source inspection",
