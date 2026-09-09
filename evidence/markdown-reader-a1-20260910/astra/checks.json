@@ -183,24 +183,14 @@
       "mime": "text/javascript"
     },
     {
-      "url": "http://127.0.0.1:8980/web/vendor/marked.mjs",
-      "status": 200,
-      "mime": "text/javascript"
-    },
-    {
       "url": "http://127.0.0.1:8980/web/vendor/purify.mjs",
       "status": 200,
       "mime": "text/javascript"
     },
     {
-      "url": "http://127.0.0.1:8980/web/vendor/markdown-parser.mjs",
+      "url": "http://127.0.0.1:8980/web/vendor/marked.mjs",
       "status": 200,
       "mime": "text/javascript"
-    },
-    {
-      "url": "http://127.0.0.1:8980/web/vendor/icons.svg",
-      "status": 200,
-      "mime": "image/svg+xml"
     },
     {
       "url": "http://127.0.0.1:8980/favicon.ico",
@@ -208,6 +198,11 @@
       "mime": "text/plain"
     },
     {
+      "url": "http://127.0.0.1:8980/web/vendor/markdown-parser.mjs",
+      "status": 200,
+      "mime": "text/javascript"
+    },
+    {
       "url": "http://127.0.0.1:8980/web/vendor/icons.svg",
       "status": 200,
       "mime": "image/svg+xml"
@@ -248,12 +243,12 @@
       "mime": "text/html"
     },
     {
-      "url": "http://127.0.0.1:8980/web/styles.css",
+      "url": "http://127.0.0.1:8980/web/markdown-reader.css",
       "status": 200,
       "mime": "text/css"
     },
     {
-      "url": "http://127.0.0.1:8980/web/markdown-reader.css",
+      "url": "http://127.0.0.1:8980/web/styles.css",
       "status": 200,
       "mime": "text/css"
     },
@@ -303,12 +298,12 @@
       "mime": "text/html"
     },
     {
-      "url": "http://127.0.0.1:8980/web/markdown-reader.css",
+      "url": "http://127.0.0.1:8980/web/styles.css",
       "status": 200,
       "mime": "text/css"
     },
     {
-      "url": "http://127.0.0.1:8980/web/styles.css",
+      "url": "http://127.0.0.1:8980/web/markdown-reader.css",
       "status": 200,
       "mime": "text/css"
     },
@@ -333,12 +328,12 @@
       "mime": "text/javascript"
     },
     {
-      "url": "http://127.0.0.1:8980/web/vendor/marked.mjs",
+      "url": "http://127.0.0.1:8980/web/vendor/purify.mjs",
       "status": 200,
       "mime": "text/javascript"
     },
     {
-      "url": "http://127.0.0.1:8980/web/vendor/purify.mjs",
+      "url": "http://127.0.0.1:8980/web/vendor/marked.mjs",
       "status": 200,
       "mime": "text/javascript"
     },

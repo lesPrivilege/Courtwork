@@ -1,6 +1,6 @@
 # MR-A1 / MR-T1 · 固定 Markdown 阅读交付
 
-2026-09-10。用户授权施工，Astra 持有 source identity、分页投影、宿主接入与架构；Terra 按冻结 DTO 实现局部 reader；两位 Luna 分别写独立 source 反例和实际 HTTP/Core 测试。起始 main `a243a6c`，代码 `ec7f4fd`；施工中与 main `85693a6` 无冲突合流为 `21fde2f`，最终产品与独立测试提交 **`b119fc3`**。本包后续提交只记录交付，不把作者验证称为独立接受。
+2026-09-10。用户授权施工，Astra 持有 source identity、分页投影、宿主接入与架构；Terra 按冻结 DTO 实现局部 reader；两位 Luna 分别写独立 source 反例和实际 HTTP/Core 测试。起始 main `a243a6c`，代码 `ec7f4fd`；施工中与 main `85693a6` 无冲突合流为 `21fde2f`，最终产品与独立测试提交 **`b119fc3`**。临收尾主线推进至 Pages交付 `5909f2f`，本分支合流为 **`e8f1438`**；唯一冲突为current末尾两段新增记录，已同时保留。共享ui-controls的composer glyph修复原样接收，页面固定快照未重建。本包后续提交只记录交付，不把作者验证称为独立接受。
 
 ## 实际交付
 
@@ -14,9 +14,9 @@
 
 | 验证 | 实际结果 | 归因/范围 |
 |---|---|---|
-| [完整组合 suite](validation/full-tests.log) | 365/365 | Astra 作者运行，基于合流 `21fde2f`，含新增19项；最终 copy/局部布局修订另跑下两组浏览器与定向测试 |
+| [完整组合 suite](validation/full-tests.log) | 365/365 | Astra 作者运行，最终组合 `e8f1438`，含新增19项；两组浏览器亦在该组合重跑 |
 | [最终定向 suite](validation/targeted-final.log) | 19/19 | 两位 Luna 独立设计/实施，Astra 在 `b119fc3` 重跑；[source 独验](luna-independent.md)、[HTTP/Core 独验](luna-http.md)分列 |
-| [组件作者 fixture](terra/README.md) / [Astra 新端口复跑](astra/checks.json) | 各28/28 | Terra 作者运行；Astra 非作者重跑同组组件断言，独立目视1440/740/390截图；clipboard 为显式 synthetic stub |
+| [组件作者 fixture](terra/README.md) / [Astra 新端口复跑](astra/checks.json) | 各28/28 | Terra 作者运行；Astra 非作者重跑同组组件断言（截图等待两帧以完成动态sprite绘制），独立目视1440/740/390截图；clipboard 为显式 synthetic stub |
 | [真实宿主浏览器](host-checks.json) | 11/11 | Astra 作者运行真实临时 service/local-fake/HTTP；Luna只读审查接缝，不称其独立执行浏览器 |
 | [smoke](validation/smoke.log)、[colors](validation/colors.log)、[materials](validation/materials.log)、[contrast](validation/contrast.md) | 通过 | 使用主线既有检查；token对比度不是所有屏幕的自动可访问性认证 |
 

@@ -18,6 +18,7 @@ const navigate = async (width, height, theme = 'light', zoom = 1) => {
   throw new Error('Fixture did not initialize');
 };
 const screenshot = async (path) => {
+  await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
   const {data} = await cdp('Page.captureScreenshot', {format:'png', captureBeyondViewport:false});
   await writeFile(path, Buffer.from(data, 'base64'));
 };
