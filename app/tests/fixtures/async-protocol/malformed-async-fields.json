@@ -1,6 +1,6 @@
 {
   "resultType": "complete",
-  "content": [{ "type": "text", "text": "ordinary result with async fields" }],
+  "content": [{ "type": "text", "text": "ordinary result with malformed async fields" }],
   "async": {
     "handle": "unknown-handle",
     "continuation": "poll"
