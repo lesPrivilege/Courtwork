@@ -807,6 +807,16 @@ export class RuntimeService {
       ? {...record,surface:{...record.surface,module:null}} : record,projection};
   }
 
+  renameSession(sessionId, input) {
+    const value = requireObject(input, "body");
+    assertKeys(value, new Set(["title"]));
+    const title = text(value.title, "title", { max: 200 });
+    return this.#withConfiguration(async () => {
+      if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+      return { session: await this.store.renameSession(sessionId, title) };
+    });
+  }
+
   deleteSession(sessionId) {
     return this.#withConfiguration(async () => {
       if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');

@@ -1,0 +1,15 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (398.342292ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (613.930708ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (400.296667ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (1.248083ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.331666ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.388625ms)
+✔ conversation rename persists metadata without changing history, scope or draft (259.488291ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4047.902167

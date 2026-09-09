@@ -2556,6 +2556,7 @@ function renderMessageStream() {
     if (row.kind === "user") {
       appendFlowRow(
         renderUserMessage(row, {
+          key: sessionScopeKey("user", row.id), viewState: userMessageViews,
           onCopy: async (text) => {
             try {
               await navigator.clipboard.writeText(text);
@@ -2577,7 +2578,14 @@ function renderMessageStream() {
         { className: "message-header" },
         element("span", { className: "message-role", text: currentSession()?.scope === "global" ? "Attention" : "Assistant" }),
       );
-      header.append(
+      wrapper.append(header);
+      appendAssistantBody(
+        wrapper,
+        row.text,
+        sessionScopeKey("assistant", row.id),
+      );
+      const footer = element("footer", { className: "assistant-message-actions" });
+      if (!row.pending) footer.append(
         action(
           "copy",
           "Copy response",
@@ -2592,12 +2600,7 @@ function renderMessageStream() {
           { attrs: { "data-focus-key": `response:${row.id}` } },
         ),
       );
-      wrapper.append(header);
-      appendAssistantBody(
-        wrapper,
-        row.text,
-        sessionScopeKey("assistant", row.id),
-      );
+      wrapper.append(footer);
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
       /* WK-47 ablation · the whole row no longer turns red. A failed tool is
@@ -3229,6 +3232,7 @@ function stopWorkingClock() {
  * Cancel run，而 run hint 仍在数「Working for 12s」。FE-T06 的另半条正是这一条：
  * **cancel requested ≠ stopped**。状态词不动：`Stopping` 只在宿主把 Run 报成
  * `stopping` 之后才出现，取消请求本身不把 Run 提前说成已停（FN-19）。 */
+const userMessageViews = new Map();
 const COMPOSER_SEND_LABEL = "Send";
 const COMPOSER_CANCEL_LABEL = "Cancel run";
 function renderComposer() {

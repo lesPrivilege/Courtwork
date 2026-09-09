@@ -134,3 +134,21 @@ test('a delayed history choice cannot replace the newer conversation or draft', 
   await Promise.resolve(); await Promise.resolve(); await c.choose('b'); c.setDraft('current b'); release(); await first;
   assert.equal(c.state.conversationId,'b'); assert.equal(c.state.session.id,'b'); assert.equal(c.state.draft,'current b');
 });
+
+test('conversation rename persists metadata without changing history, scope or draft', async () => {
+  const h = await boot();
+  try {
+    const id = randomUUID();
+    ok(await h.api('POST', '/attention/conversations', {conversationId:id}));
+    ok(await h.api('PUT', `/sessions/${id}/draft`, {text:'retained draft'}));
+    const before = ok(await h.api('GET', `/sessions/${id}`));
+    const renamed = ok(await h.api('PATCH', `/sessions/${id}`, {title:'Research notes'})).session;
+    assert.equal(renamed.title, 'Research notes'); assert.equal(renamed.scope,'global'); assert.equal(renamed.projectId,null);
+    const after = ok(await h.api('GET', `/sessions/${id}`));
+    assert.equal(after.session.draft,'retained draft'); assert.deepEqual(after.events,before.events); assert.deepEqual(after.runs,before.runs);
+    assert.equal(ok(await h.api('GET','/attention/conversations')).sessions[0].title,'Research notes');
+    for (const body of [{title:''},{title:' '.repeat(2)},{title:'x'.repeat(201)},{title:'x',scope:'project'}]) assert.equal((await h.api('PATCH',`/sessions/${id}`,body)).status,400);
+    assert.equal((await h.api('PATCH',`/sessions/${randomUUID()}`,{title:'x'})).status,404);
+    assert.equal(h.runtime.store.getSession(id).title,'Research notes');
+  } finally { await h.runtime.close(); await rm(h.dataDir,{recursive:true,force:true}); }
+});
