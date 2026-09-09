@@ -1,0 +1,2148 @@
+{
+  "source": {
+    "tree": "/private/tmp/se-fable-r4d (read-only)",
+    "baselineHeadAtCaptureTime": "bef3cd9 (branch claude/fable-round4d; task brief named main 5ea5ff0, which predates this worktree's checked-out HEAD; see README's 基线说明)",
+    "appPort": 8903,
+    "dataDir": "/private/tmp/se-fable-r4d-excc5-data",
+    "cdpPortsUsed": [
+      19972,
+      19973,
+      19974,
+      19975,
+      19976
+    ],
+    "staticServerPort": 8909,
+    "sampledAt": "2026-09-09T14:25:16.951Z",
+    "spec": "engineering/design/type-density-constraints.md §2-4",
+    "method": "engineering/design/type-density-ablation/README.md (EX-CC4), adapted to a single-column 1:1 variant (no zoom)"
+  },
+  "min_width_derivation": {
+    "method": "CDP getBoundingClientRect/scrollWidth on #send-button / #cancel-run-button with .icon-only's width/min-width/padding lock removed (width:auto; padding:5px 10px) and V1 font-size (--text-label 12px) applied; measured at 1440x900 and re-checked at 390x844 (identical widths — only --control height differs by viewport, width is independent of it).",
+    "measured_natural_content_width_px": {
+      "send": 49,
+      "cancel": 81
+    },
+    "chosen_min_width_px": {
+      "send": 52,
+      "cancel": 84
+    },
+    "buffer_px": 3,
+    "note": "静止标签量得（button 基础规则 padding:5px 10px 下的 scrollWidth），+3px 安全余量，不改字号目标、不改 --control。"
+  },
+  "segment_hit_area_baseline_check": {
+    "question": "settings-general-390 的 .segment（File access for new chats）测出 32px<44，是否 V1 造成？",
+    "v1_height_px": 32,
+    "no_overlay_baseline_height_px": 32,
+    "conclusion": "无关。现状（未套 V1 overlay 的纯 styles.css）在 390 下同样是 32px——.segment 的 44px 命中区从未被产品自己的响应式规则覆盖到（`.settings-row button, select, input {min-height:44px}` 这条 @media(max-width:1023px) 规则只列了 button/select/input 三个标签，.segment 是 <label>，不在列），是应用现状已有的缺口，与字阶消融、与 V1 都无关。"
+  },
+  "measurements": {
+    "settings-general-1440-light": {
+      "singles": [
+        {
+          "present": true,
+          "selector": "#settings-general-title",
+          "text": "General",
+          "hidden": false,
+          "width": 820,
+          "height": 27,
+          "scrollWidth": 820,
+          "clientWidth": 820,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "18px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#settings-new-sessions .settings-block-title",
+          "text": "New chats",
+          "hidden": false,
+          "width": 778,
+          "height": 19.5,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "13px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-title",
+          "text": "File access",
+          "hidden": false,
+          "width": 778,
+          "height": 21,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-help",
+          "text": "The value a chat starts with. It applies when the chat is cr",
+          "hidden": false,
+          "width": 778,
+          "height": 16.67,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-tab.is-current",
+          "text": "General",
+          "hidden": false,
+          "width": 240,
+          "height": 30,
+          "scrollWidth": 240,
+          "clientWidth": 240,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "fontWeight": "500",
+          "padding": "6px 10px",
+          "contrast": {
+            "ratio": 13.41,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 232,
+              "g": 232,
+              "b": 236,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "segments": [
+        {
+          "selector": ".segment",
+          "text": "Ask before editing",
+          "width": 256.66,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Allow edits",
+          "width": 256.67,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Read only",
+          "width": 256.66,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "rowControls": [
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "settings-general-1440-dark": {
+      "singles": [
+        {
+          "present": true,
+          "selector": "#settings-general-title",
+          "text": "General",
+          "hidden": false,
+          "width": 820,
+          "height": 27,
+          "scrollWidth": 820,
+          "clientWidth": 820,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "18px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#settings-new-sessions .settings-block-title",
+          "text": "New chats",
+          "hidden": false,
+          "width": 778,
+          "height": 19.5,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "13px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-title",
+          "text": "File access",
+          "hidden": false,
+          "width": 778,
+          "height": 21,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-help",
+          "text": "The value a chat starts with. It applies when the chat is cr",
+          "hidden": false,
+          "width": 778,
+          "height": 16.67,
+          "scrollWidth": 778,
+          "clientWidth": 778,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-tab.is-current",
+          "text": "General",
+          "hidden": false,
+          "width": 240,
+          "height": 30,
+          "scrollWidth": 240,
+          "clientWidth": 240,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "fontWeight": "500",
+          "padding": "6px 10px",
+          "contrast": {
+            "ratio": 12.43,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 39,
+              "g": 42,
+              "b": 45,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "segments": [
+        {
+          "selector": ".segment",
+          "text": "Ask before editing",
+          "width": 256.66,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Allow edits",
+          "width": 256.67,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Read only",
+          "width": 256.66,
+          "height": 32,
+          "scrollWidth": 257,
+          "clientWidth": 257,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "rowControls": [
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.86,
+            "fg": {
+              "r": 230,
+              "g": 231,
+              "b": 233,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.86,
+            "fg": {
+              "r": 230,
+              "g": 231,
+              "b": 233,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.86,
+            "fg": {
+              "r": 230,
+              "g": 231,
+              "b": 233,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "work-header-1440-light": {
+      "panes": 4,
+      "sendButtons": [
+        {
+          "selector": "#send-button",
+          "text": "Send",
+          "width": 52,
+          "height": 30,
+          "scrollWidth": 50,
+          "clientWidth": 50,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            },
+            "bg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "cancelButtons": [
+        {
+          "selector": "#cancel-run-button",
+          "text": "Cancel run",
+          "width": 84,
+          "height": 30,
+          "scrollWidth": 82,
+          "clientWidth": 82,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            },
+            "bg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "singles": [
+        {
+          "present": true,
+          "selector": ".session-mode",
+          "text": "Work",
+          "hidden": false,
+          "width": 26.23,
+          "height": 15.22,
+          "scrollWidth": 26,
+          "clientWidth": 26,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".session-scope",
+          "text": "Memory · Off",
+          "hidden": false,
+          "width": 66.77,
+          "height": 15.22,
+          "scrollWidth": 67,
+          "clientWidth": 67,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".run-badge",
+          "text": "Waiting for you",
+          "hidden": false,
+          "width": 86.72,
+          "height": 15.22,
+          "scrollWidth": 87,
+          "clientWidth": 87,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#permission-settings-button",
+          "text": "Allow edits",
+          "hidden": false,
+          "width": 99.22,
+          "height": 28,
+          "scrollWidth": 97,
+          "clientWidth": 97,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#model-settings-button",
+          "text": "Local test",
+          "hidden": false,
+          "width": 67.11,
+          "height": 28,
+          "scrollWidth": 65,
+          "clientWidth": 65,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "work-header-1440-dark": {
+      "panes": 4,
+      "sendButtons": [
+        {
+          "selector": "#send-button",
+          "text": "Send",
+          "width": 52,
+          "height": 30,
+          "scrollWidth": 50,
+          "clientWidth": 50,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.25,
+            "fg": {
+              "r": 17,
+              "g": 17,
+              "b": 19,
+              "a": 1
+            },
+            "bg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "cancelButtons": [
+        {
+          "selector": "#cancel-run-button",
+          "text": "Cancel run",
+          "width": 84,
+          "height": 30,
+          "scrollWidth": 82,
+          "clientWidth": 82,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.25,
+            "fg": {
+              "r": 17,
+              "g": 17,
+              "b": 19,
+              "a": 1
+            },
+            "bg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "singles": [
+        {
+          "present": true,
+          "selector": ".session-mode",
+          "text": "Work",
+          "hidden": false,
+          "width": 26.23,
+          "height": 15.22,
+          "scrollWidth": 26,
+          "clientWidth": 26,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".session-scope",
+          "text": "Memory · Off",
+          "hidden": false,
+          "width": 66.77,
+          "height": 15.22,
+          "scrollWidth": 67,
+          "clientWidth": 67,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".run-badge",
+          "text": "Waiting for you",
+          "hidden": false,
+          "width": 86.72,
+          "height": 15.22,
+          "scrollWidth": 87,
+          "clientWidth": 87,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#permission-settings-button",
+          "text": "Allow edits",
+          "hidden": false,
+          "width": 99.22,
+          "height": 28,
+          "scrollWidth": 97,
+          "clientWidth": 97,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#model-settings-button",
+          "text": "Local test",
+          "hidden": false,
+          "width": 67.11,
+          "height": 28,
+          "scrollWidth": 65,
+          "clientWidth": 65,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 12.43,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 39,
+              "g": 42,
+              "b": 45,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "settings-general-390-light": {
+      "singles": [
+        {
+          "present": true,
+          "selector": "#settings-general-title",
+          "text": "General",
+          "hidden": false,
+          "width": 936,
+          "height": 27,
+          "scrollWidth": 936,
+          "clientWidth": 936,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "18px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#settings-new-sessions .settings-block-title",
+          "text": "New chats",
+          "hidden": false,
+          "width": 894,
+          "height": 19.5,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "13px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-title",
+          "text": "File access",
+          "hidden": false,
+          "width": 894,
+          "height": 21,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-help",
+          "text": "The value a chat starts with. It applies when the chat is cr",
+          "hidden": false,
+          "width": 894,
+          "height": 16.67,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-tab.is-current",
+          "text": "General",
+          "hidden": false,
+          "width": 0,
+          "height": 0,
+          "scrollWidth": 0,
+          "clientWidth": 0,
+          "lines": 0,
+          "wraps": false,
+          "fontSize": "12px",
+          "fontWeight": "500",
+          "padding": "6px 10px",
+          "contrast": {
+            "ratio": 13.41,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 232,
+              "g": 232,
+              "b": 236,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "segments": [
+        {
+          "selector": ".segment",
+          "text": "Ask before editing",
+          "width": 295.33,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Allow edits",
+          "width": 295.33,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Read only",
+          "width": 295.34,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 5.22,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 240,
+              "g": 240,
+              "b": 243,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "rowControls": [
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "settings-general-390-dark": {
+      "singles": [
+        {
+          "present": true,
+          "selector": "#settings-general-title",
+          "text": "General",
+          "hidden": false,
+          "width": 936,
+          "height": 27,
+          "scrollWidth": 936,
+          "clientWidth": 936,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "18px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#settings-new-sessions .settings-block-title",
+          "text": "New chats",
+          "hidden": false,
+          "width": 894,
+          "height": 19.5,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "13px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-title",
+          "text": "File access",
+          "hidden": false,
+          "width": 894,
+          "height": 21,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-row-help",
+          "text": "The value a chat starts with. It applies when the chat is cr",
+          "hidden": false,
+          "width": 894,
+          "height": 16.67,
+          "scrollWidth": 894,
+          "clientWidth": 894,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".settings-tab.is-current",
+          "text": "General",
+          "hidden": false,
+          "width": 0,
+          "height": 0,
+          "scrollWidth": 0,
+          "clientWidth": 0,
+          "lines": 0,
+          "wraps": false,
+          "fontSize": "12px",
+          "fontWeight": "500",
+          "padding": "6px 10px",
+          "contrast": {
+            "ratio": 12.43,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 39,
+              "g": 42,
+              "b": 45,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "segments": [
+        {
+          "selector": ".segment",
+          "text": "Ask before editing",
+          "width": 295.33,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Allow edits",
+          "width": 295.33,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".segment",
+          "text": "Read only",
+          "width": 295.34,
+          "height": 32,
+          "scrollWidth": 295,
+          "clientWidth": 295,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "rowControls": [
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.39,
+            "fg": {
+              "r": 226,
+              "g": 227,
+              "b": 229,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.39,
+            "fg": {
+              "r": 226,
+              "g": 227,
+              "b": 229,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "selector": ".settings-row-control button, .settings-row-control input, .settings-row-control select",
+          "text": "",
+          "width": 200,
+          "height": 1,
+          "scrollWidth": 200,
+          "clientWidth": 200,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "contrast": {
+            "ratio": 12.39,
+            "fg": {
+              "r": 226,
+              "g": 227,
+              "b": 229,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "work-header-390-light": {
+      "panes": 4,
+      "sendButtons": [
+        {
+          "selector": "#send-button",
+          "text": "Send",
+          "width": 52,
+          "height": 44,
+          "scrollWidth": 50,
+          "clientWidth": 50,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            },
+            "bg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "cancelButtons": [
+        {
+          "selector": "#cancel-run-button",
+          "text": "Cancel run",
+          "width": 84,
+          "height": 44,
+          "scrollWidth": 82,
+          "clientWidth": 82,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            },
+            "bg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "singles": [
+        {
+          "present": true,
+          "selector": ".session-mode",
+          "text": "Work",
+          "hidden": false,
+          "width": 26.23,
+          "height": 15.22,
+          "scrollWidth": 26,
+          "clientWidth": 26,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".session-scope",
+          "text": "Memory · Off",
+          "hidden": false,
+          "width": 66.77,
+          "height": 15.22,
+          "scrollWidth": 67,
+          "clientWidth": 67,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".run-badge",
+          "text": "Waiting for you",
+          "hidden": false,
+          "width": 86.72,
+          "height": 15.22,
+          "scrollWidth": 87,
+          "clientWidth": 87,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#permission-settings-button",
+          "text": "Allow edits",
+          "hidden": false,
+          "width": 99.22,
+          "height": 44,
+          "scrollWidth": 97,
+          "clientWidth": 97,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 5.84,
+            "fg": {
+              "r": 96,
+              "g": 100,
+              "b": 108,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#model-settings-button",
+          "text": "Local test",
+          "hidden": false,
+          "width": 67.11,
+          "height": 44,
+          "scrollWidth": 65,
+          "clientWidth": 65,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 16.12,
+            "fg": {
+              "r": 28,
+              "g": 32,
+              "b": 36,
+              "a": 1
+            },
+            "bg": {
+              "r": 253,
+              "g": 253,
+              "b": 254,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    },
+    "work-header-390-dark": {
+      "panes": 4,
+      "sendButtons": [
+        {
+          "selector": "#send-button",
+          "text": "Send",
+          "width": 52,
+          "height": 44,
+          "scrollWidth": 50,
+          "clientWidth": 50,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.25,
+            "fg": {
+              "r": 17,
+              "g": 17,
+              "b": 19,
+              "a": 1
+            },
+            "bg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "cancelButtons": [
+        {
+          "selector": "#cancel-run-button",
+          "text": "Cancel run",
+          "width": 84,
+          "height": 44,
+          "scrollWidth": 82,
+          "clientWidth": 82,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "12px",
+          "contrast": {
+            "ratio": 16.25,
+            "fg": {
+              "r": 17,
+              "g": 17,
+              "b": 19,
+              "a": 1
+            },
+            "bg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "singles": [
+        {
+          "present": true,
+          "selector": ".session-mode",
+          "text": "Work",
+          "hidden": false,
+          "width": 26.23,
+          "height": 15.22,
+          "scrollWidth": 26,
+          "clientWidth": 26,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".session-scope",
+          "text": "Memory · Off",
+          "hidden": false,
+          "width": 66.77,
+          "height": 15.22,
+          "scrollWidth": 67,
+          "clientWidth": 67,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": ".run-badge",
+          "text": "Waiting for you",
+          "hidden": false,
+          "width": 86.72,
+          "height": 15.22,
+          "scrollWidth": 87,
+          "clientWidth": 87,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "10.5px",
+          "fontWeight": "450",
+          "padding": "0px",
+          "contrast": {
+            "ratio": 13.7,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#permission-settings-button",
+          "text": "Allow edits",
+          "hidden": false,
+          "width": 99.22,
+          "height": 44,
+          "scrollWidth": 97,
+          "clientWidth": 97,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 7.64,
+            "fg": {
+              "r": 176,
+              "g": 180,
+              "b": 186,
+              "a": 1
+            },
+            "bg": {
+              "r": 33,
+              "g": 34,
+              "b": 37,
+              "a": 1
+            }
+          }
+        },
+        {
+          "present": true,
+          "selector": "#model-settings-button",
+          "text": "Local test",
+          "hidden": false,
+          "width": 67.11,
+          "height": 44,
+          "scrollWidth": 65,
+          "clientWidth": 65,
+          "lines": 1,
+          "wraps": false,
+          "fontSize": "11.5px",
+          "fontWeight": "400",
+          "padding": "4px 6px",
+          "contrast": {
+            "ratio": 12.43,
+            "fg": {
+              "r": 237,
+              "g": 238,
+              "b": 240,
+              "a": 1
+            },
+            "bg": {
+              "r": 39,
+              "g": 42,
+              "b": 45,
+              "a": 1
+            }
+          }
+        }
+      ],
+      "overflowX": 0
+    }
+  }
+}

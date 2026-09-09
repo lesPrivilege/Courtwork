@@ -1,0 +1,26 @@
+seed 0
+models 0
+rows 0
+probe 0
+empty 0
+seed 0
+primitive 0
+seed 0
+fe-t11 0
+seed 0
+shell 0
+seed 0
+fe-t07 0
+seed 0
+cc-s 1
+Traceback (most recent call last):
+  File "/private/tmp/se-agent-ccd0a/evidence/cc-d0a/run-regressions.py", line 62, in <module>
+    group('cc-s',[('seed','cc-s-seed.mjs',{}),('cc-s','cc-s-checks.mjs',{})])
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/se-agent-ccd0a/evidence/cc-d0a/run-regressions.py", line 44, in group
+    run(label,['node',str(output/script)],{**env,**overrides},output)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/se-agent-ccd0a/evidence/cc-d0a/run-regressions.py", line 17, in run
+    if result.returncode: raise RuntimeError(name)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: cc-s

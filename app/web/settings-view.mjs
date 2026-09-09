@@ -1208,12 +1208,19 @@ const PREFERENCE_DEFAULTS = {
   textSize: "medium",
   codeFont: "",
   motion: "system",
+  /* CC-D0-a (WK-114 ②) · Home 的版面是一个本设备偏好，不是一个新首页：Simple 是
+     默认，与模块带出现之前逐像素相同；Modules 在 composer 之后多一条次级带。
+     `homeModuleBand` 是那条带的折叠状态，与显隐同一条通道（WK-114 ⑥）。 */
+  homeLayout: "simple",
+  homeModuleBand: "expanded",
 };
 const PREFERENCE_VALUES = {
   scheme: ["system", "light", "dark"],
   skin: ["slate", "gray-steel", "custom"],
   textSize: ["small", "medium", "large"],
   motion: ["system", "reduce"],
+  homeLayout: ["simple", "modules"],
+  homeModuleBand: ["expanded", "collapsed"],
 };
 export const CODE_FONT_PATTERN = /^[A-Za-z0-9 ,'"_-]{1,120}$/;
 export function readPreferences() {
@@ -1342,7 +1349,7 @@ const SHORTCUTS = [
 /** Settings 页自己的控制器：分组切换、只过滤本页行的搜索、Appearance 偏好、
  *  Keyboard 只读表、Data 只读事实，以及 Runtime 组留给 WK11 的节位。
  *  页面的开合、hash、Escape 与焦点归还不在这里，在 app.mjs。 */
-export function createSettingsPage({ home, onSection, onEditConnection, onOpenRuntimeResource }) {
+export function createSettingsPage({ home, onSection, onEditConnection, onOpenRuntimeResource, onHomeLayout }) {
   const nav = document.getElementById("settings-nav");
   const dropdown = document.getElementById("settings-nav-select");
   const search = document.getElementById("settings-search");
@@ -1515,6 +1522,10 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   const skinState = el("p", { className: "settings-row-help" });
   function savePrefs(change) {
     prefs = writePreferences({ ...prefs, ...change });
+    /* Home 的版面偏好在 Settings 里改，在 Home 上生效：这里只回执改了什么，
+       由 app 决定重画哪一块，Settings 不去碰 Home 的 DOM。 */
+    if (Object.hasOwn(change, "homeLayout") || Object.hasOwn(change, "homeModuleBand"))
+      onHomeLayout?.(prefs);
     return prefs;
   }
   function renderSkinEditor() {
@@ -1680,6 +1691,15 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       value: prefs.motion,
       onChange: (value) => savePrefs({ motion: value }),
     });
+    /* WK-129 (b) · 两值的闭集偏好用 segmented，不用 select：段数少、两个选项都
+       该同时可见。它与 Theme / Text size / Reduced motion 是同一个控件。 */
+    const homeLayout = segmented({
+      name: "settings-home-layout",
+      label: "Home layout",
+      options: [["simple", "Simple"], ["modules", "Modules"]],
+      value: prefs.homeLayout,
+      onChange: (value) => savePrefs({ homeLayout: value }),
+    });
     const advanced = el(
       "details",
       { className: "settings-advanced" },
@@ -1714,6 +1734,11 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         "Reduced motion",
         "Always reduce stops transitions and animations. Nothing a control does changes with it.",
         motion,
+      ),
+      settingsRow(
+        "Home layout",
+        "Modules adds one secondary band under the composer on Home. Nothing is read that Simple does not already read, and the composer, Today and your work list stay where they are.",
+        homeLayout,
       ),
       advanced,
     );
@@ -1874,6 +1899,11 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       return section;
     },
     select,
+    /* Home 折叠那条带时写的是同一条偏好通道。Settings 的 Appearance 行只在下次
+       重画时读它，所以这里不重画 Settings：折叠不是 Appearance 上的一个控件。 */
+    setHomeModuleBand(value) {
+      prefs = writePreferences({ ...prefs, homeModuleBand: value });
+    },
     focusSection: () => panels.get(section)?.focus(),
     resetSearch() {
       if (!search.value) return;

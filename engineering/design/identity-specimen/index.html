@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>EX-GI1 · Generative Identity — three grammar directions</title>
+<style>
+  :root {
+    --bg: #f9fafb; --ink: #283849; --record: #6f8191; --line: #d8dee4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161b23; --ink: #e0e8f1; --record: #b4c0ce; --line: #2a323d; }
+  }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 24px 24px 8px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0 0 6px; }
+  header p { margin: 0 0 16px; color: var(--record); font-size: 12px; max-width: 74ch; }
+  main { display: flex; gap: 0; overflow-x: auto; }
+  figure { margin: 0; flex: 0 0 auto; width: 1000px; border-right: 1px solid var(--line); }
+  figure img { display: block; width: 1000px; }
+  figcaption { padding: 10px 24px; font-size: 12px; color: var(--record); border-top: 1px solid var(--line); }
+  .note { padding: 10px 24px 24px; font-size: 11px; color: var(--record); max-width: 74ch; }
+</style>
+</head>
+<body>
+<header>
+  <h1>EX-GI1 — Generative Identity：三个字形语法方向（只读探索 specimen，未裁定）</h1>
+  <p>同一份 invariant 骨架（4×6 网格、直线段构字、brand 既有 8 词表与 amend 色）在三种笔画材质下的呈现。三栏同尺寸、同内容（同一 alphabet / 同五词 / REV 07 / NDA / Working→Completed 序列），只换一个变量：笔画怎么画。纯静态 SVG，无外部字体、无外链资源、无脚本。</p>
+</header>
+<main>
+  <figure>
+    <img src="direction-a.svg" alt="Direction A — Baton grammar specimen">
+    <figcaption>A · Baton — 笔画 + 一处朱色 revision mark</figcaption>
+  </figure>
+  <figure>
+    <img src="direction-b.svg" alt="Direction B — Ruled-grid grammar specimen">
+    <figcaption>B · Ruled-grid — stroke / margin 构字</figcaption>
+  </figure>
+  <figure>
+    <img src="direction-c.svg" alt="Direction C — Annotation-mark grammar specimen">
+    <figcaption>C · Annotation marks — strike / insertion / caret 组合</figcaption>
+  </figure>
+</main>
+<p class="note">详见 explore/ex-gi1-generative-identity.md：invariant / variation 草案、确定性生成规范、Facet 范式流程、载体边界与待裁定清单。本页不代表任何方向已被采纳。</p>
+</body>
+</html>

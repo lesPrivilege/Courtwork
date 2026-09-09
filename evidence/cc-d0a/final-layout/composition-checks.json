@@ -1,0 +1,617 @@
+[
+  {
+    "id": "HOME-1",
+    "pass": true,
+    "centre": 0.56,
+    "threshold": 0.55
+  },
+  {
+    "id": "HOME-2",
+    "pass": true,
+    "aboveComposerHeight": 38
+  },
+  {
+    "id": "HOME-3",
+    "pass": true,
+    "orientation": 38,
+    "text": "Work that exists beyond the model."
+  },
+  {
+    "id": "HOME-4",
+    "pass": true,
+    "width": 820
+  },
+  {
+    "id": "HOME-5",
+    "pass": true,
+    "input": 96
+  },
+  {
+    "id": "HOME-6",
+    "pass": true
+  },
+  {
+    "id": "HOME-7",
+    "pass": true,
+    "stats": 3,
+    "planned": 0,
+    "backendPendingOnHome": false,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "home-module-band",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "id": "HOME-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "HOME-narrow-dock",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "home-module-band",
+      "composer-area"
+    ]
+  },
+  {
+    "id": "HOME-narrow-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-1",
+    "pass": true,
+    "homePrimitives": 0,
+    "bandHidden": true
+  },
+  {
+    "id": "WORK-2",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "message-stream-wrap",
+      "home-module-band",
+      "composer-area"
+    ],
+    "width": 740
+  },
+  {
+    "id": "WORK-3",
+    "pass": true,
+    "input": 88
+  },
+  {
+    "id": "WORK-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "WORK-4",
+    "pass": true,
+    "surfaceOpen": true,
+    "readingWidth": 1184,
+    "composerMeasure": 740
+  },
+  {
+    "id": "SHELL-1",
+    "pass": true,
+    "unsafeControls": []
+  },
+  {
+    "id": "SETTINGS-1",
+    "pass": true,
+    "settingsActive": true,
+    "navHidden": true,
+    "navInert": true,
+    "navRects": 0,
+    "navFocusable": 0,
+    "toggleNavHidden": true
+  },
+  {
+    "id": "SETTINGS-2",
+    "pass": true,
+    "navColumn": 240,
+    "contentColumn": 820,
+    "leftGutter": 48,
+    "rightGutter": 48
+  },
+  {
+    "id": "SETTINGS-3",
+    "pass": true,
+    "blockGaps": [
+      40
+    ],
+    "rowPaddingTopBottom": [
+      12,
+      12
+    ],
+    "rowSpacing": 24
+  },
+  {
+    "id": "SETTINGS-4",
+    "pass": true,
+    "labelLeftEdges": [
+      341
+    ],
+    "controlRightEdges": [
+      1119
+    ]
+  },
+  {
+    "id": "SETTINGS-back-label",
+    "pass": true,
+    "backLabel": "Back to app",
+    "backVisible": true
+  },
+  {
+    "id": "SETTINGS-title",
+    "pass": true,
+    "pageTitle": "Settings",
+    "settingsHeadingsOnScreen": 1,
+    "labelledBy": "session-title"
+  },
+  {
+    "id": "SETTINGS-1440-overflow",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-5",
+    "pass": true,
+    "settingsOpen": false,
+    "view": "home",
+    "sidebarBack": true,
+    "focus": "quiet-button icon-only"
+  },
+  {
+    "id": "SETTINGS-1680-gutter",
+    "pass": true,
+    "leftGutter": 64,
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-1024-overflow",
+    "pass": true,
+    "overflow": 0,
+    "sidebarRendered": 0
+  },
+  {
+    "id": "SETTINGS-6",
+    "pass": true,
+    "selectVisible": true,
+    "navListVisible": false,
+    "gutter": 16,
+    "controlsUnder44": [],
+    "overflow": 0
+  },
+  {
+    "id": "SETTINGS-7",
+    "pass": true,
+    "overflow": 0,
+    "cssViewport": 720
+  },
+  {
+    "id": "SHELL-2",
+    "pass": true,
+    "host": "desktop",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-3",
+    "pass": true,
+    "host": "desktop",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-2-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "SHELL-3-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "WORK-5",
+    "pass": true,
+    "shape": "app-shell surface-expanded surface-view-switch",
+    "docPane": 1136,
+    "strip": 44,
+    "proseGap": 24,
+    "backdropHidden": true,
+    "shadow": "none",
+    "radius": "0px",
+    "chatColumn": {
+      "hidden": true,
+      "inert": true,
+      "inDom": true
+    },
+    "overflow": 0
+  },
+  {
+    "id": "WORK-6",
+    "pass": true,
+    "shape": "app-shell surface-expanded surface-three-pane",
+    "columns": "256px 688px 736px",
+    "position": "static",
+    "nav": 256,
+    "chat": 688,
+    "doc": 688,
+    "docMin": 688,
+    "scrolls": {
+      "doc": "auto",
+      "chat": "auto",
+      "nav": "visible"
+    },
+    "chromeBaseline": {
+      "chat": {
+        "top": 0,
+        "left": 256,
+        "width": 687,
+        "height": 56,
+        "bottom": 56
+      },
+      "doc": {
+        "top": 0,
+        "left": 944,
+        "width": 736,
+        "height": 56,
+        "bottom": 56
+      }
+    },
+    "composerWhole": true,
+    "overflow": 0
+  },
+  {
+    "1679": {
+      "shape": "app-shell surface-expanded surface-view-switch",
+      "doc": 1375,
+      "overflow": 0
+    },
+    "1680": {
+      "shape": "app-shell surface-expanded surface-three-pane",
+      "doc": 688,
+      "chat": 688,
+      "overflow": 0
+    },
+    "id": "WORK-7",
+    "pass": true
+  },
+  {
+    "id": "WORK-8",
+    "pass": true,
+    "height": 720,
+    "composerWhole": true,
+    "composer": {
+      "top": 484,
+      "left": 280,
+      "width": 639,
+      "height": 180,
+      "bottom": 664
+    },
+    "overflow": 0
+  },
+  {
+    "id": "WORK-9",
+    "pass": true,
+    "cssViewport": 720,
+    "shape": "app-shell surface-expanded",
+    "overflow": 0
+  },
+  {
+    "id": "SHELL-4",
+    "pass": true,
+    "host": "desktop",
+    "shape": "app-shell surface-expanded surface-view-switch",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-5",
+    "pass": true,
+    "host": "desktop",
+    "shape": "app-shell surface-expanded surface-three-pane",
+    "unsafeControls": []
+  },
+  {
+    "id": "SHELL-4-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "SHELL-5-browser",
+    "pass": true,
+    "host": "browser",
+    "unsafeControls": null
+  },
+  {
+    "id": "HOME-8",
+    "pass": true,
+    "layout": "simple",
+    "inDocument": true,
+    "shown": false,
+    "children": 0,
+    "hidden": true,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "home-module-band",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "id": "HOME-1-simple-900",
+    "pass": true,
+    "centre": 0.56,
+    "threshold": 0.55,
+    "layout": "simple",
+    "viewportHeight": 900
+  },
+  {
+    "id": "HOME-6-simple-900",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 900
+  },
+  {
+    "id": "HOME-11-simple-900",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 900,
+    "todoTop": 896,
+    "areaBottom": 956,
+    "visible": 60
+  },
+  {
+    "id": "HOME-16-simple-900",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 900,
+    "visible": 60,
+    "threshold": 12
+  },
+  {
+    "id": "HOME-overflow-simple-900",
+    "pass": true,
+    "overflow": 0,
+    "layout": "simple"
+  },
+  {
+    "id": "HOME-1-simple-1058",
+    "pass": true,
+    "centre": 0.5596,
+    "threshold": 0.55,
+    "layout": "simple",
+    "viewportHeight": 1058
+  },
+  {
+    "id": "HOME-6-simple-1058",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 1058
+  },
+  {
+    "id": "HOME-11-simple-1058",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 1058,
+    "todoTop": 984,
+    "areaBottom": 1114,
+    "visible": 130
+  },
+  {
+    "id": "HOME-16-simple-1058",
+    "pass": true,
+    "layout": "simple",
+    "viewportHeight": 1058,
+    "visible": 130,
+    "threshold": 12
+  },
+  {
+    "id": "HOME-overflow-simple-1058",
+    "pass": true,
+    "overflow": 0,
+    "layout": "simple"
+  },
+  {
+    "id": "HOME-1-modules-900",
+    "pass": true,
+    "centre": 0.56,
+    "threshold": 0.55,
+    "layout": "modules",
+    "viewportHeight": 900
+  },
+  {
+    "id": "HOME-6-modules-900",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 900
+  },
+  {
+    "id": "HOME-11-modules-900",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 900,
+    "todoTop": 941,
+    "areaBottom": 956,
+    "visible": 15
+  },
+  {
+    "id": "HOME-16-modules-900",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 900,
+    "visible": 15,
+    "threshold": 12
+  },
+  {
+    "id": "HOME-overflow-modules-900",
+    "pass": true,
+    "overflow": 0,
+    "layout": "modules"
+  },
+  {
+    "id": "HOME-1-modules-1058",
+    "pass": true,
+    "centre": 0.5596,
+    "threshold": 0.55,
+    "layout": "modules",
+    "viewportHeight": 1058
+  },
+  {
+    "id": "HOME-6-modules-1058",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 1058
+  },
+  {
+    "id": "HOME-11-modules-1058",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 1058,
+    "todoTop": 1029,
+    "areaBottom": 1114,
+    "visible": 85
+  },
+  {
+    "id": "HOME-16-modules-1058",
+    "pass": true,
+    "layout": "modules",
+    "viewportHeight": 1058,
+    "visible": 85,
+    "threshold": 12
+  },
+  {
+    "id": "HOME-overflow-modules-1058",
+    "pass": true,
+    "overflow": 0,
+    "layout": "modules"
+  },
+  {
+    "id": "HOME-9",
+    "pass": true,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "home-module-band",
+      "message-stream-wrap"
+    ],
+    "bandTop": 831,
+    "todayTop": 743,
+    "streamTop": 884
+  },
+  {
+    "id": "HOME-10",
+    "pass": true,
+    "rows": 1,
+    "names": [
+      "Models"
+    ],
+    "bandText": "ModelsManage connectionsHide modules",
+    "framedNodes": 0,
+    "cards": 0,
+    "modelChip": "Local test",
+    "forbiddenFound": []
+  },
+  {
+    "id": "HOME-7-modules",
+    "pass": true,
+    "stats": 3,
+    "order": [
+      "composer-area",
+      "home-top-band",
+      "home-module-band",
+      "message-stream-wrap"
+    ]
+  },
+  {
+    "id": "HOME-4-modules",
+    "pass": true,
+    "composer": 820,
+    "bandColumn": 820,
+    "bandLeft": 438,
+    "composerLeft": 438
+  },
+  {
+    "id": "HOME-5-modules",
+    "pass": true,
+    "input": 96
+  },
+  {
+    "id": "HOME-12",
+    "pass": true,
+    "order": [
+      "composer-input",
+      "model-settings-button",
+      "home-project-input",
+      "home-create-project",
+      "home-permission-input",
+      "stat:pendingItems",
+      "stat:sessionCandidates",
+      "stat:inspectionCandidates",
+      "home-module-models",
+      "home-module-collapse",
+      "home:pendingItems:29bb94c8-4256-4699-a6b7-0a86ce0521d6",
+      "home:sessionCandidates:f3878415-c05f-4be2-8292-038663f5fa4d",
+      "home:sessionCandidates:3727e102-c878-42a6-90ee-32a6d7b1e7da",
+      "home:sessionCandidates:153bef56-bfa0-4ef3-85bf-1556e784ef20",
+      "home:sessionCandidates:86600f76-5639-4e52-95ec-47529ab270ce",
+      "home:inspectionCandidates:e58fabb8-7d7f-470c-b9d0-58200ee30cee"
+    ],
+    "stats": [
+      "stat:pendingItems",
+      "stat:sessionCandidates",
+      "stat:inspectionCandidates"
+    ],
+    "bandControls": [
+      "home-module-models",
+      "home-module-collapse"
+    ]
+  },
+  {
+    "id": "HOME-13",
+    "pass": true,
+    "collapsed": {
+      "rows": 0,
+      "expanded": "false"
+    },
+    "afterReload": {
+      "rows": 0,
+      "expanded": "false"
+    },
+    "reExpanded": {
+      "rows": 1,
+      "expanded": "true"
+    }
+  },
+  {
+    "id": "HOME-14",
+    "pass": true,
+    "order": [
+      "home-top-band",
+      "home-module-band",
+      "message-stream-wrap",
+      "composer-area"
+    ],
+    "toggle": {
+      "width": 99,
+      "height": 44
+    },
+    "overflow": 0
+  },
+  {
+    "id": "HOME-15",
+    "pass": true,
+    "before": false,
+    "afterSwitchToModules": true,
+    "afterSwitchBack": false
+  }
+]

@@ -265,6 +265,7 @@
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
   --page-gutter: 24px;
@@ -3403,6 +3404,81 @@ dialog[open]::backdrop {
   color: var(--muted-strong);
 }
 
+/* ==== CC-D0-a · the secondary module band ================================
+   One band under Today, on the same 820 column as the composer and Today, so
+   Home still reads as one column and not as a grid that appeared. Modules are
+   laid out along the remaining width and wrap rather than overflow: 820 is the
+   ceiling, never a promise that two fixed widths fit inside it (WO density).
+   No card frame, no shadow, no second boundary — the band is a group of rows,
+   and a statistic that needs a frame to be read is not a statistic (SH-1). */
+.home-module-band {
+  padding: var(--space-5) var(--page-gutter) 0;
+}
+/* Modules only · the band spends height between Today and the work list, and at
+   a 900-high viewport that height comes straight out of the first concrete
+   to-do (HOME-11). The list therefore closes up by one step under the band —
+   24 rather than 32 — and `Simple` keeps its own 32 untouched, which is what
+   makes `Simple` pixel-for-pixel the Home it was. */
+#home-module-band:not([hidden]) ~ .message-stream-wrap .home-view > .home-section:first-child {
+  margin-top: var(--space-6);
+}
+/* One line: the modules along the column, the fold at its right edge. The band
+   has no heading of its own — with one module a heading over one row is a
+   second structure drawn around a single fact, and the line it costs is the
+   line that pushed the first concrete to-do off a 900-high first screen
+   (HOME-11, WK-117 (b)). The region is named by `aria-label`, and the fold says
+   what it folds. */
+.home-module-band-inner {
+  max-width: var(--home-column);
+  margin: 0 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.home-module-collapse {
+  border: 0;
+  background: none;
+  padding: var(--space-1) var(--space-2);
+  margin-right: calc(var(--space-2) * -1);
+  border-radius: var(--radius-control);
+  /* The fold and the module's own action are the same level — both are what you
+     can do here — so they take the same size. Only the module name is a step up
+     (13 / 600 against 12 / 400): the hierarchy holds without a colour or a rule
+     line (WK-120). */
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.home-module-collapse:hover {
+  background: var(--hover);
+}
+.home-module-collapse:active {
+  background: var(--pressed);
+}
+/* Modules share one row while the row holds them and wrap when it does not.
+   Each takes the width its own content needs, never a painted fixed width. */
+.home-module-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-6);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.home-module-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.home-module-name {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--muted-strong);
+}
+
 /* WK-94 / 视觉审查 §7 · 连接不可达是一行状态，不是一整块横向面板。圆点、一句事实、
    一个 Retry，诊断在 disclosure 里。它复用既有的状态色，不新增视觉概念。 */
 .connection-line {
@@ -3488,6 +3564,19 @@ dialog[open]::backdrop {
   }
   .home-top-band {
     padding-top: var(--space-3);
+  }
+  /* 390 · the one control on this band is a touch target before it is a word
+     (WO accessibility, ≥44). The label stays the same size; only the region
+     around it grows, so nothing is read differently on a phone. */
+  .home-module-band {
+    padding-top: var(--space-3);
+  }
+  .home-module-collapse {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .home-module-list {
+    gap: var(--space-2) var(--space-4);
   }
 }
 
