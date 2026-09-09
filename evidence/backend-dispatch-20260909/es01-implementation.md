@@ -10,10 +10,14 @@
 
 ## 作者验证
 
-- `cd app && npm test`：277/277通过，零skip；`npm run smoke`通过，realProvider为not_run。
-- `node --test app/tests/execution-file-candidates.test.mjs`：10/10；连续性文件7/7，既有Core5/5（包含于全量）。
+- `cd app && npm test`：279/279通过，零skip；`npm run smoke`通过，realProvider为not_run。
+- `node --test app/tests/execution-file-candidates.test.mjs`：12/12；连续性文件7/7，既有Core5/5（包含于全量）。
 - Core反例覆盖身份重放、容量边界、字节/manifest/验证/column损坏、依据与policy变化、unknownschema，以及save/accept六个真实SIGKILL窗口的零或一次效果。
 - 实际HTTP/Pi loopback从ws_write回执读取hash再提交，验证accept、跨Session、producer缺席；覆盖MCP调用前持久unknown、历史/compaction/ask/runtime_load/ws读取、steering与Stop竞态、coverage marker失败、丢失/损坏history及两种未record写入故障。
 - `node app/scripts/file-candidate-fixture.mjs`生成[实际消费包](../../app/tests/fixtures/work-core/file-candidate-packets.json)，含ready/unknown/failed/stale/accepted/rejected/unsupported/missing-bytes/producer-absent。未检状态不冒充pending-unchecked：验证和保存同事务。
 
 Astra拥有Core/bridge/service/Pi/迁移和最终集成；Luna实现有界adapter/policy，Astra复读并修正Unicode边界。作者验证不称独立接受。非作者迁移与消费复验位于 `evidence/harness-next-20260909/`，固定SHA后追加。来源Astra负责最新main合流及current/台账，G1–G5保持未闭合。
+
+最终复读补强：验证记录增加完整record摘要，防止result/reasons单字段损坏被当作可信PASS；accept再查file专属必需来源证据。新增损坏记录和协调修改checksum的无证据反例均拒绝，不产生决定。后继独验按包含修正的最终SHA运行。
+
+私有bridge同时拒绝空Session身份和无效/无时区writtenAt，保留普通Run旧合同；这两项是主机可信输入的结构防御，非新增模型授权。

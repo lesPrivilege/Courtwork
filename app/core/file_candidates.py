@@ -4,6 +4,7 @@ No filesystem resolution, provider access, or model-controlled verification.
 The bridge supplies recorded bytes and private Run input facts.
 """
 import re
+from datetime import datetime
 
 FILE_CONTRACT = 'se-file-memo-v1'
 FILE_SCHEMA = (
@@ -19,7 +20,7 @@ FILE_SCHEMA = (
       byte_length INTEGER NOT NULL, digest TEXT NOT NULL,
       PRIMARY KEY(candidate_id,path), FOREIGN KEY(candidate_id) REFERENCES candidate_file_bundle(candidate_id))''',
     '''CREATE TABLE IF NOT EXISTS candidate_verification (
-      candidate_id TEXT PRIMARY KEY, record_json TEXT NOT NULL,
+      candidate_id TEXT PRIMARY KEY, record_json TEXT NOT NULL, record_digest TEXT NOT NULL,
       FOREIGN KEY(candidate_id) REFERENCES candidate_file_bundle(candidate_id))''',
     '''CREATE TABLE IF NOT EXISTS artifact_file_bundle (
       artifact_id TEXT PRIMARY KEY, candidate_id TEXT NOT NULL,
@@ -74,6 +75,10 @@ def normalize_files(files, run):
         if f['sessionId'] != run['session_ref'] or f['runId'] != run['id'] or f['kind'] != 'content-version': raise E('BINDING_MISMATCH','recorded provenance')
         if type(f['recordIndex']) is not int or f['recordIndex'] < 0 or not isinstance(f['writtenAt'],str) or not f['writtenAt']:
             raise E('INVALID','recorded provenance')
+        try:
+            written = datetime.fromisoformat(f['writtenAt'].replace('Z','+00:00'))
+            if written.tzinfo is None: raise ValueError('timezone required')
+        except ValueError as exc: raise E('INVALID','recorded timestamp') from exc
         if f['recordIndex'] in indices: raise E('BINDING_MISMATCH','duplicate recorded append index')
         indices.add(f['recordIndex'])
         manifest.append({k:v for k,v in f.items() if k!='content'})
@@ -129,6 +134,7 @@ class FileCandidateMixin:
         exact(context,{'matter_id','run_id'},'context')
         run=self.conn.execute('SELECT * FROM app_run WHERE id=?',(context['run_id'],)).fetchone()
         if run is None or run['matter_id']!=context['matter_id']: raise E('BINDING_MISMATCH','file Run')
+        if not isinstance(run['session_ref'],str) or not run['session_ref'].strip(): raise E('BINDING_MISMATCH','file Run Session identity')
         if run['contract_version']!=FILE_CONTRACT: raise E('CONTRACT_UNSUPPORTED','file Run contract')
         if require_open and (not run['admission_open'] or run['status']!='running'): raise E('CANDIDATE_CLOSED','Run admission closed')
         return run
@@ -185,7 +191,7 @@ class FileCandidateMixin:
             self.conn.execute('INSERT INTO candidate VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',(payload['id'],payload['matter_id'],payload['run_id'],payload['base_version'],payload['contract_version'],payload['source_version'],payload['artifact_text'],canonical(payload['evidence']),canonical(payload['obligations']),identity_text,identity_hash,canonical(result),'pending'))
             self.conn.execute('INSERT INTO candidate_file_bundle VALUES(?,?,?,?)',(payload['id'],digest,canonical(manifest),canonical(basis)))
             for f in manifest: self.conn.execute('INSERT INTO candidate_file VALUES(?,?,?,?,?)',(payload['id'],f['path'],contents[f['path']],f['bytes'],f['sha256']))
-            self.conn.execute('INSERT INTO candidate_verification VALUES(?,?)',(payload['id'],canonical(record)))
+            self.conn.execute('INSERT INTO candidate_verification VALUES(?,?,?)',(payload['id'],canonical(record),h(canonical(record))))
             self.hooks.hit('file_save_before_commit'); self.conn.commit(); self.hooks.hit('file_save_after_commit_before_ack')
             return result
         except Exception: self._rollback(); raise
@@ -196,9 +202,10 @@ class FileCandidateMixin:
         if identity.get('fileBundle',{}).get('schema') != 'selected-recorded-versions-v1' or identity.get('basis',{}).get('schema') != 'file-memo-fixed-basis-v1':
             raise E('CONTRACT_UNSUPPORTED','unknown file schema')
         b=self.conn.execute('SELECT * FROM candidate_file_bundle WHERE candidate_id=?',(candidate_id,)).fetchone()
-        v=self.conn.execute('SELECT record_json FROM candidate_verification WHERE candidate_id=?',(candidate_id,)).fetchone()
+        v=self.conn.execute('SELECT record_json,record_digest FROM candidate_verification WHERE candidate_id=?',(candidate_id,)).fetchone()
         if b is None or v is None: raise E('INTEGRITY_REFUSAL','file bundle or verification missing')
         manifest=parse(b['manifest_json']); basis=parse(b['basis_json']); record=parse(v['record_json'])
+        if h(canonical(record))!=v['record_digest']: raise E('INTEGRITY_REFUSAL','verification record digest')
         for key in ('id','matter_id','run_id','base_version','contract_version','source_version','artifact_text'):
             if identity.get(key)!=c[key]: raise E('INTEGRITY_REFUSAL','candidate column binding')
         if identity.get('evidence')!=parse(c['evidence_json']) or identity.get('obligations')!=parse(c['obligations_json']): raise E('INTEGRITY_REFUSAL','candidate semantic binding')
@@ -216,13 +223,14 @@ class FileCandidateMixin:
         return c,manifest,basis,record,files
 
     def check_file_accept(self,candidate_id):
-        E, canonical, _, h, _, _, _=api()
+        E, canonical, parse, h, _, _, _=api()
         c,manifest,basis,record,files=self.file_integrity(candidate_id)
         if record['verifier']!={**POLICY,'policyDigest':h(canonical(POLICY))}: raise E('POLICY_STALE','file policy changed')
         current=self.file_input_basis(c['matter_id'])
         if any(basis.get(k)!=v for k,v in current.items()): raise E('STALE_INPUT','file basis changed')
         if basis['coverage']!='complete': raise E('DEPENDENCY_INCOMPLETE','file inputs are not closed')
         if record['result']!='passed': raise E('VERIFICATION_REQUIRED','file checks not passed')
+        if not parse(c['evidence_json']): raise E('VERIFICATION_REQUIRED','source evidence is required')
 
     def file_summary(self,candidate_id):
         E,_,parse,_,_,_,_=api()

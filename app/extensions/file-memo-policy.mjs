@@ -80,4 +80,3 @@ export const FILE_MEMO_FILE_QUERY_SCHEMA = Object.freeze({
     limit: { type: 'integer', minimum: 1, maximum: FILE_MEMO_LIMITS.maxPageCodePoints },
   },
 });
-

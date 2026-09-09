@@ -67,7 +67,7 @@ test('failed deterministic checks cannot accept, and source membership changes i
 }));
 
 test('illegal provenance, encoding, count, path and byte limits reject without candidate side effects',()=>fixture(async core=>{
- const probes=[[],Array.from({length:17},(_,i)=>file('',`out/${i}`)),[file('x'.repeat(65537))], [file('a','../escape')], [file('a','out/A'),file('b','out/a')], [file('\u0000')],[file('\ud800')],[{...file(),runId:'other'}],[{...file(),sessionId:'other'}],[{...file(),sha256:'0'.repeat(64)}],[file('a'.repeat(65536),'out/1'),file('b'.repeat(65536),'out/2'),file('c','out/3')]];
+ const probes=[[],Array.from({length:17},(_,i)=>file('',`out/${i}`)),[file('x'.repeat(65537))], [file('a','../escape')], [{...file(),writtenAt:'not-a-timestamp'}], [{...file(),writtenAt:'2026-09-09'}], [file('a','out/A'),file('b','out/a')], [file('\u0000')],[file('\ud800')],[{...file(),runId:'other'}],[{...file(),sessionId:'other'}],[{...file(),sha256:'0'.repeat(64)}],[file('a'.repeat(65536),'out/1'),file('b'.repeat(65536),'out/2'),file('c','out/3')]];
  for(const files of probes) await assert.rejects(save(core,{},files));
  await assert.rejects(save(core,{coverage:'complete'}),{code:'INVALID'});
  await assert.rejects(save(core,{verification:{result:'passed'}}),{code:'INVALID'});
@@ -171,4 +171,31 @@ test('unknown file schema exposes scoped bounded metadata but cannot decode or a
  const v=await core.snapshot('m');assert.equal(v.candidates[0].files.acceptable,false);assert.deepEqual(v.candidates[0].files.reasons,['CONTRACT_UNSUPPORTED']);
  const metadata=await core.call('file_query',query('c',{kind:'file-manifest',limit:16}));assert.equal(metadata.status,'unsupported');assert.equal(Object.hasOwn(metadata,'text'),false);
  await assert.rejects(core.call('file_query',query()),{code:'CONTRACT_UNSUPPORTED'});await assert.rejects(core.decide(decision()),{code:'CONTRACT_UNSUPPORTED'});
+}));
+
+
+test('verification outcome corruption is refused and acceptance rechecks required evidence',()=>fixture(async(core,dir)=>{
+ await save(core,{evidence:[]});await close(core);
+ const db=path.join(dir,'state.db');
+ const record=JSON.parse(sql(db,'SELECT record_json FROM candidate_verification WHERE candidate_id=?',['c'])[0][0]);
+ record.result='passed';record.reasons=[];
+ sql(db,'UPDATE candidate_verification SET record_json=? WHERE candidate_id=?',[JSON.stringify(record),'c']);
+ await assert.rejects(core.decide(decision()),{code:'INTEGRITY_REFUSAL'});
+ assert.equal(await core.queryRequest('d'),null);
+ // Even a coordinated record/checksum rewrite cannot skip the file policy.
+ const r=spawnSync('python3',['-c','import json,hashlib,sqlite3,sys; db=sqlite3.connect(sys.argv[1]); r=db.execute("SELECT record_json FROM candidate_verification").fetchone()[0]; d=hashlib.sha256(json.dumps(json.loads(r),ensure_ascii=False,sort_keys=True,separators=(",",":")).encode()).hexdigest(); db.execute("UPDATE candidate_verification SET record_digest=?",(d,)); db.commit()',db],{encoding:'utf8'});
+ assert.equal(r.status,0,r.stderr);
+ await assert.rejects(core.decide(decision()),{code:'VERIFICATION_REQUIRED'});
+ assert.equal(await core.queryRequest('d'),null);
+}));
+
+
+test('file runs require a concrete Session identity at the private bridge boundary',()=>fixture(async core=>{
+ await close(core);
+ for(const sessionRef of [null,'']){
+  const runId=sessionRef===null?'null-session':'empty-session';
+  await core.createRun({runId,matterId:'m',sessionRef,baseVersion:0,sourceVersion:1,contractVersion:contract,instruction:'fixed'});
+  await assert.rejects(core.call('initialize_file_run',{context:{matter_id:'m',run_id:runId},input:{systemPrompt:'Host',currentContext:'Fixed',runtimeProfile:{revision:1,hash:hash('runtime')},cleanSession:true,reasons:[]}}),{code:'BINDING_MISMATCH'});
+  await core.updateRun({runId,status:'completed',admissionOpen:false});
+ }
 }));
