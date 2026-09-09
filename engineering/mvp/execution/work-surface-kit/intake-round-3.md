@@ -270,6 +270,12 @@ FE-04 派单：`opus-wo-medium`（逐 primitive 判断），树 `/private/tmp/se
 |---|---|
 | WK-130 | Sonnet [EX-GI1](explore/ex-gi1-generative-identity.md) 回执：从 `brand/` 现有包出 invariant / variation 草案与三个字形语法方向的纯 SVG specimen（[identity-specimen](../../../design/identity-specimen/index.html)，同尺寸同内容并排）：**A Baton**——brand 现有圆头笔画语汇直接长成字母，末字下方复刻 review 动词的 amend 色 revision 底线，风险最低；**B Ruled-grid**——细单线字母叠加 ruled 参考线与 margin tick，最贴"文书批注"隐喻，但笔画最偏离现有 brand 几何；**C Annotation-mark**——笔画拆为 strike / caret / insertion 记号聚落，批注感最强，对角线密集字母（K M N V W X）可读性下降。八条待裁（token 是否合流、canonical mark 推导关系、seed 是否含时间、matter initials 是否进导航行、C 的可读性代价、字符前进量是否等宽、EXPERT 定位、materialThresholdPx 口径）。裁定：**只登记不选向**——GI 是品牌线的关键方向判断（WK-124 (d)），由用户与品牌线裁；Fable 建议：以 A 为 canonical static mark 的派生基线（与现有 brand 几何连续、可复现），B 的 ruled / margin 作 variation 层的允许 mark 而非笔画本身，C 只保留 caret / insertion 两种 mark 用于 state glyph（incomplete → resolved），不作字母构造；seed 不含时间（可复现可审计）；matter initials 不进导航行（导航是词表对象，不是身份面）。specimen 与报告入库，不进 CC 队列；Facet 范式的下一步（agent 写 generator）待选向后由品牌线派。**用户 2026-09-09 补充**：同意 A 为基线，但生成式身份不是当前排期重点——只作必要实现（公共站 hero 与 Home 空态字标，静态 canonical mark 先行），若牺牲可读性则改选其他更稳的字形；不为 GI 开 generator 单。 |
 
+## 4aj. Astra CC-W 合流补丁复核 → WK-131（2026-09-09）
+
+| 编号 | 裁定 |
+|---|---|
+| WK-131 | Astra 合流 CC-W 为 `main` `0b5ccd2`（`fedd250` + `73ce524`，263/263、浏览器回归、lint、contrast、smoke），并以自写补丁 `48693ad` 修 M-9 的短标签：原 `setRequestLabel` 只预留静止词，`Answer` / `Send` 比 `Sending…` 短，在途时按钮仍变宽、邻钮位移；补丁用 `::before` / `::after` 两份影子分别预留静止词与在途词（`data-resting-label` / `data-sending-label`），按钮元素与单一真实文本子节点不变，按钮以 aria-label 显式命名；顺带把 `TAB_ACTIVITY.unknown` 由 `Failed` 改 `Unknown`（与 WK-115 ① 一致）。Fable 非作者复核：读码（13 增 6 删，只在 `app.mjs` / `styles.css` / `ui-controls.mjs`，无新状态）；在 `0b5ccd2` 清洁树重跑 263/263、两项 lint；自有端口 8893、新空目录复跑 Astra 的 `request-width-checks` 15/15（五个按钮 × 1 / 1.25 / 2 三档缩放，宽度与左缘在途前后逐位相同、焦点不丢）与 `cc-w-checks` 9/9。接受。Astra 另登记后单：composer 重绘丢失停止图标（`renderComposer` 替换子节点后 Send / Cancel run 文字挤入 icon-only 圆形按钮，`172130e` 已有同源问题）——记 misfit M-16，归 FE-05a 第 0 项同批（composer 控件在 28 高与 V1 下重做 icon / label 槽位）。清洁节点 `0b5ccd2`；CC-D0-a 从此派。 |
+
 ## 5. 次序（EX-WK7 回执后，见 [dispatch-round-3](dispatch-round-3.md)）
 
 1. 清洁节点（WK-83）→ WK10b 第一段（去掉 Home 下带项）→ WK10b 第二段（NDA Review / 续行 / 只读历史，契约已交付）→ [WK13](work-orders/WO-WK13-home-bands.md) Home 三带 / 表示原语 adapter / j-k 键盘 / 文档清理 → [WK12](work-orders/WO-WK12-settings-page.md) Settings 页壳 → WK11 Runtime 组入壳 → WK10b 第二段（等 H1）。全部 Opus 单一 writer 串行于 `app.mjs` / `styles.css`。后端前置 BE-1 / 3、BE-12 与 allowlist 路径请求登记给 Astra。
