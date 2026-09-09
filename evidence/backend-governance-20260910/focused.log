@@ -1,0 +1,29 @@
+✔ governance: policy is separate from Matter, exact replay cannot resurrect revoked disclosure (112.498417ms)
+✔ governance: scope and registry-only grant hide bodies, hashes, counts and unknown schemas (187.014459ms)
+✔ governance: pagination binds visible collection; source updates require rediscovery while policy remains valid (92.394292ms)
+✔ governance: registry and Attention source links do not grant target Matter access (91.702417ms)
+✔ governance: accepted Artifact is exact, bounded and distinct from pending candidates (87.625709ms)
+✔ governance: unsupported schema, malformed envelopes and hidden queries fail closed (85.692375ms)
+✔ governance: corrupt bytes and missing policy provenance are refused without repair (382.602458ms)
+✔ governance: file Artifact delegates to exact immutable manifest/content reader (101.539542ms)
+✔ governance: unknown Matter contract is discoverable metadata but cannot be decoded (89.914208ms)
+✔ governance: non-object or corrupted policy provenance has uniform runtime absence and structured human refusal (407.185334ms)
+✔ governance: oversized content cannot prevent human policy-only revocation (99.081667ms)
+✔ governance authenticated HTTP rejects identity injection and cross-project refs, grants are human-only (227.136917ms)
+✔ global Pi tools discover, inspect and read exact governed evidence; project catalogs cannot install them (1951.428208ms)
+✔ runtime adapter rejects mismatched/closed host Runs and a change while Core read is pending (526.456541ms)
+✔ governance policy SIGKILL before_commit preserves zero/one complete effect (288.783583ms)
+✔ governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect (289.79625ms)
+✔ Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup (586.687ms)
+✔ migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes (883.582958ms)
+✔ governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together (408.348041ms)
+✔ governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together (366.468833ms)
+✔ disclosure expiry is checked at query time with a deterministic future clock (228.799958ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8411.265333

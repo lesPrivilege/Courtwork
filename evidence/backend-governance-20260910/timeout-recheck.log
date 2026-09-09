@@ -1,0 +1,27 @@
+✔ T-DUR-1: a crash before the tool runs leaves no file, no artifact and no replay (1170.971917ms)
+✔ T-DUR-2: a crash between the write and the record surfaces the file as unrecorded (1163.158417ms)
+✔ T-DUR-3: a crash after the record is persisted keeps artifact and file in agreement (1173.644625ms)
+✔ T-DUR-4: a crash during a store write keeps the last complete state and discards the tmp (1046.239083ms)
+✔ a corrupt leftover tmp never affects the state that is loaded (103.226625ms)
+✔ T-IDEM-5: replaying a commandId after a restart returns the original unknown run (1667.443375ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (1798.702208ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (744.276084ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (4244.2625ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (2014.42675ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1208.175458ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (775.8155ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (4006.830458ms)
+✔ T-IDEM-1: replaying the same commandId with the same input returns the same run (608.135ms)
+✔ T-IDEM-2: replaying the same commandId with a different input is 409 command_conflict (89.733083ms)
+✔ T-IDEM-3: two concurrent creates with the same commandId produce exactly one run (68.265041ms)
+✔ T-IDEM-4: a lost response then a resend returns the same run and executes once (67.9885ms)
+✔ T-IDEM-6: the same commandId in another session is a different command (764.195042ms)
+✔ C4: unloaded extension preserves old receipts but still blocks new work (528.388208ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64668.228958

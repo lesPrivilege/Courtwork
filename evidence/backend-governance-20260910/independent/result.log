@@ -1,0 +1,22 @@
+independent governance probe
+fixed_sha=caa448ee784d1a360e81904ca535f691d2a41ea4
+source_tree=git-root-derived-from-runner
+node=v25.9.0
+python=Python 3.14.2
+commit=caa448ee784d1a360e81904ca535f691d2a41ea4
+subject=Merge branch 'main' into codex/backend-governance-20260910
+{
+  "status": "PASS",
+  "fixed_sha": "caa448ee784d1a360e81904ca535f691d2a41ea4",
+  "independent_data_dir": "temporary directory; removed after probe",
+  "source_count": 129,
+  "full_inspect": "GOVERNANCE_LIMIT",
+  "policy_only_revision": 1,
+  "revoke_revision": 2,
+  "exact_grant_replay": "same historical receipt; policy remains revoked",
+  "runtime_policy_query": "NOT_FOUND",
+  "runtime_registry_after_revoke": 0,
+  "closed_adapter": "CANDIDATE_CLOSED",
+  "switched_project_adapter": "CANDIDATE_CLOSED"
+}
+exit_status=0

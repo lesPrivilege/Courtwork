@@ -2,7 +2,7 @@
 
 2026-09-10。用户授权「认领后端治理 pr，luna explore」。Astra 认领架构、合同与后续集成；Luna 负责有界源码探索。基线 `main@27d37dad75c07f0bc0aa394c19d208e92c8c9a1f`，隔离分支 `codex/backend-governance-20260910`。共享 main 当时存在他人的 WK-98 evidence 修改，未触碰。
 
-本次交付为认领、源码映射和首片范围冻结；产品实现尚未开始，未创建远端 PR。输入按字节保留于 [input](input.txt)，[manifest](source-manifest.json) 固定 hash。上游约40结果、7来源、Engram热度与功能描述仍属输入主张，本次不冒称完成外网或上游源码验证。[Luna 探索](luna-explore.md)负责当前 Courtwork 实现证据。
+初始认领节点交付源码映射和首片范围冻结，当时产品实现尚未开始、未创建远端 PR；后续施工结果见页末。输入按字节保留于 [input](input.txt)，[manifest](source-manifest.json) 固定 hash。上游约40结果、7来源、Engram热度与功能描述仍属输入主张，本次不冒称完成外网或上游源码验证。[Luna 探索](luna-explore.md)负责当前 Courtwork 实现证据。
 
 ## 架构裁定
 
@@ -50,6 +50,13 @@ BG-01预留范围：`app/core/`中既有Core owner及必要薄查询模块、对
 
 提交前共享main已推进至 `6921dbd18de153020c87e4438eebe5260762fee0`，新增request telemetry/effort及Runtime7，并修改service/store/index。本探索不声称覆盖该增量；实现须在最新主线重新对齐版本与写权。本认领分支保留固定探索基线，不合并或覆盖共享checkout。
 
-本次只检查文档链接、输入hash与diff；不报告产品测试通过或独立接受，不改变Paper、G1–G5或schema。后续产品实现按BG-01开始，BG-02/03不作为首片目录实现的隐含大重构要求。
+初始认领节点只检查文档链接、输入hash与diff；该节点不报告产品测试通过或独立接受，不改变Paper、G1–G5或schema。后续产品实现按BG-01开始，BG-02/03不作为首片目录实现的隐含大重构要求。
 
 认领包实际检查：`node tools/check-doc-links.mjs` 通过（553 documents / 2490 links）；原文bytes/SHA-256核对通过；`git diff --check`通过。Luna报告已由Astra消费，未发现改变上述首片方向的冲突。
+
+
+## 用户授权施工后的实际交付
+
+用户随后同意施工并继续指定Luna explore。Astra实施产品 `9a8a13a`，整合main `b4e3f71` 的Runtime8/coordination/Usage为组合 `caa448e`。正式wire/权限与迁移以 [BG-01合同](../../../docs/work-core/governance.md)为准；[验证回执](../../../evidence/backend-governance-20260910/README.md)区分作者检查、在途探索与固定SHA非作者反例。
+
+交付范围为同owner目录、Matter披露政策/事件/回执、认证human HTTP和global Attention的三步工具读取。Core4/app5新增政策持久表，Runtime8由main继承而非本单迁移。授权明确current内容语义；policy版本与对象读取hash分离，正文逐页重新检查。撤权使用human-only政策查询与null内容hash，不能因对象来源超预算而被阻止。Registry无第二份状态库，relations不在本次通用reader内；Run/attempt、scheduler、外部effect与人类policy编辑器UI仍后置。
