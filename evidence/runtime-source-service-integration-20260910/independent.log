@@ -1,0 +1,11 @@
+✔ independent: Unicode identity is byte-sensitive and interpretation title binds separately (122.090084ms)
+✔ independent: live locator/origin/MCP target remains untouched with a positive contact control (65.814084ms)
+✔ independent: concurrent inspections/rejections neither import nor persist nor log source text (72.716542ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3290.103375

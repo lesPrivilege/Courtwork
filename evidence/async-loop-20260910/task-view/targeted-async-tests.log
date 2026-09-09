@@ -1,0 +1,45 @@
+✔ catalog staleness keeps durable result readable and refuses further adapter work (184.210583ms)
+✔ policy rejection records dependency before adapter I/O, leaving Run unresolved (108.091208ms)
+✔ late query cannot overwrite cancellation and lost cancel ACK remains unresolved (178.405875ms)
+✔ stopped Run forbids dispatch and wait stays inside local budget (374.956834ms)
+✔ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (226.25325ms)
+✔ fixture independently releases two documents without timing assertions (299.999833ms)
+✔ fixture makes delivery identity idempotent and exposes launch/result acknowledgement loss (239.373625ms)
+✔ fixture keeps cancel-before-success and cancel-after-success distinct (195.405583ms)
+✔ SIGKILLs the state-owning provider and queries persisted synthetic settlement after restart (758.091291ms)
+✔ in-flight provider SIGKILL retains the accepted synthetic record without implicit resume or relaunch (463.085084ms)
+✔ concurrent launches publish complete synthetic state before their barriers open (304.343791ms)
+✔ reused job IDs reject a changed immutable request without incrementing the launch attempt (121.99375ms)
+✔ AM-B-T1 captures the final MCP payload and preserves the synchronous loop (70.1395ms)
+✔ AM-B-T1 records task-shaped responses as unsupported and shows the current continuation gap (26.247458ms)
+✔ AM-B-T1 does not treat partial args as a completed tool result, and exposes current wire gaps (18.591416ms)
+✔ AM-B-T1 observes Pi 0.85.1 final HTTP encoding and waits for complete streamed tool arguments (93.409584ms)
+✔ independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches (1530.713209ms)
+✔ independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches (1039.139666ms)
+✔ independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches (1485.282416ms)
+✔ independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches (1389.818667ms)
+✔ fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes (1299.535375ms)
+✔ schema3 and schema4 migrate with an exact independent backup and reopen (1157.553917ms)
+✔ invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched (87.151375ms)
+✔ current: full schemaVersion:1 view is an independent literal copy with availability last (14.817709ms)
+✔ availability classes follow the frozen priority with no inference (1.568875ms)
+✔ options omit result and/or deliveries but never rewrite the rest (2.954583ms)
+✔ nulls and prepared-but-unrecorded delivery facts are preserved, never filled in (0.2665ms)
+✔ succeeded and cancelRequestedAt coexist; terminal evidence is immutable in the view (13.205792ms)
+✔ an older delivery snapshot is projected as-is and never repaired into newer facts (0.304416ms)
+✔ no invented fields and no auto-recovery in the projection (4.056625ms)
+✔ a stale source never projects as current even when a result exists (0.236667ms)
+✔ HTTP list/detail packets: real host + synthetic adapter, scoped and paged (1018.586917ms)
+✔ two durable reads use actual host/Pi tools and wait only on the selected source (813.838292ms)
+✔ premature final and lost launch ACK preserve query-only recovery, then a later Run consumes the original task (434.639542ms)
+✔ source/implementation absence remains readable; corrupt bytes and cross-session consumption are refused (496.953666ms)
+✔ schema3/4 migrate through exclusive backup and refuse existing backup paths (423.283458ms)
+✔ invalid UTF-8 schema4 is refused before backup or replacement (112.951875ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21157.870667

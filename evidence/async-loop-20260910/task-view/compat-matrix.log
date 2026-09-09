@@ -1,0 +1,9 @@
+compat-matrix: baseline AsyncTasks.view (main tree) vs projectAsyncTask (this worktree)
+old sha256: 1bbfc4c3a1e5bb194385f2fa56de58f8be532e64f8ee8cc4840d47d981c3dfe5
+new sha256: 1bbfc4c3a1e5bb194385f2fa56de58f8be532e64f8ee8cc4840d47d981c3dfe5
+diff: IDENTICAL, rows=144
+matrix: 2 session states x 6 adapter variants x 3 task states x 4 option sets
+sample current row:
+live|match|settled|"default" => {"schemaVersion":1,"id":"0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b","revision":7,"origin":{"projectId":"p1","sessionId":"s1","runId":"r1","callId":"c1"},
+sample orphaned row:
+gone|match|task|"default" => {"schemaVersion":1,"id":"0f1e2d3c-4b5a-6978-8a9b-0c1d2e3f4a5b","revision":3,"origin":{"projectId":"p1","sessionId":"s1","runId":"r1","callId":"c1"},"ad

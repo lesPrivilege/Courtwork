@@ -1,85 +1,51 @@
 # CourtWork
 
-_A place for expert work to take form._
+让 AI 参与的工作持续推进。
 
-**Turn AI output into work you can build on.**
-**把 AI 的产出，变成接得下去的工作。**
+CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与审阅放在同一件工作里。你可以从一次对话开始，检查工具调用和生成的文件，再把工作接入事项：逐条审阅候选，打开引用的原文，留下决定，跨会话继续。
 
-在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。
+[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md)
 
-[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [站点源码与本地预览](site/README.md) · [工程状态](engineering/current.md)。
+## 工作如何留下来
+
+一次运行会结束，专业工作往往需要多次交接、修订与确认。CourtWork 把每次执行留下的内容组织成可继续使用的工作状态。
+
+- **过程可见。** 工具调用、提问、回答与运行状态按时间呈现。写入批准包含具体路径、内容与大小。
+- **材料可追溯。** 生成文件保留字节身份；候选引用明确的来源版本与原文片段。
+- **审阅有落点。** 接受、退回或要求补证据。每次决定绑定候选版本，修订与历史一起保留。
+- **工作可续行。** 将 Chat 接入 Matter，在新的会话里继续处理同一事项，查看既有成果、决定与待办义务。
+- **运行由你配置。** 选择 provider 或本地模型，管理资源、权限与 MCP。工作数据保存在本地。
+
+仓库内含一个完整的 NDA 审阅场景，贯通材料、逐规则候选、证据引用、人工决定与修订。
 
 ## 本地运行
 
-需要 Node.js 22.19 以上、Python 3、Git 2.36 以上。默认 provider 是本地确定性 fake；真实 provider 在界面里配置，密钥不进入仓库、聊天或截图。
-
-每个服务使用独立数据目录。当前主线使用 schema 5，旧 schema 3/4 经完整验证与独占备份后升级；迁移检查与备份要求见 [运行与数据说明](app/README.md)；升级后的数据不得与旧 host 共用。停止用 Ctrl-C。
+需要 Node.js 22.19+、Python 3 和 Git 2.36+。
 
 ```sh
 git clone https://github.com/lesPrivilege/Courtwork.git
 cd Courtwork
 npm --prefix app ci
 npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
-npm --prefix app test
 ```
 
-## 验证
-
-```sh
-npm --prefix app test
-node --test benchmarks/continuity/grade.test.mjs
-node benchmarks/continuity/run.mjs --output /absolute/path/result.json
-node tools/lint-colors.mjs
-node tools/lint-materials.mjs
-node tools/contrast-report.mjs
-```
-
-产品证据快照 `9e5384f` 上的记录：应用测试 308 通过、0 失败；continuity conformance E 6/6、S 6/6，记录在 [`evidence/publishing-surface-2026-09-09/continuity-9e5384f.json`](evidence/publishing-surface-2026-09-09/continuity-9e5384f.json)。这些数字属于该固定快照，不代表当前 main 的测试总数。该 benchmark 衡量协议保真度，不衡量增量价值：E 与 S 都应通过，这是校准。
-
-真实模型验证：待完成。
-
-## 声称表
-
-| 可写的声称 | 状态 | 证据入口 |
-|---|---|---|
-| 从独立 clone 安装、测试、启动 | verified with synthetic data | [`evidence/final-integration-20260908/sync.md`](evidence/final-integration-20260908/sync.md) |
-| Run 链：回答、精确写入批准、文件身份、预览、拒绝、停止、断线重连 | verified with synthetic data | [`evidence/final-integration-20260908/README.md`](evidence/final-integration-20260908/README.md) |
-| 运行控制：配置 CAS、来源、上下文、MCP 生命周期 | verified with synthetic data | [`evidence/rc/`](evidence/rc/) |
-| MCP 未知效果后封闭后续调用 | verified with synthetic data | [`evidence/final-integration-20260908/mcp-unknown.json`](evidence/final-integration-20260908/mcp-unknown.json) |
-| Continue in Work：Chat 绑定 Matter，历史与 Project 保留 | verified with synthetic data | [`evidence/fe03/`](evidence/fe03/) |
-| 合成 NDA：逐规则候选 → 审阅 → 正式决定；幂等与过时版本拒绝 | verified with synthetic data | [`evidence/wk10b2-main-integration-20260908/`](evidence/wk10b2-main-integration-20260908/) |
-| 新 Session 继续同一事项；产生候选的一方缺席时历史可读 | verified with synthetic data | [`evidence/se-continuity-20260908/`](evidence/se-continuity-20260908/) |
-| Models：Catalog provider · Compatible endpoint · Local endpoint；Test connection、Fetch models | runs locally | [`evidence/fe03-main-integration-20260909/`](evidence/fe03-main-integration-20260909/) |
-| Settings 整页；Appearance 本设备偏好 | runs locally | [`evidence/cc-s-main-integration-20260909/`](evidence/cc-s-main-integration-20260909/) |
-| 真实模型 provider 路径 | not yet | 用户在界面配置 |
-| 有界模型 pilot 与对比分数 | not yet | — |
-| 事项级记忆、Temporary chat | not yet | — |
-| 桌面安装包、签名 | not yet | — |
-
-每份记录包含对应版本、运行条件与验证范围。
-
-## 入口
-
-- [`engineering/current.md`](engineering/current.md)：已交付能力、证据边界、下一单。
-- [`engineering/architecture.md`](engineering/architecture.md)：模块所有权与边界。
-- [`engineering/roadmap.md`](engineering/roadmap.md)：长期路线与验证门。
-- [`docs/runtime-control/INDEX.md`](docs/runtime-control/INDEX.md)：资源、权限、MCP 与上下文绑定。
-- [`docs/interface-components.md`](docs/interface-components.md)：布局、消息、工作面、焦点与状态 owner。
-- [`PAPER.md`](PAPER.md)：采用的论文版本与反馈路径。
-- [`engineering/migration/2026-09-08/README.md`](engineering/migration/2026-09-08/README.md)：来源、Git 谱系、工作目录与回退边界。
+打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。详细配置、数据迁移与备份见 [运行文档](app/README.md)。
 
 ## 组成
 
-- **Web UI.** 原生 ES module 前端，呈现会话、运行、文件与审阅。
-- **Host runtime.** Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限、资源与 MCP。
-- **Domain core.** Matter、候选、证据与决定，配合版本校验与幂等提交。
+- **Web UI** 呈现会话、运行、文件与审阅。
+- **Host runtime** 基于 Pi AgentSession，管理模型执行、权限、上下文与 MCP。
+- **Domain core** 持有事项、候选、证据与决定，处理版本校验和幂等提交。
 
-CourtWork 运行在 Pi agent SDK（`@earendil-works/pi-*` 0.85.1）与官方 MCP client 2.0.0 之上；harness core 管理策略、状态与审阅。
+CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。架构与模块边界见 [架构文档](engineering/architecture.md)。
 
-## Paper
+## 深入了解
 
-CourtWork 按 Schema Engineering 9.6（`d78fd31`）建造，版本绑定与反馈路径见 [`PAPER.md`](PAPER.md)。
+- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源、权限、上下文与 MCP。
+- [界面组件](docs/interface-components.md)：消息、工作面与交互契约。
+- [Continuity conformance](benchmarks/continuity/README.md)：状态连续性的测试方法与复现入口。
+- [工程状态](engineering/current.md)：当前进展与交付记录。
 
 ## License
 
-MIT，见 [`LICENSE`](LICENSE)。
+[MIT](LICENSE)

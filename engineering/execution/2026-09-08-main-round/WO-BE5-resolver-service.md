@@ -1,6 +1,6 @@
 # WO-BE5 · 声明式来源解析的服务接缝
 
-状态：Astra 下一轮后端工单；契约准备就绪，尚未实现/验收。对应 Fable BE-5 / WK-64–65 的 Runtime R2；它不等于 Long-life Roadmap R2 阶段完成。基线及写权顺序见 [本轮派单](README.md)。
+状态：2026-09-10 HTTP检查接缝已实现并经Astra非作者复核接受，见 [合流回执](../../../evidence/runtime-source-service-integration-20260910/README.md)。以下保留原冻结施工合同。对应 Fable BE-5 / WK-64–65 的 Runtime R2；它不等于 Long-life Roadmap R2 阶段完成。基线及写权顺序见 [本轮派单](README.md)。
 
 ## 问题与既有能力
 

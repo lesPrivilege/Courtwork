@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "92d973df-bac7-4e91-bbe5-9f58658a1f3a",
+  "revision": 7,
+  "origin": {
+    "projectId": "4ed9ec18-9deb-40e6-8759-5a009f0fa939",
+    "sessionId": "023808fa-dcd9-4b6b-a0bf-a70960c72d29",
+    "runId": "9a730196-c3d9-4136-9f27-983479c81de7",
+    "callId": "call-0"
+  },
+  "adapter": {
+    "id": "read-doc",
+    "version": "impl1"
+  },
+  "source": {
+    "id": "doc-alpha",
+    "version": "v1",
+    "digest": "2acf56d8c78684d2819457cd531107fd9b6ce26fd164db680c2a3955472574ae"
+  },
+  "createdAt": "2026-09-09T16:54:01.422Z",
+  "updatedAt": "2026-09-09T16:54:01.500Z",
+  "execution": {
+    "status": "succeeded",
+    "dispatchCount": 1,
+    "cancelRequestedAt": null,
+    "cancelAttempted": false,
+    "reason": null
+  },
+  "result": {
+    "text": "Alpha packet: independent synthetic read A. 中文",
+    "bytes": 50,
+    "digest": "2acf56d8c78684d2819457cd531107fd9b6ce26fd164db680c2a3955472574ae"
+  },
+  "deliveries": [
+    {
+      "runId": "9a730196-c3d9-4136-9f27-983479c81de7",
+      "callId": "call-3",
+      "kind": "wait",
+      "taskRevision": 5,
+      "executionStatus": "succeeded",
+      "resultDigest": "2acf56d8c78684d2819457cd531107fd9b6ce26fd164db680c2a3955472574ae",
+      "preparedAt": "2026-09-09T16:54:01.445Z",
+      "runtimeRecordedAt": "2026-09-09T16:54:01.500Z",
+      "provider": "unknown"
+    }
+  ],
+  "availability": "current"
+}

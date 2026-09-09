@@ -13,7 +13,7 @@ Core主单已交付：[Fresh Astra：通用Harness Core＋首个NDA场景](execu
 | 对外口径 / README / Pages | PS-01/02 第一版完整版面已交付，PS-26 改为产品口吻；固定产品快照 9e5384f，308/308、E/S 各 6/6，页面浏览器 17/17 | 用户 PS-27 授权本轮 GitHub Pages 发布，随后独立 review；[交付与接续](release/publishing-surface-2026-09-09/delivery-ps-01.md)。品牌后置 |
 | 通用工作面 / Workbench | CC-D0-a 与 r4d 5b4c981 已合流（4f7278f），验证与归因见页末 | Astra 接手清账；后续 FE-05a → FE-05 → ATT-FE-01 → CC-I；[第五轮工单](mvp/execution/work-surface-kit/work-orders/WO-CC-round5.md) |
 | 领域主链 | ES-01文件候选与Attention后端已合流（当前Core3/app4，GUI待）；H0–H3后端已实现：单一Core、NDA规则/候选/决定、来源历史、跨Session/删除保留、producer缺席读取 | Fable消费冻结契约；Review与续行GUI已通过合成浏览器复验；真实运行纵切仍待，不关闭G2/G3 |
-| Runtime来源 | Runtime R2纯声明解析模块已合流；无HTTP/UI/model工具，locator获取未实现 | BE-5服务接缝单可接，串行避开H1的service写权；不阻塞最小公开纵切 |
+| Runtime来源 | Runtime R2纯解析器与BE-5认证HTTP检查已合流；无UI/model工具，locator获取未实现 | 后续消费inspect-only接口；获取/R3兼容/R4–R5提案与事务仍另单 |
 | 真实模型 | 最终联调与远端clone使用local-fake/loopback；真实provider未跑 | 沿用户GUI配置与授权补G1/G2；不读取凭据、不假定现成配置 |
 | 旧实现召回 | 已冻结并完成15条Luna只读索引，15/15路径核验 | 从 [召回索引](ecosystem/legacy-recall-index.md)定向读SHA/path，不默认继承旧代码 |
 | Benchmark / SE 连续性 | Pro指出旧评分盲区与Context续行边界；现已修复观察关系/角色/raw绑定，E与普通S各六条开发符合性通过；Context v2引用+分页读与HTTP局部续行通过 | [Pro处置/证据](../evidence/pro-review-remediation-20260908/README.md)、[协议](research/se-continuity-2026-09-08/README.md)；D1/D2有界独立复核已完成，合流应用183/183与smoke通过；下一步冻结S/E差异与独立任务，后做有界模型pilot；真人/法律质量后置，不关闭产品门 |
@@ -222,6 +222,19 @@ T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有
 本批组合实际基线 `a243a6c`，Astra合流验证346/346与smoke通过；T4四窗/分目录恢复与策略wrapper真红→绿独验已接收，详见上述回执。最小task adapter仍为opt-in，独立协议/fixture测试不授予模型native能力。
 
 2026-09-10 Pages 接续：Claude 原施工 `e492dc9` 由 Astra 恢复为 `230a719`，Terra 定价 `082b35f`/`f412a62`，Astra 完整版面 `e142b56`；与 async 当前 main `85693a6` 合流为 `e2f3ef0`。唯一冲突 README 按页面生成器重建并保留 schema 5 迁移/独占备份要求。真实 composer 图标回退在 `9e5384f` 修复，独立复核与页面回执另列；固定快照测试不代表合流后全量数量。用户将独立 review 页面，不关闭真实模型与产品门。品牌 `15b6464` 保留独立分支，不随本轮发布。
+
+
+## BE-5：声明式来源解析 HTTP 接缝（2026-09-10）
+
+从实际main `5909f2f` 隔离接收作者代码 `9cbae87` 与证据 `470498b`，无产品冲突。新增认证 `POST /api/v5/runtime-sources/resolve` 直接复用既有resolver；原文identity、unverified来源、granted空与inspect-only保持，locator明确unsupported，不获取/安装/连接/执行。Astra独立3/3、组合全量352/352与smoke通过，见 [合流回执](../evidence/runtime-source-service-integration-20260910/README.md)。无产品集成修补，仅修正索引/接缝说明与当前状态。
+
+共享body reader超1MiB会断连，不能承诺客户端收到JSON 413；本单接受其既有有界拒绝行为，若改善可观察错误需另做宿主级修复。此处关闭BE-5的HTTP检查接缝，不关闭R2获取、UI消费、R3–R5或G1–G5。Core3/app4/Runtime5保持；没有升级个人数据或运行真实provider。
+
+## AM-B-T3：纯投影与 UI 消费 packets 接收（2026-09-10）
+
+以main `5123d0f` 为组合基线，接收产品 `184e3f0`、作者证据 `bd4b92a`；期间发布面main `8e69032` 无冲突同步。AsyncTasks.view委托纯projectAsyncTask，owner仍提供Session存在性与当前adapter；schema1字段、availability优先级、options与历史/投递事实保持。Astra非作者固定旧SHA的392组对照及副本/adapter/时钟边界检查通过，组合全量361/361与smoke通过，见 [回执](../evidence/async-loop-20260910/task-view-integration/README.md)。无产品集成补丁或schema迁移。
+
+T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点记录；UI本体、A2真实模型评测与native async仍未交付。delivery.taskRevision允许小于task.revision，投影不回填历史receipt、不推断动作许可。Core3/app4/Runtime5、HL生产合同与G1–G5保持。
 
 ## Markdown reader 与 Output Review 边界（2026-09-10）
 

@@ -72,3 +72,8 @@ ES-01完整文件候选后端以最终 `b1ff74b`（证据 `95cfb16`）合流，C
 ATT-BE-01以最终产品 `d37704e`、作者证据 `ae595ed` 经来源Astra非作者反例审阅接收；[正式合同](../../../../docs/work-core/attention.md)、[实际packets](../../../../app/tests/fixtures/work-core/attention-packets.json)、[独验记录](../../../../evidence/attention-independent-20260909/README.md)。同库Attention状态/事件/回执、project scope、CAS/重放、typed actions、披露/查询及Runtime signal后端已可消费；Core3/app4、Runtime4。来源Astra发现的旧ES备份悬空链接已修复并复验，最终全量305/305与smoke通过。
 
 ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限，处理action schema/expected_revision与真实不可用状态。Runtime seam不等于已安装Pi工具或完整ATT-RT；暂无scheduler、外部发送或UI交付。BE-31/32/33、AM-B和真实provider等仍各自待办。
+
+
+## BE-5 HTTP检查接缝接收（2026-09-10）
+
+作者 `9cbae87` / `470498b` 的认证inspect-only服务经Astra非作者复核接收，见 [合流证据](../../../../evidence/runtime-source-service-integration-20260910/README.md) 与 [HTTP合同](../../../../docs/runtime-control/api.md)。现有解析器可经POST调用；不新增locator获取、安装、权限或模型工具。UI与完整R2获取仍未实现；共享body超限断连事实已明确，不宣称可见JSON 413。
