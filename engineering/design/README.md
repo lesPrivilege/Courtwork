@@ -23,6 +23,8 @@
 
 ## 与工程治理的关系
 
+[Clean and Cool 前端审查与图稿包](clean-cool-2026-09-09/README.md)以当前main实拍核对FE-01/02与Review，映射FE-03/04/05及BE-17/18接缝，附三张较自由的Image Gen参考、完整prompt与Claude交接。属于待选择设计输入，不改变现有施工规范或前端队列。
+
 Design 是 M10/M11 和 RD-003 的设计输入，也可能暴露 M02/M04/M06 的接口缺口。完成面决定需要哪些可见状态；实际语义仍由 [Core 契约](../core-contracts.md) 定义。设计不自行创造 approve、cancelled 或已保存事实。
 
 设计范围和工程承诺记在 [工程 decisions](../decisions.md)；本系列的视觉/交互决策记在 Design decisions，不重复技术采纳记录。设计研究推进不改变任何 RD 的运行状态。

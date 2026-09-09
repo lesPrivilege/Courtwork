@@ -1,0 +1,121 @@
+{
+  "baseline": "61ab8637f549c78d903cc7a1a0ea53b30efc67e4",
+  "date": "2026-09-09",
+  "source": "Current main isolated local-fake, built-in CUA browser",
+  "captureViewports": [
+    [
+      1440,
+      1024
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "displayOrder": [
+    "images/home-editorial.png",
+    "images/models-preview.png",
+    "images/review-reading.png"
+  ],
+  "generatedImageMode": "built-in image_gen",
+  "modelVersion": "not exposed",
+  "files": [
+    {
+      "path": "captures/home.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 38732,
+      "sha256": "c5c4699f1e78ee76b6a4b0a5a41d284624fee1fdb0aec5ef9a466845dfd997f2",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/models-add.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 57375,
+      "sha256": "81213734ffc91abf3c926b40debe90e6a64d56f41717ee70e6a4bb9fbdca9834",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/models-mobile.jpg",
+      "width": 390,
+      "height": 844,
+      "bytes": 24899,
+      "sha256": "9859dfb389091fd7aec749d1a07a6aeb6473a2e1233875e1bcc47ac8aaedd0f3",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/models.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 53413,
+      "sha256": "62155862e118bebf6fd271f52589f6c1d0e46888c35932f8b7288cd1780e1b05",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/review-source.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 72155,
+      "sha256": "5530be3c6ca5cc1793d3f13cafd69f3aaf608a7036a7db0887ac51930a43aa4f",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/review.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 64672,
+      "sha256": "84b5abbbd4ef2924392c87e8be7bd0044e1044e332e43ca9e434c674d2c36c98",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "captures/work-review.jpg",
+      "width": 1440,
+      "height": 1024,
+      "bytes": 106810,
+      "sha256": "1fa105691d21744d274e1b013be29cdb8add577e4e8651ad1380a71c2695b76a",
+      "kind": "current-code-synthetic-capture",
+      "format": "JPEG"
+    },
+    {
+      "path": "images/home-editorial.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 948304,
+      "sha256": "1941b37552c4ddce52fd4bf3247e84a8279083fd1915c050a8d00b1e799899bf",
+      "kind": "generated-concept",
+      "format": "PNG"
+    },
+    {
+      "path": "images/models-preview.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 996571,
+      "sha256": "85ec58617667afdce465d8299855b78adb76a4498f6c91c072df6f825912d65a",
+      "kind": "generated-concept",
+      "format": "PNG"
+    },
+    {
+      "path": "images/review-reading.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 972281,
+      "sha256": "1564d1ba39d516c90c459c80d4cc60d479012ed5d17674cebd539ba252adc4d2",
+      "kind": "generated-concept",
+      "format": "PNG"
+    }
+  ],
+  "acceptedVisualTarget": null,
+  "productImplementation": false,
+  "requestedGenerationDimensions": [
+    1440,
+    1024
+  ],
+  "note": "Tool returned generated concepts at 1487x1058; no resizing or image editing performed. CUA screenshots are native JPEG bytes."
+}

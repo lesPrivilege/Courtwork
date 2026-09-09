@@ -62,6 +62,10 @@ BE-17/18以现有token保护两个POST，使用请求中的临时API根/可选ke
 
 用户要求将“架构插件化调研”一并入账，并补充handoff.md；已消费一轮完整问答及366行交接原文。[准备包](research/architecture-maintenance-2026-09-09/README.md)在实际main4c1c420核对当前owner，提供AM-A…F后续PR、局部选型/来源index、缓存/维护契约草案和前后端合流Design。保持Pi与既有Core；先请求基线再两项只读慢任务纵切，区分执行/交付/接受、native/adapted和MCP协议代际。与上一单LG/EX及ES-00交叉连接，不复制任务/来源/成果owner。此次仅文档与有界只读核验，未实施async或插件平台、未运行真实provider；FE队列、ES-01及G1–G5不变。
 
+## Clean and Cool：前端视觉审查与 Claude 输入（2026-09-09）
+
+用户要求复查已实现及待做前端PR/commit并提供更自由的图稿；从`main@61ab863`隔离启动local-fake，捕捉Home、Models和NDA Review的桌面流程及Models窄屏。[设计包](design/clean-cool-2026-09-09/README.md)附提交/工单索引、三张Image Gen图、完整prompt、偏差校正及Claude交接。图稿尚未选择或实施；Home几何/命名和Review全幅模式均为显式提案，BE-17/18探测不代表custom连接已可保存。仅文档与图像交付，无产品代码变更；FE单writer队列与G1–G5保持。
+
 ## 新接两单：Luna 首轮有界交付
 
 2026-09-08 用户指定“code base 优化和 harness Core 验证”，并确认“落工单并启动 Luna 有界执行”。从实际 main `429fdd68febb9998f322a0b53c323651fc8cd7fd` 建临时隔离分支 `codex/luna-maintenance-core-validation`；[两单合同](execution/2026-09-08-luna-two-orders/README.md)已形成并启动三个 Luna max 分片：clarity Finder、Core 独立反例验证、agent capability compatibility index。首阶段仅各写对应证据；代码候选必须经另一人验证后才授予修复写权。Astra 负责架构、current 与合流，不触碰 WK12/WK11 前端写权。

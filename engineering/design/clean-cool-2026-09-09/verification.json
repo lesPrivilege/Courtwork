@@ -1,0 +1,18 @@
+{
+  "baseline": "61ab8637f549c78d903cc7a1a0ea53b30efc67e4",
+  "productCodeChanged": false,
+  "capturesInspected": 7,
+  "generatedImagesInspected": 3,
+  "imageHashesVerified": 10,
+  "localLinksChecked": 18,
+  "promptReferenceCoverage": "3/3 concepts with corresponding current captures",
+  "visualTargetAccepted": false,
+  "productTests": "not run: docs and images only",
+  "independentAcceptance": "not claimed",
+  "limitations": [
+    "synthetic fixtures only",
+    "no live providers or decisions submitted",
+    "no full keyboard, screen reader, contrast or motion audit",
+    "generated mock text deviations are listed in claude-handoff.md"
+  ]
+}
