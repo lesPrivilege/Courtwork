@@ -4,14 +4,14 @@
 
 ## 六个入口
 
-- `tour.html`：十类状态索引、六张当前 main 完整截图、逐图caption/manifest/哈希。Matter接完整回放；running/stop、独立MCP、Settings其余面缺图明确待补。六张图来自当前 main `774a3bd073bc1845d9bacde22da657b44df673d1` 的独立本地合成运行；没有把旧 Home 图混入新 manifest。
+- `tour.html`：十类状态索引、六张当前 main 完整截图、逐图caption/manifest/哈希。Matter接完整回放；running/stop、独立MCP、Settings其余面缺图明确待补。六张图来自当前 main `479893aa4d1ab63e1f0a835ad10ec14a6ddca807` 的独立本地合成运行；没有把旧 Home 图混入新 manifest。
 - `get.html`：概念桌面分发与真实source install并列。Download preview打开原生dialog，说明未分发桌面包；没有虚构DMG、大小、签名或架构支持。源码命令checkout完整证据SHA、忽略安装脚本、使用仓库外专属数据目录，复制失败保留手动选择。
 - `cli.html`：七个离线命令（help/status/open nda/review/provenance/models/clear）。数字、来源摘要、候选与状态版本来自录制。输入仅textContent，绝不执行shell、provider或decide；Review/Models/来源跳转可实际使用。无JavaScript保留回放入口。
 - `changelog.html`：四条真实提交（Home、Settings、Models、provider目录探测），不假装binary release。
 - `models.html`：固定runtime目录OpenAI/DeepSeek/local fake，真实provider未取证；compatible只做目录探测，不暗示任意连接可保存/执行或key验证成功。
 - `data.html`：本地Core/dataDir、请求provider、credentials.json权限、工具效果、静态网站的独立边界。没有认证、零日志、系统钥匙串或“所有数据永不离机”假承诺。
 
-首页只增加导航与页脚入口。0.1.0从固定SHA的app/package.json读取并标source preview；基础 specimen / machine provenance 仍保持 `9e5384f`，产品页图像则由独立的 `site/media/main/manifest.json` 固定到当前 main `774a3bd`。build manifest 同时列出六页与 product media source；download_assets仍为空。静态icon使用同一canonical四矩形和浅灰横栏。
+首页只增加导航与页脚入口。0.1.0从固定SHA的app/package.json读取并标source preview；基础 specimen / machine provenance 仍保持 `9e5384f`，产品页图像则由独立的 `site/media/main/manifest.json` 固定到当前 main `479893a`。build manifest 同时列出六页与 product media source；download_assets仍为空。静态icon使用同一canonical四矩形和浅灰横栏。
 
 ## 检查
 

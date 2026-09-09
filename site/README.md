@@ -45,4 +45,4 @@ Hero中的纸层是明确标注的概念作品。新版Home完成前，`data-cap
 node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
 ```
 
-Tour有十类状态，当前六张对应截图；未录制状态保留待补，不能把十类索引写成十张实机已完成。六张产品图来自当前 main `774a3bd073bc1845d9bacde22da657b44df673d1`，与基础 specimen 的固定 `9e5384f` manifest 分开记录。入口实现与边界见[本轮回执](../evidence/pages-product-life-20260910/README.md)，媒体重取与浏览器回执见[当前 main 媒体回执](../evidence/pages-main-20260910/README.md)。
+Tour有十类状态，当前六张对应截图；未录制状态保留待补，不能把十类索引写成十张实机已完成。六张产品图来自当前 main `479893aa4d1ab63e1f0a835ad10ec14a6ddca807`，与基础 specimen 的固定 `9e5384f` manifest 分开记录。入口实现与边界见[本轮回执](../evidence/pages-product-life-20260910/README.md)，媒体重取与浏览器回执见[当前 main 媒体回执](../evidence/pages-main-20260910/README.md)。

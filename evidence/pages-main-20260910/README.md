@@ -1,6 +1,6 @@
 # Current-main product-page media
 
-2026-09-10；这是六个 Pages 入口使用的独立产品截图回执。页面事实和源码链接固定到当前 main `774a3bd073bc1845d9bacde22da657b44df673d1`；旧的离线 specimen 仍由 `site/release.json` 固定到 `9e5384f`，两套证据不混用。
+2026-09-10；这是六个 Pages 入口使用的独立产品截图回执。页面事实和源码链接固定到当前 main `479893aa4d1ab63e1f0a835ad10ec14a6ddca807`；旧的离线 specimen 仍由 `site/release.json` 固定到 `9e5384f`，两套证据不混用。
 
 ## Capture
 
@@ -9,7 +9,7 @@
 ```sh
 node site/scripts/capture-media.mjs \
   --origin http://127.0.0.1:8966 \
-  --source-sha 774a3bd073bc1845d9bacde22da657b44df673d1 \
+  --source-sha 479893aa4d1ab63e1f0a835ad10ec14a6ddca807 \
   --media-dir media/main \
   --cdp-port 19972
 ```
