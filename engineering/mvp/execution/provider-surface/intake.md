@@ -232,3 +232,21 @@ WO-PV-FE01 的派出条件随之改为：WO-PV-BE02 交付后，以 `claude/pv-b
 
 **结论：接受（作者验证级），待 PV-53 补丁回来后一并交 Astra 独立验收。** 合流单元按 PV-45 = BE02 + FE01（+ PV-53 补丁），Astra 合 `claude/pvfe01-connections` 一支即带入全部。
 
+## 15. PV-53 补丁复核与批次节点（Fable，2026-09-10）
+
+补丁两提交 `56cfe71` / `84c39a7`，分支头 `84c39a7`。Fable 独立重跑 **462/462，fail 0，exit 0**；读 diff 核实形状与裁定一致：只改 `model-picker.mjs` 一处，标签走连接面既有的 `connectionLabel`（即 `baseUrl` 的 host），第三路请求挂 `.catch(()=>[])` 退回原始 provider 身份，模型行文案、capability 行、搜索字段集全部未动，`conn-` id 仍可搜到。目录组名一字未改。**接受。**
+
+### 批次节点（2026-09-10）
+
+| 单 | 状态 | 头 |
+|---|---|---|
+| WO-PV-BE02 连接身份与准入 | Fable 复核接受（作者级），456/456 | `e61c9d5` |
+| WO-PV-FE01 连接面与模型面消费 | Fable 复核接受（作者级），461/461 | `88e8339` |
+| PV-53 分组标签补丁 | Fable 复核接受，462/462 | `84c39a7` |
+
+合流单元按 PV-45 为一支：Astra 合 `claude/pvfe01-connections` 即带入 BE02、FE01 与补丁的全部提交，独立验收（C4 体例）与合流次序归 Astra；合流时另做两件事——按 PV-54 把投影拆成 `app/web/provider-config.mjs` 并补一行静态白名单，按 PV-55 复看"Compatible endpoint"改义后的文案。
+
+PV-24 的验收句在本节点成立：兼容连接的 Base URL、wire 格式、自己的 key、发现来的模型 ID 均可保存、可执行，且 run 记录能回溯到连接 id 与凭据来源。
+
+**留待后续施工**（用户 2026-09-10 "一时难以实现的，留待后续"）：WO-PV-BE01（`google` 准入，已成文待排）、BE-39 冒烟端点（前端已留位）、BE-40 每连接 capability、PV-D1 Vertex ADC、PV-D2 完整网关、PV-D3 BE-38 / BE-28、PV-D4 成本未知表达位、PV-D5 `streamSimple` 路径。
+

@@ -18,9 +18,12 @@
 | SHA | 标题 |
 |---|---|
 | `062170c` | `feat: let the connection and model surfaces consume the real connection registry` |
-| `5a27f09` | `docs: record the FE01 delivery and its loopback evidence` —— 本页与证据目录自身的提交（分支 HEAD） |
+| `5a27f09` | `docs: record the FE01 delivery and its loopback evidence` —— 本页与证据目录自身的提交 |
+| `88e8339` | `docs: record the FE01 commit SHAs on the delivery page` |
+| `56cfe71` | `feat: name a user connection's model group by its endpoint host` —— PV-53 补丁（§11） |
+| （分支 HEAD） | `docs: record the PV-53 patch on the FE01 delivery page` —— 本节与 §11 自身的提交；它记不下自己的 SHA，见 `git log` |
 
-均为显式路径 `git add`，无 `git add -A`。作者验证的六条命令与九条浏览器断言跑在第一条提交的树上。
+作者验证的六条命令与十条浏览器断言跑在 `56cfe71` 的树上（PV-53 补丁前的九条跑在 `062170c` 的树上）。
 
 ## 2. 改动文件
 
@@ -115,7 +118,7 @@ Context window: 16,384 tokens, from your entry. Reasoning effort: Off. This cata
 
 ④ **用户填的窗口只作用于当前选中的那个模型**。表单里一个 `Context window` 输入，保存时写在选中模型这一条上，其余模型的既有窗口原样保留。这是最小实现；一条连接上逐模型分别填窗口需要一张模型表，属"连接管理大页"，本单不做。
 
-⑤ **模型选择器里用户连接的分组标签是连接 id**。`GET /provider-models` 的 `model.provider` 对用户连接就是 `conn-<12 hex>`，选择器按它分组，于是那一组的标签是一串 id 而不是 `127.0.0.1:8912`。选择器不取连接注册表（它今日只发两个请求），要改就得多一路请求或让后端在模型上带一个显示名。本单不改，如实记录。
+⑤ ~~**模型选择器里用户连接的分组标签是连接 id**~~ —— **已由 PV-53 补丁关闭，见 §11**。
 
 ⑥ **`credentialStatus` 的作用域**。Settings 的 API key 块现在说的是"表单此刻对准的那条连接"有没有 key，而不再是"生效配置"有没有。这与 PV-52（凭据文件是唯一真相、按连接作用域）一致，但它改变了那句话的主语，读者若停在旧模型上会读错。
 
@@ -160,4 +163,58 @@ Context window: 16,384 tokens, from your entry. Reasoning effort: Off. This cata
 | 不引依赖 | `app/package.json` 零改动 |
 | 不越写权 | `app/server`、`app/runtime`、`contracts/*`、`intake.md` 零改动；新模块因白名单进不去，记入待裁定而不是去改 `app/server` |
 | 不许诺再收回 | 未交付的一步写"没有"，不画按不动的按钮；未检项如实列出，真实 provider 写 `not_run` 而不是"应该可以" |
-| 证据可复核 | 九条浏览器断言的数值与文字从渲染文档上读，脚本、日志、截图、JSON 全部落 `evidence/pv-fe01/` |
+| 证据可复核 | 十条浏览器断言的数值与文字从渲染文档上读，脚本、日志、截图、JSON 全部落 `evidence/pv-fe01/` |
+
+## 11. PV-53 补丁（2026-09-10）
+
+Fable 裁定 PV-53：模型选择器把用户连接的模型分组在原始 `conn-<hex>` id 下（§7 ⑤），那串 id 对用户没有意义。本节记这一处补丁，其余一字未动。
+
+**改了什么。** `app/web/model-picker.mjs` 一处：
+
+1. 打开选择器时多取一次连接注册表 —— `Promise.all` 从两路变三路，第三路是 `request('/provider-connections')`，与连接面消费的是同一个端点。
+2. 用它建一张 `providerIdentity → 标签` 的表，**只映射 `kind === 'compatible'` 的连接**，标签取自 `settings-view.mjs` 既有的 `connectionLabel(connection)` —— 也就是这条连接 `baseUrl` 的 host（`127.0.0.1:8912`）。连接列上那一行的名字与选择器里的分组标签自此同出一处，不存在第二份取名逻辑。
+3. `optgroup` 的 label 从 `provider` 改成 `groupLabels.get(provider) || provider`。
+
+没有新增显示名字段：后端不存一个（FE-02 已移除），前端也没有生成一个。主机名是用户自己填过的事实。
+
+**退回路径。** 第三路请求挂了 `.catch(()=>[])`：注册表取不到（鉴权、时序、任何原因）时这张表为空，`groupLabels.get(provider)` 落空，label 就是原始的 provider 身份 —— 对用户连接即那串 `conn-<hex>` id。不猜、不留空、不阻断选择器打开：目录与配置那两路仍决定它能不能用。本次重跑中这条退回路径未被触发（注册表正常取到），它只在单测里以源码形态断言。
+
+**不动的东西。** 模型行文案、capability 行、搜索匹配的字段集 (`` `${m.provider} ${m.name} ${m.id}` ``) 全部原样 —— `conn-` id 仍搜得到。一次一变量。
+
+**新增断言（原文）。** `app/tests/models-connections.test.mjs`：
+
+```js
+test("PV-53 · 模型选择器的用户连接分组标签是它的端点主机名，取不到注册表时退回 id", () => {
+  const user = REGISTRY.find((c) => c.kind === "compatible");
+  // 标签与 Connections 列同出一处：主机名，不是 `conn-<hex>`，也不是前端造的显示名。
+  assert.equal(connectionLabel(user), "127.0.0.1:1234");
+  assert.notEqual(connectionLabel(user), user.id);
+  // 目录连接不受这条影响：它仍报自己的 provider 名。
+  assert.equal(connectionLabel(REGISTRY[0]), providerLabels.openai || "openai");
+  // 选择器多取一次注册表，只为这一层标签，并且只映射 compatible 那些。
+  assert.match(pickerSource, /request\('\/provider-connections'\)/);
+  assert.match(pickerSource, /groupLabels = new Map\(connections\.filter\(c=>c\.kind==='compatible'\)\.map\(c=>\[c\.providerIdentity,connectionLabel\(c\)\]\)\)/);
+  // 退回路径：注册表取不到时这份表为空，标签就是原始 provider 身份。
+  assert.match(pickerSource, /\.catch\(\(\)=>\[\]\)/);
+  assert.match(pickerSource, /label:groupLabels\.get\(provider\) \|\| provider/);
+  // 一次一变量：搜索匹配的字段集不动，`conn-` id 仍搜得到。
+  assert.match(pickerSource, /`\$\{m\.provider\} \$\{m\.name\} \$\{m\.id\}`/);
+});
+```
+
+浏览器侧新增 `PV-FE-10`（`evidence/pv-fe01/pv-checks.mjs`）：在真的 headless Chromium 里打开模型选择器，读渲染出来的 `optgroup.label`，与 `GET /provider-connections` 报的那条连接的 `new URL(baseUrl).host` 比对，并断言没有任何一个分组标签以 `conn-` 开头、目录那组仍叫 `openai`。本次读到的四个标签是 `["deepseek", "openai", "fake-openai-loopback", "127.0.0.1:8912"]`，连接 id 为 `conn-efd0ef8b1e2e` —— 补丁前那一组的标签就是这串 id。
+
+**重跑结果**（同一端口 8911 / 8912，数据目录清空重建，服务与 headless Chrome 已停止，两个端口已释放）：
+
+| 检查 | 结果与位置 |
+|---|---|
+| `npm --prefix app test` | **462 / 462**，fail 0（新增 1 条） · `evidence/pv-fe01/npm-test.txt` |
+| `node tools/lint-colors.mjs` | ok（26 files） · `lint-colors.log` |
+| `node tools/lint-materials.mjs` | ok（3 files） · `lint-materials.log` |
+| `node tools/contrast-report.mjs` | 全部通过 · `contrast.log` |
+| `npm --prefix app run smoke` | `{"status":"passed","provider":"local-fake","realProvider":"not_run"}` · `smoke.log` |
+| 浏览器断言 PV-FE-1…10 | **10 / 10**，failures `[]` · `pv-checks.log`、`pv-checks.json` |
+
+截图新增 `evidence/pv-fe01/model-picker-1440-light-groups.png`。`styles.css`、`app/package.json`、`app/server`、`app/runtime` 仍零改动；真实 provider 仍 `not_run`，未联网、未读任何凭据文件。
+
+**本节的待裁定**：无新增。§7 ⑤ 关闭；①②③④⑥⑦ 原样待裁。
