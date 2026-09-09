@@ -1,6 +1,6 @@
 # MR-A1 / MR-T1 · 固定 Markdown 阅读交付
 
-2026-09-10。用户授权施工，Astra 持有 source identity、分页投影、宿主接入与架构；Terra 按冻结 DTO 实现局部 reader；两位 Luna 分别写独立 source 反例和实际 HTTP/Core 测试。起始 main `a243a6c`，代码 `ec7f4fd`；施工中与 main `85693a6` 无冲突合流为 `21fde2f`，最终产品与独立测试提交 **`b119fc3`**。临收尾主线推进至 Pages交付 `5909f2f`，本分支合流为 **`e8f1438`**；唯一冲突为current末尾两段新增记录，已同时保留。共享ui-controls的composer glyph修复原样接收，页面固定快照未重建。本包后续提交只记录交付，不把作者验证称为独立接受。
+2026-09-10。用户授权施工，Astra 持有 source identity、分页投影、宿主接入与架构；Terra 按冻结 DTO 实现局部 reader；两位 Luna 分别写独立 source 反例和实际 HTTP/Core 测试。起始 main `a243a6c`，代码 `ec7f4fd`；施工中与 main `85693a6` 无冲突合流为 `21fde2f`，最终产品与独立测试提交 **`b119fc3`**。临收尾主线推进至 Pages交付 `5909f2f`，本分支合流为 **`e8f1438`**；唯一冲突为current末尾两段新增记录，已同时保留。共享ui-controls的composer glyph修复原样接收，页面固定快照未重建。随后保留 BE-5/T3 主线 `ecccac2` 合流为 `e047a0e`（同样保留current双新增记录）；最后在 `5f17cde` 有界修复连续助手消息覆盖，构成最终组合产品。本包后续提交只记录交付，不把作者验证称为独立接受。
 
 ## 实际交付
 
@@ -14,10 +14,11 @@
 
 | 验证 | 实际结果 | 归因/范围 |
 |---|---|---|
-| [完整组合 suite](validation/full-tests.log) | 365/365 | Astra 作者运行，最终组合 `e8f1438`，含新增19项；两组浏览器亦在该组合重跑 |
+| [完整组合 suite](validation/full-tests.log) | 386/386 | Astra 作者运行，最终组合 `5f17cde`，含本单新增19项及输出边界6项；此前365为中间组合 |
 | [最终定向 suite](validation/targeted-final.log) | 19/19 | 两位 Luna 独立设计/实施，Astra 在 `b119fc3` 重跑；[source 独验](luna-independent.md)、[HTTP/Core 独验](luna-http.md)分列 |
 | [组件作者 fixture](terra/README.md) / [Astra 新端口复跑](astra/checks.json) | 各28/28 | Terra 作者运行；Astra 非作者重跑同组组件断言（截图等待两帧以完成动态sprite绘制），独立目视1440/740/390截图；clipboard 为显式 synthetic stub |
-| [真实宿主浏览器](host-checks.json) | 11/11 | Astra 作者运行真实临时 service/local-fake/HTTP；Luna只读审查接缝，不称其独立执行浏览器 |
+| [真实宿主浏览器](host-checks.json) | 11/11 | Astra 在最终 `5f17cde` 作者运行真实临时 service/local-fake/HTTP；Luna只读审查接缝，不称其独立执行浏览器 |
+| [输出消息边界](validation/output-boundary-green.log) | 14/14（6新+8既有） | Luna独立设计6项，修前4/6，修后6/6；Astra亲写3行投影修正，Luna独立绿验，详见[调查末尾](output-coverage-luna.md) |
 | [smoke](validation/smoke.log)、[colors](validation/colors.log)、[materials](validation/materials.log)、[contrast](validation/contrast.md) | 通过 | 使用主线既有检查；token对比度不是所有屏幕的自动可访问性认证 |
 
 HTTP 独验包括跨 Matter 拒绝、接受 Artifact 后 workspace 修改、producer Session 删除、同项目续行与 extension unload 后原文仍精确可读。unload 保留 `extension.status:"unloaded"` 描述，不是 `extension:null`；此前计划简写已在合同纠正。
@@ -42,6 +43,8 @@ APP_URL=http://127.0.0.1:8980 WK6_CDP_PORT=20280 node evidence/markdown-reader-a
 ## 两条产品边界与未完成范围
 
 用户补充：目标为接住模型所有 output 并提供适当 review UI；Markdown 同时是独立格式边界。已形成[相交边界架构](../../docs/output-review.md)及[实际输出链调查](output-coverage-luna.md)。Chat Space copycard 的历史消费已核对并[补记](../../engineering/research/chat-space-2026-09-09/courtwork-mapping.md)；用户截图里的派单文字只视为内容。
+
+此外，Output Review 的一个独立小切片已修复：完整assistant消息关闭其显示段，下一消息不再覆盖它，累计delta/final仍归同一条；没有为此改Markdown或持久化协议。
 
 本单关闭 MR-A1/T1 的固定文件读取切片，**不关闭全 output 覆盖，也不关闭 Markdown 全部来源/生命周期**。正式 create/reply/resolve/reopen、Core迁移、跨版本匹配/重锚、inline、semantic diff、媒体/文档专用adapter、下载接口均未交付。OR-A0须先确认真实输出接收/历史缺口，MR-A2/A3保持各自事务/格式边界。
 

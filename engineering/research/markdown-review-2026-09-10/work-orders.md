@@ -56,3 +56,5 @@ L1、L2、T0、A0 可并行，因为写权与验证范围独立。A1/A2 的契�
 ## 用户目标补充 · Output Review 与 Markdown
 
 两条相交边界按 [输出评审架构](../../../docs/output-review.md)分别验收。OR-A0 先清点真实 output 接收/记录/表示缺口，再冻结接收与显示 DTO；不把媒体或未知类型静默丢弃，也不把普通 Markdown 自动升级为正式成果。MR-A1/T1 交付只关闭固定文件阅读切片，MR-A2/A3 与其他 Markdown 来源仍保留自身范围。copycard 复用既有 Code/Copy 控件，复制不产生 review 或 acceptance 回执。
+
+Output Review 有界修复 `5f17cde`：完整assistant消息关闭显示段，保留下一条消息，独立6项反例及既有8项映射通过。该修复不改Markdown与存储，OR-A0的非文本接收/持久身份差额仍开放。

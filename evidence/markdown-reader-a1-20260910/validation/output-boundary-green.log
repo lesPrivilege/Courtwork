@@ -1,0 +1,22 @@
+✔ cumulative assistant deltas and their final stay one non-pending row (1.13475ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.905166ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.141583ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.20325ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.174ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.07875ms)
+✔ thread projection scopes runs and resolves exact permission request (2.618375ms)
+✔ tool calls with identical IDs in different runs remain separate and require live admission (0.170333ms)
+✔ permission display distinguishes remote actions from writes using only the recorded binding (0.271791ms)
+✔ Pro R-01: before-write never reports completed or discards settlement error (603.674167ms)
+✔ Pro R-01: after-write-ack-loss never reports completed or discards settlement error (999.036958ms)
+✔ Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error (637.384125ms)
+✔ Pro R-02: ordinary first instruction discovers scoped source refs only from host context (362.3675ms)
+✔ Pro R-04: intermediate tool updates stay nonterminal until end (2.065875ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3752.638542

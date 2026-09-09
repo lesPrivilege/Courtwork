@@ -184,3 +184,47 @@ node --test app/tests/work-settlement.test.mjs app/tests/ui-event-mapping.test.m
 They exercise the mapped tool event sequence and projection behavior. They do
 not prove full native JSONL retention or non-text output coverage; those remain
 the explicit OR-A0 gaps above.
+
+## Independent output-boundary regression baseline
+
+The bounded regression file [`app/tests/output-message-boundary.test.mjs`](../../app/tests/output-message-boundary.test.mjs) was run before the parent
+production fix:
+
+```text
+node --test app/tests/output-message-boundary.test.mjs
+```
+
+Result: **4 passed, 2 failed, 6 total**. The two expected red cases are:
+
+* `subsequent complete assistant messages get separate rows even with identical text` — current projection returns one `run-1:0` row, retaining only the later same-text message instead of `run-1:0` and `run-1:1`.
+* `a later assistant message's deltas do not overwrite the first message` — current projection returns one `run-1:0` row with `second complete`, losing `first complete`.
+
+The four passing cases establish the current contract around one cumulative
+delta/final stream, assistant/tool boundary order, run-scoped reuse of ids, and
+terminal incomplete-versus-final pending flags. The test file is intentionally
+the only test/product-path addition in this regression slice; this note records
+the red baseline and does not claim the fix is green.
+
+## Independent green acceptance
+
+After the parent changed [`app/web/thread-projection.mjs:31-44`](../../app/web/thread-projection.mjs),
+the bounded regression and adjacent mapping checks were rerun:
+
+```text
+node --test app/tests/output-message-boundary.test.mjs \
+  app/tests/ui-event-mapping.test.mjs \
+  app/tests/work-settlement.test.mjs
+```
+
+Result: **14 passed, 0 failed, 14 total**. The six new boundary assertions now
+pass for cumulative delta/final grouping, same-text subsequent finals,
+preservation of the first message when a later message streams, tool boundary
+ordering, cross-run identity scoping, and terminal incomplete-versus-final
+pending behavior. The three existing UI projection checks and five settlement
+checks also remain green.
+
+This acceptance is limited to the web presentation/source-segmentation loss:
+`projectThread` advances the segment after a complete assistant message. It
+does not claim that `mapSessionEvent` now captures thinking, images, tool
+arguments/details, provider metadata, or other non-text variants; those OR-A0
+receive/persistence gaps remain as documented above.

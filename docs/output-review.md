@@ -35,3 +35,9 @@
 下一架构单 **OR-A0**：消费[实际输出链调查](../evidence/markdown-reader-a1-20260910/output-coverage-luna.md)，冻结 adapter 当前可表达的输出集合、缺口和最小接收 DTO/兼容方案；确认记录 owner、限额、历史与公开读取接口后才派 UI。优先补非文本/未知部分的静默丢失与可回看出口；媒体/文档的专用 adapter 按真实出现的类型逐项施工，不先承诺任意格式均可预览。关键接收/持久化/版本决定由 Astra 亲写，成熟显示组件冻结 DTO 后可交 Terra。
 
 Markdown 线继续独立保持 **MR-A2**（首个 Core 文件块评注事务）与 **MR-A3**（版本比较/定位候选）的边界；用户/导入 Markdown 阅读和消息流式 profile 各自列差额。两线在共同 source identity、读权限、版本与挂载生命周期上复用，但不把 OR 全覆盖设为 Markdown 所有工作的串行前置，也不把 MR 完成当 OR 完成。
+
+## Astra 消费输出链调查
+
+调查已确认通用mapper的非文本/metadata省略、原生journal与公开event的不同覆盖，以及连续完整assistant消息在UI层覆盖前条。最后一项已在 `5f17cde` 的现有投影内有界修复，独立边界测试修前4/6、修后6/6（合并既有映射测试14/14）；它不依赖Markdown或新存储，显示分段仍不充当持久output-part身份；其他内容保全需要接收契约，不能仅补卡片。
+
+归属先定：**公开可review的输出记录沿现有host RuntimeStore/service持有；不直接把完整Pi私有JSONL公开成review API。** 原生journal继续承担adapter连续性，其内部context、provider私有元数据或推理不因“所有output”变为用户可见正文。未来接收adapter需显式投影已承诺可见的输出part，并保留其类型/顺序/来源和安全的unsupported状态；具体typed字段、媒体bytes归属、限额、旧事件兼容与迁移另验。已有文件历史与Core成果继续各持身份，不复制其接受状态。
