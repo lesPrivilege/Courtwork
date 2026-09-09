@@ -1111,6 +1111,18 @@ export function createRuntimeView(
       block.append(el("p", { className: "inline-error", text: explanation.error }));
       return block;
     }
+    /* WK-98 (3) / FN-28 · an evaluation that carried no effect is missing data,
+       not an effect called `null`. The block says which reading is absent and
+       stops, rather than printing the value the response did not have. */
+    if (!explanation.effect) {
+      block.append(
+        el("p", {
+          className: "form-help",
+          text: "The runtime answered without an effect for this capability, so there is no reading to show. Nothing was granted and nothing changed.",
+        }),
+      );
+      return block;
+    }
     const dl = el("dl", { className: "data-list" });
     dl.append(
       el("dt", { text: "Effect" }),
@@ -1146,7 +1158,9 @@ export function createRuntimeView(
     block.append(
       el("p", {
         className: "form-help",
-        text: `Advisory only, read for ${explanation.resource || "the whole resource"} at revision ${explanation.revision}. It changes nothing; the executor re-checks the bound policy on every call.`,
+        text: `Advisory only, read for ${explanation.resource || "the whole resource"}${
+          explanation.revision ? ` at revision ${explanation.revision}` : ", at a revision the answer did not state"
+        }. It changes nothing; the executor re-checks the bound policy on every call.`,
       }),
     );
     return block;

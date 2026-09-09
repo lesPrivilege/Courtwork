@@ -254,6 +254,13 @@
   --glass: rgba(var(--alpha-paper), var(--glass-alpha)); /* translucent floating surface over blur */
   --glass-muted: rgba(var(--alpha-paper), var(--glass-alpha));
   --rim: inset 0 0 0 1px rgba(var(--alpha-paper), var(--rim-alpha)); /* glass edge highlight, no refraction */
+  /* WK-102 · 材质 token 闭集。模糊只有两档，组件不得私有取值：
+     --blur-chrome 给浮在滚动内容之上的 L2 控件，--blur-transient 给 popover / menu
+     一类临时层（saturate 只出现在 transient）。每一处半透明表面都必须带
+     `@media (prefers-reduced-transparency: reduce)` 的实色回退，回退到 --float。
+     两条检查在 tools/lint-materials.mjs，进 npm test。 */
+  --blur-chrome: 12px;
+  --blur-transient: 16px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -1247,13 +1254,22 @@ details[open] > summary.flow-row::after {
   left: 50%;
   transform: translateX(-50%);
   background: var(--glass);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
   border: 1px solid var(--line);
   box-shadow: var(--rim), var(--shadow-float);
   border-radius: var(--radius-pill);
   font-size: var(--text-meta);
   white-space: nowrap;
+}
+/* WK-101 / WK-102 · 这是 Chrome 层：它浮在还在滚动的消息流之上，所以它可以是玻璃。
+   一个人关掉了系统的透明效果，它就是一块实色的 --float，其余全部不变。 */
+@media (prefers-reduced-transparency: reduce) {
+  .jump-latest-button {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 .composer-area {
   flex: none;
@@ -2240,10 +2256,18 @@ select {
   border: 1px solid var(--line);
   border-radius: var(--radius-container);
   background: var(--glass-muted);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1.4);
+  backdrop-filter: blur(var(--blur-transient)) saturate(1.4);
   color: var(--ink);
   box-shadow: var(--rim), var(--shadow-float);
+}
+/* WK-101 / WK-102 · Transient 层的同一条回退。 */
+@media (prefers-reduced-transparency: reduce) {
+  .context-popover {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 .context-group {
   border-top: 1px solid var(--line);

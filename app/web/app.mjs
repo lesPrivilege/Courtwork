@@ -5093,7 +5093,13 @@ function readSettingsHash() {
   if (!match) return null;
   return isSettingsSection(match[1]) ? match[1] : DEFAULT_SECTION;
 }
-function openSettings(section = state.settings.section, { trigger, hash = true } = {}) {
+/* `read: false` puts the page on screen without issuing its two authoritative
+ * reads. It exists for one caller: the deep link at start-up, which lands here
+ * before `/bootstrap` has returned the session token (WK-98 (4)). Reading then
+ * would spend a 401 and a retry on every `#settings/<section>` entry, so the
+ * frame is painted first and `refreshSettingsReads()` runs once the token is
+ * held. Every other caller reads, because by then the token exists. */
+function openSettings(section = state.settings.section, { trigger, hash = true, read = true } = {}) {
   const target = isSettingsSection(section) ? section : DEFAULT_SECTION;
   if (!state.settings.open) state.settings.returnFocus = trigger ?? document.activeElement;
   state.settings.open = true;
@@ -5106,9 +5112,12 @@ function openSettings(section = state.settings.section, { trigger, hash = true }
   renderChatHeader();
   /* 进这一页，焦点落在 Back：出去的路和 Escape 指的是同一件事，一开始就摆在手边。 */
   if (!$("settings-page").contains(document.activeElement)) $("settings-back-button").focus();
+  if (read) refreshSettingsReads();
+}
+/* The Workbench reads for the Runtime group and for the rail card alike, so it
+ * loads with the page rather than with one of its blocks. */
+function refreshSettingsReads() {
   void settingsView.refresh();
-  /* The Workbench reads for the Runtime group and for the rail card alike, so
-   * it loads with the page rather than with one of its five blocks. */
   void runtimeView?.load();
 }
 function closeSettings({ restoreFocus = true, hash = true } = {}) {
@@ -5122,14 +5131,14 @@ function closeSettings({ restoreFocus = true, hash = true } = {}) {
   renderChatHeader();
   if (restoreFocus) restoreLayerFocus(trigger);
 }
-function syncSettingsFromHash() {
+function syncSettingsFromHash({ read = true } = {}) {
   const section = readSettingsHash();
   if (section === null) {
     if (state.settings.open) closeSettings({ hash: false });
     return;
   }
   if (state.settings.open && state.settings.section === section) return;
-  openSettings(section, { hash: false });
+  openSettings(section, { hash: false, read });
 }
 
 /* WK-4 / review-projection §6 · one list keyboard for both inboxes: Home's lower
@@ -5820,8 +5829,10 @@ async function init() {
   }
   wireEvents();
   renderAll();
-  /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。 */
-  syncSettingsFromHash();
+  /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。
+   * WK-98 (4) · 这一步只摆好页面，不发读取：token 还没到手，此刻发出的每个读取都是
+   * 一次 401 加一次重试。读取在 bootstrap 之后由 refreshSettingsReads 补上。 */
+  syncSettingsFromHash({ read: false });
   try {
     const bootstrap = await request("/bootstrap");
     state.token = bootstrap.sessionToken || null;
@@ -5835,7 +5846,9 @@ async function init() {
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
     );
     await loadHome();
-    // Home is the default entry; previous sessions remain in Continue.
+    // Home is the default entry; previous chats remain in Continue.
+    /* 现在 token 在手，深链落地的那一页才发它的两个读取（WK-98 (4)）。 */
+    if (state.settings.open) refreshSettingsReads();
 
     renderAll();
   } catch (error) {
