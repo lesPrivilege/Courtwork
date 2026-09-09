@@ -1,69 +1,125 @@
 #!/usr/bin/env node
 // CourtWork publishing surface — build.
 //
-// Everything under site/dist/ is generated from three sources and nothing else:
-// the product's own stylesheet (tokens), the page sources under site/src/, and
-// the recorded evidence (specimen JSON, media, benchmark record). The build is
-// deterministic: given the same repository bytes it writes the same output
-// bytes, so two runs can be compared by hash.
+// site/dist/ is generated from three sources and nothing else: the product's
+// own stylesheet and rendering modules, the page sources under site/src/, and
+// the recorded evidence (specimen, media, benchmark record). The build is
+// deterministic — given the same repository bytes it writes the same output
+// bytes — so two runs can be compared by hash.
 //
 //   node site/build.mjs
 //
-import { readFile, writeFile, mkdir, rm, readdir, copyFile, stat } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm, readdir, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { extractTokens } from "./scripts/tokens.mjs";
+import { copyProductModules } from "./scripts/vendor-product.mjs";
+import { git, release, ROOT, SITE } from "./scripts/release.mjs";
+import { renderPage } from "./src/page.mjs";
+import { renderSpecimenPage } from "./src/specimen-page.mjs";
 
-const SITE = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.dirname(SITE);
 const DIST = path.join(SITE, "dist");
-
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
-function git(...args) {
-  return execFileSync("git", ["-C", ROOT, ...args], { encoding: "utf8" }).trim();
-}
-
+const written = [];
 async function emit(relative, contents) {
   const target = path.join(DIST, relative);
   await mkdir(path.dirname(target), { recursive: true });
-  await writeFile(target, contents);
   const bytes = Buffer.isBuffer(contents) ? contents : Buffer.from(contents);
-  return { path: relative, bytes: bytes.length, sha256: sha256(bytes) };
+  await writeFile(target, bytes);
+  written.push({ path: relative, bytes: bytes.length, sha256: sha256(bytes) });
 }
 
-async function main() {
-  const written = [];
-
-  // The release SHA is the commit the page describes. HEAD is used rather than
-  // a hard-coded constant so the manifest can never claim a version the working
-  // tree is not actually on.
-  const sourceSha = git("rev-parse", "HEAD");
-
-  await rm(DIST, { recursive: true, force: true });
-  await mkdir(DIST, { recursive: true });
-
-  // ---- tokens ------------------------------------------------------------
-  const tokens = await extractTokens(path.join(ROOT, "app", "web", "styles.css"));
-  written.push(await emit("tokens.css", tokens.css));
-
-  const manifest = {
-    source_sha: sourceSha,
-    tokens: {
-      source: "app/web/styles.css",
-      source_sha256: tokens.sourceSha256,
-      blocks: tokens.blocks,
-    },
-    files: written,
-  };
-  await writeFile(
-    path.join(DIST, "build-manifest.json"),
-    JSON.stringify(manifest, null, 2) + "\n",
-  );
-
-  for (const file of written) console.log(`${file.sha256.slice(0, 12)}  ${file.bytes.toString().padStart(8)}  ${file.path}`);
+/** Copy a directory into dist verbatim, in a stable order. */
+async function emitTree(from, into) {
+  for (const entry of (await readdir(from, { withFileTypes: true })).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+    const source = path.join(from, entry.name);
+    const relative = path.posix.join(into, entry.name);
+    if (entry.isDirectory()) await emitTree(source, relative);
+    else await emit(relative, await readFile(source));
+  }
 }
 
-await main();
+const identity = await release();
+// A wall clock would make two builds differ; the release commit's own date is
+// the honest, stable answer to "when was this built from".
+identity.built_at = git("show", "-s", "--format=%cI", identity.site_sha);
+
+await rm(DIST, { recursive: true, force: true });
+await mkdir(DIST, { recursive: true });
+
+// ---- material: the product's tokens, not the site's ------------------------
+const tokens = await extractTokens(path.join(ROOT, "app", "web", "styles.css"));
+await emit("tokens.css", tokens.css);
+
+// ---- the specimen's copy of the product's rendering modules -----------------
+const vendorDestination = path.join(SITE, "specimen", "vendor-product");
+const vendor = await copyProductModules({ root: ROOT, destination: vendorDestination });
+
+// ---- the specimen recording and its receipt ---------------------------------
+const capture = JSON.parse(await readFile(path.join(SITE, "specimen", "capture.json"), "utf8"));
+const specimenBytes = await readFile(path.join(ROOT, capture.file));
+if (sha256(specimenBytes) !== capture.sha256) {
+  throw new Error(`${capture.file} does not match the sha256 its capture receipt records; re-run site/scripts/capture-specimen.mjs`);
+}
+if (capture.source_sha !== identity.source_sha) {
+  throw new Error(`the specimen was captured at ${capture.source_sha.slice(0, 7)} but release.json declares ${identity.sha7}`);
+}
+
+const specimenManifest = {
+  id: "specimen",
+  kind: "interactive-fixture",
+  source_sha: capture.source_sha,
+  capture_date: capture.capture_date,
+  capture_command: capture.capture_command,
+  data_kind: capture.data_kind,
+  provider_mode: capture.provider_mode,
+  dataClass: capture.dataClass,
+  recording: { path: path.posix.join("specimen", path.basename(capture.file)), bytes: capture.bytes, sha256: capture.sha256 },
+  vendor_product: vendor.files,
+  rewritten_references: vendor.references,
+};
+await writeFile(path.join(SITE, "specimen", "manifest.json"), JSON.stringify(specimenManifest, null, 2) + "\n");
+
+// The eight sentences exist once, in site/src/steps.mjs. The specimen gets a
+// copy so the iframe can import them, and its document is generated from the
+// same source so the no-script list cannot drift from the interactive one.
+await writeFile(path.join(SITE, "specimen", "copy.mjs"), await readFile(path.join(SITE, "src", "steps.mjs")));
+await writeFile(path.join(SITE, "specimen", "index.html"), renderSpecimenPage({ identity }));
+
+await emitTree(path.join(SITE, "specimen"), "specimen");
+
+// ---- the page ---------------------------------------------------------------
+const { readEvidence } = await import("./scripts/evidence.mjs");
+const evidence = await readEvidence({ root: ROOT, identity });
+const recording = JSON.parse(specimenBytes.toString("utf8"));
+const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
+await emit("index.html", renderPage({ identity, evidence, recording, diagram }));
+await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
+await emit("site.mjs", await readFile(path.join(SITE, "src", "site.mjs")));
+if (await exists(path.join(SITE, "media"))) await emitTree(path.join(SITE, "media"), "media");
+
+// ---- publish manifest -------------------------------------------------------
+const manifest = {
+  source_sha: identity.source_sha,
+  site_sha: identity.site_sha,
+  built_at: identity.built_at,
+  tokens: { source: "app/web/styles.css", source_sha256: tokens.sourceSha256, blocks: tokens.blocks },
+  media_manifest: "media/manifest.json",
+  specimen_manifest: "specimen/manifest.json",
+  evidence_links: evidence.links,
+  supported_platforms: ["local run from source on macOS and Linux"],
+  download_assets: [],
+  known_limits: evidence.knownLimits,
+  locale_content_hashes: { "zh-CN": sha256(await readFile(path.join(DIST, "index.html"))) },
+  files: written,
+};
+await emit("build-manifest.json", JSON.stringify(manifest, null, 2) + "\n");
+
+for (const file of written) {
+  console.log(`${file.sha256.slice(0, 12)}  ${String(file.bytes).padStart(9)}  ${file.path}`);
+}
+
+async function exists(p) {
+  try { await stat(p); return true; } catch { return false; }
+}

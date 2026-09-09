@@ -1,0 +1,29 @@
+<svg class="flow" viewBox="0 0 960 260" role="img" aria-labelledby="flow-title flow-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="flow-title">From state to committed change</title>
+  <desc id="flow-desc">Governed work state 投影为 Context projection，模型或人的提议成为 Candidate；经过验证、证据、授权与审阅之后写入 Committed change，并更新为 Updated state。</desc>
+  <defs>
+    <marker id="flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+  <g fill="currentColor" font-size="14" font-family="inherit">
+    <g data-layer="input">
+      <text x="16" y="46">Governed work state</text>
+      <line x1="164" y1="41" x2="204" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="216" y="46">Context projection</text>
+    </g>
+    <g data-layer="output">
+      <line x1="352" y1="41" x2="392" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="404" y="46">Model / human proposal</text>
+      <line x1="576" y1="41" x2="616" y2="41" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="628" y="46">Candidate</text>
+      <line x1="664" y1="62" x2="664" y2="176" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="648" y="128" text-anchor="end" font-size="12.5" opacity="0.75">validation · evidence · authority · review</text>
+    </g>
+    <g data-layer="commit">
+      <text x="628" y="212">Committed change</text>
+      <line x1="616" y1="207" x2="132" y2="207" stroke="currentColor" stroke-width="1.5" marker-end="url(#flow-arrow)" />
+      <text x="16" y="212">Updated state</text>
+    </g>
+  </g>
+</svg>

@@ -121,10 +121,15 @@ try {
 
   const permission = await waitForOpen(session.id, runA.id, "permission.open");
   specimen.permission = permission;
+  // The run as it stood while it was waiting: the page shows "Waiting for you"
+  // at this step because that is what the run said, not because the shell
+  // decided it looked better.
+  specimen.runSnapshots = { permission: expect(await api("GET", `/runs/${runA.id}`), "run at permission").run };
   expect(await api("POST", `/runs/${runA.id}/questions/${permission.data.id}`, { decision: "allow" }), "allow the write");
 
   const question = await waitForOpen(session.id, runA.id, "question.open");
   specimen.question = question;
+  specimen.runSnapshots.question = expect(await api("GET", `/runs/${runA.id}`), "run at question").run;
   expect(
     await api("POST", `/runs/${runA.id}/questions/${question.data.id}`, { answer: "Northwind Logistics Ltd." }),
     "answer the question",
