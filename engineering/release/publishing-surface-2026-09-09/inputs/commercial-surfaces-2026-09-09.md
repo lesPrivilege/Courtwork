@@ -22,3 +22,11 @@
 - 更激进：pricing 本身是互动 specimen，切换 **Local → Hosted → Organization**，下方架构图同步变化（LOCAL：Matter Store → Courtwork → Your Provider；HOSTED：Local / Cloud Matter → Courtwork Service（Sync · Eval · Managed Runtime）→ BYOK / Managed Model；ORGANIZATION：Users → Policy ─ Review → Matter Governance → Expert Runtime → Audit / Eval / Provenance）。pricing 向访客解释**究竟哪一层产生商业价值**。
 - 新叙事：**Hero / live specimen → Why governed work → Anatomy of a Matter → Review surface → Eval / benchmark → Architecture / portability → Commercialization specimen → Source / reproduce**，而非 Hero → Features → Testimonials → Pricing → FAQ。
 - 下一轮若交本地 Design Agent，索引命名 **`commercial-surfaces/`**，单列 `pricing-specimen.md`；明确为视觉/产品探索，不成为真实商业承诺。
+
+## 附图登记（用户同日转交的三栏 pricing 参考图；无来源与许可，不入仓，只记观察）
+
+可观察事实：标题两行 "Simple Pricing, No Surprises"，大字、深灰、字距紧；右上 Monthly / Annual segmented control，白底浮起、带厚度阴影、选中段浅灰填充；三栏等宽，外壳浅灰圆角容器，内层白色卡片承载说明句、价格与按钮，形成 outer shell / inner card 两级嵌套；中栏内层卡片上缘露出一条彩色渐变材质，右上小号 "Most Popular" 白底徽章；右栏整体反色为近黑，内层卡片为稍亮的深灰；价格为最大字阶，"/month" 小字灰色跟随；每栏一枚 "Start Free Trial" 按钮（左灰、中黑、右深灰）；卡片下方勾选式功能列表，行距宽，与售价区之间留有明显空白；整体只有一处彩色（中栏顶部渐变），其余为灰阶。
+
+取用（已写入 [pricing-specimen](../commercial-surfaces/pricing-specimen.md) §4）：外壳与内层卡的 nested elevation；中栏顶部一条窄色带而非整卡上色；右栏整体反色；价格区与项目列表之间的大量留白；segmented control 的厚度感（沿产品既有 `--shadow-thumb`）。
+
+不取：月 / 年切换；"Most Popular" 徽章；三枚重复的 trial 按钮；勾选式列表的对勾（改为无标记的短行）；Starter / Professional / Business 三档递增语法；中栏渐变材质本身（站点只用 Tier S 单色 accent 带）。
