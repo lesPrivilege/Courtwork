@@ -264,3 +264,5 @@ Astra作者全量395/395、smoke、色彩/对比度通过；Luna有界非作者3
 本片只接受64 KiB内原始 UTF-8/codePoint/UTF-16 边界转换、字节hash与保真，不等于grapheme/parser/显示坐标。模块仍无产品调用方，既有MR-A1/T1 reader与HTTP/Core未接此模块；正式评注、重锚与Output Review范围不变。Core3/app4/Runtime5、Paper与G1–G5保持；未调用真实provider、迁移个人数据或部署。
 
 Home合流复核：产品 `d2b91e5` 与已接受main `b176738` 组合为 `1f31f0b`，产品无冲突，current双新增保留；组合414/414与smoke通过。后补Composer Runtime与两份Tab输入已进入同一[设计消费包](design/home-composition-2026-09-10/README.md)，明确现有接缝与缺口，不新增未测量TPS或虚构Chat层。
+
+Material接续（2026-09-10）：从实际 `f666c09` 消费用户Material Constitution与135候选研究摘要，形成[材质token草案/组件映射](design/home-composition-2026-09-10/material-grammar.md)。限定Product glass、实际modal smoke、review tint与Pages atmosphere辖区，排除Product refraction，明确whole-skin旧接口尚未收窄为review-only主题。产品只为两处既有blur补不支持backdrop-filter及forced-colors的实色回退；未新增玻璃组件。材质/色彩定向6/6、两项lint及544文档/2426链接通过；未重跑无关全量、未宣称新specimen或原生材质验收。

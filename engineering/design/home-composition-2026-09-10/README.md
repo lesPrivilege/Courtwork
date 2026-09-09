@@ -46,3 +46,5 @@ This delivers Home and a read-only Attention frontend slice plus a clearly named
 ## Additional inputs received during verification
 
 The Composer Control/Runtime Telemetry text and two Tab/View-Switch texts were also read in full. Their current implementation seams and retained specimen requirements are recorded in [runtime telemetry consumption](runtime-telemetry.md) and [Tab/View-Switch grammar](tab-view-grammar.md). This extends the input disposition without inventing runtime measurements, sibling Chat identities or lifecycle controls.
+
+Material continuation: [token draft and component map](material-grammar.md) consumes the Material Constitution and 135-candidate research summary, separates product/review/publishing namespaces, and records the older whole-skin compatibility gap. The only immediate implementation is solid fallback for the two existing blur consumers on unsupported/forced-colors hosts; no new glass surfaces.

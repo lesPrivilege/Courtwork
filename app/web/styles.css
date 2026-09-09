@@ -5385,3 +5385,20 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
   .attention-columns:not(.has-selection) .attention-reading > .attention-empty { display: none; }
   .attention-workspace button { min-height: 44px; }
 }
+
+/* Material fallback: unsupported blur must still produce a readable raised
+   surface. The same two registered consumers keep their geometry and roles. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .jump-latest-button,
+  .context-popover {
+    background: var(--float);
+  }
+}
+@media (forced-colors: active) {
+  .jump-latest-button,
+  .context-popover {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
