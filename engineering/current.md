@@ -187,4 +187,4 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 
 ## AM-B 异步 loop：后端续行派单准备（2026-09-09）
 
-用户要求后端PR续行、Luna explore，成熟实践且验收明确的任务可派Terra，关键harness core与模型能力瓶颈由Astra亲写。从实际 `main@0480c17` 隔离形成 [可派工合同](execution/2026-09-09-async-loop/README.md)：T1协议/请求兼容探针与T2慢任务故障夹具可先并行；Astra A0冻结归属、结算、投递、选择性等待与恢复，A1实现两项只读任务的adapted纵切；固定接口后T3只读投影、T4非作者恢复演练，A2另评模型调度与native路径。Luna已开展只读探索；本轮交付派单准备，不表示Terra已启动或AM-B已有产品实现。Fable前端继续现有单writer队列；Core3/app4、Runtime4、真实provider与G1–G5保持。
+用户要求后端PR续行、Luna explore，成熟实践且验收明确的任务可派Terra，关键harness core与模型能力瓶颈由Astra亲写。从实际 `main@0480c17` 隔离形成 [可派工合同](execution/2026-09-09-async-loop/README.md)：T1协议/请求兼容探针与T2慢任务故障夹具可先并行；Astra A0冻结归属、结算、投递、选择性等待与恢复，A1实现两项只读任务的adapted纵切；固定接口后T3只读投影、T4非作者恢复演练，A2另评模型调度与native路径。Luna只读探索已返回并在合同末尾记录持久任务缺口与三项收窄；本轮交付派单准备，不表示Terra已启动或AM-B已有产品实现。Fable前端继续现有单writer队列；Core3/app4、Runtime4、真实provider与G1–G5保持。

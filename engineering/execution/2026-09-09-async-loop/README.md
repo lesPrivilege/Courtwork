@@ -25,7 +25,7 @@ T1 与 T2 可和 Astra 的 A0 并行；T3 与 T4 可在 A1 固定后分头执行
 
 **写权。** 新增 `app/tests/async-protocol.test.mjs`、`app/tests/fixtures/async-protocol/`、`evidence/async-loop-20260909/protocol/`。只读 `app/package{,-lock}.json`、Pi 已锁源码、`app/runtime/{pi-session-runtime,mcp-manager}.mjs` 与既有 architecture-maintenance 测试。无产品、依赖、lock 或 node_modules 修改。
 
-**交付。** 对当前 Pi 0.85.1 / MCP client 2.0.0 写实际调用链与包内路径/hash；分别标 provider/API/model/adapter/mode 和 tested/unsupported/not-tested。只测所需组合，不做全生态矩阵。若依赖 seam 不能被无侵入捕获，交具体缺口给 Astra，不自改生产 hook。
+**交付。** 仅新增 async-specific probe/evidence。对当前 Pi 0.85.1 / MCP client 2.0.0 写实际调用链与包内路径/hash；分别标 provider/API/model/adapter/mode 和 tested/unsupported/not-tested。只测所需组合，不做全生态矩阵。若依赖 seam 不能被无侵入捕获，交具体缺口给 Astra，不自改生产 hook。
 
 **验收。** loopback 捕获在最终 payload 阶段；旧同步请求行为保持；partial 参数不被计为已执行；未知异步字段不得静默吞掉后标兼容。新旧 MCP task 形状与取消回执用独立 fixture，证明当前 client 的实际接受/拒绝，不能因为 SDK 存在类型就报端到端支持。所有 native 结论须分 serializer、parser、loop、continuation 四段；纯 fake 不证明模型原生能力。输出复现命令、基线和机器结果；Astra 审阅并复跑新反例。
 
@@ -78,3 +78,14 @@ BE-31 含敏感输入约束、BE-32 含事件时间/历史迁移、BE-33 含可�
 ## 回执规则
 
 每单记录 base/代码 SHA、独立树、writer、命令/fixture、正反例、结果、未检项及独立验收人。产品变更运行相应定向检查、`cd app && npm test` 与 `npm run smoke`；纯文档只检查链接和 diff。合流前重读 main/status，显式 stage 路径，保留其他作者编辑。真实 provider、个人数据、外部发信、部署与 Paper 不由本派单启动。G1–G5 状态保持。
+
+## Luna 只读探索回执
+
+基线仍为 `0480c1766cfd8c429e33c136fc7e4f973f01a731`；Luna 未编辑产品、未运行模型，返回结论由主单 Astra 整理入本节。
+
+- `app/server/service.mjs:156–186,882–1210,1337–1377`：active Map 与每 Run 的 entry.task 在进程内；initialize 把重启中 Run 标 unknown，cancel 缺本地 entry 时保留 unknown/not_in_process。不是 pending task resume。
+- `app/server/store.mjs`：schema4 无持久 job/invocation/delivery 记录。`app/server/index.mjs` 没有可供 AM-B 消费的 task launch/get/wait 控制面。现有 Run API 不代表已有持久任务 API。
+- `app/runtime/pi-session-runtime.mjs`：每 Run 新建 Pi AgentSession，pending/drain 是本地 Promise；wrapper 的 steer/followUp 未经当前 HTTP service 成为持久续行。不能将库方法存在当成产品交付。
+- Luna 确认 T1/T2 可先派、T3/T4 依赖 A1，无重大范围冲突。三项收窄已纳入：仅 async-specific 增量、不把 T2 fixture API 当产品合同、MCP 只报告锁定 client 实际接受/拒绝。四段 native 链缺任一段，native 保持未验证，adapted 必须另有其实际证据。
+
+本节是源码探索与拆单意见，不是产品测试或独立接受。主单完成本包本地链接检查与 `git diff --check`；没有产品代码变更，未重跑全量与 smoke。
