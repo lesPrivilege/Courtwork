@@ -1,0 +1,115 @@
+{
+  "task": "MR-A1a forged Symbol.toStringTag Uint16Array independent probe",
+  "node": "v25.9.0",
+  "contract": "A Uint16Array that reports [object Uint8Array] must still be rejected; cross-realm forged values are included.",
+  "modules": [
+    {
+      "module": "cw-mra1a-spoof-old-570fda858febf7d1b14b7f60c27385ff64841442.mjs",
+      "moduleSha256": "480f42a170311c5a39ee2a71aeb37f9fbab273f71d150c707449b1111d660190",
+      "cases": [
+        {
+          "name": "same-realm-forged-Uint16Array",
+          "input": {
+            "constructor": "Uint16Array",
+            "objectToString": "[object Uint8Array]",
+            "sameRealmInstanceofUint8Array": false,
+            "byteLength": 2,
+            "forgedToStringTag": "Uint8Array"
+          },
+          "status": "fail",
+          "contract": "must reject forged Uint16Array as TypeError",
+          "observed": {
+            "accepted": true,
+            "text": "a\u0000",
+            "byteLength": 2,
+            "codePointLength": 2,
+            "bytesHex": "6100"
+          }
+        },
+        {
+          "name": "cross-realm-forged-Uint16Array",
+          "input": {
+            "constructor": "Uint16Array",
+            "objectToString": "[object Uint8Array]",
+            "sameRealmInstanceofUint8Array": false,
+            "byteLength": 2,
+            "forgedToStringTag": "Uint8Array"
+          },
+          "status": "fail",
+          "contract": "must reject forged Uint16Array as TypeError",
+          "observed": {
+            "accepted": true,
+            "text": "a\u0000",
+            "byteLength": 2,
+            "codePointLength": 2,
+            "bytesHex": "6100"
+          }
+        }
+      ],
+      "summary": {
+        "cases": 2,
+        "passed": 0,
+        "failed": 2
+      },
+      "sourceCommit": "570fda858febf7d1b14b7f60c27385ff64841442",
+      "sourcePath": "app/runtime/source-coordinates.mjs"
+    },
+    {
+      "module": "cw-mra1a-spoof-fixed-dc564bda92ea540348ceb3dba3d2f247a86031df.mjs",
+      "moduleSha256": "4b3e08d64e3b696d1efe69088bdfdef6ad70eb6af49ab5fd431bf68eceb95589",
+      "cases": [
+        {
+          "name": "same-realm-forged-Uint16Array",
+          "input": {
+            "constructor": "Uint16Array",
+            "objectToString": "[object Uint8Array]",
+            "sameRealmInstanceofUint8Array": false,
+            "byteLength": 2,
+            "forgedToStringTag": "Uint8Array"
+          },
+          "status": "pass",
+          "contract": "must reject forged Uint16Array as TypeError",
+          "observed": {
+            "accepted": false,
+            "error": {
+              "name": "TypeError",
+              "message": "buildSourceCoordinates expects a Uint8Array (Buffer is accepted) of UTF-8 bytes."
+            }
+          }
+        },
+        {
+          "name": "cross-realm-forged-Uint16Array",
+          "input": {
+            "constructor": "Uint16Array",
+            "objectToString": "[object Uint8Array]",
+            "sameRealmInstanceofUint8Array": false,
+            "byteLength": 2,
+            "forgedToStringTag": "Uint8Array"
+          },
+          "status": "pass",
+          "contract": "must reject forged Uint16Array as TypeError",
+          "observed": {
+            "accepted": false,
+            "error": {
+              "name": "TypeError",
+              "message": "buildSourceCoordinates expects a Uint8Array (Buffer is accepted) of UTF-8 bytes."
+            }
+          }
+        }
+      ],
+      "summary": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0
+      },
+      "sourceCommit": "dc564bda92ea540348ceb3dba3d2f247a86031df",
+      "sourcePath": "app/runtime/source-coordinates.mjs"
+    }
+  ],
+  "summary": {
+    "cases": 4,
+    "passed": 2,
+    "failed": 2
+  },
+  "receipt_projection": "Temporary module URLs replaced with frozen commit and repository path; all module hashes and case outcomes retained."
+}

@@ -250,3 +250,10 @@ T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点
 按用户授权，由 Luna 探查目录与公开素材，Astra 整理导航、README 架构、生成物和公开数据。`site/dist/` 与 specimen vendor 副本改为构建生成；品牌分发 SVG 保留。桌面参考图从当前树移除，保留来源哈希；当前固定快照 `9e5384f` 的机器路径作公开投影，旧标本仅留冻结来源索引。模块与验证包导航见 [仓库目录](../docs/repository-layout.md)，范围、验证与归因见 [本单回执](../evidence/public-repository-cleanup-20260910/README.md)。产品代码、数据 schema、品牌选向与 G1–G5 未改变。
 
 本次整理已合入 `cd2a5b8` 并按既有授权发布 Pages；[线上回执](../evidence/public-repository-cleanup-20260910/live-verification.json)核对页面与脱敏标本 HTTP 200、manifest/字节一致。独立干净构建46/46、浏览器17/17及文档相对路径检查通过；产品快照仍为 `9e5384f`。
+
+
+## MR-A1a · 原始文本坐标基础接收（2026-09-10）
+
+从实际 main `a0ebcf0` 隔离，无冲突接收代码 `570fda8` 与作者证据 `7a6db4a`。Astra 非作者读码与5项边界反例发现伪 typed-array tag 被接受、非法 unit 对象导致错误码丢失；集成补丁 `dc564bd` 修正，Luna 对固定源码独验8/8并补伪造tag反例（同/跨 realm），修前0/2、修后2/2。组合定向19/19、全量405/405、smoke与1,114,368组UTF-8 parity通过；[接收与归因](../evidence/markdown-review-20260910/source-coordinates-integration/README.md)分列作者原378/378与当前组合结果。
+
+本片只接受64 KiB内原始 UTF-8/codePoint/UTF-16 边界转换、字节hash与保真，不等于grapheme/parser/显示坐标。模块仍无产品调用方，既有MR-A1/T1 reader与HTTP/Core未接此模块；正式评注、重锚与Output Review范围不变。Core3/app4/Runtime5、Paper与G1–G5保持；未调用真实provider、迁移个人数据或部署。

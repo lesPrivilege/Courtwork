@@ -1,7 +1,7 @@
 # MR-A1a · 原始文本坐标基础模块（作者交付回执）
 
-2026-09-10。作者有界实现。基线 `ecccac2e3d51f276b4f0fe31be430ef675e2b1c9`（main 当前 HEAD），
-独立临时 worktree `/private/tmp/cw-mr-a1a-source-coordinates`，分支 `codex/mr-a1a-source-coordinates`。
+2026-09-10。作者有界实现。基线 `ecccac2e3d51f276b4f0fe31be430ef675e2b1c9`（作者交付时的 main HEAD），
+独立临时 worktree `<isolated-checkout>`，分支 `codex/mr-a1a-source-coordinates`。
 本单只做**原始文本坐标基础模块**：不决定 Markdown AST、评注或存储合同（Astra 掌握架构与最终合流），
 不接 HTTP，不改既有 source identity 或权限。作者不自称独立接受；接收与合流由 Astra 执行。
 
@@ -91,7 +91,7 @@ precomposed 并存）、BOM（开头/内部/单独）、CRLF、空内容、末�
 | `tests.log` | 全量：`npm --prefix app test`（含本模块 17 项新增） |
 | `smoke.log` | `npm --prefix app run smoke`（local-fake） |
 
-代码 SHA 见本包提交（`git log` 首提交 = 代码；第二提交 = 证据/日志，均不含任何产品改动）。
+作者代码 SHA：`570fda858febf7d1b14b7f60c27385ff64841442`；作者证据 SHA：`7a6db4a0ba8c6a438218e12ae15e6f5551e5a6c8`。代码提交只新增本模块与测试，证据提交只新增本包。
 复跑命令（worktree 根）：
 
 ```sh
@@ -109,3 +109,8 @@ npm --prefix app run smoke                          # smoke
 - 无性能门槛、无真实浏览器/模型/网络验证；full-suite 数字是隔离 worktree 当时环境的组合结果。
 - 类型违约用 `TypeError`（无 code）：这是对“四码表”的有意收窄，已在合同中说明，待 Astra 裁定是否需并入统一错误面。
 - 大小判定先于 UTF-8 判定（oversized 且畸形输入报 `source_too_large`）：确定性排序已在测试固化，供 Astra 复核是否与上层合同一致。
+
+
+## 接收接续
+
+Astra 在当前主线的独立复核、两处输入合同修复与组合验证见 [合流回执](../source-coordinates-integration/README.md)。上文作者计数与当时未合流声明保留其历史时点。原始回执字节可从 `7a6db4a0ba8c6a438218e12ae15e6f5551e5a6c8` 的本路径读取；本次只可移植化工作树位置、明确固定作者 SHA 并补接续链接。
