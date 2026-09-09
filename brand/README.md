@@ -1,6 +1,6 @@
 # CourtWork Symbol & Motion · CW-BRAND-01
 
-独立品牌包，基于 fresh `b26670c8975bd9bd2666a856be55b80fcb2963fc` 的 `codex/brand-symbols`。只新增 `brand/`；Claude 的活动 UI、Runtime API、应用数据与 legacy 工作树不在本单写入范围。原始图形来自 frozen Courtwork `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，见 [来源清单](sources/legacy-provenance.json)。
+独立的 SVG 与 Web component 包，包含符号几何、状态样板、材质、导出与预览。原始图形来源为 Courtwork 固定提交 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，见 [来源清单](sources/legacy-provenance.json)。
 
 **品牌方向：CourtWork · A place for expert work to take form.** Court 是场景与专家在场的修辞，不把现有产品宣称为已实现 MoE 或完整专家编排。图形表达在场、活动和留存；不自行产生权限或正式接受。
 
@@ -14,7 +14,7 @@
 - [语义与接入契约](CONTRACT.md)、[迁移交接](HANDOFF.md)、[参考图及生成提示](references/README.md)。
 
 ```sh
-# 在 fresh 仓库根目录；无需安装 npm 包
+# 在 Courtwork 仓库根目录；无需安装 npm 包
 node brand/scripts/build.mjs
 python3 -m http.server 8842 --bind 127.0.0.1 --directory brand
 # 打开 http://127.0.0.1:8842/

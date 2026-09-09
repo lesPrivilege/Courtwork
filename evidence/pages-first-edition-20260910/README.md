@@ -7,3 +7,7 @@
 ## 对外入口与旧安装包
 
 用户 PS-28 要求 README 使用独立对外介绍，已集中为工作问题、已有能力、本地运行与架构入口。PS-29 要求取消旧 DMG 发布；GitHub Release v0.1.2（353886175）与 v0.1.1（353535700）均已通过 API 验证 draft=true，公开发布已撤回，标签保留。当前主线只有 Pages workflow。正式入口：https://lesprivilege.github.io/Courtwork/ 。
+
+## 已发布版本
+
+2026-09-10：GitHub Pages 部署 [34380343840](https://github.com/lesPrivilege/Courtwork/actions/runs/34380343840) 成功，源码 `8e690328bfd34e743b0367e4e96237a2efbac342`。线上 [manifest/页面哈希](live-verification.json) 与本地构建一致，HTTP 200；产品快照仍为 `9e5384f`。匿名 GitHub Release API 返回空列表，两份旧 DMG 已非公开 Release。用户随后要求目录、索引与公开素材清理，作为后续批次执行。

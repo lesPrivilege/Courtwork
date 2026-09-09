@@ -32,20 +32,35 @@ ${BUILD.commands.slice(0,4).join("\n")}
 
 打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。详细配置、数据迁移与备份见 [运行文档](app/README.md)。
 
-## 组成
+## 架构
 
-- **Web UI** 呈现会话、运行、文件与审阅。
-- **Host runtime** 基于 Pi AgentSession，管理模型执行、权限、上下文与 MCP。
-- **Domain core** 持有事项、候选、证据与决定，处理版本校验和幂等提交。
+Web UI 通过本地 Host 发起运行、查询与审阅。Host 编排 Pi AgentSession、权限和上下文；领域适配器把 NDA 等工作接入同一个 Work Core。Core 保存候选、证据、版本与决定。
 
-CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。架构与模块边界见 [架构文档](engineering/architecture.md)。
+\`\`\`mermaid
+flowchart LR
+  UI["Web UI<br/>Chat · Files · Review"] <-->|HTTP / events| Host["Local Host<br/>Runs · permissions · context"]
+  Host --> Pi["Pi AgentSession<br/>Models · tools · MCP"]
+  Host -->|query / review| Adapter["Work adapters<br/>NDA · Evidence memo"]
+  Pi -->|domain tools| Adapter
+  Adapter --> Core["Work Core<br/>Candidates · evidence · decisions"]
+  Host --> Sessions["Session store<br/>Events · files"]
+  Core --> Matters["Matter store<br/>Versions · accepted work"]
+\`\`\`
 
-## 深入了解
+CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。模块入口与数据归属见 [架构文档](engineering/architecture.md)。
 
-- [Runtime Control Plane](docs/runtime-control/INDEX.md)：资源、权限、上下文与 MCP。
-- [界面组件](docs/interface-components.md)：消息、工作面与交互契约。
-- [Continuity conformance](benchmarks/continuity/README.md)：状态连续性的测试方法与复现入口。
-- [工程状态](engineering/current.md)：当前进展与交付记录。
+## 项目结构
+
+| 目录 | 内容 |
+|---|---|
+| [app/](app/README.md) | Web UI、本地 Host、运行集成与 Work Core |
+| [docs/](docs/README.md) | API、数据与界面契约 |
+| [site/](site/README.md) | Pages 源码与交互样本 |
+| [brand/](brand/README.md) | 独立 SVG 符号包 |
+| [benchmarks/](benchmarks/README.md) | 可复现的符合性评测 |
+| [engineering/](engineering/README.md) | 架构、设计与工程进展 |
+| [evidence/](evidence/README.md) | 交付与验证记录 |
+| [tools/](tools/README.md) | 检查与维护工具 |
 
 ## License
 

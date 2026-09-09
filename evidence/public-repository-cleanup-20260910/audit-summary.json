@@ -1,0 +1,9 @@
+{
+  "baseline": "00b2f2886e04aa7b7facb588d4375a246f3e341d",
+  "specimen_changed_fields": 9,
+  "non_path_specimen_changes": 0,
+  "removed_desktop_reference_images": 8,
+  "removed_generated_files": 64,
+  "high_confidence_secret_findings": 0,
+  "privacy_review": "Luna read-only tracked-text scan and sampled image inspection; synthetic fixtures and public attribution preserved. Not a Git history purge."
+}

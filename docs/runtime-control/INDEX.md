@@ -1,6 +1,6 @@
 # Runtime Control Plane Index
 
-Status: backend implementation, protocol v1, 2026-09-08. Base: `b26670c` on the existing Pi runtime. Frontend integration is a separate step. This index is the entry point for runtime resources, authority, adapters, acceptance evidence, and the future frontend contract.
+Runtime resources, permissions, context, model connections and MCP are composed by the local Host and presented in Settings and Work. This index links the current contracts; delivery history is recorded in [engineering/current](../../engineering/current.md). The original backend baseline was `b26670c`; historical reviews below retain that scope.
 
 - [Architecture and compatibility](architecture.md)
 - [HTTP contract and examples](api.md)
@@ -38,6 +38,6 @@ Status: backend implementation, protocol v1, 2026-09-08. Base: `b26670c` on the 
 
 ## Invariants
 
-Installed, running, exposed, and permitted are separate dimensions. Scope and provenance explain how a value was obtained; the executor always checks the bound policy. Profiles and skills cannot raise host authority. Canonical work state remains with the domain extension/system of record, execution remains with Pi AgentSession, and configuration remains with the host control plane.
+Installed, running, exposed, and permitted are separate dimensions. Scope and provenance explain how a value was obtained; the executor always checks the bound policy. Profiles and skills cannot raise host authority. Canonical work state remains with the shared Work Core, execution remains with Pi AgentSession, and configuration remains with the host control plane.
 
 Changes bind at the next new Run. Idempotent retries return the original receipt and original binding. Configuration and connection mutations are frozen during active Runs and serialized with admission. Runtime state now upgrades validated schema 3/4 to schema 5 with an exclusive exact-byte backup; older hosts reject it. See [persistence](architecture.md#persistence-upgrade) and [async read tasks](../../app/docs/async-tasks.md).

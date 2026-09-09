@@ -243,3 +243,8 @@ T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点
 用户明确Output Review与Markdown是相交而独立的边界，已裁为[双边界架构](../docs/output-review.md)：前者接收/保留/表示所有可见模型与工具输出，后者负责包括用户/外部来源在内的Markdown格式能力，不互为完整包含关系。Chat Space copycard沿已有Code/Copy消费；复制不构成评审或接受。输出链已完成有界调查，另在 `5f17cde` 修复连续完整assistant消息覆盖（Luna独立反例修前4/6、修后6/6）；OR-A0继续冻结非文本/未知output接收与历史协议给UI；MR-A2/A3分别保持Core评注事务与Markdown版本定位范围。
 
 本单不称全output review已完成，不升级个人数据、不新增模型调用或部署；Core3/app4、已合流RuntimeStore5、Paper、G1–G5与原前端队列保持。
+
+
+## 仓库公开内容与目录整理（2026-09-10）
+
+按用户授权，由 Luna 探查目录与公开素材，Astra 整理导航、README 架构、生成物和公开数据。`site/dist/` 与 specimen vendor 副本改为构建生成；品牌分发 SVG 保留。桌面参考图从当前树移除，保留来源哈希；当前固定快照 `9e5384f` 的机器路径作公开投影，旧标本仅留冻结来源索引。模块与验证包导航见 [仓库目录](../docs/repository-layout.md)，范围、验证与归因见 [本单回执](../evidence/public-repository-cleanup-20260910/README.md)。产品代码、数据 schema、品牌选向与 G1–G5 未改变。

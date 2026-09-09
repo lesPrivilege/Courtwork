@@ -17,6 +17,7 @@ import { startServer } from "../../app/server/index.mjs";
 import { FAKE_CREDENTIAL_KEY } from "../../app/runtime/pi-session-runtime.mjs";
 import { NORMAL_FACTS, SYNTHETIC_SOURCES } from "../../app/domains/inbound-nda/fixtures.mjs";
 import { buildReview } from "../../app/domains/inbound-nda/index.mjs";
+import { publicSpecimen } from "./public-data.mjs";
 import { release, ROOT, SITE } from "./release.mjs";
 
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
@@ -237,7 +238,7 @@ const record = {
   ...specimen,
 };
 
-const bytes = JSON.stringify(record, null, 2) + "\n";
+const bytes = JSON.stringify(publicSpecimen(record), null, 2) + "\n";
 const target = path.join(SITE, "specimen", `${sha7}.json`);
 await mkdir(path.dirname(target), { recursive: true });
 await writeFile(target, bytes);
@@ -257,7 +258,7 @@ const receipt = {
   dataClass: record.dataClass,
   data_kind: "synthetic",
   provider_mode: "local deterministic fake (fake-openai-loopback)",
-  data_dir: DATA_DIR,
+  public_projection: { version: 1, transformation: "Machine paths replaced with synthetic relative display paths before saving." },
 };
 await writeFile(path.join(SITE, "specimen", "capture.json"), JSON.stringify(receipt, null, 2) + "\n");
 console.log(JSON.stringify(receipt, null, 2));

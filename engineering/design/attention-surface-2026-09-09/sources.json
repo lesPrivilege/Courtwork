@@ -1,72 +1,72 @@
 [
   {
     "id": "01-work-current",
-    "original_name": "Screenshot 2026-09-09 at 19.19.01.png",
     "sha256": "53f46c5c5ec7ef8353593a8a884104eeb47d1e73cd39770bec2230bec477af00",
     "bytes": 700670,
-    "file": "screenshots/01-work-current.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "02-work-c",
-    "original_name": "Screenshot 2026-09-09 at 19.19.11.png",
     "sha256": "20ec54d4cfcd464cd01cd7900aeb34fc46119a255084e25bcc9c0e22d464f107",
     "bytes": 705686,
-    "file": "screenshots/02-work-c.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "03-work-b",
-    "original_name": "Screenshot 2026-09-09 at 19.19.25.png",
     "sha256": "62718fec9208c05377799503d8ad96285da71cd723c5f599b6c28c068374dde4",
     "bytes": 699348,
-    "file": "screenshots/03-work-b.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "04-work-a",
-    "original_name": "Screenshot 2026-09-09 at 19.19.32.png",
     "sha256": "4885a0bbabd11b3cf84e70b1e725901d90b883aa5b9c553340c5e695aaeb0537",
     "bytes": 704948,
-    "file": "screenshots/04-work-a.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "05-home-rail",
-    "original_name": "Screenshot 2026-09-09 at 19.19.40.png",
     "sha256": "4a7544f5965e2368147d34764f6b859ba7bfeee9016f5f11dc0080ceb82dbf39",
     "bytes": 754690,
-    "file": "screenshots/05-home-rail.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "06-home-current",
-    "original_name": "Screenshot 2026-09-09 at 19.19.51.png",
     "sha256": "74dd2e123d41eb19c2285c1d439248c40df3cca10a90dc91e0aa4465454ddaac",
     "bytes": 706496,
-    "file": "screenshots/06-home-current.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "07-home-band",
-    "original_name": "Screenshot 2026-09-09 at 19.19.59.png",
     "sha256": "eeea666172da8410973a5e32d5f435185c4f8133d8e860239db0d7a0303c1f3d",
     "bytes": 746618,
-    "file": "screenshots/07-home-band.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "08-frontier-project",
-    "original_name": "Screenshot 2026-09-09 at 19.20.58.png",
     "sha256": "b04bbf2d51a3dd7861b32e3ad41089b9e54aefb62ef924376092dc505ed4b405",
     "bytes": 937052,
-    "retention": "用户提供的真实产品截图已目视；含个人任务上下文，不复制进产品仓库。仅记录结构观察与hash。"
+    "retention": "用户提供的真实产品截图已目视；含个人任务上下文，不复制进产品仓库。仅记录结构观察与hash。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "09-frontier-panel",
-    "original_name": "Screenshot 2026-09-09 at 19.21.24.png",
     "sha256": "aa2b24c7c6e3fa8dfe4f8bb921cd6322db9ac68199b302cfa6f1cea35d7ec577",
     "bytes": 890104,
-    "retention": "用户提供的真实产品截图已目视；含个人任务上下文，不复制进产品仓库。仅记录结构观察与hash。"
+    "retention": "用户提供的真实产品截图已目视；含个人任务上下文，不复制进产品仓库。仅记录结构观察与hash。",
+    "data_class": "private-reference-metadata"
   },
   {
     "id": "10-codex-composer-stop",
-    "original_name": "Screenshot 2026-09-09 at 22.17.42.png",
     "sha256": "f2a576d1b131b0026376ec35f26448cbfb63d7d823257f246f711fe4ea4b5ffa",
     "bytes": 36799,
-    "file": "screenshots/10-codex-composer-stop.png"
+    "retention": "原始桌面参考图不随公共仓库分发；保留文字观察、字节数与 SHA-256。",
+    "data_class": "private-reference-metadata"
   }
 ]

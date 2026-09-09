@@ -15,7 +15,7 @@
     "draft": "",
     "extensionBinding": null,
     "createdAt": "2026-09-09T16:36:48.280Z",
-    "workspaceDir": "/private/tmp/cw-pages-first-specimen-data/workspaces/1570c6bd-241f-449e-9b72-7407d186e23a",
+    "workspaceDir": "synthetic/workspace",
     "permissionMode": "ask",
     "hostSession": null
   },
@@ -64,7 +64,7 @@
       },
       "hostSession": {
         "id": "01a08707-761e-72a2-a58c-0abc2fce971d",
-        "path": "/private/tmp/cw-pages-first-specimen-data/pi-sessions/1570c6bd-241f-449e-9b72-7407d186e23a/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
+        "path": "synthetic/host-session/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
       },
       "credentialGeneration": 1
     },
@@ -104,7 +104,7 @@
       },
       "hostSession": {
         "id": "01a08707-761e-72a2-a58c-0abc2fce971d",
-        "path": "/private/tmp/cw-pages-first-specimen-data/pi-sessions/1570c6bd-241f-449e-9b72-7407d186e23a/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
+        "path": "synthetic/host-session/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
       },
       "credentialGeneration": 1
     }
@@ -157,7 +157,7 @@
       },
       "hostSession": {
         "id": "01a08707-761e-72a2-a58c-0abc2fce971d",
-        "path": "/private/tmp/cw-pages-first-specimen-data/pi-sessions/1570c6bd-241f-449e-9b72-7407d186e23a/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
+        "path": "synthetic/host-session/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
       },
       "credentialGeneration": 1
     },
@@ -193,7 +193,7 @@
       },
       "hostSession": {
         "id": "01a08707-761e-72a2-a58c-0abc2fce971d",
-        "path": "/private/tmp/cw-pages-first-specimen-data/pi-sessions/1570c6bd-241f-449e-9b72-7407d186e23a/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
+        "path": "synthetic/host-session/2026-09-09T16-36-48-288Z_01a08707-761e-72a2-a58c-0abc2fce971d.jsonl"
       },
       "credentialGeneration": 1
     }
@@ -1177,7 +1177,7 @@
                 "exposed": true,
                 "health": "healthy",
                 "configurable": false,
-                "filesystem": "/private/tmp/cw-pages-first-specimen-data/workspaces/1570c6bd-241f-449e-9b72-7407d186e23a",
+                "filesystem": "synthetic/workspace",
                 "shell": false,
                 "processIsolation": false,
                 "defaultExposed": true,
@@ -2528,7 +2528,7 @@
                 "exposed": true,
                 "health": "healthy",
                 "configurable": false,
-                "filesystem": "/private/tmp/cw-pages-first-specimen-data/workspaces/1570c6bd-241f-449e-9b72-7407d186e23a",
+                "filesystem": "synthetic/workspace",
                 "shell": false,
                 "processIsolation": false,
                 "defaultExposed": true,
@@ -3708,7 +3708,7 @@
             "exposed": true,
             "health": "healthy",
             "configurable": false,
-            "filesystem": "/private/tmp/cw-pages-first-specimen-data/workspaces/1570c6bd-241f-449e-9b72-7407d186e23a",
+            "filesystem": "synthetic/workspace",
             "shell": false,
             "processIsolation": false,
             "defaultExposed": true,
@@ -4741,7 +4741,7 @@
             "exposed": true,
             "health": "healthy",
             "configurable": false,
-            "filesystem": "/private/tmp/cw-pages-first-specimen-data/workspaces/1570c6bd-241f-449e-9b72-7407d186e23a",
+            "filesystem": "synthetic/workspace",
             "shell": false,
             "processIsolation": false,
             "defaultExposed": true,
