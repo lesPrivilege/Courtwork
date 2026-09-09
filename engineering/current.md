@@ -229,3 +229,9 @@ T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有
 从实际main `5909f2f` 隔离接收作者代码 `9cbae87` 与证据 `470498b`，无产品冲突。新增认证 `POST /api/v5/runtime-sources/resolve` 直接复用既有resolver；原文identity、unverified来源、granted空与inspect-only保持，locator明确unsupported，不获取/安装/连接/执行。Astra独立3/3、组合全量352/352与smoke通过，见 [合流回执](../evidence/runtime-source-service-integration-20260910/README.md)。无产品集成修补，仅修正索引/接缝说明与当前状态。
 
 共享body reader超1MiB会断连，不能承诺客户端收到JSON 413；本单接受其既有有界拒绝行为，若改善可观察错误需另做宿主级修复。此处关闭BE-5的HTTP检查接缝，不关闭R2获取、UI消费、R3–R5或G1–G5。Core3/app4/Runtime5保持；没有升级个人数据或运行真实provider。
+
+## AM-B-T3：纯投影与 UI 消费 packets 接收（2026-09-10）
+
+以main `5123d0f` 为组合基线，接收产品 `184e3f0`、作者证据 `bd4b92a`；期间发布面main `8e69032` 无冲突同步。AsyncTasks.view委托纯projectAsyncTask，owner仍提供Session存在性与当前adapter；schema1字段、availability优先级、options与历史/投递事实保持。Astra非作者固定旧SHA的392组对照及副本/adapter/时钟边界检查通过，组合全量361/361与smoke通过，见 [回执](../evidence/async-loop-20260910/task-view-integration/README.md)。无产品集成补丁或schema迁移。
+
+T3纯投影/消费packets已交付，覆盖此前“尚未派/后置”的时点记录；UI本体、A2真实模型评测与native async仍未交付。delivery.taskRevision允许小于task.revision，投影不回填历史receipt、不推断动作许可。Core3/app4/Runtime5、HL生产合同与G1–G5保持。

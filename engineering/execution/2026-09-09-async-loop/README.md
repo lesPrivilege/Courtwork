@@ -99,3 +99,7 @@ BE-31 含敏感输入约束、BE-32 含事件时间/历史迁移、BE-33 含可�
 用户已同意派单，以上“未启动/仅准备”为原始时点。Terra T1/T2与HL三项离线夹具已交付，Astra亲写A0/A1，正式合同为 [adapted read tasks](../../../app/docs/async-tasks.md)，[本轮证据](../../../evidence/async-loop-20260909/README.md)区分作者与非作者。A1 Runtime schema5新增asyncTasks，Core3/app4不变。T4写权具体化为新增 `app/tests/async-recovery-independent.test.mjs`、`app/tests/fixtures/async-loop/{host-child,host-adapter}.mjs` 与 `evidence/async-loop-20260909/recovery-independent/`；额外边界独验写 `async-boundaries-independent.test.mjs` 与独立证据目录。均不授予Terra产品修复权。
 
 Astra在A1提供最小owner读视图与认证路由；T3专门纯投影/前端packets尚未派，避免从尚未接受的实现抢派前端。A2真实模型评测及native能力另单。本批不启动生产Gmail/GitHub摄取、写入或自动跟进。Fable队列由current的最新裁定维护。
+
+## AM-B-T3 接收增量（2026-09-10）
+
+用户自行唤醒实现agent后转交产品 `184e3f0` / 证据 `bd4b92a`，Astra非作者复核接受，见 [组合回执](../../../evidence/async-loop-20260910/task-view-integration/README.md)。T3按冻结的projectAsyncTask(task,{sessionExists,adapter},options)完成纯投影提取及实际HTTP packets；仅async-tasks.view委托新模块，service/store/策略不变。T3不再待派；UI消费仍须单独实施，A2保持后置。

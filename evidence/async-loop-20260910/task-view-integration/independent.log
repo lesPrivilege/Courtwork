@@ -1,0 +1,10 @@
+✔ independent fixed-SHA comparison: 392 state/context/options combinations (9.046ms)
+✔ independent: hostile adapter methods/clock unused, separate outputs and old receipts remain independent (0.165542ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 118.973459
