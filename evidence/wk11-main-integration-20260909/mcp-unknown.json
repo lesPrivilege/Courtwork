@@ -1,0 +1,161 @@
+{
+  "results": [
+    {
+      "name": "remote permission identifies frozen action and source",
+      "pass": true,
+      "card": "Allow this remote tool call?\n\neffect · local:unknown-73f0099f-e989-41f3-804c-c759abf2851f\n\nRecorded source: http://127.0.0.1:54926\n\n27 B · Permission for this exact action only\n\n{\"text\":\"synthetic effect\"}\nAction details\nDeny action\nAllow this action",
+      "tool": {
+        "id": "tool:mcp_011139078d6905ae8d4e87a4",
+        "kind": "tool",
+        "title": "effect",
+        "source": {
+          "type": "remote",
+          "uri": "http://127.0.0.1:54926",
+          "hash": "881c77316781317b663bf61921426f0a75d78703c2370030ba62258490bf5be5"
+        },
+        "scope": {
+          "type": "session",
+          "id": "73f0099f-e989-41f3-804c-c759abf2851f"
+        },
+        "activation": "always",
+        "installed": true,
+        "running": null,
+        "exposed": true,
+        "health": "healthy",
+        "configurable": true,
+        "action": "mcp.local:unknown-73f0099f-e989-41f3-804c-c759abf2851f.effect",
+        "executionName": "mcp_011139078d6905ae8d4e87a4",
+        "parent": "local:unknown-73f0099f-e989-41f3-804c-c759abf2851f",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "description": "Synthetic unknown effect",
+        "mcp": {
+          "serverId": "local:unknown-73f0099f-e989-41f3-804c-c759abf2851f",
+          "name": "effect",
+          "configHash": "881c77316781317b663bf61921426f0a75d78703c2370030ba62258490bf5be5"
+        },
+        "defaultExposed": true,
+        "provenance": [
+          {
+            "scope": {
+              "type": "session",
+              "id": "73f0099f-e989-41f3-804c-c759abf2851f"
+            },
+            "value": true,
+            "reason": "source default"
+          }
+        ],
+        "permission": {
+          "effect": "ask",
+          "trace": [
+            {
+              "source": "host-ceiling",
+              "effect": "allow"
+            },
+            {
+              "source": "host-default",
+              "effect": "ask"
+            }
+          ],
+          "resourceSpecific": false
+        }
+      }
+    },
+    {
+      "name": "lost MCP response remains unknown",
+      "pass": true,
+      "run": {
+        "id": "874f4301-0201-476a-8e02-dc3c21a56788",
+        "sessionId": "73f0099f-e989-41f3-804c-c759abf2851f",
+        "status": "unknown",
+        "admissionOpen": false,
+        "adapterId": "pi-coding-agent@0.85.1/agent-session",
+        "provider": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions",
+          "realProvider": false
+        },
+        "extension": null,
+        "startedAt": "2026-09-09T03:52:18.505Z",
+        "endedAt": "2026-09-09T03:52:19.517Z",
+        "error": {
+          "code": "mcp_effect_unknown",
+          "message": "Remote tool effects require reconciliation"
+        },
+        "commandId": "6d184c7f-4326-4e3e-8944-538688313ec4",
+        "artifacts": [],
+        "usage": {
+          "input": 3,
+          "output": 4,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 3,
+          "missing": false
+        },
+        "hostSession": {
+          "id": "01a0844b-8730-754c-9917-69d7d8d29713",
+          "path": "/private/tmp/cw-wk11-extra-data/pi-sessions/73f0099f-e989-41f3-804c-c759abf2851f/2026-09-09T03-52-17-457Z_01a0844b-8730-754c-9917-69d7d8d29713.jsonl"
+        },
+        "credentialGeneration": 0
+      },
+      "uiRun": {
+        "id": "874f4301-0201-476a-8e02-dc3c21a56788",
+        "sessionId": "73f0099f-e989-41f3-804c-c759abf2851f",
+        "status": "unknown",
+        "admissionOpen": false,
+        "adapterId": "pi-coding-agent@0.85.1/agent-session",
+        "provider": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions",
+          "realProvider": false
+        },
+        "extension": null,
+        "startedAt": "2026-09-09T03:52:18.505Z",
+        "endedAt": "2026-09-09T03:52:19.517Z",
+        "error": {
+          "code": "mcp_effect_unknown",
+          "message": "Remote tool effects require reconciliation"
+        },
+        "commandId": "6d184c7f-4326-4e3e-8944-538688313ec4",
+        "artifacts": [],
+        "usage": {
+          "input": 3,
+          "output": 4,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 3,
+          "missing": false
+        },
+        "hostSession": {
+          "id": "01a0844b-8730-754c-9917-69d7d8d29713",
+          "path": "/private/tmp/cw-wk11-extra-data/pi-sessions/73f0099f-e989-41f3-804c-c759abf2851f/2026-09-09T03-52-17-457Z_01a0844b-8730-754c-9917-69d7d8d29713.jsonl"
+        },
+        "credentialGeneration": 0
+      },
+      "calls": 1,
+      "dom": "CourtWork\nNew project\nClose navigation\nNew session\nHome\nFind a project or session\nPROJECTS\n1\nRuntime control fixture\nNew session in Runtime control fixture\nRuntime control\nL\nLocal test\nRefresh workspace\nSettings\nRuntime control\nConnection · Local test\nSession overview\nOpen work surface\nYou\nSynthetic MCP browser run\n11:52 AM\nCopy message\nEdit as new message\nASSISTANT\nCopy response\n\nSIMULATED fake response: Synthetic MCP browser run\n\nRun\nCompleted\nInspect this run\nYou\n/fixture script [{\"name\":\"mcp_011139078d6905ae8d4e87a4\",\"arguments\":{\"text\":\"synthetic effect\"}},{\"name\":\"mcp_011139078d6905ae8d4e87a4\",\"arguments\":{\"text\":\"synthetic effect\"}}]\n11:52 AM\nCopy message\nEdit as new message\n1 tool action\n1 failed\nmcp_011139078d6905ae8d4e87a4\nFailed\nResult\nMCP result is unknown; remote effects may have occurred. Do not retry automatically.\neffect · local:unknown-73f0099f-e989-41f3-804c-c759abf2851f\nAction allowed\n\nRuntime notice\n\n1 tool action\n1 failed\nmcp_011139078d6905ae8d4e87a4\nFailed\nResult\nRun admission is closed\nASSISTANT\nCopy response\n\nSIMULATED scripted response\n\nRun\nUnknown\nInspect this run\nSent.\nMessage\nSession files\nLocal test\nSend\n\nRuntime control fixture\n\nWrite"
+    },
+    {
+      "name": "reload does not replay remote effect",
+      "pass": true,
+      "calls": 1,
+      "dom": "CourtWork\nNew project\nClose navigation\nNew session\nHome\nFind a project or session\nPROJECTS\n1\nRuntime control fixture\nNew session in Runtime control fixture\nRuntime control\nL\nLocal test\nRefresh workspace\nSettings\nRuntime control\nConnection · Local test\nSession overview\nOpen work surface\nYou\nSynthetic MCP browser run\n11:52 AM\nCopy message\nEdit as new message\nASSISTANT\nCopy response\n\nSIMULATED fake response: Synthetic MCP browser run\n\nRun\nCompleted\nInspect this run\nYou\n/fixture script [{\"name\":\"mcp_011139078d6905ae8d4e87a4\",\"arguments\":{\"text\":\"synthetic effect\"}},{\"name\":\"mcp_011139078d6905ae8d4e87a4\",\"arguments\":{\"text\":\"synthetic effect\"}}]\n11:52 AM\nCopy message\nEdit as new message\n1 tool action\n1 failed\nmcp_011139078d6905ae8d4e87a4\nFailed\nResult\nMCP result is unknown; remote effects may have occurred. Do not retry automatically.\neffect · local:unknown-73f0099f-e989-41f3-804c-c759abf2851f\nAction allowed\n\nRuntime notice\n\n1 tool action\n1 failed\nmcp_011139078d6905ae8d4e87a4\nFailed\nResult\nRun admission is closed\nASSISTANT\nCopy response\n\nSIMULATED scripted response\n\nRun\nUnknown\nInspect this run\nMessage\nSession files\nLocal test\nSend\n\nRuntime control fixture\n\nWrite"
+    }
+  ],
+  "requests": [
+    "server/discover",
+    "tools/list",
+    "tools/call"
+  ]
+}

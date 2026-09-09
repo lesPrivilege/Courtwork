@@ -1,0 +1,85 @@
+[
+  {
+    "name": "FE-T03 profile selection reaches authoritative composition",
+    "pass": true,
+    "detail": {
+      "composition": "local:reader"
+    }
+  },
+  {
+    "name": "FE-T03 requested exposure remains distinct from effective ceiling",
+    "pass": true,
+    "detail": [
+      [
+        "Source",
+        "builtin · pi-coding-agent@0.85.1/agent-sessionno hash recorded"
+      ],
+      [
+        "Requested",
+        "Exposed — your session override, recordedrecorded, and outranked by profile capability ceiling"
+      ],
+      [
+        "Effective",
+        "Not exposed to the next runserver revision 49"
+      ],
+      [
+        "Bound",
+        "Exposed in this runrun e68585ac · revision 46"
+      ]
+    ]
+  },
+  {
+    "name": "FE-T03 profile edit preserves historical binding",
+    "pass": true,
+    "detail": {
+      "before": "agent:general",
+      "after": "agent:general",
+      "boundText": "Source · Requested · Effective · BoundSourcelocal confighash 407f35f0bd11RequestedNothing requested in the session layer.Effectivelocal:reader · compatibleserver revision 49Boundagent:general · compatiblerun e68585ac"
+    }
+  },
+  {
+    "name": "FE-T03 narrower allow cannot loosen user deny",
+    "pass": true,
+    "detail": {
+      "evaluation": {
+        "revision": 51,
+        "effect": "deny",
+        "trace": [
+          {
+            "source": "host-ceiling",
+            "effect": "allow"
+          },
+          {
+            "source": {
+              "type": "user",
+              "id": "local"
+            },
+            "action": "ws_write",
+            "resource": "*",
+            "effect": "deny"
+          },
+          {
+            "source": {
+              "type": "workspace",
+              "id": "0f0058d5-d08e-4990-b79a-b6a877def65e"
+            },
+            "action": "ws_write",
+            "resource": "out/*",
+            "effect": "ask"
+          },
+          {
+            "source": {
+              "type": "session",
+              "id": "ba5a903e-5a74-4eff-8ec4-a7432ee5f0c8"
+            },
+            "action": "ws_write",
+            "resource": "*",
+            "effect": "allow"
+          }
+        ],
+        "advisory": true
+      },
+      "alerts": []
+    }
+  }
+]
