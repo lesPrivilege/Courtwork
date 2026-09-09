@@ -6,6 +6,8 @@
 
 **后续用户补充优先：** [模块首页、独立Settings与标签式右区](shell-refinement.md)确认保留dashboard版本，Settings用专用导航替换全局侧栏，工作区展开采用tab chrome，并强化边距与留白。上一轮Models双重侧栏已被此方向取代；新图/完整prompt见`refinement-prompts.json`。
 
+[r4d工程复读](r4d-review.md)记录对`f5de8ad`的接缝意见：B+C、D0-B为推荐，画布尚未成功加载、不代用户选向；BE-28探测身份、D0依赖、滚动恢复与renderer失效条件需收紧。
+
 - [审查与提交索引](review.md)：当前截图、问题、实现与待做工单的对应关系。
 - [Claude 交接](claude-handoff.md)：自由度、不可变条件、拆单和验证。
 - [生成提示词](prompts.json)：原始完整 prompt、实际引用截图、生成方式。
