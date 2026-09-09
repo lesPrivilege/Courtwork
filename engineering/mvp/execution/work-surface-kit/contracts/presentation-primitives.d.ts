@@ -1,7 +1,12 @@
-// WO-WK9 · presentation primitives（WK-34 限六种，WK-37 定名）
+// WO-WK9 · presentation primitives（WK-34 / WK-37 定名；WO-PG-01 按 WK-148 以代码为准收敛）
 // 只供 app/web 与 fixture；不进 app/runtime。组件不认识 provider、Expert 或数据库（boundaries §5）。
 //
-// 三条贯穿全文件的规则：
+// WK-34 当初列的六种里，RunSummary / FileList / WorkspaceList 三种的 adapter 从未实现，
+// 且 WK-148 (c) 裁定不要求实现（那三类对象由 view 直读 DTO，是既定架构）；Heatmap 一节写的
+// 是端点未建时的目标形状，而 `GET /work-activity` 已上线、Home 已用 `toHomeActivity` 渲染真
+// heatmap。三节与四个未实现签名已按事实删除，不留占位。本文件现在只描述实际发运的东西。
+//
+// 四条贯穿全文件的规则：
 //   1. 时间：服务端全部时间字段是 `new Date().toISOString()` 产生的 UTC ISO 字符串（store.mjs:25），
 //      系统内无一处携带 timezone 元数据。adapter 原样传 UTC ISO；组件按浏览器本地时区显示。
 //      任何"多久之前"都是推断，不由 adapter 生成，也不由组件生成（ux-conventions §3）。
@@ -9,6 +14,15 @@
 //      `missingLabel`，不渲染数字（`usage.missing === true` 时另加 "At least" 前缀，api-v6 §usage）。
 //   3. 动作：primitive 只发出打开类 intent。没有任何 primitive 发出写入、批准、接受或取消。
 //      answer / allow / deny 属 ReviewProjection（contracts/review-projection.d.ts），不在本文件。
+//   4. 投影不得创造事实（WK-139 (c)）：没有 unit / scope / timezone 就不投影，形态只能弱于
+//      事实的强度。启发式估算不画成余量刻度，不确定的执行不画成完成度——这条的机械可查部分
+//      由 `tools/lint-interaction.mjs`（WK-140 / WK-146）守住，其余由评审承担。
+//
+// 辖区：本契约只覆盖 Home 与 Usage 的 adapter。`inspector.mjs` / `workspace-view.mjs` /
+// `runtime-view.mjs` / `telemetry-view.mjs` 等 view 直读 DTO 是既定架构，不要求把 adapter 层
+// 扩张到 RunSummary / FileList / Workspace（WK-148 (c)）；上面四条规则对那些 view **同样适用**，
+// 只是由评审而非类型承担。Usage 一侧的纯函数今日住在 `app/web/usage-projection.mjs`
+// （`modelSeries` / `validUsageDetails`），本文件不为其冻结形状。
 
 /* ────────────────────────── 共用 ────────────────────────── */
 
@@ -111,36 +125,79 @@ export interface StatTileInput {
  */
 export type StatTileProps = StatTileInput;
 
-/* ────────────────────────── 2. Heatmap（gap） ────────────────────────── */
+/* ────────────────── 2. Home 读投影（已发运，WK-148 (b)） ──────────────────
+ * WK-94 之后 `GET /work-activity` 已上线，Home 的 Activity 卡渲染的是真 heatmap，
+ * 不再有 "Planned · Backend pending" 文字行。此处按 `app/web/presentation-adapters.mjs`
+ * 的实际返回收敛：**以代码为准**（WK-148 (a)）。三个函数的失败态一律是 `null` ——
+ * 不支持的 schemaVersion、内部不自洽的包，都不投影（规则 4），由 view 渲染缺失态。 */
 
-/**
- * gap: needs GET /work-activity（见 gaps-wk9.md G-1）。
- * 现状：没有跨会话的 run 列表端点，`sessionCandidates.latestRun` 每会话只折叠出一条，
- * 逐会话 `GET /sessions/:id` 是 N+1 且无时间过滤（EX-WK5 §1 末行）。
- * 因此本类型是端点成立后的目标形状，产品内当前只允许渲染 "Planned · Backend pending" 文字行。
- * 禁止用 latestRun 冒充按日计数（WK-37）。
- */
-export interface HeatmapBucket {
-  /** 日界所属日期，'YYYY-MM-DD'，按 `zone` 切分。 */
-  day: string;
-  /** 该日已记录 run 数。0 与 null 语义不同：0 = 确认无 run，null = 该日无数据。 */
-  count: number | null;
+/** Home Activity 一格。`count` 是该 UTC 日的 retained run 数；`level` 是绝对固定刻度
+ *  （0 / 1 / <4 / <8 / 其余），不是分位数——Usage 的相对分位是同一 projection class 下
+ *  另一条合法语义分支（WK-149 (d)），两者不共用算法。 */
+export interface HomeActivityBucket {
+  /** 'YYYY-MM-DD'，UTC 日界，由服务端 `interval.start` 逐日推出，adapter 不重切。 */
+  date: string;
+  /** 已记录 run 数。0 是"已确认的零"，不是"该日无数据"——覆盖率由 `coverage` 一句承担。 */
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+  /** 读屏名，逐格自带日期、计数与时区，例 '2026-09-09 · 3 retained runs (UTC)'。 */
+  label: string;
 }
-export interface HeatmapInput {
-  /** 计数口径的一句话说明，例 'Recorded runs started per day'。 */
-  metric: string;
-  /** 日界时区。后端只保证 UTC；显示端如需本地日界，须由端点另行支持，不在前端重切。 */
-  zone: 'UTC';
-  buckets: HeatmapBucket[];
-  /** 强度轴上界；单一轴、灰阶（WK-36）。null 表示全部 bucket 为空。 */
-  maxCount: number | null;
-  scope: MetricScope;
-  /** 读屏用的整体说明，例 '30 days, 0 to 12 recorded runs per day'。 */
-  accessibleSummary: string;
-  load: LoadState;
+/** `GET /work-activity` → Home Activity 卡。校验不过时返回 `null`，绝不部分渲染。 */
+export interface HomeActivityProjection {
+  /** 服务端自己的读取时刻，UTC ISO，原样透传（规则 1）。 */
+  observedAt: UtcInstant;
+  /** 各 bucket 之和，且必须等于服务端 `recordedRunCount`，否则整包作废。 */
+  total: number;
+  /** = `interval.days` = `buckets.length`。 */
+  days: number;
+  /** 口径披露句，固定为 'UTC · Retained runs only. Deleted-chat history is unknown.'。 */
+  coverage: string;
+  buckets: HomeActivityBucket[];
 }
-/** 端点成立前，宿主传 null，组件渲染 gap 文字行。 */
-export type HeatmapProps = { input: HeatmapInput | null; plannedLabel: string };
+
+/** Attention 五态。取值域即 `attentionLabels` 的键，前端不新增状态。 */
+export type AttentionStatus = 'investigating' | 'needs_you' | 'waiting' | 'later' | 'resolved';
+/** 五态 → 可见文案的唯一映射表，与 adapter 同文件导出。 */
+export const attentionLabels: Record<AttentionStatus, string>;
+
+/** Attention 列表的一行。只搬运已记录字段；grant 与 action descriptor 不进投影。 */
+export interface HomeAttentionItem {
+  id: string;
+  title: string;
+  status: AttentionStatus;
+  label: string;
+  revision: number;
+  updatedAt: UtcInstant;
+}
+export interface HomeAttentionProjection {
+  /** 服务端口径为 `disclosure.count_scope === 'visible'`，adapter 不另行聚合。 */
+  count: number;
+  offset: number;
+  /** 还有未显示时才非 null，且必须 = offset + items.length（否则整包作废）。 */
+  nextOffset: number | null;
+  items: HomeAttentionItem[];
+}
+
+/** Attention 详情。**字段名照录实现现状**：本形状保留服务端的 snake_case
+ *  （`next_action` / `due_at` / `updated_at`），而上面的 `HomeAttentionItem` 改写成了
+ *  camelCase（`attention_id` → `id`、`updated_at` → `updatedAt`）。同一个 adapter 文件里两
+ *  种命名并存是事实，不是本契约的规定；要不要收敛留裁定（WO-PG-01 §5 登记）。 */
+export interface HomeAttentionDetailProjection {
+  descriptor: { title: string; summary: string | null };
+  status: AttentionStatus;
+  reason: string;
+  next_action: {
+    kind: 'inspect' | 'decide' | 'wait' | 'follow_up' | 'none';
+    label: string;
+    trigger: 'manual' | 'at' | 'after' | 'external';
+    /** trigger 为 'at' 时必有；UTC ISO 原样透传，不算"还有多久"。 */
+    due_at: UtcInstant | null;
+  };
+  updated_at: UtcInstant;
+  revision: number;
+  freshness: 'current' | 'unknown';
+}
 
 /* ────────────────────────── 3. WorkCard ────────────────────────── */
 
@@ -213,98 +270,6 @@ export interface InspectionRowInput {
   resultAt: UtcInstant | null;
 }
 
-/* ────────────────────────── 4. RunSummary ────────────────────────── */
-
-/** run.usage；`missing: true` 时全部数字是下限，显示 'At least N'，不显示为零。 */
-export interface UsageInput {
-  missing: boolean;
-  input: number | null;
-  output: number | null;
-  cacheRead: number | null;
-  cacheWrite: number | null;
-  turns: number | null;
-  /** 缺失字段的可见文字，例 'Not reported'。 */
-  missingLabel: string;
-}
-/**
- * 最新一次 run 的 Results 与 Usage 摘要。不含步骤、不含进度条、不含百分比
- * （EX-WK5 §3：schema 无 step/stage 字段）。
- */
-export interface RunSummaryInput {
-  sessionId: string;
-  runId: string;
-  status: RunStatus;
-  startedAt: UtcInstant | null;
-  endedAt: UtcInstant | null;
-  /** run.artifacts.length。成果未经 review 接受，措辞须保留这一点（A-3）。 */
-  recordedFileCount: number;
-  /** run.error；非 null 时整块用错误语言呈现（ux-conventions §4）。 */
-  error: { code: string; message: string | null } | null;
-  usage: UsageInput | null;
-  load: LoadState;
-}
-export interface RunSummaryProps {
-  input: RunSummaryInput;
-  /** 卡上唯一的 open affordance → open-run。 */
-  onIntent: IntentSink;
-}
-
-/* ────────────────────────── 5. FileList ────────────────────────── */
-
-export interface FileEntryInput {
-  path: string;
-  bytes: number | null;
-  /** content-version 必有 64 位十六进制；current 读取不返回 sha 时为 null。 */
-  sha256: string | null;
-  kind: FileReadKind;
-  /** artifact.writtenAt（UTC ISO）；工作区当前文件用文件系统 mtime，语义不同，见 WorkspaceList。 */
-  writtenAt: UtcInstant | null;
-  /** content-version 的来源 run。 */
-  runId: string | null;
-}
-/**
- * Current file 与 Recorded versions 必须分组呈现且措辞可区分（IC-1：
- * "打开当前文件"与"查看历史版本"不能只靠一个文件图标区分）。
- */
-export interface FileListInput {
-  sessionId: string;
-  current: FileEntryInput | null;
-  recordedVersions: FileEntryInput[];
-  /** 两组都为空时的可见文字。 */
-  emptyLabel: string;
-  load: LoadState;
-}
-export interface FileListProps {
-  input: FileListInput;
-  /** 行点击与卡上 open affordance 均 → open-file，kind 随所在分组。 */
-  onIntent: IntentSink;
-}
-
-/* ────────────────────────── 6. WorkspaceList ────────────────────────── */
-
-export interface WorkspaceGroupInput {
-  /** 目录名；根目录用 'Workspace root'（workspace-view.mjs 现状）。 */
-  directory: string;
-  entries: FileEntryInput[];
-}
-/**
- * `GET /sessions/:id/workspace` 的当前文件树，按目录分组，含 materials/ 与 out/。
- * 只反映当前文件系统状态，无版本历史；`mtime` 是文件系统时间，不等于 run 的 writtenAt。
- */
-export interface WorkspaceListInput {
-  sessionId: string;
-  groups: WorkspaceGroupInput[];
-  /** materials/ 的独立入口计数；无文件时为 0。 */
-  materialsCount: number;
-  emptyLabel: string;
-  load: LoadState;
-}
-export interface WorkspaceListProps {
-  input: WorkspaceListInput;
-  /** 文件行 → open-file（kind: 'current'）；卡上 open affordance → open-session（surface: 'workspace'）。 */
-  onIntent: IntentSink;
-}
-
 /* ────────────────────────── adapter 签名 ──────────────────────────
  * adapter 是唯一知道端点形状的地方；它把真实查询结果变成上面的输入，并在这里、
  * 而不是在组件里，固定指标定义、时间窗口、时区、范围与缺失值（boundaries §5）。
@@ -374,37 +339,19 @@ export function toInspectionRows(
   projects: ProjectRef[],
 ): { items: InspectionRowInput[]; page: PageFacts | null };
 
-/** run（`GET /runs/:runId` 或 session 内嵌 runs[]）→ 右栏 Run 卡。 */
-export function toRunSummary(
-  run: {
-    id: string; sessionId: string; status: RunStatus;
-    startedAt: UtcInstant | null; endedAt: UtcInstant | null;
-    error?: { code: string; message?: string } | null;
-    artifacts?: Array<{ path: string; bytes: number; sha256: string; kind: FileReadKind; writtenAt: UtcInstant }>;
-    usage?: { missing?: boolean; input?: number; output?: number; cacheRead?: number; cacheWrite?: number; turns?: number };
-  },
-  load: LoadState,
-): RunSummaryInput;
+/* ── Home 读投影的三个签名（WK-148 (b)，逐字对照 presentation-adapters.mjs 现状） ──
+ * 三者都是纯函数，且都以 `null` 表达"这一包不可投影"：schemaVersion 不认、时区不是 UTC、
+ * bucket 与 interval 不自洽、分页事实自相矛盾，一律不渲染半张面（规则 2 / 规则 4）。 */
 
-/** run.artifacts + 当前打开的文件引用 → 右栏 File 卡。 */
-export function toFileList(
-  run: { id: string; sessionId: string; artifacts?: Array<{ path: string; bytes: number; sha256: string; kind: FileReadKind; writtenAt: UtcInstant }> },
-  current: { path: string; bytes: number | null; sha256: string | null } | null,
-  load: LoadState,
-): FileListInput;
+/** `GET /work-activity` → Home Activity 卡。`expectedDays` 是调用方按当前档位（28 / 84）
+ *  给出的期待天数，用于拒绝一包"档位不对"的响应；传 null 表示不作此校验。 */
+export function toHomeActivity(
+  data: unknown,
+  expectedDays?: number | null,
+): HomeActivityProjection | null;
 
-/** `GET /sessions/:id/workspace` → 右栏 Workspace 卡。分组规则同 workspace-view.mjs。 */
-export function toWorkspaceList(
-  sessionId: string,
-  tree: { files: Array<{ path: string; bytes: number; sha256: string; mtime: UtcInstant }> },
-  load: LoadState,
-): WorkspaceListInput;
+/** Attention 列表响应 → Home Attention 段。 */
+export function toHomeAttention(data: unknown): HomeAttentionProjection | null;
 
-/**
- * gap: needs GET /work-activity（G-1）。端点成立前不导出实现；宿主传 null 给 HeatmapProps。
- * 签名先冻结，避免端点上线时组件反过来定义指标口径。
- */
-export function toHeatmap(
-  activity: { zone: 'UTC'; days: Array<{ day: string; runCount: number }> },
-  context: { metric: string; scope: MetricScope; load: LoadState },
-): HeatmapInput;
+/** 单条 Attention 响应 → 详情。只出显示字段；grant 与 action descriptor 永不成为控件。 */
+export function toHomeAttentionDetail(data: unknown): HomeAttentionDetailProjection | null;
