@@ -1,0 +1,156 @@
+{
+  "date": "2026-09-09",
+  "productBase": "751be02939cd458965b7bdfbe20cb00a13b6e45b",
+  "branch": "codex/browser-capability-research",
+  "upstream": {
+    "repository": "https://github.com/browser-use/browser-use-pi",
+    "sha": "e0df2743e680125a4378d4d578420917620711f2",
+    "declaredPackage": "@browser_use/pi",
+    "declaredVersion": "0.1.0",
+    "npmArtifactVerified": false,
+    "sourceFiles": [
+      {
+        "path": "package.json",
+        "sha256": "35610541760b222969b134a9c4cd04be347fb365970b34a9403d2479bbdc9adb"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "9668e590183c3c09aaad5cb5e714067078d57afcea05801bf7d73c31d8b29090"
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "190b68d92770bbd8fc1016cd38a2d75739947d4a398eb36572f6f3e09d66790a"
+      },
+      {
+        "path": "docs/api.md",
+        "sha256": "09687854592660763512aa361ea2f2844f4be721c00488f6a4bf24a44d76ebc5"
+      },
+      {
+        "path": "docs/sessions.md",
+        "sha256": "15385fffad55ff6630c565ed6d8817497ca25915ab179238c3f7690d101e8708"
+      },
+      {
+        "path": "docs/browser.md",
+        "sha256": "90f5555afe0a68569b396f370ba1ccc6d8d89bb1e768aac61fa16e2299d861b7"
+      },
+      {
+        "path": "src/index.ts",
+        "sha256": "adc0facd0c0ea0a84bdddf35ef5b796eb0505d1270d73e7e5fb0e0e5a1e32a97"
+      },
+      {
+        "path": "src/agent.ts",
+        "sha256": "98913f1e9d42d6412e5bdc8b9ad5a0228efbe324d11c227dff777dfb1dbc2c35"
+      },
+      {
+        "path": "src/types.ts",
+        "sha256": "72d4a9ee8150ee53f6b07d1df32b077fcff22fcff1e06b5c1c63e87a37d675cf"
+      },
+      {
+        "path": "src/browser.ts",
+        "sha256": "497cd0b187f83d1afa7e11d79ece203b74c464ae24054e5fbb9ecd2764cdaba9"
+      },
+      {
+        "path": "src/events.ts",
+        "sha256": "5dcc878e49ba27c1569373cb2ee347d676be98b650636d720b7afb43f377fde4"
+      },
+      {
+        "path": "src/history.ts",
+        "sha256": "05e171d7806cdfecdb402bd297b4265021bd8addaeb2d279ef99521875869b9c"
+      },
+      {
+        "path": "src/worker.ts",
+        "sha256": "14ea02267e7ea79d8672e1006b97a81571d9dbb308a1bb038f20034965e815c5"
+      },
+      {
+        "path": "src/runtime.ts",
+        "sha256": "d3f0c52564170839d0c5d3632e1eac42601af98f9374507a61d5d88cfca39dea"
+      },
+      {
+        "path": "src/policy.ts",
+        "sha256": "ee5debfc67a9f162e05a1527772e0c90d81ee5f36cac50d0bef697c99b4c9457"
+      },
+      {
+        "path": "src/telemetry.ts",
+        "sha256": "5e24e42c55ffd2fd4f57e73e93a784320ad5275b2d389dd9f4b423a5e7f18677"
+      },
+      {
+        "path": "src/server.ts",
+        "sha256": "c1eccf05984742c800889bc00fc82dda20194f8e28e2db1d187199df18c1ebfc",
+        "reviewScope": "Luna read-only policy/recovery source inspection"
+      },
+      {
+        "path": "test/policy.test.mjs",
+        "sha256": "76bfd348bfa8b40db930739637a492782b3c417761a20141c49a84a969337b4b",
+        "reviewScope": "Luna read-only policy/recovery source inspection"
+      },
+      {
+        "path": "test/evaluation-deadline.test.mjs",
+        "sha256": "3fbe1fbcbc899a12ed33f0b1547322dc2db57e2798c9150f79f767f5c992f8f3",
+        "reviewScope": "Luna read-only policy/recovery source inspection"
+      },
+      {
+        "path": "test/runtime.test.mjs",
+        "sha256": "f668b3c784e4c1835d5dfa75cf5cbaaf34cdfc508313e35292dd146ee9b46f0f",
+        "reviewScope": "Luna read-only policy/recovery source inspection"
+      },
+      {
+        "path": "python/browser_use_next/__init__.py",
+        "sha256": "3980aa5fbf29920548c8c2799941ea4f2a7202a7d369a6dcfa6f16cfdbd4c375",
+        "reviewScope": "Luna read-only policy/recovery source inspection"
+      }
+    ]
+  },
+  "conversation": {
+    "id": "6aa15944-d4ac-83ec-b667-5264664e6da6",
+    "turns": 1,
+    "textItems": 2,
+    "attachments": 0,
+    "hasMore": false,
+    "transcriptSha256": "1b55ade6c3a854c1c55deaadf00895961b0861add8335af0a2c2e54ff630e4a0"
+  },
+  "verification": {
+    "type": "read-only source and document review",
+    "author": "Astra",
+    "lunaReadOnlySlices": [
+      "policy/recovery",
+      "local ownership/AM mapping"
+    ],
+    "relativeLinks": "passed",
+    "productTests": "not_run_document_only",
+    "upstreamTests": "not_run",
+    "browser": "not_run",
+    "models": "not_run",
+    "dependenciesInstalled": false,
+    "productCodeChanged": false,
+    "independentDocumentReview": {
+      "reviewer": "Luna am_explore",
+      "result": "bounded_pass",
+      "scope": "owner separation, planned versus implemented status, no new ledger/FE authority, source and relative link review",
+      "recommendationApplied": "explicit AM-A partial inventory versus uncompleted full compatibility matrix"
+    },
+    "policyRecoveryReview": {
+      "reviewer": "Luna es_explore",
+      "result": "source_findings_integrated_by_Astra",
+      "details": [
+        "manual execute bypasses model hook",
+        "Document-only navigation controls",
+        "redaction bounds",
+        "page effects survive worker reset",
+        "checkpoint rename-before-IPC window",
+        "profile crash lock handling",
+        "Python cancellation is not rollback"
+      ],
+      "upstreamTestsExecuted": false
+    },
+    "localLinksChecked": 15,
+    "sourceHashesCheckedByAstra": 21
+  },
+  "unchanged": [
+    "main/current owner",
+    "backend delivery branch 52f75dd",
+    "Core/runtime schema",
+    "frontend queue",
+    "Paper",
+    "G1-G5"
+  ]
+}
