@@ -43,12 +43,12 @@ state transition（原位变态：Send → Sending…、Approve → 回执行）
 
 | 类 | 今日有（schema 存在） | 候选（待后端 schema） | 参照 |
 |---|---|---|---|
-| Selection | Segmented（Settings 路径 / 模式 / 布局）、Select（provider / model）、checkbox / radio | Token / entity picker（BE-21 连接、reviewer）、ComboBox（大目录搜索） | React Aria ToggleButtonGroup / ComboBox / TagGroup |
+| Selection | Segmented（Settings 路径 / 模式 / 布局）、Select（provider / model）、checkbox / radio；entity picker for matter / session / run（Attention `attach_relation`，仅 ATT-FE-01 内，WK-136） | Token picker（BE-21 连接、reviewer）、ComboBox（大目录搜索）、policy editor（Attention grant → CC-P） | React Aria ToggleButtonGroup / ComboBox / TagGroup |
 | Value | — | NumberField + Stepper + ScrubArea（BE-31 number；context budget / threshold）、Slider（bounded）、Range | Base UI NumberField ScrubArea；React Aria Slider |
-| Temporal | — | Date / time range（BE-25 活动区间）、Waveform / Transport（无音频 artifact 契约，仅参照） | waveform-playlist 分层 |
+| Temporal | `next_action.due_at`（Attention，单点 datetime，trigger `at` 必带；WK-136） | Date / time range（BE-25 活动区间）、Waveform / Transport（无音频 artifact 契约，仅参照） | waveform-playlist 分层 |
 | Command | 顶带槽位、strip 行、Settings 搜索 `/` | contextual toolbar（bubble：tool call → Inspect / Approve、artifact → Open / Download；text / evidence 待 Core）→ CC-I；command palette（未立项） | Tiptap / Nuxt fixed-bubble-floating；cmdk |
 | Structure | `<details>` 原位展开、settings row、tab strip、Tree（工作面 workspace 文件树） | Inspector PropertyRow（modified / reset，先本设备偏好）、Rule builder（待 PolicyRule canonical 文本，候选 CC-P） | MetaBind Inspector；Tailscale visual editor ↔ text |
-| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |
+| Governed Action | Approval 两钮（闭集）、Question 卡、cancel requested ≠ stopped；Attention typed actions（resolve 须 reason；snooze / set_waiting 须 next_action ≠ none；按 `human_actions` 广告生成，WK-136） | threshold（BE-31 number）、reviewer picker（BE-21 / Attention）、policy editor（CC-P） | review-projection §6；Primer undo over confirmation |
 
 ## Iconography 段（WK-133）
 
