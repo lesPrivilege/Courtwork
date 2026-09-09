@@ -7,7 +7,11 @@
 | EX-WK9 材质来源 | Sonnet | 只读，无服务 | [EX-WK9](work-orders/EX-WK9-material-sources.md) | [ex-wk9](explore/ex-wk9-material-sources.md) | 已回执，消费为 WK-104 |
 | FE-01 词表 + IA + chrome + composition | Opus | `/private/tmp/se-agent-fe01` · `claude/fe01-vocab-ia` · 8885 · 数据 `/private/tmp/se-agent-fe01-data` | [WO-FE-round4 §FE-01](work-orders/WO-FE-round4.md)（含 WK-100 / WK-102 追加项） | [delivery-fe01](delivery-fe01.md) `bfefcd2` + 复核 | 已回执，WK-105 接受，待 Astra 合流 |
 | FE-02 Models & Connections | Opus，agent 定义 `opus-wo-low`（effort: low） | `/private/tmp/se-agent-fe02` · `claude/fe02-models` · 8887（MCP fixture 8888）· 数据 `/private/tmp/se-agent-fe02-data`，基线 `2b6c221` | WO-FE-round4 §FE-02（第 0 项 `--nav` 256；BE-17/18 未交付不画按钮） | `delivery-fe02.md` | 已交付 `38717bd`，Fable 复核 WK-107（[intake-round-3 §4m](intake-round-3.md)）：六项待裁裁毕，② display name 由第二个 `opus-wo-low` 修订 `a82c192`；Fable 复跑一致，接受；分支头 `565d18c`（§13），交 Astra 合流。提示词见 [WO-FE02-dispatch-prompt](work-orders/WO-FE02-dispatch-prompt.md) |
-| FE-03 → FE-04 | Opus（FE-03 `opus-wo-low`；FE-04 `opus-wo-medium`） | 各自从上一单合流后的清洁 main 建树 | 同工单 | `delivery-fe0n.md` | 排队 |
+| FE-03 Chat / Work / Memory shell + 第 0 项 BE-17/18 消费 | Opus，`opus-wo-low`（effort: low） | `/private/tmp/se-agent-fe03` · `claude/fe03-chat-work` · 8895（MCP fixture 8896）· 数据 `/private/tmp/se-agent-fe03-data`，基线 `4d9714e` | WO-FE-round4 §FE-03 + WK-108 | `delivery-fe03.md` | 已交付 `fabfd22`，Fable 复核 WK-109（[intake-round-3 §4o](intake-round-3.md)）接受，§13 在分支头；交 Astra 合流 |
+| FE-04 | Opus，`opus-wo-medium` | 从 FE-03 合流后的清洁 main 建树 | 同工单 | `delivery-fe04.md` | 排队 |
+| EX-CC1 三面贯通 + tab strip 宿主契约探索 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (c) | `explore/ex-cc1-three-pane-tabs.md` | 已派（2026-09-09） |
+| EX-CC2 模块首页量测与数据接缝 | Sonnet（只读，不写代码） | 读 r4d 树 | WK-110 (d) | `explore/ex-cc2-home-modules.md` | 已派（2026-09-09） |
+| CC-S → CC-W → CC-D0 → FE-05 | Opus 串行 | 各自从上一单合流后的清洁 main | WK-110 次序 | `delivery-cc-*.md` | 排队（CC-W / CC-D0 待探索回执与几何合同修订） |
 | FE-05 材质与光效 | Opus | FE-04 合流后 | WO-FE-round4 §FE-05 + EX-WK9 | `delivery-fe05.md` | 待 EX-WK9 回执后由 Fable 填值 |
 
 规则：Opus 单一 writer 串行；每单固定 SHA、消融表、text-sweep 增量、分配反例、五轮收敛表（WK-100）；作者验证与 Astra 独验分列；视觉四轴留用户。后端前置 BE-1/3、12、14…20 仍由 [backend-requests](backend-requests.md) 维护；FE-02 / FE-03 未交付能力不画可用按钮。
