@@ -435,24 +435,40 @@ export function renderHome(
         ),
       );
       const open = (item, options) => () => onSession(item, options);
+      /* WK-115 ② · Home 下带的行是一条列表，会话里的未决卡是另一条；两者不合并。
+       * 行本身是 button / article，所以列表项是包着它的那一层：把 role 直接写在
+       * 按钮上会把按钮语义换掉，而这些行正是靠「可按」在说自己能做什么。 */
+      const listNode = el("div", {
+        className: "home-list",
+        attrs: { role: "list" },
+      });
+      const listItem = (node) =>
+        el("div", { className: "home-list-item", attrs: { role: "listitem" } }, node);
       if (key === "pendingItems")
         for (const item of items)
-          section.append(
-            pendingRow(item, open(item, { question: true, inspect: false })),
+          listNode.append(
+            listItem(
+              pendingRow(item, open(item, { question: true, inspect: false })),
+            ),
           );
       else if (key === "inspectionCandidates")
         for (const item of items)
-          section.append(
-            inspectionRow(item, open(item, { question: false, inspect: true })),
+          listNode.append(
+            listItem(
+              inspectionRow(item, open(item, { question: false, inspect: true })),
+            ),
           );
       else
         for (const item of items)
-          section.append(
-            (activeSet === key ? workCard : workRow)(
-              item,
-              open(item, { question: false, inspect: false }),
+          listNode.append(
+            listItem(
+              (activeSet === key ? workCard : workRow)(
+                item,
+                open(item, { question: false, inspect: false }),
+              ),
             ),
           );
+      if (listNode.childElementCount) section.append(listNode);
       section.append(...pageNotes(key, page, items, onMore));
       home.append(section);
     }

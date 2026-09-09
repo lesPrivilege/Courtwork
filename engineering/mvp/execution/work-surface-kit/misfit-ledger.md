@@ -10,3 +10,10 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | M-4 | Work 1440 | 展开工作面时 256 + 640 + 文档面容不下（X ≤ 496），现行为覆盖层盖满主区（EX-CC1 §1） | major | 1 | composition law WK-96/97 | false | WK-113：≥1680 三栏，1440 主次切换 + strip |
 | M-5 | Work surface | 收起 → 展开重读一次 `/surface`（FE-T07 读数 0 → 2）；复用上次读取需失效规则 | minor | 1 | surface read cache / stale revision | false | WK-115 ③ |
 | M-6 | Approval / Question | 在途记号与幂等记号共用 `questionSubmitting`，两种粒度键 | minor | 1 | in-flight state shape | true | WK-115 ⑥；下次触碰拆两个 Set |
+| M-7 | Home | 具体待办排在计数之后、上半页留白大（图 6）；次级带若加统计会再下压待办（图 7） | major | 2 | information priority: todos vs counts; 0.56 baseline | false | WK-117 (b)；CC-D0-a 具体待办优先，0.56 改动需显式修订 |
+| M-8 | Work 消息流 | 每条消息、每类工具都是框，层级过平（图 1 对照） | minor | 1 | message container vocabulary | false | WK-117 (b)；CC-W 不默认全部卡片化 |
+| M-9 | 决定类按钮 | `Sending…` 换词改变按钮宽度，邻居位移（Atlas button 行：loading 保持宽度与焦点） | minor | 1 | in-flight label vs width | true | WK-118 (d)；CC-W 第 0 项以静止态标签预留 min-width |
+| M-10 | Tooltip | 单例 tooltip 固定 400ms 延迟，无"首个延迟、相邻即时"的分组行为（Atlas Tooltip 行；`ui-controls.mjs:310`） | minor | 1 | tooltip provider shared delay | true | WK-119 补充，用户 2026-09-09 同意；CC-W 第 0 项 |
+| M-11 | 全站字阶与控件密度 | frontier 桌面端文本更收敛、字号与按钮更小更细，层级更清（用户 2026-09-09，S12）。现状：body 14 / label 13 / meta 12 / caption 11，`--control` 32（触控 44），primary 字重 550，三档 `--text-scale`（0.929 / 1 / 1.143）只整体缩放不改层级 | major | 1 | typography ramp & control density (systemic, not local) | false | 先写约束表再变体：候选单 FE-05a 字阶与密度，排 FE-05 材质之前（材质在密度定型后再消融） |
+| M-12 | app 状态 | "当前哪一屏"由 `state.settings.open` 与 `state.view` 两值合说（CC-S §14 ③） | minor | 1 | view state model | false | WK-121 ③；合并为单一 view 值属状态模型变更，后单裁 |
+| M-13 | Settings | 未保存表单离开（Back / Escape）不拦截，无跨表单 dirty 汇总（CC-S §14 ⑤） | minor | 1 | dirty aggregation state | false | WK-121 ⑤；需新状态，后单裁 |

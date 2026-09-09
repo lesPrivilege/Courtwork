@@ -1,0 +1,19 @@
+PASS NAV-1 {"navWidth":256,"screen":"home"}
+PASS MOD-1 {"rowCount":1,"rowText":["Local testIn forceLocal test · Local deterministic model · Local endpoint fixed by the host · No key neededConfigure"],"badge":["In force"]}
+PASS MOD-2 {"primaryActions":1}
+PASS MOD-3 {"addOpen":false}
+PASS MOD-5 {"promises":[],"probeButtons":[]}
+PASS MOD-11 {}
+PASS MOD-10 {"blurred":0}
+PASS MOD-3b {"pathRadios":["catalog","compatible","local"],"pathTabStops":1}
+PASS MOD-4a {"stepCount":5,"probeButtons":[],"probeNote":["The two probe steps need an endpoint written in this form. On this path the address is fixed by the host, so there is nothing here to probe."]}
+PASS MOD-6 {"advancedOpen":[true],"saveDisabled":true}
+PASS MOD-4b {"probeButtons":[{"text":"Test connection","disabled":true},{"text":"Fetch models","disabled":true}],"probeNote":[]}
+PASS MOD-7 {"baseUrlDisabled":true,"credentialVisible":false}
+PASS MOD-4c {"probeButtons":[],"probeNote":["The two probe steps need an endpoint written in this form. On this path the address is fixed by the host, so there is nothing here to probe."]}
+PASS MOD-8 {"heights":[32],"radii":["8px"]}
+PASS MOD-9 {"titleLefts":[341],"controlRights":[1119]}
+PASS MOD-13 · 1440 {"overflow":0}
+PASS MOD-12 {"intake":{"steps":6,"pending":3,"focusable":0}}
+PASS MOD-13 · 390 {"overflow":0}
+18 / 18

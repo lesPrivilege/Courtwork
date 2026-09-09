@@ -78,6 +78,7 @@
 | WO-WK13（2026-09-08，Home 三带、StatTile / WorkCard adapter、列表键盘、绑定面顺序） | [delivery-wk13 §6](delivery-wk13.md)（D-17 / D-18、W-19…W-21、16 条新增字符串的承重说明）；W-19 的集合命名（`In progress` 与 `Continue`）为待裁项 |
 | WO-WK12（2026-09-09，Settings 整页、外观自定义、用户 skin、快捷键只读表） | [delivery-wk12 §7](delivery-wk12.md)（D-19 / D-20、W-22、38 条新增字符串的承重说明）；词表新增 Scheme · Skin · Text size · Code font 见 [copy-convention §3](../../../design/copy-convention.md) |
 | WO-WK11（2026-09-09，Runtime Workbench、四层、Configurable / Inventory、policy 编辑、WK-87 两条） | [delivery-wk11 §8](delivery-wk11.md)（D-21…D-26、W-23 / W-24、41 条新增字符串的承重说明）；本页 §4 第 2 条（`runtime-view.mjs` 长句与 RC 检查同源）在该单结清 |
+| CC-S（2026-09-09，Settings 替换全局导航、Unknown、两条列表） | 本页 §10 |
 | WO-FE-01（2026-09-09，产品词表、Settings IA、chrome、Home / Work composition） | 本页 §6（旧词 · 新词 · 位置三列，D-27…D-30 与 13 条新增字符串的承重说明）；改写后的词表见 [copy-convention §3](../../../design/copy-convention.md)，其余见 [delivery-fe01](delivery-fe01.md) |
 
 
@@ -258,3 +259,22 @@
 | tool 行在 Run 终态为 `unknown` 时的第六个状态词 | 那是 glyph-semantics §3 的词表条目，是 ontology 不是实现；且该文件不在本单写权内。列入待裁定 |
 | Trace 中间层的二十来条"事件读成人话" | 前置条件是事件时间，而事件记录里没有时间字段（BE-26 草案）。在没有时间的前提下造一条时间线，是用排版冒充一个不存在的事实 |
 | Approval 在途时的第二句解释文本 | 换掉的那个标签已经把话说完；再加一句是同一件事说两遍（消融 A-2） |
+
+## 10. CC-S 增量（WK-116 / WK-115 ① ②，2026-09-09）
+
+### 10.1 改（旧词 · 新词 · 位置）
+
+| 旧词 | 新词 | 位置 |
+|---|---|---|
+| `Back`（Settings 页头的返回按钮） | `Back to app` | `index.html` `#settings-back-button`。**目的地名**：settings-active 之后全局侧栏不渲染，屏幕上没有第二条回去的路，`Back` 单独一个词不再能由上下文确定回到哪里（IC-1「Back 导航和 Close 关闭不能只共用一个箭头」，与 `Back to latest` 同一条理由） |
+| `Interrupted`（Run 终态非 cancelled / failed 时的 tool 行） | `Unknown` | `app.mjs` `unfinishedToolWord`；Activity 组头同一判断。旧词是对未知事实的正面断言（FN-28） |
+
+### 10.2 删
+
+| # | 字符串 | 位置 | 去掉后失去的判断 | 结果 |
+|---|---|---|---|---|
+| D-31 | `Settings`（页内 `<h2 id="settings-page-title">`） | `index.html` `.settings-page-head` | 无。同一屏的顶带 `<h1>` 已经写着 `Settings`，两个标题相距不到 60px，说的是同一件事。页面的可访问名改指顶带那一个 | ✅ 删（连同 `.settings-page-head` 与它的两条样式） |
+
+### 10.3 新增字符串（承重说明）
+
+无。两条列表用的是 `role="list"` / `role="listitem"`，不带 `aria-label`：它们各自紧跟在自己的标题之后，再起一个名字就是同一件事说两遍（WK-12）。`Home` / `End` 是键，不是文案。
