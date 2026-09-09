@@ -1,0 +1,9 @@
+{
+  "resultType": "complete",
+  "content": [{ "type": "text", "text": "ordinary result with async fields" }],
+  "async": {
+    "handle": "unknown-handle",
+    "continuation": "poll"
+  },
+  "deliveryState": "pending"
+}
