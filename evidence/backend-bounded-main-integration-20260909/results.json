@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-09",
+  "testedCommit": "52f75ddcbdc2181c313d3176eecaf07dc43d17c1",
+  "productPatch": false,
+  "tests": {
+    "pass": 252,
+    "fail": 0,
+    "skipped": 0
+  },
+  "smoke": {
+    "status": "passed",
+    "provider": "local-fake",
+    "realProvider": "not_run"
+  },
+  "independentProbeReplay": {
+    "result": "passed",
+    "checks": [
+      "UTC calendar boundaries, midnight crossing, status inclusion, deduplication, project scope",
+      "missing versus reported-zero usage and summary collection-specific UTC date fields",
+      "token authentication, query bounds, read-only state/file bytes, replay, restart, deletion",
+      "published snapshot isolation during paused persistence and unavailable-store errors",
+      "unsafe aggregate totals fail both metrics endpoints rather than returning rounded data"
+    ]
+  },
+  "localLogHashes": {
+    "tests": {
+      "sha256": "1cfdae43cd3f666bfe53a7f21907fbc8b5f1ad099d258913783ec9cc0e5223fb"
+    },
+    "smoke": {
+      "sha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea"
+    },
+    "probe": {
+      "sha256": "9e2b3f71edd79b3bba568a2dd243b78279bbfce25f03bfa4cb4f58d208a9b6b0"
+    }
+  }
+}

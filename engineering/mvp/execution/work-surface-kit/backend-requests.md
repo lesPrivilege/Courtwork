@@ -49,3 +49,10 @@
 BE-17/18 的有界探测部分已交付：作者代码 `f58c28c`，纳入 FE-01 主线后的组合节点 `f4774e5` 全量213/213与smoke通过。[实际协议](../../../../app/docs/runtime-foundation.md#unsaved-provider-preview-be-1718)冻结 `POST /api/v5/provider-models/discover` 与 `/api/v5/provider-connection/test`：临时 `protocol:'openai-compatible'`、API根 `baseUrl`、可选 `apiKey`，返回目录握手状态和发现的模型ID；保留旧GET本地catalog语义，不修改保存配置、凭据、Run或Session绑定。作者与非作者结果见 [证据](../../../../evidence/backend-dispatch-20260909/README.md)。
 
 消费边界：成功只说明目录接受该请求，不证明key被检查、可推理或已配置。任意compatible/local provider与目录新发现模型的保存/执行仍受现有allowlist限制，需要独立的registry/credential/Session绑定单；不得以本次探测交付关闭完整FE-02。无key时省略字段，API根自己包含需要的`/v1`，服务仅追加`/models`。前端按当前单写者队列消费，不由本记录代为开工。
+
+
+## Astra 有界后端交付：Activity / Usage（2026-09-09）
+
+BE-1/3/25与BE-29由`fd3861b`实现，交付头`52f75dd`；正式消费沿[work-metrics协议](../../../../app/docs/work-metrics.md)。新增认证只读`GET /api/v5/work-activity`、`work-usage`（days 1–366、可选projectId），以及work-summary的可选UTC日期过滤；按Run id去重与startedAt归日。coverage只承诺保留记录范围，删除Chat后的历史完整性为unknown；usage保留partial/missing，不能当账单。summary日期过滤可能排除往日仍待处理的问题，全量待办应继续使用不带date的查询。
+
+[合流证据](../../../../evidence/backend-bounded-main-integration-20260909/README.md)分列作者、Luna独验和来源Astra组合验证。前端未改；CC-D0后续模块须按既有单writer队列消费。极端usage总和超安全整数时两个metrics端点均返回错误，作为明确可用性限制保留；不返回舍入数字。无schema/迁移/新依赖。BE-2、BE-14/15/16、BE-30…33、ES-01、Attention及原生async不随本交付关闭。
