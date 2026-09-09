@@ -18,8 +18,8 @@ export const HERO = {
   h1: ["Work that survives the model.", "模型可以离场，工作继续。"],
   lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
   actions: [
-    { label: "Read the paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
-    { label: "Run it locally", href: "#build" },
+    { label: "Get Courtwork", href: "./get.html" },
+    { label: "Product tour", href: "./tour.html" },
     { label: "Source", href: "https://github.com/lesPrivilege/Courtwork" },
   ],
 };

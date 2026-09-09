@@ -517,13 +517,17 @@ test("CC-I · Palette 选了 Custom tokens 但没 Apply 不算 changed：provena
   );
 });
 
-/* WK-146 / WK-150 · 空集守恒：这一片之后 Value 类必须仍然是空集。 */
-test("CC-I · 这一片没有引入任何数值控件：Value 类仍是空集", () => {
+/* WK-146 / WK-150 applies to appearance preferences. PV-FE01 separately owns
+   the optional integer context window in compatible model connections. */
+test("CC-I · appearance keeps no value controls; only the provider context window is numeric", () => {
   const source = readFileSync(`${root}app/web/settings-view.mjs`, "utf8");
   const styles = readFileSync(`${root}app/web/styles.css`, "utf8");
   for (const text of [source, styles])
-    for (const forbidden of [/type: "range"/, /type="range"/, /type: "number"/, /<progress/, /<meter/, /role="meter"/, /aria-valuenow/])
+    for (const forbidden of [/type: "range"/, /type="range"/, /<progress/, /<meter/, /role="meter"/, /aria-valuenow/])
       assert.doesNotMatch(text, forbidden, String(forbidden));
+  assert.equal((source.match(/type: "number"/g) || []).length, 1);
+  assert.match(source, /type: "number", name: "contextWindow", min: "4", step: "1"/);
+  assert.match(source, /Number\.isSafeInteger\(parsed\) && parsed >= 4/);
   // 复位是可逆的低风险操作，不加确认对话框（WK-122 / WK-140）。
   assert.doesNotMatch(source, /\bconfirm\(/);
 });

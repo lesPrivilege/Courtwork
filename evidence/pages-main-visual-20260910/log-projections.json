@@ -1,0 +1,37 @@
+[
+  {
+    "file": "full-tests.log",
+    "original_sha256": "d73b8fdad54ecb7635b14df3e242489b1d4b22bb46401914825e5c863e2675b2",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "prior-full-tests.log",
+    "original_sha256": "b3596e15de482984a83c490301e07a16e665c83aa7cfecaef48bdb42862dba35",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "initial-interrupted-tests.log",
+    "original_sha256": "01bb6db1a34cf67e84dbf1e0e04d499b4c9e0378eda4c589e7ce5516c1d4abcb",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "settings-tests.log",
+    "original_sha256": "d9ccae06842389070175efe6c8b4d89cde7bd6b8d4b11c6d8cbf9c9bc9153192",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "smoke.json",
+    "original_sha256": "126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "schema10-tests.log",
+    "original_sha256": "4f223aeb767a40a60595592d5bc110f49e7567752d0e2505600bdf355d5daa3d",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  },
+  {
+    "file": "coordination-crash-tests.log",
+    "original_sha256": "51ad5f758e3dbd3aac642494d508264bb5f2ceb40d4fda688eb564f294d2f9e3",
+    "path_projection": "integration and main checkout paths replaced with portable labels; test results unchanged"
+  }
+]

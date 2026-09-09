@@ -1,4 +1,4 @@
-# Run attempts and lineage v1 · BG-02 / RuntimeStore 9
+# Run attempts and lineage v1 · BG-02 / RuntimeStore 10
 
 A Run that ended without an answer can be continued by a **new Run that says so
 in the record**. This first slice stores that statement and refuses the cases
@@ -78,9 +78,9 @@ the earlier attempt produced is an ordinary, explicit read in the same Session
 (async tasks keep their existing get/wait); this slice changes nothing in
 `async-tasks`, MCP or coordination.
 
-## Schema 9 upgrade and old hosts
+## Lineage introduction in schema 9; current schema 10
 
-RuntimeStore 8 → 9 adds `supersedes` to the Run record. Validated schemas
+RuntimeStore 8 → 9 introduced `supersedes` to the Run record. The combined main now uses schema 10 for Provider Connections; upgrading main schema 9 preserves every existing lineage link and adds an empty connection ledger. Validated schemas
 3/4/5/6/7/8 are strictly validated in their own shape first, then preserved
 byte-exactly in an exclusive mode-0600 backup `runtime-state.schemaN.<sha256>.json`,
 and only then is the upgraded state atomically published. Every pre-existing Run
@@ -91,7 +91,7 @@ state file untouched.
 `validateState` accepts the field for schema ≥ 9 and requires every stored link
 to name a terminated Run of the same Session; a state file that lost that
 property is a corrupt ledger and the host fails closed rather than repairing it.
-Hosts before this change reject schema 9 outright. To restore, use the original
+Hosts before this change reject schema 9 outright; main schema 9 hosts also reject the combined schema 10. To restore, use the original
 backup with a matching old host in a **separate** data directory.
 
 ## Restart

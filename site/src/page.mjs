@@ -33,11 +33,11 @@ function entryLink(entry, fill) {
 const STATUS_CLASS = (status) =>
   status.startsWith("verified") ? "is-verified" : status.startsWith("runs") ? "is-local" : "is-not-yet";
 
-export function renderPage({ identity, evidence, recording, diagram, media }) {
+export function renderPage({ identity, evidence, recording, diagram, media, pageMedia }) {
   // Media are addressed by id, so a picture the copy asks for and the capture
   // never produced stops the build instead of becoming a broken image.
   const shot = (id, { alt, caption, theme = "light", viewport = "1440x900", eager = false }) => {
-    const entries = media.media.filter((entry) => entry.id === id);
+    const entries = pageMedia.media.filter((entry) => entry.id === id);
     const light = entries.find((entry) => entry.viewport === viewport && entry.theme === theme);
     if (!light) throw new Error(`media ${id} (${viewport}, ${theme}) was never captured`);
     const dark = entries.find((entry) => entry.viewport === viewport && entry.theme === "dark");
@@ -49,7 +49,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
           <picture>${source}
             <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="${eager ? "eager" : "lazy"}" decoding="async" />
           </picture>
-          <figcaption>${caption}</figcaption>
+          <figcaption>${caption.replaceAll(identity.sha7, pageMedia.source_sha.slice(0, 7))} · <a href="./media/main/manifest.json">Capture record</a></figcaption>
         </figure>`;
   };
   const path = (entry) => entry.asset_path.replace("site/media/", "");
@@ -81,6 +81,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
       ${rawGoverned(fill, recording)}
       ${matter(fill)}
       ${architecture(fill, diagram)}
+      ${longWork(pageMedia.source_sha)}
       ${review(fill, shot)}
       ${evidenceSection(fill, evidence)}
       ${portability(fill)}
@@ -107,18 +108,28 @@ function header() {
 
 function hero(fill, shot) {
   return `<section class="hero" aria-labelledby="h1">
-        <h1 id="h1"><span lang="en">${escape(HERO.h1[0])}</span><span>${escape(HERO.h1[1])}</span></h1>
+        <div class="hero-copy"><h1 id="h1"><span lang="en">${escape(HERO.h1[0])}</span><span>${escape(HERO.h1[1])}</span></h1>
         <p class="lede">${escape(HERO.lede)}</p>
         <p class="actions">${HERO.actions
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
-          .join("")}</p>
+          .join("")}</p></div>
         <figure class="hero-object" aria-labelledby="object-caption">
           <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
           <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
         </figure>
-        <details class="home-capture-slot" data-capture-slot="home" data-capture-status="awaiting-home-completion"><summary>Inside Courtwork <span>Home · 新版实机图待补</span></summary><p>Home 前端更新中。下图保留已取证版本，供查看实际界面；新版完成后统一更新截图与来源记录。</p>
-${shot("M1", { alt: "CourtWork Home，固定版本的合成工作区。", caption: inline("Recorded Home · `{sha7}` · synthetic data · local deterministic provider · 1440×900", fill) })}</details>
+        <section class="home-capture-slot current-home" data-capture-slot="home" data-capture-status="captured" aria-labelledby="current-home-title">
+          <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看用量，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
+${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("Recorded Home · `{sha7}` · synthetic data · local deterministic provider · 1440×900", fill), eager: true })}
+          <nav class="home-product-links" aria-label="Explore the product">
+            <a href="./tour.html">Product tour <span>看看实际界面</span></a>
+            <a href="./get.html">Get Courtwork <span>从源码在本地运行</span></a>
+            <a href="./cli.html">CLI study <span>探索录制数据</span></a>
+            <a href="./changelog.html">Changelog <span>沿提交查看变化</span></a>
+            <a href="./models.html">Models <span>配置你的模型</span></a>
+            <a href="./data.html">Data boundaries <span>了解数据的去向</span></a>
+          </nav>
+        </section>
       </section>`;
 }
 
@@ -243,6 +254,27 @@ function architecture(fill, diagram) {
           .map((link) => `<a href="${escape(link.href)}" lang="en">${escape(link.label)}</a>`)
           .join("")}</p>
       </section>`;
+}
+
+function longWork(sourceSha) {
+  const researchSha = "370b891b33338988a29f50a7c475f9d7e7225577";
+  return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
+    <p class="index">RESEARCH DIRECTION / 本轮核心自研理念</p>
+    <h2 id="long-work-title"><span lang="en">A longer life<br>for the work.</span><span class="zh">让长期工作，有自己的秩序。</span></h2>
+    <p class="lede">从资料治理，到可重建的发现与上下文，再到重要变化出现时的介入。我们希望工作持续积累，而人和模型每次只需关注当下相关的部分。</p>
+    <div class="long-work-stages">
+      <section><p class="index">01 / GROUND</p><h3>Deterministic foundations.</h3><p>先确定材料来自哪里、属于哪个版本、可以被谁读取。即使没有模型，资料仍能查找、核对与更新。</p></section>
+      <section><p class="index">02 / REBUILD</p><h3>Rebuildable Spark.</h3><p>Spark 负责资料与派生维护：整理发现、重建当前上下文。旧摘要可以退出，来源、正式判断、未完义务与冲突仍须留下。</p></section>
+      <section><p class="index">03 / ATTEND</p><h3>Selective Attention.</h3><p>把重要变化送到人面前。关联事件、合并重复、控制介入频率，让每次提醒都有明确的理由与可采取的行动。</p></section>
+    </div>
+    <div class="long-work-columns">
+      <section><p class="index">ROLES & EXECUTION</p><h3>Clear roles. Adaptable execution.</h3><p>Expert 表达承担的角色；runtime 承担执行。角色、配置与权限分别说明，沿 Pi 薄集成起步，有实际需要时再逐一验证其他执行入口。</p></section>
+      <section><p class="index">QUALITY & COST</p><h3>Measure the whole life.</h3><p>从首次整理、资料更新，到恢复、审阅与维护，检验成果质量和总成本。可删除、可重建的派生层，要靠真实收益证明价值。</p></section>
+    </div>
+    <p class="caption">以上为本轮研究理念与施工方向。Spark 自动维护、通用恢复与自动唤醒尚未交付；长期质量和成本收益仍待验证。</p>
+    <p class="actions"><a href="${REPO}/blob/${researchSha}/engineering/research/multi-experts-2026-09-10/pr-plan.md">Explore the research roadmap →</a><a href="./tour.html#assistant">See the current product →</a></p>
+    <p class="caption">当前基础：版本化来源与审阅、<a href="${REPO}/blob/${sourceSha}/app/docs/run-attempts.md">有界 Run 续行</a>、<a href="${REPO}/blob/${sourceSha}/app/docs/coordination.md">Thread 本地通信</a>；实录版本 ${sourceSha.slice(0, 7)}。</p>
+  </section>`;
 }
 
 function review(fill, shot) {

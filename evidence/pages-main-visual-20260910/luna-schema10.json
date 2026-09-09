@@ -1,0 +1,87 @@
+{
+  "startedAt": "2026-09-09T23:28:47.018Z",
+  "newRoot": "<integration-checkout>",
+  "newHead": "e818463ab31aa06a4c9d52a968a68099fdb02c3e",
+  "oldHostSha": "8b1e0b143f7091da0acba3ee24af58595e721eb8",
+  "dataDir": "<independent-verification-dir>/data",
+  "checks": [
+    {
+      "name": "synthetic-schema10-source",
+      "schemaVersion": 10,
+      "runCount": 3,
+      "lineage": [
+        {
+          "id": "1ee4eafe-58eb-48fb-b0de-4a629753e1b2",
+          "supersedes": "8feb7887-7ef1-4c96-9465-e53080d4ad49"
+        },
+        {
+          "id": "8971c32f-40f6-48c4-bfd3-4b03259ef0fa",
+          "supersedes": "1ee4eafe-58eb-48fb-b0de-4a629753e1b2"
+        }
+      ]
+    },
+    {
+      "name": "schema9-input",
+      "bytes": 4905,
+      "sha256": "1fe9191c04793c05bd134174b26af217105b31f2793d10f7b6a42287204b777b",
+      "schemaVersion": 9,
+      "providerConnectionsKeyPresent": false,
+      "preservedSupersedes": [
+        {
+          "id": "1ee4eafe-58eb-48fb-b0de-4a629753e1b2",
+          "supersedes": "8feb7887-7ef1-4c96-9465-e53080d4ad49"
+        },
+        {
+          "id": "8971c32f-40f6-48c4-bfd3-4b03259ef0fa",
+          "supersedes": "1ee4eafe-58eb-48fb-b0de-4a629753e1b2"
+        }
+      ]
+    },
+    {
+      "name": "schema9-to-schema10-migration",
+      "schemaVersion": 10,
+      "providerConnections": [],
+      "preservedSupersedes": [
+        "8feb7887-7ef1-4c96-9465-e53080d4ad49",
+        "1ee4eafe-58eb-48fb-b0de-4a629753e1b2"
+      ],
+      "backup": "runtime-state.schema9.1fe9191c04793c05bd134174b26af217105b31f2793d10f7b6a42287204b777b.json",
+      "backupBytesExact": true,
+      "migrationLog": [
+        "store: upgraded schema 9 to 10; exact original state preserved in runtime-state.schema9.1fe9191c04793c05bd134174b26af217105b31f2793d10f7b6a42287204b777b.json"
+      ]
+    },
+    {
+      "name": "schema10-reopen",
+      "schemaVersion": 10,
+      "preservedSupersedes": [
+        "8feb7887-7ef1-4c96-9465-e53080d4ad49",
+        "1ee4eafe-58eb-48fb-b0de-4a629753e1b2"
+      ],
+      "providerConnections": [],
+      "persistedBytesStable": true
+    },
+    {
+      "name": "old-main-host-rejects-schema10",
+      "baseSha": "8b1e0b143f7091da0acba3ee24af58595e721eb8",
+      "error": {
+        "name": "Error",
+        "code": "INVALID_STATE",
+        "message": "invalid runtime state: schemaVersion 10 is not supported (this build requires 9; only validated schema 3, 4, 5, 6, 7 or 8 can be upgraded)"
+      },
+      "stateBytesUnchanged": true,
+      "stateSha256": "b51e58ac53d8f4aed137009d4879cc086d4044b0d290f26b37164a52aa5b5bdf"
+    },
+    {
+      "name": "artifact-inventory",
+      "files": [
+        "runtime-state.json",
+        "runtime-state.schema9.1fe9191c04793c05bd134174b26af217105b31f2793d10f7b6a42287204b777b.json",
+        "runtime.lock"
+      ],
+      "backupMode": 384,
+      "stateMode": 384
+    }
+  ],
+  "completedAt": "2026-09-09T23:28:47.419Z"
+}

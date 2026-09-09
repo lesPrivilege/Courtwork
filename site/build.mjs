@@ -24,6 +24,22 @@ import { renderReadme } from "./src/readme.mjs";
 const DIST = path.join(SITE, "dist");
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
+// Preserve native screenshot encoding; the connected browser returns JPEG.
+function imageSize(bytes) {
+  if (bytes.toString("hex", 0, 8) === "89504e470d0a1a0a") return `${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`;
+  if (bytes.readUInt16BE(0) !== 0xffd8) throw new Error("Unsupported screenshot encoding");
+  for (let offset = 2; offset + 9 < bytes.length;) {
+    if (bytes[offset++] !== 0xff) throw new Error("Invalid JPEG marker");
+    while (bytes[offset] === 0xff) offset++;
+    const marker = bytes[offset++];
+    const length = bytes.readUInt16BE(offset);
+    if ([0xc0, 0xc1, 0xc2].includes(marker)) return `${bytes.readUInt16BE(offset + 5)}x${bytes.readUInt16BE(offset + 3)}`;
+    if (length < 2) throw new Error("Invalid JPEG segment");
+    offset += length;
+  }
+  throw new Error("Screenshot dimensions missing");
+}
+
 const written = [];
 async function emit(relative, contents) {
   const target = path.join(DIST, relative);
@@ -99,7 +115,10 @@ const pageMedia = JSON.parse(await readFile(path.join(SITE, "media", "main", "ma
 const validateMedia = async (manifest, label) => {
   if (!/^[0-9a-f]{40}$/.test(manifest.source_sha)) throw new Error(`${label} source_sha is not a full commit SHA`);
   for (const entry of manifest.media) {
+    if (entry.source_sha !== manifest.source_sha) throw new Error(`${label} mixes source snapshots`);
     const bytes = await readFile(path.join(ROOT, entry.asset_path));
+    if (entry.bytes !== bytes.length) throw new Error(`${entry.asset_path} byte count disagrees with capture`);
+    if (imageSize(bytes) !== entry.viewport) throw new Error(`${entry.asset_path} dimensions disagree with capture`);
     if (sha256(bytes) !== entry.sha256) throw new Error(`${entry.asset_path} does not match its manifest sha256`);
   }
 };
@@ -115,8 +134,8 @@ for (const file of evidence.files) await emit(`evidence/${path.basename(file.pat
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
 await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
-await emit("index.html", renderPage({ identity, evidence, recording, diagram, media }));
-const packageVersion = JSON.parse(productBytes(identity.source_sha, "app/package.json").toString("utf8")).version;
+await emit("index.html", renderPage({ identity, evidence, recording, diagram, media, pageMedia }));
+const packageVersion = JSON.parse(productBytes(pageMedia.source_sha, "app/package.json").toString("utf8")).version;
 for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);
 await emit("product-pages.css", await readFile(path.join(SITE, "src", "product-pages.css")));
 await emit("product-pages.mjs", await readFile(path.join(SITE, "src", "product-interactions.mjs")));

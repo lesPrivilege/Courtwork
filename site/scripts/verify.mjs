@@ -249,7 +249,7 @@ try {
     tabs[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     return { seen, instant: group.dataset.motion === 'instant', caption: document.querySelector('.hero-object figcaption').textContent, slot: document.querySelector('[data-capture-slot="home"]').dataset.captureStatus };
   })()`);
-  record("V3d · one decorative object, three projections, capture pending", instrument.seen.map(s => s.projection).join(',') === 'events,surface,context' && instrument.seen.every(s => s.same && s.visible === 1) && instrument.instant && /Concept study/.test(instrument.caption) && instrument.slot === 'awaiting-home-completion', instrument);
+  record("V3d · one decorative object, three projections, current Home captured", instrument.seen.map(s => s.projection).join(',') === 'events,surface,context' && instrument.seen.every(s => s.same && s.visible === 1) && instrument.instant && /Concept study/.test(instrument.caption) && instrument.slot === 'captured', instrument);
 
   // ---- V4 · reduced motion and reduced transparency ------------------------
   for (const feature of ["prefers-reduced-motion", "prefers-reduced-transparency"]) {
@@ -306,7 +306,7 @@ try {
   const noscript = await evaluate(`(() => {
     const text = document.body.innerText;
     return {
-      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("[data-capture-slot=home]")?.dataset.captureStatus === "awaiting-home-completion",
+      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("[data-capture-slot=home]")?.dataset.captureStatus === "captured",
       architecture: /让工作存在于模型之外/.test(text) && /已确认的决定/.test(text),
       evidence: /Continuity conformance/.test(text) && /声称表/.test(text),
       build: /npm --prefix app ci/.test(text) && /Domain core/.test(text),
@@ -318,7 +318,7 @@ try {
   // so the same facts are read out of the served HTML instead.
   const served = await (await fetch(ORIGIN)).text();
   record("V6 · without scripting the first screen and sections 03 / 05 / 06 are complete", 
-    /模型可以离场，工作继续/.test(served) && /data-capture-status="awaiting-home-completion"/.test(served) &&
+    /模型可以离场，工作继续/.test(served) && /data-capture-status="captured"/.test(served) &&
       /让工作存在于模型之外/.test(served) && /已确认的决定/.test(served) &&
       /Continuity conformance/.test(served) && /声称表/.test(served) &&
       /npm --prefix app ci/.test(served) && /Domain core/.test(served) &&

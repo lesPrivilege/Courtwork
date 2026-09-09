@@ -1,0 +1,162 @@
+{
+  "tool": "connected in-app browser",
+  "origin": "http://127.0.0.1:8982/Courtwork/",
+  "checks": [
+    {
+      "h1": "See the work.",
+      "nav": 6,
+      "page": "/Courtwork/tour.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "h1": "Get Courtwork.",
+      "nav": 6,
+      "page": "/Courtwork/get.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "h1": "A smaller way in.",
+      "nav": 6,
+      "page": "/Courtwork/cli.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "h1": "A work in progress.",
+      "nav": 6,
+      "page": "/Courtwork/changelog.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "h1": "Bring your intelligence.",
+      "nav": 6,
+      "page": "/Courtwork/models.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "h1": "Where your work goes.",
+      "nav": 6,
+      "page": "/Courtwork/data.html",
+      "scrollWidth": 1440,
+      "width": 1440
+    },
+    {
+      "check": "download preview honest unavailability",
+      "pass": true
+    },
+    {
+      "check": "Escape closes dialog and returns focus",
+      "pass": true
+    },
+    {
+      "check": "CLI review is recorded-only",
+      "destination": "./specimen/index.html#step-candidate",
+      "pass": true
+    },
+    {
+      "h1": "Work that survives the model.模型可以离场，工作继续。",
+      "height": 844,
+      "page": "/Courtwork/index.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "See the work.",
+      "height": 844,
+      "page": "/Courtwork/tour.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "Get Courtwork.",
+      "height": 844,
+      "page": "/Courtwork/get.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "A smaller way in.",
+      "height": 844,
+      "page": "/Courtwork/cli.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "A work in progress.",
+      "height": 844,
+      "page": "/Courtwork/changelog.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "Bring your intelligence.",
+      "height": 844,
+      "page": "/Courtwork/models.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "h1": "Where your work goes.",
+      "height": 844,
+      "page": "/Courtwork/data.html",
+      "scrollWidth": 390,
+      "width": 390
+    },
+    {
+      "check": "all nine Tour images decoded after viewing",
+      "images": [
+        {
+          "loaded": true,
+          "src": "./media/main/home-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/chat-approval-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/chat-file-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/review-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/continue-in-work-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/settings-models-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/settings-integrations-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/settings-appearance-1440-light.jpg"
+        },
+        {
+          "loaded": true,
+          "src": "./media/main/attention-conversation-1440-light.jpg"
+        }
+      ],
+      "reserved": [
+        "running",
+        "matter"
+      ]
+    },
+    {
+      "check": "new research philosophy mobile",
+      "planned": true,
+      "scrollWidth": 390,
+      "stages": 3,
+      "width": 390
+    }
+  ]
+}

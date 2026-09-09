@@ -206,7 +206,7 @@ try {
   record('CLI performs no remote requests',foreign.length===0,{foreign});
   await load(new URL('tour.html',ORIGIN).href);
   const tour = await evaluate(`({states:document.querySelectorAll('.tour-state').length,images:document.querySelectorAll('.tour-shot img').length,provenance:document.querySelectorAll('.tour-shot details').length,reserved:[...document.querySelectorAll('[data-capture-slot]')].map(n=>n.dataset.captureSlot)})`);
-  record('Tour distinguishes captures from missing states',tour.states===10&&tour.images===6&&tour.provenance===6&&tour.reserved.includes('running')&&tour.reserved.includes('integrations'),tour);
+  record('Tour distinguishes captures from missing states',tour.states===11&&tour.images===9&&tour.provenance===9&&tour.reserved.includes('running')&&tour.reserved.includes('matter'),tour);
   await cdp('Emulation.setScriptExecutionDisabled',{value:true});
   for (const page of ['get','cli','tour']) {
     await load(new URL(`${page}.html`,ORIGIN).href);

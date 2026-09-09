@@ -84,7 +84,7 @@ async function openEvent(sessionId, runId, type) {
 
 // ---- seed ------------------------------------------------------------------
 console.error("seeding…");
-await api("PUT", "/provider-credential", { provider: "fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
+await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-loopback", apiKey: FAKE_CREDENTIAL_KEY });
 await api("POST", "/extensions/inbound-nda/lifecycle", { action: "load" });
 
 const nda = (await api("POST", "/projects", { name: "NDA review" })).project;
@@ -161,6 +161,15 @@ const seeded = {
   matterId: (await api("GET", `/sessions/${bound.id}/surface`)).projection.matter.id,
 };
 console.error(JSON.stringify(seeded));
+// Browser capture may be performed through the connected in-app browser.
+// This mode only seeds the isolated synthetic host and writes its identities.
+if (process.argv.includes("--seed-only")) {
+  const seedFile = arg("--seed-file", null);
+  if (!seedFile) throw new Error("--seed-only requires --seed-file outside the repository");
+  await writeFile(seedFile, JSON.stringify({ source_sha: identity.source_sha, origin: ORIGIN, ...seeded }, null, 2) + "\n");
+  process.exit(0);
+}
+
 
 // ---- the browser -----------------------------------------------------------
 const profile = await mkdtemp(path.join(tmpdir(), "ps01-media-"));

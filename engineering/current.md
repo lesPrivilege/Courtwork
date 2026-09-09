@@ -2,6 +2,12 @@
 
 更新：2026-09-10。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
+## 当前合流：Pages 实录、并行产品与新研究理念（2026-09-10）
+
+从实际main `8b1e0b1` 隔离接收Attention收尾、MA2前后端/文档、provider connections及Fable裁决；产品固定到 `e818463`。RuntimeStore **10** 消解两分支schema9重号，保留主线Run.supersedes并严格原字节备份迁移；Core4/app5保持。全量522/522、smoke与Luna固定版本有界迁移复核通过。此段覆盖旧段的当前schema描述，历史验收记录仍保留原版本。
+
+Pages消费既有21e8a9b六子页，保留叙事与纸层视觉并展示实际新版Home；15份合成实录分离于9e5384f旧标本。用户随后指定本轮新讨论的核心自研理念，已消费研究370b891并加入确定性资料治理→Spark可重建派生/恢复→稀疏Attention，以及角色/执行分离与全生命周期质量/成本方向；均明确研究与待实现，不视为ME-01–10交付。[合流、验证与边界](../evidence/pages-main-visual-20260910/README.md)。共享未提交证据保持；未部署、未跑真实provider、未迁移个人数据，不关闭G1–G5。
+
 ## 多专家全turn与long-life施工准备（2026-09-10）
 
 从实际 `main@8b1e0b143f7091da0acba3ee24af58595e721eb8` 独立分支消费《多专家实现调研》可访问全部23个turn/44条消息；三页至hasMore=false，T07/T13无回复、T12原文末句中断及不可恢复citation均保留。按用户分工，Luna探索外部索引，Astra负责取舍、owner与PR。[研究包](research/multi-experts-2026-09-10/README.md)提供逐turn处置、44个唯一外链的阅读范围、选型/21模式负索引、接缝、ME-01…10候选PR、原HC/RA/AT全映射和long-life验证；[roadmap](roadmap.md#10-当前切片与扩展触发)已并入依赖顺序。
