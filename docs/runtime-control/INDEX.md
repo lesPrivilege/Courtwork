@@ -8,7 +8,7 @@ Status: backend implementation, protocol v1, 2026-09-08. Base: `b26670c` on the 
 - [Search source investigation](search-reference.md)
 - [Acceptance and frontend handoff](acceptance.md)
 - [Independent Luna backend review](backend-review.md)
-- [Runtime R2 local source parser](source-resolver.md) — backend parser only, no HTTP/UI/tool entry
+- [Runtime R2 source inspection](source-resolver.md) — pure parser and authenticated inspect-only HTTP seam; no UI/model tool or locator acquisition
 - [Typed control contract](../../app/runtime/control-contract.d.ts)
 
 ## Resource coverage

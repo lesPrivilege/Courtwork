@@ -1,0 +1,43 @@
+✔ the limited scanner recognizes imports while ignoring comments and strings (1.858459ms)
+✔ legal and forbidden synthetic edges exercise all approved boundaries (0.675917ms)
+✔ the current Core, runtime, renderer, and composition-root graph obeys ownership (47.790958ms)
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (244.627333ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (407.975333ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (0.572417ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (487.332834ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (490.923208ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.322209ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (516.911542ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (503.658584ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (118.694458ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 5 fence (108.618042ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (758.446125ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (696.854792ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (711.674167ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (200.860416ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (721.654209ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (83.679208ms)
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (1137.71975ms)
+✔ a Run waits for its final event to persist before publishing completion (1003.299334ms)
+✔ event persistence failure is reported as runtime failure instead of completion (497.418916ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (1302.687375ms)
+✔ BE-5: POST /runtime-sources/resolve returns exact UTF-8 identity for all six inline kinds; provenance stays unverified and nothing is imported (171.025583ms)
+✔ BE-5: token, origin, content-type and body-size guards plus malformed/extra-field input follow the existing host boundaries (479.957541ms)
+✔ BE-5: every locator kind stays explicitly unsupported over real HTTP with an exact echo, and no content identity is invented (76.3025ms)
+✔ BE-5: an isolated child probe proves locator and inline MCP resolution performs no file read, socket connect, HTTP request, fetch or child process (738.798667ms)
+✔ BE-5: pure resolution stays available during an active Run while config, disk, revision and the Run binding remain unchanged and nothing imports (191.731ms)
+✔ BE-5: the service seam mirrors the pure resolver and adapts its 400s to the host error shape (66.947083ms)
+✔ R2: six inline kinds resolve without changing config, then explicit imports preserve exact bytes (62.649417ms)
+✔ R2: hashes bind bytes and interpretation; origin is only a caller assertion and outputs own their data (0.282209ms)
+✔ R2: skill/profile declarations remain unverified requirements without new capabilities (0.356541ms)
+✔ R2: MCP and locators never fetch, connect or read their declared target (0.150709ms)
+✔ R2: malformed, executable and ambiguous sources cannot be silently reinterpreted (0.368583ms)
+✔ R2: invalid YAML and cyclic projected metadata fail before config persistence (16.85475ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6911.476791

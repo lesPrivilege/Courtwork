@@ -13,6 +13,7 @@ Use the existing `/api/v5` base, loopback/origin protections and `x-work-token` 
 | GET `/runtime-context?sessionId=...&runId=...` | Historical binding and explicit load events; enforces session ownership |
 | POST `/runtime-permissions/evaluate` | Advisory effect and trace for a tool/resource |
 | POST `/mcp/:id/lifecycle` | Connect/disconnect/restart and refreshed snapshot |
+| POST `/runtime-sources/resolve` | Inspect-only declarative source resolution; 200 for `resolved` and explicit `unsupported` |
 
 Use the existing provider, credentials, permission mode, extension and Run APIs for their owned lifecycle. All new mutation bodies reject unknown keys. A stale revision returns `409 runtime_conflict`; an active Run returns `409 active_run`. Refresh and show the actual state rather than silently resubmitting a stale edit. MCP lifecycle checks configuration revision; connection health is live, and connection changes do not increment configuration revision.
 
@@ -53,6 +54,29 @@ Import an `mcp_server` with this JSON source text:
 ```
 
 Then POST lifecycle `{"revision":CURRENT_REVISION,"action":"connect"}`. Inspect remote descriptors, explicitly expose the server using an exposure mutation, and retain default per-call ask or write an explicit scoped policy for its readable `mcp.<server-id>.<remote-tool-name>` action. A connected server alone does not grant model access. Model tool calls use the descriptor's `executionName`, not its policy action. A failed/unknown remote effect is never a reason to automatically resend the same work.
+
+## Declarative source resolution (`POST /runtime-sources/resolve`)
+
+This route exposes the pure runtime resolver (see [source-resolver](source-resolver.md)) over the same authenticated loopback/origin boundary as the rest of `/api/v5`: the `x-work-token` header, origin protections and the 1 MiB body cap are enforced exactly as on other POST routes. The body **is** the resolver input (`type: 'inline'` with `kind`, `title`, `content`, optional `origin`; or `type: 'locator'` with `locator` and `value`) — there is no proposal envelope, session/target/scope selection, revision or mutation. The response is the existing `ResolvedRuntimeArtifact | UnsupportedRuntimeSource` union, unchanged.
+
+Resolve an inline source (a caller-asserted `origin` is echoed under `provenance.declaredOrigin` with `verified: false` and is never fetched):
+
+```json
+{"type":"inline","kind":"reference","title":"Synthetic reference","content":"Exact source bytes\n","origin":{"uri":"https://example.invalid/declared","version":"v1"}}
+```
+
+Request a locator (always explicit `unsupported` — nothing is fetched, read, cloned or installed):
+
+```json
+{"type":"locator","locator":"path","value":"/not/read/by/this/host"}
+```
+
+Semantics and boundaries:
+
+- A successfully resolved artifact and an explicitly `unsupported` locator both return `200`. Resolution is inspection only: it returns the exact UTF-8 byte/hash identity, `disposition: "inspect-only"`, `capabilities.granted: []`, `trust: "unverified"` and `adapters[0].status: "syntax-accepted"`. It never reads the declared path/URI, never fetches, clones, installs or connects (no MCP connection), and never executes source content.
+- Malformed input, unknown discriminants, extra fields, unsupported inline kinds and invalid content return `400` with the resolver's own codes (`invalid_runtime_source` for the resolver envelope, `invalid_runtime_config` for source validation), identical to the pure module. Wrong/absent `x-work-token` is `401`, a disallowed origin is `403`, a non-JSON content type is `415`, invalid JSON/arrays are `400 invalid_json`, and a body over the host 1 MiB cap is discarded by the shared body reader (existing behavior for every POST route).
+- The route is sessionless and stateless: it touches no store, configuration, revision, audit, resource directory or mutation queue, so pure resolution also works while a Run is active. It never changes that Run's binding or capabilities and never imports — a later import still requires the existing target validation/CAS (`PUT /runtime-control` with `operation: "put"`) and a resolver hash is not approval.
+- No model tool is registered and request bodies are never logged.
 
 
 ## Admission and provenance detail (second UI integration node)
