@@ -178,7 +178,7 @@ design_task:
 
 骨架：以 `connection-popover`（原生 `popover` + Floating UI，两锚点共享）为种子，合并为一个组件，payload kind 分只读（tool row、runtime 资源、来源 span、文件引用摘要）与可操作（permission mode，PUT 沿现有路径）；一个单点互斥状态"当前打开的是谁"（锚点身份复用 `toolScopeKey` / `{sessionId,runId,path,sha256}` / `resource.id`）；只 click / focus 触发，tooltip 保持纯文本 hover；同一浮层随锚点迁移、变尺寸、换内容，reduced-motion 下瞬切；"Open in surface" 动作接 File / Trace 的工作面导航，不做钉住；窄屏底部 sheet 且与工作面 sheet 互斥；材质 Transient（登记类名 + 回退，无 glass-on-glass，FE-05 消融后落地）；断言：焦点归还、两步 Escape、generation 竞态、安全区、窄屏、四处旧展开状态收敛后 FE-T07 与 RC 全量回归。§VI 契约头在成单时由 Fable 填写。
 
-## FE-05a · 字阶与控件密度（`opus-wo-low`；M-11；WK-120 定为 FE-05 材质之前）
+## FE-05a · 字阶与控件密度（`opus-wo-low`；M-11；WK-120 定为 FE-05 材质之前；WK-123 选向 V1，成单前置：1:1 单页、深色、390、命中区、按钮不折行）
 
 按 WK-112：先约束后变体，一次只变一个维度（密度 → 字阶，材质另单）。约束表已写：[type-density-constraints](../../../../design/type-density-constraints.md)（现状 / 约束 / V1 V2 目标值 / 消融面）。原始要点：现状 ramp（title 20 / nav-title 17 / reading 15 / label 13 / section 14 / body 14 / meta 12 / caption 11；`--control` 32，触控 44；primary 550）对照目标（正文 14 不动、阅读列 15 不动；chrome 与元数据一档更细：meta 12 → 11–12、caption 11 → 10.5–11 且字重 400–450、字距 +0.01–0.02em 大写 eyebrow；桌面控件 32 → 28（触控仍 44）、按钮字号随 label 13、primary 字重 550 → 500；行高与间距随控件缩），每一项给"哪一层级因此更清"的理由与对比度门槛（contrast-report 不得降到 4.5 以下）。第二步 Opus 出两张变体（"chrome 收敛 / 正文不动" vs "全站一档"）在 Settings 与 Work 头部各一处做消融，用户比较后再全站落地。约束：`--text-scale` 三档保留；390 命中区 ≥44 不变；不引新字体；WK-69 层级与 WK-94 边框角色不动。
 

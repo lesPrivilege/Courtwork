@@ -32,6 +32,7 @@
 | 字体 | 不引新字体；字重只用 400 / 450 / 500 / 550（可变字重轴若不可用则 400 / 500） | lint-colors 不涉；单测枚举 |
 | 边框与层级 | WK-69 层级、WK-94 四种边框角色不动；不用新框线补层级 | lint-materials |
 | 一次一维 | 不改颜色 token、材质、动效、间距 token（组间 / 行距沿 CC-S） | diff 只触字阶 / 字重 / 字距 / 控件高 |
+| 按钮完整可读（WK-123 (b)） | 按钮文字不折行（`white-space: nowrap`），宽度由静止标签量得（min-width，M-9 同源）；Send / Cancel run 在 28 高下 padding 不压字；文字与图标槽位不挤成色块 | CDP 实测：无折行、`scrollWidth ≤ clientWidth`、高 ≥28（桌面）/ ≥44（390） |
 
 ## 3. 目标值（初值，消融后收敛）
 
@@ -56,7 +57,7 @@ V1 的赌注：正文不动，chrome 与元数据下移一档，层级差从 1�
 - 两处消融面：**Settings › General**（行标题 / 说明 / 控件同一屏，CC-S 刚定的组距 40 / 行距 24 不动）与 **Work 头部 + composer 控件**（导航标题、模式词、scope 位、Send / Cancel run、run badge）。
 - 每张变体在两处各出 1440 浅色一张截图 + 同一 CDP 脚本量出的数值表（字号、字重、控件高、行高、对比度），与现状并排三列。
 - 比较问题只问三条（WK-112 §IX hierarchy）：这一屏第一眼落在哪；正文与 chrome 是否能不靠颜色分开；按钮是否仍像可按的东西而不是标签。
-- 用户比较后选一张，再全站落地并全量回归（RC / composition / shell / Models / 探测 / primitive / cc-s / cc-w）。
+- 用户已选 **V1**（WK-123 (b)）。成单前置：1:1 单页（不 zoom）、深色宗、390、CDP 实测命中区与按钮不折行；任一不过不进全站。之后全站落地并全量回归（RC / composition / shell / Models / 探测 / primitive / cc-s / cc-w）。
 
 ## 5. 不做
 
