@@ -4,6 +4,7 @@ import { Type } from '@earendil-works/pi-ai';
 import { maybeCrash } from '../runtime/test-hooks.mjs';
 import { AsyncTaskError, taskAssert, taskObject, taskId, validSource, sameSource,
   digestText, validateAsyncTasks, TASK_LIMIT, RESULT_LIMIT, DELIVERY_LIMIT, TASK_TERMINAL } from './async-task-state.mjs';
+import { projectAsyncTask } from './async-task-view.mjs';
 
 export const ASYNC_TOOL_NAMES = ['async_launch', 'async_get', 'async_wait'];
 const now = () => new Date().toISOString();
@@ -82,15 +83,14 @@ export class AsyncTasks {
     }
   }
 
-  view(t, { result = true, deliveries = true } = {}) {
-    const session = this.store.getSession(t.origin.sessionId);
+  /** Pure projection lives in async-task-view.mjs; the owner only supplies the
+   * session-existence fact and the matching adapter {version, sources} (or null). */
+  view(t, options = {}) {
     const a = this.adapters.get(t.adapter.id);
-    const availability = !session ? 'orphaned' : !a || a.version !== t.adapter.version ? 'adapter_unavailable'
-      : !a.sources.some(s => sameSource(s, t.source)) ? 'historical' : 'current';
-    const v = { schemaVersion: 1, ...structuredClone(t), availability };
-    if (!result) delete v.result;
-    if (!deliveries) delete v.deliveries;
-    return v;
+    return projectAsyncTask(t, {
+      sessionExists: Boolean(this.store.getSession(t.origin.sessionId)),
+      adapter: a ? { version: a.version, sources: a.sources } : null,
+    }, options);
   }
   inspect(id, scope) { const t = this.#find(this.store.state, id); this.#scope(t, scope); return this.view(t); }
   list(projectId, { offset = 0, limit = 20 } = {}) {
