@@ -145,6 +145,8 @@ Updated state ◀─────────────────────
 
 媒体：NDA Review 一张，1440 light 与 dark，390 一张；状态为"一条候选待决定"。图注沿首帧模板。状态：verified with synthetic data（Core 反例与合成浏览器复验）；真实模型：not yet。
 
+四个词只描述现有 renderer 已经显示的对象。M6 捕获时若 Evidence 或 Provenance 没有对应的可见对象，该行由 Fable 收窄，不由实现者补画（PS-17 c）。仓内现无一张完整的 Review 截图，M6 是必捕项。
+
 ## 6. 05 · Evidence
 
 标题：**Evidence**
@@ -259,7 +261,7 @@ npm --prefix app test
 | M3 | Chat：Question 与 Answer | 1440 light | Waiting for you |
 | M4 | Chat files：一个文件与其 hash | 1440 light | — |
 | M5 | Continue in Work 面板：Existing work in this project · New work | 1440 light | — |
-| M6 | Work Review：一条候选待决定，证据与来源可见 | 1440 light · 1440 dark · 390 light | — |
+| M6 | Work Review：一条候选待决定，依据与来源版本可见；必捕，现无可用图 | 1440 light · 1440 dark · 390 light | — |
 | M7 | Settings › Models：Compatible endpoint 一行，Test connection 与 Fetch models 在场 | 1440 light | 后端原句 |
 
 每张媒体带 `id, kind, source_sha, capture_date, viewport, theme, data_kind, provider_mode, setup_steps, displayed_path, evidence_path, asset_path, sha256, claim_ids, limitations`；缺任一字段不上页。标本 JSON 同表登记，kind 为 `interactive-fixture`。
