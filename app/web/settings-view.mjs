@@ -1,5 +1,78 @@
 import { el, action, flowRow } from "./ui-controls.mjs";
 
+
+/* ===== PV-M-1 · 一个配置，一处投影 ===================================
+ * 这一段本该是自己的模块 `provider-config.mjs`；它没有独立成文件，是因为
+ * `app/server/index.mjs` 的静态白名单逐个列出可服务的 `app/web/*.mjs`，新增一个
+ * 文件要动 `app/server` —— 那在本单的写权之外。所以它落在连接面自己的模块里，
+ * 由模型选择器 import。缺口记在交付页"待裁定"。 */
+/* PV-M-1 · 一个配置，一处投影。
+ *
+ * `PUT /api/v5/provider-config` 整体替换配置：请求体里没有的字段就是被清掉的字段。
+ * 在此之前有两个写入方各自装配请求体 —— 模型选择器带 `reasoningEffort` 不带完整
+ * 端点，Settings 的连接表单带端点不带 effort —— 于是"保存连接"会静默清掉已选档位，
+ * "选模型"会在换 provider 时丢掉端点。两处都不是错的写法，错的是有两处写法。
+ *
+ * 这里是那唯一一处：读同一份 `/provider-config` 快照，按同一套规则装配同一个字段集。
+ * 调用方只说自己改了什么，没说的字段由快照带过去。 */
+
+/** `PUT /provider-config` 的字段闭集（`app/docs/runtime-foundation.md`）。 */
+export const PROVIDER_CONFIG_FIELDS = Object.freeze([
+  "provider",
+  "model",
+  "api",
+  "baseUrl",
+  "reasoningEffort",
+]);
+
+/** 目录为这个 provider/model 声明的档位。目录没有这条模型时返回 `null` ——
+ * 那是"不知道"，不是"只有 off"，两者在下面的携带规则里处置不同。 */
+export function supportedEffortsOf(catalog, provider, model) {
+  const models = catalog?.models;
+  if (!Array.isArray(models)) return null;
+  const entry = models.find((m) => m.provider === provider && m.id === model);
+  if (!entry) return null;
+  return Array.isArray(entry.supportedEfforts) && entry.supportedEfforts.length
+    ? entry.supportedEfforts
+    : ["off"];
+}
+
+/** 目录未声明多于一档时不出选择器（PV-27）：只出 `Off`。 */
+export function effortSelectable(supported) {
+  return Array.isArray(supported) && supported.length > 1;
+}
+
+/**
+ * 把"当前配置 + 这次改了什么"投影成一个完整的 `PUT /provider-config` 请求体。
+ *
+ * - `change` 里出现的键即本次的显式意图，`undefined` 与 `null` 都算显式（清空）。
+ * - 没出现的键从 `current` 带过去 —— 这就是两处写入不再互相清字段的原因。
+ * - `baseUrl` 只在**身份未变**时自动带走：换了 provider，旧端点不再是关于它的陈述。
+ * - `reasoningEffort` 只在目标模型的目录声明里**确实支持**时带走。目录没声明这条
+ *   模型（`supportedEfforts` 为 `null`）时按"无从核对"原样带走，由后端裁决；目录
+ *   声明了却不含该档位时省略 —— 带上去只会换来一个 `invalid_effort` 的保存失败，
+ *   而丢一个这条模型本来就没有的档位不是丢字段。
+ */
+export function projectProviderConfig(current, change = {}, catalog = null) {
+  const has = (key) => Object.hasOwn(change, key);
+  const provider = has("provider") ? change.provider : current?.provider;
+  const model = has("model") ? change.model : current?.model;
+  const api = has("api") ? change.api : current?.api;
+  const sameIdentity = provider === current?.provider;
+  const baseUrl = has("baseUrl") ? change.baseUrl : sameIdentity ? current?.baseUrl : undefined;
+  const effort = has("reasoningEffort") ? change.reasoningEffort : current?.reasoningEffort;
+  const supported = supportedEffortsOf(catalog, provider, model);
+  const keepEffort =
+    effort !== undefined && effort !== null && (supported === null || supported.includes(effort));
+  return {
+    provider,
+    model,
+    api,
+    ...(baseUrl ? { baseUrl } : {}),
+    ...(keepEffort ? { reasoningEffort: effort } : {}),
+  };
+}
+
 /* WK-27: capabilities the backend does not have are drawn nowhere except this
    list. Text rows only — no switch, no button, nothing focusable, so the page
    cannot imply an authority that does not exist. */
@@ -101,11 +174,14 @@ export const CONNECTION_PATHS = [
     help: "A provider this build already knows. Add an API key and choose a model; the endpoint is the provider's own.",
   },
   {
+    /* PV-24 · 这条路径不再借用一个目录身份：它保存的是宿主自己登记的一条连接，
+     * 身份、端点、凭据与模型列表都是这条连接自己的。Fetch models 报来的 ID 因此
+     * 真的成为它的模型目录 —— 能选中、能保存、能执行。 */
     id: "compatible",
     title: "Compatible endpoint",
-    providers: ["openai", "deepseek"],
+    providers: [],
     endpoint: "required",
-    help: "An endpoint that speaks one of the formats below. Give its Base URL under Advanced and an API key; the provider identity above decides which model catalogue applies.",
+    help: "An endpoint that speaks one of the formats below. Give its Base URL under Advanced and an API key, then Fetch models: the IDs that directory reports become this connection's model list.",
   },
   {
     id: "local",
@@ -134,10 +210,19 @@ export const CONNECTION_STEPS = [
     title: "Fetch models",
     available: true,
     probe: "discover",
-    note: "Reads the model IDs that same directory reports. They are shown as reported and are not added to the Model list below, which stays the installed catalogue.",
+    note: "Reads the model IDs that same directory reports. On this path they become the Model list for this connection when you save it; reading them does not check that any of them can answer.",
   },
   { id: "choose", title: "Choose a model", available: true, note: "From the catalogue for the provider above." },
-  { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here; the API key is saved separately." },
+  { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here. On this path the key is sent with the connection so its directory can be checked with the key that will be used." },
+  /* PV-35 · 第三级阶梯（该模型真的回答了）需要 BE-39 的冒烟端点，它还没有。
+   * 这里按既有做法只留位：写明它没有，而不是画一个按不动的按钮 —— 后者先许诺
+   * 再收回。端点落地后这一步才变成有回执的完成步（PV-40…42）。 */
+  {
+    id: "smoke",
+    title: "Ask the model once",
+    available: false,
+    note: "Not available yet. The two steps above only reach the model directory; neither shows that the selected model can answer. The host has no endpoint for that check (BE-39), so this build does not offer one.",
+  },
 ];
 /* WK-108 · 只有一条路径在表单里持有显式 Base URL；另外两条没有可送出的端点，
  * 两个探测控件因此不出现在它们身上（不是禁用一个按不动的按钮）。 */
@@ -191,43 +276,102 @@ export function probeLine(reading) {
 /* `discover` 成功时的第二行。它说的是"目录报告了几个"，不是"你有几个可用模型"。 */
 export function probeCatalogueLine(reading) {
   if (reading.operation !== "discover" || !reading.ok) return null;
+  /* PV-24 · 这句话变了，因为事实变了：报来的 ID 现在是这条连接的模型列表，保存
+   * 之后可以选中并执行。它仍然只说目录报了什么，不说它们能回答。 */
   return reading.count === 1
-    ? "The directory reports 1 model. It is listed as reported, and is not added to the Model list or saved."
-    : `The directory reports ${reading.count} models. They are listed as reported, and are not added to the Model list or saved.`;
+    ? "The directory reports 1 model. It becomes this connection's model list when you save; the directory reporting it is not a check that it can answer."
+    : `The directory reports ${reading.count} models. They become this connection's model list when you save; the directory reporting them is not a check that any can answer.`;
 }
-/** 路径由已保存的事实反推，不另存一个"用户当时选了哪条"的第二真源。 */
-export function connectionPathOf(config) {
-  if (!config) return "catalog";
-  if (config.provider === "fake-openai-loopback") return "local";
-  return config.baseUrl ? "compatible" : "catalog";
+/** 一条连接走的是哪条路径。`connectionPathOf` 的单条推断（从 `providerConfig`
+ * 的 `baseUrl` 反推唯一那条连接）已退役：路径现在是连接记录自己的 `kind` 与身份
+ * 说的，不是从一份全局配置里猜的。 */
+export function connectionPathOfKind(connection) {
+  if (!connection) return "catalog";
+  if (connection.kind === "compatible") return "compatible";
+  return connection.providerIdentity === "fake-openai-loopback" ? "local" : "catalog";
 }
-/** Connections 列表的一行。后端只持有一条生效连接，所以列表只有一行；
- * 其余目录身份是 Add provider 里的选项，不是连接 —— 把它们画成连接会让
- * 界面替后端宣布一个它没有的注册表。 */
-export function connectionRows({ config, credentialStatus } = {}) {
-  if (!config) return [];
-  const provider = config.provider;
-  const path = connectionPathOf(config);
-  return [
-    {
-      id: provider,
-      name: providerLabels[provider] || provider,
-      provider: providerLabels[provider] || provider,
+
+/** 用户连接没有显示名字段 —— 后端不存一个，前端也不发明一个。它的名字就是它的
+ * 端点主机名；解析不出主机名时原样显示端点。 */
+export function connectionLabel(connection) {
+  if (!connection) return "";
+  if (connection.kind !== "compatible")
+    return providerLabels[connection.providerIdentity] || connection.providerIdentity;
+  try {
+    return new URL(connection.baseUrl).host;
+  } catch {
+    return connection.baseUrl || connection.id;
+  }
+}
+
+/** 一个模型的窗口读数。后端给三个来源（`catalog` / `user` / `unknown`），这里
+ * 逐个如实说出来，不猜值也不套用同名模型的目录值（PV-27 / PV-30）。 */
+export function contextWindowReading(entry) {
+  const source = entry?.contextWindowSource;
+  if (Number.isSafeInteger(entry?.contextWindow))
+    return source === "user"
+      ? `Context window: ${entry.contextWindow.toLocaleString()} tokens, from your entry.`
+      : `Context window: ${entry.contextWindow.toLocaleString()} tokens.`;
+  return "Context window: unknown.";
+}
+
+/** Connections 列表。后端现在持有一份连接注册表（`GET /provider-connections`），
+ * 所以这里画的是它报的每一条，不再是"生效的那一条"。今日目录连接三条、用户连接
+ * 零或多条，都走同一行结构；只有一条时仍是一行，但结构不再假设单数。 */
+export function connectionRows({ connections, config } = {}) {
+  if (!Array.isArray(connections)) return [];
+  return connections.map((connection) => {
+    const path = connectionPathOfKind(connection);
+    const unknownWindows = connection.models.filter(
+      (entry) => entry.contextWindowSource === "unknown",
+    ).length;
+    return {
+      id: connection.id,
+      connectionId: connection.id,
+      providerIdentity: connection.providerIdentity,
+      kind: connection.kind,
+      name: connectionLabel(connection),
       path,
-      model: provider === "fake-openai-loopback" ? "Local deterministic model" : config.model,
+      api: connection.api,
       endpoint:
         path === "local"
           ? "Local endpoint fixed by the host"
-          : config.baseUrl || "Provider default endpoint",
+          : connection.baseUrl || "Provider default endpoint",
       credential:
         path === "local"
           ? "No key needed"
-          : credentialStatus === "configured"
+          : connection.credentialStatus === "configured"
             ? "API key saved"
             : "No API key saved",
-      inForce: true,
-    },
-  ];
+      models: connection.models.map((entry) => entry.id),
+      unknownWindows,
+      inForce: Boolean(config) && config.provider === connection.providerIdentity,
+    };
+  });
+}
+
+/* PV-34 / PV-46 · 保存失败的三类。判据全部来自后端：两类由探测枚举 `error.status`
+ * 表达，第三类由服务层错误码 `connection_model_not_in_directory` 表达。前端不看
+ * 报文正文、不做正则、不重新归类 —— 它只负责把后端已经分好的那一类说成一句人话，
+ * 并把后端原话与枚举值一并留在屏幕上。 */
+export const CONNECTION_SAVE_FAILURES = Object.freeze({
+  connection_authentication_failed:
+    "Authentication failed: that directory rejected this API key.",
+  connection_directory_unavailable:
+    "The model directory could not be read at this Base URL.",
+  connection_model_not_in_directory:
+    "That directory does not list the selected model.",
+});
+export function connectionSaveError(error) {
+  const detail = error?.body?.error;
+  const headline = CONNECTION_SAVE_FAILURES[detail?.code];
+  if (!headline) return error?.message || "The connection could not be saved.";
+  const parts = [headline];
+  if (Array.isArray(detail.models) && detail.models.length)
+    parts.push(`Not listed: ${detail.models.join(", ")}.`);
+  if (typeof detail.message === "string" && detail.message) parts.push(detail.message);
+  if (typeof detail.status === "string" && detail.status) parts.push(`(${detail.status})`);
+  return parts.join(" ");
 }
 
 const permissionHelp = {
@@ -346,7 +490,13 @@ export function createSettingsView(
     info = null,
     dirty = false,
     busy = false,
-    generation = 0;
+    generation = 0,
+    /* 后端的连接注册表（`GET /provider-connections`）。列表、表单与凭据都读它，
+       不再从一份全局 providerConfig 里反推唯一那条连接。 */
+    connections = [],
+    /* 最近一次 discover 报来的模型 ID。它属于此刻表单里的那个端点：端点、格式或
+       key 一改，它就不再是关于屏幕上这条连接的陈述，随探测结果一起作废。 */
+    discovered = [];
   const form = el("form", { className: "settings-form" });
   const list = el("div", { className: "connection-list" });
   const provider = el("select", {
@@ -365,6 +515,11 @@ export function createSettingsView(
       placeholder: "Provider default",
       autocomplete: "off",
     },
+  });
+  /* PV-30 · 可选的窗口值。留空就是"不知道"，宿主不会替它猜一个；填了它，后端把
+     来源记成 `user`，界面也照这么说。 */
+  const contextWindow = el("input", {
+    attrs: { type: "number", name: "contextWindow", min: "4", step: "1", placeholder: "unknown", autocomplete: "off" },
   });
   const label = (name_, input) => el("label", { text: name_ }, input);
   // One row = what it is and what it means on the left, the control on the right.
@@ -434,6 +589,13 @@ export function createSettingsView(
         el("li", { className: "connection-probe-model", text: id }),
       ),
     );
+    /* PV-24 · 这是"发现"与"能用"之间那一步：报来的 ID 进入 Model 列表，保存时随
+     * 这条连接一起存下，因而可被选中、保存与执行。它们的窗口仍然是 unknown。 */
+    if (reading.operation === "discover" && reading.ok) {
+      discovered = reading.models;
+      fillModels(model.value || discovered[0]);
+      lock();
+    }
   }
   function clearProbeResult() {
     // Any changed form invalidates responses still in flight for its old values.
@@ -444,6 +606,7 @@ export function createSettingsView(
     probeCatalogue.hidden = true;
     probeModels.hidden = true;
     probeModels.replaceChildren();
+    discovered = [];
   }
   async function runProbe(operation, button) {
     const body = providerProbeRequest({ baseUrl: baseUrl.value, apiKey: key.value });
@@ -502,12 +665,18 @@ export function createSettingsView(
     probeNote.textContent = probes ? "" : PROBE_ABSENT_NOTE[path] || "";
     if (!probes) clearProbeResult();
   }
+  const contextWindowRow = row(
+    "Context window",
+    "Optional. Tokens this endpoint accepts for the selected model. Leave it empty if you do not know: the host will not guess a window, and compaction stays off until one is known.",
+    contextWindow,
+  );
   const advanced = el(
     "details",
     { className: "settings-advanced" },
     el("summary", { text: "Advanced" }),
     row("API format", "Wire format the provider expects.", api),
     row("Base URL", "Leave empty for the provider default.", baseUrl),
+    contextWindowRow,
     el("p", {
       className: "form-help",
       text: "Custom headers and provider compatibility quirks are not configurable here yet; this connection sends the format above and nothing else.",
@@ -535,10 +704,13 @@ export function createSettingsView(
     probeCatalogue,
     probeModels,
   );
+  /* PV-27 · 选中模型的能力读数。未知就写 unknown，不写一个宿主编的数。 */
+  const modelCapability = el("p", { className: "form-help" });
   form.append(
     addProvider,
     row("Provider", "Where model requests are sent.", provider),
     row("Model", "Used for every chat you start next. Chats already open keep the model they were bound to.", model),
+    modelCapability,
     advanced,
     status,
     error,
@@ -587,13 +759,11 @@ export function createSettingsView(
     });
     onRuntimeEnvironment?.({ config: snapshot, info });
   }
-  /* 一行一条连接：名字与它的四个事实（provider、端点、模型、凭据），外加它是不是
-     生效的那一条。Configure 不是第二个编辑入口，它把下面同一个表单对准这一行。 */
+  /* 一行一条连接。行的来源是后端的连接注册表，不是"生效的那一条"反推出来的单数：
+     今日目录连接三条、用户连接零或多条，都走同一行结构。Configure 不是第二个编辑
+     入口，它把下面同一个表单对准这一行。 */
   function renderConnections() {
-    const rows = connectionRows({
-      config: snapshot?.config,
-      credentialStatus: snapshot?.credentialStatus,
-    });
+    const rows = connectionRows({ connections, config: snapshot?.config });
     if (!rows.length) {
       list.replaceChildren(
         el("p", { className: "form-help", text: "No connection is loaded yet." }),
@@ -618,25 +788,57 @@ export function createSettingsView(
             ),
             el("span", {
               className: "settings-row-help",
-              text: `${entry.provider} · ${entry.model} · ${entry.endpoint} · ${entry.credential}`,
+              text: `${entry.endpoint} · ${entry.api} · ${entry.credential} · ${modelSummary(entry)}`,
             }),
+            /* PV-30 · 未知窗口意味着压缩是关着的。生效的那条连接由后端给出这句
+               原话（`capability.notice`），逐字呈现；其余连接后端今日不为它们
+               计算 capability，所以只说窗口未知，不替后端造那句话。 */
+            entry.inForce && snapshot?.capability?.notice
+              ? el("span", { className: "settings-row-help", text: snapshot.capability.notice })
+              : null,
           ),
-          el("div", { className: "connection-row-control" }, configureButton()),
+          el("div", { className: "connection-row-control" }, configureButton(entry)),
         ),
       ),
     );
   }
-  function configureButton() {
+  function modelSummary(entry) {
+    if (!entry.models.length) return "No models saved on it";
+    const count = `${entry.models.length} model${entry.models.length === 1 ? "" : "s"}`;
+    return entry.unknownWindows
+      ? `${count}, ${entry.unknownWindows} with an unknown context window`
+      : count;
+  }
+  function configureButton(entry) {
     const button = el("button", {
       className: "text-button",
-      attrs: { type: "button", "data-focus-key": "connection:configure" },
+      attrs: { type: "button", "data-focus-key": `connection:configure:${entry.id}` },
       text: "Configure",
     });
     button.addEventListener("click", () => {
-      addProvider.open = false;
+      selectPath(entry.path);
+      applyPath(entry.path, entry.path === "compatible" ? entry.connectionId : entry.providerIdentity);
+      addProvider.open = entry.path === "compatible";
       provider.focus();
     });
     return button;
+  }
+  function connectionById(id) {
+    return connections.find((connection) => connection.id === id) || null;
+  }
+  function connectionByIdentity(identity) {
+    return connections.find((connection) => connection.providerIdentity === identity) || null;
+  }
+  /* 表单此刻对准的那条连接。兼容路径上 `provider` 的值是连接 id（空串 = 一条还没
+     存在的新端点）；另外两条路径上它是目录身份。凭据端点收的是连接 id，所以这里
+     从注册表里查出来，不在前端拼 `catalog-…` —— 那个 id 的构造规则归后端。 */
+  function selectedConnection() {
+    return activePath() === "compatible"
+      ? connectionById(provider.value)
+      : connectionByIdentity(provider.value);
+  }
+  function userConnections() {
+    return connections.filter((connection) => connection.kind === "compatible");
   }
   function activePath() {
     return (
@@ -647,20 +849,30 @@ export function createSettingsView(
   function selectPath(id) {
     for (const input of pathFieldset.querySelectorAll("input")) input.checked = input.value === id;
   }
-  /* 一条路径只决定两件事：哪些 provider 身份可选，端点归谁。别的字段不随路径改动，
-     因为它们在三条路径里说的是同一件事。 */
+  /* 一条路径决定两件事：`Provider` 那一栏列的是什么身份，以及端点归谁。目录与
+     本地两条路径列的是目录身份；兼容路径列的是**这台宿主已经登记的连接**（外加
+     一条"新端点"），因为在那条路上身份就是连接本身，不借用任何目录身份。 */
   function applyPath(id, preferred) {
     const entry = CONNECTION_PATHS.find((path) => path.id === id) || CONNECTION_PATHS[0];
     pathHelp.textContent = entry.help;
-    const allowed = entry.providers;
     provider.replaceChildren();
-    for (const value of allowed)
-      provider.append(
-        el("option", { attrs: { value }, text: providerLabels[value] || value }),
-      );
-    provider.value = allowed.includes(preferred || provider.value)
-      ? preferred || provider.value
-      : allowed[0];
+    if (id === "compatible") {
+      provider.append(el("option", { attrs: { value: "" }, text: "New endpoint…" }));
+      for (const connection of userConnections())
+        provider.append(
+          el("option", { attrs: { value: connection.id }, text: connectionLabel(connection) }),
+        );
+      provider.value = connectionById(preferred) ? preferred : "";
+    } else {
+      const allowed = entry.providers;
+      for (const value of allowed)
+        provider.append(
+          el("option", { attrs: { value }, text: providerLabels[value] || value }),
+        );
+      provider.value = allowed.includes(preferred || provider.value)
+        ? preferred || provider.value
+        : allowed[0];
+    }
     baseUrl.disabled = entry.endpoint === "host";
     baseUrl.placeholder =
       entry.endpoint === "host"
@@ -671,17 +883,41 @@ export function createSettingsView(
     if (entry.endpoint === "host") baseUrl.value = "";
     if (entry.endpoint === "required") advanced.open = true;
     clearProbeResult();
+    if (id === "compatible") {
+      const connection = connectionById(provider.value);
+      baseUrl.value = connection?.baseUrl || "";
+      contextWindow.value = "";
+    }
     renderFlow();
-    fillModels(snapshot?.config?.model);
+    fillModels(id === "compatible" ? undefined : snapshot?.config?.model);
     lock();
+  }
+  /* 兼容路径上"可选的模型"是两件事的并集：这条连接已经存下的模型，以及刚刚
+     discover 报来的、保存时会随它一起存下的模型。窗口读数逐条来自后端的
+     `contextWindowSource`，发现来的还没存过，因而是 unknown。 */
+  function compatibleModelEntries() {
+    const connection = connectionById(provider.value);
+    const entries = (connection?.models || []).map((entry) => ({
+      id: entry.id,
+      contextWindow: entry.contextWindow ?? null,
+      contextWindowSource: entry.contextWindowSource,
+    }));
+    const known = new Set(entries.map((entry) => entry.id));
+    for (const id of discovered)
+      if (!known.has(id)) entries.push({ id, contextWindow: null, contextWindowSource: "unknown" });
+    return entries;
   }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
   }
   function fillModels(preferred) {
     model.replaceChildren();
-    const entries = availableModels();
+    const compatible = activePath() === "compatible";
+    const entries = compatible
+      ? compatibleModelEntries()
+      : availableModels();
     if (
+      !compatible &&
       provider.value === "fake-openai-loopback" &&
       !entries.some((entry) => entry.id === "fake-model")
     )
@@ -693,14 +929,42 @@ export function createSettingsView(
           text: entry.name || entry.id,
         }),
       );
-    if (entries.some((entry) => entry.id === preferred))
-      model.value = preferred;
+    if (entries.some((entry) => entry.id === preferred)) model.value = preferred;
     fillApis();
+    renderModelCapability();
+  }
+  /* 选中模型的窗口与档位读数。两者都只说目录/连接实际报了什么：窗口未报就是
+     unknown，目录没声明多于一档就只有 Off，且不出一个只有一项的下拉（PV-27）。 */
+  function renderModelCapability() {
+    if (!model.value) {
+      modelCapability.textContent = "";
+      return;
+    }
+    const compatible = activePath() === "compatible";
+    const entry = compatible
+      ? compatibleModelEntries().find((candidate) => candidate.id === model.value)
+      : (() => {
+          const catalogEntry = availableModels().find((candidate) => candidate.id === model.value);
+          return catalogEntry
+            ? { contextWindow: catalogEntry.contextWindow ?? null, contextWindowSource: Number.isSafeInteger(catalogEntry.contextWindow) ? "catalog" : "unknown" }
+            : null;
+        })();
+    const identity = compatible ? connectionById(provider.value)?.providerIdentity : provider.value;
+    const supported = identity ? supportedEffortsOf(catalog, identity, model.value) : null;
+    const effort = supported === null
+      ? "Reasoning effort: Off. The catalogue reports no levels for this model."
+      : effortSelectable(supported)
+        ? `Reasoning effort: ${supported.join(", ")}.`
+        : "Reasoning effort: Off. This catalogue declares no levels for this model.";
+    const window_ = contextWindowReading(entry);
+    modelCapability.textContent = entry?.contextWindow == null
+      ? `${window_} Compaction stays off for it. ${effort}`
+      : `${window_} ${effort}`;
   }
   function fillApis(preferred) {
     api.replaceChildren();
     const formats =
-      provider.value === "fake-openai-loopback"
+      activePath() !== "compatible" && provider.value === "fake-openai-loopback"
         ? ["openai-completions"]
         : ["openai-completions", "openai-responses"];
     for (const format of formats)
@@ -711,48 +975,57 @@ export function createSettingsView(
             format === "openai-responses" ? "Responses" : "Chat Completions",
         }),
       );
+    const connection = activePath() === "compatible" ? connectionById(provider.value) : null;
     const selected = availableModels().find((m) => m.id === model.value);
     api.value = formats.includes(preferred)
       ? preferred
-      : selected?.api || "openai-completions";
+      : connection?.api || selected?.api || "openai-completions";
   }
   function lock() {
     const active = Boolean(info?.activeRuns) || Boolean(getSession()?.active);
     for (const node of form.querySelectorAll("input,select,button"))
       node.disabled = busy || active;
-    const path = CONNECTION_PATHS.find((entry) => entry.id === activePath());
+    const pathId = activePath();
+    const path = CONNECTION_PATHS.find((entry) => entry.id === pathId);
     const endpointMissing = path?.endpoint === "required" && !baseUrl.value.trim();
     save.disabled = busy || active || !catalog || !model.value || endpointMissing;
     if (path?.endpoint === "host") baseUrl.disabled = true;
+    // 窗口值只在兼容路径上有可写之处：目录连接的窗口由目录报，用户改不了它。
+    contextWindowRow.hidden = pathId !== "compatible";
+    contextWindow.disabled = busy || active || pathId !== "compatible";
     /* 探测按钮与保存按钮受同一把锁：busy / active Run 时全部锁定（沿既有 `lock()`）。
      * 除此之外它只多一个条件 —— 没有 Base URL 就没有可探测的目录。 */
     const probable = Boolean(providerProbeRequest({ baseUrl: baseUrl.value }));
     for (const button of probeButtons.values())
       button.disabled = busy || active || probeBusy || !probable;
+    const target = selectedConnection();
     keySave.disabled = busy || active || !key.value.trim();
-    keyDelete.disabled =
-      busy || active || snapshot?.credentialStatus !== "configured";
+    keyDelete.disabled = busy || active || target?.credentialStatus !== "configured";
     key.disabled = busy || active;
-    credential.hidden = provider.value === "fake-openai-loopback";
-    credentialStatus.textContent =
-      snapshot?.config?.provider === provider.value &&
-      snapshot?.credentialStatus === "configured"
-        ? "A key is saved on this device. It is never shown here."
-        : "No key is saved for the selected connection.";
+    credential.hidden = pathId === "local";
+    credentialStatus.textContent = !target
+      ? "This endpoint is not saved yet. Its key travels with the connection when you save it."
+      : target.credentialStatus === "configured"
+        ? "A key is saved on this device for this connection. It is never shown here."
+        : "No key is saved for this connection.";
     status.textContent = active
       ? "A run is active. Connection and permission changes are available after it ends."
-      : provider.value === "fake-openai-loopback"
+      : pathId === "local"
         ? "Uses a deterministic local test provider. No external model request."
         : "Saved locally. A model call happens only when you send an instruction.";
+    renderModelCapability();
   }
   function resetFields() {
     if (!snapshot) return;
-    selectPath(connectionPathOf(snapshot.config));
-    applyPath(connectionPathOf(snapshot.config), snapshot.config.provider);
-    provider.value = snapshot.config.provider;
+    const connection = connectionByIdentity(snapshot.config.provider);
+    const pathId = connectionPathOfKind(connection);
+    selectPath(pathId);
+    applyPath(pathId, pathId === "compatible" ? connection?.id : snapshot.config.provider);
+    if (pathId !== "compatible") provider.value = snapshot.config.provider;
     fillModels(snapshot.config.model);
     fillApis(snapshot.config.api);
-    baseUrl.value = snapshot.config.baseUrl || "";
+    baseUrl.value = (pathId === "compatible" ? connection?.baseUrl : snapshot.config.baseUrl) || "";
+    contextWindow.value = "";
     dirty = false;
     lock();
   }
@@ -760,16 +1033,29 @@ export function createSettingsView(
     dirty = true;
     key.value = "";
     clearProbeResult();
+    /* 兼容路径上换的是"哪条连接"，端点与格式随它走：上一条连接的地址不是关于
+       这一条的陈述。 */
+    if (activePath() === "compatible") {
+      const connection = connectionById(provider.value);
+      baseUrl.value = connection?.baseUrl || "";
+      contextWindow.value = "";
+      fillApis(connection?.api);
+    }
     fillModels();
     lock();
   });
   model.addEventListener("change", () => {
     dirty = true;
+    contextWindow.value = "";
     fillApis();
     lock();
   });
   api.addEventListener("change", () => {
     dirty = true;
+  });
+  contextWindow.addEventListener("input", () => {
+    dirty = true;
+    lock();
   });
   baseUrl.addEventListener("input", () => {
     dirty = true;
@@ -784,7 +1070,50 @@ export function createSettingsView(
   });
   function fail(err) {
     error.hidden = false;
-    error.textContent = err.message || "The setting could not be saved.";
+    error.textContent = connectionSaveError(err);
+  }
+  async function reloadConnections() {
+    connections = (await request("/provider-connections")).connections || [];
+  }
+  function contextWindowValue() {
+    const raw = contextWindow.value.trim();
+    if (!raw) return null;
+    const parsed = Number(raw);
+    return Number.isSafeInteger(parsed) && parsed >= 4 ? parsed : null;
+  }
+  /* 兼容路径的保存是两步，因为后端有两件事：先把这条连接登记下来（端点、格式、
+     模型列表、以及要用的那把 key —— 后端拿它去探一次目录，三类失败在那里分开），
+     再把它选为生效配置。两步都成功才算保存成功；第一步失败时不会留下一条选中了
+     但没登记的配置。 */
+  async function saveCompatibleConnection() {
+    const chosen = model.value;
+    const window_ = contextWindowValue();
+    const models = compatibleModelEntries().map((entry) => {
+      const value = entry.id === chosen ? window_ : entry.contextWindow;
+      return { id: entry.id, ...(Number.isSafeInteger(value) ? { contextWindow: value } : {}) };
+    });
+    const body = {
+      api: api.value,
+      baseUrl: baseUrl.value.trim(),
+      models,
+      ...(key.value.trim() ? { apiKey: key.value.trim() } : {}),
+    };
+    const existing = provider.value;
+    const result = existing
+      ? await request(`/provider-connections/${encodeURIComponent(existing)}`, { method: "PUT", body })
+      : await request("/provider-connections", { method: "POST", body });
+    const connection = result.connection;
+    // 这条连接的模型此刻才进入已安装目录，所以先重取目录，投影才核得出档位。
+    catalog = await request("/provider-models");
+    await reloadConnections();
+    return request("/provider-config", {
+      method: "PUT",
+      body: projectProviderConfig(
+        snapshot?.config,
+        { provider: connection.providerIdentity, model: chosen, api: connection.api, baseUrl: undefined },
+        catalog,
+      ),
+    });
   }
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -792,18 +1121,33 @@ export function createSettingsView(
     busy = true;
     lock();
     error.hidden = true;
-    const body = {
-      provider: provider.value,
-      model: model.value,
-      api: api.value,
-      ...(baseUrl.value.trim() ? { baseUrl: baseUrl.value.trim() } : {}),
-    };
     try {
-      snapshot = await request("/provider-config", { method: "PUT", body });
+      if (activePath() === "compatible") {
+        snapshot = await saveCompatibleConnection();
+      } else {
+        /* PV-M-1 · 请求体由同一处投影装配。本处只说明这张表单改了什么；它没有
+           提到的 `reasoningEffort` 由快照带过去，于是保存连接不再静默清掉模型
+           选择器里选好的档位。 */
+        snapshot = await request("/provider-config", {
+          method: "PUT",
+          body: projectProviderConfig(
+            snapshot?.config,
+            {
+              provider: provider.value,
+              model: model.value,
+              api: api.value,
+              baseUrl: baseUrl.value.trim() || null,
+            },
+            catalog,
+          ),
+        });
+        await reloadConnections();
+      }
       onConfig(snapshot);
-      renderConnections();
       dirty = false;
       key.value = "";
+      resetFields();
+      renderConnections();
       notify("Connection saved.");
     } catch (err) {
       fail(err);
@@ -815,7 +1159,12 @@ export function createSettingsView(
   credential.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (busy || !key.value.trim()) return;
-    if (dirty || provider.value !== snapshot?.config?.provider) {
+    const target = selectedConnection();
+    if (!target) {
+      fail(new Error("Save this connection first. The key for a new endpoint is sent with it."));
+      return;
+    }
+    if (dirty) {
       fail(new Error("Save this connection before adding its key."));
       return;
     }
@@ -825,13 +1174,16 @@ export function createSettingsView(
     const value = key.value;
     key.value = "";
     try {
+      // 凭据的作用域是一条连接，不是一个 provider 身份：键就是连接 id（PV-32）。
       await request("/provider-credential", {
         method: "PUT",
-        body: { provider: provider.value, apiKey: value },
+        body: { connectionId: target.id, apiKey: value },
       });
       snapshot = await request("/provider-config");
+      await reloadConnections();
       onConfig(snapshot);
       renderConnections();
+      lock();
       notify("API key saved.");
     } catch (err) {
       fail(err);
@@ -842,16 +1194,19 @@ export function createSettingsView(
   });
   keyDelete.addEventListener("click", async () => {
     if (busy) return;
+    const target = selectedConnection();
+    if (!target) return;
     busy = true;
     lock();
     error.hidden = true;
     try {
       await request("/provider-credential", {
         method: "DELETE",
-        body: { provider: snapshot.config.provider },
+        body: { connectionId: target.id },
       });
       key.value = "";
       snapshot = await request("/provider-config");
+      await reloadConnections();
       onConfig(snapshot);
       renderConnections();
       notify("Saved key removed.");
@@ -951,15 +1306,17 @@ export function createSettingsView(
       const own = ++generation;
       error.hidden = true;
       try {
-        const [config, models, runtime] = await Promise.all([
+        const [config, models, runtime, registry] = await Promise.all([
           request("/provider-config"),
           request("/provider-models"),
           request("/runtime-info"),
+          request("/provider-connections"),
         ]);
         if (own !== generation) return;
         snapshot = config;
         catalog = models;
         info = runtime;
+        connections = registry.connections || [];
         onConfig(config);
         if (!dirty) resetFields();
         lock();
