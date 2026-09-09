@@ -53,7 +53,7 @@ for (const sheet of SHEETS) {
 }
 
 // Pages may own materials, but must not redefine product semantic tokens.
-for (const file of ["site.css", "pricing.css"]) {
+for (const file of ["site.css", "pricing.css", "product-pages.css"]) {
   const code = (await readFile(path.join(SITE, "src", file), "utf8")).replace(/\/\*[\s\S]*?\*\//g, "");
   for (const match of code.matchAll(/(--[a-z0-9-]+)\s*:/g)) {
     if (!/^--(?:campaign|site|pricing)-/.test(match[1])) problems.push({file: `src/${file}`, why: "campaign must not redefine product tokens", text: match[1]});

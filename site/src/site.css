@@ -709,3 +709,5 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .brand-icon rect:not(:first-child) { fill: var(--campaign-mark-record); }
 @media (prefers-color-scheme: dark) { :root { --campaign-mark-record: #90979d; } }
 @media (forced-colors: active) { .brand-icon rect:not(:first-child) { fill: CanvasText; } }
+
+.product-footer-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 24px; font-size: 14px; }

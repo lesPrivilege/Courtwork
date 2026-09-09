@@ -33,6 +33,16 @@ capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的
 
 ## Pages polish / campaign ownership（2026-09-10）
 
-本轮用户授权页面比产品更激进，Astra认领并裁定Archival Instrument；此前本页“仅连接线blur”“不启动新方向”的范围由本条覆盖。独立campaign材质、字阶与解释动效位于 `src/site.css`，产品标本仍保留固定token与来源守卫。`scripts/check-material.mjs`只检查标本；campaign通过浏览器对比度、重排和偏好验证。
+本轮用户授权页面比产品更激进，Astra认领并裁定Archival Instrument；此前本页“仅连接线blur”“不启动新方向”的范围由本条覆盖。独立campaign材质、字阶与解释动效位于 `src/site.css`，产品标本仍保留固定token与来源守卫。`scripts/check-material.mjs`的材料字面量检查仅适用标本；campaign允许独立材质但禁止重定义产品语义token，并通过浏览器对比度、重排和偏好验证。
 
 Hero中的纸层是明确标注的概念作品。新版Home完成前，`data-capture-slot="home"`保留待补状态；旧M1只在展开后显示且标明9e5384f。完成后先在对应快照隔离树运行capture，统一重取媒体、标本、benchmark与测试记录，再更新release与槽位；不把旧图标成新Home。完整实现、验证和发布范围见 [polish回执](../evidence/pages-polish-20260910/README.md)。
+
+## Product-life pages
+
+首页保留叙事，`tour.html`、`get.html`、`cli.html`、`changelog.html`、`models.html`、`data.html`承接产品外围入口。`src/product-pages.mjs`在构建时读取同一固定录制和版本；`src/product-interactions.mjs`只提供下载说明弹层、安装命令复制与离线CLI导航。
+
+```sh
+node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
+```
+
+Tour有十类状态，当前六张对应截图；未录制状态保留待补，不能把十类索引写成十张实机已完成。详情见[本轮回执](../evidence/pages-product-life-20260910/README.md)。

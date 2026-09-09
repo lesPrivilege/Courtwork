@@ -3,6 +3,8 @@
 // Copy is shared by the page and README. Version/count placeholders are filled
 // from the fixed evidence receipt. The current editorial policy is PS-26.
 export const NAV = [
+  { label: "Product tour", href: "./tour.html" },
+  { label: "Get Courtwork", href: "./get.html" },
   { label: "GitHub", href: "https://github.com/lesPrivilege/Courtwork" },
   { label: "Paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
   { label: "Docs", href: "https://github.com/lesPrivilege/Courtwork/tree/main/docs" },

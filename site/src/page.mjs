@@ -65,6 +65,7 @@ export function renderPage({ identity, evidence, recording, diagram, media }) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <title>CourtWork · ${escape(HERO.h1[0])}</title>
     <meta name="description" content="${escape(HERO.lede)}" />
     <link rel="stylesheet" href="./tokens.css" />
@@ -358,6 +359,7 @@ function build(fill, shot) {
 
 function footer(fill, identity) {
   return `<footer class="footer">
+      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
       <p>${FOOTER.items
         .map((item) => {
           const text = fill(item);
@@ -375,4 +377,4 @@ function closingShot() { return `<section class="closing-shot" aria-label="Court
 
 // Static mono use of brand/geometry/mark.svg. Exact canonical rectangles;
 // this lockup conveys identity, never review or acceptance state.
-function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
+export function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false" fill="currentColor"><rect x="7.2" y="4" width="11.2" height="52.8" rx="2"/><rect x="28" y="7.2" width="28" height="9.6" rx="2.8"/><rect x="28" y="25.6" width="28" height="9.6" rx="2.8"/><rect x="28" y="44" width="19.2" height="9.6" rx="2.8"/></svg>`; }
