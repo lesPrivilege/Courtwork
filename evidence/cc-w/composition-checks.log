@@ -1,0 +1,42 @@
+PASS HOME-1 {"centre":0.56,"threshold":0.55}
+PASS HOME-2 {"aboveComposerHeight":38}
+PASS HOME-3 {"orientation":38,"text":"Work that exists beyond the model."}
+PASS HOME-4 {"width":820}
+PASS HOME-5 {"input":96}
+PASS HOME-6 {}
+PASS HOME-7 {"stats":3,"planned":0,"backendPendingOnHome":false,"order":["composer-area","home-top-band","message-stream-wrap"]}
+PASS HOME-overflow {"overflow":0}
+PASS HOME-narrow-dock {"order":["home-top-band","message-stream-wrap","composer-area"]}
+PASS HOME-narrow-overflow {"overflow":0}
+PASS WORK-1 {"homePrimitives":0,"bandHidden":true}
+PASS WORK-2 {"order":["home-top-band","message-stream-wrap","composer-area"],"width":740}
+PASS WORK-3 {"input":88}
+PASS WORK-overflow {"overflow":0}
+PASS WORK-4 {"surfaceOpen":true,"readingWidth":1184,"composerMeasure":740}
+PASS SHELL-1 {"unsafeControls":[]}
+PASS SETTINGS-1 {"settingsActive":true,"navHidden":true,"navInert":true,"navRects":0,"navFocusable":0,"toggleNavHidden":true}
+PASS SETTINGS-2 {"navColumn":240,"contentColumn":820,"leftGutter":48,"rightGutter":48}
+PASS SETTINGS-3 {"blockGaps":[40],"rowPaddingTopBottom":[12,12],"rowSpacing":24}
+PASS SETTINGS-4 {"labelLeftEdges":[341],"controlRightEdges":[1119]}
+PASS SETTINGS-back-label {"backLabel":"Back to app","backVisible":true}
+PASS SETTINGS-title {"pageTitle":"Settings","settingsHeadingsOnScreen":1,"labelledBy":"session-title"}
+PASS SETTINGS-1440-overflow {"overflow":0}
+PASS SETTINGS-5 {"settingsOpen":false,"view":"home","sidebarBack":true,"focus":"quiet-button icon-only"}
+PASS SETTINGS-1680-gutter {"leftGutter":64,"overflow":0}
+PASS SETTINGS-1024-overflow {"overflow":0,"sidebarRendered":0}
+PASS SETTINGS-6 {"selectVisible":true,"navListVisible":false,"gutter":16,"controlsUnder44":[],"overflow":0}
+PASS SETTINGS-7 {"overflow":0,"cssViewport":720}
+PASS SHELL-2 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-3 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-2-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-3-browser {"host":"browser","unsafeControls":null}
+PASS WORK-5 {"shape":"app-shell surface-expanded surface-view-switch","docPane":1136,"strip":44,"proseGap":24,"backdropHidden":true,"shadow":"none","radius":"0px","chatColumn":{"hidden":true,"inert":true,"inDom":true},"overflow":0}
+PASS WORK-6 {"shape":"app-shell surface-expanded surface-three-pane","columns":"256px 688px 736px","position":"static","nav":256,"chat":688,"doc":688,"docMin":688,"scrolls":{"doc":"auto","chat":"auto","nav":"visible"},"chromeBaseline":{"chat":{"top":0,"left":256,"width":687,"height":56,"bottom":56},"doc":{"top":0,"left":944,"width":736,"height":56,"bottom":56}},"composerWhole":true,"overflow":0}
+PASS WORK-7 {"1679":{"shape":"app-shell surface-expanded surface-view-switch","doc":1375,"overflow":0},"1680":{"shape":"app-shell surface-expanded surface-three-pane","doc":688,"chat":688,"overflow":0}}
+PASS WORK-8 {"height":720,"composerWhole":true,"composer":{"top":484,"left":280,"width":639,"height":180,"bottom":664},"overflow":0}
+PASS WORK-9 {"cssViewport":720,"shape":"app-shell surface-expanded","overflow":0}
+PASS SHELL-4 {"host":"desktop","shape":"app-shell surface-expanded surface-view-switch","unsafeControls":[]}
+PASS SHELL-5 {"host":"desktop","shape":"app-shell surface-expanded surface-three-pane","unsafeControls":[]}
+PASS SHELL-4-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-5-browser {"host":"browser","unsafeControls":null}
+41 / 41
