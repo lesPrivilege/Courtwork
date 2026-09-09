@@ -1202,7 +1202,7 @@ export function skinContrastWarnings(values, { probeHost = globalThis.document?.
 
 /* WK-78 (5) · 偏好只在本设备。读、写、应用三件事各一处；应用那一份住在 index.html 的
  * 首帧内联脚本里，因为它必须在第一次绘制之前跑完，这里复用同一个函数，不写第二份。 */
-const PREFERENCE_DEFAULTS = {
+export const PREFERENCE_DEFAULTS = {
   scheme: "system",
   skin: "slate",
   customSkin: "",
@@ -1235,6 +1235,21 @@ export function readPreferences() {
     prefs.customSkin = stored.customSkin;
   return prefs;
 }
+/* CC-I 第一片（WK-150 / WK-143 / WK-149 (c)）· 一行偏好比一行设置多出的那件事：
+ * 它现在是什么、本来是什么、是谁把它改成现在这样的。判定只有这一处，且只能是
+ * **生效值与 owner 默认值的字面比较**——不作 UI 侧推断，也不看草稿。
+ *
+ * 词表今日是闭集，只有两个词。没有组织策略、没有继承链、没有 Expert policy：
+ * 本设备偏好的 owner 只有这台设备自己，造第三个来源词就是投影创造事实
+ * （WK-139 (c)）。第三个词要等真有一个 owner 事实。 */
+export const PROVENANCE_WORDS = ["Default", "Changed on this device"];
+export function preferenceProvenance(prefs, property) {
+  if (!prefs || !Object.hasOwn(PREFERENCE_DEFAULTS, property)) return null;
+  return prefs[property] === PREFERENCE_DEFAULTS[property]
+    ? PROVENANCE_WORDS[0]
+    : PROVENANCE_WORDS[1];
+}
+
 export function writePreferences(prefs) {
   const store = globalThis.__cwPrefs;
   if (!store) return prefs;
@@ -1248,9 +1263,91 @@ export function writePreferences(prefs) {
   return prefs;
 }
 
+/* CC-I 第一片（WK-150）· 有 owner 默认值的行把自己的刷新与聚焦登记在这里。
+ * 每次重画 Appearance 都从空表开始：行是新的 DOM，旧的引用不该被留住。
+ *
+ * 为什么分成 sync 与 reset 两条路：普通的改值（拨一格 segmented、提交一次
+ * Code font）只更新那一行的脚，**不重画控件** —— 每次重建分段控件都会把焦点从人正
+ * 在用的那个控件上夺走（本文件下面 render() 的同一条 FN-27）。复位不同：控件显示的
+ * 值由 prefs 生成，所以只有整块重画才能让 select 与 radio 跟上事实；重画之后再把焦
+ * 点显式放回同一行的控件上，不让它掉回 body。
+ *
+ * 复位走 `apply` 这一条既有的保存通道（`savePrefs` → `writePreferences`），不绕过
+ * 闭集校验，也不自己碰 `cw:prefs`。 */
+export function createPreferenceGovernance({ read, apply, rerender, status }) {
+  let rows = [];
+  return {
+    get rows() {
+      return rows;
+    },
+    begin() {
+      rows = [];
+    },
+    register(row) {
+      rows.push(row);
+    },
+    sync() {
+      /* 任何一次改值都作废上一条复位回执：那句话说的是上一个动作。 */
+      status.textContent = "";
+      const prefs = read();
+      for (const row of rows) row.sync(prefs);
+    },
+    reset(property, title) {
+      if (!Object.hasOwn(PREFERENCE_DEFAULTS, property)) return;
+      apply(property, PREFERENCE_DEFAULTS[property]);
+      rerender();
+      rows.find((row) => row.property === property)?.focus();
+      /* 复用页面既有的 role="status" 机制，不新造 toast。 */
+      status.textContent = `${title} reset to default.`;
+    },
+  };
+}
+
+/* CC-I 第一片（WK-150）· 一行偏好的脚：provenance 一个词，右边是复位。
+ *
+ * modified 不另画一个色点：provenance 那个词本身就是指示器（WK-140 §4 "不得只靠
+ * 颜色"），整行也不因为 modified 换背景或加边框——材质表达层次不表达状态（FN-28）。
+ * 复位在默认态**不呈现**而不是呈现为不可用：一个按不动的按钮要人先按一次才知道它
+ * 不该被按，而 `Default` 这个词已经把"现在就是默认"说完了（与 WK-27 "没有能力就不
+ * 画控件"同一条）。脚的高度用 `--control` 钉死，所以出现与消失都不挪动下面的行。 */
+function propertyFoot(title, property, prefs, controlId, onReset) {
+  const provenanceId = `${controlId}-provenance`;
+  const provenance = el("span", {
+    className: "property-provenance",
+    attrs: { id: provenanceId },
+  });
+  const reset = el("button", {
+    className: "text-button property-reset",
+    text: "Reset",
+    /* 光秃秃的 `Reset` 在一列六行里彼此无法分辨：可达名字带上属性名，
+       可见文字仍是 `Reset` 且是名字的前缀（label-in-name）。 */
+    attrs: { type: "button", "aria-label": `Reset ${title} to default` },
+  });
+  /* 复位是可逆的低风险操作，不加确认对话框（WK-122 undo over confirmation；
+     WK-140 `high-risk ≠ confirm dialog` 的反面：低风险更不该有）。 */
+  reset.addEventListener("click", () => onReset?.(property, title));
+  const foot = el("div", { className: "property-foot" }, provenance, reset);
+  const sync = (current) => {
+    const word = preferenceProvenance(current, property);
+    provenance.textContent = word;
+    const modified = word !== PROVENANCE_WORDS[0];
+    reset.hidden = !modified;
+    foot.setAttribute("data-modified", String(modified));
+  };
+  sync(prefs);
+  return { foot, sync, provenanceId };
+}
+
 /* 一行的解剖与既有 settings-row 完全相同：标题 + 一句作用域或后果 + 右侧单一控件。
- * WK-87 (a) 之后预览只有一块、住在组顶，所以行不再需要外面那层 entry 包装。 */
-function settingsRow(title, help, control, { id } = {}) {
+ * WK-87 (a) 之后预览只有一块、住在组顶，所以行不再需要外面那层 entry 包装。
+ *
+ * CC-I 第一片（WK-150）· 只多一个可选的 `property`：它是 `PREFERENCE_DEFAULTS` 里的
+ * 一个键，也就是"这一行有一个 owner 默认值"。给了它，这一行长出 modified /
+ * reset / provenance 三件；不给（服务器背书的设置、只读行、纯导航行）**一个字都不
+ * 多**——没有 owner 默认值就没有 provenance，这是"投影不得创造事实"（WK-139 (c)）
+ * 在这一片的形态。`governance` 是页面那一份注册台，行只把自己的刷新与聚焦交上去，
+ * 不去持有 prefs，也不自己写存储。 */
+export function settingsRow(title, help, control, { id, property, prefs, governance } = {}) {
   const controlId = id || control.id || `settings-${Math.random().toString(36).slice(2, 8)}`;
   if (!control.id) control.id = controlId;
   const labelTag = control.matches?.("fieldset") ? "span" : "label";
@@ -1269,6 +1366,33 @@ function settingsRow(title, help, control, { id } = {}) {
     ),
     el("div", { className: "settings-row-control" }, control),
   );
+  if (!property || !Object.hasOwn(PREFERENCE_DEFAULTS, property)) return row;
+  const { foot, sync, provenanceId } = propertyFoot(
+    title,
+    property,
+    prefs,
+    control.id,
+    governance?.reset,
+  );
+  row.setAttribute("data-property", property);
+  /* provenance 要被读屏听见，所以挂在控件上，而不是留一段孤立的文字。 */
+  control.setAttribute("aria-describedby", provenanceId);
+  row.append(foot);
+  governance?.register({
+    property,
+    sync,
+    /* fieldset 本身不可聚焦：分段控件的落点是被选中的那个 radio，也就是复位之后
+       默认值所在的那一格。行若住在 Advanced 里，先把那层 details 打开，否则焦点会
+       落进一个看不见的控件（FN-27）。 */
+    focus() {
+      const details = row.closest?.("details");
+      if (details) details.open = true;
+      const target = control.matches?.("fieldset")
+        ? control.querySelector("input:checked") || control.querySelector("input")
+        : control;
+      target?.focus?.();
+    },
+  });
   return row;
 }
 /** 与 segmentedPermission 同一个控件，只是选项由调用者给：原生 radio、一条轨、
@@ -1520,12 +1644,33 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   });
   const skinErrors = el("div", { className: "skin-errors", attrs: { role: "alert" } });
   const skinState = el("p", { className: "settings-row-help" });
+  /* CC-I 第一片（WK-150）· 复位后的一句回执。沿用页面上探测结果那一处已有的
+     `role="status"` 机制（本文件 413 行），不新造 toast：它是一条状态，不是一个决定
+     （FN-26 的分工）。文字在重画之后才写，读屏才会念到新插入的那一句。 */
+  const appearanceStatus = el("p", {
+    className: "settings-row-help settings-appearance-status",
+    attrs: { role: "status" },
+  });
+  const governance = createPreferenceGovernance({
+    read: () => prefs,
+    apply(property, value) {
+      savePrefs({ [property]: value });
+      /* Palette 的草稿与生效值是两条（FN-14 请求值 ≠ 有效值）：复位生效值时草稿
+         一并回到默认，否则 select 还停在 Custom tokens 上，界面比事实更旧。
+         存着的那套 token 不动 —— 复位是把这一项还原成它的默认值，不是删数据；
+         删是编辑器里那个 Remove。 */
+      if (property === "skin") skinDraft = value;
+    },
+    rerender: () => renderAppearance(),
+    status: appearanceStatus,
+  });
   function savePrefs(change) {
     prefs = writePreferences({ ...prefs, ...change });
     /* Home 的版面偏好在 Settings 里改，在 Home 上生效：这里只回执改了什么，
        由 app 决定重画哪一块，Settings 不去碰 Home 的 DOM。 */
     if (Object.hasOwn(change, "homeLayout") || Object.hasOwn(change, "homeModuleBand"))
       onHomeLayout?.(prefs);
+    governance.sync();
     return prefs;
   }
   function renderSkinEditor() {
@@ -1622,6 +1767,10 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     attrs: { role: "alert", hidden: true },
   });
   function renderAppearance() {
+    governance.begin();
+    /* 一个调用点只多一个词。有 owner 默认值的行写 `governed("scheme")`，没有的
+       行什么都不写——加一行 provenance 不该逼着改十处调用（本片的缝就切在这里）。 */
+    const governed = (property) => ({ property, prefs, governance });
     const scheme = segmented({
       name: "settings-scheme",
       label: "Theme",
@@ -1708,6 +1857,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         "Palette",
         "Swaps the colour scale only. State words, legal actions and what a control does stay exactly as they are.",
         skin,
+        governed("skin"),
       ),
       skinEditor,
     );
@@ -1718,29 +1868,35 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         "Theme",
         "Light, dark, or whatever this device is set to. It is kept on this device and never sent to the host.",
         scheme,
+        governed("scheme"),
       ),
       settingsRow(
         "Text size",
         "Scales every text role together. Hit regions, spacing and keyboard order do not change with it.",
         textSize,
+        governed("textSize"),
       ),
       settingsRow(
         "Code font",
         "A monospaced family already installed on this device. Nothing is downloaded, and an unavailable name falls back to the default stack.",
         codeFont,
+        governed("codeFont"),
       ),
       codeFontError,
       settingsRow(
         "Reduced motion",
         "Always reduce stops transitions and animations. Nothing a control does changes with it.",
         motion,
+        governed("motion"),
       ),
       settingsRow(
         "Home layout",
         "Modules shows project attention and recorded activity above the composer. Simple keeps a quieter starting page.",
         homeLayout,
+        governed("homeLayout"),
       ),
       advanced,
+      appearanceStatus,
     );
     renderSkinEditor();
     applyFilter();

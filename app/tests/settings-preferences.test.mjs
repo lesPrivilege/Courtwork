@@ -15,6 +15,11 @@ import {
   CODE_FONT_PATTERN,
   SETTINGS_GROUPS,
   isSettingsSection,
+  PREFERENCE_DEFAULTS,
+  PROVENANCE_WORDS,
+  preferenceProvenance,
+  createPreferenceGovernance,
+  settingsRow,
 } from "../web/settings-view.mjs";
 import { homeModules, homeBandModules } from "../web/home-view.mjs";
 
@@ -224,4 +229,301 @@ test("页面的九个组是闭集，未知的节名落回 General", () => {
   assert.equal(isSettingsSection("appearance"), true);
   assert.equal(isSettingsSection("runtime"), false);
   assert.equal(isSettingsSection("billing"), false);
+});
+
+/* ── CC-I 第一片（WO-CCI-01 / WK-150）· PropertyRow ─────────────────────
+ * 这一段测的是"一行偏好比一行设置多出来的那三件事"，以及它们各自的边界：
+ * provenance 的词表是闭集、判定读生效值不读草稿、复位走既有保存通道且不丢焦点、
+ * 没有 owner 默认值的行一个字都不多。DOM 用本文件自带的最小节点，与
+ * home-presentation.test.mjs 的 TinyDom 同一路子：这里没有浏览器，量的是结构。 */
+
+class RowNode {
+  constructor(tagName, ownerDocument) {
+    this.tagName = tagName;
+    this.ownerDocument = ownerDocument;
+    this.children = [];
+    this.attributes = new Map();
+    this.listeners = new Map();
+    this._text = "";
+    this.className = "";
+    this.value = "";
+    this.hidden = false;
+    this.checked = false;
+  }
+  set textContent(value) {
+    this._text = value === null || value === undefined ? "" : String(value);
+    this.children = [];
+  }
+  get textContent() {
+    return this._text + this.children.map((child) => child.textContent).join("");
+  }
+  append(...children) {
+    for (const child of children.flat()) {
+      if (child === null || child === undefined || child === false) continue;
+      const node = typeof child === "string" ? this.ownerDocument.createTextNode(child) : child;
+      node.parentNode = this;
+      this.children.push(node);
+    }
+  }
+  setAttribute(name, value) {
+    this.attributes.set(name, String(value));
+    if (name === "id") this.id = String(value);
+  }
+  getAttribute(name) {
+    return this.attributes.get(name) ?? null;
+  }
+  addEventListener(type, callback) {
+    const callbacks = this.listeners.get(type) ?? [];
+    callbacks.push(callback);
+    this.listeners.set(type, callbacks);
+  }
+  dispatchEvent(event = {}) {
+    for (const callback of this.listeners.get(event.type) ?? []) callback(event);
+  }
+  click() {
+    this.dispatchEvent({ type: "click", target: this });
+  }
+  focus() {
+    this.ownerDocument.activeElement = this;
+  }
+  matches(selector) {
+    return this.tagName === selector;
+  }
+  closest(selector) {
+    let node = this;
+    while (node) {
+      if (node.tagName === selector) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  /* 只支持本段用到的三种：类名、`input:checked`、`input`。 */
+  querySelector(selector) {
+    const test = (node) =>
+      selector.startsWith(".")
+        ? String(node.className).split(/\s+/).includes(selector.slice(1))
+        : selector === "input:checked"
+          ? node.tagName === "input" && node.checked
+          : node.tagName === selector;
+    const visit = (node) => {
+      for (const child of node.children) {
+        if (test(child)) return child;
+        const found = visit(child);
+        if (found) return found;
+      }
+      return null;
+    };
+    return visit(this);
+  }
+}
+class RowDocument {
+  constructor() {
+    this.activeElement = null;
+  }
+  createElement(tagName) {
+    return new RowNode(tagName, this);
+  }
+  createTextNode(text) {
+    const node = new RowNode("#text", this);
+    node.textContent = text;
+    return node;
+  }
+}
+function withRowDom(fn) {
+  const previous = globalThis.document;
+  globalThis.document = new RowDocument();
+  try {
+    return fn(globalThis.document);
+  } finally {
+    if (previous === undefined) delete globalThis.document;
+    else globalThis.document = previous;
+  }
+}
+/** 一个最小的页面：一份 prefs、一个 status 行、一份按 property 重画的行表。 */
+function appearanceHarness(document, properties, initial = {}) {
+  let prefs = { ...PREFERENCE_DEFAULTS, ...initial };
+  const status = document.createElement("p");
+  const host = document.createElement("div");
+  const saved = [];
+  const governance = createPreferenceGovernance({
+    read: () => prefs,
+    apply(property, value) {
+      saved.push([property, value]);
+      prefs = { ...prefs, [property]: value };
+      governance.sync();
+    },
+    rerender: () => render(),
+    status,
+  });
+  const controls = new Map();
+  function render() {
+    governance.begin();
+    host.replaceChildren?.();
+    host.children = [];
+    for (const [property, title] of properties) {
+      const control = document.createElement("select");
+      control.value = prefs[property];
+      controls.set(property, control);
+      const row = settingsRow(title, "help", control, { property, prefs, governance });
+      row.parentNode = host;
+      host.append(row);
+    }
+  }
+  render();
+  const foot = (property) =>
+    host.children
+      .find((row) => row.getAttribute("data-property") === property)
+      .querySelector(".property-foot");
+  return {
+    get prefs() {
+      return prefs;
+    },
+    saved,
+    status,
+    host,
+    controls,
+    foot,
+    provenance: (property) => foot(property).querySelector(".property-provenance").textContent,
+    reset: (property) => foot(property).querySelector(".property-reset"),
+    change(property, value) {
+      prefs = { ...prefs, [property]: value };
+      governance.sync();
+    },
+  };
+}
+
+test("CC-I · provenance 的词表今日是闭集的两个词，判定是与 owner 默认值的字面比较", () => {
+  assert.deepEqual(PROVENANCE_WORDS, ["Default", "Changed on this device"]);
+  for (const property of Object.keys(PREFERENCE_DEFAULTS))
+    assert.equal(preferenceProvenance(PREFERENCE_DEFAULTS, property), "Default", property);
+  assert.equal(preferenceProvenance({ ...PREFERENCE_DEFAULTS, textSize: "large" }, "textSize"), "Changed on this device");
+  // 没有 owner 默认值的键没有 provenance —— 不造第三个词，也不造一个空字符串。
+  assert.equal(preferenceProvenance(PREFERENCE_DEFAULTS, "adapterId"), null);
+  assert.equal(preferenceProvenance(null, "textSize"), null);
+});
+
+test("CC-I · 默认态：provenance 是 Default，复位不呈现", () => {
+  withRowDom((document) => {
+    const page = appearanceHarness(document, [["textSize", "Text size"]]);
+    assert.equal(page.provenance("textSize"), "Default");
+    assert.equal(page.reset("textSize").hidden, true);
+    assert.equal(page.foot("textSize").getAttribute("data-modified"), "false");
+  });
+});
+
+test("CC-I · 改一项之后翻为 Changed on this device，复位可用且可达名字带属性名", () => {
+  withRowDom((document) => {
+    const page = appearanceHarness(document, [["textSize", "Text size"]]);
+    page.change("textSize", "large");
+    assert.equal(page.provenance("textSize"), "Changed on this device");
+    assert.equal(page.reset("textSize").hidden, false);
+    assert.equal(page.foot("textSize").getAttribute("data-modified"), "true");
+    assert.equal(page.reset("textSize").getAttribute("aria-label"), "Reset Text size to default");
+    // 可见文字仍是 Reset，且是可达名字的前缀（label-in-name）。
+    assert.equal(page.reset("textSize").textContent, "Reset");
+  });
+});
+
+test("CC-I · 复位：值回默认、provenance 回 Default、焦点落在本行控件上、有一条可播报的回执", () => {
+  withRowDom((document) => {
+    const page = appearanceHarness(document, [["textSize", "Text size"], ["motion", "Reduced motion"]], { textSize: "large" });
+    assert.equal(page.provenance("textSize"), "Changed on this device");
+    page.reset("textSize").click();
+    assert.equal(page.prefs.textSize, PREFERENCE_DEFAULTS.textSize);
+    assert.deepEqual(page.saved, [["textSize", "medium"]]);
+    assert.equal(page.provenance("textSize"), "Default");
+    assert.equal(page.reset("textSize").hidden, true);
+    // 焦点不许掉回 body：它落在重画之后那一行的控件上。
+    assert.equal(document.activeElement, page.controls.get("textSize"));
+    assert.equal(page.status.textContent, "Text size reset to default.");
+    // 邻行没有被这次复位改动。
+    assert.equal(page.provenance("motion"), "Default");
+  });
+});
+
+test("CC-I · 复位之后的下一次改值作废那条回执，回执不是一条会留在页面上的旧话", () => {
+  withRowDom((document) => {
+    const page = appearanceHarness(document, [["textSize", "Text size"]], { textSize: "large" });
+    page.reset("textSize").click();
+    assert.equal(page.status.textContent, "Text size reset to default.");
+    page.change("textSize", "small");
+    assert.equal(page.status.textContent, "");
+  });
+});
+
+test("CC-I · 没有 owner 默认值的行一个字都不多：同一个函数，不长出这三样", () => {
+  withRowDom((document) => {
+    const control = document.createElement("span");
+    const plain = settingsRow("Data directory", "help", control, {});
+    assert.equal(plain.getAttribute("data-property"), null);
+    assert.equal(plain.querySelector(".property-foot"), null);
+    assert.equal(plain.querySelector(".property-reset"), null);
+    assert.equal(control.getAttribute("aria-describedby"), null);
+    // 表外的 property 名同样不长出来：provenance 只能来自 PREFERENCE_DEFAULTS。
+    const invented = settingsRow("Host state", "help", document.createElement("span"), {
+      property: "adapterId",
+      prefs: PREFERENCE_DEFAULTS,
+    });
+    assert.equal(invented.querySelector(".property-foot"), null);
+  });
+});
+
+test("CC-I · provenance 挂在控件上，读屏听得到它而不是一段孤立的文字", () => {
+  withRowDom((document) => {
+    const page = appearanceHarness(document, [["scheme", "Theme"]]);
+    const control = page.controls.get("scheme");
+    const described = control.getAttribute("aria-describedby");
+    assert.ok(described, "控件没有指向 provenance");
+    assert.equal(
+      page.foot("scheme").querySelector(".property-provenance").getAttribute("id"),
+      described,
+    );
+  });
+});
+
+/* WK-149 (c) · Code font 是两阶段 commit：输入框里的编辑不是事实，`commitFont()`
+   通过校验写进 prefs 之后才是。provenance 读的是写进去的那一份。 */
+test("CC-I · Code font：未提交的编辑不是 modified，提交后才是，校验失败不改 provenance", () => {
+  const source = readFileSync(`${root}app/web/settings-view.mjs`, "utf8");
+  // 未提交：prefs 里仍是空串，也就是默认值。
+  assert.equal(preferenceProvenance({ ...PREFERENCE_DEFAULTS, codeFont: "" }, "codeFont"), "Default");
+  assert.equal(
+    preferenceProvenance({ ...PREFERENCE_DEFAULTS, codeFont: "JetBrains Mono" }, "codeFont"),
+    "Changed on this device",
+  );
+  // 校验失败的那一支在写 prefs 之前就 return，所以 provenance 无从改变。
+  const commit = source.slice(source.indexOf("const commitFont ="), source.indexOf("codeFont.addEventListener(\"change\""));
+  assert.match(commit, /if \(value && !CODE_FONT_PATTERN\.test\(value\)\)[\s\S]*?return;/);
+  assert.ok(
+    commit.indexOf("return;") < commit.indexOf("savePrefs({ codeFont: value })"),
+    "savePrefs 跑在了校验失败的前面",
+  );
+});
+
+/* FN-14 请求值 ≠ 有效值 · Palette 的 select 是草稿，生效值是 prefs.skin。 */
+test("CC-I · Palette 选了 Custom tokens 但没 Apply 不算 changed：provenance 读生效值不读草稿", () => {
+  assert.equal(preferenceProvenance({ ...PREFERENCE_DEFAULTS, skin: "slate" }, "skin"), "Default");
+  assert.equal(preferenceProvenance({ ...PREFERENCE_DEFAULTS, skin: "custom" }, "skin"), "Changed on this device");
+  const source = readFileSync(`${root}app/web/settings-view.mjs`, "utf8");
+  // provenance 的唯一入参是 prefs，`skinDraft` 不进这条判定。
+  assert.doesNotMatch(
+    source.slice(source.indexOf("export function preferenceProvenance"), source.indexOf("export function writePreferences")),
+    /skinDraft/,
+  );
+  // 存着一套 token 但没应用，Palette 仍是 Default：customSkin 不是 Palette 这一行的生效值。
+  assert.equal(
+    preferenceProvenance({ ...PREFERENCE_DEFAULTS, customSkin: ":root{--paper:#fff;}" }, "skin"),
+    "Default",
+  );
+});
+
+/* WK-146 / WK-150 · 空集守恒：这一片之后 Value 类必须仍然是空集。 */
+test("CC-I · 这一片没有引入任何数值控件：Value 类仍是空集", () => {
+  const source = readFileSync(`${root}app/web/settings-view.mjs`, "utf8");
+  const styles = readFileSync(`${root}app/web/styles.css`, "utf8");
+  for (const text of [source, styles])
+    for (const forbidden of [/type: "range"/, /type="range"/, /type: "number"/, /<progress/, /<meter/, /role="meter"/, /aria-valuenow/])
+      assert.doesNotMatch(text, forbidden, String(forbidden));
+  // 复位是可逆的低风险操作，不加确认对话框（WK-122 / WK-140）。
+  assert.doesNotMatch(source, /\bconfirm\(/);
 });
