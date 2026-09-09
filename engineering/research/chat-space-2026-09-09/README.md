@@ -33,3 +33,5 @@
 [当前实现映射](courtwork-mapping.md)标出代码/契约、已有与待做、owner及首个反例。CC-W、CC-D0-a、FE-05a、FE-05、CC-I继续既定串行次序；未覆盖的消息/下载接缝先由Astra按既有后端台账界定，不能由本研究自行插单或把规划画成可用操作。与[AM](../architecture-maintenance-2026-09-09/README.md)、[LG](../local-governance-2026-09-09/README.md)、[Attention](../attention-2026-09-09/README.md)共用边界。
 
 Luna负责来源核验与本地映射；Astra完整消费文本/截图、作关键裁决并整合。仅核验文档路径、来源覆盖、hash与diff，不运行产品/provider测试，不声称UI独立验收；未部署、安装外部项目或启动新施工会话。ES-01及G1–G5保持原状态。
+
+后续[CodeRabbit Review Surface PR准备](../review-surface-2026-09-09/README.md)补充对象范围、证据定位与历史版本阅读；与本包共用既有owner及前端队列。

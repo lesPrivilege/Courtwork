@@ -155,3 +155,8 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 后端任务消费用户“考虑解耦提供”讨论，研究提交`5163ae95c3ce950dcc2b380ef93c37cedd84dbec`基于`751be02`。[Browser研究包](research/browser-capability-2026-09-09/README.md)完整登记1轮2条文本，固定上游`browser-use/browser-use-pi@e0df2743e680125a4378d4d578420917620711f2`；Astra/Luna只读核验后裁为可选Browser Agent adapter候选，Driver资源归属单列，不采用原答复的ADOPT结论。hooks不是sandbox、导航域名规则不是网络隔离、partial/事件日志不是持久成果或Core接受；Browser输入不能绕过ES输入覆盖。
 
 来源Astra复读研究包、原文及合同/PR边界，核对逐字稿hash、15个本地链接和diff后接收文档。上游21文件hash由研究作者核验，不冒称本次重复独立核验。未安装/执行上游、浏览器或模型，npm发布artifact未验；不启动BR-01…03、Core或前端施工，不改Paper及G1–G5。
+
+
+## Review Surface：CodeRabbit自研PR入账（2026-09-09）
+
+用户授权消费“分析CodeRabbit巧思”，从实际main `a7a08f0` 隔离完整读取1轮2条文本、核验6个显式官方URL。[准备包](research/review-surface-2026-09-09/README.md)将15项机制归入历史定位/版本提示、阅读分组、领域比较与覆盖、Attention/局部对话四个有界PR建议，复用Core/ES/ATT与既有前端队列。分组不授予接受权，缺席不表示已解决，历史读取与逐动作当前基线分别成立。仅文档入账；未实现、未建立远端PR、未改Paper或关闭产品门。ES后端在途交付应由实际固定SHA另行接受。
