@@ -1,3 +1,5 @@
+import { projectMarkdown, readCoreFile, MAX_MARKDOWN_BYTES } from "./markdown-source.mjs";
+import { createMarkdownReader } from "./markdown-reader.mjs";
 import { el, icon, action, copyAction, markdown } from "./ui-controls.mjs";
 import { renderRecordedContext } from "./runtime-view.mjs";
 export const runLabels = {
@@ -325,8 +327,14 @@ export function validateFilePayload(ref, payload) {
 export function createFileView(container, { request }) {
   let controller = null,
     generation = 0,
-    ref = null;
+    ref = null,
+    reader = null,
+    loadedKey = null,
+    loadedView = null;
   async function load(next) {
+    const key = JSON.stringify(next);
+    if (next.kind !== "current" && loadedKey === key && loadedView?.parentNode === container) return;
+    reader?.destroy(); reader = null; loadedKey = null; loadedView = null;
     ref = next;
     const own = ++generation;
     controller?.abort();
@@ -342,7 +350,11 @@ export function createFileView(container, { request }) {
     const endpoint =
       next.kind === "content-version" ? "artifacts/file" : "workspace/file";
     try {
-      const payload = validateFilePayload(
+      const payload = next.kind === "core-file" ? {
+        path: next.path, kind: next.kind, sha256: next.sha256, bytes: next.bytes,
+        text: await readCoreFile(next, {signal: controller.signal, query: (input, signal) => request(`/sessions/${encodeURIComponent(next.sessionId)}/work-query?${new URLSearchParams(input)}`, {signal})}),
+        truncated: false,
+      } : validateFilePayload(
         next,
         await request(
           `/sessions/${encodeURIComponent(next.sessionId)}/${endpoint}?${query}`,
@@ -356,7 +368,7 @@ export function createFileView(container, { request }) {
         el("p", {
           className: "file-kind",
           text:
-            payload.kind === "current" ? "Current file" : "Recorded version",
+            payload.kind === "current" ? "Current file" : payload.kind === "core-file" ? (next.artifactId ? "Accepted artifact file" : "Candidate file") : "Recorded version",
         }),
         el("h3", { text: payload.path }),
         el(
@@ -381,10 +393,18 @@ export function createFileView(container, { request }) {
         ),
       );
       const view = el("div", { className: "file-document" });
-      if (/\.md$/i.test(next.path) && payload.text.length < 200000)
-        view.append(markdown(payload.text, { key: "file" }));
-      else
-        view.append(el("pre", { className: "file-text", text: payload.text }));
+      let projection = null;
+      if (/\.md$/i.test(next.path) && next.kind !== "current" && !payload.truncated && new TextEncoder().encode(payload.text).length <= MAX_MARKDOWN_BYTES) {
+        try { projection = await projectMarkdown(payload.text, next); }
+        catch (error) { if (error.code !== "too_complex") throw error; }
+        if (own !== generation) return;
+      }
+      if (projection) {
+        reader = createMarkdownReader(view);
+        reader.render(projection);
+      } else if (/\.md$/i.test(next.path) && payload.text.length < 200000) {
+        view.append(el("p", {className:"form-help", text:"Preview only. Block source positions are unavailable for this reading."}), markdown(payload.text, { key: "file" }));
+      } else view.append(el("pre", { className: "file-text", text: payload.text }));
       container.replaceChildren(heading, version);
       if (payload.truncated)
         container.append(
@@ -400,9 +420,11 @@ export function createFileView(container, { request }) {
       readingNote.append(
         el("p", {
           text:
-            next.kind === "content-version"
-              ? "Saved by this run. Review acceptance is not recorded here."
-              : "Workspace file at the time of loading.",
+            next.kind === "core-file"
+              ? `Fixed Core file version · ${next.artifactId ? `Artifact ${next.artifactId}` : `Candidate ${next.candidateId}`}.`
+              : next.kind === "content-version"
+                ? "Saved by this run. Review acceptance is not recorded here."
+                : "Workspace file at the time of loading.",
         }),
       );
       if (next.kind === "current" && next.expectedSha256) {
@@ -438,6 +460,7 @@ export function createFileView(container, { request }) {
       }
       container.append(readingNote);
       container.append(view);
+      loadedKey = key; loadedView = view;
     } catch (error) {
       if (own !== generation || error.name === "AbortError") return;
       const retry = el("button", {
@@ -464,6 +487,7 @@ export function createFileView(container, { request }) {
       controller?.abort();
       controller = null;
       ref = null;
+      reader?.destroy(); reader = null; loadedKey = null; loadedView = null;
       container.replaceChildren();
     },
     pause() {

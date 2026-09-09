@@ -1,3 +1,4 @@
+import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";
 import {
   el,
   icon,
@@ -1266,6 +1267,7 @@ function detachOwnedSurfaceContainer(container) {
 }
 
 async function disposeSurfaceRenderer({ abortFetch = true } = {}) {
+  fileManifestController?.abort();
   if (abortFetch) {
     invalidateSurfaceFetches();
   }
@@ -3451,6 +3453,7 @@ function surfaceDocumentKey(ref) {
     ref.kind,
     ref.sha256 || "",
     ref.runId || "",
+    ...(ref.kind === "core-file" ? [ref.matterId,ref.candidateId,ref.artifactId || "",ref.candidateDigest,ref.bundleDigest] : []),
   ].join("\u0000");
 }
 function documentTabTitle(ref) {
@@ -3479,8 +3482,7 @@ function closeDocumentTab() {
   const openerKey = opener?.dataset?.focusKey ?? null;
   state.surface.fileRef = null;
   if (state.surface.kind === "file") state.surface.kind = "preview";
-  fileView?.pause();
-  $("file-content").replaceChildren();
+  fileView?.dispose();
   setSurfaceExpanded(false, { focus: false });
   renderSurfaceVisibility();
   const again =
@@ -4040,7 +4042,11 @@ function renderProjectionValue(value) {
   return typeof value === "string" ? value : safeText(value);
 }
 
+let fileManifestController = null;
 function renderSurfaceFallback() {
+  fileManifestController?.abort();
+  fileManifestController = new AbortController();
+  const manifestSignal = fileManifestController.signal;
   const content = $("surface-content");
   detachOwnedSurfaceContainer(state.surface.ownedContainer);
   clear(content);
@@ -4204,6 +4210,34 @@ function renderSurfaceFallback() {
     const packet = workPacket(projection);
     const sessionId = state.activeSessionId;
     const epoch = state.sessionEpoch;
+    const subjects = coreFileSubjects(projection, sessionId);
+    if (subjects.length) {
+      const files = element("section", {className:"surface-block"}, element("h4", {text:"Recorded files"}));
+      for (const subject of subjects) {
+        const group = element("div", {className:"surface-block"});
+        const button = element("button", {className:"secondary-button", attrs:{type:"button"}, text: subject.artifactId ? "Read accepted artifact files" : `Read candidate ${subject.candidateId} files`});
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          const live = () => !manifestSignal.aborted && epoch === state.sessionEpoch && sessionId === state.activeSessionId && group.isConnected;
+          try {
+            const entries = await readCoreManifest(subject, {signal:manifestSignal, query:(input,signal)=>request(`/sessions/${encodeURIComponent(sessionId)}/work-query?${new URLSearchParams(input)}`,{signal})});
+            if (!live()) return;
+            group.replaceChildren(element("p",{className:"form-help",text:subject.artifactId ? "Accepted artifact files" : `Candidate ${subject.candidateId}`}));
+            for (const file of entries) {
+              const open = element("button", {className:"secondary-button",attrs:{type:"button"},text:file.path});
+              open.addEventListener("click",()=>{if(live()) openFile(file);});
+              group.append(open);
+            }
+          } catch (error) {
+            if (!live()) return;
+            group.replaceChildren(button,element("p",{className:"form-help",text:error.message}));
+            button.disabled = false;
+          }
+        });
+        group.append(button); files.append(group);
+      }
+      card.append(files);
+    }
     if (packet?.hasCandidates)
       card.append(
         renderWorkPacket(packet, {

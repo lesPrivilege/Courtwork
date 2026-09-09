@@ -216,8 +216,8 @@ const fileModule = {
     const run = runs.find((item) => item.id === (fileRef.runId || runId));
     return {
       ref: fileRef,
-      versions: contentVersions(run),
-      stateWord: fileRef.kind === "current" ? "Current" : "Recorded",
+      versions: fileRef.kind === "core-file" ? [] : contentVersions(run),
+      stateWord: fileRef.kind === "current" ? "Current" : fileRef.kind === "core-file" ? (fileRef.artifactId ? "Artifact" : "Candidate") : "Recorded",
     };
   },
   card(schema, host) {

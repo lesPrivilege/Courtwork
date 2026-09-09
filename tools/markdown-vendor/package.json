@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "esbuild": "0.28.1",
+    "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "unified": "11.0.5"
+  },
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
