@@ -32,3 +32,4 @@ WK-112 (f) 设立。记录设计反馈与观察到的不合，**先分类后施�
 | M-15 | Work 顶带（B 态） | 视图切换态顶带标题仍居中到 740，与从 280 起的文档面左缘不齐（CC-W §13 ⑦） | minor | 1 | header alignment per shell state | true | WK-126 ⑦；FE-05a 第 0 项，沿 CC-S Settings 顶带做法 |
 | M-16 | Composer | `renderComposer` 替换子节点后丢失 `setAction` 创建的停止图标，Send / Cancel run 文字挤入 icon-only 圆形按钮（Astra 合流发现，`172130e` 已有同源问题） | minor | 2 | composer control anatomy (icon slot vs label) | true | WK-131；FE-05a 第 0 项同批（28 高 + V1 下重做 icon / label 槽位） |
 | M-17 | Settings 390 | File access 分段控件三个选项 32px < 44，44 规则未覆盖 `.segment`（EX-CC5 基线对照确认为现状缺陷） | minor | 1 | touch target rule coverage | true | WK-132；FE-05a 第 0 项 |
+| M-18 | Home（Modules） | 首屏余量断言 HOME-16 只在默认字号验证；`--text-scale` 放大后 Today 与列表行长高，900 高下 16px 余量可能耗尽（CC-D0-a §12 ②） | minor | 1 | first-screen budget vs text scale | true | WK-138 ②；FE-05a 第 0c 项：三档 text-size 跑 HOME-16，过不了则显式修订 0.56 并记反例 |
