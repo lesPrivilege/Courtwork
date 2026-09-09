@@ -5428,7 +5428,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 
 /* Attention uses the existing solid reading/material roles. A real modal
    dialog supplies inert background and focus containment; no simulated glass. */
-.attention-agent-dialog { width: min(640px, calc(100vw - 40px)); max-width: none; height: min(780px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto 20px auto auto; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--ink); box-shadow: var(--shadow-float); overflow: hidden; }
+.attention-agent-dialog { width: min(640px, calc(100vw - 40px)); max-width: none; height: min(780px, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto 20px auto auto; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); color: var(--ink); box-shadow: var(--shadow-float); overflow: clip; }
 .attention-agent-dialog[open] { display: flex; flex-direction: column; }
 .attention-agent-dialog::backdrop { background: var(--scrim); }
 .attention-agent-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px 12px; }
@@ -5445,8 +5445,8 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .attention-agent-message { margin-bottom: 22px; font-size: var(--text-body); }
 .attention-agent-message-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .attention-agent-message-heading button { margin-left: auto; }
-.attention-agent-message.is-user { padding: 12px 14px; border-radius: var(--radius-card); background: var(--panel-muted); }
 .attention-agent-message pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; font-size: var(--text-meta); }
+.attention-tool-state { margin-left: 8px; color: var(--muted-strong); font-size: var(--text-meta); }
 .attention-agent-message.is-permission, .attention-agent-message.is-question { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-card); }
 .attention-agent-message.is-permission > button { margin-right: 8px; }
 .attention-agent-status { padding: 0 24px; }
@@ -5553,10 +5553,61 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 @media(forced-colors:active) { .usage-stacked-bar button { background:CanvasText; border:1px solid Canvas; } }
 
 /* Authored input is a right-aligned, bounded secondary bubble. */
-.attention-agent-message.is-user { width:fit-content; max-width:86%; margin-left:auto; padding:14px 18px; border-radius:18px 18px 6px 18px; background:var(--panel-muted); border:1px solid var(--line); }
-.attention-agent-message.is-user .attention-agent-message-heading strong { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
-.attention-agent-message.is-user .attention-agent-message-heading { margin:0; }
-.attention-agent-message.is-user .attention-agent-message-heading button { margin-top:-6px; margin-bottom:2px; }
 .message.user { margin-left:auto; }
 .user-message-content { border:1px solid var(--line); border-radius:18px 18px 6px 18px; }
-@media(max-width:600px){ .attention-agent-message.is-user { max-width:90%; padding:12px 14px; } }
+
+/* Authored content remains readable independently of assistant output. */
+.user-message-content .markdown-body { min-width: 0; overflow-wrap: anywhere; }
+.user-message-content pre { max-width: 100%; overflow: auto; }
+.user-message-source { margin-top: 10px; font-size: var(--text-caption); }
+.user-message-source summary { color: var(--muted-strong); cursor: pointer; }
+.user-message-excerpt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.attention-authored-message { display: flex; justify-content: flex-end; }
+.attention-authored-message .message.user { max-width: 86%; min-width: 0; }
+.attention-recents { padding: 12px 0; }
+/* Managing conversations hides the message stream. Nothing else grew, so the
+   composer used to float in the middle of the dialog: the list takes the free
+   height and the composer keeps its edge. */
+.attention-recents:has(~ .attention-agent-stream[hidden]) { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.attention-recents:has(~ .attention-agent-stream[hidden]) .attention-recent-list { flex: 1; max-height: none; }
+.attention-recents-heading, .attention-recent-row, .attention-rename-form { display: flex; align-items: center; gap: 10px; }
+.attention-recents-heading { justify-content: space-between; }
+.attention-recents h3 { margin: 0; font-size: var(--text-body); }
+.attention-recents > input { width: 100%; margin: 12px 0; }
+.attention-recent-list { max-height: 240px; overflow: auto; }
+.attention-recent-row { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.attention-recent-row > button:first-child { flex: 1; justify-content: flex-start; text-align: left; overflow-wrap: anywhere; }
+.attention-rename-form { width: 100%; }
+.attention-rename-form input { flex: 1; min-width: 0; }
+
+/* One rule for message-level utilities in both presentations: the whole-response
+   copy reveals with its message, exactly like the authored message's copy/edit,
+   and stays put where there is no pointer. Card-internal copy inside a fenced
+   block belongs to that block and keeps its own persistent control. */
+.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); opacity: 0; transition: opacity var(--duration-fast) var(--ease-out); }
+.message:hover .assistant-message-actions,
+.message:focus-within .assistant-message-actions,
+.attention-agent-message:hover .assistant-message-actions,
+.attention-agent-message:focus-within .assistant-message-actions { opacity: 1; }
+@media (hover: none) { .assistant-message-actions { opacity: 1; } }
+.message .code-block, .attention-agent-message .code-block { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
+.message .code-toolbar, .attention-agent-message .code-toolbar { background: var(--panel-muted); color: var(--muted-strong); }
+
+/* ==== tier:S · authored reading plane · neutral dark in both themes ==== */
+:root { --authored-base-s: #202426; --authored-raised-s: #303638; --authored-ink-s: #f5f7f8; --authored-muted-s: #c8cdd0; --authored-line-s: #596267; }
+/* ==== tier:R · user-requested authored plane; independent of review tint ==== */
+:root { --authored-surface: var(--authored-base-s); --authored-raised: var(--authored-raised-s); --authored-ink: var(--authored-ink-s); --authored-muted: var(--authored-muted-s); --authored-line: var(--authored-line-s); }
+/* ==== tier:U · authored message content; actions stay on the parent plane ==== */
+.user-message-content {
+  --panel: var(--authored-surface); --panel-muted: var(--authored-raised);
+  --ink: var(--authored-ink); --muted-strong: var(--authored-muted);
+  --line: var(--authored-line); --line-strong: var(--authored-line);
+  background: var(--panel); color: var(--ink); border-color: var(--line);
+}
+.user-message-content .markdown-body, .user-message-content a { color: var(--ink); }
+.user-message-content a { text-decoration: underline; }
+.user-message-content summary { color: var(--muted-strong); }
+@media (forced-colors: active) {
+  .user-message-content { --panel: Canvas; --ink: CanvasText; --muted-strong: CanvasText; background: var(--panel); color: var(--ink); border-color: CanvasText; }
+  .user-message-content .markdown-body, .user-message-content a, .user-message-content summary { color: CanvasText; }
+}

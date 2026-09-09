@@ -86,7 +86,19 @@ export function createAttentionConversation({ request, changed = () => {}, uuid 
     } catch (error) { state.error = error.message; return null; }
     finally { state.busy = false; emit(); }
   }
-  return { state, active, refresh, choose, setDraft, send, ensureConversation,
+  async function rename(id, title) {
+    if (state.busy || state.command) return false;
+    state.busy = true; state.error = ''; state.generation++; emit();
+    let saved = false;
+    try {
+      const result = await request(`/sessions/${encodeURIComponent(id)}`, { method: 'PATCH', body: { title } });
+      if (result.session?.id !== id || result.session.scope !== 'global') throw new Error('Rename receipt is unavailable');
+      saved = true;
+    } catch (error) { state.error = error.message; }
+    finally { state.busy = false; await refresh(); }
+    return saved;
+  }
+  return { state, active, refresh, choose, setDraft, send, ensureConversation, rename,
     cancel() { const run = active(); return run && action(`/runs/${encodeURIComponent(run.id)}/cancel`, {}); },
     answer(runId, questionId, body) { return action(`/runs/${encodeURIComponent(runId)}/questions/${encodeURIComponent(questionId)}`, body); },
     deactivate() { state.generation++; state.loading = false; },

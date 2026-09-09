@@ -51,6 +51,8 @@ import {
 } from "./home-view.mjs";
 import {
   projectThread,
+  toolStateWord,
+  unfinishedToolWord,
   canAnswer,
   validPermission,
   permissionPresentation,
@@ -2429,9 +2431,6 @@ function decisionReceiptRows(runId) {
  * `unknown`（或根本没有对应的 Run 记录）时，它为什么没有回来同样是未知的，写
  * `Interrupted` 是对未知事实的正面断言（FN-28）。第六个词因此是 `Unknown`
  * （glyph-semantics §3）。BE-33 交付后原因改由后端给出，这里的推断随之退役。 */
-const unfinishedToolWord = (status) =>
-  status === "cancelled" || status === "failed" ? "Interrupted" : "Unknown";
-
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
@@ -2556,6 +2555,7 @@ function renderMessageStream() {
     if (row.kind === "user") {
       appendFlowRow(
         renderUserMessage(row, {
+          key: sessionScopeKey("user", row.id), viewState: userMessageViews,
           onCopy: async (text) => {
             try {
               await navigator.clipboard.writeText(text);
@@ -2577,7 +2577,14 @@ function renderMessageStream() {
         { className: "message-header" },
         element("span", { className: "message-role", text: currentSession()?.scope === "global" ? "Attention" : "Assistant" }),
       );
-      header.append(
+      wrapper.append(header);
+      appendAssistantBody(
+        wrapper,
+        row.text,
+        sessionScopeKey("assistant", row.id),
+      );
+      const footer = element("footer", { className: "assistant-message-actions" });
+      if (!row.pending) footer.append(
         action(
           "copy",
           "Copy response",
@@ -2592,12 +2599,7 @@ function renderMessageStream() {
           { attrs: { "data-focus-key": `response:${row.id}` } },
         ),
       );
-      wrapper.append(header);
-      appendAssistantBody(
-        wrapper,
-        row.text,
-        sessionScopeKey("assistant", row.id),
-      );
+      wrapper.append(footer);
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
       /* WK-47 ablation · the whole row no longer turns red. A failed tool is
@@ -2620,17 +2622,7 @@ function renderMessageStream() {
        * still carries no state word: the group summary above it already says
        * the run completed, and repeating it on every row answers nothing
        * (WK-47 ablation C-2). */
-      const toolState = row.isError
-        ? "Failed"
-        : row.phase === "result"
-          ? null
-          : toolStillActive
-            ? status === "waiting_user"
-              ? "Waiting for you"
-              : status === "stopping"
-                ? "Stopping"
-                : "Working"
-            : unfinishedToolWord(status);
+      const toolState = toolStateWord(row, status);
       details.append(
         flowRow("summary", {
           glyph: toolGlyph(row.name),
@@ -3229,6 +3221,7 @@ function stopWorkingClock() {
  * Cancel run，而 run hint 仍在数「Working for 12s」。FE-T06 的另半条正是这一条：
  * **cancel requested ≠ stopped**。状态词不动：`Stopping` 只在宿主把 Run 报成
  * `stopping` 之后才出现，取消请求本身不把 Run 提前说成已停（FN-19）。 */
+const userMessageViews = new Map();
 const COMPOSER_SEND_LABEL = "Send";
 const COMPOSER_CANCEL_LABEL = "Cancel run";
 function renderComposer() {

@@ -15,6 +15,8 @@ import { readFileSync } from "node:fs";
 const root = new URL("../../", import.meta.url).pathname;
 const read = (p) => readFileSync(`${root}${p}`, "utf8");
 const appSource = read("app/web/app.mjs");
+const projectionSource = read("app/web/thread-projection.mjs");
+const agentSource = read("app/web/attention-agent-view.mjs");
 const homeSource = read("app/web/home-view.mjs");
 const styles = read("app/web/styles.css");
 const markup = read("app/web/index.html");
@@ -73,10 +75,14 @@ test("CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨",
 });
 
 test("WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现", () => {
-  const helper = /const unfinishedToolWord = \(status\) =>\s*\n?\s*status === "cancelled" \|\| status === "failed" \? "Interrupted" : "Unknown";/;
-  assert.match(appSource, helper);
-  // 工具行与 Activity 组头走同一个判断，不各写一套。
-  assert.match(appSource, /: unfinishedToolWord\(status\);/);
+  const helper = /export const unfinishedToolWord = \(status\) =>\s*\n?\s*status === "cancelled" \|\| status === "failed" \? "Interrupted" : "Unknown";/;
+  // 判断只有一处：两处 Chat 的工具行与 Activity 组头都从投影模块读它。
+  assert.match(projectionSource, helper);
+  assert.doesNotMatch(appSource, /const unfinishedToolWord =/);
+  assert.match(projectionSource, /export function toolStateWord\(row, status\) \{/);
+  assert.match(projectionSource, /return unfinishedToolWord\(status\);/);
+  assert.match(appSource, /const toolState = toolStateWord\(row, status\);/);
+  assert.match(agentSource, /toolStateWord\(row, runStatuses\.get\(row\.runId\)/);
   assert.match(appSource, /unfinishedToolWord\(status\) === "Unknown"/);
   assert.match(appSource, /activityGroup\.unknown\s*\n?\s*\?\s*"Unknown"/);
   // 契约表已登记这个词。

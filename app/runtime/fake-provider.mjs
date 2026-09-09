@@ -141,7 +141,10 @@ function makeResponse({ body, requestNumber, responder, spentErrorOnce }) {
 
 async function writeTextResponse(res, response, { slow = false } = {}) {
   const { id, created, text } = response;
-  const chunks = text.match(/.{1,24}/gu) ?? [text];
+  // `.` skips line terminators: without the s flag every newline in a reply is
+  // dropped between chunks, so a multi-line answer reaches the UI as one run-on
+  // line and no Markdown block after the first can be parsed.
+  const chunks = text.match(/.{1,24}/gsu) ?? [text];
   // The wait goes BEFORE the first token: "cancel while waiting on the model"
   // has to mean no token has arrived yet.
   if (slow) await new Promise((resolve) => setTimeout(resolve, SLOW_FIRST_TOKEN_MS));

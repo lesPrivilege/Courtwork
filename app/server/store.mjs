@@ -457,6 +457,16 @@ export class RuntimeStore {
     });
   }
 
+  async renameSession(sessionId, title) {
+    return this._mutate((state) => {
+      assert(typeof title === "string" && title.trim().length > 0 && title.length <= 200, "title is invalid");
+      const session = state.sessions.find(item => item.id === sessionId);
+      if (!session) throw new Error("session not found");
+      session.title = title.trim();
+      return publicSession(session);
+    });
+  }
+
   async deleteSession(sessionId) {
     return this._mutate((state) => {
       if (!state.sessions.some(s => s.id === sessionId)) throw new Error("session not found");
