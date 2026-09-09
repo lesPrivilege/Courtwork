@@ -1,6 +1,6 @@
 # Long-life Roadmap · 全场景与交互架构
 
-状态：长期架构设计，2026-09-08。当前实现与验收只见 [current](current.md)；模块所有权见 [architecture](architecture.md)，提交与恢复契约见 [core-contracts](core-contracts.md)。本文件定义覆盖方向、依赖和证伪门，不把设计目标计作已实现能力。
+状态：长期架构设计，2026-09-08建立，2026-09-10补入多专家全turn与long-life消费路线。当前实现与验收只见 [current](current.md)；模块所有权见 [architecture](architecture.md)，提交与恢复契约见 [core-contracts](core-contracts.md)。本文件定义覆盖方向、依赖和证伪门，不把设计目标计作已实现能力。
 
 “全场景”指不同工作能够以适当厚度接入同一套语义与治理边界。“全交互”指人在不同工作表面提出、检查、修订和裁决时，状态后果保持一致。覆盖地图需要完整，施工按最小消费者递进；不要求先建设全平台，也不以一个法律 demo 代表全部工作。
 
@@ -67,7 +67,7 @@ flowchart TB
 
 当前具体起点仍是 Pi + control plane + trusted extension + evidence-memo Core。该 Core 的已有提交能力值得复用，但不视为完整通用 Matter API；host 的运行 Artifact 与领域 Accepted Artifact 保持不同身份和效力。`/sessions/:id/actions` 是 mutation，`/sessions/:id/surface` 是 read projection；未来跨 session 的领域查询必须明确身份和 owner，不能假装现有 session 路由已经解决。
 
-当前重启中的 in-flight Run 会进入 `unknown`，同Session的下一Run可重开历史；这不等于durable background execution。已有MCP unknown会封闭后续调用，但没有持久效果对账闭环；现有extension unload保留活体投影，也未完成producer缺席的历史读取。这三项作为新能力的明确边界，源码坐标见 [本地覆盖证据](research/longlife-2026-09-08/evidence/local-coverage.md)。
+2026-09-08的覆盖快照见 [本地覆盖证据](research/longlife-2026-09-08/evidence/local-coverage.md)，不作为后续实现现状。2026-09-10研究基线 `8b1e0b1` 已有Core历史/producer缺席读取、AM-B持久只读adapted任务、Thread本地通信与BG-02同Session失败Run lineage；仍不能称自动后台自治、生产child/handoff或外部效果对账闭环。具体限制沿 [async](../app/docs/async-tasks.md)、[coordination](../app/docs/coordination.md)、[run-attempts](../app/docs/run-attempts.md)；后续接单重查current与实际HEAD。
 
 ## 4. 全交互覆盖：从用户意图到状态后果
 
@@ -169,6 +169,23 @@ R3 的任务集合表达覆盖目标，不要求第一轮并行做完。R4 的�
 [Design D0–D5](design/prototype-plan.md) 仍承担来源、原型、真实纵切与持续体验验证，可与相应R阶段并行；[完成面](design/completion-surface.md) 是产品体验目标，当前Work Surface Kit是有界施工范围，两者不互相代替。fixture可提前验证交互和投影，不能据可点击原型宣称真实执行或正式提交已通过。
 
 ## 10. 当前切片与扩展触发
+
+### 多专家讨论收敛：长期工作先于运行时扩张
+
+[全turn研究账](research/multi-experts-2026-09-10/README.md)消费23个turn、44条消息与44个唯一显式URL，保留缺失回复、原文中断及外部核验边界。[选型/负索引](research/multi-experts-2026-09-10/selection-index.md)将Expert/presence、Spark、检索、归档、runtime与21种模式映射到现有owner；[PR施工稿](research/multi-experts-2026-09-10/pr-plan.md)逐项归并原HC/RA/AT，不建立平行队列。
+
+| 顺序 / 阶段 | 长期工作增量 | 证据门 / 缩小条件 |
+|---|---|---|
+| 先确定性治理 · R1–R2 | ME-01并LG-00…04：manifest、来源身份/版本、rendition、exact/lexical与增量失效 | 无模型仍有效；重建等价、权限和路径边界成立；无收益不增加语义索引 |
+| 再派生与恢复 · R2–R3 | ME-03/04：Spark候选、当前context、closeout/rehydrate、安全遗忘 | 正式事实不依赖Spark私有memory；无旧chat仍保留义务/冲突/unknown；通用archive等真实领域消费者 |
+| 稀疏人类Attention · R2–R3 | ME-06并原Attention/HL：event关联、预算/去重、重要变化与受控新Run | 少通知且不漏关键事项；新运行重验权限；BG-03之前不自动重放未知外部效果 |
+| 薄执行与替换 · R2–R4，独立于前述价值 | ME-02/05/08：Pi默认，角色/配置清晰、符合性、一个第二runtime | 单轴七删除测试；native/adapted/unsupported如实；无第二消费者不抽SDK，不先Rust重写 |
+| 外部agent消费 · R4，按需 | ME-07：同owner只读MCP/CLI；有用后再MCP App/tunnel；Google后置 | 同权限/版本/效力，capture只是Source；不能因外部界面扩大权限 |
+| 长期产品与学习 · R3–R5 | ME-09从第一片计成本，ME-10经权利与独立证据再编订规则/训练 | 成果质量和全生命周期净收益双门；保留失败/reversal，无PMF/训练收益不扩张 |
+
+本路线中的Spark是资料与派生维护责任名，Attention是人的筛选与动作队列；不因名称另建canonical store。Expert不等于runtime，presence/selection/working/Assignment/权限分别表达。默认Pi由T19最终讨论收敛；Codex/ACP是替换候选，Gemini/Antigravity、PTY与原生TUI后置。并行是局部瓶颈方案，未测得收益前不建DAG/多agent平台。
+
+[长期验证](research/multi-experts-2026-09-10/benchmark-plan.md)沿既有强T/S/E基线，覆盖首次摄取、增量、重建、执行、恢复、review和维护成本；tokens/cache只是分项。Long-life处理有限的机器和人的attention，不靠固定窗口大小定义价值。删除/降级/取代/压缩/过滤须保留真实义务和适用关系，外部pattern/厂商性能不自动成为SE或CW结果。
 
 ### 本地资料治理 / Explore 的后续输入
 
