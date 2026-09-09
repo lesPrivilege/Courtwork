@@ -11,3 +11,7 @@ Astra 写权：`app/server/{work-metrics,work-summary,store,service,index}.mjs`�
 BE-2 优先核查对象身份及 owner，不因名字 surface 相同而将前端 view state 写入 Core。ES-01 的完整历史字节/依据闭包/迁移不可裁成假接受；本轮不同时争用 Core。AM-A/C 作为独立离线测试配套，实际范围待只读探索回报后精确授权。其余请求保留既有索引，不全部开工。
 
 验证：UTC ±1ms、重复 run id、项目范围、删除/重启、未报告 usage、并发发布窗口、非法 query、认证、summary 三集合日期语义、全量 npm test / smoke；Luna 对固定实现独立反例验证。合成 dataDir/port 0，无个人凭据、paid provider 或部署。回退为代码 revert（无数据变化）；不与共享 main 自动合流，不关闭 G1–G5。
+
+## AM-C 配套授权
+
+Luna `am_explore` 在 `fd3861b` 后获准只写 `app/tests/architecture-maintenance.test.mjs`、`app/tests/fixtures/architecture-maintenance/request-baseline.json`、`evidence/backend-bounded-20260909/am-baseline.md`。复用真实 loopback HTTP 捕获最终 serializer request，固定 golden 与 no-op/工具语义变化差异；不改产品代码、不宣称真实缓存或 native async。Astra 非作者复读与运行；AM-B 和 Attention Core 对象不在本轮实施范围。
