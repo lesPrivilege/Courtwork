@@ -1,0 +1,5122 @@
+{
+  "schemaVersion": 1,
+  "origin": "http://127.0.0.1:8883",
+  "browser": "Chrome/152.0.7977.83",
+  "dataKind": "synthetic local fake responder",
+  "provider": "local-fake; no paid provider",
+  "captures": [
+    {
+      "state": "summary",
+      "width": 1440,
+      "theme": "light",
+      "file": "summary-1440-light.png",
+      "sha256": "2f9ceb9be7724542c163547e8a6dbf8d1fe2081344c3f5fc05cd09bf283de520",
+      "bytes": 112902,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 432,
+            "width": 288,
+            "height": 360
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 199.5,
+            "width": 286,
+            "height": 126.5
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "files",
+      "width": 1440,
+      "theme": "light",
+      "file": "files-1440-light.png",
+      "sha256": "b04c260d5d86414710ea8f5e75b79b5284c0ad2462adc94a6c411299d0c0dfb2",
+      "bytes": 116463,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 443,
+            "width": 288,
+            "height": 371
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 255.25,
+            "width": 286,
+            "height": 182.25
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "full",
+      "width": 1440,
+      "theme": "light",
+      "file": "full-1440-light.png",
+      "sha256": "55e41d3cb44777e3265f91eb1334b40423690e9b591e403c5e5d26ea0d001a71",
+      "bytes": 141558,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 729.5,
+            "width": 288,
+            "height": 657.5
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 541.75,
+            "width": 286,
+            "height": 468.75
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 1440,
+      "theme": "light",
+      "file": "preview-1440-light.png",
+      "sha256": "6e5bfd4b25771944acd52286a39bb3c7b3a7a0205be67ffbd063b602410de442",
+      "bytes": 52182,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-expanded surface-view-switch",
+        "panel": "surface-panel is-open is-expanded is-view-switch",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": null,
+          "surfaceHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 344.64,
+            "top": 0,
+            "right": 1364,
+            "bottom": 47,
+            "width": 1019.36,
+            "height": 47
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 344,
+            "top": 13.38,
+            "right": 512.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 344,
+            "top": 13.38,
+            "right": 1352,
+            "bottom": 33.63,
+            "width": 1008,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": null,
+          "paragraph": null,
+          "composer": null,
+          "leftDelta": null,
+          "rightDelta": null,
+          "paragraphToComposerLeft": null,
+          "insetLeft": null
+        },
+        "composer": {
+          "form": null,
+          "textarea": null,
+          "area": null
+        },
+        "summary": {
+          "panel": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 900
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    },
+    {
+      "state": "summary",
+      "width": 1440,
+      "theme": "dark",
+      "file": "summary-1440-dark.png",
+      "sha256": "fc1d3f141e514fd1898b9887e90f9210a50d35a7645b755d31725125c5e89892",
+      "bytes": 114889,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 432,
+            "width": 288,
+            "height": 360
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 199.5,
+            "width": 286,
+            "height": 126.5
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "files",
+      "width": 1440,
+      "theme": "dark",
+      "file": "files-1440-dark.png",
+      "sha256": "168586b009c78e1b0cd06bb969a5e27c8ba343d53ca19cd0acc79f95719fe5a8",
+      "bytes": 118833,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 443,
+            "width": 288,
+            "height": 371
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 255.25,
+            "width": 286,
+            "height": 182.25
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "full",
+      "width": 1440,
+      "theme": "dark",
+      "file": "full-1440-dark.png",
+      "sha256": "526baf5c44e6ccd6654d66dd50017d7dac417c40ce8df87308899a14b8564406",
+      "bytes": 144762,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1344,
+            "bottom": 33.63,
+            "width": 1024,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 322,
+            "top": 80,
+            "right": 1062,
+            "bottom": 597.5,
+            "width": 740,
+            "height": 517.5
+          },
+          "paragraph": {
+            "left": 322,
+            "top": 341,
+            "right": 1062,
+            "bottom": 392,
+            "width": 740,
+            "height": 51
+          },
+          "composer": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 66
+        },
+        "composer": {
+          "form": {
+            "left": 322,
+            "top": 731.81,
+            "right": 1062,
+            "bottom": 848,
+            "width": 740,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 335,
+            "top": 744.81,
+            "right": 1049,
+            "bottom": 799,
+            "width": 714,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 723.81,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 1128,
+            "top": 72,
+            "right": 1416,
+            "bottom": 729.5,
+            "width": 288,
+            "height": 657.5
+          },
+          "card": {
+            "left": 1129,
+            "top": 73,
+            "right": 1415,
+            "bottom": 541.75,
+            "width": 286,
+            "height": 468.75
+          },
+          "gapToColumn": 66
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 1440,
+      "theme": "dark",
+      "file": "preview-1440-dark.png",
+      "sha256": "15e665e89cefeed172f2b18ad71df10e0abc62975b84144930619052a8e2633f",
+      "bytes": 52692,
+      "geometry": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "shell": "app-shell surface-expanded surface-view-switch",
+        "panel": "surface-panel is-open is-expanded is-view-switch",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 900,
+          "width": 256,
+          "height": 900
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": null,
+          "surfaceHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 48,
+            "width": 1184,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 344.64,
+            "top": 0,
+            "right": 1364,
+            "bottom": 47,
+            "width": 1019.36,
+            "height": 47
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 344,
+            "top": 13.38,
+            "right": 512.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 344,
+            "top": 13.38,
+            "right": 1352,
+            "bottom": 33.63,
+            "width": 1008,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": null,
+          "paragraph": null,
+          "composer": null,
+          "leftDelta": null,
+          "rightDelta": null,
+          "paragraphToComposerLeft": null,
+          "insetLeft": null
+        },
+        "composer": {
+          "form": null,
+          "textarea": null,
+          "area": null
+        },
+        "summary": {
+          "panel": {
+            "left": 256,
+            "top": 0,
+            "right": 1440,
+            "bottom": 900,
+            "width": 1184,
+            "height": 900
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    },
+    {
+      "state": "summary",
+      "width": 1280,
+      "theme": "light",
+      "file": "summary-1280-light.png",
+      "sha256": "c26047aec1a5bac72c9219302d9df4f3a47676175691213057e0b221200ed1ba",
+      "bytes": 111898,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 432,
+            "width": 288,
+            "height": 360
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 199.5,
+            "width": 286,
+            "height": 126.5
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "files",
+      "width": 1280,
+      "theme": "light",
+      "file": "files-1280-light.png",
+      "sha256": "68b2a50ed6daeaa40cfcce7a270506bfec0a310b9ddc714c755a09d596afd54b",
+      "bytes": 115640,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 443,
+            "width": 288,
+            "height": 371
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 255.25,
+            "width": 286,
+            "height": 182.25
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "full",
+      "width": 1280,
+      "theme": "light",
+      "file": "full-1280-light.png",
+      "sha256": "91b2acff7c452e1c2b1b2ac27fe5795a1a7f50320213fb810dd4e9ab20175b48",
+      "bytes": 139703,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 729.5,
+            "width": 288,
+            "height": 657.5
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 541.75,
+            "width": 286,
+            "height": 468.75
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 1280,
+      "theme": "light",
+      "file": "preview-1280-light.png",
+      "sha256": "92995b728e9e681e51cf489b991c0854412cb99379858f35ae23a8681e4758bd",
+      "bytes": 50420,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-expanded surface-view-switch",
+        "panel": "surface-panel is-open is-expanded is-view-switch",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": null,
+          "surfaceHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 344.64,
+            "top": 0,
+            "right": 1204,
+            "bottom": 47,
+            "width": 859.36,
+            "height": 47
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 344,
+            "top": 13.38,
+            "right": 512.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 344,
+            "top": 13.38,
+            "right": 1192,
+            "bottom": 33.63,
+            "width": 848,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": null,
+          "paragraph": null,
+          "composer": null,
+          "leftDelta": null,
+          "rightDelta": null,
+          "paragraphToComposerLeft": null,
+          "insetLeft": null
+        },
+        "composer": {
+          "form": null,
+          "textarea": null,
+          "area": null
+        },
+        "summary": {
+          "panel": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 800
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    },
+    {
+      "state": "summary",
+      "width": 1280,
+      "theme": "dark",
+      "file": "summary-1280-dark.png",
+      "sha256": "7be7e4ac58878b3040c80dc6ea4aebf3b5bf6b9e394b514a6f9d47ce46aa8bdc",
+      "bytes": 114022,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 432,
+            "width": 288,
+            "height": 360
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 199.5,
+            "width": 286,
+            "height": 126.5
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "files",
+      "width": 1280,
+      "theme": "dark",
+      "file": "files-1280-dark.png",
+      "sha256": "867e0c41e5ba8895a6db38f6ce87973a7a26935191c6d9892d9ef7418d345f86",
+      "bytes": 117884,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 443,
+            "width": 288,
+            "height": 371
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 255.25,
+            "width": 286,
+            "height": 182.25
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "full",
+      "width": 1280,
+      "theme": "dark",
+      "file": "full-1280-dark.png",
+      "sha256": "28ee01e284e9cd12d402e9fcd17f092eaae7cacd59010f77a750d1eb0c5dfac9",
+      "bytes": 143409,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-cards",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceHeader": null,
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 320,
+            "top": 13.38,
+            "right": 488.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 320,
+            "top": 13.38,
+            "right": 1184,
+            "bottom": 33.63,
+            "width": 864,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 288,
+            "top": 80,
+            "right": 936,
+            "bottom": 648.5,
+            "width": 648,
+            "height": 568.5
+          },
+          "paragraph": {
+            "left": 288,
+            "top": 341,
+            "right": 936,
+            "bottom": 392,
+            "width": 648,
+            "height": 51
+          },
+          "composer": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 32
+        },
+        "composer": {
+          "form": {
+            "left": 288,
+            "top": 631.81,
+            "right": 936,
+            "bottom": 748,
+            "width": 648,
+            "height": 116.19
+          },
+          "textarea": {
+            "left": 301,
+            "top": 644.81,
+            "right": 923,
+            "bottom": 699,
+            "width": 622,
+            "height": 54.19
+          },
+          "area": {
+            "left": 256,
+            "top": 623.81,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 176.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 968,
+            "top": 72,
+            "right": 1256,
+            "bottom": 729.5,
+            "width": 288,
+            "height": 657.5
+          },
+          "card": {
+            "left": 969,
+            "top": 73,
+            "right": 1255,
+            "bottom": 541.75,
+            "width": 286,
+            "height": 468.75
+          },
+          "gapToColumn": 32
+        },
+        "active": "session-title"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 1280,
+      "theme": "dark",
+      "file": "preview-1280-dark.png",
+      "sha256": "0b886c463d4f14cd5032b141dfd7b33fc291491a4f5d60605dabc4920a21ef17",
+      "bytes": 51019,
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "shell": "app-shell surface-expanded surface-view-switch",
+        "panel": "surface-panel is-open is-expanded is-view-switch",
+        "overflowX": false,
+        "sidebar": {
+          "left": 0,
+          "top": 0,
+          "right": 256,
+          "bottom": 800,
+          "width": 256,
+          "height": 800
+        },
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": {
+                "left": 12,
+                "top": 64,
+                "right": 243,
+                "bottom": 96,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 72,
+                "right": 37,
+                "bottom": 88,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": {
+                "left": 12,
+                "top": 100,
+                "right": 243,
+                "bottom": 132,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 108,
+                "right": 37,
+                "bottom": 124,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": {
+                "left": 12,
+                "top": 136,
+                "right": 243,
+                "bottom": 168,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 144,
+                "right": 37,
+                "bottom": 160,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": {
+                "left": 12,
+                "top": 172,
+                "right": 243,
+                "bottom": 204,
+                "width": 231,
+                "height": 32
+              },
+              "icon": {
+                "left": 21,
+                "top": 180,
+                "right": 37,
+                "bottom": 196,
+                "width": 16,
+                "height": 16
+              },
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            4,
+            4,
+            4
+          ],
+          "groupGapAfterNav": 16,
+          "groupGapFilterToProjects": 16
+        },
+        "band": {
+          "sidebarHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 255,
+            "bottom": 48,
+            "width": 255,
+            "height": 48
+          },
+          "chatHeader": null,
+          "surfaceHeader": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 48,
+            "width": 1024,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 344.64,
+            "top": 0,
+            "right": 1204,
+            "bottom": 47,
+            "width": 859.36,
+            "height": 47
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 344,
+            "top": 13.38,
+            "right": 512.45,
+            "bottom": 33.63,
+            "width": 168.45,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 344,
+            "top": 13.38,
+            "right": 1192,
+            "bottom": 33.63,
+            "width": 848,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": null,
+          "paragraph": null,
+          "composer": null,
+          "leftDelta": null,
+          "rightDelta": null,
+          "paragraphToComposerLeft": null,
+          "insetLeft": null
+        },
+        "composer": {
+          "form": null,
+          "textarea": null,
+          "area": null
+        },
+        "summary": {
+          "panel": {
+            "left": 256,
+            "top": 0,
+            "right": 1280,
+            "bottom": 800,
+            "width": 1024,
+            "height": 800
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    },
+    {
+      "state": "summary",
+      "width": 390,
+      "theme": "light",
+      "file": "summary-390-light.png",
+      "sha256": "49f321a535552e212dcae5b068428902b25ef7f892d3f88d154e7ea4ede05f5c",
+      "bytes": 26587,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 223.5,
+            "width": 358,
+            "height": 159.5
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "files",
+      "width": 390,
+      "theme": "light",
+      "file": "files-390-light.png",
+      "sha256": "4732a9fc4fdc6336d329682f96321a594ef2bc8340e8575afe590ef9d8c865f5",
+      "bytes": 29984,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 279.25,
+            "width": 358,
+            "height": 215.25
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "full",
+      "width": 390,
+      "theme": "light",
+      "file": "full-390-light.png",
+      "sha256": "82f507e3e9cd2d825f8e9314337b068e48b75cde655c41d531b7d9893656d2b8",
+      "bytes": 48747,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 493.5,
+            "width": 358,
+            "height": 429.5
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 390,
+      "theme": "light",
+      "file": "preview-390-light.png",
+      "sha256": "5977252f0d1f3a2622bca2dba35f3c1cab11cba650742a41b5a20a3b2fe26901",
+      "bytes": 26068,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell surface-expanded",
+        "panel": "surface-panel is-open is-expanded",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 16,
+            "top": 12,
+            "right": 306,
+            "bottom": 35,
+            "width": 290,
+            "height": 23
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 318,
+            "bottom": 33.63,
+            "width": 250,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 318,
+            "bottom": 33.63,
+            "width": 250,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    },
+    {
+      "state": "summary",
+      "width": 390,
+      "theme": "dark",
+      "file": "summary-390-dark.png",
+      "sha256": "b4161b4a860854697888967a56d315dfb17aaadaeb6ab1d76b64add8fcdf1c09",
+      "bytes": 30308,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 223.5,
+            "width": 358,
+            "height": 159.5
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "files",
+      "width": 390,
+      "theme": "dark",
+      "file": "files-390-dark.png",
+      "sha256": "9a60d610869d2d595a1b05fd55e4a917b790cce2f3158ebe481a63875c479dc8",
+      "bytes": 33878,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 279.25,
+            "width": 358,
+            "height": 215.25
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "full",
+      "width": 390,
+      "theme": "dark",
+      "file": "full-390-dark.png",
+      "sha256": "ccf4c15a7557a27d446678899d370ffc4d976c05f8b3c201dbd52be6243f52ef",
+      "bytes": 53583,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell",
+        "panel": "surface-panel is-open",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": null
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 274,
+            "bottom": 33.63,
+            "width": 206,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": {
+            "left": 16,
+            "top": 64,
+            "right": 374,
+            "bottom": 493.5,
+            "width": 358,
+            "height": 429.5
+          },
+          "gapToColumn": null
+        },
+        "active": "sd-run-summary-trigger"
+      }
+    },
+    {
+      "state": "preview",
+      "width": 390,
+      "theme": "dark",
+      "file": "preview-390-dark.png",
+      "sha256": "24aad1da9bc324ee0a8383875ff8f7668da65ae47a17fb22b0d68b5bf76717db",
+      "bytes": 27637,
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "shell": "app-shell surface-expanded",
+        "panel": "surface-panel is-open is-expanded",
+        "overflowX": false,
+        "sidebar": null,
+        "nav": {
+          "rows": [
+            {
+              "text": "New chat",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Home",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Attention",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "text": "Spark",
+              "rect": null,
+              "icon": null,
+              "fontSize": "12px",
+              "selected": false,
+              "background": "rgba(0, 0, 0, 0)"
+            }
+          ],
+          "itemGaps": [
+            null,
+            null,
+            null
+          ],
+          "groupGapAfterNav": null,
+          "groupGapFilterToProjects": null
+        },
+        "band": {
+          "sidebarHeader": null,
+          "chatHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceHeader": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 48,
+            "width": 390,
+            "height": 48
+          },
+          "surfaceTabs": {
+            "left": 16,
+            "top": 12,
+            "right": 306,
+            "bottom": 35,
+            "width": 290,
+            "height": 23
+          }
+        },
+        "title": {
+          "rect": {
+            "left": 68,
+            "top": 13.38,
+            "right": 318,
+            "bottom": 33.63,
+            "width": 250,
+            "height": 20.25
+          },
+          "wrap": {
+            "left": 68,
+            "top": 13.38,
+            "right": 318,
+            "bottom": 33.63,
+            "width": 250,
+            "height": 20.25
+          },
+          "lines": 1,
+          "meta": "",
+          "metaRect": null
+        },
+        "column": {
+          "list": {
+            "left": 16,
+            "top": -141,
+            "right": 374,
+            "bottom": 626.5,
+            "width": 358,
+            "height": 767.5
+          },
+          "paragraph": {
+            "left": 16,
+            "top": 185,
+            "right": 374,
+            "bottom": 261.5,
+            "width": 358,
+            "height": 76.5
+          },
+          "composer": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "paragraphToComposerLeft": 0,
+          "insetLeft": 16
+        },
+        "composer": {
+          "form": {
+            "left": 16,
+            "top": 659.81,
+            "right": 374,
+            "bottom": 784,
+            "width": 358,
+            "height": 124.19
+          },
+          "textarea": {
+            "left": 25,
+            "top": 668.81,
+            "right": 365,
+            "bottom": 723,
+            "width": 340,
+            "height": 54.19
+          },
+          "area": {
+            "left": 0,
+            "top": 650.81,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 193.19
+          }
+        },
+        "summary": {
+          "panel": {
+            "left": 0,
+            "top": 0,
+            "right": 390,
+            "bottom": 844,
+            "width": 390,
+            "height": 844
+          },
+          "card": null,
+          "gapToColumn": null
+        },
+        "active": "surface-document-select"
+      }
+    }
+  ],
+  "exceptions": []
+}
