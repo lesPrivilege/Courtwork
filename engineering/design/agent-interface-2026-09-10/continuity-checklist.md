@@ -2,7 +2,7 @@
 
 配套 [README.md](README.md)（权威模型与状态词表）与 [precedent-map.md](precedent-map.md)（按问题寻址）。
 
-本页是**推荐工作法**，不自动成为新的工单门。它成为强制要求需要另一次治理裁定。
+本页为[已授权前端连续性v1](frontend-contract.md)的扩展检查表。适用项按v1执行；具体任务可使用[变更记录](change-template.md)短模板，不要求重复填两份表。自动机械门未因本页出现而建立。
 
 ## 1. Continuity header 模板
 
@@ -23,7 +23,7 @@ Changed dimension:
 Held constant:
 - ...
 
-Canonical local precedent:
+Nearest local precedent + governance status / evidence type:
 - ...
 
 Relevant grammar:
@@ -52,8 +52,8 @@ Explicitly forbidden drift:
 [ ] 任务已解析成坐标：surface / semantic / operation / state / viewport / changed dimension
 [ ] owner fact 已定位，并且确实存在（不是从 UI 反推的）
 [ ] 已按 precedent-map 找到 problem_key，而不是按库名找组件
-[ ] nearest precedent 的 rank 已确定（只有 1–5 可直接落地）
-[ ] 该先例的 status 是 canonical，且当前仍适用（未被 superseded_by 取代）
+[ ] nearest precedent的rank已确定（1–5仅为检索优先级；仍须当前适用、明确状态与已有授权）
+[ ] 先例的status/证据类型已区分；只有确切接受范围内的canonical约束可直接采用，未被superseded_by取代
 [ ] 相关 grammar 的负规则已读（不是只读正面规则）
 [ ] 已看过真实的当前实现，而不是只看文档
 [ ] 检索已停在问题答完处，没有为"保险"批量加载
@@ -92,20 +92,20 @@ owner facts
 runtime behavior
 ```
 
-若实施必须触碰一个**未声明**的维度，停下并归类为
-`required dependency` / `existing defect` / `precedent mismatch` / `new design decision`，然后报告。不得安静扩张 PR。
+若实施必须触碰一个**未声明**的维度，先归类为
+`required dependency` / `existing defect` / `precedent mismatch` / `new design decision`，然后记录；已有授权内的必要依赖/修复继续处理，超出授权的设计决定再交owner。不得安静扩张PR。
 
 ## 4. 漂移检查（实施中）
 
 ```text
 [ ] 没有新增 owner fact、域对象、状态名或权限
 [ ] 没有把外部来源的具体数值 / token 名 / 组件 API 写进本地规则
-[ ] 没有为不可用动作渲染 disabled 占位
+[ ] 没有把尚未实现或无owner/capability的动作渲染成可用控件；已有动作的在途/禁用态沿原合同
 [ ] 没有用颜色、计数或百分比伪造状态
 [ ] 没有顺手修复相邻的无关 UI
 [ ] 没有引入依赖、字体、runtime 或构建步骤
 [ ] unknown 与 unavailable 没有混用；missing 没有当成 zero
-[ ] 深浅色、1440 / 390、reduced-transparency / reduced-motion 都过了一遍
+[ ] 按frontend-contract的条件矩阵覆盖1440/1280/390、浅深、键盘/zoom/失败与适用fallback；未跑/不适用项有理由
 ```
 
 ## 5. CONTINUITY-GAP 登记模板
@@ -138,7 +138,7 @@ within current PR scope: yes/no
 [ ] 引用的每个非权威来源都带 canonical / reference / unverified / deferred
 [ ] 适用的机械检查已跑（见下）并附结果
 [ ] 未决项、被拒项、显式未做项分列
-[ ] 没有 merge / push / 部署，没有自称独立验收
+[ ] merge / push / 部署符合已有授权，没有自称独立验收
 ```
 
 适用时可跑的现有机械检查：
@@ -221,4 +221,4 @@ problem_key: projection.value
 
 ## 8. 这份清单不做的事
 
-不自动加载 context、不生成组件、不引入 lint 新门、不改 AGENTS.md / current.md / 契约 / 产品代码。它只让"找到先例 → 声明 delta → 对照复核 → 记录 misfit"这条路径可重复。
+本清单不自动加载context、不生成组件、不引入lint新门；本次整合已从AGENTS/current接入v1规范，无产品代码变化。它让"找到先例 → 声明 delta → 对照复核 → 记录 misfit"这条路径可重复。

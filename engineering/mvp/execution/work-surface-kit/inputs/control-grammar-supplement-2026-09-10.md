@@ -1,5 +1,7 @@
 # 用户转交 · Control Grammar 补充 / Agent-facing continuity（2026-09-10）
 
+后续消费：用户已明确要求“建立为前端规范，并派Luna核对”。[前端连续性v1](../../../../design/agent-interface-2026-09-10/frontend-contract.md)承接本输入，完整3轮见[转录](../../../../design/agent-interface-2026-09-10/input-conversation.md)。下列未核验/候选是原索引时点；本次限定核验与哪些规则已提升见v1，不直接把全篇外部主张升为规范。
+
 来源对话：`补充控制语法`（conversationId `6aa1b433-6058-83ec-86cc-588841a99017`）。本文件保存三轮已完成讨论的可召回索引；原始对话中的网页主张均视为用户提供的研究材料，不因转录自动成为事实或选型。消费裁定见 [intake-round-3 §4ax / WK-162](../intake-round-3.md)。
 
 ## 1. 三轮索引

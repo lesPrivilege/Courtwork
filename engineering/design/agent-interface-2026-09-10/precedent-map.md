@@ -9,7 +9,7 @@
 1. **只导航，不重述。** 本表不放 CSS 数值、组件 API、后端字段、状态机；它们留在 owner 文档。
 2. **problem_key 是 Courtwork 的稳定键**，不是库名。`Appica` / `assistant-ui` / `Linear` / `Figma` / `Atlassian` / `Base UI` / `React Aria` 永远不能成为 problem_key；它们只能作为某个 Courtwork 问题**下面**的来源引用（见 [sources.md](../sources.md)、[Atlas](../atlas/README.md)）。
 3. **`owner / fact entry` 一栏永远不指向外部来源。**
-4. 行内 `status` 描述的是"这一行给出的本地先例"的等级，不是外部来源的等级。
+4. 行内canonical首先表示已裁本地owner/grammar的约束；所附实现/工单/截图不是整包重新接受，必须读取对应固定SHA证据与后续覆盖。具体实现符号和本轮已知缺口见[precedents.md](precedents.md)。外部来源另按其核验等级判断。
 5. 表内先例不足时走 `next_if_missing`，不要即兴发挥。
 
 各行共有的两条前置（不再逐行重复）：[AGENTS.md](../../../AGENTS.md)、[engineering/current.md](../../current.md)。
@@ -148,9 +148,10 @@
 | grammar entry | [attention-triage-2026-09-10](../attention-triage-2026-09-10/README.md)、[attention-surface-2026-09-09](../attention-surface-2026-09-09) |
 | nearest local precedent | [WO-ATT-FE01.md](../../mvp/execution/work-surface-kit/work-orders/WO-ATT-FE01.md)、[app/web/attention-view.mjs](../../../app/web/attention-view.mjs) |
 | verification entry | [evidence/attention-agent-20260910](../../../evidence/attention-agent-20260910)、[evidence/attention-independent-20260909](../../../evidence/attention-independent-20260909) |
-| status | `canonical` |
+| status | `canonical`（仅已裁Attention合同与现有只读registry/detail） |
 | do_not_infer | Priority score；批量动作；email 状态；GitHub 状态；超出 owner fact 的 scheduled snooze 语义 |
-| next_if_missing | 按钮只由 `human_actions` 广告生成；常驻入口的反转仍待确认，不在同一 PR 偷改 |
+| deferred scope | typed triage actions前端、批量与未获准入口反转；后端广告不是前端交付证据 |
+| next_if_missing | 实施时按钮只由 `human_actions` 广告生成；常驻入口的反转仍待确认，不在同一 PR 偷改 |
 
 ## 4. Projection（如何读）
 
@@ -179,8 +180,8 @@
 | nearest local precedent | [app/web/thread-projection.mjs](../../../app/web/thread-projection.mjs)、[app/web/runtime-view.mjs](../../../app/web/runtime-view.mjs) |
 | verification entry | [tools/lint-colors.mjs](../../../tools/lint-colors.mjs) |
 | status | `canonical` |
-| do_not_infer | `running → progress`；用颜色代替标签；`unknown` 与 `unavailable` 混用 |
-| next_if_missing | 缺状态即登记候选，不新造状态名 |
+| do_not_infer | `running → progress`；用颜色代替标签；`unknown` 与 `unavailable` 混用；复制旧custom/gray-steel→accent回退作为Review规范（见[分离裁决](../skin-injection-2026-09-10/skin-constitution.md)） |
+| next_if_missing | 缺状态即记deferred，不新造状态名 |
 
 ### `projection.distribution`
 
@@ -219,8 +220,9 @@
 | grammar entry | [material-grammar.md](../home-composition-2026-09-10/material-grammar.md)、[Atlas](../atlas/README.md) Material 段 |
 | nearest local precedent | [app/web/materials-view.mjs](../../../app/web/materials-view.mjs)、[ex-cc6-progressive-blur.md](../../mvp/execution/work-surface-kit/explore/ex-cc6-progressive-blur.md) |
 | verification entry | [tools/lint-materials.mjs](../../../tools/lint-materials.mjs) |
-| status | `canonical` |
+| status | `canonical`（仅既有material grammar与两处生产blur边界） |
 | do_not_infer | 内容层 glass；侧栏 glass；material = agent 状态；glass-on-glass；省略 reduced-transparency / unsupported 回退 |
+| deferred scope | EX-CC6/progressive blur与新增材质specimen，非已接受生产先例 |
 | next_if_missing | FE-05 specimen 有前置（FE-05a 先落地），未完成前只做静态对照 |
 
 ### `shape.control`
@@ -232,8 +234,9 @@
 | grammar entry | [Atlas](../atlas/README.md) Shape 段、[ex-cs1-shape-grammar.md](../../mvp/execution/work-surface-kit/explore/ex-cs1-shape-grammar.md) |
 | nearest local precedent | [type-density-constraints.md](../type-density-constraints.md)、[type-density-ablation/v1](../type-density-ablation/v1) |
 | verification entry | [evidence/fe04-main-integration-20260909](../../../evidence/fe04-main-integration-20260909) |
-| status | `canonical` |
+| status | `canonical`（仅已裁Shape grammar与既有role） |
 | do_not_infer | 引入 `corner-shape` 为必需；新增半径档；破坏 concentricity 公理 |
+| deferred scope | FE-05a的新增密度/Shape实现；不得把工单或对照图当作已发货 |
 | next_if_missing | 按 FE-05a 工单，不自行加档 |
 
 ### `iconography`
@@ -245,7 +248,9 @@
 | grammar entry | [icon-controls.md](../icon-controls.md)（IC-1…IC-7）、[Atlas](../atlas/README.md) Iconography 段 |
 | nearest local precedent | [app/web/ui-controls.mjs](../../../app/web/ui-controls.mjs)、[app/web/vendor](../../../app/web/vendor)（Lucide，IC-5 冻结） |
 | verification entry | [evidence/ui-maturity](../../../evidence/ui-maturity) |
-| status | `canonical`（Lucide 为唯一发货家族）；MingCute / Phosphor 为 `reference`，EX-IC1 specimen 为 `deferred`（待派） |
+| status | `canonical`（仅Lucide既有发货范围） |
+| related references | MingCute / Phosphor只作来源参考，不属于本条canonical范围 |
+| deferred scope | EX-IC1 specimen与图标族替换，尚待对应工单/选择 |
 | do_not_infer | 混用家族；自绘"通用动作"字形；无 schema 的 fill = 状态；替换 sprite / 新增依赖 |
 | next_if_missing | 走 [S17](../sources.md) 的 donor 归一规则与 manifest，不直接换族 |
 
@@ -260,7 +265,8 @@
 | grammar entry | [Atlas](../atlas/README.md) Control Grammar 段、[interaction-vocabulary.md](../home-composition-2026-09-10/interaction-vocabulary.md) |
 | nearest local precedent | [WO-CCI-01-property-row.md](../../mvp/execution/work-surface-kit/work-orders/WO-CCI-01-property-row.md)、[delivery-cci-01.md](../../mvp/execution/work-surface-kit/delivery-cci-01.md) |
 | verification entry | [tools/lint-interaction.mjs](../../../tools/lint-interaction.mjs) |
-| status | `canonical`（PropertyRow 第一片已交付）；applicability 事实表为 `deferred` |
+| status | `deferred`（通用contextual toolbar与applicability事实表未交付） |
+| implemented precursor | PropertyRow第一片是属性行先例，见precedents.md；它不能支撑泛化toolbar的canonical声明 |
 | do_not_infer | 通用 command palette；新的域动作；把不可用动作渲染成 disabled 占位 |
 | next_if_missing | 先补 `appliesTo / requiresSelection / requiresCapability / risk / frequency / preferredSurface` 事实表 |
 
@@ -273,8 +279,9 @@
 | grammar entry | [disclosure-overlay.md](../home-composition-2026-09-10/disclosure-overlay.md)、[Atlas](../atlas/README.md)（popover-inspector 行） |
 | nearest local precedent | [app/web/inspector.mjs](../../../app/web/inspector.mjs)、[ex-cc3-popover-inspector.md](../../mvp/execution/work-surface-kit/explore/ex-cc3-popover-inspector.md) |
 | verification entry | [tools/lint-interaction.mjs](../../../tools/lint-interaction.mjs) |
-| status | `canonical` |
+| status | `canonical`（仅已有connection/context popover与tooltip的适用行为） |
 | do_not_infer | hover-only 的可交互浮层；把浮层当作事实源；无 return path 的焦点跳转 |
+| deferred scope | 通用Inspector与CC-I skeleton；Artifact/Trace导航目标不能当作已统一Inspector |
 | next_if_missing | 回 [disclosure-overlay.md](../home-composition-2026-09-10/disclosure-overlay.md) 的层级与 Escape 规则 |
 
 ## 7. 阅读与成果
@@ -309,4 +316,4 @@
 
 ## 8. 覆盖与缺口
 
-本表当前 20 行，覆盖 21 个 problem_key（`material.chrome` 与 `material.transient` 合并为一行）。其中 20 行给出 `canonical` 本地先例；`iconography` 与 `contextual.actions` 另各带一项 `deferred`（EX-IC1 specimen、applicability 事实表），`iconography` 的 MingCute / Phosphor 为 `reference`。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
+本表当前20个导航条目，覆盖21个problem_key（两种material合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1仍deferred，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。

@@ -1,8 +1,14 @@
-# Agent Interface / UI Continuity · 召回与治理索引
+# Agent Interface / UI Continuity · 前端规范入口
+
+2026-09-10用户授权建立前端规范并派Luna核对。[UI Continuity v1](frontend-contract.md)是施工规范，[precedent-map](precedent-map.md)按问题导航，[precedents](precedents.md)给出本次固定基线的具体实现符号，[change-template](change-template.md)收交付字段，[continuity-checklist](continuity-checklist.md)提供扩展检查与dry run；各文件只承担这一职责，不形成第二套grammar。
+
+本入口整合Astra `b2f6b3c` 与并行文档 `12eb220`，保留同一个owner/事实/设计先例模型。Review稳定且独立于skin，以[用户最新裁决](../skin-injection-2026-09-10/skin-constitution.md)为准。完整[3轮输入](input-conversation.md)与[限定一手核验](sources-review.md)可回溯。
+
+已建立：四类合同、按任务渐进召回、nearest precedent、声明改动维度、baseline/作者/非作者证据分开。尚未建立：自动context loader、package-coupled rules、全库AST/像素CI。规范与仓库同版本，不把候选工具称为已实现。
 
 ## 0. 本页解决的唯一问题
 
-> 一个短上下文的施工 / 设计 agent 只动 Courtwork 的一块局部界面时，如何找到**最近的有效先例**、判断该先例的**权威等级与适用范围**、只改**声明过的那一维**，并在任务实际需要新裁定时**停下来报告**，而不是安静地即兴发挥。
+> 一个短上下文的施工 / 设计 agent 只动 Courtwork 的一块局部界面时，如何找到**最近的有效先例**、判断该先例的**权威等级与适用范围**、只改**声明过的那一维**，并在任务实际需要超出已有授权的新裁定时报告，而不是安静地即兴发挥。
 
 期望链条：
 
@@ -19,7 +25,7 @@ current task
 
 ## 0.1 非目的
 
-本页**不是**新的 design system、runtime、agent 配置格式或第二个产品事实源。它只是**召回 / 导航文档**：可以指向权威，不得成为权威。
+本页是规范入口与召回导航，具体规则分别由frontend-contract和已有owner/grammar承载；不是新的runtime、agent配置格式或第二个产品事实源。
 
 本轮不新增：`AGENT-RULES.md`、`.agent-rules`、`llms.txt` / `llms-full.txt`、重复的 `CLAUDE.md` 规则、package-coupled `agent-rules.md`、MCP context loader、自动 context 编译器、YAML component authority、全局 raw-literal lint、组件库、依赖、产品代码、后端字段。若将来要做机器可加载的设计规则，那是另一个独立的架构 PR。
 
@@ -74,7 +80,7 @@ C. Design precedent ── 该长什么样、怎么动
 | `unverified` | 线索存在，但其主张未经独立核验 | 只能当检索线索 |
 | `deferred` | 已知但被阻塞、被有意推后、或需要新的 owner 裁定 | 不实施，也不作为"已有能力"对外呈现 |
 
-不新设第五个含糊的 `candidate` 状态。提案表达为：
+`precedents.md`的“implemented / candidate / visual baseline”是证据类型，不是新增治理状态。候选未获准施工时映射deferred；已实现代码也必须按具体接受证据确定状态，不能仅因路径存在标canonical。提案表达为：
 
 ```text
 status: deferred
@@ -148,7 +154,7 @@ owner fact
 7. 未核验的外部线索
 ```
 
-只有 1–5 可以在**没有新裁定**的前提下成为本地实施先例。6–7 是研究参考，不能直接落地。
+1–5只表示检索优先级，还需先例当前适用且本次改动在授权范围。6–7是研究参考，不能直接赋予本地实施权限。
 
 `primitive` 的口径见 [primitive-canon.md](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md)；`state` 的口径见 [ui-state-vocabulary.md](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md)。
 
@@ -232,7 +238,7 @@ new design decision
 
 | 方向 | 状态 | 说明 |
 |---|---|---|
-| version-bound agent contract | `deferred` | 需先有被接受的分发政策；当前不新建 package-coupled contract |
+| package-bound规则分发 | `deferred` | v1已与本仓库版本绑定；向package分发的机制仍未建立 |
 | `AGENT-RULES.md` | `deferred` | 职责当前由 AGENTS.md + current + Atlas + 工单共同承担 |
 | `design/index.md` 平行目录 | `deferred` | Scout + Atlas + 本页 precedent-map 已覆盖召回需求 |
 | semantic component registry | `deferred` | 不得借此创造新的域对象、状态或权限 |

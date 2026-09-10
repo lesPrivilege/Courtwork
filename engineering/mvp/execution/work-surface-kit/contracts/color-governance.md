@@ -1,5 +1,7 @@
 # 色彩三层治理契约（草案，Fable，2026-09-08）
 
+2026-09-10修订：用户最新裁决为**Review稳定且不涉及skin，skin独立变化不影响Review**。[Skin/Review合同](../../../../design/skin-injection-2026-09-10/skin-constitution.md)覆盖下文旧whole-skin可以替换固定语义色及custom/gray-steel的review→accent回退作为设计目标的条款。现有代码仍有此耦合，见[迁移单](../../../../design/skin-injection-2026-09-10/migration-notes.md)，不称已修复。S→R→U、浅深适配与对比门槛保持。
+
 状态：2026-09-08 冻结（WO-WK7 实现于 `claude/wk7-color-governance`）。值来源 EX-WK3；用户裁定：不用蓝系，默认 skin 为铅灰（冷灰 + 冷白底 + 单色 accent）。依据 intake-round-2 WK-16 / WK-17 / WK-18 / WK-19；既有纪律 PD-KIT、UP-2（"文件内只允许该 scale 与四个稀缺色，其余皆为别名"）继续有效并由本契约扩展到深宗与 skin。
 
 ## 1. 三层

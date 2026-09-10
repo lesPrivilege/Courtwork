@@ -64,3 +64,7 @@ Motto TUI、Deswrit kit、Courtwork Design 与用户提供的 ChatGPT 讨论另�
 ```
 
 若只有文档，不评价上游 UI “手感好”“焦点可靠”或“无错误”。原始截图放未来明确授权的证据目录，来源许可与个人内容先核对；本轮不下载或复制产品资产。
+
+## 2026-09-10 · Skin / Continuity补充核验
+
+用户最新Skin/Review分离裁决见[EX-SKIN-01](skin-injection-2026-09-10/README.md)，[一手索引](skin-injection-2026-09-10/external-index.md)逐条区分正文与不可访问。S21–S22中Appica agent setup、Atlassian token code本次已取得正文，另核验Figma Code Connect与Storybook visual testing；仅这些页面的限定主张更新为核验，见[核验表](agent-interface-2026-09-10/sources-review.md)。其余外部主张保持原级别。用户授权的[前端连续性v1](agent-interface-2026-09-10/frontend-contract.md)基于本地合同，未引入上述依赖。
