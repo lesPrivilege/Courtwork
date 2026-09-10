@@ -1,0 +1,11 @@
+✔ history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them (4098.834042ms)
+✔ history cancellation waits for the Git process to exit and the next save repairs interrupted init (3512.029459ms)
+✔ existing non-blob history object is an integrity failure (1801.281875ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10017.473167
