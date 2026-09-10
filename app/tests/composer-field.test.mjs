@@ -98,9 +98,16 @@ test("CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, t
   assert.equal((appSource.match(/fitComposer\(\);/g) || []).length, 3);
 });
 
-test("CI-B · each variant keeps its ceiling, short viewports stop growth at 28dvh, Home anchors the resting box", () => {
-  assert.match(styles, /#composer-input \{[^}]*min-height: 88px;[^}]*max-height: min\(180px, 28dvh\);/);
-  assert.match(styles, /\.home-active #composer-input \{ min-height: 96px; max-height: min\(160px, 28dvh\); \}/);
+test("CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box", () => {
+  // Plain ceilings first: a host without dvh must still stop at 180 / 160.
+  assert.match(styles, /#composer-input \{[^}]*min-height: 88px;\s*max-height: 180px;/);
+  const home = styles.indexOf(".home-active #composer-input { min-height: 96px; max-height: 160px; }");
+  assert.ok(home > 0);
+  // The override is support-gated and comes after the Home rule: same
+  // specificity, so only a later rule can replace Home's 160.
+  const override = styles.indexOf("@supports (max-height: min(1px, 1dvh)) {");
+  assert.ok(override > home);
+  assert.match(styles.slice(override), /^@supports \(max-height: min\(1px, 1dvh\)\) \{\s*#composer-input \{ max-height: min\(180px, 28dvh\); \}\s*\.home-active #composer-input \{ max-height: min\(160px, 28dvh\); \}\s*\}/);
   // WK-96's 56 % line is read from the composer at its min-height, so a draft
   // that grew before the last measurement cannot lift an emptied composer.
   const start = appSource.indexOf("function measureHomeLead()");

@@ -1459,10 +1459,7 @@ details[open] > summary.flow-row::after {
   resize: none;
   width: 100%;
   min-height: 88px;
-  /* CI-B · the ceiling (WK-97) holds on ordinary screens; on short viewports —
-     200 % zoom, a landscape phone — growth stops at 28 % of the height so the
-     conversation keeps a readable band (at 400px tall: 112, not 180). */
-  max-height: min(180px, 28dvh);
+  max-height: 180px;
   border: 0;
   padding: 4px;
   background: transparent;
@@ -3502,9 +3499,18 @@ dialog[open]::backdrop {
   line-height: 1.2;
   letter-spacing: var(--tracking-heading);
 }
-/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96；
-   Work 是 continuation control，初始 88。两者都随输入增长到同一个上限。 */
-.home-active #composer-input { min-height: 96px; max-height: min(160px, 28dvh); }
+/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96，
+   随输入长到 160；Work 是 continuation control，初始 88，长到 180。两个上限不同，
+   CI-B（2026-09-10）裁定保留这一差异；到上限后本体滚动。 */
+.home-active #composer-input { min-height: 96px; max-height: 160px; }
+/* CI-B · 短视口（200 % 缩放、横屏手机）上，增高停在视口高度的 28 %，给对话
+   留一条可读的带（400 高时为 112，不是 180）。暂定值，不是最终可用性验收。
+   普通上限写在前面两条规则里，不认 dvh 的旧宿主仍停在 180 / 160；这里只在支持时
+   覆盖。必须排在 Home 规则之后：同特异度，后写者胜。 */
+@supports (max-height: min(1px, 1dvh)) {
+  #composer-input { max-height: min(180px, 28dvh); }
+  .home-active #composer-input { max-height: min(160px, 28dvh); }
+}
 
 /* WK-12 · Project and file-writes scope join the model chip in the composer's
    own bottom control row; Send stays at the trailing edge. */
