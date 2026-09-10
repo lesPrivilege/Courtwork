@@ -22,3 +22,5 @@ Courtwork GitHub Pages 与根 README 的筹备批次。承接 [2026-09-08 发布
 | `explore/` | Sonnet 回执落点 | 四卷已回执 |
 
 SE 论文仓侧的对应记录在 `papers/notes/publication-surface.md`（2026-09-09 节）。
+
+输入四的2026-09-11消费裁决见[Pages合流回执](../pages-ordered-integration-2026-09-11/README.md)：原审计文本原样保留，当前处置以回执为准。
