@@ -1,0 +1,737 @@
+{
+  "source": "courtwork-implementation-plan-20260910/tickets.json",
+  "source_is_proposal": true,
+  "tickets": [
+    {
+      "id": "RV26-00",
+      "maps_to": [
+        "AM-A",
+        "ME-00",
+        "current/roadmap"
+      ],
+      "depends_on": [],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "verified-bounded",
+      "write_allowlist": [
+        "engineering/current.md",
+        "engineering/architecture.md",
+        "AGENTS.md",
+        "docs/work-core/*.md（仅当前版本入口）",
+        "engineering/mvp/execution/work-surface-kit/backend-requests.md",
+        "engineering/reviews/2026-09-10/**（建议新目录）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-Q01",
+      "maps_to": [
+        "M04",
+        "M05",
+        "AM-F"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "in-progress",
+      "write_allowlist": [
+        "app/core/client.mjs",
+        "app/tests/review-core-client-lifecycle.test.mjs（新）",
+        "app/tests/fixtures/review-core-client/**（新）",
+        "docs/work-core/contract.md（生命周期段）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-Q02",
+      "maps_to": [
+        "PV连接注册",
+        "BE-21",
+        "M01"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/server/provider-connections.mjs",
+        "app/server/store.mjs（Provider校验与setter）",
+        "app/server/service.mjs（Provider配置方法）",
+        "app/tests/review-provider-roundtrip.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-Q03",
+      "maps_to": [
+        "M06",
+        "AM-F"
+      ],
+      "depends_on": [
+        "RV26-00",
+        "RV26-Q02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/server/store.mjs（_persist/open/close）",
+        "app/server/runtime-lock.mjs",
+        "app/server/runtime-lock.py",
+        "app/tests/review-runtime-publication.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-Q04",
+      "maps_to": [
+        "M12",
+        "M14"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        ".github/workflows/product-checks.yml（新）",
+        "app/tests/review-test-discovery.test.mjs（按需新）",
+        "engineering/reviews/2026-09-10/ci.md（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-Q05",
+      "maps_to": [
+        "ME-09",
+        "M06",
+        "M12"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/tests/review-capacity.test.mjs（新）",
+        "benchmarks/capacity/**（新）",
+        "engineering/reviews/2026-09-10/capacity.md（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG00",
+      "maps_to": [
+        "LG-00",
+        "ME-01",
+        "ME-09"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/tests/fixtures/intake/**（新）",
+        "docs/intake/contract-v1.md（新）",
+        "benchmarks/intake/**（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG01A",
+      "maps_to": [
+        "LG-01",
+        "ME-01/D04"
+      ],
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-Q03"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/intake/capture.mjs（新）",
+        "app/intake/blob-store.mjs（新）",
+        "app/intake/manifest.mjs（新）",
+        "app/tests/review-intake-capture.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG01B",
+      "maps_to": [
+        "LG-01",
+        "ME-01/D04"
+      ],
+      "depends_on": [
+        "RV26-LG01A"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/intake/rendition.mjs（新）",
+        "app/intake/extractors/text.mjs（新）",
+        "app/intake/extractors/pdf_worker.py（新）",
+        "app/intake/requirements-pdf.lock（新）",
+        "app/tests/review-rendition.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG01C",
+      "maps_to": [
+        "LG-01/03",
+        "M05/M07"
+      ],
+      "depends_on": [
+        "RV26-LG01B",
+        "RV26-Q01",
+        "RV26-LG00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/core/core.py（来源绑定事务接缝）",
+        "app/core/bridge.py",
+        "app/core/client.mjs",
+        "app/extensions/work-adapter.mjs（精确接缝）",
+        "app/intake/core-binding.mjs（新）",
+        "app/tests/review-source-binding.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG02A",
+      "maps_to": [
+        "LG-02",
+        "ME-01/D06"
+      ],
+      "depends_on": [
+        "RV26-LG01C"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/intake/index-store.py（新）",
+        "app/intake/search.mjs（新）",
+        "app/intake/query-contract.mjs（新）",
+        "app/tests/review-source-search.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG02B",
+      "maps_to": [
+        "LG-02",
+        "M03/M09"
+      ],
+      "depends_on": [
+        "RV26-LG02A",
+        "RV26-Q01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/intake/tools.mjs（新）",
+        "app/intake/context-manifest.mjs（新）",
+        "app/core/owner.mjs（限定context接缝）",
+        "app/runtime/control-tools.mjs（必要接入）",
+        "app/extensions/work-adapter.mjs（限定接缝）",
+        "app/tests/review-context-evidence.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-LG04",
+      "maps_to": [
+        "LG-04",
+        "ME-01"
+      ],
+      "depends_on": [
+        "RV26-LG02B"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/intake/refresh.mjs（新）",
+        "app/intake/dependencies.mjs（新）",
+        "app/tests/review-intake-delta.test.mjs（新）",
+        "benchmarks/intake/mutations/**（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-SP01",
+      "maps_to": [
+        "LG-03",
+        "ME-03"
+      ],
+      "depends_on": [
+        "RV26-LG04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/domains/source-review/**（建议新域）",
+        "app/extensions/source-review-adapter.mjs（建议新adapter）",
+        "app/extensions/registry*.mjs（实际入口由00核定）",
+        "app/tests/review-spark-finding.test.mjs（新）",
+        "docs/work-core/source-review.md（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-HC01",
+      "maps_to": [
+        "ME-04",
+        "M05/M09/M10"
+      ],
+      "depends_on": [
+        "RV26-Q05",
+        "RV26-Q01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/core/bridge.py（有界query）",
+        "app/core/owner.mjs",
+        "app/core/client.mjs",
+        "app/server/service.mjs（只读工作query）",
+        "app/tests/review-core-read-capacity.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-HC02",
+      "maps_to": [
+        "ME-04",
+        "BG-02补接缝"
+      ],
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-HC01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/core/owner.mjs",
+        "app/extensions/work-adapter.mjs",
+        "app/server/service.mjs（existingMatter绑定/只读恢复接缝）",
+        "app/tests/review-rehydrate.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-HC03",
+      "maps_to": [
+        "ME-02",
+        "BE-8"
+      ],
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-Q02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/runtime/control-plane.mjs（限定profile/composition）",
+        "app/server/service.mjs（Run绑定快照）",
+        "app/tests/review-role-snapshot.test.mjs（新）",
+        "docs/runtime-control/expert-snapshot.md（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-HC04",
+      "maps_to": [
+        "ME-05",
+        "AM-A/AM-C/AM-F"
+      ],
+      "depends_on": [
+        "RV26-00",
+        "RV26-Q01",
+        "RV26-Q02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/runtime/pi-session-runtime.mjs（仅已证缺口）",
+        "app/runtime/request-telemetry.mjs（限定observer）",
+        "app/tests/review-runtime-conformance.test.mjs（新）",
+        "docs/runtime-control/conformance.md（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-AT01",
+      "maps_to": [
+        "BE-40@Attention",
+        "ATT-FE-01"
+      ],
+      "depends_on": [
+        "RV26-00"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/core/attention.py（query排序接缝）",
+        "docs/work-core/attention.md",
+        "app/tests/review-attention-order.test.mjs（新）",
+        "engineering/mvp/execution/work-surface-kit/backend-requests.md（精确回执）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-AT02",
+      "maps_to": [
+        "ME-06",
+        "HC6"
+      ],
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-HC02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/harness/spark-signals.mjs（新）",
+        "app/server/service.mjs（现有Attention runtime adapter接缝）",
+        "app/core/attention.py（仅已证合同缺口）",
+        "app/tests/review-spark-attention.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-FE01",
+      "maps_to": [
+        "FE-05a接缝",
+        "M10/M11"
+      ],
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-AT01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/tests/fixtures/review-surfaces/**（新）",
+        "docs/intake/surface-contract-v1.md（新）",
+        "app/tests/review-surface-packets.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-FE02",
+      "maps_to": [
+        "FE-05/后续Source面",
+        "ME-03"
+      ],
+      "depends_on": [
+        "RV26-FE01",
+        "RV26-SP01",
+        "RV26-HC01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/web/source-review-view.mjs（新）",
+        "app/web/spark-view.mjs（新）",
+        "app/web/surface-modules.mjs（注册精确模块）",
+        "app/web/app.mjs（限定host接入）",
+        "app/web/styles.css（仅既有token消费）",
+        "app/tests/review-source-ui.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-FE03",
+      "maps_to": [
+        "ATT-FE-01",
+        "BE-40@Attention"
+      ],
+      "depends_on": [
+        "RV26-AT01",
+        "RV26-AT02",
+        "RV26-FE01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/web/attention-view.mjs（限定triage接缝）",
+        "app/web/attention-agent-view.mjs（限定intent接缝）",
+        "app/web/attention-conversation.mjs（仅已证缺口）",
+        "app/tests/review-attention-ui.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-PV01",
+      "maps_to": [
+        "BE-36/37/38/39",
+        "BE-40@Provider",
+        "M01"
+      ],
+      "depends_on": [
+        "RV26-Q02",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/server/provider-connections.mjs",
+        "app/server/service.mjs（连接验证/配置快照）",
+        "app/runtime/pi-session-runtime.mjs（能力adapter）",
+        "app/runtime/request-telemetry.mjs（错误分类接缝）",
+        "app/tests/review-provider-capabilities.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-FE04",
+      "maps_to": [
+        "PV-FE",
+        "BE-40@Provider",
+        "CC-I"
+      ],
+      "depends_on": [
+        "RV26-PV01",
+        "RV26-FE01"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Luna bounded, Astra integration",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "app/web/model-picker.mjs（限定能力消费）",
+        "app/web/telemetry-view.mjs",
+        "app/web/settings-view.mjs（限定连接面）",
+        "app/web/usage-view.mjs（限定口径）",
+        "app/tests/review-provider-ui.test.mjs（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-EV01",
+      "maps_to": [
+        "ME-09",
+        "LG benchmark",
+        "SE continuity"
+      ],
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-HC02",
+        "RV26-FE02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "benchmarks/intake/**",
+        "benchmarks/continuity/**（只加consumer/对照）",
+        "evidence/review-longlife-20260910/**（新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-REL01",
+      "maps_to": [
+        "G1–G5",
+        "H0–H3"
+      ],
+      "depends_on": [
+        "RV26-Q01",
+        "RV26-Q02",
+        "RV26-Q04",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "queued",
+      "write_allowlist": [
+        "evidence/real-vertical-20260910/**（新）",
+        "engineering/current.md",
+        "README.md/Pages事实清单（仅证据更新）"
+      ],
+      "conditional_on": null
+    },
+    {
+      "id": "RV26-OUT01",
+      "maps_to": [
+        "ME-07",
+        "AT1",
+        "BG-01"
+      ],
+      "depends_on": [
+        "RV26-HC02",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "app/cli/read-work.mjs（建议新）或一个MCP server模块（二选一）",
+        "app/tests/review-external-read.test.mjs（新）",
+        "docs/runtime-control/external-read.md（新）"
+      ],
+      "conditional_on": "存在实际的第二只读消费者；否则不阻塞首条闭环。"
+    },
+    {
+      "id": "RV26-OPT01",
+      "maps_to": [
+        "AM-B增量",
+        "ME-01/03"
+      ],
+      "depends_on": [
+        "RV26-LG01B",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "app/intake/async-adapter.mjs（新）",
+        "app/server/async-tasks.mjs（仅证明必要的缺口）",
+        "app/tests/review-intake-async.test.mjs（新）"
+      ],
+      "conditional_on": "同步有界Intake已产生可测阻塞，且现有AM-B生产adapter缺口已核定。"
+    },
+    {
+      "id": "RV26-OPT02",
+      "maps_to": [
+        "BE-36/37",
+        "Google dogfood"
+      ],
+      "depends_on": [
+        "RV26-PV01",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "docs/runtime-control/google-auth-admission.md（新）",
+        "app/runtime/google-auth-adapter.mjs（准入后新）",
+        "app/tests/review-google-auth.test.mjs（准入后新）"
+      ],
+      "conditional_on": "选定的官方/公开OAuth路线与锁定SDK兼容，且用户明确授权真实登录。"
+    },
+    {
+      "id": "RV26-OPT03",
+      "maps_to": [
+        "ME-08",
+        "D09/D13"
+      ],
+      "depends_on": [
+        "RV26-HC04",
+        "RV26-HC02"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "app/runtime/codex-adapter.mjs（准入后新）",
+        "app/tests/review-codex-conformance.test.mjs（新）",
+        "docs/runtime-control/codex-admission.md（新）"
+      ],
+      "conditional_on": "Pi符合性已成立且第二runtime有实际消费者；本轮不同时实现ACP/TUI/MCP App。"
+    },
+    {
+      "id": "RV26-OPT04",
+      "maps_to": [
+        "BG-03",
+        "ME-06后续"
+      ],
+      "depends_on": [
+        "RV26-AT02",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "现有Core owner内的领域intent/outbox模块（准入后）",
+        "单一外部connector adapter（准入后）",
+        "app/tests/review-external-effects.test.mjs（新）"
+      ],
+      "conditional_on": "有真实外部写消费者、明确授权与可测试provider；只读Attention阶段不得实施。"
+    },
+    {
+      "id": "RV26-OPT05",
+      "maps_to": [
+        "M06",
+        "ME-09"
+      ],
+      "depends_on": [
+        "RV26-Q05",
+        "RV26-Q03",
+        "RV26-HC04"
+      ],
+      "architecture_owner": "Astra",
+      "implementation_owner": "Astra",
+      "reviewer": "non-author Luna / Astra according to author",
+      "status": "conditional",
+      "write_allowlist": [
+        "app/server/store.mjs（保持公共接口）",
+        "app/server/runtime-store-backend.*（准入后新）",
+        "app/tests/review-store-conformance.test.mjs（新）"
+      ],
+      "conditional_on": "Q05预注册门失败且小范围措施不能满足已确认目标规模。"
+    }
+  ]
+}

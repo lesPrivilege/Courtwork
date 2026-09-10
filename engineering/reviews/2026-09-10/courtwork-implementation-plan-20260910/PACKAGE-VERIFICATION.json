@@ -1,0 +1,28 @@
+{
+  "package_checks": {
+    "ticket_count": 33,
+    "conditional_count": 6,
+    "unique_ids": true,
+    "dependencies_resolve": true,
+    "dependency_graph_acyclic": true
+  },
+  "product_verification": {
+    "full_clone": false,
+    "npm_ci": false,
+    "full_tests": false,
+    "smoke": false,
+    "browser": false,
+    "real_provider": false,
+    "real_core_database": false
+  },
+  "isolated_probe": {
+    "source_blob": "9e697d444a3990e674ee38224fd49d24cff1c442",
+    "source_bytes": 9609,
+    "node": "v22.16.0",
+    "below_project_minimum": true,
+    "cases_reproduced": 2,
+    "scope": "CoreClient with synthetic worker only"
+  },
+  "repository_mutated": false,
+  "github_issues_or_prs_created": false
+}
