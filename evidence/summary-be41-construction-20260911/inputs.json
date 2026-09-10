@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "runtimeStoreSchema": 12,
+  "coreSchema": 4,
+  "appSchema": 5,
+  "refs": {
+    "dedf005": "dedf005494e3f17a18ee261a81e367026d0a0f70",
+    "68b3341": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+    "796c3a5": "796c3a5de9bbeb6728b8968d227b4ec4e52725d5",
+    "4c2a56a": "4c2a56aa203b3818bd8265f79f72dec7a0dc154f",
+    "30fd470": "30fd47015039eb68967b5dba1634c54c62099975",
+    "8393d7b": "8393d7b37db5f36ac7b8ef8dc35fe552993dbde5",
+    "9bc6090": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+    "445fb48": "445fb48aa42d47c6ff0f819790630ac9ba723f33",
+    "466bdfd": "466bdfdc8f3795e0205508c8f26de5acf6c140fa",
+    "901d5f9": "901d5f950daef85ca7e58a470a3d85f7785edd6e",
+    "c71eb02": "c71eb0229bb33456daf9569b83f244d3dce340fa",
+    "0cbbf7e": "0cbbf7e64fd145c5047c724fe7a24b599726cf49",
+    "b57b831": "b57b831aeaa65db5ff74d948e8fabe4a349897dc",
+    "d11fa24": "d11fa243f63504ac43ba3c13b4dd78410fb7c3d2",
+    "060cca8": "060cca801c7d45c7147edf49a9f65f4afc7ed81f",
+    "1c26c1c": "1c26c1c83773b0bcaf862ded7a1b9125835decb5",
+    "2361a83": "2361a837c23433cc582a386d594dac9a488f377c"
+  },
+  "candidateBranch": "codex/summary-be41-construction-20260911",
+  "excludedWipBranch": "codex/chat-actions-wip-20260911",
+  "testAttribution": "Full 736/736 at 0cbbf7e; later product difference is composer comment only. b57b831 merges accepted main Pages/docs; not a new full-suite run."
+}
