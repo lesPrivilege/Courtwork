@@ -17,6 +17,9 @@ const ERROR_ONCE_DIRECTIVE = "fixture_error_once";
 // Milliseconds a "/fixture slow" response waits before its FIRST token, so a
 // test can cancel while the run is genuinely waiting on the model.
 const SLOW_FIRST_TOKEN_MS = 600;
+// WO-PV-BE03: a connection saved with this exact key gets a structured 401
+// back on every request, independent of prompt content — see the handler.
+const WRONG_KEY_MARKER = "fixture-wrong-key-401";
 
 function textFromMessage(message) {
   if (!message) return "";
@@ -95,6 +98,15 @@ function makeResponse({ body, requestNumber, responder, spentErrorOnce }) {
   if (typeof responder === "function") {
     const custom = responder({ body: structuredClone(body), requestNumber, mode });
     if (custom && typeof custom === "object") return custom;
+  }
+
+  // WO-PV-BE03: the fixture is what proves a catalog connection's EXTRA
+  // model (admitted locally, per PV-59) can still be one the upstream itself
+  // does not actually have. The requested `model` id decides this, not the
+  // prompt: a real gateway rejects an unrecognized model regardless of what
+  // was asked. Any id with this prefix is reserved for that scenario.
+  if (typeof body?.model === "string" && body.model.startsWith("unknown-")) {
+    return { kind: "http-error", status: 404, message: `The model \`${body.model}\` does not exist` };
   }
 
   const script = scriptForMode(mode);
@@ -237,6 +249,16 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
         const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
         const current = ++requestNumber;
         requests.push({ body, authorization: req.headers.authorization ?? null });
+        // WO-PV-BE03: BE-39's verify endpoint sends the SAME fixed prompt on
+        // every call (PV-62), so `/fixture error ...` prompt directives can
+        // never select an outcome for it. This key is the one thing a verify
+        // test controls per-connection: any connection saved with it gets a
+        // structured 401 back, regardless of what was asked.
+        if (req.headers.authorization === `Bearer ${WRONG_KEY_MARKER}`) {
+          res.writeHead(401, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: { message: "Incorrect API key provided" } }));
+          return;
+        }
         const response = makeResponse({ body, requestNumber: current, responder: responseHook, spentErrorOnce });
         if (response.kind === "http-error") {
           res.writeHead(response.status, { "content-type": "application/json" });
@@ -316,6 +338,7 @@ export const fakeProviderDescriptor = Object.freeze({
   realProvider: false,
 });
 
+export const FIXTURE_WRONG_KEY = WRONG_KEY_MARKER;
 export const FIXTURE_ERROR_DIRECTIVE = ERROR_DIRECTIVE;
 export const FIXTURE_ERROR_ONCE_DIRECTIVE = ERROR_ONCE_DIRECTIVE;
 export const FIXTURE_SLOW_FIRST_TOKEN_MS = SLOW_FIRST_TOKEN_MS;

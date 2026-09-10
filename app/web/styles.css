@@ -2106,6 +2106,16 @@ select {
   font-weight: 400;
   color: var(--muted-strong);
 }
+/* PV-42 · 每条连接自己的最近回执，同一处 form-help 尺度；失败借既有 --danger，
+   成功不着色（与探测结果同一条色彩规则）。 */
+.connection-row-verification {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+.connection-row-verification.is-failed {
+  color: var(--danger);
+}
 /* 统一流程：五步一列。未交付的两步不是禁用控件，是一行说明，所以它只降对比度，
    不画按钮形状。 */
 .connection-flow {
@@ -2130,6 +2140,12 @@ select {
 .connection-step-name {
   font-weight: 500;
 }
+/* PV-73 · 冒烟步没有 check 字形（钉住的雪碧图里没有），完成态由这个灰字状态词
+   承担，与 Run 终态词同一做法；成功仍不着色。 */
+.connection-step-status {
+  font-weight: 400;
+  color: var(--muted-strong);
+}
 .connection-step-note {
   grid-column: 2;
   color: var(--muted-strong);
@@ -2153,9 +2169,18 @@ select {
   font-size: var(--text-meta);
   line-height: 1.5;
   overflow-wrap: anywhere;
+  /* PV-64 · 回执一次性到达的过渡。`is-arrived` 是它的起点（下面那条规则），
+     JS 同一帧加上、下一帧移除，浏览器把这次变化当过渡播放。`prefers-reduced-
+     motion: reduce` 下由本文件既有的全局强制关闭覆盖（*,*::before,*::after
+     { transition:none!important }），这里不重复声明。 */
+  transition: opacity var(--duration) var(--ease-out), translate var(--duration) var(--ease-out);
 }
 .connection-probe-result.is-failed {
   color: var(--danger);
+}
+.connection-probe-result.is-arrived {
+  opacity: 0;
+  translate: 0 4px;
 }
 /* 目录报来的 ID 是不可信显示数据：等宽、原样、不可选中为模型，也不进下拉。 */
 .connection-probe-models {
@@ -5655,6 +5680,27 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .model-picker-dialog > select { height: 220px; padding: 8px; }
 .model-picker-dialog label { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; }
 .model-picker-dialog label select { width: 50%; }
+/* PV-59/63 · "键入一个模型 ID" 的展开面板：最小布局，沿用既有 label 两栏规则；
+   只有 reasoning 那一行（勾选框在左）需要覆盖对齐方向。 */
+.model-picker-custom {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 12px;
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+}
+.model-picker-custom label > input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+.model-picker-dialog label.model-picker-custom-reasoning {
+  justify-content: flex-start;
+  gap: 8px;
+}
+.model-picker-custom-toggle {
+  display: block;
+  margin: 4px 0;
+}
 .attention-agent-composer .attention-model-choice { max-width: 108px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-meta); padding: 0 8px; }
 .request-measurements { padding: 8px 0; }
 .request-measurements h4 { margin: 12px 0 8px; font-size: var(--text-meta); }

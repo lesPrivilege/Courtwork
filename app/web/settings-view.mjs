@@ -209,20 +209,23 @@ export const CONNECTION_STEPS = [
   {
     id: "fetch",
     title: "Fetch models",
+    /* PV-63 · Base URL 与 key 齐备时这一步自动跑一次（去抖，失焦立即跑）；这个
+     * 按钮留作手动重跑，文案改一个字不再叫"Fetch"，说明它现在是第二次做同一
+     * 件事，不是第一次。 */
+    buttonLabel: "Refresh models",
     available: true,
     probe: "discover",
-    note: "Reads the model IDs that same directory reports. On this path they become the Model list for this connection when you save it; reading them does not check that any of them can answer.",
+    note: "Reads the model IDs that same directory reports. On this path they become the Model list for this connection when you save it; reading them does not check that any of them can answer. With a Base URL and a key entered, this runs on its own; the button here reruns it by hand.",
   },
   { id: "choose", title: "Choose a model", available: true, note: "From the catalogue for the provider above." },
   { id: "save", title: "Save connection", available: true, note: "Endpoint and model are saved here. On this path the key is sent with the connection so its directory can be checked with the key that will be used." },
-  /* PV-35 · 第三级阶梯（该模型真的回答了）需要 BE-39 的冒烟端点，它还没有。
-   * 这里按既有做法只留位：写明它没有，而不是画一个按不动的按钮 —— 后者先许诺
-   * 再收回。端点落地后这一步才变成有回执的完成步（PV-40…42）。 */
+  /* PV-73（修正 PV-41 的字形前提）· 钉住的雪碧图没有 check 字形；完成态由字
+   * 承担，步名后接灰字状态词 "· Answered"，与 Run 终态词同一做法。 */
   {
     id: "smoke",
     title: "Ask the model once",
-    available: false,
-    note: "Not available yet. The two steps above only reach the model directory; neither shows that the selected model can answer. The host has no endpoint for that check (BE-39), so this build does not offer one.",
+    available: true,
+    note: "Sends one short prompt with the saved key and the selected model, and shows the first line of the answer. It shows that this model answers now; it is not a check of any other model on this connection.",
   },
 ];
 /* WK-108 · 只有一条路径在表单里持有显式 Base URL；另外两条没有可送出的端点，
@@ -347,6 +350,13 @@ export function connectionRows({ connections, config } = {}) {
       models: connection.models.map((entry) => entry.id),
       unknownWindows,
       inForce: Boolean(config) && config.provider === connection.providerIdentity,
+      /* PV-42 · 每条连接自己的最近回执，直接来自后端；绑定失配时后端已经把它
+         收回成 null，前端不缓存、不补一句。 */
+      verificationLine: connectionRowVerificationLine(connection.lastVerification),
+      verificationFailed: Boolean(connection.lastVerification) && connection.lastVerification.status !== "ok",
+      /* 项 8 · configurationStatus 非 ready 时这一行降级：同一 form-help 槽写
+         后端登记的那句，选用动作不可用。`ready` 不写、不占位。 */
+      degraded: Boolean(connection.configurationStatus) && connection.configurationStatus !== "ready",
     };
   });
 }
@@ -374,6 +384,58 @@ export function connectionSaveError(error) {
   if (typeof detail.status === "string" && detail.status) parts.push(`(${detail.status})`);
   return parts.join(" ");
 }
+
+/* PV-64 · 接入回执的六态映射。只有五类登记了一句文案；`model_not_found` 不可达
+ * （BE03 §5.2）不出现在这里；`unknown` 没有登记文案，只转述后端原话（PV-62 ①：
+ * 不得为未结构化的信号正则出精度）。 */
+export const VERIFY_STATUS_HEADLINES = Object.freeze({
+  authentication_failed: "The provider rejected the key",
+  timeout: "No answer within the time limit",
+  unreachable: "The endpoint could not be reached",
+  malformed_response: "The provider answered in a shape this host cannot read",
+});
+/** `http_error` 的登记文案要带上后端给的真实状态码（PV-84 的 `httpStatus`），
+ * 所以它不是一句静态常量，单独算一次。 */
+export function verifyHeadline(receipt) {
+  if (receipt.status === "http_error") return `The provider returned HTTP ${receipt.httpStatus}`;
+  return VERIFY_STATUS_HEADLINES[receipt.status] || null;
+}
+/** 失败态一行：`<登记文案> · <message 原话>`；`unknown` 没有登记文案，只写原话。 */
+export function verifyFailureLine(receipt) {
+  const headline = verifyHeadline(receipt);
+  return headline ? `${headline} · ${receipt.message}` : receipt.message;
+}
+/** 本地时间，HH:MM——与既有 Run 状态词同一粒度，不带秒。 */
+export function localTime(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+/** 成功态第一行：耗时 + 模型自己回的那一句（PV-40）。 */
+export function verifySuccessLine(receipt) {
+  /* PV-64 修型（Fable）· 一秒以内写毫秒："0.0 s" 是一个把真值抹掉的数字。 */
+  const elapsed = receipt.latencyMs < 1000 ? `${receipt.latencyMs} ms` : `${(receipt.latencyMs / 1000).toFixed(1)} s`;
+  return `Answered in ${elapsed} · ${receipt.replyFirstLine ?? ""}`;
+}
+/** 成功态第二行：模型、连接、凭据来源档、检查时刻——都是后端原话或原值。 */
+export function verifyDetailLine(receipt, connectionLabelText) {
+  return `${receipt.model} on ${connectionLabelText} · key from ${receipt.credentialSource} · ${localTime(receipt.checkedAt)}`;
+}
+/** 连接列表行的最近回执一行（PV-42）：成功写 "Answered HH:MM · model"，失败写
+ * "Last ask failed HH:MM · <登记文案>"（不带原话——这一行比回执块短一截）。
+ * `null`（未验证过，或绑定已失配）不占位。 */
+export function connectionRowVerificationLine(receipt) {
+  if (!receipt) return null;
+  if (receipt.status === "ok") return `Answered ${localTime(receipt.checkedAt)} · ${receipt.model}`;
+  return `Last ask failed ${localTime(receipt.checkedAt)} · ${verifyHeadline(receipt) || receipt.message}`;
+}
+/** `configurationStatus` 非 `ready` 时的登记文案，逐字取自
+ * `app/server/service.mjs` 的 `#requireReadyConnection`（`configuration_incomplete`
+ * 的 message）——前端不发明第二句话说同一件事（PV-83 一类的"不越权造真相"）。 */
+export const CONFIGURATION_INCOMPLETE_MESSAGE =
+  "provider configuration is unavailable; repeat the incomplete operation or remove the compatible connection";
 
 const permissionHelp = {
   ask: "Each edit asks first. Approving one edit never accepts the result.",
@@ -522,6 +584,19 @@ export function createSettingsView(
   const contextWindow = el("input", {
     attrs: { type: "number", name: "contextWindow", min: "4", step: "1", placeholder: "unknown", autocomplete: "off" },
   });
+  /* PV-61 · reasoning 三态的表单落点：不勾且从未碰过 = null（未声明），勾 = true，
+   * 碰过之后取消勾选 = false（显式声明关）。一次只对表单当前选中的那个模型生效——
+   * 与 `contextWindow` 同一处理办法（`saveCompatibleConnection` 的既有 per-model
+   * 携带规则），不是一张可编辑的全表。`reasoningTouched` 只在"选中的模型换了"那几处
+   * 复位（`syncReasoningCheckbox`），不在 `lock()`/`renderModelCapability` 这类
+   * 每次按键都跑的地方复位，否则勾选会在下一次无关输入时被静默丢弃。 */
+  const reasoningCheckbox = el("input", { attrs: { type: "checkbox", name: "reasoning" } });
+  let reasoningTouched = false;
+  reasoningCheckbox.addEventListener("change", () => {
+    reasoningTouched = true;
+    dirty = true;
+    clearVerifyReceipt();
+  });
   const label = (name_, input) => el("label", { text: name_ }, input);
   // One row = what it is and what it means on the left, the control on the right.
   let rowSeq = 0;
@@ -576,9 +651,29 @@ export function createSettingsView(
   const probeCatalogue = el("p", { className: "form-help", attrs: { hidden: true } });
   const probeModels = el("ul", { className: "connection-probe-models", attrs: { hidden: true } });
   const probeNote = el("p", { className: "form-help", attrs: { hidden: true } });
+  /* PV-40/64 · 冒烟回执的第二行（模型/连接/凭据来源档/时间）与"Ask again"，
+   * 长在同一个 `probeStatus` 块旁边，不是新的提示物。 */
+  const probeDetail = el("p", { className: "form-help", attrs: { hidden: true } });
+  const probeAskAgain = el("button", {
+    className: "text-button",
+    attrs: { type: "button", hidden: true },
+    text: "Ask again",
+  });
   let probeBusy = false, probeRevision = 0;
+  /* 表单当前会话里最近一次冒烟的回执（不是后端持久化的那份——那份在
+     `connection.lastVerification`，驱动的是连接列表行）；驱动 `probeStatus` 块与
+     阶梯上 smoke 步的 "· Answered" 状态词。任一表单字段变化即随 `clearProbeResult`
+     一起作废（PV-42 同源规则的表单内版本）。 */
+  let lastReceipt = null;
+  let verifyTarget = null; // { connectionId, model } · "Ask again" 重放用
+  let smokeStatusSpan = null; // 当前渲染的 smoke 步名字节点，供状态词直接写入
+  function updateSmokeStatus() {
+    if (smokeStatusSpan) smokeStatusSpan.textContent = lastReceipt?.status === "ok" ? " · Answered" : "";
+  }
   function renderProbeResult(reading) {
     probeStatus.hidden = false;
+    probeStatus.classList.remove("is-asking");
+    probeStatus.dataset.kind = "probe";
     probeStatus.textContent = probeLine(reading);
     probeStatus.classList.toggle("is-failed", !reading.ok);
     const catalogue = probeCatalogueLine(reading);
@@ -603,11 +698,32 @@ export function createSettingsView(
     probeRevision += 1;
     probeStatus.hidden = true;
     probeStatus.textContent = "";
-    probeStatus.classList.remove("is-failed");
+    probeStatus.classList.remove("is-failed", "is-asking", "is-arrived");
+    delete probeStatus.dataset.kind;
     probeCatalogue.hidden = true;
     probeModels.hidden = true;
     probeModels.replaceChildren();
     discovered = [];
+    clearVerifyReceipt();
+  }
+  /* PV-42（表单内版本）· 一改表单，冒烟回执随之消失；阶梯的 "· Answered" 一起
+   * 收回。窄于 `clearProbeResult`：不碰 discover/test 探测的结果与 `discovered`
+   * 列表（模型下拉切一次选项不该把还没保存的、刚发现来的 ID 悄悄丢掉）——只有
+   * `probeStatus` 里此刻显示的确实是一份回执（`dataset.kind==="verify"`）时才
+   * 一并收回那一行，避免留下一句配不上 detail/Ask again 的孤立回执文字。 */
+  function clearVerifyReceipt() {
+    lastReceipt = null;
+    verifyTarget = null;
+    updateSmokeStatus();
+    if (probeStatus.dataset.kind === "verify") {
+      probeStatus.hidden = true;
+      probeStatus.textContent = "";
+      probeStatus.classList.remove("is-failed", "is-asking", "is-arrived");
+      delete probeStatus.dataset.kind;
+    }
+    probeDetail.hidden = true;
+    probeDetail.textContent = "";
+    probeAskAgain.hidden = true;
   }
   async function runProbe(operation, button) {
     const body = providerProbeRequest({ baseUrl: baseUrl.value, apiKey: key.value });
@@ -618,6 +734,7 @@ export function createSettingsView(
     clearProbeResult();
     const requestedRevision = probeRevision;
     probeStatus.hidden = false;
+    probeStatus.dataset.kind = "probe";
     probeStatus.textContent = "Probing…";
     try {
       const result = await request(PROBE_ENDPOINT[operation], { method: "POST", body });
@@ -637,24 +754,115 @@ export function createSettingsView(
       lock();
     }
   }
+  /* PV-64 · 回执一次性到达：同一帧加 `is-arrived`（样式是它的起点：透明 + 4px
+   * 位移），下一帧移除，交给既有的 `--duration`/`--ease-out` 过渡把它带回原位。
+   * `prefers-reduced-motion: reduce` 下由 styles.css 既有的全局强制关闭覆盖，
+   * 这里不重复判断。 */
+  function triggerArrive() {
+    probeStatus.classList.add("is-arrived");
+    void probeStatus.offsetWidth; // 强制回流，确保起点样式先被提交一帧
+    requestAnimationFrame(() => probeStatus.classList.remove("is-arrived"));
+  }
+  /* PV-40/62/64 · 冒烟回执渲染。成功态两行（耗时+首句、模型/连接/凭据来源档/
+   * 时间），失败态一行（登记文案 · 原话），都不着色，只有失败借 `.is-failed`
+   * 走既有 `--danger`。"Ask again" 显式重放同一个 {connectionId, model}。 */
+  function renderVerifyReceipt(receipt, connectionLabelText) {
+    probeStatus.hidden = false;
+    probeStatus.classList.remove("is-asking");
+    probeStatus.dataset.kind = "verify";
+    if (receipt.status === "ok") {
+      probeStatus.classList.remove("is-failed");
+      probeStatus.textContent = verifySuccessLine(receipt);
+      probeDetail.hidden = false;
+      probeDetail.textContent = verifyDetailLine(receipt, connectionLabelText);
+    } else {
+      probeStatus.classList.add("is-failed");
+      probeStatus.textContent = verifyFailureLine(receipt);
+      probeDetail.hidden = true;
+      probeDetail.textContent = "";
+    }
+    probeAskAgain.hidden = false;
+    lastReceipt = receipt;
+    updateSmokeStatus();
+    triggerArrive();
+  }
+  /* PV-38/63 · 冒烟只随一次已告知的显式动作执行：调用方只有 "Save and ask once"
+   * 的提交处理器、model-picker 的 "Use and ask once"（经 onSaved 的返回值间接不
+   * 触碰这里）与这里自己的 "Ask again"。没有任何 input/change 监听调用它。 */
+  async function runVerify(connectionId, modelId, connectionLabelText) {
+    if (probeBusy) return;
+    probeBusy = true;
+    addProvider.open = true; // 回执长在这个块上；块要看得见回执才有意义
+    lock();
+    probeCatalogue.hidden = true;
+    probeModels.hidden = true;
+    probeModels.replaceChildren();
+    probeStatus.hidden = false;
+    probeStatus.classList.remove("is-failed", "is-arrived");
+    probeStatus.classList.add("is-asking");
+    probeStatus.dataset.kind = "verify";
+    probeStatus.textContent = "Asking the model…";
+    probeDetail.hidden = true;
+    probeAskAgain.hidden = true;
+    verifyTarget = { connectionId, model: modelId, connectionLabelText };
+    const requestedRevision = ++probeRevision;
+    try {
+      const receipt = await request(`/provider-connections/${encodeURIComponent(connectionId)}/verify`, {
+        method: "POST",
+        body: { model: modelId },
+      });
+      if (requestedRevision !== probeRevision) return;
+      renderVerifyReceipt(receipt, connectionLabelText);
+      /* PV-42 · 回执已经持久化在后端（`providerVerifications`），连接列表行读的
+       * 是同一份 `GET /provider-connections`。这里重取一次，"Answered …" /
+       * "Last ask failed …" 才会出现在那一行上，而不是只停在这个块里。 */
+      await reloadConnections();
+      renderConnections();
+    } catch (err) {
+      if (requestedRevision !== probeRevision) return;
+      // 请求本身被拒（不可准入 / 无凭据 / 活动 run）：这不是一份回执，六态映射
+      // 不适用；原样转述 host 的话（PV-34/46 同一条原则）。
+      probeStatus.classList.remove("is-asking");
+      probeStatus.classList.add("is-failed");
+      probeStatus.dataset.kind = "verify";
+      probeStatus.textContent = err.message || "The host could not run this check.";
+      probeAskAgain.hidden = false;
+      lastReceipt = null;
+      updateSmokeStatus();
+      triggerArrive();
+    } finally {
+      probeBusy = false;
+      lock();
+    }
+  }
+  probeAskAgain.addEventListener("click", () => {
+    if (!verifyTarget) return;
+    void runVerify(verifyTarget.connectionId, verifyTarget.model, verifyTarget.connectionLabelText);
+  });
   function renderFlow() {
     const path = activePath();
     const probes = probeAvailableFor(path);
     probeButtons.clear();
+    smokeStatusSpan = null;
     flow.replaceChildren();
     for (const step of CONNECTION_STEPS) {
       const usable = step.probe ? probes : step.available;
+      const nameSpan = el("span", { className: "connection-step-name", text: step.title });
+      if (step.id === "smoke") {
+        smokeStatusSpan = el("span", { className: "connection-step-status" });
+        nameSpan.append(smokeStatusSpan);
+      }
       const item = el(
         "li",
         { className: usable ? "connection-step" : "connection-step is-pending" },
-        el("span", { className: "connection-step-name", text: step.title }),
+        nameSpan,
         el("span", { className: "connection-step-note", text: step.note }),
       );
       if (step.probe && probes) {
         const button = el("button", {
           className: "secondary-button connection-step-action",
           attrs: { type: "button", "data-focus-key": `connection:${step.probe}` },
-          text: step.title,
+          text: step.buttonLabel || step.title,
         });
         button.addEventListener("click", () => void runProbe(step.probe, button));
         probeButtons.set(step.probe, button);
@@ -662,6 +870,7 @@ export function createSettingsView(
       }
       flow.append(item);
     }
+    updateSmokeStatus();
     probeNote.hidden = probes;
     probeNote.textContent = probes ? "" : PROBE_ABSENT_NOTE[path] || "";
     if (!probes) clearProbeResult();
@@ -671,6 +880,14 @@ export function createSettingsView(
     "Optional. Tokens this endpoint accepts for the selected model. Leave it empty if you do not know: the host will not guess a window, and compaction stays off until one is known.",
     contextWindow,
   );
+  /* PV-61 · 只对兼容路径出现，只作用于表单当前选中的那个模型——与上面的窗口行
+   * 同一处理办法（见 `contextWindow` 的注释）。目录原生行没有这一行：那是目录
+   * 自己的事实，不是用户能声明的。 */
+  const reasoningRow = row(
+    "Offers reasoning effort",
+    "Optional. Declares whether this model accepts a reasoning effort level on this connection. Leave it unchanged if you do not know either way.",
+    reasoningCheckbox,
+  );
   const advanced = el(
     "details",
     { className: "settings-advanced" },
@@ -678,6 +895,7 @@ export function createSettingsView(
     row("API format", "Wire format the provider expects.", api),
     row("Base URL", "Leave empty for the provider default.", baseUrl),
     contextWindowRow,
+    reasoningRow,
     el("p", {
       className: "form-help",
       text: "Custom headers and provider compatibility quirks are not configurable here yet; this connection sends the format above and nothing else.",
@@ -688,10 +906,21 @@ export function createSettingsView(
     className: "inline-error",
     attrs: { role: "alert", hidden: true },
   });
+  /* PV-63（修订 PV-38）· 保存即询问。主动作发一次已告知的冒烟；次动作只保存。
+   * 两个都是 `type="submit"`：谁被点了由 `event.submitter` 读出，不是两个表单。 */
   const save = el("button", {
     className: "primary-button",
     attrs: { type: "submit" },
-    text: "Save connection",
+    text: "Save and ask once",
+  });
+  const saveOnly = el("button", {
+    className: "secondary-button",
+    attrs: { type: "submit" },
+    text: "Save only",
+  });
+  const saveHelp = el("p", {
+    className: "form-help",
+    text: "Saving sends one short prompt to the selected model so you can see it answer. Nothing else is sent.",
   });
   const addProvider = el(
     "details",
@@ -702,6 +931,8 @@ export function createSettingsView(
     flow,
     probeNote,
     probeStatus,
+    probeDetail,
+    probeAskAgain,
     probeCatalogue,
     probeModels,
   );
@@ -715,7 +946,8 @@ export function createSettingsView(
     advanced,
     status,
     error,
-    save,
+    el("div", { className: "credential-actions" }, save, saveOnly),
+    saveHelp,
   );
   const credential = el("form", { className: "credential-form" });
   const credentialStatus = el("p", { className: "form-help" });
@@ -797,6 +1029,19 @@ export function createSettingsView(
             entry.inForce && snapshot?.capability?.notice
               ? el("span", { className: "settings-row-help", text: snapshot.capability.notice })
               : null,
+            /* 项 8 · configurationStatus 非 ready 时这一行说后端登记的那句，
+               盖过（不叠加）项 5 的回执行——一条连接不能同时说"恢复中"又说
+               "刚回答过"，前者更要紧。 */
+            entry.degraded
+              ? el("span", { className: "settings-row-help", text: CONFIGURATION_INCOMPLETE_MESSAGE })
+              : entry.verificationLine
+                ? el("span", {
+                    className: entry.verificationFailed
+                      ? "connection-row-verification is-failed"
+                      : "connection-row-verification",
+                    text: entry.verificationLine,
+                  })
+                : null,
           ),
           el("div", { className: "connection-row-control" }, configureButton(entry)),
         ),
@@ -816,6 +1061,8 @@ export function createSettingsView(
       attrs: { type: "button", "data-focus-key": `connection:configure:${entry.id}` },
       text: "Configure",
     });
+    // 项 8 · 恢复中/不可用的连接：这一行唯一的动作（选用它）不可用。
+    button.disabled = entry.degraded;
     button.addEventListener("click", () => {
       selectPath(entry.path);
       applyPath(entry.path, entry.path === "compatible" ? entry.connectionId : entry.providerIdentity);
@@ -902,11 +1149,21 @@ export function createSettingsView(
       id: entry.id,
       contextWindow: entry.contextWindow ?? null,
       contextWindowSource: entry.contextWindowSource,
+      reasoning: entry.reasoning ?? null,
     }));
     const known = new Set(entries.map((entry) => entry.id));
     for (const id of discovered)
-      if (!known.has(id)) entries.push({ id, contextWindow: null, contextWindowSource: "unknown" });
+      if (!known.has(id)) entries.push({ id, contextWindow: null, contextWindowSource: "unknown", reasoning: null });
     return entries;
+  }
+  /* PV-61 · 重新对准表单当前选中的模型：复位"碰过没碰过"，并把复选框设成这条
+     模型此刻存下的值（`null`/`false` 都显示为未勾，区别只在 `reasoningTouched`
+     之后是否会被当成一次显式声明）。只在"选中的模型换了"的那几处调用。 */
+  function syncReasoningCheckbox() {
+    reasoningTouched = false;
+    const compatible = activePath() === "compatible";
+    const entry = compatible ? compatibleModelEntries().find((candidate) => candidate.id === model.value) : null;
+    reasoningCheckbox.checked = entry?.reasoning === true;
   }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
@@ -933,6 +1190,7 @@ export function createSettingsView(
     if (entries.some((entry) => entry.id === preferred)) model.value = preferred;
     fillApis();
     renderModelCapability();
+    syncReasoningCheckbox();
   }
   /* 选中模型的窗口与档位读数。两者都只说目录/连接实际报了什么：窗口未报就是
      unknown，目录没声明多于一档就只有 Off，且不出一个只有一项的下拉（PV-27）。 */
@@ -989,16 +1247,20 @@ export function createSettingsView(
     const pathId = activePath();
     const path = CONNECTION_PATHS.find((entry) => entry.id === pathId);
     const endpointMissing = path?.endpoint === "required" && !baseUrl.value.trim();
-    save.disabled = busy || active || !catalog || !model.value || endpointMissing;
+    save.disabled = saveOnly.disabled = busy || active || !catalog || !model.value || endpointMissing;
     if (path?.endpoint === "host") baseUrl.disabled = true;
-    // 窗口值只在兼容路径上有可写之处：目录连接的窗口由目录报，用户改不了它。
+    // 窗口值与 reasoning 声明只在兼容路径上有可写之处：目录连接的这两样由目录/
+    // 连接自己的原生行给出，用户改不了它们。
     contextWindowRow.hidden = pathId !== "compatible";
     contextWindow.disabled = busy || active || pathId !== "compatible";
+    reasoningRow.hidden = pathId !== "compatible";
+    reasoningCheckbox.disabled = busy || active || pathId !== "compatible";
     /* 探测按钮与保存按钮受同一把锁：busy / active Run 时全部锁定（沿既有 `lock()`）。
      * 除此之外它只多一个条件 —— 没有 Base URL 就没有可探测的目录。 */
     const probable = Boolean(providerProbeRequest({ baseUrl: baseUrl.value }));
     for (const button of probeButtons.values())
       button.disabled = busy || active || probeBusy || !probable;
+    probeAskAgain.disabled = busy || active || probeBusy;
     const target = selectedConnection();
     keySave.disabled = busy || active || !key.value.trim();
     keyDelete.disabled = busy || active || target?.credentialStatus !== "configured";
@@ -1048,27 +1310,50 @@ export function createSettingsView(
   model.addEventListener("change", () => {
     dirty = true;
     contextWindow.value = "";
+    // 换了模型，回执说的就不再是屏幕上这一个了（PV-42 表单内版本）。
+    clearVerifyReceipt();
     fillApis();
+    syncReasoningCheckbox();
     lock();
   });
   api.addEventListener("change", () => {
     dirty = true;
+    clearVerifyReceipt();
   });
   contextWindow.addEventListener("input", () => {
     dirty = true;
+    clearVerifyReceipt();
     lock();
   });
+  /* PV-63 · Base URL 与 key 齐备时自动重跑一次 discover（只读、去抖）；失焦立即跑，
+   * 输入中按 600 ms 停顿跑。这两个监听器只安排一次自动探测，不直接发请求 —— 真正
+   * 发请求的仍是既有 `runProbe("discover", …)`，走同一份去抖 revision 与锁。 */
+  let autoDiscoverTimer = null;
+  function scheduleAutoDiscover(delay) {
+    clearTimeout(autoDiscoverTimer);
+    if (activePath() !== "compatible") return;
+    if (!providerProbeRequest({ baseUrl: baseUrl.value })) return;
+    autoDiscoverTimer = setTimeout(() => {
+      const button = probeButtons.get("discover");
+      if (button && !button.disabled) void runProbe("discover", button);
+    }, delay);
+  }
   baseUrl.addEventListener("input", () => {
     dirty = true;
     /* 上一次探测说的是上一个地址。地址一改，那句话就不再是关于屏幕上这条连接的
      * 陈述，所以它离开，而不是留在那里被当成新地址的结论。 */
     clearProbeResult();
     lock();
+    scheduleAutoDiscover(600);
   });
+  baseUrl.addEventListener("blur", () => scheduleAutoDiscover(0));
   key.addEventListener("input", () => {
     clearProbeResult();
     lock();
+    // 带 key 的发现结果才是保存时会核的那份（PV-63）：key 一改也重跑一次。
+    scheduleAutoDiscover(600);
   });
+  key.addEventListener("blur", () => scheduleAutoDiscover(0));
   function fail(err) {
     error.hidden = false;
     error.textContent = connectionSaveError(err);
@@ -1089,9 +1374,16 @@ export function createSettingsView(
   async function saveCompatibleConnection() {
     const chosen = model.value;
     const window_ = contextWindowValue();
+    // PV-61 · reasoning 一次只对表单当前选中的模型生效，同一处理办法照搬 window_。
+    const reasoningOverride = reasoningTouched ? reasoningCheckbox.checked : undefined;
     const models = compatibleModelEntries().map((entry) => {
       const value = entry.id === chosen ? window_ : entry.contextWindow;
-      return { id: entry.id, ...(Number.isSafeInteger(value) ? { contextWindow: value } : {}) };
+      const reasoning = entry.id === chosen && reasoningOverride !== undefined ? reasoningOverride : entry.reasoning;
+      return {
+        id: entry.id,
+        ...(Number.isSafeInteger(value) ? { contextWindow: value } : {}),
+        ...(reasoning !== null && reasoning !== undefined ? { reasoning } : {}),
+      };
     });
     const body = {
       api: api.value,
@@ -1119,6 +1411,9 @@ export function createSettingsView(
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (busy) return;
+    // PV-63（修订 PV-38）· 哪个按钮被点了，读 `event.submitter`——两个都是
+    // `type="submit"`，不是两个表单。冒烟只在这一次已告知的显式点击后发生。
+    const askOnce = event.submitter === save;
     busy = true;
     lock();
     error.hidden = true;
@@ -1150,6 +1445,13 @@ export function createSettingsView(
       resetFields();
       renderConnections();
       notify("Connection saved.");
+      // PV-63/64 · 保存已经成功；询问是它之后的独立一步，失败不回滚保存
+      // （runVerify 自己的 catch 已经把这一点体现为回执块里的一句话，不是
+      // 这里的 `error`）。已成功的步不回滚：连接保持已保存。
+      if (askOnce) {
+        const target = connectionByIdentity(snapshot.config.provider);
+        if (target) void runVerify(target.id, snapshot.config.model, connectionLabel(target));
+      }
     } catch (err) {
       fail(err);
     } finally {

@@ -98,13 +98,27 @@ export function normalizeProviderContextWindow(value) {
   return value;
 }
 
+/** Reasoning is a three-state fact (PV-61): `true`/`false` is something a
+ * person declared about this model on this connection, `null` (the default,
+ * also what an omitted field normalizes to) means nobody has said either way.
+ * Registration maps both `false` and `null` to pi's boolean `false` (the safe
+ * side: a `reasoning_effort` sent to a model that does not support one is a
+ * request failure), but the tri-state survives in the connection record so
+ * `/provider-models` can tell "declared off" from "never asked" apart. */
+export function normalizeProviderReasoning(value) {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== "boolean") fail("reasoning", "reasoning must be true, false, or omitted");
+  return value;
+}
+
 function validateModelEntry(entry) {
   if (!entry || typeof entry !== "object" || Array.isArray(entry)) fail("models", "model entry is invalid");
   const keys = Object.keys(entry);
-  if (keys.some((key) => !["id", "contextWindow"].includes(key))) fail("models", "model entry has unsupported fields");
+  if (keys.some((key) => !["id", "contextWindow", "reasoning"].includes(key))) fail("models", "model entry has unsupported fields");
   const id = assertProviderModelId(entry.id);
   const contextWindow = normalizeProviderContextWindow(entry.contextWindow);
-  return { id, contextWindow };
+  const reasoning = normalizeProviderReasoning(entry.reasoning);
+  return { id, contextWindow, reasoning };
 }
 
 /** Validate a whole model list and return canonical entries.  Catalog records

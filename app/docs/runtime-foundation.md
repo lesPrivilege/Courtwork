@@ -73,7 +73,7 @@ reopened by the next Run. No second transcript or orchestration loop is added.
 All require the existing work token. These are local configuration/capability
 queries; they do not call a provider or verify a key.
 
-- `GET /api/v5/provider-models` returns `{source:"installed-runtime-catalog", models:[{id,name,provider,api,contextWindow,maxTokens,reasoning}], apiFormats}` filtered to the supported providers. Use its exact provider/model/api tuple for provider configuration. The catalog is the installed SDK snapshot, not a live network lookup.
+- `GET /api/v5/provider-models` returns `{source:"installed-runtime-catalog", models:[{id,name,provider,api,contextWindow,maxTokens,reasoning,supportedEfforts,defaultEffort,origin,reasoningSource}], apiFormats}` filtered to the supported providers. Use its exact provider/model/api tuple for provider configuration. The catalog is the installed SDK snapshot, not a live network lookup. `origin` (WO-PV-BE03) is `"catalog"` for a row from the installed catalog itself and `"connection"` for a row from a connection's own saved model list (the WHOLE list for a compatible connection, only the extras for a catalog one); `reasoningSource` is `"catalog"` for a catalog row, `"user"` once a person has declared `reasoning` on a connection's model entry, `"unknown"` while it is still the PV-61 default.
 - `GET /api/v5/runtime-info` returns `apiVersion`, `adapterId`, host `state`, existing provider/configuration status, `capabilities`, `limits`, effective `compaction`, restart `recovery`, and the ownership/acceptance boundary. `ready` describes the host, not real-provider reachability. The tool list is the base capability set; each session's permission mode determines which tools are actually admitted.
 - During graceful shutdown, new Run admission is `503 runtime_closing`. The HTTP listener closes; clients reconnect after startup and obtain a fresh work token.
 
@@ -253,7 +253,7 @@ is one shape and one key space rather than two.
 | `providerIdentity` | The runtime provider id. For a catalog connection it is the catalog id; for a user connection it is the connection id, so a compatible endpoint never registers onto a catalog identity whose credential slot is single. |
 | `api` | `openai-completions` or `openai-responses` |
 | `baseUrl` | The endpoint, `null` for a catalog connection |
-| `models` | `[{id, contextWindow}]`; `contextWindow` is `null` when nobody reported one |
+| `models` | `[{id, contextWindow, reasoning}]`; `contextWindow` is `null` when nobody reported one, `reasoning` is `true`/`false`/`null` (WO-PV-BE03, PV-61) — `null` means nobody has declared it either way |
 | `credentialStatus` | Derived from the credential file, never stored on the record |
 
 `GET /api/v5/provider-connections` lists them. `POST /api/v5/provider-connections`
@@ -323,3 +323,68 @@ A synthetic failure shape for frontend consumption (connection creation failed a
 ```
 
 The corresponding GET ledger includes `{"connectionId":"conn-0123456789ab","operation":"connection_save","stored":false}` in `pendingConfigurations`. This is a recovery fact, not a configured connection. The executable loopback fixture and assertions are in [Q02 roundtrip tests](../tests/review-provider-roundtrip.test.mjs).
+
+### WO-PV-BE03: open admission and verify (2026-09-10)
+
+RuntimeStore 12. PV-59: a model id is admissible on a connection when it is
+registered in pi under the connection's own provider identity — for a catalog
+connection that is the installed catalog UNION the connection's own saved
+`models` (the EXTRAS a person added beyond it; the empty list it ships with),
+for a compatible connection it is exactly the connection's saved list, same as
+before. `PUT /api/v5/provider-connections/:id` on a CATALOG id now accepts
+`{models}` only (`api`/`baseUrl`/`apiKey` present is `400 invalid_connection`;
+the credential route is unchanged); an id already in the installed catalog is
+`400 invalid_connection` too — an extra cannot shadow a native definition.
+Saving re-registers the connection's extras onto its native provider id with
+`registerNativeProvider`, recomposed fresh from the native baseline captured
+at startup plus the just-saved extras every time, never through
+`ModelRuntime.registerProvider` (which deletes that native registration and
+replaces the whole model list rather than merging into it — see
+`app/runtime/pi-session-runtime.mjs`'s `registerCatalogExtraModels` for the
+evidence and file:line citations). The credential slot, keyed by provider id
+in an entirely separate store, is never touched by this. `#setProviderConfig`
+and Run admission share one check (`#admissibleModel`): a `getModel` lookup
+after registration, plus (compatible only) membership on the connection's own
+list. "Hits the installed catalog" is no longer a separate, narrower gate.
+
+`reasoning` (PV-61) joins a connection's model entry as `true | false | null`,
+default `null` (never declared); registering to pi maps both `false` and
+`null` to pi's `false` (the safe side — a `reasoning_effort` sent to a model
+that does not support one is a request failure). `/provider-models` rows gain
+`origin` (`"catalog"` vs `"connection"` — see above) and `reasoningSource`
+(`"catalog"` / `"user"` once declared / `"unknown"` while still the default).
+
+`POST /api/v5/provider-connections/:id/verify` (`{model}`, BE-39) asks one
+admissible model to answer a single fixed, short prompt through the exact
+same pi path a Run uses (`ModelRuntime.complete`, the same runtime credential
+resolution) — no tools, no workspace, nothing added to any session's history,
+bounded output (16 tokens) and wall clock (20s). `400 invalid_provider` if the
+model is not admissible, `400 credential_missing` if the connection has none,
+`409 active_run` during a Run, routed through the same configuration queue as
+every other connection write. The receipt — `{connectionId, model, status,
+message, observedModel, replyFirstLine, latencyMs, checkedAt,
+credentialSource, httpStatus, binding:{providerConfigVersion,
+credentialGeneration}}` — is the newest addition to the store
+(`providerVerifications`, one per connection id) and is read back by
+`GET /api/v5/provider-connections` as each connection's `lastVerification`,
+`null` once its binding no longer matches the current `providerConfigVersion`
+(a new monotonic counter, bumped by any `providerConnections` or
+`providerConfig` write — deliberately coarse: PV-42 would rather
+over-invalidate than let a stale receipt read as current) or
+`credentialGeneration`. `status` is one of `ok | authentication_failed |
+model_not_found | unreachable | timeout | http_error | malformed_response |
+unknown`. `httpStatus` (`number | null`, PV-84) is captured through a wrapped
+`fetch` passed to `ModelRuntime.complete` (not `onResponse` alone — the
+vendored OpenAI SDK throws before calling `onResponse` on any non-2xx
+response, so that hook only ever fires on success; the wrapped `fetch` sees
+the raw `Response` on every path). With a real status available,
+`authentication_failed` (401/403), `http_error` (any other non-2xx),
+`malformed_response` (a 2xx whose body pi then failed to parse into a
+complete message), `unreachable` (the fetch never resolved a response at
+all) join `ok` and `timeout` (this host's own bounded wait) as reachable.
+`model_not_found` stays unreachable: the hook that supplies `httpStatus`
+carries no response body, so there is no structured way to tell a 404 for a
+bad model id apart from any other non-2xx status without parsing prose,
+which PV-62 ① forbids. See `classifyVerifyOutcome` in
+`app/runtime/pi-session-runtime.mjs` for the full citation trail. The
+delivery page for WO-PV-BE03 carries the complete class-to-evidence table.

@@ -54,7 +54,7 @@ function longProviderFixture() {
     providerIdentity: "conn-migration-long",
     api: "openai-completions",
     baseUrl,
-    models: [{ id: model, contextWindow: null }],
+    models: [{ id: model, contextWindow: null, reasoning: null }],
   };
   const config = {
     provider: connection.providerIdentity,
@@ -106,12 +106,19 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     const schema10 = JSON.parse(await readFile(file, "utf8"));
     schema10.schemaVersion = 10;
     delete schema10.providerConfigurationPending;
+    // A real schema10 file predates providerConfigVersion/providerVerifications
+    // (schema 12, WO-PV-BE03) and a connection model's reasoning field (also
+    // schema 12): strip them so this simulates the actual old byte shape,
+    // not schema-12 data wearing an old version number.
+    delete schema10.providerConfigVersion;
+    delete schema10.providerVerifications;
+    for (const connection of schema10.providerConnections) for (const model of connection.models) delete model.reasoning;
     const original = Buffer.from(JSON.stringify(schema10, null, 1) + "\n");
     await writeFile(file, original);
     const digest = createHash("sha256").update(original).digest("hex");
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 11);
+    assert.equal(store.state.schemaVersion, 12);
     assert.deepEqual(store.getProviderConnections(), [fixture.connection]);
     assert.deepEqual(store.getProviderConfig(), fixture.config);
     assert.deepEqual(store.getRun(created.run.id).provider, fixture.runProvider);
@@ -126,7 +133,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     assert.deepEqual(JSON.parse(migrated).providerConfigurationPending, []);
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 11);
+    assert.equal(store.state.schemaVersion, 12);
     assert.equal(store.getProviderConnections()[0].models[0].id, fixture.model);
     assert.equal(store.getProviderConnections()[0].baseUrl, fixture.baseUrl);
     assert.equal(store.getProviderConfig().model, fixture.model);
@@ -142,7 +149,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     const codeRoot = path.join(dataDir, "historical-store");
     const LegacyStore = await historicalStore(codeRoot);
     const bytesBeforeLegacyOpen = await readFile(file);
-    await assert.rejects(new LegacyStore({ dataDir }).open(), /schemaVersion 11 is not supported/);
+    await assert.rejects(new LegacyStore({ dataDir }).open(), /schemaVersion 12 is not supported/);
     assert.deepEqual(await readFile(file), bytesBeforeLegacyOpen, "the schema10 host must not rewrite Runtime11 bytes");
   } finally {
     await store?.close().catch(() => {});
@@ -158,6 +165,10 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
   try {
     const model = "short-model-" + "m".repeat(180);
     const baseUrl = endpointOfLength(200);
+    // `connection` (no `reasoning`) is what a real schema10 record looked
+    // like, and is what the BASE_SHA-era reader below must read back
+    // byte-for-fact-identical; the write below adds the schema-12 field only
+    // on the copy actually sent to the CURRENT store.
     const connection = {
       id: "conn-migration-short",
       kind: "compatible",
@@ -168,7 +179,7 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
     };
     const config = { provider: connection.providerIdentity, model, api: connection.api, baseUrl, reasoningEffort: "off" };
     store = await new RuntimeStore({ dataDir }).open();
-    await store.setProviderConnections([connection]);
+    await store.setProviderConnections([{ ...connection, models: connection.models.map((entry) => ({ ...entry, reasoning: null })) }]);
     await store.setProviderConfig(config);
     await store.close();
     store = null;
@@ -177,11 +188,14 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
     const state = JSON.parse(await readFile(file, "utf8"));
     state.schemaVersion = 10;
     delete state.providerConfigurationPending;
+    delete state.providerConfigVersion;
+    delete state.providerVerifications;
+    for (const record of state.providerConnections) for (const model of record.models) delete model.reasoning;
     const original = Buffer.from(JSON.stringify(state, null, 2) + "\n");
     await writeFile(file, original);
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 11);
+    assert.equal(store.state.schemaVersion, 12);
     await store.close();
     store = null;
     const digest = createHash("sha256").update(original).digest("hex");

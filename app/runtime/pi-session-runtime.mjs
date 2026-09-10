@@ -49,6 +49,28 @@ export function createEmptyResourceLoader(systemPrompt) {
   };
 }
 
+// Native (bundled-catalog) provider definitions, captured once per ModelRuntime
+// instance at the moment this host first registers them -- BEFORE any catalog
+// connection's extra models exist. A catalog connection's admissible set is
+// "the installed catalog UNION the extras it saved" (PV-59); recomputing that
+// union from this stable baseline, rather than from whatever is CURRENTLY
+// registered, is what makes adding and removing extras idempotent instead of
+// accumulating stale entries across repeated saves. Keyed by the ModelRuntime
+// instance (not a bare module-level map) because more than one ModelRuntime
+// exists in one process across tests, each with its own fake-provider baseUrl.
+const nativeCatalogTemplates = new WeakMap();
+
+function templatesFor(modelRuntime) {
+  let map = nativeCatalogTemplates.get(modelRuntime);
+  if (!map) { map = new Map(); nativeCatalogTemplates.set(modelRuntime, map); }
+  return map;
+}
+
+function captureNativeTemplate(modelRuntime, template, models) {
+  templatesFor(modelRuntime).set(template.id, { template, models });
+  modelRuntime.registerNativeProvider(createProvider({ ...template, models }));
+}
+
 /**
  * Build the one ModelRuntime instance used by this host. Credentials live
  * only in an in-memory store; modelsPath:null disables the on-disk
@@ -68,14 +90,15 @@ export async function createIsolatedModelRuntime() {
   for (const id of [DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]) {
     const provider = runtime.getProvider(id);
     const models = [...runtime.getModels(id)];
-    runtime.registerNativeProvider(createProvider({
-      id, name: provider.name, baseUrl: provider.baseUrl, models,
+    const template = {
+      id, name: provider.name, baseUrl: provider.baseUrl,
       auth: { apiKey: envApiKeyAuth(`${provider.name} application key`, []) },
       api: {
         "openai-completions": { stream: openaiCompletions.stream, streamSimple: openaiCompletions.streamSimple },
         "openai-responses": { stream: openaiResponses.stream, streamSimple: openaiResponses.streamSimple },
       },
-    }));
+    };
+    captureNativeTemplate(runtime, template, models);
   }
   return runtime;
 }
@@ -87,15 +110,63 @@ export async function createIsolatedModelRuntime() {
  * rather than a hardcoded resolver.
  */
 export function registerFakeProvider(modelRuntime, fakeProviderHandle) {
-  const provider = createProvider({
+  const template = {
     id: FAKE_PROVIDER_ID,
     name: "Fake OpenAI loopback",
     baseUrl: fakeProviderHandle.baseUrl,
     auth: { apiKey: envApiKeyAuth("Fake loopback key", []) },
-    models: [fakeProviderHandle.model],
     api: { stream: openaiCompletions.stream, streamSimple: openaiCompletions.streamSimple },
-  });
-  modelRuntime.registerNativeProvider(provider);
+  };
+  captureNativeTemplate(modelRuntime, template, [fakeProviderHandle.model]);
+}
+
+/** The ids of a provider identity's INSTALLED (bundled-catalog) models --
+ * never the extras a catalog connection has saved on top. Used only to reject
+ * an extra model id that would shadow one already in the native catalog
+ * (PV-59): a person's typo must not silently replace the definition Run
+ * already resolves through the native provider. */
+export function nativeCatalogModelIds(modelRuntime, providerId) {
+  return new Set((templatesFor(modelRuntime).get(providerId)?.models ?? []).map((model) => model.id));
+}
+
+/**
+ * Register a catalog connection's extra models (PV-59) -- models a person
+ * added beyond the installed catalog -- on the SAME native provider id used
+ * at Run time, WITHOUT touching that id's credential slot.
+ *
+ * This deliberately does NOT go through `ModelRuntime.registerProvider`. Two
+ * facts about that method, read from
+ * `app/node_modules/@earendil-works/pi-coding-agent/dist/core/model-runtime.js`
+ * and `.../core/provider-composer.js`, rule it out for an id that already has
+ * a NATIVE registration (as `deepseek`/`openai`/the fixture identity do,
+ * above):
+ *   1. `registerProvider(providerId, config)` unconditionally deletes the
+ *      native registration for that id (`this.nativeExtensionProviders.delete
+ *      (providerId)`, model-runtime.js:562) and recomposes from
+ *      `this.builtins.get(providerId)` instead (model-runtime.js:134) -- pi-ai's
+ *      OWN bundled provider, which has only a single default transport, not
+ *      this host's explicit two-API-format dispatch map. Using it would
+ *      silently drop `openai-responses` support for the whole identity.
+ *   2. Even setting that aside, `config.models` is a WHOLESALE REPLACEMENT of
+ *      the provider's model list, not a per-id merge: `applyExtension`
+ *      (provider-composer.js:118-141) returns exactly
+ *      `config.models.map(...)`, discarding every base model not named in
+ *      `config.models`. There is no "field-level merge, append extras" path
+ *      to opt into.
+ * So this host recomposes the SAME native definition captured at startup
+ * (`nativeCatalogTemplates`) with the extras layered on top by id, and
+ * re-registers it with `registerNativeProvider` -- the untouched credential
+ * store (keyed by provider id, entirely separate from provider definitions)
+ * means neither step above ever risks the slot. Called fresh from the native
+ * baseline every time (never incrementally), so removing an extra (a shorter
+ * `extraModels` list) is exactly PUT-and-recompute, not a separate deletion.
+ */
+export function registerCatalogExtraModels(modelRuntime, providerId, extraModels) {
+  const native = templatesFor(modelRuntime).get(providerId);
+  if (!native) throw new Error(`no native catalog definition for provider ${providerId}`);
+  const byId = new Map(native.models.map((model) => [model.id, model]));
+  for (const extra of extraModels) byId.set(extra.id, { ...extra, baseUrl: native.template.baseUrl });
+  modelRuntime.registerNativeProvider(createProvider({ ...native.template, models: [...byId.values()] }));
 }
 
 /**
@@ -142,6 +213,72 @@ export function classifyRuntimeError(message) {
   if (NO_API_KEY_PATTERN.test(text)) return "credential_missing";
   if (AUTH_FAILED_PATTERN.test(text)) return "provider_auth_failed";
   return "provider_error";
+}
+
+/**
+ * PV-62 ①/PV-84: a verify receipt's `status` may only be set from a
+ * STRUCTURED signal (an HTTP status code, a field this host itself owns) --
+ * never a regex over prose. The first cut of this function (see git history)
+ * read pi-coding-agent 0.85.1's generation surface as offering only three
+ * such signals -- `stopReason`, this host's own timeout, and nothing else --
+ * because `ModelRuntime.complete()` never rejects and every provider-side
+ * failure is collapsed into a flat `errorMessage` string
+ * (pi-ai/dist/api/openai-completions.js:506-526,
+ * `output.errorMessage = formatProviderError(normalizeProviderError(error))`).
+ * That reading MISSED a structured signal that survives independently of
+ * `errorMessage`: both api modules call
+ * `options.onResponse?.({ status, headers }, model)` right after their
+ * request resolves (openai-completions.js:218, openai-responses.js:128), and
+ * `ModelRuntime.prepareRequest` forwards `onResponse` (and any other option
+ * this host passes) through to that call unchanged
+ * (pi-coding-agent/dist/core/model-runtime.js:433 destructures out only
+ * `transformHeaders`; :441-448 spread the rest into the options handed to
+ * `provider.stream`).
+ *
+ * `onResponse` alone, however, does not carry the failing statuses this
+ * receipt needs to name: the vendored `openai` npm SDK's
+ * `client...create(...).withResponse()` REJECTS for any non-2xx response
+ * before that call site is ever reached (`openai/client.js`'s
+ * `Client#makeRequest`, the `if (!response.ok) { ...; throw err; }` branch;
+ * `openai/core/api-promise.js`'s `parse()`/`asResponse()` both chain off the
+ * same rejected `responsePromise`). So a 401 or a 404 upstream never calls
+ * `onResponse` at all -- verified both by reading the vendored SDK and by an
+ * empirical probe against the local fixture (`onResponse` fired with 200 on
+ * success, never fired on a 401 or a 404). `httpStatus` below is therefore
+ * captured through the ONE layer pi exposes that sees the raw response on
+ * every path, success or failure: the `fetch` override `createClient` wires
+ * straight into the OpenAI SDK client
+ * (openai-completions.js:203, `createClient(model, context, apiKey,
+ * options?.headers, options?.fetch, ...)`), itself forwarded unchanged by
+ * the same `prepareRequest` spread that forwards `onResponse`. `#verifyProviderConnection`
+ * (`app/server/service.mjs`) passes both: the wrapped `fetch` is what
+ * actually supplies `httpStatus` on a failure; `onResponse` is passed too
+ * (harmless, and it is what PV-84 asked for) but can only ever confirm what
+ * the fetch wrapper already captured, since it is unreachable on the
+ * statuses this receipt cares about classifying.
+ *
+ * With a real `httpStatus` available on every path, `authentication_failed`
+ * (401/403), `http_error` (any other non-2xx) and `malformed_response` (a
+ * 2xx response whose body pi then failed to parse into a complete message)
+ * all become reachable, alongside the original `ok`/`timeout`. `unreachable`
+ * is the network-layer case: the wrapped fetch itself never resolved (DNS
+ * failure, connection refused, ...), so `httpStatus` stays `null` -- this is
+ * also the residual bucket for any error where the request never reached a
+ * response at all. `model_not_found` stays UNREACHABLE: the hook that
+ * supplies `httpStatus` carries no response body, so there is no structured
+ * way to tell "404 because the model id is wrong" apart from any other
+ * non-2xx status without parsing prose -- which PV-62 ① forbids. `unknown`
+ * remains the honest catch-all for whatever this enumeration does not name
+ * (for example a signal-aborted request that was not this host's own timer).
+ */
+export function classifyVerifyOutcome(message, { timedOut, httpStatus }) {
+  if (message.stopReason !== "error" && message.stopReason !== "aborted") return "ok";
+  if (timedOut) return "timeout";
+  if (httpStatus === 401 || httpStatus === 403) return "authentication_failed";
+  if (httpStatus !== null && (httpStatus < 200 || httpStatus > 299)) return "http_error";
+  if (httpStatus === null) return "unreachable";
+  if (httpStatus >= 200 && httpStatus <= 299) return "malformed_response";
+  return "unknown";
 }
 
 /** Use Pi's compaction with a model-sized window and a bounded number of

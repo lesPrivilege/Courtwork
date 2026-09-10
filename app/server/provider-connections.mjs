@@ -77,6 +77,7 @@ export function publicConnection(connection, { credentialStatus }) {
       id: entry.id,
       contextWindow: entry.contextWindow,
       contextWindowSource: contextWindowSourceOf(connection, entry),
+      reasoning: entry.reasoning ?? null,
     })),
     credentialStatus,
   };
@@ -98,8 +99,8 @@ function normalizedBaseUrl(value) {
   catch (error) { invalid(error.message); }
 }
 
-function normalizedModels(value) {
-  try { return validateProviderModels(value); }
+function normalizedModels(value, options = {}) {
+  try { return validateProviderModels(value, options); }
   catch (error) { invalid(error.message); }
 }
 
@@ -125,7 +126,11 @@ export function validateConnectionInput(value) {
  * undefined `cost`. It is NOT a claim that the route is free: this host has no
  * cost surface at all (no endpoint or view reports a price), so no reader can
  * mistake this zero for a reported charge. `contextWindow` and `maxTokens` stay
- * undefined when unknown — the honest reading, not a fabricated ceiling. */
+ * undefined when unknown — the honest reading, not a fabricated ceiling.
+ * `reasoning` maps the connection's tri-state field (PV-61): `null` (never
+ * declared) and `false` (declared off) both register as pi's `false` — the
+ * safe side, since a `reasoning_effort` sent to a model that does not support
+ * one is a request failure, not a no-op. */
 export function registrationInput(connection) {
   return {
     name: `Compatible connection ${connection.id}`,
@@ -136,12 +141,45 @@ export function registrationInput(connection) {
       name: entry.id,
       api: connection.api,
       baseUrl: connection.baseUrl,
-      reasoning: false,
+      reasoning: entry.reasoning === true,
       input: ["text"],
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
       ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
     })),
   };
+}
+
+/** The extra models a CATALOG connection adds beyond the installed catalog
+ * (PV-59): models a person typed in that pi's own bundled catalog never
+ * shipped for this provider identity. Unlike `registrationInput` (which
+ * builds a whole compatible-connection provider), this returns only the
+ * per-model entries; the caller (`registerCatalogExtraModels` in
+ * `app/runtime/pi-session-runtime.mjs`) merges them onto the SAME native
+ * provider definition captured at startup, filling in the native `baseUrl`
+ * itself — a catalog connection's extras have no endpoint of their own. */
+export function registrationExtras(connection) {
+  return connection.models.map((entry) => ({
+    id: entry.id,
+    name: entry.id,
+    provider: connection.providerIdentity,
+    api: connection.api,
+    reasoning: entry.reasoning === true,
+    input: ["text"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
+  }));
+}
+
+/** Validate the body of a `PUT` on a CATALOG connection. Only `{models}` is
+ * accepted (PV-59): `api`/`baseUrl`/`apiKey` are the installed catalog's own
+ * facts, not user input, and the credential route is unchanged
+ * (`PUT /provider-credential` still keys off the connection id either way).
+ * `models` may be empty — that is how the extra list is cleared back out. */
+export function validateCatalogConnectionInput(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) invalid("body must be an object");
+  const keys = Object.keys(value);
+  if (keys.some((key) => key !== "models")) invalid("a catalog connection only accepts its extra models");
+  return { models: normalizedModels(value.models, { allowEmpty: true }) };
 }
 
 /** Old `credentials.json` keys were provider ids. Re-home each onto that
