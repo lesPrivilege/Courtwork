@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-10T12:34:56.000Z",
+  "scopeRef": "project:p-1",
+  "coverage": { "matters": "complete", "reason": null },
+  "page": { "limit": 25, "offset": 0, "total": 2 },
+  "matters": [
+    {
+      "matterId": "q-1",
+      "title": "Beta NDA renewal",
+      "extensionId": "inbound-nda",
+      "version": 5,
+      "sourceVersion": 2,
+      "snapshotRef": "core-state:11112222",
+      "availability": "observed",
+      "reason": null,
+      "derivations": {
+        "total": 4,
+        "current": 4,
+        "stale": 0,
+        "byStatus": [
+          { "status": "accepted", "current": 4, "stale": 0 }
+        ]
+      },
+      "staleRefs": [],
+      "staleRefsTruncated": false,
+      "sourceSetChange": null
+    },
+    {
+      "matterId": "q-2",
+      "title": "Gamma consulting agreement",
+      "extensionId": "inbound-nda",
+      "version": 2,
+      "sourceVersion": 1,
+      "snapshotRef": "core-state:11112222",
+      "availability": "observed",
+      "reason": null,
+      "derivations": {
+        "total": 2,
+        "current": 2,
+        "stale": 0,
+        "byStatus": [
+          { "status": "accepted", "current": 2, "stale": 0 }
+        ]
+      },
+      "staleRefs": [],
+      "staleRefsTruncated": false,
+      "sourceSetChange": null
+    }
+  ]
+}

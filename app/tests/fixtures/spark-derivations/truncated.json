@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-10T12:34:56.000Z",
+  "scopeRef": "project:p-1",
+  "coverage": {
+    "matters": "complete",
+    "reason": null
+  },
+  "page": {
+    "limit": 25,
+    "offset": 0,
+    "total": 1
+  },
+  "matters": [
+    {
+      "matterId": "e-1",
+      "title": "Epsilon supply contract",
+      "extensionId": "inbound-nda",
+      "version": 12,
+      "sourceVersion": 9,
+      "snapshotRef": "core-state:55556666",
+      "availability": "observed",
+      "reason": null,
+      "derivations": {
+        "total": 50,
+        "current": 13,
+        "stale": 37,
+        "byStatus": [
+          {
+            "status": "pending",
+            "current": 5,
+            "stale": 20
+          },
+          {
+            "status": "accepted",
+            "current": 8,
+            "stale": 17
+          }
+        ]
+      },
+      "staleRefs": [
+        {
+          "candidateId": "c-101",
+          "status": "pending",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-102",
+          "status": "pending",
+          "candidateSourceVersion": 2,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-103",
+          "status": "pending",
+          "candidateSourceVersion": 3,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-104",
+          "status": "pending",
+          "candidateSourceVersion": 4,
+          "matterSourceVersion": 9,
+          "supersedes": "c-103"
+        },
+        {
+          "candidateId": "c-105",
+          "status": "pending",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-106",
+          "status": "pending",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-107",
+          "status": "pending",
+          "candidateSourceVersion": 2,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-108",
+          "status": "pending",
+          "candidateSourceVersion": 3,
+          "matterSourceVersion": 9,
+          "supersedes": "c-107"
+        },
+        {
+          "candidateId": "c-109",
+          "status": "pending",
+          "candidateSourceVersion": 4,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-110",
+          "status": "pending",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-111",
+          "status": "pending",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-112",
+          "status": "pending",
+          "candidateSourceVersion": 2,
+          "matterSourceVersion": 9,
+          "supersedes": "c-111"
+        },
+        {
+          "candidateId": "c-113",
+          "status": "accepted",
+          "candidateSourceVersion": 3,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-114",
+          "status": "accepted",
+          "candidateSourceVersion": 4,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-115",
+          "status": "accepted",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-116",
+          "status": "accepted",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": "c-115"
+        },
+        {
+          "candidateId": "c-117",
+          "status": "accepted",
+          "candidateSourceVersion": 2,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-118",
+          "status": "accepted",
+          "candidateSourceVersion": 3,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-119",
+          "status": "accepted",
+          "candidateSourceVersion": 4,
+          "matterSourceVersion": 9,
+          "supersedes": null
+        },
+        {
+          "candidateId": "c-120",
+          "status": "accepted",
+          "candidateSourceVersion": 1,
+          "matterSourceVersion": 9,
+          "supersedes": "c-119"
+        }
+      ],
+      "staleRefsTruncated": true,
+      "sourceSetChange": {
+        "fromRevision": 5,
+        "toRevision": 6,
+        "added": [
+          {
+            "sourceId": "s-9",
+            "version": 2
+          }
+        ],
+        "replaced": [],
+        "removed": [
+          {
+            "sourceId": "s-3",
+            "version": 1
+          }
+        ]
+      }
+    }
+  ]
+}

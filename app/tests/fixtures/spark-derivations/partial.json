@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-10T12:34:56.000Z",
+  "scopeRef": "project:p-1",
+  "coverage": { "matters": "partial", "reason": "contract_unsupported_excluded" },
+  "page": { "limit": 25, "offset": 0, "total": 1 },
+  "matters": [
+    {
+      "matterId": "d-1",
+      "title": "Delta trademark filing",
+      "extensionId": "trademark-search",
+      "version": 3,
+      "sourceVersion": 5,
+      "snapshotRef": "core-state:33334444",
+      "availability": "partial",
+      "reason": "contract_unsupported",
+      "derivations": {
+        "total": null,
+        "current": null,
+        "stale": null,
+        "byStatus": []
+      },
+      "staleRefs": [],
+      "staleRefsTruncated": false,
+      "sourceSetChange": null
+    }
+  ]
+}
