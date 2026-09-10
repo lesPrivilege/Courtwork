@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## R2-SD01 · 摘要与阅读层级候选（2026-09-10）
+
+隔离分支`codex/summary-disclosure-r2`产品`1c4138b`已将Run摘要→Files披露→同对象Preview接入原生产host，并统一有界目录、顶部tab、文档关闭/工作面隐藏、宽屏展开/还原与返回焦点。用户明确要求各级稳定，覆盖首轮fixture-only边界。最终38项针对通过；初次全量656/657的未改动Core启动超时经隔离13/13复验，原日志保留。Astra完成有界CUA；Luna仅静态/测试复核，无独立视觉接受。[交付、版本与限制](../evidence/summary-disclosure-20260910/README.md)。末次补披露圆角、内距与已有rim；保持实色材质合同，14项增量通过。本地候选未合流/推送/部署，Runtime11/Core4/app5不变，不覆盖在途PV/SD集成的状态或schema，也不关闭G1–G5。
+
 ## 范围登记：Chat 全量按钮、hover 与 Icon grammar（2026-09-10）
 
 按用户补充接收两份研究原文和文件交付参考图，[EX-IC2 / Chat controls](design/chat-controls-2026-09-10/README.md)已进入本地 PR 施工稿、前端与长期 roadmap。覆盖全量 Chat space 按钮/hover/focus、浮层、消息与文件卡；无真实后端仅登记缺口。现有 IC-8 不换族保持；未完成全量逐控件盘点、未实现 Registry/新 glyph、未创建远端 PR。外部研究主张仍是转交输入，不称本轮已核验。产品仍为下段 PV/SD 已接受版本，本次仅文档登记。

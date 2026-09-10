@@ -1,0 +1,63 @@
+/* One host, three presentations: summary directory, inline disclosure, reader.
+   Geometry is shared by every module; no fixture selector participates. */
+@media (min-width: 768px) {
+  .app-shell.surface-cards { --rail-width: 288px; }
+  .app-shell.surface-cards .chat-header { padding-right: var(--col-gap); }
+  .app-shell.surface-cards .chat-header-inner { max-width: none; }
+  .surface-panel.is-open:not(.is-expanded):not(.is-strip) {
+    top: calc(var(--band-top) + var(--col-gap));
+    bottom: auto;
+    min-height: min(360px, calc(100% - var(--band-top) - 2 * var(--col-gap)));
+    max-height: calc(100% - var(--band-top) - 2 * var(--col-gap));
+    pointer-events: auto;
+  }
+  .surface-panel.is-open:not(.is-expanded):not(.is-strip) .surface-rail {
+    background: var(--float);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    box-shadow: var(--rim), var(--shadow-float);
+    gap: 0;
+    padding-bottom: var(--space-4);
+    overflow: auto;
+    pointer-events: auto;
+  }
+  .surface-panel.is-open:not(.is-expanded):not(.is-strip) .rail-card {
+    flex: none;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+  }
+  .surface-panel.is-open:not(.is-expanded):not(.is-strip) .rail-card:last-child { border-bottom: 0; }
+}
+@media (min-width: 1024px) {
+  .surface-panel.is-view-switch {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .surface-panel.is-view-switch .surface-header {
+    height: var(--band-top);
+    min-height: var(--band-top);
+    padding-inline: var(--col-gap);
+    border-bottom: 1px solid var(--line);
+  }
+  .surface-view-switch .chat-header { visibility: hidden; }
+}
+/* Long names stay within their own column at every layer. */
+.surface-rail, .surface-content, .surface-header { min-width: 0; }
+.surface-rail .rail-row-value { overflow-wrap: anywhere; min-width: 0; }
+/* The tab list may scroll; chrome actions must never be pushed off-screen. */
+.surface-header .surface-tabs {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.surface-header .surface-tab { flex: none; }
+.surface-header .surface-document-tab { max-width: min(260px, 100%); }
+.surface-header .toolbar { flex: none; }
