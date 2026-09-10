@@ -6,7 +6,9 @@
   .app-shell.surface-cards .chat-header-inner { max-width: none; }
   .surface-panel.is-open:not(.is-expanded):not(.is-strip) {
     top: calc(var(--band-top) + var(--col-gap));
-    bottom: var(--col-gap);
+    bottom: auto;
+    min-height: min(360px, calc(100% - var(--band-top) - 2 * var(--col-gap)));
+    max-height: calc(100% - var(--band-top) - 2 * var(--col-gap));
     pointer-events: auto;
   }
   .surface-panel.is-open:not(.is-expanded):not(.is-strip) .surface-rail {
@@ -15,6 +17,7 @@
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-float);
     gap: 0;
+    padding-bottom: var(--space-4);
     overflow: auto;
     pointer-events: auto;
   }

@@ -3,13 +3,14 @@
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { boot } from '../../app/tests/helpers.mjs';
+const fixturePath = process.env.SD_FIXTURE_LONG === '1' ? 'out/'+('source-version-'.repeat(14))+'note.txt' : 'out/source-note.txt';
 const note = 'Synthetic source note\n\nThe summary, disclosure and right panel refer to the same recorded run.\nReading this note does not accept a result.\n';
 const h = await boot({fakeResponder:({body,requestNumber})=>{
  const messages=body.messages||[];
  const lastUser=messages.findLastIndex(m=>m.role==='user');
  const done=messages.slice(lastUser+1).some(m=>m.role==='tool');
  const common={id:`summary-fixture-${requestNumber}`,created:Math.floor(Date.now()/1000)};
- return done?{...common,kind:'text',text:'Synthetic demonstration: the source note is recorded. Open the Run summary to inspect its recorded file. Reading it does not accept a result.'}:{...common,kind:'tool',toolCallId:`summary-tool-${requestNumber}`,name:'ws_write',arguments:{path:'out/source-note.txt',text:note}};
+ return done?{...common,kind:'text',text:'Synthetic demonstration: the source note is recorded. Open the Run summary to inspect its recorded file. Reading it does not accept a result.'}:{...common,kind:'tool',toolCallId:`summary-tool-${requestNumber}`,name:'ws_write',arguments:{path:fixturePath,text:note}};
 }});
 const session = await h.createSession({title:'Source review · synthetic',permissionMode:'draft'});
 const made = await h.api('POST',`/sessions/${session.id}/runs`,{commandId:'summary-fixture-v1',input:'Record a synthetic source note so I can inspect the run and its file.'});
