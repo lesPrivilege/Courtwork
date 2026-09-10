@@ -2,6 +2,8 @@
 
 ## 当前串行执行入口（2026-09-10）
 
+最新核账（main `312965f`）：[Luna fast＋Astra真实消费审计](execution/2026-09-10-next-round/consumption-audit.md)确认CI-B/F、CS组合、summary、BE-41均仅候选交付，未进入main；Pro只有送审与原包归档进入main。下一轮按[准备单](execution/2026-09-10-next-round/README.md)：summary D1/D2修补/非作者复验→CI-B/F＋CS组合接收→EX-IC2 C；并行只读Harness P00，冻结正确Pro版本及实际缺口后串行补通用能力。BE-41择后续清洁接收点，不作为通用基础前置。下表早期“已请求创建BE-41 task”已由本审计的实际交付状态覆盖。
+
 ### 用户后续排序修订：基本产品与通用 harness 优先
 
 本段覆盖下表原先以 BE-41 并行片作为近期主导的排序，不删除历史派单事实。先以基本前端产品面的完整交互反推后端缺口，同时检查无可见按钮的取消、恢复、权限和持久化基础能力；再收敛为自足稳定的通用 agent 节点。tool / skill / MCP 管理、普通自然语言 memory、web fetch、多级 prompt 编排均进入现状核验，不因用户报告缺失就跳过代码证据，也不因已有底层模块就称 GUI 闭环完成。
