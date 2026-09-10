@@ -60,11 +60,12 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   // persisted. Invariant maintained throughout this module: sample can only
   // be true while unimplemented is true (entry is gated on it; load()'s
   // catch keeps them in lock-step — see the 404 branch below).
-  let sample = false, sampleScenario = 'stale', sampleData = null;
+  let sample = false, sampleScenario = 'stale', sampleData = null, sampleGeneration = 0;
 
   dialog.addEventListener('close', () => {
     visible = false;
     generation++;
+    sampleGeneration++;
     if (opener?.isConnected) opener.focus();
   });
 
@@ -85,6 +86,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
 
   async function load(offset = 0, { expectSnapshot = null } = {}) {
     const own = ++generation;
+    sampleGeneration++;
     if (!projectId) { data = null; loading = false; error = ''; unimplemented = false; rejected = ''; sample = false; sampleData = null; render(); return; }
     lastQuery = { offset, expectSnapshot };
     data = null;
@@ -129,24 +131,30 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
    * fetch failure (missing/unrecognised file) falls back to the existing
    * error state and its existing copy; it does not invent a second one. */
   async function loadSample(scenario) {
-    const own = ++generation;
+    // Static sample reads cannot supersede a live probe. Both the response
+    // headers and body may arrive after a scope change, hide, or close.
+    if (!visible || !unimplemented || loading) return;
+    const own = ++sampleGeneration, liveGeneration = generation;
+    const current = () => own === sampleGeneration && liveGeneration === generation
+      && visible && unimplemented && !loading;
     sampleScenario = scenario;
     try {
       const res = await fetch(`/web/samples/spark-derivations/${scenario}.json`, { headers: { Accept: 'application/json' } });
-      if (own !== generation) return;
+      if (!current()) return;
       if (!res.ok) throw new Error('Spark could not read the sample scenario.');
       const projected = validSparkDerivations(await res.json());
+      if (!current()) return;
       if (!projected) throw new Error('Spark received a sample it does not recognise.');
       sample = true;
       sampleData = projected;
     } catch (e) {
-      if (own !== generation) return;
+      if (!current()) return;
       sample = false;
       sampleData = null;
       unimplemented = false; // route rendering to the existing error branch, not back to "No source yet".
       error = e.message || 'Spark could not read maintenance state.';
     } finally {
-      if (own === generation) render();
+      if (own === sampleGeneration && liveGeneration === generation) render();
     }
   }
 
@@ -260,12 +268,13 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     const select = el('select', { attrs: { 'aria-label': 'Sample scenario' } });
     select.append(...SAMPLE_SCENARIOS.map((name) => el('option', { text: name[0].toUpperCase() + name.slice(1), attrs: { value: name } })));
     select.value = sampleScenario;
+    select.disabled = loading;
     select.addEventListener('change', () => void loadSample(select.value));
     bar.append(select);
     const check = button('Check for a source again', () => void load(0), {}, 'text-button');
     check.disabled = loading;
     bar.append(check);
-    bar.append(button('Hide sample data', () => { sample = false; sampleData = null; render(); }, {}, 'text-button'));
+    bar.append(button('Hide sample data', () => { sampleGeneration++; sample = false; sampleData = null; render(); }, {}, 'text-button'));
     return bar;
   }
 
