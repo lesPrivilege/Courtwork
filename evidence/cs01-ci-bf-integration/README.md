@@ -40,7 +40,7 @@ Astra's summary branch has since moved on (`796c3a5`); this branch still carries
 | STATIC (curl, 8934) | 200: `composer-field.mjs`, `summary-disclosure.mjs`, `summary-disclosure-projection.mjs`, `summary-disclosure.css`. 404: `/web/not-a-module.mjs`, `/web/composer-field.js`, `/web/../server/index.mjs`. |
 | Targeted tests | `chat-shell-proportion` + `composer-field` 13/13 |
 | Lints | colors, materials, shapes, interaction, contrast, doc-links: 0 |
-| Full suite | see the log committed after this note (bound to this note's commit) |
+| Full suite | **712/712**, exit 0, on `776ee4e` (this note's commit), clean tree, load ≈ 5, one run: raw log `full-suite-776ee4e.log`. The commit that adds the log adds only the log and this row; no code |
 
 A measurement trap worth knowing: in a **hidden** Browser pane no frames render, so
 ResizeObservers do not fire and timers are throttled — `--composer-h` and the Home
