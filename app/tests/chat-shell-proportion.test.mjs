@@ -83,8 +83,13 @@ test("composer · content-driven and bounded; growth never writes value", () => 
   const field = rule(styles, "#composer-input");
   assert.match(field, /min-height: calc\(2lh \+ 8px\);/);
   assert.match(field, /max-height: 180px;/);
-  assert.match(rule(styles, ".app-shell:not(.home-active) #composer-input"), /field-sizing: content;/);
-  // No script sizer: nothing reads scrollHeight or writes a height for the field.
+  // Integration with CI-B: one growth mechanism for every variant, not a
+  // Chat-only rule. The engine sizes the field where `field-sizing` exists; the
+  // only script sizer is composer-field.mjs's fallback, installed only where it
+  // does not (asserted in composer-field.test.mjs).
+  assert.match(styles, /@supports \(field-sizing: content\) \{\s*#composer-input \{ field-sizing: content; \}/);
+  assert.doesNotMatch(styles, /\.app-shell:not\(\.home-active\) #composer-input/);
+  // app.mjs itself never sizes the field.
   assert.doesNotMatch(appSource, /composer-input"\)\.style\.height/);
   assert.doesNotMatch(appSource, /textarea\.style\.height/);
 });

@@ -100,7 +100,8 @@ test("CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, t
 
 test("CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box", () => {
   // Plain ceilings first: a host without dvh must still stop at 180 / 160.
-  assert.match(styles, /#composer-input \{[^}]*min-height: 88px;\s*max-height: 180px;/);
+  // Chat's empty height is WO-CS-01's two lines; its ceiling stays 180.
+  assert.match(styles, /#composer-input \{[^}]*min-height: calc\(2lh \+ 8px\);\s*max-height: 180px;/);
   const home = styles.indexOf(".home-active #composer-input { min-height: 96px; max-height: 160px; }");
   assert.ok(home > 0);
   // The override is support-gated and comes after the Home rule: same
