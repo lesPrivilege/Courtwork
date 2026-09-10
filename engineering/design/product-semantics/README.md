@@ -23,7 +23,7 @@ The [facade](../../../app/web/semantic-controls.mjs) resolves a key to a complet
 
 Current classifications are mapped presentation candidates. An entry's `reviewStatus` does not constitute domain review or independent product acceptance. `colourRole: inherited` means the existing control/content owns colour; the facade does not add colour or infer status.
 
-Author verification: six focused tests pass. The first run exposed the existing TinyDOM helper's read-only dataset snapshot, not a browser failure; the facade uses standard data attributes and the test asserts the actual aria/label anatomy. Browser verification and non-author review remain pending with VS-06.
+Initial-slice author verification (historical): six focused tests pass. The first run exposed the existing TinyDOM helper's read-only dataset snapshot, not a browser failure; the facade uses standard data attributes and the test asserts the actual aria/label anatomy. Browser verification and non-author review remain pending with VS-06.
 
 ## Non-author review follow-up
 
@@ -40,3 +40,8 @@ The earlier first-consumer/six-test statements above describe that historical sl
 - [Pages cross-map](pages-map.json), checked by `node tools/check-pages-semantics.mjs` and by the site build: all 13 capture slots and 10 figures point to admitted Pages keys. Source manifests still own provenance/status, translations stay in the existing copy sources, and the map grants no capability or acceptance.
 
 No-icon support extends the existing `setAction` anatomy: absence of a glyph requires visible text. It preserves handlers, selection and focus ownership. The negative tests include same-key record replacement, unsupported production handlers, duplicate raw consumers, unknown Pages mappings and diagnostic/verb copy exceptions.
+
+
+## Final local candidate receipt
+
+Product f99af46 completes this incremental registry migration and its declared gates. Final suite767/767, source review closures and actual author browser observations are in [the delivery](../../../evidence/semantic-polish-20260911/README.md). The earlier pending review statements above describe their slice timestamps. Native/independent visual and whole-product acceptance are not implied.

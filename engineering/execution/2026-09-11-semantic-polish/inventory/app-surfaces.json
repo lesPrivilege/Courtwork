@@ -1,0 +1,558 @@
+{
+  "schema_version": 1,
+  "purpose": "VS-00 source inventory of the Courtwork app navigation, distinct surfaces, and observable states. This records implementation seams and gaps; it is not a product specification or visual acceptance.",
+  "baseline": {
+    "product_ref": "main@590739fa3d1bc401905261172260143e36e82c5e",
+    "checked_date": "2026-09-11",
+    "source_scope": "app/web, app/server, app/core, app/docs, and baseline app/tests",
+    "evidence_mode": "Static source inspection at the pinned main SHA; no browser capture or product acceptance was performed.",
+    "path_policy": "All source and test references are repository-relative and use path:line where a line range is material."
+  },
+  "navigation": {
+    "shell_source": [
+      "app/web/index.html:67-245",
+      "app/web/app.mjs:1748-1920",
+      "app/web/app.mjs:6141-6187"
+    ],
+    "entries": [
+      {
+        "id": "home",
+        "entry_path": "#home; #home-button; #workspace-home-link",
+        "owner_source": ["app/web/app.mjs:1513-1540", "app/web/app.mjs:5358-5433"],
+        "target": "home",
+        "states": ["selected", "loading", "loaded", "error"],
+        "behavior": "Clears the active Session and renders cross-session Home data."
+      },
+      {
+        "id": "new_chat",
+        "entry_path": "#new-session-button; project row New chat action",
+        "owner_source": ["app/web/app.mjs:4820-4968", "app/web/app.mjs:6141-6167"],
+        "target": "chat",
+        "states": ["rest", "dialog", "creating", "unconfirmed", "error"],
+        "behavior": "Creates a Session, optionally under a Project, then selects it."
+      },
+      {
+        "id": "session_selection",
+        "entry_path": "dynamic .session-button rows in #project-list",
+        "owner_source": ["app/web/app.mjs:1748-1920", "app/web/app.mjs:1417-1510"],
+        "target": "chat",
+        "states": ["unselected", "selected", "loading", "error"],
+        "behavior": "Loads GET /sessions/:id and resets per-session surface/read generations."
+      },
+      {
+        "id": "attention",
+        "entry_path": "#attention-button; Home Attention heading; assistant Attention items",
+        "owner_source": ["app/web/app.mjs:5555-5591", "app/web/app.mjs:6619-6625"],
+        "target": "attention.assistant or attention.queue",
+        "states": ["assistant_open", "queue_open", "item_selected", "closed"],
+        "behavior": "The nav entry opens the global assistant; the assistant can open the queue."
+      },
+      {
+        "id": "spark",
+        "entry_path": "#spark-button",
+        "owner_source": ["app/web/app.mjs:6181-6184", "app/web/app.mjs:6617"],
+        "target": "spark",
+        "states": ["closed", "loading", "live", "sample", "error", "snapshot_refused"],
+        "behavior": "Opens the read-only derivation dialog for a preferred Project."
+      },
+      {
+        "id": "settings",
+        "entry_path": "#runtime-setup-button; #settings/<section>",
+        "owner_source": ["app/web/app.mjs:5793-5872", "app/web/app.mjs:6293-6297", "app/web/app.mjs:6631-6647"],
+        "target": "settings",
+        "states": ["closed", "open", "deep_linked", "section_selected", "search_filtered"],
+        "behavior": "Replaces the main content with a page, hides the global sidebar, and restores the prior focus/path on exit."
+      },
+      {
+        "id": "usage",
+        "entry_path": "Home Activity heading/action",
+        "owner_source": ["app/web/home-view.mjs:186-195", "app/web/app.mjs:5388-5392", "app/web/app.mjs:6616"],
+        "target": "usage",
+        "states": ["closed", "loading", "loaded", "drilled_down", "error"],
+        "behavior": "Usage is an on-demand dialog rather than a primary nav item."
+      }
+    ],
+    "responsive_states": [
+      {"condition": ">=1680px", "behavior": "Work surface can use a real third pane."},
+      {"condition": "1024-1679px", "behavior": "Work surface uses a view switch."},
+      {"condition": "<1024px", "behavior": "Navigation and Work surface use overlays/modal presentation."}
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "home",
+      "entry_paths": ["#home", "Home button", "brand link"],
+      "owner_source": ["app/web/index.html:245-367", "app/web/app.mjs:5358-5433", "app/web/home-view.mjs:32-314", "app/web/presentation-adapters.mjs"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/home-view.mjs:95-162", "reason": "Read-only stat strip uses the existing presentation adapter and filters its own set."},
+        {"ref": "app/web/home-view.mjs:186-231", "reason": "Activity module is the local precedent for a bounded read, range selector, heatmap, loading, and last-confirmed error."},
+        {"ref": "app/web/home-view.mjs:233-291", "reason": "Attention module keeps registry rows and selected detail separate."}
+      ],
+      "states": ["empty workspace", "loaded overview", "module loading", "module error with last data", "Attention list", "Attention detail", "Attention pagination", "modules collapsed"],
+      "capabilities": [
+        "Shows Today values for pendingItems, sessionCandidates, and inspectionCandidates when work-summary supplies them.",
+        "Reads retained activity for 28 or 84 days from work-activity and exposes day labels/keyboard navigation.",
+        "Reads Attention registry data per Project, opens read-only item detail, and pages server results.",
+        "Offers Home chat start, Project choice, file-access choice, and Manage connections through existing controls."
+      ],
+      "gaps": [
+        "The Models module is installed in the module list but has no source (`home-view.mjs:166-171`); it is not evidence of model data.",
+        "Home has no independent user research or visual acceptance evidence in this inventory.",
+        "The Home layer reads existing backend projections; it does not create a new queue, metric, or authority.",
+        "Run/recorded-runs wording and any semantic registry migration remain separate VS-01 decisions."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/home-presentation.test.mjs", "app/tests/presentation-adapters.test.mjs", "app/tests/work-summary.test.mjs", "app/tests/work-summary-consistency.test.mjs"],
+        "synthetic_fixture": "Stub /work-summary, /work-activity, and /attention/query with empty, loading, error, paginated, and selected-detail responses; keep observedAt and UTC dates fixed.",
+        "dynamic_check": "Not run in this inventory; browser states, focus, and responsive layout require a later fixed fixture."
+      }
+    },
+    {
+      "id": "chat",
+      "entry_paths": ["dynamic session row", "New chat dialog", "Home composer"],
+      "owner_source": ["app/web/app.mjs:1417-1510", "app/web/app.mjs:2485-3068", "app/web/app.mjs:3106-3227", "app/web/app.mjs:3281-3357", "app/web/thread-projection.mjs"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/thread-projection.mjs", "reason": "Pure projection groups recorded events into User, Assistant, tool, Question, Permission, Artifact, Notice, Error, and Run status rows."},
+        {"ref": "app/web/user-message.mjs:46-93", "reason": "Shared authored-message anatomy provides immutable Edit-as-new, Copy, long-message disclosure, and source reading."},
+        {"ref": "app/web/app.mjs:2563-2587", "reason": "Pending Question/Permission rows use a separate list from the conversation stream."}
+      ],
+      "states": ["no chat selected", "chat with no messages", "loading session", "draft empty", "draft ready to send", "sending", "assistant streaming", "tool active", "Question pending/resolved", "Permission pending/resolved", "Run failed/unknown/cancelled", "connection lost", "unconfirmed receipt"],
+      "capabilities": [
+        "Loads a Session by id and restores draft/surface boundaries across session changes.",
+        "Renders authored messages, assistant responses, grouped tool activity, questions, permission requests, artifacts, notices, errors, and run status.",
+        "Provides Send, Cancel run, file-access context, model/effort picker entry, message Copy, and Edit as new draft.",
+        "Preserves run status and decision receipts in the stream; cancel-requested remains distinct from stopped."
+      ],
+      "gaps": [
+        "Chat does not provide a session rename/delete/pin/archive control in the baseline navigation.",
+        "The stream renders only facts supplied by Session/Run/event projections; it does not create a generic retry, Queue, Steer, or new workflow object.",
+        "No browser interaction or user research evidence is part of this source inventory."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/async-tasks.test.mjs", "app/tests/async-task-view.test.mjs", "app/tests/work-actions.test.mjs", "app/tests/permission.test.mjs", "app/tests/question-abort-race.test.mjs", "app/tests/chat-work-shell.test.mjs", "app/tests/chat-shell-proportion.test.mjs"],
+        "synthetic_fixture": "Feed deterministic Session events and Run records covering each row kind, active/cancel-requested/failed/unknown status, invalid or resolved receipts, and a long authored message.",
+        "dynamic_check": "Use the existing fake/local adapter and assert DOM labels plus request payloads; do not call a paid provider or a personal Session."
+      }
+    },
+    {
+      "id": "work.workspace",
+      "entry_paths": ["selected Session → Open workspace preview", "Work surface Workspace tab"],
+      "owner_source": ["app/web/index.html:595-727", "app/web/app.mjs:3427-4109", "app/web/surface-modules.mjs:260-416", "app/web/workspace-view.mjs:1-127"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/surface-modules.mjs:265-416", "reason": "Workspace module owns the current file tree, loading/error states, extension slot fallback, and open-file handoff."},
+        {"ref": "app/web/workspace-view.mjs:1-127", "reason": "Tree/session overview and run history are the existing read-only workspace panel pattern."},
+        {"ref": "app/web/app.mjs:3700-3832", "reason": "Host owns responsive surface expansion, view switch, modal, and focus behavior."}
+      ],
+      "states": ["closed", "open preview", "expanded", "maximized", "workspace loading", "workspace empty", "workspace error", "extension renderer loaded", "extension absent/unread", "run history open"],
+      "capabilities": [
+        "Shows Workspace, Run, and File tab roles with at most one closeable recorded-document tab.",
+        "Reads GET /sessions/:id/workspace into a current file tree and opens current files.",
+        "Shows extension owner/status/state-version facts and keeps absent renderers read-only.",
+        "Supports responsive third-pane, view-switch, and narrow modal paths."
+      ],
+      "gaps": [
+        "An extension renderer is a contingent slot; the host fallback cannot execute declared actions when that renderer is absent.",
+        "The runtime module has no own pane; it opens Settings › Developer so the catalog has one source.",
+        "Current workspace files and recorded run versions remain separate readings; the UI does not make them one mutable file object."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/work-surface-tabs.test.mjs", "app/tests/workspace.test.mjs", "app/tests/work-context-continuity.test.mjs", "app/tests/execution-file-continuity.test.mjs", "app/tests/extension-run.test.mjs", "app/tests/extension-restart.test.mjs"],
+        "synthetic_fixture": "Stub workspace responses as loading, empty, error, current files, and bound extension with renderer-absent/unsupported projection; vary viewport thresholds independently.",
+        "dynamic_check": "Check tab selection, modal/expanded transitions, Escape, focus return, and current-file open against the same Session id."
+      }
+    },
+    {
+      "id": "work.run",
+      "entry_paths": ["Work surface Run tab", "Run summary Open run", "Chat overview"],
+      "owner_source": ["app/web/surface-modules.mjs:124-192", "app/web/app.mjs:3960-4109", "app/web/index.html:627-727"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/surface-modules.mjs:128-190", "reason": "Run rail card and pane share the Session/Run identity and recorded artifacts."},
+        {"ref": "app/web/summary-disclosure.mjs:101-299", "reason": "Run summary card is the bounded inline disclosure and stale-identity guard."},
+        {"ref": "app/web/inspector.mjs:36-299", "reason": "Inspector is the existing detail reader for run status, usage, telemetry, and activity."}
+      ],
+      "states": ["no run", "run loading", "running", "stopping", "completed", "failed", "cancelled", "unknown", "run details expanded", "files disclosure open", "usage disclosure open", "activity disclosure open"],
+      "capabilities": [
+        "Opens a selected Run only when it belongs to the current Session.",
+        "Shows recorded start/end, status, results/files, run identity, runtime context, Usage lower bounds, request measurements, notes, and latest Activity.",
+        "Refreshes the Run and exposes content-version files through the File reader.",
+        "Keeps loading, empty, unknown, error, unavailable, and incompatible reader phases distinct in the summary projection."
+      ],
+      "gaps": [
+        "No true parent/child span or timeline hierarchy is available; host timing rows remain linear facts.",
+        "Provider TTFT, decode TPS, and token-delta measurements are not present; host first output must not be relabeled as provider timing.",
+        "Null or incomplete telemetry fields remain explicit rather than becoming invented measurements."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/summary-disclosure.test.mjs", "app/tests/card-disclosure.test.mjs", "app/tests/run-lineage.test.mjs", "app/tests/work-artifact-read.test.mjs", "app/tests/request-telemetry.test.mjs"],
+        "synthetic_fixture": "Construct one Session with ready/loading/empty/unknown/error Run reads, valid and malformed content-version artifacts, usage lower bounds, and host telemetry with null fields.",
+        "dynamic_check": "Exercise Run tab, summary disclosure, refresh, stale Session/Run generation, and open-file callbacks with a fixed local adapter."
+      }
+    },
+    {
+      "id": "review",
+      "entry_paths": ["Work surface Workspace tab → review-bearing Work projection", "Spark item → Matter work surface"],
+      "owner_source": ["app/web/surface-modules.mjs:630-1017", "app/web/app.mjs:4264-4448"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/surface-modules.mjs:634-708", "reason": "WorkPacket decodes Matter/candidate/decision/source facts and only treats schemaVersion 1 findings as a domain Review."},
+        {"ref": "app/web/surface-modules.mjs:768-806", "reason": "Rule disclosure shows status, reason, source anchors, frozen quote, and recorded-source read."},
+        {"ref": "app/web/surface-modules.mjs:934-947", "reason": "Decision words identify the version being decided and preserve rejection/evidence-request distinctions."}
+      ],
+      "states": ["no candidate", "plain candidate", "review-readable", "review schema unsupported", "pending finding", "resolved finding", "accepted version recorded", "declared action read-only", "producer absent fallback"],
+      "capabilities": [
+        "Reads Matter version/source/candidate lineage, per-rule findings, reasons, evidence anchors, decisions, sources, and accepted version when the WorkPacket supplies them.",
+        "Reads historical source bytes from the candidate's frozen revision through bounded GET queries.",
+        "Recognizes advertised decide/revise_candidate action descriptors; the host fallback displays declared actions as text when no producer renderer is mounted.",
+        "Keeps a candidate without a compatible domain review as candidate text rather than guessing acceptance from field names."
+      ],
+      "gaps": [
+        "Review is a Work projection, not a separate top-level route or new object in this baseline.",
+        "Fallback rendering is read-only; execution controls belong to the producer renderer and advertised action contract.",
+        "A recorded artifact or permission receipt does not itself establish Review acceptance; the UI says when acceptance is not recorded."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/work-core.test.mjs", "app/tests/work-actions.test.mjs", "app/tests/work-http-recovery.test.mjs", "app/tests/work-settlement.test.mjs", "app/tests/work-artifact-read.test.mjs"],
+        "synthetic_fixture": "Use WorkPacket variants with no candidates, plain candidate, schemaVersion 1 findings, unresolved rules, frozen source anchors, declared decide/revise actions, unsupported schema, and accepted artifact.",
+        "dynamic_check": "Verify rule/source disclosures and action visibility against packet descriptors; do not infer action capability from a visible candidate alone."
+      }
+    },
+    {
+      "id": "work.file",
+      "entry_paths": ["Workspace file row", "Run recorded file row", "Review accepted/candidate files"],
+      "owner_source": ["app/web/surface-modules.mjs:194-258", "app/web/inspector.mjs:329-501", "app/web/app.mjs:4070-4109"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/inspector.mjs:329-397", "reason": "File reader validates current/content-version/core-file identity and hashes before reading."},
+        {"ref": "app/web/inspector.mjs:398-465", "reason": "Markdown reader, preview fallback, truncation, provenance, recorded/current comparison, and hash copy are existing detail behavior."},
+        {"ref": "app/web/surface-modules.mjs:199-257", "reason": "File rail separates Current, Recorded, Candidate, and Artifact readings."
+        }
+      ],
+      "states": ["current", "recorded content-version", "candidate", "accepted artifact", "loading", "truncated", "hash mismatch", "forbidden", "error", "retry"],
+      "capabilities": [
+        "Opens current workspace bytes, run-saved content versions, and core candidate/artifact files through distinct locators.",
+        "Shows path, bytes/hash, Markdown structured preview where supported, raw fallback, truncation note, provenance, and recorded/current comparison.",
+        "Provides retry after a read failure and keeps invalid identity/hash/path responses out of the reader."
+      ],
+      "gaps": [
+        "The reader does not provide a write or acceptance action; file content and Review acceptance remain separate owners.",
+        "Large/complex Markdown falls back to preview or preformatted text; source positions are unavailable in that fallback.",
+        "A missing/forbidden response is an unavailable reading, not evidence that the file does not exist."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/execution-file-candidates.test.mjs", "app/tests/execution-file-continuity.test.mjs", "app/tests/work-artifact-read.test.mjs", "app/tests/markdown-core-read.test.mjs", "app/tests/markdown-source-independent.test.mjs"],
+        "synthetic_fixture": "Serve current, content-version, candidate, and artifact manifests with valid SHA-256, mismatched hash, traversal path, 403, truncation, malformed Markdown, and retry responses.",
+        "dynamic_check": "Select each locator kind from Workspace/Run/Review and assert the displayed provenance and Session/Run guard."
+      }
+    },
+    {
+      "id": "work.inspector",
+      "entry_paths": ["Work surface Run pane", "Run summary disclosures", "Attention assistant Runtime & memory disclosure"],
+      "owner_source": ["app/web/inspector.mjs:36-299", "app/web/summary-disclosure-projection.mjs:94-147", "app/web/summary-disclosure.mjs:101-299", "app/web/telemetry-view.mjs:1-34"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/inspector.mjs:36-299", "reason": "The existing inspector owns run detail sections and explicit unknown/unavailable values."},
+        {"ref": "app/web/summary-disclosure.mjs:176-299", "reason": "Details and file disclosures are guarded by current identity and generation on every action."},
+        {"ref": "app/web/telemetry-view.mjs:1-34", "reason": "Request telemetry is a small pure renderer consumed by both Inspector and Attention."
+        }
+      ],
+      "states": ["collapsed summary", "expanded details", "loading", "unknown", "unavailable", "error", "empty files", "activity expanded", "telemetry incomplete"],
+      "capabilities": [
+        "Makes exact Session/Run/provider/model/API/adapter/timing/native-session/credential-generation identifiers inspectable when supplied.",
+        "Supports bounded disclosures for Usage, recorded context, run notes, files, and latest 100 events.",
+        "Displays request host timing measurements and explicit null/incomplete telemetry fields."
+      ],
+      "gaps": [
+        "There is no provider token timeline, provider TTFT, decode TPS, or span-parent hierarchy in the baseline data.",
+        "Telemetry presentation is a renderer over existing request facts; it cannot supply absent measurements.",
+        "Identity and generation guards protect stale reads but do not create a new history/Trace domain object."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/summary-disclosure.test.mjs", "app/tests/card-disclosure.test.mjs", "app/tests/request-telemetry.test.mjs", "app/tests/run-lineage.test.mjs"],
+        "synthetic_fixture": "Use one run with complete host timings and one with null timing fields, missing usage, malformed artifacts, and 100+ events; test stale generation responses.",
+        "dynamic_check": "Open each disclosure and confirm identity, focus return, and no fabricated measurement appears in unknown/incomplete states."
+      }
+    },
+    {
+      "id": "attention.queue",
+      "entry_paths": ["Attention assistant → Attention items", "Home Attention module → item/detail", "#attention-button then queue"],
+      "owner_source": ["app/web/attention-view.mjs:4-20", "app/web/attention-view.mjs:75-235", "app/web/attention-view.mjs:237-545", "app/web/app.mjs:5460-5591"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/attention-view.mjs:4-20", "reason": "Six query views are All plus the five contract statuses; a view is a filter, not a new status."},
+        {"ref": "app/web/attention-view.mjs:75-235", "reason": "Registry rows and selected detail keep list facts separate from inspect facts."},
+        {"ref": "app/web/attention-view.mjs:237-512", "reason": "Advertised typed actions use revision/idempotency and distinguish refusal from an unknown receipt."
+        }
+      ],
+      "states": ["no Project", "loading", "All", "each of five contract status views", "empty view", "list selected", "detail loading", "detail error", "action editor", "action submitting", "refused", "unknown receipt", "recovered"],
+      "capabilities": [
+        "Queries Project-scoped Attention registry data in server order with paging and selected detail.",
+        "Shows source refs, policy/basis/relations, recorded next action and due time without creating a scheduler.",
+        "Renders only schema-advertised actions and posts revision/idempotency-bound requests; conflict/not-found paths re-inspect where required.",
+        "Returns focus to the selected or nearest surviving row after detail/action changes."
+      ],
+      "gaps": [
+        "There is no guaranteed batch operation, priority ranking, snooze scheduler, or separate Inbox authority in the baseline.",
+        "Action availability is descriptor-driven; an unadvertised action has no button, even if a similar word would be convenient.",
+        "The queue is not the global assistant conversation and does not itself start a Run."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/attention-actions.test.mjs", "app/tests/attention-http.test.mjs", "app/tests/attention-recovery.test.mjs", "app/tests/attention-triage.test.mjs", "app/tests/attention-triage-recovery.test.mjs", "app/tests/attention-core.test.mjs"],
+        "synthetic_fixture": "Use app/tests/fixtures/attention-actions.json plus registry/detail fixtures for all five statuses, paging, revision conflict, idempotency conflict, not-found, refusal, and unknown receipt recovery.",
+        "dynamic_check": "Run the local HTTP fixture; assert only advertised actions render and that retries reuse the same request identity."
+      }
+    },
+    {
+      "id": "attention.assistant",
+      "entry_paths": ["#attention-button", "Attention queue → Open Attention", "Attention assistant dialog"],
+      "owner_source": ["app/web/attention-agent-view.mjs:9-27", "app/web/attention-agent-view.mjs:58-210", "app/web/attention-conversation.mjs:1-106", "app/web/app.mjs:6619-6620"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/attention-agent-view.mjs:14-74", "reason": "Own toolbar, conversation management, composer, Runtime & memory disclosure, and embedded coordination seam."},
+        {"ref": "app/web/attention-agent-view.mjs:96-205", "reason": "Assistant uses the shared thread projection for user/assistant/tool/question/permission/run/artifact/usage/measurement rows."},
+        {"ref": "app/web/attention-conversation.mjs:1-106", "reason": "Global conversation controller owns retained messages, draft, send/cancel/answer/rename, and receipt recovery while Session/Run remain owners."
+        }
+      ],
+      "states": ["closed", "open empty", "loading", "conversation selected", "search/manage conversations", "draft ready", "sending", "assistant streaming", "tool disclosure", "Question answerable/resolved", "Permission answerable/resolved", "Run active/stopping", "error", "unknown receipt"],
+      "capabilities": [
+        "Maintains a global Attention conversation list with search, new conversation, rename, and open full conversation actions.",
+        "Sends/cancels Attention runs, answers Question/Permission rows when current Run permits, and shows recorded usage/measurements.",
+        "Opens queue, chooses model/effort, and opens the selected conversation in the normal Session surface.",
+        "Labels local-fake replies as simulation and keeps Runtime & memory read-only apart from existing controls."
+      ],
+      "gaps": [
+        "Global scope is explicit; there is no cross-Project persistent memory provider or unadvertised action authority.",
+        "Attention assistant has its own toolbar/composer implementation, so shared Chat control grammar still needs a later cross-surface audit.",
+        "Closing the dialog keeps an active Run active; the dialog is not a Run cancellation boundary."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/attention-agent.test.mjs", "app/tests/attention-core.test.mjs", "app/tests/attention-recovery.test.mjs", "app/tests/attention-trace-fixture.test.mjs", "app/tests/async-tasks.test.mjs"],
+        "synthetic_fixture": "Use deterministic conversation/session/run events for empty, streaming, tool, Question, Permission, artifact, usage, telemetry, cancel, and receipt-recovery states.",
+        "dynamic_check": "Open/close with a fake adapter, verify returned focus and model/permission scope, and keep queue/detail fixtures separate from conversation fixtures."
+      }
+    },
+    {
+      "id": "attention.coordination",
+      "entry_paths": ["Attention assistant → embedded coordination disclosure"],
+      "owner_source": ["app/web/coordination-view.mjs:1-250", "app/web/coordination-projection.mjs", "app/web/attention-agent-view.mjs:71-74"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/coordination-view.mjs", "reason": "Collapsed embedded Thread panel uses the existing request/projection seam and fetches only when expanded."},
+        {"ref": "app/web/coordination-projection.mjs", "reason": "Pure projection preserves source Session, target, message, and delivery status facts."},
+        {"ref": "app/tests/coordination-view.test.mjs", "reason": "The local test precedent covers collapsed/open, mailbox loading, and delivery-state presentation."
+        }
+      ],
+      "states": ["collapsed", "expanded", "loading", "empty", "queued", "delivered", "stale_target", "target_unavailable", "error"],
+      "capabilities": [
+        "Reads /coordination and /sessions/mailbox for source Session and target communication facts.",
+        "Exposes Create Thread, Continue Thread, and Message Thread controls only in the communication panel.",
+        "Displays delivery status and target/session identity through a pure projection."
+      ],
+      "gaps": [
+        "Thread is communication-only in this surface; it does not carry execution, explore, handoff, or workflow semantics.",
+        "There is no second global message centre; the panel remains embedded in Attention assistant."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/coordination-view.test.mjs", "app/tests/coordination.test.mjs"],
+        "synthetic_fixture": "Stub mailbox responses for queued, delivered, stale_target, target_unavailable, empty, and transport-error states with fixed source/target Session ids.",
+        "dynamic_check": "Expand/collapse and submit a communication-only request; assert delivery status is read back and no Run is created."
+      }
+    },
+    {
+      "id": "spark",
+      "entry_paths": ["#spark-button", "Spark dialog"],
+      "owner_source": ["app/web/spark-view.mjs:1-31", "app/web/spark-view.mjs:50-164", "app/web/spark-view.mjs:166-381", "app/web/spark-projection.mjs:1-35,174-274", "app/server/index.mjs:139", "app/core/derivations.py:8-64"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/spark-view.mjs:166-264", "reason": "Read-only Overview/Activity tabs share one validated derivation projection."},
+        {"ref": "app/web/spark-view.mjs:50-164", "reason": "Live 404/unimplemented, sample, 409 snapshot refusal, and error branches are explicit."},
+        {"ref": "app/web/spark-projection.mjs:235-274", "reason": "Projection partitions stale/quiet/empty/partial/truncated data without client-side mutation."
+        }
+      ],
+      "states": ["no Project", "loading", "live empty", "live data", "sample stale/quiet/empty/partial/truncated", "source 404/no source yet", "snapshot conflict", "error"],
+      "capabilities": [
+        "GET /work-derivations exists in the baseline and is a read-only Core projection.",
+        "Shows Overview and Activity tabs, Project/filter controls, paging, freshness/snapshot state, and sample data through the same renderers.",
+        "Supports explicit Check for a source again and Hide sample data; sample content is visibly marked and does not mutate work."
+      ],
+      "gaps": [
+        "Spark has no mutation or Attention action in the baseline; it cannot refresh a Matter or run derivation work.",
+        "The sample is an explicit no-source demonstration, not production data or a source of counts.",
+        "A 409 snapshot mismatch requires a fresh read; the client must not merge stale and new pages."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/spark-live.test.mjs", "app/tests/spark-projection.test.mjs", "app/tests/spark-routing.test.mjs", "app/tests/spark-samples.test.mjs", "app/tests/spark-view.test.mjs", "app/tests/work-derivations.test.mjs"],
+        "synthetic_fixture": "Use app/web/samples/spark-derivations/{stale,quiet,empty,partial,truncated}.json plus live 404/empty/200/409/error responses.",
+        "dynamic_check": "Exercise project switching, tab/filter/paging, sample/live transitions, and snapshot refusal with read-only request assertions."
+      }
+    },
+    {
+      "id": "settings",
+      "entry_paths": ["#runtime-setup-button", "#settings/<section>", "Attention Configure Runtime"],
+      "owner_source": ["app/web/index.html:368-594", "app/web/settings-view.mjs:1593-1609", "app/web/settings-view.mjs:1962-2117", "app/web/app.mjs:5793-5872"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/settings-view.mjs:1962-2117", "reason": "Settings page owns group navigation, tab panels, search, deep-link selection, and responsive select fallback."},
+        {"ref": "app/web/settings-view.mjs:2120-2423", "reason": "Appearance is the implemented PropertyRow/preference governance precedent."},
+        {"ref": "app/web/settings-view.mjs:476-922", "reason": "Provider/compatible/local connection forms and probe/save/error states are the Models precedent."},
+        {"ref": "app/web/runtime-view.mjs", "reason": "Developer, Skills, Tools, Permissions, and Models runtime mounts share one read/control-plane snapshot."
+        }
+      ],
+      "states": ["closed", "open", "deep-linked", "group selected", "search filtered", "local preference changed", "provider loading/saved/error", "runtime read-only", "planned"],
+      "capabilities": [
+        "Uses the nine task-named groups listed at settings-view.mjs:1593-1609: General, Appearance, Models, Tools & Integrations, Skills, Memory, Permissions, Keyboard, Developer.",
+        "General controls new-chat file access and read-only host data; Appearance controls theme, text size, code font, reduced motion, Home layout, and Palette.",
+        "Models reads and edits provider/compatible/local connection configuration and the model/effort picker within its scope.",
+        "Runtime mounts expose read/control-plane facts for tools/integrations, skills/context, permissions, and Developer runtime/extension information."
+      ],
+      "gaps": [
+        "Memory has no adapter: it is a read-only explanation and has no stored-memory review/export/delete or Temporary chat control (`settings-view.mjs:2425-2446`).",
+        "Planned areas include MCP OAuth/stdio/plugin isolation, workflows/hooks/registries, key rebinding, and other host contracts; planned rows are not capabilities.",
+        "Settings hash/group navigation is a page route, not a Session, Run, or backend authority."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/settings-navigation.test.mjs", "app/tests/settings-preferences.test.mjs", "app/tests/provider-config-module.test.mjs", "app/tests/provider-connections.test.mjs", "app/tests/models-connections.test.mjs", "app/tests/runtime-workbench.test.mjs", "app/tests/runtime-projection.test.mjs"],
+        "synthetic_fixture": "Stub bootstrap/provider/extensions/runtime snapshots; test each group with loaded, empty, refusal, stored-but-not-effective, and planned states while keeping preference storage local.",
+        "dynamic_check": "Use settings hash deep links, group keyboard navigation, search, Escape/Back to app, focus return, provider save/probe, and runtime read-only controls."
+      },
+      "groups": [
+        {"id": "settings.general", "entry_path": "#settings/general", "owner_source": ["app/web/index.html:414-427", "app/web/settings-view.mjs:2497-2547"], "nearest_implemented_precedent": "settingsRow plus new-chat permission segmented control", "capabilities": ["New-chat file-access default", "read-only data directory/adapter/host/tools report"], "gaps": ["No data directory path when host does not report it"], "test_methods": ["app/tests/settings-navigation.test.mjs", "app/tests/settings-preferences.test.mjs"]},
+        {"id": "settings.appearance", "entry_path": "#settings/appearance", "owner_source": ["app/web/index.html:428-440", "app/web/settings-view.mjs:2120-2423"], "nearest_implemented_precedent": "settingsRow/createPreferenceGovernance", "capabilities": ["Theme, text size, code font, reduced motion, Home layout, Palette"], "gaps": ["Custom token set can be stored but rejected/not applied; visual contrast acceptance is a later check"], "test_methods": ["app/tests/settings-preferences.test.mjs", "app/tests/skin-policy.test.mjs", "app/tests/skin-presets.test.mjs"]},
+        {"id": "settings.models", "entry_path": "#settings/models", "owner_source": ["app/web/index.html:441-461", "app/web/settings-view.mjs:476-922", "app/web/model-picker.mjs"], "nearest_implemented_precedent": "provider panel and createModelPicker", "capabilities": ["Provider/compatible/local connections, probes, save, model/effort choice"], "gaps": ["Only catalog-advertised providers/models/efforts are selectable; future external integration contracts are not implied"], "test_methods": ["app/tests/provider-connections.test.mjs", "app/tests/models-connections.test.mjs", "app/tests/provider-protocol.test.mjs"]},
+        {"id": "settings.tools", "entry_path": "#settings/tools", "owner_source": ["app/web/index.html:462-479", "app/web/runtime-view.mjs"], "nearest_implemented_precedent": "runtime capabilities-and-connections mount", "capabilities": ["Read runtime capabilities and integration intake where host snapshot supplies them"], "gaps": ["No generic plugin/MCP workflow is created by this page"], "test_methods": ["app/tests/runtime-workbench.test.mjs", "app/tests/runtime-projection.test.mjs"]},
+        {"id": "settings.skills", "entry_path": "#settings/skills", "owner_source": ["app/web/index.html:480-496", "app/web/runtime-view.mjs"], "nearest_implemented_precedent": "runtime instructions-and-context mount", "capabilities": ["Read recorded instructions/context and bounded draft actions supplied by runtime"], "gaps": ["No independent memory or source authority is created here"], "test_methods": ["app/tests/runtime-workbench.test.mjs", "app/tests/runtime-projection.test.mjs"]},
+        {"id": "settings.memory", "entry_path": "#settings/memory", "owner_source": ["app/web/index.html:497-509", "app/web/settings-view.mjs:2425-2446"], "nearest_implemented_precedent": "read-only capability boundary paragraph", "capabilities": ["Explains that Matter/global memory and Temporary chat have no adapter"], "gaps": ["No memory data, adapter, review, export, delete, or temporary-chat control"], "test_methods": ["app/tests/settings-navigation.test.mjs"]},
+        {"id": "settings.permissions", "entry_path": "#settings/permissions", "owner_source": ["app/web/index.html:510-526", "app/web/runtime-view.mjs"], "nearest_implemented_precedent": "runtime permissions mount plus session permission control", "capabilities": ["Read/edit permission policy where runtime/session capability permits"], "gaps": ["Stored/requested/effective/bound policy values remain owner facts; this page cannot invent a grant"], "test_methods": ["app/tests/permission.test.mjs", "app/tests/permission-cas.test.mjs", "app/tests/runtime-workbench.test.mjs"]},
+        {"id": "settings.keyboard", "entry_path": "#settings/keyboard", "owner_source": ["app/web/index.html:527-539", "app/web/settings-view.mjs:2448-2495"], "nearest_implemented_precedent": "read-only shortcut table", "capabilities": ["Shows keys the build already handles"], "gaps": ["Rebind a key is planned because no command registry can validate it"], "test_methods": ["app/tests/settings-navigation.test.mjs", "app/tests/ui-event-mapping.test.mjs"]},
+        {"id": "settings.developer", "entry_path": "#settings/developer", "owner_source": ["app/web/index.html:540-590", "app/web/runtime-view.mjs", "app/web/app.mjs:6560-6598"], "nearest_implemented_precedent": "runtime workbench mounts and extension list", "capabilities": ["Runtime overview/composition, extensions, runtime info, planned capabilities"], "gaps": ["Extension renderer/action authority remains host/producer-owned; planned rows do not execute"], "test_methods": ["app/tests/runtime-workbench.test.mjs", "app/tests/extension-run.test.mjs", "app/tests/control-plane.test.mjs"]}
+      ]
+    },
+    {
+      "id": "usage",
+      "entry_paths": ["Home Activity → Usage dialog", "usage exact-day/model drilldown"],
+      "owner_source": ["app/web/usage-view.mjs:4-92", "app/web/usage-projection.mjs:1-21", "app/server/index.mjs:137-138", "app/docs/usage-details.md"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/usage-projection.mjs:1-21", "reason": "Pure value/model/quantile projection preserves missing lower bounds and model identity."},
+        {"ref": "app/web/usage-view.mjs:4-92", "reason": "Existing dialog anatomy provides scope, period, metric, Overview/Models tabs, heatmap, exact tables, and drilldown."},
+        {"ref": "app/docs/usage-details.md", "reason": "UTC start-day, snapshot, 409, retained-run, and no-billing semantics are documented."
+        }
+      ],
+      "states": ["closed", "loading", "loaded", "no retained runs", "incomplete lower bound", "Overview", "Models", "exact daily values", "matching run drilldown", "error with last observation"],
+      "capabilities": [
+        "GET /work-usage-details reads 7/30/84/366-day Project/all-work snapshots and reports input/output/total metrics.",
+        "Shows relative quantile heatmap, top-four-plus-Other model series, exact model/daily tables, UTC interval, incomplete/run counts, and matching run drilldown.",
+        "Drilldown can open the matching Session/Run after the snapshot identity is checked."
+      ],
+      "gaps": [
+        "Usage is reported retained-run data, not billing, quota, or remaining allowance.",
+        "Cache read/write fields may overlap input; the projection keeps them separate and does not sum them into a new total.",
+        "Historical coverage is unknown when deleted chats remove retained records; zero and incomplete are distinct."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/usage-details.test.mjs", "app/tests/work-metrics.test.mjs"],
+        "synthetic_fixture": "Serve fixed UTC buckets with complete, incomplete, zero, missing, model identity, snapshot, and 409 conflict cases; use the same snapshot for drilldown.",
+        "dynamic_check": "Change scope/period/metric, move heatmap focus, open exact day/model/run drilldowns, and assert the snapshot does not mix observations."
+      }
+    },
+    {
+      "id": "telemetry",
+      "entry_paths": ["Run Inspector telemetry section", "Attention assistant → Runtime & memory"],
+      "owner_source": ["app/web/telemetry-view.mjs:1-34", "app/web/inspector.mjs:36-299", "app/web/attention-agent-view.mjs:115-124", "app/docs/request-telemetry.md"],
+      "nearest_implemented_precedent": [
+        {"ref": "app/web/telemetry-view.mjs:1-34", "reason": "Host request telemetry is rendered as timing rows/markers and a details disclosure."},
+        {"ref": "app/docs/request-telemetry.md", "reason": "The request telemetry owner and null/incomplete boundaries are documented."},
+        {"ref": "app/tests/request-telemetry.test.mjs", "reason": "Pure renderer test covers valid and absent request telemetry."
+        }
+      ],
+      "states": ["absent", "partial", "complete host timings", "expanded details", "unknown provider timing"],
+      "capabilities": [
+        "Reads request telemetry already attached to a Run and shows host-side request/start/first-output/end timing facts where present.",
+        "Uses the same compact renderer in the Attention assistant Runtime disclosure and the fuller Inspector context."
+      ],
+      "gaps": [
+        "No provider TTFT, decode TPS, token deltas, or full trace/span hierarchy is exposed by this baseline contract.",
+        "Context estimates remain estimates and must not become measured meters."
+      ],
+      "test_methods": {
+        "baseline_tests": ["app/tests/request-telemetry.test.mjs"],
+        "synthetic_fixture": "Provide request telemetry with each timestamp absent/present, null provider fields, and invalid ordering; keep host and provider fields separate.",
+        "dynamic_check": "Inspect full and compact renderers and assert unknown provider metrics remain unavailable."
+      }
+    }
+  ],
+  "overlays": [
+    {
+      "id": "overlay.run_history",
+      "entry_paths": ["Chat overview → Run history"],
+      "owner_source": ["app/web/index.html:729-744", "app/web/app.mjs:5315-5356", "app/web/app.mjs:5793-5850"],
+      "nearest_implemented_precedent": "native dialog with stored opener/focus return",
+      "states": ["closed", "open", "loading", "empty", "error"],
+      "capabilities": ["Reads the selected Session's recorded Runs and opens a Run."],
+      "gaps": ["No separate global history authority; history is Session-scoped."],
+      "test_methods": ["app/tests/card-disclosure.test.mjs", "app/tests/startup.test.mjs", "synthetic Session runs with empty/loading/error responses"]
+    },
+    {
+      "id": "overlay.edit_message",
+      "entry_paths": ["User message → Edit as new message"],
+      "owner_source": ["app/web/index.html:745-773", "app/web/app.mjs:5190-5265"],
+      "nearest_implemented_precedent": "native dialog with immutable-history copy and draft-only commit",
+      "states": ["closed", "open", "draft changed", "warning for existing composer draft", "cancelled", "used as draft"],
+      "capabilities": ["Copies source text into the composer without changing the original message or auto-sending."],
+      "gaps": ["No edit-in-place or automatic rerun is offered."],
+      "test_methods": ["app/tests/ui-event-mapping.test.mjs", "app/tests/chat-work-shell.test.mjs", "synthetic long message plus existing draft"]
+    },
+    {
+      "id": "overlay.context_summary",
+      "entry_paths": ["Chat overview button"],
+      "owner_source": ["app/web/index.html:774-779", "app/web/app.mjs:5315-5356"],
+      "nearest_implemented_precedent": "anchored popover that links to existing surfaces",
+      "states": ["hidden without Run", "open", "no session", "run present"],
+      "capabilities": ["Provides links to Materials, Workspace, Run, Run history, and Permissions for the current chat."],
+      "gaps": ["Popover is navigation/context only; it does not create a new summary authority."],
+      "test_methods": ["app/tests/card-disclosure.test.mjs", "app/tests/ui-event-mapping.test.mjs", "synthetic Session with and without a Run"]
+    },
+    {
+      "id": "overlay.connection",
+      "entry_paths": ["Composer model/file-access controls"],
+      "owner_source": ["app/web/index.html:780-785", "app/web/app.mjs:5262-5313", "app/web/settings-view.mjs:444-463"],
+      "nearest_implemented_precedent": "anchored connection popover plus existing model picker/settings page",
+      "states": ["closed", "model anchor open", "file-access anchor open", "provider unavailable", "model picker open"],
+      "capabilities": ["Shows current model/provider and file-access scope, opens model/effort picker, and links to Settings Models."],
+      "gaps": ["Requested, stored, effective, and bound values remain separate; this popover does not authorize an unadvertised tool."],
+      "test_methods": ["app/tests/provider-preview.test.mjs", "app/tests/models-connections.test.mjs", "app/tests/ui-event-mapping.test.mjs", "synthetic provider config and permission scope"]
+    },
+    {
+      "id": "overlay.materials",
+      "entry_paths": ["Composer Chat files button"],
+      "owner_source": ["app/web/index.html:792-847", "app/web/materials-view.mjs", "app/web/app.mjs:3940-3960"],
+      "nearest_implemented_precedent": "native dialog with session-scoped material list and add form",
+      "states": ["closed", "empty", "loaded", "loading", "upload validation error", "submit", "read error", "retry"],
+      "capabilities": ["Lists session files, refreshes, adds/replaces text material, validates text upload, and opens files."],
+      "gaps": ["Materials are session/project files, not global memory or a separate source registry."],
+      "test_methods": ["app/tests/material-governance.test.mjs", "app/tests/markdown-core-read.test.mjs", "synthetic UTF-8/text/binary/size and duplicate-name fixtures"]
+    },
+    {
+      "id": "overlay.project_and_session",
+      "entry_paths": ["New project / New chat buttons"],
+      "owner_source": ["app/web/index.html:848-921", "app/web/app.mjs:4810-4968", "app/web/app.mjs:6070-6085"],
+      "nearest_implemented_precedent": "native form dialogs with unconfirmed-create recovery",
+      "states": ["closed", "open", "validation error", "submitting", "created", "unknown/unconfirmed receipt", "cancelled"],
+      "capabilities": ["Creates Project or Session, preserves explicit file-access choice, and recovers after an uncertain response by refreshing before retry."],
+      "gaps": ["Creation dialogs do not add rename/delete/archive semantics to existing objects."],
+      "test_methods": ["app/tests/startup.test.mjs", "app/tests/async-recovery-independent.test.mjs", "app/tests/idempotency.test.mjs", "synthetic create success/refusal/timeout responses"]
+    },
+    {
+      "id": "overlay.toast_and_connection_status",
+      "entry_paths": ["Global toast region / connection status banner"],
+      "owner_source": ["app/web/index.html:235-243,786-791", "app/web/app.mjs:1670-1746", "app/web/app.mjs:6280-6291"],
+      "nearest_implemented_precedent": "role=status live region with explicit error/success copy",
+      "states": ["hidden", "success", "error", "connection lost", "reconnecting"],
+      "capabilities": ["Reports refresh, copy, refusal, and connection state without changing domain facts."],
+      "gaps": ["Real network-loss/browser recovery capture is outside this static inventory."],
+      "test_methods": ["app/tests/startup.test.mjs", "app/tests/ui-event-mapping.test.mjs", "synthetic request refusal and connection epoch responses"]
+    }
+  ],
+  "coverage": {
+    "included": ["primary navigation", "responsive shell states", "Home modules", "Chat stream/composer", "Work Workspace/Run/File/Review/Inspector", "Attention queue/assistant/coordination", "Spark", "Settings groups", "Usage", "Telemetry", "dialogs/popovers/toast"],
+    "cross_surface_invariants_checked": ["Session/Run/Thread identity separation", "read versus write boundary", "unknown versus failed/unavailable", "current versus recorded file", "advertised capability/action only", "focus return and responsive entry seams"],
+    "separate_inventory": "Public Pages routes and figures remain in inventory/pages-surfaces.json; this file does not duplicate that ledger."
+  },
+  "limitations": [
+    "The inventory is source evidence at main@590739fa3d1bc401905261172260143e36e82c5e, not a claim about later worktree edits or product acceptance.",
+    "No browser screenshots, keyboard/Touch/VoiceOver run, user study, external provider, personal data, or paid provider was used.",
+    "Test files and fixture methods are recorded as reproducible follow-up paths; this inventory did not run the product suite.",
+    "Gaps describe absent or bounded baseline capability where source inspection supports it; they do not propose architecture, schema, or release decisions.",
+    "Some extension, provider, telemetry, and Attention states depend on host/API payloads and require fixed synthetic fixtures for dynamic verification."
+  ]
+}

@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "purpose": "VS-00 bounded inventory of the authored Pages surface and its semantic collision points; source inspection only.",
+  "baseline": {
+    "checkout": "Courtwork isolated worktree (portable path intentionally omitted)",
+    "branch": "codex/semantic-polish-prep-20260911",
+    "head": "57eaa6be65afe4f0729e8bda7e8e16d4a132e483",
+    "checked_date": "2026-09-11",
+    "current_main_node": "590739fa3d1bc401905261172260143e36e82c5e",
+    "source_refs": [
+      "engineering/current.md:1-19",
+      "engineering/execution/2026-09-11-semantic-polish/README.md:46-66",
+      "engineering/execution/2026-09-11-semantic-polish/semantic-registry-plan.md:1-60"
+    ]
+  },
+  "build_and_routes": {
+    "build_source": "site/build.mjs:151-159",
+    "render_source": "site/src/product-pages.mjs:8-56",
+    "build_emits_product_pages": [
+      "features.html",
+      "eval.html",
+      "experts.html",
+      "tour.html",
+      "get.html",
+      "cli.html",
+      "changelog.html",
+      "models.html",
+      "data.html"
+    ],
+    "manifest_declared_product_pages": [
+      "tour.html",
+      "get.html",
+      "cli.html",
+      "changelog.html",
+      "models.html",
+      "data.html"
+    ],
+    "route_metadata_gap": "renderProductPages returns nine pages at site/src/product-pages.mjs:8,46-56; build-manifest product_pages records six at site/build.mjs:176-194. This is an inventory fact and a release-manifest risk, not a claim that six pages are absent."
+  },
+  "navigation": {
+    "home_primary": {
+      "source": "site/src/copy.mjs:9-13",
+      "items": [
+        { "label": "Tour", "href": "#tour" },
+        { "label": "Paper", "href": "https://lesprivilege.github.io/Schema-Engineering/" },
+        { "label": "Release", "href": "./get.html" }
+      ]
+    },
+    "home_primary_entries": {
+      "source": "site/src/page.mjs:403-417",
+      "items": ["Paper", "Tour"],
+      "tour_path": ["Start work", "Act and intervene", "Review work and evidence", "Continue the work"]
+    },
+    "home_product_links": {
+      "source": "site/src/page.mjs:112-123",
+      "items": ["tour", "get", "cli", "changelog", "models", "data"]
+    },
+    "product_page_nav": {
+      "source": "site/src/product-pages.mjs:8,15-16",
+      "items": ["features", "eval", "experts", "tour", "get", "cli", "changelog", "models", "data"]
+    },
+    "footer": {
+      "source": "site/src/page.mjs:381-394",
+      "items": ["features", "eval", "experts", "tour", "get", "cli", "changelog", "models", "data", "Source on GitHub", "MIT License", "Schema Engineering 9.6"]
+    }
+  },
+  "home_sections": [
+    {
+      "id": "hero",
+      "source": "site/src/page.mjs:97-109",
+      "representation": "copy plus inline archive-stack figure",
+      "semantic_terms": ["Source", "Candidate", "Matter", "Decision", "brand identity"],
+      "figure": "fig-00-matter-object",
+      "risk": "Matter is shown beside Source, Candidate and Decision; preserve the domain object boundary when the same terms appear in app surfaces."
+    },
+    {
+      "id": "product-atoms",
+      "source": "site/src/page.mjs:249-286",
+      "representation": "two inline SVG product atoms",
+      "semantic_terms": ["Spark", "Attention", "Sources", "Derived knowledge", "Work in motion", "Human judgment"],
+      "figure_ids": ["spark.surface", "attention.agent"],
+      "risk": "The atom uses Attention for the product/agent idea while the same word can describe a queue; the inline diagrams are decorative and do not establish authority."
+    },
+    {
+      "id": "paper_and_tour_entries",
+      "source": "site/src/page.mjs:403-417",
+      "representation": "open details entries with text-bearing covers",
+      "semantic_terms": ["Event", "State", "Context", "Paper", "Tour", "Start", "Act", "Review", "Continue"],
+      "figure_ids": ["event", "state", "context"],
+      "risk": "Paper vocabulary and operational app vocabulary meet in the same page; map shared keys without implying that a decorative cover is a state or acceptance mark."
+    },
+    {
+      "id": "current-home-capture",
+      "source": "site/src/page.mjs:112-124",
+      "representation": "current-home heading, screenshot slot and six product links",
+      "semantic_terms": ["Home", "project", "Attention", "usage", "local application"],
+      "capture_id": "M1",
+      "risk": "The heading calls the media current while the media manifest is an independently pinned snapshot at e818463; retain capture provenance until a new batch is accepted."
+    },
+    {
+      "id": "three-views",
+      "source": "site/src/page.mjs:127-195",
+      "representation": "linked sequence plus three tabs and recorded excerpts",
+      "semantic_terms": ["Source", "Event", "Work state", "Run", "Review", "Decision", "Provenance", "Event log", "Context projection"],
+      "capture_id": "recording/specimen",
+      "risk": "These words are shared with Paper and app contracts; Run/Provenance remain precise backstage terms unless the user needs the distinction."
+    },
+    {
+      "id": "matter-replay",
+      "source": "site/src/page.mjs:198-221; site/src/steps.mjs:8-107",
+      "representation": "interactive specimen iframe plus eight-step no-script index",
+      "semantic_terms": ["Project", "Run", "Approval", "Question", "File", "Continue in Work", "Candidate", "Decision"],
+      "steps": ["home", "run", "approval", "question", "file", "continue", "candidate"],
+      "risk": "Project, Matter, Session and Run are adjacent in the narrative but have different owners; the specimen is synthetic and must not be used to infer a new object hierarchy."
+    },
+    {
+      "id": "review",
+      "source": "site/src/page.mjs:316-335; site/src/copy.mjs:93-108",
+      "representation": "Review words, sparse red marker and M6 screenshot slot",
+      "semantic_terms": ["Proposal", "Evidence", "Decision", "Provenance", "pending candidate", "human review"],
+      "capture_id": "M6",
+      "risk": "Review is substantive judgment; it must remain distinct from Permission/Approval. The recorded red marker is text-supported and cannot confer acceptance."
+    },
+    {
+      "id": "long-work",
+      "source": "site/src/page.mjs:289-301",
+      "representation": "pipeline plate plus Spark, Attention and Roles figures",
+      "semantic_terms": ["Matter", "Spark", "Attention", "Experts", "Runtime", "sources", "decisions", "obligations"],
+      "figure_ids": ["pipeline", "spark", "attention", "roles"],
+      "risk": "Experts, Runtime, Model and Reasoning are neighboring concepts; the roles figure says Expert methods and one active Pi runtime, not a general model/agent glyph."
+    },
+    {
+      "id": "eval",
+      "source": "site/src/page.mjs:338-346",
+      "representation": "short evaluation teaser with linked evidence",
+      "semantic_terms": ["Continuity", "State Machine", "Fault & Replay", "Disclosure", "Method"],
+      "risk": "The page names replay and history-like ideas but does not establish a product Trace timeline; do not infer Activity, History and Trace as synonyms."
+    },
+    {
+      "id": "architecture",
+      "source": "site/src/page.mjs:224-246; site/src/assets/diagram.svg",
+      "representation": "paragraph-linked state-to-commit SVG",
+      "semantic_terms": ["state", "context", "proposal", "candidate", "validation", "evidence", "authority", "review", "committed change"],
+      "figure_id": "state-to-commit",
+      "risk": "The diagram is a mechanism explanation; arrows, color and geometry do not grant authority or mean that a candidate is committed."
+    },
+    {
+      "id": "portability",
+      "source": "site/src/page.mjs:349-360; site/src/copy.mjs:129-142",
+      "representation": "three architecture word rows plus provider note",
+      "semantic_terms": ["Web UI", "Host runtime", "Domain core", "Matter", "provider", "model usage"],
+      "risk": "Runtime is technical architecture here. Do not mechanically rename it to Agent setup in ordinary product copy; use the concrete user job where possible."
+    },
+    {
+      "id": "pricing",
+      "source": "site/src/pricing.mjs:57-125",
+      "representation": "Local/Professional/Organization cards and three concept-only inline SVG plans",
+      "semantic_terms": ["Matter store", "Event log", "provenance", "runtime", "Expert runtime", "Review", "Audit", "Eval"],
+      "figure_ids": ["pricing-local", "pricing-hosted", "pricing-organization"],
+      "status": "concept-only; page copy says plans are not current offers in the figure registry",
+      "risk": "Commercial concepts such as managed runtime, Shared Matters and RBAC/SSO are not current capability evidence; keep status captions and owner boundaries."
+    },
+    {
+      "id": "build",
+      "source": "site/src/page.mjs:363-378",
+      "representation": "install commands, M7 screenshot slot and links",
+      "semantic_terms": ["Get started", "Models", "provider", "local runtime", "Installation"],
+      "capture_id": "M7",
+      "risk": "Build commands are public instructions; the M7 capture only shows configuration entry, not a successful external provider connection."
+    }
+  ],
+  "product_pages": [
+    {
+      "route": "features.html",
+      "source": "site/src/product-pages.mjs:46-53",
+      "sections": ["Matter", "Spark", "Attention", "Experts", "Runtime"],
+      "captures": [],
+      "semantic_note": "Feature nouns are value categories; Runtime remains a technical term and should not absorb Agent, Model or Tools."
+    },
+    {
+      "route": "eval.html",
+      "source": "site/src/product-pages.mjs:54",
+      "sections": ["Continuity", "State Machine", "Fault & Replay", "Disclosure", "Method"],
+      "captures": [],
+      "semantic_note": "Evaluation method and evidence links are separate from current product capability."
+    },
+    {
+      "route": "experts.html",
+      "source": "site/src/product-pages.mjs:55",
+      "sections": ["Contract", "Role → Binding → Execution", "Review"],
+      "captures": [],
+      "semantic_note": "Expert, Binding and Execution are distinct backstage or domain terms; do not collapse them into one agent object."
+    },
+    {
+      "route": "tour.html",
+      "source": "site/src/product-pages.mjs:19-34",
+      "orchestration_path": ["home", "attention", "review", "continuity"],
+      "states": [
+        { "id": "home", "title": "Home / a place to return", "capture": "M1", "slot": "home", "status": "pending; legacy fallback M1" },
+        { "id": "spark", "title": "Spark / sources into knowledge", "capture": "spark", "slot": "spark", "status": "pending; no legacy media" },
+        { "id": "running", "title": "Agent running", "capture": "running", "slot": "running", "status": "pending; no legacy media" },
+        { "id": "attention", "title": "Attention / what needs you", "capture": "attention", "slot": "attention", "status": "pending; no legacy media" },
+        { "id": "approval", "title": "Permission / a specific action", "capture": "M2", "slot": "approval", "status": "pending; legacy fallback M2" },
+        { "id": "artifact", "title": "Artifact / file", "capture": "M4", "slot": "artifact", "status": "pending; legacy fallback M4" },
+        { "id": "matter", "title": "Matter / durable work", "capture": "matter", "slot": "matter", "status": "pending; no legacy media" },
+        { "id": "review", "title": "Review / a pending candidate", "capture": "M6", "slot": "review", "status": "pending; legacy fallback M6" },
+        { "id": "continuity", "title": "Continue in Work", "capture": "M5", "slot": "continuity", "status": "pending; legacy fallback M5" },
+        { "id": "models", "title": "Models / configure deliberately", "capture": "M7", "slot": "models", "status": "pending; legacy fallback M7" },
+        { "id": "integrations", "title": "Integrations / explicit scope", "capture": "M9", "slot": "integrations", "status": "pending; legacy fallback M9" },
+        { "id": "settings", "title": "Settings / the everyday surface", "capture": "M10", "slot": "settings", "status": "pending; legacy fallback M10" },
+        { "id": "assistant", "title": "Attention / a conversation", "capture": "M11", "slot": "conversation", "status": "pending; legacy fallback M11" }
+      ],
+      "capture_source": "site/src/capture-plan.mjs:1-41"
+    },
+    {
+      "route": "get.html",
+      "source": "site/src/product-pages.mjs:35-37",
+      "sections": ["Desktop", "Source / available today", "Local browser", "Run locally"],
+      "captures": [],
+      "semantic_note": "The preview dialog is an installation explanation; no desktop build is claimed."
+    },
+    {
+      "route": "cli.html",
+      "source": "site/src/product-pages.mjs:38-40",
+      "sections": ["Command line", "status", "review", "provenance", "models"],
+      "captures": [],
+      "semantic_note": "The CLI is a read/replay surface; command buttons are disabled until its script is active."
+    },
+    {
+      "route": "changelog.html",
+      "source": "site/src/product-pages.mjs:41-42",
+      "sections": ["Spark & Attention", "Provider inspection", "Models", "Settings", "Home"],
+      "captures": [],
+      "semantic_note": "Journal entries link pinned commits; they describe changes and do not establish current acceptance."
+    },
+    {
+      "route": "models.html",
+      "source": "site/src/product-pages.mjs:44",
+      "sections": ["Connections", "Runtime", "Your provider", "Control"],
+      "captures": [{ "id": "M7", "slot": "models", "status": "pending; legacy fallback M7" }],
+      "semantic_note": "Model, provider, endpoint and runtime are separate facts; the capture says no address/key was entered and no provider was probed."
+    },
+    {
+      "route": "data.html",
+      "source": "site/src/product-pages.mjs:45",
+      "sections": ["Matter data", "Model requests", "Credentials", "Tool effects", "This website", "Permission is specific"],
+      "captures": [],
+      "semantic_note": "Tool, Plugin, Connection and MCP are named as separate boundaries; do not use one integration glyph or word for all four."
+    }
+  ],
+  "capture_and_media": {
+    "batch": {
+      "source": "site/src/capture-plan.mjs:1-32",
+      "status": "pending",
+      "media_id_policy": "all 13 slots have mediaId null; legacy IDs are retained only for lookup and must not be treated as current captures",
+      "publish_behavior": "validateCaptureBatch rejects publish while pending; renderCapture emits a labelled blank slot at site/src/capture-plan.mjs:34-41"
+    },
+    "current_main_media": {
+      "manifest": "site/media/main/manifest.json",
+      "source_sha": "e818463ab31aa06a4c9d52a968a68099fdb02c3e",
+      "origin": "http://127.0.0.1:8981",
+      "entries": 15,
+      "ids": ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M9", "M10", "M11"],
+      "available_paths": [
+        "site/media/main/home-1440-light.jpg",
+        "site/media/main/home-1440-dark.jpg",
+        "site/media/main/home-390-light.jpg",
+        "site/media/main/chat-approval-1440-light.jpg",
+        "site/media/main/chat-question-1440-light.jpg",
+        "site/media/main/chat-file-1440-light.jpg",
+        "site/media/main/continue-in-work-1440-light.jpg",
+        "site/media/main/review-1440-light.jpg",
+        "site/media/main/review-1440-dark.jpg",
+        "site/media/main/review-390-light.jpg",
+        "site/media/main/settings-models-1440-light.jpg",
+        "site/media/main/settings-models-1440-dark.jpg",
+        "site/media/main/settings-integrations-1440-light.jpg",
+        "site/media/main/settings-appearance-1440-light.jpg",
+        "site/media/main/attention-conversation-1440-light.jpg"
+      ],
+      "limitations": "Synthetic deterministic fake; M2 explicitly says tool-write approval is not a formal candidate decision; M5 says no binding was submitted; M7 says no provider was probed; M9 says no external MCP server was contacted; M11 says no external model or dispatched expert."
+    },
+    "legacy_media": {
+      "manifest": "site/media/manifest.json",
+      "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+      "entries": 12,
+      "format": "PNG",
+      "status": "historical baseline; separate from current-main JPEG manifest; not a current-page fallback"
+    },
+    "specimen": {
+      "manifest": "site/specimen/capture.json",
+      "source_sha": "9e5384fcabdac432259b3ffab7928251bea49859",
+      "data_kind": "synthetic",
+      "recording": "site/specimen/9e5384f.json",
+      "steps_source": "site/src/steps.mjs:8-107"
+    }
+  },
+  "figures": {
+    "registry": "site/src/assets/figures/figures.json:1-242",
+    "entries": [
+      { "id": "fig-00-matter-object", "concepts": ["matter", "candidate"], "status": "concept", "renderer": "html-css", "source": "site/src/page.mjs" },
+      { "id": "anatomy-instrument", "concepts": ["event", "state", "context"], "status": "shipped", "renderer": "html-css", "source": "site/src/page.mjs" },
+      { "id": "state-to-commit", "concepts": ["context", "candidate", "evidence", "decision", "state"], "status": "shipped", "renderer": "svg-file", "source": "site/src/assets/diagram.svg" },
+      { "id": "pricing-local", "concepts": ["matter"], "status": "concept", "renderer": "inline-svg", "source": "site/src/pricing.mjs" },
+      { "id": "pricing-hosted", "concepts": ["matter", "runtime"], "status": "concept", "renderer": "inline-svg", "source": "site/src/pricing.mjs" },
+      { "id": "pricing-organization", "concepts": ["matter", "decision", "expert", "runtime"], "status": "concept", "renderer": "inline-svg", "source": "site/src/pricing.mjs" },
+      { "id": "pipeline", "concepts": ["pipeline"], "status": "concept", "renderer": "svg-file", "source": "site/src/assets/figures/pipeline.svg" },
+      { "id": "spark", "concepts": ["spark"], "status": "research", "renderer": "svg-file", "source": "site/src/assets/figures/spark.svg" },
+      { "id": "attention", "concepts": ["attention"], "status": "research", "renderer": "svg-file", "source": "site/src/assets/figures/attention.svg", "red": "#fig-attention-elevated" },
+      { "id": "roles", "concepts": ["expert", "runtime"], "status": "research", "renderer": "svg-file", "source": "site/src/assets/figures/roles.svg" }
+    ],
+    "identity_boundary": "site/src/page.mjs:399-401 brandIcon is a canonical four-rectangle identity mark; it is aria-hidden and explicitly never a Review or acceptance state."
+  },
+  "semantic_collision_review": [
+    {
+      "key": "chat_attention_waiting",
+      "terms": ["Chat", "Attention", "Waiting", "Inbox"],
+      "evidence": ["site/src/page.mjs:114", "site/src/page.mjs:249-286", "site/src/product-pages.mjs:20-32", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:25-31"],
+      "disposition": "map separate keys for attention.agent and attention.item/inbox; do not choose a new Pages logo before the app owner is fixed",
+      "status": "needs VS-01/VS-04 adjudication"
+    },
+    {
+      "key": "project_matter",
+      "terms": ["Project", "Matter", "Workspace", "Folder"],
+      "evidence": ["site/src/page.mjs:104-107", "site/src/steps.mjs:14,73-85", "site/src/product-pages.mjs:26,44-45", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:26-27"],
+      "disposition": "retain Matter for domain work and Project for the general container; avoid a global rename or a shared folder glyph without object labels",
+      "status": "owner mapping required"
+    },
+    {
+      "key": "agent_expert_model_reasoning",
+      "terms": ["Agent", "Expert", "Model", "Reasoning", "Runtime"],
+      "evidence": ["site/src/product-pages.mjs:29-30,44", "site/src/page.mjs:297-298", "site/src/assets/figures/figures.json:219-239", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:23-29"],
+      "disposition": "separate semantic entries; let the user-facing surface name the concrete job and preserve Runtime only where architecture or diagnostics is the subject",
+      "status": "collision candidate; no glyph winner"
+    },
+    {
+      "key": "tool_plugin_connection_mcp",
+      "terms": ["Tool", "Plugin", "Connection", "MCP", "Provider", "Endpoint"],
+      "evidence": ["site/src/product-pages.mjs:30,44-45", "site/src/pricing.mjs:73-86", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:21-24"],
+      "disposition": "keep callable capability, package, configured relation and MCP service separate; model/provider wording follows the connection owner",
+      "status": "needs cross-app mapping"
+    },
+    {
+      "key": "attention_review_approval",
+      "terms": ["Attention", "Review", "Approval", "Permission", "red marker"],
+      "evidence": ["site/src/page.mjs:316-335", "site/src/product-pages.mjs:23-27", "site/media/main/manifest.json:M2", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:28"],
+      "disposition": "keep actor/queue, substantive judgment and one-time authorization distinct; visible text and consequence outrank shield/check/red geometry",
+      "status": "explicit limitation recorded; no authority inferred"
+    },
+    {
+      "key": "activity_history_trace",
+      "terms": ["Activity", "History", "Trace", "State Machine", "Replay"],
+      "evidence": ["site/src/product-pages.mjs:40-45,54", "site/src/page.mjs:338-346", "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:27-29"],
+      "disposition": "Activity answers what happened, History answers what existed before, Trace remains diagnostic; no timeline/tree is created from prose alone",
+      "status": "no Pages Trace surface found in source"
+    },
+    {
+      "key": "event_state_context",
+      "terms": ["Event", "State", "Context", "Work state", "Context projection"],
+      "evidence": ["site/src/copy.mjs:23-52", "site/src/page.mjs:156-195", "site/src/assets/figures/figures.json:30-76"],
+      "disposition": "bind shared concepts to one semantic key while allowing prose, tab, diagram and app projections to differ; do not let representation create a new state",
+      "status": "existing cross-page vocabulary; owner check pending"
+    },
+    {
+      "key": "spark_surface",
+      "terms": ["Spark", "Derived knowledge", "rebuild", "source change"],
+      "evidence": ["site/src/page.mjs:249-268", "site/src/page.mjs:296", "site/src/product-pages.mjs:21", "site/src/assets/figures/figures.json:171-190"],
+      "disposition": "keep spark.surface separate from generic sparkle/agent/model glyph semantics; prefer text or an approved renderer if no semantic icon wins",
+      "status": "research/product surface; no static icon implied"
+    }
+  ],
+  "current_wip_boundary": {
+    "commit": "2361a837c23433cc582a386d594dac9a488f377c",
+    "is_ancestor_of_head": false,
+    "evidence": "git merge-base --is-ancestor returned 1 on 2026-09-11",
+    "scope": "27-path WIP: chat-actions adapter, Chat/Attention/file wiring, CSS, Lucide additions and evidence",
+    "status": "reference-only; evidence/chat-actions-20260911/WIP.md says no Fake UI adapter/page, incomplete test and device/accessibility matrix, and no non-author review",
+    "inventory_use": "inspect its explicit intents and unavailable reasons only; do not claim the current product contains or has accepted this WIP"
+  },
+  "verification": {
+    "performed": [
+      "source inspection at the fixed HEAD",
+      "git branch/HEAD/status check",
+      "current and legacy media manifest inspection",
+      "ancestor check for WIP commit"
+    ],
+    "not_performed": [
+      "site build",
+      "browser or CUA visual audit",
+      "new screenshot capture",
+      "product tests",
+      "semantic registry implementation or lint"
+    ],
+    "next_document_check": "node tools/check-doc-links.mjs"
+  },
+  "limitations": "This file is a source-grounded inventory, not a visual acceptance record, semantic-registry implementation, release manifest correction, or product capability claim. Generated dist output was not rebuilt in this bounded pass."
+}

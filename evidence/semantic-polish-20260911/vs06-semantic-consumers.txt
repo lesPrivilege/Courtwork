@@ -1,0 +1,1 @@
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":38,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}

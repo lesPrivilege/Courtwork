@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-11 · WO-VS-01 本地候选交付
+
+整体语义与界面 polish 已完成本轮有界施工与回归，产品固定 `f99af4695aa5796e703286b0875ec5663cc22c85`，隔离分支 `codex/semantic-polish-prep-20260911`。47项 presentation registry、六族原始消费账及文案/Pages映射门已落地；Inspector/Usage、Chat动作、Home/Settings/Attention/Spark与Pages产品路径已接线。[交付与验证](../evidence/semantic-polish-20260911/README.md)和[逐表面处置](execution/2026-09-11-semantic-polish/coverage.md)记录实现、先例、作者视觉判断与非作者复核。最终全量 **767/767**、smoke、三项lint及Pages检查通过；初次失败及其修补保留。
+
+这是本地工程候选，不是main接收或部署回执。13个Pages截图槽按用户要求保持pending留空；Chat G01–G06真实能力、BE-42、原生VoiceOver/IME/forced-colors/真实200%重排与G1–G5未关闭。实际浏览器完成有界明暗/1440、1280、390及大字号检查，不能替代原生或独立视觉验收。共享main与他人未提交现场未触碰，未merge/push/deploy。下文开工与准备段落保留历史时点。
+
 ## 2026-09-11 · WO-VS-01 goal开工
 
 用户确认本地/远端main收敛为590739f并授权从此继续整体polish。Astra在既有隔离polish分支接入该节点，保留收敛回执和准备输入；无产品冲突，current历史双侧记录均保留。执行按[本轮roadmap](execution/2026-09-11-semantic-polish/README.md)与[P0.5](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)推进。Astra掌握架构/异步节奏/视觉判断，Luna explorer与researcher；用户新开放Sol high只做明确较难后端worker，不写文案或前端。当前开始VS-00固定基线审计与VS-01裁定；Chat actions WIP仅按2361a83显式召回，不算已接受；不恢复旧等待heartbeat。

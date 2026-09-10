@@ -1,0 +1,63 @@
+[
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Models\n                ",
+      "Connections",
+      "In force"
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Tools & Integrations\n                ",
+      "Adding an MCP server",
+      "Tools, MCP servers and plugins"
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Skills\n                ",
+      "Instructions, skills and references"
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Memory\n                "
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Permissions\n                ",
+      "Policy"
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Keyboard\n                "
+    ],
+    "width": 390
+  },
+  {
+    "documentWidth": 390,
+    "headings": [
+      "\n                  Developer\n                ",
+      "Runtime",
+      "Overview",
+      "Composition",
+      "Extensions",
+      "Runtime info",
+      "Planned"
+    ],
+    "width": 390
+  }
+]

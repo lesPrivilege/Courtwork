@@ -1,0 +1,13 @@
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.593167ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (1.346125ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.435625ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.199666ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.163917ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.056666

@@ -1,0 +1,1607 @@
+{
+  "schema_version": 1,
+  "purpose": "VS-00 source inventory of raw consumers for six existing Lucide glyph names. It compares current app/web callsites and site/src representations with the candidate product semantic registry; it records migration evidence and bounded gaps, not product acceptance or implementation authority.",
+  "baseline": {
+    "product_ref": "main@590739fa3d1bc401905261172260143e36e82c5e",
+    "worktree_head": "e65cac1af7ed92afa487cdffe8c478876f4577db",
+    "checked_date": "2026-09-11",
+    "registry_path": "engineering/design/product-semantics/registry.json",
+    "registry_sha256": "083ad353e7259247712a4be36a2194283d7245f266ad46971d9ae27aa72b87de",
+    "registry_git_blob": "86b5865ec8973f820ee119f38a4be37bf2b05cbe",
+    "source_state": "Current worktree has unrelated dirty product edits; source hashes below pin the inspected bytes. No source files were changed by this inventory.",
+    "evidence_mode": "Static source inspection only; no browser, screenshot, provider, personal session, or product acceptance.",
+    "path_policy": "Repository-relative path:line references; dynamic mappings include both the mapping and render callsite."
+  },
+  "scan": {
+    "app_web_scope": "*.mjs and *.js under app/web, excluding vendor/** and product-semantics.generated.mjs; raw entrypoints inspected: icon, action, setAction, flowRow, module icon fields, dynamic glyph returns.",
+    "app_web_command": "rg -n --glob '*.mjs' --glob '*.js' --glob '!vendor/**' --glob '!product-semantics.generated.mjs' '(message-square|activity|plug|folder|file-text|refresh-cw)' app/web",
+    "site_scope": "All site/src source and registered figure/diagram assets; exact target glyph names checked as literals and SVG href/use references.",
+    "site_command": "rg -n --glob '*.mjs' --glob '*.js' --glob '*.json' --glob '*.svg' --glob '*.html' --glob '*.css' '(message-square|activity|plug|folder|file-text|refresh-cw)' site/src",
+    "raw_consumer_record_count": 48,
+    "site_raw_consumer_count": 0,
+    "notes": "The broad app scan also finds CSS class names, activity state/slot identifiers, generated registry text, and the ui-controls allowlist; those are excluded below unless they are an actual glyph argument or mapping return."
+  },
+  "registry": {
+    "path": "engineering/design/product-semantics/registry.json",
+    "entries_by_glyph": {
+      "message-square": [
+        {
+          "semantic_key": "chat.object",
+          "glyph_policy": "single-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Sessions"
+        }
+      ],
+      "folder": [
+        {
+          "semantic_key": "project.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/server/store.mjs",
+          "owner_anchor": "async createProject(name)"
+        },
+        {
+          "semantic_key": "workspace.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Workspace"
+        },
+        {
+          "semantic_key": "message.reveal",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+          "owner_anchor": "## Intent seams"
+        }
+      ],
+      "plug": [
+        {
+          "semantic_key": "connection.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/runtime-foundation.md",
+          "owner_anchor": "## Provider connections"
+        },
+        {
+          "semantic_key": "mcp.server",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "docs/runtime-control/INDEX.md",
+          "owner_anchor": "| mcp_server |"
+        }
+      ],
+      "activity": [
+        {
+          "semantic_key": "activity.view",
+          "glyph_policy": "single-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Events"
+        }
+      ],
+      "file-text": [],
+      "refresh-cw": []
+    },
+    "unmapped_target_glyphs": [
+      "file-text",
+      "refresh-cw"
+    ],
+    "text_reserved_or_none_relevant": [
+      "attention.agent",
+      "attention.queue",
+      "spark.surface",
+      "matter.object",
+      "review.open",
+      "approval.request",
+      "run.object"
+    ]
+  },
+  "glyphs": [
+    {
+      "glyph": "message-square",
+      "registry_entries": [
+        {
+          "semantic_key": "chat.object",
+          "glyph_policy": "single-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Sessions"
+        }
+      ],
+      "consumer_count": 6,
+      "consumers": [
+        {
+          "id": "GC-MS-001",
+          "source": "app/web/home-view.mjs:48-52,401-428",
+          "function_or_symbol": "setGlyphs.pendingItems → pendingRow",
+          "surface": "Home · Waiting for you",
+          "intent": "Pending question and approval request rows",
+          "raw_entrypoint": "icon(setGlyphs.pendingItems, { size: 16 }) where setGlyphs.pendingItems = \"message-square\"",
+          "owner": "Home presentation; Attention queue and Approval owners supply the facts",
+          "semantic_candidates": [
+            "attention.queue",
+            "approval.request"
+          ],
+          "recommendation": "remove",
+          "reason": "The one mapping covers two request kinds, while chat.object is single-purpose and both queue/request entries are text-reserved or unmapped. Keep the item title, request label, and waiting state in text.",
+          "nearest_precedent": [
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:142-151",
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:59-60"
+          ],
+          "affected_grammar": [
+            "Home work-row grammar",
+            "Chat / Attention / Approval collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-MS-002",
+          "source": "app/web/home-view.mjs:48-52,321-399",
+          "function_or_symbol": "setGlyphs.sessionCandidates → workRow/workCard",
+          "surface": "Home · Continue",
+          "intent": "Open a session candidate as a Chat",
+          "raw_entrypoint": "icon(setGlyphs.sessionCandidates, { size: 16 }) where setGlyphs.sessionCandidates = \"message-square\"",
+          "owner": "Home presentation / Session projection",
+          "semantic_candidates": [
+            "chat.object"
+          ],
+          "recommendation": "keep",
+          "reason": "The row title is a conversation and the registry maps message-square only to chat.object. The accessible object name and status remain visible beside the glyph.",
+          "nearest_precedent": [
+            "engineering/design/product-semantics/README.md:9-22",
+            "app/web/home-view.mjs:321-399"
+          ],
+          "affected_grammar": [
+            "Home work-row/card grammar",
+            "Chat object identity"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-MS-003",
+          "source": "app/web/app.mjs:2773-2782",
+          "function_or_symbol": "renderMessageStream · resolved question history",
+          "surface": "Chat · resolved Question",
+          "intent": "Read an answered or closed question in the stream",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"message-square\", title: row.prompt, meta: ... })",
+          "owner": "Session / question projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The canonical glyph contract allows message-square for Question, but the current registry reserves it for chat.object and has no question entry. Add an explicit question mapping or remove the decorative type glyph; do not present the question as Chat.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:59-60",
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:129-140"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "Chat / Attention / Approval collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-MS-004",
+          "source": "app/web/app.mjs:2813-2825",
+          "function_or_symbol": "renderMessageStream · pending question card",
+          "surface": "Chat · pending Question",
+          "intent": "Answer a pending question in the stream",
+          "raw_entrypoint": "flowRow(\"div\", { glyph: \"message-square\", title: row.prompt, ... })",
+          "owner": "Session / question projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The prompt is a Question, not a Chat identity. The existing row precedent is valid only after a distinct question semantic key is admitted; otherwise retain the prompt and Answer control as text and remove the glyph.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:59-60",
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:129-140"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "Question / Chat collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-MS-005",
+          "source": "app/web/attention-view.mjs:169-176",
+          "function_or_symbol": "createAttentionView · empty queue state",
+          "surface": "Attention queue · empty",
+          "intent": "Explain that no Attention items match this project/state",
+          "raw_entrypoint": "icon(\"message-square\", { size: 24 })",
+          "owner": "Attention queue",
+          "semantic_candidates": [
+            "attention.queue"
+          ],
+          "recommendation": "remove",
+          "reason": "The empty state already names Attention items. A Chat-only glyph adds a false object cue and no state or action fact.",
+          "nearest_precedent": [
+            "app/web/attention-view.mjs:169-231",
+            "engineering/design/product-semantics/README.md:16-18"
+          ],
+          "affected_grammar": [
+            "Attention empty-state grammar",
+            "Chat / Attention collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-MS-006",
+          "source": "app/web/app.mjs:6162-6166",
+          "function_or_symbol": "wireEvents · global Attention button",
+          "surface": "Global Attention assistant · navigation",
+          "intent": "Open the persistent Attention assistant",
+          "raw_entrypoint": "setAction($(\"attention-button\"), \"message-square\", \"Attention\", { visible: true })",
+          "owner": "Attention assistant",
+          "semantic_candidates": [
+            "attention.agent"
+          ],
+          "recommendation": "remove",
+          "reason": "Attention is text-reserved and distinct from Chat. Keep the visible Attention label and assistant route; the current Chat glyph should not identify the assistant.",
+          "nearest_precedent": [
+            "engineering/design/product-semantics/README.md:16-18",
+            "app/web/attention-agent-view.mjs:15-25"
+          ],
+          "affected_grammar": [
+            "Primary navigation grammar",
+            "Chat / Attention collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    },
+    {
+      "glyph": "activity",
+      "registry_entries": [
+        {
+          "semantic_key": "activity.view",
+          "glyph_policy": "single-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Events"
+        }
+      ],
+      "consumer_count": 8,
+      "consumers": [
+        {
+          "id": "GC-AC-001",
+          "source": "app/web/home-view.mjs:186-196",
+          "function_or_symbol": "activityCard",
+          "surface": "Home · Activity module",
+          "intent": "Show retained activity with a scoped period and totals",
+          "raw_entrypoint": "icon(\"activity\", { size: 16 })",
+          "owner": "Home activity projection",
+          "semantic_candidates": [
+            "activity.view"
+          ],
+          "recommendation": "keep",
+          "reason": "This is an explicit recorded Activity view with a period selector and retained-run total, matching the single-purpose registry mapping.",
+          "nearest_precedent": [
+            "app/web/home-view.mjs:186-231",
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:52"
+          ],
+          "affected_grammar": [
+            "Home module grammar",
+            "Activity view identity"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-002",
+          "source": "app/web/app.mjs:2691-2755",
+          "function_or_symbol": "renderMessageStream · Activity group",
+          "surface": "Chat Flow · scoped tool activity",
+          "intent": "Group recorded tool actions for one Run",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"activity\", title: \"Activity\" })",
+          "owner": "Session / Activity projection",
+          "semantic_candidates": [
+            "activity.view"
+          ],
+          "recommendation": "keep",
+          "reason": "The group is explicitly titled Activity and is scoped to one Run; it is the canonical recorded-activity use. The group glyph must not be reused for the Run object itself.",
+          "nearest_precedent": [
+            "app/web/app.mjs:2691-2755",
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:52"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "Activity / Run collision boundary"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-003",
+          "source": "app/web/app.mjs:2404-2411,2676-2683",
+          "function_or_symbol": "toolGlyph → tool row for unrecognized tools",
+          "surface": "Chat Flow · tool action",
+          "intent": "Give an unknown tool call a neutral type marker",
+          "raw_entrypoint": "toolGlyph(name) returns \"activity\"; flowRow receives glyph: toolGlyph(row.name)",
+          "owner": "Session / tool projection",
+          "semantic_candidates": [
+            "tool.object",
+            "activity.view"
+          ],
+          "recommendation": "adapt",
+          "reason": "The current neutral fallback is an Activity glyph on a Tool row. activity.view is reserved for a recorded Activity view; tool.object currently has no glyph. Route through an explicit tool key or remove the row glyph while preserving the tool identifier and state word.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:52-58",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "Tool / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-004",
+          "source": "app/web/surface-modules.mjs:128-134,app/web/app.mjs:4002-4020",
+          "function_or_symbol": "runModule.icon → responsive strip action",
+          "surface": "Work · Run module/strip",
+          "intent": "Identify the Run module in the rail or narrow strip",
+          "raw_entrypoint": "runModule.icon = \"activity\"; action(module.icon, module.title, ...)",
+          "owner": "Run module owner / Work surface host",
+          "semantic_candidates": [
+            "run.object",
+            "activity.view"
+          ],
+          "recommendation": "adapt",
+          "reason": "The registry deliberately leaves run.object text-reserved while activity.view is scoped recorded activity. Preserve the Run title and open handler, but do not silently identify the Run object as Activity without an explicit approved variant.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:74-82",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Work module grammar",
+            "Run / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-005",
+          "source": "app/web/app.mjs:6149-6158,6194",
+          "function_or_symbol": "wireEvents · Chat overview button",
+          "surface": "Chat header · Chat overview",
+          "intent": "Open the session context summary",
+          "raw_entrypoint": "\"show-run-button\": [\"activity\", \"Chat overview\"]",
+          "owner": "Session overview / context popover",
+          "semantic_candidates": [
+            "chat.object",
+            "run.object",
+            "activity.view"
+          ],
+          "recommendation": "adapt",
+          "reason": "The label is Chat overview and the callback opens a context summary, not the scoped Activity view. The glyph currently conflates Chat/Run overview with Activity; bind the action to its semantic owner or leave it text-led.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:80",
+            "app/web/index.html:217-224"
+          ],
+          "affected_grammar": [
+            "Header action grammar",
+            "Run / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-006",
+          "source": "app/web/summary-disclosure.mjs:189-202",
+          "function_or_symbol": "createRunSummaryCard · Run header",
+          "surface": "Work · Run summary card",
+          "intent": "Identify one recorded Run in the inline summary",
+          "raw_entrypoint": "icon(\"activity\", { size: 16 })",
+          "owner": "Run summary / Work surface host",
+          "semantic_candidates": [
+            "run.object",
+            "activity.view"
+          ],
+          "recommendation": "adapt",
+          "reason": "The card title is Run and the registry has no Run glyph. The existing contract uses activity for this card, but the updated registry requires a distinct Run text treatment or an explicitly approved variant.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:74",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Run summary grammar",
+            "Run / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-007",
+          "source": "app/web/workspace-view.mjs:106-116",
+          "function_or_symbol": "renderSessionOverview · latest Run row",
+          "surface": "Chat overview · Runs group",
+          "intent": "Open the latest Run from the session overview",
+          "raw_entrypoint": "row(\"activity\", `Latest · ${...}`, () => onRun(run.id))",
+          "owner": "Session overview / Run owner",
+          "semantic_candidates": [
+            "run.object",
+            "activity.view"
+          ],
+          "recommendation": "adapt",
+          "reason": "The row identifies a latest Run, not an Activity interval. Keep the latest status and callback; map the Run object explicitly or remove the Activity glyph.",
+          "nearest_precedent": [
+            "app/web/workspace-view.mjs:91-122",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Context-card row grammar",
+            "Run / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-AC-008",
+          "source": "app/web/thread-projection.mjs:174-196",
+          "function_or_symbol": "permissionPresentation · local non-write branch",
+          "surface": "Chat Flow · resolved local Approval",
+          "intent": "Show the target of a resolved local tool Approval",
+          "raw_entrypoint": "glyph: write ? \"square-pen\" : remote ? \"plug\" : \"activity\"",
+          "owner": "Session / Approval projection",
+          "semantic_candidates": [
+            "approval.request",
+            "tool.object"
+          ],
+          "recommendation": "adapt",
+          "reason": "This branch is a resolved Approval row for a local tool action. activity.view is not the request or tool identity, and approval.request is text-reserved. Keep the exact action words and target; use a dedicated semantic mapping or no glyph.",
+          "nearest_precedent": [
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:114-127",
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:63-64"
+          ],
+          "affected_grammar": [
+            "Approval row grammar",
+            "Approval / Activity collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    },
+    {
+      "glyph": "plug",
+      "registry_entries": [
+        {
+          "semantic_key": "connection.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/runtime-foundation.md",
+          "owner_anchor": "## Provider connections"
+        },
+        {
+          "semantic_key": "mcp.server",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "docs/runtime-control/INDEX.md",
+          "owner_anchor": "| mcp_server |"
+        }
+      ],
+      "consumer_count": 3,
+      "consumers": [
+        {
+          "id": "GC-PL-001",
+          "source": "app/web/app.mjs:2173-2201",
+          "function_or_symbol": "continueExistingSegment",
+          "surface": "New work binding · existing work row",
+          "intent": "Continue an existing Matter/work binding for an extension",
+          "raw_entrypoint": "flowRow(\"button\", { glyph: \"plug\", title: shortRef(matter.id), ... })",
+          "owner": "Binding panel / Work owner",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The row names existing work and an extension binding, not a configured model connection or MCP service. The older glyph contract explicitly admitted this row, but the registry has no binding semantic; retain only behind an owner-specific mapping.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:97-98",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Binding-entry row grammar",
+            "Tool / Plugin / Connection / MCP collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-PL-002",
+          "source": "app/web/app.mjs:4270-4293",
+          "function_or_symbol": "renderSurfaceFallback",
+          "surface": "Work surface · extension fallback",
+          "intent": "Show the producer/status line for an unmounted extension surface",
+          "raw_entrypoint": "flowRow(\"div\", { glyph: \"plug\", title: info.extension.title || ..., meta: ... })",
+          "owner": "Extension/work-surface host",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The title and status identify a producer extension surface, not a model Connection or MCP service. The canonical contract has a plug precedent for this fallback, but the registry needs an extension/producer owner mapping before enforcement.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:85,97",
+            "app/web/surface-modules.mjs:260-335"
+          ],
+          "affected_grammar": [
+            "Extension fallback grammar",
+            "Plugin / Connection / MCP collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-PL-003",
+          "source": "app/web/thread-projection.mjs:174-196,app/web/app.mjs:5598-5642",
+          "function_or_symbol": "permissionPresentation → resolved remote Approval row",
+          "surface": "Chat Flow · resolved remote Approval",
+          "intent": "Identify the recorded remote target after an Approval decision",
+          "raw_entrypoint": "glyph: write ? \"square-pen\" : remote ? \"plug\" : \"activity\"; flowRow(... glyph: display.glyph)",
+          "owner": "Session / Approval projection",
+          "semantic_candidates": [
+            "mcp.server",
+            "approval.request"
+          ],
+          "recommendation": "adapt",
+          "reason": "The target contains an MCP name/server id, so mcp.server is a plausible object identity, but the row is still an Approval receipt with allowed/denied state. The registry must choose which owner is primary; do not let plug imply generic remote Tool or permission.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:63-64",
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:114-127"
+          ],
+          "affected_grammar": [
+            "Approval receipt grammar",
+            "Tool / Plugin / Connection / MCP collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    },
+    {
+      "glyph": "folder",
+      "registry_entries": [
+        {
+          "semantic_key": "project.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/server/store.mjs",
+          "owner_anchor": "async createProject(name)"
+        },
+        {
+          "semantic_key": "workspace.object",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "app/docs/api-v6.md",
+          "owner_anchor": "## Workspace"
+        },
+        {
+          "semantic_key": "message.reveal",
+          "glyph_policy": "multi-purpose",
+          "review_status": "mapped",
+          "owner_ref": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+          "owner_anchor": "## Intent seams"
+        }
+      ],
+      "consumer_count": 6,
+      "consumers": [
+        {
+          "id": "GC-FL-001",
+          "source": "app/web/app.mjs:1795-1819",
+          "function_or_symbol": "renderProjectList · project toggle",
+          "surface": "Primary navigation · Project row",
+          "intent": "Expand/collapse a Project container",
+          "raw_entrypoint": "icon(\"folder\")",
+          "owner": "Project navigation / Store owner",
+          "semantic_candidates": [
+            "project.object"
+          ],
+          "recommendation": "keep",
+          "reason": "The row is a Project container and the registry maps folder to project.object. The chevron carries expansion state separately.",
+          "nearest_precedent": [
+            "engineering/design/home-composition-2026-09-10/interaction-vocabulary.md:41",
+            "app/web/app.mjs:1795-1820"
+          ],
+          "affected_grammar": [
+            "Navigation project-row grammar",
+            "Project / Matter collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FL-002",
+          "source": "app/web/app.mjs:2404-2411,2676-2683",
+          "function_or_symbol": "toolGlyph → ws_list tool row",
+          "surface": "Chat Flow · directory-list tool action",
+          "intent": "Mark a ws_list tool call",
+          "raw_entrypoint": "toolGlyph(\"ws_list\") returns \"folder\"; flowRow receives glyph: toolGlyph(row.name)",
+          "owner": "Session / tool projection",
+          "semantic_candidates": [
+            "workspace.object",
+            "tool.object"
+          ],
+          "recommendation": "adapt",
+          "reason": "folder is registered for Workspace/Project objects, while this row records a tool action. Preserve the visible ws_list identity and state; use a call-specific tool semantic or no glyph rather than implying a Workspace object.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:54-58",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "Project / Workspace / Tool collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FL-003",
+          "source": "app/web/app.mjs:4421-4432",
+          "function_or_symbol": "renderSurfaceFallback / packet fields",
+          "surface": "Review fallback · Recorded fields",
+          "intent": "Disclose raw fields from a Work packet",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"folder\", title: \"Recorded fields\" })",
+          "owner": "Work packet / Review projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The canonical Review grammar uses folder for Recorded fields, but no recorded-facts semantic is in the current registry. Retain the disclosure title and raw fields; require an explicit packet-facts mapping before treating folder as a registered object glyph.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:95",
+            "app/web/surface-modules.mjs:905-911"
+          ],
+          "affected_grammar": [
+            "Review disclosure grammar",
+            "Project / Matter collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FL-004",
+          "source": "app/web/surface-modules.mjs:265-280,app/web/app.mjs:4002-4020",
+          "function_or_symbol": "workspaceModule.icon",
+          "surface": "Work · Workspace module/strip",
+          "intent": "Identify the Workspace module",
+          "raw_entrypoint": "workspaceModule.icon = \"folder\"; action(module.icon, module.title, ...)",
+          "owner": "Workspace module / Work surface host",
+          "semantic_candidates": [
+            "workspace.object"
+          ],
+          "recommendation": "keep",
+          "reason": "The module title and data are the session folder binding and files, matching workspace.object. The same mapping is used by the responsive strip.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:76",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Work module grammar",
+            "Workspace object identity"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FL-005",
+          "source": "app/web/surface-modules.mjs:905-911",
+          "function_or_symbol": "candidateArticle · Recorded facts disclosure",
+          "surface": "Review · Recorded facts",
+          "intent": "Open recorded facts inside a candidate review",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"folder\", title: \"Recorded facts\" })",
+          "owner": "Work packet / Review projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "This is a packet-facts disclosure, not a Project or Workspace identity. The existing glyph contract admits folder here, but the registry has no packet-facts key; preserve the text-led disclosure and resolve the semantic owner before keeping the glyph.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:95",
+            "app/web/surface-modules.mjs:861-911"
+          ],
+          "affected_grammar": [
+            "Review disclosure grammar",
+            "Project / Matter collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FL-006",
+          "source": "app/web/workspace-view.mjs:91-105",
+          "function_or_symbol": "renderSessionOverview · Chat files row",
+          "surface": "Chat overview · Workspace group",
+          "intent": "Open the session files/materials dialog",
+          "raw_entrypoint": "row(\"folder\", \"Chat files\", onMaterials)",
+          "owner": "Session files / Workspace owner",
+          "semantic_candidates": [
+            "workspace.object",
+            "message.reveal"
+          ],
+          "recommendation": "adapt",
+          "reason": "The row is an action exposing Chat files, not a bare Project container. folder can be retained only through the existing workspace.object or message.reveal mapping with an explicit label; do not let it read as Matter or Chat identity.",
+          "nearest_precedent": [
+            "engineering/design/product-semantics/README.md:16-22",
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:75-82"
+          ],
+          "affected_grammar": [
+            "Context-card action grammar",
+            "Project / Workspace / Matter collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    },
+    {
+      "glyph": "file-text",
+      "registry_entries": [],
+      "consumer_count": 14,
+      "consumers": [
+        {
+          "id": "GC-FT-001",
+          "source": "app/web/app.mjs:2404-2411,2676-2683",
+          "function_or_symbol": "toolGlyph → ws_read/se_read_source tool row",
+          "surface": "Chat Flow · read tool action",
+          "intent": "Mark a read-source tool call",
+          "raw_entrypoint": "toolGlyph(name) returns \"file-text\" for ws_read/se_read_source; flowRow receives it",
+          "owner": "Session / tool projection",
+          "semantic_candidates": [
+            "tool.object"
+          ],
+          "recommendation": "adapt",
+          "reason": "file-text has no registry entry and the row records a read Tool action, not a generic File object. Keep the tool name and state; add a read-tool mapping or remove the glyph.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:54",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Chat Flow row grammar",
+            "File / Tool distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-002",
+          "source": "app/web/app.mjs:2453-2477",
+          "function_or_symbol": "decisionReceiptRows",
+          "surface": "Chat Flow · formal decision receipt",
+          "intent": "Identify a recorded candidate decision receipt",
+          "raw_entrypoint": "flowRow(\"div\", { glyph: \"file-text\", title: shortRef(candidate_id), meta: decisionWords[...] })",
+          "owner": "Work packet / decision projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The canonical contract uses file-text for a decision receipt, but file-text is absent from the current registry and review.open is text-reserved. Preserve candidate id and decision words; route through an explicit receipt/review mapping or no glyph.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:66",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Decision receipt grammar",
+            "Review / Approval distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-003",
+          "source": "app/web/app.mjs:2968-2997",
+          "function_or_symbol": "renderMessageStream · artifact row",
+          "surface": "Chat Flow · recorded artifact",
+          "intent": "Open a recorded output file by path and hash",
+          "raw_entrypoint": "flowRow(\"button\", { glyph: \"file-text\", title: row.file.path, meta: \"Recorded version\" }, ...)",
+          "owner": "Session / recorded artifact projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "This is a recorded File/Artifact row and the path/hash state is explicit, but file-text has no registry entry. Preserve the separate Recorded version wording; register the file/artifact representation before enforcement.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:61",
+            "app/web/inspector.mjs:112-145"
+          ],
+          "affected_grammar": [
+            "Chat Flow artifact grammar",
+            "File / Review distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-004",
+          "source": "app/web/attention-view.mjs:196-233",
+          "function_or_symbol": "createAttentionView · empty detail state",
+          "surface": "Attention queue · no selected item",
+          "intent": "Invite the user to choose an item for context",
+          "raw_entrypoint": "icon(\"file-text\", { size: 28 })",
+          "owner": "Attention queue",
+          "semantic_candidates": [
+            "attention.queue"
+          ],
+          "recommendation": "remove",
+          "reason": "The empty detail state already explains the next step and has no file object. file-text is unmapped and adds a misleading artifact cue.",
+          "nearest_precedent": [
+            "app/web/attention-view.mjs:196-233",
+            "engineering/design/product-semantics/README.md:16-18"
+          ],
+          "affected_grammar": [
+            "Attention empty-state grammar",
+            "File / Attention distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-005",
+          "source": "app/web/inspector.mjs:112-145",
+          "function_or_symbol": "renderRun · recorded artifact button",
+          "surface": "Run inspector · Results",
+          "intent": "Open a recorded content-version file",
+          "raw_entrypoint": "icon(\"file-text\") in the artifact-open button",
+          "owner": "Run/File reader owner",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The target is a recorded File, consistent with the older glyph contract, but file-text is not yet a registry mapping. Keep path and Current file action text; add an explicit file representation mapping.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:61,75,82",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Inspector file-row grammar",
+            "File / Review distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-006",
+          "source": "app/web/materials-view.mjs:56-68",
+          "function_or_symbol": "createMaterialsView · workspace file row",
+          "surface": "Files dialog · current workspace files",
+          "intent": "Open a current session file",
+          "raw_entrypoint": "icon(\"file-text\") in each workspace-file-row",
+          "owner": "Session workspace / Files owner",
+          "semantic_candidates": [
+            "workspace.object",
+            "message.reveal"
+          ],
+          "recommendation": "adapt",
+          "reason": "The row names a current file and its size; file-text has no registry entry. Resolve whether the row is workspace.object or message.reveal, then bind a file/read representation without merging current and recorded versions.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:75,82",
+            "app/web/workspace-view.mjs:37-46"
+          ],
+          "affected_grammar": [
+            "Files row grammar",
+            "File / Workspace distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-007",
+          "source": "app/web/settings-view.mjs:1934-1947",
+          "function_or_symbol": "appearancePreview",
+          "surface": "Settings · Appearance preview",
+          "intent": "Show the static ws_write result preview",
+          "raw_entrypoint": "flowRow(\"div\", { glyph: \"file-text\", title: \"ws_write · notice.md\", meta: \"Completed\" })",
+          "owner": "Settings Appearance presentation",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "This is a static preview of a file-write result, not a Settings object. file-text is unmapped; keep it as a text-led specimen or bind it to an approved file/artifact semantic.",
+          "nearest_precedent": [
+            "engineering/design/agent-interface-2026-09-10/precedent-map.md:300-319",
+            "app/web/settings-view.mjs:1912-1948"
+          ],
+          "affected_grammar": [
+            "Settings preview grammar",
+            "File / Tool distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-008",
+          "source": "app/web/surface-modules.mjs:83-99",
+          "function_or_symbol": "fileRow",
+          "surface": "Work · File/Workspace rail rows",
+          "intent": "Show current or recorded file path rows",
+          "raw_entrypoint": "icon(\"file-text\") in static and openable fileRow branches",
+          "owner": "File module / Workspace module",
+          "semantic_candidates": [
+            "workspace.object",
+            "message.reveal"
+          ],
+          "recommendation": "adapt",
+          "reason": "The two fileRow branches are genuine file rows and match the existing file-row precedent, but file-text has no registry entry. Keep current vs recorded state in text and bind the file row to a future file/read key.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:61,75,82",
+            "app/web/surface-modules.mjs:194-258"
+          ],
+          "affected_grammar": [
+            "Rail file-row grammar",
+            "File / Workspace distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-009",
+          "source": "app/web/surface-modules.mjs:199-204",
+          "function_or_symbol": "fileModule.icon",
+          "surface": "Work · File module/strip",
+          "intent": "Identify the File module",
+          "raw_entrypoint": "fileModule.icon = \"file-text\"; action(module.icon, module.title, ...) in host strip",
+          "owner": "File module / Work surface host",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The File module is a stable object precedent, but file-text has no current registry mapping. Preserve the File title and module action while awaiting an explicit file.object representation.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:75",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Work module grammar",
+            "File object identity"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-010",
+          "source": "app/web/surface-modules.mjs:768-780",
+          "function_or_symbol": "ruleRow",
+          "surface": "Review · rule finding",
+          "intent": "Identify a rule finding in a candidate review",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"file-text\", title: finding.ruleId, meta: meta.text })",
+          "owner": "Work packet / Review projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The existing Review row contract uses file-text, but no file-text registry entry exists and review.open is text-reserved. Keep rule id/status/reason as facts; bind the glyph only through an explicit Review representation.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:93-94",
+            "app/web/surface-modules.mjs:768-806"
+          ],
+          "affected_grammar": [
+            "Review finding grammar",
+            "File / Review distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-011",
+          "source": "app/web/surface-modules.mjs:861-870",
+          "function_or_symbol": "candidateArticle",
+          "surface": "Review · candidate header",
+          "intent": "Identify one proposed candidate",
+          "raw_entrypoint": "flowRow(\"div\", { glyph: \"file-text\", title: shortRef(candidate.id), meta: ... })",
+          "owner": "Work packet / Review projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "The candidate header is a Review object representation in the old contract, but file-text has no registry mapping. Preserve candidate status/lineage and bind through Review only after owner mapping.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:93",
+            "app/web/surface-modules.mjs:861-879"
+          ],
+          "affected_grammar": [
+            "Review candidate grammar",
+            "File / Review distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-012",
+          "source": "app/web/surface-modules.mjs:949-965",
+          "function_or_symbol": "decisionRow",
+          "surface": "Review · decision disclosure",
+          "intent": "Identify a recorded decision row",
+          "raw_entrypoint": "flowRow(\"summary\", { glyph: \"file-text\", title: shortRef(decision.candidate_id), meta: ... })",
+          "owner": "Work packet / Review projection",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "A decision row is Review history, not a generic file. The old glyph contract supplies file-text, but the current registry does not; preserve decision words and candidate id while deferring the glyph mapping.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:66,93-95",
+            "engineering/design/product-semantics/README.md:16-22"
+          ],
+          "affected_grammar": [
+            "Review decision grammar",
+            "Review / Approval distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-013",
+          "source": "app/web/summary-disclosure.mjs:231-280",
+          "function_or_symbol": "createRunSummaryCard · file disclosure",
+          "surface": "Work · Run summary files",
+          "intent": "List and open recorded Run files",
+          "raw_entrypoint": "icon(\"file-text\", { size: 16 }); action(\"file-text\", ...); icon(\"file-text\", { size: 16 })",
+          "owner": "Run/File reader owner",
+          "semantic_candidates": [],
+          "recommendation": "adapt",
+          "reason": "All three branches are genuine recorded-file rows, but file-text has no registry entry. Preserve path, bytes, reader availability, and the explicit Recorded files / acceptance note; map the file representation separately.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:61,75,82",
+            "app/web/summary-disclosure.mjs:231-285"
+          ],
+          "affected_grammar": [
+            "Run summary disclosure grammar",
+            "File / Review distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-FT-014",
+          "source": "app/web/workspace-view.mjs:20-46",
+          "function_or_symbol": "renderWorkspaceFilesView · file row",
+          "surface": "Work · Workspace files",
+          "intent": "Open a current workspace file",
+          "raw_entrypoint": "action(\"file-text\", file.path, () => onFile(file.path), ...)",
+          "owner": "Workspace/File owner",
+          "semantic_candidates": [
+            "workspace.object",
+            "message.reveal"
+          ],
+          "recommendation": "adapt",
+          "reason": "The path is the accessible action name and current-file identity, matching the file-row precedent, but file-text lacks a registry entry. Bind through Workspace/file-read semantics without conflating it with recorded Run versions.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:75,82",
+            "app/web/workspace-view.mjs:37-46"
+          ],
+          "affected_grammar": [
+            "Workspace file-row grammar",
+            "File / Workspace distinction"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    },
+    {
+      "glyph": "refresh-cw",
+      "registry_entries": [],
+      "consumer_count": 11,
+      "consumers": [
+        {
+          "id": "GC-RC-001",
+          "source": "app/web/app.mjs:6149-6154",
+          "function_or_symbol": "wireEvents · workspace refresh",
+          "surface": "Workspace header · named read action",
+          "intent": "Refresh the workspace read",
+          "raw_entrypoint": "setAction($(\"refresh-button\"), \"refresh-cw\", \"Refresh workspace\")",
+          "owner": "Workspace read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "This is a named refresh action with a complete accessible name, directly matching the canonical refresh precedent. The current registry has no refresh entry, so later registry enforcement needs a generic action mapping.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/ui-controls.mjs:120-153"
+          ],
+          "affected_grammar": [
+            "Named read action grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-002",
+          "source": "app/web/app.mjs:6159-6161",
+          "function_or_symbol": "wireEvents · extensions refresh",
+          "surface": "Workspace · extension list",
+          "intent": "Refresh the extension list",
+          "raw_entrypoint": "setAction($(\"refresh-extensions-button\"), \"refresh-cw\", \"Refresh extensions\")",
+          "owner": "Extension/runtime read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The label names the read target and the glyph is the canonical named-refresh/retry form. Record the missing registry mapping for refresh actions separately.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/app.mjs:6159-6161"
+          ],
+          "affected_grammar": [
+            "Named read action grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-003",
+          "source": "app/web/app.mjs:6164-6166",
+          "function_or_symbol": "wireEvents · global Spark button",
+          "surface": "Global Spark surface · navigation",
+          "intent": "Open the Spark surface",
+          "raw_entrypoint": "setAction($(\"spark-button\"), \"refresh-cw\", \"Spark\", { visible: true })",
+          "owner": "Spark surface owner",
+          "semantic_candidates": [
+            "spark.surface"
+          ],
+          "recommendation": "remove",
+          "reason": "The glyph is a refresh action while the accessible and visible name is the text-reserved Spark surface. Keep the Spark label and route; do not make a reload glyph stand for Spark identity.",
+          "nearest_precedent": [
+            "engineering/design/product-semantics/README.md:16-18",
+            "app/web/app.mjs:6187-6189"
+          ],
+          "affected_grammar": [
+            "Primary navigation grammar",
+            "Spark / refresh collision"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-004",
+          "source": "app/web/attention-agent-view.mjs:15-22",
+          "function_or_symbol": "createAttentionAgent · refresh action",
+          "surface": "Attention assistant · toolbar",
+          "intent": "Refresh the Attention conversation",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Refresh Attention\", () => controller.refresh())",
+          "owner": "Attention conversation controller",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "This is a named refresh of a conversation read, not the Attention assistant identity. The full label disambiguates the generic action.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/attention-agent-view.mjs:15-25"
+          ],
+          "affected_grammar": [
+            "Toolbar action grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-005",
+          "source": "app/web/inspector.mjs:58-67",
+          "function_or_symbol": "renderRun · refresh action",
+          "surface": "Run inspector · toolbar",
+          "intent": "Refresh Run details",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Refresh run details\", onRefresh)",
+          "owner": "Run inspector read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The action names the Run detail read and matches the canonical refresh precedent. It does not represent the Run object.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/inspector.mjs:58-67"
+          ],
+          "affected_grammar": [
+            "Inspector toolbar grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-006",
+          "source": "app/web/materials-view.mjs:42-47",
+          "function_or_symbol": "createMaterialsView · refresh action",
+          "surface": "Files dialog · workspace files",
+          "intent": "Refresh session files",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Refresh session files\", refresh)",
+          "owner": "Session files read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The full accessible name points to the session-file read and distinguishes refresh from opening a file.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/materials-view.mjs:42-47"
+          ],
+          "affected_grammar": [
+            "Files toolbar grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-007",
+          "source": "app/web/runtime-view.mjs:1362-1372",
+          "function_or_symbol": "renderOverview · retry action",
+          "surface": "Settings Runtime · error state",
+          "intent": "Retry loading the runtime snapshot",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Retry loading the runtime\", () => void read(), { visible: true })",
+          "owner": "Runtime read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "This is the explicit retry-reading precedent; visible Retry text and full accessible name carry the action. It must not be confused with starting a Run.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/runtime-view.mjs:1358-1382"
+          ],
+          "affected_grammar": [
+            "Error recovery grammar",
+            "Refresh/retry action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-008",
+          "source": "app/web/runtime-view.mjs:1374-1382",
+          "function_or_symbol": "renderOverview · snapshot refresh",
+          "surface": "Settings Runtime · overview",
+          "intent": "Refresh the runtime snapshot",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Refresh the runtime snapshot\", () => void read())",
+          "owner": "Runtime read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The label names the snapshot read and matches the canonical named-refresh precedent.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/runtime-view.mjs:1374-1382"
+          ],
+          "affected_grammar": [
+            "Named read action grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-009",
+          "source": "app/web/summary-disclosure.mjs:340-354",
+          "function_or_symbol": "createRunSummaryCard · retry action",
+          "surface": "Run summary · error state",
+          "intent": "Retry the Run summary read",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Retry run summary\", ... )",
+          "owner": "Run summary read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The visible Retry text and full name distinguish re-reading a failed summary from re-running work.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/summary-disclosure.mjs:340-354"
+          ],
+          "affected_grammar": [
+            "Disclosure error grammar",
+            "Refresh/retry action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-010",
+          "source": "app/web/surface-modules.mjs:39-43,343-415",
+          "function_or_symbol": "retryAction → Workspace pane error",
+          "surface": "Work · Workspace error",
+          "intent": "Retry loading the Workspace read",
+          "raw_entrypoint": "retryAction(\"Retry loading workspace\", host.refreshWorkspace)",
+          "owner": "Workspace read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The shared helper uses a complete Retry label and is the canonical bounded read recovery. It does not confer Workspace or Run capability.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/surface-modules.mjs:390-415"
+          ],
+          "affected_grammar": [
+            "Work pane error grammar",
+            "Refresh/retry action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        },
+        {
+          "id": "GC-RC-011",
+          "source": "app/web/workspace-view.mjs:9-15",
+          "function_or_symbol": "renderWorkspaceFilesView · refresh action",
+          "surface": "Work · Workspace files",
+          "intent": "Refresh workspace files",
+          "raw_entrypoint": "action(\"refresh-cw\", \"Refresh workspace files\", onRefresh)",
+          "owner": "Workspace read owner",
+          "semantic_candidates": [],
+          "recommendation": "keep",
+          "reason": "The full label names the read and matches the canonical refresh action.",
+          "nearest_precedent": [
+            "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42",
+            "app/web/workspace-view.mjs:9-15"
+          ],
+          "affected_grammar": [
+            "Workspace toolbar grammar",
+            "Refresh action"
+          ],
+          "evidence": [
+            "source-coordinate",
+            "registry-lookup",
+            "canonical-glyph-contract"
+          ],
+          "status": "observed-unmigrated"
+        }
+      ]
+    }
+  ],
+  "excluded_sources": [
+    {
+      "source": "app/web/ui-controls.mjs:25-61",
+      "kind": "allowlist boundary",
+      "reason": "Defines the static icon allowlist consumed by icon(); it is not a semantic consumer or visible callsite."
+    },
+    {
+      "source": "app/web/product-semantics.generated.mjs:258-1220",
+      "kind": "generated registry projection",
+      "reason": "Copies registry entries for browser use; not a caller. Its target strings are covered by registry hash/source generation checks."
+    },
+    {
+      "source": "app/web/inspector.mjs:398-411",
+      "kind": "CSS class",
+      "reason": "file-text is a class name on a preformatted file reading, not an icon/glyph argument."
+    },
+    {
+      "source": "app/web/runtime-view.mjs:937-940",
+      "kind": "CSS class",
+      "reason": "file-text is a class name on a preformatted source reading, not an icon/glyph argument."
+    },
+    {
+      "source": "app/web/home-view.mjs:168,301-311; app/web/spark-view.mjs:36,56,223-345; app/web/attention-agent-view.mjs:153-214; app/web/inspector.mjs:212-227; app/web/summary-disclosure.mjs:442-450",
+      "kind": "state/slot identifiers",
+      "reason": "activity is used as module, details data-section, tab/slot, or variable text; no glyph is passed at these lines."
+    },
+    {
+      "source": "site/src/page.mjs:249-284,289-313; site/src/assets/figures/*.svg; site/src/assets/figures/figures.json:1-240",
+      "kind": "Pages diagrams/figure registry",
+      "reason": "Spark and Attention are represented by text, HTML geometry, and registered SVG figures. No target Lucide names, sprite use, or icon() calls occur in site/src; Pages representations are intentionally text/diagram per the registry."
+    },
+    {
+      "source": "site/src/page.mjs:372-374; site/src/product-pages.mjs:16-56",
+      "kind": "brand/text representation",
+      "reason": "Brand geometry and product-page copy are separate representations; they do not consume the six operational Lucide glyphs."
+    }
+  ],
+  "findings": [
+    {
+      "id": "GF-001",
+      "title": "Chat vs Attention",
+      "evidence": [
+        "app/web/home-view.mjs:48-52,401-428",
+        "app/web/app.mjs:6165",
+        "app/web/attention-view.mjs:175"
+      ],
+      "finding": "message-square is used for Home pending queue items and global Attention while the registry maps it only to single-purpose chat.object. Home Continue rows are the direct Chat mapping; queue/assistant identity should remain text-led."
+    },
+    {
+      "id": "GF-002",
+      "title": "Spark vs refresh",
+      "evidence": [
+        "app/web/app.mjs:6166",
+        "app/web/runtime-view.mjs:1374-1382",
+        "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42"
+      ],
+      "finding": "refresh-cw is correctly used for named read/retry actions, but the Spark navigation button uses it as Spark identity. Keep generic read/retry consumers and remove the identity collision."
+    },
+    {
+      "id": "GF-003",
+      "title": "Approval vs Chat / remote service",
+      "evidence": [
+        "app/web/app.mjs:2773-2825",
+        "app/web/thread-projection.mjs:174-196",
+        "app/web/app.mjs:5598-5642"
+      ],
+      "finding": "Question rows inherit message-square from the older Chat Flow contract without a current question registry entry; resolved remote/local Approval rows return plug/activity. Approval/request text and exact action scope remain primary; registry owner mapping is required before glyph retention."
+    },
+    {
+      "id": "GF-004",
+      "title": "Run vs Activity",
+      "evidence": [
+        "app/web/surface-modules.mjs:128-134",
+        "app/web/summary-disclosure.mjs:195-202",
+        "app/web/workspace-view.mjs:106-116",
+        "app/web/app.mjs:6149-6158",
+        "app/web/app.mjs:2691-2755"
+      ],
+      "finding": "Run module, Run summary, latest Run, and Chat overview use activity while the registry maps activity only to scoped recorded activity.view and leaves run.object text-reserved. The Chat Flow Activity group and Home Activity card are legitimate scoped Activity consumers."
+    },
+    {
+      "id": "GF-005",
+      "title": "Unmapped file and refresh glyphs",
+      "evidence": [
+        "engineering/design/product-semantics/registry.json",
+        "app/web/surface-modules.mjs:83-99",
+        "app/web/summary-disclosure.mjs:231-280",
+        "engineering/mvp/execution/work-surface-kit/contracts/glyph-semantics.md:41-42,61,75,82"
+      ],
+      "finding": "file-text and refresh-cw have no current registry glyphRef entries. Existing file and named-read contract callsites remain visible migration candidates; generic refresh can keep its established action grammar while registry work adds the missing action/file mappings."
+    }
+  ],
+  "verification": {
+    "json_parse": "Passed via JSON.parse/load validation after write.",
+    "source_coordinates": "Will be checked against current worktree line counts and exact literal scanner after write.",
+    "limitations": [
+      "Recommendations are source-level migration dispositions, not implementation or product acceptance.",
+      "Dynamic toolGlyph and permissionPresentation branches require owner review; static scan cannot infer runtime branch frequency.",
+      "No visual, keyboard, touch, screen-reader, or Pages browser verification was performed."
+    ]
+  }
+}

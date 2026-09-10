@@ -1,0 +1,17 @@
+✔ Home Activity rejects malformed dates, totals, and requested periods (2.42575ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.384833ms)
+✔ Home Attention detail accepts only the display contract (0.191459ms)
+✔ standalone Attention ignores an older project query after a newer open (15.643334ms)
+✔ standalone Attention ignores a stale detail after project selection changes (1.538791ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.250458ms)
+✔ Back to items clears a pending detail and rejects its late response (1.285708ms)
+✔ Review belongs only to needs_you across Home and Attention states (1.272792ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (0.592958ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 127.125917

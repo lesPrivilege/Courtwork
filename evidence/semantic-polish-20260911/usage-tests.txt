@@ -1,0 +1,15 @@
+✔ Usage keeps UTC start-day, route identity, partial/zero/unknown and global scope (3.375333ms)
+✔ model route keys include exact endpoint without leaking endpoint in overview (0.198792ms)
+✔ chart series and Other membership sum exactly and ties never split heatmap levels (1.232625ms)
+✔ matching runs require same snapshot and preserve model/date filter through pagination (0.230667ms)
+✔ combined token overflow fails closed and malformed frontend DTOs are rejected (0.252958ms)
+✔ HTTP Usage scope, strict input and changed-snapshot rejection use actual retained Runs (612.792917ms)
+✔ Usage calendar shares Home Monday-first orientation with bounded keyboard movement (0.497791ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1309.03225

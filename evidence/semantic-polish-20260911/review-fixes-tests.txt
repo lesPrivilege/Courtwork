@@ -1,0 +1,26 @@
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (3.280375ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.534292ms)
+✔ effort is capability checked and recorded by real local SDK requests (612.939875ms)
+✔ malformed measurement records are omitted before rendering (0.322625ms)
+✔ schema6 migration preserves both global and project sessions (106.155167ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (2.059833ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.084375ms)
+✔ default request view folds exact records, preserves lower-level facts and restores open sections (1.418083ms)
+✔ malformed v1 metadata is rejected while out-of-interval timing remains inspectable (0.206417ms)
+✔ Usage keeps UTC start-day, route identity, partial/zero/unknown and global scope (3.400375ms)
+✔ model route keys include exact endpoint without leaking endpoint in overview (0.272167ms)
+✔ chart series and Other membership sum exactly and ties never split heatmap levels (1.384417ms)
+✔ matching runs require same snapshot and preserve model/date filter through pagination (0.244709ms)
+✔ combined token overflow fails closed and malformed frontend DTOs are rejected (0.28475ms)
+✔ HTTP Usage scope, strict input and changed-snapshot rejection use actual retained Runs (621.52725ms)
+✔ Usage calendar shares Home Monday-first orientation with bounded keyboard movement (0.5375ms)
+✔ overview rejects malformed dates, scope, counts and incoherent model totals (0.97475ms)
+✔ drilldown rejects malformed rows, wrong observation echo and unsafe pagination (0.98925ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1415.931208

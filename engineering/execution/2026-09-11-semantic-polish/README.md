@@ -2,13 +2,13 @@
 
 2026-09-11 · Astra负责架构、裁决、整合、节奏与依赖模型能力的瓶颈实现；Luna负责fast explore、有成熟参考且边界明确的实现和另一作者的有界复核。本页是[总roadmap](../../roadmap.md)的本轮执行附件；[current](../../current.md)拥有交付状态，不另建总队列。
 
-**当前状态：ACTIVE。** 2026-09-11用户确认main本地/远端590739f并要求goal模式开工；原等待条件已满足，以下准备时点保留。Astra持异步调度/高阶视觉与架构，Luna探索研究，Sol high仅有界较难后端，不写文案或前端。
+**当前状态：本地候选完成 / LOCAL_CANDIDATE_COMPLETE。** 产品 `f99af46`。VS-00～06已完成本轮处置、实现和有界验证，见[逐表面账](coverage.md)与[最终交付](../../../evidence/semantic-polish-20260911/README.md)。全量767/767与smoke通过；非作者源码/行为复核和Astra作者视觉判断分列。13个Pages截图槽保持用户要求的空位；原生环境与真实200%矩阵明确未验，不关闭产品级门。未merge/push/deploy。以下准备/开工段落是历史计划，不覆盖本段状态。
 
 **准备时点：PREPARED / WAITING_FOR_USER_MERGE。** 接单固定 `main@9bc6090b5b463bdf6286a0c42bdcd399781fc067`；用户要求先准备，待其merge得到清洁节点后再loop施工。本页已完成来源入账、相关PR/节点review、有界explore及计划；产品全量审计、修约、实现、浏览器验收尚未开始。本轮不merge/push/deploy、不占用共享UI checkout。
 
 ## 最新补充：P0.5 Product Semantics Registry
 
-用户后续补充将词、glyph、色彩role、placement与interaction同层治理；[完整消费及registry准备裁决](semantic-registry-plan.md)已纳入本单。执行顺序为P0产品词义→P0.5机器可读semantic registry与adapter/gate→IA/视觉层级→跨App/Pages迁移→13图编组→最终回归。复用现有glyph/source/brand账及icon(name)，新增的是上层产品语义enforcement。单用途概念严格归属，多用途几何由对象/标签补全；no icon合法。仍只准备，未开始产品实现。
+用户后续补充将词、glyph、色彩role、placement与interaction同层治理；[完整消费及registry准备裁决](semantic-registry-plan.md)已纳入本单。执行顺序为P0产品词义→P0.5机器可读semantic registry与adapter/gate→IA/视觉层级→跨App/Pages迁移→13图编组→最终回归。复用现有glyph/source/brand账及icon(name)，新增的是上层产品语义enforcement。单用途概念严格归属，多用途几何由对象/标签补全；no icon合法。准备时点尚未开始实现；现已按本节顺序落实，最终状态见页首。
 
 ## 目标与准备裁决
 

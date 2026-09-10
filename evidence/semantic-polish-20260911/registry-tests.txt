@@ -1,0 +1,16 @@
+✔ registry owners and generated browser projection agree (8.017042ms)
+✔ single-purpose collisions fail while contextual shared geometry is admitted (1.067708ms)
+✔ unknown geometry and unapproved identity state variants fail (0.247584ms)
+✔ contextual names are complete, no-icon and Pages representations are legal (0.277333ms)
+✔ semantic action preserves existing control anatomy and handler (0.722459ms)
+✔ migrated workspace close/add controls cannot return to raw glyph calls (0.771541ms)
+✔ Pages text projection cannot leak its App glyph, malformed owner and representations fail (0.257667ms)
+✔ actual workspace consumers preserve callbacks and contextual names (3.109125ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 111.776625

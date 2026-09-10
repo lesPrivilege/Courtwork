@@ -1,0 +1,13 @@
+✔ Inspector separates recorded/current targets and folds version/cache details without losing unknown accounting (18.804583ms)
+✔ Inspector tool activity reuses thread projection and never turns an unfinished tool into success (0.97375ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (1.60775ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.074166ms)
+✔ default request view folds exact records, preserves lower-level facts and restores open sections (1.852584ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.724

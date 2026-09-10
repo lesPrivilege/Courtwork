@@ -1,5 +1,8 @@
 # Long-life Roadmap · 全场景与交互架构
 
+2026-09-11 · WO-VS-01本轮本地候选已完成，产品f99af46，767/767及smoke通过。[交付与范围](../evidence/semantic-polish-20260911/README.md)记录逐表面处置、非作者修补闭合与作者视觉证据；13个Pages截图位保持pending，原生与既有产品门不关闭，未合推/部署。以下准备条目保留历史时点，当前状态以current和本轮执行附件为准。
+
+
 ## 本轮polish准备入口（2026-09-11）
 
 后续用户补充已并入[P0.5 Product Semantics Registry计划](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)：semantic与glyph分层、single/multi-purpose、六族碰撞审查、跨App/Pages映射及机器gate；复用现有renderer与来源账，不开始实现。
