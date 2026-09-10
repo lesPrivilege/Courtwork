@@ -1,0 +1,456 @@
+{
+  "pass": true,
+  "note": "Computed styles of existing DOM consumers; no fake visibility or domain state. Unsupported-blur fallback is source/lint evidence, not a simulated browser capability.",
+  "checks": [
+    {
+      "scheme": "light",
+      "skin": "slate",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "slate",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "slate",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "gray-steel",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "gray-steel",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "gray-steel",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#ffffff"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "dystopia",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "float": "#f9fbfc"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "dystopia",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(249, 251, 252)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(249, 251, 252)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(249, 251, 252)",
+          "float": "#f9fbfc"
+        }
+      ]
+    },
+    {
+      "scheme": "light",
+      "skin": "dystopia",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#f9fbfc"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#f9fbfc"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "slate",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2e3335"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "slate",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(46, 51, 53)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(46, 51, 53)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(46, 51, 53)",
+          "float": "#2e3335"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "slate",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2e3335"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2e3335"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "gray-steel",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a2a2a"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "gray-steel",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(42, 42, 42)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(42, 42, 42)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(42, 42, 42)",
+          "float": "#2a2a2a"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "gray-steel",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a2a2a"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a2a2a"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "dystopia",
+      "media": "normal",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "blur(12px)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "context-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "blur(16px) saturate(1.4)",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "float": "#2a363e"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "dystopia",
+      "media": "reduced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(42, 54, 62)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(42, 54, 62)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(42, 54, 62)",
+          "float": "#2a363e"
+        }
+      ]
+    },
+    {
+      "scheme": "dark",
+      "skin": "dystopia",
+      "media": "forced",
+      "values": [
+        {
+          "id": "jump-latest-button",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "context-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a363e"
+        },
+        {
+          "id": "connection-popover",
+          "blur": "none",
+          "background": "rgb(255, 255, 255)",
+          "float": "#2a363e"
+        }
+      ]
+    }
+  ]
+}

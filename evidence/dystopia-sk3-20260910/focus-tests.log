@@ -1,0 +1,15 @@
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (0.948584ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.176958ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.348208ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.276917ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.305708ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.222125ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.068708ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.1485

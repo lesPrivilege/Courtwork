@@ -2,6 +2,10 @@
 
 用户已授权界面自主异步续行；[完成清单与接续点](design/skin-injection-2026-09-10/autonomous-loop.md)从 SK-2 开始，按实现→验证→独立复核→合流推进，直到本范围内无已知界面阻断。清单不扩大后端 authority 或部署授权。
 
+## SK-3 / SK-4：Dystopia 与主题诊断（2026-09-10）
+
+隔离实现 `7f92f69` 加入 Dystopia 中性外观 preset，由同一闭集 registry/resolver 服务首帧与设置；仅21项外观 token，固定语义与材质不变，默认仍为 Slate。`b7831b5` 修复跟随系统换主题后自定义对比警告陈旧的问题，刷新诊断同时保留草稿与焦点。作者57项针对测试、18组预设浏览器矩阵、24组相邻设置整页检查及200%等效重排/高对比通过；[作者证据与待复核点](../evidence/dystopia-sk3-20260910/README.md)。Luna 已完成35项真实合成 Home/Attention 状态、长文/空/失败与转换检查，预设/主题诊断固定版本非作者复核通过。`a7ff5c8` 补深链接退出设置后的可用焦点回退，最后复核及 Q02 writer 收尾后的主线合流仍待完成。
+
 ## SK-2：外观有效投影与旧值兼容（2026-09-10）
 
 产品 `c415012` 从 main `a579929` 隔离实施：单一同步 `skin-policy.js` 服务首帧与设置模块；外观有效域 v1、旧完整值原文留存/导出、ignored/invalid 披露、草稿/应用分离、Reset/Remove 焦点与存储失败提示。Review/danger/success/focus/material 固定随 scheme，不随 skin；没有 runtime schema 或个人数据迁移。55 项针对测试、18 组浏览器固定角色矩阵、真实编辑/导出/首帧反例、三宽度明暗/高对比检查通过。[证据与独立复核](../evidence/skin-boundary-sk2-20260910/README.md)。SK-3 与整页收尾按自主完成清单接续。

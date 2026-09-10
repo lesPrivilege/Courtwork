@@ -1,0 +1,126 @@
+{
+  "light": {
+    "actual": "7 contrast pairs are below the readable threshold in this theme. Colours remain applied.",
+    "expected": [
+      {
+        "foreground": "on-accent",
+        "background": "accent",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "on-accent",
+        "background": "accent-strong",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "ink",
+        "background": "hover",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "ink",
+        "background": "selected",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "ink",
+        "background": "accent-soft",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "attention-review",
+        "background": "panel-muted",
+        "ratio": 2.1180335568031987,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "attention-review",
+        "background": "hover",
+        "ratio": 2.1180335568031987,
+        "minimum": 4.5
+      }
+    ],
+    "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.7 contrast pairs are below the readable threshold in this theme. Colours remain applied.on-accent on accent: 1.00:1, below 4.5:1.on-accent on accent-strong: 1.00:1, below 4.5:1.ink on hover: 1.00:1, below 4.5:1.ink on selected: 1.00:1, below 4.5:1.ink on accent-soft: 1.00:1, below 4.5:1.attention-review on panel-muted: 2.12:1, below 4.5:1.attention-review on hover: 2.12:1, below 4.5:1."
+  },
+  "dark": {
+    "actual": "11 contrast pairs are below the readable threshold in this theme. Colours remain applied.",
+    "expected": [
+      {
+        "foreground": "on-accent",
+        "background": "accent",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "on-accent",
+        "background": "accent-strong",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "danger",
+        "background": "panel",
+        "ratio": 2.1071552660832644,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "success",
+        "background": "panel",
+        "ratio": 1.875713974832153,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "focus",
+        "background": "panel",
+        "ratio": 1.091569894478088,
+        "minimum": 3
+      },
+      {
+        "foreground": "focus",
+        "background": "float",
+        "ratio": 1.091569894478088,
+        "minimum": 3
+      },
+      {
+        "foreground": "ink",
+        "background": "hover",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "ink",
+        "background": "selected",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "ink",
+        "background": "accent-soft",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "attention-review",
+        "background": "panel",
+        "ratio": 1.9167401231958692,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "attention-review",
+        "background": "float",
+        "ratio": 1.9167401231958692,
+        "minimum": 4.5
+      }
+    ],
+    "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Draft changes are not applied.11 contrast pairs are below the readable threshold in this theme. Colours remain applied.on-accent on accent: 1.00:1, below 4.5:1.on-accent on accent-strong: 1.00:1, below 4.5:1.danger on panel: 2.11:1, below 4.5:1.success on panel: 1.88:1, below 4.5:1.focus on panel: 1.09:1, below 3:1.focus on float: 1.09:1, below 3:1.ink on hover: 1.00:1, below 4.5:1.ink on selected: 1.00:1, below 4.5:1.ink on accent-soft: 1.00:1, below 4.5:1.attention-review on panel: 1.92:1, below 4.5:1.attention-review on float: 1.92:1, below 4.5:1."
+  },
+  "preserved": {
+    "draft": true,
+    "focus": "skin-input"
+  }
+}
