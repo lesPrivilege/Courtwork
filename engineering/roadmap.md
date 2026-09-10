@@ -1,5 +1,18 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## 当前串行执行入口（2026-09-10）
+
+用户授权本 session Astra 统一清账与接收 Claude，并同时开独立 Astra light 后端 task。此处是唯一总顺序入口；[current](current.md)仍拥有实际交付状态，专项合同与证据保留各自事实，不另建平行总 roadmap。接单基线本次读取为 main `1992e90`，每轮必须重新读取实际 HEAD、工作树与交付 SHA。
+
+| 顺序 | 工作 / owner | 合同与依赖 | 下一动作 / 完成条件 |
+|---|---|---|---|
+| 1 | Claude ChatSpace/composer → 本 session Astra 接收 | [控件施工稿](design/chat-controls-2026-09-10/pr-plan.md)；按作者实际交付逐片确认范围，不能把 specimen 当产品 | 等固定代码/证据 SHA，核对施工基线、单 writer 与负例；非作者复核后组合验证、合流和更新 current |
+| 并行施工，串行接收 | BE-41 / 新上下文 Astra light（Astra low） | [冻结 DTO](design/spark-surface-2026-09-10/be41-dto.md)、[裁决](design/spark-surface-2026-09-10/integration-ruling.md)；只读现有 Core/project 事实，不依赖 composer 改动 | 已请求创建独立 task；后端实现与有界测试后交固定 SHA，不自行合入 main；本 session 在清洁接收点复核真实接线、缺测与快照边界 |
+| 2 | 组合接缝 / 本 session Astra | 前两项实际交付；未交付的能力保持不可用 | 逐片串行合流，不将前端合成 fixture 或设计裁定算后端接受；已验事实入 current，未完限制留原台账 |
+| 3 | 后续积压 / 本 session Astra | 本文长期路线、专项 PR 计划及 current 的未完门 | 前项清账后从实际状态选择下一有界单；本表不自动授权其余后端积压、部署或真实付费运行 |
+
+每轮遵循：核对基线 → 读取合同/证据 → 确定单 writer → 有界施工 → 非作者复核 → 组合验证 → 合流 → 更新 current 与本入口下一动作。独立后端可以并行生产，但 main 接收由本 session 串行执行。Astra 负责架构、关键契约、迁移与集成；Luna 可做有界探索、分配实现及另一作者的独立验证；Claude 持有前端施工面。作者检查不构成独立接受。Fresh 只指新上下文，不是第二产品开发线。
+
 2026-09-10 全交互范围补充：[Chat space 全量控件与 Product icon grammar](design/chat-controls-2026-09-10/README.md)已落[本地 PR 施工稿](design/chat-controls-2026-09-10/pr-plan.md)。包括全量按钮及 hover/focus/浮层、消息与文件动作，缺后端/宿主逐项登记；按清点→specimen→有合同的最小接线推进，不以界面参考创建能力或修改已接受的 icon family。
 
 状态：长期架构设计，2026-09-08建立，2026-09-10补入多专家全turn与long-life消费路线。当前实现与验收只见 [current](current.md)；模块所有权见 [architecture](architecture.md)，提交与恢复契约见 [core-contracts](core-contracts.md)。本文件定义覆盖方向、依赖和证伪门，不把设计目标计作已实现能力。
