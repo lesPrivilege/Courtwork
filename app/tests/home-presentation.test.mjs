@@ -9,6 +9,7 @@ import {
 } from "../web/presentation-adapters.mjs";
 import { homeModules } from "../web/home-view.mjs";
 import { createAttentionWorkspace } from "../web/attention-view.mjs";
+import { deferred, flush, withTinyDom } from "./tiny-dom.mjs";
 
 const OBSERVED = "2026-09-10T12:00:00.000Z";
 
@@ -132,123 +133,6 @@ test("Home Attention detail accepts only the display contract", () => {
   ];
   for (const [name, check] of invalid) check(structuredClone(valid), name);
 });
-
-class TinyNode {
-  constructor(tagName, ownerDocument) {
-    this.tagName = tagName;
-    this.ownerDocument = ownerDocument;
-    this.children = [];
-    this.attributes = new Map();
-    this.listeners = new Map();
-    this._text = "";
-    this.className = "";
-    this.value = "";
-    this.disabled = false;
-  }
-  get classList() {
-    return { toggle: (name, enabled) => {
-      const names = new Set(this.className.split(/\s+/).filter(Boolean));
-      if (enabled) names.add(name); else names.delete(name);
-      this.className = [...names].join(" ");
-    } };
-  }
-  set textContent(value) {
-    this._text = String(value);
-    this.children = [];
-  }
-  get textContent() {
-    return this._text + this.children.map((child) => child.textContent).join("");
-  }
-  append(...children) {
-    for (const child of children.flat()) {
-      if (child === null || child === undefined || child === false) continue;
-      const node = typeof child === "string" ? this.ownerDocument.createTextNode(child) : child;
-      node.parentNode = this;
-      this.children.push(node);
-    }
-  }
-  replaceChildren(...children) {
-    this.children = [];
-    this.append(...children);
-  }
-  setAttribute(name, value) { this.attributes.set(name, String(value)); }
-  getAttribute(name) { return this.attributes.get(name) ?? null; }
-  addEventListener(type, callback) {
-    const callbacks = this.listeners.get(type) ?? [];
-    callbacks.push(callback);
-    this.listeners.set(type, callbacks);
-  }
-  dispatchEvent(event = {}) {
-    for (const callback of this.listeners.get(event.type) ?? []) callback(event);
-  }
-  click() { this.dispatchEvent({ type: "click", target: this }); }
-  focus() { this.ownerDocument.activeElement = this; }
-  contains(node) {
-    if (!node) return false;
-    if (node === this) return true;
-    return this.children.some((child) => child.contains?.(node));
-  }
-  querySelector(selector) {
-    const match = selector.match(/^\[([^=]+)="([^"]*)"\]$/);
-    const wanted = match ? { name: match[1], value: match[2] } : null;
-    const visit = (node) => {
-      for (const child of node.children) {
-        if (!wanted || child.getAttribute?.(wanted.name) === wanted.value) return child;
-        const found = visit(child);
-        if (found) return found;
-      }
-      return null;
-    };
-    return visit(this);
-  }
-  get dataset() {
-    const dataset = {};
-    for (const [name, value] of this.attributes) {
-      if (name.startsWith("data-")) dataset[name.slice(5).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = value;
-    }
-    return dataset;
-  }
-}
-
-class TinyDocument {
-  constructor() { this.activeElement = null; }
-  createElement(tagName) { return new TinyNode(tagName, this); }
-  createElementNS(_namespace, tagName) { return new TinyNode(tagName, this); }
-  createTextNode(text) {
-    const node = new TinyNode("#text", this);
-    node.textContent = text;
-    return node;
-  }
-}
-
-function withTinyDom(fn) {
-  const previousDocument = globalThis.document;
-  const previousCSS = globalThis.CSS;
-  globalThis.document = new TinyDocument();
-  globalThis.CSS = { escape: (value) => String(value).replaceAll('"', '\\"') };
-  const container = document.createElement("main");
-  return Promise.resolve()
-    .then(() => fn(container))
-    .finally(() => {
-      if (previousDocument === undefined) delete globalThis.document;
-      else globalThis.document = previousDocument;
-      if (previousCSS === undefined) delete globalThis.CSS;
-      else globalThis.CSS = previousCSS;
-    });
-}
-
-function deferred() {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
-  return { promise, resolve, reject };
-}
-
-async function flush() {
-  await Promise.resolve();
-  await new Promise((resolve) => setImmediate(resolve));
-  await Promise.resolve();
-}
 
 test("standalone Attention ignores an older project query after a newer open", async () => {
   await withTinyDom(async (container) => {
