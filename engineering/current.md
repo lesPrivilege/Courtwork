@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## Pro 架构送审准备（2026-09-10）
+
+用户确认通用 Agent Harness / Semantic Work Core 解耦，授权 Pro 主导选型裁决、必要自研设计与施工拆单；基本 GUI 与通用 harness 完备在先，Work Core 深化、第二 runtime 与 Rust 实施后置。[送审工单](execution/2026-09-10-harness-pro-review.md)和[原始输出/逐项处置规范](research/harness-pro-2026-09-10/README.md)已建立，覆盖既有决策重开、源码证据、接口/反例/迁移与回退。用户授权审查合并后推送选定送审分支，网页端由用户唤醒；实际远端结果见交接回执，不宣称 Pro 已接单或输出已消费。本次仅文档，产品接受与既有门不变。
+
 ## 范围登记：Chat 全量按钮、hover 与 Icon grammar（2026-09-10）
 
 按用户补充接收两份研究原文和文件交付参考图，[EX-IC2 / Chat controls](design/chat-controls-2026-09-10/README.md)已进入本地 PR 施工稿、前端与长期 roadmap。覆盖全量 Chat space 按钮/hover/focus、浮层、消息与文件卡；无真实后端仅登记缺口。现有 IC-8 不换族保持；未完成全量逐控件盘点、未实现 Registry/新 glyph、未创建远端 PR。外部研究主张仍是转交输入，不称本轮已核验。产品仍为下段 PV/SD 已接受版本，本次仅文档登记。

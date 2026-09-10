@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "codeBaseline": "a2b084da09ba14a92f4e94bae49c9540d2e6dced",
+  "reviewBranch": "codex/serial-entry-20260910",
+  "scope": "Required direct review inputs; not a full repository read claim. Hashes bind submission bytes, not future edits.",
+  "files": [
+    {
+      "path": "engineering/execution/2026-09-10-harness-pro-review.md",
+      "sha256": "d0c630f1b6e274119459e4b37d2713890a962a1eb94a0b1b8317e6939c9cee24"
+    },
+    {
+      "path": "engineering/current.md",
+      "sha256": "384197f34fa2f878a478a3a8d53f3905ed814d2553fac4dc8b6f2bf677e7be58"
+    },
+    {
+      "path": "engineering/architecture.md",
+      "sha256": "0707d972c0c9d465a627afac6a80e5323f7c27dadab45856a9aa12cadd14aee0"
+    },
+    {
+      "path": "engineering/roadmap.md",
+      "sha256": "efa48b055e64e765736f8c929bf1b651a8f989d7e3bef98d7c80d43aacd02104"
+    },
+    {
+      "path": "engineering/research/multi-experts-2026-09-10/README.md",
+      "sha256": "0706231947789526e7506111fcbbcc437b4719ff98a74362a18e89a66f328807"
+    },
+    {
+      "path": "engineering/research/multi-experts-2026-09-10/selection-index.md",
+      "sha256": "3a8963db9a5ca0fd02ee64f02bbb5b2188e1e39f83443b053f02b5a3209d97e2"
+    },
+    {
+      "path": "engineering/research/multi-experts-2026-09-10/turn-ledger.md",
+      "sha256": "28c902d849b94658ff5578a1801729636da655f157aad93c16a5819792010672"
+    },
+    {
+      "path": "engineering/research/multi-experts-2026-09-10/integration-design.md",
+      "sha256": "8b820a4972888303c7e56ad1ad07f86ab18117a296fd5d462e58763b3e1e30a2"
+    },
+    {
+      "path": "engineering/research/multi-experts-2026-09-10/benchmark-plan.md",
+      "sha256": "173f3ef9fea034b26b793fcf95ce9092cd620b8406336c32f5f06cbcfc48f685"
+    },
+    {
+      "path": "engineering/research/codex-courtwork-comparison-2026-09-10/README.md",
+      "sha256": "b2c5c9f713f91f180977ffdf0eaee08cfd9157febdaf02275966f1a9dd4452fc"
+    },
+    {
+      "path": "docs/runtime-control/INDEX.md",
+      "sha256": "9ea08eaecd04d4dc1b51bfbb083306c8434c63d35f39b8b708e6267aba79f42d"
+    },
+    {
+      "path": "app/docs/runtime-foundation.md",
+      "sha256": "f0088ca128f6cb785f67c14b233723658ddf619fa9e49de0b90b33aaa5ec001a"
+    }
+  ]
+}
