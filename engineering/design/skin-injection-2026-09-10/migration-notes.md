@@ -2,7 +2,7 @@
 
 ## 实施进度
 
-SK-1 已实施并完成作者验证，见 [SK-1 回执](../../../evidence/skin-review-sk1-20260910/README.md)。下述“当前/未实施”描述为规范冻结时点；Review→accent 与对比预检两项已由本片修复，SK-2–5 保持待实施。
+SK-1 已实施并完成作者验证，见 [SK-1 回执](../../../evidence/skin-review-sk1-20260910/README.md)。下述“当前/未实施”描述为规范冻结时点；Review→accent 与对比预检两项已由本片修复，SK-2 产品已实现，作者验证见 [SK-2 回执](../../../evidence/skin-boundary-sk2-20260910/README.md)，独立复核另列；SK-3–5 保持后续片。
 
 ## 冻结时点的冲突
 

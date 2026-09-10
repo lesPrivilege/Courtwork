@@ -1,0 +1,59 @@
+{
+  "pass": true,
+  "checks": [
+    {
+      "name": "stored original and ignored keys visible",
+      "actual": {
+        "input": "/* original legacy set */\n:root {\n--gray-1: #303030;\n--gray-2: #303030;\n--gray-3: #303030;\n--gray-4: #303030;\n--gray-5: #303030;\n--gray-6: #303030;\n--gray-7: #303030;\n--gray-8: #303030;\n--gray-9: #303030;\n--gray-10: #303030;\n--gray-11: #303030;\n--gray-12: #303030;\n--accent-3: #303030;\n--accent-9: #303030;\n--accent-10: #303030;\n--accent-11: #303030;\n--danger-3: #303030;\n--danger-11: #303030;\n--success-3: #303030;\n--success-11: #303030;\n--paper: #fdfdfe;\n--float-s: #fdfdfe;\n--frame-s: #303030;\n--ink-max: #303030;\n--on-accent-s: #303030;\n--glass-alpha: 0.99;\n}",
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --glass-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.7 contrast pairs are below the readable threshold in this theme. Colours remain applied.ink on frame: 1.00:1, below 4.5:1.muted-strong on frame: 1.00:1, below 4.5:1.on-accent on accent: 1.00:1, below 4.5:1.on-accent on accent-strong: 1.00:1, below 4.5:1.ink on hover: 1.00:1, below 4.5:1.ink on selected: 1.00:1, below 4.5:1.ink on accent-soft: 1.00:1, below 4.5:1."
+      }
+    },
+    {
+      "name": "export exact stored original",
+      "actual": {
+        "bytes": 563
+      }
+    },
+    {
+      "name": "draft becomes stored only on Apply",
+      "actual": {
+        "stored": "--gray-1: #303030;\n--gray-2: #303030;\n--gray-3: #303030;\n--gray-4: #303030;\n--gray-5: #303030;\n--gray-6: #303030;\n--gray-7: #303030;\n--gray-8: #303030;\n--gray-9: #303030;\n--gray-10: #303030;\n--gray-11: #303030;\n--gray-12: #303030;\n--accent-3: #303030;\n--accent-9: #303030;\n--accent-10: #303030;\n--accent-11: #303030;\n--paper: #fdfdfe;\n--float-s: #fdfdfe;\n--frame-s: #303030;\n--ink-max: #303030;\n--on-accent-s: #303030;",
+        "theme": "custom",
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.7 contrast pairs are below the readable threshold in this theme. Colours remain applied.ink on frame: 1.00:1, below 4.5:1.muted-strong on frame: 1.00:1, below 4.5:1.on-accent on accent: 1.00:1, below 4.5:1.on-accent on accent-strong: 1.00:1, below 4.5:1.ink on hover: 1.00:1, below 4.5:1.ink on selected: 1.00:1, below 4.5:1.ink on accent-soft: 1.00:1, below 4.5:1."
+      }
+    },
+    {
+      "name": "Reset retains stored set and visible focus target",
+      "actual": {
+        "skin": "slate",
+        "stored": "--gray-1: #303030;\n--gray-2: #303030;\n--gray-3: #303030;\n--gray-4: #303030;\n--gray-5: #303030;\n--gray-6: #303030;\n--gray-7: #303030;\n--gray-8: #303030;\n--gray-9: #303030;\n--gray-10: #303030;\n--gray-11: #303030;\n--gray-12: #303030;\n--accent-3: #303030;\n--accent-9: #303030;\n--accent-10: #303030;\n--accent-11: #303030;\n--paper: #fdfdfe;\n--float-s: #fdfdfe;\n--frame-s: #303030;\n--ink-max: #303030;\n--on-accent-s: #303030;",
+        "focus": "Palette",
+        "advanced": true
+      }
+    },
+    {
+      "name": "explicit Remove clears original and returns focus",
+      "actual": {
+        "skin": "slate",
+        "raw": "",
+        "focus": "Palette"
+      }
+    },
+    {
+      "name": "invalid draft leaves current appearance and stored data unchanged",
+      "actual": {
+        "skin": "slate",
+        "error": "The token set was not applied. 1 problem:Line 1: --attention-review: #008800 — --attention-review is not a Tier S token name.",
+        "stored": ""
+      }
+    },
+    {
+      "name": "storage failure is session-only and saved original survives",
+      "actual": {
+        "active": "custom",
+        "saved": "",
+        "text": "\n                \n                  Appearance\n                \n                Previewws_write · notice.mdCompletednotice.md  ## Termination\n- Either party may end this agreement at will.\n+ Either party may end this agreement on 30 days' notice.\n  Notice is effective when received.\nApplied for this session only. Browser storage could not be updated; reload will restore the previously saved preferences.ThemeLight, dark, or whatever this device is set to. It is kept on this device and never sent to the host.LightDarkSystemChanged on this deviceResetText sizeScales every text role together. Hit regions, spacing and keyboard order do not change with it.SmallMediumLargeDefaultResetCode fontA monospaced family already installed on this device. Nothing is downloaded, and an unavailable name falls back to the default stack.DefaultResetReduced motionAlways reduce stops transitions and animations. Nothing a control does changes with it.Follow systemAlways reduceDefaultResetHome layoutModules shows project attention and recorded activity above the composer. Simple keeps a quieter starting page.SimpleModulesDefaultResetAdvancedPaletteSwaps the colour scale only. State words, legal actions and what a control does stay exactly as they are.SlateGray steelCustom tokensChanged on this deviceResetPaste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport current tokensEdit appearance coloursApply tokensYour appearance colours are applied for this session only.7 contrast pairs are below the readable threshold in this theme. Colours remain applied.ink on frame: 1.00:1, below 4.5:1.muted-strong on frame: 1.00:1, below 4.5:1.on-accent on accent: 1.00:1, below 4.5:1.on-accent on accent-strong: 1.00:1, below 4.5:1.ink on hover: 1.00:1, below 4.5:1.ink on selected: 1.00:1, below 4.5:1.ink on accent-soft: 1.00:1, below 4.5:1.\n              "
+      }
+    }
+  ]
+}

@@ -1,5 +1,11 @@
 # 当前工程状态
 
+用户已授权界面自主异步续行；[完成清单与接续点](design/skin-injection-2026-09-10/autonomous-loop.md)从 SK-2 开始，按实现→验证→独立复核→合流推进，直到本范围内无已知界面阻断。清单不扩大后端 authority 或部署授权。
+
+## SK-2：外观有效投影与旧值兼容（2026-09-10）
+
+产品 `c415012` 从 main `a579929` 隔离实施：单一同步 `skin-policy.js` 服务首帧与设置模块；外观有效域 v1、旧完整值原文留存/导出、ignored/invalid 披露、草稿/应用分离、Reset/Remove 焦点与存储失败提示。Review/danger/success/focus/material 固定随 scheme，不随 skin；没有 runtime schema 或个人数据迁移。55 项针对测试、18 组浏览器固定角色矩阵、真实编辑/导出/首帧反例、三宽度明暗/高对比检查通过。[证据与独立复核](../evidence/skin-boundary-sk2-20260910/README.md)。SK-3 与整页收尾按自主完成清单接续。
+
 ## SK-1：Review 与皮肤 accent 解耦（2026-09-10）
 
 第一片产品整改已实施：Review 在 slate、gray-steel、合法 custom 下使用同一 scheme 语义色；Home 列表/详情与 Attention 列表只由 `needs_you` 接入。自定义对比预检补固定 Review × panel/float，并修复候选 token 探针继承旧 role 的问题。39 项针对测试、18 组 Chromium scheme/skin/system 计算色场景与低对比候选反例通过；作者证据与独立复核分列于 [SK-1 回执](../evidence/skin-review-sk1-20260910/README.md)。

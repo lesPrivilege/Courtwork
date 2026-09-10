@@ -1,0 +1,111 @@
+{
+  "pass": true,
+  "checks": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "layout": {
+        "width": 1440,
+        "editor": {
+          "left": 341,
+          "right": 1119,
+          "width": 778
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "layout": {
+        "width": 1440,
+        "editor": {
+          "left": 341,
+          "right": 1119,
+          "width": 778
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "layout": {
+        "width": 1280,
+        "editor": {
+          "left": 341,
+          "right": 1119,
+          "width": 778
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "layout": {
+        "width": 1280,
+        "editor": {
+          "left": 341,
+          "right": 1119,
+          "width": 778
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "layout": {
+        "width": 390,
+        "editor": {
+          "left": 33,
+          "right": 353,
+          "width": 320
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "layout": {
+        "width": 390,
+        "editor": {
+          "left": 33,
+          "right": 353,
+          "width": 320
+        },
+        "overflow": false,
+        "unlabelled": 0,
+        "text": "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.RemoveExport stored tokensEdit appearance coloursApply tokensYour appearance colours are applied on this device.Stored but not applied: --danger-3, --danger-11, --success-3, --success-11, --alpha-ink, --alpha-paper, --shadow-alpha, --glass-alpha, --rim-alpha. Status colours, focus and materials follow the theme. Export keeps the original set.",
+        "warnings": 0
+      }
+    },
+    {
+      "zoom": "200%",
+      "overflow": false,
+      "focus": "skin-input"
+    },
+    {
+      "forced": true,
+      "reduced": true,
+      "focusVisible": true
+    }
+  ]
+}

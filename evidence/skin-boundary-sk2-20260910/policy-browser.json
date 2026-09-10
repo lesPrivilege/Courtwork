@@ -1,0 +1,352 @@
+{
+  "pass": true,
+  "checks": [
+    {
+      "name": "legacy projection before body and raw preservation",
+      "actual": {
+        "skin": "custom",
+        "review": "#ae3630",
+        "css": ":root[data-skin=\"custom\"],:root[data-skin=\"custom\"][data-theme=\"dark\"],:root[data-skin=\"custom\"]:not([data-theme=\"light\"]){--gray-1: #fcfcfd; --gray-2: #f9f9fb; --gray-3: #f0f0f3; --gray-4: #e8e8ec; --gray-5: #e0e1e6; --gray-6: #d9d9e0; --gray-7: #cdced6; --gray-8: #b9bbc6; --gray-9: #8b8d98; --gray-10: #80838d; --gray-11: #60646c; --gray-12: #1c2024; --accent-3: #e8e8ec; --accent-9: #1c2024; --accent-10: #0b0d10; --accent-11: #1c2024; --paper: #fdfdfe; --float-s: #fdfdfe; --frame-s: #f0f0f3; --ink-max: #000; --on-accent-s: #fdfdfe;}",
+        "raw": "/* original stored palette */\n:root {\n--gray-1: #fcfcfd;\n--gray-2: #f9f9fb;\n--gray-3: #f0f0f3;\n--gray-4: #e8e8ec;\n--gray-5: #e0e1e6;\n--gray-6: #d9d9e0;\n--gray-7: #cdced6;\n--gray-8: #b9bbc6;\n--gray-9: #8b8d98;\n--gray-10: #80838d;\n--gray-11: #60646c;\n--gray-12: #1c2024;\n--accent-3: #e8e8ec;\n--accent-9: #1c2024;\n--accent-10: #0b0d10;\n--accent-11: #1c2024;\n--danger-3: #feebec;\n--danger-11: #008800;\n--success-3: #e6f6eb;\n--success-11: #3e704e;\n--paper: #fdfdfe;\n--float-s: #fdfdfe;\n--frame-s: #f0f0f3;\n--ink-max: #000;\n--on-accent-s: #fdfdfe;\n--alpha-ink: 28, 32, 36;\n--alpha-paper: 253, 253, 254;\n--shadow-alpha: 0.08;\n--glass-alpha: 0.99;\n--rim-alpha: 0.7;\n}"
+      }
+    },
+    {
+      "name": "fixed roles in 18 scheme/system/skin combinations",
+      "actual": [
+        {
+          "system": "light",
+          "scheme": "light",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "light",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "light",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "dark",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "dark",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "dark",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "system",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "system",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "light",
+          "scheme": "system",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "light",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "light",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "light",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#ae3630",
+            "danger": "#9b3c35",
+            "danger-soft": "#feebec",
+            "success": "#3e704e",
+            "success-soft": "#e6f6eb",
+            "focus": "#2a2c2c",
+            "alpha-ink": "28, 32, 36",
+            "alpha-paper": "253, 253, 254",
+            "shadow-alpha": "0.08",
+            "glass-alpha": "0.86",
+            "rim-alpha": "0.7"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "dark",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "dark",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "dark",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "system",
+          "skin": "slate",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "system",
+          "skin": "gray-steel",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        },
+        {
+          "system": "dark",
+          "scheme": "system",
+          "skin": "custom",
+          "colors": {
+            "attention-review": "#efaaa4",
+            "danger": "#ff9592",
+            "danger-soft": "#3b1219",
+            "success": "#3dd68c",
+            "success-soft": "#132d21",
+            "focus": "#f4f5f6",
+            "alpha-ink": "0, 0, 0",
+            "alpha-paper": "237, 238, 240",
+            "shadow-alpha": "0.4",
+            "glass-alpha": "0.1",
+            "rim-alpha": "0.12"
+          }
+        }
+      ]
+    },
+    {
+      "name": "unknown semantic key rejected before body",
+      "actual": {
+        "skin": "slate",
+        "review": "#ae3630",
+        "css": "",
+        "raw": "/* original stored palette */\n:root {\n--attention-review: #00ff00; --gray-1: #fcfcfd;\n--gray-2: #f9f9fb;\n--gray-3: #f0f0f3;\n--gray-4: #e8e8ec;\n--gray-5: #e0e1e6;\n--gray-6: #d9d9e0;\n--gray-7: #cdced6;\n--gray-8: #b9bbc6;\n--gray-9: #8b8d98;\n--gray-10: #80838d;\n--gray-11: #60646c;\n--gray-12: #1c2024;\n--accent-3: #e8e8ec;\n--accent-9: #1c2024;\n--accent-10: #0b0d10;\n--accent-11: #1c2024;\n--danger-3: #feebec;\n--danger-11: #008800;\n--success-3: #e6f6eb;\n--success-11: #3e704e;\n--paper: #fdfdfe;\n--float-s: #fdfdfe;\n--frame-s: #f0f0f3;\n--ink-max: #000;\n--on-accent-s: #fdfdfe;\n--alpha-ink: 28, 32, 36;\n--alpha-paper: 253, 253, 254;\n--shadow-alpha: 0.08;\n--glass-alpha: 0.99;\n--rim-alpha: 0.7;\n}"
+      }
+    }
+  ]
+}
