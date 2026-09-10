@@ -415,8 +415,9 @@ export function localTime(iso) {
 }
 /** 成功态第一行：耗时 + 模型自己回的那一句（PV-40）。 */
 export function verifySuccessLine(receipt) {
-  const seconds = (receipt.latencyMs / 1000).toFixed(1);
-  return `Answered in ${seconds} s · ${receipt.replyFirstLine ?? ""}`;
+  /* PV-64 修型（Fable）· 一秒以内写毫秒："0.0 s" 是一个把真值抹掉的数字。 */
+  const elapsed = receipt.latencyMs < 1000 ? `${receipt.latencyMs} ms` : `${(receipt.latencyMs / 1000).toFixed(1)} s`;
+  return `Answered in ${elapsed} · ${receipt.replyFirstLine ?? ""}`;
 }
 /** 成功态第二行：模型、连接、凭据来源档、检查时刻——都是后端原话或原值。 */
 export function verifyDetailLine(receipt, connectionLabelText) {
@@ -812,6 +813,11 @@ export function createSettingsView(
       });
       if (requestedRevision !== probeRevision) return;
       renderVerifyReceipt(receipt, connectionLabelText);
+      /* PV-42 · 回执已经持久化在后端（`providerVerifications`），连接列表行读的
+       * 是同一份 `GET /provider-connections`。这里重取一次，"Answered …" /
+       * "Last ask failed …" 才会出现在那一行上，而不是只停在这个块里。 */
+      await reloadConnections();
+      renderConnections();
     } catch (err) {
       if (requestedRevision !== probeRevision) return;
       // 请求本身被拒（不可准入 / 无凭据 / 活动 run）：这不是一份回执，六态映射

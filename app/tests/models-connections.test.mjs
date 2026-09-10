@@ -445,7 +445,12 @@ test("PV-64 · 六态回执的文案映射：五类登记文案，unknown 只写
   // 成功态两行：耗时 + 首句；模型/连接/凭据来源档/时间。
   assert.equal(
     verifySuccessLine({ latencyMs: 812, replyFirstLine: "Connection check received." }),
-    "Answered in 0.8 s · Connection check received.",
+    "Answered in 812 ms · Connection check received.",
+  );
+  // PV-64 修型：一秒及以上才用秒。
+  assert.equal(
+    verifySuccessLine({ latencyMs: 1840, replyFirstLine: "Connection check received." }),
+    "Answered in 1.8 s · Connection check received.",
   );
   assert.match(
     verifyDetailLine({ model: "gpt-5.5", credentialSource: "stored", checkedAt: "2026-09-10T12:00:00.000Z" }, "OpenAI"),
