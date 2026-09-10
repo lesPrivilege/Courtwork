@@ -136,6 +136,7 @@ function routeService(service, req, url) {
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage") return () => service.getWorkMetrics("usage", url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage-details") return () => service.getWorkMetrics("details", url.searchParams);
   if (method === "POST" && tail.length === 1 && tail[0] === "work-usage-runs") return async () => service.getUsageRuns(await body(req));
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-derivations") return () => service.getWorkDerivations(url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
   if (method === "GET" && tail.length === 3 && tail[0] === "projects" && tail[2] === "work") return () => service.listWork(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();

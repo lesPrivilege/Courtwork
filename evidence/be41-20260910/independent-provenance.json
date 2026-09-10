@@ -1,0 +1,13 @@
+{
+  "reviewer": "Luna (non-author)",
+  "firstCode": "d40c53affca0a2acb638cd5c32e13a896950ad4a",
+  "finalCode": "30fd47015039eb68967b5dba1634c54c62099975",
+  "reportedTests": {
+    "firstTargeted": "5/5",
+    "firstRelated": "46/46",
+    "finalTargeted": "6/6"
+  },
+  "originalCounterexampleScriptSha256": "a06ef629118a81a4dfa3e8904070063970447697feb3097a4ea8016d7040e60c",
+  "archivedScriptChange": "Only CoreClient import made repository-relative; output copied unchanged.",
+  "scope": "Bounded independent verification, not full product acceptance."
+}

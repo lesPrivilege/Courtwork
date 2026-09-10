@@ -421,3 +421,7 @@ Icon 家族选型裁定（2026-09-10）：EX-IC1 specimen（`claude/ex-ic1-icon-
 ## 多智能体实践选型 · RD-005（2026-09-10）
 
 从实际main `9097cbfd4b2b3b4c7b1117db5558b73568db67cc` 隔离消费《多智能体实践选型》全部3 turn/6消息，hasMore=false；原文、hash、全量外链与逐轮处置见[消费包](research/multi-agent-selection-2026-09-10/README.md)。[RD-005](research/RD-005-multi-agent-selection.md)登记Astra架构/PR裁决及模型能力瓶颈实现，Luna fast explore与有成熟参考的有界实现，非作者接受仍独立。原MA-01…06映射为MAS消费切片并接既有MA/ME，未重复派单。保留MA2-D15受控Session/Run路线，SoL-Pi为机制/eval donor、PicoAgents为模式及负例；未改变capability或生产schema。本次为研究与文档交付，不关闭产品门；未创建远端PR。
+
+## BE-41 后端隔离交付（2026-09-10，待组合接收）
+
+Astra从实际 `1992e90` 隔离实现Spark派生失效只读查询，沿Core/project owner，无schema迁移或第二store；[回执与剩余接线限制](../evidence/be41-20260910/README.md)。该条仅记录分支交付，不覆盖main当前接收状态；前端version0、源文件版本回退与snapshot参数接线仍开放，ME-03 / RV26-SP01 / G1–G5未关闭。
