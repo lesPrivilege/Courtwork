@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Summary / BE-41 施工派单
+
+用户授权以 fresh Astra light 主责、Luna explore 接续，[认领施工单](execution/2026-09-11-summary-be41-dispatch/README.md)已就绪（READY_TO_CLAIM，未宣称worker已认领）。SD-FIX优先，SD-ENTRY另节点；BE41-A可隔离核账/准备，BE41-B真实前端接线待前端固定节点后串行。必须消费最新合推裁定与成熟实践index，记录采用/适配/拒绝及本地证据。此授权允许BE-41准备，不改变基础前端/通用Harness优先级，不把派单计为产品接受。
+
 ## 2026-09-11 · 前端与通用 Harness 的下一合推节点
 
 本次从实际main `9097cbf` 核本地187棵非冻结工作树及远端PR；远端main `9c8b64e`，本地领先57提交，当前产品仍与已接受 `654411e` 的app/docs/tests完全相同。[Astra裁决与证据](execution/2026-09-11-merge-node/README.md)覆盖此前next-round核账时点：下一产品节点为 **Summary D1/D2修复 + CI-B/F × CS-01固定组合非作者验收**，当前NOT_READY，不直接合推68b3341或796c3a5。两行起步方向采纳，WORK-3从旧固定textarea高度改为两行可见、随字号扩展和控件可达的行为门；产品/测试尚未据此修改。Card/Entry新增语义单独复核，EX-IC2 C等固定产品基线。
