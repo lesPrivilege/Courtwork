@@ -1,0 +1,9 @@
+# HEAD eff0e41a9cd3ceabd9c79d913f6a80089deb9ea6 2026-09-10T14:59:43Z
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 743,
+  "checked": 3491,
+  "problems": []
+}
+exit=0

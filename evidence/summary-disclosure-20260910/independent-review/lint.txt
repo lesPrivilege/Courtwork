@@ -1,0 +1,28 @@
+# HEAD eff0e41a9cd3ceabd9c79d913f6a80089deb9ea6 2026-09-10T14:23:47Z
+$ node tools/lint-colors.mjs
+lint-colors: ok (34 files · 字面量与高度层两项)
+exit=0
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (29 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit=0
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+exit=0
+$ node tools/lint-shapes.mjs
+  app/web/styles.css:3109 .status-badge
+  app/web/styles.css:3654 .connection-dot
+  app/web/styles.css:3969 .runtime-switch input::before
+  app/web/styles.css:3980 .runtime-switch input::after
+  app/web/styles.css:4192 .runtime-chip
+  app/web/styles.css:5753 .spark-chip
+exit=0
+$ node tools/contrast-report.mjs
+| danger | danger-soft | 7.75 | 4.5 | 通过 |
+| attention-review | panel | 7.54 | 4.5 | 通过 |
+| attention-review | float | 6.46 | 4.5 | 通过 |
+| attention-review | panel-muted | 8.71 | 4.5 | 通过 |
+| attention-review | hover | 6.37 | 4.5 | 通过 |
+
+exit=0
+$ git diff --check 67ed0fd eff0e41
+exit=0

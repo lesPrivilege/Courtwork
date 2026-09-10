@@ -1,0 +1,53 @@
+PASS prod-mode no fixture DOM/text in production page
+PASS normal-default-collapsed {"hidden":false,"text":"Run Completed Files · 1 Run information","state":"Completed","files":"Files · 1","open":[false,false],"runRow":"c12fbe14-361f-4b96-ba25-1359b0ea46bb"}
+PASS enter-opens-files-focus-stays {"open":[true,false],"focus":{"tag":"SUMMARY","key":"run-summary-files","label":"Files · 1","id":null}}
+PASS space-toggles-files-focus-stays {"open":[false,false],"focus":{"tag":"SUMMARY","key":"run-summary-files","label":"Files · 1","id":null}}
+PASS tab-order-files-open ["run-summary-file:0","run-summary-information","rail-open:preview","rail-file:out/source-note.txt"]
+PASS tab-order-information-open ["run-summary-open","rail-open:preview"]
+NOTE idle-rerender-5s card childList rebuilds in 5s idle: 0
+PASS file-opens-in-right-tab {"cls":"surface-panel is-open is-expanded is-view-switch","railHidden":true,"selected":["surface-document-select"],"doc":"source-note.txt","docHidden":false,"runPane":null}
+PASS escape-from-file-returns-to-summary-row {"focus":{"tag":"BUTTON","key":"run-summary-file:0","label":"Open recorded file out/source-note.txt","id":null},"cls":"surface-panel is-open"}
+PASS run-opens-in-right-tab {"selected":["surface-run-tab"],"cls":"surface-panel is-open is-expanded is-view-switch"}
+NOTE run-open-requests GET /runs/c12fbe14-361f-4b96-ba25-1359b0ea46bb: 1 after one Enter; 2 after an extra click on the Open control while the Run tab is shown
+NOTE run-tab-same-identity run pane text contains run id prefix: true
+PASS escape-from-run-returns-to-open {"tag":"BUTTON","key":"run-summary-open","label":"Open run in right panel","id":null}
+PASS doc-close-only-closes-document {"labels":{"docClose":"Close out/source-note.txt","hide":"Hide work surface","expand":"Expand preview","showHidden":true},"after":{"cls":"surface-panel is-open","railHidden":false,"selected":[],"doc":"source-note.txt","docHidden":true,"runPane":null},"focus":{"tag":"BUTTON","key":"run-summary-file:0","label":"Open recorded file out/source-note.txt","id":null}}
+PASS hide-work-surface-label Hide work surface
+PASS hide-work-surface-hides-all {"cls":"surface-panel","railHidden":true,"selected":[],"doc":"source-note.txt","docHidden":true,"runPane":null}
+NOTE reopen-keeps-local-disclosure {"open":[true,true],"note":"same identity; card state is UI-local"}
+PASS switch-session-new-identity-collapsed {"hidden":false,"text":"Run Completed Files · 1 Run information","state":"Completed","files":"Files · 1","open":[false,false],"runRow":"d5e814bc-eaa0-4a4f-a995-952a828b7b48"}
+PASS stale-open-after-session-switch-ignored {"cls":"surface-panel is-open","railHidden":false,"selected":[],"doc":"source-note.txt","docHidden":true,"runPane":null}
+PASS multi-latest-run-selected {"runRow":"d5e814bc-eaa0-4a4f-a995-952a828b7b48","expected":"d5e814bc-eaa0-4a4f-a995-952a828b7b48"}
+PASS return-session-disclosure-cleared {"hidden":false,"text":"Run Completed Files · 1 Run information","state":"Completed","files":"Files · 1","open":[false,false],"runRow":"c12fbe14-361f-4b96-ba25-1359b0ea46bb"}
+NOTE new-run-replaces-summary-identity {"card":{"hidden":false,"text":"Run Completed Files · 1 Run information","state":"Completed","files":"Files · 1","open":[false,false],"runRow":"68994ace-dce3-415b-a761-a0f03c65b1c6"},"staleDetached":true}
+PASS stale-open-after-new-run-ignored surface-panel is-open
+PASS no-disclosure-persistence {"schema-engineering.ui.v6":"{\"activeProjectId\":\"06806bd4-609e-4b08-ab87-45a2393ab67a\",\"activeSessionId\":\"81b43de9-c243-4d17-aacf-b00b70c185a9\",\"openProjectIds\":[\"06806bd4-609e-4b08-ab87-45a2393ab67a\"],\"surfaceOpen\":true}"}
+PASS empty-run-known-zero {"hidden":false,"text":"Run Completed No files were recorded for this run. Files · 0 Run information","state":"Completed","files":"Files · 0","open":[false,false],"runRow":"3ca0cf84-08d7-4cd1-bcdd-7baa15de8628"}
+PASS empty-run-message Run Completed No files were recorded for this run. Files · 0 No files were recorded for this run. Run information
+PASS failed-run-status {"hidden":false,"text":"Run Failed No files were recorded for this run. Files · 0 Run information","state":"Failed","files":"Files · 0","open":[false,false],"runRow":"05f62c3b-2940-48be-a8ec-b5ec836c7a6b"}
+PASS no-run-no-card null
+PASS long-name-bounded {"o":{"pageScrollX":0,"railScrollW":0,"railScrollH":845,"railOverflowY":"auto","railRect":{"top":80,"bottom":876,"left":1128,"right":1416,"height":796},"viewportH":900,"escapes":0},"ell":{"clipped":true,"title":192,"aria":211}}
+PASS long-card-bounded-scrolls {"pageScrollX":0,"railScrollW":0,"railScrollH":845,"railOverflowY":"auto","railRect":{"top":80,"bottom":876,"left":1128,"right":1416,"height":796},"viewportH":900,"escapes":0}
+PASS network-mock-missing {"hidden":false,"text":"Run Completed Recorded files are unavailable. Files · unavailable Run information","state":"Completed","files":"Files · unavailable","open":[false,false],"runRow":"68994ace-dce3-415b-a761-a0f03c65b1c6"}
+PASS network-mock-malformed {"hidden":false,"text":"Run Completed Recorded files are unavailable. Files · unavailable Run information","state":"Completed","files":"Files · unavailable","open":[false,false],"runRow":"68994ace-dce3-415b-a761-a0f03c65b1c6"}
+PASS network-mock-unknown {"hidden":false,"text":"Run Unknown Files · 1 Run information","state":"Unknown","files":"Files · 1","open":[false,false],"runRow":"68994ace-dce3-415b-a761-a0f03c65b1c6"}
+PASS late-session-reply-does-not-overwrite {"during":{"hidden":true,"text":"","open":[]},"after":{"hidden":false,"text":"Run Completed Files · 1 Run information Run d5e814bc-eaa0-4a4f-a995-952a828b7b48 Session d1105b4f-5286-45d0-8059-d23f7a43efa2 FILE SHA-256 SHA-256 · out/second-note.txt 9e789da8cc6519acbaae9154f080d2753967fbf8d590682f8737d53096b05c16 Open in right panel","state":"Completed","files":"Files · 1","open":[false,true],"runRow":"d5e814bc-eaa0-4a4f-a995-952a828b7b48"},"header":"Toggle navigation\nReview · two runs\nChat\nChat overview\nHide "}
+PASS late-run-read-after-switch {"surface":"surface-panel is-open","card":"Run Completed Files · 1 Run information"}
+PASS layout-1440-light {"pageScrollX":0,"railScrollW":0,"railScrollH":0,"railOverflowY":"auto","railRect":{"top":80,"bottom":790,"left":1128,"right":1416,"height":710},"viewportH":900,"escapes":0}
+PASS layout-1280-light {"pageScrollX":0,"railScrollW":0,"railScrollH":14,"railOverflowY":"auto","railRect":{"top":80,"bottom":776,"left":968,"right":1256,"height":696},"viewportH":800,"escapes":0}
+NOTE narrow-light-default-placement {"cardVisibleInline":false,"afterHeader":null,"beforeBody":null,"surfaceOpen":false,"showButton":true}
+NOTE narrow-light-sheet {"cls":"surface-panel is-open","card":{"top":72,"left":16,"right":374,"width":358},"modal":"true"}
+PASS narrow-light-escape-focus {"tag":"BUTTON","key":"run-summary-file:0","label":"Open recorded file out/second-note.txt","id":null}
+PASS layout-1440-dark {"pageScrollX":0,"railScrollW":0,"railScrollH":0,"railOverflowY":"auto","railRect":{"top":80,"bottom":790,"left":1128,"right":1416,"height":710},"viewportH":900,"escapes":0}
+PASS layout-1280-dark {"pageScrollX":0,"railScrollW":0,"railScrollH":14,"railOverflowY":"auto","railRect":{"top":80,"bottom":776,"left":968,"right":1256,"height":696},"viewportH":800,"escapes":0}
+NOTE narrow-dark-default-placement {"cardVisibleInline":false,"afterHeader":null,"beforeBody":null,"surfaceOpen":false,"showButton":true}
+NOTE narrow-dark-sheet {"cls":"surface-panel is-open","card":{"top":72,"left":16,"right":374,"width":358},"modal":"true"}
+PASS narrow-dark-escape-focus {"tag":"BUTTON","key":"run-summary-file:0","label":"Open recorded file out/second-note.txt","id":null}
+NOTE strip-1024 {"strip":true,"glyphs":["run","preview","runtime"]}
+PASS strip-run-open-and-return {"selected":["surface-run-tab"],"focusAfterEscape":{"tag":"BUTTON","key":"strip:run","label":"Run","id":null}}
+PASS reflow-720x450 equivalent reflow (not native 200% zoom)
+PASS maximize-restore-keeps-renderer {"before":"surface-panel is-open is-expanded is-three-pane","max":{"cls":"surface-panel is-open is-expanded is-view-switch","label":"Restore preview","same":true},"restored":{"cls":"surface-panel is-open is-expanded is-three-pane","same":true}}
+PASS adjacent-home-no-card Home: no summary card, no horizontal overflow
+PASS adjacent-settings-no-card Settings: no summary card, no horizontal overflow
+
+41 pass, 0 fail, 10 notes

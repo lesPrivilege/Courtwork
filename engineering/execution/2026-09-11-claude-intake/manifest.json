@@ -1,0 +1,263 @@
+{
+  "baseline": "dedf005494e3f17a18ee261a81e367126d0a0f70",
+  "refs": {
+    "main": "dedf005494e3f17a18ee261a81e367126d0a0f70",
+    "5fd701c": "5fd701ced4539d30136071181524fc627403bc5f",
+    "62295b4": "62295b43bdcda4e57b252e332f399349303afef2",
+    "f3895aa": "f3895aa84f7046b0892fbbacc6b85949e6745a2e",
+    "87a202f": "87a202f73c2397e4c3a485e39c99ce5c14d095b5",
+    "68b3341": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+    "c2067ea": "c2067ea3339095db946db4826bf2cf98e07e6651",
+    "d2fdeed": "d2fdeed6c2b7d436a00c5bee571ef4eb58152599",
+    "8421fde": "8421fdebb944d7d570d0b9f09a350781857653f5",
+    "codex/summary-be41-construction-20260911": "445fb48aa42d47c6ff0f819790630ac9ba723f33"
+  },
+  "scope": "engineering documentation/specimen and fixed historical review evidence only",
+  "reviewFiles": [
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/README.md",
+      "sha256": "55096f41c56417a4f92baec42288cf109068a895ef80f9165b466f74effde149"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/browser-results-chrome.json",
+      "sha256": "2b949345e9d7f1f9b0502ef945955195d3770e73f1ec19afb2f0f23cfcb5925a"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/browser-run-chrome.txt",
+      "sha256": "7cb1cb9f75ddfb30ec7942028cab173e53c24cc6d3d0eac88363e597362a541d"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/doc-links.txt",
+      "sha256": "04e6ab688b455b7d59c5532ade5c3d7adf1b832bcfd80b1d677cd15e12c20515"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/full-tests.txt",
+      "sha256": "6321259e7819858209ce9ade6ecb3284ba19ba0f611b12c24a421638dbbcca2c"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/host-checks.txt",
+      "sha256": "ab689f37bcc97fe086e79ac32993b2b8e1339ab6d16c0bc98e1a8c51a725a88b"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/lint.txt",
+      "sha256": "bae9d421d60c0b501555243a94b09366ed347872d42d2c98a8b1981ca081ea94"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/long-sha-row.txt",
+      "sha256": "0a3c3d0bbac609d861978fb0643fd2527ac704bfeed8ad1864d14140dbf9b62a"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/reload-check.txt",
+      "sha256": "e8c175966b29f54a21ffdf856dc6b120ad4de10ea7f4c599fb2631007b2ac098"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/repro-focus-return.mjs",
+      "sha256": "e4942c5e02322c8a7b2110a51a06705f23cbb10b1f7316127ab40e0df5615f65"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/repro-focus-return.txt",
+      "sha256": "304c0d6907736fc1def285b8a46c0e602a22002cf30791ce90164dce69fc7f70"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-capture.mjs",
+      "sha256": "d40fedeb12b327cc14d0b9ec581d5dc7e07bae4932820956849e052458c5db6c"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-host-checks.mjs",
+      "sha256": "1722298fc5e98392aa97f24010076855902e0118bf46034ac34f7c3e99e0ffec"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-long.mjs",
+      "sha256": "a09d97827f0db06b2899e9265467abaf58f1177de279b7627f8d492e122f73a9"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-reload.mjs",
+      "sha256": "d4b5bcf98d7e94195e3723e47b7d6dcbe338d836b09245af2276004704a6fce2"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-revoke.mjs",
+      "sha256": "3a45c5dda5e6f17b9297d3cad2ee6e5a42d7cc6f3e9a0b70949debf86d7787d6"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/review-serve.mjs",
+      "sha256": "6e674fb8f6c8cfddc29c4ad578fc8b2f045ed2d2bdfe472a204093f6e5c82d11"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/revoke-check.txt",
+      "sha256": "d60faa8272d5c9b03f5585bfd02641545a8748865bd1a2412280d17e58de6afe"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1024-light-strip.png",
+      "sha256": "053c0c5ae489fcb745e040f53cd045f050a0328b4ad04bccb8a0ecb8b9b0007c"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-dark-both-open.png",
+      "sha256": "ba82fa619c2b464dd717d8b6dcd4dd8c87c0e38e3c41f0335e9155a04baffff1"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-dark-collapsed.png",
+      "sha256": "c732f6165dcbebc6be69c4b37a29b0354e63dce3ba7d38e4d97cca6f3d755efc"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-dark-file-tab.png",
+      "sha256": "5fbce1cca9b6060b360ceb8206b2ece547064e143625d1329d3739ea7e96fbfb"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-light-both-open.png",
+      "sha256": "dfdb24621c8e75f55e20ef2fbb94a7b30afa6aadf11717cf2cc96c6389c0b368"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-light-collapsed.png",
+      "sha256": "bfc4ea6064f6f0928e73632c27e1693f9e8ad4818bd6baf85340bde7124a3cf2"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1280-light-file-tab.png",
+      "sha256": "f9f5c136c173b79307851bf72adefb379f99b1a1bdffe56f3db6415dc545e5fb"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-dark-both-open.png",
+      "sha256": "46587e72dd425f64cd6e32b71268e98b052307ad1819a4ca54f5bb95373ef526"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-dark-collapsed.png",
+      "sha256": "2d2cbcf1d4251a1c7a50f1ff1269e6d1747b02df062684adabb0f652f913bb5c"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-dark-file-tab.png",
+      "sha256": "50b1c91b0c98244fbdc8024eada27d670222b6a7f50e6e20e7bf79dfe77e7fa4"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-dark-long-sha-row.png",
+      "sha256": "4ee14605a6908b3b9ca72fc50bdc1c4d5e1c59c2bacaea41b7e8e9ef8462a19b"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-adjacent-home.png",
+      "sha256": "0401defa39855f9e361fe51a2e12f109883931acec6cac1f524c5e9f2a471315"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-adjacent-settings.png",
+      "sha256": "4723d17ea1cd68de8a60402f6b600c1294df2d109124fed50195c5e7648f165d"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-after-new-run.png",
+      "sha256": "662ebb07265700ec2c6649d9aa37893f99cc679d1560b11bfd66327fd50bca14"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-both-open.png",
+      "sha256": "c66980e42bcb8d6ce558940e11a13c5efd8157828a6187d134d3a4cb5f65f7cf"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-collapsed.png",
+      "sha256": "2d9b36f2a9e076e2115f97586660fddfafb5786865cd848075dd7c6740598afe"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-empty-run.png",
+      "sha256": "7e2d0f737c3890821b10ceeb086170e61ea12df155b807a8f96b9713e5b447d7"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-failed-run.png",
+      "sha256": "9b0b780c23d93fbcc5375267944d1b7c4d7e6e90cd5f57962dd00621378b9c33"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-file-tab.png",
+      "sha256": "ba265c8089e7447504c8b540ae4bb18972b13f6a67012a2ebfcc9b1b79ee7a5b"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-long-both-open.png",
+      "sha256": "e80cee8f3a872ac99c06a78a9d11d888535ca87a672575b21ac0b0387e1a4386"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-long-scrolled.png",
+      "sha256": "65e36f396851691809726cf77131faada0ab7703e4fa95c34baceae903b8db9a"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-netmock-malformed.png",
+      "sha256": "66c43235a434d79e0d1eaa31face11c2a0e417246235a97c5a9fb1a5e736a862"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-netmock-missing.png",
+      "sha256": "a4c8e1068ae88188a59c92ca80b9ec0698cf32c4cde93e1da7dd9a9fd417b58f"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-netmock-unknown.png",
+      "sha256": "88bab315fc0c81fb1ee648f84e783c8874574cb0315fb0b8777df8a922c441e1"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-normal-sha-row.png",
+      "sha256": "de3da7a5482074bc02795a5a220d604e8444e4ea027e3a0c95168f86cc60bcdd"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1440-light-run-tab.png",
+      "sha256": "0ddc8c94cbdb6afa1818cd5af7874bc73ecde5d61869663b3186ed99c019e5ba"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1680-light-maximized.png",
+      "sha256": "9d2334d4729e8eb7432707d2e44026fc6edf376878760a64c0418468db5a92dc"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/1680-light-three-pane.png",
+      "sha256": "9ca75855f67d2708c75a6aa4c9abeb19a4139cfecc2133d0f987df65a199b30f"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-dark-chat.png",
+      "sha256": "16f0dc7aecdc40183a9f15246014df144ec5d2e8b4626af90f7ca3ccbb14af10"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-dark-sheet-files.png",
+      "sha256": "23463809beca15be2ee269a8fb788bbb24ac2608993dfc259362141a12a51eea"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-dark-sheet-preview.png",
+      "sha256": "bc1e206bac240099f44e74fc95d85fb9184c863ff439f7814b4f338419a4811c"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-light-chat.png",
+      "sha256": "d9411e5623e57fe2fd7651b6cba78fdb419d380565fa22e17429b8bef685d693"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-light-long-sha-row.png",
+      "sha256": "6625100dbc288868c22b08f6a36e20b7ca3932d5b1cebf4475188f599c0014b3"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-light-sheet-files.png",
+      "sha256": "8210da8a0577fc2a7943acfdf3adf6671f9d5436ad001f712962453ad8380037"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/390-light-sheet-preview.png",
+      "sha256": "d5cef872f91989a85217163974a54951ea0e50038d82141f9a7d337b6da5a945"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/screens/720x450-light-reflow.png",
+      "sha256": "33df2999f40c1c1bcb1af1faaf155859f3bf05e85316113cf9aae2123593dba2"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/serve-start.json",
+      "sha256": "6b3084e364759aec73c56ec0c6b113f11b046f7711e29f6ce9d27f026016f921"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/served-bytes.txt",
+      "sha256": "c4448a8535385f3ea2d82d1ceed297f784ec0a789630e501f0a4c13e5cd4a8f4"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/smoke.txt",
+      "sha256": "44ad013861e9cb59cff7f69b82189a4ed958c5f82715464ea2893d9ecfb8b1db"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/independent-review/targeted-tests.txt",
+      "sha256": "a8c1a7368bb316f7db2ace56cab2bf731d03374d6a276ed72d4c1a8c1713a628"
+    }
+  ],
+  "checks": {
+    "reviewSourceBytesMatch": 58,
+    "productAppDocsTestsUnchanged": true,
+    "docLinks": {
+      "documents": 804,
+      "checked": 3671,
+      "pass": true
+    },
+    "activeDocumentWhitespace": "pass",
+    "historicalTPSRawLogTrailingWhitespace": "preserved"
+  },
+  "productAcceptance": false,
+  "remotePush": false
+}

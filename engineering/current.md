@@ -1,8 +1,12 @@
 # 当前工程状态
 
+## 2026-09-11 · Claude 交接接收与 Astra 单写收尾
+
+用户确认fresh Astra已经施工，Claude各线已停止。已接收[交接裁决与收尾单](execution/2026-09-11-claude-intake/README.md)：handoff5fd701c、TPS62295b4、EX-IC2 A f3895aa及87a202f限定目录的历史复核证据。TPS登记BE-42，未接生产；A截图过时须重拍。产品组合仍不在本次接收内。施工Astra候选445fb48已存在，WORK-3以其版本为主、d2fdeed只作定向donor，D1/D2接合及真机联调由同一Astra负责；Claude源分支只读。B未交付、C未开工，待固定产品节点后按收尾单接续；SD-ENTRY与BE41保持独立，不关闭产品门。
+
 ## 2026-09-11 · Summary / BE-41 施工派单
 
-用户授权以 fresh Astra light 主责、Luna explore 接续，[认领施工单](execution/2026-09-11-summary-be41-dispatch/README.md)已就绪（READY_TO_CLAIM，未宣称worker已认领）。SD-FIX优先，SD-ENTRY另节点；BE41-A可隔离核账/准备，BE41-B真实前端接线待前端固定节点后串行。必须消费最新合推裁定与成熟实践index，记录采用/适配/拒绝及本地证据。此授权允许BE-41准备，不改变基础前端/通用Harness优先级，不把派单计为产品接受。
+用户授权以 fresh Astra light 主责、Luna explore 接续，[认领施工单](execution/2026-09-11-summary-be41-dispatch/README.md)已由fresh Astra认领施工（用户确认；认领0b8c554、修补快照445fb48；后续进度须重查候选ref）。SD-FIX优先，SD-ENTRY另节点；BE41-A可隔离核账/准备，BE41-B真实前端接线待前端固定节点后串行。必须消费最新合推裁定与成熟实践index，记录采用/适配/拒绝及本地证据。此授权允许BE-41准备，不改变基础前端/通用Harness优先级，不把派单计为产品接受。
 
 ## 2026-09-11 · 前端与通用 Harness 的下一合推节点
 

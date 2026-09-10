@@ -1,0 +1,80 @@
+
+> pi-pulse@0.4.1 pretest
+> npm run build
+
+
+> pi-pulse@0.4.1 build
+> ./node_modules/typescript/bin/tsc
+
+
+> pi-pulse@0.4.1 test
+> node --test test/*.test.mjs
+
+✔ registers every handler pi-pulse needs (2.054959ms)
+✔ session_start resets status (2.414125ms)
+✔ non-assistant messages are ignored (0.177ms)
+✔ assistant streaming lifecycle renders live and final status (1.426416ms)
+✔ session_shutdown stops ticker and clears status (0.217875ms)
+✔ abort signal stops the live ticker (0.238375ms)
+✔ session_shutdown persists snapshot and session_start restores it (0.596667ms)
+✔ no status calls when UI is unavailable (0.146667ms)
+✔ throwing setStatus does not crash the extension (0.297792ms)
+✔ session_start restores the latest snapshot from a branch with multiple entries (0.341375ms)
+✔ session_start with reason 'new' or 'fork' skips snapshot restore (0.190417ms)
+✔ ticker renders deterministic values with an injected fake-clock meter (0.38ms)
+✔ wall-clock timestamp is appended after Elapsed in the final footer (1.025666ms)
+✔ clock re-renders every second while idle (0.478667ms)
+✔ clock ticker bails while streaming (live ticker owns rendering) (0.271542ms)
+✔ all timers are cleared on session_shutdown (no leak) (0.202291ms)
+✔ fmtTps handles non-finite and negative values (3.768292ms)
+✔ fmtTps formats small values with one decimal (0.156833ms)
+✔ fmtTps formats values at or above 10 as rounded integers (0.279ms)
+✔ fmtTtft renders durations in seconds (0.1085ms)
+✔ fmtElapsed formats durations (0.104708ms)
+✔ tpsColor color-codes by threshold (0.089208ms)
+✔ fmtClock formats ISO 8601 UTC with second precision (0.884625ms)
+✔ ttftColor color-codes by threshold (0.091208ms)
+✔ empty or single-value graph returns fallback dots (0.884458ms)
+✔ graph renders the expected number of columns (0.12675ms)
+✔ graph uses success color for high values (0.108083ms)
+✔ graph uses error color for low values (0.072791ms)
+✔ wrapped buffer renders correctly (0.111667ms)
+✔ mixed columns are colored by their own average, not a global color (0.072292ms)
+✔ reset clears all state (1.375709ms)
+✔ single assistant message records TTFT, TPS, elapsed and graph (0.386ms)
+✔ effective TPS is suppressed during the first 300 ms (0.748333ms)
+✔ live TPS and recorded sample agree at the 0.3 s minimum-elapsed boundary (0.108083ms)
+✔ TTFT is not recorded without a first-token event (0.086291ms)
+✔ markFirstToken records TTFT without contributing TPS (0.082542ms)
+✔ multiple messages accumulate all-time TPS stats (0.164375ms)
+✔ graph buffer wraps at GRAPH_DOTS samples (0.117292ms)
+✔ all-time TPS buffer caps at TPS_ALL_TIME_CAP (1.973417ms)
+✔ renderFinal returns empty string when there is no data (0.185292ms)
+✔ renderLive shows waiting TTFT before first token and measured TTFT after (0.127625ms)
+✔ serialize and restore preserves metrics across meters (0.347125ms)
+✔ p95 is computed correctly across many distinct values (0.127833ms)
+✔ isMeterSnapshot rejects corrupt snapshots (0.066333ms)
+✔ restore ignores corrupt snapshots without throwing (1.234667ms)
+✔ TPS uses decode-phase denominator (excludes TTFT) (0.093834ms)
+✔ Elapsed includes before_provider_request gap (0.056791ms)
+✔ Elapsed fallback when no before_provider_request (0.055083ms)
+✔ tool-only response: elapsed includes full E2E from request start (0.052875ms)
+✔ samples older than 10 minutes are excluded from mean and percentiles (0.107ms)
+✔ count cap protects against unbounded growth even without trim (0.520167ms)
+✔ renderFinal shows only Elapsed when window is empty (0.082875ms)
+✔ inspect exposes windowed sample counts (0.06175ms)
+✔ restore shifts all buffer timestamps and old samples expire correctly (0.109625ms)
+✔ single assistant message produces a formatted footer end-to-end (4.826167ms)
+✔ non-assistant messages produce no footer (0.24225ms)
+✔ snapshot persists across shutdown and restores on reload (1.258542ms)
+✔ no phantom TTFT sample when a message produces no assistant tokens (1.738083ms)
+✔ TTFT sample is recorded exactly once per message (0.173333ms)
+✔ markFirstToken records TTFT but no TPS (0.095833ms)
+ℹ tests 60
+ℹ suites 0
+ℹ pass 60
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.8865
