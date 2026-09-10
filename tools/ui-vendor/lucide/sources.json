@@ -95,6 +95,10 @@
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/external-link.svg",
       "sha256": "3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe"
     },
+    "plug.svg": {
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/plug.svg",
+      "sha256": "11ba780e4b6f15d37906a8a73537144b59720333d7a9fc8048a437d0389422f8"
+    },
     "LICENSE": {
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/LICENSE",
       "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"

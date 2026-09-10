@@ -65,6 +65,12 @@
 <symbol id="paperclip" viewBox="0 0 24 24">
   <path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551" />
 </symbol>
+<symbol id="plug" viewBox="0 0 24 24">
+  <path d="M12 22v-5" />
+  <path d="M15 8V2" />
+  <path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" />
+  <path d="M9 8V2" />
+</symbol>
 <symbol id="plus" viewBox="0 0 24 24">
   <path d="M5 12h14" />
   <path d="M12 5v14" />
@@ -95,11 +101,5 @@
 <symbol id="x" viewBox="0 0 24 24">
   <path d="M18 6 6 18" />
   <path d="m6 6 12 12" />
-</symbol>
-<symbol id="plug" viewBox="0 0 24 24">
-  <path d="M12 22v-5" />
-  <path d="M15 8V2" />
-  <path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" />
-  <path d="M9 8V2" />
 </symbol>
 </svg>
