@@ -61,3 +61,20 @@ test('injected reader checks live scope identity revision and resets disclosure 
   snapshot={...snapshot,scope:'s2'};next.click();assert.equal(calls,1);
   directory.update();assert.equal(directory.element.querySelector('details').open,false);
 }));
+
+
+test('entry reader receives the exact opener and scope changes do not transfer focus',()=>withTinyDom(()=>{
+  let opener;
+  let snapshot={schemaVersion:1,scope:'s1',entries:{activity:{state:'ready',identity:'r1',open:node=>{opener=node;}}}};
+  const directory=createSurfaceEntryDirectory({getSnapshot:()=>snapshot});
+  directory.update();
+  directory.element.querySelector('details').open=true;
+  const first=directory.element.querySelector('button');first.focus();first.click();
+  assert.equal(opener,first);
+  directory.update();
+  assert.equal(document.activeElement,directory.element.querySelector('button'));
+  snapshot={...snapshot,scope:'s2'};directory.update();
+  assert.notEqual(document.activeElement,directory.element.querySelector('button'));
+  assert.notEqual(document.activeElement,directory.element.querySelector('summary'));
+  assert.equal(directory.element.querySelector('details').open,false);
+}));

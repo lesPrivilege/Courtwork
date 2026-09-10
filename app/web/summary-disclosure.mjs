@@ -499,14 +499,14 @@ export function createSurfaceEntryDirectory({getSnapshot}) {
             const latest = getSnapshot();
             const next = latest?.entries?.[definition.id];
             if (latest?.schemaVersion === 1 && latest?.scope === capturedScope && next?.state === 'ready' &&
-                next.identity === entry.identity && next.revision === entry.revision && typeof next.open === 'function') next.open();
+                next.identity === entry.identity && next.revision === entry.revision && typeof next.open === 'function') next.open(row);
           });
         }
         list.append(row);
       }
       disclosure.append(body);
       root.append(disclosure);
-      if (focused) (root.querySelector(`[data-focus-key="${focused}"]`) || root.querySelector('summary'))?.focus();
+      if (sameScope && focused) (root.querySelector(`[data-focus-key="${focused}"]`) || root.querySelector('summary'))?.focus();
     },
   };
 }
