@@ -1,0 +1,58 @@
+{
+  "generatedFrom": {
+    "bb21027": "bb2102790567d193dd412e1d4d99b09281b5ad2e",
+    "792174c": "792174c06b891130238c0a057da4b9ee19cc7217"
+  },
+  "matrixMatches": true,
+  "migration": {
+    "bb21027": {
+      "upgradedSchema": 12,
+      "upgradedPending": [],
+      "reopenedPending": [],
+      "backupExact": true,
+      "pendingPreserved": false,
+      "reopenPreserved": false,
+      "finishOnlyRemovesOne": false,
+      "migrationCorrect": false
+    },
+    "792174c": {
+      "upgradedSchema": 12,
+      "upgradedPending": [
+        { "connectionId": "conn-missing-save", "operation": "connection_save" },
+        { "connectionId": "conn-missing-delete", "operation": "connection_delete" },
+        { "connectionId": "conn-missing-credential-set", "operation": "credential_set" },
+        { "connectionId": "conn-missing-credential-delete", "operation": "credential_delete" }
+      ],
+      "reopenPreserved": true,
+      "afterOneExplicitFinish": [
+        { "connectionId": "conn-missing-delete", "operation": "connection_delete" },
+        { "connectionId": "conn-missing-credential-set", "operation": "credential_set" },
+        { "connectionId": "conn-missing-credential-delete", "operation": "credential_delete" }
+      ],
+      "backupExact": true,
+      "pendingPreserved": true,
+      "finishOnlyRemovesOne": true,
+      "migrationCorrect": true
+    }
+  },
+  "route": {
+    "bb21027": {
+      "configuredEndpointUsed": false,
+      "blockedExternal": ["https://api.openai.com/v1/responses"],
+      "receiptStatus": "unreachable",
+      "routeCounterexample": true
+    },
+    "792174c": {
+      "configuredEndpointUsed": false,
+      "blockedExternal": ["https://api.openai.com/v1/responses"],
+      "receiptStatus": "unreachable",
+      "routeCounterexample": true
+    }
+  },
+  "expectedMatrix": {
+    "migrationBbFails": true,
+    "migrationFixedPasses": true,
+    "routeBbFails": true,
+    "routeFixedStillFails": true
+  }
+}
