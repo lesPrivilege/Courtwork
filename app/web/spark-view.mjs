@@ -38,6 +38,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   let projects = [], projectId = '';
   let tab = 'overview', activityMatter = 'all', activityStatus = 'all';
   let loading = false, error = '', unimplemented = false, rejected = '', data = null;
+  let lastQuery = { offset: 0, expectSnapshot: null };
 
   dialog.addEventListener('close', () => {
     visible = false;
@@ -46,7 +47,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   });
 
   function button(text, fn, attrs = {}, className) {
-    const node = el('button', { text, className, attrs: { type: 'button', ...attrs } });
+    const node = el('button', { text, className, attrs: { type: 'button', 'data-spark-focus': attrs.id || attrs['aria-label'] || text, ...attrs } });
     node.addEventListener('click', fn);
     return node;
   }
@@ -63,12 +64,15 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   async function load(offset = 0, { expectSnapshot = null } = {}) {
     const own = ++generation;
     if (!projectId) { data = null; loading = false; error = ''; unimplemented = false; rejected = ''; render(); return; }
+    lastQuery = { offset, expectSnapshot };
+    data = null;
     loading = true; error = ''; unimplemented = false; rejected = ''; render();
     try {
       const qs = new URLSearchParams({ projectId, limit: '25', offset: String(offset) });
       const raw = await request(`/work-derivations?${qs}`);
       if (own !== generation) return;
       const projected = validSparkDerivations(raw);
+      if (projected && projected.scopeRef !== `project:${projectId}`) throw new Error('Spark received an observation for a different project. Refresh to read this scope.');
       if (!projected) throw new Error('Spark received a maintenance observation this surface does not recognise.');
       if (expectSnapshot && !sameSnapshot({ snapshotRef: expectSnapshot }, projected)) {
         rejected = REJECTED_SNAPSHOT;
@@ -87,7 +91,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   }
 
   function matterRow(matter, { quiet = false, unavailable = false } = {}) {
-    const open = button(matter.title, () => onOpenMatter(matter.matterId, projectId), { 'aria-label': `Open ${matter.title} in Work` }, 'spark-matter-open');
+    const open = button(matter.title, () => { dialog.close(); onOpenMatter(matter.matterId, projectId); }, { 'aria-label': `Open ${matter.title} in Work` }, 'spark-matter-open');
     const meta = el('div', { className: 'spark-matter-meta' });
     if (unavailable) {
       meta.append(el('span', { className: 'spark-unavailable', text: `Unavailable · ${matter.reason}` }));
@@ -155,7 +159,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
       if (!rows.length) continue;
       any = true;
       const section = el('section', { className: 'spark-activity-matter' });
-      section.append(button(matter.title, () => onOpenMatter(matter.matterId, projectId), {}, 'spark-matter-open'));
+      section.append(button(matter.title, () => { dialog.close(); onOpenMatter(matter.matterId, projectId); }, {}, 'spark-matter-open'));
       const table = el('table', { className: 'spark-table' });
       const head = el('tr');
       for (const title of ['Candidate', 'Status', 'Candidate revision', 'Behind by', 'Supersedes'])
@@ -181,6 +185,18 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
 
   function render() {
     if (!visible) return;
+    const focused = document.activeElement;
+    const focusKey = dialog.contains(focused) ? (focused.id || focused.getAttribute('aria-label') || focused.getAttribute('data-spark-focus')) : null;
+    try { renderContents();
+    } finally {
+      if (focusKey) {
+        const target = [...dialog.querySelectorAll('button, select')].find((node) => (node.id || node.getAttribute('aria-label') || node.getAttribute('data-spark-focus')) === focusKey && !node.disabled);
+        (target || dialog.querySelector('[aria-label="Close Spark"]'))?.focus();
+      }
+    }
+  }
+
+  function renderContents() {
     const header = el('header', { className: 'spark-header' },
       el('div', {},
         el('h2', { text: 'Spark', attrs: { id: 'spark-title' } }),
@@ -192,7 +208,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
       const select = el('select', { attrs: { 'aria-label': 'Spark project' } });
       select.append(...projects.map((p) => el('option', { text: p.name, attrs: { value: p.id } })));
       select.value = projectId;
-      select.addEventListener('change', () => { projectId = select.value; void load(0); });
+      select.addEventListener('change', () => { projectId = select.value; activityMatter = 'all'; activityStatus = 'all'; void load(0); });
       controls.append(select);
     }
     const refresh = button('Refresh', () => load(data?.page.offset ?? 0), {}, 'text-button');
@@ -221,7 +237,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     if (loading) panel.append(el('p', { text: 'Loading maintenance state…', attrs: { role: 'status' } }));
     if (unimplemented) { panel.append(el('p', { text: 'No source yet. This runtime has no maintenance source connected here.', attrs: { role: 'status' } })); return; }
     if (rejected) panel.append(el('p', { text: rejected, attrs: { role: 'alert' } }), button('Refresh', () => load(0), {}, 'text-button'));
-    if (error) { panel.append(el('p', { text: error, attrs: { role: 'alert' } }), button('Retry', () => load(data?.page.offset ?? 0), {}, 'text-button')); return; }
+    if (error) { panel.append(el('p', { text: error, attrs: { role: 'alert' } }), button('Retry', () => load(lastQuery.offset, { expectSnapshot: lastQuery.expectSnapshot }), {}, 'text-button')); return; }
     if (!data) return;
 
     panel.append(el('p', { className: 'form-help', text: `As of ${data.asOf}${data.coverage.matters === 'partial' ? ` · scope partial: ${data.coverage.reason}` : ''}` }));

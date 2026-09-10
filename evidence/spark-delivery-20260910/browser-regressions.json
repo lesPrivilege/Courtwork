@@ -1,0 +1,29 @@
+{
+  "checks": [
+    {
+      "name": "project loading removes prior scope rows and preserves selector focus",
+      "pass": true
+    },
+    {
+      "name": "wrong scope response is rejected",
+      "pass": true
+    },
+    {
+      "name": "Retry repeats failed page query",
+      "pass": true
+    },
+    {
+      "name": "Retry keeps snapshot consistency guard",
+      "pass": true
+    },
+    {
+      "name": "Tab activation and filters retain keyboard focus",
+      "pass": true
+    },
+    {
+      "name": "Open Work closes Spark before host navigation",
+      "pass": true
+    }
+  ],
+  "pass": true
+}
