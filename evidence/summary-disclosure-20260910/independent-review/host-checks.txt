@@ -1,0 +1,5 @@
+# HEAD eff0e41 2026-09-10T14:47:23Z
+{"id":"neighbour-workspace-escape","expanded":"surface-panel is-open is-expanded is-view-switch","focusAfterEscape":"rail-open:preview"}
+{"id":"header-reopen-and-escape","focusOnOpen":"run-summary-files","focusAfterEscape":"show-surface-button","panel":"surface-panel"}
+{"id":"streaming-rebuilds","rebuildsDuringRun":35,"finalStatus":"Completed"}
+{"id":"streaming-human-click","attempts":[{"before":false,"after":true,"toggled":true},{"before":true,"after":false,"toggled":true},{"before":false,"after":true,"toggled":true},{"before":true,"after":false,"toggled":true},{"before":false,"after":true,"toggled":true}],"lost":0}

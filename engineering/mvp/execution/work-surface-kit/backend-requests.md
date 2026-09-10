@@ -100,10 +100,12 @@ ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限
 
 状态仍为**后端未实现**。前端可先按冻结形状独立验收；真实 host 的 404 显示 unimplemented，不显示合成数值或把缺测当零。客户端分页保留预期 snapshot 并拒绝变化，不代表服务端快照回读或真实维护覆盖已交付。BE-41 接线与真实覆盖继续按原顺序施工；本轮前端合流不关闭 RV26-SP01 或 ME-03。
 
-## 通用 Harness 缺口 · 每请求 decode 终值（Claude 转 Astra，2026-09-10）
+## BE-42 · 通用 Harness 缺口 · 每请求 decode 终值（Claude 转 Astra，2026-09-10）
 
 用户裁定（TPS D-1）：此项进入通用 Harness 缺口队列，排在基本功能之后，不抢先施工。编号由 Astra 分配；BE-40 曾出现过撞号，所以这里不自取编号。main 在 `a2b084d` 之后把基本 GUI 与通用 harness 完备排在前面，并开了 Pro 评审单 `engineering/execution/2026-09-10-harness-pro-review.md`；本条作为 HPR-01 矩阵 provider/streaming 行的一项输入，由 Astra 决定并入哪一张施工单。
 
 | 拟编号 | 请求 | 依据 |
 |---|---|---|
-| （待 Astra 编号） | 研究在 provider/runtime 遥测边界上，给每个请求记录一个 decode 终值：owner 计数的首 token 之后的输出 token 数，owner 单调钟上从首 token 到末 token 的时长，以及时钟来源。失败、取消、中断时记 null。provider 时钟与 `host-tokenizer` + 宿主收包时钟是两种测量，分开命名、分开记录，后者不称推理引擎 decode TPS。先不做逐 token 时间序列。不属于 BE-38（BE-38 是错误类别）。 | [TPS specimen](../../../design/tps-specimen-2026-09-10/README.md) §3 与 §11；[参考核验](../../../design/tps-specimen-2026-09-10/reference/README.md)；`app/docs/request-telemetry.md` 第 9 行；WK-141 (b) |
+| BE-42 | 研究在 provider/runtime 遥测边界上，给每个请求记录一个 decode 终值：owner 计数的首 token 之后的输出 token 数，owner 单调钟上从首 token 到末 token 的时长，以及时钟来源。失败、取消、中断时记 null。provider 时钟与 `host-tokenizer` + 宿主收包时钟是两种测量，分开命名、分开记录，后者不称推理引擎 decode TPS。先不做逐 token 时间序列。不属于 BE-38（BE-38 是错误类别）。 | [TPS specimen](../../../design/tps-specimen-2026-09-10/README.md) §3 与 §11；[参考核验](../../../design/tps-specimen-2026-09-10/reference/README.md)；`app/docs/request-telemetry.md` 第 9 行；WK-141 (b) |
+
+2026-09-11 Astra接收裁决：分配BE-42，状态为已登记/待合同，不是已实现或SD-FIX前置；见[接收与收尾单](../../../execution/2026-09-11-claude-intake/README.md)。上段待分配表述保留原请求时点。

@@ -1,0 +1,29 @@
+# cwd app/, HEAD eff0e41a9cd3ceabd9c79d913f6a80089deb9ea6, 2026-09-10T14:22:29Z
+$ node --test tests/summary-disclosure.test.mjs tests/chat-work-shell.test.mjs
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.618333ms)
+✔ WK-92 · Continue in Work 只走既有的 extension 路由；不新增端点、不复制、不迁移 (1.183542ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.530083ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.746208ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.197667ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.744209ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.155875ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.225459ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.49025ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.161416ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.130125ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.159125ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (1.02525ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.55825ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.831541ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.665458ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.03225ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.569708ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.245916ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.375167
