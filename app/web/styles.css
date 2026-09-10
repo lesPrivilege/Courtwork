@@ -5757,6 +5757,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .spark-table { width:100%; border-collapse:collapse; font-size:var(--text-meta); }
 .spark-table th, .spark-table td { padding:8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
 .spark-table th:first-child, .spark-table td:first-child { text-align:left; white-space:normal; min-width:120px; }
+.spark-sample-label { font-size:var(--text-meta); color:var(--muted-strong); line-height:1.6; }
 @media(max-width:600px) { .spark-dialog { padding:16px; } .spark-controls { gap:6px; } .spark-controls select { flex:1; min-width:110px; } }
 
 /* Authored input is a right-aligned, bounded secondary bubble. */
