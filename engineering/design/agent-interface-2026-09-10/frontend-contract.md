@@ -4,7 +4,7 @@
 
 ## 每次局部施工
 
-1. 读取 AGENTS/current 与工单，确定具体 owner fact、修改面和单 writer；从[先例索引](precedents.md)只加载有关行、对应合同与源码。
+1. 读取 AGENTS/current 与工单，确定具体 owner fact、修改面和单 writer；需要定位问题时查[导航表](precedent-map.md)，再从[实现先例](precedents.md)只加载有关行、对应合同与源码。
 2. 填[变更记录](change-template.md)：至少一个最近先例、实际符号/路径、基线 SHA、需要保持的关系、改变的关系。先例只是已实现结构，是否已独立接受要看相应证据。
 3. 先查语义与既有 control/pattern，再判断复用、增加变体或确有 grammar gap。不因外部组件库有某控件就引入领域字段或依赖。
 4. 按变更运行静态/行为/浏览器检查，保留固定合成数据与相邻完整场景。作者可以生成候选截图与 diff，不能仅通过替换已接受 baseline 宣称回归通过。
@@ -45,6 +45,7 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 
 ## 必须交付的验证
 
+- 文档/索引改动：`node tools/check-doc-links.mjs`校验仓库来源路径；不把路径存在等同于语义或接受有效。
 - 有颜色/区域改动：`node tools/lint-colors.mjs` 与 `node tools/contrast-report.mjs`；新增/改变材质另跑 `node tools/lint-materials.mjs`。
 - 有投影/控件改动：`node tools/lint-interaction.mjs` 及相关unit/行为测试。该lint只覆盖已登记字面规则，不证明所有五条语义负规则。
 - 有runtime UI行为变化：定向检查使用 `node --test <精确测试文件>`；需要全量回归时使用 `npm --prefix app test`（它运行完整suite，不是按文件范围）。需要HTTP/宿主链再按既有smoke与合成browser脚本，禁止默认付费provider/个人数据。

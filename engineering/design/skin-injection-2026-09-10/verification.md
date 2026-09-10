@@ -37,6 +37,14 @@ Luna最后只读复核当前frontend-contract/precedents，未见断链、错误
 
 交付前检查相对文件链接、输入turn/message数、显式改动范围与`git diff --check`。不验证原文中的不可恢复citation handles；新引用分别记录直接网页核验与未取得正文项。历史论文、archive、截图原字节未修改。
 
-最终检查：23个显式文件，仅AGENTS与engineering文档；296个相对文件链接目标全部存在；输入消息13/13与6/6；`git diff --cached --check`通过。转录行尾空白已规范化，未删节正文。此检查不声称所有历史Markdown锚点或远端链接都可用。
+首份提交检查：23个显式文件，仅AGENTS与engineering文档；296个相对文件链接目标全部存在；输入消息13/13与6/6；`git diff --cached --check`通过。转录行尾空白已规范化，未删节正文。此检查不声称所有历史Markdown锚点或远端链接都可用。
+
+## 并行文档整合
+
+第一份交付`b2f6b3c`完成后，共享目录由另一writer转为`codex/web-gpt-design-continuity`并修改相同README/sources。直接快进安全中止，未覆盖其未提交文件。其随后提交`12eb2208f931c1b530f54c7f947351a041c92c1d`；本单在自己的隔离树合并该固定提交，保留problem-key导航与扩展checklist。
+
+冲突取舍：frontend-contract是本轮已授权规范；problem map只导航；implemented/candidate是证据类型，不能绕过canonical/reference/unverified/deferred处置；checklist不再声称本轮规范仍需重复授权，也不禁止用户已授权的Git动作。来源主张仍按页面核验范围处理。
+
+整合后`node tools/check-doc-links.mjs`通过：651份文档、3140个仓库链接目标、0问题。此检查不验证锚点、远端网页或产品视觉；并行文档接收不改变原定docs-only范围。
 
 本次未生成Dystopia/Pages新视觉稿、未修改默认配色、未运行付费provider、未声称全量产品回归或G1–G5关闭。后续真实施工从[迁移切片](migration-notes.md)与[前端连续性规范](../agent-interface-2026-09-10/frontend-contract.md)接续。

@@ -6,6 +6,8 @@
 
 [前端连续性v1](design/agent-interface-2026-09-10/frontend-contract.md)已作为后续UI规范入口：四类合同、nearest precedent、变更记录、影响场景验证、baseline与独立复核分开；AGENTS与Atlas可达。不引入组件依赖、自动loader或新域对象；未改产品CSS/偏好行为、未完成specimen或部署，不关闭G1–G5。详细核对与文档检查见[本单回执](design/skin-injection-2026-09-10/verification.md)。
 
+同题并行文档`12eb220`已在隔离树整合：保留problem-key导航与扩展checklist，由v1统一强制范围与证据等级，不建立第二套authority。共享writer的工作分支和原有证据不覆盖。
+
 更新：2026-09-10。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
 ## 当前合流：Pages 实录、并行产品与新研究理念（2026-09-10）
