@@ -5,6 +5,8 @@
 
 状态：**范围已登记、PR 施工稿已落；未完成全量逐按钮盘点、specimen 或产品改造。** [PR 分片与验收](pr-plan.md)接既有 FE-04 / CC-I / Iconography 路线，不建立第二套事实 owner。当前生效裁决仍是 [IC-8 不换族](../icon-controls.md)；EX-IC2 是增量探索编号，不重开或改写已经交付的 EX-IC1。
 
+分片 A（全量 Chat controls 清点）已交付：方法、台账、缺口与动态证据见 [inventory/README.md](inventory/README.md)。
+
 ## 输入及采纳边界
 
 | 输入 | 处理 |
