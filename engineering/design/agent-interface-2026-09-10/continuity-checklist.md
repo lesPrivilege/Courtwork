@@ -23,7 +23,7 @@ Changed dimension:
 Held constant:
 - ...
 
-Canonical local precedent:
+Nearest local precedent + governance status / evidence type:
 - ...
 
 Relevant grammar:
@@ -52,7 +52,7 @@ Explicitly forbidden drift:
 [ ] 任务已解析成坐标：surface / semantic / operation / state / viewport / changed dimension
 [ ] owner fact 已定位，并且确实存在（不是从 UI 反推的）
 [ ] 已按 precedent-map 找到 problem_key，而不是按库名找组件
-[ ] nearest precedent 的 rank 已确定（只有 1–5 可直接落地）
+[ ] nearest precedent的rank已确定（1–5仅为检索优先级；仍须当前适用、明确状态与已有授权）
 [ ] 先例的status/证据类型已区分；只有确切接受范围内的canonical约束可直接采用，未被superseded_by取代
 [ ] 相关 grammar 的负规则已读（不是只读正面规则）
 [ ] 已看过真实的当前实现，而不是只看文档
@@ -105,7 +105,7 @@ runtime behavior
 [ ] 没有顺手修复相邻的无关 UI
 [ ] 没有引入依赖、字体、runtime 或构建步骤
 [ ] unknown 与 unavailable 没有混用；missing 没有当成 zero
-[ ] 深浅色、1440 / 390、reduced-transparency / reduced-motion 都过了一遍
+[ ] 按frontend-contract的条件矩阵覆盖1440/1280/390、浅深、键盘/zoom/失败与适用fallback；未跑/不适用项有理由
 ```
 
 ## 5. CONTINUITY-GAP 登记模板

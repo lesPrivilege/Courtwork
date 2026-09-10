@@ -10,7 +10,8 @@ Writer / reviewer:
 Owner fact + contract:
 Semantic / projection / control / placement:
 Nearest precedent: repository path + symbol + evidence + fixed SHA
-Status: implemented precedent / accepted baseline / candidate / external reference
+Evidence type: implemented precedent / accepted baseline / candidate / external reference
+Governance status: canonical / reference / unverified / deferred (with evidence and scope)
 Kept relationships:
 Intentional changes:
 

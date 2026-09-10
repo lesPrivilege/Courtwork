@@ -14,13 +14,13 @@
 | markdown / artifact阅读 | [markdown-reader.mjs](../../../app/web/markdown-reader.mjs) | [交互lint](../../../tools/lint-interaction.mjs)中的ALLOWED_TAGS约束 | 动态标签闭集仍需守住；阅读组件不产生接受/授权 |
 | layer / glass / review与skin | [styles.css](../../../app/web/styles.css)的S/R层与两处blur注册 | [色彩合同](../../mvp/execution/work-surface-kit/contracts/color-governance.md)、[Skin/Review新裁决](../skin-injection-2026-09-10/skin-constitution.md)、[Material grammar](../home-composition-2026-09-10/material-grammar.md) | 存在旧whole-skin泄漏，不将全部现状提升为规范 |
 
-## 状态分类
+## 证据类型与治理状态
 
 - **Canonical contract**：当前词表、Atlas已裁规则及各owner合同；可作为约束，不凭截图替代。
-- **Implemented precedent**：上表源码，可复用；已知缺口与接受范围跟随evidence。
+- **Implemented precedent**：上表源码；有明确接受证据且当前适用的范围为canonical，其余只作reference或unverified线索。代码存在本身不授予canonical。已知缺口与接受范围跟随evidence。
 - **Accepted visual baseline**：必须另有固定数据、版本、截图和接受记录。此索引没有批量将旧截图升为golden。
-- **Candidate**：BE-31通用数值控件、context meter、无provider timing的sparkline、完整ApprovalGate reviewer/expiry/quorum、音频waveform、泛化graph、Dystopia对照及新增review material。查既有工单，不能先画成可用。
-- **External reference**：Appica / React Aria / Base UI / AI Elements / assistant-ui / Figma等；仅取已核验方法/行为，不引依赖或域schema。
+- **Candidate**（处置为deferred，或已核验reference下的候选用途）：BE-31通用数值控件、context meter、无provider timing的sparkline、完整ApprovalGate reviewer/expiry/quorum、音频waveform、泛化graph、Dystopia对照及新增review material。查既有工单，不能先画成可用。
+- **External reference**（正文已核验部分为reference，未核验主张为unverified）：Appica / React Aria / Base UI / AI Elements / assistant-ui / Figma等；仅取已核验方法/行为，不引依赖或域schema。
 
 Provider connection已有专用原生number input（`settings-view.mjs`，`name=contextWindow`、min=4、step=1）；它是既有配置字段，不是通用NumberField/Stepper/ScrubArea。Atlas已同步纠正“从无数值输入”的旧时点描述。
 

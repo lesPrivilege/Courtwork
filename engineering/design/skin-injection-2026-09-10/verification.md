@@ -48,3 +48,5 @@ Luna最后只读复核当前frontend-contract/precedents，未见断链、错误
 整合后`node tools/check-doc-links.mjs`通过：651份文档、3140个仓库链接目标、0问题。此检查不验证锚点、远端网页或产品视觉；并行文档接收不改变原定docs-only范围。
 
 本次未生成Dystopia/Pages新视觉稿、未修改默认配色、未运行付费provider、未声称全量产品回归或G1–G5关闭。后续真实施工从[迁移切片](migration-notes.md)与[前端连续性规范](../agent-interface-2026-09-10/frontend-contract.md)接续。
+
+Luna对整合提交4999a56的只读复核发现map的状态字段混用、过度canonical、rank与viewport表述漂移。Astra逐项修正：iconography只保留Lucide的canonical；通用toolbar标deferred；triage/inspector/material/shape均写明已接受窄范围和待实施部分；检索rank不产生权限；模板分开证据类型/治理状态；checklist引用v1条件矩阵。此轮不重复产品测试，修订后只跑文档路径/空白检查；不冒称整合map覆盖全部产品独立接受。
