@@ -1,13 +1,25 @@
 import { el } from './ui-controls.mjs';
 const nonnegative = value => Number.isFinite(value) && value >= 0;
+const nonempty = value => typeof value === 'string' && Boolean(value.trim());
+const wallClock = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
+const effort = value => value === null || ['off','minimal','low','medium','high','xhigh','max'].includes(value);
 function validMeasurement(data) {
   return data?.schemaVersion === 1 && Number.isSafeInteger(data.requestId) && data.requestId > 0
+    && data.source==='host-semantic-stream' && ['agent','compaction'].includes(data.purpose)
     && ['started','streaming','completed','cancelled','failed','interrupted'].includes(data.phase)
-    && data.requestedModel && ['provider','model','api'].every(key=>typeof data.requestedModel[key]==='string')
+    && data.requestedModel && ['provider','model','api'].every(key=>nonempty(data.requestedModel[key]))
+    && (data.observedModel===undefined || data.observedModel===null || (nonempty(data.observedModel.model) && ['provider','api'].every(key=>data.observedModel[key]===null || nonempty(data.observedModel[key]))))
+    && effort(data.requestedEffort) && effort(data.effectiveEffort) && wallClock(data.startedAt)
+    && (data.finishedAt===undefined || wallClock(data.finishedAt))
+    && (data.contextWindow===null || (Number.isSafeInteger(data.contextWindow)&&data.contextWindow>=0))
     && nonnegative(data.elapsedMs) && [data.firstOutputMs,data.firstTextMs].every(value=>value===null || nonnegative(value))
-    && (data.context===null || (data.context && Number.isSafeInteger(data.context.estimatedTokens) && data.context.estimatedTokens>=0))
+    && data.providerTtftMs===null && data.decodeTokensPerSecond===null
+    && Array.isArray(data.missing) && data.missing.includes('provider_token_timing') && data.missing.includes('token_deltas')
+    && (data.context===null || (data.context?.method==='serialized-request-utf16-chars-divided-by-4' && data.context.exact===false
+      && Number.isSafeInteger(data.context.characters) && data.context.characters>=0 && data.context.estimatedTokens===Math.ceil(data.context.characters/4)))
     && (data.usage===undefined || data.usage===null || ['input','output','cacheRead','cacheWrite'].every(key=>data.usage[key]===null || (Number.isSafeInteger(data.usage[key])&&data.usage[key]>=0)));
 }
+
 export function requestMeasurements(events = [], runId) {
   const requests = new Map();
   for(const event of events) if(event.type==='runtime.request.telemetry' && (!runId || event.runId===runId) && validMeasurement(event.data))

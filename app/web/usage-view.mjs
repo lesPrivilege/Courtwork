@@ -1,5 +1,5 @@
 import {el,action} from './ui-controls.mjs';
-import {usageValue,modelSeries,quantileLevels,validUsageDetails,usageCalendar,usageCalendarTarget} from './usage-projection.mjs';
+import {usageValue,modelSeries,quantileLevels,validUsageDetails,validUsageRuns,usageCalendar,usageCalendarTarget} from './usage-projection.mjs';
 const count=value=>value.toLocaleString();
 export function createUsageView({request,getProjects,onOpenRun}) {
   const dialog=el('dialog',{className:'usage-dialog',attrs:{'aria-labelledby':'usage-title'}});document.body.append(dialog);
@@ -8,14 +8,14 @@ export function createUsageView({request,getProjects,onOpenRun}) {
   async function load(clear=true){
     const own=++generation;detailGeneration++;loading=true;error='';drill=null;if(clear)data=null;render();
     try{const value=await request(`/work-usage-details?${new URLSearchParams({days,...(projectId?{projectId}:{})})}`);
-      if(own!==generation)return;if(!validUsageDetails(value))throw new Error('Usage response is unavailable');data=value;
+      if(own!==generation)return;if(!validUsageDetails(value,{days,projectId:projectId||null}))throw new Error('Usage response is unavailable');data=value;
     }catch(e){if(own===generation)error=e.message;}finally{if(own===generation){loading=false;render();}}
   }
   async function inspect(filter,offset=0){
     if(!data)return;const snapshot=data,own=++detailGeneration;drill={filter,loading:true,error:'',result:null};render();
     try{const result=await request('/work-usage-runs',{method:'POST',body:{days,...(projectId?{projectId}:{}),snapshotId:snapshot.snapshotId,...filter,offset,limit:25}});
       if(own!==detailGeneration||snapshot!==data)return;
-      if(result.schemaVersion!==1 || result.snapshotId!==snapshot.snapshotId || !Array.isArray(result.items))throw new Error('Usage run list is unavailable');
+      if(!validUsageRuns(result,snapshot,{filter,offset,limit:25}))throw new Error('Usage run list is unavailable');
       drill={filter,loading:false,error:'',result};
     }catch(e){if(own===detailGeneration)drill={filter,loading:false,error:e.message,result:null};}
     if(own===detailGeneration){render();dialog.querySelector('.usage-drilldown')?.focus();}

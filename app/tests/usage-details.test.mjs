@@ -77,3 +77,20 @@ test('Usage calendar shares Home Monday-first orientation with bounded keyboard 
   assert.equal(usageCalendarTarget(20,'End',grid.offset,30),29);
   assert.equal(usageCalendarTarget(20,'Tab',grid.offset,30),null);
 });
+
+test('overview rejects malformed dates, scope, counts and incoherent model totals',()=>{
+ const valid=deriveUsageDetails(fixture(),{days:2},observed).overview;
+ for(const mutate of [v=>{v.interval={days:0};v.buckets=[];},v=>v.buckets[0].date='2026-99-99',v=>v.buckets[1].date=v.buckets[0].date,v=>delete v.coverage,v=>v.scope.projectId=5,v=>v.models[0].tokens.input++,v=>v.models[0].identity.model={},v=>v.missing=false]){
+  const bad=structuredClone(valid);mutate(bad);assert.equal(validUsageDetails(bad),false);
+ }
+ assert.equal(validUsageDetails(valid,{days:7,projectId:null}),false);
+ assert.equal(validUsageDetails(valid,{days:2,projectId:'another'}),false);
+});
+test('drilldown rejects malformed rows, wrong observation echo and unsafe pagination',async()=>{
+ const {validUsageRuns}=await import('../web/usage-projection.mjs');
+ const snapshot=deriveUsageDetails(fixture(),{days:2},observed),filter={date:'2026-09-10'},query={snapshotId:snapshot.overview.snapshotId,...filter,limit:1};
+ const result=selectUsageRuns(snapshot,query),expected={filter,offset:0,limit:1};assert.equal(validUsageRuns(result,snapshot.overview,expected),true);
+ for(const mutate of [v=>v.items=[{}],v=>v.scope.projectId='wrong',v=>v.filter.date='2026-09-09',v=>v.interval.days=1,v=>v.nextOffset=0,v=>v.total=-1,v=>delete v.items[0].usage,v=>v.items[0].usage.input=Infinity,v=>v.items[0].date='2026-99-99',v=>v.items[0].modelKey='unknown-key']){
+  const bad=structuredClone(result);mutate(bad);assert.equal(validUsageRuns(bad,snapshot.overview,expected),false);
+ }
+});

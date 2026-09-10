@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { requestTiming, requestDuration, renderRequestMeasurements } from '../web/telemetry-view.mjs';
+import { requestMeasurements, requestTiming, requestDuration, renderRequestMeasurements } from '../web/telemetry-view.mjs';
 import { withTinyDom } from './tiny-dom.mjs';
-const measurement=(id,extra={})=>({schemaVersion:1,requestId:id,phase:'completed',purpose:'agent',requestedModel:{provider:'local',model:'test',api:'test'},observedModel:null,elapsedMs:1000,firstOutputMs:200,firstTextMs:500,context:null,usage:{input:3,output:null,cacheRead:0,cacheWrite:0},...extra});
+const measurement=(id,extra={})=>({schemaVersion:1,requestId:id,source:'host-semantic-stream',startedAt:'2026-09-10T12:00:00.000Z',requestedEffort:null,effectiveEffort:null,contextWindow:null,providerTtftMs:null,decodeTokensPerSecond:null,missing:['provider_token_timing','token_deltas'],phase:'completed',purpose:'agent',requestedModel:{provider:'local',model:'test',api:'test'},observedModel:null,elapsedMs:1000,firstOutputMs:200,firstTextMs:500,context:null,usage:{input:3,output:null,cacheRead:0,cacheWrite:0},...extra});
 test('host timing has independent request origins and preserves missing versus measured zero',()=>{
   const rows=requestTiming([measurement(1),measurement(2,{elapsedMs:500,firstOutputMs:0,firstTextMs:null})]);
   assert.deepEqual(rows.map(r=>[r.width,r.firstOutput,r.firstText]),[[100,20,50],[50,0,null]]);
@@ -23,3 +23,10 @@ test('default request view folds exact records, preserves lower-level facts and 
   assert.equal(reopened.querySelector('.request-detail').open,true);
   assert.equal(reopened.querySelector('.request-definitions').open,true);
 }));
+
+test('malformed v1 metadata is rejected while out-of-interval timing remains inspectable',()=>{
+ for(const mutate of [r=>r.purpose={},r=>r.source=4,r=>r.requestedModel.model='',r=>r.observedModel={model:{},provider:42,api:null},r=>r.effectiveEffort={},r=>r.startedAt='bad',r=>r.contextWindow=-1,r=>r.context={estimatedTokens:20},r=>r.providerTtftMs=1]){
+  const row=measurement(1);mutate(row);assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:row}],'r').length,0);
+ }
+ const row=measurement(1,{firstTextMs:2000});assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:row}],'r').length,1);assert.equal(requestTiming([row])[0].firstText,null);
+});
