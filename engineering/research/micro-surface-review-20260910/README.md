@@ -1,5 +1,7 @@
 # 前后端合流评审实践 · Micro-surface review输入
 
+Luna fast已返回[Rename真实接缝与候选验收单](luna-consumption.md)：已有Session PATCH与持久化，不是local-only；optimistic/CAS没有现成合同，不默认引入。外部来源核验尚未交付，未改变其核验等级。
+
 用户授权入账并立即派Luna fast消费。来源对话当前标题[前后端合流评审实践](chatgpt-conversation://6aa2d0e5-665c-83ec-a0cd-72bfc9ee3f4a)，用户链接原标签New chat。成功读取1个completed turn、2条消息，无附件，hasMore=false、nextCursor=null；[完整原文](inputs/conversation.json)保留。原答“48候选/5方向/8来源”仅其自述，本地不据此宣称核验过8来源。
 
 ## 处置与立即消费范围
