@@ -16,12 +16,14 @@ const STATIC = new Map([
   ["/index.html", { file: path.join(APP_ROOT, "web", "index.html"), type: "text/html; charset=utf-8" }],
   ["/web/app.mjs", { file: path.join(APP_ROOT, "web", "app.mjs"), type: "text/javascript; charset=utf-8" }],
   ["/web/markdown-reader.css", { file: path.join(APP_ROOT, "web", "markdown-reader.css"), type: "text/css; charset=utf-8" }],
+  ["/web/summary-disclosure.css", { file: path.join(APP_ROOT, "web", "summary-disclosure.css"), type: "text/css; charset=utf-8" }],
+  ["/web/surface-layout.css", { file: path.join(APP_ROOT, "web", "surface-layout.css"), type: "text/css; charset=utf-8" }],
   ["/web/styles.css", { file: path.join(APP_ROOT, "web", "styles.css"), type: "text/css; charset=utf-8" }],
   ["/extensions/evidence-memo/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "evidence-memo", "renderer.mjs"), type: "text/javascript; charset=utf-8" }],
   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
-for (const name of ["skin-policy.js", "surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "coordination-view.mjs", "coordination-projection.mjs", "spark-view.mjs", "spark-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+for (const name of ["skin-policy.js", "summary-disclosure.mjs", "summary-disclosure-projection.mjs", "surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "coordination-view.mjs", "coordination-projection.mjs", "spark-view.mjs", "spark-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
 // Brand merge gate 3: the product admits the brand package's ES modules and
 // nothing else under brand/. Each path is an exact key, so brand/CONTRACT.md,

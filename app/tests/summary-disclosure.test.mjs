@@ -110,22 +110,53 @@ test("readerUnavailable keeps file provenance but revokes every open capability"
   assert.equal(value.canOpen, false);
 });
 
-test("Run card starts collapsed, discloses identity/files, and labels recorded files separately from review", async () => {
+test("Run card starts collapsed with Files and Run information disclosures", async () => {
   await withTinyDom(async () => {
     const snapshot = project();
-    const card = createRunSummaryCard({ getSnapshot: () => snapshot, onOpen() {} });
+    let previewed = null;
+    const card = createRunSummaryCard({
+      getSnapshot: () => snapshot,
+      onOpen() {},
+      onOpenFile(file) { previewed = file; },
+    });
     assert.equal(card.element.hidden, false);
-    const details = card.element.querySelector("details");
-    assert.ok(details);
-    assert.equal(details.open, false);
+    const details = card.element.querySelectorAll("details");
+    assert.equal(details.length, 2);
+    assert.equal(details[0].open, false);
+    assert.equal(details[1].open, false);
+    assert.match(details[0].textContent, /Files · 1/);
+    assert.match(details[1].textContent, /Run information/);
     assert.match(card.element.textContent, /s1/);
     assert.match(card.element.textContent, /r1/);
-    assert.match(card.element.textContent, /out\/source-note\.txt/);
-    assert.match(card.element.textContent, /Recording a file does not establish review acceptance/);
+    assert.match(card.element.textContent, /source-note\.txt/);
+    assert.match(card.element.textContent, /out\//);
+    assert.match(card.element.textContent, /18 B/);
+    assert.match(card.element.textContent, /Preview/);
+    assert.equal(card.element.querySelector(".sd-run-summary-id"), null);
+    assert.equal(card.element.querySelector(".sd-run-summary-file-open"), null);
+    assert.doesNotMatch(card.element.textContent, /Recording a file does not establish review acceptance/);
     assert.ok(card.element.querySelector(".sd-run-summary-open"));
+    details[0].open = true;
+    card.element.querySelector(".sd-run-summary-file-preview").click();
+    assert.deepEqual(previewed, snapshot.files[0]);
     card.dispose();
     assert.equal(card.element.hidden, true);
     assert.equal(card.element.textContent, "");
+  });
+});
+
+test("Run card does not turn unknown or unavailable files into a zero count", async () => {
+  await withTinyDom(async () => {
+    let current = project({ runs: [run({ status: "unknown", artifacts: undefined })] }, { phase: "unknown" });
+    const card = createRunSummaryCard({ getSnapshot: () => current });
+    const filesSummary = card.element.querySelectorAll("summary")[0];
+    assert.equal(filesSummary.textContent, "Files · unavailable");
+    assert.doesNotMatch(filesSummary.textContent, /0/);
+
+    current = project({ runs: [run({ artifacts: [] })] });
+    card.update(current);
+    assert.equal(card.element.querySelectorAll("summary")[0].textContent, "Files · 0");
+    assert.ok(card.element.querySelector(".sd-run-summary-information-disclosure"));
   });
 });
 
@@ -148,19 +179,21 @@ test("Run card rejects stale Open intents after identity or generation changes",
   });
 });
 
-test("Run card prevents duplicate async Open actions and preserves disclosure focus on same identity", async () => {
+test("Run card prevents duplicate async Open actions and preserves both disclosures and focus", async () => {
   await withTinyDom(async () => {
     const pending = deferred();
     let calls = 0;
     let current = project({}, { generation: 3 });
     const card = createRunSummaryCard({ getSnapshot: () => current, onOpen: () => { calls++; return pending.promise; } });
-    const details = card.element.querySelector("details");
-    details.open = true;
+    const details = card.element.querySelectorAll("details");
+    details[0].open = true;
+    details[1].open = true;
     const open = card.element.querySelector(".sd-run-summary-open");
     open.focus();
     current = project({ runs: [run({ status: "running" })] }, { generation: 3 });
     card.update(current);
-    assert.equal(card.element.querySelector("details").open, true);
+    assert.equal(card.element.querySelectorAll("details")[0].open, true);
+    assert.equal(card.element.querySelectorAll("details")[1].open, true);
     assert.equal(document.activeElement.dataset.focusKey, "run-summary-open");
 
     const actionButton = card.element.querySelector(".sd-run-summary-open");
@@ -212,7 +245,7 @@ test("Run card only offers Retry for an error and exposes callback failures", as
   });
 });
 
-test("removing a focused Retry action returns focus to the open disclosure summary", async () => {
+test("removing a focused Retry action returns focus to Run information and preserves both disclosures", async () => {
   await withTinyDom(async () => {
     let current = project({}, { phase: "error", error: "Read failed.", generation: 10 });
     let card;
@@ -223,13 +256,15 @@ test("removing a focused Retry action returns focus to the open disclosure summa
         card.update(current);
       },
     });
-    const details = card.element.querySelector("details");
-    details.open = true;
+    const details = card.element.querySelectorAll("details");
+    details[0].open = true;
+    details[1].open = true;
     const retry = card.element.querySelector(".sd-run-summary-retry");
     retry.focus();
     retry.click();
-    assert.equal(card.element.querySelector("details").open, true);
-    assert.equal(document.activeElement.dataset.focusKey, "run-summary-details");
+    assert.equal(card.element.querySelectorAll("details")[0].open, true);
+    assert.equal(card.element.querySelectorAll("details")[1].open, true);
+    assert.equal(document.activeElement.dataset.focusKey, "run-summary-information");
     await flush();
   });
 });

@@ -15,6 +15,9 @@ import {
   MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
+import { projectRunSummary } from "./summary-disclosure-projection.mjs";
+import { createRunSummaryCard } from "./summary-disclosure.mjs";
+
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
@@ -1480,6 +1483,7 @@ async function selectSession(
       })
     )
       return;
+    state.surface.open = !surfaceOverlayQuery.matches;
     renderAll();
     await loadSurface(epoch);
     await loadWorkThread(epoch);
@@ -3418,7 +3422,7 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   if (focus)
     next
       ? (surfaceTabButton(state.surface.kind) ?? $("surface-expand-button"))?.focus()
-      : focusSurfaceRail();
+      : restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
 
 /* The panel is a modal only where it really covers the work: below 1024 the
@@ -3507,6 +3511,11 @@ function surfaceTabButtons() {
     (tab) => !tab.hidden && tab.closest("[hidden]") === null,
   );
 }
+function surfaceReturnFocus(opener = state.surface.returnFocus) {
+  if (opener?.isConnected) return opener;
+  const key = opener?.dataset?.focusKey;
+  return key ? document.querySelector(`[data-focus-key="${CSS.escape(key)}"]`) : null;
+}
 /* 关闭活跃文档 tab：回紧凑目录，并把焦点还给打开它的那个控件（restoreLayerFocus）。 */
 function closeDocumentTab() {
   if (!surfaceDocumentRef()) return;
@@ -3522,7 +3531,7 @@ function closeDocumentTab() {
   renderSurfaceVisibility();
   const again =
     openerKey && !opener?.isConnected
-      ? $("message-stream").querySelector(
+      ? document.querySelector(
           `[data-focus-key="${CSS.escape(openerKey)}"]`,
         )
       : opener;
@@ -3569,7 +3578,7 @@ function closeSurface({ restoreFocus = true } = {}) {
   /* 收起时通常把焦点还给开它的控件；被别的东西接管（进 Settings 页）时不还，
      由接管者决定焦点落在哪里，否则焦点会先跳到一个马上要被藏起来的按钮上。 */
   if (restoreFocus)
-    restoreLayerFocus(state.surface.returnFocus, $("show-surface-button"));
+    restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
 /* The rail entry point: it opens the collapsed cards without choosing a kind,
  * because choosing one is what the cards are for. */
@@ -3588,7 +3597,7 @@ function openSurfaceRail() {
 }
 function focusSurfaceRail() {
   const rail = $("surface-rail");
-  const first = rail.querySelector("button:not([hidden])");
+  const first = [...rail.querySelectorAll("summary, button:not([hidden])")].find(node => node.getClientRects().length);
   (first ?? $("surface-expand-button"))?.focus();
 }
 /* WK-72 · the layer's two measurements: how much room the composer leaves it,
@@ -3610,7 +3619,7 @@ function measureSurfaceLayout({ render = true } = {}) {
   }
   const strip =
     chat.getBoundingClientRect().width <
-    px("--column", 740) + 2 * px("--col-gap", 24) + px("--rail-width", 360);
+    480 + 2 * px("--col-gap", 24) + 288;
   if (strip !== state.surface.strip) {
     state.surface.strip = strip;
     if (render) renderSurfaceVisibility();
@@ -3882,12 +3891,24 @@ const railHost = {
     materialsView.open();
   },
 };
+function runSummarySnapshot() {
+  if (state.view !== "session" || state.settings.open || !currentSession()) return null;
+  const facts = surfaceFacts();
+  const selected = facts.runs.find(run => run.id === facts.runId) || facts.runs.at(-1);
+  return projectRunSummary({...facts, runId: selected?.id}, {generation: state.sessionEpoch});
+}
+const runSummaryCard = createRunSummaryCard({
+  getSnapshot: runSummarySnapshot,
+  onOpen: snapshot => railHost.openRun(snapshot.identity.runId),
+  onOpenFile: ref => railHost.openFile(ref),
+});
 function renderSurfaceRail() {
   const rail = $("surface-rail");
   const visible = Boolean(
     state.surface.open && currentSession() && !state.surface.expanded,
   );
   rail.hidden = !visible;
+  runSummaryCard.update(runSummarySnapshot());
   if (!visible) return;
   const focusKey = document.activeElement?.dataset?.focusKey;
   const scroll = rail.scrollTop;
@@ -3911,6 +3932,10 @@ function renderSurfaceRail() {
   }
   const cards = [];
   for (const module of surfaceModules) {
+    if (module.kind === "run") {
+      if (!runSummaryCard.element.hidden) cards.push(runSummaryCard.element);
+      continue;
+    }
     const schema = module.adapter(facts);
     /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
     if (schema) cards.push(module.card(schema, railHost));
@@ -3947,7 +3972,7 @@ function loadRailFacts() {
 }
 function activateSurface(kind) {
   if (!currentSession() || !surfaceModule(kind)?.tabId) return;
-  if (!state.surface.open) state.surface.returnFocus = document.activeElement;
+  if (!state.surface.expanded) state.surface.returnFocus = document.activeElement;
   state.navigationOpen = false;
   state.surface.kind = kind;
   state.surface.open = true;

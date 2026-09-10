@@ -65,3 +65,19 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 非作者 Luna 在 fixture retry 中复现切会话后永久 Loading。Astra桥接补 activeSession/view/sessionEpoch 变化失效、HTTP返回后的同scope检查、中断后的可重试error，并将成功的确切Run读包作为该次fixture读快照，不以旧包伪装刷新成功。
 
 原host的Escape先回旧rail；此fixture位置已有摘要卡，因而桥接仅在本卡发出Open后观察host的expanded→collapsed，调用原 `closeSurface()` 收尾，原host恢复returnFocus。没有第二套Escape/tab handler或renderer生命周期。此协调是fixture的显式差异，生产host窗口仍待接续，不能把测试export/observer直接认作生产发布方案。
+
+## 用户截图修订 · 19:48–19:49
+
+六份用户本地截图作为构图参考：当前卡的调试表格感、Codex紧凑分组、Claude收敛/文件列表展开、Claude Preview和Codex顶部tab。修订不采纳截图中的外部产品功能或权限。常驻去UUID、第一层为Files清单、第二层Run information保留精确身份；点击文件沿原host的content-version reader。摘要右列抬到Chat标题带，既有Preview chrome在fixture内对齐该带。原两个header动作移动到Workspace tools折叠组，保留原DOM与监听器；离开目标会话时归还原位置。Fixture说明和故障控件排在内容下方。
+
+<1024摘要位于chat header之后、conversation body之前；先前描述“聊天文档流前端”的旧实现实际被host排列至消息后，此次改为外层挂载予以纠正。原host的1024–1679视图切换与<1024 sheet仍保持，未以CSS伪造并排reader语义。此前2111375截图归于被用户要求修订的候选，不作为本轮视觉完成。
+
+19:58追加参考：右侧纵向长卡、明确留白、不得覆盖溢出。Fixture桌面卡区上/右边距采用现有space tokens，高度有界于720px与可用视口，内容在卡内滚动；聊天正文明确预留320px，composer沿同一conversation列而不重复缩进。窄屏回归自然流与自然高度，不硬塞桌面长卡。
+
+## 20:01 用户升级完成条件：生产层级稳定
+
+用户明确“保证各级界面的稳定，不是临时局部实现”，覆盖前述fixture-only交付边界。Astra在本隔离分支实施生产host接线，既有其他writer修改不覆盖、不合流其在途版本：追加允许 `app/web/app.mjs`、`app/web/index.html`、`app/server/index.mjs`静态白名单、新`app/web/surface-layout.css`及相应测试。`styles.css`、provider/model/settings实现仍不改。只读核对PV/SD集成任务在途范围为provider配置拆分/迁移/样本，与本单host接线不同；server白名单纯追加在合流前仍须组合核对。
+
+生产方案沿同一surface-panel与surface-rail：Run摘要替换原Run card，持久组件实例保留同对象局部披露；其它模块沿原目录，统一一个长卡容器。桌面进入Session默认显示目录；用户关闭后不因轮询自动重开。窄屏沿原按需sheet，不强制弹出modal。收起从原host恢复opener；不再依赖fixture MutationObserver。保留1680三栏/1024视图切换的既有最小阅读宽度。标题分隔线上为动作或tab，目录在线下共用col-gap；视图切换时旧标题带退出可视层，tab占同一带。新CSS为产品入口加载、静态白名单明确列出。
+
+`serve.mjs`默认只提供真实产品与合成数据，测试exports/fixture UI注入改为显式`SD_FIXTURE_ADAPTER=1`历史诊断模式。新生产CUA不得以注入模式截图冒充。

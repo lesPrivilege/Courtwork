@@ -20,14 +20,14 @@ function observeScope(){
 function currentRead(ticket,scope){observeScope();return ticket===generation&&scope===scopeKey()&&surfaceFacts().sessionId===config.sessionId;}
 const dock = el('aside',{className:'sd-fixture-dock',attrs:{'aria-label':'Run summary fixture'}});
 const label = el('p',{className:'rail-note',text:'Fixture · synthetic data · local-fake'});
-const controls = el('details',{className:'sd-fixture-controls'},el('summary',{text:'Fixture controls'}));
+const controls = el('details',{className:'sd-fixture-controls'},el('summary',{text:'Fixture controls · synthetic'}));
 const picker = el('select',{attrs:{'aria-label':'Fixture read state'}});
 for(const name of ['ready','loading','empty','unknown','error','unavailable','incompatible','long'])picker.append(el('option',{attrs:{value:name},text:name}));
 const scheme = el('select',{attrs:{'aria-label':'Fixture theme'}});
 for(const name of ['light','dark'])scheme.append(el('option',{attrs:{value:name},text:name}));
 controls.append(el('label',{text:'Read state'},picker),el('label',{text:'Theme'},scheme));
-dock.append(label,controls);
-const body = document.getElementById('conversation-body');body.prepend(dock);
+const body = document.getElementById('conversation-body');
+const chat=document.querySelector('.chat-panel');chat.insertBefore(dock,body);
 function snapshot(){
  observeScope();
  const facts = surfaceFacts();
@@ -38,7 +38,7 @@ function snapshot(){
  if(phase==='long')scoped.runs=facts.runs.map(r=>r.id===config.runId?{...r,artifacts:(r.artifacts||[]).map(a=>({...a,path:'out/'+('long-synthetic-source-name-'.repeat(10))+'note.txt'}))}:r);
  return projectRunSummary(scoped,{phase:phase==='long'||phase==='empty'||phase==='unavailable'?'ready':phase,error:phase==='error'?readError:null,readerAvailable:phase!=='unavailable',generation});
 }
-const card=createRunSummaryCard({getSnapshot:snapshot,onOpen:s=>{summaryOpened=true;railHost.openRun(s.identity.runId);},onRetry:async()=>{
+const card=createRunSummaryCard({getSnapshot:snapshot,onOpen:s=>{summaryOpened=true;railHost.openRun(s.identity.runId);},onOpenFile:file=>{summaryOpened=true;railHost.openFile(file);},onRetry:async()=>{
  const ticket=++generation,scope=scopeKey();phase='loading';picker.value='loading';render();
  try {
   // Deterministic adapter delay makes duplicate/late responses exercisable.
@@ -61,12 +61,14 @@ const surfaceObserver=new MutationObserver(()=>{
  if(summaryOpened&&!state.surface.expanded){summaryOpened=false;if(state.surface.open)closeSurface();}
 });
 surfaceObserver.observe(document.getElementById('surface-panel'),{attributes:true,attributeFilter:['class','aria-hidden']});
-dock.append(card.element);
+controls.append(label);
+dock.append(card.element,controls);
 let previous;
 function render(){
  const next=snapshot(),signature=JSON.stringify(next);
  dock.hidden=!next;
- body.classList.toggle('sd-fixture-has-card',Boolean(next));
+ chat.classList.toggle('sd-fixture-has-card',Boolean(next));
+ document.querySelector('.app-shell').classList.toggle('sd-fixture-active',Boolean(next));
  if(signature!==previous){previous=signature;card.update(next);}
 }
 picker.addEventListener('change',()=>{generation++;lastRead=null;phase=picker.value;readError='Synthetic read failure. Retry reloads this run.';render();});

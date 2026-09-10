@@ -38,8 +38,8 @@ const server = http.createServer(async (req,res)=>{
    if(url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/web/app.mjs') {
     const chunks=[];response.on('data',c=>chunks.push(c));response.on('end',()=>{
      let body = Buffer.concat(chunks).toString();
-     if(url.pathname.endsWith('.mjs')) body += '\nexport { railHost, surfaceFacts, selectSession, closeSurface };\n';
-     else if(!url.searchParams.has('baseline')) body = body.replace('</head>','<link rel="stylesheet" href="/web/summary-disclosure.css"><link rel="stylesheet" href="/fixture.css"></head>').replace('</body>','<script type="module" src="/fixture.mjs"></script></body>');
+     if(process.env.SD_FIXTURE_ADAPTER === '1' && url.pathname.endsWith('.mjs')) body += '\nexport { railHost, surfaceFacts, selectSession, closeSurface };\n';
+     else if(process.env.SD_FIXTURE_ADAPTER === '1' && !url.pathname.endsWith('.mjs') && !url.searchParams.has('baseline')) body = body.replace('</head>','<link rel="stylesheet" href="/web/summary-disclosure.css"><link rel="stylesheet" href="/fixture.css"></head>').replace('</body>','<script type="module" src="/fixture.mjs"></script></body>');
      res.writeHead(response.statusCode,{'content-type':response.headers['content-type'],'cache-control':'no-store'});res.end(body);
     });
    } else {res.writeHead(response.statusCode,response.headers);response.pipe(res);}

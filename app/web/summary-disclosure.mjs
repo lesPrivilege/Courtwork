@@ -72,8 +72,34 @@ function bytesText(bytes) {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
+function fileName(path) {
+  const value = String(path);
+  const separator = Math.max(value.lastIndexOf("/"), value.lastIndexOf("\\"));
+  return separator >= 0 ? value.slice(separator + 1) : value;
+}
+
+function fileParent(path) {
+  const value = String(path);
+  const separator = Math.max(value.lastIndexOf("/"), value.lastIndexOf("\\"));
+  return separator >= 0 ? value.slice(0, separator + 1) : "Workspace root";
+}
+
+function filesCanDisplay(snapshot) {
+  return snapshot.filesKnown && (snapshot.phase === "ready" || snapshot.phase === "empty");
+}
+
+function filesDisclosureLabel(snapshot) {
+  return filesCanDisplay(snapshot) ? `Files · ${snapshot.files.length}` : "Files · unavailable";
+}
+
+function filesEmptyMessage(snapshot) {
+  if (filesCanDisplay(snapshot) && snapshot.files.length === 0)
+    return "No files were recorded for this run.";
+  return snapshot.message || "Recorded files are unavailable.";
+}
+
 /**
- * Create the local Run summary/disclosure.  `getSnapshot` is read again for
+ * Create the Run summary/disclosure.  `getSnapshot` is read again for
  * every action so a changed Session, Run, generation, reader, or phase revokes
  * the old button without asking the host to defend a stale intent.
  */
@@ -149,8 +175,12 @@ export function createRunSummaryCard({
 
   function render(snapshot) {
     const old = current;
-    const oldDetails = root.querySelector("details");
-    const wasOpen = Boolean(old && oldDetails?.open && sameIdentity(old, snapshot));
+    const sameTarget = Boolean(old && snapshot && sameIdentity(old, snapshot));
+    const oldDetails = root.querySelectorAll("details");
+    const oldFilesDetails = root.querySelector(".sd-run-summary-files-disclosure") || oldDetails[0];
+    const oldInformationDetails = root.querySelector(".sd-run-summary-information-disclosure") || oldDetails[1];
+    const wasFilesOpen = Boolean(sameTarget && oldFilesDetails?.open);
+    const wasInformationOpen = Boolean(sameTarget && oldInformationDetails?.open);
     const active = document.activeElement;
     const focusKey = root.contains(active) ? active?.dataset?.focusKey : null;
     actionButtons = [];
@@ -171,13 +201,6 @@ export function createRunSummaryCard({
     );
     root.append(head);
 
-    root.append(
-      el("p", {
-        className: "sd-run-summary-id",
-        text: `Run ${snapshot.identity.runId}`,
-      }),
-    );
-
     const readMessage = snapshot.error || snapshot.message;
     if (readMessage)
       root.append(
@@ -188,40 +211,45 @@ export function createRunSummaryCard({
         }),
       );
 
-    if ((snapshot.phase === "ready" || snapshot.phase === "empty") && snapshot.files.length)
-      root.append(row("Results", snapshot.files.length === 1 ? "1 recorded file" : `${snapshot.files.length} recorded files`));
+    if (actionError)
+      root.append(el("p", { className: "sd-run-summary-error", text: actionError, attrs: { role: "alert" } }));
 
-    const disclosure = el(
+    const filesDisclosure = el(
       "details",
       {
-        className: "sd-run-summary-disclosure",
+        className: "sd-run-summary-disclosure sd-run-summary-files-disclosure",
       },
       el("summary", {
         className: "sd-run-summary-trigger",
-        text: "Details",
-        attrs: { "data-focus-key": "run-summary-details" },
+        text: filesDisclosureLabel(snapshot),
+        attrs: { "data-focus-key": "run-summary-files" },
       }),
     );
-    disclosure.open = wasOpen;
-    const detail = el("div", { className: "sd-run-summary-detail" });
-    detail.append(
-      el("p", { className: "rail-group", text: "Run identity" }),
-      row("Session", snapshot.identity.sessionId, { mono: true }),
-      row("Run", snapshot.identity.runId, { mono: true }),
-      row("Status", snapshot.statusLabel),
-    );
+    filesDisclosure.open = wasFilesOpen;
+    const filesDetail = el("div", { className: "sd-run-summary-detail" });
 
     if (snapshot.files.length) {
-      detail.append(el("p", { className: "rail-group", text: "Recorded files" }));
       const list = el("ul", { className: "sd-run-summary-files" });
       for (const [index, file] of snapshot.files.entries()) {
         const item = el("li", { className: "sd-run-summary-file" });
-        const pathLine = el("div", { className: "sd-run-summary-file-head" });
-        pathLine.append(icon("file-text", { size: 16 }), el("code", { className: "sd-run-summary-path", text: file.path }));
-        const meta = el("div", { className: "sd-run-summary-file-meta" });
-        meta.append(el("code", { text: file.sha256 }));
-        const bytes = bytesText(file.bytes);
-        if (bytes) meta.append(el("span", { text: bytes }));
+        const copy = el(
+          "span",
+          { className: "sd-run-summary-file-copy" },
+          el("span", { className: "sd-run-summary-file-name", text: fileName(file.path) }),
+          el("span", { className: "sd-run-summary-file-parent", text: fileParent(file.path) }),
+        );
+        const bytes = bytesText(file.bytes) || "Size unavailable";
+        const display = (button) => {
+          button.classList.remove("icon-only");
+          button.removeAttribute("data-tooltip");
+          button.replaceChildren(
+            icon("file-text", { size: 16 }),
+            copy,
+            el("span", { className: "sd-run-summary-file-bytes", text: bytes }),
+            el("span", { className: "sd-run-summary-file-preview-label", text: "Preview" }),
+          );
+          return button;
+        };
         if (typeof onOpenFile === "function" && snapshot.readerAvailable && (snapshot.phase === "ready" || snapshot.phase === "empty")) {
           const fileButton = action(
             "file-text",
@@ -232,25 +260,61 @@ export function createRunSummaryCard({
               if (target) invoke(onOpenFile, target);
             },
             {
-              visible: "Open file",
-              className: "quiet-button sd-run-summary-file-open",
+              className: "rail-file rail-file-open sd-run-summary-file-preview",
               attrs: { "data-focus-key": `run-summary-file:${index}` },
             },
           );
           actionButtons.push(fileButton);
-          meta.append(fileButton);
+          item.append(display(fileButton));
+        } else {
+          item.append(
+            el(
+              "div",
+              { className: "sd-run-summary-file-static" },
+              icon("file-text", { size: 16 }),
+              copy,
+              el("span", { className: "sd-run-summary-file-bytes", text: bytes }),
+            ),
+          );
         }
-        item.append(pathLine, meta);
         list.append(item);
       }
-      detail.append(list, el("p", { className: "rail-note", text: "Recording a file does not establish review acceptance." }));
+      filesDetail.append(list);
+      if (!snapshot.filesKnown)
+        filesDetail.append(el("p", { className: "rail-note", text: "Some recorded files are unavailable." }));
+    } else {
+      filesDetail.append(el("p", { className: "rail-note", text: filesEmptyMessage(snapshot) }));
     }
 
-    if (actionError)
-      detail.append(el("p", { className: "sd-run-summary-error", text: actionError, attrs: { role: "alert" } }));
-
     if (!snapshot.readerAvailable)
-      detail.append(el("p", { className: "rail-note", text: "The Run reader is unavailable. Opening is disabled." }));
+      filesDetail.append(el("p", { className: "rail-note", text: "The Run reader is unavailable. Opening is disabled." }));
+
+    filesDisclosure.append(filesDetail);
+    root.append(filesDisclosure);
+
+    const informationDisclosure = el(
+      "details",
+      {
+        className: "sd-run-summary-disclosure sd-run-summary-information-disclosure",
+      },
+      el("summary", {
+        className: "sd-run-summary-trigger",
+        text: "Run information",
+        attrs: { "data-focus-key": "run-summary-information" },
+      }),
+    );
+    informationDisclosure.open = wasInformationOpen;
+    const informationDetail = el("div", { className: "sd-run-summary-detail" });
+    informationDetail.append(
+      row("Run", snapshot.identity.runId, { mono: true }),
+      row("Session", snapshot.identity.sessionId, { mono: true }),
+    );
+
+    if (snapshot.files.length) {
+      informationDetail.append(el("p", { className: "rail-group", text: "File SHA-256" }));
+      for (const file of snapshot.files)
+        informationDetail.append(row(`SHA-256 · ${fileName(file.path)}`, file.sha256, { mono: true }));
+    }
 
     if ((snapshot.phase === "ready" || snapshot.phase === "empty") && snapshot.readerAvailable && typeof onOpen === "function") {
       const openButton = action(
@@ -268,7 +332,7 @@ export function createRunSummaryCard({
         },
       );
       actionButtons.push(openButton);
-      detail.append(el("div", { className: "sd-run-summary-actions" }, openButton));
+      informationDetail.append(el("div", { className: "sd-run-summary-actions" }, openButton));
     }
 
     if (snapshot.phase === "error" && typeof onRetry === "function") {
@@ -286,17 +350,22 @@ export function createRunSummaryCard({
         },
       );
       actionButtons.push(retryButton);
-      detail.append(el("div", { className: "sd-run-summary-actions" }, retryButton));
+      informationDetail.append(el("div", { className: "sd-run-summary-actions" }, retryButton));
     }
 
-    disclosure.append(detail);
-    root.append(disclosure);
+    informationDisclosure.append(informationDetail);
+    root.append(informationDisclosure);
     setBusy(busy);
 
-    if (focusKey) {
+    if (focusKey && sameTarget) {
       const focusTarget = root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
       if (focusTarget) focusTarget.focus();
-      else if (wasOpen) root.querySelector(".sd-run-summary-trigger")?.focus();
+      else {
+        const fallbackKey = focusKey === "run-summary-open" || focusKey === "run-summary-retry" || focusKey === "run-summary-information"
+          ? "run-summary-information"
+          : "run-summary-files";
+        root.querySelector(`[data-focus-key="${CSS.escape(fallbackKey)}"]`)?.focus();
+      }
     }
   }
 

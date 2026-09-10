@@ -1,12 +1,25 @@
-/* Fixture placement only; production host integration remains reserved.
-   No tab/renderer/layout authority is copied here. */
-.sd-fixture-has-card { position: relative; padding-right: 320px; }
-.sd-fixture-dock { position: absolute; right: var(--space-4); top: var(--space-4); width: 288px; max-height: calc(100% - var(--space-8)); overflow: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+/* Isolated placement experiment. The original host owns navigation and readers. */
+.sd-fixture-has-card { position: relative; }
+.sd-fixture-has-card .chat-header { padding-right: 336px; }
+.sd-fixture-has-card .chat-header-actions { position: absolute; right: var(--space-4); top: var(--space-2); }
+.sd-fixture-has-card .conversation-body { margin-right: 320px; }
+.sd-fixture-dock { position: absolute; right: var(--space-4); top: calc(var(--band-top) + var(--space-4)); width: 288px; height: min(720px, calc(100% - var(--band-top) - var(--space-8))); overflow: hidden; display: flex; flex-direction: column; gap: var(--space-3); }
+.sd-fixture-dock > .sd-run-summary { flex: 1; min-height: 0; overflow: auto; }
+.sd-fixture-dock > details { flex: none; }
 .sd-fixture-controls { font-size: var(--text-meta); color: var(--muted-strong); }
+.sd-fixture-controls summary { cursor: pointer; padding: var(--space-2); }
 .sd-fixture-controls label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-2); }
+.sd-fixture-dock > .rail-note { padding-inline: var(--space-2); font-size: var(--text-caption); }
+@media (min-width: 1024px) {
+ .sd-fixture-active .surface-panel.is-expanded:not(.is-three-pane) { top: 0; }
+ .sd-fixture-active .surface-panel.is-expanded .surface-header { height: var(--band-top); min-height: var(--band-top); }
+}
 @media (max-width: 1023px) {
- .sd-fixture-has-card { padding-right: 0; overflow: auto; }
- .sd-fixture-dock { position: static; width: auto; max-height: none; overflow: visible; flex: none; margin: var(--space-4); }
- .sd-fixture-has-card .message-stream-wrap { flex: none; }
- .sd-fixture-has-card .message-stream { overflow: visible; }
+ .sd-fixture-has-card .chat-header { padding-right: var(--space-4); }
+ .sd-fixture-has-card .chat-header-actions { position: static; }
+ .sd-fixture-has-card .conversation-body, .sd-fixture-has-card .composer-area { margin-right: 0; }
+ .sd-fixture-dock { position: static; width: auto; height: auto; max-height: none; overflow: visible; flex: none; margin: var(--space-3) var(--space-4); }
+ .sd-fixture-has-card { overflow: auto; }
+ .sd-fixture-dock > .sd-run-summary { flex: none; overflow: visible; }
+ .sd-fixture-has-card .conversation-body { flex: none; overflow: visible; }
 }
