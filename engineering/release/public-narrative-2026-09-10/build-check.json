@@ -1,0 +1,6 @@
+{
+  "reproducible": true,
+  "files": 76,
+  "manifest_sha256": "67ccbaaeec4cd40f6f6efe019ffc4350e355dd518fe7b0e582888a1bb6130865",
+  "scope": "Static publishing build; not product acceptance"
+}

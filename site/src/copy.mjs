@@ -7,9 +7,9 @@ export const PAPER_ENTRY = {
   baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
 };
 export const NAV = [
-  { label: "Tour · 编排", href: "#tour" },
-  { label: "Paper · 理念", href: "#paper" },
-  { label: "Get Courtwork", href: "./get.html" },
+  { label: "Tour", href: "#tour" },
+  { label: "Paper", href: PAPER_ENTRY.href },
+  { label: "Release", href: "./get.html" },
 ];
 
 export const HERO = {
@@ -17,11 +17,7 @@ export const HERO = {
   tagline: "A place for expert work to take form.",
   h1: ["Work that survives the model.", "模型可以离场，工作继续。"],
   lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
-  actions: [
-    { label: "Get Courtwork", href: "./get.html" },
-    { label: "Tour · 编排", href: "#tour" },
-    { label: "Paper · 理念", href: "#paper" },
-  ],
+  actions: [{ ...NAV[2], label: "Get CourtWork", primary: true }, NAV[0], NAV[1]],
 };
 
 export const RAW_GOVERNED = {
@@ -53,14 +49,14 @@ export const RAW_GOVERNED = {
       status: "verified with synthetic data",
     },
   ],
-  caption: "synthetic data · recorded at CourtWork {sha7} · 三个视图读取同一份记录",
+  caption: "同一件工作：过程、状态与下一次执行需要的材料。",
 };
 
 export const MATTER = {
   index: "02",
   title: "A matter in motion",
   quote: "从第一条请求，到一次有据可循的决定。",
-  label: "Replay · synthetic data · recorded at CourtWork {sha7}",
+  label: "Interactive NDA walkthrough",
   note: "跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，查看当时的工作状态。",
 };
 
@@ -76,7 +72,7 @@ export const ARCHITECTURE = {
   caption:
     "当前状态 → 运行上下文 → 候选 → 审阅 → 正式变化。",
   closing:
-    "Built on Schema Engineering 9.6. 从论文中的工作状态模型，到可以运行、审阅与复现的实现。",
+    "Schema Engineering 为工作的状态、变更与连续性提供语义基础。",
   links: [
     { label: "Read the paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
     {
@@ -111,111 +107,16 @@ export const REVIEW = {
   distinction: "逐条展开依据，比较修订，保留决定的完整来路。",
 };
 
-export const EVIDENCE = {
-  index: "05",
-  title: "Evidence",
-  quote: "打开记录，检查方法，亲自复现。",
-  list: [
-    {
-      item: "Benchmark",
-      text: "Continuity conformance：六个用例覆盖来源替换、回执重放、重启、身份校验与版本冲突。",
-      entry: "benchmarks/continuity/",
-    },
-    {
-      item: "Fixture",
-      text: "由真实 HTTP、Pi loopback 与 Core 生成的确定性数据包，附 sha256。",
-      entry: "app/tests/fixtures/work-core/nda-packets.json",
-    },
-    { item: "Tests", text: "固定产品版本的完整应用测试。", entry: "npm --prefix app test" },
-    {
-      item: "Version",
-      text: "Paper 9.6 `d78fd31` · 产品 `{sha7}` · 站点 `{site_sha7}`",
-      entry: "PAPER.md",
-    },
-    { item: "Decisions", text: "架构裁决，从第一条起可读。", entry: "engineering/decisions.md" },
-    {
-    item: "Paper revision",
-    text: "论文的版本级变化。",
-    entry: "CHANGELOG.md（Schema Engineering）",
-    href: "https://github.com/lesPrivilege/Schema-Engineering/blob/main/CHANGELOG.md",
-  },
-  ],
-  evalIntro:
-    "从输入、运行方法到原始结果，完整检查一次 continuity conformance 测试。",
-  eval: [
-    {
-      question: "What was tested?",
-      text: "Continuity conformance。六个用例，每个 checkpoint 校验完整的语义状态：观察是否在场、来源版本、候选的归属与依据、义务语义、效果计数、成果内容、决定与回执的绑定、拒绝或重启之后状态是否保持。测试范围：协议保真度。",
-    },
-    {
-      question: "Against what?",
-      text: "S：一个认真实现的普通持久化机制，带版本化来源与文档、提交、任务、审批、审计与回执表、事务与 compare-and-set、绑定 payload 的幂等。E 是 CourtWork 的 Core。两者使用同一组符合性要求。只有 transcript 加检索的条件 T：not yet。",
-    },
-    {
-      question: "With which model?",
-      text: "Deterministic clients。模型 pilot：not yet。",
-    },
-    {
-      question: "Which harness?",
-      text: "`benchmarks/continuity/run.mjs` 编排六个用例；E 经 `CoreClient` 驱动真实 Core，S 经 `standard.py`；`observe.mjs` 把原始输出映射为语义字段，`grade.mjs` 独立校验。CourtWork `{sha7}`。",
-    },
-    {
-      question: "Which fixture?",
-      text: "一个合成的“证据备忘录”族，开发集，六个用例：normal · stale-source · receipt-replay · restart · actor-spoof · cas-conflict。角色与 ID 在执行前冻结，adapter 不决定哪一个候选是对的。",
-    },
-    {
-      question: "What was held constant?",
-      text: "报告内固定被测文件的 sha256 与 git head 及 dirty 标志；每次尝试的角色与 ID 在执行前冻结；尝试清单在执行任何一条之前落盘。",
-    },
-    {
-      question: "What failed?",
-      text: "早期 cas-conflict 用例曾命中已关闭候选，修订为同一 base 上的第二个待决候选。当前结果与逐次尝试记录见下方 raw record。",
-    },
-    {
-      question: "Can I reproduce it?",
-      text: "`node --test benchmarks/continuity/grade.test.mjs`；`node benchmarks/continuity/run.mjs --output /absolute/path/result.json`。需要仓库根目录、Node 22.19 以上、Python 3 标准库；输出文件须是新文件；不用 provider、不联网。",
-    },
-  ],
-  evalFooter:
-    "拒绝结果的四个名字（stale_source · request_conflict · authority_rejected · version_conflict）是被测系统的正确拒绝，不是评测的失败分类。",
-  evalActions: [
-    { label: "method", href: "https://github.com/lesPrivilege/Courtwork/blob/main/benchmarks/continuity/observation-contract.md" },
-    { label: "raw record", href: "./evidence/continuity-{sha7}.json" },
-    { label: "reproduce", href: "#build" },
-  ],
-  claimsNote:
-    "每份记录包含对应版本、运行条件与验证范围。",
-};
-
-// The claim table (public-copy-v2 §6.3), verbatim. `entry` is the path a reader
-// opens; `href` is that path in the published repository.
-export const CLAIMS = [
-  ["从独立 clone 安装、测试、启动", "verified with synthetic data", "evidence/final-integration-20260908/sync.md"],
-  ["Run 链：回答、精确写入批准、文件身份、预览、拒绝、停止、断线重连", "verified with synthetic data", "evidence/final-integration-20260908/README.md"],
-  ["运行控制：配置 CAS、来源、上下文、MCP 生命周期", "verified with synthetic data", "evidence/rc/"],
-  ["MCP 未知效果后封闭后续调用", "verified with synthetic data", "evidence/final-integration-20260908/mcp-unknown.json"],
-  ["Continue in Work：Chat 绑定 Matter，历史与 Project 保留", "verified with synthetic data", "evidence/fe03/"],
-  ["合成 NDA：逐规则候选 → 审阅 → 正式决定；幂等与过时版本拒绝", "verified with synthetic data", "evidence/wk10b2-main-integration-20260908/"],
-  ["新 Session 继续同一事项；产生候选的一方缺席时历史可读", "verified with synthetic data", "evidence/se-continuity-20260908/"],
-  ["Models：Catalog provider · Compatible endpoint · Local endpoint；Test connection、Fetch models", "runs locally", "evidence/fe03-main-integration-20260909/"],
-  ["Settings 整页；Appearance 本设备偏好", "runs locally", "evidence/cc-s-main-integration-20260909/"],
-  ["真实模型 provider 路径", "not yet", "用户在界面配置"],
-  ["有界模型 pilot 与对比分数", "not yet", "—"],
-  ["事项级记忆、Temporary chat", "not yet", "—"],
-  ["桌面安装包、签名", "not yet", "—"],
-];
-
 export const BUILD = {
   index: "08",
-  title: "Build / inspect / reproduce",
+  title: "Make it yours",
   commands: [
     "git clone https://github.com/lesPrivilege/Courtwork.git",
     "cd Courtwork",
     "npm --prefix app ci",
     "npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845",
-    "npm --prefix app test",
   ],
-  note: "需要 Node.js 22.19 以上、Python 3、Git 2.36 以上。默认 provider 是本地确定性 fake；真实 provider 在界面里配置，密钥不进入仓库、聊天或截图。",
+  note: "需要 Node.js 22.19 以上、Python 3 与 Git 2.36 以上。在 Models 中连接你的模型，密钥保存在本机。",
   entries: [
     ["README", "运行、验证与范围。", "README.md"],
     ["engineering/current.md", "已交付能力、证据边界、下一单。", "engineering/current.md"],
@@ -229,7 +130,7 @@ export const BUILD = {
     ["Web UI.", "原生 ES module 前端，呈现会话、运行、文件与审阅。"],
     [
       "Host runtime.",
-      "Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限、资源与 MCP。",
+      "组织模型与工具执行，管理配置、权限与上下文。",
     ],
     [
       "Domain core.",
@@ -237,9 +138,9 @@ export const BUILD = {
     ],
   ],
   upstream:
-    "CourtWork 运行在 Pi agent SDK（`@earendil-works/pi-*` 0.85.1）与官方 MCP client 2.0.0 之上；harness core 管理策略、状态与审阅。",
+    "从模型连接到工作审阅，各层通过明确的契约协作。局部实现与依赖见仓库架构文档。",
 };
 
 export const FOOTER = {
-  items: ["Open source", "Source on GitHub", "{sha7} / {site_sha7}", "MIT License", "Schema Engineering 9.6"],
+  items: ["Open source", "Source on GitHub", "MIT License", "Schema Engineering 9.6"],
 };

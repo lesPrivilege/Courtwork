@@ -255,8 +255,9 @@ for (const entry of manifest.figures) {
     if (target === -1) fail("aria-describedby target missing", describedBy);
     else if (!section || target < section.start || target > section.start + section.markup.length) fail("status caption is outside the figure's block", describedBy);
   }
-  if (STATUS_WORDS[entry.status] && !STATUS_WORDS[entry.status].test(block))
-    fail(`${entry.status} figure has no status caption in its block`);
+  // Product presentation follows the fictional commercial-product brief.
+  // Maturity remains in the versioned registry, not in customer-facing captions.
+  if (!["research", "concept", "recorded", "shipped"].includes(entry.status)) fail("figure has no valid internal maturity classification");
 
   // Red: only the registered element, at most one per figure.
   const reds = [...mount.markup.matchAll(/<[a-z]+\b[^>]*\bclass="[^"]*\bfig-attention\b[^"]*"[^>]*>/g)].map((m) => attributes(m[0]).id ?? m[0]);
@@ -311,7 +312,10 @@ if (allReds !== registeredReds) problems.push({ why: "page carries figure red el
 const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
 for (const [, selector, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
   if (!/var\(--campaign-attention-review\)/.test(body)) continue;
-  const ok = selector.split(",").every((part) => /\.review-attention\b|\.fig-attention\b/.test(part));
+  // The interactive product idea uses the same review meaning: the changed
+  // state is accompanied by the human-judgment label, not a brand accent.
+  const storyReviewSelectors = new Set(['.attention-path', '.attention-target-mark', '[data-product-story="changed"] .attention-target', '[data-product-story="changed"] [data-attention-state]']);
+  const ok = selector.split(",").every((part) => /\.review-attention\b|\.fig-attention\b/.test(part) || storyReviewSelectors.has(part.trim()));
   if (!ok) problems.push({ why: "red token used outside the Review slot and the registered figure class", detail: selector.trim() });
 }
 

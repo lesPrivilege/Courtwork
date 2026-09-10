@@ -91,7 +91,7 @@ function currentProjection() {
 
 const label = el("p", {
   className: "specimen-label is-mono",
-  text: `Replay · synthetic data · recorded at CourtWork ${sha7}`,
+  text: `Interactive NDA walkthrough`,
 });
 
 const counter = el("p", { className: "specimen-counter" });
@@ -162,7 +162,7 @@ next.addEventListener("click", () => go(index + 1));
 root.replaceChildren(
   el("header", { className: "specimen-head" }, label, counter),
   stepList,
-  el("div", { className: "specimen-copy" }, sentence, status, el("p", { className: "specimen-links" }, sourceLink, sourceKey)),
+  el("div", { className: "specimen-copy" }, sentence, el("p", { className: "specimen-links" }, sourceLink, sourceKey)),
   el("div", { className: "specimen-body" },
     el("div", { className: "specimen-main" }, stage, refusal),
     el("aside", { className: "specimen-layers" }, layerTabs, layerPanel),
@@ -317,7 +317,7 @@ function permissionCard(row, binding) {
     }
     card.append(controls);
   } else {
-    card.append(el("p", { className: "specimen-status is-mono", text: `Recorded decision · ${row.decision ?? row.questionStatus}` }));
+    card.append(el("p", { className: "specimen-status is-mono", text: `Decision · ${row.decision ?? row.questionStatus}` }));
   }
   return card;
 }

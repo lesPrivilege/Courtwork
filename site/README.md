@@ -46,3 +46,9 @@ node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtw
 ```
 
 Tour有十一类状态，其中九类以合并产品 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的实录展示；running 与 Matter 全程分别保留待补/固定回放。15份原生JPEG包括深色与手机尺寸变体，覆盖10个媒体ID，与基础 specimen 的 `9e5384f` manifest 分开。六子页面沿用21e8a9b结构，详见[本轮回执](../evidence/pages-main-visual-20260910/README.md)。
+
+## Product presentation and primary navigation
+
+The 2026-09-11 user brief presents a complete fictional commercial product. Public copy explains what the product is for and how to use it; development maturity and capture provenance remain in engineering records and manifests. No customer counts or experimental gains are invented. See [integration decisions](../engineering/release/pages-ordered-integration-2026-09-11/README.md).
+
+The primary header is a quiet, single-row Tour / Paper / Release navigation beside the wordmark. Paper opens Schema-Engineering Pages; acquisition emphasis belongs to the hero. Ideas is expanded initially. Campaign navigation stays neutral; the review colour belongs to a sparse, text-labelled human-judgment state, including the interactive story.
