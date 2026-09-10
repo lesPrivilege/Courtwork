@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "productSha": "731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e",
+  "productSha": "acafe2c3b4fae1f73bbf68d0e00fc2e4f174a42c",
   "pageBuildSha": null,
   "pageBuildStatus": "No Pages build or deployment in this task",
   "dataKind": "synthetic; real local HTTP/Pi loopback Run plus explicit read-state projection fixtures",
@@ -22,15 +22,15 @@
     },
     {
       "path": "app/web/summary-disclosure.mjs",
-      "sha256": "e643119571e74c53a46c37e5d994b205d4647afba2aa69738d5551302484a4ff"
+      "sha256": "df09013484eb6cde83cd42790fd65f1cb4725e288813316f11c2c048a897df99"
     },
     {
       "path": "app/web/summary-disclosure.css",
-      "sha256": "6cd3af3c15ec12428d3aac027462f4dd9a04339f5599988916ea8b28bf10d54b"
+      "sha256": "e8af10cc44915f60309e83aaf77895db34368cda5d70a5a5c469eaefd7f4febf"
     },
     {
       "path": "app/web/app.mjs",
-      "sha256": "e13936a9792e6ec4b82757907a97c07e2167862ac49e582308a02d512024de9c"
+      "sha256": "ec7470409f3c0a5efd2bcb84403db6af36a74961aeca08deeda3c07e4f5918e1"
     },
     {
       "path": "app/web/index.html",
@@ -42,7 +42,7 @@
     },
     {
       "path": "app/web/surface-layout.css",
-      "sha256": "29f3cbaa0de8f143e4d96dab9a17ceb79c5537aa9181af50f3fecf17909bd746"
+      "sha256": "95c6468d3e8d0ae01b5a8a64036e595bd2330be78288ea4ea140b6fd33282a6d"
     },
     {
       "path": "app/web/surface-modules.mjs",
@@ -269,6 +269,54 @@
       "caption": "disclosure 390 light",
       "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
       "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "entries-1440-light.png",
+      "sha256": "83cd7a9a0978ebba08551b7b83c50d075f2adf15f63a17b50f035a88ed3d92b5",
+      "bytes": 72767,
+      "caption": "entries-1440-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    {
+      "file": "entries-390-fixed.png",
+      "sha256": "d466b2f6d5f07e074903a724a159e5512999e8654c1c3867c1b6017d54c80c4b",
+      "bytes": 25768,
+      "caption": "entries-390-fixed.png",
+      "productSha": "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+      "classification": "R2-SD03 final author CUA"
+    },
+    {
+      "file": "entries-390-light.png",
+      "sha256": "c9aff42c63a5a1cedba27c28ffa0285cd0120f7f8d3993e3640572144adc7b27",
+      "bytes": 25293,
+      "caption": "entries-390-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    {
+      "file": "entries-compact-final.png",
+      "sha256": "6031c93eda799b4c93f1e5525241d4d65caea29393f52cf9f18f2d30732cd7ee",
+      "bytes": 52556,
+      "caption": "entries-compact-final.png",
+      "productSha": "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+      "classification": "R2-SD03 final author CUA"
+    },
+    {
+      "file": "entries-compact-fixed.png",
+      "sha256": "848db50a996d747b7fdd6dc44c86f32b67d20dd08ae0c00a18a841f7d56e19e6",
+      "bytes": 53376,
+      "caption": "entries-compact-fixed.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    {
+      "file": "entries-expanded-light.png",
+      "sha256": "205d14a6d2340f44fa107f996a6bc31dd084e47a5c4d5069d27fa596b6fe5993",
+      "bytes": 49476,
+      "caption": "entries-expanded-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
     },
     {
       "file": "error-1440-light.png",
@@ -670,6 +718,7 @@
     "720x500 is equivalent reflow, not actual browser200% zoom.",
     "Balanced long-file captures predate final ellipsis; final fulltitle/aria and wrapping are covered by14 module tests.",
     "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions.",
-    "R2-SD02 bounded CUA:1195x772 light,1024 Runtime strip→Settings Developer→Back; no complete new dark/mobile matrix."
+    "R2-SD02 bounded CUA:1195x772 light,1024 Runtime strip→Settings Developer→Back; no complete new dark/mobile matrix.",
+    "R2-SD03 author checks1024/1440/390 light; no full new dark/forced-colors/200% matrix. Final compact capture confirms old strip hidden; collapsed width44 restored."
   ]
 }

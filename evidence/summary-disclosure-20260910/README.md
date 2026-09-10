@@ -1,6 +1,6 @@
 # R2-SD01 · 摘要目录与稳定阅读层级
 
-最终产品 `731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e`，分支 `codex/summary-disclosure-r2`。从 `67ed0fd` 隔离实现；未合流、推送或部署。Runtime11/Core4/app5不变。
+最终产品 `acafe2c3b4fae1f73bbf68d0e00fc2e4f174a42c`，分支 `codex/summary-disclosure-r2`。从 `67ed0fd` 隔离实现；未合流、推送或部署。Runtime11/Core4/app5不变。
 
 ## 交付
 
@@ -45,3 +45,9 @@
 末次731ee5c将已提供的owner版本纳入披露目标键；690af79截图保留其准确版本，不挪用为731视觉证据。
 
 [非作者有界静态复核](semantic-review.md)：固定690af79及731ee5c无阻断；不称独立浏览器或全量接受。
+
+## R2-SD03：入口先行与小视图修复
+
+[入口合同](../../engineering/execution/2026-09-10-summary-disclosure/entry-grammar.md)定义默认More、分组、状态与host注入接缝；未接类别保留文本行，只有真实reader提供动作。修正紧凑More展开暴露旧glyph大卡、手机旧模块浮卡叠放。最终[1024紧凑](entries-compact-final.png)、[390单一目录](entries-390-fixed.png)；其余entries图片为中间过程反例。收起More实测恢复44px，Activity→Run→Escape返回原入口且保持展开。36项针对通过，见[测试](entry-tests.txt)。作者浅色有界检查，不称完整视觉接受。未动ChatSpace/composer、后端或部署。
+
+[非作者入口静态复核](entry-review.md)固定337e522无阻断；末次acafe2c仅去掉Run入口冗余的本地generation→revision映射，作用域仍防迟到，不宣称Run有持久revision。截图保持337版本。

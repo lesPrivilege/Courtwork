@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## R2-SD03 · 入口体例先行（2026-09-10）
+
+隔离产品`acafe2c`按用户追加裁定建立More渐进分组入口与缺席兜底行，host按schema/scope/identity/revision注入真实reader；先立呈现体例，不提前固化领域语义。修正1024旧glyph空大卡与390旧浮卡叠放；36项针对、有界浅色CUA通过。见[入口合同与范围](execution/2026-09-10-summary-disclosure/entry-grammar.md)。未合流/推送/部署，不改Claude ChatSpace/composer，schema不变。
+
 ## R2-SD02 · 卡片语义补齐（2026-09-10）
 
 隔离产品`731ee5c`补File/Workspace/Runtime局部披露、Runtime紧凑入口及会话匹配；[语义登记与缺口](execution/2026-09-10-summary-disclosure/card-semantics.md)覆盖既有裁定的12类，不宣称Task/Explore等所有reader完成。34项针对与有界作者CUA通过，未覆盖末次完整明暗窄屏矩阵；非作者静态复核另记。未改Claude的ChatSpace/composer，未合流/推送/部署，schema不变。前片历史版本与证据如下。
