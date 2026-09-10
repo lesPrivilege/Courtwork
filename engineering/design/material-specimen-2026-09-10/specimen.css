@@ -742,8 +742,6 @@ body.spec-body {
     background: var(--float);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
     -webkit-mask-image: none;
     mask-image: none;
   }
@@ -784,21 +782,25 @@ body.spec-body {
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {
-  .chat-header[data-h="h1"],
-  .composer-form[data-variant="c1"],
-  .spec-inspector[data-variant="transient"],
-  .spec-nested-parent,
-  .spec-nested-child {
+  :root .jump-latest-button,
+  :root .context-popover,
+  :root .chat-header[data-h="h1"],
+  :root .composer-form[data-variant="c1"],
+  :root .spec-inspector[data-variant="transient"],
+  :root .spec-nested-parent,
+  :root .spec-nested-child {
     background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     -webkit-mask-image: none;
     mask-image: none;
   }
-  .chat-header[data-h="h2"],
-  .chat-header[data-h="h3"] {
+  :root .chat-header[data-h="h2"],
+  :root .chat-header[data-h="h3"] {
     background: var(--panel);
   }
-  .chat-header[data-h="h2"]::before,
-  .chat-header[data-h="h3"]::before {
+  :root .chat-header[data-h="h2"]::before,
+  :root .chat-header[data-h="h3"]::before {
     content: none;
   }
 }
