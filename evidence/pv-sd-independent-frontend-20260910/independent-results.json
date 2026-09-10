@@ -1,0 +1,107 @@
+{
+  "origin": "http://127.0.0.1:8921",
+  "results": [
+    {
+      "id": "ind-PVFE2-1",
+      "pass": true,
+      "status": "Answered in 21 ms · SIMULATED fake response: This is a connection check, not a real conversation. Reply with one short sentence to confirm you received it.",
+      "failed": false,
+      "smoke": " · Answered",
+      "rows": [
+        "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itAnswered 08:12 PM · fake-modelConfigure",
+        "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+        "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+      ]
+    },
+    {
+      "id": "ind-PVFE2-2",
+      "pass": true,
+      "beforeSaveOnly": 1,
+      "after": 1,
+      "status": "",
+      "hidden": true
+    },
+    {
+      "id": "ind-PVFE2-3",
+      "pass": true,
+      "customOpen": true,
+      "beforeCustom": 1,
+      "after": 1,
+      "status": "Saved and selected. It will be used for the next run.",
+      "closed": false,
+      "model": "fake-model"
+    },
+    {
+      "id": "ind-PVFE2-4",
+      "pass": true,
+      "selected": {
+        "model": "unknown-ghost",
+        "path": true
+      },
+      "status": "The provider returned HTTP 404 · 404: {\"message\":\"The model `unknown-ghost` does not exist\"}",
+      "failed": true,
+      "rows": [
+        "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · 1 modelcontext window unknown, compaction disabledLast ask failed 08:12 PM · The provider returned HTTP 404Configure",
+        "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+        "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+      ]
+    },
+    {
+      "id": "ind-PVFE2-5",
+      "pass": true,
+      "beforeAgain": 2,
+      "after": 3
+    },
+    {
+      "id": "ind-PVFE2-6",
+      "pass": true,
+      "bodyWidth": 390,
+      "viewport": 390,
+      "bg": "rgb(23, 26, 27)",
+      "pathLabel": "How this connection reaches a model",
+      "labels": 2
+    },
+    {
+      "id": "ind-PVFE2-7",
+      "pass": true,
+      "statusRole": "status",
+      "pickerLabel": "Connection · Local test · Local test",
+      "focusableWithoutName": 0
+    },
+    {
+      "id": "ind-PVFE2-8",
+      "pass": true,
+      "compatCreated": {
+        "status": 200,
+        "body": {
+          "connection": {
+            "id": "conn-a6429e70f85a",
+            "kind": "compatible",
+            "providerIdentity": "conn-a6429e70f85a",
+            "api": "openai-completions",
+            "baseUrl": "http://127.0.0.1:8920/v1",
+            "models": [
+              {
+                "id": "fake-model",
+                "contextWindow": null,
+                "contextWindowSource": "unknown",
+                "reasoning": null
+              }
+            ],
+            "credentialStatus": "configured",
+            "configurationStatus": "ready",
+            "lastVerification": null
+          }
+        }
+      },
+      "compatPick": {
+        "options": [
+          "Local test",
+          "127.0.0.1:8920"
+        ],
+        "chosen": "127.0.0.1:8920"
+      },
+      "compatFailure": "the model directory does not list every selected model"
+    }
+  ]
+}
