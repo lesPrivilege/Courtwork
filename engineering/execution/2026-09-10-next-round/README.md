@@ -1,5 +1,7 @@
 # 下一轮准备 · 前后端合流与通用 Harness
 
+2026-09-11更新：[三路核账与下一合推节点裁决](../2026-09-11-merge-node/README.md)已确认D1/D2仍未修，WORK-3采纳两行起步行为门；本页以下保留前次准备时点。实际队列以roadmap入口为准。
+
 新增有界探索：[Micro-surface review / Rename消费](../../research/micro-surface-review-20260910/README.md)已登记原对话并派Luna fast，只读核真实接缝与候选验收模板，不绕过当前组合修补门或启动新前端writer。
 
 用户要求先由Luna fast只读探索PR/commit真实消费，Astra据事实定序。此包是[唯一roadmap](../../roadmap.md)的核账附件，不另立总顺序，不是自动派出全部实施单。

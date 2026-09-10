@@ -1,0 +1,71 @@
+{
+  "main": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+  "acceptedProduct": "654411e2058c3d40abe74751ba6dbe1742133a9e",
+  "productPaths": [
+    "app",
+    "docs",
+    "tests"
+  ],
+  "acceptedProductVsMainEqual": true,
+  "refs": [
+    {
+      "sha": "0c5d2241655863685f0c730d1b052dc41ade478b",
+      "subject": "docs: register RD-005 multi-agent selection and Astra Luna ownership",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+      "subject": "merge: WO-CS-01 delivery record cites the Q1–Q3 rulings (f6ba379)",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "796c3a5de9bbeb6728b8968d227b4ec4e52725d5",
+      "subject": "Record entry grammar and compact directory verification",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "eff0e41a9cd3ceabd9c79d913f6a80089deb9ea6",
+      "subject": "Record shell proportion ruling for independent chat work",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "525aed08adb211d4e223f4ed128f430747c9d8cd",
+      "subject": "docs: CI-B/F receipt — raw full-suite logs for 0aca122 (691/691 twice), ruling and correction",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "80f39bfe147b8c56ef02508aaf56978bf37982c0",
+      "subject": "merge: EX-IC2 slice A inventory (f3895aa) onto the CS-01 × CI-B/F combined base (3b4212b)",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "4c2a56aa203b3818bd8265f79f72dec7a0dc154f",
+      "subject": "docs(be41): record fixed delivery and bounded independent verification",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "30fd47015039eb68967b5dba1634c54c62099975",
+      "subject": "fix(core): bound derivation identity metadata response",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "312965f0b777fc14025752368ce6e162cc072249",
+      "subject": "docs: archive uploaded Pro bundle with version discrepancy receipt",
+      "ancestorOfMain": true
+    },
+    {
+      "sha": "a2e2d3c708065a49699b7f847ad2602a44f33c9b",
+      "subject": "docs(benchmarks): define evaluation contract and sequence BM-02 through BM-05",
+      "ancestorOfMain": false
+    },
+    {
+      "sha": "bd1f815a99c88f2431244671e871e97ddcc082fa",
+      "subject": "Refine public runtime language and register data organization references",
+      "ancestorOfMain": false
+    }
+  ],
+  "uniquePrPatches": {
+    "PR1": "+ a2e2d3c708065a49699b7f847ad2602a44f33c9b",
+    "PR2": "+ 4803ea4a02f79566dd360ea0bef2f82581c2da67\n+ bd1f815a99c88f2431244671e871e97ddcc082fa"
+  }
+}

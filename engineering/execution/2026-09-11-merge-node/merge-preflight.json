@@ -1,0 +1,20 @@
+[
+  {
+    "label": "main-to-cs-ci",
+    "left": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+    "right": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+    "exitCode": 1,
+    "stdout": "55f48514bc3aa2b96f6951f9f264a99164661cd8\n100644 181c082afb22a97834438714086620672b4d200b 1\tengineering/current.md\n100644 847abf84992a40cbc3d4b4f0964aa31e116e0f83 2\tengineering/current.md\n100644 d20362fddadc135fab977fd4fb99b3eb84a2e1df 3\tengineering/current.md\n\nAuto-merging engineering/current.md\nCONFLICT (content): Merge conflict in engineering/current.md\n",
+    "stderr": "",
+    "meaning": "mechanical preflight only, no acceptance or worktree mutation"
+  },
+  {
+    "label": "cs-ci-to-summary-r2",
+    "left": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+    "right": "796c3a5de9bbeb6728b8968d227b4ec4e52725d5",
+    "exitCode": 0,
+    "stdout": "99746b7998c35bdddcd62c632357c223c8b3676f\n",
+    "stderr": "",
+    "meaning": "mechanical preflight only, no acceptance or worktree mutation"
+  }
+]

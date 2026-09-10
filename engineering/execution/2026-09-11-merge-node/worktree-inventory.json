@@ -1,0 +1,5489 @@
+{
+  "capturedAt": "2026-09-10T16:14:01.832Z",
+  "main": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+  "sourceReportSha256": "fb29201d3c95c72abee52d87b9992bbd52aa0ad0d04c162d7592d0bacb7e6b68",
+  "scope": "Git metadata/status only; frozen legacy and retired Courtwork-fresh excluded; portable labels replace absolute paths; snapshot is not a claim of active tasks or acceptance",
+  "metadataWorktreeCount": 189,
+  "inspectedWorktreeCount": 187,
+  "excluded": [
+    "Courtwork-legacy-frozen",
+    "Courtwork-fresh"
+  ],
+  "relationMeaning": {
+    "head-ancestor": "head is ancestor of or equal to main",
+    "main-ancestor": "main is ancestor of head",
+    "diverged": "neither head is ancestor of the other"
+  },
+  "trees": [
+    {
+      "branch": "(detached)",
+      "head": "732657c529d51d309b822b38c1fca3c4715b8d43",
+      "ahead": 2,
+      "behind": 0,
+      "relation": "main-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 2,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-audit-j5dfGC",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "30fd47015039eb68967b5dba1634c54c62099975",
+      "ahead": 2,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 12,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-be41-final-review",
+      "productCommitRefs": [
+        "30fd47015039eb68967b5dba1634c54c62099975",
+        "d40c53affca0a2acb638cd5c32e13a896950ad4a"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "d40c53affca0a2acb638cd5c32e13a896950ad4a",
+      "ahead": 1,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 10,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-be41-review-qQsIWJ",
+      "productCommitRefs": [
+        "d40c53affca0a2acb638cd5c32e13a896950ad4a"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "a1367aec2ae33450189dbd32ed28b52ad9eb8af7",
+      "ahead": 28,
+      "behind": 2,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 28,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 190,
+      "cherrySummary": {
+        "plus": 23,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-compat-2KF6aG",
+      "productCommitRefs": [
+        "65043fae37ee1418fdbe19eee8a73fe0137bf79b",
+        "0aca1228f9c3dfc5cd9b78184ea1fbcadaa1aa3f",
+        "d55d006ddcc74f069d76e85437335037e4ccbf9b",
+        "106330b8dbde36aa3eb62114c626e9e9d20a29f0",
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "codex/pages-authoritative-20260910",
+      "head": "a0f9fe4e4c2363c3e511b82b20410feb46d9d4d0",
+      "ahead": 0,
+      "behind": 178,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-pages-authoritative",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pages-navigation-polish-20260910",
+      "head": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "ahead": 0,
+      "behind": 57,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 5,
+      "dirtyPaths": [
+        "site/README.md",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/product-pages.mjs",
+        "site/src/site.css"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-pages-navigation-polish-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pages-polish-20260910",
+      "head": "590f395f24f7af93f3c7e82cd494ead323d05d5c",
+      "ahead": 5,
+      "behind": 225,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 25,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 2
+      },
+      "worktreeLabel": "courtwork-pages-polish",
+      "productCommitRefs": [
+        "590f395f24f7af93f3c7e82cd494ead323d05d5c",
+        "21e8a9b7386f158787da9b7f8a0cfd436dc1bfb0",
+        "f617a6c4285f41e2b74be28d2c4756523a7a20df",
+        "66b8a6b6c981183b71290094ea9e448a525f3821",
+        "1d9c5fa1ad07353a723d74d6a184a258f97263e5"
+      ]
+    },
+    {
+      "branch": "codex/reconcile-preparation",
+      "head": "6799ef6acddfcd36810a25873c896eb88ba6f7f3",
+      "ahead": 66,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 66,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3436,
+      "cherrySummary": {
+        "plus": 62,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-reconcile-20260908",
+      "productCommitRefs": [
+        "0a3b9b22f47f5605ccedc227106b0c17a4df6120",
+        "c1b19f640e3f5b6e54cd6d3dff2b45637966243c",
+        "0bc416b41976ebf4d35fc35fb83562b2ebe87635",
+        "efb7197ac40c52a623d1fe53fb9c0369c21e754d",
+        "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd"
+      ]
+    },
+    {
+      "branch": "codex/runtime-source-resolver",
+      "head": "dc754045a9fd0b6a5d394bc4d75e93228c5fe774",
+      "ahead": 57,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 57,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3363,
+      "cherrySummary": {
+        "plus": 53,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-runtime-resolver-20260908",
+      "productCommitRefs": [
+        "dc754045a9fd0b6a5d394bc4d75e93228c5fe774",
+        "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "0feefc3b752387086c4dde1461c18219bf1e75f1",
+      "ahead": 4,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 4,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 12,
+      "cherrySummary": {
+        "plus": 4,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-summary-review-fixed.Brbz1j",
+      "productCommitRefs": [
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "0ec81843068f2e777c83300844f08b98eb2a234f",
+      "ahead": 3,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 12,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 0
+      },
+      "worktreeLabel": "courtwork-summary-review.3KoStA",
+      "productCommitRefs": [
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "codex/am-b-t3-task-view",
+      "head": "bd4b92a137b3a6ee365b14512bc2f476385c7a42",
+      "ahead": 2,
+      "behind": 263,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 23,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-am-b-t3-task-view",
+      "productCommitRefs": [
+        "184e3f03bfabe00fdb710e93afc4b4a600840dcd"
+      ]
+    },
+    {
+      "branch": "codex/architecture-maintenance-roadmap",
+      "head": "61ab8637f549c78d903cc7a1a0ea53b30efc67e4",
+      "ahead": 0,
+      "behind": 423,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-architecture-maintenance",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/astra-execution-state-contract",
+      "head": "42a4c2f25fcb21b0663e6d1a0de08341a3f0f63c",
+      "ahead": 1,
+      "behind": 462,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 2,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-astra-execution-state-contract",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/astra-node2",
+      "head": "3926a5eda76f40552bdc8e310a12560b84c6bfb6",
+      "ahead": 54,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 54,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3351,
+      "cherrySummary": {
+        "plus": 50,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-astra-node2",
+      "productCommitRefs": [
+        "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9"
+      ]
+    },
+    {
+      "branch": "codex/astra-provider-preview",
+      "head": "f58c28cfb7e20b19cc0631e53022763451b67f26",
+      "ahead": 1,
+      "behind": 462,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 6,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-astra-provider-preview",
+      "productCommitRefs": [
+        "f58c28cfb7e20b19cc0631e53022763451b67f26"
+      ]
+    },
+    {
+      "branch": "codex/async-loop-dispatch-20260909",
+      "head": "dcfc33dcb30eee99683cbf1e3b7d426efc704545",
+      "ahead": 2,
+      "behind": 331,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 2,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-async-loop-dispatch-20260909",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/async-loop-implementation",
+      "head": "85693a6d185f284ecc68324e4dda6d7d677abb03",
+      "ahead": 0,
+      "behind": 263,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-async-loop-implementation",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "35f4bf057392e67a9c9b3b91727d5895edb12e0c",
+      "ahead": 0,
+      "behind": 278,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 2,
+      "dirtyPaths": [
+        "app/tests/async-boundaries-independent.test.mjs",
+        "wrapper-policy-corrected-red.log"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-async-wrapper-old.duA2PK",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/attention-delivery-candidate-20260910",
+      "head": "1097fd453a6da0d0302cb64a881b48c583dc06d1",
+      "ahead": 0,
+      "behind": 71,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-attention-delivery-candidate-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "1097fd453a6da0d0302cb64a881b48c583dc06d1",
+      "ahead": 0,
+      "behind": 71,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-attention-delivery-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/attention-human-loop-handoff",
+      "head": "7033232d2a3a5893fc6d1003a6d8429d982f3c94",
+      "ahead": 1,
+      "behind": 329,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 7,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-attention-human-loop",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/attention-triage-scope-repair-20260910",
+      "head": "9db6fc4362a07dc8ff20e1914e2ac471f20b62c1",
+      "ahead": 0,
+      "behind": 102,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-attention-triage-scope-repair-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/attention-ui-roadmap",
+      "head": "d112beb8e4f602bf0704174418f2822def792cae",
+      "ahead": 0,
+      "behind": 394,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-attention-ui-roadmap",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/backend-dispatch-20260909",
+      "head": "c529923f158f702bcdb8a2952e9fc245d906d212",
+      "ahead": 0,
+      "behind": 443,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-backend-dispatch-20260909",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/backend-governance-20260910",
+      "head": "964c37ff99b75192e10a36c12235b6effef3eb3a",
+      "ahead": 0,
+      "behind": 192,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-backend-governance-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/be5-integration-20260910",
+      "head": "5123d0f71b4ab45beb3786979892ea50dbaedc70",
+      "ahead": 0,
+      "behind": 242,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-be5-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/be5-resolver-service-delivery",
+      "head": "85693a6d185f284ecc68324e4dda6d7d677abb03",
+      "ahead": 0,
+      "behind": 263,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 2,
+      "dirtyPaths": [
+        "app/server/index.mjs",
+        "app/server/service.mjs"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-be5-resolver-service-delivery",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/br01-resume",
+      "head": "15b6464dba56347dc3350d7ccf20165ac3ac53e8",
+      "ahead": 7,
+      "behind": 339,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 7,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 302,
+      "cherrySummary": {
+        "plus": 7,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-br01-resume",
+      "productCommitRefs": [
+        "15b6464dba56347dc3350d7ccf20165ac3ac53e8",
+        "df9331a0af253ea5d91c7ae3a5af48ac488e7c04",
+        "2d983df04871b30626bf3533ef45a00ae31baeff",
+        "90ef3c09e8491d0c9d8d96c14e5c8bbc7b9277db",
+        "802fda1b876433ed0f8b9e4a651f1cecf1838e99",
+        "6df095cfe3a18de6c3082ca0fcd9f3ecf7abf56a",
+        "c1fa987418756919c65daf53a667cd1dfbd1e870"
+      ]
+    },
+    {
+      "branch": "codex/brand-host-colors",
+      "head": "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+      "ahead": 3,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3124,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-brand-br1",
+      "productCommitRefs": [
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8"
+      ]
+    },
+    {
+      "branch": "codex/browser-capability-research",
+      "head": "5163ae95c3ce950dcc2b380ef93c37cedd84dbec",
+      "ahead": 0,
+      "behind": 367,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-browser-capability-research",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/ccd0a-main-integration",
+      "head": "4f7278f8a370fdad8a1dfa1a8fd42275bc5c7108",
+      "ahead": 0,
+      "behind": 307,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ccd0a-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/cci-applicability-review-20260910",
+      "head": "b84d500ea4e1f45e2669e160d4dcf143e69ea1ff",
+      "ahead": 2,
+      "behind": 103,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 15,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-cci-applicability-review-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/ccs-integration",
+      "head": "414b196d965a8dc7cc67b37486d523c38f95ed94",
+      "ahead": 0,
+      "behind": 375,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ccs-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/ccw-integration",
+      "head": "0b5ccd27e9d0be5940714e913f4fc197f9ec7a05",
+      "ahead": 0,
+      "behind": 346,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ccw-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/chat-controls-intake-20260910",
+      "head": "1992e90bd92266a9c99076a0709617bae4d4cf67",
+      "ahead": 0,
+      "behind": 10,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-chat-controls-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/clean-cool-design-review",
+      "head": "cc99571a0b4e67b51eeef9f20e9f495ca78655e7",
+      "ahead": 0,
+      "behind": 421,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-clean-cool-design",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/cleanup-20260910",
+      "head": "42a537f6bb259eeb3e6a8a1206257f856c0b55a7",
+      "ahead": 9,
+      "behind": 281,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "evidence/claude-closeout-20260910/"
+      ],
+      "uniqueCommitCount": 9,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 302,
+      "cherrySummary": {
+        "plus": 7,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-cleanup-20260910",
+      "productCommitRefs": [
+        "15b6464dba56347dc3350d7ccf20165ac3ac53e8",
+        "df9331a0af253ea5d91c7ae3a5af48ac488e7c04",
+        "2d983df04871b30626bf3533ef45a00ae31baeff",
+        "90ef3c09e8491d0c9d8d96c14e5c8bbc7b9277db",
+        "802fda1b876433ed0f8b9e4a651f1cecf1838e99",
+        "6df095cfe3a18de6c3082ca0fcd9f3ecf7abf56a",
+        "c1fa987418756919c65daf53a667cd1dfbd1e870"
+      ]
+    },
+    {
+      "branch": "codex/codex-comparison-intake-20260910",
+      "head": "be23540f7554a2ebc9e285ab39c3e0a583b1839e",
+      "ahead": 1,
+      "behind": 47,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 3,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-codex-comparison-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/composer-icon-repair",
+      "head": "9e5384fcabdac432259b3ffab7928251bea49859",
+      "ahead": 0,
+      "behind": 287,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-composer-icon-repair",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/control-principles-intake-20260910",
+      "head": "b07c17812eca63fd42b4bd24d1d3ee9d749ff079",
+      "ahead": 0,
+      "behind": 5,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-control-principles-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/controls-repair-20260910",
+      "head": "4bac6fcde419ebe88062d255bf1c59effbdafd37",
+      "ahead": 12,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 12,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 81,
+      "cherrySummary": {
+        "plus": 12,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-controls-repair-20260910",
+      "productCommitRefs": [
+        "6b0a6f1cadaa7ecbedeb131c8ca4a790ea587e50",
+        "dc1a0d8fd7d8e209dbbae40036fde74015a5065a",
+        "70568ca4cb9801ec408cf1efbacf089c5f61e6ed",
+        "46e097970825f22e525c14f986cd76d6e952fcfb",
+        "5cdd9e7c1f2dd4ed4dddf3a6e4b11443b76035fa",
+        "a72a24c15fd99734805a75b4136a6e4727eaed82"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "6c75108eb64f75a1a47ceeb19c03d01352f2c2c0",
+      "ahead": 7,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 7,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 69,
+      "cherrySummary": {
+        "plus": 7,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-controls-verify-20260910",
+      "productCommitRefs": [
+        "dc1a0d8fd7d8e209dbbae40036fde74015a5065a",
+        "70568ca4cb9801ec408cf1efbacf089c5f61e6ed",
+        "46e097970825f22e525c14f986cd76d6e952fcfb",
+        "5cdd9e7c1f2dd4ed4dddf3a6e4b11443b76035fa",
+        "a72a24c15fd99734805a75b4136a6e4727eaed82"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "6b0a6f1cadaa7ecbedeb131c8ca4a790ea587e50",
+      "ahead": 9,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 9,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 70,
+      "cherrySummary": {
+        "plus": 9,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-controls-verify-fixed-20260910",
+      "productCommitRefs": [
+        "6b0a6f1cadaa7ecbedeb131c8ca4a790ea587e50",
+        "dc1a0d8fd7d8e209dbbae40036fde74015a5065a",
+        "70568ca4cb9801ec408cf1efbacf089c5f61e6ed",
+        "46e097970825f22e525c14f986cd76d6e952fcfb",
+        "5cdd9e7c1f2dd4ed4dddf3a6e4b11443b76035fa",
+        "a72a24c15fd99734805a75b4136a6e4727eaed82"
+      ]
+    },
+    {
+      "branch": "codex/delivery-combined-preflight-20260910",
+      "head": "1f8317a999abf04508b7fc9d65e758796374aafd",
+      "ahead": 2,
+      "behind": 64,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-delivery-combined-preflight-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/delivery-rollup-20260910",
+      "head": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "ahead": 0,
+      "behind": 57,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-delivery-rollup-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/design-shell-refinement",
+      "head": "c0f1b515d78a3a46675864a901a0221bcb3fc752",
+      "ahead": 0,
+      "behind": 420,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-design-shell-refinement",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/design-window-composition",
+      "head": "386fbc65530d97b8f620fdd76141c8d4fa5967ef",
+      "ahead": 0,
+      "behind": 419,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-design-window-composition",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/dsh-intake-20260910",
+      "head": "08ceef9354e5d09f2799cb9167956d668c0441d5",
+      "ahead": 5,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 10,
+      "cherrySummary": {
+        "plus": 5,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-dsh-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/dystopia-20260910",
+      "head": "df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1",
+      "ahead": 0,
+      "behind": 89,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-dystopia-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/execution-state-pr-prep",
+      "head": "a431650b8c4726adc10905485aaadfdb1983689c",
+      "ahead": 0,
+      "behind": 462,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-execution-state-pr-prep",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe01-integration",
+      "head": "2b6c2214cfe596b6cc179ad4e368abc4e4e6b749",
+      "ahead": 0,
+      "behind": 448,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe01-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe02-integration",
+      "head": "4d9714e61ba4f817045e7d275e11738a6b2d34fc",
+      "ahead": 0,
+      "behind": 427,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe02-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe03-integration",
+      "head": "af95bcb94d8373ae424462eb4a09535a6992d04b",
+      "ahead": 0,
+      "behind": 410,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe03-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe04-integration",
+      "head": "683b6d1419242bd08d20b7deec77ce12af7dcf12",
+      "ahead": 0,
+      "behind": 395,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe04-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe05-material-combo-verify-20260910",
+      "head": "8f6485483d57dd835629bdc6bb682e72cdec68e1",
+      "ahead": 1,
+      "behind": 72,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe05-material-combination-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fe05a-delivery-freeze-20260910",
+      "head": "0b457f87259ea4ecd4ca27d7b5c6ffe475ac6dab",
+      "ahead": 0,
+      "behind": 113,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe05a-delivery-freeze-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "0b457f87259ea4ecd4ca27d7b5c6ffe475ac6dab",
+      "ahead": 0,
+      "behind": 113,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 13,
+      "dirtyPaths": [
+        "evidence/fe05a/measurements/independent-v1.json",
+        "evidence/fe05a/screenshots/settings-1440-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/settings-1440-light-independent-v1.png",
+        "evidence/fe05a/screenshots/settings-390-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/settings-390-light-independent-v1.png",
+        "evidence/fe05a/screenshots/work-cancel-1440-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/work-cancel-1440-light-independent-v1.png",
+        "evidence/fe05a/screenshots/work-cancel-390-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/work-cancel-390-light-independent-v1.png",
+        "evidence/fe05a/screenshots/work-idle-1440-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/work-idle-1440-light-independent-v1.png",
+        "evidence/fe05a/screenshots/work-idle-390-dark-independent-v1.png",
+        "evidence/fe05a/screenshots/work-idle-390-light-independent-v1.png"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-fe05a-delivery-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/harness-main-integration",
+      "head": "a2c2e4cdda08a4976be6eca96b61237555633809",
+      "ahead": 0,
+      "behind": 508,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-harness-main-integration-20260908",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/harness-next-round",
+      "head": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c",
+      "ahead": 0,
+      "behind": 359,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-harness-next-round",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/home-composition-20260910",
+      "head": "405ad76906516e51ad7ea2a513d0e9f3ea3376f9",
+      "ahead": 0,
+      "behind": 211,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-home-composition-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/http-body-limit-20260910",
+      "head": "ecccac2e3d51f276b4f0fe31be430ef675e2b1c9",
+      "ahead": 0,
+      "behind": 236,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/server/index.mjs"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-http-body-limit-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/icon-button-semantics-20260910",
+      "head": "9917a6542f685248ada0427987936dcc302c194a",
+      "ahead": 5,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 64,
+      "cherrySummary": {
+        "plus": 5,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-icon-button-semantics-20260910",
+      "productCommitRefs": [
+        "70568ca4cb9801ec408cf1efbacf089c5f61e6ed",
+        "46e097970825f22e525c14f986cd76d6e952fcfb",
+        "5cdd9e7c1f2dd4ed4dddf3a6e4b11443b76035fa",
+        "a72a24c15fd99734805a75b4136a6e4727eaed82"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "ab09b0dee05f73e8e615c0a5f9107a8ba15ff697",
+      "ahead": 0,
+      "behind": 109,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-icon-delivery-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/local-governance-roadmap",
+      "head": "4c1c4205a4bc9479e1699471f40342d85cbc2b75",
+      "ahead": 0,
+      "behind": 425,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-local-governance-roadmap",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/luna-async-review-20260910",
+      "head": "57ebd397a6cb4554ca87de5bab09de3258ebf8cf",
+      "ahead": 4,
+      "behind": 328,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 4,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 10,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 4
+      },
+      "worktreeLabel": "cw-luna-async-review",
+      "productCommitRefs": [
+        "0c5db70cf7544a7a754d9ed72c7a5370e85c646a",
+        "1791e86b204cd78ae0f81847c14fed1f13106c9a"
+      ]
+    },
+    {
+      "branch": "codex/luna-maintenance-core-validation",
+      "head": "79826634373a84e0c0183313a42fba9238cb6bce",
+      "ahead": 0,
+      "behind": 477,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-luna-maintenance-core-validation",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "4003c548a314246d8c46516c4033fa5602e19c4b",
+      "ahead": 1,
+      "behind": 65,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-luna-merge-audit-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/multi-agent-selection-intake-20260910",
+      "head": "0c5d2241655863685f0c730d1b052dc41ade478b",
+      "ahead": 1,
+      "behind": 0,
+      "relation": "main-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 10,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ma-selection-intake",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/markdown-review-architecture",
+      "head": "a243a6ca0f43c12f5d1f69aa80dbf1b29e38dd29",
+      "ahead": 0,
+      "behind": 288,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-markdown-review",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/material-delivery-repair-20260910",
+      "head": "93a641fd91e1615f2f8495f4f4576d310753740c",
+      "ahead": 0,
+      "behind": 100,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-material-delivery-repair-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/material-repair-combo-verify-20260910",
+      "head": "8e8ad2b00f4935a7ac9fe0826acb929dfc32e61c",
+      "ahead": 1,
+      "behind": 71,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-material-delivery-repair-combo-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/material-repair-v2-combo-verify-20260910",
+      "head": "0246ef294cda236d0e4bb2b3ef9cf98d625bd8ea",
+      "ahead": 1,
+      "behind": 70,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-material-delivery-repair-v2-combo-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/merge-node-audit-20260911",
+      "head": "0c5d2241655863685f0c730d1b052dc41ade478b",
+      "ahead": 1,
+      "behind": 0,
+      "relation": "main-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "engineering/execution/2026-09-11-merge-node/"
+      ],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 10,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-merge-node-audit-20260911",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/micro-surface-intake-20260910",
+      "head": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+      "ahead": 0,
+      "behind": 0,
+      "relation": "main-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-micro-surface-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/mr-a1a-integration",
+      "head": "b17673857e1c0d40857a46eb2c7aba6422dedfef",
+      "ahead": 0,
+      "behind": 219,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-mr-a1a-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/mr-a1a-source-coordinates",
+      "head": "7a6db4a0ba8c6a438218e12ae15e6f5551e5a6c8",
+      "ahead": 0,
+      "behind": 234,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-mr-a1a-source-coordinates",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/multi-experts-longlife-20260910",
+      "head": "852bd3e01a06077c105d356004b64021d821b888",
+      "ahead": 1,
+      "behind": 165,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 17,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-multi-experts-longlife",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/next-round-consumption-20260910",
+      "head": "8798e81d6c54a9870b997038396377de9da68555",
+      "ahead": 0,
+      "behind": 2,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-next-round-consumption-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/attention-chat-closure",
+      "head": "f552e228a6c6047e1278d570313f6ca7a87ba806",
+      "ahead": 0,
+      "behind": 203,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-opus-attention-chat",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pages-entry-20260910",
+      "head": "9983a4614dcde5501d7e26946a6899d350f652e9",
+      "ahead": 0,
+      "behind": 120,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pages-entry-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pages-first-release",
+      "head": "8e690328bfd34e743b0367e4e96237a2efbac342",
+      "ahead": 0,
+      "behind": 240,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pages-first-release",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pages-main-visual-20260910",
+      "head": "9157bbbdaf3f4bd0c844cde5b62cdbb8a068d8ad",
+      "ahead": 0,
+      "behind": 127,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pages-main-visual-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "9e5384fcabdac432259b3ffab7928251bea49859",
+      "ahead": 0,
+      "behind": 287,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pages-new-evidence-9e5384f",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pro-bundle-receipt-20260910",
+      "head": "312965f0b777fc14025752368ce6e162cc072249",
+      "ahead": 0,
+      "behind": 3,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pro-bundle-receipt-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pro-return-intake-20260910",
+      "head": "c0d89d33bb178a46b1bdb9080fbe771c8693a320",
+      "ahead": 0,
+      "behind": 4,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pro-return-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pro-review-remediation",
+      "head": "7a906a181f3b4be66246d975f925413dfbf211a4",
+      "ahead": 0,
+      "behind": 484,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pro-review-remediation-20260908",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/product-position-20260910",
+      "head": "9cd67332779ee924eff554f4ae4c576dc4946aca",
+      "ahead": 13,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 13,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 38,
+      "cherrySummary": {
+        "plus": 13,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-product-position-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/provider-attention-intake-20260910",
+      "head": "8a0e707c0df9378b69441e79aa99de9097bdc8ca",
+      "ahead": 2,
+      "behind": 57,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 6,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-provider-attention-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/ps01-resume",
+      "head": "230a7193d268a60ab712289eca722ef9821f6b89",
+      "ahead": 0,
+      "behind": 356,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ps01-resume",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/ps02-resume",
+      "head": "f412a6247467997765efd8da832752b24313dfbc",
+      "ahead": 0,
+      "behind": 354,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-ps02-resume",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/public-narrative-benchmarks-20260910",
+      "head": "d804883cd6ee80f484cc09ddfea0f0d6a50e26f6",
+      "ahead": 5,
+      "behind": 89,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 40,
+      "cherrySummary": {
+        "plus": 5,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-public-narrative-benchmarks-20260910",
+      "productCommitRefs": [
+        "6517e8acbca99ef84dbe767f8de979c92c8b7f24",
+        "bd1f815a99c88f2431244671e871e97ddcc082fa",
+        "4803ea4a02f79566dd360ea0bef2f82581c2da67",
+        "a2e2d3c708065a49699b7f847ad2602a44f33c9b"
+      ]
+    },
+    {
+      "branch": "codex/public-repository-cleanup",
+      "head": "a0ebcf026d20b052c5cab7b1ad8b0a5f7ad63b73",
+      "ahead": 0,
+      "behind": 224,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-public-repository-cleanup",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "eb78162d8b2696dc00c5a87da82da13f0e0de6f3",
+      "ahead": 1,
+      "behind": 17,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 3,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-pv-backend-fixed-654411e-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "d387c4ae77a33fe865f2cda38568232b0663b850",
+      "ahead": 1,
+      "behind": 40,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 3,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-pv-backend-independent-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "84c18fceacf12ae7f5a49abc1b645dcdf869c246",
+      "ahead": 1,
+      "behind": 40,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 6,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-pv-frontend-independent-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/pv-sd-integration-20260910",
+      "head": "ef66177cb85ba8fb81ca8d201dcafdcda5804cf4",
+      "ahead": 0,
+      "behind": 11,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-pv-sd-integration-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "b227b040472e9ae30a6d52ab5e3d33a870f4684f",
+      "ahead": 1,
+      "behind": 20,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 1,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-pv54-static-independent-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/r4d-design-review",
+      "head": "015fac9331c1bcaaa368df746f2da23e434a494d",
+      "ahead": 0,
+      "behind": 408,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-r4d-design-review",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/release-roundmap-20260910",
+      "head": "82796944097cba4c04f848a5a21a60ecc7625a58",
+      "ahead": 10,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 10,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 28,
+      "cherrySummary": {
+        "plus": 10,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-release-roundmap-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/work-review-actions",
+      "head": "7941bdbdd2ca2bfcaaa36e451ab8a15b1e72e866",
+      "ahead": 0,
+      "behind": 506,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-review-actions-20260908",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/runtime-source-service-20260910",
+      "head": "470498b5cbd2f42c93e0d0508ebb775972d62e9c",
+      "ahead": 2,
+      "behind": 263,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 11,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-runtime-source-service-20260910",
+      "productCommitRefs": [
+        "9cbae87e397d3873cc88437105f463377887169a"
+      ]
+    },
+    {
+      "branch": "codex/rv26-execution-20260910",
+      "head": "f3fec8a8274150d256d4e332930ff121226b8226",
+      "ahead": 0,
+      "behind": 109,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-rv26-execution",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "main",
+      "head": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+      "ahead": 0,
+      "behind": 0,
+      "relation": "main-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-rv26-main-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "74ab7ca69a928b12631683fbf66341456dbdb67e",
+      "ahead": 0,
+      "behind": 115,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-rv26-q01-review",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/rv26-q02-20260910",
+      "head": "a7b9822bb4b4368454a9984fe0da60f25f187eb6",
+      "ahead": 0,
+      "behind": 98,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-rv26-q02",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "61927c53ba771e7523ef0d5b33ab6e20dae5cf49",
+      "ahead": 1,
+      "behind": 101,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 1,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-rv26-q02-independent",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "dc3068b30a16fe06f10a62c812c1e44e994cbe2f",
+      "ahead": 0,
+      "behind": 18,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-sd-fixed-dc3068b",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "1929aa559e4e57053ade00903a49cad712c247dd",
+      "ahead": 1,
+      "behind": 52,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": true,
+      "docsOnly": true,
+      "uniquePathCount": 3,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-sd-independent-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/se-continuity-benchmark",
+      "head": "61df606889b060a5d91451ca2d476835b6bdbbe3",
+      "ahead": 0,
+      "behind": 497,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-se-continuity-benchmark-20260908",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/serial-entry-20260910",
+      "head": "d22eb66ef1b335b95202c8c0a34c425acb59a2f9",
+      "ahead": 0,
+      "behind": 7,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-serial-entry-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/sidebar-intake-20260910",
+      "head": "33462cc557941fc267cc43400aa7a4fccd774305",
+      "ahead": 8,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 8,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 22,
+      "cherrySummary": {
+        "plus": 8,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-sidebar-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "a7ff5c86b0c25e12aa31c73b7245d854a7cf41d2",
+      "ahead": 0,
+      "behind": 97,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-sk4-focus-fixed-a7ff5c8-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/skin-boundary-20260910",
+      "head": "428d1a76b5cb3c9b9f5b2d70380a55303faf8e95",
+      "ahead": 0,
+      "behind": 100,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-skin-boundary-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/skin-injection-20260910",
+      "head": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+      "ahead": 0,
+      "behind": 114,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-skin-injection-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/skin-review-decoupling-20260910",
+      "head": "a579929edd66544e6aa7cd8cd7d2399fae8265d3",
+      "ahead": 0,
+      "behind": 103,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-skin-review-decoupling",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/spark-delivery-repair-20260910",
+      "head": "936239dca9d7eac0cab859960f8b19950c760193",
+      "ahead": 0,
+      "behind": 66,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-spark-delivery-repair-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "20d8330dc6555d073a6bdec7ebf1e6bafc7aee99",
+      "ahead": 0,
+      "behind": 67,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-spark-delivery-verify-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/spark-fe-20260910",
+      "head": "63840a7df22914e7a13cffcee0f646b8ded6ab9f",
+      "ahead": 0,
+      "behind": 115,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-spark-fe-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/spark-integration-20260910",
+      "head": "4b1ac9362a83f0759da3b83aa8c843dd2764448e",
+      "ahead": 0,
+      "behind": 117,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-spark-integration-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/t3-integration-20260910",
+      "head": "ecccac2e3d51f276b4f0fe31be430ef675e2b1c9",
+      "ahead": 0,
+      "behind": 236,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-t3-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/terra-async-boundaries",
+      "head": "4b8ba2cb1c96838f8ac2229a151d3323a7cb8cf7",
+      "ahead": 7,
+      "behind": 275,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 7,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 5,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 5
+      },
+      "worktreeLabel": "cw-terra-async-boundaries",
+      "productCommitRefs": [
+        "4b8ba2cb1c96838f8ac2229a151d3323a7cb8cf7",
+        "ccbf49afe2fd18a80b48fb9c9ba1588a538af6be",
+        "fec8a599eb60f478f4fab87d022c4e11e3a58d10",
+        "3ab6b77829548ed971a80bb806909c72ae9bce55"
+      ]
+    },
+    {
+      "branch": "codex/terra-async-fixture",
+      "head": "0c5db70cf7544a7a754d9ed72c7a5370e85c646a",
+      "ahead": 2,
+      "behind": 328,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 6,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-terra-async-fixture",
+      "productCommitRefs": [
+        "0c5db70cf7544a7a754d9ed72c7a5370e85c646a",
+        "1791e86b204cd78ae0f81847c14fed1f13106c9a"
+      ]
+    },
+    {
+      "branch": "(detached)",
+      "head": "95f118db8870a2e8be330f10bac31b4e6d6f89a3",
+      "ahead": 2,
+      "behind": 278,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 7,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-terra-async-fixture-fixed-review",
+      "productCommitRefs": [
+        "95f118db8870a2e8be330f10bac31b4e6d6f89a3",
+        "ab9e4b7216df2b2c531a07bc4fcd1b18b688eae7"
+      ]
+    },
+    {
+      "branch": "codex/terra-async-protocol",
+      "head": "aaba970520a76aefd6a6e612bf7d089992349a00",
+      "ahead": 2,
+      "behind": 328,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 9,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 2
+      },
+      "worktreeLabel": "cw-terra-async-protocol",
+      "productCommitRefs": [
+        "aaba970520a76aefd6a6e612bf7d089992349a00",
+        "0c50503237bc1391cf63829aa2a57cbae451bc63"
+      ]
+    },
+    {
+      "branch": "codex/terra-async-recovery-independent",
+      "head": "5e8106f38abb77f89fcf2844f7df0198e3713233",
+      "ahead": 4,
+      "behind": 275,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 4,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 7,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 1
+      },
+      "worktreeLabel": "cw-terra-async-recovery-independent",
+      "productCommitRefs": [
+        "5e8106f38abb77f89fcf2844f7df0198e3713233",
+        "95f118db8870a2e8be330f10bac31b4e6d6f89a3",
+        "ab9e4b7216df2b2c531a07bc4fcd1b18b688eae7"
+      ]
+    },
+    {
+      "branch": "codex/terra-human-fixtures",
+      "head": "d4096758190405e7f30bab0df04d0072cbd2b693",
+      "ahead": 3,
+      "behind": 328,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 11,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 3
+      },
+      "worktreeLabel": "cw-terra-human-fixtures",
+      "productCommitRefs": [
+        "d4096758190405e7f30bab0df04d0072cbd2b693",
+        "24523515dbdbbe43707c773c2dd6d4c8ae63ac9e",
+        "25a4b62ea7d164977925a837b3853130248a5120"
+      ]
+    },
+    {
+      "branch": "codex/vg01-main-integration-20260910",
+      "head": "67ed0fd748017f3d71d426de51d9f1f63860ea54",
+      "ahead": 0,
+      "behind": 45,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-vg01-main-integration-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "2eca4885a7f1ebab4c6e8b7d38e76ffbe3d09a50",
+      "ahead": 0,
+      "behind": 47,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-vg01-review-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/visual-compiler-intake-20260910",
+      "head": "c851ef718b87332d9daacdc715d12007cde66ccc",
+      "ahead": 0,
+      "behind": 6,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-visual-compiler-intake-20260910",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "ahead": 0,
+      "behind": 57,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-webui-main.a5bmK4",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/wk10b-integration",
+      "head": "62556b7f65170ecf30efb2869447ae85fe69d721",
+      "ahead": 0,
+      "behind": 500,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-wk10b-integration-20260908",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/wk10b2-integration",
+      "head": "b7fa5e27d013886250c04af07dc40523bd8bd67f",
+      "ahead": 0,
+      "behind": 493,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-wk10b2-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/wk11-integration",
+      "head": "1688a7b237e9507da477f91742293abc173461e9",
+      "ahead": 0,
+      "behind": 463,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-wk11-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/wk12-integration",
+      "head": "14ebd61877545ab71e20ce54a720d4e1e13c6b78",
+      "ahead": 0,
+      "behind": 473,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-wk12-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/wk13-integration",
+      "head": "429fdd68febb9998f322a0b53c323651fc8cd7fd",
+      "ahead": 0,
+      "behind": 478,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "cw-wk13-integration",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/br01-brand-primitive",
+      "head": "df9331a0af253ea5d91c7ae3a5af48ac488e7c04",
+      "ahead": 6,
+      "behind": 339,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 10,
+      "dirtyPaths": [
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/",
+        "brand/exploration-2026-09-09/04-small-size-test/measure.mjs",
+        "brand/exploration-2026-09-09/04-small-size-test/measurements.json",
+        "brand/exploration-2026-09-09/04-small-size-test/menubar/",
+        "brand/exploration-2026-09-09/04-small-size-test/neighbours/",
+        "brand/exploration-2026-09-09/04-small-size-test/png.mjs",
+        "brand/exploration-2026-09-09/04-small-size-test/png/",
+        "brand/exploration-2026-09-09/04-small-size-test/shoot.mjs",
+        "brand/exploration-2026-09-09/04-small-size-test/verify.log",
+        "brand/exploration-2026-09-09/04-small-size-test/verify.mjs"
+      ],
+      "uniqueCommitCount": 6,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 29,
+      "cherrySummary": {
+        "plus": 6,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-br01",
+      "productCommitRefs": [
+        "df9331a0af253ea5d91c7ae3a5af48ac488e7c04",
+        "2d983df04871b30626bf3533ef45a00ae31baeff",
+        "90ef3c09e8491d0c9d8d96c14e5c8bbc7b9277db",
+        "802fda1b876433ed0f8b9e4a651f1cecf1838e99",
+        "6df095cfe3a18de6c3082ca0fcd9f3ecf7abf56a",
+        "c1fa987418756919c65daf53a667cd1dfbd1e870"
+      ]
+    },
+    {
+      "branch": "claude/cci1-property-row",
+      "head": "a8856605be6dc6e85406fbbf9da35ce3348279e0",
+      "ahead": 0,
+      "behind": 197,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-cci1",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/chat-shell-proportion",
+      "head": "f6ba379bf0b3c65ec16e7643a0ab7f56907833a5",
+      "ahead": 15,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 15,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 179,
+      "cherrySummary": {
+        "plus": 14,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-cs",
+      "productCommitRefs": [
+        "106330b8dbde36aa3eb62114c626e9e9d20a29f0",
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "claude/ic2-chat-controls",
+      "head": "f3895aa84f7046b0892fbbacc6b85949e6745a2e",
+      "ahead": 2,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 43,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-ic2",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ic2-controls-b",
+      "head": "80f39bfe147b8c56ef02508aaf56978bf37982c0",
+      "ahead": 26,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "evidence/ic2-controls-b-20260910/"
+      ],
+      "uniqueCommitCount": 26,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 232,
+      "cherrySummary": {
+        "plus": 22,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-ic2b",
+      "productCommitRefs": [
+        "65043fae37ee1418fdbe19eee8a73fe0137bf79b",
+        "0aca1228f9c3dfc5cd9b78184ea1fbcadaa1aa3f",
+        "d55d006ddcc74f069d76e85437335037e4ccbf9b",
+        "106330b8dbde36aa3eb62114c626e9e9d20a29f0",
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "claude/pg01-interaction-lint",
+      "head": "539907a99f82ce2387a1c84d2f999a3d843022da",
+      "ahead": 0,
+      "behind": 198,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-pg01",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ps01-site",
+      "head": "e492dc93f4075651edf33bce389c90c5ff8891ff",
+      "ahead": 0,
+      "behind": 357,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 9,
+      "dirtyPaths": [
+        "site/src/site.css",
+        "site/verification/contrast.json",
+        "site/verification/page-1440-dark.png",
+        "site/verification/page-1440-light-zoom200.png",
+        "site/verification/page-1440-light.png",
+        "site/verification/page-390-dark.png",
+        "site/verification/page-390-light.png",
+        "site/verification/verify.json",
+        "site/scripts/check-material.mjs"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-ps01",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8",
+      "ahead": 0,
+      "behind": 364,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-ps01-bench-tree",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/pv-be02-connections",
+      "head": "e61c9d51e654088723798168aa9b4f552f389ba3",
+      "ahead": 0,
+      "behind": 197,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-pvbe02",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/pv-be03-open-admission",
+      "head": "76cd11ff508eb0475ca3ddc32971f7ce3c128540",
+      "ahead": 0,
+      "behind": 47,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-pvbe03",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/pvfe01-connections",
+      "head": "84c39a7d860d61a93c7c42980f3fd1a0f07b88b2",
+      "ahead": 0,
+      "behind": 192,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 3,
+      "dirtyPaths": [
+        "evidence/pv-fe01/model-picker-1440-light-groups.png",
+        "evidence/pv-fe01/pv-checks.json",
+        "evidence/pv-fe01/settings-models-1440-light-user-window.png"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-pvfe01",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/pv-fe02-seamless-connect",
+      "head": "bb2102790567d193dd412e1d4d99b09281b5ad2e",
+      "ahead": 0,
+      "behind": 40,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-pvfe02",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/rc-runtime-ui",
+      "head": "83504283323df5f3db3f381d9edc72644900c96c",
+      "ahead": 15,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 15,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3150,
+      "cherrySummary": {
+        "plus": 15,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-rc",
+      "productCommitRefs": [
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9",
+        "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a",
+        "802c65eff008b05a7557ed2618226fa51a261a57",
+        "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8"
+      ]
+    },
+    {
+      "branch": "claude/sd01-spark-sample",
+      "head": "6b6257937e2dff0bcf46f9a31f40184ee95c57b3",
+      "ahead": 0,
+      "behind": 52,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-sd01",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/summary-disclosure-review",
+      "head": "87a202f73c2397e4c3a485e39c99ce5c14d095b5",
+      "ahead": 12,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 12,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 141,
+      "cherrySummary": {
+        "plus": 12,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-sdr",
+      "productCommitRefs": [
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "claude/tps-reference-specimen",
+      "head": "62295b43bdcda4e57b252e332f399349303afef2",
+      "ahead": 3,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 58,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-tps",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/vg01-figures",
+      "head": "2eca4885a7f1ebab4c6e8b7d38e76ffbe3d09a50",
+      "ahead": 0,
+      "behind": 47,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-vg01",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/wk10-rail",
+      "head": "5f76b2e2addc37efd5c47c5ffcad71c275f6a6dc",
+      "ahead": 43,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 43,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3196,
+      "cherrySummary": {
+        "plus": 40,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wk10",
+      "productCommitRefs": [
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9",
+        "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a",
+        "00aca82534de29a4c36a2b030e9da4c0dd80c390",
+        "40c9af0e6d07e175e99391a85c27d955a4d66a05",
+        "802c65eff008b05a7557ed2618226fa51a261a57"
+      ]
+    },
+    {
+      "branch": "claude/wk10c-finish",
+      "head": "bcbca1b3b6b848f8976a12e697e0972cf975b3bf",
+      "ahead": 60,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 60,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3354,
+      "cherrySummary": {
+        "plus": 56,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wk10c",
+      "productCommitRefs": [
+        "0bc416b41976ebf4d35fc35fb83562b2ebe87635",
+        "efb7197ac40c52a623d1fe53fb9c0369c21e754d",
+        "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba"
+      ]
+    },
+    {
+      "branch": "claude/wk10-r2",
+      "head": "e170b9934f77ae3bfd93f6064a115a1bc3e38160",
+      "ahead": 48,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 48,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3223,
+      "cherrySummary": {
+        "plus": 45,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wk10r2",
+      "productCommitRefs": [
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9",
+        "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a"
+      ]
+    },
+    {
+      "branch": "claude/wk6-home-brand",
+      "head": "688e065f94c7ac29255e61ef90db9b97735e1ceb",
+      "ahead": 18,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 5,
+      "dirtyPaths": [
+        "engineering/mvp/execution/work-surface-kit/intake-round-2.md",
+        "engineering/mvp/execution/work-surface-kit/work-orders/EX-WK3-color-spacing-sources.md",
+        "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK6-home-brand.md",
+        "engineering/mvp/execution/work-surface-kit/work-orders/WO-WK7-color-governance.md",
+        "evidence/wk6/"
+      ],
+      "uniqueCommitCount": 18,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3126,
+      "cherrySummary": {
+        "plus": 17,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wk6",
+      "productCommitRefs": [
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9",
+        "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a",
+        "802c65eff008b05a7557ed2618226fa51a261a57",
+        "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8"
+      ]
+    },
+    {
+      "branch": "claude/wk7-color-governance",
+      "head": "10f1afeab24fc234ee664e699bafafe708751b8f",
+      "ahead": 5,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3128,
+      "cherrySummary": {
+        "plus": 5,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wk7",
+      "productCommitRefs": [
+        "00aca82534de29a4c36a2b030e9da4c0dd80c390",
+        "40c9af0e6d07e175e99391a85c27d955a4d66a05",
+        "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8"
+      ]
+    },
+    {
+      "branch": "claude/wsk-integration",
+      "head": "0a307802b61a6847ee88bfea870bdf340647caee",
+      "ahead": 49,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 49,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3223,
+      "cherrySummary": {
+        "plus": 46,
+        "minus": 0
+      },
+      "worktreeLabel": "se-agent-wsk",
+      "productCommitRefs": [
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9",
+        "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a"
+      ]
+    },
+    {
+      "branch": "claude/att-fe01-triage",
+      "head": "cd1326d8481e4965e96e8ee4f40cc531a67d4fef",
+      "ahead": 5,
+      "behind": 103,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 5,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 147,
+      "cherrySummary": {
+        "plus": 5,
+        "minus": 0
+      },
+      "worktreeLabel": "se-att-fe01",
+      "productCommitRefs": [
+        "341f8bf043abdfcf386d1110e75069009299a250",
+        "4fe863f85fff1e4af0c96d8a879736d007a3a581",
+        "eefe5e0abfa0d4147736d23a73fff29f90b56dc5",
+        "6a0459b87c4ee659f4755c03f89139aa8bff266e"
+      ]
+    },
+    {
+      "branch": "claude/bg02-run-lineage",
+      "head": "e7e08e08b1e14d777200a5ee6a500a773d3eba18",
+      "ahead": 0,
+      "behind": 182,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-bg02",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/web-gpt-design-cci-applicability",
+      "head": "8635539d3091a325746b1f7cda395128ca12cb8b",
+      "ahead": 2,
+      "behind": 103,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 7,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "se-cci-applicability",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/composer-grow-notice",
+      "head": "525aed08adb211d4e223f4ed128f430747c9d8cd",
+      "ahead": 3,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 9,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 0
+      },
+      "worktreeLabel": "se-composer-grow",
+      "productCommitRefs": [
+        "0aca1228f9c3dfc5cd9b78184ea1fbcadaa1aa3f",
+        "d55d006ddcc74f069d76e85437335037e4ccbf9b"
+      ]
+    },
+    {
+      "branch": "claude/composer-ingest-specimen",
+      "head": "7d05675947235d8d90a45ab8cba48cf55347af0f",
+      "ahead": 2,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 2,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 28,
+      "cherrySummary": {
+        "plus": 2,
+        "minus": 0
+      },
+      "worktreeLabel": "se-composer-ingest",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/cs01-ci-bf-integration",
+      "head": "68b3341a457aeba1fcaf0bcf6a30c913bfc29e7a",
+      "ahead": 27,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 27,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 190,
+      "cherrySummary": {
+        "plus": 23,
+        "minus": 0
+      },
+      "worktreeLabel": "se-cs01-integration",
+      "productCommitRefs": [
+        "65043fae37ee1418fdbe19eee8a73fe0137bf79b",
+        "0aca1228f9c3dfc5cd9b78184ea1fbcadaa1aa3f",
+        "d55d006ddcc74f069d76e85437335037e4ccbf9b",
+        "106330b8dbde36aa3eb62114c626e9e9d20a29f0",
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "claude/fable-ic-ruling",
+      "head": "ab09b0dee05f73e8e615c0a5f9107a8ba15ff697",
+      "ahead": 0,
+      "behind": 109,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fable-ic",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/fable-publishing-surface",
+      "head": "10bb928e9e1ef9c7b95730e26f6e051ef37e0079",
+      "ahead": 1,
+      "behind": 348,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 2,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fable-ps",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/fable-round4d",
+      "head": "6d5c444c28214441f90a36ae596018ddebad5f46",
+      "ahead": 14,
+      "behind": 304,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 14,
+      "patchEquivalent": false,
+      "docsOnly": true,
+      "uniquePathCount": 17,
+      "cherrySummary": {
+        "plus": 14,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fable-r4d",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/fable-publishing-visuals",
+      "head": "36f6bc1574700de452943cf1b0463b6bde3fd435",
+      "ahead": 0,
+      "behind": 54,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fable-vg",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/web-gpt-design-fe05-material",
+      "head": "cd124d6301981f892d62989f8907a3f0d94f60a5",
+      "ahead": 0,
+      "behind": 102,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fe05-material",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/fe05a-type-density",
+      "head": "463d57c1f3840ecde9c3bfa8577cd6d552d402af",
+      "ahead": 0,
+      "behind": 114,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 10,
+      "dirtyPaths": [
+        "evidence/fe05a/baseline-checks.json",
+        "evidence/fe05a/shape-checks.json",
+        "engineering/mvp/execution/work-surface-kit/delivery-fe05a.md",
+        "evidence/fe05a/README.md",
+        "evidence/fe05a/contrast.log",
+        "evidence/fe05a/lint-colors.log",
+        "evidence/fe05a/lint-materials.log",
+        "evidence/fe05a/lint-shapes.log",
+        "evidence/fe05a/regression/",
+        "evidence/fe05a/smoke.log"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-fe05a",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ex-ic1-icon-specimen",
+      "head": "f5890fa5804e2fa603a28512f0bffda21f81ac93",
+      "ahead": 0,
+      "behind": 117,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-icon-ex-ic1",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ma2-round2-docs",
+      "head": "4c32d21559f7d31d3e3050325ba29c993ff8d2f5",
+      "ahead": 0,
+      "behind": 185,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-ma2-docs",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ma2-frontend",
+      "head": "8bef96412327e185459bf85bcfc6d4fc8a284bf8",
+      "ahead": 0,
+      "behind": 187,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-ma2-fe",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/ma2-backend-tests",
+      "head": "d0feb07735692badbe6242d68caece65bda47072",
+      "ahead": 0,
+      "behind": 191,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 1,
+      "dirtyPaths": [
+        "app/node_modules"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-ma2-tests",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "9157bbbdaf3f4bd0c844cde5b62cdbb8a068d8ad",
+      "ahead": 0,
+      "behind": 127,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-provider-main-independent",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "(detached)",
+      "head": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "ahead": 0,
+      "behind": 57,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "se-pv-r3-base",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "claude/tab-close-disambig",
+      "head": "caabc9be5b48279954d75633b4bf76861b0dbeed",
+      "ahead": 1,
+      "behind": 89,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 1,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3,
+      "cherrySummary": {
+        "plus": 1,
+        "minus": 0
+      },
+      "worktreeLabel": "se-tab-close-disambig",
+      "productCommitRefs": [
+        "caabc9be5b48279954d75633b4bf76861b0dbeed"
+      ]
+    },
+    {
+      "branch": "claude/tab-continuity",
+      "head": "6ebd48f4c85bfed84f34000fb88f37a1ed62fdd3",
+      "ahead": 4,
+      "behind": 89,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 4,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 6,
+      "cherrySummary": {
+        "plus": 4,
+        "minus": 0
+      },
+      "worktreeLabel": "se-tab-continuity",
+      "productCommitRefs": [
+        "6ebd48f4c85bfed84f34000fb88f37a1ed62fdd3",
+        "c669ca36a07311cdbe1b01ae749ede5d155063bc",
+        "e3a42417e6f3a72226487c99cb72e04ecd9a0f9e",
+        "05e472853cb0e04a9e098a066d2c143de44eb405"
+      ]
+    },
+    {
+      "branch": "codex/be41-work-derivations-20260910",
+      "head": "4c2a56aa203b3818bd8265f79f72dec7a0dc154f",
+      "ahead": 3,
+      "behind": 10,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 3,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 23,
+      "cherrySummary": {
+        "plus": 3,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/0931/Courtwork",
+      "productCommitRefs": [
+        "30fd47015039eb68967b5dba1634c54c62099975",
+        "d40c53affca0a2acb638cd5c32e13a896950ad4a"
+      ]
+    },
+    {
+      "branch": "codex/summary-disclosure-r2",
+      "head": "796c3a5de9bbeb6728b8968d227b4ec4e52725d5",
+      "ahead": 16,
+      "behind": 45,
+      "relation": "diverged",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 16,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 99,
+      "cherrySummary": {
+        "plus": 16,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/8802/Courtwork",
+      "productCommitRefs": [
+        "acafe2c3b4fae1f73bbf68d0e00fc2e4f174a42c",
+        "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+        "731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e",
+        "690af79032330e62c52145d95ea194ad1b0a9ebe",
+        "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+        "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+        "32260043bb5821436816869e83261f30966adbec",
+        "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+        "0feefc3b752387086c4dde1461c18219bf1e75f1",
+        "0ec81843068f2e777c83300844f08b98eb2a234f",
+        "21113758a73d5c8311eee570864856c6ab4f7947",
+        "62e7e56aa8b63bb3c637a38a41611aae471faf55"
+      ]
+    },
+    {
+      "branch": "codex/attention-backend-20260909",
+      "head": "ae595ed5e0a585117b2642b3125a0c7a7e01fa23",
+      "ahead": 0,
+      "behind": 332,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/99f0/Courtwork",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/harness-core",
+      "head": "d6247a8e27dc512a00fd113c9fec9835d24d6594",
+      "ahead": 0,
+      "behind": 521,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/b6dc/Courtwork",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/backend-bounded-20260909",
+      "head": "52f75ddcbdc2181c313d3176eecaf07dc43d17c1",
+      "ahead": 0,
+      "behind": 369,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/b755/Courtwork",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/home-backlog-construction",
+      "head": "5899765024e62deec1118de37989f8e12fcff727",
+      "ahead": 0,
+      "behind": 206,
+      "relation": "head-ancestor",
+      "dirty": false,
+      "dirtyCount": 0,
+      "dirtyPaths": [],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/c228/Courtwork",
+      "productCommitRefs": []
+    },
+    {
+      "branch": "codex/fresh-web-integration",
+      "head": "3926a5eda76f40552bdc8e310a12560b84c6bfb6",
+      "ahead": 54,
+      "behind": 537,
+      "relation": "diverged",
+      "dirty": true,
+      "dirtyCount": 6,
+      "dirtyPaths": [
+        "app/tests/ui-event-mapping.test.mjs",
+        "app/web/app.mjs",
+        "app/web/home-view.mjs",
+        "app/web/thread-projection.mjs",
+        "engineering/release/2026-09-08/fresh-astra-handoff.md",
+        "evidence/web-integration-20260908/"
+      ],
+      "uniqueCommitCount": 54,
+      "patchEquivalent": false,
+      "docsOnly": false,
+      "uniquePathCount": 3351,
+      "cherrySummary": {
+        "plus": 50,
+        "minus": 0
+      },
+      "worktreeLabel": "codex-worktrees/f757/Courtwork",
+      "productCommitRefs": [
+        "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+        "85890394ebadc7660e6a665490fd89a3ed635c5f",
+        "92df63f2888556cfe914659b90dce8c57fca3d1b",
+        "048614167a54c369a7e86f48d7551db2d3019776",
+        "68939c5ff46b55301fa3de1400d507d4e982464c",
+        "4d40019433b457fd4b3942614f264a551bc7335c",
+        "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+        "c1b29690b28b68e48cee9b997ebea8b67f338309",
+        "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+        "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+        "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+        "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+        "de5756fa47454f3e79f173135edf0778167485b7",
+        "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+        "dbea510adf589d071c7e18377b7befc67f562144",
+        "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+        "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+        "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+        "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+        "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+        "75a366ac96c6d3419fca4ce66070141e29c6e670",
+        "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+        "bd5410784c9b361a8060455a4968b6a0858b229e",
+        "4007f8055ac9371f9601659836fdcea757ef21b9"
+      ]
+    },
+    {
+      "branch": "claude/ex-ss1-secondary-surface",
+      "head": "3a6133686014973f62fcf58e71e779af36616876",
+      "ahead": 0,
+      "behind": 116,
+      "relation": "head-ancestor",
+      "dirty": true,
+      "dirtyCount": 3,
+      "dirtyPaths": [
+        "evidence/fe01-main-integration-20260909/wk98-regression.json",
+        "engineering/mvp/execution/work-surface-kit/explore/ex-ss1-secondary-surface.md",
+        "site/verification/main-20260910/"
+      ],
+      "uniqueCommitCount": 0,
+      "patchEquivalent": true,
+      "docsOnly": false,
+      "uniquePathCount": 0,
+      "cherrySummary": {
+        "plus": 0,
+        "minus": 0
+      },
+      "worktreeLabel": "Courtwork",
+      "productCommitRefs": []
+    }
+  ],
+  "productCommits": [
+    {
+      "sha": "30fd47015039eb68967b5dba1634c54c62099975",
+      "subject": "fix(core): bound derivation identity metadata response",
+      "paths": [
+        "app/core/derivations.py",
+        "app/tests/work-derivations.test.mjs",
+        "docs/work-core/contract.md",
+        "engineering/design/spark-surface-2026-09-10/be41-dto.md",
+        "evidence/be41-20260910/author-targeted-final.log"
+      ]
+    },
+    {
+      "sha": "d40c53affca0a2acb638cd5c32e13a896950ad4a",
+      "subject": "feat(core): project scoped work derivations with snapshot validation",
+      "paths": [
+        "app/core/bridge.py",
+        "app/core/derivations.py",
+        "app/server/index.mjs",
+        "app/server/service.mjs",
+        "app/tests/work-derivations.test.mjs",
+        "engineering/current.md",
+        "engineering/design/spark-surface-2026-09-10/be41-dto.md",
+        "engineering/mvp/execution/work-surface-kit/backend-requests.md",
+        "evidence/be41-20260910/README.md",
+        "evidence/be41-20260910/author-targeted.log"
+      ]
+    },
+    {
+      "sha": "65043fae37ee1418fdbe19eee8a73fe0137bf79b",
+      "subject": "test: one composer growth mechanism after the CS-01 × CI-B/F merge",
+      "paths": [
+        "app/tests/chat-shell-proportion.test.mjs",
+        "app/tests/composer-field.test.mjs"
+      ]
+    },
+    {
+      "sha": "0aca1228f9c3dfc5cd9b78184ea1fbcadaa1aa3f",
+      "subject": "web: keep plain composer ceilings and override with 28dvh only where supported; state WK-97's two caps",
+      "paths": [
+        "app/tests/composer-field.test.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "d55d006ddcc74f069d76e85437335037e4ccbf9b",
+      "subject": "web: composer grows with its draft (CI-B) and says when an image paste was not added (CI-F)",
+      "paths": [
+        "app/server/index.mjs",
+        "app/tests/composer-field.test.mjs",
+        "app/web/app.mjs",
+        "app/web/composer-field.mjs",
+        "app/web/index.html",
+        "app/web/styles.css",
+        "engineering/mvp/execution/work-surface-kit/delivery-ci-b-f.md"
+      ]
+    },
+    {
+      "sha": "106330b8dbde36aa3eb62114c626e9e9d20a29f0",
+      "subject": "fe: chat shell proportion — 48 band, 16 nav glyph, shared content column, bounded composer growth",
+      "paths": [
+        "app/tests/chat-shell-proportion.test.mjs",
+        "app/web/app.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+      "subject": "Polish disclosure focus geometry with existing card roles",
+      "paths": [
+        "app/web/summary-disclosure.css",
+        "app/web/surface-layout.css",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md"
+      ]
+    },
+    {
+      "sha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "subject": "fix: restore desktop directory when resuming a chat from Home",
+      "paths": [
+        "app/web/app.mjs"
+      ]
+    },
+    {
+      "sha": "32260043bb5821436816869e83261f30966adbec",
+      "subject": "fix: preserve surface hierarchy across preview size and compact directory",
+      "paths": [
+        "app/tests/summary-disclosure.test.mjs",
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/summary-disclosure.css",
+        "app/web/summary-disclosure.mjs",
+        "app/web/surface-layout.css",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md",
+        "evidence/summary-disclosure-20260910/serve.mjs"
+      ]
+    },
+    {
+      "sha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "subject": "fix: balance directory height with bounded content and consistent space",
+      "paths": [
+        "app/web/surface-layout.css",
+        "evidence/summary-disclosure-20260910/serve.mjs"
+      ]
+    },
+    {
+      "sha": "0feefc3b752387086c4dde1461c18219bf1e75f1",
+      "subject": "fix: keep work surface chrome actions visible beside scrolling tabs",
+      "paths": [
+        "app/web/surface-layout.css"
+      ]
+    },
+    {
+      "sha": "0ec81843068f2e777c83300844f08b98eb2a234f",
+      "subject": "feat: integrate stable summary disclosure into work surface host",
+      "paths": [
+        "app/server/index.mjs",
+        "app/tests/summary-disclosure.test.mjs",
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/summary-disclosure.css",
+        "app/web/summary-disclosure.mjs",
+        "app/web/surface-layout.css",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md",
+        "evidence/summary-disclosure-20260910/fixture.css",
+        "evidence/summary-disclosure-20260910/fixture.mjs",
+        "evidence/summary-disclosure-20260910/serve.mjs"
+      ]
+    },
+    {
+      "sha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "subject": "fix(ui): retain summary focus while retry action disappears",
+      "paths": [
+        "app/tests/summary-disclosure.test.mjs",
+        "app/web/summary-disclosure.mjs"
+      ]
+    },
+    {
+      "sha": "62e7e56aa8b63bb3c637a38a41611aae471faf55",
+      "subject": "feat(ui): add scoped run summary disclosure fixture slice",
+      "paths": [
+        "app/tests/summary-disclosure.test.mjs",
+        "app/web/summary-disclosure-projection.mjs",
+        "app/web/summary-disclosure.css",
+        "app/web/summary-disclosure.mjs",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md",
+        "evidence/summary-disclosure-20260910/fixture.css",
+        "evidence/summary-disclosure-20260910/fixture.mjs",
+        "evidence/summary-disclosure-20260910/serve.mjs"
+      ]
+    },
+    {
+      "sha": "590f395f24f7af93f3c7e82cd494ead323d05d5c",
+      "subject": "Promote Paper to primary navigation and research foundation",
+      "paths": [
+        "engineering/current.md",
+        "evidence/pages-product-life-20260910/README.md",
+        "evidence/pages-product-life-20260910/cli-1440.png",
+        "evidence/pages-product-life-20260910/get-1440.png",
+        "evidence/pages-product-life-20260910/home-browser.json",
+        "site/scripts/verify.mjs",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/product-pages.mjs",
+        "site/src/site.css"
+      ]
+    },
+    {
+      "sha": "21e8a9b7386f158787da9b7f8a0cfd436dc1bfb0",
+      "subject": "Add evidence-backed product tour, acquisition, CLI and product-life pages",
+      "paths": [
+        "engineering/current.md",
+        "evidence/pages-product-life-20260910/README.md",
+        "evidence/pages-product-life-20260910/browser.json",
+        "evidence/pages-product-life-20260910/cli-1440.png",
+        "evidence/pages-product-life-20260910/get-1440.png",
+        "evidence/pages-product-life-20260910/home-browser.json",
+        "site/README.md",
+        "site/build.mjs",
+        "site/scripts/check-links.mjs",
+        "site/scripts/check-material.mjs",
+        "site/scripts/verify-product-pages.mjs",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/product-interactions.mjs",
+        "site/src/product-pages.css",
+        "site/src/product-pages.mjs",
+        "site/src/site.css"
+      ]
+    },
+    {
+      "sha": "f617a6c4285f41e2b74be28d2c4756523a7a20df",
+      "subject": "Add restrained review attention and restore icon tonal hierarchy",
+      "paths": [
+        "evidence/pages-polish-20260910/README.md",
+        "evidence/pages-polish-20260910/browser.json",
+        "evidence/pages-polish-20260910/page-1440-light.png",
+        "evidence/pages-polish-20260910/page-390-light.png",
+        "site/src/page.mjs",
+        "site/src/site.css"
+      ]
+    },
+    {
+      "sha": "66b8a6b6c981183b71290094ea9e448a525f3821",
+      "subject": "Neutralize Pages paper palette and refine CourtWork icon lockup",
+      "paths": [
+        "evidence/pages-polish-20260910/README.md",
+        "evidence/pages-polish-20260910/browser.json",
+        "evidence/pages-polish-20260910/page-1440-light.png",
+        "evidence/pages-polish-20260910/page-390-light.png",
+        "site/src/page.mjs",
+        "site/src/site.css"
+      ]
+    },
+    {
+      "sha": "1d9c5fa1ad07353a723d74d6a184a258f97263e5",
+      "subject": "Polish Pages with an archival campaign and reserve Home capture",
+      "paths": [
+        "engineering/current.md",
+        "evidence/pages-polish-20260910/README.md",
+        "evidence/pages-polish-20260910/browser.json",
+        "evidence/pages-polish-20260910/page-1440-light.png",
+        "evidence/pages-polish-20260910/page-390-light.png",
+        "site/README.md",
+        "site/scripts/check-material.mjs",
+        "site/scripts/verify.mjs",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/pricing.css",
+        "site/src/pricing.mjs",
+        "site/src/site.css",
+        "site/src/site.mjs"
+      ]
+    },
+    {
+      "sha": "0a3b9b22f47f5605ccedc227106b0c17a4df6120",
+      "subject": "fix: distinguish tool permissions and align the Home status line",
+      "paths": [
+        "app/tests/ui-event-mapping.test.mjs",
+        "app/web/app.mjs",
+        "app/web/home-view.mjs",
+        "app/web/styles.css",
+        "app/web/thread-projection.mjs",
+        "engineering/design/copy-convention.md",
+        "engineering/mvp/execution/work-surface-kit/contracts/review-projection.md"
+      ]
+    },
+    {
+      "sha": "c1b19f640e3f5b6e54cd6d3dff2b45637966243c",
+      "subject": "feat: resolve explicit declarative runtime sources without activation",
+      "paths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/source-resolver.d.ts",
+        "app/runtime/source-resolver.mjs",
+        "app/tests/source-resolver.test.mjs",
+        "docs/runtime-control/INDEX.md",
+        "docs/runtime-control/source-resolver.md",
+        "engineering/current.md",
+        "evidence/runtime-resolver-20260908/README.md",
+        "evidence/runtime-resolver-20260908/independent-review.md",
+        "evidence/runtime-resolver-20260908/install.txt",
+        "evidence/runtime-resolver-20260908/source-manifest.json",
+        "evidence/runtime-resolver-20260908/tests-final.txt",
+        "evidence/runtime-resolver-20260908/tests-focused.txt",
+        "evidence/runtime-resolver-20260908/tests-full.txt"
+      ]
+    },
+    {
+      "sha": "0bc416b41976ebf4d35fc35fb83562b2ebe87635",
+      "subject": "web: the Home status line sits under the composer box",
+      "paths": [
+        "app/web/index.html"
+      ]
+    },
+    {
+      "sha": "efb7197ac40c52a623d1fe53fb9c0369c21e754d",
+      "subject": "web: Home whitespace, short composer, status line under the box; copy convention",
+      "paths": [
+        "app/web/styles.css",
+        "engineering/design/copy-convention.md"
+      ]
+    },
+    {
+      "sha": "dbf12b3f3ca7ed79b846585e80d3d2f092895c80",
+      "subject": "fix: align runtime provenance and admitted context projection",
+      "paths": [
+        "app/runtime/control-contract.d.ts",
+        "app/runtime/control-plane.mjs",
+        "app/tests/control-plane.test.mjs",
+        "app/tests/runtime-projection.test.mjs",
+        "app/web/runtime-view.mjs",
+        "docs/runtime-control/api.md"
+      ]
+    },
+    {
+      "sha": "85890394ebadc7660e6a665490fd89a3ed635c5f",
+      "subject": "web: the composer states this send inside the box and the standing context below it",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/settings-view.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "92df63f2888556cfe914659b90dce8c57fca3d1b",
+      "subject": "web: the work surface floats over the main column instead of taking a third one",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "048614167a54c369a7e86f48d7551db2d3019776",
+      "subject": "web: one elevation model, four layers, and a lint that holds it",
+      "paths": [
+        "app/web/skins/gray-steel.css",
+        "app/web/styles.css",
+        "engineering/mvp/execution/work-surface-kit/contracts/color-governance.md",
+        "tools/contrast-report.mjs",
+        "tools/lint-colors.mjs"
+      ]
+    },
+    {
+      "sha": "68939c5ff46b55301fa3de1400d507d4e982464c",
+      "subject": "web: the ablation, the delivery record and the WK10a evidence",
+      "paths": [
+        "app/web/styles.css",
+        "engineering/mvp/execution/work-surface-kit/ablation-wk10a.md",
+        "engineering/mvp/execution/work-surface-kit/delivery-wk10a.md",
+        "evidence/rc/runtime-ui-checks.json",
+        "evidence/rc/runtime-ui-counterexamples.json",
+        "evidence/rc/runtime-ui-viewport.json",
+        "evidence/rc/runtime-ui-viewport.mjs",
+        "evidence/wk10a/README.md",
+        "evidence/wk10a/dom-assertions.json",
+        "evidence/wk10a/home-1440-dark.png",
+        "evidence/wk10a/home-1440-light.png",
+        "evidence/wk10a/home-390-dark.png",
+        "evidence/wk10a/home-390-light.png",
+        "evidence/wk10a/session-collapsed-1440-dark.png",
+        "evidence/wk10a/session-collapsed-1440-light.png",
+        "evidence/wk10a/session-collapsed-1440-reduced-motion.png",
+        "evidence/wk10a/session-collapsed-390-dark.png",
+        "evidence/wk10a/session-collapsed-390-light.png",
+        "evidence/wk10a/session-expanded-1440-dark.png",
+        "evidence/wk10a/session-expanded-1440-light.png",
+        "evidence/wk10a/session-expanded-390-dark.png",
+        "evidence/wk10a/session-expanded-390-light.png",
+        "evidence/wk10a/shoot.mjs"
+      ]
+    },
+    {
+      "sha": "4d40019433b457fd4b3942614f264a551bc7335c",
+      "subject": "web: icon tiers and the site-wide text sweep",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/home-view.mjs",
+        "app/web/index.html",
+        "app/web/inspector.mjs",
+        "app/web/materials-view.mjs",
+        "app/web/settings-view.mjs",
+        "app/web/styles.css",
+        "app/web/surface-modules.mjs",
+        "app/web/workspace-view.mjs",
+        "engineering/mvp/execution/work-surface-kit/text-sweep.md"
+      ]
+    },
+    {
+      "sha": "919c0cb0237bd822b5ad20c49f996fbfc2324874",
+      "subject": "web: the composer is the top floating layer, docked below 768",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/styles.css",
+        "app/web/surface-modules.mjs"
+      ]
+    },
+    {
+      "sha": "c1b29690b28b68e48cee9b997ebea8b67f338309",
+      "subject": "web: the right column becomes a rail of peer modules",
+      "paths": [
+        "app/server/index.mjs",
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/runtime-view.mjs",
+        "app/web/styles.css",
+        "app/web/surface-modules.mjs"
+      ]
+    },
+    {
+      "sha": "9cb1d7e08a411b4fb578be0fdf42ed3075906325",
+      "subject": "web: context line sits under the composer box, not inside it",
+      "paths": [
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "06e0d9340e22eba77273cb964525c70ee4dc08e5",
+      "subject": "web: composer keeps its stable parts; context moves to a quiet line below",
+      "paths": [
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "28c103280c8ca54d8b7751fb471c030b6a97bb60",
+      "subject": "web: 44px switch hit box below the navigation breakpoint",
+      "paths": [
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "e1bd5d9f667bc1a7b9ba90886ca16b67cb7826eb",
+      "subject": "web: restrain the brand mark to the wordmark, frame role, plug glyph, switch hit area",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/skins/gray-steel.css",
+        "app/web/styles.css",
+        "app/web/ui-controls.mjs",
+        "app/web/vendor/LICENSES.txt",
+        "app/web/vendor/icons.svg",
+        "evidence/wk6/brand-state-checks.mjs",
+        "evidence/wk6/brand-state-results.json",
+        "evidence/wk6/session-presence-1440.png",
+        "evidence/wk7/contrast.md",
+        "tools/contrast-report.mjs"
+      ]
+    },
+    {
+      "sha": "de5756fa47454f3e79f173135edf0778167485b7",
+      "subject": "web: correct two things the browser showed and the code did not",
+      "paths": [
+        "app/web/runtime-view.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "d67bd1e8f4b6c49102499a4fa98e8d046cbc29aa",
+      "subject": "web: one-line chat title, icon-only connection badge",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "dbea510adf589d071c7e18377b7befc67f562144",
+      "subject": "web: New session as the first nav row, account-style sidebar foot",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "adb2e01306bd28ddd948d44b94d7fee2247698c5",
+      "subject": "web: map the brand symbol colours to host roles (BR-1 consumption)",
+      "paths": [
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "d799a7fabceae2f84d70d00c504ecf6f88e269f9",
+      "subject": "fix(brand): inherit host colors for hierarchical symbols",
+      "paths": [
+        "brand/CONTRACT.md",
+        "brand/README.md",
+        "brand/evidence/BR-1-review.md",
+        "brand/evidence/BR-1.md",
+        "brand/exports/commit-depth.svg",
+        "brand/exports/commit-glass.svg",
+        "brand/exports/commit-hierarchical.svg",
+        "brand/exports/commit-luminous.svg",
+        "brand/exports/commit-mono.svg",
+        "brand/exports/manifest.json",
+        "brand/exports/retrieve-depth.svg",
+        "brand/exports/retrieve-glass.svg",
+        "brand/exports/retrieve-hierarchical.svg",
+        "brand/exports/retrieve-luminous.svg",
+        "brand/exports/retrieve-mono.svg",
+        "brand/exports/review-depth.svg",
+        "brand/exports/review-glass.svg",
+        "brand/exports/review-hierarchical.svg",
+        "brand/exports/review-luminous.svg",
+        "brand/exports/review-mono.svg",
+        "brand/exports/scope-depth.svg",
+        "brand/exports/scope-glass.svg",
+        "brand/exports/scope-hierarchical.svg",
+        "brand/exports/scope-luminous.svg"
+      ]
+    },
+    {
+      "sha": "37a05f3e01f4add65761b6a47052665c9cf9e5c0",
+      "subject": "web: show a Run's recorded runtime binding in the Run inspector",
+      "paths": [
+        "app/web/inspector.mjs"
+      ]
+    },
+    {
+      "sha": "48e9505ec4a8a8ec9f67f7109d6a559db25d8c46",
+      "subject": "web: give Settings the runtime entry, next-run context and Planned list",
+      "paths": [
+        "app/web/settings-view.mjs"
+      ]
+    },
+    {
+      "sha": "d6178ce1d14463bcc1bb77d8a91fbf4ebac8b1cd",
+      "subject": "web: add the runtime control module as a work-surface kind",
+      "paths": [
+        "app/server/index.mjs",
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/runtime-view.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "dc754045a9fd0b6a5d394bc4d75e93228c5fe774",
+      "subject": "feat: resolve explicit declarative runtime sources without activation",
+      "paths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/source-resolver.d.ts",
+        "app/runtime/source-resolver.mjs",
+        "app/tests/source-resolver.test.mjs",
+        "docs/runtime-control/INDEX.md",
+        "docs/runtime-control/source-resolver.md",
+        "engineering/current.md",
+        "evidence/runtime-resolver-20260908/README.md",
+        "evidence/runtime-resolver-20260908/independent-review.md",
+        "evidence/runtime-resolver-20260908/install.txt",
+        "evidence/runtime-resolver-20260908/source-manifest.json",
+        "evidence/runtime-resolver-20260908/tests-final.txt",
+        "evidence/runtime-resolver-20260908/tests-focused.txt",
+        "evidence/runtime-resolver-20260908/tests-full.txt"
+      ]
+    },
+    {
+      "sha": "75a366ac96c6d3419fca4ce66070141e29c6e670",
+      "subject": "web: brand symbol uses the hierarchical material in both placements",
+      "paths": [
+        "app/web/index.html"
+      ]
+    },
+    {
+      "sha": "af7cf8b2539c2ff1a5c4584d6e5b438f94a717ba",
+      "subject": "web: keep the window-control zone clear when the sidebar is off screen",
+      "paths": [
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "bd5410784c9b361a8060455a4968b6a0858b229e",
+      "subject": "web: CourtWork name, slogan hero, quiet draft button, window-control strip",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "184e3f03bfabe00fdb710e93afc4b4a600840dcd",
+      "subject": "async task view: extract pure projection (AM-B-T3)",
+      "paths": [
+        "app/server/async-task-view.mjs",
+        "app/server/async-tasks.mjs",
+        "app/tests/async-task-view.test.mjs",
+        "app/tests/fixtures/async-task-view/scenario.mjs",
+        "app/tests/fixtures/async-task-view/synthetic.mjs"
+      ]
+    },
+    {
+      "sha": "4007f8055ac9371f9601659836fdcea757ef21b9",
+      "subject": "web: wire the brand symbol to host facts in three places",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "f58c28cfb7e20b19cc0631e53022763451b67f26",
+      "subject": "Add bounded unsaved provider directory previews",
+      "paths": [
+        "app/docs/runtime-foundation.md",
+        "app/server/index.mjs",
+        "app/server/provider-preview.mjs",
+        "app/server/service.mjs",
+        "app/tests/provider-preview.test.mjs",
+        "evidence/backend-dispatch-20260909/provider-preview-author.md"
+      ]
+    },
+    {
+      "sha": "15b6464dba56347dc3350d7ccf20165ac3ac53e8",
+      "subject": "Complete BR-01 glyph measurement delivery",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/e-record-lines.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/e-record-lattice.svg",
+        "brand/exploration-2026-09-09/04-small-size-test/board.mjs",
+        "brand/exploration-2026-09-09/04-small-size-test/board/a-folio.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/b-frame.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/board-overview.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/c-trace.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/d-annotation.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/e-record.png",
+        "brand/exploration-2026-09-09/04-small-size-test/board/f-folio-trace.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/a-folio-main-16.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/a-folio-main-32.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/a-folio-main.ico",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/b-frame-main-16.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/b-frame-main-32.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/b-frame-main.ico",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/c-trace-main-16.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/c-trace-main-32.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/c-trace-main.ico",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/d-annotation-main-16.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/d-annotation-main-32.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/d-annotation-main.ico",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/e-record-main-16.png",
+        "brand/exploration-2026-09-09/04-small-size-test/favicon/e-record-main-32.png"
+      ]
+    },
+    {
+      "sha": "df9331a0af253ea5d91c7ae3a5af48ac488e7c04",
+      "subject": "Enter direction E Record lines by quoting the existing mark geometry",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/e-record-lines.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/e-record-lattice.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/e-record-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/e-record-square.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html"
+      ]
+    },
+    {
+      "sha": "2d983df04871b30626bf3533ef45a00ae31baeff",
+      "subject": "Draw direction F Folio by Trace at the three-layer ceiling",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/f-folio-trace.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/f-folio-trace-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/f-folio-trace-notch.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/f-folio-trace-segmented.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html"
+      ]
+    },
+    {
+      "sha": "90ef3c09e8491d0c9d8d96c14e5c8bbc7b9277db",
+      "subject": "Draw direction D Annotation Mark with a two-cell collation caret",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/d-annotation-footed.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/d-annotation-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/d-annotation-single.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/d-annotation-mark.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html"
+      ]
+    },
+    {
+      "sha": "802fda1b876433ed0f8b9e4a651f1cecf1838e99",
+      "subject": "Draw direction C Trace Mark with an unswallowed side trace",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/c-trace-continuous.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/c-trace-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/c-trace-thin.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/c-trace-mark.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html"
+      ]
+    },
+    {
+      "sha": "6df095cfe3a18de6c3082ca0fcd9f3ecf7abf56a",
+      "subject": "Draw direction B Governed Frame as two counter-rotated brackets",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/b-frame-closing.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/b-frame-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/b-frame-radius.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/b-governed-frame.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html"
+      ]
+    },
+    {
+      "sha": "c1fa987418756919c65daf53a667cd1dfbd1e870",
+      "subject": "Draw direction A Folio on the eight-unit glyph lattice",
+      "paths": [
+        "brand/exploration-2026-09-09/03-glyph-directions/a-folio-main.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/a-folio-notch.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/a-folio-radius.svg",
+        "brand/exploration-2026-09-09/03-glyph-directions/build.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/a-folio.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/directions/index.mjs",
+        "brand/exploration-2026-09-09/03-glyph-directions/index.html",
+        "brand/exploration-2026-09-09/03-glyph-directions/render.mjs",
+        "brand/exploration-2026-09-09/04-small-size-test/cdp.mjs"
+      ]
+    },
+    {
+      "sha": "9f13ca35e3cdada0ad5d2067a74d9c107c2e44c8",
+      "subject": "Import fresh CourtWork candidate from independently preserved source",
+      "paths": [
+        ".github/workflows/pages.yml",
+        ".gitignore",
+        ".nvmrc",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "PAPER.md",
+        "README.md",
+        "app/README.md",
+        "app/docs/api-runtime-mx-r1.md",
+        "app/docs/api-v6.md",
+        "app/docs/dependency-ledger.json",
+        "app/docs/runtime-api-proposal.md",
+        "app/docs/runtime-foundation.md",
+        "app/docs/turn-ownership-review.md",
+        "app/docs/upstream-integration.md",
+        "app/docs/work-summary-api.md",
+        "app/extensions/catalog.mjs",
+        "app/extensions/evidence-memo/core/bridge.py",
+        "app/extensions/evidence-memo/core/core.py",
+        "app/extensions/evidence-memo/index.mjs",
+        "app/extensions/evidence-memo/manifest.mjs",
+        "app/extensions/evidence-memo/renderer.mjs",
+        "app/extensions/evidence-memo/server/core-client.mjs",
+        "app/extensions/probe/index.mjs"
+      ]
+    },
+    {
+      "sha": "6b0a6f1cadaa7ecbedeb131c8ca4a790ea587e50",
+      "subject": "fix: frame narrow model effort select",
+      "paths": [
+        "app/web/model-picker.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "dc1a0d8fd7d8e209dbbae40036fde74015a5065a",
+      "subject": "fix: stabilize model picker controls",
+      "paths": [
+        "app/web/model-picker.mjs",
+        "app/web/styles.css",
+        "evidence/controls-repair-20260910/README.md",
+        "evidence/controls-repair-20260910/browser-checks.json"
+      ]
+    },
+    {
+      "sha": "70568ca4cb9801ec408cf1efbacf089c5f61e6ed",
+      "subject": "fix(ui): retain coarse-pointer target height for framed selects",
+      "paths": [
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "46e097970825f22e525c14f986cd76d6e952fcfb",
+      "subject": "fix(ui): inset native toolbar select indicators consistently",
+      "paths": [
+        "app/web/attention-agent-view.mjs",
+        "app/web/attention-view.mjs",
+        "app/web/spark-view.mjs",
+        "app/web/styles.css",
+        "app/web/ui-controls.mjs",
+        "app/web/usage-view.mjs"
+      ]
+    },
+    {
+      "sha": "5cdd9e7c1f2dd4ed4dddf3a6e4b11443b76035fa",
+      "subject": "ui: finish contextual back and read-recovery labels",
+      "paths": [
+        "app/web/attention-view.mjs",
+        "app/web/spark-view.mjs"
+      ]
+    },
+    {
+      "sha": "a72a24c15fd99734805a75b4136a6e4727eaed82",
+      "subject": "ui: tighten native action buttons and clarify their targets",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/attention-agent-view.mjs",
+        "app/web/attention-view.mjs",
+        "app/web/coordination-view.mjs",
+        "app/web/home-view.mjs",
+        "app/web/runtime-view.mjs",
+        "app/web/settings-view.mjs",
+        "app/web/spark-view.mjs",
+        "app/web/styles.css",
+        "app/web/ui-controls.mjs",
+        "app/web/usage-view.mjs",
+        "app/web/vendor/icons.svg",
+        "app/web/vendor/manifest.json",
+        "tools/ui-vendor/lucide/arrow-left.svg",
+        "tools/ui-vendor/lucide/sources.json"
+      ]
+    },
+    {
+      "sha": "0c5db70cf7544a7a754d9ed72c7a5370e85c646a",
+      "subject": "test: validate async fixture provenance bytes",
+      "paths": [
+        "app/tests/async-fixture.test.mjs",
+        "app/tests/fixtures/async-loop/contract.mjs",
+        "app/tests/fixtures/async-loop/fixture-provider.mjs",
+        "app/tests/fixtures/async-loop/index.mjs",
+        "evidence/async-loop-20260909/fixture/README.md"
+      ]
+    },
+    {
+      "sha": "1791e86b204cd78ae0f81847c14fed1f13106c9a",
+      "subject": "test: add deterministic async loop fixture",
+      "paths": [
+        "app/tests/async-fixture.test.mjs",
+        "app/tests/fixtures/async-loop/fixture-child.mjs",
+        "app/tests/fixtures/async-loop/fixture-provider.mjs",
+        "app/tests/fixtures/async-loop/index.mjs",
+        "evidence/async-loop-20260909/fixture/README.md"
+      ]
+    },
+    {
+      "sha": "6517e8acbca99ef84dbe767f8de979c92c8b7f24",
+      "subject": "Prepare empty capture slots for merged Spark and Attention UI",
+      "paths": [
+        ".github/workflows/pages.yml",
+        "engineering/current.md",
+        "engineering/release/merged-ui-captures-2026-09-10/README.md",
+        "engineering/release/merged-ui-captures-2026-09-10/checks.json",
+        "site/scripts/capture-plan.test.mjs",
+        "site/scripts/check-capture-ready.mjs",
+        "site/src/capture-plan.mjs",
+        "site/src/page.mjs",
+        "site/src/product-pages.mjs",
+        "site/src/site.css"
+      ]
+    },
+    {
+      "sha": "bd1f815a99c88f2431244671e871e97ddcc082fa",
+      "subject": "Refine public runtime language and register data organization references",
+      "paths": [
+        "README.md",
+        "engineering/current.md",
+        "engineering/release/public-narrative-2026-09-10/README.md",
+        "engineering/release/public-narrative-2026-09-10/build-check.json",
+        "engineering/research/README.md",
+        "engineering/research/data-organization-2026-09-10/README.md",
+        "engineering/research/data-organization-2026-09-10/inputs/1-assistant.md",
+        "engineering/research/data-organization-2026-09-10/inputs/1-user.md",
+        "engineering/research/data-organization-2026-09-10/inputs/2-assistant.md",
+        "engineering/research/data-organization-2026-09-10/inputs/2-user.md",
+        "engineering/research/data-organization-2026-09-10/inputs/manifest.json",
+        "engineering/research/data-organization-2026-09-10/roadmap.md",
+        "engineering/research/data-organization-2026-09-10/selection-index.md",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/product-pages.mjs",
+        "site/src/readme.mjs"
+      ]
+    },
+    {
+      "sha": "4803ea4a02f79566dd360ea0bef2f82581c2da67",
+      "subject": "feat(pages): lead with Spark and Attention and publish the eval narrative",
+      "paths": [
+        ".github/workflows/pages.yml",
+        "README.md",
+        "engineering/current.md",
+        "engineering/release/public-narrative-2026-09-10/README.md",
+        "engineering/release/public-narrative-2026-09-10/build-check.json",
+        "site/build.mjs",
+        "site/scripts/check-links.mjs",
+        "site/scripts/release.mjs",
+        "site/specimen/shell.mjs",
+        "site/src/copy.mjs",
+        "site/src/page.mjs",
+        "site/src/product-pages.mjs",
+        "site/src/readme.mjs",
+        "site/src/site.css",
+        "site/src/site.mjs",
+        "site/src/specimen-page.mjs",
+        "site/src/steps.mjs"
+      ]
+    },
+    {
+      "sha": "a2e2d3c708065a49699b7f847ad2602a44f33c9b",
+      "subject": "docs(benchmarks): define evaluation contract and sequence BM-02 through BM-05",
+      "paths": [
+        "benchmarks/README.md",
+        "benchmarks/SPEC.md",
+        "engineering/current.md",
+        "engineering/execution/2026-09-10-benchmark-series/README.md",
+        "engineering/execution/2026-09-10-benchmark-series/bm-01.md",
+        "engineering/execution/2026-09-10-benchmark-series/bm-02.md",
+        "engineering/execution/2026-09-10-benchmark-series/bm-03.md",
+        "engineering/execution/2026-09-10-benchmark-series/bm-04.md",
+        "engineering/execution/2026-09-10-benchmark-series/bm-05.md"
+      ]
+    },
+    {
+      "sha": "9cbae87e397d3873cc88437105f463377887169a",
+      "subject": "feat(runtime-sources): add authenticated inspect-only resolve service seam (BE-5)",
+      "paths": [
+        "app/server/index.mjs",
+        "app/server/service.mjs",
+        "app/tests/runtime-source-service.test.mjs",
+        "docs/runtime-control/api.md",
+        "docs/runtime-control/source-resolver.md"
+      ]
+    },
+    {
+      "sha": "4b8ba2cb1c96838f8ac2229a151d3323a7cb8cf7",
+      "subject": "test: verify async wrapper policy completion",
+      "paths": [
+        "app/tests/async-boundaries-independent.test.mjs",
+        "evidence/async-loop-20260909/boundaries-independent/README.md",
+        "evidence/async-loop-20260909/boundaries-independent/wrapper-policy-corrected-red.log",
+        "evidence/async-loop-20260909/boundaries-independent/wrapper-policy-green.log"
+      ]
+    },
+    {
+      "sha": "ccbf49afe2fd18a80b48fb9c9ba1588a538af6be",
+      "subject": "test: expose async policy wrapper completion gap",
+      "paths": [
+        "app/tests/async-boundaries-independent.test.mjs",
+        "evidence/async-loop-20260909/boundaries-independent/README.md",
+        "evidence/async-loop-20260909/boundaries-independent/wrapper-policy-red.log"
+      ]
+    },
+    {
+      "sha": "fec8a599eb60f478f4fab87d022c4e11e3a58d10",
+      "subject": "test: synchronize async boundary probes",
+      "paths": [
+        "app/tests/async-boundaries-independent.test.mjs"
+      ]
+    },
+    {
+      "sha": "3ab6b77829548ed971a80bb806909c72ae9bce55",
+      "subject": "test: independently verify async task boundaries",
+      "paths": [
+        "app/tests/async-boundaries-independent.test.mjs",
+        "evidence/async-loop-20260909/boundaries-independent/README.md"
+      ]
+    },
+    {
+      "sha": "95f118db8870a2e8be330f10bac31b4e6d6f89a3",
+      "subject": "test: harden async fixture persistence",
+      "paths": [
+        "app/tests/async-fixture.test.mjs",
+        "app/tests/fixtures/async-loop/fixture-provider.mjs",
+        "evidence/async-loop-20260909/fixture/README.md"
+      ]
+    },
+    {
+      "sha": "ab9e4b7216df2b2c531a07bc4fcd1b18b688eae7",
+      "subject": "test: independently validate async recovery windows",
+      "paths": [
+        "app/tests/async-recovery-independent.test.mjs",
+        "app/tests/fixtures/async-loop/host-adapter.mjs",
+        "app/tests/fixtures/async-loop/host-child.mjs",
+        "evidence/async-loop-20260909/recovery-independent/README.md"
+      ]
+    },
+    {
+      "sha": "aaba970520a76aefd6a6e612bf7d089992349a00",
+      "subject": "test: correct async protocol packet probes",
+      "paths": [
+        "app/tests/async-protocol.test.mjs",
+        "app/tests/fixtures/async-protocol/cancel-receipt.json",
+        "app/tests/fixtures/async-protocol/malformed-async-fields.json",
+        "app/tests/fixtures/async-protocol/modern-task-accepted.json",
+        "app/tests/fixtures/async-protocol/unknown-async-fields.json",
+        "evidence/async-loop-20260909/protocol/README.md"
+      ]
+    },
+    {
+      "sha": "0c50503237bc1391cf63829aa2a57cbae451bc63",
+      "subject": "test: add async MCP protocol probe",
+      "paths": [
+        "app/tests/async-protocol.test.mjs",
+        "app/tests/fixtures/async-protocol/cancel-receipt.json",
+        "app/tests/fixtures/async-protocol/legacy-task-created.json",
+        "app/tests/fixtures/async-protocol/modern-task-accepted.json",
+        "app/tests/fixtures/async-protocol/partial-arguments.json",
+        "app/tests/fixtures/async-protocol/sync-call-result.json",
+        "app/tests/fixtures/async-protocol/unknown-async-fields.json",
+        "evidence/async-loop-20260909/protocol/README.md"
+      ]
+    },
+    {
+      "sha": "5e8106f38abb77f89fcf2844f7df0198e3713233",
+      "subject": "test: deepen independent async recovery checks",
+      "paths": [
+        "app/tests/async-recovery-independent.test.mjs",
+        "evidence/async-loop-20260909/recovery-independent/README.md"
+      ]
+    },
+    {
+      "sha": "d4096758190405e7f30bab0df04d0072cbd2b693",
+      "subject": "test: add synthetic attention trace vectors",
+      "paths": [
+        "app/tests/attention-trace-fixture.test.mjs",
+        "app/tests/fixtures/attention-trace/run-validation.mjs",
+        "app/tests/fixtures/attention-trace/validate.mjs",
+        "app/tests/fixtures/attention-trace/vectors.mjs",
+        "evidence/attention-human-loop-20260909/trace/README.md"
+      ]
+    },
+    {
+      "sha": "24523515dbdbbe43707c773c2dd6d4c8ae63ac9e",
+      "subject": "test: add synthetic GitHub attention fixtures",
+      "paths": [
+        "app/tests/attention-github-fixture.test.mjs",
+        "app/tests/fixtures/attention-ingest/github/scripted-notifications.mjs",
+        "evidence/attention-human-loop-20260909/github/README.md"
+      ]
+    },
+    {
+      "sha": "25a4b62ea7d164977925a837b3853130248a5120",
+      "subject": "test: add synthetic Gmail attention fixtures",
+      "paths": [
+        "app/tests/attention-gmail-fixture.test.mjs",
+        "app/tests/fixtures/attention-ingest/gmail/scripted-gmail.mjs",
+        "evidence/attention-human-loop-20260909/gmail/README.md"
+      ]
+    },
+    {
+      "sha": "8adafb5939eaebd522e4b4db9f5a8b8be3b78a3a",
+      "subject": "web: give Home a composed hero and retire text that carries no fact",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/index.html",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "802c65eff008b05a7557ed2618226fa51a261a57",
+      "subject": "server: admit brand/src ES modules into the static allowlist",
+      "paths": [
+        "app/server/index.mjs"
+      ]
+    },
+    {
+      "sha": "00aca82534de29a4c36a2b030e9da4c0dd80c390",
+      "subject": "Color governance: lint, contrast report and test",
+      "paths": [
+        "evidence/wk7/computed.md",
+        "evidence/wk7/contrast.md",
+        "tests/color-governance.test.mjs",
+        "tools/contrast-report.mjs",
+        "tools/lint-colors.mjs"
+      ]
+    },
+    {
+      "sha": "40c9af0e6d07e175e99391a85c27d955a4d66a05",
+      "subject": "Color governance: tier S/R/U tokens, lead-gray skin, dark scheme",
+      "paths": [
+        "app/web/skins/gray-steel.css",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "341f8bf043abdfcf386d1110e75069009299a250",
+      "subject": "fix(attention): keep the narrow targets and speak refusals in the adjudicated words",
+      "paths": [
+        "app/tests/attention-triage.test.mjs",
+        "app/web/attention-view.mjs",
+        "app/web/styles.css"
+      ]
+    },
+    {
+      "sha": "4fe863f85fff1e4af0c96d8a879736d007a3a581",
+      "subject": "feat(attention): commit typed actions under a recoverable request protocol",
+      "paths": [
+        "app/tests/attention-actions.test.mjs",
+        "app/tests/attention-triage-recovery.test.mjs",
+        "app/tests/tiny-dom.mjs",
+        "app/web/attention-view.mjs"
+      ]
+    },
+    {
+      "sha": "eefe5e0abfa0d4147736d23a73fff29f90b56dc5",
+      "subject": "feat(attention): project typed action descriptors into closed editors",
+      "paths": [
+        "app/tests/attention-actions.test.mjs",
+        "app/tests/fixtures/attention-actions.json",
+        "app/web/attention-view.mjs",
+        "app/web/presentation-adapters.mjs",
+        "app/web/styles.css",
+        "evidence/att-fe01/capture-action-fixtures.mjs"
+      ]
+    },
+    {
+      "sha": "6a0459b87c4ee659f4755c03f89139aa8bff266e",
+      "subject": "feat(attention): add explicit triage views, row time and list keys",
+      "paths": [
+        "AGENTS.md",
+        "app/core/client.mjs",
+        "app/tests/attention-fixtures.mjs",
+        "app/tests/attention-triage.test.mjs",
+        "app/tests/fixtures/review-core-client/worker.py",
+        "app/tests/home-presentation.test.mjs",
+        "app/tests/review-core-client-lifecycle.test.mjs",
+        "app/tests/tiny-dom.mjs",
+        "app/web/attention-view.mjs",
+        "app/web/home-view.mjs",
+        "app/web/settings-view.mjs",
+        "app/web/styles.css",
+        "docs/work-core/contract.md",
+        "engineering/architecture.md",
+        "engineering/current.md",
+        "engineering/design/agent-interface-2026-09-10/README.md",
+        "engineering/design/agent-interface-2026-09-10/change-template.md",
+        "engineering/design/agent-interface-2026-09-10/continuity-checklist.md",
+        "engineering/design/agent-interface-2026-09-10/frontend-contract.md",
+        "engineering/design/agent-interface-2026-09-10/input-conversation.md",
+        "engineering/design/agent-interface-2026-09-10/precedent-map.md",
+        "engineering/design/agent-interface-2026-09-10/precedents.md",
+        "engineering/design/agent-interface-2026-09-10/sources-review.md",
+        "engineering/design/atlas/README.md"
+      ]
+    },
+    {
+      "sha": "caabc9be5b48279954d75633b4bf76861b0dbeed",
+      "subject": "fix(surface): tell the tab's close apart from the pane's on the work band",
+      "paths": [
+        "app/web/app.mjs",
+        "app/web/styles.css",
+        "docs/interface-components.md"
+      ]
+    },
+    {
+      "sha": "6ebd48f4c85bfed84f34000fb88f37a1ed62fdd3",
+      "subject": "docs: record the source-pin gate and the re-pin procedure",
+      "paths": [
+        "site/README.md"
+      ]
+    },
+    {
+      "sha": "c669ca36a07311cdbe1b01ae749ede5d155063bc",
+      "subject": "site: make the page's two source pins legible",
+      "paths": [
+        "site/src/copy.mjs",
+        "site/src/page.mjs"
+      ]
+    },
+    {
+      "sha": "e3a42417e6f3a72226487c99cb72e04ecd9a0f9e",
+      "subject": "ci: run the source-pin review gate alongside the material check",
+      "paths": [
+        ".github/workflows/pages.yml"
+      ]
+    },
+    {
+      "sha": "05e472853cb0e04a9e098a066d2c143de44eb405",
+      "subject": "site: gate the specimen source pin against reviewed main drift",
+      "paths": [
+        "site/scripts/check-source-pin.mjs",
+        "site/source-pin-review.json"
+      ]
+    },
+    {
+      "sha": "acafe2c3b4fae1f73bbf68d0e00fc2e4f174a42c",
+      "subject": "Keep local read generation in scope rather than owner revision",
+      "paths": [
+        "app/web/app.mjs"
+      ]
+    },
+    {
+      "sha": "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+      "subject": "Add progressive surface entry grammar with honest fallback rows",
+      "paths": [
+        "app/tests/card-disclosure.test.mjs",
+        "app/web/app.mjs",
+        "app/web/summary-disclosure.css",
+        "app/web/summary-disclosure.mjs",
+        "app/web/surface-layout.css",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md",
+        "engineering/execution/2026-09-10-summary-disclosure/entry-grammar.md"
+      ]
+    },
+    {
+      "sha": "731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e",
+      "subject": "Scope disclosure memory to available owner revisions",
+      "paths": [
+        "app/web/app.mjs",
+        "engineering/execution/2026-09-10-summary-disclosure/card-semantics.md"
+      ]
+    },
+    {
+      "sha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "subject": "Complete existing card disclosure semantics and register remaining gaps",
+      "paths": [
+        "app/tests/card-disclosure.test.mjs",
+        "app/web/app.mjs",
+        "app/web/summary-disclosure.mjs",
+        "app/web/surface-modules.mjs",
+        "engineering/execution/2026-09-10-summary-disclosure/README.md",
+        "engineering/execution/2026-09-10-summary-disclosure/card-semantics.md"
+      ]
+    }
+  ]
+}

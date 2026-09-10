@@ -2,7 +2,7 @@
 
 ## 当前串行执行入口（2026-09-10）
 
-最新核账（main `312965f`）：[Luna fast＋Astra真实消费审计](execution/2026-09-10-next-round/consumption-audit.md)确认CI-B/F、CS组合、summary、BE-41均仅候选交付，未进入main；Pro只有送审与原包归档进入main。下一轮按[准备单](execution/2026-09-10-next-round/README.md)：summary D1/D2修补/非作者复验→CI-B/F＋CS组合接收→EX-IC2 C；并行只读Harness P00，冻结正确Pro版本及实际缺口后串行补通用能力。BE-41择后续清洁接收点，不作为通用基础前置。下表早期“已请求创建BE-41 task”已由本审计的实际交付状态覆盖。
+最新核账（2026-09-11，接单main `9097cbf`）：[Luna三路审计与Astra合推节点裁决](execution/2026-09-11-merge-node/README.md)确认下一产品节点为Summary D1/D2修复→CI-B/F × CS-01固定组合独验；当前NOT_READY。WORK-3采纳两行起步行为门，Card/Entry增量不捎带旧条件接受，EX-IC2 C等待固定基线。Harness并行P00现状/版本清账，首个产品候选为MCP结果保真及实际SDK接缝，RV26-Q03独立串行接收；BE-41择后续清洁节点。远端Benchmark/Pages Draft后置，研究入账不计产品完成。保留[前次核账](execution/2026-09-10-next-round/consumption-audit.md)原时点与[主题准备](execution/2026-09-10-next-round/README.md)，本段覆盖其中候选状态和WORK-3待裁定描述。
 
 ### 用户后续排序修订：基本产品与通用 harness 优先
 

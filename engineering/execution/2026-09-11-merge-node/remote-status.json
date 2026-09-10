@@ -1,0 +1,41 @@
+{
+  "capturedAt": "2026-09-10T16:10:07.829781+00:00",
+  "localMain": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc",
+  "remoteMain": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+  "localAhead": 57,
+  "remoteAhead": 0,
+  "prs": [
+    {
+      "baseRefName": "main",
+      "headRefName": "codex/benchmark-contract-20260910",
+      "headRefOid": "a2e2d3c708065a49699b7f847ad2602a44f33c9b",
+      "isDraft": true,
+      "mergeStateStatus": "DIRTY",
+      "number": 1,
+      "reviewDecision": "",
+      "reviews": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "BM-01: Define the evaluation contract and prepare BM-02–05",
+      "updatedAt": "2026-09-10T06:22:10Z",
+      "url": "https://github.com/lesPrivilege/Courtwork/pull/1",
+      "headAncestorOfLocalMain": false
+    },
+    {
+      "baseRefName": "codex/benchmark-contract-20260910",
+      "headRefName": "codex/public-narrative-benchmarks-20260910",
+      "headRefOid": "bd1f815a99c88f2431244671e871e97ddcc082fa",
+      "isDraft": true,
+      "mergeStateStatus": "CLEAN",
+      "number": 2,
+      "reviewDecision": "",
+      "reviews": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "Pages: Spark and Attention first, with a product-facing Eval narrative",
+      "updatedAt": "2026-09-10T06:41:54Z",
+      "url": "https://github.com/lesPrivilege/Courtwork/pull/2",
+      "headAncestorOfLocalMain": false
+    }
+  ]
+}
