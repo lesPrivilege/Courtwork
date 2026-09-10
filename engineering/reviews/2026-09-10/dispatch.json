@@ -59,8 +59,8 @@
       ],
       "architecture_owner": "Astra",
       "implementation_owner": "Astra schema/service/publication; Luna pure fields and bounded tests",
-      "reviewer": "non-author Luna / Astra according to author",
-      "status": "implemented-awaiting-independent-verification",
+      "reviewer": "Luna q02_independent (non-author), fixed SHA 30/30 + four independent edges; test-only follow-up 2/2",
+      "status": "verified-bounded",
       "write_allowlist": [
         "app/server/provider-connections.mjs",
         "app/server/store.mjs（Provider校验与setter）",
@@ -71,10 +71,18 @@
         "app/tests/review-provider-publication-migration.test.mjs（新）",
         "app/tests/fixtures/review-provider/**（新）",
         "app/tests/*（当前schema断言及合成降级fixture适配）",
-        "app/docs/runtime-foundation.md（合同）"
+        "app/docs/runtime-foundation.md（合同）",
+        "app/README.md",
+        "docs/runtime-control/architecture.md",
+        "engineering/architecture.md",
+        "engineering/current.md",
+        "evidence/rv26-q02-20260910/**",
+        "evidence/rv26-q02-independent/**"
       ],
       "conditional_on": null,
-      "decision_record": "q02/README.md"
+      "decision_record": "q02/README.md",
+      "code_sha": "583a1b3c8a0a462400d12b6f540640731abf8dc6",
+      "evidence": "../../../evidence/rv26-q02-20260910/README.md"
     },
     {
       "id": "RV26-Q03",

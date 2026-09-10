@@ -12,6 +12,6 @@
 
 写权：Luna有界实现零依赖字段helper、provider-connections及store验证段；完成后把store交回Astra，由Astra串行写schema/marker。Astra独占service发布与执行门、credential-file错误传播、契约、证据与合流。另一个Luna只写新roundtrip/failure fixture。`credential-file.mjs`的unlink错误传播与失败tmp清理是Q02必要扩展，不读取任何个人凭据。
 
-没有通用发布平台、UI施工、真实provider、个人数据迁移或部署。待定向验证和非作者复核完成后记录实际交付；此文件的版本预留不等于已升级或接受。
+没有通用发布平台、UI施工、真实provider、个人数据迁移或部署。产品583a1b3已完成有界非作者复核，具体范围与首轮失败、后续夹具修正见[交付回执](../../../../evidence/rv26-q02-20260910/README.md)；不代表整产品接受。
 
-非作者初审促成三处收口：历史非法连接先拒凭据变更，不产生妨碍connection_save的pending；启动密钥载入失败尝试清理SDK注册和key，Host继续隔离；缺失连接/非法所选描述的GET状态为unavailable。删除中变成selected的正常并发路径由同队列与事前selected检查排除；手工历史不一致不视为正常发布结果。固定SHA独验待记录。
+非作者初审促成三处收口：历史非法连接先拒凭据变更，不产生妨碍connection_save的pending；启动密钥载入失败尝试清理SDK注册和key，Host继续隔离；缺失连接/非法所选描述的GET状态为unavailable。删除中变成selected的正常并发路径由同队列与事前selected检查排除；手工历史不一致不视为正常发布结果。固定SHA的30/30与四项独立反例通过；全量551/553的两项旧API夹具已修正并经作者/非作者2/2复验。

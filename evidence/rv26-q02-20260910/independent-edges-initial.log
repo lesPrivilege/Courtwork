@@ -1,0 +1,4 @@
+historical-invalid-credential: actual pass (400/no-pending, then PUT repair/configured)
+missing-selected-config: actual pass (GET 200/unavailable, null connection, no executable provider)
+catalog-identity-guard: actual pass (catalog remains; noncanonical compatible identity unavailable/unregistered)
+startup-keyload-cleanup: actual pass (SDK registration and key removed; route unavailable)

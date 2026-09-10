@@ -1,0 +1,21 @@
+✔ PV-32 · 旧 credentials.json 的 provider 键一次性迁到连接 id (1760.705209ms)
+✔ PV-25 · 兼容连接：发现 → 保存 → 选中 → 真跑一次 run，run 记录读得出连接与凭据来源 (2014.182458ms)
+✔ PV-26 · 两条连接各持自己的 key，互不覆盖 (2072.457542ms)
+✔ PV-31 · 用户连接注册在独立 provider id 上，删除即注销 (712.89275ms)
+✔ PV-30 · 未知 contextWindow 不猜值：关压缩并显式记录，用户填值后来源标为 user (1595.469416ms)
+✔ PV-24 · 零成本的 Model 记录不会在 usage 面变成事实上的 $0 (1631.736792ms)
+✔ 重启后连接与凭据仍可用；列表落空的连接不阻止启动 (1407.038875ms)
+✔ PV-34 · 保存失败区分认证失败 / 目录不可达 / 模型不在该目录 (452.734ms)
+✔ 连接的增删改查受同一条配置队列与 active_run 冻结约束 (2769.003209ms)
+✔ T-CRED · 用户连接路径同样不读 HOME/.pi 与环境变量 (1353.422083ms)
+✔ provider preview HTTP contract, bounds, authentication and unchanged runtime (13348.365875ms)
+✔ openai-completions: real SDK tool loop, stable consecutive prefix, cache usage and restart (5994.245208ms)
+✔ openai-responses: real SDK tool loop, stable consecutive prefix, cache usage and restart (4850.743833ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23683.66175

@@ -1,0 +1,19 @@
+node:internal/modules/esm/resolve:310
+  return new ERR_PACKAGE_PATH_NOT_EXPORTED(
+         ^
+
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: No "exports" main defined in /private/tmp/cw-rv26-q02-independent/app/node_modules/@earendil-works/pi-coding-agent/package.json
+    at exportsNotFound (node:internal/modules/esm/resolve:310:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:601:13)
+    at resolveExports (node:internal/modules/cjs/loader:684:36)
+    at Module._findPath (node:internal/modules/cjs/loader:751:31)
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1460:27)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1048:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1093:12)
+    at require.resolve (node:internal/modules/helpers:209:31)
+    at file:///private/tmp/cw-rv26-q02-independent/evidence/rv26-q02-independent/edge-check.mjs:22:35
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25) {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+}
+
+Node.js v25.9.0
