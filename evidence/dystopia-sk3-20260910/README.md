@@ -1,6 +1,6 @@
 # SK-3 / SK-4 · Dystopia and live appearance verification
 
-Product commits: `7f92f69` (preset), `b7831b5` (system-theme diagnostics) and `a7ff5c8` (Settings deep-link return focus), following SK-2 `428d1a7`. Astra is the author; independent review is recorded separately below. Integration is pending other main-line work and does not follow from this branch receipt.
+Product commits: `7f92f69` (preset), `b7831b5` (system-theme diagnostics) and `a7ff5c8` (Settings deep-link return focus), following SK-2 `428d1a7`. Astra is the author; independent review is recorded separately below. The integrated product is `c1b1f4e`, combining main `a7b9822` with SK-2/3/4. Astra accepts this bounded interface scope based on the non-author review and integrated checks below; the final documentation commit is fast-forwarded to local main.
 
 Dystopia is an authored cool neutral appearance palette, not an imported external theme. Its exact light/dark values are frozen in `7f92f69:app/web/styles.css`; all three selectors contain only the 21 version-1 appearance tokens. The same dark values serve explicit dark and system dark. It uses the existing surface hierarchy and monochrome interaction accent. Review, danger, success, focus, material, geometry and motion remain scheme-owned. Slate remains the default.
 
@@ -26,4 +26,10 @@ Reproduce against an independent synthetic host on port 19249. Scripts accept `A
 
 ## Independent review and integration
 
-Luna independently reviewed fixed `7f92f69` and `b7831b5`: 40/40 tests, an independent first-frame/mode/contrast browser matrix and the live diagnostic counterexample pass, with no bounded blocker. [Independent report](independent-review.md). Final return-focus follow-up review and main integration remain pending. FE-05a → FE-05 → ATT-FE-01 → CC-I, RV26, G1–G5 and Pages deployment keep their separate scope.
+Luna independently reviewed fixed `7f92f69` and `b7831b5`: 40/40 tests, an independent first-frame/mode/contrast browser matrix and the live diagnostic counterexample pass, with no bounded blocker. [Independent report](independent-review.md). Luna also reviewed `a7ff5c8` in a detached worktree and confirmed 390px deep-link Back → composer and 1440px real-opener Escape → original button, with no browser exceptions. The earlier SK-3 review used the author checkout at the stated commits with isolated server/data/browser; it is non-author bounded evidence, not a claim of a separate fixed worktree for that earlier matrix. The final focus check used a detached fixed tree. FE-05a → FE-05 → ATT-FE-01 → CC-I, RV26, G1–G5 and Pages deployment keep their separate scope.
+
+## Integration and completion
+
+`c1b1f4e` combines this slice with main `a7b9822` (Q02, Runtime 11). The only conflict was the current-status introduction; both deliveries were retained. Backend product files merged without source edits. The integrated candidate passes [70 targeted tests](integrated-tests.log), including the Q02 provider roundtrip suite alongside the UI/static-route checks, and [local-fake runtime smoke](integrated-smoke.log). A fresh Runtime 11 synthetic directory served the [integrated browser check](integrated-browser.json), [reproducer](checks-integration.mjs): real Palette selection/save/reload, Models loaded from the new host, deep-link return focus and no overflow/exceptions. [Integrated Models screenshot](integrated-models.png) was inspected by Astra. Old schema-10 fixture data was not upgraded or shared with this host. Q02's full-suite evidence and limits remain its own record.
+
+All applicable items in the [autonomous completion list](../../engineering/design/skin-injection-2026-09-10/autonomous-loop.md) are complete. This closes the authorized Skin/Review/Appearance and adjacent-surface loop with no known bounded UI blocker. Other product gates and deployment are unchanged.

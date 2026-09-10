@@ -60,3 +60,25 @@ It passed. A separate direct rerun on CDP port `21287` confirmed the same system
 ## Bounded conclusion
 
 No SK-3 blocker was found. The preset is closed to the permitted 21 opaque appearance tokens, changes only neutral/appearance roles, follows the shared scheme/first-paint path, leaves fixed semantic/material roles unchanged, and keeps Slate behavior intact. The system-theme diagnostic follow-up is recorded separately from the Dystopia preset result.
+
+## Independent SK-4 focus review
+
+Date: 2026-09-10. This is a bounded review of the five-line settings-exit fix at `a7ff5c86b0c25e12aa31c73b7245d854a7cf41d2` (`fix(settings): restore usable focus after deep-link exit`). It does not self-accept SK-4, Q02, G1–G5, native-host acceptance, or deployment.
+
+Traceability:
+
+- Fixed product was checked in detached worktree `/private/tmp/cw-sk4-focus-fixed-a7ff5c8-20260910`, with `HEAD` verified as `a7ff5c86b0c25e12aa31c73b7245d854a7cf41d2` and no branch checked out.
+- Synthetic server data: `/private/tmp/cw-sk4-focus-data-a7ff5c8-20260910`; HTTP `127.0.0.1:19286`; Chrome/CDP `21292`. The server was stopped after the probe.
+- Source inspection in the detached worktree showed `closeSettings()` selects `composer-input` for a Home deep link without an attention panel, `session-title` for other views, and treats `document.body` as having no opener before calling the existing focus helper. `node --check app/web/app.mjs` and `git diff --check HEAD^ HEAD` passed.
+
+From the repository root (the browser helper was loaded from the existing evidence harness):
+
+```text
+node app/server/index.mjs --data-dir /private/tmp/cw-sk4-focus-data-a7ff5c8-20260910 --port 19286
+APP_URL=http://127.0.0.1:19286 WK6_CDP_PORT=21292 node --input-type=module <<'NODE'
+// probe: 390px #settings/appearance -> focus Back -> Enter;
+// then 1440px Home -> focus/click runtime-setup-button -> Escape
+NODE
+```
+
+Results: **pass**. At 390px the runtime setup opener was hidden; Back cleared the hash and returned focus to `composer-input`. At 1440px the actual `runtime-setup-button` opener opened settings; Escape cleared the hash and restored focus to that same button. The probe observed zero browser exceptions. No product files or commits were changed.
