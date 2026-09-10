@@ -1,0 +1,22 @@
+[
+  {
+    "file": "current-actions.png",
+    "sha256": "9e67ff23e599a85803552be1d3f2ac4af7a54c6b088525d703e12f002b0bad9f",
+    "source": "user supplied screenshot 2026-09-11"
+  },
+  {
+    "file": "reference-actions-1.png",
+    "sha256": "aab184414f832891c6dfde5c3832f068b846881877378953838ba6f794dc88fa",
+    "source": "user supplied screenshot 2026-09-11"
+  },
+  {
+    "file": "reference-actions-2.png",
+    "sha256": "7327b6311bc84190943ef945cd3c1390543151cccd92420e4929c92e3ab8993d",
+    "source": "user supplied screenshot 2026-09-11"
+  },
+  {
+    "file": "reference-actions-3.png",
+    "sha256": "970b54bf421707b758721224267a7bfb038cdeee198b5964a8779406ec4c3317",
+    "source": "user supplied screenshot 2026-09-11"
+  }
+]

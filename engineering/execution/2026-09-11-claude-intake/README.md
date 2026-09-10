@@ -21,7 +21,7 @@
 1. 消费本页及main新接收材料，继续在自己的codex候选内单写接合。D1/D2由你修、你接合；Composer的代合安排已撤回。Claude composer/CS及EX-IC2写权交接给你；源分支仍只读。不要再等Claude改WORK-3，也不要新建第二套SD-FIX。
 2. WORK-3使用你的现有实现作为主版本。定向比较d2fdeed：借用必要的大字号、错误态、增长上限、清空回落和初始surface开关反例；合并测试语义，不叠加另一套增长机制。同步 `ui-composition-standard.md`、`primitive-canon.md` 及布局契约中旧80–96表述；不得只更新脚本。445fb48快照已有默认两行/控件检查，但不是上述完整矩阵通过证据。HOME-1/2/5的Modules/Simple fixture前提需同条件实测归因，不能照抄13/16或12/16，更不能删断言掩盖回归。
 3. 按[最新merge-node](../2026-09-11-merge-node/README.md)完成真机联调及固定组合manifest；明确浏览器/版本、原生或浏览器宿主、真实200%缩放与等效重排、forced-colors各自实测范围。保持D1 Chromium147反例及D2长Unicode路径，Q1/Q3与IME/软键盘/VoiceOver限制单列。交由Luna或另一非作者在固定最终树复验；旧712/712和Chrome152不抵销既有缺陷。
-4. SD-FIX接受之后，EX-IC2 B从该固定节点重起，消费A台账和最新截图，依次提交baseline captures、specimen、rulings、wo-ic2-c。C等待B裁定与写权清单，不借此重写composer/CS/Summary。你持有接续统筹，可派Luna做有界探索/反例；不用重新唤醒已收尾Claude。SD-ENTRY及BE41-A/B保持[原派单](../2026-09-11-summary-be41-dispatch/README.md)独立节点，不因本次文档merge关闭。
+4. 用户随后裁定[Fake UI先行](../../design/chat-controls-2026-09-10/fake-ui-first/README.md)：不再等SD-FIX正式接受或后端就绪才启动B；由当前Astra共享路径串行，在实际候选上先做完整可交互action row，再逆向登记解耦后端缺口。EX-IC2 B从实际候选固定SHA起步，消费A台账和最新截图，依次提交baseline captures、specimen、rulings、wo-ic2-c。C等待B裁定与写权清单，不借此重写composer/CS/Summary。你持有接续统筹，可派Luna做有界探索/反例；不用重新唤醒已收尾Claude。SD-ENTRY及BE41-A/B保持[原派单](../2026-09-11-summary-be41-dispatch/README.md)独立节点，不因本次文档merge关闭。
 5. TPS需求登记为BE-42（每请求decode终值与测量来源合同），进入既有Harness provider/streaming缺口队列，排在基本功能之后；本次仅编号，不要求在SD-FIX实现。provider时钟和host-tokenizer/宿主收包时钟分开计量和命名，不把后者称推理引擎decode TPS；失败/取消/中断及缺测保持null。
 6. 交付最终SHA、输入与路径manifest、裁定消费表、原始失败/修后证据、非作者归因、剩余项。使用持久隔离目录；合成数据/端口，不跑付费provider或迁移个人数据。失效worktree登记和serve.mjs不在产品收尾前置，本次不prune、不删除现场、不推送或部署。
 

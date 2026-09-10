@@ -5,7 +5,7 @@
 //   node site/scripts/check-figures.mjs --hashes   # print the source hashes the manifest should record
 //
 // Everything that can be decided from the bytes is decided here: registration,
-// title and desc, status captions, the single-red rule, external references,
+// title and desc, internal status, the single-red rule, external references,
 // literal colours, and a static geometry audit (text inside its box and the
 // viewBox, no overlapping nodes, no connector through an unrelated node).
 // Geometry is estimated from a character-width table, deliberately generous;
@@ -21,7 +21,6 @@ const manifest = JSON.parse(await readFile(path.join(SITE, "src", "assets", "fig
 const html = await readFile(path.join(DIST, "index.html"), "utf8");
 const css = await readFile(path.join(DIST, "site.css"), "utf8");
 
-const STATUS_WORDS = { research: /尚未交付/, concept: /concept/i, recorded: /录制|recorded/i };
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
 
 // ---- markup helpers ----------------------------------------------------------
@@ -246,17 +245,16 @@ for (const entry of manifest.figures) {
     if (actual !== entry.source.sha256) fail("source sha256 differs from the manifest", { expected: entry.source.sha256, actual });
   } else if ("sha256" in entry.source) fail("inline figures carry no sha256 (VG-16)");
 
-  // Status: anything not shipped says so inside its own block.
+  // Accessible captions remain next to their figures; maturity is internal.
   const section = blockOf(mount.start);
-  const block = plain(`${mount.markup} ${section?.markup ?? ""}`);
   const describedBy = mount.markup.match(/^<[^>]*aria-describedby="([^"]+)"/)?.[1];
   if (describedBy) {
     const target = html.search(new RegExp(`id="${describedBy}"`));
     if (target === -1) fail("aria-describedby target missing", describedBy);
-    else if (!section || target < section.start || target > section.start + section.markup.length) fail("status caption is outside the figure's block", describedBy);
+    else if (!section || target < section.start || target > section.start + section.markup.length) fail("accessible caption is outside the figure's block", describedBy);
   }
-  if (STATUS_WORDS[entry.status] && !STATUS_WORDS[entry.status].test(block))
-    fail(`${entry.status} figure has no status caption in its block`);
+  // Product presentation follows the fictional commercial-product brief.
+  // Maturity remains in the versioned registry, not in customer-facing captions.
 
   // Red: only the registered element, at most one per figure.
   const reds = [...mount.markup.matchAll(/<[a-z]+\b[^>]*\bclass="[^"]*\bfig-attention\b[^"]*"[^>]*>/g)].map((m) => attributes(m[0]).id ?? m[0]);

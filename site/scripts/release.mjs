@@ -93,6 +93,8 @@ export async function release({ capture = false } = {}) {
   if (!/^specimen\/[a-f0-9]{7}\.json$/.test(recording)) throw new Error("unexpected specimen recording path");
   files.push(...await digestOf({ absolute: path.join(SITE, recording), relative: recording }));
   files.push(...await digestOf({ absolute: path.join(ROOT, "evidence/publishing-surface-2026-09-09"), relative: "evidence/publishing-surface-2026-09-09" }));
+  for (const name of ["benchmarks/SPEC.md", "engineering/execution/2026-09-10-benchmark-series"])
+    files.push(...await digestOf({ absolute: path.join(ROOT, name), relative: name }));
   const siteSha = createHash("sha256")
     .update(files.map(([name, hash]) => `${hash}  ${name}`).join("\n"))
     .digest("hex");

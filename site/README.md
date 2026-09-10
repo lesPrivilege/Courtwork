@@ -1,6 +1,6 @@
 # 发布面候选
 
-本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。八段叙事、Anatomy 七节点导航、概念定价、项目介绍与离线标本已经接入。用户已授权本轮 GitHub Pages 部署，最终线上状态见交付回执。品牌探索后置。
+本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。七段叙事、Anatomy 七节点导航、概念定价、项目介绍与离线标本已经接入。用户已授权本轮 GitHub Pages 部署，最终线上状态见交付回执。品牌探索后置。
 
 ```sh
 node site/build.mjs
@@ -35,7 +35,7 @@ capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的
 
 本轮用户授权页面比产品更激进，Astra认领并裁定Archival Instrument；此前本页“仅连接线blur”“不启动新方向”的范围由本条覆盖。独立campaign材质、字阶与解释动效位于 `src/site.css`，产品标本仍保留固定token与来源守卫。`scripts/check-material.mjs`的材料字面量检查仅适用标本；campaign允许独立材质但禁止重定义产品语义token，并通过浏览器对比度、重排和偏好验证。
 
-Hero中的纸层保留为明确标注的概念作品；真实 Home 以独立可见区块紧接叙事。旧标本与 benchmark 仍固定9e5384f，不随新截图重标。当前媒体与验证见[本轮合流回执](../evidence/pages-main-visual-20260910/README.md)。
+Hero中的纸层保留原有构图与动效；其概念属性保存在图登记表中。Home 以独立区块进入产品导览。旧标本与 benchmark 仍固定9e5384f，不随新截图重标。当前媒体与验证见[本轮合流回执](../evidence/pages-main-visual-20260910/README.md)。
 
 ## Product-life pages
 
@@ -45,4 +45,10 @@ Hero中的纸层保留为明确标注的概念作品；真实 Home 以独立可�
 node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
 ```
 
-Tour有十一类状态，其中九类以合并产品 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的实录展示；running 与 Matter 全程分别保留待补/固定回放。15份原生JPEG包括深色与手机尺寸变体，覆盖10个媒体ID，与基础 specimen 的 `9e5384f` manifest 分开。六子页面沿用21e8a9b结构，详见[本轮回执](../evidence/pages-main-visual-20260910/README.md)。
+Tour 当前编排13类状态，新截图整批待补。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
+
+## Product presentation and primary navigation
+
+The 2026-09-11 user brief presents a complete fictional commercial product. Public copy explains what the product is for and how to use it; development maturity and capture provenance remain in engineering records and manifests. No customer counts or experimental gains are invented. See [integration decisions](../engineering/release/pages-ordered-integration-2026-09-11/README.md).
+
+The primary header is a quiet, single-row Tour / Paper / Release navigation beside the wordmark. Paper opens Schema-Engineering Pages; acquisition emphasis belongs to the hero. Ideas is expanded initially. Campaign navigation stays neutral; the review colour belongs to a sparse, text-labelled human-judgment state, the interactive story uses neutral ink.

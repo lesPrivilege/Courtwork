@@ -91,13 +91,13 @@ function currentProjection() {
 
 const label = el("p", {
   className: "specimen-label is-mono",
-  text: `Replay · synthetic data · recorded at CourtWork ${sha7}`,
+  text: `Interactive NDA walkthrough`,
 });
 
 const counter = el("p", { className: "specimen-counter" });
 const stepList = el("div", {
   className: "specimen-steps",
-  attrs: { role: "tablist", "aria-label": "Recorded steps" },
+  attrs: { role: "tablist", "aria-label": "Workflow steps" },
 });
 const stepButtons = STEPS.map((entry, position) => {
   const button = el("button", {
@@ -126,7 +126,7 @@ const sentence = el("p", { className: "specimen-sentence" });
 const status = el("p", { className: "specimen-status is-mono" });
 const sourceLink = el("a", {
   className: "specimen-source",
-  text: "Open in source",
+  text: "Inspect the record",
   attrs: { href: recordingUrl },
 });
 const sourceKey = el("code", { className: "specimen-key" });
@@ -162,7 +162,7 @@ next.addEventListener("click", () => go(index + 1));
 root.replaceChildren(
   el("header", { className: "specimen-head" }, label, counter),
   stepList,
-  el("div", { className: "specimen-copy" }, sentence, status, el("p", { className: "specimen-links" }, sourceLink, sourceKey)),
+  el("div", { className: "specimen-copy" }, sentence, el("p", { className: "specimen-links" }, sourceLink)),
   el("div", { className: "specimen-body" },
     el("div", { className: "specimen-main" }, stage, refusal),
     el("aside", { className: "specimen-layers" }, layerTabs, layerPanel),
@@ -211,10 +211,9 @@ function renderStage(entry) {
     const session = recording.session;
     stage.append(
       el("div", { className: "specimen-card" },
-        el("h3", { text: session.title }),
+        el("h3", { text: session.title.replace(/^Synthetic\s+/i, "") }),
         field("Project", recording.session.projectId ? "Inbound NDA" : "—"),
         field("File access", permissionWords(session.permissionMode)),
-        field("Chat", session.id),
       ),
     );
     return;
@@ -317,7 +316,7 @@ function permissionCard(row, binding) {
     }
     card.append(controls);
   } else {
-    card.append(el("p", { className: "specimen-status is-mono", text: `Recorded decision · ${row.decision ?? row.questionStatus}` }));
+    card.append(el("p", { className: "specimen-status is-mono", text: `Decision · ${row.decision ?? row.questionStatus}` }));
   }
   return card;
 }

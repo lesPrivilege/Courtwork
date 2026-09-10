@@ -86,3 +86,23 @@ document.addEventListener("click", event => {
   if (link && link.hash === location.hash) openEntry();
 });
 openEntry();
+
+// An illustrative source change; no runtime state, metrics or network requests.
+const story = document.querySelector("[data-product-story]");
+if (story) {
+  const toggle = story.querySelector("[data-story-toggle]");
+  const spark = story.querySelector("[data-spark-state]");
+  const attention = story.querySelector("[data-attention-state]");
+  const announcement = story.querySelector("[data-story-announcement]");
+  toggle.hidden = false;
+  toggle.addEventListener("click", event => {
+    const changed = story.dataset.productStory !== "changed";
+    story.dataset.motion = event.detail > 0 ? "pointer" : "instant";
+    story.dataset.productStory = changed ? "changed" : "current";
+    toggle.setAttribute("aria-pressed", String(changed));
+    toggle.firstChild.textContent = changed ? "还原来源 " : "更新来源 ";
+    spark.textContent = changed ? "来源更新，派生重建。" : "当前来源，当前发现。";
+    attention.textContent = changed ? "条款变化 · 需要复核" : "工作继续。";
+    announcement.textContent = changed ? "产品理念演示：来源更新，派生视图重建，条款变化进入人的审阅。" : "已还原产品理念演示。";
+  });
+}

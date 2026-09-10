@@ -10,6 +10,7 @@
 //   node site/build.mjs
 //
 import { readFile, writeFile, mkdir, rm, readdir, stat } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { extractTokens } from "./scripts/tokens.mjs";
@@ -134,6 +135,19 @@ for (const file of evidence.files) await emit(`evidence/${path.basename(file.pat
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
 await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
+// Method identity is independent of the older product replay identity.
+const publishingSourceSha = "b9122180dd0c75fe68ba783c4b70dcb4e3835263";
+async function emitMethod(from, to) {
+  const frozen = execFileSync("git", ["show", `${publishingSourceSha}:${from}`], { cwd: ROOT, encoding: "utf8" });
+  if (frozen !== await readFile(path.join(ROOT, from), "utf8")) throw new Error(`Method source drift: ${from}`);
+  const markdown = frozen.replace(/\]\(([^)]+)\)/g, (match, href) => {
+    if (/^(?:https?:|#)/.test(href)) return match;
+    return `](https://github.com/lesPrivilege/Courtwork/blob/${publishingSourceSha}/${path.posix.normalize(path.posix.join(path.posix.dirname(from), href))})`;
+  });
+  await emit(to, markdown);
+}
+await emitMethod("benchmarks/SPEC.md", "benchmark-contract.md");
+await emitMethod("engineering/execution/2026-09-10-benchmark-series/README.md", "benchmark-series.md");
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media, pageMedia }));
 const packageVersion = JSON.parse(productBytes(pageMedia.source_sha, "app/package.json").toString("utf8")).version;
 for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);
@@ -161,6 +175,7 @@ if (current !== readme) {
 
 // ---- publish manifest -------------------------------------------------------
 const manifest = {
+  publishing_source_sha: publishingSourceSha,
   source_sha: identity.source_sha,
   site_sha: identity.site_sha,
   built_at: identity.built_at,

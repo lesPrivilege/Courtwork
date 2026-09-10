@@ -1,6 +1,6 @@
 <svg class="fig" viewBox="0 0 360 232" role="img" aria-labelledby="fig-spark-title fig-spark-desc" xmlns="http://www.w3.org/2000/svg">
-  <title id="fig-spark-title">Rebuildable Spark · research sketch</title>
-  <desc id="fig-spark-desc">研究方向示意，尚未交付。上层是可丢弃、可重建的派生层：旧摘要可以退出，重建的视图以细线回指来源。下层是不变的来源层：sources、decisions、open obligations 与 conflicts 留下。</desc>
+  <title id="fig-spark-title">Rebuildable Spark</title>
+  <desc id="fig-spark-desc">上层是可丢弃、可重建的派生层：旧摘要可以退出，重建的视图以细线回指来源。下层是不变的来源层：sources、decisions、open obligations 与 conflicts 留下。</desc>
   <text class="fig-label" x="8" y="14" font-size="11">DERIVED · CAN BE REBUILT</text>
   <g data-node="old-summary">
     <rect class="fig-derived fig-exiting" x="8" y="24" width="140" height="34" />

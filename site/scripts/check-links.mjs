@@ -86,7 +86,7 @@ for (const [, repoPath] of index.matchAll(/https:\/\/github\.com\/lesPrivilege\/
 
 // Product-life pages name immutable evidence. Verify the path at that SHA,
 // not merely a similarly named file in the current checkout.
-for (const name of ["tour", "get", "cli", "changelog", "models", "data"]) {
+for (const name of ["features", "eval", "experts", "tour", "get", "cli", "changelog", "models", "data"]) {
   const file = `${name}.html`;
   const html = await readFile(path.join(DIST, file), "utf8");
   for (const [, sha, repoPath] of html.matchAll(/https:\/\/github\.com\/lesPrivilege\/Courtwork\/blob\/([a-f0-9]{40})\/([^"#]+)/g)) {

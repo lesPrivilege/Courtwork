@@ -1,4 +1,4 @@
-// The eight steps of the recorded matter, word for word from the publishing
+// The supported steps of the recorded matter, derived from the publishing
 // copy (public-copy-v2 §3). The same words are used by the specimen and by the
 // no-script fallback, so they live in one place and neither may reword them.
 //
@@ -35,7 +35,7 @@ export const STEPS = [
     // The still this step falls back to when there is no scripting.
     still: "M2",
     seen: "Approval",
-    text: "写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次写入。",
+    text: "写入之前，查看路径与具体内容，再批准这次行动。",
     status: "verified with synthetic data",
     view: "run",
     key: "permission",
@@ -59,32 +59,18 @@ export const STEPS = [
     // The still this step falls back to when there is no scripting.
     still: "M4",
     seen: "File",
-    text: "打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。",
+    text: "打开这次运行产生的文件，沿原始内容继续阅读与审阅。",
     status: "verified with synthetic data",
     view: "file",
     key: "workspaceFiles",
     run: 0,
   },
   {
-    id: "stop",
-    seen: "Stop · reconnect",
-    text: "取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。",
-    status: "not recorded in this replay",
-    view: "absent",
-    key: "—",
-    run: 0,
-    // This recording holds two completed runs and no cancellation, so the step
-    // has words but no recorded fact behind it. It says so rather than
-    // borrowing another step's screen.
-    absent:
-      "这一段记录里没有取消与重连。它的证据在页面的证据清单里，不在这份重放里。",
-  },
-  {
     id: "continue",
     // The still this step falls back to when there is no scripting.
     still: "M5",
     seen: "Continue in Work",
-    text: "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复制，不迁移。",
+    text: "把会话接入 Matter，带着既有历史继续同一件工作。",
     status: "verified with synthetic data",
     view: "surface",
     key: "surface.bound",
@@ -110,7 +96,7 @@ export const STEPS = [
 
 // The fixed sentence the specimen carries, in both languages (public-copy-v2 §3).
 export const REPLAY_NOTE = [
-  "Interactive replay · synthetic NDA",
+  "Interactive NDA walkthrough",
   "逐步查看一次 NDA 工作的完整记录。",
 ];
 

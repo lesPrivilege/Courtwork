@@ -1,6 +1,6 @@
 <svg class="fig" viewBox="0 0 360 248" role="img" aria-labelledby="fig-roles-title fig-roles-desc" xmlns="http://www.w3.org/2000/svg">
-  <title id="fig-roles-title">Roles and execution · research sketch</title>
-  <desc id="fig-roles-desc">研究方向示意，尚未交付。上方三个 Expert 是可换的方法，一次只有一个作用于同一 Matter；换方法不改变 Matter。下方执行载体只有 Pi 在用，另外两个是空位，未接入，有实际需要时逐一验证。</desc>
+  <title id="fig-roles-title">Roles and execution</title>
+  <desc id="fig-roles-desc">上方三个 Expert 是可换的方法，一次只有一个作用于同一 Matter；换方法不改变 Matter。下方 Pi 是当前执行载体；其他槽位表示按需选择的执行配置。</desc>
   <defs>
     <marker id="fig-roles-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
@@ -33,11 +33,11 @@
   </g>
   <g data-node="slot-2">
     <rect class="fig-slot" x="128" y="184" width="104" height="36" />
-    <text class="fig-muted" x="180" y="207" font-size="12" text-anchor="middle">not connected</text>
+    <text class="fig-muted" x="180" y="207" font-size="12" text-anchor="middle">On demand</text>
   </g>
   <g data-node="slot-3">
     <rect class="fig-slot" x="248" y="184" width="104" height="36" />
-    <text class="fig-muted" x="300" y="207" font-size="12" text-anchor="middle">not connected</text>
+    <text class="fig-muted" x="300" y="207" font-size="12" text-anchor="middle">On demand</text>
   </g>
-  <text class="fig-muted" x="128" y="240" font-size="11">verify one at a time, when needed</text>
+  <text class="fig-muted" x="128" y="240" font-size="11">choose for the work</text>
 </svg>

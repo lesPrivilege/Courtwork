@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Chat icon / Fake UI 先行
+
+用户明确Chat space icon应从Fake UI先行落地、逆向登记独立后端缺口；[最新裁定与截图](design/chat-controls-2026-09-10/fake-ui-first/README.md)覆盖此前B/C整体等待安排。当前fresh Astra单写接续：先做可交互action row、沿现有能力接线，缺失能力通过合成adapter验证状态并逐项登记接口；生产不伪报成功。B最小对照裁定与C前端实施连续推进，共享文件串行，后端与最终组合非作者验证分别接续。本条是施工要求，尚未宣称icon已交付。
+
 ## 2026-09-11 · Claude 交接接收与 Astra 单写收尾
 
 用户确认fresh Astra已经施工，Claude各线已停止。已接收[交接裁决与收尾单](execution/2026-09-11-claude-intake/README.md)：handoff5fd701c、TPS62295b4、EX-IC2 A f3895aa及87a202f限定目录的历史复核证据。TPS登记BE-42，未接生产；A截图过时须重拍。产品组合仍不在本次接收内。施工Astra候选445fb48已存在，WORK-3以其版本为主、d2fdeed只作定向donor，D1/D2接合及真机联调由同一Astra负责；Claude源分支只读。B未交付、C未开工，待固定产品节点后按收尾单接续；SD-ENTRY与BE41保持独立，不关闭产品门。
@@ -436,3 +440,16 @@ Icon 家族选型裁定（2026-09-10）：EX-IC1 specimen（`claude/ex-ic1-icon-
 ## BE-41 后端隔离交付（2026-09-10，待组合接收）
 
 Astra从实际 `1992e90` 隔离实现Spark派生失效只读查询，沿Core/project owner，无schema迁移或第二store；[回执与剩余接线限制](../evidence/be41-20260910/README.md)。该条仅记录分支交付，不覆盖main当前接收状态；前端version0、源文件版本回退与snapshot参数接线仍开放，ME-03 / RV26-SP01 / G1–G5未关闭。
+## Benchmark series · 2026-09-10
+
+用户要求 benchmark 系列先于对外叙事准备。Astra 从实际 main `df9fc18` 隔离，延伸现有 Continuity / D1–D3，编订 [BM-01 评测契约](../benchmarks/SPEC.md) 与 [BM-02–05 PR 文稿](execution/2026-09-10-benchmark-series/README.md)。覆盖运行清单与报告复现、生成式 Core 状态机、真实进程故障与回执重放、matched Disclosure。BM-01 为文档交付，其余为可施工合同；没有新实验结果、付费模型运行或产品接受。Luna 负责有界只读探索，不代表本单独立接受。
+
+Public narrative 接续：用户要求所有对外发布面采用独立承重语句。首页按用户最终裁定将 Spark/Attention 原子叙事与联动语义图置于 Hero 后，再接 Paper/Tour 并排入口；Matter/Experts/Runtime 后置，导航统一短标签；Features、Eval、Experts 承接产品判断与评测设计，README、Tour、Get、CLI、Models、Data、Changelog 与 replay framing 同步去除测试计数和工程旁白。固定合成媒体与 benchmark 原记录保持。career-kit 真实底稿与编译器另在本地修订为协调两页，私有简历未入仓。[交付与检查](release/public-narrative-2026-09-10/README.md)。本轮为发布面准备，无线上部署或新模型结果。
+
+数据组织输入接续（2026-09-10）：[完整消费包](research/data-organization-2026-09-10/README.md)登记两轮问答及hash，核验局部标准并映射DS/LG/ME/AM/BG。对外只消费来源、责任、规则与决定的契约叙事；Pi/AgentSession等局部选型移至内部架构。DO-01…05是既有路线消费别名，未新增组织registry、policy/workflow runtime或产品schema。固定SE9.6已有Work Contract语义，本轮不改Paper。
+
+合并后截图发布准备（2026-09-10）：用户授权先Luna explore并完成留空编排，等Spark/Attention UI完工merge后统一换真机截图、push与部署。[截图交接](release/merged-ui-captures-2026-09-10/README.md)登记13图位、合并节点与整批替换流程；首页/Tour/Models使用集中pending画框，Pages发布检查拒绝未完成批次。此片仅本地准备，不把旧图作为新UI，不启动新产品/采图/部署。
+
+## Pages 合流裁决（2026-09-11）
+
+按用户授权接收 BM-01 文档契约、PR2 叙事与截图准备，消费已在本地main的VG-01图解，恢复最新同排轻量导航。用户最新口径将产品面作为完整商业化 fake 产品呈现，移除保护性旁白；工程事实与实验记录保持独立。[裁决、验证与截图后续](release/pages-ordered-integration-2026-09-11/README.md)。内置浏览器已完成本轮桌面与移动端版式复验，修正标题层级、卡片高度与窄屏导航；具体覆盖及未重跑矩阵见回执。当前13图位仍pending，未部署；页面视觉接受不替代产品接受。
