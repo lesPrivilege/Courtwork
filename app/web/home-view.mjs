@@ -46,9 +46,9 @@ const emptyLabels = {
   inspectionCandidates: "Runs recorded failed or unknown will appear here.",
 };
 const setGlyphs = {
-  pendingItems: "message-square",
+  pendingItems: null,
   sessionCandidates: "message-square",
-  inspectionCandidates: "activity",
+  inspectionCandidates: null,
 };
 
 /* ux-conventions §1 · a state word is grey. Only the two words that ask for a

@@ -55,8 +55,8 @@ function phaseLabel(phase) {
 
 function messageFor(phase, error, files, filesKnown) {
   if (phase === "loading") return "Loading run details…";
-  if (phase === "error") return error || "Run details are unavailable.";
-  if (phase === "unknown") return "Run status is unknown; recorded details are unavailable.";
+  if (phase === "error") return error || "Work details are unavailable.";
+  if (phase === "unknown") return "Work status is unknown; recorded details are unavailable.";
   if (phase === "unavailable") return "The Run reader is unavailable.";
   if (phase === "incompatible") return "This Run summary uses an unsupported format.";
   if (!filesKnown) return "Recorded files are unavailable.";

@@ -100,3 +100,13 @@
 .tour-directory { margin-top: 40px; }
 .tour-directory summary { cursor: pointer; padding: 16px 0; }
 @media (max-width: 720px) { .orchestration-path { grid-template-columns: repeat(2, minmax(0, 1fr)); } .orchestration-path a:nth-child(3) { border-left: 0; } .orchestration-path a:nth-child(n+3) { border-top: 1px solid var(--line); } .orchestration-path a { padding: 24px 12px; } .orchestration-path strong { font-size: 17px; } }
+
+/* Tour preserves every capture slot while grouping the reader's tasks. */
+.tour-chapter-heading { padding-block: 4rem 1rem; border-bottom: 1px solid var(--line); }
+.tour-chapter-heading h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
+.tour-state h3 { font-size: clamp(1.4rem, 2.4vw, 2rem); line-height: 1.2; }
+.orchestration-path { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 760px) { .orchestration-path { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+  .orchestration-path a + a { border-left: 0; border-top: 1px solid var(--line); }
+}

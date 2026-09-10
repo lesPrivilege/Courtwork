@@ -979,3 +979,13 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .figure-scroll-hint { display:none; color:var(--muted-strong); font:12px/1.5 var(--font-mono); }
 .figure-scroll:focus-visible { outline:2px solid var(--campaign-ink); outline-offset:4px; }
 @media (max-width:720px) { .figure-plate .figure-scroll-hint { display:block; } }
+
+/* VS-05: existing editorial grammar, with technical depth after acquisition. */
+.research-depth { margin-block: var(--space-8, 4rem); border-top: 1px solid var(--line); }
+.research-depth > summary { padding-block: 1.5rem; cursor: pointer; font-size: 1.125rem; }
+#evidence .boundary-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+@media (max-width: 680px) { #evidence .boundary-pair { grid-template-columns: 1fr; gap: 1.5rem; } }
+@media (max-width: 680px) {
+  .masthead { flex-wrap: wrap; gap: 4px; }
+  .masthead .global-nav { flex-basis: 100%; margin-left: 0; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
+}

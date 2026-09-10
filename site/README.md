@@ -52,3 +52,9 @@ Tour 当前编排13类状态，新截图整批待补。旧批次 `e818463ab31aa0
 The 2026-09-11 user brief presents a complete fictional commercial product. Public copy explains what the product is for and how to use it; development maturity and capture provenance remain in engineering records and manifests. No customer counts or experimental gains are invented. See [integration decisions](../engineering/release/pages-ordered-integration-2026-09-11/README.md).
 
 The primary header is a quiet, single-row Tour / Paper / Release navigation beside the wordmark. Paper opens Schema-Engineering Pages; acquisition emphasis belongs to the hero. Ideas is expanded initially. Campaign navigation stays neutral; the review colour belongs to a sparse, text-labelled human-judgment state, the interactive story uses neutral ink.
+
+## VS-05 product navigation (2026-09-11)
+
+The latest user brief supersedes the header/initial expansion described above: Product / Experts / Eval / Pricing / Download is the shared primary navigation. Home proof follows the preserved Hero; technical depth and Paper are closed under Research & architecture. Tour keeps all 13 pending screenshot slots in five task groups. See [the layout decision](../engineering/execution/2026-09-11-semantic-polish/pages.md). This candidate is local; earlier deployment authorizations/receipts are historical and do not state that it is deployed.
+
+`features.html`, `experts.html` and `eval.html` join the six routes listed above, making nine product pages. The build manifest derives them from the actual renderer. `node tools/check-pages-semantics.mjs` validates their capture/figure semantic cross-map and runs as part of build. Capture readiness and public-data checks remain unchanged.

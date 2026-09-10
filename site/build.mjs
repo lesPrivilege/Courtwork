@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { checkPagesSemantics } from '../tools/check-pages-semantics.mjs';
 // CourtWork publishing surface — build.
 //
 // site/dist/ is generated from three sources and nothing else: the product's
@@ -61,6 +62,7 @@ async function emitTree(from, into) {
   }
 }
 
+await checkPagesSemantics();
 const identity = await release();
 
 await rm(DIST, { recursive: true, force: true });
@@ -150,7 +152,8 @@ await emitMethod("benchmarks/SPEC.md", "benchmark-contract.md");
 await emitMethod("engineering/execution/2026-09-10-benchmark-series/README.md", "benchmark-series.md");
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media, pageMedia }));
 const packageVersion = JSON.parse(productBytes(pageMedia.source_sha, "app/package.json").toString("utf8")).version;
-for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);
+const productPages = renderProductPages({identity, media: pageMedia, recording, packageVersion});
+for (const [name, html] of Object.entries(productPages)) await emit(name, html);
 await emit("product-pages.css", await readFile(path.join(SITE, "src", "product-pages.css")));
 await emit("product-pages.mjs", await readFile(path.join(SITE, "src", "product-interactions.mjs")));
 await emit("site.css", await readFile(path.join(SITE, "src", "site.css")));
@@ -190,7 +193,7 @@ const manifest = {
   supported_platforms: ["local run from source on macOS and Linux"],
   download_assets: [],
   source_preview_version: packageVersion,
-  product_pages: ["tour.html", "get.html", "cli.html", "changelog.html", "models.html", "data.html"],
+  product_pages: Object.keys(productPages),
   known_limits: evidence.knownLimits,
   locale_content_hashes: { "zh-CN": sha256(await readFile(path.join(DIST, "index.html"))) },
   files: written,

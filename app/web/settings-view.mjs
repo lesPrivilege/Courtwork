@@ -14,7 +14,7 @@ export const PLANNED_CAPABILITIES = [
   ["Workflows", "No workflow runner exists to execute a saved sequence."],
   ["Hooks", "No executable hook point exists."],
   ["Registries", "Package resolution and signature checks are not implemented."],
-  ["Per-source token counts", "Run usage is reported in the Run inspector. Individual context-source sizes remain character counts."],
+  ["Per-source token counts", "Usage is reported in the work inspector. Individual context-source sizes remain character counts."],
 ];
 export function renderPlanned(container) {
   container.replaceChildren(
@@ -2471,7 +2471,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
           el(
             "tr",
             { className: "settings-key-row" },
-            el("th", { attrs: { scope: "row" } }, el("span", { text: "Cancel run" })),
+            el("th", { attrs: { scope: "row" } }, el("span", { text: "Stop working" })),
             el("td", {
               text: "No key. Cancelling a run is a control in the composer, so it is never one keystroke away by accident.",
             }),

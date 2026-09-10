@@ -1311,6 +1311,66 @@ export const productSemantics = freeze({
         "app": "glyph"
       },
       "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "question.request",
+      "meaning": "A request for an answer to continue the specific work; not the persistent Attention assistant or a Chat identity.",
+      "ownerRef": "app/web/thread-projection.mjs",
+      "words": {
+        "en": "Question"
+      },
+      "accessibleName": {
+        "en": "Question"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "export function canAnswer(row, run)"
+    },
+    {
+      "semanticKey": "file.object",
+      "meaning": "A named file or recorded file version. File actions still carry their own verb and exact target.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "File"
+      },
+      "accessibleName": {
+        "en": "File"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "file-text",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Workspace"
     }
   ]
 });

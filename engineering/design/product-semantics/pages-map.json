@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Presentation cross-map only; capture and figure registries retain provenance, status and identity. No new ontology or accepted capability.",
+  "captureSlots": {
+    "home": [
+      "project.object",
+      "chat.object",
+      "attention.agent"
+    ],
+    "spark": [
+      "spark.surface"
+    ],
+    "running": [
+      "run.object",
+      "activity.view"
+    ],
+    "attention": [
+      "attention.queue"
+    ],
+    "approval": [
+      "approval.request"
+    ],
+    "artifact": [
+      "file.object"
+    ],
+    "matter": [
+      "matter.object"
+    ],
+    "review": [
+      "review.open"
+    ],
+    "continuity": [
+      "matter.object",
+      "chat.object"
+    ],
+    "models": [
+      "model.object",
+      "connection.object",
+      "reasoning.setting"
+    ],
+    "integrations": [
+      "tool.object",
+      "connection.object",
+      "mcp.server"
+    ],
+    "settings": [
+      "access.policy"
+    ],
+    "conversation": [
+      "attention.agent"
+    ]
+  },
+  "figures": {
+    "fig-00-matter-object": [
+      "matter.object"
+    ],
+    "anatomy-instrument": [
+      "matter.object",
+      "trace.view"
+    ],
+    "state-to-commit": [
+      "matter.object",
+      "review.open"
+    ],
+    "pricing-local": [
+      "matter.object",
+      "model.object"
+    ],
+    "pricing-hosted": [
+      "matter.object",
+      "model.object"
+    ],
+    "pricing-organization": [
+      "matter.object",
+      "expert.role",
+      "review.open",
+      "access.policy"
+    ],
+    "pipeline": [
+      "matter.object",
+      "run.object"
+    ],
+    "spark": [
+      "spark.surface"
+    ],
+    "attention": [
+      "attention.queue"
+    ],
+    "roles": [
+      "expert.role",
+      "matter.object",
+      "run.object"
+    ]
+  }
+}

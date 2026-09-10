@@ -115,7 +115,7 @@ export function createRunSummaryCard({
     {
       className: "rail-card sd-run-summary",
       attrs: {
-        "aria-label": "Run summary",
+        "aria-label": "Work summary",
         "data-module": "run-summary",
       },
     },
@@ -195,8 +195,7 @@ export function createRunSummaryCard({
     const head = el(
       "div",
       { className: "rail-card-head" },
-      icon("activity", { size: 16 }),
-      el("h3", { className: "rail-card-title", text: "Run" }),
+      el("h3", { className: "rail-card-title", text: "Work" }),
       el("span", { className: "rail-card-state", text: snapshot.statusLabel }),
     );
     root.append(head);

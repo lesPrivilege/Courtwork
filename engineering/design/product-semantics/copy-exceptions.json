@@ -1,0 +1,20 @@
+[
+  {
+    "file": "app/web/inspector.mjs",
+    "text": "Run notes",
+    "scope": "diagnostic-details",
+    "reason": "Exact execution details inside the disclosed record; Run retains its storage identity here."
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "text": "Run information",
+    "scope": "diagnostic-details",
+    "reason": "Exact execution details inside the disclosed record; Run retains its storage identity here."
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "text": "Run information",
+    "scope": "diagnostic-details",
+    "reason": "Exact execution details inside the disclosed record; Run retains its storage identity here."
+  }
+]

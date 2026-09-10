@@ -137,7 +137,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       el('p', { text: 'Memory: saved conversation messages, loaded on demand.' }),
       el('p', { text: 'Tool access follows Runtime permissions. Closing this panel keeps the Run active.' }));
     if (run) runtimeBody.append(renderRequestMeasurements(state.events, run.id, {compact:true}));
-    if (run?.usage) runtimeBody.append(el('p', { text: `Run usage${run.usage.missing ? ' (incomplete; lower bounds)' : ''}: ${run.usage.input} input · ${run.usage.output} output. Cache accounting is separate; this is not billing.` }));
+    if (run?.usage) runtimeBody.append(el('p', { text: `Usage${run.usage.missing ? ' (incomplete; lower bounds)' : ''}: ${run.usage.input} input · ${run.usage.output} output. Cache accounting is separate; this is not billing.` }));
     const nextSignature = JSON.stringify([state.events, state.runs, state.busy, state.readError]);
     if (nextSignature !== signature) {
       signature = nextSignature;

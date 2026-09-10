@@ -124,12 +124,13 @@ export function setAction(
   { visible = false, trailing = false, size } = {},
 ) {
   const shown = typeof visible === "string" ? visible : visible ? label : null;
-  const glyph = icon(name, size ? { size } : undefined);
+  if (name == null && !shown) throw new Error("Text controls require a visible name");
+  const glyph = name == null ? null : icon(name, size ? { size } : undefined);
   const text = el("span", {
     className: shown ? "button-label" : "sr-only",
     text: shown ?? label,
   });
-  button.replaceChildren(...(trailing ? [text, glyph] : [glyph, text]));
+  button.replaceChildren(...(trailing ? [text, glyph] : [glyph, text]).filter(Boolean));
   button.setAttribute("aria-label", label);
   button.removeAttribute("title");
   if (shown) delete button.dataset.tooltip;

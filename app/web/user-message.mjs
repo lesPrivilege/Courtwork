@@ -74,8 +74,8 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
         }),
         attrs: {
           datetime: time.toISOString(),
-          title: `Run started ${time.toLocaleString()}`,
-          "aria-label": `Run started ${time.toLocaleString()}`,
+          title: `Started ${time.toLocaleString()}`,
+          "aria-label": `Started ${time.toLocaleString()}`,
         },
       }),
     );

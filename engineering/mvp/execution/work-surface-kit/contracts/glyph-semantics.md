@@ -12,6 +12,12 @@
 
 字段说明：**频率**＝同一屏内可能出现的次数量级（每屏一次 / 每会话若干 / 每行一次）；**裁取**＝ IC-1 档位，`P0 图标` / `P0 图标+文字` / `P1 可图标化` / `保留文字`。
 
+## VS-01/04 当前覆盖裁定（2026-09-11）
+
+下表保留初始来源与历史映射；以下当前范围由 [Product Semantics Registry](../../../../design/product-semantics/README.md) 与 [raw consumer ledger](../../../../design/product-semantics/raw-consumers.json) 覆盖：`message-square` 专属 Chat，`activity` 只用于明确命名的 Activity；Attention/Spark/Question/Approval/Matter/Expert 使用文字。Run/Chat 概览的打开动作沿 `panel-right` 的工作面打开语义，默认 Work 标题不借 Activity 身份。Review 的规则、候选、决定与 Recorded facts 不借 `file-text`/`folder`，准确对象与状态独立可读。具名文件/工作目录、刷新读取及 Chat 内容仍沿现有语义；未知工具无分类 glyph。
+
+`setAction` 允许显式无 glyph，但必须显示名字；禁用空白 icon-only 控件。`setSemanticControl` 仅装配导航文字与可访问名，不设置目的地、handler、选中态或能力。来源、尺寸、命中区与 Review 颜色规则保持原 owner；新增 message actions 来自同一 Lucide 固定静态子集。每一原始调用的保留理由/数据标识排除可查，新增或重复的六族字面调用会失败。此为已迁移范围的更新，不宣称全库所有动态调用已静态证明。
+
 ## 1. 壳与导航（位置稳定，每屏一次）
 
 | 语义 | 出现面 | 频率 | 裁取 | glyph | accessible name | tooltip |

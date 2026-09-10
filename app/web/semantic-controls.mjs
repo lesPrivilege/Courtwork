@@ -1,6 +1,6 @@
 // Presentation-only facade. Callers continue to own capability checks and handlers.
 import { semanticEntries } from './product-semantics.generated.mjs';
-import { action, icon } from './ui-controls.mjs';
+import { action, icon, setAction } from './ui-controls.mjs';
 export function semanticPresentation(key, {surface='app', values={}}={}) {
   const entry=semanticEntries[key];
   if(!entry || !entry.allowedSurfaces.includes(surface)) throw new Error(`Unsupported semantic surface: ${key}/${surface}`);
@@ -21,5 +21,14 @@ export function semanticAction(key, onClick, {values={},...options}={}) {
   if(entry.symbolClass!=='Action' || !glyph) throw new Error(`Semantic action requires an admitted action glyph: ${key}`);
   const button=action(glyph,label,onClick,options);
   button.setAttribute("data-semantic-key",key);
+  return button;
+}
+
+/** Navigation can use a deliberately text-only domain identity. No callback,
+ * capability, selected state or destination is supplied by this projection. */
+export function setSemanticControl(button, key, {values={},...options}={}) {
+  const {label,glyph}=semanticPresentation(key,{values});
+  setAction(button,glyph,label,{...options,...(!glyph?{visible:true}:{})});
+  button.setAttribute('data-semantic-key',key);
   return button;
 }

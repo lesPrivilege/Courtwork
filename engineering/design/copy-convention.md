@@ -11,7 +11,7 @@
 | 场景 | 形态 | 例 |
 |---|---|---|
 | 与图标并列的动作 | 单词，sentence case | Send · Deny · Answer · Cancel · Open · Retry · Save · Close · Refresh · Inherit |
-| 承载范围或后果的动作 | 短语，保留范围词 | Approve this write · Cancel run · Use as draft |
+| 承载范围或后果的动作 | 短语，保留范围词 | Approve this write · Stop working · Use as draft |
 | 状态 | 单词或两词，灰字；只有 failed / waiting_user 可着色 | Running · Completed · Cancelled · Failed · Waiting for you |
 | 模式选择的可见标签 | 说全后果的短语；控件带 disclosure 记号，标签不再重复一次（WK-94） | Ask before editing · Allow edits · Read only |
 | 帮助句 | 一句，说明作用域或后果，不解释界面 | Choose or create a project to send. |
@@ -26,6 +26,8 @@
 
 2026-09-11 · VS-01 修订：本表的工作对象与授权边界结合 [Product Semantics Registry](product-semantics/README.md) 使用。Registry 管已裁文字/图形映射，Runtime/Core/service 继续管对象、能力与状态。未迁移 raw consumer 不因登记存在而算完成。Attention 是代理；Attention items 是队列入口；不另创 Inbox owner。Spark 是维护面，不是 Refresh 的别名。Review 的证据判断、Approval 的单次许可、Permissions 的持久策略分别保留。
 
+VS-04/05：默认卡片与入口使用 Work / Work history；Run 保留在已披露的执行记录、ID 和诊断中。`Stop working` 只表示当前取消请求的意图；返回状态仍等 host，不把点击当成已停止。`Continue in Matter` 沿已有绑定操作把 Chat 接到持久事项，不创建另一种 Work store。Attention、Spark 的文字导航是有意无 glyph；审批、问题、候选与决定保留对象/状态/范围，不能以通用文件或会话图标暗示归属。
+
 Home 的 `Continue` 指保留 Chat 的读取列表，包含已完成、无 Run 与待续的会话，不声称正在运行。`Your work` 是当前保留工作汇总，不冒称今日时间桶。Usage 保留 UTC 期间和 reported tokens 口径。Inspector 的 `Model requests`、`Tool activity`、`Event trace` 分别是请求测量、工具生命周期与原始事件；不把 History、Activity、Trace 互换。
 
 ### 3.1 工作对象
@@ -38,7 +40,7 @@ Home 的 `Continue` 指保留 Chat 的读取列表，包含已完成、无 Run �
 | Project | 若干 Chat / Work 与其文件的持久容器 | Folder（那是磁盘上的东西）· Space |
 | Matter | SE 的持久治理边界；Work、Spark 与有关详情按真实 owner 显示 | Project · Task |
 | Workspace | **只**指一次真实的文件夹绑定 | 泛指右侧工作面、泛指 Matter |
-| Run history · Chat overview · Chat files | 上述对象的三个只读入口 | Session overview · Session files |
+| Work history · Chat overview · Chat files | 上述对象的三个只读入口 | Session overview · Session files |
 | Continue in Work | 把这个 Chat 绑定到一个 Matter 的那一个动作（既有 / 新建两条都叫它） | Bind to chat · Create binding · Convert · Migrate |
 | Existing work in this project · New work | Continue in Work 面板里的两段 | Continue existing · Create new |
 

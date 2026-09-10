@@ -172,7 +172,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
     const page=toHomeAttention(state.data);
     if(page){
       list.append(el('p',{className:'attention-count',text:`${page.count} ${page.count===1?'item':'items'} · ${state.view==='all'?'all states':attentionLabels[state.view]}`}));
-      if(!page.items.length)list.append(el('div',{className:'attention-empty'},icon('message-square',{size:24}),el('h3',{text:'Nothing in this view'}),el('p',{text:'Recorded attention items matching this project and state will appear here.'})));
+      if(!page.items.length)list.append(el('div',{className:'attention-empty'},el('h3',{text:'Nothing in this view'}),el('p',{text:'Recorded attention items matching this project and state will appear here.'})));
       const rows=el('div',{attrs:{role:'list'}});
       for(const item of page.items){
         const row=button('',()=>select(item.id),`item-${item.id}`,'attention-registry-row');
@@ -228,7 +228,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
       }
       detail.append(refs);
       detail.append(actionSurface(d));
-    }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},icon('file-text',{size:28}),el('h2',{text:'A little context, before the next step.'}),el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
+    }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},el('h2',{text:'A little context, before the next step.'}),el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
     if (onOpenAssistant) detail.append(button('Open Attention', onOpenAssistant, 'open-assistant'));
     columns.append(list,detail);root.append(columns);container.replaceChildren(root);
     if(focused)(container.querySelector(`[data-attention-focus="${CSS.escape(focused)}"]`)??container.querySelector('[data-attention-focus="project"]'))?.focus();

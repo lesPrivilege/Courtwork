@@ -22,13 +22,13 @@ function localDiagram() {
 
 function hostedDiagram() {
   return `<svg viewBox="0 0 300 400" role="img" data-figure="pricing-hosted" aria-labelledby="pricing-hosted-svg-title pricing-hosted-svg-desc">
-          <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
-          <desc id="pricing-hosted-svg-desc">Hosted：Matter 可在本机或云端，CourtWork 以服务形式提供，runtime 由托管方运行。</desc>
+          <title id="pricing-hosted-svg-title">Professional value layer: Local or cloud Matter, CourtWork service, and managed services.</title>
+          <desc id="pricing-hosted-svg-desc">Professional：Matter 可在本机或云端，配合 CourtWork 的同步与托管服务。</desc>
           <g class="pricing-svg-node">
             <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Local / cloud Matter</text>
             <line x1="150" y1="102" x2="150" y2="142" />
             <rect x="30" y="142" width="240" height="116" rx="8" />
-            <text x="150" y="166">CourtWork service</text><text x="150" y="191">Sync · Eval</text><text x="150" y="230">Managed runtime</text>
+            <text x="150" y="166">CourtWork service</text><text x="150" y="191">Sync · Eval</text><text x="150" y="230">Managed services</text>
             <line x1="150" y1="258" x2="150" y2="298" />
             <rect x="30" y="298" width="240" height="72" rx="8" /><text x="150" y="340">BYOK / managed model</text>
           </g>
@@ -37,8 +37,8 @@ function hostedDiagram() {
 
 function organizationDiagram() {
   return `<svg viewBox="0 0 300 400" role="img" data-figure="pricing-organization" aria-labelledby="pricing-organization-svg-title pricing-organization-svg-desc">
-          <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval, and provenance.</title>
-          <desc id="pricing-organization-svg-desc">Organization：在同一 Matter 治理之上增加用户、策略与审阅、Expert runtime、审计、评测与来源追溯。</desc>
+          <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Shared Experts, audit, eval, and provenance.</title>
+          <desc id="pricing-organization-svg-desc">Organization：在同一 Matter 治理之上增加用户、策略与审阅、Shared Experts、审计、评测与来源追溯。</desc>
           <g class="pricing-svg-node">
             <rect x="30" y="30" width="240" height="48" rx="8" /><text x="150" y="59">Users</text>
             <line x1="150" y1="78" x2="85" y2="112" /><line x1="150" y1="78" x2="215" y2="112" />
@@ -47,7 +47,7 @@ function organizationDiagram() {
             <line x1="85" y1="160" x2="150" y2="190" /><line x1="215" y1="160" x2="150" y2="190" />
             <rect x="30" y="190" width="240" height="48" rx="8" /><text x="150" y="219">Matter governance</text>
             <line x1="150" y1="238" x2="150" y2="270" />
-            <rect x="30" y="270" width="240" height="44" rx="8" /><text x="150" y="297">Expert runtime</text>
+            <rect x="30" y="270" width="240" height="44" rx="8" /><text x="150" y="297">Shared Experts</text>
             <line x1="150" y1="314" x2="150" y2="340" />
             <rect x="30" y="340" width="240" height="36" rx="8" /><text x="150" y="363">Audit · Eval · Provenance</text>
           </g>
@@ -70,7 +70,7 @@ export function renderPricing() {
               <p class="pricing-status">Open source</p>
               <p class="pricing-summary">Your work stays yours.</p>
               <ul class="pricing-features">
-                <li>Local Matter store</li><li>Event log &amp; provenance</li><li>Local runtime, bring your own provider or local models</li><li>Public eval suite</li><li>Exportable schemas</li><li>MIT source</li>
+                <li>Local Matter store</li><li>Event log &amp; provenance</li><li>Your provider or local models</li><li>Public eval suite</li><li>Exportable schemas</li><li>MIT source</li>
               </ul>
             </div>
             <p class="pricing-action"><a href="${sourceUrl}">View source</a></p>
@@ -83,7 +83,7 @@ export function renderPricing() {
               <p class="pricing-status">Managed</p>
               <p class="pricing-summary">A maintained professional workbench.</p>
               <ul class="pricing-features">
-                <li>Signed desktop builds</li><li>Managed updates</li><li>Cloud sync &amp; backup</li><li>Hosted runtime</li><li>Continuous private eval</li><li>Managed integrations</li><li>Longer history</li>
+                <li>Signed desktop builds</li><li>Managed updates</li><li>Cloud sync &amp; backup</li><li>Managed services</li><li>Continuous private eval</li><li>Managed integrations</li><li>Longer history</li>
               </ul>
             </div>
             <p class="pricing-action"><a href="#pricing-tab-hosted">Explore hosted →</a></p>
@@ -108,7 +108,7 @@ export function renderPricing() {
         <div class="pricing-tabs tabs" data-tabs="pricing-value">
           <div class="tab-strip" role="tablist" aria-label="Plans for the way you work">
             <button type="button" role="tab" id="pricing-tab-local" aria-controls="pricing-panel-local" aria-selected="true" tabindex="0">Local</button>
-            <button type="button" role="tab" id="pricing-tab-hosted" aria-controls="pricing-panel-hosted" aria-selected="false" tabindex="-1">Hosted</button>
+            <button type="button" role="tab" id="pricing-tab-hosted" aria-controls="pricing-panel-hosted" aria-selected="false" tabindex="-1">Professional</button>
             <button type="button" role="tab" id="pricing-tab-organization" aria-controls="pricing-panel-organization" aria-selected="false" tabindex="-1">Organization</button>
           </div>
           <section class="tab-panel pricing-diagram" id="pricing-panel-local" role="tabpanel" aria-labelledby="pricing-tab-local">

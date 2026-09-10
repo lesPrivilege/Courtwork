@@ -1,0 +1,304 @@
+[
+  {
+    "file": "app/web/app.mjs",
+    "source": "icon(\"folder\"),",
+    "disposition": "mapped-raw",
+    "reason": "The Project navigation row is a Project container; folder is the registered project.object representation and the chevron carries expansion state.",
+    "semanticKeys": [
+      "project.object"
+    ]
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "if (tool === \"ws_list\") return \"folder\";",
+    "disposition": "mapped-raw",
+    "reason": "ws_list exposes a workspace folder target; retain the tool name and use the registered workspace.object folder representation.",
+    "semanticKeys": [
+      "workspace.object"
+    ]
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "if (tool === \"ws_read\" || tool === \"se_read_source\") return \"file-text\";",
+    "disposition": "mapped-raw",
+    "reason": "These tools read a named file; file-text is the registered file.object representation while the tool name supplies the read verb.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "const groupKey = sessionScopeKey(\"activity\", row.id);",
+    "disposition": "data-identifier",
+    "reason": "activity is the persisted scope key for the tool Activity group, not a glyph argument or rendered icon.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "glyph: \"activity\",",
+    "disposition": "mapped-raw",
+    "reason": "The group is explicitly titled Activity and aggregates recorded tool actions within one Run, matching activity.view.",
+    "semanticKeys": [
+      "activity.view"
+    ]
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "glyph: \"file-text\",",
+    "disposition": "mapped-raw",
+    "reason": "The recorded-version row names a file path and version; file-text maps to file.object and the chevron carries the open affordance.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "\"refresh-button\": [\"refresh-cw\", \"Refresh workspace\"],",
+    "disposition": "named-read",
+    "reason": "This is a named workspace refresh read; the full accessible name states the target and refresh-cw carries the generic read action.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "\"refresh-extensions-button\": [\"refresh-cw\", \"Refresh extensions\"],",
+    "disposition": "named-read",
+    "reason": "This is a named extension-list refresh read; the full accessible name states the target and refresh-cw carries the generic read action.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/attention-agent-view.mjs",
+    "source": "const refresh = action('refresh-cw', 'Refresh Attention', () => controller.refresh());",
+    "disposition": "named-read",
+    "reason": "This refreshes the Attention conversation read; the complete label distinguishes the action from Attention assistant identity.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/home-view.mjs",
+    "source": "sessionCandidates: \"message-square\",",
+    "disposition": "mapped-raw",
+    "reason": "A session candidate is presented as a Chat; message-square is the single-purpose chat.object representation and the conversation name remains visible.",
+    "semanticKeys": [
+      "chat.object"
+    ]
+  },
+  {
+    "file": "app/web/home-view.mjs",
+    "source": "{ id: \"activity\", render: activityCard, title: \"Activity\", place: \"modules\", source: \"work-activity\", installed: true },",
+    "disposition": "data-identifier",
+    "reason": "activity is a Home module registration id and source label here, not a glyph call.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/home-view.mjs",
+    "source": "card.append(el(\"div\", { className: \"home-insight-head\" }, el(\"div\", { className: \"home-card-title\" }, icon(\"activity\", { size: 16 }), el(\"h3\", {}, onOpenUsage ? homeButton(\"Activity\", onOpenUsage, \"open-usage\") : el(\"span\", {text:\"Activity\"}))), ranges));",
+    "disposition": "mapped-raw",
+    "reason": "The Home card is an explicit recorded Activity view with a period selector and retained totals, matching activity.view.",
+    "semanticKeys": [
+      "activity.view"
+    ]
+  },
+  {
+    "file": "app/web/home-view.mjs",
+    "source": "for (const id of [\"attention\", \"activity\"]) {",
+    "disposition": "data-identifier",
+    "reason": "activity is a Home module lookup key in this loop, not a glyph or icon representation.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh run details\", onRefresh),",
+    "disposition": "named-read",
+    "reason": "This is a named Run-details refresh read; the complete action name carries the target and does not represent the Run object.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "icon(\"file-text\"),",
+    "disposition": "mapped-raw",
+    "reason": "The Results row opens a recorded file by path; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "const activity = el(\"details\", { className: \"inspector-section\", attrs: { \"data-section\": \"activity\" } },",
+    "disposition": "data-identifier",
+    "reason": "activity is the inspector details-section identifier; no glyph is passed at this line.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "activity.open = opened.has(\"activity\");",
+    "disposition": "data-identifier",
+    "reason": "activity is the persisted open-state key for the inspector section, not a glyph consumer.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "} else view.append(el(\"pre\", { className: \"file-text\", text: payload.text }));",
+    "disposition": "data-identifier",
+    "reason": "file-text is a CSS class on a preformatted reading, not the file-text glyph or a semantic icon call.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh session files\", refresh),",
+    "disposition": "named-read",
+    "reason": "This is a named session-files refresh read; the complete accessible name states the target.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "icon(\"file-text\"),",
+    "disposition": "mapped-raw",
+    "reason": "The Files dialog row names a current workspace file and size; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/runtime-view.mjs",
+    "source": "el(\"div\", { className: \"file-document\" }, el(\"pre\", { className: \"file-text\", text: inspected.content })),",
+    "disposition": "data-identifier",
+    "reason": "file-text is a CSS class on the runtime source reading, not a glyph or semantic icon call.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/runtime-view.mjs",
+    "source": "action(\"refresh-cw\", \"Retry loading the runtime\", () => void read(), { visible: true }),",
+    "disposition": "named-read",
+    "reason": "This is explicit retry recovery for a runtime read; the visible Retry label and full name carry the action.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/runtime-view.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh the runtime snapshot\", () => void read()),",
+    "disposition": "named-read",
+    "reason": "This is a named runtime-snapshot refresh read; refresh-cw does not represent a Run or runtime identity.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/settings-view.mjs",
+    "source": "glyph: \"file-text\",",
+    "disposition": "mapped-raw",
+    "reason": "The Appearance preview shows a named file-write result; file-text is the registered file.object representation for that file specimen.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/spark-view.mjs",
+    "source": "for (const key of ['overview', 'activity']) {",
+    "disposition": "data-identifier",
+    "reason": "activity is a Spark tab key in this loop, not a glyph argument.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/spark-view.mjs",
+    "source": "tab = event.key === 'Home' ? 'overview' : event.key === 'End' ? 'activity' : (tab === 'overview' ? 'activity' : 'overview');",
+    "disposition": "data-identifier",
+    "reason": "activity is a keyboard tab-state identifier, not an icon or glyph representation.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "source": "icon(\"file-text\", { size: 16 }),",
+    "disposition": "mapped-raw",
+    "reason": "The Work summary lists a recorded file; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "source": "\"file-text\",",
+    "disposition": "mapped-raw",
+    "reason": "The action opens a recorded file by exact path and hash; file-text maps to file.object while the accessible name supplies the verb and target.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "source": "icon(\"file-text\", { size: 16 }),",
+    "disposition": "mapped-raw",
+    "reason": "The static recorded-file row names a file and its bytes; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "source": "\"refresh-cw\",",
+    "disposition": "named-read",
+    "reason": "This is retry recovery for a failed Work summary read; the visible Retry text distinguishes it from rerunning work.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/summary-disclosure.mjs",
+    "source": "['activity', 'Activity', 'Work'],",
+    "disposition": "data-identifier",
+    "reason": "activity is a presentation slot id and label tuple, not a glyph call.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/surface-modules.mjs",
+    "source": "return action(\"refresh-cw\", fullName, onClick, {",
+    "disposition": "named-read",
+    "reason": "The shared retry helper performs a named read recovery with the supplied full target name.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/surface-modules.mjs",
+    "source": "return el(\"p\", { className: \"rail-file\" }, icon(\"file-text\"), name, meta);",
+    "disposition": "mapped-raw",
+    "reason": "The non-actionable rail row displays a named current or recorded file; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/surface-modules.mjs",
+    "source": "icon(\"file-text\"),",
+    "disposition": "mapped-raw",
+    "reason": "The actionable rail row displays a named current or recorded file; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/surface-modules.mjs",
+    "source": "icon: \"file-text\",",
+    "disposition": "mapped-raw",
+    "reason": "The File module identity is a named file surface; file-text is the registered file.object representation.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/surface-modules.mjs",
+    "source": "icon: \"folder\",",
+    "disposition": "mapped-raw",
+    "reason": "The Workspace module identity is the session folder binding and files, matching the registered workspace.object representation.",
+    "semanticKeys": [
+      "workspace.object"
+    ]
+  },
+  {
+    "file": "app/web/workspace-view.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh workspace files\", onRefresh),",
+    "disposition": "named-read",
+    "reason": "This is a named workspace-files refresh read; the complete label states the target.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/workspace-view.mjs",
+    "source": "const button = action(\"file-text\", file.path, () => onFile(file.path), {",
+    "disposition": "mapped-raw",
+    "reason": "The action names and opens a current workspace file; file-text is the registered file.object representation and the path supplies the target.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  }
+]

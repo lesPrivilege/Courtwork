@@ -28,3 +28,15 @@ Author verification: six focused tests pass. The first run exposed the existing 
 ## Non-author review follow-up
 
 The [fixed 1de7a31 review](../../../evidence/semantic-polish-20260911/registry-independent-review.md) found missing representation enforcement and imprecise owners. The follow-up validates every surface representation, honors Pages text selection even when App has a glyph, requires a checked `ownerAnchor`, and uses the canonical Lucide manifest as the negative-test oracle. Exact workspace render/callback tests are now in the suite (8/8). Anchors point to the existing source definition or endpoint and are evidence locators, not executable authority. The same edit aligns the old session-overview/files/settings labels with the existing Chat vocabulary. Review of this correction remains separate from the original fixed review.
+
+## VS-04/05 migration and gates
+
+The current candidate has 47 semantic entries. Home now uses **Attention items** for the queue; **Continue** retains Chat records, including records without executions. Chat actions use the registry facade, while production capability stays closed to copy/edit/path/hash handlers until the owner supplies a separate lifecycle contract. Attention and Spark navigation use `setSemanticControl` with visible text and no decorative glyph. Questions, approvals, candidate/decision rows and Matter bindings no longer borrow Chat, Activity, Connection or File identity. Default work summaries say Work; exact Run identity remains in disclosed details.
+
+The earlier first-consumer/six-test statements above describe that historical slice. Current enforcement adds:
+
+- [Raw consumers](raw-consumers.json), checked by `node tools/check-semantic-consumers.mjs`: exact lines and counts for the six reviewed glyph families in App modules, including explicit data-identifier exclusions. New or duplicated lines fail. This lexical gate excludes vendor, the static allowlist and the generated registry; it does not claim every dynamic call is statically proven.
+- [Copy exceptions](copy-exceptions.json), checked by `node tools/check-product-copy.mjs`: hard-coded `text`, `title` and `aria-label` fields plus App shell HTML text reject the reviewed default Run/Permission/Continue wording. Three disclosed diagnostic fields remain. Verbal “Run tests”, values supplied by users and technical identifiers are outside the prohibition. This is not an all-language/HTML/runtime-error parser.
+- [Pages cross-map](pages-map.json), checked by `node tools/check-pages-semantics.mjs` and by the site build: all 13 capture slots and 10 figures point to admitted Pages keys. Source manifests still own provenance/status, translations stay in the existing copy sources, and the map grants no capability or acceptance.
+
+No-icon support extends the existing `setAction` anatomy: absence of a glyph requires visible text. It preserves handlers, selection and focus ownership. The negative tests include same-key record replacement, unsupported production handlers, duplicate raw consumers, unknown Pages mappings and diagnostic/verb copy exceptions.

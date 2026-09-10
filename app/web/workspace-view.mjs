@@ -94,7 +94,7 @@ export function renderSessionOverview(
     header,
     group(
       "Workspace",
-      row("folder", "Chat files", onMaterials),
+      row("paperclip", "Chat files", onMaterials),
       row(
         "panel-right",
         session.extensionBinding?.extensionId
@@ -104,11 +104,11 @@ export function renderSessionOverview(
       ),
     ),
     group(
-      "Runs",
+      "Work history",
       ...(run
         ? [
             row(
-              "activity",
+              "chevron-right",
               `Latest · ${runLabels[run.status] || run.status}`,
               () => onRun(run.id),
             ),
@@ -118,7 +118,7 @@ export function renderSessionOverview(
             }),
           ]
         : []),
-      row("chevron-right", "Run history", onHistory),
+      row("chevron-right", "Work history", onHistory),
     ),
     group(
       "Chat settings",
@@ -146,7 +146,7 @@ export function renderRunHistory(container, { runs, events, onRun }) {
       (e) =>
         e.runId === run.id && ["user.message", "message/user"].includes(e.type),
     );
-    const text = event?.data?.text || "Run without recorded input";
+    const text = event?.data?.text || "Work without recorded input";
     const row = el(
       "button",
       { className: "run-history-row", attrs: { type: "button" } },

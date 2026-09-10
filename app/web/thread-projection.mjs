@@ -94,7 +94,7 @@ export function projectThread(events, runs, sessionId) {
       rows.push({
         kind: "error",
         runId,
-        text: data.message || data.code || "Run failed.",
+        text: data.message || data.code || "Work failed.",
         id: `error:${event.seq}`,
       });
     else if (type === "artifact/written")
@@ -181,10 +181,9 @@ export function permissionPresentation(payload, binding) {
     /* WK-89 · 一次动作是 Approval，不是 permission：permission 属于持久策略。
        标题按事实区分三种调用，动作词统一为 Approve / Deny。 */
     title: write ? "Approve this file write?" : remote ? "Approve this remote tool call?" : "Approve this tool action?",
-    /* IC-1 · the glyph states the kind of call the row records; it never stands
-     * in for the authorisation words, which stay as text. A remote call and a
-     * local file write are not allowed to share one glyph. */
-    glyph: write ? "square-pen" : remote ? "plug" : "activity",
+    // Approval is identified by its exact scope and target, without borrowing
+    // the Activity or Connection identity glyphs.
+    glyph: null,
     noun: write ? "write" : "action",
     label: write ? "Write" : "Action",
     target: write ? payload.path : remote

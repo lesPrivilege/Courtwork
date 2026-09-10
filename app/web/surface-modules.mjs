@@ -127,8 +127,8 @@ function contentVersions(run) {
  * that shows the Run tab, so the card and the tab never disagree. */
 const runModule = {
   kind: "run",
-  title: "Run",
-  icon: "activity",
+  title: "Work",
+  icon: "panel-right",
   tabId: "surface-run-tab",
   contentId: "run-content",
   repaint: true,
@@ -773,7 +773,6 @@ function ruleRow(finding, candidate, hooks, open) {
   row.open = open;
   row.append(
     flowRow("summary", {
-      glyph: "file-text",
       title: finding.ruleId || "Rule",
       meta: meta.text,
     }),
@@ -862,7 +861,6 @@ function candidateArticle(candidate, packet, hooks) {
   const article = el("article", { className: "work-candidate" });
   article.append(
     flowRow("div", {
-      glyph: "file-text",
       title: shortRef(candidate.id),
       meta: statusMeta(candidate.status).text,
       className: "work-candidate-head",
@@ -905,7 +903,7 @@ function candidateArticle(candidate, packet, hooks) {
     if (review.facts) {
       const facts = el("details", { className: "work-facts-block" });
       facts.append(
-        flowRow("summary", { glyph: "folder", title: "Recorded facts" }),
+        flowRow("summary", { title: "Recorded facts" }),
         keyValueList(review.facts),
       );
       article.append(facts);
@@ -950,7 +948,6 @@ function decisionRow(decision) {
   const row = el("details", { className: "work-decision" });
   row.append(
     flowRow("summary", {
-      glyph: "file-text",
       title: shortRef(decision.candidate_id),
       meta: decisionWords[decision.action] || String(decision.action ?? ""),
     }),

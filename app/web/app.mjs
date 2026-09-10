@@ -1,3 +1,4 @@
+import { semanticPresentation, setSemanticControl } from './semantic-controls.mjs';
 import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";
 import {
   el,
@@ -2034,7 +2035,7 @@ function renderExtensionList() {
         const bindButton = element("button", {
           className: "secondary-button",
           attrs: { type: "button" },
-          text: "Continue in Work",
+          text: "Continue in Matter",
         });
         bindButton.addEventListener("click", () => {
           state.bindingExtensionId = extension.id;
@@ -2180,7 +2181,7 @@ function continueExistingSegment(entries, submitExisting) {
     const button = flowRow(
       "button",
       {
-        glyph: "plug",
+        glyph: semanticPresentation("matter.object").glyph,
         title: shortRef(matter.id),
         meta: matter.version === undefined ? null : `version ${matter.version}`,
         className: "binding-entry-open",
@@ -2218,7 +2219,7 @@ function renderBindingPanel() {
   panel.hidden = false;
   const inner = element("div", { className: "binding-panel-inner" });
   inner.append(
-    element("h3", { text: "Continue in Work" }),
+    element("h3", { text: "Continue in Matter" }),
   );
   inner.append(
     element("p", {
@@ -2306,7 +2307,7 @@ function renderBindingPanel() {
   const submit = element("button", {
     className: "primary-button",
     attrs: { type: "submit" },
-    text: "Continue in Work",
+    text: "Continue in Matter",
   });
   actions.append(submit);
   form.append(actions);
@@ -2399,8 +2400,8 @@ function appendAssistantBody(container, text, key) {
  * user does not have to read the tool identifier to tell a read from a write.
  * The identifier itself stays visible beside it — the glyph never replaces the
  * object name, and "open the current file" and "write to it" are not allowed to
- * share one file glyph (IC-1, «成果摘要入口» row). Anything unrecognised keeps
- * the neutral activity glyph rather than being guessed into a family. */
+ * share one file glyph (IC-1, «成果摘要入口» row). Unrecognised tools use
+ * their recorded name without an inferred category glyph. */
 function toolGlyph(name) {
   const tool = String(name || "");
   if (tool === "ws_write") return "square-pen";
@@ -2408,7 +2409,7 @@ function toolGlyph(name) {
   if (tool === "ws_grep") return "search";
   if (tool === "ws_read" || tool === "se_read_source") return "file-text";
   if (tool.startsWith("runtime_")) return "settings-2";
-  return "activity";
+  return null;
 }
 
 function appendToolDetails(container, row) {
@@ -2464,7 +2465,6 @@ function decisionReceiptRows(runId) {
     const card = element("article", { className: "decision-receipt" });
     card.append(
       flowRow("div", {
-        glyph: "file-text",
         title: shortRef(receipt.candidate_id || decision.candidate_id),
         meta:
           decisionWords[receipt.action || decision.action] ||
@@ -2557,7 +2557,7 @@ function renderMessageStream() {
         "div",
         { className: "empty-state" },
         element("h3", {
-          text: active ? "Run has no messages yet" : "No messages yet",
+          text: active ? "No messages yet" : "No messages yet",
         }),
         element("p", {
           text: active
@@ -2774,7 +2774,7 @@ function renderMessageStream() {
           flowRow(
             "summary",
             {
-              glyph: "message-square",
+              glyph: semanticPresentation("question.request").glyph,
               title: row.prompt,
               meta: row.answer ? "Answered" : "Closed",
               attrs: { "data-focus-key": `${questionKey}:answer` },
@@ -2813,7 +2813,7 @@ function renderMessageStream() {
       const questionKey = questionScopeKey(row.runId, row.id);
       card.append(
         flowRow("div", {
-          glyph: "message-square",
+          glyph: semanticPresentation("question.request").glyph,
           title: row.prompt,
           /* No state word on the live card: an unanswered input with an Answer
            * button beside it is the state, and the run status row directly
@@ -3022,7 +3022,7 @@ function renderMessageStream() {
       const header = element(
         "div",
         { className: "message-header" },
-        element("span", { className: "sr-only", text: "Run" }),
+        element("span", { className: "sr-only", text: "Work" }),
       );
       appendRunBadge(header, row.status || "unknown");
       header.append(
@@ -3283,7 +3283,7 @@ function stopWorkingClock() {
  * `stopping` 之后才出现，取消请求本身不把 Run 提前说成已停（FN-19）。 */
 const userMessageViews = new Map();
 const COMPOSER_SEND_LABEL = "Send";
-const COMPOSER_CANCEL_LABEL = "Cancel run";
+const COMPOSER_CANCEL_LABEL = "Stop working";
 function renderComposer() {
   const session = currentSession();
   const textarea = $("composer-input");
@@ -4284,7 +4284,7 @@ function renderSurfaceFallback() {
       : null;
   card.append(
     flowRow("div", {
-      glyph: "plug",
+      glyph: null,
       title:
         info.extension.title || info.extension.id || "Extension workspace",
       meta: info.extension.status || "unknown",
@@ -4425,7 +4425,7 @@ function renderSurfaceFallback() {
      * reading above is a reading; this is the bytes it was read from, and a
      * field the reading does not show is still here (WK-47 ablation S-8). */
     if (packet?.hasCandidates)
-      block.append(flowRow("summary", { glyph: "folder", title: "Recorded fields" }));
+      block.append(flowRow("summary", { title: "Recorded fields" }));
     else block.append(element("h4", { text: "Read-only projection" }));
     const list = element("div", { className: "projection-list" });
     for (const [key, value] of Object.entries(projection)) {
@@ -5127,7 +5127,7 @@ async function submitSessionRun({ commandId = null } = {}) {
       sessionId,
       operation.operationId,
       "run",
-      cleared ? "Sent." : "Run admitted; newer draft kept.",
+      cleared ? "Sent." : "Started; newer draft kept.",
     );
     if (state.activeSessionId === sessionId) {
       renderChat();
@@ -6152,7 +6152,7 @@ function wireEvents() {
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
     "refresh-button": ["refresh-cw", "Refresh workspace"],
     "clear-nav-filter-button": ["x", "Clear filter"],
-    "show-run-button": ["activity", "Chat overview"],
+    "show-run-button": ["panel-right", "Chat overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["panel-right", "Hide work surface"],
     "close-materials-button": ["x", "Close files"],
@@ -6162,15 +6162,15 @@ function wireEvents() {
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
-  setAction($("attention-button"), "message-square", "Attention", { visible: true });
-  setAction($("spark-button"), "refresh-cw", "Spark", { visible: true });
+  setSemanticControl($("attention-button"), "attention.agent");
+  setSemanticControl($("spark-button"), "spark.surface");
   setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat", {
     visible: true,
   });
   setAction($("home-create-project"), "plus", "New project", { visible: true });
   setAction($("send-button"), "arrow-up", "Send");
-  setAction($("cancel-run-button"), "square", "Cancel run");
+  setAction($("cancel-run-button"), "square", "Stop working");
   $("search-icon").append(icon("search"));
   $("toggle-nav-button").addEventListener("click", toggleNavigation);
   $("close-nav-button").addEventListener("click", () => {

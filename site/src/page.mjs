@@ -61,18 +61,24 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
-      ${productAtoms()}
-      ${primaryEntries()}
       ${currentHome(fill, shot)}
+      ${productAtoms()}
       ${matter(fill)}
-      ${review(fill, shot)}
       ${longWork()}
-      ${evidenceSection(fill, evidence)}
-      ${architecture(fill, diagram)}
+      ${review(fill, shot)}
       ${portability(fill)}
-      ${rawGoverned(fill, recording)}
+      ${evidenceSection(fill, evidence)}
       ${renderPricing()}
       ${build(fill, shot)}
+      <details class="research-depth" id="research"><summary>Research &amp; architecture</summary>
+        ${primaryEntries()}
+        ${architecture(fill, diagram)}
+        ${rawGoverned(fill, recording)}
+        ${figure("pipeline", "plate", "从工作状态组织当前执行需要的上下文。")}
+        ${figure("roles", "object", "技术视图：责任、绑定与执行的分层。")}
+        ${figure("spark", "object", "知识派生的概念视图。 ")}
+        ${figure("attention", "object", "工作变化与人的介入。 ")}
+      </details>
     </main>
     ${closingShot()}
     ${footer(fill, identity)}
@@ -83,8 +89,8 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
     .replaceAll(`${REPO}/tree/main/`, `${REPO}/tree/${identity.source_sha}/`);
 }
 
-export function primaryNav({ home = false } = {}) {
-  return `<nav class="global-nav" aria-label="Primary" lang="en">${NAV.map(item => `<a href="${escape(!home && item.href.startsWith('#') ? './index.html' + item.href : item.href)}">${escape(item.label)}</a>`).join('')}</nav>`;
+export function primaryNav({ home = false, current = null } = {}) {
+  return `<nav class="global-nav" aria-label="Primary" lang="en">${NAV.map(item => `<a href="${escape(!home && item.href.startsWith('#') ? './index.html' + item.href : item.href)}"${item.href === `./${current}.html` ? ' aria-current="page"' : ''}>${escape(item.label)}</a>`).join('')}</nav>`;
 }
 
 function header() {
@@ -113,14 +119,7 @@ function currentHome(fill, shot) {
   return `        <section class="home-capture-slot current-home" data-capture-slot="home" aria-labelledby="current-home-title">
           <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看用量，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
 ${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
-          <nav class="home-product-links" aria-label="Explore the product">
-            <a href="./tour.html">Product tour <span>Inside the workspace</span></a>
-            <a href="./get.html">Get CourtWork <span>Your local workspace</span></a>
-            <a href="./cli.html">CLI <span>Work from the command line</span></a>
-            <a href="./changelog.html">Changelog <span>What’s new</span></a>
-            <a href="./models.html">Models <span>Bring your intelligence</span></a>
-            <a href="./data.html">Privacy <span>Where your work goes</span></a>
-          </nav>
+
         </section>`;
 }
 
@@ -196,7 +195,7 @@ function rawGoverned(fill, recording) {
 }
 
 function matter(fill) {
-  return `<section class="section" id="matter" aria-labelledby="matter-title">
+  return `<section class="section" id="matter" data-semantic-key="matter.object" aria-labelledby="matter-title">
         <p class="index">${MATTER.index}</p>
         <h2 id="matter-title" lang="en">${escape(MATTER.title)}</h2>
         <blockquote class="pull"><p>${escape(MATTER.quote)}</p></blockquote>
@@ -248,7 +247,7 @@ function architecture(fill, diagram) {
 
 function productAtoms() {
   return `<section class="product-atoms" aria-label="Spark and Attention" data-product-story="current" data-motion="instant">
-    <article class="product-atom atom-spark" aria-labelledby="spark-title">
+    <article class="product-atom atom-spark" data-semantic-key="spark.surface" aria-labelledby="spark-title">
       <p class="index">SPARK</p>
       <h2 id="spark-title">Knowledge,<br><em>rebuilt.</em></h2>
       <p class="atom-thesis">来源更新，发现随之重建。<br>知识保持新鲜，决定保留来路。</p>
@@ -266,7 +265,7 @@ function productAtoms() {
       </div>
       <div class="atom-bottom"><p class="atom-state" data-spark-state>当前来源，当前发现。</p><button type="button" class="atom-control" data-story-toggle aria-pressed="false" aria-label="演示来源变化对 Spark 与 Attention 的影响" hidden>更新来源 <span aria-hidden="true">↗</span></button></div>
     </article>
-    <article class="product-atom atom-attention" aria-labelledby="attention-title">
+    <article class="product-atom atom-attention" data-semantic-key="attention.agent" aria-labelledby="attention-title">
       <p class="index">ATTENTION</p>
       <h2 id="attention-title">Attention,<br><em>well spent.</em></h2>
       <p class="atom-thesis">让工作持续推进。<br>把你的注意力留给重要变化。</p>
@@ -287,17 +286,12 @@ function productAtoms() {
 }
 
 function longWork() {
-  return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
-    <p class="index">HOW THE WORK CONTINUES</p>
-    <h2 id="long-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
-    <p class="lede">Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进工作，把新的判断留给下一次。</p>
-    ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
-    <div class="long-work-stages">
-      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
-      <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
-      <section><p class="index">EXPERTS & RUNTIME</p><h3>Roles compose.</h3><p>Expert 定义责任，Runtime 承担执行。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
-    </div>
-    <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
+  return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title" data-semantic-key="expert.role">
+    <p class="index">EXPERTS</p>
+    <h2 id="long-work-title"><span lang="en">Different expertise.<br>The same work.</span><span class="zh">各有所长，共同推进一件事。</span></h2>
+    <p class="lede">Expert 围绕明确的责任处理材料，提出有依据的候选。Matter 保留共同来源，成果进入 Review，下一步沿已有决定继续。</p>
+    <dl class="words"><dt>Matter</dt><dd>找到同一件工作的材料、决定与未完事项。</dd><dt>Experts</dt><dd>让专业责任与本次工作的范围相匹配。</dd><dt>Review</dt><dd>带着来源与证据，决定哪些成果可以留下。</dd></dl>
+    <p class="actions"><a href="./experts.html">Explore Experts →</a></p>
   </section>`;
 }
 
@@ -314,7 +308,7 @@ function figure(id, grammar, caption) {
 }
 
 function review(fill, shot) {
-  return `<section class="section" id="review" aria-labelledby="review-title">
+  return `<section class="section" id="review" data-semantic-key="review.open" aria-labelledby="review-title">
         <p class="index">${REVIEW.index}</p>
         <h2 id="review-title" lang="en">${escape(REVIEW.title)}</h2>
         <blockquote class="pull"><p>${escape(REVIEW.quote)}</p></blockquote>
@@ -337,50 +331,31 @@ ${shot("M6", {
 
 function evidenceSection() {
   return `<section class="section" id="evidence" aria-labelledby="evidence-title">
-    <p class="index">EVAL</p><h2 id="evidence-title">Can the work continue?</h2>
-    <blockquote class="pull"><p>换了来源，断了运行，下一步仍要有据可循。</p></blockquote>
-    <p class="lede">Work Continuity Evals 围绕工作的有效状态设计实验：检验什么能留下，什么必须拒绝，以及新的执行者需要读取多少信息才能继续。</p>
-    <dl class="words"><dt>Continuity</dt><dd>来源更新、请求重试与版本冲突之后，检查决定与义务是否仍然有效。</dd><dt>State Machine</dt><dd>组合合法与非法操作，寻找单条路径看不到的状态漏洞。</dd><dt>Fault &amp; Replay</dt><dd>在提交与回执之间打断执行，追问工作究竟停在哪里。</dd><dt>Disclosure</dt><dd>同时衡量读取负担与正确续行，让上下文成本有工作结果作依据。</dd></dl>
-
-    <p class="actions"><a href="./eval.html">Explore the evals →</a><a href="./evidence/continuity-9e5384f.json">Continuity record →</a></p>
+    <p class="index">EVAL &amp; PRIVACY</p><h2 id="evidence-title">Work you can examine.</h2>
+    <div class="boundary-pair"><section><h3>Can the work continue?</h3><p>来源变化、执行中断、换人接手之后，检验哪些工作仍然有效。</p><p class="actions"><a href="./eval.html">Explore the evals →</a></p></section><section><h3>Where does the work go?</h3><p>工作保存在本地。模型请求与工具按你的配置连接外部服务。</p><p class="actions"><a href="./data.html">Data &amp; privacy →</a></p></section></div>
   </section>`;
 }
 
 function portability(fill) {
   return `<section class="section" id="portability" aria-labelledby="portability-title">
-        <p class="index">ARCHITECTURE</p>
-        <h2 id="portability-title"><span lang="en">Architecture &amp; portability</span><span class="zh">工作可以留下，智能可以迁移</span></h2>
-        <dl class="words">
-          ${BUILD.components
-            .map(([name, text]) => `<dt lang="en">${escape(name)}</dt><dd>${escape(text)}</dd>`)
-            .join("\n          ")}
-        </dl>
-        <p class="note">${inline(BUILD.upstream, fill)}</p>
-        <p class="note"><strong>Model usage is separate.</strong> 模型请求发往你配置的 provider 或本地模型；CourtWork 不经手模型账单。</p>
-      </section>`;
+    <p class="index">MODELS &amp; TOOLS</p><h2 id="portability-title">Choose what the work needs.</h2>
+    <p class="lede">连接你选择的模型，按能力调整推理设置与工具。模型可以变化，Matter 中的来源与决定持续保留。</p>
+    <p class="note">模型请求发往你配置的 provider 或本地模型；模型用量由对应服务单独计费。</p>
+    <p class="actions"><a href="./models.html">Explore models →</a><a href="./tour.html#integrations">Tools &amp; connections →</a></p>
+  </section>`;
 }
 
 function build(fill, shot) {
   return `<section class="section" id="build" aria-labelledby="build-title">
-        <p class="index">${BUILD.index}</p>
-        <h2 id="build-title" lang="en">${escape(BUILD.title)}</h2>
-        <pre class="commands"><code>${BUILD.commands.map(escape).join("\n")}</code></pre>
-        <p class="note">${escape(BUILD.note)}</p>
-        ${shot("M7", {
-          alt: "Settings › Models：Add provider 的 Compatible endpoint 一行，Test connection 与 Fetch models 在场。",
-          caption: inline(
-            "连接模型，选择下一次执行。",
-            fill,
-          ),
-        })}
-        <p class="actions"><a href="./get.html">Installation guide →</a><a href="./eval.html">Explore the evals →</a></p>
-
-      </section>`;
+    <p class="index">DOWNLOAD</p><h2 id="build-title">Bring the work home.</h2>
+    <p class="lede">打开自己的工作空间，从第一份材料开始。</p>
+    <p class="actions"><a href="./get.html">Get CourtWork →</a><a href="./get.html#source">Run from source →</a></p>
+  </section>`;
 }
 
 function footer(fill, identity) {
   return `<footer class="footer">
-      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="./features.html">Features</a><a href="./eval.html">Eval</a><a href="./experts.html">Experts</a><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
+      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="${PAPER_ENTRY.href}">Paper</a><a href="#research">Research</a><a href="./features.html">Features</a><a href="./eval.html">Eval</a><a href="./experts.html">Experts</a><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
       <p>${FOOTER.items
         .map((item) => {
           const text = fill(item);
@@ -404,7 +379,7 @@ function primaryEntries() {
   return `<section class="primary-entries" aria-label="Paper 理念与 Tour 编排">
     <div class="entry-heading"><p class="index">TWO WAYS INTO COURTWORK</p></div>
     <div class="entry-grid">
-      <details class="entry-chapter entry-paper" id="paper" open>
+      <details class="entry-chapter entry-paper" id="paper">
         <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper</span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">Explore ideas</span><span class="entry-open">Close ideas</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
         <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><nav class="entry-actions" aria-label="Paper volumes" lang="en"><a href="${PAPER_ENTRY.href}?mode=canonical#paper-canonical">Canonical ↗</a><a href="${PAPER_ENTRY.href}?mode=practice#paper-practice">Practice ↗</a><a href="${PAPER_ENTRY.href}?mode=index#paper-index">Index ↗</a></nav><div class="entry-next"><p class="index">COURTWORK</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 让工作长久延续。</p><a href="#long-work">Explore the ideas →</a></div></div>
       </details>
