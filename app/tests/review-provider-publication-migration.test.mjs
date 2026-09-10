@@ -5,6 +5,7 @@ import { mkdtemp, readFile, readdir, rm, writeFile, mkdir } from "node:fs/promis
 import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { test } from "node:test";
 
 import { RuntimeStore } from "../server/store.mjs";
@@ -74,7 +75,7 @@ function longProviderFixture() {
 }
 
 test("Runtime11 migrates a real schema10 byte sequence, preserves provider fields, and fences the old host", async () => {
-  const dataDir = await mkdtemp("/private/tmp/cw-q02-schema10-provider-");
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cw-q02-schema10-provider-"));
   let store;
   try {
     const fixture = longProviderFixture();
@@ -150,8 +151,8 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
 });
 
 test("a fixed schema10 host can read an exact schema10 backup in an independent directory", async () => {
-  const dataDir = await mkdtemp("/private/tmp/cw-q02-schema10-short-");
-  const legacyData = await mkdtemp("/private/tmp/cw-q02-schema10-backup-");
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cw-q02-schema10-short-"));
+  const legacyData = await mkdtemp(path.join(tmpdir(), "cw-q02-schema10-backup-"));
   let store;
   let legacy;
   try {
@@ -202,7 +203,7 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
 });
 
 test("Runtime11 pending configuration markers survive reopen and finish durably", async () => {
-  const dataDir = await mkdtemp("/private/tmp/cw-q02-pending-reopen-");
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cw-q02-pending-reopen-"));
   let store;
   try {
     store = await new RuntimeStore({ dataDir }).open();
@@ -226,7 +227,7 @@ test("Runtime11 pending configuration markers survive reopen and finish durably"
 });
 
 test("Runtime11 refuses a malformed pending marker without changing the original bytes", async () => {
-  const dataDir = await mkdtemp("/private/tmp/cw-q02-pending-invalid-");
+  const dataDir = await mkdtemp(path.join(tmpdir(), "cw-q02-pending-invalid-"));
   let store;
   try {
     store = await new RuntimeStore({ dataDir }).open();
