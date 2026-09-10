@@ -2334,6 +2334,11 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         input.checked = input.value === value;
   }
   renderAppearance();
+  // This page is created once for the document. Refresh only diagnostics when
+  // the system scheme changes, preserving the editor draft and keyboard focus.
+  globalThis.matchMedia?.("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (prefs.scheme === "system") renderSkinEditor();
+  });
   renderKeyboard();
   renderMemory();
   renderNewSessions();
