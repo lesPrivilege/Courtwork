@@ -218,7 +218,6 @@ const plain = (markup) => markup.replace(/<svg[\s\S]*?<\/svg>/g, " ").replace(/<
 
 // ---- run ---------------------------------------------------------------------
 const problems = [];
-const deferred = [];
 const report = [];
 const hashes = {};
 
@@ -237,16 +236,15 @@ for (const entry of manifest.figures) {
   const mount = mountOf(entry);
   if (!mount) { fail("figure is not mounted in index.html", entry.mount); continue; }
 
-  // Source: a file-backed figure is its file, byte for byte; an inline one is
-  // hashed as rendered, so either changes only with the manifest.
-  let actual;
+  // Source: a file-backed figure is its file, byte for byte. An inline figure is
+  // campaign markup: the manifest records where it lives, not a hash (VG-16).
   if (entry.source.basis === "file") {
     const bytes = await readFile(path.join(ROOT, entry.source.file));
-    actual = sha256(bytes);
+    const actual = sha256(bytes);
+    hashes[entry.id] = actual;
     if (!mount.markup.includes(bytes.toString("utf8").trim())) fail("mounted markup differs from its source file", entry.source.file);
-  } else actual = sha256(mount.markup);
-  hashes[entry.id] = actual;
-  if (actual !== entry.source.sha256) fail("source sha256 differs from the manifest", { expected: entry.source.sha256, actual });
+    if (actual !== entry.source.sha256) fail("source sha256 differs from the manifest", { expected: entry.source.sha256, actual });
+  } else if ("sha256" in entry.source) fail("inline figures carry no sha256 (VG-16)");
 
   // Status: anything not shipped says so inside its own block.
   const section = blockOf(mount.start);
@@ -286,10 +284,9 @@ for (const entry of manifest.figures) {
     const svg = parseSvg(markup);
     if (svg.attrs["aria-hidden"] === "true") continue; // decorative glyphs (brand icon) carry no meaning
     const [first, second] = svg.children;
-    const deferredGap = [];
     if (svg.attrs.role !== "img") fail("svg lacks role=img");
     if (first?.name !== "title" || !first.text.trim()) fail("svg lacks <title> as its first child");
-    if (second?.name !== "desc" || !second.text.trim()) (entry.deferred ? deferredGap : problems).push({ figure: entry.id, why: "svg lacks <desc> as its second child" });
+    if (second?.name !== "desc" || !second.text.trim()) fail("svg lacks <desc> as its second child");
     const labelled = (svg.attrs["aria-labelledby"] ?? "").split(/\s+/);
     if (first?.attrs.id && !labelled.includes(first.attrs.id)) fail("aria-labelledby does not name the <title>");
     if (second?.name === "desc" && second.attrs.id && !labelled.includes(second.attrs.id)) fail("aria-labelledby does not name the <desc>");
@@ -300,10 +297,9 @@ for (const entry of manifest.figures) {
       }
       if (node.attrs.style !== undefined) fail("inline style in figure", node.attrs.style);
     });
-    if (entry.deferred) {
-      deferred.push({ figure: entry.id, gaps: deferredGap.map((g) => g.why), reason: entry.deferred });
-      summary.geometry = "deferred to verify.mjs (styles come from pricing.css)";
-    } else summary.geometry = geometry(svg, problems, entry.id);
+    // Figures styled by another sheet (pricing.css) cannot be measured statically;
+    // verify.mjs measures them in the browser.
+    summary.geometry = entry.geometry === "browser" ? "measured by verify.mjs" : geometry(svg, problems, entry.id);
   }
   report.push(summary);
 }
@@ -322,6 +318,6 @@ for (const [, selector, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
 if (process.argv.includes("--hashes")) {
   console.log(JSON.stringify(hashes, null, 2));
 } else {
-  console.log(JSON.stringify({ figures: report, deferred, problems, pass: problems.length === 0 }, null, 2));
+  console.log(JSON.stringify({ figures: report, problems, pass: problems.length === 0 }, null, 2));
   if (problems.length) process.exitCode = 1;
 }

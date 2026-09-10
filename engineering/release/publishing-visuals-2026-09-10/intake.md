@@ -80,3 +80,19 @@ p5.js 等 skill 只作方法参考，不作依赖。
 
 - [EX-VG1 外部 skill 拆解](work-orders/EX-VG1-skill-deconstruction.md)：并入 WO-VG-01 第 0 项（VG-14），不单独派发。
 - [WO-VG-01 图的全部施工](work-orders/WO-VG-01-figures.md)：已派发给 Opus（`opus-wo-medium`）。
+
+## Fable 复核（WO-VG-01 交付后）
+
+回执中的五个待裁项，以及复核时发现的一处语义错误，裁定如下。改动由 Fable 直接完成，与回执同在分支 `claude/vg01-figures`。
+
+**VG-16 行内图不记哈希。** FIG. 00、Anatomy 仪器与 pricing 属于 campaign 行内标记，manifest 只记录位置（`source.file` + `basis: rendered-fragment`），不记 sha256。campaign 作者修改标记时无须重算哈希。独立 SVG 文件保留 sha256，构建与 `check-figures` 照旧核对。（待裁定 4）
+
+**VG-17 pricing 补 `<desc>` 与 `data-figure`，扩大写入范围到 `site/src/pricing.mjs`。** 三图的 desc 均声明“概念定价示意，不是当前在售方案”；Organization 图另注 Expert runtime 尚未交付。几何检查交给浏览器（`geometry: "browser"`），因为样式来自 `pricing.css`，静态估算会误报。`deferred` 通道删除。（待裁定 1）
+
+**VG-18 Anatomy 用词改为页面自身的一致用语**：标签 “Compiled context” 改为 “Context projection”（`copy.mjs`、`steps.mjs`、public-copy-v3），导航 “Matter state” 改为 “Work state”，与 tab 标签一致。`site/verification/contrast.json` 是历史记录，不改写。（待裁定 2）
+
+**VG-19 其余两项维持现状。** “决定处有人”只约束画出决定门的图；FIG. 00 只在 caption 中提到 Decision，因此不改 Astra 的构图（待裁定 3）。状态 caption 以最近的顶层 section 为界，pricing 的 “CONCEPT PLANS · NOT CURRENTLY OFFERED” 满足要求（待裁定 5）。`diagram.svg` 的门不加红，同意 Opus 的理由。390 宽下 pipeline 在自身容器内横向滚动，与既有 diagram 一致，接受。
+
+**VG-20 pipeline 的一处语义错误。** Retrieve 的输出原标为 “candidate”，与同图回路里的 Candidate（提议）同词异义。已改为 “possibly relevant” 与 “object”（canonical `:25`：Retrieve 返回潜在相关对象）。Compile 的卡片原标 assignment / role / stage，把输入画成了产出，已改为 “context projection · per assignment”。
+
+复核重跑：构建、`check-links`、`check-material`、`check-figures`（10 张图，0 problems）、`verify.mjs` 28/28（8961 / CDP 19971，独立 profile，结束后删除），截图矩阵已刷新。`check-specimen` 需要在 source SHA 的隔离 checkout 中运行，在任何新 main 上都会拒绝；它不在 `pages.yml` 中，不属于本单的回归。

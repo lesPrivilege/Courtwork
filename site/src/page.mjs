@@ -173,7 +173,7 @@ function rawGoverned(fill, recording) {
         <nav class="anatomy-links" aria-label="Anatomy of a governed matter">
           <a href="./specimen/index.html#source" target="matter-replay">Source</a><span aria-hidden="true">→</span>
           <a href="#tab-events">Event</a><span aria-hidden="true">→</span>
-          <a href="#tab-surface">Matter state</a><span aria-hidden="true">→</span>
+          <a href="#tab-surface">Work state</a><span aria-hidden="true">→</span>
           <a href="./specimen/index.html#step-run" target="matter-replay">Run</a><span aria-hidden="true">→</span>
           <a href="#review">Review</a><span aria-hidden="true">→</span>
           <a href="./specimen/index.html#step-candidate" target="matter-replay">Decision</a><span aria-hidden="true">→</span>

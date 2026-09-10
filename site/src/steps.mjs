@@ -117,5 +117,5 @@ export const REPLAY_NOTE = [
 export const LAYERS = [
   { id: "events", label: "Event log" },
   { id: "surface", label: "Work state" },
-  { id: "context", label: "Compiled context" },
+  { id: "context", label: "Context projection" },
 ];

@@ -57,7 +57,7 @@
     },
     {
       "id": "context",
-      "label": "Compiled context",
+      "label": "Context projection",
       "text": "查看每次运行使用的资源、版本与上下文，以及实际的 token 用量。",
       "status": "verified with synthetic data"
     }

@@ -7,8 +7,9 @@
 const sourceUrl = "https://github.com/lesPrivilege/Courtwork";
 
 function localDiagram() {
-  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-local-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" data-figure="pricing-local" aria-labelledby="pricing-local-svg-title pricing-local-svg-desc">
           <title id="pricing-local-svg-title">Local value layer: Matter store, CourtWork, and your provider.</title>
+          <desc id="pricing-local-svg-desc">概念定价示意，不是当前在售方案。Local：Matter 存储在本机，CourtWork 在本机运行，模型由你自己的 provider 提供。</desc>
           <g class="pricing-svg-node">
             <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Matter store</text>
             <line x1="150" y1="102" x2="150" y2="150" />
@@ -20,8 +21,9 @@ function localDiagram() {
 }
 
 function hostedDiagram() {
-  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-hosted-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" data-figure="pricing-hosted" aria-labelledby="pricing-hosted-svg-title pricing-hosted-svg-desc">
           <title id="pricing-hosted-svg-title">Hosted value layer: Local or cloud Matter, CourtWork service, and managed runtime.</title>
+          <desc id="pricing-hosted-svg-desc">概念定价示意，不是当前在售方案。Hosted：Matter 可在本机或云端，CourtWork 以服务形式提供，runtime 由托管方运行。</desc>
           <g class="pricing-svg-node">
             <rect x="30" y="30" width="240" height="72" rx="8" /><text x="150" y="72">Local / cloud Matter</text>
             <line x1="150" y1="102" x2="150" y2="142" />
@@ -34,8 +36,9 @@ function hostedDiagram() {
 }
 
 function organizationDiagram() {
-  return `<svg viewBox="0 0 300 400" role="img" aria-labelledby="pricing-organization-svg-title">
+  return `<svg viewBox="0 0 300 400" role="img" data-figure="pricing-organization" aria-labelledby="pricing-organization-svg-title pricing-organization-svg-desc">
           <title id="pricing-organization-svg-title">Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval, and provenance.</title>
+          <desc id="pricing-organization-svg-desc">概念定价示意，不是当前在售方案。Organization：在同一 Matter 治理之上增加用户、策略与审阅、Expert runtime、审计、评测与来源追溯。Expert runtime 属研究方向，尚未交付。</desc>
           <g class="pricing-svg-node">
             <rect x="30" y="30" width="240" height="48" rx="8" /><text x="150" y="59">Users</text>
             <line x1="150" y1="78" x2="85" y2="112" /><line x1="150" y1="78" x2="215" y2="112" />

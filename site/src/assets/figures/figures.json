@@ -15,8 +15,7 @@
       "renderer": "html-css",
       "source": {
         "file": "site/src/page.mjs",
-        "basis": "rendered-fragment",
-        "sha256": "b335adfa8d3e9eea2bcf956fffab9b3aff4c98bbe76893720d48d35c2b44852b"
+        "basis": "rendered-fragment"
       },
       "mount": "data-figure",
       "red": null,
@@ -39,8 +38,7 @@
       "renderer": "html-css",
       "source": {
         "file": "site/src/page.mjs",
-        "basis": "rendered-fragment",
-        "sha256": "710b2a840a924f22695017171911c2e7b260e917d9f126e30f82c3c2292111bd"
+        "basis": "rendered-fragment"
       },
       "mount": "data-figure",
       "red": null,
@@ -87,18 +85,17 @@
       "renderer": "inline-svg",
       "source": {
         "file": "site/src/pricing.mjs",
-        "basis": "rendered-fragment",
-        "sha256": "4413e2cc0292be8d42d2b4ad8a44222ebb059099282f3c5b1b74f830b55a08a0"
+        "basis": "rendered-fragment"
       },
-      "mount": "#pricing-panel-local svg",
+      "mount": "data-figure",
       "red": null,
       "reducedMotion": "static",
       "alt": "Local value layer: Matter store, CourtWork, and your provider.",
       "audit": {
         "verdict": "revise",
-        "reason": "VG-10: the SVG has <title> but no <desc> and no data-figure mount. The section's CONCEPT PLANS · NOT CURRENTLY OFFERED line is an adequate status caption."
+        "reason": "VG-10: added <desc> and a data-figure mount (Fable review, VG-17). The section line CONCEPT PLANS · NOT CURRENTLY OFFERED is the status caption."
       },
-      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+      "geometry": "browser"
     },
     {
       "id": "pricing-hosted",
@@ -111,18 +108,17 @@
       "renderer": "inline-svg",
       "source": {
         "file": "site/src/pricing.mjs",
-        "basis": "rendered-fragment",
-        "sha256": "9daedc63971383a5f0f0407b1c4d3c413f049d4a03e24422b138c6cec977945b"
+        "basis": "rendered-fragment"
       },
-      "mount": "#pricing-panel-hosted svg",
+      "mount": "data-figure",
       "red": null,
       "reducedMotion": "static",
       "alt": "Hosted value layer: local or cloud Matter, CourtWork service with sync, eval and managed runtime, and a BYOK or managed model.",
       "audit": {
         "verdict": "revise",
-        "reason": "as pricing-local; 'Managed runtime' sits inside a concept plan marked NOT CURRENTLY OFFERED, so the single-runtime rule is not contradicted."
+        "reason": "VG-10: added <desc> and a data-figure mount (Fable review, VG-17). The section line CONCEPT PLANS · NOT CURRENTLY OFFERED is the status caption."
       },
-      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+      "geometry": "browser"
     },
     {
       "id": "pricing-organization",
@@ -137,18 +133,17 @@
       "renderer": "inline-svg",
       "source": {
         "file": "site/src/pricing.mjs",
-        "basis": "rendered-fragment",
-        "sha256": "e3e1081dc4fe16f2a646e36e33c06c930de809285c7fc6227586ba937e2780ae"
+        "basis": "rendered-fragment"
       },
-      "mount": "#pricing-panel-organization svg",
+      "mount": "data-figure",
       "red": null,
       "reducedMotion": "static",
       "alt": "Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval and provenance.",
       "audit": {
         "verdict": "revise",
-        "reason": "as pricing-local; 'Expert runtime' is a research concept shown only inside the concept plan's NOT CURRENTLY OFFERED frame."
+        "reason": "VG-10: added <desc> and a data-figure mount (Fable review, VG-17). The section line CONCEPT PLANS · NOT CURRENTLY OFFERED is the status caption."
       },
-      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+      "geometry": "browser"
     },
     {
       "id": "pipeline",
@@ -161,7 +156,7 @@
       "source": {
         "file": "site/src/assets/figures/pipeline.svg",
         "basis": "file",
-        "sha256": "7aaf3ed8afde48bac58286c4cca034ccfe08326a409b61068664dcd7dd387b84"
+        "sha256": "2d403485e24ca3577bb787d8f260f76915dcf2ee2ea6b4b215fd2e45578218da"
       },
       "mount": "data-figure",
       "red": null,

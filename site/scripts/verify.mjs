@@ -467,10 +467,10 @@ try {
     const audit = await evaluate(`${FIGURE_AUDIT}(${JSON.stringify(FIGURES.figures)})`);
     const bad = audit.figures.filter((f) => f.missing || f.problems?.length || f.animated ||
       JSON.stringify(f.reds) !== JSON.stringify(redOf(FIGURES.figures.find((e) => e.id === f.id))) ||
-      (f.title === false) || (f.desc === false && !FIGURES.figures.find((e) => e.id === f.id).deferred));
+      (f.title === false) || (f.desc === false));
     record(`V9 · figures at ${width}px ${theme}: geometry, text contrast, red only where registered, nothing moves`, bad.length === 0, {
       figures: audit.figures.length, red: audit.red, reds: audit.figures.filter((f) => f.reds.length).map((f) => ({ id: f.id, reds: f.reds })),
-      deferredWithoutDesc: audit.figures.filter((f) => f.desc === false).map((f) => f.id), failures: bad.slice(0, 6),
+      failures: bad.slice(0, 6),
     });
   }
 

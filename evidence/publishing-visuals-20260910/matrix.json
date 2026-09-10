@@ -14,7 +14,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-light-default.png",
-      "bytes": 358460,
+      "bytes": 358210,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -68,7 +68,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-light-reduced-motion.png",
-      "bytes": 358460,
+      "bytes": 358210,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -123,7 +123,7 @@
         "note": "emulated metrics; page scripts disabled"
       },
       "file": "long-work-1440-light-no-js.png",
-      "bytes": 358460,
+      "bytes": 358210,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -179,7 +179,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-dark-default.png",
-      "bytes": 358847,
+      "bytes": 358410,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -233,7 +233,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-dark-reduced-motion.png",
-      "bytes": 358847,
+      "bytes": 358410,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -288,7 +288,7 @@
         "note": "emulated metrics; page scripts disabled"
       },
       "file": "long-work-1440-dark-no-js.png",
-      "bytes": 358849,
+      "bytes": 358412,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -674,7 +674,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-light-grayscale.png",
-      "bytes": 299131,
+      "bytes": 298977,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -692,7 +692,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-dark-grayscale.png",
-      "bytes": 298704,
+      "bytes": 298514,
       "clip": {
         "width": 1280,
         "height": 2555
@@ -728,7 +728,7 @@
         "devicePixelRatio": 1
       },
       "file": "long-work-1440-light-forced-colors.png",
-      "bytes": 302783,
+      "bytes": 302067,
       "clip": {
         "width": 1280,
         "height": 2555

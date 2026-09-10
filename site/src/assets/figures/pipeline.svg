@@ -1,6 +1,6 @@
 <svg class="fig" viewBox="0 0 960 500" role="img" aria-labelledby="fig-pipeline-title fig-pipeline-desc" xmlns="http://www.w3.org/2000/svg">
   <title id="fig-pipeline-title">Store → Govern → Retrieve → Compile</title>
-  <desc id="fig-pipeline-desc">概念示意，依据 Schema Engineering 9.6 §5.4。Store 保存来源、事件、成果版本、原始历史与当前状态，并持续增长。Govern 是重心：contract、status、version、authority 与 applicability 让对象可以被选择。Retrieve 只定位候选；可读不等于已生效。Compile 为当前 assignment、role 与 stage 编出最小充分的工作集。Run 的提议经候选、审阅与提交后回到 Store。下方对照：存量变大，单次工作集的宽度不变。</desc>
+  <desc id="fig-pipeline-desc">概念示意，依据 Schema Engineering 9.6 §5.4。Store 保存来源、事件、成果版本、原始历史与当前状态，并持续增长。Govern 是重心：contract、status、version、authority 与 applicability 让对象可以被选择。Retrieve 只定位潜在相关对象；可读不等于已生效。Compile 为当前 assignment、role 与 task stage 编出最小充分的 Context Projection。Run 的提议经候选、审阅与提交后回到 Store。下方对照：存量变大，单次工作集的宽度不变。</desc>
   <defs>
     <marker id="fig-pipeline-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
@@ -37,13 +37,13 @@
   <g data-node="retrieve">
     <rect class="fig-node" x="572" y="48" width="160" height="252" />
     <text class="fig-th" x="588" y="78" font-size="17">Retrieve</text>
-    <text class="fig-muted" x="588" y="98" font-size="12">locate candidates</text>
+    <text class="fig-muted" x="588" y="98" font-size="12">possibly relevant</text>
     <rect class="fig-candidate" x="588" y="124" width="128" height="26" />
-    <text class="fig-muted" x="600" y="141" font-size="12">candidate</text>
+    <text class="fig-muted" x="600" y="141" font-size="12">object</text>
     <rect class="fig-candidate" x="588" y="158" width="128" height="26" />
-    <text class="fig-muted" x="600" y="175" font-size="12">candidate</text>
+    <text class="fig-muted" x="600" y="175" font-size="12">object</text>
     <rect class="fig-candidate" x="588" y="192" width="128" height="26" />
-    <text class="fig-muted" x="600" y="209" font-size="12">candidate</text>
+    <text class="fig-muted" x="600" y="209" font-size="12">object</text>
     <text x="588" y="256" font-size="12">readable</text>
     <text x="588" y="276" font-size="12">≠ in effect</text>
   </g>
@@ -53,9 +53,9 @@
     <text class="fig-th" x="788" y="78" font-size="17">Compile</text>
     <text class="fig-muted" x="788" y="98" font-size="12">the working set</text>
     <rect class="fig-node fig-set" x="804" y="126" width="108" height="110" />
-    <text x="858" y="164" font-size="12" text-anchor="middle">assignment</text>
-    <text x="858" y="186" font-size="12" text-anchor="middle">role</text>
-    <text x="858" y="208" font-size="12" text-anchor="middle">stage</text>
+    <text x="858" y="164" font-size="12" text-anchor="middle">context</text>
+    <text x="858" y="186" font-size="12" text-anchor="middle">projection</text>
+    <text class="fig-muted" x="858" y="212" font-size="11" text-anchor="middle">per assignment</text>
     <text class="fig-muted" x="788" y="272" font-size="12">minimal, sufficient</text>
   </g>
   <line class="fig-edge" data-edge="compile-run" x1="858" y1="302" x2="858" y2="336" marker-end="url(#fig-pipeline-arrow)" />

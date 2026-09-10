@@ -7,7 +7,7 @@
 ## 通用禁忌
 
 - 不画 AI 大脑、吉祥物、小人围桌或经理 / 下属 agent 层级。
-- 不把人画成被替代者；决定处永远有人。
+- 不把人画成被替代者；画出决定门的图，门处必须有人（VG-19）。
 - 不画法律刻板符号（天平、法槌、印章）；法律只是高要求实例（SE `:69`）。
 - 不把三层画成三个等价的数据库圆柱。
 - 颜色不单独承载状态，去色后仍须可读。
@@ -31,7 +31,7 @@
 - id: state
   meaning: Current Semantic State，事件的确定性投影，保存权威版本引用（SE :349, :366）
   status: shipped
-  figure: 01 Anatomy 仪器 · Surface
+  figure: 01 Anatomy 仪器 · Work state
   motifs: 经治理的结构体，边界清楚、可重建
   avoid: 摘要文本块、一份越来越长的笔记
 
@@ -104,6 +104,6 @@
 | 图 | 概念 | 待核 |
 |---|---|---|
 | FIG. 00 纸层 | matter、candidate | 三页纸按 Source / Candidate / Matter 平铺，可能把 Source 与 Candidate 画成同类；决定处没有人 |
-| 01 Anatomy 仪器 | event、state、context | 三投影同为线条变形，材质差异是否足以区分“连续轨迹 / 结构体 / 临时聚合” |
+| 01 Anatomy 仪器 | event、state（Work state）、context | 三投影同为线条变形，材质差异是否足以区分“连续轨迹 / 结构体 / 临时聚合” |
 | diagram.svg | candidate、evidence、decision、state | 已含回路（Updated state）；核对 VG-2③ 与 VG-10 |
 | pricing 三图 | expert、runtime | `research` 概念出现在概念定价里，核对状态标注是否足够 |
