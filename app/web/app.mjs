@@ -23,7 +23,8 @@ import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { createUsageView } from "./usage-view.mjs";
-let attentionWorkspace, attentionAgent, modelPicker, usageView;
+import { createSparkView } from "./spark-view.mjs";
+let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView;
 import {
   createSettingsPage,
   createSettingsView,
@@ -1568,6 +1569,25 @@ async function refreshNavigationAndSession() {
   }
   if (sessions[0]) await selectSession(sessions[0].id, { navigationEpoch });
   else clearActiveSession();
+}
+
+/* WO-SP1-FE · Spark reads BE-41's Matter rows, which carry a `matterId` but
+ * no session reference (`list_work` doesn't return one either — see
+ * SP-3/be41-dto.md). "Reuse the existing Work-surface route, open no new
+ * surface" (WO-SP1-FE §交付) means finding the Session already bound to this
+ * Matter the same way `coordination-projection.mjs` already does
+ * (`extensionBinding.binding.matterId`) and calling the existing
+ * `selectProject(projectId, {sessionId})` route — never creating a binding.
+ * A Matter with no currently open Session is left unopened, with a plain
+ * notice; Spark does not start a new Work chat on a maintenance read. */
+async function openMatterSurface(matterId) {
+  for (const project of state.projects) {
+    let sessions = state.sessionsByProject.get(project.id);
+    if (!sessions) sessions = await loadSessionsForProject(project.id);
+    const owner = (sessions || []).find((session) => session.extensionBinding?.binding?.matterId === matterId);
+    if (owner) { await selectProject(project.id, { sessionId: owner.id }); return; }
+  }
+  showToast("No open Work chat is bound to this Matter yet.", "error");
 }
 
 async function selectProject(projectId, { sessionId = null } = {}) {
@@ -5987,6 +6007,7 @@ function wireEvents() {
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
   setAction($("attention-button"), "message-square", "Attention", { visible: true });
+  setAction($("spark-button"), "refresh-cw", "Spark", { visible: true });
   setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat", {
     visible: true,
@@ -6009,6 +6030,7 @@ function wireEvents() {
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
   $("attention-button").addEventListener("click", () => attentionAgent.open());
+  $("spark-button").addEventListener("click", () => sparkView.open(currentProject()?.id ?? null));
   $("workspace-home-link").addEventListener("click", (event) => {
     event.preventDefault();
     void goHome();
@@ -6433,6 +6455,7 @@ async function init() {
     );
   }
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
+  sparkView = createSparkView({ request, onOpenMatter: (matterId) => void openMatterSurface(matterId) });
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {

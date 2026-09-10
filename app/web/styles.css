@@ -5542,6 +5542,41 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 @media(max-width:600px) { .usage-dialog { padding:16px; } .usage-controls { gap:6px; } .usage-controls select { flex:1; min-width:110px; } .usage-total { font-size:24px; } }
 @media(forced-colors:active) { .usage-stacked-bar button { background:CanvasText; border:1px solid Canvas; } }
 
+/* WO-SP1-FE · Spark's read-only maintenance dialog. Structure mirrors
+   .usage-dialog (header/controls/tabs/panel); Spark rows are their own
+   primitive because a Matter row carries a status-chip line the Usage table
+   does not. */
+.spark-dialog { width: min(880px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 24px; }
+.spark-dialog::backdrop { background: var(--scrim); }
+.spark-header { display:flex; align-items:start; justify-content:space-between; gap:16px; }
+.spark-header h2 { margin:0; }
+.spark-controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:12px 0; }
+.spark-controls select { width:auto; max-width:100%; }
+.spark-tabs { display:flex; gap:20px; border-bottom:1px solid var(--line); }
+.spark-tabs button { border:0; border-radius:0; background:transparent; padding:10px 0; }
+.spark-tabs button[aria-selected="true"] { border-bottom:2px solid var(--ink); }
+.spark-section-heading { margin:20px 0 8px; font-size:var(--text-meta); text-transform:uppercase; letter-spacing:.04em; color:var(--muted-strong); }
+.spark-section-heading.is-quiet { font-weight:400; }
+.spark-matter-row { padding:10px 0; border-bottom:1px solid var(--line); }
+.spark-matter-open { display:block; padding:0; border:0; background:transparent; text-align:left; font-size:inherit; font-weight:600; color:inherit; }
+.spark-matter-meta { display:flex; gap:12px; flex-wrap:wrap; color:var(--muted-strong); font-size:var(--text-meta); margin-top:2px; }
+/* Quiet rows state the same facts with no urgency mark: no colour, no icon,
+   no animation — WO-SP1-FE forbids a quiet read from generating a prompt. */
+.spark-matter-row.is-quiet .spark-matter-open { font-weight:400; }
+/* Unavailable is a measurement gap, not a failure: dotted, not red, the same
+   convention `.usage-heat.is-incomplete` already uses for a partial count. */
+.spark-matter-row.is-unavailable { outline:2px dotted var(--muted-strong); outline-offset:4px; }
+.spark-unavailable { color:var(--muted-strong); font-style:italic; }
+.spark-chip-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.spark-chip { font-size:var(--text-meta); padding:2px 8px; border:1px solid var(--line); border-radius:999px; color:var(--muted-strong); }
+.spark-source-change { margin:4px 0 0; }
+.spark-activity-matter { margin:20px 0; }
+.spark-table-scroll { overflow:auto; margin-top:8px; }
+.spark-table { width:100%; border-collapse:collapse; font-size:var(--text-meta); }
+.spark-table th, .spark-table td { padding:8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
+.spark-table th:first-child, .spark-table td:first-child { text-align:left; white-space:normal; min-width:120px; }
+@media(max-width:600px) { .spark-dialog { padding:16px; } .spark-controls { gap:6px; } .spark-controls select { flex:1; min-width:110px; } }
+
 /* Authored input is a right-aligned, bounded secondary bubble. */
 .message.user { margin-left:auto; }
 .user-message-content { border:1px solid var(--line); border-radius:18px 18px 6px 18px; }
