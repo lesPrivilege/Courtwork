@@ -38,7 +38,7 @@ cyanotype、chrome-currents、precision-circuit 不进首批：它们引入 F2 �
 
 **VG-5 声称状态是 registry 的必填字段**：`shipped`（当前产品具备）/ `recorded`（固定录制可证）/ `research`（研究方向）/ `concept`（概念演绎）。`research` 概念的图只能出现在 `#long-work` 或 Paper 入口，并沿用 F5 的 caption；不以现在时描绘自治 Spark、自动唤醒、第二 runtime 或生产级多 Expert。
 
-**VG-6 Attention 图默认不用红。** 用位置、孤立与字重表达“被提升到人的视野”；图中任何红色都需要 U-VG1 的新授权。图中的 Attention 取 CW 产品义（F8）；SE 的注意力预算义归入 `pipeline` 概念。
+**VG-6（已被 VG-15 取代）Attention 图默认不用红。** 用位置、孤立与字重表达“被提升到人的视野”；图中任何红色都需要 U-VG1 的新授权。图中的 Attention 取 CW 产品义（F8）；SE 的注意力预算义归入 `pipeline` 概念。
 
 **VG-7 先盘点、升级已有的图，不另起。** 索引母题 1（Matter as workspace）与 FIG. 00 重叠，母题 5（Evidence → Candidate → Decision）与 diagram.svg 重叠：这两项只做对照 registry 的审计与必要修订。母题 2（Store → Govern → Retrieve → Compile）目前没有图，是**唯一的首张新图**；Govern 为视觉重心，Retrieve 与 Compile 之间保留“可读 ≠ 已生效”（canonical `:445`）。母题 3、4 属于 `research`，放第二批，只进 `#long-work`。
 
@@ -62,14 +62,21 @@ p5.js 等 skill 只作方法参考，不作依赖。
 
 **VG-13 Cue 按条目消费。** 只在某个具体工作项需要交互或动效参考时，于免费层浏览对应条目，登记条目来源（原站点、页面类型），按 F10 只取机制。不连接其 MCP，不付费，不把生成的 prompt 或 React 源码直接用作施工输入。条目本身是第三方站点的再策展，采用前须回溯原站核实。
 
-## 待用户裁定
+## 用户裁定（2026-09-10）
 
-- **U-VG1** Attention 图可否使用红色？默认不用（VG-6）。
-- **U-VG2** 图由谁施工：Opus WO 施工、Astra 复核后合流（沿 PS 惯例），还是由 Astra 在 campaign 内直接施工？
-- **U-VG3** 除 `plate` / `object` / `ambient` 外，要不要让 cyanotype、process-cutaway 作为 board 候选参评四轴？默认只做 `object` 内的纸层 / 剖面。
-- **U-VG4** 现在派发 EX-VG1（Sonnet，只读拆解外部 skill）吗？它不阻塞 WO-VG-01 的盘点部分。
+用户原话：“Opus 直接做，红色需要克制和按需使用，作为 dystopia 风格的注入。全部完成后我来合流。”
+
+**VG-14 施工与合流（U-VG2）。** Opus 直接施工 WO-VG-01 全部工作项，施工期间是唯一的 `site/` 写者；Fable 做语义复核；用户合流。EX-VG1 不再单独派给 Sonnet，并入 WO-VG-01 第 0 项，由 Opus 按需读取（U-VG4）。U-VG3 未另行答复，按默认处理：不做 cyanotype、process-cutaway 候选 board。
+
+**VG-15 红色 = Dystopia 式注入（U-VG1，取代 VG-6 的“默认不用红”）。** Dystopia 的含义取本地：冷灰 / 石墨中性色阶承担全部层级（`app/web/styles.css:215` 的 preset，Pages Campaign 01 冷白灰与之同向），红色是这层冷灰之上唯一的稀疏信号。规则：
+1. 只用现有 `--campaign-attention-review`（浅 `#b3262d`，深 `#ed9396`，`site/src/site.css:700-704`）。不新增红值，不复用 danger，不从 `app/web` 导入 token（`skin-injection-2026-09-10/skin-constitution.md:18`）。
+2. 红色只标记“需要人 / 被提升到人的视野”这一处（registry 的 `attention`，以及 `decision` 门处的人）。结构、箭头、类别、装饰、氛围一律不用红。
+3. 按需：一张图最多一处红；图中没有需要人的点，就不用红。图之间不为统一而补红。
+4. 静态，不脉冲、不闪烁；配文字或形状，去色与 forced-colors 下仍可辨。
+5. 每处红色在 `figures.json` 记录所在元素、对应概念与理由，由 `check-figures` 校验上限。
+6. Review 区块的 A/B/C 红线提案（`skin-injection-2026-09-10/specimen-proposals.md`）不在本单范围，不改。
 
 ## 工作单
 
-- [EX-VG1 外部 skill 拆解](work-orders/EX-VG1-skill-deconstruction.md)：已写，**未派发**。
-- [WO-VG-01 盘点 + 首张 plate + QA 检查](work-orders/WO-VG-01-figures.md)：骨架，等 U-VG2。
+- [EX-VG1 外部 skill 拆解](work-orders/EX-VG1-skill-deconstruction.md)：并入 WO-VG-01 第 0 项（VG-14），不单独派发。
+- [WO-VG-01 图的全部施工](work-orders/WO-VG-01-figures.md)：已派发给 Opus（`opus-wo-medium`）。

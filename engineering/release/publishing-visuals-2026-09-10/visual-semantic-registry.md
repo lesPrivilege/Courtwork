@@ -11,6 +11,7 @@
 - 不画法律刻板符号（天平、法槌、印章）；法律只是高要求实例（SE `:69`）。
 - 不把三层画成三个等价的数据库圆柱。
 - 颜色不单独承载状态，去色后仍须可读。
+- 红色只按 intake VG-15 使用：冷灰之上唯一的稀疏信号，只标记需要人的那一处。
 
 ```yaml
 - id: matter
@@ -74,7 +75,7 @@
   status: shipped   # scoped triage 与只读事项已交付；ambient 背景工作属于 research
   figure: 04 Review 候选旁 5px 点（唯一红）
   motifs: 大量安静的中性工作里，极少数被提升到人面前的事项；用位置、孤立与字重表达
-  avoid: 满屏警报、脉冲、闪烁；未经 U-VG1 使用红色
+  avoid: 满屏警报、脉冲、闪烁；红色超出 VG-15（每图至多一处，只标需要人的点）
 
 - id: spark
   meaning: 来源整理 / 派生 / 维护工作；不设第二份 canonical memory（multi-experts README :27）

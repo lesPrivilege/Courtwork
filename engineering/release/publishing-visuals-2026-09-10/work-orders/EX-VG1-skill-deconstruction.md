@@ -1,6 +1,6 @@
 # EX-VG1 · 外部影像 skill 拆解
 
-执行者：Sonnet，只读 explore。状态：**已写，未派发**（U-VG4）。
+执行者：并入 WO-VG-01 第 0 项，由 Opus 按需执行（intake VG-14）；交付路径与问题清单不变。
 
 ## 目标
 
