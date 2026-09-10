@@ -178,7 +178,7 @@
       "source": {
         "file": "site/src/assets/figures/spark.svg",
         "basis": "file",
-        "sha256": "68b44a7e5bf9934884d750a62f4f15ee5a14e088edab4add4da1221ce08372a9"
+        "sha256": "53ac1b633958e6748483a3111bef9825f4b4a14d918063bf87cfc2f2be0e15e6"
       },
       "mount": "data-figure",
       "red": null,
@@ -200,7 +200,7 @@
       "source": {
         "file": "site/src/assets/figures/attention.svg",
         "basis": "file",
-        "sha256": "93c08d6bb158972cd864f2bfe3b0166fdd24653f2ba7f03432163597279f6b24"
+        "sha256": "113f733ecb5de6aa18a23ef54a34c5db7026e3601c75c425a980e9078a40d763"
       },
       "mount": "data-figure",
       "red": {
@@ -227,7 +227,7 @@
       "source": {
         "file": "site/src/assets/figures/roles.svg",
         "basis": "file",
-        "sha256": "77db95cd9e1e0cf2a3fec43562fe022d669a60b95ad5415c5ee07137c562f4dc"
+        "sha256": "9d9f1f5b60b1cac6b555ce27cb64213f4b31874706823bc0ade58e57e292c946"
       },
       "mount": "data-figure",
       "red": null,

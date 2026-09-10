@@ -115,11 +115,11 @@ function currentHome(fill, shot) {
 ${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
           <nav class="home-product-links" aria-label="Explore the product">
             <a href="./tour.html">Product tour <span>Inside the workspace</span></a>
-            <a href="./get.html">Get Courtwork <span>从源码在本地运行</span></a>
-            <a href="./cli.html">CLI study <span>探索录制数据</span></a>
-            <a href="./changelog.html">Changelog <span>沿提交查看变化</span></a>
-            <a href="./models.html">Models <span>配置你的模型</span></a>
-            <a href="./data.html">Data boundaries <span>了解数据的去向</span></a>
+            <a href="./get.html">Get CourtWork <span>Your local workspace</span></a>
+            <a href="./cli.html">CLI <span>Work from the command line</span></a>
+            <a href="./changelog.html">Changelog <span>What’s new</span></a>
+            <a href="./models.html">Models <span>Bring your intelligence</span></a>
+            <a href="./data.html">Privacy <span>Where your work goes</span></a>
           </nav>
         </section>`;
 }
@@ -208,12 +208,11 @@ function matter(fill) {
           loading="lazy"
         ></iframe>
         <p class="note">${escape(MATTER.note)}</p>
-        <details class="replay-index"><summary>Explore all 8 recorded steps</summary><ol class="steps">
+        <details class="replay-index"><summary>Explore all ${STEPS.length} steps</summary><ol class="steps">
           ${STEPS.map(
             (step, index) => `<li>
             <p class="step-seen"><span class="step-number">${index + 1}</span><span lang="en">${escape(step.seen)}</span></p>
             <p>${escape(step.text)}</p>
-            <p class="status ${STATUS_CLASS(step.status)}">${escape(step.status)}</p>
           </li>`,
           ).join("\n          ")}
         </ol></details>
@@ -289,13 +288,14 @@ function productAtoms() {
 
 function longWork() {
   return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
-    <p class="index">THE WORKSPACE</p>
-    <h2 id="long-work-title"><span lang="en">One Matter.<br>Many possibilities.</span><span class="zh">工作有归处，执行可接续。</span></h2>
-    ${figure("pipeline", "plate", "资料持续积累，每次只带上相关的工作。")}
+    <p class="index">HOW THE WORK CONTINUES</p>
+    <h2 id="long-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
+    <p class="lede">Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进工作，把新的判断留给下一次。</p>
+    ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
     <div class="long-work-stages">
-      <section><p class="index">MATTER</p><h3>Work has an address.</h3><p>来源、候选、决定与未完事项留在同一个 Matter。每件工作携带自己的契约：什么算证据，谁能决定，怎样才算完成。</p></section>
-      <section><p class="index">EXPERTS</p><h3>Roles compose.</h3><p>Expert 定义角色、工具与工作契约。不同责任围绕同一 Matter 组合，交接仍有共同的工作依据。</p>${figure("roles", "object", "角色各负其责，工作共享依据。")}</section>
-      <section><p class="index">RUNTIME</p><h3>Intelligence is replaceable.</h3><p>Runtime 承担执行，Matter 保存工作。模型与工具可以更换，来源、成果与决定持续保留。</p></section>
+      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
+      <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
+      <section><p class="index">EXPERTS & RUNTIME</p><h3>Roles compose.</h3><p>Expert 定义责任，Runtime 承担执行。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
     </div>
     <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
   </section>`;
@@ -307,7 +307,8 @@ function longWork() {
 function figure(id, grammar, caption) {
 
   return `<figure class="figure figure-${grammar}" data-figure="${id}">
-      <div class="figure-scroll">${figureSvg(id)}</div>
+      ${grammar === "plate" ? '<p class="figure-scroll-hint">Scroll to explore →</p>' : ''}
+      <div class="figure-scroll" role="region" tabindex="0" aria-label="${escape(id)} diagram">${figureSvg(id)}</div>
       <figcaption>${escape(caption)}</figcaption>
     </figure>`;
 }
@@ -347,7 +348,7 @@ function evidenceSection() {
 
 function portability(fill) {
   return `<section class="section" id="portability" aria-labelledby="portability-title">
-        <p class="index">06</p>
+        <p class="index">ARCHITECTURE</p>
         <h2 id="portability-title"><span lang="en">Architecture &amp; portability</span><span class="zh">工作可以留下，智能可以迁移</span></h2>
         <dl class="words">
           ${BUILD.components
@@ -405,7 +406,7 @@ function primaryEntries() {
     <div class="entry-grid">
       <details class="entry-chapter entry-paper" id="paper" open>
         <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper</span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">Explore ideas</span><span class="entry-open">Close ideas</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
-        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><p class="entry-actions"><a href="${PAPER_ENTRY.href}">Read Paper ↗</a><a href="${PAPER_ENTRY.baseline}">Canonical · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK</p>${figure("spark", "object", "来源更新，知识随之重建。")} ${figure("attention", "object", "重要变化，抵达需要作判断的人。")}<p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 让工作长久延续。</p><a href="#long-work">Explore the ideas →</a></div></div>
+        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><nav class="entry-actions" aria-label="Paper volumes" lang="en"><a href="${PAPER_ENTRY.href}?mode=canonical#paper-canonical">Canonical ↗</a><a href="${PAPER_ENTRY.href}?mode=practice#paper-practice">Practice ↗</a><a href="${PAPER_ENTRY.href}?mode=index#paper-index">Index ↗</a></nav><div class="entry-next"><p class="index">COURTWORK</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 让工作长久延续。</p><a href="#long-work">Explore the ideas →</a></div></div>
       </details>
       <article class="entry-chapter entry-tour"><details id="tour">
         <summary><span class="entry-kicker">02 / THE ORCHESTRATION</span><span class="entry-title">Tour</span><span class="entry-description">从一次行动，到人的介入，再到留下的工作。</span><span class="entry-cover entry-cover-tour" aria-hidden="true"><span>START</span><i>→</i><span>ACT</span><i>→</i><span>REVIEW</span><i>→</i><span>CONTINUE</span></span><span class="entry-toggle"><span class="entry-closed">Explore the path</span><span class="entry-open">Close the path</span><span class="entry-sign" aria-hidden="true"></span></span></summary>

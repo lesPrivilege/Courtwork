@@ -136,7 +136,7 @@ const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
 await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
 // Method identity is independent of the older product replay identity.
-const publishingSourceSha = "e2114a1c3746cfd52c403df6fadede387f4f7784";
+const publishingSourceSha = "b9122180dd0c75fe68ba783c4b70dcb4e3835263";
 async function emitMethod(from, to) {
   const frozen = execFileSync("git", ["show", `${publishingSourceSha}:${from}`], { cwd: ROOT, encoding: "utf8" });
   if (frozen !== await readFile(path.join(ROOT, from), "utf8")) throw new Error(`Method source drift: ${from}`);

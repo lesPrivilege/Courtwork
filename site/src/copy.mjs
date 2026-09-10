@@ -21,8 +21,8 @@ export const HERO = {
 };
 
 export const RAW_GOVERNED = {
-  index: "01",
-  title: "Anatomy of a governed matter",
+  index: "THREE VIEWS",
+  title: "One matter. Three views.",
   subtitle: "从来源到决定，每一步都有据可循",
   quote: [
     "Work agents need governed state, not longer transcripts.",
@@ -53,7 +53,7 @@ export const RAW_GOVERNED = {
 };
 
 export const MATTER = {
-  index: "02",
+  index: "THE WORKFLOW",
   title: "A matter in motion",
   quote: "从第一条请求，到一次有据可循的决定。",
   label: "Interactive NDA walkthrough",
@@ -61,8 +61,8 @@ export const MATTER = {
 };
 
 export const ARCHITECTURE = {
-  index: "03",
-  title: ["Work that exists beyond the model.", "让工作存在于模型之外"],
+  index: "THE COMMITMENT LOOP",
+  title: ["From proposal to decision.", "把提议变成有据可循的决定。"],
   paragraphs: [
     "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完事项留在一起。一次运行结束，工作继续。",
     "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为正式变化。",
@@ -91,7 +91,7 @@ export const ARCHITECTURE = {
 };
 
 export const REVIEW = {
-  index: "04",
+  index: "REVIEW",
   title: "Review is a first-class surface",
   quote:
     "把候选、证据与来源放在一起。看清依据，再作决定。",
@@ -108,7 +108,7 @@ export const REVIEW = {
 };
 
 export const BUILD = {
-  index: "08",
+  index: "GET STARTED",
   title: "Make it yours",
   commands: [
     "git clone https://github.com/lesPrivilege/Courtwork.git",

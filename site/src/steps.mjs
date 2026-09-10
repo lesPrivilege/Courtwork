@@ -1,4 +1,4 @@
-// The eight steps of the recorded matter, word for word from the publishing
+// The supported steps of the recorded matter, derived from the publishing
 // copy (public-copy-v2 §3). The same words are used by the specimen and by the
 // no-script fallback, so they live in one place and neither may reword them.
 //
@@ -66,20 +66,6 @@ export const STEPS = [
     run: 0,
   },
   {
-    id: "stop",
-    seen: "Stop · reconnect",
-    text: "取消 Run，关掉页面，再回来：Chat 显示最后一次确认的状态。",
-    status: "not recorded in this replay",
-    view: "absent",
-    key: "—",
-    run: 0,
-    // This recording holds two completed runs and no cancellation, so the step
-    // has words but no recorded fact behind it. It says so rather than
-    // borrowing another step's screen.
-    absent:
-      "此段回放未收录取消与重连。",
-  },
-  {
     id: "continue",
     // The still this step falls back to when there is no scripting.
     still: "M5",
@@ -110,7 +96,7 @@ export const STEPS = [
 
 // The fixed sentence the specimen carries, in both languages (public-copy-v2 §3).
 export const REPLAY_NOTE = [
-  "Interactive replay · synthetic NDA",
+  "Interactive NDA walkthrough",
   "逐步查看一次 NDA 工作的完整记录。",
 ];
 

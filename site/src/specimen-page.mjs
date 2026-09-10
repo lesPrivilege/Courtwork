@@ -1,5 +1,5 @@
 // The document that carries the specimen. It is generated rather than written
-// by hand so that the eight sentences exist in exactly one place (steps.mjs)
+// by hand so that the narrative steps exist in exactly one place (steps.mjs)
 // and the no-script fallback cannot drift from the interactive one.
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
 

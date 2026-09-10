@@ -18,7 +18,7 @@ CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与
 
 **Runtime · Intelligence is replaceable.** 模型与运行配置各有归属；正式来源、成果与决定由工作状态持有。
 
-**Spark & Experts · Product direction.** Spark 围绕稳定来源组织可重建的派生知识；Experts 通过角色、工具与契约组合专业责任，围绕同一 Matter 接力。
+**Spark & Experts.** Spark 围绕稳定来源组织可重建的派生知识；Experts 通过角色、工具与契约组合专业责任，围绕同一 Matter 接力。
 
 [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 

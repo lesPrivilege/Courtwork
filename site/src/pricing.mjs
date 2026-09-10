@@ -56,7 +56,7 @@ function organizationDiagram() {
 
 export function renderPricing() {
   return `<section class="section pricing" id="pricing" aria-labelledby="pricing-title">
-        <p class="index">07</p>
+        <p class="index">PLANS</p>
         <p class="pricing-concept">CHOOSE YOUR WORKSPACE</p>
         <h2 id="pricing-title"><span lang="en">Plans for the way you work</span><span class="zh">从个人工作，到团队协作</span></h2>
         <p class="lede">在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作基础。</p>
