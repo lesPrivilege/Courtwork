@@ -1,0 +1,34 @@
+<svg class="fig" viewBox="0 0 360 232" role="img" aria-labelledby="fig-spark-title fig-spark-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="fig-spark-title">Rebuildable Spark · research sketch</title>
+  <desc id="fig-spark-desc">研究方向示意，尚未交付。上层是可丢弃、可重建的派生层：旧摘要可以退出，重建的视图以细线回指来源。下层是不变的来源层：sources、decisions、open obligations 与 conflicts 留下。</desc>
+  <text class="fig-label" x="8" y="14" font-size="11">DERIVED · CAN BE REBUILT</text>
+  <g data-node="old-summary">
+    <rect class="fig-derived fig-exiting" x="8" y="24" width="140" height="34" />
+    <text class="fig-muted" x="78" y="45" font-size="12" text-anchor="middle">old summary</text>
+  </g>
+  <text class="fig-muted" x="78" y="78" font-size="11" text-anchor="middle">may exit</text>
+  <g data-node="rebuilt-view">
+    <rect class="fig-derived" x="212" y="24" width="140" height="34" />
+    <text x="282" y="45" font-size="12" text-anchor="middle">rebuilt view</text>
+  </g>
+  <line class="fig-rule" data-deco="layer-boundary" x1="0" y1="96" x2="360" y2="96" />
+  <line class="fig-trace" data-edge="rebuilt-sources" x1="262" y1="60" x2="92" y2="116" />
+  <line class="fig-trace" data-edge="rebuilt-decisions" x1="302" y1="60" x2="270" y2="116" />
+  <g data-node="sources">
+    <rect class="fig-node" x="8" y="118" width="164" height="32" />
+    <text x="90" y="139" font-size="12" text-anchor="middle">sources</text>
+  </g>
+  <g data-node="decisions">
+    <rect class="fig-node" x="188" y="118" width="164" height="32" />
+    <text x="270" y="139" font-size="12" text-anchor="middle">decisions</text>
+  </g>
+  <g data-node="obligations">
+    <rect class="fig-node" x="8" y="158" width="164" height="32" />
+    <text x="90" y="179" font-size="12" text-anchor="middle">open obligations</text>
+  </g>
+  <g data-node="conflicts">
+    <rect class="fig-node" x="188" y="158" width="164" height="32" />
+    <text x="270" y="179" font-size="12" text-anchor="middle">conflicts</text>
+  </g>
+  <text class="fig-label" x="8" y="218" font-size="11">STAYS · THE SOURCE LAYER</text>
+</svg>

@@ -839,3 +839,43 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .entry-principles > div { display: grid; grid-template-columns: 72px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .entry-principles dt { font: 12px/1.8 var(--font-mono); }
 .entry-principles dd { margin: 0; font-size: 14px; line-height: 1.8; }
+
+/* Figures · WO-VG-01. Geometry and meaning live in src/assets/figures and are
+ * registered in figures.json; this block only resolves their semantic classes
+ * to campaign and product tokens. Neutral greys carry every level. The single
+ * red is the existing attention.review slot, used on one registered element.
+ * Nothing here moves. */
+.figure { margin: 48px 0 0; }
+.figure-scroll { overflow-x: auto; }
+.figure > figcaption { margin-top: 12px; color: var(--muted-strong); font-size: 13px; line-height: 1.7; max-width: var(--site-measure); }
+.figure svg.fig { display: block; width: 100%; height: auto; color: var(--ink); font-family: inherit; }
+.figure-plate svg.fig { min-width: 720px; }
+.long-work-stages .figure, .long-work-columns .figure { margin-top: 24px; }
+.long-work-stages .figure svg.fig, .long-work-columns .figure svg.fig { max-width: 440px; }
+.fig text { fill: currentColor; }
+.fig .fig-th { font-weight: 600; }
+.fig .fig-muted { fill: var(--muted-strong); }
+.fig .fig-label { font-family: var(--font-mono); letter-spacing: .06em; fill: var(--muted-strong); }
+.fig .fig-node { fill: var(--campaign-raised); stroke: currentColor; stroke-width: 1; }
+.fig .fig-centre, .fig .fig-engaged { stroke-width: 2; }
+.fig .fig-set { fill: var(--campaign-soft); stroke-width: 1.5; }
+.fig .fig-stock { fill: var(--campaign-soft); stroke: currentColor; stroke-width: 1; }
+.fig .fig-strata { stroke: var(--muted); stroke-width: 12; stroke-dasharray: 1 7; }
+.fig .fig-candidate, .fig .fig-derived { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 4 3; }
+.fig .fig-exiting, .fig .fig-slot, .fig .fig-quiet { fill: none; stroke: var(--muted); stroke-width: 1; }
+.fig .fig-slot { stroke-dasharray: 4 3; }
+.fig .fig-edge { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.fig .fig-trace { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 2 3; }
+.fig .fig-rule { stroke: var(--campaign-rule); stroke-width: 1; }
+.fig .fig-threshold { stroke: currentColor; stroke-dasharray: 6 4; }
+.fig .fig-attention { fill: var(--campaign-attention-review); }
+/* FIG. 00: the candidate sheet has not been committed; line type says so. */
+.sheet-candidate { border-style: dashed; }
+@media (forced-colors: active) {
+  .fig { color: CanvasText; }
+  .fig text, .fig .fig-muted, .fig .fig-label { fill: CanvasText; }
+  .fig .fig-node, .fig .fig-set, .fig .fig-stock { fill: Canvas; stroke: CanvasText; }
+  .fig .fig-candidate, .fig .fig-derived, .fig .fig-exiting, .fig .fig-slot, .fig .fig-quiet,
+  .fig .fig-strata, .fig .fig-edge, .fig .fig-trace, .fig .fig-rule, .fig .fig-threshold { stroke: CanvasText; }
+  .fig .fig-attention { fill: CanvasText; }
+}

@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "registry": "engineering/release/publishing-visuals-2026-09-10/visual-semantic-registry.md",
+  "red_token": "--campaign-attention-review",
+  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour",
+  "figures": [
+    {
+      "id": "fig-00-matter-object",
+      "concepts": [
+        "matter",
+        "candidate"
+      ],
+      "status": "concept",
+      "grammar": "object",
+      "renderer": "html-css",
+      "source": {
+        "file": "site/src/page.mjs",
+        "basis": "rendered-fragment",
+        "sha256": "b335adfa8d3e9eea2bcf956fffab9b3aff4c98bbe76893720d48d35c2b44852b"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "Campaign 01 hover transform; none under prefers-reduced-motion or prefers-reduced-transparency, or without a fine hover pointer",
+      "alt": "Concept study: three sheets — 01 Source, 02 Candidate (dashed, not yet committed), 03 Matter with Source → Candidate → Decision.",
+      "audit": {
+        "verdict": "revise",
+        "reason": "registry: candidate must be distinguishable from committed material; the candidate sheet is now dashed. Composition and motion unchanged (Astra's campaign)."
+      }
+    },
+    {
+      "id": "anatomy-instrument",
+      "concepts": [
+        "event",
+        "state",
+        "context"
+      ],
+      "status": "shipped",
+      "grammar": "object",
+      "renderer": "html-css",
+      "source": {
+        "file": "site/src/page.mjs",
+        "basis": "rendered-fragment",
+        "sha256": "710b2a840a924f22695017171911c2e7b260e917d9f126e30f82c3c2292111bd"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "projection transform animates only after a pointer click with no motion preference; keyboard and reduced motion switch instantly",
+      "alt": "Decorative: one matter, three projections of the same lines (aria-hidden; the tab panels carry the recorded excerpts).",
+      "audit": {
+        "verdict": "keep",
+        "reason": "decorative and aria-hidden; the three recorded panels carry the meaning. Events read as an evenly spaced trace, Work state as grouped bands, Context as a narrower gathering — enough for VG-7."
+      }
+    },
+    {
+      "id": "state-to-commit",
+      "concepts": [
+        "context",
+        "candidate",
+        "evidence",
+        "decision",
+        "state"
+      ],
+      "status": "shipped",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/diagram.svg",
+        "basis": "file",
+        "sha256": "008864a7ce0eada15350f66996c05a9f596c670ea9ae834902e6b6f8d649b31e"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "connector defocus follows the paragraph in focus; disabled under reduced motion and reduced transparency",
+      "alt": "Governed work state → Context projection → Model / human proposal → Candidate → validation · evidence · authority · review → Committed change → Updated state, which is the next run's governed state.",
+      "audit": {
+        "verdict": "revise",
+        "reason": "VG-2③: the return edge from Updated state to Governed work state was implied by position only; now drawn (dashed, 'next run'). No red: the gate is a mechanism, not a pending item, and Review already carries the page's recorded red."
+      }
+    },
+    {
+      "id": "pricing-local",
+      "concepts": [
+        "matter"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "inline-svg",
+      "source": {
+        "file": "site/src/pricing.mjs",
+        "basis": "rendered-fragment",
+        "sha256": "4413e2cc0292be8d42d2b4ad8a44222ebb059099282f3c5b1b74f830b55a08a0"
+      },
+      "mount": "#pricing-panel-local svg",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Local value layer: Matter store, CourtWork, and your provider.",
+      "audit": {
+        "verdict": "revise",
+        "reason": "VG-10: the SVG has <title> but no <desc> and no data-figure mount. The section's CONCEPT PLANS · NOT CURRENTLY OFFERED line is an adequate status caption."
+      },
+      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+    },
+    {
+      "id": "pricing-hosted",
+      "concepts": [
+        "matter",
+        "runtime"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "inline-svg",
+      "source": {
+        "file": "site/src/pricing.mjs",
+        "basis": "rendered-fragment",
+        "sha256": "9daedc63971383a5f0f0407b1c4d3c413f049d4a03e24422b138c6cec977945b"
+      },
+      "mount": "#pricing-panel-hosted svg",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Hosted value layer: local or cloud Matter, CourtWork service with sync, eval and managed runtime, and a BYOK or managed model.",
+      "audit": {
+        "verdict": "revise",
+        "reason": "as pricing-local; 'Managed runtime' sits inside a concept plan marked NOT CURRENTLY OFFERED, so the single-runtime rule is not contradicted."
+      },
+      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+    },
+    {
+      "id": "pricing-organization",
+      "concepts": [
+        "matter",
+        "decision",
+        "expert",
+        "runtime"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "inline-svg",
+      "source": {
+        "file": "site/src/pricing.mjs",
+        "basis": "rendered-fragment",
+        "sha256": "e3e1081dc4fe16f2a646e36e33c06c930de809285c7fc6227586ba937e2780ae"
+      },
+      "mount": "#pricing-panel-organization svg",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Organization value layer: users, policy and review, Matter governance, Expert runtime, audit, eval and provenance.",
+      "audit": {
+        "verdict": "revise",
+        "reason": "as pricing-local; 'Expert runtime' is a research concept shown only inside the concept plan's NOT CURRENTLY OFFERED frame."
+      },
+      "deferred": "pricing.mjs is outside the WO-VG-01 write scope; <desc>, data-figure and data-edge markers are proposed in delivery-vg-01.md"
+    },
+    {
+      "id": "pipeline",
+      "concepts": [
+        "pipeline"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/pipeline.svg",
+        "basis": "file",
+        "sha256": "7aaf3ed8afde48bac58286c4cca034ccfe08326a409b61068664dcd7dd387b84"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Store → Govern → Retrieve → Compile. Store keeps growing; Govern (contract, status, version, authority, applicability) is the centre; Retrieve only locates candidates — readable is not in effect; Compile produces a working set for one assignment, role and stage; a run's proposal returns to Store through candidate, review and commit. Below: the stock grows, the working set keeps its width.",
+      "audit": {
+        "verdict": "new",
+        "reason": "VG-7 first new plate; canonical :25, :27, :23, :427-445, :519-528. No point needs a person, so no red."
+      }
+    },
+    {
+      "id": "spark",
+      "concepts": [
+        "spark"
+      ],
+      "status": "research",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/spark.svg",
+        "basis": "file",
+        "sha256": "68b44a7e5bf9934884d750a62f4f15ee5a14e088edab4add4da1221ce08372a9"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Research sketch: a derived layer that can be discarded and rebuilt — an old summary may exit, a rebuilt view traces back to sources — over a source layer where sources, decisions, open obligations and conflicts stay.",
+      "audit": {
+        "verdict": "new",
+        "reason": "WO item 3 · 02 REBUILD; page.mjs:271 wording; no point needs a person, so no red."
+      }
+    },
+    {
+      "id": "attention",
+      "concepts": [
+        "attention"
+      ],
+      "status": "research",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/attention.svg",
+        "basis": "file",
+        "sha256": "93c08d6bb158972cd864f2bfe3b0166fdd24653f2ba7f03432163597279f6b24"
+      },
+      "mount": "data-figure",
+      "red": {
+        "element": "#fig-attention-elevated",
+        "concept": "attention",
+        "reason": "VG-15: the single item elevated to a person's view. Also marked by solid fill (all others are outlines), isolation above the threshold and a bold label, so it survives greyscale and forced colours."
+      },
+      "reducedMotion": "static",
+      "alt": "Research sketch: many quiet neutral work items below a threshold; three related ones merge into one item, which alone is brought to a person's view.",
+      "audit": {
+        "verdict": "new",
+        "reason": "WO item 3 · 03 ATTEND; CW product sense of attention (intake F8); the page's one figure red."
+      }
+    },
+    {
+      "id": "roles",
+      "concepts": [
+        "expert",
+        "runtime"
+      ],
+      "status": "research",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/roles.svg",
+        "basis": "file",
+        "sha256": "77db95cd9e1e0cf2a3fec43562fe022d669a60b95ad5415c5ee07137c562f4dc"
+      },
+      "mount": "data-figure",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Research sketch: three swappable methods (Expert), one applied to the same Matter; below, one runtime in use (Pi) and two empty, unconnected slots to verify when needed.",
+      "audit": {
+        "verdict": "new",
+        "reason": "WO item 3 · ROLES & EXECUTION; page.mjs:275 wording; only Pi drawn as active; no point needs a person, so no red."
+      }
+    }
+  ]
+}

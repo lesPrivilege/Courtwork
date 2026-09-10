@@ -1,0 +1,64 @@
+<svg class="fig" viewBox="0 0 360 232" role="img" aria-labelledby="fig-attention-title fig-attention-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="fig-attention-title">Selective Attention · research sketch</title>
+  <desc id="fig-attention-desc">研究方向示意，尚未交付。下方是大量安静的中性工作；三项相关事件合并为一项，只有这一项越过分界，被提升到人的视野。它以实心方块、孤立的位置和加粗标签标出，这是本图唯一的红色。</desc>
+  <text class="fig-label" x="8" y="16" font-size="11">HUMAN VIEW</text>
+  <g data-node="elevated">
+    <rect class="fig-attention" id="fig-attention-elevated" x="150" y="30" width="24" height="24" />
+    <text class="fig-th" x="184" y="47" font-size="13">brought to a person</text>
+  </g>
+  <line class="fig-rule fig-threshold" data-deco="threshold" x1="0" y1="72" x2="360" y2="72" />
+  <line class="fig-trace" data-edge="merge-1" x1="131" y1="102" x2="157" y2="56" />
+  <line class="fig-trace" data-edge="merge-2" x1="160" y1="102" x2="162" y2="56" />
+  <line class="fig-trace" data-edge="merge-3" x1="218" y1="102" x2="167" y2="56" />
+  <g data-node="quiet-work">
+    <rect class="fig-quiet" x="8" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="37" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="66" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="95" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="124" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="153" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="182" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="211" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="240" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="269" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="298" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="327" y="104" width="14" height="14" />
+    <rect class="fig-quiet" x="8" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="37" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="66" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="95" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="124" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="153" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="182" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="211" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="240" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="269" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="298" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="327" y="130" width="14" height="14" />
+    <rect class="fig-quiet" x="8" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="37" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="66" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="95" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="124" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="153" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="182" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="211" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="240" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="269" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="298" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="327" y="156" width="14" height="14" />
+    <rect class="fig-quiet" x="8" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="37" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="66" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="95" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="124" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="153" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="182" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="211" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="240" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="269" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="298" y="182" width="14" height="14" />
+    <rect class="fig-quiet" x="327" y="182" width="14" height="14" />
+  </g>
+  <text class="fig-label" x="8" y="224" font-size="11">QUIET WORK</text>
+</svg>

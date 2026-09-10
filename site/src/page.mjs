@@ -6,6 +6,7 @@
 import { PAPER_ENTRY, NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
 import { renderPricing } from "./pricing.mjs";
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
+import { figureSvg } from "./assets/figures/figures.mjs";
 
 const REPO = "https://github.com/lesPrivilege/Courtwork";
 const BLOB = (p) => `${REPO}/blob/main/${p}`;
@@ -114,7 +115,7 @@ function hero(fill, shot) {
         <p class="actions">${HERO.actions
           .map((a) => `<a href="${escape(a.href)}">${escape(a.label)}</a>`)
           .join("")}</p></div>
-        <figure class="hero-object" aria-labelledby="object-caption">
+        <figure class="hero-object" data-figure="fig-00-matter-object" aria-labelledby="object-caption">
           <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
           <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
@@ -184,7 +185,7 @@ function rawGoverned(fill, recording) {
         </blockquote>
         <p class="lede">${escape(RAW_GOVERNED.lede)}</p>
         <div class="tabs instrument" data-tabs="layers">
-          <div class="instrument-object" aria-hidden="true"><span class="instrument-id">MATTER / 01</span><div class="projection-lines"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="projection-caption">ONE MATTER · THREE PROJECTIONS</span></div>
+          <div class="instrument-object" data-figure="anatomy-instrument" aria-hidden="true"><span class="instrument-id">MATTER / 01</span><div class="projection-lines"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="projection-caption">ONE MATTER · THREE PROJECTIONS</span></div>
           <div class="tab-strip" role="tablist" aria-label="${escape(RAW_GOVERNED.title)}">
             ${RAW_GOVERNED.tabs
               .map(
@@ -248,7 +249,7 @@ function architecture(fill, diagram) {
               `<p class="prose" data-layers="${["commit", "input output", ""][index]}">${escape(text)}</p>`,
           )
           .join("\n        ")}
-        <figure class="diagram">
+        <figure class="diagram" data-figure="state-to-commit">
           <figcaption class="diagram-title" lang="en">${escape(ARCHITECTURE.figureTitle)}</figcaption>
           ${diagram}
           <figcaption>${escape(ARCHITECTURE.caption)}</figcaption>
@@ -266,19 +267,32 @@ function longWork(sourceSha) {
     <p class="index">RESEARCH DIRECTION / 本轮核心自研理念</p>
     <h2 id="long-work-title"><span lang="en">A longer life<br>for the work.</span><span class="zh">让长期工作，有自己的秩序。</span></h2>
     <p class="lede">从资料治理，到可重建的发现与上下文，再到重要变化出现时的介入。我们希望工作持续积累，而人和模型每次只需关注当下相关的部分。</p>
+    ${figure("pipeline", "plate", "Concept · Schema Engineering 9.6 §5.4 的输入侧：存量持续增长，单次工作集的宽度不随之增长。概念示意，不表示产品已具备完整的四段。")}
     <div class="long-work-stages">
       <section><p class="index">01 / GROUND</p><h3>Deterministic foundations.</h3><p>先确定材料来自哪里、属于哪个版本、可以被谁读取。即使没有模型，资料仍能查找、核对与更新。</p></section>
-      <section><p class="index">02 / REBUILD</p><h3>Rebuildable Spark.</h3><p>Spark 负责资料与派生维护：整理发现、重建当前上下文。旧摘要可以退出，来源、正式判断、未完义务与冲突仍须留下。</p></section>
-      <section><p class="index">03 / ATTEND</p><h3>Selective Attention.</h3><p>把重要变化送到人面前。关联事件、合并重复、控制介入频率，让每次提醒都有明确的理由与可采取的行动。</p></section>
+      <section><p class="index">02 / REBUILD</p><h3>Rebuildable Spark.</h3><p>Spark 负责资料与派生维护：整理发现、重建当前上下文。旧摘要可以退出，来源、正式判断、未完义务与冲突仍须留下。</p>${figure("spark", "object", RESEARCH)}</section>
+      <section><p class="index">03 / ATTEND</p><h3>Selective Attention.</h3><p>把重要变化送到人面前。关联事件、合并重复、控制介入频率，让每次提醒都有明确的理由与可采取的行动。</p>${figure("attention", "object", RESEARCH)}</section>
     </div>
     <div class="long-work-columns">
-      <section><p class="index">ROLES & EXECUTION</p><h3>Clear roles. Adaptable execution.</h3><p>Expert 表达承担的角色；runtime 承担执行。角色、配置与权限分别说明，沿 Pi 薄集成起步，有实际需要时再逐一验证其他执行入口。</p></section>
+      <section><p class="index">ROLES & EXECUTION</p><h3>Clear roles. Adaptable execution.</h3><p>Expert 表达承担的角色；runtime 承担执行。角色、配置与权限分别说明，沿 Pi 薄集成起步，有实际需要时再逐一验证其他执行入口。</p>${figure("roles", "object", RESEARCH)}</section>
       <section><p class="index">QUALITY & COST</p><h3>Measure the whole life.</h3><p>从首次整理、资料更新，到恢复、审阅与维护，检验成果质量和总成本。可删除、可重建的派生层，要靠真实收益证明价值。</p></section>
     </div>
-    <p class="caption">以上为本轮研究理念与施工方向。Spark 自动维护、通用恢复与自动唤醒尚未交付；长期质量和成本收益仍待验证。</p>
+    <p class="caption" id="long-work-status">以上为本轮研究理念与施工方向。Spark 自动维护、通用恢复与自动唤醒尚未交付；长期质量和成本收益仍待验证。</p>
     <p class="actions"><a href="${REPO}/blob/${researchSha}/engineering/research/multi-experts-2026-09-10/pr-plan.md">Explore the research roadmap →</a><a href="./tour.html#assistant">See the current product →</a></p>
     <p class="caption">当前基础：版本化来源与审阅、<a href="${REPO}/blob/${sourceSha}/app/docs/run-attempts.md">有界 Run 续行</a>、<a href="${REPO}/blob/${sourceSha}/app/docs/coordination.md">Thread 本地通信</a>；实录版本 ${sourceSha.slice(0, 7)}。</p>
   </section>`;
+}
+
+// Research figures carry the section's own status line rather than a new
+// claim: the words point at the caption that says what is not yet delivered.
+const RESEARCH = "Research sketch · 研究方向示意，尚未交付；见本节末说明。";
+
+function figure(id, grammar, caption) {
+  const describedBy = caption === RESEARCH ? ' aria-describedby="long-work-status"' : "";
+  return `<figure class="figure figure-${grammar}" data-figure="${id}"${describedBy}>
+      <div class="figure-scroll">${figureSvg(id)}</div>
+      <figcaption>${escape(caption)}</figcaption>
+    </figure>`;
 }
 
 function review(fill, shot) {
