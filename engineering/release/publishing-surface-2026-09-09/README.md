@@ -9,6 +9,7 @@ Courtwork GitHub Pages 与根 README 的筹备批次。承接 [2026-09-08 发布
 | [inputs/exa-design-index-2026-09-09.md](inputs/exa-design-index-2026-09-09.md) | 输入一：设计索引与页面骨架 | 已转录 |
 | [inputs/commercialization-eval-2026-09-09.md](inputs/commercialization-eval-2026-09-09.md) | 输入二：商业化与 Eval 两条线 | 已转录；Eval 进 05 段 |
 | [inputs/commercial-surfaces-2026-09-09.md](inputs/commercial-surfaces-2026-09-09.md) | 输入三：商业化 specimen 与 agent Pages 语言 | 已转录，裁定 PS-21…23 |
+| [inputs/pr2-audit-2026-09-10.md](inputs/pr2-audit-2026-09-10.md) | 输入四：Pages PR #2（`a2e2d3c`→`bd1f815`）独立审计稿——两项 blocking（method 链接 pin 到 `blob/main`；`e818463` 截图仍称 current）、拆 PR、结构化 publication provenance | 已登记，未消费；待 PR #2 进入本批次视野时裁定 |
 | [commercial-surfaces/pricing-specimen.md](commercial-surfaces/pricing-specimen.md) | 第 07 段研究稿的文案与规格（Fable） | 初稿；WO-PS-02 消费 |
 | [work-orders/EX-PS1-material.md](work-orders/EX-PS1-material.md) | 材质治理来源转录（Cal.com 实值、产品 token 对照） | 已回执 [ex-ps1](explore/ex-ps1-material.md)，消费为 PS-20：站点零 blur；Cal.com 实值转到 FE-05 来源行 |
 | [work-orders/EX-PS2-proof-patterns.md](work-orders/EX-PS2-proof-patterns.md) | 六站解剖与仓内素材映射 | 已回执 [ex-ps2](explore/ex-ps2-proof-patterns.md)，消费为 PS-17 |
