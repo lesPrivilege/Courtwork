@@ -21,3 +21,9 @@ The candidate contrast probe now re-resolves the existing role declaration on it
 SK-2 remains open: first-frame legacy CSS parser and full old token permissions have not yet gained the versioned effective projection, ignored-key provenance, or export UI. This slice guarantees separation from legal appearance/accent tokens; it does not claim hostile legacy CSS cannot directly name semantic roles. Preserve original custom data during that next migration. Dystopia preset, new material consumers and Pages proposals are later slices. No deployment or G1–G5 acceptance.
 
 Independent review is recorded separately below; author checks do not constitute independent product acceptance.
+
+## Independent review and integration
+
+Luna Explore independently reproduced the old-probe inheritance failure and corrected-probe behavior in Chromium on the SK-1 working diff before `1d34cec`: light/dark × custom/gray-steel keep Review `#ae3630` / `#efaaa4`; an intentionally matching candidate background produces 1:1 in light and 3.251:1 in dark. No SK-1 blocker found. This is bounded independent verification, not product acceptance.
+
+While preparing main integration, RV26 completed its own main merge `f3fec8a8274150d256d4e332930ff121226b8226`. It was merged here as `473fa54f1914f70dfd9041e4c048b80ff7dc38a1`; there is zero diff from `1d34cec` in `app/web`, the SK-1 test and contrast tool. Both current-status sections are preserved; combined documentation check passes (694 documents / 3236 links). RV26's separately recorded full-suite timing failures are not relabeled green by this frontend slice.
