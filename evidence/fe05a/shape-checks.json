@@ -69,14 +69,14 @@
    "send": {
     "id": "send-button",
     "radius": "999px",
-    "width": 32,
-    "height": 32
+    "width": 28,
+    "height": 28
    },
    "project": {
     "id": "home-create-project",
     "radius": "8px",
-    "width": 126,
-    "height": 33
+    "width": 116,
+    "height": 30
    },
    "sendIsFull": true,
    "projectIsFull": false

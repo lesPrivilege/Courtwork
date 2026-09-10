@@ -1,0 +1,12 @@
+lint-shapes: ok (3 files · token / 0 / 派生式三种取值)
+lint-shapes: 满弧登记 10 处（人工复核 isolated / prominent，见 WK-128 ⑦）：
+  app/web/styles.css:1346 .jump-latest-button
+  app/web/styles.css:1436 .composer-run-hint::before
+  app/web/styles.css:1601 .tab-activity
+  app/web/styles.css:2729 #send-button, #cancel-run-button
+  app/web/styles.css:2888 .run-badge.running::before, .run-badge.waiting_user::before
+  app/web/styles.css:3035 .status-badge
+  app/web/styles.css:3580 .connection-dot
+  app/web/styles.css:3895 .runtime-switch input::before
+  app/web/styles.css:3906 .runtime-switch input::after
+  app/web/styles.css:4118 .runtime-chip

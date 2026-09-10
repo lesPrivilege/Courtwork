@@ -1,0 +1,143 @@
+[
+  {
+    "id": "NAV-1",
+    "pass": true,
+    "navWidth": 256,
+    "screen": "home"
+  },
+  {
+    "id": "MOD-1",
+    "pass": false,
+    "rowCount": 3,
+    "rowText": [
+      "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+    ],
+    "badge": [
+      "In force",
+      null,
+      null
+    ]
+  },
+  {
+    "id": "MOD-2",
+    "pass": true,
+    "primaryActions": 1
+  },
+  {
+    "id": "MOD-3",
+    "pass": true,
+    "addOpen": false
+  },
+  {
+    "id": "MOD-5",
+    "pass": true,
+    "promises": [],
+    "probeButtons": []
+  },
+  {
+    "id": "MOD-11",
+    "pass": true
+  },
+  {
+    "id": "MOD-10",
+    "pass": true,
+    "blurred": 0
+  },
+  {
+    "id": "MOD-3b",
+    "pass": true,
+    "pathRadios": [
+      "catalog",
+      "compatible",
+      "local"
+    ],
+    "pathTabStops": 1
+  },
+  {
+    "id": "MOD-4a",
+    "pass": false,
+    "stepCount": 6,
+    "probeButtons": [],
+    "probeNote": [
+      "The two probe steps need an endpoint written in this form. On this path the address is fixed by the host, so there is nothing here to probe."
+    ]
+  },
+  {
+    "id": "MOD-6",
+    "pass": true,
+    "advancedOpen": [
+      true
+    ],
+    "saveDisabled": true
+  },
+  {
+    "id": "MOD-4b",
+    "pass": false,
+    "probeButtons": [
+      {
+        "text": "Test connection",
+        "disabled": true
+      },
+      {
+        "text": "Fetch models",
+        "disabled": true
+      }
+    ],
+    "probeNote": []
+  },
+  {
+    "id": "MOD-7",
+    "pass": true,
+    "baseUrlDisabled": true,
+    "credentialVisible": false
+  },
+  {
+    "id": "MOD-4c",
+    "pass": true,
+    "probeButtons": [],
+    "probeNote": [
+      "The two probe steps need an endpoint written in this form. On this path the address is fixed by the host, so there is nothing here to probe."
+    ]
+  },
+  {
+    "id": "MOD-8",
+    "pass": true,
+    "heights": [
+      28
+    ],
+    "radii": [
+      "8px"
+    ]
+  },
+  {
+    "id": "MOD-9",
+    "pass": true,
+    "titleLefts": [
+      341
+    ],
+    "controlRights": [
+      1119
+    ]
+  },
+  {
+    "id": "MOD-13 · 1440",
+    "pass": true,
+    "overflow": 0
+  },
+  {
+    "id": "MOD-12",
+    "pass": true,
+    "intake": {
+      "steps": 6,
+      "pending": 3,
+      "focusable": 0
+    }
+  },
+  {
+    "id": "MOD-13 · 390",
+    "pass": true,
+    "overflow": 0
+  }
+]

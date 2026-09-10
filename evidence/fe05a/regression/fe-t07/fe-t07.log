@@ -1,0 +1,9 @@
+PASS · FE-T07 · 被丢在后面的那次读取迟到回来，屏幕上仍然是 B · {"activeSessionId":"dac99d46-170d-47e5-a0da-e27d3eeb686a","surfaceSession":null,"title":"Unresolved NDA review","matter":""}
+PASS · FE-T07 · 展开再收起一张卡：不重发命令，草稿与开合态都还在 · {"hadCard":true,"draft":"fe04 draft that must survive","cached":"fe04 draft that must survive","calls":[],"restoredOpen":true}
+PASS · FE-T07 · 三次折叠 / 展开不重发任何命令，工作面与 runtime 不重读 · {"surface":2,"workspace":0,"runtime":0,"commands":0}
+PASS · FE-T07 · 关闭再打开，每个来源至多读一次，不是两次 · {"surface":0,"workspace":0,"runtime":1,"commands":0}
+PASS · CC-W · B 态展开与返回：聊天列 DOM 保留，滚动位置与草稿不变，不重发命令、不重挂 renderer · {"before":{"scrollTop":0,"draft":"cc-w draft that must survive the view switch","scrollable":false,"streamInDom":true},"during":{"shape":"app-shell surface-expanded surface-view-switch","bodyHidden":true,"bodyInert":true,"streamInDom":true,"backButton":true},"marked":true,"after":{"scrollTop":0,"draft":"cc-w draft that must survive the view switch"},"rendererKept":true,"commands":[]}
+PASS · CC-W · 1679 ↔ 1680 跨越只换形状：不重发命令、不重读、不重挂 renderer、草稿不丢 · {"at1679":"app-shell surface-expanded surface-view-switch","at1680":"app-shell surface-expanded surface-three-pane","shape":"app-shell surface-expanded surface-view-switch","draft":"cc-w draft across the breakpoint","rendererKept":true,"marked":true,"commands":[],"reads":[]}
+PASS · 本单没有任何请求离开本 origin · []
+PASS · 页面没有抛出异常 · []
+8 / 8

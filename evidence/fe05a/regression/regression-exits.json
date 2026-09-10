@@ -1,0 +1,17 @@
+[
+  {
+    "name": "seed",
+    "group": "final-behavior",
+    "exitCode": 0
+  },
+  {
+    "name": "behavior",
+    "group": "final-behavior",
+    "exitCode": 0
+  },
+  {
+    "name": "seed",
+    "group": "runtime",
+    "exitCode": 1
+  }
+]
