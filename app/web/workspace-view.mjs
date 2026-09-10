@@ -79,7 +79,7 @@ export function renderSessionOverview(
     "div",
     { className: "section-heading" },
     el("h3", { text: "This chat" }),
-    semanticAction("surface.close", onClose, { values: { target: "session overview" } }),
+    semanticAction("surface.close", onClose, { values: { target: "chat overview" } }),
   );
   const group = (title, ...children) =>
     el(
@@ -94,7 +94,7 @@ export function renderSessionOverview(
     header,
     group(
       "Workspace",
-      row("folder", "Session files", onMaterials),
+      row("folder", "Chat files", onMaterials),
       row(
         "panel-right",
         session.extensionBinding?.extensionId
@@ -121,7 +121,7 @@ export function renderSessionOverview(
       row("chevron-right", "Run history", onHistory),
     ),
     group(
-      "Session settings",
+      "Chat settings",
       row("settings-2", permissionLabel, onPermissions),
     ),
   );

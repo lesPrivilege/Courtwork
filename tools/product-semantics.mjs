@@ -1,4 +1,4 @@
-import { readFile, writeFile, access } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 export const root = fileURLToPath(new URL('../', import.meta.url));
@@ -9,15 +9,17 @@ export function validateRegistry(registry, glyphNames) {
     const key=entry.semanticKey;
     if(!/^[a-z]+(?:[.-][a-z]+)+$/.test(key)||keys.has(key)) errors.push(`Invalid or duplicate key: ${key}`);
     keys.add(key);
-    for(const field of ['meaning','ownerRef','colourRole','interactionRole','tooltipRule','reviewStatus']) if(typeof entry[field]!=='string'||!entry[field].trim()) errors.push(`${key}: missing ${field}`);
+    for(const field of ['meaning','ownerRef','ownerAnchor','colourRole','interactionRole','tooltipRule','reviewStatus']) if(typeof entry[field]!=='string'||!entry[field].trim()) errors.push(`${key}: missing ${field}`);
     if(!['Object','Action','State','Brand'].includes(entry.symbolClass)) errors.push(`${key}: symbol class`);
     if(!['universal-ui','agent-common','courtwork-domain','runtime-visualization','brand-provider'].includes(entry.admissionClass)) errors.push(`${key}: admission class`);
-    if(!entry.words?.en || !entry.accessibleName?.en) errors.push(`${key}: missing name`);
+    if(typeof entry.ownerRef!=='string' || !/^[\w./-]+$/.test(entry.ownerRef) || entry.ownerRef.startsWith('/') || entry.ownerRef.split('/').includes('..')) errors.push(`${key}: invalid owner path`);
+    if(typeof entry.words?.en!=='string' || typeof entry.accessibleName?.en!=='string' || !entry.words.en.trim() || !entry.accessibleName.en.trim()) errors.push(`${key}: missing name`);
     if(!Array.isArray(entry.allowedSurfaces)||!entry.allowedSurfaces.length||entry.allowedSurfaces.some(s=>!['app','pages'].includes(s))) errors.push(`${key}: surfaces`);
     if(!['none','single-purpose','multi-purpose','approved-variant'].includes(entry.glyphPolicy)) errors.push(`${key}: glyph policy`);
     if(entry.glyphPolicy==='none' ? entry.glyphRef!==null : !glyphNames.has(entry.glyphRef)) errors.push(`${key}: glyph reference`);
     if(entry.capabilityRef!==null && typeof entry.capabilityRef!=='string') errors.push(`${key}: capability is a reference, not executable policy`);
-    if(Object.keys(entry.stateVariants??{}).length) errors.push(`${key}: state variants require a versioned approval rule`);
+    if(!entry.representations || typeof entry.representations!=='object' || !Array.isArray(entry.allowedSurfaces) || entry.allowedSurfaces.some(surface=>!['text','glyph'].includes(entry.representations[surface]) || (entry.representations[surface]==='glyph' && !entry.glyphRef))) errors.push(`${key}: representation coverage`);
+    if(!entry.stateVariants || typeof entry.stateVariants!=='object' || Array.isArray(entry.stateVariants) || Object.keys(entry.stateVariants).length) errors.push(`${key}: state variants require a versioned approval rule`);
     if(entry.glyphRef) {const uses=glyphs.get(entry.glyphRef)||[]; uses.push(entry);glyphs.set(entry.glyphRef,uses);}
   }
   for(const [glyph,uses] of glyphs) if(uses.length>1 && uses.some(e=>e.glyphPolicy==='single-purpose')) errors.push(`${glyph}: single-purpose collision (${uses.map(e=>e.semanticKey).join(', ')})`);
@@ -30,7 +32,10 @@ export async function checkRegistry({write=false}={}) {
   const registry=JSON.parse(await readFile(path.join(root,'engineering/design/product-semantics/registry.json'),'utf8'));
   const source=JSON.parse(await readFile(path.join(root,'tools/ui-vendor/lucide/sources.json'),'utf8'));
   const errors=validateRegistry(registry,new Set(Object.keys(source.files).map(f=>f.replace(/\.svg$/,''))));
-  for(const e of registry.entries) try {await access(path.join(root,e.ownerRef));} catch {errors.push(`${e.semanticKey}: absent owner ${e.ownerRef}`);}
+  for(const e of registry.entries) {
+    if(typeof e.ownerRef!=='string'||e.ownerRef.startsWith('/')||e.ownerRef.split('/').includes('..'))continue;
+    try {const owner=await readFile(path.join(root,e.ownerRef),'utf8');if(!e.ownerAnchor || !owner.includes(e.ownerAnchor))errors.push(`${e.semanticKey}: absent owner anchor`);} catch {errors.push(`${e.semanticKey}: absent owner ${e.ownerRef}`);}
+  }
   const output=path.join(root,'app/web/product-semantics.generated.mjs');
   const generated=generatedModule(registry);
   if(!errors.length && write) await writeFile(output,generated);

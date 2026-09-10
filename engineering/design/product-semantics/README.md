@@ -24,3 +24,7 @@ The [facade](../../../app/web/semantic-controls.mjs) resolves a key to a complet
 Current classifications are mapped presentation candidates. An entry's `reviewStatus` does not constitute domain review or independent product acceptance. `colourRole: inherited` means the existing control/content owns colour; the facade does not add colour or infer status.
 
 Author verification: six focused tests pass. The first run exposed the existing TinyDOM helper's read-only dataset snapshot, not a browser failure; the facade uses standard data attributes and the test asserts the actual aria/label anatomy. Browser verification and non-author review remain pending with VS-06.
+
+## Non-author review follow-up
+
+The [fixed 1de7a31 review](../../../evidence/semantic-polish-20260911/registry-independent-review.md) found missing representation enforcement and imprecise owners. The follow-up validates every surface representation, honors Pages text selection even when App has a glyph, requires a checked `ownerAnchor`, and uses the canonical Lucide manifest as the negative-test oracle. Exact workspace render/callback tests are now in the suite (8/8). Anchors point to the existing source definition or endpoint and are evidence locators, not executable authority. The same edit aligns the old session-overview/files/settings labels with the existing Chat vocabulary. Review of this correction remains separate from the original fixed review.

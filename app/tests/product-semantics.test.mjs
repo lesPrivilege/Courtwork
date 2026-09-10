@@ -5,7 +5,8 @@ import { validateRegistry, checkRegistry, root } from '../../tools/product-seman
 import { productSemantics } from '../web/product-semantics.generated.mjs';
 import { semanticPresentation, semanticAction, semanticIcon } from '../web/semantic-controls.mjs';
 import { withTinyDom } from './tiny-dom.mjs';
-const glyphs=new Set(productSemantics.entries.map(e=>e.glyphRef).filter(Boolean));
+const glyphSource=JSON.parse(await readFile(`${root}/tools/ui-vendor/lucide/sources.json`,'utf8'));
+const glyphs=new Set(Object.keys(glyphSource.files).map(name=>name.replace(/\.svg$/,'')));
 test('registry owners and generated browser projection agree',async()=>{assert.equal((await checkRegistry()).entries,27);});
 test('single-purpose collisions fail while contextual shared geometry is admitted',()=>{
   assert.deepEqual(validateRegistry(productSemantics,glyphs),[]);
@@ -44,3 +45,18 @@ test('migrated workspace close/add controls cannot return to raw glyph calls',as
   assert.match(source,/semanticAction\("surface.close"/);
   assert.match(source,/semanticAction\("material.add"/);
 });
+
+test('Pages text projection cannot leak its App glyph, malformed owner and representations fail',()=>{
+  assert.equal(semanticPresentation('chat.object',{surface:'pages'}).glyph,null);
+  const data=structuredClone(productSemantics);
+  data.entries[0].ownerRef='../outside';delete data.entries[0].representations;delete data.entries[1].stateVariants;
+  const errors=validateRegistry(data,glyphs).join('\n');assert.match(errors,/invalid owner path/);assert.match(errors,/representation coverage/);assert.match(errors,/state variants/);
+});
+test('actual workspace consumers preserve callbacks and contextual names',async()=>withTinyDom(async container=>{
+  const {renderWorkspaceFilesView,renderSessionOverview}=await import('../web/workspace-view.mjs');
+  let added=0,closed=0;
+  renderWorkspaceFilesView(container,{files:[],onFile:()=>{},onMaterials:()=>added++,onRefresh:()=>{}});
+  container.querySelectorAll('[data-semantic-key]').find(node=>node.getAttribute('data-semantic-key')==='material.add').click();assert.equal(added,1);
+  renderSessionOverview(container,{session:{},onClose:()=>closed++,onMaterials:()=>{},onWorkspace:()=>{},onRun:()=>{},onHistory:()=>{},onPermissions:()=>{},permissionLabel:'Allow edits'});
+  const close=container.querySelectorAll('[data-semantic-key]').find(node=>node.getAttribute('data-semantic-key')==='surface.close');assert.equal(close.getAttribute('aria-label'),'Close chat overview');close.click();assert.equal(closed,1);
+}));

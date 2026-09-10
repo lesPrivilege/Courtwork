@@ -8,7 +8,7 @@ export function semanticPresentation(key, {surface='app', values={}}={}) {
     if(typeof values[name]!=='string' || (name!=='context' && !values[name].trim())) throw new Error(`Missing semantic name value: ${key}/${name}`);
     return values[name];
   });
-  return {entry,label,glyph:entry.glyphRef};
+  return {entry,label,glyph:entry.representations[surface]==='glyph'?entry.glyphRef:null};
 }
 export function semanticIcon(key, {size=20,...context}={}) {
   const {glyph}=semanticPresentation(key,context);

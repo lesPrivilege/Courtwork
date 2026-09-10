@@ -29,7 +29,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Family contracts"
     },
     {
       "semanticKey": "filter.clear",
@@ -57,7 +58,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Shell layout contract"
     },
     {
       "semanticKey": "chat.create",
@@ -85,12 +87,13 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "POST /api/v5/sessions"
     },
     {
       "semanticKey": "project.create",
       "meaning": "Create a project container.",
-      "ownerRef": "app/docs/api-v6.md",
+      "ownerRef": "app/server/store.mjs",
       "words": {
         "en": "New project"
       },
@@ -113,7 +116,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "async createProject(name)"
     },
     {
       "semanticKey": "material.add",
@@ -141,7 +145,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Materials"
     },
     {
       "semanticKey": "attention.agent",
@@ -170,7 +175,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved"
+      "reviewStatus": "text-reserved",
+      "ownerAnchor": "## Identity and persistence"
     },
     {
       "semanticKey": "attention.queue",
@@ -199,7 +205,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved"
+      "reviewStatus": "text-reserved",
+      "ownerAnchor": "## Identity and state"
     },
     {
       "semanticKey": "spark.surface",
@@ -228,7 +235,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved"
+      "reviewStatus": "text-reserved",
+      "ownerAnchor": "## 语义"
     },
     {
       "semanticKey": "chat.object",
@@ -257,12 +265,13 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Sessions"
     },
     {
       "semanticKey": "project.object",
       "meaning": "A container for chats; not a governed Matter.",
-      "ownerRef": "app/docs/api-v6.md",
+      "ownerRef": "app/server/store.mjs",
       "words": {
         "en": "Project"
       },
@@ -286,7 +295,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "async createProject(name)"
     },
     {
       "semanticKey": "workspace.object",
@@ -315,7 +325,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Workspace"
     },
     {
       "semanticKey": "matter.object",
@@ -344,7 +355,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved"
+      "reviewStatus": "text-reserved",
+      "ownerAnchor": "## Binding and actions"
     },
     {
       "semanticKey": "expert.role",
@@ -373,7 +385,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved"
+      "reviewStatus": "text-reserved",
+      "ownerAnchor": "## Ownership and compatibility"
     },
     {
       "semanticKey": "model.object",
@@ -402,7 +415,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "Requested and observed model identity are separate"
     },
     {
       "semanticKey": "reasoning.setting",
@@ -431,7 +445,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "supportedEfforts/defaultEffort"
     },
     {
       "semanticKey": "connection.object",
@@ -460,12 +475,13 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Provider connections"
     },
     {
       "semanticKey": "tool.object",
       "meaning": "A callable capability, not a package or connection.",
-      "ownerRef": "app/docs/api-v6.md",
+      "ownerRef": "docs/runtime-control/INDEX.md",
       "words": {
         "en": "Tool"
       },
@@ -489,12 +505,13 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| tool |"
     },
     {
       "semanticKey": "plugin.object",
       "meaning": "A runtime package with its own declared lifecycle.",
-      "ownerRef": "app/docs/api-v6.md",
+      "ownerRef": "docs/runtime-control/INDEX.md",
       "words": {
         "en": "Plugin"
       },
@@ -518,12 +535,13 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| plugin |"
     },
     {
       "semanticKey": "mcp.server",
       "meaning": "A service exposing MCP capabilities.",
-      "ownerRef": "app/docs/api-v6.md",
+      "ownerRef": "docs/runtime-control/INDEX.md",
       "words": {
         "en": "MCP server"
       },
@@ -547,7 +565,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| mcp_server |"
     },
     {
       "semanticKey": "review.open",
@@ -576,7 +595,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Binding and actions"
     },
     {
       "semanticKey": "approval.request",
@@ -605,7 +625,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "### Permission cards"
     },
     {
       "semanticKey": "access.policy",
@@ -634,12 +655,13 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "permissionMode"
     },
     {
       "semanticKey": "activity.view",
       "meaning": "Recorded activity within an explicit scope and interval.",
-      "ownerRef": "app/docs/request-telemetry.md",
+      "ownerRef": "app/docs/api-v6.md",
       "words": {
         "en": "Activity"
       },
@@ -663,7 +685,8 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Events"
     },
     {
       "semanticKey": "history.view",
@@ -692,12 +715,13 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "GET /api/v5/sessions/:id"
     },
     {
       "semanticKey": "trace.view",
       "meaning": "Diagnostic events of a particular execution.",
-      "ownerRef": "app/docs/request-telemetry.md",
+      "ownerRef": "app/docs/api-v6.md",
       "words": {
         "en": "Trace"
       },
@@ -721,7 +745,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Events"
     },
     {
       "semanticKey": "run.object",
@@ -750,7 +775,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Runs"
     },
     {
       "semanticKey": "state.unknown",
@@ -779,7 +805,8 @@ export const productSemantics = freeze({
         "app": "text",
         "pages": "text"
       },
-      "reviewStatus": "mapped"
+      "reviewStatus": "mapped",
+      "ownerAnchor": "unknown"
     }
   ]
 });
