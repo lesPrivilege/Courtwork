@@ -1,3 +1,4 @@
+import { semanticAction } from "./semantic-controls.mjs";
 import { el, action, icon } from "./ui-controls.mjs";
 import { runLabels } from "./inspector.mjs";
 
@@ -53,7 +54,7 @@ export function renderWorkspaceFilesView(
       }),
     );
   container.append(
-    action("plus", "Add material", onMaterials, {
+    semanticAction("material.add", onMaterials, {
       visible: true,
       className: "secondary-button workspace-add",
     }),
@@ -78,7 +79,7 @@ export function renderSessionOverview(
     "div",
     { className: "section-heading" },
     el("h3", { text: "This chat" }),
-    action("x", "Close session overview", onClose),
+    semanticAction("surface.close", onClose, { values: { target: "session overview" } }),
   );
   const group = (title, ...children) =>
     el(

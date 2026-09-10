@@ -1,0 +1,783 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "semanticKey": "surface.close",
+      "meaning": "Close the named local surface; does not cancel work.",
+      "ownerRef": "engineering/design/home-composition-2026-09-10/disclosure-overlay.md",
+      "words": {
+        "en": "Close"
+      },
+      "accessibleName": {
+        "en": "Close {target}"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "x",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "close",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "filter.clear",
+      "meaning": "Clear the current text filter.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Clear"
+      },
+      "accessibleName": {
+        "en": "Clear {target}"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "x",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "clear",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "chat.create",
+      "meaning": "Create a conversation owned by Session.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "New chat"
+      },
+      "accessibleName": {
+        "en": "New chat{context}"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plus",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "create",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "project.create",
+      "meaning": "Create a project container.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "New project"
+      },
+      "accessibleName": {
+        "en": "New project"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plus",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "create",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "material.add",
+      "meaning": "Add source material to the current workspace.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Add material"
+      },
+      "accessibleName": {
+        "en": "Add material"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plus",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "add",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "attention.agent",
+      "meaning": "The persistent Attention assistant; distinct from its item queue.",
+      "ownerRef": "app/docs/attention-agent.md",
+      "words": {
+        "en": "Attention"
+      },
+      "accessibleName": {
+        "en": "Attention"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "brand-provider",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "text-reserved"
+    },
+    {
+      "semanticKey": "attention.queue",
+      "meaning": "Recorded attention items in a project, across their actual states.",
+      "ownerRef": "docs/work-core/attention.md",
+      "words": {
+        "en": "Attention items"
+      },
+      "accessibleName": {
+        "en": "Attention items"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "text-reserved"
+    },
+    {
+      "semanticKey": "spark.surface",
+      "meaning": "The Spark surface for derived observations and follow-up.",
+      "ownerRef": "engineering/design/spark-surface-2026-09-10/be41-dto.md",
+      "words": {
+        "en": "Spark"
+      },
+      "accessibleName": {
+        "en": "Spark"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "courtwork-domain",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "text-reserved"
+    },
+    {
+      "semanticKey": "chat.object",
+      "meaning": "A user-facing conversation backed by Session.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Chat"
+      },
+      "accessibleName": {
+        "en": "Chat"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "message-square",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "project.object",
+      "meaning": "A container for chats; not a governed Matter.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Project"
+      },
+      "accessibleName": {
+        "en": "Project"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "folder",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "workspace.object",
+      "meaning": "The folder binding and files of a session.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Workspace"
+      },
+      "accessibleName": {
+        "en": "Workspace"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "folder",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "matter.object",
+      "meaning": "A governed domain work identity supplied by its binding.",
+      "ownerRef": "docs/work-core/contract.md",
+      "words": {
+        "en": "Matter"
+      },
+      "accessibleName": {
+        "en": "Matter"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "courtwork-domain",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "text-reserved"
+    },
+    {
+      "semanticKey": "expert.role",
+      "meaning": "A configured domain expert role, not a model identity.",
+      "ownerRef": "docs/work-core/contract.md",
+      "words": {
+        "en": "Expert"
+      },
+      "accessibleName": {
+        "en": "Expert"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "courtwork-domain",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "text-reserved"
+    },
+    {
+      "semanticKey": "model.object",
+      "meaning": "A model identity; requested and observed identities remain distinct.",
+      "ownerRef": "app/docs/request-telemetry.md",
+      "words": {
+        "en": "Model"
+      },
+      "accessibleName": {
+        "en": "Model"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "reasoning.setting",
+      "meaning": "An effort setting supported by the selected model catalogue.",
+      "ownerRef": "app/docs/request-telemetry.md",
+      "words": {
+        "en": "Reasoning effort"
+      },
+      "accessibleName": {
+        "en": "Reasoning effort"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "connection.object",
+      "meaning": "A configured route to a model provider.",
+      "ownerRef": "app/docs/runtime-foundation.md",
+      "words": {
+        "en": "Connection"
+      },
+      "accessibleName": {
+        "en": "Connection"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plug",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "tool.object",
+      "meaning": "A callable capability, not a package or connection.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Tool"
+      },
+      "accessibleName": {
+        "en": "Tool"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "plugin.object",
+      "meaning": "A runtime package with its own declared lifecycle.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Plugin"
+      },
+      "accessibleName": {
+        "en": "Plugin"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "mcp.server",
+      "meaning": "A service exposing MCP capabilities.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "MCP server"
+      },
+      "accessibleName": {
+        "en": "MCP server"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plug",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "review.open",
+      "meaning": "Read and decide against evidence under the governing review contract.",
+      "ownerRef": "docs/work-core/contract.md",
+      "words": {
+        "en": "Review"
+      },
+      "accessibleName": {
+        "en": "Review"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "review",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "approval.request",
+      "meaning": "A pending request to permit one identified action.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Approval"
+      },
+      "accessibleName": {
+        "en": "Approval"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "access.policy",
+      "meaning": "Standing access policy at the stated scope.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Access"
+      },
+      "accessibleName": {
+        "en": "Access"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "activity.view",
+      "meaning": "Recorded activity within an explicit scope and interval.",
+      "ownerRef": "app/docs/request-telemetry.md",
+      "words": {
+        "en": "Activity"
+      },
+      "accessibleName": {
+        "en": "Activity"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "activity",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "history.view",
+      "meaning": "Earlier records or versions of the named object.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "History"
+      },
+      "accessibleName": {
+        "en": "History"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "trace.view",
+      "meaning": "Diagnostic events of a particular execution.",
+      "ownerRef": "app/docs/request-telemetry.md",
+      "words": {
+        "en": "Trace"
+      },
+      "accessibleName": {
+        "en": "Trace"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "run.object",
+      "meaning": "One execution of a conversation, with its recorded lifecycle.",
+      "ownerRef": "app/docs/api-v6.md",
+      "words": {
+        "en": "Run"
+      },
+      "accessibleName": {
+        "en": "Run"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "state.unknown",
+      "meaning": "The owner cannot establish the current state; never interpreted as zero.",
+      "ownerRef": "engineering/mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md",
+      "words": {
+        "en": "Unknown"
+      },
+      "accessibleName": {
+        "en": "Unknown"
+      },
+      "symbolClass": "State",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "status",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped"
+    }
+  ]
+}
