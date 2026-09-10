@@ -2,7 +2,8 @@
  * the backend can accept.
  *
  * Growth (CI-B). The field grows with its content from its variant's min-height
- * to its max-height (Chat 88 → 180, Home 96 → 160, Home modules 48 → 160, all
+ * to its max-height (Chat starts with two content lines and grows to 180;
+ * Home 96 → 160, Home modules 48 → 160, all
  * declared in styles.css), then scrolls. Where `field-sizing: content` is
  * supported the stylesheet does all of it and this module does nothing. Where it
  * is not, `installComposerGrowth` sizes the box from `scrollHeight`. Neither path

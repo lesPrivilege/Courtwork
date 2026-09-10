@@ -100,3 +100,7 @@
 - 缺少当前源历史，或只有大于1的现行修订且无法证明其为首修订，返回该 Matter `partial/source_history_unavailable`，全部计数 null、refs 空、sourceSetChange null。旧迁移只保留当前源成员时不编造前一修订。出现候选源修订领先 Matter 返回 `partial/source_version_inconsistent`。null 在 partial 下表示不可完整观察；仅 observed 下才可解释为无前修订。
 - 单 Matter 序列化投影预算8192 UTF-8字节（不含随后附加的固定长度snapshot），超限为 `partial/projection_budget_exceeded`，不暗中截断源差集。整页另有1,000,000 UTF-8字节上限；身份元数据本身仍超限时显式HTTP409 `PROJECTION_BUDGET`，不截断身份。refs 正常至多20条且仍提供精确stale总数。项目任一行partial（包括页外行）使coverage为 `partial/matter_projection_incomplete`；total仍是已识别的全部拥有Matter。
 - Core 整体读取/传输失败沿现有错误响应，不伪造空项目或零。没有足够身份信息时不制造 unavailable 行；DTO 对 unavailable/null 的既有语义保留。投影无历史数据回读，不提供candidate下钻新端点。现有客户端仅本地比较快照，顶层空页token与服务端预期token消费待前端接线。
+
+## 2026-09-11 · 接线候选补充
+
+施工候选 `0cbbf7e` 已按上段真实后端合同消费零版本、FILE版本回退、顶层空页token与服务端预期token；[有界接线证据](../../../evidence/summary-be41-construction-20260911/be41-b/README.md)。此状态覆盖上段“前端待修复/接线”的候选进度，不代表main已接受。显式样本仍保持原字节（现位于`app/web/samples/spark-derivations/`），无top的历史样本只可由row绑定，空样本保持null；live top必须为64hex且与行一致。快照变化409提供从头Refresh，不以重试旧token循环；其他409仍是原错误分支。

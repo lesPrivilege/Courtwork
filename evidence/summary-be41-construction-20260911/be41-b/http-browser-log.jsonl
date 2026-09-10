@@ -1,0 +1,5 @@
+{"url":"http://127.0.0.1:18981","projectId":"389cc9b8-bd38-40c8-ad8c-4c388335b4ee","provider":"none","fixture":"27 version-zero Matters; one rollback; change off-page on first next-page read"}
+{"path":"/api/v5/work-derivations?projectId=389cc9b8-bd38-40c8-ad8c-4c388335b4ee&limit=25&offset=0","status":200}
+{"path":"/api/v5/work-derivations?projectId=389cc9b8-bd38-40c8-ad8c-4c388335b4ee&limit=25&offset=25&snapshotRef=core-state%3Ac156e03fafc4bdd349267a1d5a267edfa264b1a05f429bbe8e20401b322d2dcb","status":409}
+{"path":"/api/v5/work-derivations?projectId=389cc9b8-bd38-40c8-ad8c-4c388335b4ee&limit=25&offset=0","status":200}
+{"path":"/api/v5/work-derivations?projectId=389cc9b8-bd38-40c8-ad8c-4c388335b4ee&limit=25&offset=25&snapshotRef=core-state%3A822d44ebbcc4fb26094be1cf0f165478484f294e4cda66e484095057f9a80bb0","status":200}

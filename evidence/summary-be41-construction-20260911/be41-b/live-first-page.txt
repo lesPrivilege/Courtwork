@@ -1,0 +1,99 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:18981/".
+1 AXWebArea CourtWork, URL: 127.0.0.1:18981/
+	2 container Spark
+		3 container
+			4 heading Spark, Value: 2, ID: spark-title
+				5 text Spark
+			6 text Maintenance state read from Core — which Matters have fallen behind their current source set.
+			7 button Close Spark
+		8 pop up button (collapsed, settable) Description: Spark project, Value: test-project, Secondary Actions: Expand
+			9 menu
+				10 (selected) test-project
+		11 button Refresh
+		12 tab group Spark view
+			13 tab (selected, settable, boolean) Overview, Value: 1, ID: spark-tab-overview
+			14 tab (selectable, settable, boolean) Activity, Value: 0, ID: spark-tab-activity
+		15 container Description: Overview, ID: spark-panel
+			16 text As of 2026-09-10T18:49:37.847Z
+			17 heading UP TO DATE, Value: 3
+				18 text UP TO DATE
+			19 button Open Synthetic maintenance 0 in Work
+			20 text Source revision 3 0 current, none stale
+			21 text Revision 2 → 3 · 1 replaced
+			22 button Open Synthetic maintenance 1 in Work
+			23 text Source revision 1 0 current, none stale
+			24 text No prior source revision recorded.
+			25 button Open Synthetic maintenance 2 in Work
+			26 text Source revision 1 0 current, none stale
+			27 text No prior source revision recorded.
+			28 button Open Synthetic maintenance 3 in Work
+			29 text Source revision 1 0 current, none stale
+			30 text No prior source revision recorded.
+			31 button Open Synthetic maintenance 4 in Work
+			32 text Source revision 1 0 current, none stale
+			33 text No prior source revision recorded.
+			34 button Open Synthetic maintenance 5 in Work
+			35 text Source revision 1 0 current, none stale
+			36 text No prior source revision recorded.
+			37 button Open Synthetic maintenance 6 in Work
+			38 text Source revision 1 0 current, none stale
+			39 text No prior source revision recorded.
+			40 button Open Synthetic maintenance 7 in Work
+			41 text Source revision 1 0 current, none stale
+			42 text No prior source revision recorded.
+			43 button Open Synthetic maintenance 8 in Work
+			44 text Source revision 1 0 current, none stale
+			45 text No prior source revision recorded.
+			46 button Open Synthetic maintenance 9 in Work
+			47 text Source revision 1 0 current, none stale
+			48 text No prior source revision recorded.
+			49 button Open Synthetic maintenance 10 in Work
+			50 text Source revision 1 0 current, none stale
+			51 text No prior source revision recorded.
+			52 button Open Synthetic maintenance 11 in Work
+			53 text Source revision 1 0 current, none stale
+			54 text No prior source revision recorded.
+			55 button Open Synthetic maintenance 12 in Work
+			56 text Source revision 1 0 current, none stale
+			57 text No prior source revision recorded.
+			58 button Open Synthetic maintenance 13 in Work
+			59 text Source revision 1 0 current, none stale
+			60 text No prior source revision recorded.
+			61 button Open Synthetic maintenance 14 in Work
+			62 text Source revision 1 0 current, none stale
+			63 text No prior source revision recorded.
+			64 button Open Synthetic maintenance 15 in Work
+			65 text Source revision 1 0 current, none stale
+			66 text No prior source revision recorded.
+			67 button Open Synthetic maintenance 16 in Work
+			68 text Source revision 1 0 current, none stale
+			69 text No prior source revision recorded.
+			70 button Open Synthetic maintenance 17 in Work
+			71 text Source revision 1 0 current, none stale
+			72 text No prior source revision recorded.
+			73 button Open Synthetic maintenance 18 in Work
+			74 text Source revision 1 0 current, none stale
+			75 text No prior source revision recorded.
+			76 button Open Synthetic maintenance 19 in Work
+			77 text Source revision 1 0 current, none stale
+			78 text No prior source revision recorded.
+			79 button Open Synthetic maintenance 20 in Work
+			80 text Source revision 1 0 current, none stale
+			81 text No prior source revision recorded.
+			82 button Open Synthetic maintenance 21 in Work
+			83 text Source revision 1 0 current, none stale
+			84 text No prior source revision recorded.
+			85 button Open Synthetic maintenance 22 in Work
+			86 text Source revision 1 0 current, none stale
+			87 text No prior source revision recorded.
+			88 button Open Synthetic maintenance 23 in Work
+			89 text Source revision 1 0 current, none stale
+			90 text No prior source revision recorded.
+			91 button Open Synthetic maintenance 24 in Work
+			92 text Source revision 1 0 current, none stale
+			93 text No prior source revision recorded.
+			94 text Every Matter in scope is current with its source set. No prompt is generated for a quiet read.
+			95 button More Matters
+			96 text 1–25 of 27 Matters
+
+The focused UI element is 2 container Spark
