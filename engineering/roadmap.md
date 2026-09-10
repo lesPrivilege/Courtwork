@@ -2,6 +2,14 @@
 
 ## 当前串行执行入口（2026-09-10）
 
+### 用户后续排序修订：基本产品与通用 harness 优先
+
+本段覆盖下表原先以 BE-41 并行片作为近期主导的排序，不删除历史派单事实。先以基本前端产品面的完整交互反推后端缺口，同时检查无可见按钮的取消、恢复、权限和持久化基础能力；再收敛为自足稳定的通用 agent 节点。tool / skill / MCP 管理、普通自然语言 memory、web fetch、多级 prompt 编排均进入现状核验，不因用户报告缺失就跳过代码证据，也不因已有底层模块就称 GUI 闭环完成。
+
+当前可先执行 [Pro 标杆与 harness 评审单](execution/2026-09-10-harness-pro-review.md)：先对标、缺口和复用选型，再生成有界施工合同，由本地 Astra light 实现、非作者复核。Claude 前端继续，本 session 接收合流。BE-41 保留既有请求记录，但不是通用基础完备门的前置，不扩展为 Spark/自研优先路线。
+
+顺序为：基本 GUI 与通用 harness 闭环 → 自足稳定节点 → 自研编排封装的前后端合流及独立 runtime 替换验证。Courtwork 封装 Codex、Attention Assistant 封装 ChatGPT 网页端属于后续候选消费场景，不宣称已有受支持接缝。Rust 重构在稳定节点后按测量收益与迁移成本裁决；长期架构与 GUI 宿主方案现在可评审，不现在重写。通用 agent harness 与 Semantic Work Core 分开；自然语言 memory 不成为正式成果/决定的第二真源。
+
 用户授权本 session Astra 统一清账与接收 Claude，并同时开独立 Astra light 后端 task。此处是唯一总顺序入口；[current](current.md)仍拥有实际交付状态，专项合同与证据保留各自事实，不另建平行总 roadmap。接单基线本次读取为 main `1992e90`，每轮必须重新读取实际 HEAD、工作树与交付 SHA。
 
 | 顺序 | 工作 / owner | 合同与依赖 | 下一动作 / 完成条件 |
