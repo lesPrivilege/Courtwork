@@ -5714,7 +5714,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .spark-matter-row.is-unavailable { outline:2px dotted var(--muted-strong); outline-offset:4px; }
 .spark-unavailable { color:var(--muted-strong); font-style:italic; }
 .spark-chip-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
-.spark-chip { font-size:var(--text-meta); padding:2px 8px; border:1px solid var(--line); border-radius:999px; color:var(--muted-strong); }
+.spark-chip { font-size:var(--text-meta); padding:2px 8px; border:1px solid var(--line); border-radius:var(--radius-pill); color:var(--muted-strong); }
 .spark-source-change { margin:4px 0 0; }
 .spark-activity-matter { margin:20px 0; }
 .spark-table-scroll { overflow:auto; margin-top:8px; }
