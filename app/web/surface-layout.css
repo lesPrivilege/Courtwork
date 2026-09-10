@@ -48,3 +48,13 @@
 /* Long names stay within their own column at every layer. */
 .surface-rail, .surface-content, .surface-header { min-width: 0; }
 .surface-rail .rail-row-value { overflow-wrap: anywhere; min-width: 0; }
+/* The tab list may scroll; chrome actions must never be pushed off-screen. */
+.surface-header .surface-tabs {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.surface-header .surface-tab { flex: none; }
+.surface-header .surface-document-tab { max-width: min(260px, 100%); }
+.surface-header .toolbar { flex: none; }
