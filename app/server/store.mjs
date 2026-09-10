@@ -492,7 +492,9 @@ export class RuntimeStore {
               ...connection,
               models: connection.models.map(model => ({ ...model, reasoning: model.reasoning ?? null })),
             })),
-            providerConfigurationPending: [],
+            // Schema11 already owns recovery fences; an upgrade must not
+            // turn a partially published connection or credential ready.
+            providerConfigurationPending: parsed.schemaVersion >= 11 ? parsed.providerConfigurationPending : [],
             providerConfigVersion: 0,
             providerVerifications: [],
             sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
