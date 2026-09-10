@@ -1459,13 +1459,30 @@ details[open] > summary.flow-row::after {
   resize: none;
   width: 100%;
   min-height: 88px;
-  max-height: 180px;
+  /* CI-B · the ceiling (WK-97) holds on ordinary screens; on short viewports —
+     200 % zoom, a landscape phone — growth stops at 28 % of the height so the
+     conversation keeps a readable band (at 400px tall: 112, not 180). */
+  max-height: min(180px, 28dvh);
   border: 0;
   padding: 4px;
   background: transparent;
   outline: 0;
   line-height: 1.65;
   box-shadow: none;
+}
+/* CI-B · the field grows with what it holds, from the variant's min-height to
+   its max-height (Chat 88 → 180 here; Home 96 → 160 and Home modules 48 → 160
+   below), then scrolls. Where `field-sizing` is unsupported composer-field.mjs
+   sizes the box instead; neither path writes the value. */
+@supports (field-sizing: content) {
+  #composer-input { field-sizing: content; }
+}
+/* CI-F · a statement, not an error: muted like the run hint, no mark. */
+.composer-notice {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px;
+  margin: 0;
 }
 .composer-controls {
   display: flex;
@@ -3487,7 +3504,7 @@ dialog[open]::backdrop {
 }
 /* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96；
    Work 是 continuation control，初始 88。两者都随输入增长到同一个上限。 */
-.home-active #composer-input { min-height: 96px; max-height: 160px; }
+.home-active #composer-input { min-height: 96px; max-height: min(160px, 28dvh); }
 
 /* WK-12 · Project and file-writes scope join the model chip in the composer's
    own bottom control row; Send stays at the trailing edge. */

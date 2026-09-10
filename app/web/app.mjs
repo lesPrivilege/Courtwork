@@ -74,6 +74,7 @@ import {
   shortRef,
 } from "./surface-modules.mjs";
 import { renderUserMessage } from "./user-message.mjs";
+import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";
 
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
@@ -3291,6 +3292,8 @@ function renderComposer() {
     if (runHint) runHint.hidden = true;
     stopWorkingClock();
     renderHomeComposerContext();
+    syncComposerNotice("home");
+    fitComposer();
     return;
   }
   // WS-08: no session keeps the textarea disabled; a send pending for this
@@ -3333,9 +3336,29 @@ function renderComposer() {
     textarea.value = "";
     textarea.placeholder = "Select a chat to continue";
   }
+  syncComposerNotice(session?.id ?? null);
+  fitComposer();
   /* The floating layer stops at the composer's top edge, so the composer's own
    * height is one of its two measurements (WK-72). */
   measureSurfaceLayout();
+}
+
+/* CI-B · set by wireEvents; a no-op where the stylesheet sizes the field itself. */
+let fitComposer = () => {};
+
+/* CI-F · the unsupported-paste sentence belongs to one draft target. It goes
+ * when the person types or pastes again, sends, or moves to another chat. */
+function setComposerNotice(text, key) {
+  const notice = $("composer-notice");
+  if (!notice) return;
+  notice.textContent = text;
+  notice.hidden = !text;
+  if (text) notice.dataset.key = String(key);
+  else delete notice.dataset.key;
+}
+function syncComposerNotice(key) {
+  const notice = $("composer-notice");
+  if (notice && !notice.hidden && notice.dataset.key !== String(key)) setComposerNotice("", null);
 }
 
 /* WK-96 · one machine-checkable fact about Home's first screen: the composer is
@@ -3373,7 +3396,13 @@ function measureHomeLead() {
   const area = body.getBoundingClientRect();
   const box = form.getBoundingClientRect();
   if (!area.height || !box.height) return;
-  const centre = box.top + box.height / 2 - area.top;
+  /* CI-B · the anchor is the resting composer, not the current one: the field
+   * grows with its draft, and a lead read from a grown box leaves an emptied
+   * composer above the WK-96 line. Growth therefore goes downward and the
+   * draft's first line stays where it was. */
+  const field = $("composer-input");
+  const growth = Math.max(0, field.getBoundingClientRect().height - (Number.parseFloat(getComputedStyle(field).minHeight) || 0));
+  const centre = box.top + (box.height - growth) / 2 - area.top;
   // Modules have a finite top lead instead of the old 56%-height anchor:
   // their records and the first pending item must fit in the same first screen.
   const next = homeLayoutPreference() === "modules"
@@ -5115,6 +5144,7 @@ function applyComposerDraft(sessionId, text, { unavailable, done, before }) {
     return false;
   }
   composer.value = text;
+  fitComposer();
   state.draftCache.set(sessionId, composer.value);
   state.draftRevisions.set(sessionId, draftRevision(sessionId) + 1);
   state.draftDirty.add(sessionId);
@@ -6283,11 +6313,19 @@ function wireEvents() {
   document.addEventListener("focusin", (event) => {
     if (!$("composer-form").contains(event.target)) guardBumpFocusIntent();
   });
+  $("composer-form").addEventListener("submit", () => setComposerNotice("", null));
   $("composer-form").addEventListener("submit", submitRun);
   $("cancel-run-button").addEventListener(
     "click",
     () => void cancelCurrentRun(),
   );
+  fitComposer = installComposerGrowth($("composer-input"));
+  $("composer-input").addEventListener("paste", (event) => {
+    const field = event.currentTarget;
+    if (field.disabled || field.readOnly) return;
+    // Nothing is prevented: a paste with text stays the browser's own.
+    setComposerNotice(unsupportedPasteNotice(event.clipboardData), currentSession()?.id ?? "home");
+  });
   $("composer-input").addEventListener("compositionstart", () => {
     $("composer-input").dataset.composing = "true";
   });
@@ -6295,6 +6333,7 @@ function wireEvents() {
     delete $("composer-input").dataset.composing;
   });
   $("composer-input").addEventListener("input", () => {
+    setComposerNotice("", null);
     const session = currentSession();
     if (!session && state.view === "home") {
       state.homeDraft = $("composer-input").value;
