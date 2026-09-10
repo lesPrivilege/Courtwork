@@ -49,3 +49,5 @@ Tour 顺序：Home → Spark → Running → Attention → Action approval → A
 ## 检查
 
 当前空图位构建、链接、材质与统一批次测试通过；发布checker按预期拒绝pending。未运行新产品、未采集新UI、未进行页面浏览器测试。Luna只读探索作为截图规划输入，不构成未完UI的接受。
+
+Luna 已完成并交回 [候选UI节点与capture接缝探索](luna-explore.md)：Spark候选仍有合成/后端缺席边界，旧截图工具需要适配；本轮探索到此收束，等待实际完工合并节点。
