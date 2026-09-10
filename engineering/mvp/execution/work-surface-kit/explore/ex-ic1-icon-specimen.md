@@ -256,3 +256,7 @@ Open questions carried to the user are in `engineering/design/icon-specimen/obse
 
 The author does not merge this, does not push to `main`, does not deploy, and does not claim independent
 acceptance of their own work.
+
+## 16. 非作者接受（Fable，2026-09-10）
+
+复核于 `claude/fable-ic-ruling`（main `82c6036` 合入 `f5890fa`，无冲突）：变更路径与 §3 一致，`app/**` 无 diff；`sources.json` 71 条 sha 与 §4 三个 commit 一致；24 行映射状态与 §6 一致；四张截图与 200 % 探针在本树打开复核。裁定 **D**，全文 [WK-163](../intake-round-3.md)；§14 四问的回答在 WK-163 (b)。BASELINE-PROVENANCE-01 转 WO-IC-01。

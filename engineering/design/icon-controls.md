@@ -59,3 +59,7 @@ IC-5 的 Lucide 静态子集继续是唯一发货中的通用家族。候选家�
 ## IC-7 · Semantic admission refinement（2026-09-10）
 
 [Interaction vocabulary](home-composition-2026-09-10/interaction-vocabulary.md)补充五类准入、semantic key与glyph name分离及实际renderer接缝。通用动作禁止自绘重设计；IC-6 donor仅限有证据的语义缺口，不作随意混搭通道。Lucide继续发货，MingCute是优先视觉候选，尚未完成选型。展开/菜单glyph与focus语义按 [Disclosure / Overlay](home-composition-2026-09-10/disclosure-overlay.md)。
+
+## IC-8 · 家族选型裁定：不换族（WK-163，2026-09-10）
+
+[EX-IC1 specimen](icon-specimen/README.md) 在真实槽位并排 Lucide / MingCute Regular / Phosphor Regular 之后，裁定 **D：不做家族级迁移**。Lucide 1.41.0 静态子集仍是唯一 canonical 家族，IC-6 donor 通道保留。三条硬事实：候选族同名义尺寸下 bbox 占比中位 0.56 对 Lucide 0.69（全站小一档）；MingCute Regular 为 butt cap / miter join、Phosphor Regular 为填充轮廓，两者都不满足 IC-6 canonical geometry；Phosphor 缺 `panel-right`。IC-6 光学验收补一条：donor 归一后的占比须与同尺寸 Lucide 邻居同档。MingCute 仍是首选 donor 来源；Phosphor 降为参考，不作 donor 来源。symbol id 语义化仍以换族或引 donor 为触发，今日不做。全文见 [intake-round-3 §4ay WK-163](../mvp/execution/work-surface-kit/intake-round-3.md)。
