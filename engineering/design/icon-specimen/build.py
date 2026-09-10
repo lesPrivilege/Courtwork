@@ -328,6 +328,7 @@ def render_html(mapping, inlined):
             .replace("<!--INVENTORY-->", "".join(inv))
             .replace("<!--SQUINT-->", "".join(squint))
             .replace("__BASE_SHA__", BASE_SHA))
+    html = "\n".join(line.rstrip() for line in html.splitlines()) + "\n"
     open(os.path.join(HERE, "index.html"), "w").write(html)
 
 
