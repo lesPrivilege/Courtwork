@@ -5,7 +5,7 @@ import path from "node:path";
 import { mkdtemp, mkdir, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { FAKE_CREDENTIAL_KEY, FAKE_MODEL_ID, FAKE_PROVIDER_ID } from "../runtime/pi-session-runtime.mjs";
-import { FIXTURE_WRONG_KEY } from "../runtime/fake-provider.mjs";
+import { FIXTURE_WRONG_KEY, createFakeOpenAiProvider } from "../runtime/fake-provider.mjs";
 import { boot, reopen } from "./helpers.mjs";
 
 // WO-PV-BE03: PV-59 (open admission), PV-61 (reasoning tri-state), PV-62
@@ -144,19 +144,23 @@ test("PV-61 · reasoning 三态：true → supportedEfforts 非 off；null → o
   }
 });
 
-// PV-62: the fixture proves the three outcomes BE-39 must be able to reach,
-// and the honest classification each one gets under pi 0.85.1.
-test("PV-62 · verify 三类 fixture 结果：成功 ok、401→unknown、未知模型→unknown，且不冒充精度", async () => {
+// PV-62/PV-84: the fixture proves the four outcomes BE-39 must be able to
+// reach, and the honest classification each one gets under pi 0.85.1 now
+// that `httpStatus` (captured through a wrapped `fetch`, not just
+// `onResponse` -- see classifyVerifyOutcome) supplies a structured signal on
+// every path, not only success.
+test("PV-62/PV-84 · verify 四类 fixture 结果：成功 ok、401→authentication_failed、未知模型→http_error、不可达→unreachable，且不冒充精度", async () => {
   const h = await boot();
   try {
     const extraId = "fake-extra-model";
     await putCatalogModels(h, [{ id: extraId }, { id: "unknown-upstream-model" }]);
 
     // Success: a real generation happened, and the receipt carries the
-    // model's own reply and provenance.
+    // model's own reply, provenance, and the real 2xx status.
     const ok = await h.api("POST", `/provider-connections/${FAKE_CATALOG_ID}/verify`, { model: extraId });
     assert.equal(ok.status, 200, JSON.stringify(ok.json));
     assert.equal(ok.json.status, "ok");
+    assert.equal(ok.json.httpStatus, 200);
     assert.equal(ok.json.connectionId, FAKE_CATALOG_ID);
     assert.equal(ok.json.model, extraId);
     assert.equal(ok.json.message, "The model answered.");
@@ -170,29 +174,50 @@ test("PV-62 · verify 三类 fixture 结果：成功 ok、401→unknown、未知
     const listedAfterOk = (await h.api("GET", "/provider-connections")).json.connections.find((c) => c.id === FAKE_CATALOG_ID);
     assert.deepEqual(listedAfterOk.lastVerification, ok.json);
 
-    // Unknown model: locally admissible (it is on the connection's own list),
-    // but the fixture's upstream does not actually have it. No structured
-    // status field survives this from pi 0.85.1 (see classifyVerifyOutcome),
-    // so the honest class is `unknown`, with the provider's own words kept.
+    // Unknown model: locally admissible (it is on the connection's own
+    // list), but the fixture's upstream returns a structured 404 for it.
+    // `httpStatus` carries that status; the hook has no body, so this is
+    // `http_error`, not the unreachable `model_not_found` class.
     const unknownModel = await h.api("POST", `/provider-connections/${FAKE_CATALOG_ID}/verify`, { model: "unknown-upstream-model" });
     assert.equal(unknownModel.status, 200, JSON.stringify(unknownModel.json));
-    assert.equal(unknownModel.json.status, "unknown");
+    assert.equal(unknownModel.json.status, "http_error");
+    assert.equal(unknownModel.json.httpStatus, 404);
     assert.match(unknownModel.json.message, /does not exist/);
     assert.equal(unknownModel.json.replyFirstLine, null);
 
-    // 401: a connection saved with the fixture's wrong-key marker. Same
-    // honest collapse -- this project's OWN provider-preview.mjs reaches
-    // `authentication_failed` structurally (it reads a raw fetch Response);
-    // this call cannot, because it goes through pi's generation path instead.
+    // 401: a connection saved with the fixture's wrong-key marker. The
+    // wrapped `fetch` observes the raw 401 response before the vendored
+    // OpenAI SDK throws on it, so this is `authentication_failed`.
     const compat = await h.api("POST", "/provider-connections", {
       api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, models: [{ id: FAKE_MODEL_ID }], apiKey: FIXTURE_WRONG_KEY,
     });
     assert.equal(compat.status, 200, JSON.stringify(compat.json));
     const badAuth = await h.api("POST", `/provider-connections/${compat.json.connection.id}/verify`, { model: FAKE_MODEL_ID });
     assert.equal(badAuth.status, 200, JSON.stringify(badAuth.json));
-    assert.equal(badAuth.json.status, "unknown");
+    assert.equal(badAuth.json.status, "authentication_failed");
+    assert.equal(badAuth.json.httpStatus, 401);
     assert.match(badAuth.json.message, /Incorrect API key/);
     assert.equal(badAuth.json.message.includes(FIXTURE_WRONG_KEY), false, "the key itself never appears in the receipt");
+
+    // Unreachable: a compatible connection whose baseUrl points at a
+    // loopback port nothing listens on. A connection save always probes its
+    // directory synchronously (`#saveProviderConnection`), so the port has to
+    // be LISTENING at save time; start a second fixture server, save against
+    // it (passing the probe), then stop that server before verifying -- the
+    // saved baseUrl now points at an unlistened loopback port, same as the
+    // patch order names. The wrapped fetch never resolves a Response at all,
+    // so `httpStatus` stays null -- the network-layer case, distinct from a
+    // structured non-2xx.
+    const deadServer = await createFakeOpenAiProvider();
+    const deadPort = await h.api("POST", "/provider-connections", {
+      api: "openai-completions", baseUrl: deadServer.baseUrl, models: [{ id: FAKE_MODEL_ID }], apiKey: "any-key",
+    });
+    assert.equal(deadPort.status, 200, JSON.stringify(deadPort.json));
+    await deadServer.close();
+    const unreachable = await h.api("POST", `/provider-connections/${deadPort.json.connection.id}/verify`, { model: FAKE_MODEL_ID });
+    assert.equal(unreachable.status, 200, JSON.stringify(unreachable.json));
+    assert.equal(unreachable.json.status, "unreachable");
+    assert.equal(unreachable.json.httpStatus, null);
   } finally {
     await h.runtime.close();
   }
