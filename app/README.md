@@ -83,11 +83,11 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 11 store (see below)
+  runtime-state.json        # schemaVersion 12 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
-  credentials.json          # {provider: apiKey}, 0600, never in the store
+  credentials.json          # {connectionId: apiKey}, 0600, never in the store
   workspaces/<sessionId>/
     materials/               # POST .../materials writes here
     out/                      # where the model is expected to write results
@@ -102,10 +102,11 @@ task.
 <a id="store-schema-v8-validated-v3v4v5v6v7-upgrade"></a>
 <a id="store-schema-v9-validated-v3v4v5v6v7v8-upgrade"></a>
 <a id="store-schema-v10-validated-v3v4v5v6v7v8v9-upgrade"></a>
-## Store schema (v11, validated v3/v4/v5/v6/v7/v8/v9/v10 upgrade)
+<a id="store-schema-v11-validated-v3v4v5v6v7v8v9v10-upgrade"></a>
+## Store schema (v12, validated v3/v4/v5/v6/v7/v8/v9/v10/v11 upgrade)
 
-`schemaVersion` is `11`. A valid v3/v4/v5/v6/v7/v8/v9/v10 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v11. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
+`schemaVersion` is `12`. A valid v3/v4/v5/v6/v7/v8/v9/v10/v11 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v12. Runtime12 (WO-PV-BE03) adds two top-level fields and one connection-model field: `providerConfigVersion` (a monotonic counter, bumped by any `providerConfig` or `providerConnections` write) and `providerVerifications` (one BE-39 verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}` — either changing invalidates it); each connection model entry gains `reasoning: true | false | null` (PV-61), defaulting to `null` (never declared) on upgrade. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)
