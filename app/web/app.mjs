@@ -3134,16 +3134,19 @@ function renderChatHeader() {
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
    * scope。Chat 与 Work 是同一个对象的两种模式，所以它们共用一条标题行，模式词
    * 作为陈述跟在后面，而不是两个分开的界面。M-2 / WK-113 ③ 之后 `Memory · Off`
-   * 不再挂在这一行上：scope 位属于工作面的标题带，由 `renderSurfaceScope()` 画。 */
+   * 不再挂在这一行上：scope 位属于工作面的标题带，由 `renderSurfaceScope()` 画。
+   * WO-CS-01 · 模式词与导航同一口径（WK-92）：Chat 是默认的那一种，不再说一遍；
+   * Work / Attention 仍跟在标题后面，与 run 词同一行。 */
   const meta = $("session-meta");
   meta.replaceChildren();
   if (!settingsOpen && session) {
-    meta.append(
-      element("span", {
-        className: "session-mode",
-        text: session.scope === "global" ? "Attention" : sessionModeLabel(session),
-      }),
-    );
+    if (session.scope === "global" || sessionMode(session) === "work")
+      meta.append(
+        element("span", {
+          className: "session-mode",
+          text: session.scope === "global" ? "Attention" : sessionModeLabel(session),
+        }),
+      );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
   $("show-surface-button").hidden = settingsOpen || state.attentionOpen || !session;
@@ -3619,8 +3622,9 @@ function focusSurfaceRail() {
   (first ?? $("surface-expand-button"))?.focus();
 }
 /* WK-72 · the layer's two measurements: how much room the composer leaves it,
- * and whether the main column can still hold a 740 reading column and a 360
+ * and whether the main column can still hold the reading column and the 288
  * card side by side. Both are read from the live box, never assumed. */
+const READING_FLOOR = 640;
 function measureSurfaceLayout({ render = true } = {}) {
   const chat = document.querySelector(".chat-panel");
   const composer = $("composer-area");
@@ -3635,9 +3639,12 @@ function measureSurfaceLayout({ render = true } = {}) {
     state.surface.composerHeight = height;
     document.documentElement.style.setProperty("--composer-h", `${height}px`);
   }
+  /* WO-CS-01 · the cards stay only while the reading column keeps its 640 floor
+   * (the C-state chat minimum and the WORK-4 check) with the tight content inset
+   * on both sides; below that they fold to the strip instead of narrowing prose. */
   const strip =
     chat.getBoundingClientRect().width <
-    480 + 2 * px("--col-gap", 24) + 288;
+    READING_FLOOR + 2 * px("--content-inset-tight", 32) + 288 + px("--col-gap", 24);
   if (strip !== state.surface.strip) {
     state.surface.strip = strip;
     if (render) renderSurfaceVisibility();
