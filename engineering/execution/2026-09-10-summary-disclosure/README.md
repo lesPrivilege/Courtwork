@@ -89,3 +89,7 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 ### 材质与焦点回查（用户 20:45 纠正）
 
 最近先例：`app/web/styles.css` 的 `.home-attention` / `.home-attention-item`、全局 `:focus-visible`（WK-128）与 `.rail-card`；依据 `engineering/design/home-composition-2026-09-10/material-grammar.md`。Home 与持续文件/阅读面为 solid/raised；glass 仍仅两个已登记消费者，不存在本卡片漏装的 blur 依赖。新 summary 原本无 radius，导致共享 focus 呈方形。局部补 `--radius-small`、8px 控件内距及既有 hover/pressed；外层复用 `--rim`，保留浮层边界和阴影。focus 色、2px 线/offset、原生 Enter/Space 与 owner facts 保持。Astra 作者执行真实浏览器 Home 对照和焦点计算样式；本增量不声称独立视觉接受，不新增玻璃消费者。
+
+### 外壳比例裁定
+
+用户20:57明确ChatSpace/composer由Claude独立开工，Astra仅裁定。[尺寸关系与写权交接](layout-ruling.md)记录导航图标/行距、顶带安全高度、中间列留白与右卡收起条件；本轮不改产品或覆盖Claude施工。
