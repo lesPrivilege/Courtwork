@@ -3975,7 +3975,8 @@ function renderSurfaceRail() {
     /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
     if (schema) {
       const identity = JSON.stringify(module.kind === "file" ? schema.ref :
-        [facts.sessionId, module.kind, schema.extension?.id || null]);
+        [facts.sessionId, module.kind, schema.extension?.id || null,
+          schema.extension?.generation ?? null, schema.projection?.stateVersion ?? null, schema.revision ?? null]);
       const label = module.kind === "file" ? "File information" :
         module.kind === "runtime" ? "Resources" : schema.extension ? "Work information" : "Files";
       cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
