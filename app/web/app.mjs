@@ -5689,7 +5689,11 @@ function closeSettings({ restoreFocus = true, hash = true } = {}) {
   settingsView.close();
   if (hash && readSettingsHash() !== null) location.hash = "";
   renderChatHeader();
-  if (restoreFocus) restoreLayerFocus(trigger);
+  if (restoreFocus) {
+    // A deep link has no focusable opener; Home hides the shared page title.
+    const fallback = state.view === "home" && !state.attentionOpen ? $("composer-input") : $("session-title");
+    restoreLayerFocus(trigger === document.body ? null : trigger, fallback);
+  }
 }
 function syncSettingsFromHash({ read = true } = {}) {
   const section = readSettingsHash();
