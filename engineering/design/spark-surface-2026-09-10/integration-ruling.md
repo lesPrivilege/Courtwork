@@ -1,4 +1,4 @@
-# Spark 集成裁决 · SP-1…SP-9
+# Spark 集成裁决 · SP-1…SP-13
 
 产品基线 main `0c60f4f`。样本基线为 `codex/multi-experts-longlife-20260910` 的 `852bd3e`，其产品基线 `8b1e0b1`。本页只作裁决与接单边界，不含实现；SP0 样本的 [README](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/README.md.txt)、[projection-contract](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/projection-contract.md.txt) 与 [construction-handoff](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/construction-handoff.md.txt) 仍为输入，本页在其上收窄。
 
@@ -85,3 +85,13 @@ BE-41 未交付前不派 SP1-FE。
 **SP-12 覆盖 SP-9 的顺序。** 顺序改为 SP1-FE（Luna，合成数据）→ BE-41（Astra）→ 接线与真实覆盖 → 独立验证。DTO 已按 [BE-41 冻结件](be41-dto.md) 固定，前端按该形状写 adapter，不自造字段。
 
 原始 SP0 三份输入按固定 `852bd3e01a06077c105d356004b64021d821b888` 的 SHA + path 原字节归档，见 [来源清单](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/manifest.json)。`.md.txt` 保留历史正文与当时相对链接，不作为当前实现状态；本合同的后续裁决优先。
+
+## SP-13 · 显式、只读的样本例外（2026-09-10）
+
+依用户 SD-16「允许」及本轮独验合流授权，覆盖 SP-10 的「不显示任何合成数字」一句：BE-41 未交付时，真实请求仍先判定来源；仅合同 404 的 `unimplemented` 面提供 **Show sample data**，用户点击后展示五份既有 canonical 样本，不自动回退、不新增全局预览模式。
+
+来源由 header 一次灰字 **Sample data** 标明；场景切换只读同一份产品 JSON，经与 live 相同的 DTO 校验和渲染。样本 Matter 标题不可导航，假 ID 不进入 Core。**Hide sample data** 退出，**Check for a source again** 显式再探；有效 live（含空集）整体接管，非 404 错误丢弃样本，404 保留已有样本。项目切换和页面刷新重新判定 live。
+
+异步边界同属此合同：旧样本的响应头或 body 均不得跨项目、关闭、隐藏或较新的 live 探测重新发布；样本切换不能取消真实探测，探测期间场景选择禁用。隐藏只取消待发布样本，不取消进行中的 live 结果。
+
+固定输入为 Fable `6d5c444` 的 [SD-16…21 原文](../../../evidence/pv-sd-integration-20260910/sources/sample-intake-6d5c444.md.txt)。此修订只接受 WO-SD-01 的产品样本例外，不交付 BE-41，不实施 Attention 样本，不关闭 SP-12 的后端、接线及真实覆盖阶段。原历史证据中「夹具不进入运行产品数据源」保留历史语义；从此产品可显式读取带标签的样本，不把它们视为维护事实。

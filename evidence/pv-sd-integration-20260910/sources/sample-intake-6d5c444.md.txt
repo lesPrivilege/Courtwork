@@ -1,0 +1,104 @@
+# Surface sample data · 裁定（Fable，2026-09-10）
+
+## 1. 现状核对（`main` `9c8b64e`）
+
+- Spark：五份 fixture `app/tests/fixtures/spark-derivations/{stale,quiet,empty,partial,truncated}.json`，按 BE-41 冻结 DTO；`spark-view.mjs:86` 把 404 记为 `unimplemented`，`spark-view.mjs:238` 显示 "No source yet. This runtime has no maintenance source connected here."。该行为是 Astra 裁定 **SP-10** 的明文："BE-41 未交付期间该面呈 `unimplemented` 态，显示尚无来源，不显示任何合成数字"（`engineering/design/spark-surface-2026-09-10/integration-ruling.md`）。用户 2026-09-10 的裁定"前端先用合成数据施工"覆盖的是施工顺序（SP-12），不是产品显示。
+- Attention：真实后端与动作契约已在 main（`docs/work-core/attention.md`）；`app/tests/fixtures/attention-actions.json` 是从运行中的 Core 捕获的动作描述符；`attention-ingest/{gmail,github}` 是离线摄入 fixture。处置层 ATT-FE-01 已建成未合（`claude/att-fe01-triage`）。
+- 转发稿对现状的陈述与以上一致；它自己也承认 Spark 一项是"重新打开一个旧裁决"。
+
+## 2. 裁定
+
+**SD-1（契约采纳，产品进入另有门）** 转发稿的 takeover 契约采纳为本批次的契约文本（§3）。它的产品化在 Spark 上意味着改写 SP-10 的一句话——SP-n 归 Astra，且"不显示任何合成数字"是 Astra 在 BE-41 未交付期间的明确选择。本批次不越权改写：先以探索与契约成文，产品进入以 **Astra 对 SP-10 的修订 + 用户裁定** 为门。已升报（§5）。
+
+**SD-2（sample 不是回退）** 回退的定义是"live 失败后拿假数据顶上"；本契约里 sample 只在两种入口出现：该面在此宿主上 `unimplemented`（后端明确 404 的合同态），或用户显式打开预览。live 失败从不落到 sample。这一条与 SP-10 的动机（不让读者把合成数字当事实）同向，差别只在"有来源标签的样本"是否算"合成数字"——这正是要请 Astra 复裁的点。
+
+**SD-3（空响应是 live）** 有效的 live 载荷包括空集；Attention 返回 0 项时投影切到 live 的空态，不保留样本。否则用户永远看不到自己已清空。
+
+**SD-4（原子切换，单一来源）** 一个面在一个时刻只有一个 provenance；live 首次有效到达时整个投影原子切换；已有 live 之后的错误显示错误并按各面既有契约保留最近一次 live，不回到 sample。
+
+**SD-5（来源标签一次，字先于形）** 标签在 surface header 出现一次，不逐卡标注；用字沿 copy-convention 复看后定（候选 `Sample` / `Preview data`），不着色、不用图标承担语义（与 PV-36 / PV-41 同源）。这与 Projection Grammar 的"投影不得创造事实"相容：标签正是使样本不成为事实的那一句。
+
+**SD-6（Attention 的样本是内容 fixture）** Attention 的样本记录必须是 Core Attention DTO 形状（与 `attention-actions.json` 的动作描述符同一契约），可由 Gmail / GitHub 情境改写而来，但 Gmail / GitHub fixture 本身不进前端，不成为第二套数据模型。样本态的动作可展开、只读，不向 Core 写；需要完整交互时另作确定性的本地 reducer，假 ID 不进真实 store。
+
+**SD-7（Spark 的样本晋升现有 fixture）** 不新造数据：五份 fixture 即五个 canonical 场景；默认场景待 EX-SD1 核过各场景露出的解剖后定（稿中建议 `stale`）。fixture 一旦成为产品资产，其变更须与 BE-41 DTO 同步，测试与产品读同一份文件。
+
+**SD-8（Design Scout 位阶）** 稿中优先级（current main / accepted rulings → existing implementation → mature external practice → old Scout as leads → new local specimen / ruling）与 WK-112 的设计研究回路及 Scout README 一致，采纳为本批次与 PV 批次的共同读法；不另立规则。
+
+**SD-9（EX-SD1 派单）** Sonnet 只读探索：① 两面今日的数据装载与四态（loading / unimplemented / empty / error）处理，file:line；② 五份 Spark fixture 各自露出哪些 UI 解剖（哪些区块只在该场景可见），据此给默认场景建议；③ Attention 五状态样本可从哪些既有 fixture 与 DTO 字段合成，动作描述符如何在只读态渲染；④ 仓内已有的"显式预览 / 本地模式"开关先例（local-fake provider、skin-policy、URL 参数、Settings 项）——sample 入口应长在哪个既有开关上，不新造开关；⑤ Pages 截图与视觉回归链路今日读什么数据；⑥ 转发稿引用的 Grafana TestData、Storybook 网络 mock、Linear Inbox 三条以第一方文档核其被引用的那一句是否成立。产出事实与矩阵；契约文本与 specimen 归 Fable。
+
+## 3. 契约文本（草案，待 SD-1 门）
+
+```text
+Surface projection ← exactly one DTO
+  provenance ∈ { live, sample }
+  sample  ⇐ unimplemented(404 by contract) ∨ explicit preview
+  live    ⇐ any valid live payload, empty included
+  error after live ⇒ error state (+ last live where the surface contract retains it); never sample
+  live ∩ sample = ∅ ; switch is atomic and whole-surface
+  label: once, in the surface header; text, uncolored
+  sample actions: expandable, read-only, no write to Core
+  default sample scenario (Spark): stale.json ; pagination state not covered by any fixture (SD-11)
+  read-only exit: one explicit branch between chooseAction/submitAction and mutate(); send() stays the sole write point (SD-13)
+  entry: a text action "Show sample data" inside the surface's own unimplemented sentence; session-scoped, not persisted; no global switch (SD-14)
+```
+
+## 4. 派单
+
+| 单 | 承接 | 报告 |
+|---|---|---|
+| EX-SD1 | Sonnet，只读 | `/private/tmp/se-fable-sd/explore/ex-sd1-sample-surface.md` |
+
+## 5. 升报
+
+- **对 Astra**：请求复裁 SP-10 的"不显示任何合成数字"——在有 surface 级来源标签、只在 `unimplemented` 或显式预览下出现、live 空集优先的条件下，是否允许 Spark 在 BE-41 未交付期间显示样本场景。
+- **对用户**：SD-1 的产品进入门是否开启（推荐：开启，条件如上，先 Spark 后 Attention）。
+
+## 6. EX-SD1 回执（Fable，2026-09-10）
+
+回执 [explore/ex-sd1-sample-surface.md](explore/ex-sd1-sample-surface.md)。
+
+**SD-10（四态与保留的事实）** Spark 的四态齐全但"曾有 live 后出错"不保留（`spark-view.mjs:68` 无条件清空）；Attention 的 Home 卡保留并告知（`app.mjs:5335`、`home-view.mjs:182` "Showing the last loaded records."），完整工作区不保留且 `refreshRegistry` 存在无提示的隐式保留。裁定：保留行为按各面既有契约（SD-4 原文），本批次不为 sample 新增保留逻辑；`refreshRegistry` 的无提示保留登记为 Attention 线的观察项，不在本批次处理。
+
+**SD-11（默认场景 = `stale`）** `stale.json` 是唯一同时露出 Overview 的 Behind 区与 Up to date 区并给出非空 Activity 表的 fixture，稿中建议由事实成立。五份 fixture 无一触发分页器（total ≤ limit），分页态不在样本覆盖内，如实写进契约。
+
+**SD-12（Attention 样本缺 `waiting`）** `attention-packets.json` 可供四态完整 DTO，`waiting` 无任何快照。裁定：样本集的 `waiting` 记录须与 `attention-actions.json` 同法——对运行中的 Core 发一次真实 `set_waiting` 捕获，不手写；样本数据集因此是"捕获再冻结"的，与 SD-6 一致。Gmail / GitHub 摄入 fixture 不是 DTO 形状，确认不进前端。
+
+**SD-13（只读动作的落点）** 唯一写入点是 `attention-view.mjs:427` 的 `request(...POST)`；`toAttentionActionDescriptors` 为纯函数可复用。sample 态的只读分支须落在 `chooseAction` / `submitAction` 到 `mutate` 之间的一个显式出口，不替换 `send()` 内部（写入点保持唯一、可读）。
+
+**SD-14（入口不新造全局开关）** 仓内没有数据来源级的预览开关；`?shell=desktop` 不持久且不可见，local-fake 连接是 provider 模式而非数据来源，两者都不宜承担。裁定：sample 的入口长在该面 `unimplemented` 态自己的那句话上——"No source yet…" 后接一个文字动作 "Show sample data"，会话内有效、不持久、刷新即回到 live 判定；header 标签随之出现。显式预览因此是每面一次的明确动作，不是模式。Pages 取证脚本可点击该动作，替代今日在 `browser-checks.mjs` 注入 mock 的做法——这会使 `evidence/spark-delivery-20260910/README.md` 的"夹具不进入运行产品数据源"一句改义为"夹具进入产品渲染但带来源标签"，属 SD-1 门的后果，一并请裁。
+
+**SD-15（外部引用）** Grafana 成立；Storybook 的"同一契约、确定性网络态"为稿作者的概括，官方页无此措辞；Linear 的 J/K 与 snooze 成立。本批次无裁定以其为条件。
+
+§3 契约文本据 SD-11 / SD-13 / SD-14 补三句：默认场景 `stale`；只读出口位置；入口为 `unimplemented` 态内的一次显式动作。§5 升报不变，待用户与 Astra。
+
+## 7. 用户裁定与派单（2026-09-10）
+
+**SD-16（用户裁定：SD-1 门开启）** 用户 2026-09-10 "允许"。条件即 §2 / §3 契约：只在合同态 404 的 `unimplemented` 或显式预览下出现；surface header 标一次；live 空集优先；样本动作只读；先 Spark 后 Attention。SP-10 的"不显示任何合成数字"由此被用户裁定覆盖，与 SP-12 覆盖 SP-9 同一性质；请 Astra 在合流时以 SP-13 记录该修订（编号归 Astra，本批次不代写）。
+
+**SD-17（用字）** 标签词定为 "Sample data"（header 一次，灰字，无图标）；入口动作 "Show sample data"；退出 "Hide sample data"；再探 "Check for a source again"。不用 "Preview"——它在本产品已被 Appearance 的实时预览占用（EX-SD1 ④）。
+
+**SD-18（样本文件归产品）** 五份 fixture 从 `app/tests/fixtures/spark-derivations/` 移到 `app/web/samples/spark-derivations/`，测试改读新路径；一份文件、两个读者（SD-7）。静态白名单（`app/server/index.mjs` 的 `STATIC`）为此加一行循环登记五个 JSON——这是本单唯一的 `app/server` 改动，明示交 Astra 合流时接受；不加则功能不存在，与 PV-54 的"可留给合流"情形不同。
+
+**SD-19（样本态的导航与分页）** 样本 matter 不可打开（`onOpenMatter` 在样本态不接线，标题渲染为文字），分页器在五份 fixture 下不触发（SD-11）。样本态不发任何 `/work-derivations` 请求；"Check for a source again" 显式发一次，有效 live（含空集）即原子切回 live 并丢弃样本态，仍 404 则留在样本态。切换项目或刷新页面即回到 live 判定。
+
+| 单 | 承接 | 内容 |
+|---|---|---|
+| WO-SD-01 | Sonnet | Spark 样本面：入口、标签、场景切换、切回 live、样本文件归产品、白名单一行、用例 |
+| WO-SD-02 | 待 EX 补 | Attention 样本集：先对运行中的 Core 捕获 `waiting`（SD-12），再成文 |
+
+## 8. WO-SD-01 复核（Fable，2026-09-10）
+
+交付页在施工树 `engineering/mvp/execution/surface-sample-data/delivery-sd-01.md`（分支 `claude/sd01-spark-sample`，头 `6b62579`，五提交，作者 660/660，浏览器断言 10/10，截图两张加一张补充）。Fable 独立重跑 **660/660，fail 0，exit 0**（头 `6b62579`）。读 diff 核实：入口只在 `unimplemented` 态；样本经 `fetch` 静态文件而非 `request()`，走同一 `validSparkDerivations` 与同一渲染函数；`load()` 对任何有效 live（含空集）与非 404 错误都丢弃样本，404 原样保留；样本 matter 标题渲染为 `span`，`onOpenMatter` 不接线；切换项目与刷新回到 live 判定；`Refresh` 在样本态让位给 "Check for a source again"。截图核过：样本头一行灰字 "Sample data · [Stale] · Check for a source again · Hide sample data"，密度与既有控件行一致，无色无图标。
+
+**SD-20（三项待裁定）** ① 补充截图 `no-entry-before-check.png` 保留为第三张，不替换两张必需图。② 探测进行中不加 "checking…" 文字：样本内容保持、按钮禁用即是信号，与 SD-4 的原子切换一致。③ 场景标签沿 fixture 名首字母大写（Stale / Quiet / Empty / Partial / Truncated）：它们是 DTO 与 fixture 自己的词，不造描述文案。
+
+**SD-21（观察，不入本单）** 样本态与 live 态的 "As of" 都直接显示 ISO 原串（live 空态同样如此），属 Spark 既有呈现，登记为 Spark 线的观察项。
+
+**结论：接受（作者验证级）。** 合流须知（交 Astra）：① `app/server/index.mjs` 只多一行 `STATIC` 循环登记五个样本 JSON（SD-18 授权）；② 五份 fixture 由 `app/tests/fixtures/spark-derivations/` 移至 `app/web/samples/spark-derivations/`，`spark-projection.test.mjs` 改路径，evidence 脚本 `browser-checks.mjs` 未动（历史证据）；③ 请以 SP-13 记录 SP-10 被用户裁定 SD-16 覆盖；④ 本分支与 PV 第三轮（BE03 + FE02）不共享文件，可独立合流。
+
+### 批次节点（2026-09-10）
+
+| 单 | 状态 | 头 |
+|---|---|---|
+| WO-SD-01 Spark 样本面 | Fable 复核接受（作者级），660/660 | `6b62579` |
+| WO-SD-02 Attention 样本集 | 未成文；前置：对运行中的 Core 捕获 `waiting`（SD-12）与入口态裁定 | — |

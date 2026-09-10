@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 最新接收：Provider 接入与 Spark 显式样本（2026-09-10）
+
+用户授权 PV `bb21027` 与 SD `6b62579` 独验合流，候选从实际 main `67ed0fd` 隔离整合。产品固定 `654411e`，RuntimeStore **12 / Core 4 / app 5**；PV-54 纯投影已抽离并登记静态白名单，[SP-13](design/spark-surface-2026-09-10/integration-ruling.md)记录用户允许的显式、带来源标签、只读样本例外。
+
+Astra 独验发现并修复三项：schema11 pending 升级丢失、verify 忽略活动身份端点/API 覆盖、Spark 样本异步覆盖 live/关闭/隐藏。三项修补均由非作者 Luna 复验，路由只命中合成 loopback、外网 0；Spark 15/15；PV 前端 8/8 浏览器及固定版 664/664、PV-54 31/31。最终组合固定产品全量 **685/685**，smoke、四项 lint、对比表与文档链接通过；首轮 682/683 的 readiness 超时与中间测试结果保留，不改写为一次全绿。[整合回执、原始反例与实际界面截图](../evidence/pv-sd-integration-20260910/README.md)分开记录作者和独立证据。
+
+本节点接收本地 main，不包含推送或部署。BE-41、Attention 样本、真实 provider/个人数据迁移及 G1–G5 不关闭；共享 UI checkout 与其他 writer 的未提交变更保留。下列 schema/status 均为各自历史时点，不覆盖本段。
+
 ## 最新接收：VG01 与比较研究入账（2026-09-10）
 
 用户授权接收 VG01 固定 `2eca488`：Opus 图示、Fable VG14–20 与 Pages 校验，经 Luna 固定版本有界独验及 Astra 最终页面检查后合入本地 main。[整合凭据](../evidence/vg01-main-integration-20260910/README.md)记录正反例和归因。Registry 迁往 design 留待 Fable 接续；无产品/schema改动，未推送或部署，不关闭 G1–G5。

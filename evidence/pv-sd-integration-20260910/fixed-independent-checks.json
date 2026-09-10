@@ -1,0 +1,158 @@
+{
+  "base": "http://127.0.0.1:8948",
+  "fixedSha": "6b6257937e2dff0bcf46f9a31f40184ee95c57b3",
+  "projects": {
+    "a": "35f1b274-3aba-4e22-b3a5-a0e0a19404df",
+    "b": "c5c33496-867a-46de-92f9-8e5be4397835"
+  },
+  "checks": [
+    {
+      "id": "SDI-1",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActi"
+    },
+    {
+      "id": "SDI-2",
+      "pass": true,
+      "sampleTag": 1,
+      "matterTag": "SPAN",
+      "openBefore": true,
+      "openAfter": true
+    },
+    {
+      "id": "SDI-3",
+      "pass": true,
+      "loaded": [
+        "quiet",
+        "empty",
+        "partial",
+        "truncated",
+        "stale"
+      ]
+    },
+    {
+      "id": "SDI-4",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityAs of 2026-09-10"
+    },
+    {
+      "id": "SDI-5",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActi"
+    },
+    {
+      "id": "SDI-6",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BOverviewActivitySample dataStaleQuietEm"
+    },
+    {
+      "id": "SDI-7",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivitySynthetic indepe"
+    },
+    {
+      "id": "SDI-8",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityNo source yet. T"
+    },
+    {
+      "id": "SDI-9",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityNo source yet. T"
+    },
+    {
+      "id": "SDI-10",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityNo source yet. This runtime has no maintenance source co",
+      "events": [
+        "slow-sample-json",
+        "slow-sample-resolved"
+      ],
+      "expectedOnFailure": "post-json generation fence"
+    },
+    {
+      "id": "SDI-11",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityAs of 2026-09-10T12:19:21.978ZBehind the current source ",
+      "scenarioDisabled": true,
+      "expectedOnFailure": "live result remains authoritative during scenario fetch"
+    },
+    {
+      "id": "SDI-12",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityNo source yet. This runtime has no maintenance source co",
+      "events": [
+        "slow-sample-json",
+        "slow-sample-resolved",
+        "slow-sample-json",
+        "slow-sample-resolved"
+      ],
+      "expectedOnFailure": "close generation fence"
+    },
+    {
+      "id": "SDI-13",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityNo source yet. This runtime has no maintenance source co",
+      "events": [
+        "slow-sample-json",
+        "slow-sample-resolved",
+        "slow-sample-json",
+        "slow-sample-resolved",
+        "slow-sample-json",
+        "slow-sample-resolved"
+      ],
+      "expectedOnFailure": "hide sample body fence"
+    },
+    {
+      "id": "SDI-14",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSD independent ASD independent BRefreshOverviewActivityAs of 2026-09-10T12:19:21.978ZBehind the current source ",
+      "expectedOnFailure": "hide must not cancel live probe"
+    },
+    {
+      "id": "SDI-15",
+      "pass": true,
+      "staticResults": [
+        {
+          "name": "stale",
+          "status": 200,
+          "type": "application/json; charset=utf-8",
+          "sameBytes": true,
+          "sha256": "7e85c7379de18facd5bca0e35c852d38bbfb717e6c5c036843fd252f16493726"
+        },
+        {
+          "name": "quiet",
+          "status": 200,
+          "type": "application/json; charset=utf-8",
+          "sameBytes": true,
+          "sha256": "01bbf04d153b8d2fa7aa6e1d5efe74c44fd7bb653bbf20dfe48cabbf68209c55"
+        },
+        {
+          "name": "empty",
+          "status": 200,
+          "type": "application/json; charset=utf-8",
+          "sameBytes": true,
+          "sha256": "1073da1cad4e54eb27610c764429ca4dabd51307bfa1a98ced2bb622557f33c7"
+        },
+        {
+          "name": "partial",
+          "status": 200,
+          "type": "application/json; charset=utf-8",
+          "sameBytes": true,
+          "sha256": "4520df43fd09bea944f1393459fd7085844739f22f79fc97b74b16b4df13bd71"
+        },
+        {
+          "name": "truncated",
+          "status": 200,
+          "type": "application/json; charset=utf-8",
+          "sameBytes": true,
+          "sha256": "140676a6c939d29c60594dc337c2a25879f1b60ca416e65c95056d4df56b5c5f"
+        }
+      ],
+      "unknown": 404,
+      "traversal": 404,
+      "post": 404
+    }
+  ],
+  "pass": true
+}
