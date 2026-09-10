@@ -41,3 +41,7 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 ## 2026-09-10 · Multi-agent selection
 
 [RD-005](RD-005-multi-agent-selection.md)：完整消费三turn，登记Astra/Luna分工、四通信面、候选PR与成熟参考负索引；研究/架构裁定，不构成产品接受。
+
+## 2026-09-11 · Google Workspace CLI参考
+
+[Google Workspace CLI / Tool ABI与Attention](google-workspace-cli-2026-09-11/README.md)：原文269行及hash、14项处置与EX-GWS-01～03消费索引已登记；上游主张未核验，候选未派工，不改变前端/通用Harness优先级。

@@ -1,0 +1,18 @@
+{
+  "receivedDate": "2026-09-11",
+  "sourceKind": "user-pasted-text",
+  "sourceFile": "inputs/source.txt",
+  "attachmentId": "004c0140-06da-46fd-be34-f1c0e3689a86",
+  "bytes": 7395,
+  "lines": 269,
+  "characters": 5364,
+  "sha256": "28de7d9d810372120933dd13b66752f1d933937507681d0bed4bf56ac334ed97",
+  "verbatim": true,
+  "baseMain": "7f06910584c8025086bd7f11f36d32c93958b1e4",
+  "upstreamProjectSlug": "googleworkspace/cli",
+  "upstreamUrl": "https://github.com/googleworkspace/cli",
+  "urlProvenance": "navigation URL constructed from the project slug in the pasted text; not fetched",
+  "upstreamRevision": null,
+  "externalVerification": "not-run",
+  "implementation": "not-started"
+}

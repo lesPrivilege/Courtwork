@@ -75,3 +75,7 @@
 详细的固定 commit、函数名、负面发现、许可可见范围和未检项见 [`verification.md`](verification.md)。当前最关键的结论是：GoRaven 的 README 与代码支持“按用户生成 workspace 路径、文件管理器做路径前缀检查”这一局部观察；`LocalShell` 默认不校验命令并以 `/bin/sh -c` 执行，代码路径没有证明 shell 被限制在该 workspace。Pi #7812 的实际页面状态是 closed / not planned，不能引用为已修复的并发隔离能力。
 
 所有外部页面仅支持 [selection-index](selection-index.md) 中的局部候选。没有一项外部页面核验会自动改写 Paper、架构权威、产品 schema、当前状态或 G1–G5 门。
+
+## 2026-09-11补充来源 · Google Workspace CLI
+
+[EX-GWS-02 / Attention Event Bridge](../google-workspace-cli-2026-09-11/README.md)收录用户提供的gws watch/subscribe、NDJSON、去重/确认/续期研究建议；状态indexed_unverified，未创建真实订阅或读取邮件。外部事件不直接成为Attention item或正式决定，后续沿原owner核验。

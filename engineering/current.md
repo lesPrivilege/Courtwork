@@ -6,6 +6,8 @@
 
 Harness并行P00现状/版本清账，下一产品候选聚焦MCP结果保真与实际SDK目录接缝，effect语义先冻结；RV26-Q03独立沿store/service串行接收。Pro前版包有效但逐项处置未完，缺失后版不混编号；BE-41、第二runtime、Rust及新MAS实现后置。Benchmark/Pages两个远端Draft均未消费其独有补丁，继续保留。RD-005与本轮核账仅文档接入本地main；未做产品merge、remote push或部署，未关闭前端整体/通用Harness/G1–G5完成门。
 
+Google Workspace CLI补充材料（2026-09-11）：[参考包](research/google-workspace-cli-2026-09-11/README.md)保存269行原文/哈希与14项处置，登记EX-GWS-01～03为未派工研究候选。Discovery、watch/subscribe、auth/dry-run、Skills等外部主张未核验；沿既有Tool ABI/Attention入口后续消费，不改变本节前端/通用Harness节点，未接入Google账户或产品能力。
+
 ## Pro 架构送审准备（2026-09-10）
 
 用户确认通用 Agent Harness / Semantic Work Core 解耦，授权 Pro 主导选型裁决、必要自研设计与施工拆单；基本 GUI 与通用 harness 完备在先，Work Core 深化、第二 runtime 与 Rust 实施后置。[送审工单](execution/2026-09-10-harness-pro-review.md)和[原始输出/逐项处置规范](research/harness-pro-2026-09-10/README.md)已建立，覆盖既有决策重开、源码证据、接口/反例/迁移与回退。用户授权审查合并后推送选定送审分支，网页端由用户唤醒；实际远端结果见交接回执，不宣称 Pro 已接单或输出已消费。本次仅文档，产品接受与既有门不变。
