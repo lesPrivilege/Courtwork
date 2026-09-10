@@ -1,0 +1,15 @@
+--- mid-stream, first delta just arrived (t=400ms) ---
+live:  ⠋ ·········· 0.0 tps
+final: 
+--- mid-stream, more deltas (t=1200ms) ---
+live:  ⠙ ·········· 75 tps
+final: 
+--- message 1 complete (idle/frozen) (t=2400ms) ---
+live:  ⠹ ·········· 60 tps
+final: TPS ·········· 60 avg | μ 60 | p10 60 | p95 60 | TTFT μ 0.00s
+--- message 2 complete (idle/frozen, graph now has 2 samples) (t=3000ms) ---
+live:  ⠋ ⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀ 210 tps | TTFT 0.10s | Elapsed 0.6s
+final: TPS ⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀ 135 avg | μ 135 | p10 60 | p95 210 | TTFT μ 0.10s | Elapsed 0.6s
+--- idle 11 minutes later (TPS/TTFT stats should have aged out of the 10-min window) (t=663000ms) ---
+live:  ⠙ ⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀ 0.2 tps | TTFT 0.10s | Elapsed 11m 00s
+final: Elapsed 0.6s
