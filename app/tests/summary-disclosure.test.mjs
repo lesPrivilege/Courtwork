@@ -212,6 +212,28 @@ test("Run card only offers Retry for an error and exposes callback failures", as
   });
 });
 
+test("removing a focused Retry action returns focus to the open disclosure summary", async () => {
+  await withTinyDom(async () => {
+    let current = project({}, { phase: "error", error: "Read failed.", generation: 10 });
+    let card;
+    card = createRunSummaryCard({
+      getSnapshot: () => current,
+      onRetry: () => {
+        current = project({}, { phase: "loading", generation: 10 });
+        card.update(current);
+      },
+    });
+    const details = card.element.querySelector("details");
+    details.open = true;
+    const retry = card.element.querySelector(".sd-run-summary-retry");
+    retry.focus();
+    retry.click();
+    assert.equal(card.element.querySelector("details").open, true);
+    assert.equal(document.activeElement.dataset.focusKey, "run-summary-details");
+    await flush();
+  });
+});
+
 test("Run card hides incompatible projection schemas instead of rendering stale details", async () => {
   await withTinyDom(async () => {
     let current = project();

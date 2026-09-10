@@ -293,7 +293,11 @@ export function createRunSummaryCard({
     root.append(disclosure);
     setBusy(busy);
 
-    if (focusKey) root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+    if (focusKey) {
+      const focusTarget = root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
+      if (focusTarget) focusTarget.focus();
+      else if (wasOpen) root.querySelector(".sd-run-summary-trigger")?.focus();
+    }
   }
 
   function update(snapshot) {
