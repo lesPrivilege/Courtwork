@@ -94,3 +94,9 @@ test('drilldown rejects malformed rows, wrong observation echo and unsafe pagina
   const bad=structuredClone(result);mutate(bad);assert.equal(validUsageRuns(bad,snapshot.overview,expected),false);
  }
 });
+
+test('drilldown accepts a persisted stopping run without turning it into stopped',async()=>{
+ const {validUsageRuns}=await import('../web/usage-projection.mjs');const state=fixture();state.runs[1].status='stopping';
+ const snapshot=deriveUsageDetails(state,{days:2},observed),result=selectUsageRuns(snapshot,{snapshotId:snapshot.overview.snapshotId,limit:25});
+ assert.equal(validUsageRuns(result,snapshot.overview),true);assert.equal(result.items.find(run=>run.id==='g1').status,'stopping');
+});

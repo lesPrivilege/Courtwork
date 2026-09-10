@@ -63,7 +63,7 @@ export function validUsageRuns(value, snapshot, {filter={},offset=0,limit=25}={}
   return value.items.every(run=>{
     if(!run || !nonempty(run.id) || ids.has(run.id) || !nonempty(run.sessionId) || typeof run.sessionTitle!=='string'
       || !(run.projectId===null || nonempty(run.projectId)) || (snapshot.scope.projectId!==null && run.projectId!==snapshot.scope.projectId)
-      || !['queued','running','waiting_user','completed','cancelled','failed','unknown'].includes(run.status) || !dateTime(run.startedAt)
+      || !['running','stopping','waiting_user','completed','cancelled','failed','unknown'].includes(run.status) || !dateTime(run.startedAt)
       || utcDay(run.date)===null || new Date(Date.parse(run.startedAt)).toISOString().slice(0,10)!==run.date
       || Date.parse(run.startedAt)<Date.parse(snapshot.interval.start) || Date.parse(run.startedAt)>=Date.parse(snapshot.interval.endExclusive)
       || !known.has(run.modelKey) || !modelIdentity(run.identity) || ((run.modelKey==='unknown')!==(run.identity===null))
