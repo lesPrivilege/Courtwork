@@ -3925,7 +3925,7 @@ const surfaceEntryDirectory = createSurfaceEntryDirectory({getSnapshot: () => {
   if (state.view !== "session" || state.settings.open || !currentSession()) return null;
   const summary = runSummarySnapshot();
   const runReader = detail => summary ? {
-    state: "ready", identity: summary.identity.runId, revision: summary.generation, detail,
+    state: "ready", identity: summary.identity.runId, detail,
     open: () => railHost.openRun(summary.identity.runId),
   } : {state: "empty", detail: "No run recorded in this chat."};
   return {schemaVersion: 1, scope: `${state.activeSessionId}:${state.sessionEpoch}`, entries: {
