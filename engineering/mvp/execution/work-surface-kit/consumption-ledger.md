@@ -29,3 +29,4 @@
 | BR-1 | 品牌宿主取色 | 已合入整合支 | wk6 |
 | WK-27 gaps | runtime-ui-gaps、gaps-wk9 | 已登记，后端待 Astra | — |
 | WK-69 / 73 高度层与 composer anatomy | `--float`、区域映射、背景 lint；composer 框内 / 框外 | 已合入整合支（r2） | wsk |
+| EX-IC1 | Icon 家族 specimen（Lucide / MingCute / Phosphor） | 已消费 | explore/ex-ic1-icon-specimen，WK-163 裁定 D；WO-IC-01 |

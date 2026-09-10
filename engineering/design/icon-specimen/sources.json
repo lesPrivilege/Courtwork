@@ -1,0 +1,1042 @@
+{
+  "specimen": "EX-IC1",
+  "courtwork_base_sha": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+  "runtime_network_fetches": 0,
+  "note": "Every consumed asset is copied verbatim from a pinned upstream commit and inlined into index.html. No CDN, no webfont, no icon font, no runtime fetch.",
+  "families": {
+    "lucide": {
+      "label": "Lucide",
+      "variant": "Regular (shipped baseline)",
+      "repository": "https://github.com/lucide-icons/lucide",
+      "tag": "1.41.0",
+      "commit": "bca7e75a816dcf1e75e8feb5a3198a68cbb8a052",
+      "upstream_asset_dir": "icons",
+      "license": "ISC (with the Feather MIT notice retained upstream)",
+      "license_file": "assets/lucide/LICENSE",
+      "license_sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+      "role": "SHIPPED BASELINE"
+    },
+    "mingcute": {
+      "label": "MingCute Regular",
+      "variant": "Core Regular",
+      "repository": "https://github.com/mingcute-design/mingcute-icons",
+      "tag": "v3.0.2",
+      "commit": "e884b033f868d1c38286537c75e764000dc74442",
+      "upstream_asset_dir": "packages/svg/core-regular",
+      "license": "Apache-2.0",
+      "license_file": "assets/mingcute-regular/LICENSE",
+      "license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "role": "CANDIDATE",
+      "source_variant_note": "MingCute publishes the same Core Regular geometry twice inside this commit: assets/svg/core/regular/<category>/<name>.svg hardcodes stroke=\"#10161F\", while packages/svg/core-regular/<name>.svg carries stroke=\"currentColor\". The specimen consumes the currentColor distribution so that all three columns inherit one foreground colour. Both are upstream-authored; the path data differs only in encoding, not in shape, and nothing was redrawn locally."
+    },
+    "phosphor": {
+      "label": "Phosphor Regular",
+      "variant": "Regular",
+      "repository": "https://github.com/phosphor-icons/core",
+      "tag": "v2.0.8",
+      "commit": "d42782b2abe747d904b971ccab48b182a1455f86",
+      "upstream_asset_dir": "assets/regular",
+      "license": "MIT",
+      "license_file": "assets/phosphor-regular/LICENSE",
+      "license_sha256": "b5b1f1da112d18ea2147decfd48ddc1bf2b5aeb6c265381579340e95b15a2bb2",
+      "role": "CANDIDATE",
+      "source_variant_note": "Phosphor Regular is authored as a filled outline on a 256x256 canvas (fill=currentColor), not as a stroked 24 grid. That is the family's own Regular weight, not the Fill weight, and it is preserved as authored."
+    }
+  },
+  "assets": [
+    {
+      "family": "lucide",
+      "asset": "activity",
+      "courtwork_semantics": [
+        "run.activity"
+      ],
+      "upstream_path": "icons/activity.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/activity.svg",
+      "sha256": "050fbcda05e13c2051cf857683645e19c6b180861ef4d0cc28a6f09ba1ea1666",
+      "bytes": 346,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/activity.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "arrow-down",
+      "courtwork_semantics": [
+        "scroll.latest"
+      ],
+      "upstream_path": "icons/arrow-down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-down.svg",
+      "sha256": "2b641c7a59d39450edfed72067fcc9940a1a316a737346af23b4b9103c0689f2",
+      "bytes": 262,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/arrow-down.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "arrow-up",
+      "courtwork_semantics": [
+        "composer.send"
+      ],
+      "upstream_path": "icons/arrow-up.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-up.svg",
+      "sha256": "8c22c25874c80bb062bef985d207d8f1d4a4d7847237d0a8cf720a3235968518",
+      "bytes": 261,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/arrow-up.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "chevron-down",
+      "courtwork_semantics": [
+        "disclosure.collapse"
+      ],
+      "upstream_path": "icons/chevron-down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-down.svg",
+      "sha256": "66ea878e72ed3488bb3b464c39dfdccee8d1f78e560dccea40e5e12da0e87e87",
+      "bytes": 236,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/chevron-down.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "chevron-right",
+      "courtwork_semantics": [
+        "disclosure.open"
+      ],
+      "upstream_path": "icons/chevron-right.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-right.svg",
+      "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b",
+      "bytes": 237,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/chevron-right.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "copy",
+      "courtwork_semantics": [
+        "content.copy"
+      ],
+      "upstream_path": "icons/copy.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/copy.svg",
+      "sha256": "ea80e566c7a12628a447cb53179b19aea4f60b9143e2becd0d0f20bf260e5718",
+      "bytes": 339,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/copy.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "external-link",
+      "courtwork_semantics": [
+        "navigate.external"
+      ],
+      "upstream_path": "icons/external-link.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/external-link.svg",
+      "sha256": "3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe",
+      "bytes": 332,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/external-link.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "file-text",
+      "courtwork_semantics": [
+        "object.file"
+      ],
+      "upstream_path": "icons/file-text.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/file-text.svg",
+      "sha256": "52ca55846c202335fb870c8aa23e9345630ec10489303756d62e750f7109605c",
+      "bytes": 444,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/file-text.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "folder",
+      "courtwork_semantics": [
+        "project.object"
+      ],
+      "upstream_path": "icons/folder.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/folder.svg",
+      "sha256": "f0d92b94b797a8ab7d4c4ae33c3236c47f64068351b4e14bdb5014ee42898a39",
+      "bytes": 342,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/folder.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "house",
+      "courtwork_semantics": [
+        "nav.home"
+      ],
+      "upstream_path": "icons/house.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/house.svg",
+      "sha256": "28216c479005731ef5e382e7d8627eda2b129b019eb1f3d9de9f5915576d448e",
+      "bytes": 383,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/house.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "maximize-2",
+      "courtwork_semantics": [
+        "surface.expand"
+      ],
+      "upstream_path": "icons/maximize-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/maximize-2.svg",
+      "sha256": "9b8413ad44a3d4f5a80049713743daddcdc3c5465a71c218cac156a99f582b5b",
+      "bytes": 309,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/maximize-2.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "message-square",
+      "courtwork_semantics": [
+        "question.pending"
+      ],
+      "upstream_path": "icons/message-square.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/message-square.svg",
+      "sha256": "5812a3be783fdcd73efd2b6026e03131e4b8c6649e7d52aa2dc7bf2e2023a59d",
+      "bytes": 339,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/message-square.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "minimize-2",
+      "courtwork_semantics": [
+        "surface.restore"
+      ],
+      "upstream_path": "icons/minimize-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/minimize-2.svg",
+      "sha256": "1150437d5a870321c59b7ebca2e1bc3f6227f0fa03dd10484ab384dfe5110739",
+      "bytes": 311,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/minimize-2.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "panel-left",
+      "courtwork_semantics": [
+        "chrome.nav.toggle"
+      ],
+      "upstream_path": "icons/panel-left.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/panel-left.svg",
+      "sha256": "029f67b9e3eeb7ddf7c7c499b174c50388725e8ea50d4ea59ed7dbaf8d61cb82",
+      "bytes": 284,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/panel-left.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "panel-right",
+      "courtwork_semantics": [
+        "chrome.work.toggle"
+      ],
+      "upstream_path": "icons/panel-right.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/panel-right.svg",
+      "sha256": "327d197328f9feb1f88c36c9db04e9b00fe717d877459f92fcd892f5e4c349fa",
+      "bytes": 285,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/panel-right.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "paperclip",
+      "courtwork_semantics": [
+        "session.files"
+      ],
+      "upstream_path": "icons/paperclip.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/paperclip.svg",
+      "sha256": "28308381efeab2e711feffe560a8eea33b092d440711aec108058041e5879f9f",
+      "bytes": 344,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/paperclip.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "plug",
+      "courtwork_semantics": [
+        "connection.identity"
+      ],
+      "upstream_path": "icons/plug.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/plug.svg",
+      "sha256": "11ba780e4b6f15d37906a8a73537144b59720333d7a9fc8048a437d0389422f8",
+      "bytes": 363,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/plug.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "plus",
+      "courtwork_semantics": [
+        "nav.new"
+      ],
+      "upstream_path": "icons/plus.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/plus.svg",
+      "sha256": "7f6af73bf1ff6c4bca3f18351c8d1bdec6749c0c2530c4de5da85d520c21df17",
+      "bytes": 256,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/plus.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "refresh-cw",
+      "courtwork_semantics": [
+        "read.refresh"
+      ],
+      "upstream_path": "icons/refresh-cw.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/refresh-cw.svg",
+      "sha256": "2e10dd403c85a24f163d59fc6151aa21147fe9402e1305dfc8979208caee8944",
+      "bytes": 392,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/refresh-cw.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "search",
+      "courtwork_semantics": [
+        "collection.search"
+      ],
+      "upstream_path": "icons/search.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/search.svg",
+      "sha256": "283d371c2e433817bb9c0c8310caa6c77fa4177c0f4f1168d9c83b97af7389dc",
+      "bytes": 275,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/search.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "settings-2",
+      "courtwork_semantics": [
+        "app.settings"
+      ],
+      "upstream_path": "icons/settings-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/settings-2.svg",
+      "sha256": "06d06c191bd7eb28afaf9d40acb5c49ef69448fdeda91801d9823d7c440a4e10",
+      "bytes": 324,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/settings-2.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "square",
+      "courtwork_semantics": [
+        "run.cancel"
+      ],
+      "upstream_path": "icons/square.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/square.svg",
+      "sha256": "bd979354f0ab184b95cecf03eedefe40c2dc65830ac6d7e60017b2b25a354acb",
+      "bytes": 261,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/square.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "square-pen",
+      "courtwork_semantics": [
+        "session.new"
+      ],
+      "upstream_path": "icons/square-pen.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/square-pen.svg",
+      "sha256": "09bdac7fdb94058246a5d3132eea0976e690d01694179ab6f474faa2c21de59a",
+      "bytes": 417,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/square-pen.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "lucide",
+      "asset": "x",
+      "courtwork_semantics": [
+        "surface.close"
+      ],
+      "upstream_path": "icons/x.svg",
+      "upstream_url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/x.svg",
+      "sha256": "4a9cdab38fbb96162e7dace28e33f4ca0e49d8963a6162abc3d4691b7d675117",
+      "bytes": 260,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/lucide/x.svg",
+      "license": "ISC (with the Feather MIT notice retained upstream)"
+    },
+    {
+      "family": "mingcute",
+      "asset": "add",
+      "courtwork_semantics": [
+        "nav.new"
+      ],
+      "upstream_path": "packages/svg/core-regular/add.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/add.svg",
+      "sha256": "acd18909af97cecc186598d2c862cbdc1634fd2ff8ba46143dc6e6ca285144d6",
+      "bytes": 168,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/add.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "arrow-down",
+      "courtwork_semantics": [
+        "scroll.latest"
+      ],
+      "upstream_path": "packages/svg/core-regular/arrow-down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/arrow-down.svg",
+      "sha256": "07f01c2c419d34f5652012083b4815f1fa73a43aa6067decd911e7c39ee10b0f",
+      "bytes": 214,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/arrow-down.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "arrow-up",
+      "courtwork_semantics": [
+        "composer.send"
+      ],
+      "upstream_path": "packages/svg/core-regular/arrow-up.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/arrow-up.svg",
+      "sha256": "d4fa95fa63c30e78d2ebe758d5c46b58125dd140c274380430994e5e45871517",
+      "bytes": 213,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/arrow-up.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "attachment",
+      "courtwork_semantics": [
+        "session.files"
+      ],
+      "upstream_path": "packages/svg/core-regular/attachment.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/attachment.svg",
+      "sha256": "b801bd5e1c1861a82339524f6709a37d1e42d94c0820713dbf605c0f434d8585",
+      "bytes": 299,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/attachment.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "close",
+      "courtwork_semantics": [
+        "surface.close"
+      ],
+      "upstream_path": "packages/svg/core-regular/close.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/close.svg",
+      "sha256": "5f1500aad166bfaaf317b0f8dadf9cee07c6e13ce6f1b7a36f86723b3152bbce",
+      "bytes": 202,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/close.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "copy",
+      "courtwork_semantics": [
+        "content.copy"
+      ],
+      "upstream_path": "packages/svg/core-regular/copy.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/copy.svg",
+      "sha256": "3d6d6ac3bb48493e97488d3bc3ec644e71abab6e883259ef96095420c660d02d",
+      "bytes": 495,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/copy.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "document-2",
+      "courtwork_semantics": [
+        "object.file"
+      ],
+      "upstream_path": "packages/svg/core-regular/document-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/document-2.svg",
+      "sha256": "22da719ccc877606130c1ad772b4e08e65a0e73dd161f7ed27832f04bd8bbb0a",
+      "bytes": 335,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/document-2.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "down",
+      "courtwork_semantics": [
+        "disclosure.collapse"
+      ],
+      "upstream_path": "packages/svg/core-regular/down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/down.svg",
+      "sha256": "25730db1152e6bac04158b551c7841df76e52b0ad11578eecb2cf8eaae28f74a",
+      "bytes": 208,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/down.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "edit",
+      "courtwork_semantics": [
+        "session.new"
+      ],
+      "upstream_path": "packages/svg/core-regular/edit.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/edit.svg",
+      "sha256": "c3574fd5c3869acc6bf15fab7428c043b903ea22215e86211341e3bba569ae4a",
+      "bytes": 219,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/edit.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "external-link",
+      "courtwork_semantics": [
+        "navigate.external"
+      ],
+      "upstream_path": "packages/svg/core-regular/external-link.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/external-link.svg",
+      "sha256": "adc407ee47b0c7acda5c430dac4faba0384c0b922f80b3e7eaa85e390f38647d",
+      "bytes": 256,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/external-link.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "folder",
+      "courtwork_semantics": [
+        "project.object"
+      ],
+      "upstream_path": "packages/svg/core-regular/folder.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/folder.svg",
+      "sha256": "299e4ff9529f59310bf4ca93c3db0fb95d90b697940131041b396d8b584d4b74",
+      "bytes": 249,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/folder.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "fullscreen-2",
+      "courtwork_semantics": [
+        "surface.expand"
+      ],
+      "upstream_path": "packages/svg/core-regular/fullscreen-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/fullscreen-2.svg",
+      "sha256": "7dc60dcfe22bf9060416413cd57ade3441c24c396e3545e5310c97022c96cefd",
+      "bytes": 220,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/fullscreen-2.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "fullscreen-exit-2",
+      "courtwork_semantics": [
+        "surface.restore"
+      ],
+      "upstream_path": "packages/svg/core-regular/fullscreen-exit-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/fullscreen-exit-2.svg",
+      "sha256": "bd12da17848e16f9f0c8cc05a8b0a0b9c18e92eec8b12a2f969182cf8326413a",
+      "bytes": 213,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/fullscreen-exit-2.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "heartbeat",
+      "courtwork_semantics": [
+        "run.activity"
+      ],
+      "upstream_path": "packages/svg/core-regular/heartbeat.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/heartbeat.svg",
+      "sha256": "ae70357a9f6e215939522919177ad7794721bdf7a0feb4eeae84c639e87f1ab6",
+      "bytes": 202,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/heartbeat.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "home-3",
+      "courtwork_semantics": [
+        "nav.home"
+      ],
+      "upstream_path": "packages/svg/core-regular/home-3.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/home-3.svg",
+      "sha256": "5477e49a59b4b3c4de3ae0d462f0aee1a399ecf0a31c61201a9f33a4510bf9c2",
+      "bytes": 370,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/home-3.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "layout-left",
+      "courtwork_semantics": [
+        "chrome.nav.toggle"
+      ],
+      "upstream_path": "packages/svg/core-regular/layout-left.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/layout-left.svg",
+      "sha256": "8425c2f838909da96754b5bbed2c5d3509c9aae549a2e159c007055c1dffbe3d",
+      "bytes": 209,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/layout-left.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "layout-right",
+      "courtwork_semantics": [
+        "chrome.work.toggle"
+      ],
+      "upstream_path": "packages/svg/core-regular/layout-right.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/layout-right.svg",
+      "sha256": "cf57effb8d86cb4e74f28f7b574cc3486e4eff50094490025c5d257ee44f1ed6",
+      "bytes": 210,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/layout-right.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "message-2",
+      "courtwork_semantics": [
+        "question.pending"
+      ],
+      "upstream_path": "packages/svg/core-regular/message-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/message-2.svg",
+      "sha256": "c92c0098b67c1341ab9592822941891e1655e5ac07dd505169673b4f26411cce",
+      "bytes": 269,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/message-2.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "plugin",
+      "courtwork_semantics": [
+        "connection.identity"
+      ],
+      "upstream_path": "packages/svg/core-regular/plugin.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/plugin.svg",
+      "sha256": "3f87c64ff97685c443ef35eb4cce30e68f26d9cd269c9446e162632b17f45869",
+      "bytes": 242,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/plugin.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "refresh-3",
+      "courtwork_semantics": [
+        "read.refresh"
+      ],
+      "upstream_path": "packages/svg/core-regular/refresh-3.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/refresh-3.svg",
+      "sha256": "96f47ad4d8e35b8e5fe353c90c021df1291f3e53c9d3955df166d6265e8bf959",
+      "bytes": 275,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/refresh-3.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "right",
+      "courtwork_semantics": [
+        "disclosure.open"
+      ],
+      "upstream_path": "packages/svg/core-regular/right.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/right.svg",
+      "sha256": "774cd636c264d4fd71b86fe795e31e094dce8b11c8c37a7008667e86b518cdc2",
+      "bytes": 208,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/right.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "search",
+      "courtwork_semantics": [
+        "collection.search"
+      ],
+      "upstream_path": "packages/svg/core-regular/search.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/search.svg",
+      "sha256": "95427e65255f944ef0d2684db172a8fb00f659978d7c009f252b9c497f71cc21",
+      "bytes": 226,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/search.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "settings-2",
+      "courtwork_semantics": [
+        "app.settings"
+      ],
+      "upstream_path": "packages/svg/core-regular/settings-2.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/settings-2.svg",
+      "sha256": "3234c8db54b2fb9c38fc02bbf03043b33d63bb6916a7499ed567587c32a90087",
+      "bytes": 221,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/settings-2.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "mingcute",
+      "asset": "square",
+      "courtwork_semantics": [
+        "run.cancel"
+      ],
+      "upstream_path": "packages/svg/core-regular/square.svg",
+      "upstream_url": "https://raw.githubusercontent.com/mingcute-design/mingcute-icons/e884b033f868d1c38286537c75e764000dc74442/packages/svg/core-regular/square.svg",
+      "sha256": "2fcf410e7311a1baf283666581c4a067217aa77d8a836432c568a2185c3d1950",
+      "bytes": 199,
+      "upstream_view_box": "0 0 24 24",
+      "local_path": "assets/mingcute-regular/square.svg",
+      "license": "Apache-2.0"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrow-down",
+      "courtwork_semantics": [
+        "scroll.latest"
+      ],
+      "upstream_path": "assets/regular/arrow-down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrow-down.svg",
+      "sha256": "cc6416ae83e20660f14b11f5525c6d05ee679c3f26cee41b696cb37aa905d4f5",
+      "bytes": 239,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrow-down.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrow-square-out",
+      "courtwork_semantics": [
+        "navigate.external"
+      ],
+      "upstream_path": "assets/regular/arrow-square-out.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrow-square-out.svg",
+      "sha256": "8610e8f5c7d4952ae1ada34ef56fa7cbab1780bc85f25a5c9482b74144790fc8",
+      "bytes": 347,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrow-square-out.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrow-up",
+      "courtwork_semantics": [
+        "composer.send"
+      ],
+      "upstream_path": "assets/regular/arrow-up.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrow-up.svg",
+      "sha256": "361aa9f9c52a759bf598faf6ed38ccd426f949f541d662c65b5b5d868fa76980",
+      "bytes": 257,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrow-up.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrows-clockwise",
+      "courtwork_semantics": [
+        "read.refresh"
+      ],
+      "upstream_path": "assets/regular/arrows-clockwise.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrows-clockwise.svg",
+      "sha256": "e04885c469577dcfbe872f02f146b0f20468bed072959a1175913f4bdb8bc8be",
+      "bytes": 555,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrows-clockwise.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrows-in-simple",
+      "courtwork_semantics": [
+        "surface.restore"
+      ],
+      "upstream_path": "assets/regular/arrows-in-simple.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrows-in-simple.svg",
+      "sha256": "07f22540ba343ad71cb9afab17d3bf62c1475c899a1ba6379bcafb738c7a750f",
+      "bytes": 340,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrows-in-simple.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "arrows-out-simple",
+      "courtwork_semantics": [
+        "surface.expand"
+      ],
+      "upstream_path": "assets/regular/arrows-out-simple.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/arrows-out-simple.svg",
+      "sha256": "df766bb615bf2ec178d2fa0e095684b4da0ecc6eba1f228ffba00139f16a4611",
+      "bytes": 335,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/arrows-out-simple.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "caret-down",
+      "courtwork_semantics": [
+        "disclosure.collapse"
+      ],
+      "upstream_path": "assets/regular/caret-down.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/caret-down.svg",
+      "sha256": "53f0cf2d0b144ac3cb07e353e0cd0853ffb3ed432d741460ce288edfcb0924b1",
+      "bytes": 214,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/caret-down.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "caret-right",
+      "courtwork_semantics": [
+        "disclosure.open"
+      ],
+      "upstream_path": "assets/regular/caret-right.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/caret-right.svg",
+      "sha256": "e6dec01e074807965b7f3146b976a9b5e82c31d9c2c88aeb52e77cc2ab16c1d7",
+      "bytes": 219,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/caret-right.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "chat",
+      "courtwork_semantics": [
+        "question.pending"
+      ],
+      "upstream_path": "assets/regular/chat.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/chat.svg",
+      "sha256": "acddfb478c17ee3fb049b57eec1db0b1ff4df1aceeb4937472c5e71a41e152fd",
+      "bytes": 356,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/chat.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "copy",
+      "courtwork_semantics": [
+        "content.copy"
+      ],
+      "upstream_path": "assets/regular/copy.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/copy.svg",
+      "sha256": "5a892fc6a72866e60c67db2088a87653cf44b57b1a5d183b36e950cdc5dd66b3",
+      "bytes": 279,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/copy.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "file-text",
+      "courtwork_semantics": [
+        "object.file"
+      ],
+      "upstream_path": "assets/regular/file-text.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/file-text.svg",
+      "sha256": "9a580a038cce9f6dd223597864abe1b5c5c03bf8176d2f7171574598468b16f7",
+      "bytes": 416,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/file-text.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "folder",
+      "courtwork_semantics": [
+        "project.object"
+      ],
+      "upstream_path": "assets/regular/folder.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/folder.svg",
+      "sha256": "4a882bcd4a91ae0a01887024f08d358932f183b6b171e87a3e48c5910364d507",
+      "bytes": 305,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/folder.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "house",
+      "courtwork_semantics": [
+        "nav.home"
+      ],
+      "upstream_path": "assets/regular/house.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/house.svg",
+      "sha256": "f674c1137ad26dafd368fec58ac981e304db6549a41c8cc689a0b550f15abdcc",
+      "bytes": 437,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/house.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "magnifying-glass",
+      "courtwork_semantics": [
+        "collection.search"
+      ],
+      "upstream_path": "assets/regular/magnifying-glass.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/magnifying-glass.svg",
+      "sha256": "f9fa2561978a9a3291e8ae0ebfcb651104f5069fade8f84871627bca68889cde",
+      "bytes": 243,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/magnifying-glass.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "note-pencil",
+      "courtwork_semantics": [
+        "session.new"
+      ],
+      "upstream_path": "assets/regular/note-pencil.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/note-pencil.svg",
+      "sha256": "583ab20d9b3835f575fcf8439247ad2ad915a89e7bbe68dea587d78b4ab33f93",
+      "bytes": 432,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/note-pencil.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "paperclip",
+      "courtwork_semantics": [
+        "session.files"
+      ],
+      "upstream_path": "assets/regular/paperclip.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/paperclip.svg",
+      "sha256": "b60210f558fb4693a083ed563af191709a7cafcbc8fb0d1d083db9ef9c2412ac",
+      "bytes": 397,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/paperclip.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "plug",
+      "courtwork_semantics": [
+        "connection.identity"
+      ],
+      "upstream_path": "assets/regular/plug.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/plug.svg",
+      "sha256": "513534dd9665042bfed73c669130a904a0ab17df06cc8c0e4a717721474839d9",
+      "bytes": 523,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/plug.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "plus",
+      "courtwork_semantics": [
+        "nav.new"
+      ],
+      "upstream_path": "assets/regular/plus.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/plus.svg",
+      "sha256": "d688feb9dd2e41c1721d6906a05a2a42e18cd774762fe706d72b2bdfd91cddc4",
+      "bytes": 212,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/plus.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "pulse",
+      "courtwork_semantics": [
+        "run.activity"
+      ],
+      "upstream_path": "assets/regular/pulse.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/pulse.svg",
+      "sha256": "9c1cc6fc4b2cd292b798294f8759c9e146b41cc5606357532fe200dd07b1323b",
+      "bytes": 343,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/pulse.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "sidebar-simple",
+      "courtwork_semantics": [
+        "chrome.nav.toggle"
+      ],
+      "upstream_path": "assets/regular/sidebar-simple.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/sidebar-simple.svg",
+      "sha256": "36818e1212cb24f5e1aa7e10480b0f4dc399d2c61d9b9b53c062d799dde162a3",
+      "bytes": 235,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/sidebar-simple.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "sliders-horizontal",
+      "courtwork_semantics": [
+        "app.settings"
+      ],
+      "upstream_path": "assets/regular/sliders-horizontal.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/sliders-horizontal.svg",
+      "sha256": "1d937baa3bc51ec4052364edf30cf8991d550920534f5d413eb9f60535cc1916",
+      "bytes": 360,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/sliders-horizontal.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "square",
+      "courtwork_semantics": [
+        "run.cancel"
+      ],
+      "upstream_path": "assets/regular/square.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/square.svg",
+      "sha256": "b576b2c78227d150d8d5dab88557b0f6236ad8530179ef671cdc118d5aa3c7bc",
+      "bytes": 216,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/square.svg",
+      "license": "MIT"
+    },
+    {
+      "family": "phosphor",
+      "asset": "x",
+      "courtwork_semantics": [
+        "surface.close"
+      ],
+      "upstream_path": "assets/regular/x.svg",
+      "upstream_url": "https://raw.githubusercontent.com/phosphor-icons/core/d42782b2abe747d904b971ccab48b182a1455f86/assets/regular/x.svg",
+      "sha256": "7397b15e1fa66eaf6ff9b59fe91d483cb5c3bcf75b2fe052097ab6f0593b513a",
+      "bytes": 284,
+      "upstream_view_box": "0 0 256 256",
+      "local_path": "assets/phosphor-regular/x.svg",
+      "license": "MIT"
+    }
+  ]
+}

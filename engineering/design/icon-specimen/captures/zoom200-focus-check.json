@@ -1,0 +1,235 @@
+{
+ "close": [
+  {
+   "family": "lucide",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  }
+ ],
+ "send": [
+  {
+   "family": "lucide",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  }
+ ],
+ "cancel": [
+  {
+   "family": "lucide",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  }
+ ],
+ "navigation": [
+  {
+   "family": "lucide",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "Home"
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "Home"
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "Home"
+  }
+ ],
+ "copy": [
+  {
+   "family": "lucide",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    44,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": null,
+   "label_text": null
+  }
+ ],
+ "workfile": [
+  {
+   "family": "lucide",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "app/web/ui-controls.mjs"
+  },
+  {
+   "family": "mingcute",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "app/web/ui-controls.mjs"
+  },
+  {
+   "family": "phosphor",
+   "control": [
+    696,
+    44
+   ],
+   "focus_ring_clipped": false,
+   "clipped_by": null,
+   "glyph_clipped": false,
+   "label_truncated": false,
+   "label_text": "app/web/ui-controls.mjs"
+  }
+ ],
+ "_layout_viewport": [
+  720,
+  2
+ ],
+ "_h_scroll": false
+}

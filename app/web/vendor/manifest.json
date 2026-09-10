@@ -128,6 +128,10 @@
         "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/external-link.svg",
         "sha256": "3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe"
       },
+      "plug.svg": {
+        "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/plug.svg",
+        "sha256": "11ba780e4b6f15d37906a8a73537144b59720333d7a9fc8048a437d0389422f8"
+      },
       "LICENSE": {
         "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/LICENSE",
         "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
@@ -142,7 +146,7 @@
     "floating.mjs": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
-    "icons.svg": "b6fddbbaf21256e9187adf425763159866f300fa41f528f1f26d0ada1bf8a8aa",
+    "icons.svg": "dbc6fdc0d82ce02605e095d395394a238a5b7d5f967ab3193563b6c6a00cb6cb",
     "LICENSES.txt": "1f7ddce9e3dabb8acadef1c17bfcf4f60a3f11723019b94a406a2f6af7e472df"
   }
 }

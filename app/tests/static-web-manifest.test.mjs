@@ -19,12 +19,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFile, readdir, rm, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { boot } from "./helpers.mjs";
 
 const APP_ROOT = path.resolve(fileURLToPath(new URL("../", import.meta.url)));
 const WEB_ROOT = path.join(APP_ROOT, "web");
+const TOOLS_ROOT = path.resolve(APP_ROOT, "../tools/ui-vendor");
 
 /** Every `/web/...` route key the server source declares, read from the source
  * text: the STATIC Map is module-private, so the literal list is the artifact
@@ -69,6 +71,64 @@ test("每个 app/web 模块都在静态白名单里，且每条白名单路由�
   for (const name of declared) {
     const target = path.join(WEB_ROOT, name);
     assert.ok((await stat(target)).isFile(), `/web/${name} 指向的文件不存在：${target}`);
+  }
+});
+
+/** The static icon-name allowlist in ui-controls.mjs. `icons` is a module-private
+ * `Set`, not exported, so the literal list is read from the source text — the
+ * same approach as `declaredWebRoutes` above. */
+async function uiControlsIconAllowlist() {
+  const source = await readFile(path.join(WEB_ROOT, "ui-controls.mjs"), "utf8");
+  const match = source.match(/const icons = new Set\(\[([^\]]*)\]\)/);
+  assert.ok(match, "the `const icons = new Set([...])` allowlist is no longer recognizable in app/web/ui-controls.mjs");
+  const names = [...match[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(names.length > 0, "no icon names were extracted from the ui-controls.mjs allowlist");
+  return new Set(names);
+}
+
+/** Every `<symbol id="...">` id in the sprite. */
+async function iconsSvgSymbolIds() {
+  const source = await readFile(path.join(WEB_ROOT, "vendor/icons.svg"), "utf8");
+  const ids = [...source.matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(ids.length > 0, "no <symbol id=...> entries were extracted from icons.svg");
+  return new Set(ids);
+}
+
+/** The basenames (without `.svg`) of `lucide.files` in the vendor manifest,
+ * excluding the bundled `LICENSE` entry, which is not a glyph. */
+async function manifestLucideIconNames() {
+  const manifest = JSON.parse(await readFile(path.join(WEB_ROOT, "vendor/manifest.json"), "utf8"));
+  const files = Object.keys(manifest.lucide.files).filter((name) => name !== "LICENSE");
+  assert.ok(files.length > 0, "no lucide.files entries were found in vendor/manifest.json");
+  return new Set(files.map((name) => name.replace(/\.svg$/, "")));
+}
+
+test("ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致", async () => {
+  const allowlist = await uiControlsIconAllowlist();
+  const symbolIds = await iconsSvgSymbolIds();
+  const manifestNames = await manifestLucideIconNames();
+
+  assert.deepEqual([...allowlist].sort(), [...symbolIds].sort(),
+    "ui-controls.mjs 的图标白名单与 icons.svg 的 symbol id 不一致（左=白名单，右=sprite）");
+  assert.deepEqual([...symbolIds].sort(), [...manifestNames].sort(),
+    "icons.svg 的 symbol id 与 manifest.json 的 lucide.files 不一致（左=sprite，右=manifest）");
+});
+
+test("manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源）", async () => {
+  const manifest = JSON.parse(await readFile(path.join(WEB_ROOT, "vendor/manifest.json"), "utf8"));
+  const sources = JSON.parse(await readFile(path.join(TOOLS_ROOT, "lucide/sources.json"), "utf8"));
+  assert.deepEqual(manifest.lucide, sources,
+    "vendor/manifest.json 里的 lucide 块与 tools/ui-vendor/lucide/sources.json 不一致——manifest 记的来源已经跟不上真实生成来源了");
+});
+
+test("manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256", async () => {
+  const manifest = JSON.parse(await readFile(path.join(WEB_ROOT, "vendor/manifest.json"), "utf8"));
+  for (const [name, recorded] of Object.entries(manifest.outputs)) {
+    const actual = createHash("sha256")
+      .update(await readFile(path.join(WEB_ROOT, "vendor", name)))
+      .digest("hex");
+    assert.equal(actual, recorded,
+      `app/web/vendor/${name} 的真实 sha256 与 manifest.json 里记的不一致——文件被手改过，或 manifest 没有跟着重新生成`);
   }
 });
 

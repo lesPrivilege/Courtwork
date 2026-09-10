@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EX-IC1 · Icon family specimen · Design only</title>
+<link rel="stylesheet" href="specimen.css">
+<script>
+/* ?theme=dark|light pins the scheme so a capture is reproducible from the URL
+   alone; with no parameter the page follows the viewer's own preference. */
+var t=new URLSearchParams(location.search).get("theme");
+if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);
+</script>
+</head>
+<body>
+<header class="page-head">
+  <p class="stamp">EX-IC1 · Design only · <strong>No family selected</strong></p>
+  <h1>Icon family specimen</h1>
+  <p class="lede">Three Regular families in identical Courtwork control slots. The SVG family is the only
+  changed visual variable: DOM anatomy, strings, type tokens, spacing, control dimensions, hit areas, radius,
+  border, surface, foreground colour, state and neighbouring content are shared by all three columns.</p>
+  <dl class="meta">
+    <div><dt>Courtwork base</dt><dd><code>__BASE_SHA__</code></dd></div>
+    <div><dt>Lucide</dt><dd>1.41.0 · <code>bca7e75a816d</code> · ISC</dd></div>
+    <div><dt>MingCute</dt><dd>Core Regular · v3.0.2 · <code>e884b033f868</code> · Apache-2.0</dd></div>
+    <div><dt>Phosphor</dt><dd>Regular · v2.0.8 · <code>d42782b2abe7</code> · MIT</dd></div>
+  </dl>
+  <div class="controls">
+    <button type="button" id="theme" class="text-btn" aria-pressed="false">Toggle scheme</button>
+    <span class="hint">Assets are inlined from the frozen commits above. The page fetches nothing at runtime.</span>
+  </div>
+</header>
+
+<div class="board">
+  <div class="board-heads"><div class="srow-key"></div><!--HEADS--></div>
+  <!--CLUSTERS-->
+</div>
+
+<section class="appendix">
+  <h2>Inventory appendix — the whole current renderer allowlist</h2>
+  <p class="note">Diagnostic only. These 24 names are the static allowlist in <code>app/web/ui-controls.mjs</code>.
+  This table is not a product surface and not a 24-button application; it exists to expose catalogue holes,
+  conflicting metaphors, optical outliers and mapping ambiguity.</p>
+  <div class="tablewrap">
+  <table class="inv-table">
+    <thead><tr><th scope="col">Courtwork glyph name / semantic</th><th scope="col">Lucide</th><th scope="col">MingCute Regular</th><th scope="col">Phosphor Regular</th></tr></thead>
+    <tbody><!--INVENTORY--></tbody>
+  </table>
+  </div>
+</section>
+
+<section class="squint">
+  <h2>Squint / optical-rhythm diagnostic</h2>
+  <p class="note">The same primary board, grayscale, mildly blurred. A diagnostic view, not a product proposal
+  and not a score. Look for glyphs that turn into dark knots, glyphs that vanish beside their own label,
+  and uneven apparent scale down a column.</p>
+  <div class="board board-squint">
+    <div class="board-heads"><div class="srow-key"></div><div class="col-head"><h2>Lucide</h2></div><div class="col-head"><h2>MingCute Regular</h2></div><div class="col-head"><h2>Phosphor Regular</h2></div></div>
+    <!--SQUINT-->
+  </div>
+</section>
+
+<section class="negatives">
+  <h2>Negative controls — not glyphified</h2>
+  <p class="note">These decisions keep visible text under every family. Changing the icon family does not move
+  Courtwork's semantic boundary: authorization, adjudication and retry keep their words, their scope and their
+  consequences. No candidate icon is compared in this area.</p>
+  <div class="neg-card">
+    <p class="neg-q">Allow this file write?</p>
+    <p class="neg-detail"><code>app/web/ui-controls.mjs</code> · 1 284 bytes · proposed content hash <code>9c1f…a70b</code></p>
+    <div class="neg-actions">
+      <button type="button" class="text-btn primary">Allow this write</button>
+      <button type="button" class="text-btn">Deny</button>
+    </div>
+  </div>
+  <div class="neg-card">
+    <p class="neg-q">Which recovery window should this run assume?</p>
+    <div class="neg-actions"><button type="button" class="text-btn primary">Answer</button></div>
+  </div>
+  <div class="neg-card">
+    <p class="neg-q">A proposed review candidate</p>
+    <p class="neg-detail">Recorded files have not been accepted by a review.</p>
+    <div class="neg-actions">
+      <button type="button" class="text-btn">Approve</button>
+      <button type="button" class="text-btn">Reject</button>
+      <button type="button" class="text-btn">Retry</button>
+    </div>
+  </div>
+</section>
+
+<footer class="page-foot">
+  <p>No icon family was selected by the author. Observations are in <code>observations.md</code>;
+  measurements in <code>measurements.json</code>; provenance in <code>sources.json</code>.</p>
+</footer>
+
+<script>
+document.getElementById("theme").addEventListener("click", (e) => {
+  const dark = getComputedStyle(document.documentElement).colorScheme === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  e.currentTarget.setAttribute("aria-pressed", String(!dark));
+});
+</script>
+</body>
+</html>
