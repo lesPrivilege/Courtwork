@@ -142,3 +142,15 @@ does not scan it — the specimen validates itself instead, in
 `measurements.json`). A future FE-05 implementation must make an explicit
 production decision first, then register the consumer and its fallback tests in
 the same PR.
+
+## Integration repair · real media fallback
+
+Independent Luna review of `cd124d6` found that real reduced-transparency and
+forced-colors media rules lost the cascade to candidate attribute selectors:
+P2 retained sampling under both, and the transient Inspector under forced
+colors. The lab `data-a11y` simulation did not expose this. Astra raised the
+real fallback selectors to the same effective boundary and completed the
+unsupported-engine block for popover/jump surfaces. Product CSS is unchanged.
+Original captures and measurements remain evidence of the frozen author tree;
+they are not relabelled as evidence of this repair or the later FE-05a baseline.
+The repair requires a new independent real-media check before acceptance.

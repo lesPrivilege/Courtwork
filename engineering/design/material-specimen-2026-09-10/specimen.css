@@ -726,28 +726,33 @@ body.spec-body {
    are identical; measurements.json records which mechanism produced each
    capture. */
 
+/* Real preference rules include :root so they outrank candidate attribute
+   selectors, just as the lab simulation does. Geometry is unchanged. */
+
 /* (a) reduced transparency — mask-image: none is mandatory. A solid surface
    that still fades out through a mask is not a valid fallback. */
 @media (prefers-reduced-transparency: reduce) {
-  .jump-latest-button,
-  .context-popover,
-  .chat-header[data-h="h1"],
-  .composer-form[data-variant="c1"],
-  .spec-inspector[data-variant="transient"],
-  .spec-nested-parent,
-  .spec-nested-child {
+  :root .jump-latest-button,
+  :root .context-popover,
+  :root .chat-header[data-h="h1"],
+  :root .composer-form[data-variant="c1"],
+  :root .spec-inspector[data-variant="transient"],
+  :root .spec-nested-parent,
+  :root .spec-nested-child {
     background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     -webkit-mask-image: none;
     mask-image: none;
   }
-  .chat-header[data-h="h2"],
-  .chat-header[data-h="h3"] {
+  :root .chat-header[data-h="h2"],
+  :root .chat-header[data-h="h3"] {
     background: var(--panel);
   }
-  .chat-header[data-h="h2"]::before,
-  .chat-header[data-h="h3"]::before {
+  :root .chat-header[data-h="h2"]::before,
+  :root .chat-header[data-h="h3"]::before {
     content: none;
   }
 }
@@ -823,14 +828,14 @@ body.spec-body {
    is a failure-mode check: filters off, tint non-essential, boundary and focus
    still readable, text still present. */
 @media (forced-colors: active) {
-  .jump-latest-button,
-  .context-popover,
-  .chat-header[data-h],
-  .composer-form[data-variant="c1"],
-  .spec-inspector,
-  .spec-nested-parent,
-  .spec-nested-child,
-  .spec-review[data-variant] {
+  :root .jump-latest-button,
+  :root .context-popover,
+  :root .chat-header[data-h],
+  :root .composer-form[data-variant="c1"],
+  :root .spec-inspector,
+  :root .spec-nested-parent,
+  :root .spec-nested-child,
+  :root .spec-review[data-variant] {
     background: Canvas;
     color: CanvasText;
     border-color: CanvasText;
@@ -841,7 +846,7 @@ body.spec-body {
     box-shadow: none;
     forced-color-adjust: none;
   }
-  .chat-header[data-h]::before {
+  :root .chat-header[data-h]::before {
     content: none;
   }
 }
