@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "note": "before = 438bb9c product bytes; after = working tree of this branch; both on synthetic data",
+  "rows": [
+    {
+      "item": "nav row height / glyph (1440)",
+      "target": "32 / 16",
+      "before": "32 / 20",
+      "after": "32 / 16"
+    },
+    {
+      "item": "nav item gap / group gap (1440)",
+      "target": "4 / 16",
+      "before": "16 / 16",
+      "after": "4 / 16"
+    },
+    {
+      "item": "nav touch hit (390 overlay, min)",
+      "target": "≥44",
+      "before": 44,
+      "after": 44
+    },
+    {
+      "item": "band: brand / chat header / preview tab band (1440)",
+      "target": "48, shared",
+      "before": "56 / 56 / 56",
+      "after": "48 / 48 / 48"
+    },
+    {
+      "item": "title block height / meta word (1440)",
+      "target": "one line; no repeated Chat",
+      "before": "35.47 / \"Chat\"",
+      "after": "20.25 / \"\""
+    },
+    {
+      "item": "prose vs composer edge delta L/R (1440)",
+      "target": "≤1px",
+      "before": "0 / 0",
+      "after": "0 / 0"
+    },
+    {
+      "item": "prose vs composer edge delta L/R (1280)",
+      "target": "≤1px",
+      "before": "0 / 0",
+      "after": "0 / 0"
+    },
+    {
+      "item": "prose vs composer edge delta L/R (390)",
+      "target": "≤1px",
+      "before": "0 / 0",
+      "after": "0 / 0"
+    },
+    {
+      "item": "content inset from stream edge (1440)",
+      "target": "40 ample / 32 tight (+ centring)",
+      "before": 66,
+      "after": 66
+    },
+    {
+      "item": "content inset from stream edge (1280)",
+      "target": "40 ample / 32 tight (+ centring)",
+      "before": 24,
+      "after": 32
+    },
+    {
+      "item": "content inset from stream edge (390)",
+      "target": "16",
+      "before": 16,
+      "after": 16
+    },
+    {
+      "item": "reading column width (1440, cards open)",
+      "target": "≤740, ≥640 with cards",
+      "before": 740,
+      "after": 740
+    },
+    {
+      "item": "reading column width (1280, cards open)",
+      "target": "≤740, ≥640 with cards",
+      "before": 664,
+      "after": 648
+    },
+    {
+      "item": "summary width / gap to column (1440)",
+      "target": "288 / ≥32",
+      "before": "288 / 66",
+      "after": "288 / 66"
+    },
+    {
+      "item": "summary width / gap to column (1280)",
+      "target": "288 / ≥32",
+      "before": "288 / 24",
+      "after": "288 / 32"
+    },
+    {
+      "item": "1195×772 (ruling viewport): mode / column / gap",
+      "target": "strip before prose narrows",
+      "before": "cards / 615 / 24",
+      "after": "strip / 740 / 83.5"
+    },
+    {
+      "item": "composer empty height (1440 / 390)",
+      "target": "content-driven, < 150",
+      "before": "150 / 158",
+      "after": "116.19 / 124.19"
+    },
+    {
+      "item": "composer field: empty → 5 lines → 20 lines",
+      "target": "grows, bounded, scrolls",
+      "before": "88 → 88 → 88",
+      "after": "54.2 → 123.5 → 180"
+    },
+    {
+      "item": "Home composer width / height (1440)",
+      "target": "820 unchanged",
+      "before": "820 / 116.1875",
+      "after": "820 / 116.1875"
+    },
+    {
+      "item": "native packet toolbar 40 / 52 / 60 → band",
+      "target": "max(48, toolbar)",
+      "before": "56 / 56 / 60",
+      "after": "48 / 52 / 60"
+    }
+  ],
+  "checks": {
+    "before": "9/21",
+    "after": "21/21"
+  }
+}
