@@ -159,7 +159,7 @@ test('fixed old main schema4 RuntimeStore rejects a schema5 state without changi
     const file = path.join(dataDir, 'runtime-state.json'); const original = await readFile(file);
     await exec('git', ['-C', repoRoot, 'worktree', 'add', '--detach', checkout, '7c07ef6b5a19f0eb2c45b8894ab9911de87ea979']);
     const { RuntimeStore: OldRuntimeStore } = await import(pathToFileURL(path.join(checkout, 'app/server/store.mjs')).href);
-    await assert.rejects(new OldRuntimeStore({ dataDir }).open(), /schemaVersion 11 is not supported/);
+    await assert.rejects(new OldRuntimeStore({ dataDir }).open(), /schemaVersion 12 is not supported/);
     assert.deepEqual(await readFile(file), original, 'the fixed old host refuses schema5 before rewriting any byte');
   } finally {
     await exec('git', ['-C', repoRoot, 'worktree', 'remove', '--force', checkout]).catch(() => {});
@@ -173,12 +173,12 @@ test('schema3 and schema4 migrate with an exact independent backup and reopen', 
     try {
       let store = await new RuntimeStore({ dataDir }).open(); await store.close();
       const file = path.join(dataDir, 'runtime-state.json'); const oldState = JSON.parse(await readFile(file, 'utf8'));
-      oldState.schemaVersion = version; delete oldState.asyncTasks; delete oldState.coordination; delete oldState.providerConnections; delete oldState.providerConfigurationPending; oldState.sessions.forEach(session => delete session.scope);
+      oldState.schemaVersion = version; delete oldState.asyncTasks; delete oldState.coordination; delete oldState.providerConnections; delete oldState.providerConfigurationPending; delete oldState.providerConfigVersion; delete oldState.providerVerifications; oldState.sessions.forEach(session => delete session.scope);
       const original = Buffer.from(JSON.stringify(oldState)); await writeFile(file, original);
-      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 11); await store.close();
+      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 12); await store.close();
       const backup = (await readdir(dataDir)).find((name) => name.startsWith(`runtime-state.schema${version}.`));
       assert.deepEqual(await readFile(path.join(dataDir, backup)), original, 'migration backup is the original byte sequence');
-      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 11); await store.close();
+      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 12); await store.close();
       const legacyData = await mkdtemp(path.join(tmpdir(), `cw-async-schema${version}-legacy-`));
       try {
         await writeFile(path.join(legacyData, 'runtime-state.json'), await readFile(path.join(dataDir, backup)));
@@ -199,7 +199,7 @@ test('invalid UTF-8 schema4 input is refused before migration and its bytes rema
     let store = await new RuntimeStore({ dataDir }).open();
     await store.createProject('x'); await store.close();
     const file = path.join(dataDir, 'runtime-state.json');
-    const state = JSON.parse(await readFile(file, 'utf8')); state.schemaVersion = 4; delete state.asyncTasks; delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; state.sessions.forEach(session => delete session.scope);
+    const state = JSON.parse(await readFile(file, 'utf8')); state.schemaVersion = 4; delete state.asyncTasks; delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; delete state.providerConfigVersion; delete state.providerVerifications; state.sessions.forEach(session => delete session.scope);
     const bytes = Buffer.from(JSON.stringify(state));
     const marker = Buffer.from('"name":"x"'); const at = bytes.indexOf(marker);
     assert.notEqual(at, -1); bytes[at + marker.length - 2] = 0xff;
