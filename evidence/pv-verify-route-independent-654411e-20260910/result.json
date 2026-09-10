@@ -1,0 +1,35 @@
+{
+  "commit": "654411e2058c3d40abe74751ba6dbe1742133a9e",
+  "migration": {
+    "inputSchema": 11,
+    "pendingOperations": [
+      "connection_save",
+      "connection_delete",
+      "credential_set",
+      "credential_delete"
+    ],
+    "allConnectionRecordsMissing": true,
+    "upgradedSchema": 12,
+    "pendingPreserved": true,
+    "reopenPreserved": true,
+    "finishOnlyRemovesOne": true,
+    "backupExact": true,
+    "migrationPass": true
+  },
+  "route": {
+    "activeIdentity": "openai",
+    "activeModels": ["gpt-4", "gpt-4-turbo"],
+    "activeReceipts": [
+      { "model": "gpt-4", "status": "authentication_failed", "httpStatus": 401 },
+      { "model": "gpt-4-turbo", "status": "authentication_failed", "httpStatus": 401 }
+    ],
+    "activePath": "/v1/chat/completions",
+    "activeConfiguredEndpointUsed": true,
+    "inactiveIdentity": "catalog-fake-openai-loopback",
+    "inactiveModel": "fake-model",
+    "inactiveOwnRouteUsed": true,
+    "inactiveBorrowedActiveRoute": false,
+    "externalNetworkAttempts": 0,
+    "routePass": true
+  }
+}
