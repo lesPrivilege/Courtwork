@@ -1,6 +1,10 @@
 # 兼容迁移与施工顺序
 
-## 现有冲突
+## 实施进度
+
+SK-1 已实施并完成作者验证，见 [SK-1 回执](../../../evidence/skin-review-sk1-20260910/README.md)。下述“当前/未实施”描述为规范冻结时点；Review→accent 与对比预检两项已由本片修复，SK-2–5 保持待实施。
+
+## 冻结时点的冲突
 
 当前 `styles.css` 的 `--attention-review: var(--accent-ink)` 让 custom/gray-steel 的 review 随 skin；默认 slate 另覆写为固定 review foreground。旧 custom 还可替换 danger/success 与 alpha，范围比新规范宽。**本单只冻结整改合同，未改运行时行为。**
 

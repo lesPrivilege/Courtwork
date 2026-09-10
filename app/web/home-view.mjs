@@ -252,7 +252,7 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
     if (attention.detail && !d) card.append(el("p", { className: "form-help", text: "This item uses an unsupported format." }));
     if (d) card.append(el("div", { className: "home-attention-detail" },
       el("h4", { text: d.descriptor.title }),
-      el("span", { className: "home-attention-state", text: attentionLabels[d.status] ?? "Not available" }),
+      el("span", { className: `home-attention-state ${d.status === "needs_you" ? "is-review" : ""}`, text: attentionLabels[d.status] ?? "Not available" }),
       d.descriptor.summary ? el("p", { text: d.descriptor.summary }) : null,
       el("p", { text: d.reason }),
       d.next_action?.kind !== "none" ? el("p", { text: `Next: ${d.next_action?.label ?? "Not available"}` }) : null,
@@ -273,7 +273,7 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
     const preview = item.id === data.items[0]?.id ? toHomeAttentionDetail(attention.preview) : null;
     button.classList.toggle("home-attention-featured", Boolean(preview));
     button.append(el("span", { className: "home-attention-item-title", text: item.title }),
-      el("span", { className: `home-attention-state ${item.status === "needs_you" ? "is-waiting" : ""}`, text: item.label }), icon("chevron-right", { size: 14 }));
+      el("span", { className: `home-attention-state ${item.status === "needs_you" ? "is-review" : ""}`, text: item.label }), icon("chevron-right", { size: 14 }));
     if (preview) button.append(el("span", { className: "home-attention-reason", text: preview.reason }),
       preview.next_action?.kind !== "none" ? el("span", { className: "home-attention-next", text: `Next · ${preview.next_action?.label ?? "Not available"}` }) : null);
     list.append(el("div", { attrs: { role: "listitem" } }, button));

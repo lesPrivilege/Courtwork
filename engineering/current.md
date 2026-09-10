@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## SK-1：Review 与皮肤 accent 解耦（2026-09-10）
+
+第一片产品整改已实施：Review 在 slate、gray-steel、合法 custom 下使用同一 scheme 语义色；Home 列表/详情与 Attention 列表只由 `needs_you` 接入。自定义对比预检补固定 Review × panel/float，并修复候选 token 探针继承旧 role 的问题。39 项针对测试、18 组 Chromium scheme/skin/system 计算色场景与低对比候选反例通过；作者证据与独立复核分列于 [SK-1 回执](../evidence/skin-review-sk1-20260910/README.md)。
+
+本片不完成 SK-2 的旧 token 权限投影/首帧 parser、SK-3 preset 或 SK-5 Pages；旧 custom 原始数据保持，不宣称任意旧 CSS 输入都已被新边界隔离。以下“未改产品”是前一份规范交付时点，本段覆盖其 SK-1 当前状态。
+
 ## Skin / Review 与前端连续性规范（2026-09-10）
 
 从实际`main@2e9da09`隔离消费《泛化陌生化设计》全部7轮及《补充控制语法》全部3轮，Astra裁决/整合，Luna有界源码核对。用户最新纠正为**Review稳定、不涉及skin；skin变化不影响Review**，覆盖早期review-only注入方案。[EX-SKIN-01](design/skin-injection-2026-09-10/README.md)登记现有custom/gray-steel→accent回退的耦合、兼容整改、Dystopia外观preset与Pages增量提案；当前产品/Pages已有稀疏review红，不重复报新增。

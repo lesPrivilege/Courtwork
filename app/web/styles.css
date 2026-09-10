@@ -213,7 +213,8 @@
   }
 }
 /* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
-:root {
+/* Re-resolve candidate scales locally; inherited roles are already computed. */
+.skin-contrast-probe, :root {
   /* WK-69 · 高度层级是唯一的取色规则：L0 frame（body、侧栏、抽屉底、留位条）、
      L1 panel（主列与 header 带；panel-muted 只作 L1 内的内收区）、L2 float（composer、
      popover、菜单、tooltip、悬浮卡）、L3 = float 置于 scrim 之上。区域背景只许引用这些
@@ -5315,11 +5316,10 @@ html[data-theme="dark"] {
     --home-attention-review-foreground: #efaaa4;
   }
 }
-:root { --attention-review: var(--accent-ink); }
+:root { --attention-review: var(--home-attention-review-foreground); }
 /* tier:R · components consume semantic roles. Review hue is never assigned
    to runs, activity intensity, links, send, hover, selection, focus or errors. */
 html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
-  --attention-review: var(--home-attention-review-foreground);
   --frame: var(--home-neutral-frame);
   --panel: var(--home-neutral-paper);
   --float: var(--home-neutral-raised);
@@ -5339,7 +5339,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
   --accent-strong: var(--home-neutral-ink);
   --accent-soft: var(--home-neutral-sunken);
 }
-.home-attention-featured .home-attention-state.is-waiting { color: var(--attention-review); }
+.home-attention-state.is-review { color: var(--attention-review); font-weight: 600; }
 
 .home-attention-heading-link { padding: 0; min-height: 0; border: 0; border-radius: 0; background: none; color: var(--ink); font-size: var(--text-body); font-weight: 600; }
 .home-attention-heading-link:hover { text-decoration: underline; text-underline-offset: 3px; }

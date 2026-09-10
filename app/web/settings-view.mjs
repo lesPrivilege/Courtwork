@@ -1507,6 +1507,7 @@ export const CONTRAST_PAIRS = [
   ["focus", "panel", 3], ["focus", "float", 3],
   ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],
   ["danger", "danger-soft", 4.5],
+  ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
 ];
 function hexChannels(value) {
   const text = String(value || "").trim();
@@ -1534,6 +1535,7 @@ export function contrastRatio(a, b) {
 export function skinContrastWarnings(values, { probeHost = globalThis.document?.body } = {}) {
   if (!probeHost) return [];
   const probe = document.createElement("div");
+  probe.className = "skin-contrast-probe";
   probe.setAttribute("aria-hidden", "true");
   probe.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
   for (const [name, value] of Object.entries(values || {}))

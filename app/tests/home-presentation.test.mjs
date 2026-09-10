@@ -7,6 +7,7 @@ import {
   toHomeAttention,
   toHomeAttentionDetail,
 } from "../web/presentation-adapters.mjs";
+import { homeModules } from "../web/home-view.mjs";
 import { createAttentionWorkspace } from "../web/attention-view.mjs";
 
 const OBSERVED = "2026-09-10T12:00:00.000Z";
@@ -143,6 +144,13 @@ class TinyNode {
     this.className = "";
     this.value = "";
     this.disabled = false;
+  }
+  get classList() {
+    return { toggle: (name, enabled) => {
+      const names = new Set(this.className.split(/\s+/).filter(Boolean));
+      if (enabled) names.add(name); else names.delete(name);
+      this.className = [...names].join(" ");
+    } };
   }
   set textContent(value) {
     this._text = String(value);
@@ -339,5 +347,37 @@ test("Back to items clears a pending detail and rejects its late response", asyn
     detail.resolve(attentionDetail('a',1,'Late reason'));
     await flush();
     assert.doesNotMatch(container.textContent, /Loading item|Late reason/);
+  });
+});
+
+
+test("Review belongs only to needs_you across Home and Attention states", async () => {
+  await withTinyDom(async (container) => {
+    const projects = [{ id: "p1", name: "One" }];
+    const states = ["needs_you", "waiting", "resolved", "investigating"];
+    const items = states.map(status => ({ ...attentionItem(status), status }));
+    const packet = attentionPage(items);
+    const labels = node => {
+      const all = [];
+      const walk = n => { if (n.className.includes("home-attention-state") || n.className.includes("attention-detail-state")) all.push(n); n.children.forEach(walk); };
+      walk(node); return all;
+    };
+    const assertStates = nodes => {
+      assert.equal(nodes.length, 4);
+      for (let i = 0; i < states.length; i++) assert.equal(nodes[i].className.includes("is-review"), states[i] === "needs_you");
+    };
+    const render = homeModules.find(module => module.id === "attention").render;
+    assertStates(labels(render({ projects, attention: { data: packet } })));
+    for (const status of states) {
+      const detail = { ...attentionDetail(status), status };
+      const nodes = labels(render({ projects, attention: { selectedId: status, detail } }));
+      assert.equal(nodes.length, 1);
+      assert.equal(nodes[0].className.includes("is-review"), status === "needs_you");
+    }
+    const workspace = createAttentionWorkspace(container, { request: async () => packet, onBack() {} });
+    await workspace.open({ projects, projectId: "p1" });
+    assertStates(labels(container));
+    const invalid = attentionPage([{ ...attentionItem("bad"), status: "unknown" }]);
+    assert.equal(labels(render({ projects, attention: { data: invalid } })).length, 0);
   });
 });

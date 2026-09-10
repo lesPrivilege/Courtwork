@@ -1,0 +1,203 @@
+{
+  "pass": true,
+  "scenarios": [
+    {
+      "system": "light",
+      "theme": "light",
+      "skin": "slate",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(97, 100, 102)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "light",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(100, 100, 100)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "light",
+      "skin": "custom",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(96, 100, 108)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "dark",
+      "skin": "slate",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(182, 190, 194)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "dark",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(180, 180, 180)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "dark",
+      "skin": "custom",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(176, 180, 186)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "system",
+      "skin": "slate",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(97, 100, 102)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "system",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(100, 100, 100)"
+      ]
+    },
+    {
+      "system": "light",
+      "theme": "system",
+      "skin": "custom",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(96, 100, 108)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "light",
+      "skin": "slate",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(97, 100, 102)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "light",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(100, 100, 100)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "light",
+      "skin": "custom",
+      "colors": [
+        "rgb(174, 54, 48)",
+        "rgb(174, 54, 48)",
+        "rgb(96, 100, 108)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "dark",
+      "skin": "slate",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(182, 190, 194)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "dark",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(180, 180, 180)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "dark",
+      "skin": "custom",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(176, 180, 186)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "system",
+      "skin": "slate",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(182, 190, 194)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "system",
+      "skin": "gray-steel",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(180, 180, 180)"
+      ]
+    },
+    {
+      "system": "dark",
+      "theme": "system",
+      "skin": "custom",
+      "colors": [
+        "rgb(239, 170, 164)",
+        "rgb(239, 170, 164)",
+        "rgb(176, 180, 186)"
+      ]
+    }
+  ],
+  "warning": {
+    "warnings": [
+      {
+        "foreground": "attention-review",
+        "background": "panel",
+        "ratio": 1,
+        "minimum": 4.5
+      },
+      {
+        "foreground": "attention-review",
+        "background": "float",
+        "ratio": 1,
+        "minimum": 4.5
+      }
+    ],
+    "probeRemoved": true,
+    "rootUnchanged": true
+  }
+}

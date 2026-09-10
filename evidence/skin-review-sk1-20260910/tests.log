@@ -1,0 +1,47 @@
+✔ Home Activity rejects malformed dates, totals, and requested periods (14.271292ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (1.713958ms)
+✔ Home Attention detail accepts only the display contract (0.392041ms)
+✔ standalone Attention ignores an older project query after a newer open (18.831167ms)
+✔ standalone Attention ignores a stale detail after project selection changes (4.996458ms)
+✔ Attention registry opens the global agent explicitly without a model request (1.803375ms)
+✔ Back to items clears a pending detail and rejects its late response (1.490708ms)
+✔ Review belongs only to needs_you across Home and Attention states (31.727916ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (5.709625ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (1.358417ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (1.821083ms)
+✔ contrast: the browser warning checks exactly the build report pairs (1.273959ms)
+✔ 一组完整的 Tier S token 通过，并被规范成可以直接落进样式表的声明 (5.421833ms)
+✔ styles.css 与 skins/gray-steel.css 的两个 skin 块都能通过同一套校验 (3.60675ms)
+✔ 产品内的 gray-steel 与 skins/gray-steel.css 逐字相同：两处不许漂移 (3.698208ms)
+✔ 不是既有 token 名的声明被逐行拒绝，整组不落地 (0.26525ms)
+✔ 颜色 token 只接受 hex：命名色、函数与变量都不行 (0.548667ms)
+✔ url( · expression · @import · 转义 · 标记这些形状先于逐行解析被拒绝 (0.154333ms)
+✔ 半套色阶被拒绝，并把缺的名字说出来 (3.902125ms)
+✔ 行号指回原文，一次报完所有问题 (0.203084ms)
+✔ 两个 rgb 基底与三个 alpha 是数值不是颜色，各按自己的形状校验 (0.766625ms)
+✔ 一次只收一个块：粘贴整份 skin 文件被拒绝而不是只应用第一段 (0.995167ms)
+✔ 空输入与超长输入各有自己的话，不是同一句错误 (0.582458ms)
+✔ 代码字体只收字体族名，收不下分号与括号 (0.264042ms)
+✔ 读偏好只认闭集里的值：坏掉的存储读成默认，不是读成垃圾 (0.304916ms)
+✔ Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不是读成第三种版面 (0.313916ms)
+✔ Home 模块只安装有既定读取接缝的 Activity 与 Attention (0.273ms)
+✔ Models 模块不复述 composer chip 的事实：它没有自己的读取 (0.147458ms)
+✔ 页面的九个组是闭集，未知的节名落回 General (0.146458ms)
+✔ CC-I · provenance 的词表今日是闭集的两个词，判定是与 owner 默认值的字面比较 (0.139583ms)
+✔ CC-I · 默认态：provenance 是 Default，复位不呈现 (1.223542ms)
+✔ CC-I · 改一项之后翻为 Changed on this device，复位可用且可达名字带属性名 (0.312792ms)
+✔ CC-I · 复位：值回默认、provenance 回 Default、焦点落在本行控件上、有一条可播报的回执 (2.005542ms)
+✔ CC-I · 复位之后的下一次改值作废那条回执，回执不是一条会留在页面上的旧话 (0.540791ms)
+✔ CC-I · 没有 owner 默认值的行一个字都不多：同一个函数，不长出这三样 (0.438834ms)
+✔ CC-I · provenance 挂在控件上，读屏听得到它而不是一段孤立的文字 (0.333459ms)
+✔ CC-I · Code font：未提交的编辑不是 modified，提交后才是，校验失败不改 provenance (0.781333ms)
+✔ CC-I · Palette 选了 Custom tokens 但没 Apply 不算 changed：provenance 读生效值不读草稿 (0.582083ms)
+✔ CC-I · appearance keeps no value controls; only the provider context window is numeric (5.343833ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 415.002542

@@ -38,7 +38,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
       for(const item of page.items){
         const row=button('',()=>select(item.id),`item-${item.id}`,'attention-registry-row');
         row.setAttribute('aria-pressed',String(state.selectedId===item.id));
-        row.append(el('span',{text:item.title}),el('span',{className:'home-attention-state',text:item.label}));
+        row.append(el('span',{text:item.title}),el('span',{className:`home-attention-state ${item.status==='needs_you'?'is-review':''}`,text:item.label}));
         rows.append(el('div',{attrs:{role:'listitem'}},row));
       }
       list.append(rows);

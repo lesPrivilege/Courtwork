@@ -21,6 +21,7 @@ const pairs = [
   ["on-accent", "accent", 4.5], ["on-accent", "accent-strong", 4.5], ["danger", "panel", 4.5], ["success", "panel", 4.5],
   ["focus", "panel", 3], ["focus", "float", 3], ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],
   ["danger", "danger-soft", 4.5],
+  ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
 ];
 let fail = 0;
 console.log("# WK7 对比度表（WCAG 2.x 相对亮度）\n\n生成：`node tools/contrast-report.mjs`。门槛：文字 4.5:1，非文字 3:1。边线（line / line-strong）不作为控件的唯一指示（输入有焦点环），不设门槛，见 color-governance §2。\n");
@@ -28,12 +29,12 @@ for (const [skin, css] of Object.entries(skins)) {
   const R = blocks(css, ":root");
   for (const scheme of ["light", "dark"]) {
     let S = scheme === "light" ? R : { ...R, ...blocks(css, ':root[data-theme="dark"]') };
+    if (scheme === "dark") S = { ...S, ...blocks(css, 'html[data-theme="dark"]') };
     if (skin === "lead-gray") {
-      if (scheme === "dark") S = { ...S, ...blocks(css, 'html[data-theme="dark"]') };
       S = { ...S, ...blocks(css, 'html:not([data-skin="custom"]):not([data-skin="gray-steel"])') };
     }
     console.log(`## ${skin} · ${scheme}\n\n| 角色 | 底面 | 比值 | 门槛 | 结果 |\n|---|---|---:|---:|---|`);
-    for (const [fg, bg, min] of [...pairs, ...(skin === "lead-gray" ? [["home-attention-review-foreground", "panel", 4.5], ["home-attention-review-foreground", "float", 4.5], ["muted-strong", "panel-muted", 4.5]] : [])]) {
+    for (const [fg, bg, min] of [...pairs, ...(skin === "lead-gray" ? [["muted-strong", "panel-muted", 4.5]] : [])]) {
       const a = hex(resolve(S, S[fg] ?? "")), b = hex(resolve(S, S[bg] ?? ""));
       if (!a || !b) { console.log(`| ${fg} | ${bg} | 无法解析 | ${min} | 跳过 |`); continue; }
       const r = ratio(a, b); const ok = r >= min; if (!ok) fail++;
