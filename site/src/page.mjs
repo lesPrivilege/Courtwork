@@ -3,7 +3,7 @@
 // One document, Chinese-led, no framework and no build-time templating engine:
 // the copy is data (copy.mjs), this file arranges it, and every number it
 // prints comes from the recorded evidence rather than from the copy.
-import { PAPER_ENTRY, NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, EVIDENCE, CLAIMS, BUILD, FOOTER } from "./copy.mjs";
+import { PAPER_ENTRY, NAV, HERO, RAW_GOVERNED, MATTER, ARCHITECTURE, REVIEW, BUILD, FOOTER } from "./copy.mjs";
 import { renderPricing } from "./pricing.mjs";
 import { STEPS, REPLAY_NOTE } from "./steps.mjs";
 
@@ -49,7 +49,7 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
           <picture>${source}
             <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="${eager ? "eager" : "lazy"}" decoding="async" />
           </picture>
-          <figcaption>${caption.replaceAll(identity.sha7, pageMedia.source_sha.slice(0, 7))} · <a href="./media/main/manifest.json">Capture record</a></figcaption>
+          <figcaption>${caption} · <a href="./media/main/manifest.json">Synthetic demo</a></figcaption>
         </figure>`;
   };
   const path = (entry) => entry.asset_path.replace("site/media/", "");
@@ -77,15 +77,16 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
+      ${productAtoms()}
       ${primaryEntries()}
       ${currentHome(fill, shot)}
-      ${rawGoverned(fill, recording)}
       ${matter(fill)}
-      ${architecture(fill, diagram)}
-      ${longWork(pageMedia.source_sha)}
       ${review(fill, shot)}
+      ${longWork()}
       ${evidenceSection(fill, evidence)}
+      ${architecture(fill, diagram)}
       ${portability(fill)}
+      ${rawGoverned(fill, recording)}
       ${renderPricing()}
       ${build(fill, shot)}
     </main>
@@ -117,7 +118,7 @@ function hero(fill, shot) {
         <figure class="hero-object" aria-labelledby="object-caption">
           <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>
-          <figcaption id="object-caption">Concept study · 工作对象的视觉演绎</figcaption>
+          <figcaption id="object-caption">The work remains.</figcaption>
         </figure>
       </section>`;
 }
@@ -125,7 +126,7 @@ function hero(fill, shot) {
 function currentHome(fill, shot) {
   return `        <section class="home-capture-slot current-home" data-capture-slot="home" data-capture-status="captured" aria-labelledby="current-home-title">
           <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看用量，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
-${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("Recorded Home · `{sha7}` · synthetic data · local deterministic provider · 1440×900", fill), eager: true })}
+${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
           <nav class="home-product-links" aria-label="Explore the product">
             <a href="./tour.html">Product tour <span>看看实际界面</span></a>
             <a href="./get.html">Get Courtwork <span>从源码在本地运行</span></a>
@@ -198,8 +199,8 @@ function rawGoverned(fill, recording) {
               (tab) => `<section class="tab-panel" id="panel-${tab.id}" role="tabpanel" aria-labelledby="tab-${tab.id}">
             <h3 lang="en">${escape(tab.label)}</h3>
             <p>${escape(tab.text)}</p>
-            <p class="status ${STATUS_CLASS(tab.status)}">${escape(tab.status)}</p>
-            <pre class="excerpt"><code>${escape(excerpts[tab.id])}</code></pre>
+
+
           </section>`,
             )
             .join("\n          ")}
@@ -260,24 +261,56 @@ function architecture(fill, diagram) {
       </section>`;
 }
 
-function longWork(sourceSha) {
-  const researchSha = "370b891b33338988a29f50a7c475f9d7e7225577";
+function productAtoms() {
+  return `<section class="product-atoms" aria-label="Spark and Attention" data-product-story="current" data-motion="instant">
+    <article class="product-atom atom-spark" aria-labelledby="spark-title">
+      <p class="index">SPARK / PRODUCT IDEA</p>
+      <h2 id="spark-title">Knowledge,<br><em>rebuilt.</em></h2>
+      <p class="atom-thesis">来源更新，发现随之重建。<br>知识保持新鲜，决定保留来路。</p>
+      <div class="atom-diagram spark-diagram" aria-hidden="true">
+        <svg viewBox="0 0 520 190" focusable="false">
+          <path class="atom-wire" d="M88 94H185M185 94V42H286M185 94H286M185 94V146H286"/>
+          <rect class="source-base" x="46" y="55" width="78" height="78" rx="4"/>
+          <path class="source-mark" d="M67 78H103M67 94H97M67 110H87"/>
+          <g class="derived-view view-a"><rect x="286" y="22" width="182" height="40" rx="4"/><path d="M308 42H409"/></g>
+          <g class="derived-view view-b"><rect x="286" y="74" width="152" height="40" rx="4"/><path d="M308 94H386"/></g>
+          <g class="derived-view view-c"><rect x="286" y="126" width="170" height="40" rx="4"/><path d="M308 146H404"/></g>
+          <circle class="source-change" cx="124" cy="55" r="7"/>
+        </svg>
+        <div class="atom-axis"><span>Sources</span><span>Derived knowledge</span></div>
+      </div>
+      <div class="atom-bottom"><p class="atom-state" data-spark-state>当前来源，当前发现。</p><button type="button" class="atom-control" data-story-toggle aria-pressed="false" aria-label="演示来源变化对 Spark 与 Attention 的影响" hidden>更新来源 <span aria-hidden="true">↗</span></button></div>
+    </article>
+    <article class="product-atom atom-attention" aria-labelledby="attention-title">
+      <p class="index">ATTENTION / PRODUCT IDEA</p>
+      <h2 id="attention-title">Attention,<br><em>well spent.</em></h2>
+      <p class="atom-thesis">让工作持续推进。<br>把你的注意力留给重要变化。</p>
+      <div class="atom-diagram attention-diagram" aria-hidden="true">
+        <svg viewBox="0 0 520 190" focusable="false">
+          <g class="signal-stream"><path d="M44 35H204M74 65H228M30 94H264M92 123H204M55 153H230"/><circle cx="84" cy="35" r="3"/><circle cx="125" cy="65" r="3"/><circle cx="67" cy="94" r="3"/><circle cx="157" cy="123" r="3"/><circle cx="101" cy="153" r="3"/></g>
+          <path class="attention-boundary" d="M292 22V168"/>
+          <path class="attention-path" d="M102 94H442"/>
+          <circle class="attention-target" cx="414" cy="94" r="23"/>
+          <path class="attention-target-mark" d="M414 83V96M414 104V105"/>
+        </svg>
+        <div class="atom-axis"><span>Work in motion</span><span>Human judgment</span></div>
+      </div>
+      <div class="atom-bottom"><p class="atom-state" data-attention-state>工作继续。</p><a class="atom-more" href="./features.html">Explore the ideas <span aria-hidden="true">↗</span></a></div>
+    </article>
+    <p class="visually-hidden" role="status" data-story-announcement></p>
+  </section>`;
+}
+
+function longWork() {
   return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
-    <p class="index">RESEARCH DIRECTION / 本轮核心自研理念</p>
-    <h2 id="long-work-title"><span lang="en">A longer life<br>for the work.</span><span class="zh">让长期工作，有自己的秩序。</span></h2>
-    <p class="lede">从资料治理，到可重建的发现与上下文，再到重要变化出现时的介入。我们希望工作持续积累，而人和模型每次只需关注当下相关的部分。</p>
+    <p class="index">THE WORKSPACE</p>
+    <h2 id="long-work-title"><span lang="en">One Matter.<br>Many possibilities.</span><span class="zh">工作有归处，执行可接续。</span></h2>
     <div class="long-work-stages">
-      <section><p class="index">01 / GROUND</p><h3>Deterministic foundations.</h3><p>先确定材料来自哪里、属于哪个版本、可以被谁读取。即使没有模型，资料仍能查找、核对与更新。</p></section>
-      <section><p class="index">02 / REBUILD</p><h3>Rebuildable Spark.</h3><p>Spark 负责资料与派生维护：整理发现、重建当前上下文。旧摘要可以退出，来源、正式判断、未完义务与冲突仍须留下。</p></section>
-      <section><p class="index">03 / ATTEND</p><h3>Selective Attention.</h3><p>把重要变化送到人面前。关联事件、合并重复、控制介入频率，让每次提醒都有明确的理由与可采取的行动。</p></section>
+      <section><p class="index">MATTER</p><h3>Work has an address.</h3><p>来源、候选、决定与未完事项留在同一个 Matter。每件工作携带自己的契约：什么算证据，谁能决定，怎样才算完成。</p></section>
+      <section><p class="index">EXPERTS / PRODUCT DIRECTION</p><h3>Roles compose.</h3><p>Expert 定义角色、工具与工作契约。不同责任围绕同一 Matter 组合，交接仍有共同的工作依据。</p></section>
+      <section><p class="index">RUNTIME</p><h3>Intelligence is replaceable.</h3><p>Runtime 承担执行，Matter 保存工作。以 Pi 为执行入口，让模型选择与正式工作状态各有归属。</p></section>
     </div>
-    <div class="long-work-columns">
-      <section><p class="index">ROLES & EXECUTION</p><h3>Clear roles. Adaptable execution.</h3><p>Expert 表达承担的角色；runtime 承担执行。角色、配置与权限分别说明，沿 Pi 薄集成起步，有实际需要时再逐一验证其他执行入口。</p></section>
-      <section><p class="index">QUALITY & COST</p><h3>Measure the whole life.</h3><p>从首次整理、资料更新，到恢复、审阅与维护，检验成果质量和总成本。可删除、可重建的派生层，要靠真实收益证明价值。</p></section>
-    </div>
-    <p class="caption">以上为本轮研究理念与施工方向。Spark 自动维护、通用恢复与自动唤醒尚未交付；长期质量和成本收益仍待验证。</p>
-    <p class="actions"><a href="${REPO}/blob/${researchSha}/engineering/research/multi-experts-2026-09-10/pr-plan.md">Explore the research roadmap →</a><a href="./tour.html#assistant">See the current product →</a></p>
-    <p class="caption">当前基础：版本化来源与审阅、<a href="${REPO}/blob/${sourceSha}/app/docs/run-attempts.md">有界 Run 续行</a>、<a href="${REPO}/blob/${sourceSha}/app/docs/coordination.md">Thread 本地通信</a>；实录版本 ${sourceSha.slice(0, 7)}。</p>
+    <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
   </section>`;
 }
 
@@ -292,67 +325,26 @@ function review(fill, shot) {
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
-<p class="review-attention" data-attention="review"><span aria-hidden="true"></span>待人审阅 <small>· 录制中的候选状态</small></p>
+<p class="review-attention" data-attention="review"><span aria-hidden="true"></span>待人审阅 </p>
 ${shot("M6", {
           alt: "Work Review：一条候选待决定，依据与来源版本可见。",
           caption: inline(
-            "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Work Review：一条候选待决定。",
+            "候选与依据，一起进入审阅。",
             fill,
           ),
         })}
       </section>`;
 }
 
-function evidenceSection(fill, evidence) {
-  const { benchmark, tests } = evidence;
-  const testEntry = `npm --prefix app test · ${tests.pass} passed, ${tests.fail} failed`;
-
+function evidenceSection() {
   return `<section class="section" id="evidence" aria-labelledby="evidence-title">
-        <p class="index">${EVIDENCE.index}</p>
-        <h2 id="evidence-title" lang="en">${escape(EVIDENCE.title)}</h2>
-        <blockquote class="pull"><p>${escape(EVIDENCE.quote)}</p></blockquote>
-
-        <table class="table">
-          <thead><tr><th>项</th><th>文案</th><th>入口</th></tr></thead>
-          <tbody>
-            ${EVIDENCE.list
-              .map((row) => {
-                const entry = row.item === "Tests"
-                  ? escape(testEntry)
-                  : row.href
-                    ? `<a href="${escape(row.href)}">${escape(row.entry)}</a>`
-                    : entryLink(row.entry, fill);
-                return `<tr><th scope="row" lang="en">${escape(row.item)}</th><td>${inline(row.text, fill)}</td><td>${entry}</td></tr>`;
-              })
-              .join("\n            ")}
-          </tbody>
-        </table>
-
-        <div class="eval-scoreboard"><p class="index">CONTINUITY / RECORDED RESULT</p><p class="eval-headline">Same score.<br>Different structure.</p><div class="eval-scores">${["E", "S"].map(key => `<div><span>${key}</span><strong>${benchmark.conditions[key].passed}<small> / ${benchmark.conditions[key].attempted}</small></strong></div>`).join("")}</div><p class="note">Synthetic conformance · no real model · 固定快照 ${escape(benchmark.git.head.slice(0, 7))}。本结果不证明 E 优于 S。</p></div><h3 lang="en">Eval</h3>
-        <p class="note">${escape(EVIDENCE.evalIntro)}</p>
-        <dl class="eval">
-          ${EVIDENCE.eval
-            .map((entry) => `<dt lang="en">${escape(entry.question)}</dt><dd>${inline(entry.text, fill)}</dd>`)
-            .join("\n          ")}
-        </dl>
-        <p class="record is-mono">E ${benchmark.conditions.E.passed}/${benchmark.conditions.E.attempted} · S ${benchmark.conditions.S.passed}/${benchmark.conditions.S.attempted} · ${escape(benchmark.protocol)} · CourtWork ${escape(benchmark.git.head.slice(0, 7))} · model ${benchmark.model === null ? "null" : escape(String(benchmark.model))}</p>
-        <p class="note">${escape(EVIDENCE.evalFooter)}</p>
-        <p class="actions">${EVIDENCE.evalActions
-          .map((a) => `<a href="${escape(fill(a.href))}" lang="en">${escape(a.label)}</a>`)
-          .join("")}</p>
-
-        <h3>声称表</h3>
-        <table class="table claims">
-          <thead><tr><th>可写的声称</th><th>状态</th><th>证据入口</th></tr></thead>
-          <tbody>
-            ${CLAIMS.map(
-              ([claim, status, entry]) =>
-                `<tr><th scope="row">${escape(claim)}</th><td><span class="status ${STATUS_CLASS(status)}">${escape(status)}</span></td><td>${entryLink(entry, fill)}</td></tr>`,
-            ).join("\n            ")}
-          </tbody>
-        </table>
-        <p class="note">${escape(EVIDENCE.claimsNote)}</p>
-      </section>`;
+    <p class="index">EVAL</p><h2 id="evidence-title">Can the work continue?</h2>
+    <blockquote class="pull"><p>换了来源，断了运行，下一步仍要有据可循。</p></blockquote>
+    <p class="lede">Work Continuity Evals 围绕工作的有效状态设计实验：检验什么能留下，什么必须拒绝，以及新的执行者需要读取多少信息才能继续。</p>
+    <dl class="words"><dt>Continuity</dt><dd>来源更新、请求重试与版本冲突之后，检查决定与义务是否仍然有效。</dd><dt>State Machine</dt><dd>组合合法与非法操作，寻找单条路径看不到的状态漏洞。</dd><dt>Fault &amp; Replay</dt><dd>在提交与回执之间打断执行，追问工作究竟停在哪里。</dd><dt>Disclosure</dt><dd>同时衡量读取负担与正确续行，让上下文成本有工作结果作依据。</dd></dl>
+    <p class="caption">Continuity · synthetic suite. State Machine / Fault / Disclosure · evaluation design.</p>
+    <p class="actions"><a href="./eval.html">Explore the evals →</a><a href="./evidence/continuity-9e5384f.json">Continuity record →</a></p>
+  </section>`;
 }
 
 function portability(fill) {
@@ -378,25 +370,18 @@ function build(fill, shot) {
         ${shot("M7", {
           alt: "Settings › Models：Add provider 的 Compatible endpoint 一行，Test connection 与 Fetch models 在场。",
           caption: inline(
-            "CourtWork `{sha7}` · synthetic data · local deterministic provider · 1440×900 light · Settings › Models：Compatible endpoint 的两个探测控件在场，未填写端点，未存任何密钥。",
+            "连接模型，选择下一次执行。",
             fill,
           ),
         })}
-        <table class="table">
-          <thead><tr><th>入口</th><th>文案</th></tr></thead>
-          <tbody>
-            ${BUILD.entries
-              .map(([name, text, target]) => `<tr><th scope="row">${entryLink(target, fill)}</th><td>${escape(text)}</td></tr>`)
-              .join("\n            ")}
-          </tbody>
-        </table>
+        <p class="actions"><a href="./get.html">Installation guide →</a><a href="./eval.html">Explore the evals →</a></p>
 
       </section>`;
 }
 
 function footer(fill, identity) {
   return `<footer class="footer">
-      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
+      <nav class="product-footer-links" aria-label="Explore Courtwork"><a href="./features.html">Features</a><a href="./eval.html">Eval</a><a href="./experts.html">Experts</a><a href="./tour.html">Product tour</a><a href="./get.html">Get Courtwork</a><a href="./cli.html">CLI study</a><a href="./changelog.html">Changelog</a><a href="./models.html">Models</a><a href="./data.html">Data boundaries</a></nav>
       <p>${FOOTER.items
         .map((item) => {
           const text = fill(item);
@@ -422,7 +407,7 @@ function primaryEntries() {
     <div class="entry-grid">
       <details class="entry-chapter entry-paper" id="paper" >
         <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper<span>理念</span></span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">展开理念</span><span class="entry-open">收起理念</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
-        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><p class="entry-actions"><a href="${PAPER_ENTRY.href}">阅读 Paper ↗</a><a href="${PAPER_ENTRY.baseline}">Canonical · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK / RESEARCH DIRECTION</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 构成长久工作的研究方向。</p><a href="#long-work">长期工作的理念 →</a></div></div>
+        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><p class="entry-actions"><a href="${PAPER_ENTRY.href}">阅读 Paper ↗</a><a href="${PAPER_ENTRY.baseline}">Canonical · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK / PRODUCT DIRECTION</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 构成长久工作的设计方向。</p><a href="#long-work">长期工作的理念 →</a></div></div>
       </details>
       <article class="entry-chapter entry-tour"><details id="tour">
         <summary><span class="entry-kicker">02 / THE ORCHESTRATION</span><span class="entry-title">Tour<span>编排</span></span><span class="entry-description">从一次行动，到人的介入，再到留下的工作。</span><span class="entry-cover entry-cover-tour" aria-hidden="true"><span>START</span><i>→</i><span>ACT</span><i>→</i><span>REVIEW</span><i>→</i><span>CONTINUE</span></span><span class="entry-toggle"><span class="entry-closed">查看路径说明</span><span class="entry-open">收起路径说明</span><span class="entry-sign" aria-hidden="true"></span></span></summary>

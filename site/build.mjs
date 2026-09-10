@@ -134,6 +134,16 @@ for (const file of evidence.files) await emit(`evidence/${path.basename(file.pat
 const recording = JSON.parse(specimenBytes.toString("utf8"));
 const diagram = await readFile(path.join(SITE, "src", "assets", "diagram.svg"), "utf8");
 await emit("icon.svg", brandIcon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('fill="currentColor"', 'fill="#282b2d"').replaceAll('<rect x="28"', '<rect fill="#8b9298" x="28"'));
+// Public method exports resolve repository-relative links to the source repository.
+async function emitMethod(from, to) {
+  const markdown = (await readFile(path.join(ROOT, from), "utf8")).replace(/\]\(([^)]+)\)/g, (match, href) => {
+    if (/^(?:https?:|#)/.test(href)) return match;
+    return `](https://github.com/lesPrivilege/Courtwork/blob/main/${path.posix.normalize(path.posix.join(path.posix.dirname(from), href))})`;
+  });
+  await emit(to, markdown);
+}
+await emitMethod("benchmarks/SPEC.md", "benchmark-contract.md");
+await emitMethod("engineering/execution/2026-09-10-benchmark-series/README.md", "benchmark-series.md");
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media, pageMedia }));
 const packageVersion = JSON.parse(productBytes(pageMedia.source_sha, "app/package.json").toString("utf8")).version;
 for (const [name, html] of Object.entries(renderProductPages({identity, media: pageMedia, recording, packageVersion}))) await emit(name, html);

@@ -373,3 +373,5 @@ Attention Chat 收尾独立验收与证据合流（2026-09-10）：当前 `main@
 ## Benchmark series · 2026-09-10
 
 用户要求 benchmark 系列先于对外叙事准备。Astra 从实际 main `df9fc18` 隔离，延伸现有 Continuity / D1–D3，编订 [BM-01 评测契约](../benchmarks/SPEC.md) 与 [BM-02–05 PR 文稿](execution/2026-09-10-benchmark-series/README.md)。覆盖运行清单与报告复现、生成式 Core 状态机、真实进程故障与回执重放、matched Disclosure。BM-01 为文档交付，其余为可施工合同；没有新实验结果、付费模型运行或产品接受。Luna 负责有界只读探索，不代表本单独立接受。
+
+Public narrative 接续：用户要求所有对外发布面采用独立承重语句。首页按用户最终裁定将 Spark/Attention 原子叙事与联动语义图置于 Hero 后，再接 Paper/Tour 并排入口；Matter/Experts/Runtime 后置，导航统一短标签；Features、Eval、Experts 承接产品判断与评测设计，README、Tour、Get、CLI、Models、Data、Changelog 与 replay framing 同步去除测试计数和工程旁白。固定合成媒体与 benchmark 原记录保持。career-kit 真实底稿与编译器另在本地修订为协调两页，私有简历未入仓。[交付与检查](release/public-narrative-2026-09-10/README.md)。本轮为发布面准备，无线上部署或新模型结果。

@@ -10,17 +10,25 @@ CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与
 
 [体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md)
 
-## 工作如何留下来
+## 工作有自己的连续性
 
-一次运行会结束，专业工作往往需要多次交接、修订与确认。CourtWork 把每次执行留下的内容组织成可继续使用的工作状态。
+**Matter · Work has an address.** 来源、候选、决定与未完事项留在同一件工作里。每个 Matter 携带自己的契约，明确证据、权限与完成条件。
 
-- **过程可见。** 工具调用、提问、回答与运行状态按时间呈现。写入批准包含具体路径、内容与大小。
-- **材料可追溯。** 生成文件保留字节身份；候选引用明确的来源版本与原文片段。
-- **审阅有落点。** 接受、退回或要求补证据。每次决定绑定候选版本，修订与历史一起保留。
-- **工作可续行。** 将 Chat 接入 Matter，在新的会话里继续处理同一事项，查看既有成果、决定与待办义务。
-- **运行由你配置。** 选择 provider 或本地模型，管理资源、权限与 MCP。工作数据保存在本地。
+**Attention · Make attention count.** 从全局对话进入工作，让需要人判断的变化有明确对象。候选与依据一起进入 Review，决定绑定具体版本。
 
-仓库内含一个完整的 NDA 审阅场景，贯通材料、逐规则候选、证据引用、人工决定与修订。
+**Runtime · Intelligence is replaceable.** Pi 承担执行入口，模型与运行配置各有归属；正式来源、成果与决定由工作状态持有。
+
+**Spark & Experts · Product direction.** Spark 围绕稳定来源组织可重建的派生知识；Experts 通过角色、工具与契约组合专业责任，围绕同一 Matter 接力。
+
+[Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
+
+## Can the work continue?
+
+Work Continuity Evals 检验来源变化、请求重试与执行中断后的工作状态。当前 Continuity 使用合成数据与确定性执行器，比较 CourtWork Core 和普通持久化审批系统的共同符合性。
+
+状态机、故障重放与 Disclosure 的评测设计继续追问：操作组合是否守住有效状态，中断后究竟留下什么，新的执行者需要读多少信息才能正确继续。
+
+[Eval](https://lesprivilege.github.io/Courtwork/eval.html) · [评测契约](benchmarks/SPEC.md) · [运行 Continuity](benchmarks/continuity/README.md)
 
 ## 本地运行
 

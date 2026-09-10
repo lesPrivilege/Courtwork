@@ -12,6 +12,8 @@ on:
     paths:
       - "site/**"
       - "README.md"
+      - "benchmarks/SPEC.md"
+      - "engineering/execution/2026-09-10-benchmark-series/**"
       - ".github/workflows/pages.yml"
       # The page reads its tokens from the product's stylesheet and its numbers
       # from the recorded evidence, so a change to either must rebuild it.

@@ -21,7 +21,7 @@ export function renderSpecimenPage({ identity, media }) {
     (step, position) => `      <li id="step-${escape(step.id)}">
         <p class="fallback-seen">${position + 1}. ${escape(step.seen)}</p>
         <p class="fallback-text">${escape(step.text)}</p>
-        <p class="fallback-status is-mono">${escape(step.status)}</p>${still(step)}
+        ${still(step)}
       </li>`,
   ).join("\n");
 
@@ -45,8 +45,8 @@ export function renderSpecimenPage({ identity, media }) {
     >
       <noscript>
         <p id="source"><a href="./${identity.sha7}.json">Recorded sources · 打开完整来源记录</a></p>
-        <p class="specimen-label is-mono">Replay · synthetic data · recorded at CourtWork ${identity.sha7}</p>
-        <p class="fallback-lead">这一段记录下来的工作，在没有 JavaScript 时按步骤读。</p>
+        <p class="specimen-label is-mono">Interactive replay · synthetic NDA</p>
+        <p class="fallback-lead">从请求到决定，逐步展开这件工作。</p>
         <ol class="specimen-fallback">
 ${steps}
         </ol>

@@ -35,7 +35,7 @@ export const STEPS = [
     // The still this step falls back to when there is no scripting.
     still: "M2",
     seen: "Approval",
-    text: "写入之前 Agent 先问。你看到确切的路径、大小与内容 hash，只批准这一次写入。",
+    text: "写入之前，查看路径与具体内容，再批准这次行动。",
     status: "verified with synthetic data",
     view: "run",
     key: "permission",
@@ -59,7 +59,7 @@ export const STEPS = [
     // The still this step falls back to when there is no scripting.
     still: "M4",
     seen: "File",
-    text: "打开这次 Run 产生的文件。它的身份是记录下来的字节，不是聊天里的一段文字。",
+    text: "打开这次运行产生的文件，沿原始内容继续阅读与审阅。",
     status: "verified with synthetic data",
     view: "file",
     key: "workspaceFiles",
@@ -77,14 +77,14 @@ export const STEPS = [
     // has words but no recorded fact behind it. It says so rather than
     // borrowing another step's screen.
     absent:
-      "这一段记录里没有取消与重连。它的证据在页面的证据清单里，不在这份重放里。",
+      "此段回放未收录取消与重连。",
   },
   {
     id: "continue",
     // The still this step falls back to when there is no scripting.
     still: "M5",
     seen: "Continue in Work",
-    text: "把这个 Chat 绑定到一个 Matter。历史与 Project 都保留；不复制，不迁移。",
+    text: "把会话接入 Matter，带着既有历史继续同一件工作。",
     status: "verified with synthetic data",
     view: "surface",
     key: "surface.bound",
