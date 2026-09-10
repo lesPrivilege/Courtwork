@@ -11,7 +11,7 @@
 //   node site/scripts/verify.mjs [--origin http://127.0.0.1:8907/Courtwork/]
 //
 import { spawn } from "node:child_process";
-import { writeFile, mkdir, mkdtemp, rm } from "node:fs/promises";
+import { writeFile, readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { SITE, ROOT } from "./release.mjs";
@@ -24,6 +24,9 @@ const ORIGIN = arg("--origin", "http://127.0.0.1:8907/Courtwork/");
 const CHROME = arg("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 const CDP_PORT = Number(arg("--cdp-port", "19981"));
 const OUT = arg("--out", path.join(SITE, "verification"));
+// Figure screenshots are evidence for the publishing-visuals batch (WO-VG-01).
+const FIGURES_OUT = arg("--figures-out", path.join(ROOT, "evidence", "publishing-visuals-20260910"));
+const FIGURES = JSON.parse(await readFile(path.join(SITE, "src", "assets", "figures", "figures.json"), "utf8"));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const results = [];
@@ -32,7 +35,9 @@ const record = (id, pass, detail) => {
   console.log(`${pass ? "PASS" : "FAIL"}  ${id}  ${JSON.stringify(detail)}`);
 };
 
-const profile = await mkdtemp(path.join(tmpdir(), "ps01-verify-"));
+const PROFILE = arg("--profile", null);
+if (PROFILE) await mkdir(PROFILE, { recursive: true });
+const profile = PROFILE ?? await mkdtemp(path.join(tmpdir(), "ps01-verify-"));
 const chrome = spawn(
   CHROME,
   [
@@ -379,6 +384,153 @@ try {
       overflow, file: `site/verification/${name}`,
     });
   }
+
+  // ---- V9 · figures, measured with real glyphs (intake VG-10, VG-15) -------
+  // The same three geometry failures check-figures estimates from a width
+  // table — text outside its box, overlapping nodes, a connector through an
+  // unrelated node — measured here with getBBox and getPointAtLength, plus the
+  // colour facts a stylesheet decides: which element is red, and whether the
+  // figure's own text fill meets contrast on the ground it sits on.
+  const FIGURE_AUDIT = `((figures) => {
+    const parse = (v) => (v.match(/[\\d.]+/g) || []).slice(0, 3).map(Number);
+    const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+    const probe = document.createElement("span");
+    probe.style.color = "var(--campaign-attention-review)";
+    document.body.append(probe);
+    const red = getComputedStyle(probe).color;
+    probe.remove();
+    const groundOf = (node) => { for (let n = node; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(c)) return parse(c); } return [255, 255, 255]; };
+    const out = [];
+    for (const entry of figures) {
+      const host = entry.mount === "data-figure" ? document.querySelector('[data-figure="' + entry.id + '"]') : document.querySelector(entry.mount);
+      if (!host) { out.push({ id: entry.id, missing: true }); continue; }
+      const svg = host.matches("svg") ? host : host.querySelector("svg:not([aria-hidden=true])");
+      const row = { id: entry.id, problems: [], reds: [], animated: 0 };
+      for (const el of host.querySelectorAll("*")) {
+        const s = getComputedStyle(el);
+        if (!svg || !svg.contains(el)) continue;
+        if ((s.animationName && s.animationName !== "none") || parseFloat(s.transitionDuration) > 0) row.animated++;
+        if ((s.fill === red || s.stroke === red) && !el.closest("defs")) row.reds.push(el.id ? "#" + el.id : el.tagName);
+      }
+      if (!svg) { out.push(row); continue; }
+      row.title = Boolean(svg.querySelector(":scope > title")?.textContent.trim());
+      row.desc = Boolean(svg.querySelector(":scope > desc")?.textContent.trim());
+      const [vx, vy, vw, vh] = svg.viewBox.baseVal ? [svg.viewBox.baseVal.x, svg.viewBox.baseVal.y, svg.viewBox.baseVal.width, svg.viewBox.baseVal.height] : [0, 0, 0, 0];
+      const box = (el) => { const b = el.getBBox(); return { x: b.x, y: b.y, right: b.x + b.width, bottom: b.y + b.height, label: el.id || el.textContent?.trim() || el.closest("[data-node]")?.dataset.node || el.tagName }; };
+      const area = (b) => (b.right - b.x) * (b.bottom - b.y);
+      const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y));
+      const contains = (o, i, t = 1) => o.x - t <= i.x && o.y - t <= i.y && o.right + t >= i.right && o.bottom + t >= i.bottom;
+      const inside = (b, p, inset) => p.x > b.x + inset && p.x < b.right - inset && p.y > b.y + inset && p.y < b.bottom - inset;
+      const live = (el) => !el.closest("defs");
+      const rects = [...svg.querySelectorAll("rect")].filter(live).map((el) => ({ el, box: box(el) }));
+      const texts = [...svg.querySelectorAll("text")].filter(live).map((el) => ({ el, box: box(el) }));
+      const view = { x: vx, y: vy, right: vx + vw, bottom: vy + vh };
+      for (const t of [...rects, ...texts]) if (!contains(view, t.box, 0.5)) row.problems.push("outside viewBox: " + t.box.label);
+      for (const t of texts) {
+        const c = { x: (t.box.x + t.box.right) / 2, y: (t.box.y + t.box.bottom) / 2 };
+        const owners = rects.filter((r) => inside(r.box, c, 0)).sort((a, b) => area(a.box) - area(b.box));
+        if (owners[0] && !contains(owners[0].box, t.box, 1)) row.problems.push("text overflows its box: " + t.box.label);
+        for (const r of rects) if (!owners.includes(r) && overlap(r.box, t.box) > 4) row.problems.push("text overlaps node: " + t.box.label + " / " + r.box.label);
+        // Contrast of the fill actually painted, on the fill (or page) behind it.
+        const ground = owners[0] && getComputedStyle(owners[0].el).fill.startsWith("rgb") ? parse(getComputedStyle(owners[0].el).fill) : groundOf(svg);
+        const size = parseFloat(getComputedStyle(t.el).fontSize) * (svg.getBoundingClientRect().width / vw);
+        const value = ratio(parse(getComputedStyle(t.el).fill), ground);
+        const threshold = size >= 18.66 ? 3 : 4.5;
+        if (value < threshold) row.problems.push("text contrast " + value.toFixed(2) + " < " + threshold + ": " + t.box.label);
+      }
+      for (let i = 0; i < texts.length; i++) for (let j = i + 1; j < texts.length; j++) if (overlap(texts[i].box, texts[j].box) > 4) row.problems.push("texts overlap: " + texts[i].box.label + " / " + texts[j].box.label);
+      for (let i = 0; i < rects.length; i++) for (let j = i + 1; j < rects.length; j++) { const [a, b] = [rects[i].box, rects[j].box]; if (!contains(a, b) && !contains(b, a) && overlap(a, b) > 4) row.problems.push("nodes overlap: " + a.label + " / " + b.label); }
+      for (const line of svg.querySelectorAll("line, path, polyline")) {
+        if (!live(line) || line.dataset.deco !== undefined) continue;
+        const length = line.getTotalLength();
+        if (!length) continue;
+        const at = (t) => line.getPointAtLength(length * t);
+        const ends = [at(0), at(1)];
+        for (const o of [...rects, ...texts]) {
+          if (ends.some((p) => inside(o.box, p, -6))) continue;
+          for (let t = 0.12; t <= 0.881; t += 0.04) if (inside(o.box, at(t), 2)) { row.problems.push("connector crosses: " + (line.dataset.edge || line.tagName) + " through " + o.box.label); break; }
+        }
+      }
+      row.width = Math.round(svg.getBoundingClientRect().width);
+      out.push(row);
+    }
+    return { red, figures: out };
+  })`;
+  const redOf = (entry) => (entry.red ? [entry.red.element] : []);
+  for (const [width, height, theme] of [[1440, 900, "light"], [1440, 900, "dark"], [390, 844, "light"], [390, 844, "dark"]]) {
+    await load(ORIGIN, { width, height, theme });
+    const audit = await evaluate(`${FIGURE_AUDIT}(${JSON.stringify(FIGURES.figures)})`);
+    const bad = audit.figures.filter((f) => f.missing || f.problems?.length || f.animated ||
+      JSON.stringify(f.reds) !== JSON.stringify(redOf(FIGURES.figures.find((e) => e.id === f.id))) ||
+      (f.title === false) || (f.desc === false && !FIGURES.figures.find((e) => e.id === f.id).deferred));
+    record(`V9 · figures at ${width}px ${theme}: geometry, text contrast, red only where registered, nothing moves`, bad.length === 0, {
+      figures: audit.figures.length, red: audit.red, reds: audit.figures.filter((f) => f.reds.length).map((f) => ({ id: f.id, reds: f.reds })),
+      deferredWithoutDesc: audit.figures.filter((f) => f.desc === false).map((f) => f.id), failures: bad.slice(0, 6),
+    });
+  }
+
+  // ---- V10 · the figure matrix, greyscale and forced colours ----------------
+  await mkdir(FIGURES_OUT, { recursive: true });
+  const matrix = [];
+  const regions = [["long-work", "#long-work"], ["state-to-commit", '[data-figure="state-to-commit"]'], ["fig-00", '[data-figure="fig-00-matter-object"]']];
+  const capture = async (name, selector) => {
+    const rect = await evaluate(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); const b = e.getBoundingClientRect(); return { x: b.x + scrollX, y: b.y + scrollY, width: b.width, height: b.height }; })()`);
+    const png = Buffer.from((await cdp("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { ...rect, scale: 1 } })).data, "base64");
+    await writeFile(path.join(FIGURES_OUT, name), png);
+    return { file: name, bytes: png.length, clip: { width: Math.round(rect.width), height: Math.round(rect.height) } };
+  };
+  const viewportNow = () => evaluate("({ innerWidth, innerHeight, devicePixelRatio })").catch(() => null);
+  for (const [width, height] of [[1440, 900], [390, 844]])
+    for (const theme of ["light", "dark"])
+      for (const mode of ["default", "reduced-motion", "no-js"]) {
+        if (mode === "no-js") await cdp("Emulation.setScriptExecutionDisabled", { value: true });
+        await load(ORIGIN, { width, height, theme, features: mode === "reduced-motion" ? [{ name: "prefers-reduced-motion", value: "reduce" }] : [] });
+        const viewport = mode === "no-js" ? { innerWidth: width, innerHeight: height, devicePixelRatio: 1, note: "emulated metrics; page scripts disabled" } : await viewportNow();
+        for (const [label, selector] of regions)
+          matrix.push({ width, height, theme, mode, region: label, viewport, ...(await capture(`${label}-${width}-${theme}-${mode}.png`, selector)) });
+        if (mode === "no-js") await cdp("Emulation.setScriptExecutionDisabled", { value: false });
+      }
+
+  // Greyscale: the elevated item must still stand apart from the quiet ones by
+  // shape (the only filled mark) and by non-text contrast against its ground.
+  for (const [width, height, theme] of [[1440, 900, "light"], [1440, 900, "dark"], [390, 844, "light"]]) {
+    await load(ORIGIN, { width, height, theme });
+    await evaluate(`document.documentElement.style.filter = "grayscale(1)"`);
+    const grey = await evaluate(`(() => {
+      const parse = (v) => (v.match(/[\\d.]+/g) || []).slice(0, 3).map(Number);
+      const g = ([r, gg, b]) => 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+      const lum = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+      const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+      const figure = document.querySelector('[data-figure="attention"]');
+      const elevated = figure.querySelector("#fig-attention-elevated");
+      const quiet = [...figure.querySelectorAll(".fig-quiet")];
+      let ground = [255, 255, 255];
+      for (let n = figure; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (!/rgba\\(0, 0, 0, 0\\)|transparent/.test(c)) { ground = parse(c); break; } }
+      const mark = g(parse(getComputedStyle(elevated).fill));
+      return { markGrey: Math.round(mark), groundGrey: Math.round(g(ground)), contrast: Math.round(ratio(mark, g(ground)) * 100) / 100,
+        onlyFilled: quiet.every((q) => getComputedStyle(q).fill === "none"), quiet: quiet.length,
+        labelWeight: getComputedStyle(figure.querySelector("#fig-attention-elevated + text")).fontWeight };
+    })()`);
+    matrix.push({ width, height, theme, mode: "grayscale", region: "long-work", viewport: await viewportNow(), ...(await capture(`long-work-${width}-${theme}-grayscale.png`, "#long-work")) });
+    record(`V10 · greyscale ${width}px ${theme}: the elevated item stays distinct without colour`, grey.contrast >= 3 && grey.onlyFilled && Number(grey.labelWeight) >= 600, grey);
+  }
+
+  // Forced colours: the red resolves to a system colour, and shape carries it.
+  for (const [width, height, theme] of [[1440, 900, "light"], [390, 844, "dark"]]) {
+    await load(ORIGIN, { width, height, theme, features: [{ name: "forced-colors", value: "active" }] });
+    const forced = await evaluate(`(() => {
+      const figure = document.querySelector('[data-figure="attention"]');
+      const elevated = getComputedStyle(figure.querySelector("#fig-attention-elevated")).fill;
+      const text = getComputedStyle(figure.querySelector("text")).fill;
+      return { active: matchMedia("(forced-colors: active)").matches, elevated, text, sameAsText: elevated === text,
+        quietUnfilled: [...figure.querySelectorAll(".fig-quiet")].every((q) => getComputedStyle(q).fill === "none") };
+    })()`);
+    matrix.push({ width, height, theme, mode: "forced-colors", region: "long-work", viewport: await viewportNow(), ...(await capture(`long-work-${width}-${theme}-forced-colors.png`, "#long-work")) });
+    record(`V10 · forced colours ${width}px ${theme}: no red survives, the elevated item stays the only filled mark`, forced.active && forced.sameAsText && forced.quietUnfilled, forced);
+  }
+  await writeFile(path.join(FIGURES_OUT, "matrix.json"), JSON.stringify({ origin: ORIGIN, chrome: version.Browser, matrix }, null, 2) + "\n");
+  record("V10 · figure screenshot matrix written", matrix.length === 2 * 2 * 3 * regions.length + 5, { shots: matrix.length, dir: path.relative(ROOT, FIGURES_OUT) });
 
   await writeFile(
     path.join(OUT, "verify.json"),
