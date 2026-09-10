@@ -1,5 +1,7 @@
 # 下一轮准备 · 前后端合流与通用 Harness
 
+新增有界探索：[Micro-surface review / Rename消费](../../research/micro-surface-review-20260910/README.md)已登记原对话并派Luna fast，只读核真实接缝与候选验收模板，不绕过当前组合修补门或启动新前端writer。
+
 用户要求先由Luna fast只读探索PR/commit真实消费，Astra据事实定序。此包是[唯一roadmap](../../roadmap.md)的核账附件，不另立总顺序，不是自动派出全部实施单。
 
 ## 准入原则
