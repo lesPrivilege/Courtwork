@@ -22,6 +22,7 @@ import {
   connectionSaveError,
   contextWindowReading,
   CONNECTION_SAVE_FAILURES,
+  CONFIGURATION_INCOMPLETE_MESSAGE,
   PROVIDER_CONFIG_FIELDS,
   projectProviderConfig,
   supportedEffortsOf,
@@ -36,6 +37,13 @@ import {
   probeReading,
   probeLine,
   probeCatalogueLine,
+  VERIFY_STATUS_HEADLINES,
+  verifyHeadline,
+  verifyFailureLine,
+  verifySuccessLine,
+  verifyDetailLine,
+  connectionRowVerificationLine,
+  localTime,
 } from "../web/settings-view.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
@@ -159,26 +167,31 @@ test("PV-34 / PV-46 · 保存失败的三类直接消费后端错误码与枚举
   assert.doesNotMatch(settingsSource, /connection_authentication_failed[\s\S]{0,200}\.test\(/);
 });
 
-test("WK-108 · 两步不再是留位说明：BE-17 / BE-18 交付后各自是一个控件", () => {
+/* WO-PV-FE02 · 改写理由：BE-39 落地后冒烟（第三级阶梯）不再是留位，`smoke.available`
+ * 从 `false` 变 `true`，旧断言"未交付的恰好是 smoke 这一条"因而与事实相反——不是
+ * 放宽断言，是断言的方向跟着事实反转（与 delivery-pv-fe01 §5 改写 PV-24 那两条同一
+ * 先例）。新断言换成检查 smoke 步现在怎么说：它不再自称"没有"，note 说清楚这一步
+ * 做什么、不证明什么（PV-73 的措辞），且不再有任何一步留 `available:false`。 */
+test("WK-108/PV-62 · 冒烟不再留位：BE-39 落地后六步全部可用，各自说清楚做什么", () => {
   const probes = CONNECTION_STEPS.filter((step) => step.probe);
   assert.deepEqual(probes.map((step) => step.id), ["test", "fetch"]);
   assert.deepEqual(probes.map((step) => step.probe), ["test", "discover"]);
-  /* 已交付的步是控件；未交付的步只留位。冒烟（第三级阶梯，PV-35）依赖 BE-39，
-   * 它还没有，所以这里写"没有"，而不是画一个按不动的按钮。 */
-  assert.deepEqual(
-    CONNECTION_STEPS.filter((step) => !step.available).map((step) => step.id),
-    ["smoke"],
-  );
+  // 六步全部可用；今天没有一步只留位。
+  assert.deepEqual(CONNECTION_STEPS.filter((step) => step.available).map((step) => step.id), [
+    "configure", "test", "fetch", "choose", "save", "smoke",
+  ]);
+  assert.deepEqual(CONNECTION_STEPS.filter((step) => !step.available), []);
   const smoke = CONNECTION_STEPS.find((step) => step.id === "smoke");
-  assert.ok(smoke.note.startsWith("Not available yet"));
-  assert.equal(smoke.probe, undefined);
-  // 留位就是留位：不许诺一个日期，也不声称那两步已经证明了模型能回答。
-  assert.match(smoke.note, /neither shows that the selected model can answer/);
-  // 旧的两句留位文本不得残留：后端已经有握手了，说"没有"就是说错。
+  assert.equal(smoke.title, "Ask the model once");
+  // 不再自称"没有"；旧的留位文本一处不留。
+  assert.doesNotMatch(smoke.note, /^Not available yet/);
   assert.doesNotMatch(settingsSource, /host has no handshake/);
   assert.doesNotMatch(settingsSource, /same missing handshake/);
-  for (const step of CONNECTION_STEPS.filter((step) => step.available))
-    assert.doesNotMatch(step.note, /^Not available yet/);
+  assert.doesNotMatch(settingsSource, /BE-39\), so this build does not offer one/);
+  // 新措辞（PV-73）：它做什么、不证明什么——不证明其它模型能回答。
+  assert.match(smoke.note, /Sends one short prompt/);
+  assert.match(smoke.note, /not a check of any other model on this connection/);
+  for (const step of CONNECTION_STEPS) assert.doesNotMatch(step.note, /^Not available yet/);
   // 探测成功不被说成"已验证 key / 可推理 / 已配置"。
   for (const step of probes) assert.doesNotMatch(step.note, /verified|valid key|ready to|configured/i);
   assert.match(CONNECTION_STEPS.find((s) => s.id === "test").note, /does not check that a key is valid/);
@@ -186,6 +199,18 @@ test("WK-108 · 两步不再是留位说明：BE-17 / BE-18 交付后各自是�
    * 模型列表。它仍不声称任何一个模型能回答 —— 那是冒烟那一步的事。 */
   assert.match(CONNECTION_STEPS.find((s) => s.id === "fetch").note, /become the Model list for this connection/);
   assert.match(CONNECTION_STEPS.find((s) => s.id === "fetch").note, /does not check that any of them can answer/);
+  // PV-63 · "Fetch models" 按钮改文案 "Refresh models"：自动发现之后它是手动重跑。
+  assert.equal(CONNECTION_STEPS.find((s) => s.id === "fetch").buttonLabel, "Refresh models");
+  assert.equal(CONNECTION_STEPS.find((s) => s.id === "test").buttonLabel, undefined);
+});
+
+test("PV-73 · smoke 步的 “· Answered” 状态词只在成功后出现，字承担完成态", () => {
+  // 字承担完成态：既没有为它新造一个 check 字形，也没有给它上色。
+  assert.match(settingsSource, /smokeStatusSpan = el\("span", \{ className: "connection-step-status" \}\)/);
+  assert.match(settingsSource, /updateSmokeStatus\(\)/);
+  assert.match(settingsSource, /lastReceipt\?\.status === "ok" \? " · Answered" : ""/);
+  // 阶梯只有这一步被追加状态词的落点；其余步没有这个 span。
+  assert.doesNotMatch(settingsSource, /connection-step-status.*connection-step-status/s);
 });
 
 test("WK-108 · 探测控件只出现在表单里写得出 Base URL 的那条路径上", () => {
@@ -352,11 +377,26 @@ test("PV-27 · 目录未声明档位时只出 Off，不出一个只有一项的�
   assert.equal(effortSelectable(["off"]), false);
   assert.equal(effortSelectable(["off", "high"]), true);
   assert.equal(effortSelectable(null), false);
-  // 选择器只在可选时被挂上去。
-  assert.match(pickerSource, /if \(effortSelectable\(supported\)\)[\s\S]{0,800}effortControl\.replaceChildren\(effortFixed\)/);
+  /* WO-PV-FE02 · 改写理由：`else` 分支里插入了 PV-61 的三态判据注释与新分支，字符
+   * 距离从 800 涨到本单实测约 1000，窗口相应放宽到 1400——锚点（起止两行代码）
+   * 一字未改，中间要跳过的只是新增的注释与一个三元分支，不是放宽了检查什么。 */
+  assert.match(pickerSource, /if \(effortSelectable\(supported\)\)[\s\S]{0,1400}effortControl\.replaceChildren\(effortFixed\)/);
   // 未报窗口写 unknown，不写一个宿主编的数，也不再写 `unavailable`。
   assert.doesNotMatch(pickerSource, /:'unavailable'/);
   assert.match(pickerSource, /:'unknown'/);
+});
+
+test("PV-61 · reasoningSource:\"unknown\" 换成真话，不再替目录说它没说过的话", () => {
+  // 旧句子（"这条目录报的就是没有"）在 unknown 语境下替目录说了它没说过的话；
+  // 换成"没人核过"，并指去唯一能改这件事的地方。
+  assert.match(pickerSource, /selected\.reasoningSource === 'unknown'/);
+  assert.match(pickerSource, /Not verified for this model\. Turn it on for this model in Connections if the provider offers reasoning effort\./);
+  // `catalog`/`user` 两种来源仍走旧句：目录原生声明没有档位，或用户已经声明过。
+  assert.match(pickerSource, /Off\. The catalogue for this connection reports no reasoning levels for this model\./);
+});
+
+test("项 7 · origin:\"connection\" 的模型在选择器路由行追加一句，目录原生行不追加", () => {
+  assert.match(pickerSource, /selected\.origin==='connection'\?' Added on this connection\.':''/);
 });
 
 test("MCP 走同一形态：六步，未交付的三步同样只留位", () => {
@@ -369,4 +409,174 @@ test("MCP 走同一形态：六步，未交付的三步同样只留位", () => {
 
 test("WK-105 ⑤ · 侧栏宽落进 256–280 的下沿", () => {
   assert.match(styles, /--nav:\s*256px;/);
+});
+
+/* ===== WO-PV-FE02 · 无感接入与接入回执（PV-63 / PV-64） =============== */
+
+test("PV-64 · 六态回执的文案映射：五类登记文案，unknown 只写原话", () => {
+  assert.deepEqual(Object.keys(VERIFY_STATUS_HEADLINES), [
+    "authentication_failed", "timeout", "unreachable", "malformed_response",
+  ]);
+  assert.equal(verifyHeadline({ status: "authentication_failed" }), "The provider rejected the key");
+  assert.equal(verifyHeadline({ status: "timeout" }), "No answer within the time limit");
+  assert.equal(verifyHeadline({ status: "unreachable" }), "The endpoint could not be reached");
+  assert.equal(verifyHeadline({ status: "malformed_response" }), "The provider answered in a shape this host cannot read");
+  // http_error 带真实状态码，不是静态常量——同一类底下码可以不同。
+  assert.equal(verifyHeadline({ status: "http_error", httpStatus: 404 }), "The provider returned HTTP 404");
+  assert.equal(verifyHeadline({ status: "http_error", httpStatus: 500 }), "The provider returned HTTP 500");
+  // unknown 没有登记文案——PV-62 ① 禁止为未结构化信号编一句更精确的话。
+  assert.equal(verifyHeadline({ status: "unknown" }), null);
+  assert.equal(verifyHeadline({ status: "ok" }), null);
+
+  // 失败态一行：<登记文案> · <message 原话>；unknown 只写原话。
+  assert.equal(
+    verifyFailureLine({ status: "authentication_failed", message: "Incorrect API key provided." }),
+    "The provider rejected the key · Incorrect API key provided.",
+  );
+  assert.equal(
+    verifyFailureLine({ status: "http_error", httpStatus: 404, message: "model does not exist" }),
+    "The provider returned HTTP 404 · model does not exist",
+  );
+  assert.equal(
+    verifyFailureLine({ status: "unknown", message: "an aborted signal that was not our timer" }),
+    "an aborted signal that was not our timer",
+  );
+
+  // 成功态两行：耗时 + 首句；模型/连接/凭据来源档/时间。
+  assert.equal(
+    verifySuccessLine({ latencyMs: 812, replyFirstLine: "Connection check received." }),
+    "Answered in 0.8 s · Connection check received.",
+  );
+  assert.match(
+    verifyDetailLine({ model: "gpt-5.5", credentialSource: "stored", checkedAt: "2026-09-10T12:00:00.000Z" }, "OpenAI"),
+    /^gpt-5\.5 on OpenAI · key from stored · \d{1,2}:\d{2}( [AP]M)?$/,
+  );
+  // 本地时间是 HH:MM 粒度，不带秒——与 Run 状态词同一粒度。
+  assert.match(localTime("2026-09-10T00:00:00.000Z"), /^\d{1,2}:\d{2}( [AP]M)?$/);
+});
+
+test("PV-42 · 连接行的最近回执：成功/失败/null 三态", () => {
+  assert.equal(connectionRowVerificationLine(null), null);
+  const ok = connectionRowVerificationLine({ status: "ok", model: "gpt-5.5", checkedAt: "2026-09-10T14:32:00.000Z" });
+  assert.match(ok, /^Answered \d{1,2}:32( [AP]M)? · gpt-5\.5$/);
+  const failed = connectionRowVerificationLine({
+    status: "authentication_failed", message: "Incorrect API key provided.", checkedAt: "2026-09-10T14:32:00.000Z",
+  });
+  assert.match(failed, /^Last ask failed \d{1,2}:32( [AP]M)? · The provider rejected the key$/);
+  // 失败行只带登记文案，不带原话——比回执块的那一行短一截。
+  assert.doesNotMatch(failed, /Incorrect API key/);
+});
+
+test("连接行 lastVerification 有值 / null 两态；configurationStatus 非 ready 时降级", () => {
+  const withReceipt = { ...REGISTRY[0], lastVerification: { status: "ok", model: "gpt-5.5", checkedAt: "2026-09-10T14:32:00.000Z" }, configurationStatus: "ready" };
+  const withoutReceipt = { ...REGISTRY[1], lastVerification: null, configurationStatus: "ready" };
+  const degraded = { ...REGISTRY[2], lastVerification: null, configurationStatus: "recovery_required" };
+  const rows = connectionRows({ connections: [withReceipt, withoutReceipt, degraded], config: { provider: "openai" } });
+  assert.match(rows[0].verificationLine, /^Answered/);
+  assert.equal(rows[0].verificationFailed, false);
+  assert.equal(rows[0].degraded, false);
+  assert.equal(rows[1].verificationLine, null);
+  assert.equal(rows[1].degraded, false);
+  assert.equal(rows[2].verificationLine, null);
+  assert.equal(rows[2].degraded, true);
+  // 降级行的登记文案逐字取自后端 `#requireReadyConnection` 的 message（不发明第二句）。
+  assert.match(settingsSource, /CONFIGURATION_INCOMPLETE_MESSAGE/);
+  assert.equal(
+    CONFIGURATION_INCOMPLETE_MESSAGE,
+    "provider configuration is unavailable; repeat the incomplete operation or remove the compatible connection",
+  );
+  // 降级时这一行盖过回执行（不能同时说"恢复中"又说"刚回答过"），且选用动作不可用。
+  assert.match(settingsSource, /entry\.degraded\s*\n\s*\? el\("span", \{ className: "settings-row-help", text: CONFIGURATION_INCOMPLETE_MESSAGE \}\)/);
+  assert.match(settingsSource, /button\.disabled = entry\.degraded;/);
+});
+
+test("PV-63 · 自动发现的触发条件与去抖：baseUrl/key 的 input 去抖 600ms，blur 立即跑", () => {
+  assert.match(settingsSource, /function scheduleAutoDiscover\(delay\)/);
+  assert.match(settingsSource, /if \(activePath\(\) !== "compatible"\) return;/);
+  assert.match(settingsSource, /if \(!providerProbeRequest\(\{ baseUrl: baseUrl\.value \}\)\) return;/);
+  assert.match(settingsSource, /baseUrl\.addEventListener\("input", \(\) => \{[\s\S]{0,300}scheduleAutoDiscover\(600\)/);
+  assert.match(settingsSource, /baseUrl\.addEventListener\("blur", \(\) => scheduleAutoDiscover\(0\)\)/);
+  assert.match(settingsSource, /key\.addEventListener\("input", \(\) => \{[\s\S]{0,200}scheduleAutoDiscover\(600\)/);
+  assert.match(settingsSource, /key\.addEventListener\("blur", \(\) => scheduleAutoDiscover\(0\)\)/);
+  // 只安排一次去抖，真正的请求仍是既有 runProbe("discover", …)，不是第二条路径。
+  assert.match(settingsSource, /void runProbe\("discover", button\)/);
+});
+
+test("PV-63/38 · “Save and ask once” 与 “Save only” 的请求序：event.submitter 分流，冒烟不自动触发", () => {
+  assert.match(settingsSource, /text: "Save and ask once"/);
+  assert.match(settingsSource, /text: "Save only"/);
+  assert.match(settingsSource, /Saving sends one short prompt to the selected model so you can see it answer\. Nothing else is sent\./);
+  assert.match(settingsSource, /const askOnce = event\.submitter === save;/);
+  // 冒烟只在保存成功之后、且只在主按钮被点了的分支里触发一次；已保存的连接不回滚。
+  assert.match(settingsSource, /if \(askOnce\) \{[\s\S]{0,300}void runVerify\(target\.id, snapshot\.config\.model, connectionLabel\(target\)\)/);
+  // 没有任何 input/change 监听直接调用 runVerify——冒烟不是自动触发的（PV-38）。
+  const inputListeners = settingsSource.match(/\.addEventListener\("(input|change)"[\s\S]{0,400}?\}\);/g) || [];
+  for (const listener of inputListeners) assert.doesNotMatch(listener, /runVerify\(/, listener.slice(0, 60));
+});
+
+test("PV-64 · is-arrived 一帧后移除：同一帧加、下一帧 rAF 移除，交给既有过渡播放", () => {
+  assert.match(settingsSource, /function triggerArrive\(\) \{/);
+  assert.match(settingsSource, /probeStatus\.classList\.add\("is-arrived"\);/);
+  assert.match(settingsSource, /void probeStatus\.offsetWidth;/);
+  assert.match(settingsSource, /requestAnimationFrame\(\(\) => probeStatus\.classList\.remove\("is-arrived"\)\);/);
+  // 只有这一处新增过渡 CSS；reduced-motion 由既有全局强制关闭覆盖，不重复声明。
+  assert.match(styles, /\.connection-probe-result\.is-arrived \{\s*opacity: 0;\s*translate: 0 4px;\s*\}/);
+});
+
+test("PV-64 · “Ask again” 显式重放同一个 {connectionId, model}", () => {
+  assert.match(settingsSource, /text: "Ask again"/);
+  assert.match(settingsSource, /probeAskAgain\.addEventListener\("click", \(\) => \{[\s\S]{0,200}void runVerify\(verifyTarget\.connectionId, verifyTarget\.model/);
+});
+
+test("PV-59/63 · 键入一个模型 ID 的三步序：PUT connection → PUT config →（主动作）POST verify，中途失败停步不回滚", () => {
+  assert.match(pickerSource, /Use a model ID that is not listed…/);
+  assert.match(pickerSource, /aria-label': 'Model ID', placeholder: ''/);
+  // 只列 configured 或本地连接。
+  assert.match(pickerSource, /c\.credentialStatus === 'configured' \|\| connectionPathOfKind\(c\) === 'local'/);
+  // 执行序：三个请求按顺序、每一步失败各自停在该步（各自的 try/catch，不共用一个）。
+  // 只在 `submitCustomModel` 自己的函数体内找，不与上面既有的 "Use for next runs"
+  // 流程（同样调 `/provider-config`）混在一起数。
+  const customFlowText = pickerSource.slice(
+    pickerSource.indexOf("async function submitCustomModel"),
+    pickerSource.indexOf("customUseAsk.addEventListener"),
+  );
+  const order = [
+    customFlowText.indexOf("await request(`/provider-connections/"),
+    customFlowText.indexOf("await request('/provider-config'"),
+    customFlowText.indexOf("await request(`/provider-connections/${encodeURIComponent(savedConnection.id)}/verify`"),
+  ];
+  assert.ok(order[0] > -1 && order[1] > order[0] && order[2] > order[1], order.join(","));
+  assert.match(pickerSource, /Could not save this model ID on the connection\./);
+  assert.match(pickerSource, /Saved on the connection, but could not select it for next runs\./);
+  assert.match(pickerSource, /Saved and selected, but the check could not run\./);
+  // 次动作 "Use without asking" 不发 verify 请求：只有 askOnce 分支里有 POST …/verify。
+  assert.match(pickerSource, /customUseOnly\.addEventListener\('click', \(\) => void submitCustomModel\(false\)\)/);
+  assert.match(pickerSource, /if \(!askOnce\) \{/);
+  // 对话框不自动关闭：这条路径里没有 dialog.close() 调用。
+  assert.doesNotMatch(customFlowText, /dialog\.close\(\)/);
+});
+
+test("PV-61 · 键入模型 ID 面板与 Settings 兼容路径的 reasoning 复选框三态：默认未勾=null，勾=true，碰过再取消=false", () => {
+  // 键入面板：不勾 = 不带字段（null/未声明）；勾 = declared true。这条模型此刻才
+  // 第一次存在于这条连接上，没有"碰过又取消"的中间态可谈（见源码注释）。
+  assert.match(pickerSource, /\{ id, \.\.\.\(customReasoning\.checked \? \{ reasoning: true \} : \{\}\) \}/);
+  // Settings 兼容路径：`reasoningTouched` 只在选中的模型换了那几处复位，三态落到 PUT。
+  assert.match(settingsSource, /let reasoningTouched = false;/);
+  assert.match(settingsSource, /reasoningTouched \? reasoningCheckbox\.checked : undefined/);
+  assert.match(settingsSource, /entry\.id === chosen && reasoningOverride !== undefined \? reasoningOverride : entry\.reasoning/);
+  assert.match(settingsSource, /reasoning !== null && reasoning !== undefined \? \{ reasoning \} : \{\}/);
+  assert.match(settingsSource, /function syncReasoningCheckbox\(\)/);
+  assert.match(settingsSource, /reasoningCheckbox\.checked = entry\?\.reasoning === true;/);
+});
+
+test("回执块六态的文案落点：成功两行不着色，失败一行借 --danger，`is-asking`/`is-failed` 互斥", () => {
+  assert.match(settingsSource, /function renderVerifyReceipt\(receipt, connectionLabelText\)/);
+  assert.match(settingsSource, /probeStatus\.textContent = verifySuccessLine\(receipt\);/);
+  assert.match(settingsSource, /probeDetail\.textContent = verifyDetailLine\(receipt, connectionLabelText\);/);
+  assert.match(settingsSource, /probeStatus\.textContent = verifyFailureLine\(receipt\);/);
+  assert.match(settingsSource, /probeStatus\.classList\.add\("is-failed"\);/);
+  // 等待态："Asking the model…"，块体打 is-asking，不加进度条（没有新的 <progress>/宽度动画）。
+  assert.match(settingsSource, /probeStatus\.textContent = "Asking the model…";/);
+  assert.match(settingsSource, /probeStatus\.classList\.add\("is-asking"\);/);
+  assert.doesNotMatch(styles, /<progress|role="progressbar"/);
 });
