@@ -1,0 +1,452 @@
+{
+  "captured_from": "app/core/attention.py via POST /api/v5/attention/:id/actions",
+  "open": {
+    "revision": 1,
+    "status": "investigating",
+    "human_actions": [
+      {
+        "action": "acknowledge",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "attach_relation",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "enum": [
+                "add",
+                "remove"
+              ]
+            },
+            "relation": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "matter",
+                    "session",
+                    "run",
+                    "external"
+                  ]
+                },
+                "relation": {
+                  "enum": [
+                    "about",
+                    "execution",
+                    "origin"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "relation"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "operation",
+            "relation"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "request_disclosure",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "grant": {
+              "additionalProperties": false,
+              "properties": {
+                "adapter_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "expires_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "fields": {
+                  "items": {
+                    "enum": [
+                      "details",
+                      "events",
+                      "registry",
+                      "relations",
+                      "signal",
+                      "sources"
+                    ]
+                  },
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "purpose": {
+                  "const": "attention-runtime"
+                }
+              },
+              "required": [
+                "adapter_id",
+                "purpose",
+                "fields",
+                "expires_at"
+              ],
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "grant"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "resolve",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "reason"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "resume",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "investigating",
+                "needs_you"
+              ]
+            }
+          },
+          "required": [
+            "reason"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "set_waiting",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "next_action": {
+              "additionalProperties": false,
+              "properties": {
+                "due_at": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "kind": {
+                  "enum": [
+                    "inspect",
+                    "decide",
+                    "wait",
+                    "follow_up",
+                    "none"
+                  ]
+                },
+                "label": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "trigger": {
+                  "enum": [
+                    "manual",
+                    "at",
+                    "after",
+                    "external"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "label",
+                "trigger",
+                "due_at"
+              ],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "reason",
+            "next_action"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "snooze",
+        "expected_revision": 1,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "next_action": {
+              "additionalProperties": false,
+              "properties": {
+                "due_at": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "kind": {
+                  "enum": [
+                    "inspect",
+                    "decide",
+                    "wait",
+                    "follow_up",
+                    "none"
+                  ]
+                },
+                "label": {
+                  "maxLength": 500,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "trigger": {
+                  "enum": [
+                    "manual",
+                    "at",
+                    "after",
+                    "external"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "label",
+                "trigger",
+                "due_at"
+              ],
+              "type": "object"
+            },
+            "reason": {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "reason",
+            "next_action"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      }
+    ],
+    "policy": {
+      "grant": null,
+      "version": 1
+    }
+  },
+  "resolved": {
+    "revision": 2,
+    "status": "resolved",
+    "human_actions": [
+      {
+        "action": "acknowledge",
+        "expected_revision": 2,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "required": [],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "attach_relation",
+        "expected_revision": 2,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "enum": [
+                "add",
+                "remove"
+              ]
+            },
+            "relation": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "matter",
+                    "session",
+                    "run",
+                    "external"
+                  ]
+                },
+                "relation": {
+                  "enum": [
+                    "about",
+                    "execution",
+                    "origin"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "relation"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "operation",
+            "relation"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "reopen",
+        "expected_revision": 2,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "reason": {
+              "maxLength": 4000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "investigating",
+                "needs_you"
+              ]
+            }
+          },
+          "required": [
+            "reason"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      },
+      {
+        "action": "request_disclosure",
+        "expected_revision": 2,
+        "payload_schema": {
+          "additionalProperties": false,
+          "properties": {
+            "grant": {
+              "additionalProperties": false,
+              "properties": {
+                "adapter_id": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "expires_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "fields": {
+                  "items": {
+                    "enum": [
+                      "details",
+                      "events",
+                      "registry",
+                      "relations",
+                      "signal",
+                      "sources"
+                    ]
+                  },
+                  "minItems": 1,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "purpose": {
+                  "const": "attention-runtime"
+                }
+              },
+              "required": [
+                "adapter_id",
+                "purpose",
+                "fields",
+                "expires_at"
+              ],
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "grant"
+          ],
+          "type": "object"
+        },
+        "schema_version": 1
+      }
+    ],
+    "policy": {
+      "grant": null,
+      "version": 1
+    }
+  }
+}

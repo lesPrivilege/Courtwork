@@ -1,0 +1,249 @@
+{
+  "origin": "http://127.0.0.1:8899",
+  "views": {
+    "labels": [
+      "All",
+      "Investigating",
+      "Needs you",
+      "Waiting",
+      "Later",
+      "Resolved"
+    ],
+    "pressed": [
+      "All"
+    ],
+    "group": "Attention views",
+    "needsYou": [
+      "Contract renewal reply"
+    ],
+    "later": [
+      "Filing window check"
+    ],
+    "laterDetail": "Why this needs attentionNothing to do until the window opens.Next stepCheck the filing windowRecorded due time: 9/20/2026, 5:30:00 PM"
+  },
+  "rows": {
+    "anatomy": [
+      {
+        "title": "Counsel review of the draft",
+        "status": "Waiting",
+        "updated": "Updated 0m ago",
+        "datetime": "2026-09-10T01:30:12.195+00:00"
+      },
+      {
+        "title": "Filing window check",
+        "status": "Later",
+        "updated": "Updated 0m ago",
+        "datetime": "2026-09-10T01:30:12.200+00:00"
+      },
+      {
+        "title": "Exhibit index rebuild",
+        "status": "Investigating",
+        "updated": "Updated 0m ago",
+        "datetime": "2026-09-10T01:30:12.182+00:00"
+      },
+      {
+        "title": "Contract renewal reply",
+        "status": "Needs you",
+        "updated": "Updated 0m ago",
+        "datetime": "2026-09-10T01:30:12.176+00:00"
+      },
+      {
+        "title": "Service confirmation",
+        "status": "Resolved",
+        "updated": "Updated 0m ago",
+        "datetime": "2026-09-10T01:30:12.204+00:00"
+      }
+    ],
+    "serverOrder": [
+      "Counsel review of the draft",
+      "Filing window check",
+      "Exhibit index rebuild",
+      "Contract renewal reply",
+      "Service confirmation"
+    ],
+    "rendered": [
+      "Counsel review of the draft",
+      "Filing window check",
+      "Exhibit index rebuild",
+      "Contract renewal reply",
+      "Service confirmation"
+    ]
+  },
+  "keyboard": {
+    "start": "item-counsel",
+    "afterJ": "item-counsel",
+    "afterSecondJ": "item-filing",
+    "afterK": "item-counsel",
+    "afterArrowUp": "item-counsel",
+    "clampedAtTop": "item-counsel",
+    "openedTitle": "Counsel review of the draft",
+    "returnedFocus": "item-counsel"
+  },
+  "actions": {
+    "offered": [
+      "Mark as seen",
+      "Resume",
+      "Set waiting",
+      "Snooze",
+      "Resolve"
+    ],
+    "advertised": [
+      "acknowledge",
+      "attach_relation",
+      "request_disclosure",
+      "resolve",
+      "resume",
+      "set_waiting",
+      "snooze"
+    ],
+    "disclosure": "Runtime disclosure: None",
+    "resolveSubmitName": "Resolve · Contract renewal reply",
+    "emptyReason": "A reason is required.",
+    "emptyReasonRole": "alert",
+    "snoozeKinds": [
+      "inspect",
+      "decide",
+      "wait",
+      "follow_up"
+    ],
+    "dueFieldType": "datetime-local",
+    "inFlight": {
+      "submit": "Sending…",
+      "detailStatus": "Needs you",
+      "rowStatus": "Needs you"
+    },
+    "afterReceipt": {
+      "detailStatus": "Resolved",
+      "canonical": "resolved",
+      "inNeedsYouView": false,
+      "focus": "view-needs_you"
+    },
+    "unavailable": "This item is unavailable."
+  },
+  "concurrency": {
+    "conflictCopy": "This item changed while you were deciding. Reload it and try again.",
+    "conflictRole": "alert",
+    "draftKept": "Resolved after comparing both lists.",
+    "canonicalStatus": "investigating",
+    "events": [
+      "create",
+      "acknowledge"
+    ]
+  },
+  "narrow": {
+    "labels": [
+      "All",
+      "Investigating",
+      "Needs you",
+      "Waiting",
+      "Later",
+      "Resolved"
+    ],
+    "truncated": [],
+    "viewTargets": [
+      44,
+      44,
+      44,
+      44,
+      44,
+      44
+    ],
+    "documentScrollsHorizontally": false,
+    "listHiddenBehindDetail": true,
+    "controlTargets": [
+      {
+        "key": "list-back",
+        "height": 44
+      },
+      {
+        "key": "action-acknowledge",
+        "height": 44
+      },
+      {
+        "key": "action-reopen",
+        "height": 44
+      },
+      {
+        "key": "field-reason",
+        "height": 81
+      },
+      {
+        "key": "field-status-investigating",
+        "height": 24
+      },
+      {
+        "key": "field-status-needs_you",
+        "height": 24
+      },
+      {
+        "key": "submit-reopen",
+        "height": 44
+      },
+      {
+        "key": "open-assistant",
+        "height": 44
+      }
+    ],
+    "backReturnsToRow": "item-renewal"
+  },
+  "network": {
+    "requestedPaths": [
+      "/",
+      "/api/v5/attention/conversations",
+      "/api/v5/attention/counsel",
+      "/api/v5/attention/filing",
+      "/api/v5/attention/indexing",
+      "/api/v5/attention/indexing/actions",
+      "/api/v5/attention/no-such-item",
+      "/api/v5/attention/query",
+      "/api/v5/attention/renewal",
+      "/api/v5/attention/renewal/actions",
+      "/api/v5/bootstrap",
+      "/api/v5/extensions",
+      "/api/v5/projects",
+      "/api/v5/provider-config",
+      "/api/v5/sessions",
+      "/api/v5/work-activity",
+      "/api/v5/work-summary",
+      "/brand/src/court-symbol.mjs",
+      "/brand/src/geometry.generated.mjs",
+      "/brand/src/symbol.mjs",
+      "/web/app.mjs",
+      "/web/attention-agent-view.mjs",
+      "/web/attention-conversation.mjs",
+      "/web/attention-view.mjs",
+      "/web/coordination-projection.mjs",
+      "/web/coordination-view.mjs",
+      "/web/home-view.mjs",
+      "/web/inspector.mjs",
+      "/web/markdown-reader.css",
+      "/web/markdown-reader.mjs",
+      "/web/markdown-source.mjs",
+      "/web/materials-view.mjs",
+      "/web/model-picker.mjs",
+      "/web/presentation-adapters.mjs",
+      "/web/runtime-view.mjs",
+      "/web/settings-view.mjs",
+      "/web/shell-layout.mjs",
+      "/web/styles.css",
+      "/web/surface-modules.mjs",
+      "/web/telemetry-view.mjs",
+      "/web/thread-projection.mjs",
+      "/web/ui-controls.mjs",
+      "/web/usage-projection.mjs",
+      "/web/usage-view.mjs",
+      "/web/user-message.mjs",
+      "/web/vendor/floating.mjs",
+      "/web/vendor/icons.svg",
+      "/web/vendor/marked.mjs",
+      "/web/vendor/purify.mjs",
+      "/web/workspace-view.mjs",
+      "image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjAgM2gtMVYxaC0ydjJIN1YxSDV2Mkg0Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6bTAgMThINFY4aDE2djEzeiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=",
+      "image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJXaW5kb3dUZXh0IiBkPSJNMjAgM2gtMVYxaC0ydjJIN1YxSDV2Mkg0Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6bTAgMThINFY4aDE2djEzeiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4="
+    ],
+    "runResponses": 0,
+    "recordedRunCount": 0,
+    "sessions": 0,
+    "pageExceptions": 0
+  }
+}
