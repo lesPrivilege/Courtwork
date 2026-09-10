@@ -411,3 +411,6 @@ Icon 家族选型裁定（2026-09-10）：EX-IC1 specimen（`claude/ex-ic1-icon-
 ## 多智能体实践选型 · RD-005（2026-09-10）
 
 从实际main `9097cbfd4b2b3b4c7b1117db5558b73568db67cc` 隔离消费《多智能体实践选型》全部3 turn/6消息，hasMore=false；原文、hash、全量外链与逐轮处置见[消费包](research/multi-agent-selection-2026-09-10/README.md)。[RD-005](research/RD-005-multi-agent-selection.md)登记Astra架构/PR裁决及模型能力瓶颈实现，Luna fast explore与有成熟参考的有界实现，非作者接受仍独立。原MA-01…06映射为MAS消费切片并接既有MA/ME，未重复派单。保留MA2-D15受控Session/Run路线，SoL-Pi为机制/eval donor、PicoAgents为模式及负例；未改变capability或生产schema。本次为研究与文档交付，不关闭产品门；未创建远端PR。
+## Benchmark series · 2026-09-10
+
+用户要求 benchmark 系列先于对外叙事准备。Astra 从实际 main `df9fc18` 隔离，延伸现有 Continuity / D1–D3，编订 [BM-01 评测契约](../benchmarks/SPEC.md) 与 [BM-02–05 PR 文稿](execution/2026-09-10-benchmark-series/README.md)。覆盖运行清单与报告复现、生成式 Core 状态机、真实进程故障与回执重放、matched Disclosure。BM-01 为文档交付，其余为可施工合同；没有新实验结果、付费模型运行或产品接受。Luna 负责有界只读探索，不代表本单独立接受。
