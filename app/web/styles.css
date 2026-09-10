@@ -3532,7 +3532,7 @@ dialog[open]::backdrop {
   letter-spacing: var(--tracking-heading);
 }
 /* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96，
-   随输入长到 160；Work 是 continuation control，初始 88，长到 180。两个上限不同，
+   随输入长到 160；Work 是 continuation control，空态两行内容并随字号扩展，长到 180。两个上限不同，
    CI-B（2026-09-10）裁定保留这一差异；到上限后本体滚动。 */
 .home-active #composer-input { min-height: 96px; max-height: 160px; }
 /* CI-B · 短视口（200 % 缩放、横屏手机）上，增高停在视口高度的 28 %，给对话

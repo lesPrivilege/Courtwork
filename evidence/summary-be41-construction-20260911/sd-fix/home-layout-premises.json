@@ -1,0 +1,116 @@
+[
+  {
+    "fixture": "current-modules-empty-1440",
+    "aboveHeight": 373.3125,
+    "area": {
+      "bottom": 948,
+      "height": 900,
+      "left": 256,
+      "top": 48,
+      "width": 1184
+    },
+    "centre": 0.4936805555555556,
+    "composer": {
+      "bottom": 547.3125,
+      "height": 110,
+      "left": 438,
+      "top": 437.3125,
+      "width": 820
+    },
+    "draftLength": 0,
+    "input": {
+      "bottom": 498.3125,
+      "height": 48,
+      "left": 451,
+      "top": 450.3125,
+      "width": 794
+    },
+    "textSize": "medium",
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    }
+  },
+  {
+    "fixture": "current-simple-empty-1440",
+    "aboveHeight": 38.015625,
+    "area": {
+      "bottom": 948,
+      "height": 900,
+      "left": 256,
+      "top": 48,
+      "width": 1184
+    },
+    "centre": 0.5600173611111111,
+    "composer": {
+      "bottom": 631.015625,
+      "height": 158,
+      "left": 438,
+      "top": 473.015625,
+      "width": 820
+    },
+    "draftLength": 0,
+    "input": {
+      "bottom": 582.015625,
+      "height": 96,
+      "left": 451,
+      "top": 486.015625,
+      "width": 794
+    },
+    "textSize": "medium",
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    }
+  },
+  {
+    "fixture": "main8393d7b-modules-explicit",
+    "aboveHeight": 373.3125,
+    "centre": 0.4971180555555555,
+    "composer": {
+      "bottom": 561.5,
+      "height": 116.1875,
+      "top": 445.3125,
+      "width": 820
+    },
+    "draftLength": 0,
+    "input": {
+      "bottom": 512.5,
+      "height": 54.1875,
+      "top": 458.3125,
+      "width": 794
+    },
+    "modulesVisible": true,
+    "textSize": "medium",
+    "url": "http://127.0.0.1:18980/#",
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    }
+  },
+  {
+    "fixture": "main8393d7b-simple-explicit",
+    "aboveHeight": 38.015625,
+    "centre": 0.5600173611111111,
+    "composer": {
+      "bottom": 639.015625,
+      "height": 158,
+      "top": 481.015625,
+      "width": 820
+    },
+    "draftLength": 0,
+    "input": {
+      "bottom": 590.015625,
+      "height": 96,
+      "top": 494.015625,
+      "width": 794
+    },
+    "modulesVisible": false,
+    "textSize": "medium",
+    "url": "http://127.0.0.1:18980/#",
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    }
+  }
+]

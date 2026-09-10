@@ -34,3 +34,15 @@
 ## 保留限制
 
 Chromium147.0.7727.15仅找到headless binary，当前CUA无可控147界面；没有实际147浏览器复跑。确定性禁用失焦反例覆盖其已知事件次序，但152通过不抵销147旧反例。Q1 summary read-state仍缺独立error/retry接线；Q3跨客户端同步、原生宿主/IME/软键盘/VoiceOver未验证；删除404不是通用撤权接受。SD-ENTRY不随本片自动关闭，BE41-A/B另节点，G1–G5仍开放。
+
+## main8393d7b 收尾单消费补验
+
+接收文档main `8393d7b37db5f36ac7b8ef8dc35fe552993dbde5` 合入为 `dbf8d6c`。定向消费 `d2fdeed6c2b7d436a00c5bee571ef4eb58152599` 的 WORK-3/WORK-4 测试语义与两处合同文字，没有整头merge，没有引入第二增长机制。styles变更仅纠正旧88px注释；产品执行字节仍为445fb48（CSS仅注释差异）。历史home-modules文件顶部已明示旧Simple默认/几何被当前Home合同覆盖，保留历史表格，不把旧条目解释为当前规则。
+
+- `work3-growth-matrix.json`：CUA实际键盘/输入操作，Medium空态54.1875→长文180内部滚动→清空54.1875；Large60.796875→180→60.796875。两行、字号扩展和Files/Model/Send边界通过。CUA空字符串fill未清除文本，改用Meta+A/Backspace后确认valueLength=0；没有把工具未执行当产品清空失败。
+- `work3-error-matrix.json` 与对应图：独立18979合成HTTP代理仅对PUT draft返回503，生产UI真实进入Draft not saved，Medium/Large错误行可见、不截断且在form上方。此fixture不注入DOM文案。既有nextAction=retry-edit没有直接按钮，继续编辑触发保存；本片只确认错误布局，不宣称新增重试能力。
+- `home-layout-premises.json`：相同1440×900、Medium、空草稿、两个合成会话、一条保留Run，明确从Settings选择Modules/Simple。候选Modules centre .4937、上方373.31、输入48；main8393d7b Modules .4971、373.31、54.1875，均不满足旧HOME-1/2/5。两者Simple centre .5600、上方38.02、输入96，三项均满足。旧断言没有删除；此为同前提归因，不复述历史13/16或12/16。main的styles HTTP hash与其工作树文件一致（871689646bd4bbe00118d544970b1e9190804ac319e9c0f4e983d0ba53e46607）。
+- 本轮矩阵由作者操作，不转称Luna真机独验。Luna只读复核指出donor必要语义、历史Home前提与retry-edit限制；最终固定树非作者复核另列。
+- forced-colors未进行真实媒体仿真/OS验证，明确NOT RUN；普通主题对比检查不是forced-colors。147/原生Courtwork宿主/IME/软键盘/VoiceOver的限制保持。原始测试日志尾空格保留；不将原始日志的diff空白告警说成源码检查通过。
+
+EX-IC2 B/C随SD-FIX固定接受后按main收尾单接续；TPS BE-42仅登记、未实现。SD-ENTRY及BE41-A/B独立交付，不挟带关闭。

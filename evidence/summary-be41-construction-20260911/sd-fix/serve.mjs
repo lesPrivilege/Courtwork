@@ -26,6 +26,10 @@ const server = http.createServer(async (req,res)=>{
   if(req.headers.host !== new URL(allowedOrigin).host || (req.headers.origin && req.headers.origin !== allowedOrigin)){res.statusCode=403;res.end('Fixture origin denied');return;}
   const url = new URL(req.url,allowedOrigin);
   if(url.pathname === '/fixture-config.json') {res.setHeader('content-type','application/json');res.end(JSON.stringify({...config,userAgent:req.headers['user-agent']}));return;}
+  // Optional transport fault, synthetic draft layout verification only.
+  if (process.env.SD_FIXTURE_DRAFT_ERROR === '1' && req.method === 'PUT' && /^\/api\/v5\/sessions\/[^/]+\/draft$/.test(url.pathname)) {
+    req.resume(); res.writeHead(503, {'content-type':'application/json'}); res.end(JSON.stringify({error:{code:'unavailable',message:'Synthetic draft transport failure'}})); return;
+  }
   const headers = {...req.headers,host:new URL(h.runtime.url).host};
   // Loopback proxy preserves the product's origin check against its own port.
   if(headers.origin) headers.origin = h.runtime.url;
