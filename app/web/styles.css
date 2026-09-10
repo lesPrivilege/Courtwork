@@ -344,6 +344,11 @@
   --panel-padding: var(--space-6);
   --card-padding: 20px;
   --column: 740px;
+  /* WO-CS-01 · Chat 内容列的两侧内距（layout-ruling 2026-09-10）：正文与 composer 共用
+     这一对边界。可用列宽够放下 740 时取 --content-inset，受限时收到 --content-inset-tight，
+     < 768 取 --page-gutter。它是内容列内距，不叠加外壳 gutter。40 在间距阶里没有对应项。 */
+  --content-inset: 40px;
+  --content-inset-tight: var(--space-8);
   /* WK-94 / WK-96 · Home 的 composer 与它下方的模块共用一条略宽于阅读列的量度
      （760–880，视觉审查的 800–920 与之相交）；Work 沿用 --column。
      --window-safe-area 是宿主 window control 的保留区，见
@@ -353,9 +358,9 @@
   /* WK-42 · one band across the three columns, one gutter between them. The
      sidebar wordmark row, the chat header and the rail band share --band-top;
      every column keeps --col-gap from its own edge, so a module adds no outer
-     margin of its own. Under a desktop shell the inert 52px strip spans the
-     window and the band itself becomes 52 (WK-42, board r2). */
-  --band-top: 56px;
+     margin of its own. WO-CS-01 · 48, one title line; a native host raises it to
+     its measured toolbar height, never lowers it (rule at the desktop shell). */
+  --band-top: 48px;
   --col-gap: 24px;
   --nav: 256px;
   /* WK-116 / CC-S · Settings 的三个几何值。settings-active 时全局侧栏不渲染，
@@ -706,7 +711,13 @@ button {
   display: flex;
   flex-direction: column;
   padding: 0 12px 12px;
-  gap: 16px;
+}
+/* WO-CS-01 · groups sit 16 apart; the primary nav rows are one group, 4 apart. */
+.sidebar > * + * {
+  margin-top: var(--space-4);
+}
+.sidebar > .nav-home + .nav-home {
+  margin-top: var(--space-1);
 }
 /* WK-42 · the wordmark row is the sidebar's share of the band: full bleed, one
    rule at its foot, text on the same 20px left edge as every nav row below. */
@@ -749,6 +760,8 @@ button {
 .nav-home {
   justify-content: flex-start;
   width: 100%;
+  /* 32 on the desktop even with a 16 glyph; the 44 touch step still wins. */
+  min-height: max(32px, var(--control));
   padding-left: 8px;
 }
 .nav-home[aria-current="page"] {
@@ -954,8 +967,13 @@ button {
 .chat-title-wrap {
   min-width: 0;
   flex: 1;
+  /* WO-CS-01 · one line in the 48 band: the run word follows the title. */
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 .chat-title-wrap h1 {
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -973,6 +991,7 @@ button {
 }
 .session-meta {
   display: flex;
+  flex: none;
   gap: 8px;
 }
 .session-meta:empty {
@@ -1034,12 +1053,22 @@ button {
   position: relative;
   display: flex;
 }
+/* WO-CS-01 · one content column. Prose and composer resolve the same inset
+   against the same width (the conversation body), so their edges cannot drift
+   apart; the cards' reservation is subtracted before the inset is chosen. */
+.conversation-body {
+  --chat-inset: clamp(
+    var(--content-inset-tight),
+    (100% - var(--cards-inset, 0px) - var(--column)) / 2,
+    var(--content-inset)
+  );
+}
 .message-stream {
   width: 100%;
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  padding: var(--space-8) var(--page-gutter) var(--space-6);
+  padding: var(--space-8) var(--chat-inset) var(--space-6);
 }
 .message-list,
 .home-view {
@@ -1270,7 +1299,7 @@ button {
    failed / waiting row is allowed to take one (copy-convention §2). */
 .flow-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   min-height: 32px;
   overflow-wrap: anywhere;
@@ -1432,7 +1461,7 @@ details[open] > summary.flow-row::after {
 }
 .composer-area {
   flex: none;
-  padding: 8px var(--page-gutter) 16px;
+  padding: var(--space-2) var(--chat-inset) var(--space-4);
 }
 .composer-form,
 .draft-status {
@@ -1458,7 +1487,7 @@ details[open] > summary.flow-row::after {
   display: block;
   resize: none;
   width: 100%;
-  min-height: 88px;
+  min-height: calc(2lh + 8px);
   max-height: 180px;
   border: 0;
   padding: 4px;
@@ -1466,6 +1495,22 @@ details[open] > summary.flow-row::after {
   outline: 0;
   line-height: 1.65;
   box-shadow: none;
+}
+/* CI-B · the one growth mechanism for every variant: the field grows with what it
+   holds, from its min-height to its max-height, then scrolls — Chat two lines
+   (WO-CS-01, `2lh + 8px`) → 180 here, Home 96 → 160 and Home modules 48 → 160
+   below. Where `field-sizing` is unsupported composer-field.mjs sizes the box
+   instead; neither path writes the value. (WO-CS-01's Chat-only `field-sizing`
+   rule was folded into this one at integration.) */
+@supports (field-sizing: content) {
+  #composer-input { field-sizing: content; }
+}
+/* CI-F · a statement, not an error: muted like the run hint, no mark. */
+.composer-notice {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  padding: 4px;
+  margin: 0;
 }
 .composer-controls {
   display: flex;
@@ -2475,6 +2520,7 @@ select {
 }
 @media (max-width: 767px) {
   :root { --page-gutter: 16px; --panel-padding: 16px; --card-padding: 16px; --col-gap: 16px; --settings-gutter: 16px; }
+  .conversation-body { --chat-inset: var(--page-gutter); }
   .surface-panel,
   .surface-expanded .surface-panel {
     inset: 0;
@@ -2498,7 +2544,7 @@ select {
     font-size: var(--text-caption);
   }
   .message-stream {
-    padding: var(--space-6) var(--page-gutter);
+    padding: var(--space-6) var(--chat-inset);
   }
   .home-view {
     padding-top: 16px;
@@ -2527,7 +2573,7 @@ select {
     font-size: var(--text-caption);
   }
   .composer-area {
-    padding: 8px var(--page-gutter) max(16px, env(safe-area-inset-bottom));
+    padding: 8px var(--chat-inset) max(16px, env(safe-area-inset-bottom));
   }
   .composer-form {
     padding: 8px;
@@ -3423,7 +3469,7 @@ dialog[open]::backdrop {
 }
 .home-active .conversation-body { overflow: auto; min-height: 100%; }
 .home-active .message-stream-wrap { flex: none; }
-.home-active .message-stream { overflow: visible; padding-top: 0; }
+.home-active .message-stream { overflow: visible; padding-top: 0; padding-inline: var(--page-gutter); }
 .home-active .home-view { padding-top: 0; }
 
 /* WK-51 · The brand symbol appears in exactly one place: the sidebar wordmark
@@ -3485,9 +3531,18 @@ dialog[open]::backdrop {
   line-height: 1.2;
   letter-spacing: var(--tracking-heading);
 }
-/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96；
-   Work 是 continuation control，初始 88。两者都随输入增长到同一个上限。 */
+/* WK-97 · 同一个 primitive 的两个 variant：Home 是 primary entry，本体初始 96，
+   随输入长到 160；Work 是 continuation control，空态两行内容并随字号扩展，长到 180。两个上限不同，
+   CI-B（2026-09-10）裁定保留这一差异；到上限后本体滚动。 */
 .home-active #composer-input { min-height: 96px; max-height: 160px; }
+/* CI-B · 短视口（200 % 缩放、横屏手机）上，增高停在视口高度的 28 %，给对话
+   留一条可读的带（400 高时为 112，不是 180）。暂定值，不是最终可用性验收。
+   普通上限写在前面两条规则里，不认 dvh 的旧宿主仍停在 180 / 160；这里只在支持时
+   覆盖。必须排在 Home 规则之后：同特异度，后写者胜。 */
+@supports (max-height: min(1px, 1dvh)) {
+  #composer-input { max-height: min(180px, 28dvh); }
+  .home-active #composer-input { max-height: min(160px, 28dvh); }
+}
 
 /* WK-12 · Project and file-writes scope join the model chip in the composer's
    own bottom control row; Send stays at the trailing edge. */
@@ -4464,7 +4519,7 @@ court-symbol {
 
 /* 2026-09-10 user correction: same row, left of CourtWork; no top strip.
    WKWebView receives CSS-pixel geometry from its native host, not env(). */
-html[data-shell="desktop"] .app-shell { --band-top: max(56px, var(--native-toolbar-height, 56px)); }
+html[data-shell="desktop"] .app-shell { --band-top: max(48px, var(--native-toolbar-height, 0px)); }
 html[data-shell="desktop"] .sidebar-header { padding-left: max(20px, var(--native-controls-inset, env(titlebar-area-x, 80px))); }
 html[data-shell="desktop"] .app-shell.nav-collapsed .chat-header,
 html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-left: max(24px, var(--native-controls-inset, env(titlebar-area-x, 80px))); }
@@ -4543,7 +4598,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   }
   .app-shell.surface-cards .message-stream,
   .app-shell.surface-cards .composer-area {
-    padding-right: calc(var(--page-gutter) + var(--cards-inset));
+    padding-right: calc(var(--chat-inset) + var(--cards-inset));
   }
 }
 
@@ -4792,8 +4847,8 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   overflow-x: auto;
 }
 
-/* WK-13 · three icon tiers. Row 16, control 18 (the base rule above), nav 20.
-   Hit areas are untouched: they stay on the 32 / 44 --control step. */
+/* WK-13 · icon tiers. Row 16, control 18 (the base rule above). WO-CS-01 · the
+   former nav 20 tier joins row 16; hit areas stay on the 32 / 44 step. */
 .rail-card-head > .ui-icon,
 .rail-file .ui-icon,
 .project-chevron .ui-icon,
@@ -4802,13 +4857,10 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .data-list .ui-icon,
 .run-history-row .ui-icon,
 .home-row > .ui-icon,
+.nav-home > .ui-icon,
 #cancel-run-button .ui-icon {
   width: 16px;
   height: 16px;
-}
-.nav-home > .ui-icon {
-  width: 20px;
-  height: 20px;
 }
 
 /* WK-58 / WK-60 · the composer is the highest layer of the work surface. On the
@@ -4824,7 +4876,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
     z-index: 2;
     background: var(--frame);
     border-top: 1px solid var(--line);
-    padding: var(--space-2) var(--page-gutter)
+    padding: var(--space-2) var(--chat-inset)
       max(var(--space-2), env(safe-area-inset-bottom));
   }
   /* WK-58 · below 768 the composer is docked on Home too: the list scrolls in

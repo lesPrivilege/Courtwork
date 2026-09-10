@@ -1,0 +1,837 @@
+{
+  "baseline": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+  "acceptedDelivery": "035134b919c195fe9454f279c297052bb8e32089",
+  "beforeLocalBranchCount": 195,
+  "retiredLocalRefs": [
+    {
+      "ref": "refs/heads/claude/att-fe01-triage",
+      "sha": "cd1326d8481e4965e96e8ee4f40cc531a67d4fef"
+    },
+    {
+      "ref": "refs/heads/claude/attention-chat-closure",
+      "sha": "f552e228a6c6047e1278d570313f6ca7a87ba806"
+    },
+    {
+      "ref": "refs/heads/claude/bg02-run-lineage",
+      "sha": "e7e08e08b1e14d777200a5ee6a500a773d3eba18"
+    },
+    {
+      "ref": "refs/heads/claude/br01-brand-primitive",
+      "sha": "df9331a0af253ea5d91c7ae3a5af48ac488e7c04"
+    },
+    {
+      "ref": "refs/heads/claude/cc-d0a-home-modules",
+      "sha": "30014cfaded3cd6d68cbbd8893820be398cf889b"
+    },
+    {
+      "ref": "refs/heads/claude/cc-s-settings-nav",
+      "sha": "45625b206f92b23529d81b7d231dfb9eb901df70"
+    },
+    {
+      "ref": "refs/heads/claude/cc-w-surface-tabs",
+      "sha": "67a6d8d129beb03bfaa1144d857fe165dd971798"
+    },
+    {
+      "ref": "refs/heads/claude/cci1-property-row",
+      "sha": "a8856605be6dc6e85406fbbf9da35ce3348279e0"
+    },
+    {
+      "ref": "refs/heads/claude/chat-shell-proportion",
+      "sha": "f6ba379bf0b3c65ec16e7643a0ab7f56907833a5"
+    },
+    {
+      "ref": "refs/heads/claude/composer-grow-notice",
+      "sha": "525aed08adb211d4e223f4ed128f430747c9d8cd"
+    },
+    {
+      "ref": "refs/heads/claude/composer-ingest-specimen",
+      "sha": "7d05675947235d8d90a45ab8cba48cf55347af0f"
+    },
+    {
+      "ref": "refs/heads/claude/cs01-ci-bf-integration",
+      "sha": "c2067ea3339095db946db4826bf2cf98e07e6651"
+    },
+    {
+      "ref": "refs/heads/claude/ex-ic1-icon-specimen",
+      "sha": "f5890fa5804e2fa603a28512f0bffda21f81ac93"
+    },
+    {
+      "ref": "refs/heads/claude/ex-ss1-secondary-surface",
+      "sha": "3a6133686014973f62fcf58e71e779af36616876"
+    },
+    {
+      "ref": "refs/heads/claude/fable-ic-ruling",
+      "sha": "ab09b0dee05f73e8e615c0a5f9107a8ba15ff697"
+    },
+    {
+      "ref": "refs/heads/claude/fable-round4",
+      "sha": "19deb1ea18e7a642ff8b523b5d607b4047337b68"
+    },
+    {
+      "ref": "refs/heads/claude/fable-round4c",
+      "sha": "7026b0910798f88bdc21866c542f1a19a9f0ccd7"
+    },
+    {
+      "ref": "refs/heads/claude/fable-round4d",
+      "sha": "6d5c444c28214441f90a36ae596018ddebad5f46"
+    },
+    {
+      "ref": "refs/heads/claude/fable-settings",
+      "sha": "99a9279868166c94e99fc2e396be551ef1fe3e53"
+    },
+    {
+      "ref": "refs/heads/claude/fable-two-lines",
+      "sha": "6e220ae990b57e7f19ddc699971f90d5a1550bbd"
+    },
+    {
+      "ref": "refs/heads/claude/fe01-vocab-ia",
+      "sha": "2694001dd7b6546093f65b5dd22470b64ebc6661"
+    },
+    {
+      "ref": "refs/heads/claude/fe02-models",
+      "sha": "565d18cdb9079090c7f4acd02e13c1f4acecee6e"
+    },
+    {
+      "ref": "refs/heads/claude/fe03-chat-work",
+      "sha": "f9957787ce1a039c0bef803ebcc70cb057782dd6"
+    },
+    {
+      "ref": "refs/heads/claude/fe04-primitives",
+      "sha": "4ac5ac9abbb8d21742a0488917ac8ff409b1c7de"
+    },
+    {
+      "ref": "refs/heads/claude/fe05a-type-density",
+      "sha": "463d57c1f3840ecde9c3bfa8577cd6d552d402af"
+    },
+    {
+      "ref": "refs/heads/claude/handoff-20260911",
+      "sha": "5fd701ced4539d30136071181524fc627403bc5f"
+    },
+    {
+      "ref": "refs/heads/claude/ic2-chat-controls",
+      "sha": "f3895aa84f7046b0892fbbacc6b85949e6745a2e"
+    },
+    {
+      "ref": "refs/heads/claude/ma2-backend-tests",
+      "sha": "d0feb07735692badbe6242d68caece65bda47072"
+    },
+    {
+      "ref": "refs/heads/claude/ma2-frontend",
+      "sha": "8bef96412327e185459bf85bcfc6d4fc8a284bf8"
+    },
+    {
+      "ref": "refs/heads/claude/ma2-round2-docs",
+      "sha": "4c32d21559f7d31d3e3050325ba29c993ff8d2f5"
+    },
+    {
+      "ref": "refs/heads/claude/pg01-interaction-lint",
+      "sha": "539907a99f82ce2387a1c84d2f999a3d843022da"
+    },
+    {
+      "ref": "refs/heads/claude/ps01-site",
+      "sha": "e492dc93f4075651edf33bce389c90c5ff8891ff"
+    },
+    {
+      "ref": "refs/heads/claude/pv-be02-connections",
+      "sha": "e61c9d51e654088723798168aa9b4f552f389ba3"
+    },
+    {
+      "ref": "refs/heads/claude/pv-be03-open-admission",
+      "sha": "76cd11ff508eb0475ca3ddc32971f7ce3c128540"
+    },
+    {
+      "ref": "refs/heads/claude/pv-fe02-seamless-connect",
+      "sha": "bb2102790567d193dd412e1d4d99b09281b5ad2e"
+    },
+    {
+      "ref": "refs/heads/claude/pvfe01-connections",
+      "sha": "84c39a7d860d61a93c7c42980f3fd1a0f07b88b2"
+    },
+    {
+      "ref": "refs/heads/claude/rc-runtime-ui",
+      "sha": "83504283323df5f3db3f381d9edc72644900c96c"
+    },
+    {
+      "ref": "refs/heads/claude/sd01-spark-sample",
+      "sha": "6b6257937e2dff0bcf46f9a31f40184ee95c57b3"
+    },
+    {
+      "ref": "refs/heads/claude/summary-disclosure-review",
+      "sha": "87a202f73c2397e4c3a485e39c99ce5c14d095b5"
+    },
+    {
+      "ref": "refs/heads/claude/tab-close-disambig",
+      "sha": "caabc9be5b48279954d75633b4bf76861b0dbeed"
+    },
+    {
+      "ref": "refs/heads/claude/tab-continuity",
+      "sha": "6ebd48f4c85bfed84f34000fb88f37a1ed62fdd3"
+    },
+    {
+      "ref": "refs/heads/claude/tps-reference-specimen",
+      "sha": "62295b43bdcda4e57b252e332f399349303afef2"
+    },
+    {
+      "ref": "refs/heads/claude/wk10-r2",
+      "sha": "e170b9934f77ae3bfd93f6064a115a1bc3e38160"
+    },
+    {
+      "ref": "refs/heads/claude/wk10-rail",
+      "sha": "5f76b2e2addc37efd5c47c5ffcad71c275f6a6dc"
+    },
+    {
+      "ref": "refs/heads/claude/wk10b-first",
+      "sha": "d408961cf9f7a4c94fb5072e873508726fdae3ba"
+    },
+    {
+      "ref": "refs/heads/claude/wk10b-second",
+      "sha": "a60187ee4b3620eaa0af93d19fe5ad03a682b528"
+    },
+    {
+      "ref": "refs/heads/claude/wk10c-finish",
+      "sha": "bcbca1b3b6b848f8976a12e697e0972cf975b3bf"
+    },
+    {
+      "ref": "refs/heads/claude/wk11-workbench",
+      "sha": "3acff2d25456289ef1a23119260cc75fef8383b3"
+    },
+    {
+      "ref": "refs/heads/claude/wk12-settings",
+      "sha": "a2223e2dc66ada2ff964f9b68366d287cc5b9a4f"
+    },
+    {
+      "ref": "refs/heads/claude/wk13-home",
+      "sha": "a271d95d1166f7f38b0d391f33d4672a0d869b11"
+    },
+    {
+      "ref": "refs/heads/claude/wk6-home-brand",
+      "sha": "688e065f94c7ac29255e61ef90db9b97735e1ceb"
+    },
+    {
+      "ref": "refs/heads/claude/wk7-color-governance",
+      "sha": "10f1afeab24fc234ee664e699bafafe708751b8f"
+    },
+    {
+      "ref": "refs/heads/claude/wsk-integration",
+      "sha": "0a307802b61a6847ee88bfea870bdf340647caee"
+    },
+    {
+      "ref": "refs/heads/codex/am-b-t3-task-view",
+      "sha": "bd4b92a137b3a6ee365b14512bc2f476385c7a42"
+    },
+    {
+      "ref": "refs/heads/codex/architecture-maintenance-roadmap",
+      "sha": "61ab8637f549c78d903cc7a1a0ea53b30efc67e4"
+    },
+    {
+      "ref": "refs/heads/codex/astra-execution-state-contract",
+      "sha": "42a4c2f25fcb21b0663e6d1a0de08341a3f0f63c"
+    },
+    {
+      "ref": "refs/heads/codex/astra-final-integration",
+      "sha": "50939dc7d89af3d93da6efb1b1f7fe4790367603"
+    },
+    {
+      "ref": "refs/heads/codex/astra-node2",
+      "sha": "3926a5eda76f40552bdc8e310a12560b84c6bfb6"
+    },
+    {
+      "ref": "refs/heads/codex/astra-provider-preview",
+      "sha": "f58c28cfb7e20b19cc0631e53022763451b67f26"
+    },
+    {
+      "ref": "refs/heads/codex/async-loop-dispatch-20260909",
+      "sha": "dcfc33dcb30eee99683cbf1e3b7d426efc704545"
+    },
+    {
+      "ref": "refs/heads/codex/async-loop-implementation",
+      "sha": "85693a6d185f284ecc68324e4dda6d7d677abb03"
+    },
+    {
+      "ref": "refs/heads/codex/attention-backend-20260909",
+      "sha": "ae595ed5e0a585117b2642b3125a0c7a7e01fa23"
+    },
+    {
+      "ref": "refs/heads/codex/attention-delivery-candidate-20260910",
+      "sha": "1097fd453a6da0d0302cb64a881b48c583dc06d1"
+    },
+    {
+      "ref": "refs/heads/codex/attention-human-loop-handoff",
+      "sha": "7033232d2a3a5893fc6d1003a6d8429d982f3c94"
+    },
+    {
+      "ref": "refs/heads/codex/attention-independent-integration",
+      "sha": "0480c1766cfd8c429e33c136fc7e4f973f01a731"
+    },
+    {
+      "ref": "refs/heads/codex/attention-research-20260909",
+      "sha": "3af83ebd35a09b4d029a9b8ce6e9c1979b7f6c54"
+    },
+    {
+      "ref": "refs/heads/codex/attention-triage-scope-repair-20260910",
+      "sha": "9db6fc4362a07dc8ff20e1914e2ac471f20b62c1"
+    },
+    {
+      "ref": "refs/heads/codex/attention-ui-roadmap",
+      "sha": "d112beb8e4f602bf0704174418f2822def792cae"
+    },
+    {
+      "ref": "refs/heads/codex/backend-bounded-20260909",
+      "sha": "52f75ddcbdc2181c313d3176eecaf07dc43d17c1"
+    },
+    {
+      "ref": "refs/heads/codex/backend-bounded-integration",
+      "sha": "751be02939cd458965b7bdfbe20cb00a13b6e45b"
+    },
+    {
+      "ref": "refs/heads/codex/backend-dispatch-20260909",
+      "sha": "c529923f158f702bcdb8a2952e9fc245d906d212"
+    },
+    {
+      "ref": "refs/heads/codex/backend-governance-20260910",
+      "sha": "964c37ff99b75192e10a36c12235b6effef3eb3a"
+    },
+    {
+      "ref": "refs/heads/codex/be41-compatibility-20260911",
+      "sha": "c71eb0229bb33456daf9569b83f244d3dce340fa"
+    },
+    {
+      "ref": "refs/heads/codex/be41-work-derivations-20260910",
+      "sha": "4c2a56aa203b3818bd8265f79f72dec7a0dc154f"
+    },
+    {
+      "ref": "refs/heads/codex/be5-integration-20260910",
+      "sha": "5123d0f71b4ab45beb3786979892ea50dbaedc70"
+    },
+    {
+      "ref": "refs/heads/codex/be5-resolver-service-delivery",
+      "sha": "85693a6d185f284ecc68324e4dda6d7d677abb03"
+    },
+    {
+      "ref": "refs/heads/codex/br01-resume",
+      "sha": "15b6464dba56347dc3350d7ccf20165ac3ac53e8"
+    },
+    {
+      "ref": "refs/heads/codex/brand-host-colors",
+      "sha": "d799a7fabceae2f84d70d00c504ecf6f88e269f9"
+    },
+    {
+      "ref": "refs/heads/codex/browser-capability-research",
+      "sha": "5163ae95c3ce950dcc2b380ef93c37cedd84dbec"
+    },
+    {
+      "ref": "refs/heads/codex/browser-research-integration",
+      "sha": "1226bad4bcfaa963c8f32210e20846045e7344c1"
+    },
+    {
+      "ref": "refs/heads/codex/ccd0a-main-integration",
+      "sha": "4f7278f8a370fdad8a1dfa1a8fd42275bc5c7108"
+    },
+    {
+      "ref": "refs/heads/codex/cci-applicability-review-20260910",
+      "sha": "b84d500ea4e1f45e2669e160d4dcf143e69ea1ff"
+    },
+    {
+      "ref": "refs/heads/codex/ccs-integration",
+      "sha": "414b196d965a8dc7cc67b37486d523c38f95ed94"
+    },
+    {
+      "ref": "refs/heads/codex/ccw-integration",
+      "sha": "0b5ccd27e9d0be5940714e913f4fc197f9ec7a05"
+    },
+    {
+      "ref": "refs/heads/codex/chat-actions-wip-20260911",
+      "sha": "2361a837c23433cc582a386d594dac9a488f377c"
+    },
+    {
+      "ref": "refs/heads/codex/chat-assistant-construction",
+      "sha": "27d37dad75c07f0bc0aa394c19d208e92c8c9a1f"
+    },
+    {
+      "ref": "refs/heads/codex/chat-controls-intake-20260910",
+      "sha": "1992e90bd92266a9c99076a0709617bae4d4cf67"
+    },
+    {
+      "ref": "refs/heads/codex/chat-space-design-index-20260909",
+      "sha": "5ea5ff00cdfe5280f255c372e359dca9e48c88c7"
+    },
+    {
+      "ref": "refs/heads/codex/claude-handoff-intake-20260911",
+      "sha": "c5e83dab18aa36a925db7fc58dceb92ee9bf75b5"
+    },
+    {
+      "ref": "refs/heads/codex/clean-cool-design-review",
+      "sha": "cc99571a0b4e67b51eeef9f20e9f495ca78655e7"
+    },
+    {
+      "ref": "refs/heads/codex/cleanup-20260910",
+      "sha": "42a537f6bb259eeb3e6a8a1206257f856c0b55a7"
+    },
+    {
+      "ref": "refs/heads/codex/codex-comparison-intake-20260910",
+      "sha": "be23540f7554a2ebc9e285ab39c3e0a583b1839e"
+    },
+    {
+      "ref": "refs/heads/codex/composer-icon-repair",
+      "sha": "9e5384fcabdac432259b3ffab7928251bea49859"
+    },
+    {
+      "ref": "refs/heads/codex/control-grammar-supplement-20260910",
+      "sha": "0c60f4ffe0e4d939712df3910d2404c226e8bfdf"
+    },
+    {
+      "ref": "refs/heads/codex/control-principles-intake-20260910",
+      "sha": "b07c17812eca63fd42b4bd24d1d3ee9d749ff079"
+    },
+    {
+      "ref": "refs/heads/codex/controls-repair-20260910",
+      "sha": "4bac6fcde419ebe88062d255bf1c59effbdafd37"
+    },
+    {
+      "ref": "refs/heads/codex/data-systems-roadmap",
+      "sha": "0df2d492da63a85d77367fe2d63cdd87fdfc6532"
+    },
+    {
+      "ref": "refs/heads/codex/delivery-combined-preflight-20260910",
+      "sha": "1f8317a999abf04508b7fc9d65e758796374aafd"
+    },
+    {
+      "ref": "refs/heads/codex/delivery-rollup-20260910",
+      "sha": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638"
+    },
+    {
+      "ref": "refs/heads/codex/design-shell-refinement",
+      "sha": "c0f1b515d78a3a46675864a901a0221bcb3fc752"
+    },
+    {
+      "ref": "refs/heads/codex/design-window-composition",
+      "sha": "386fbc65530d97b8f620fdd76141c8d4fa5967ef"
+    },
+    {
+      "ref": "refs/heads/codex/dsh-intake-20260910",
+      "sha": "08ceef9354e5d09f2799cb9167956d668c0441d5"
+    },
+    {
+      "ref": "refs/heads/codex/dystopia-20260910",
+      "sha": "df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1"
+    },
+    {
+      "ref": "refs/heads/codex/execution-state-pr-prep",
+      "sha": "a431650b8c4726adc10905485aaadfdb1983689c"
+    },
+    {
+      "ref": "refs/heads/codex/fe01-integration",
+      "sha": "2b6c2214cfe596b6cc179ad4e368abc4e4e6b749"
+    },
+    {
+      "ref": "refs/heads/codex/fe02-integration",
+      "sha": "4d9714e61ba4f817045e7d275e11738a6b2d34fc"
+    },
+    {
+      "ref": "refs/heads/codex/fe03-integration",
+      "sha": "af95bcb94d8373ae424462eb4a09535a6992d04b"
+    },
+    {
+      "ref": "refs/heads/codex/fe04-integration",
+      "sha": "683b6d1419242bd08d20b7deec77ce12af7dcf12"
+    },
+    {
+      "ref": "refs/heads/codex/fe05-material-combo-verify-20260910",
+      "sha": "8f6485483d57dd835629bdc6bb682e72cdec68e1"
+    },
+    {
+      "ref": "refs/heads/codex/fe05a-delivery-freeze-20260910",
+      "sha": "0b457f87259ea4ecd4ca27d7b5c6ffe475ac6dab"
+    },
+    {
+      "ref": "refs/heads/codex/gws-reference-intake-20260911",
+      "sha": "1b666e8a3d361b14179fc9c01f02b2771c058adb"
+    },
+    {
+      "ref": "refs/heads/codex/harness-core",
+      "sha": "d6247a8e27dc512a00fd113c9fec9835d24d6594"
+    },
+    {
+      "ref": "refs/heads/codex/harness-main-integration",
+      "sha": "a2c2e4cdda08a4976be6eca96b61237555633809"
+    },
+    {
+      "ref": "refs/heads/codex/harness-next-integration",
+      "sha": "fa90763a4da1cdede47778b6487c801c0acb74cc"
+    },
+    {
+      "ref": "refs/heads/codex/harness-next-round",
+      "sha": "95cfb165ed368e8b4c6afca7ab5c8c838cb4653c"
+    },
+    {
+      "ref": "refs/heads/codex/home-backlog-construction",
+      "sha": "5899765024e62deec1118de37989f8e12fcff727"
+    },
+    {
+      "ref": "refs/heads/codex/home-composition-20260910",
+      "sha": "405ad76906516e51ad7ea2a513d0e9f3ea3376f9"
+    },
+    {
+      "ref": "refs/heads/codex/http-body-limit-20260910",
+      "sha": "ecccac2e3d51f276b4f0fe31be430ef675e2b1c9"
+    },
+    {
+      "ref": "refs/heads/codex/icon-button-semantics-20260910",
+      "sha": "9917a6542f685248ada0427987936dcc302c194a"
+    },
+    {
+      "ref": "refs/heads/codex/local-governance-roadmap",
+      "sha": "4c1c4205a4bc9479e1699471f40342d85cbc2b75"
+    },
+    {
+      "ref": "refs/heads/codex/luna-async-review-20260910",
+      "sha": "57ebd397a6cb4554ca87de5bab09de3258ebf8cf"
+    },
+    {
+      "ref": "refs/heads/codex/luna-maintenance-core-validation",
+      "sha": "79826634373a84e0c0183313a42fba9238cb6bce"
+    },
+    {
+      "ref": "refs/heads/codex/markdown-reader-a1",
+      "sha": "00b2f2886e04aa7b7facb588d4375a246f3e341d"
+    },
+    {
+      "ref": "refs/heads/codex/markdown-review-architecture",
+      "sha": "a243a6ca0f43c12f5d1f69aa80dbf1b29e38dd29"
+    },
+    {
+      "ref": "refs/heads/codex/material-delivery-repair-20260910",
+      "sha": "93a641fd91e1615f2f8495f4f4576d310753740c"
+    },
+    {
+      "ref": "refs/heads/codex/material-repair-combo-verify-20260910",
+      "sha": "8e8ad2b00f4935a7ac9fe0826acb929dfc32e61c"
+    },
+    {
+      "ref": "refs/heads/codex/material-repair-v2-combo-verify-20260910",
+      "sha": "0246ef294cda236d0e4bb2b3ef9cf98d625bd8ea"
+    },
+    {
+      "ref": "refs/heads/codex/merge-node-audit-20260911",
+      "sha": "7f06910584c8025086bd7f11f36d32c93958b1e4"
+    },
+    {
+      "ref": "refs/heads/codex/micro-surface-intake-20260910",
+      "sha": "9097cbfd4b2b3b4c7b1117db5558b73568db67cc"
+    },
+    {
+      "ref": "refs/heads/codex/mr-a1a-integration",
+      "sha": "b17673857e1c0d40857a46eb2c7aba6422dedfef"
+    },
+    {
+      "ref": "refs/heads/codex/mr-a1a-source-coordinates",
+      "sha": "7a6db4a0ba8c6a438218e12ae15e6f5551e5a6c8"
+    },
+    {
+      "ref": "refs/heads/codex/multi-agent-seams-20260910",
+      "sha": "105458a4c06c14dea9b6777b7e73f4b9227d4f5f"
+    },
+    {
+      "ref": "refs/heads/codex/multi-agent-selection-intake-20260910",
+      "sha": "0c5d2241655863685f0c730d1b052dc41ade478b"
+    },
+    {
+      "ref": "refs/heads/codex/multi-experts-longlife-20260910",
+      "sha": "852bd3e01a06077c105d356004b64021d821b888"
+    },
+    {
+      "ref": "refs/heads/codex/next-round-consumption-20260910",
+      "sha": "8798e81d6c54a9870b997038396377de9da68555"
+    },
+    {
+      "ref": "refs/heads/codex/pro-bundle-receipt-20260910",
+      "sha": "312965f0b777fc14025752368ce6e162cc072249"
+    },
+    {
+      "ref": "refs/heads/codex/pro-return-intake-20260910",
+      "sha": "c0d89d33bb178a46b1bdb9080fbe771c8693a320"
+    },
+    {
+      "ref": "refs/heads/codex/pro-review-remediation",
+      "sha": "7a906a181f3b4be66246d975f925413dfbf211a4"
+    },
+    {
+      "ref": "refs/heads/codex/product-position-20260910",
+      "sha": "9cd67332779ee924eff554f4ae4c576dc4946aca"
+    },
+    {
+      "ref": "refs/heads/codex/provider-attention-intake-20260910",
+      "sha": "8a0e707c0df9378b69441e79aa99de9097bdc8ca"
+    },
+    {
+      "ref": "refs/heads/codex/ps01-resume",
+      "sha": "230a7193d268a60ab712289eca722ef9821f6b89"
+    },
+    {
+      "ref": "refs/heads/codex/ps02-resume",
+      "sha": "f412a6247467997765efd8da832752b24313dfbc"
+    },
+    {
+      "ref": "refs/heads/codex/public-repository-cleanup",
+      "sha": "a0ebcf026d20b052c5cab7b1ad8b0a5f7ad63b73"
+    },
+    {
+      "ref": "refs/heads/codex/pv-sd-integration-20260910",
+      "sha": "ef66177cb85ba8fb81ca8d201dcafdcda5804cf4"
+    },
+    {
+      "ref": "refs/heads/codex/r4d-design-review",
+      "sha": "015fac9331c1bcaaa368df746f2da23e434a494d"
+    },
+    {
+      "ref": "refs/heads/codex/reconcile-preparation",
+      "sha": "6799ef6acddfcd36810a25873c896eb88ba6f7f3"
+    },
+    {
+      "ref": "refs/heads/codex/release-roundmap-20260910",
+      "sha": "82796944097cba4c04f848a5a21a60ecc7625a58"
+    },
+    {
+      "ref": "refs/heads/codex/review-surface-pr-index",
+      "sha": "172130e8d0ba1e6642e967ac0c1e0938e221d4a8"
+    },
+    {
+      "ref": "refs/heads/codex/runtime-source-resolver",
+      "sha": "dc754045a9fd0b6a5d394bc4d75e93228c5fe774"
+    },
+    {
+      "ref": "refs/heads/codex/runtime-source-service-20260910",
+      "sha": "470498b5cbd2f42c93e0d0508ebb775972d62e9c"
+    },
+    {
+      "ref": "refs/heads/codex/rv26-execution-20260910",
+      "sha": "f3fec8a8274150d256d4e332930ff121226b8226"
+    },
+    {
+      "ref": "refs/heads/codex/rv26-q02-20260910",
+      "sha": "a7b9822bb4b4368454a9984fe0da60f25f187eb6"
+    },
+    {
+      "ref": "refs/heads/codex/se-continuity-benchmark",
+      "sha": "61df606889b060a5d91451ca2d476835b6bdbbe3"
+    },
+    {
+      "ref": "refs/heads/codex/serial-entry-20260910",
+      "sha": "d22eb66ef1b335b95202c8c0a34c425acb59a2f9"
+    },
+    {
+      "ref": "refs/heads/codex/sidebar-intake-20260910",
+      "sha": "33462cc557941fc267cc43400aa7a4fccd774305"
+    },
+    {
+      "ref": "refs/heads/codex/skin-boundary-20260910",
+      "sha": "428d1a76b5cb3c9b9f5b2d70380a55303faf8e95"
+    },
+    {
+      "ref": "refs/heads/codex/skin-injection-20260910",
+      "sha": "82c60360704fd79ad7d5b80f47372f2cfe230d1a"
+    },
+    {
+      "ref": "refs/heads/codex/skin-review-decoupling-20260910",
+      "sha": "a579929edd66544e6aa7cd8cd7d2399fae8265d3"
+    },
+    {
+      "ref": "refs/heads/codex/spark-delivery-repair-20260910",
+      "sha": "936239dca9d7eac0cab859960f8b19950c760193"
+    },
+    {
+      "ref": "refs/heads/codex/spark-fe-20260910",
+      "sha": "63840a7df22914e7a13cffcee0f646b8ded6ab9f"
+    },
+    {
+      "ref": "refs/heads/codex/spark-integration-20260910",
+      "sha": "4b1ac9362a83f0759da3b83aa8c843dd2764448e"
+    },
+    {
+      "ref": "refs/heads/codex/summary-be41-construction-20260911",
+      "sha": "035134b919c195fe9454f279c297052bb8e32089"
+    },
+    {
+      "ref": "refs/heads/codex/summary-be41-dispatch-20260911",
+      "sha": "dedf005494e3f17a18ee261a81e367026d0a0f70"
+    },
+    {
+      "ref": "refs/heads/codex/summary-disclosure-r2",
+      "sha": "796c3a5de9bbeb6728b8968d227b4ec4e52725d5"
+    },
+    {
+      "ref": "refs/heads/codex/t3-integration-20260910",
+      "sha": "ecccac2e3d51f276b4f0fe31be430ef675e2b1c9"
+    },
+    {
+      "ref": "refs/heads/codex/teamai-attention-delta",
+      "sha": "a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d"
+    },
+    {
+      "ref": "refs/heads/codex/teamai-consumption-20260909",
+      "sha": "f9bafb697f0ee7d7859914e44a83a581bca1ae23"
+    },
+    {
+      "ref": "refs/heads/codex/terra-async-boundaries",
+      "sha": "4b8ba2cb1c96838f8ac2229a151d3323a7cb8cf7"
+    },
+    {
+      "ref": "refs/heads/codex/terra-async-fixture",
+      "sha": "0c5db70cf7544a7a754d9ed72c7a5370e85c646a"
+    },
+    {
+      "ref": "refs/heads/codex/terra-async-protocol",
+      "sha": "aaba970520a76aefd6a6e612bf7d089992349a00"
+    },
+    {
+      "ref": "refs/heads/codex/terra-async-recovery-independent",
+      "sha": "5e8106f38abb77f89fcf2844f7df0198e3713233"
+    },
+    {
+      "ref": "refs/heads/codex/terra-human-fixtures",
+      "sha": "d4096758190405e7f30bab0df04d0072cbd2b693"
+    },
+    {
+      "ref": "refs/heads/codex/visual-compiler-intake-20260910",
+      "sha": "c851ef718b87332d9daacdc715d12007cde66ccc"
+    },
+    {
+      "ref": "refs/heads/codex/web-gpt-design-cci-applicability",
+      "sha": "8635539d3091a325746b1f7cda395128ca12cb8b"
+    },
+    {
+      "ref": "refs/heads/codex/web-gpt-design-continuity",
+      "sha": "3a6133686014973f62fcf58e71e779af36616876"
+    },
+    {
+      "ref": "refs/heads/codex/web-gpt-design-fe05-material",
+      "sha": "cd124d6301981f892d62989f8907a3f0d94f60a5"
+    },
+    {
+      "ref": "refs/heads/codex/web-gpt-design-handoff-20260910",
+      "sha": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f"
+    },
+    {
+      "ref": "refs/heads/codex/wk10b-integration",
+      "sha": "62556b7f65170ecf30efb2869447ae85fe69d721"
+    },
+    {
+      "ref": "refs/heads/codex/wk10b2-integration",
+      "sha": "b7fa5e27d013886250c04af07dc40523bd8bd67f"
+    },
+    {
+      "ref": "refs/heads/codex/wk11-integration",
+      "sha": "1688a7b237e9507da477f91742293abc173461e9"
+    },
+    {
+      "ref": "refs/heads/codex/wk12-integration",
+      "sha": "14ebd61877545ab71e20ce54a720d4e1e13c6b78"
+    },
+    {
+      "ref": "refs/heads/codex/wk13-integration",
+      "sha": "429fdd68febb9998f322a0b53c323651fc8cd7fd"
+    },
+    {
+      "ref": "refs/heads/codex/work-review-actions",
+      "sha": "7941bdbdd2ca2bfcaaa36e451ab8a15b1e72e866"
+    }
+  ],
+  "retainedAtCleanup": [
+    {
+      "ref": "refs/heads/archive/courtwork-main",
+      "sha": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/archive/fresh-pre-courtwork",
+      "sha": "c0c4d811044b08d1982ebd6ad23d50658a05e300",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/accept-pi-base-gui-2737c98-luna",
+      "sha": "385f18effd072879175abf146540dfb91ff5cd64",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/accept-pi-bounded-site-1",
+      "sha": "5f3e1ca6eb46df96f52abb414e520d2ffe6f1667",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/codex-arch-tool-read-1r1",
+      "sha": "a9aa6cd3c1168bd00e523b196fa4ab4f18d1d8b8",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/gui-hierarchy-1",
+      "sha": "d213d5f8568b20ad1d0ab0831c357c644e1a6dae",
+      "reason": "frozen archive reference"
+    },
+    {
+      "ref": "refs/heads/claude/ic2-controls-b",
+      "sha": "8421fdebb944d7d570d0b9f09a350781857653f5",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    },
+    {
+      "ref": "refs/heads/codex/convergence-20260911",
+      "sha": "035134b919c195fe9454f279c297052bb8e32089",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    },
+    {
+      "ref": "refs/heads/codex/fresh-courtwork",
+      "sha": "b0173deab477b9be577df75a712f446d14e3c356",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    },
+    {
+      "ref": "refs/heads/codex/fresh-web-integration",
+      "sha": "3926a5eda76f40552bdc8e310a12560b84c6bfb6",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    },
+    {
+      "ref": "refs/heads/codex/semantic-polish-prep-20260911",
+      "sha": "7d9399fe2ab773d49dc3d8d03091f72a50f597b5",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    },
+    {
+      "ref": "refs/heads/main",
+      "sha": "035134b919c195fe9454f279c297052bb8e32089",
+      "reason": "worktree remains attached: active, dirty, frozen or intake"
+    }
+  ],
+  "retiredRemoteRefs": [
+    {
+      "name": "codex/benchmark-contract-20260910",
+      "sha": "a2e2d3c708065a49699b7f847ad2602a44f33c9b"
+    },
+    {
+      "name": "codex/harness-core",
+      "sha": "d6247a8e27dc512a00fd113c9fec9835d24d6594"
+    },
+    {
+      "name": "codex/public-narrative-benchmarks-20260910",
+      "sha": "bd1f815a99c88f2431244671e871e97ddcc082fa"
+    },
+    {
+      "name": "codex/se-continuity-benchmark",
+      "sha": "61df606889b060a5d91451ca2d476835b6bdbbe3"
+    },
+    {
+      "name": "codex/serial-entry-20260910",
+      "sha": "d22eb66ef1b335b95202c8c0a34c425acb59a2f9"
+    },
+    {
+      "name": "codex/wk10b-integration",
+      "sha": "62556b7f65170ecf30efb2869447ae85fe69d721"
+    },
+    {
+      "name": "codex/work-review-actions",
+      "sha": "7941bdbdd2ca2bfcaaa36e451ab8a15b1e72e866"
+    }
+  ],
+  "archiveLocation": "$CODEX_HOME/archives/Courtwork/convergence-20260911/",
+  "bundle": "all-refs.bundle",
+  "dirtyBackupManifest": "uncommitted-backups.json",
+  "completedCleanWorktreesDetached": 11,
+  "worktreeFilesDeleted": false,
+  "note": "The temporary codex/convergence-20260911 intake ref is retired after receipt push. Frozen refs and live/dirty branch exceptions remain; no claim of zero branches."
+}

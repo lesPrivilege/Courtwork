@@ -1,0 +1,587 @@
+{
+  "schemaVersion": 1,
+  "origin": "http://127.0.0.1:8883",
+  "browser": "Chrome/152.0.7977.83",
+  "scrollbars": "hidden (--hide-scrollbars)",
+  "results": [
+    {
+      "id": "composer.empty-height",
+      "pass": true,
+      "textarea": 54.1875,
+      "form": 116.1875,
+      "fieldSizing": "content"
+    },
+    {
+      "id": "composer.grows-with-content",
+      "pass": true,
+      "heights": [
+        [
+          "empty",
+          54.2
+        ],
+        [
+          "1 lines",
+          54.2
+        ],
+        [
+          "2 lines",
+          54.2
+        ],
+        [
+          "3 lines",
+          77.3
+        ],
+        [
+          "5 lines",
+          123.5
+        ],
+        [
+          "8 lines",
+          180
+        ],
+        [
+          "20 lines",
+          180
+        ]
+      ]
+    },
+    {
+      "id": "composer.bounded",
+      "pass": true,
+      "at20": {
+        "step": "20 lines",
+        "value": 830,
+        "lines": 20,
+        "height": 180,
+        "scrollHeight": 470,
+        "overflowY": "auto",
+        "fieldSizing": "content",
+        "form": 242,
+        "scrollTop": 283,
+        "clientHeight": 180
+      }
+    },
+    {
+      "id": "composer.caret-line-visible",
+      "pass": true,
+      "scrollTop": 283,
+      "clientHeight": 180,
+      "scrollHeight": 470
+    },
+    {
+      "id": "composer.undo-stack-survives-growth",
+      "pass": true,
+      "beforeUndo": 20,
+      "afterUndoLines": 8,
+      "height": 180
+    },
+    {
+      "id": "composer.returns-to-empty",
+      "pass": true,
+      "height": 54.1875
+    },
+    {
+      "id": "composer.restored-draft-sized",
+      "pass": true,
+      "value": 51,
+      "lines": 4,
+      "height": 100.375,
+      "scrollHeight": 100,
+      "overflowY": "auto",
+      "fieldSizing": "content",
+      "form": 162.375,
+      "scrollTop": 0,
+      "clientHeight": 100
+    },
+    {
+      "id": "composer.error-line-aligned",
+      "pass": true,
+      "status": {
+        "left": 322,
+        "right": 1062,
+        "top": 708.5625,
+        "bottom": 731.8125,
+        "width": 740,
+        "height": 23.25
+      },
+      "form": {
+        "left": 322,
+        "right": 1062,
+        "top": 731.8125,
+        "bottom": 848,
+        "width": 740,
+        "height": 116.1875
+      },
+      "list": {
+        "left": 322,
+        "right": 1062,
+        "top": 80,
+        "bottom": 597.5,
+        "width": 740,
+        "height": 517.5
+      }
+    },
+    {
+      "id": "keyboard.composer-controls",
+      "pass": true,
+      "order": [
+        {
+          "id": "materials-button",
+          "ring": true,
+          "inForm": true
+        },
+        {
+          "id": "model-settings-button",
+          "ring": true,
+          "inForm": true
+        },
+        {
+          "id": "send-button",
+          "ring": true,
+          "inForm": true
+        }
+      ]
+    },
+    {
+      "id": "escape.returns-to-cards",
+      "pass": true,
+      "afterEsc": {
+        "expanded": false,
+        "open": true,
+        "active": "rail-file rail-file-open sd-run-summary-file-preview",
+        "band": {
+          "top": 0,
+          "height": 48
+        }
+      },
+      "bandPreview": {
+        "left": 256,
+        "right": 1440,
+        "top": 0,
+        "bottom": 48,
+        "width": 1184,
+        "height": 48
+      }
+    },
+    {
+      "id": "band.stable-preview-vs-chat",
+      "pass": true,
+      "preview": {
+        "left": 256,
+        "right": 1440,
+        "top": 0,
+        "bottom": 48,
+        "width": 1184,
+        "height": 48
+      },
+      "chat": {
+        "top": 0,
+        "height": 48
+      }
+    },
+    {
+      "id": "long-name.contained",
+      "pass": true,
+      "panel": {
+        "left": 968,
+        "right": 1256,
+        "top": 72,
+        "bottom": 443,
+        "width": 288,
+        "height": 371
+      },
+      "card": {
+        "left": 969,
+        "right": 1255,
+        "top": 73,
+        "bottom": 255.25,
+        "width": 286,
+        "height": 182.25
+      },
+      "name": {
+        "left": 1017,
+        "right": 1140.9375,
+        "top": 157.5,
+        "bottom": 175.5,
+        "width": 123.9375,
+        "height": 18
+      },
+      "list": {
+        "left": 288,
+        "right": 936,
+        "top": 39,
+        "bottom": 669,
+        "width": 648,
+        "height": 630
+      },
+      "composer": {
+        "left": 288,
+        "right": 936,
+        "top": 631.8125,
+        "bottom": 748,
+        "width": 648,
+        "height": 116.1875
+      },
+      "overflowX": false,
+      "cardScrollX": false
+    },
+    {
+      "id": "long-name.tab-does-not-push-chrome",
+      "pass": true,
+      "header": {
+        "left": 256,
+        "right": 1280,
+        "top": 0,
+        "bottom": 48,
+        "width": 1024,
+        "height": 48
+      },
+      "tabs": {
+        "left": 344.640625,
+        "right": 1204,
+        "top": 0,
+        "bottom": 47,
+        "width": 859.359375,
+        "height": 47
+      },
+      "toolbar": {
+        "left": 1228,
+        "right": 1256,
+        "top": 0,
+        "bottom": 47,
+        "width": 28,
+        "height": 47
+      },
+      "overflowX": false
+    },
+    {
+      "id": "summary.column-floor-and-gap",
+      "pass": true,
+      "thresholds": [
+        {
+          "width": 1195,
+          "mode": "strip",
+          "chatWidth": 975,
+          "column": 740,
+          "gap": 83.5,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        },
+        {
+          "width": 1271,
+          "mode": "strip",
+          "chatWidth": 1015,
+          "column": 740,
+          "gap": 103.5,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        },
+        {
+          "width": 1272,
+          "mode": "cards",
+          "chatWidth": 1016,
+          "column": 640,
+          "gap": 32,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        },
+        {
+          "width": 1280,
+          "mode": "cards",
+          "chatWidth": 1024,
+          "column": 648,
+          "gap": 32,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        },
+        {
+          "width": 1024,
+          "mode": "strip",
+          "chatWidth": 804,
+          "column": 672,
+          "gap": 32,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        },
+        {
+          "width": 800,
+          "mode": "strip",
+          "chatWidth": 800,
+          "column": 668,
+          "gap": 32,
+          "leftDelta": 0,
+          "rightDelta": 0,
+          "overflowX": false
+        }
+      ]
+    },
+    {
+      "id": "touch.44",
+      "pass": true,
+      "chat390": {
+        "list": {
+          "left": 16,
+          "right": 374,
+          "top": -141,
+          "bottom": 626.5,
+          "width": 358,
+          "height": 767.5
+        },
+        "composer": {
+          "left": 16,
+          "right": 374,
+          "top": 659.8125,
+          "bottom": 784,
+          "width": 358,
+          "height": 124.1875
+        },
+        "header": {
+          "left": 0,
+          "right": 390,
+          "top": 0,
+          "bottom": 48,
+          "width": 390,
+          "height": 48
+        },
+        "buttons": [
+          {
+            "id": "toggle-nav-button",
+            "h": 44,
+            "w": 44
+          },
+          {
+            "id": "show-run-button",
+            "h": 44,
+            "w": 44
+          },
+          {
+            "id": "show-surface-button",
+            "h": 44,
+            "w": 44
+          },
+          {
+            "id": "materials-button",
+            "h": 44,
+            "w": 44
+          },
+          {
+            "id": "model-settings-button",
+            "h": 44,
+            "w": 67.109375
+          },
+          {
+            "id": "send-button",
+            "h": 44,
+            "w": 44
+          }
+        ]
+      },
+      "nav390": [
+        {
+          "t": "New chat",
+          "h": 44
+        },
+        {
+          "t": "Home",
+          "h": 44
+        },
+        {
+          "t": "Attention",
+          "h": 44
+        },
+        {
+          "t": "Spark",
+          "h": 44
+        },
+        {
+          "t": "Source review · syntheti",
+          "h": 44
+        },
+        {
+          "t": "Long file name · synthet",
+          "h": 44
+        }
+      ]
+    },
+    {
+      "id": "390.summary-reachable-and-escape",
+      "pass": true,
+      "sheet": {
+        "panel": {
+          "left": 0,
+          "right": 390,
+          "top": 0,
+          "bottom": 844,
+          "width": 390,
+          "height": 844
+        },
+        "card": {
+          "left": 16,
+          "right": 374,
+          "top": 64,
+          "bottom": 223.5,
+          "width": 358,
+          "height": 159.5
+        },
+        "active": "sd-run-summary-trigger"
+      },
+      "sheetClosed": {
+        "open": false,
+        "active": "show-surface-button"
+      },
+      "note": "Reached as the existing on-demand sheet, not in document flow; see README 待裁定."
+    },
+    {
+      "id": "zoom200.640x400",
+      "pass": true,
+      "overflowX": false,
+      "header": {
+        "left": 0,
+        "right": 640,
+        "top": 0,
+        "bottom": 48,
+        "width": 640,
+        "height": 48
+      },
+      "list": {
+        "left": 16,
+        "right": 624,
+        "top": -457,
+        "bottom": 183,
+        "width": 608,
+        "height": 640
+      },
+      "composer": {
+        "left": 16,
+        "right": 624,
+        "top": 215.8125,
+        "bottom": 340,
+        "width": 608,
+        "height": 124.1875
+      },
+      "title": {
+        "left": 68,
+        "right": 356.21875,
+        "top": 13.375,
+        "bottom": 33.625,
+        "width": 288.21875,
+        "height": 20.25
+      }
+    },
+    {
+      "id": "zoom200.720x450",
+      "pass": true,
+      "overflowX": false,
+      "header": {
+        "left": 0,
+        "right": 720,
+        "top": 0,
+        "bottom": 48,
+        "width": 720,
+        "height": 48
+      },
+      "list": {
+        "left": 16,
+        "right": 704,
+        "top": -356,
+        "bottom": 233,
+        "width": 688,
+        "height": 589
+      },
+      "composer": {
+        "left": 16,
+        "right": 704,
+        "top": 265.8125,
+        "bottom": 390,
+        "width": 688,
+        "height": 124.1875
+      },
+      "title": {
+        "left": 68,
+        "right": 356.21875,
+        "top": 13.375,
+        "bottom": 33.625,
+        "width": 288.21875,
+        "height": 20.25
+      }
+    },
+    {
+      "id": "home.keeps-820",
+      "pass": true,
+      "composer": {
+        "left": 438,
+        "right": 1258,
+        "top": 437.3125,
+        "bottom": 553.5,
+        "width": 820,
+        "height": 116.1875
+      },
+      "header": {
+        "left": 256,
+        "right": 1440,
+        "top": 0,
+        "bottom": 48,
+        "width": 1184,
+        "height": 48
+      },
+      "textarea": {
+        "left": 451,
+        "right": 1245,
+        "top": 450.3125,
+        "bottom": 504.5,
+        "width": 794,
+        "height": 54.1875
+      }
+    },
+    {
+      "id": "settings.band-48",
+      "pass": true,
+      "header": {
+        "left": 0,
+        "right": 1440,
+        "top": 0,
+        "bottom": 48,
+        "width": 1440,
+        "height": 48
+      },
+      "overflowX": false
+    },
+    {
+      "id": "native.band-is-max-of-target-and-toolbar",
+      "pass": true,
+      "shellBand": [
+        {
+          "toolbarHeight": null,
+          "band": 48,
+          "chat": 48,
+          "brandLeft": 80
+        },
+        {
+          "toolbarHeight": 40,
+          "band": 48,
+          "chat": 48,
+          "brandLeft": 88
+        },
+        {
+          "toolbarHeight": 52,
+          "band": 52,
+          "chat": 52,
+          "brandLeft": 88
+        },
+        {
+          "toolbarHeight": 60,
+          "band": 60,
+          "chat": 60,
+          "brandLeft": 88
+        }
+      ],
+      "note": "Web-side packet simulation only; no native host exists in this repository."
+    }
+  ],
+  "exceptions": []
+}

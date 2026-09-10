@@ -1,5 +1,15 @@
 # 当前工程状态
 
+## 2026-09-11 · WO-VS-01 goal开工
+
+用户确认本地/远端main收敛为590739f并授权从此继续整体polish。Astra在既有隔离polish分支接入该节点，保留收敛回执和准备输入；无产品冲突，current历史双侧记录均保留。执行按[本轮roadmap](execution/2026-09-11-semantic-polish/README.md)与[P0.5](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)推进。Astra掌握架构/异步节奏/视觉判断，Luna explorer与researcher；用户新开放Sol high只做明确较难后端worker，不写文案或前端。当前开始VS-00固定基线审计与VS-01裁定；Chat actions WIP仅按2361a83显式召回，不算已接受；不恢复旧等待heartbeat。
+
+## 2026-09-11 · Summary / Entry / BE41 自足节点接收
+
+用户确认交付035134b并授权合推及归档任务分支。132项哈希核对、固定源码范围与原非作者回执已检查；接收范围为Summary D1/D2、WORK-3、SD-ENTRY、BE41-A/B，RuntimeStore12/Core4/app5。[本次接收与分支归档回执](../evidence/convergence-20260911/README.md)持有最终验证和清理结果。此前NOT_READY与在途段落保留历史时点，本段接收仅限这次自足范围。
+
+Chat actions明确不在本次交付，WIP固定2361a83，召回路径与归档方式见接收回执；Fake UI先行裁定继续有效但暂停续作。Q1/Q3、原生/浏览器未验范围、BE-42及Spark重建/恢复和G1–G5仍开放。用户后续整体polish另行施工，活跃semantic-polish与其他未提交现场不因分支清理丢弃。
+
 ## 2026-09-11 · 语义与界面polish准备
 
 后续用户补充已并入[P0.5 Product Semantics Registry计划](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)：semantic与glyph分层、single/multi-purpose、六族碰撞审查、跨App/Pages映射及机器gate；复用现有renderer与来源账，不开始实现。
@@ -30,6 +40,17 @@ Google Workspace CLI补充材料（2026-09-11）：[参考包](research/google-w
 ## Pro 架构送审准备（2026-09-10）
 
 用户确认通用 Agent Harness / Semantic Work Core 解耦，授权 Pro 主导选型裁决、必要自研设计与施工拆单；基本 GUI 与通用 harness 完备在先，Work Core 深化、第二 runtime 与 Rust 实施后置。[送审工单](execution/2026-09-10-harness-pro-review.md)和[原始输出/逐项处置规范](research/harness-pro-2026-09-10/README.md)已建立，覆盖既有决策重开、源码证据、接口/反例/迁移与回退。用户授权审查合并后推送选定送审分支，网页端由用户唤醒；实际远端结果见交接回执，不宣称 Pro 已接单或输出已消费。本次仅文档，产品接受与既有门不变。
+## R2-SD03 · 入口体例先行（2026-09-10）
+
+隔离产品`acafe2c`按用户追加裁定建立More渐进分组入口与缺席兜底行，host按schema/scope/identity/revision注入真实reader；先立呈现体例，不提前固化领域语义。修正1024旧glyph空大卡与390旧浮卡叠放；36项针对、有界浅色CUA通过。见[入口合同与范围](execution/2026-09-10-summary-disclosure/entry-grammar.md)。未合流/推送/部署，不改Claude ChatSpace/composer，schema不变。
+
+## R2-SD02 · 卡片语义补齐（2026-09-10）
+
+隔离产品`731ee5c`补File/Workspace/Runtime局部披露、Runtime紧凑入口及会话匹配；[语义登记与缺口](execution/2026-09-10-summary-disclosure/card-semantics.md)覆盖既有裁定的12类，不宣称Task/Explore等所有reader完成。34项针对与有界作者CUA通过，未覆盖末次完整明暗窄屏矩阵；非作者静态复核另记。未改Claude的ChatSpace/composer，未合流/推送/部署，schema不变。前片历史版本与证据如下。
+
+## R2-SD01 · 摘要与阅读层级候选（2026-09-10）
+
+隔离分支`codex/summary-disclosure-r2`产品`1c4138b`已将Run摘要→Files披露→同对象Preview接入原生产host，并统一有界目录、顶部tab、文档关闭/工作面隐藏、宽屏展开/还原与返回焦点。用户明确要求各级稳定，覆盖首轮fixture-only边界。最终38项针对通过；初次全量656/657的未改动Core启动超时经隔离13/13复验，原日志保留。Astra完成有界CUA；Luna仅静态/测试复核，无独立视觉接受。[交付、版本与限制](../evidence/summary-disclosure-20260910/README.md)。末次补披露圆角、内距与已有rim；保持实色材质合同，14项增量通过。本地候选未合流/推送/部署，Runtime11/Core4/app5不变，不覆盖在途PV/SD集成的状态或schema，也不关闭G1–G5。
 
 ## 范围登记：Chat 全量按钮、hover 与 Icon grammar（2026-09-10）
 
@@ -432,6 +453,10 @@ Icon 家族选型裁定（2026-09-10）：EX-IC1 specimen（`claude/ex-ic1-icon-
 ## 多智能体实践选型 · RD-005（2026-09-10）
 
 从实际main `9097cbfd4b2b3b4c7b1117db5558b73568db67cc` 隔离消费《多智能体实践选型》全部3 turn/6消息，hasMore=false；原文、hash、全量外链与逐轮处置见[消费包](research/multi-agent-selection-2026-09-10/README.md)。[RD-005](research/RD-005-multi-agent-selection.md)登记Astra架构/PR裁决及模型能力瓶颈实现，Luna fast explore与有成熟参考的有界实现，非作者接受仍独立。原MA-01…06映射为MAS消费切片并接既有MA/ME，未重复派单。保留MA2-D15受控Session/Run路线，SoL-Pi为机制/eval donor、PicoAgents为模式及负例；未改变capability或生产schema。本次为研究与文档交付，不关闭产品门；未创建远端PR。
+
+## BE-41 后端隔离交付（2026-09-10，待组合接收）
+
+Astra从实际 `1992e90` 隔离实现Spark派生失效只读查询，沿Core/project owner，无schema迁移或第二store；[回执与剩余接线限制](../evidence/be41-20260910/README.md)。该条仅记录分支交付，不覆盖main当前接收状态；前端version0、源文件版本回退与snapshot参数接线仍开放，ME-03 / RV26-SP01 / G1–G5未关闭。
 ## Benchmark series · 2026-09-10
 
 用户要求 benchmark 系列先于对外叙事准备。Astra 从实际 main `df9fc18` 隔离，延伸现有 Continuity / D1–D3，编订 [BM-01 评测契约](../benchmarks/SPEC.md) 与 [BM-02–05 PR 文稿](execution/2026-09-10-benchmark-series/README.md)。覆盖运行清单与报告复现、生成式 Core 状态机、真实进程故障与回执重放、matched Disclosure。BM-01 为文档交付，其余为可施工合同；没有新实验结果、付费模型运行或产品接受。Luna 负责有界只读探索，不代表本单独立接受。

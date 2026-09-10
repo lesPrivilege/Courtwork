@@ -1,0 +1,1212 @@
+✖ Summary run preserves the clicked opener when disabling it clears browser focus (6.928209ms)
+✖ Summary file preserves the clicked opener when disabling it clears browser focus (3.569875ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 113.405542
+
+✖ failing tests:
+
+test at app/tests/.summary-before.test.mjs:286:3
+✖ Summary run preserves the clicked opener when disabling it clears browser focus (6.928209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - <ref *1> TinyNode {
+  -   _text: '',
+  -   attributes: Map(3) {
+  -     'aria-label' => 'Open run in right panel',
+  -     'data-focus-key' => 'run-summary-open',
+  -     'type' => 'button'
+  -   },
+  -   checked: false,
+  -   children: [
+  -     TinyNode {
+  -       _text: 'Open in right panel',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [],
+  -       className: 'button-label',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *1],
+  -       tagName: 'span',
+  -       value: ''
+  -     },
+  -     <ref *2> TinyNode {
+  -       _text: '',
+  -       attributes: Map(11) {
+  -         'aria-hidden' => 'true',
+  -         'class' => 'ui-icon',
+  -         'fill' => 'none',
+  -         'focusable' => 'false',
+  -         'height' => '20',
+  -         'stroke' => 'currentColor',
+  -         'stroke-linecap' => 'round',
+  -         'stroke-linejoin' => 'round',
+  -         'stroke-width' => '2',
+  -         'viewBox' => '0 0 24 24',
+  -         'width' => '20'
+  -       },
+  -       checked: false,
+  -       children: [
+  -         TinyNode {
+  -           _text: '',
+  -           attributes: Map(1) {
+  -             'href' => '/web/vendor/icons.svg#panel-right'
+  -           },
+  -           checked: false,
+  -           children: [],
+  -           className: '',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *2],
+  -           tagName: 'use',
+  -           value: ''
+  -         }
+  -       ],
+  -       className: '',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *1],
+  -       tagName: 'svg',
+  -       value: ''
+  -     }
+  -   ],
+  -   className: 'quiet-button sd-run-summary-open',
+  -   disabled: [Getter/Setter: true],
+  -   listeners: Map(1) {
+  -     'click' => [
+  -       [Function (anonymous)]
+  -     ]
+  -   },
+  -   ownerDocument: TinyDocument {
+  -     activeElement: null
+  -   },
+  -   parentNode: <ref *7> TinyNode {
+  -     _text: '',
+  -     attributes: Map(0) {},
+  -     checked: false,
+  -     children: [
+  -       [Circular *1]
+  -     ],
+  -     className: 'sd-run-summary-actions',
+  -     disabled: false,
+  -     listeners: Map(0) {},
+  -     ownerDocument: TinyDocument {
+  -       activeElement: null
+  -     },
+  -     parentNode: <ref *4> TinyNode {
+  -       _text: '',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [
+  -         <ref *3> TinyNode {
+  -           _text: '',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [
+  -             TinyNode {
+  -               _text: 'Run',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-label',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *3],
+  -               tagName: 'span',
+  -               value: ''
+  -             },
+  -             TinyNode {
+  -               _text: 'r1',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-value is-mono',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *3],
+  -               tagName: 'span',
+  -               value: ''
+  -             }
+  -           ],
+  -           className: 'rail-row',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *4],
+  -           tagName: 'p',
+  -           value: ''
+  -         },
+  -         <ref *5> TinyNode {
+  -           _text: '',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [
+  -             TinyNode {
+  -               _text: 'Session',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-label',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *5],
+  -               tagName: 'span',
+  -               value: ''
+  -             },
+  -             TinyNode {
+  -               _text: 's1',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-value is-mono',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *5],
+  -               tagName: 'span',
+  -               value: ''
+  -             }
+  -           ],
+  -           className: 'rail-row',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *4],
+  -           tagName: 'p',
+  -           value: ''
+  -         },
+  -         TinyNode {
+  -           _text: 'File SHA-256',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [],
+  -           className: 'rail-group',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *4],
+  -           tagName: 'p',
+  -           value: ''
+  -         },
+  -         <ref *6> TinyNode {
+  -           _text: '',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [
+  -             TinyNode {
+  -               _text: 'SHA-256 · out/source-note.txt',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-label',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *6],
+  -               tagName: 'span',
+  -               value: ''
+  -             },
+  -             TinyNode {
+  -               _text: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [],
+  -               className: 'rail-row-value is-mono',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *6],
+  -               tagName: 'span',
+  -               value: ''
+  -             }
+  -           ],
+  -           className: 'rail-row',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *4],
+  -           tagName: 'p',
+  -           value: ''
+  -         },
+  -         [Circular *7]
+  -       ],
+  -       className: 'sd-run-summary-detail',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: <ref *8> TinyNode {
+  -         _text: '',
+  -         attributes: Map(0) {},
+  -         checked: false,
+  -         children: [
+  -           TinyNode {
+  -             _text: 'Run information',
+  -             attributes: Map(1) {
+  -               'data-focus-key' => 'run-summary-information'
+  -             },
+  -             checked: false,
+  -             children: [],
+  -             className: 'sd-run-summary-trigger',
+  -             disabled: false,
+  -             listeners: Map(0) {},
+  -             ownerDocument: TinyDocument {
+  -               activeElement: null
+  -             },
+  -             parentNode: [Circular *8],
+  -             tagName: 'summary',
+  -             value: ''
+  -           },
+  -           [Circular *4]
+  -         ],
+  -         className: 'sd-run-summary-disclosure sd-run-summary-information-disclosure',
+  -         disabled: false,
+  -         listeners: Map(0) {},
+  -         open: false,
+  -         ownerDocument: TinyDocument {
+  -           activeElement: null
+  -         },
+  -         parentNode: <ref *11> TinyNode {
+  -           _text: '',
+  -           attributes: Map(2) {
+  -             'aria-label' => 'Run summary',
+  -             'data-module' => 'run-summary'
+  -           },
+  -           checked: false,
+  -           children: [
+  -             <ref *10> TinyNode {
+  -               _text: '',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [
+  -                 <ref *9> TinyNode {
+  -                   _text: '',
+  -                   attributes: Map(11) {
+  -                     'aria-hidden' => 'true',
+  -                     'class' => 'ui-icon',
+  -                     'fill' => 'none',
+  -                     'focusable' => 'false',
+  -                     'height' => '16',
+  -                     'stroke' => 'currentColor',
+  -                     'stroke-linecap' => 'round',
+  -                     'stroke-linejoin' => 'round',
+  -                     'stroke-width' => '2',
+  -                     'viewBox' => '0 0 24 24',
+  -                     'width' => '16'
+  -                   },
+  -                   checked: false,
+  -                   children: [
+  -                     TinyNode {
+  -                       _text: '',
+  -                       attributes: Map(1) {
+  -                         'href' => '/web/vendor/icons.svg#activity'
+  -                       },
+  -                       checked: false,
+  -                       children: [],
+  -                       className: '',
+  -                       disabled: false,
+  -                       listeners: Map(0) {},
+  -                       ownerDocument: TinyDocument {
+  -                         activeElement: null
+  -                       },
+  -                       parentNode: [Circular *9],
+  -                       tagName: 'use',
+  -                       value: ''
+  -                     }
+  -                   ],
+  -                   className: '',
+  -                   disabled: false,
+  -                   listeners: Map(0) {},
+  -                   ownerDocument: TinyDocument {
+  -                     activeElement: null
+  -                   },
+  -                   parentNode: [Circular *10],
+  -                   tagName: 'svg',
+  -                   value: ''
+  -                 },
+  -                 TinyNode {
+  -                   _text: 'Run',
+  -                   attributes: Map(0) {},
+  -                   checked: false,
+  -                   children: [],
+  -                   className: 'rail-card-title',
+  -                   disabled: false,
+  -                   listeners: Map(0) {},
+  -                   ownerDocument: TinyDocument {
+  -                     activeElement: null
+  -                   },
+  -                   parentNode: [Circular *10],
+  -                   tagName: 'h3',
+  -                   value: ''
+  -                 },
+  -                 TinyNode {
+  -                   _text: 'Completed',
+  -                   attributes: Map(0) {},
+  -                   checked: false,
+  -                   children: [],
+  -                   className: 'rail-card-state',
+  -                   disabled: false,
+  -                   listeners: Map(0) {},
+  -                   ownerDocument: TinyDocument {
+  -                     activeElement: null
+  -                   },
+  -                   parentNode: [Circular *10],
+  -                   tagName: 'span',
+  -                   value: ''
+  -                 }
+  -               ],
+  -               className: 'rail-card-head',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *11],
+  -               tagName: 'div',
+  -               value: ''
+  -             },
+  -             <ref *12> TinyNode {
+  -               _text: '',
+  -               attributes: Map(0) {},
+  -               checked: false,
+  -               children: [
+  -                 TinyNode {
+  -                   _text: 'Files · 1',
+  -                   attributes: Map(1) {
+  -                     'data-focus-key' => 'run-summary-files'
+  -                   },
+  -                   checked: false,
+  -                   children: [],
+  -                   className: 'sd-run-summary-trigger',
+  -                   disabled: false,
+  -                   listeners: Map(0) {},
+  -                   ownerDocument: TinyDocument {
+  -                     activeElement: null
+  -                   },
+  -                   parentNode: [Circular *12],
+  -                   tagName: 'summary',
+  -                   value: ''
+  -                 },
+  -                 <ref *18> TinyNode {
+  -                   _text: '',
+  -                   attributes: Map(0) {},
+  -                   checked: false,
+  -                   children: [
+  -                     <ref *17> TinyNode {
+  -                       _text: '',
+  -                       attributes: Map(0) {},
+  -                       checked: false,
+  -                       children: [
+  -                         <ref *16> TinyNode {
+  -                           _text: '',
+  -                           attributes: Map(0) {},
+  -                           checked: false,
+  -                           children: [
+  -                             <ref *14> TinyNode {
+  -                               _text: '',
+  -                               attributes: Map(0) {},
+  -                               checked: false,
+  -                               children: [
+  -                                 <ref *13> TinyNode {
+  -                                   _text: '',
+  -                                   attributes: Map(11) {
+  -                                     'aria-hidden' => 'true',
+  -                                     'class' => 'ui-icon',
+  -                                     'fill' => 'none',
+  -                                     'focusable' => 'false',
+  -                                     'height' => '16',
+  -                                     'stroke' => 'currentColor',
+  -                                     'stroke-linecap' => 'round',
+  -                                     'stroke-linejoin' => 'round',
+  -                                     'stroke-width' => '2',
+  -                                     'viewBox' => '0 0 24 24',
+  -                                     'width' => '16'
+  -                                   },
+  -                                   checked: false,
+  -                                   children: [
+  -                                     TinyNode {
+  -                                       _text: '',
+  -                                       attributes: Map(1) {
+  -                                         'href' => '/web/vendor/icons.svg#file-text'
+  -                                       },
+  -                                       checked: false,
+  -                                       children: [],
+  -                                       className: '',
+  -                                       disabled: false,
+  -                                       listeners: Map(0) {},
+  -                                       ownerDocument: TinyDocument {
+  -                                         activeElement: null
+  -                                       },
+  -                                       parentNode: [Circular *13],
+  -                                       tagName: 'use',
+  -                                       value: ''
+  -                                     }
+  -                                   ],
+  -                                   className: '',
+  -                                   disabled: false,
+  -                                   listeners: Map(0) {},
+  -                                   ownerDocument: TinyDocument {
+  -                                     activeElement: null
+  -                                   },
+  -                                   parentNode: [Circular *14],
+  -                                   tagName: 'svg',
+  -                                   value: ''
+  -                                 },
+  -                                 <ref *15> TinyNode {
+  -                                   _text: '',
+  -                                   attributes: Map(0) {},
+  -                                   checked: false,
+  -                                   children: [
+  -                                     TinyNode {
+  -                                       _text: 'source-note.txt',
+  -                                       attributes: Map(0) {},
+  -                                       checked: false,
+  -                                       children: [],
+  -                                       className: 'sd-run-summary-file-name',
+  -                                       disabled: false,
+  -                                       listeners: Map(0) {},
+  -                                       ownerDocument: TinyDocument {
+  -                                         activeElement: null
+  -                                       },
+  -                                       parentNode: [Circular *15],
+  -                                       tagName: 'span',
+  -                                       value: ''
+  -                                     },
+  -                                     TinyNode {
+  -                                       _text: 'out/',
+  -                                       attributes: Map(0) {},
+  -                                       checked: false,
+  -                                       children: [],
+  -                                       className: 'sd-run-summary-file-parent',
+  -                                       disabled: false,
+  -                                       listeners: Map(0) {},
+  -                                       ownerDocument: TinyDocument {
+  -                                         activeElement: null
+  -                                       },
+  -                                       parentNode: [Circular *15],
+  -                                       tagName: 'span',
+  -                                       value: ''
+  -                                     }
+  -                                   ],
+  -                                   className: 'sd-run-summary-file-copy',
+  -                                   disabled: false,
+  -                                   listeners: Map(0) {},
+  -                                   ownerDocument: TinyDocument {
+  -                                     activeElement: null
+  -                                   },
+  -                                   parentNode: [Circular *14],
+  -                                   tagName: 'span',
+  -                                   value: ''
+  -                                 },
+  -                                 TinyNode {
+  -                                   _text: '18 B',
+  -                                   attributes: Map(0) {},
+  -                                   checked: false,
+  -                                   children: [],
+  -                                   className: 'sd-run-summary-file-bytes',
+  -                                   disabled: false,
+  -                                   listeners: Map(0) {},
+  -                                   ownerDocument: TinyDocument {
+  -                                     activeElement: null
+  -                                   },
+  -                                   parentNode: [Circular *14],
+  -                                   tagName: 'span',
+  -                                   value: ''
+  -                                 }
+  -                               ],
+  -                               className: 'sd-run-summary-file-static',
+  -                               disabled: false,
+  -                               listeners: Map(0) {},
+  -                               ownerDocument: TinyDocument {
+  -                                 activeElement: null
+  -                               },
+  -                               parentNode: [Circular *16],
+  -                               tagName: 'div',
+  -                               value: ''
+  -                             }
+  -                           ],
+  -                           className: 'sd-run-summary-file',
+  -                           disabled: false,
+  -                           listeners: Map(0) {},
+  -                           ownerDocument: TinyDocument {
+  -                             activeElement: null
+  -                           },
+  -                           parentNode: [Circular *17],
+  -                           tagName: 'li',
+  -                           value: ''
+  -                         }
+  -                       ],
+  -                       className: 'sd-run-summary-files',
+  -                       disabled: false,
+  -                       listeners: Map(0) {},
+  -                       ownerDocument: TinyDocument {
+  -                         activeElement: null
+  -                       },
+  -                       parentNode: [Circular *18],
+  -                       tagName: 'ul',
+  -                       value: ''
+  -                     }
+  -                   ],
+  -                   className: 'sd-run-summary-detail',
+  -                   disabled: false,
+  -                   listeners: Map(0) {},
+  -                   ownerDocument: TinyDocument {
+  -                     activeElement: null
+  -                   },
+  -                   parentNode: [Circular *12],
+  -                   tagName: 'div',
+  -                   value: ''
+  -                 }
+  -               ],
+  -               className: 'sd-run-summary-disclosure sd-run-summary-files-disclosure',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               open: false,
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *11],
+  -               tagName: 'details',
+  -               value: ''
+  -             },
+  -             [Circular *8]
+  -           ],
+  -           className: 'rail-card sd-run-summary',
+  -           disabled: false,
+  -           hidden: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: null,
+  -           tagName: 'section',
+  -           value: ''
+  -         },
+  -         tagName: 'details',
+  -         value: ''
+  -       },
+  -       tagName: 'div',
+  -       value: ''
+  -     },
+  -     tagName: 'div',
+  -     value: ''
+  -   },
+  -   tagName: 'button',
+  -   value: ''
+  - }
+  
+      at file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/.summary-before.test.mjs:306:14
+      at file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/tiny-dom.mjs:153:17
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/.summary-before.test.mjs:287:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [TinyNode],
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/.summary-before.test.mjs:286:3
+✖ Summary file preserves the clicked opener when disabling it clears browser focus (3.569875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - <ref *2> TinyNode {
+  -   _text: '',
+  -   attributes: Map(4) {
+  -     'aria-label' => 'Open recorded file out/source-note.txt',
+  -     'data-focus-key' => 'run-summary-file:0',
+  -     'title' => 'out/source-note.txt',
+  -     'type' => 'button'
+  -   },
+  -   checked: false,
+  -   children: [
+  -     <ref *1> TinyNode {
+  -       _text: '',
+  -       attributes: Map(11) {
+  -         'aria-hidden' => 'true',
+  -         'class' => 'ui-icon',
+  -         'fill' => 'none',
+  -         'focusable' => 'false',
+  -         'height' => '16',
+  -         'stroke' => 'currentColor',
+  -         'stroke-linecap' => 'round',
+  -         'stroke-linejoin' => 'round',
+  -         'stroke-width' => '2',
+  -         'viewBox' => '0 0 24 24',
+  -         'width' => '16'
+  -       },
+  -       checked: false,
+  -       children: [
+  -         TinyNode {
+  -           _text: '',
+  -           attributes: Map(1) {
+  -             'href' => '/web/vendor/icons.svg#file-text'
+  -           },
+  -           checked: false,
+  -           children: [],
+  -           className: '',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *1],
+  -           tagName: 'use',
+  -           value: ''
+  -         }
+  -       ],
+  -       className: '',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *2],
+  -       tagName: 'svg',
+  -       value: ''
+  -     },
+  -     <ref *3> TinyNode {
+  -       _text: '',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [
+  -         TinyNode {
+  -           _text: 'source-note.txt',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [],
+  -           className: 'sd-run-summary-file-name',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *3],
+  -           tagName: 'span',
+  -           value: ''
+  -         },
+  -         TinyNode {
+  -           _text: 'out/',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [],
+  -           className: 'sd-run-summary-file-parent',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: [Circular *3],
+  -           tagName: 'span',
+  -           value: ''
+  -         }
+  -       ],
+  -       className: 'sd-run-summary-file-copy',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *2],
+  -       tagName: 'span',
+  -       value: ''
+  -     },
+  -     TinyNode {
+  -       _text: '18 B',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [],
+  -       className: 'sd-run-summary-file-bytes',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *2],
+  -       tagName: 'span',
+  -       value: ''
+  -     },
+  -     TinyNode {
+  -       _text: 'Preview',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [],
+  -       className: 'sd-run-summary-file-preview-label',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: [Circular *2],
+  -       tagName: 'span',
+  -       value: ''
+  -     }
+  -   ],
+  -   className: 'rail-file rail-file-open sd-run-summary-file-preview',
+  -   disabled: [Getter/Setter: true],
+  -   listeners: Map(1) {
+  -     'click' => [
+  -       [Function (anonymous)]
+  -     ]
+  -   },
+  -   ownerDocument: TinyDocument {
+  -     activeElement: null
+  -   },
+  -   parentNode: <ref *4> TinyNode {
+  -     _text: '',
+  -     attributes: Map(0) {},
+  -     checked: false,
+  -     children: [
+  -       [Circular *2]
+  -     ],
+  -     className: 'sd-run-summary-file',
+  -     disabled: false,
+  -     listeners: Map(0) {},
+  -     ownerDocument: TinyDocument {
+  -       activeElement: null
+  -     },
+  -     parentNode: <ref *5> TinyNode {
+  -       _text: '',
+  -       attributes: Map(0) {},
+  -       checked: false,
+  -       children: [
+  -         [Circular *4]
+  -       ],
+  -       className: 'sd-run-summary-files',
+  -       disabled: false,
+  -       listeners: Map(0) {},
+  -       ownerDocument: TinyDocument {
+  -         activeElement: null
+  -       },
+  -       parentNode: <ref *7> TinyNode {
+  -         _text: '',
+  -         attributes: Map(0) {},
+  -         checked: false,
+  -         children: [
+  -           [Circular *5]
+  -         ],
+  -         className: 'sd-run-summary-detail',
+  -         disabled: false,
+  -         listeners: Map(0) {},
+  -         ownerDocument: TinyDocument {
+  -           activeElement: null
+  -         },
+  -         parentNode: <ref *6> TinyNode {
+  -           _text: '',
+  -           attributes: Map(0) {},
+  -           checked: false,
+  -           children: [
+  -             TinyNode {
+  -               _text: 'Files · 1',
+  -               attributes: Map(1) {
+  -                 'data-focus-key' => 'run-summary-files'
+  -               },
+  -               checked: false,
+  -               children: [],
+  -               className: 'sd-run-summary-trigger',
+  -               disabled: false,
+  -               listeners: Map(0) {},
+  -               ownerDocument: TinyDocument {
+  -                 activeElement: null
+  -               },
+  -               parentNode: [Circular *6],
+  -               tagName: 'summary',
+  -               value: ''
+  -             },
+  -             [Circular *7]
+  -           ],
+  -           className: 'sd-run-summary-disclosure sd-run-summary-files-disclosure',
+  -           disabled: false,
+  -           listeners: Map(0) {},
+  -           open: false,
+  -           ownerDocument: TinyDocument {
+  -             activeElement: null
+  -           },
+  -           parentNode: <ref *10> TinyNode {
+  -             _text: '',
+  -             attributes: Map(2) {
+  -               'aria-label' => 'Run summary',
+  -               'data-module' => 'run-summary'
+  -             },
+  -             checked: false,
+  -             children: [
+  -               <ref *9> TinyNode {
+  -                 _text: '',
+  -                 attributes: Map(0) {},
+  -                 checked: false,
+  -                 children: [
+  -                   <ref *8> TinyNode {
+  -                     _text: '',
+  -                     attributes: Map(11) {
+  -                       'aria-hidden' => 'true',
+  -                       'class' => 'ui-icon',
+  -                       'fill' => 'none',
+  -                       'focusable' => 'false',
+  -                       'height' => '16',
+  -                       'stroke' => 'currentColor',
+  -                       'stroke-linecap' => 'round',
+  -                       'stroke-linejoin' => 'round',
+  -                       'stroke-width' => '2',
+  -                       'viewBox' => '0 0 24 24',
+  -                       'width' => '16'
+  -                     },
+  -                     checked: false,
+  -                     children: [
+  -                       TinyNode {
+  -                         _text: '',
+  -                         attributes: Map(1) {
+  -                           'href' => '/web/vendor/icons.svg#activity'
+  -                         },
+  -                         checked: false,
+  -                         children: [],
+  -                         className: '',
+  -                         disabled: false,
+  -                         listeners: Map(0) {},
+  -                         ownerDocument: TinyDocument {
+  -                           activeElement: null
+  -                         },
+  -                         parentNode: [Circular *8],
+  -                         tagName: 'use',
+  -                         value: ''
+  -                       }
+  -                     ],
+  -                     className: '',
+  -                     disabled: false,
+  -                     listeners: Map(0) {},
+  -                     ownerDocument: TinyDocument {
+  -                       activeElement: null
+  -                     },
+  -                     parentNode: [Circular *9],
+  -                     tagName: 'svg',
+  -                     value: ''
+  -                   },
+  -                   TinyNode {
+  -                     _text: 'Run',
+  -                     attributes: Map(0) {},
+  -                     checked: false,
+  -                     children: [],
+  -                     className: 'rail-card-title',
+  -                     disabled: false,
+  -                     listeners: Map(0) {},
+  -                     ownerDocument: TinyDocument {
+  -                       activeElement: null
+  -                     },
+  -                     parentNode: [Circular *9],
+  -                     tagName: 'h3',
+  -                     value: ''
+  -                   },
+  -                   TinyNode {
+  -                     _text: 'Completed',
+  -                     attributes: Map(0) {},
+  -                     checked: false,
+  -                     children: [],
+  -                     className: 'rail-card-state',
+  -                     disabled: false,
+  -                     listeners: Map(0) {},
+  -                     ownerDocument: TinyDocument {
+  -                       activeElement: null
+  -                     },
+  -                     parentNode: [Circular *9],
+  -                     tagName: 'span',
+  -                     value: ''
+  -                   }
+  -                 ],
+  -                 className: 'rail-card-head',
+  -                 disabled: false,
+  -                 listeners: Map(0) {},
+  -                 ownerDocument: TinyDocument {
+  -                   activeElement: null
+  -                 },
+  -                 parentNode: [Circular *10],
+  -                 tagName: 'div',
+  -                 value: ''
+  -               },
+  -               [Circular *6],
+  -               <ref *11> TinyNode {
+  -                 _text: '',
+  -                 attributes: Map(0) {},
+  -                 checked: false,
+  -                 children: [
+  -                   TinyNode {
+  -                     _text: 'Run information',
+  -                     attributes: Map(1) {
+  -                       'data-focus-key' => 'run-summary-information'
+  -                     },
+  -                     checked: false,
+  -                     children: [],
+  -                     className: 'sd-run-summary-trigger',
+  -                     disabled: false,
+  -                     listeners: Map(0) {},
+  -                     ownerDocument: TinyDocument {
+  -                       activeElement: null
+  -                     },
+  -                     parentNode: [Circular *11],
+  -                     tagName: 'summary',
+  -                     value: ''
+  -                   },
+  -                   <ref *13> TinyNode {
+  -                     _text: '',
+  -                     attributes: Map(0) {},
+  -                     checked: false,
+  -                     children: [
+  -                       <ref *12> TinyNode {
+  -                         _text: '',
+  -                         attributes: Map(0) {},
+  -                         checked: false,
+  -                         children: [
+  -                           TinyNode {
+  -                             _text: 'Run',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-label',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *12],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           },
+  -                           TinyNode {
+  -                             _text: 'r1',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-value is-mono',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *12],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           }
+  -                         ],
+  -                         className: 'rail-row',
+  -                         disabled: false,
+  -                         listeners: Map(0) {},
+  -                         ownerDocument: TinyDocument {
+  -                           activeElement: null
+  -                         },
+  -                         parentNode: [Circular *13],
+  -                         tagName: 'p',
+  -                         value: ''
+  -                       },
+  -                       <ref *14> TinyNode {
+  -                         _text: '',
+  -                         attributes: Map(0) {},
+  -                         checked: false,
+  -                         children: [
+  -                           TinyNode {
+  -                             _text: 'Session',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-label',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *14],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           },
+  -                           TinyNode {
+  -                             _text: 's1',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-value is-mono',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *14],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           }
+  -                         ],
+  -                         className: 'rail-row',
+  -                         disabled: false,
+  -                         listeners: Map(0) {},
+  -                         ownerDocument: TinyDocument {
+  -                           activeElement: null
+  -                         },
+  -                         parentNode: [Circular *13],
+  -                         tagName: 'p',
+  -                         value: ''
+  -                       },
+  -                       TinyNode {
+  -                         _text: 'File SHA-256',
+  -                         attributes: Map(0) {},
+  -                         checked: false,
+  -                         children: [],
+  -                         className: 'rail-group',
+  -                         disabled: false,
+  -                         listeners: Map(0) {},
+  -                         ownerDocument: TinyDocument {
+  -                           activeElement: null
+  -                         },
+  -                         parentNode: [Circular *13],
+  -                         tagName: 'p',
+  -                         value: ''
+  -                       },
+  -                       <ref *15> TinyNode {
+  -                         _text: '',
+  -                         attributes: Map(0) {},
+  -                         checked: false,
+  -                         children: [
+  -                           TinyNode {
+  -                             _text: 'SHA-256 · out/source-note.txt',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-label',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *15],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           },
+  -                           TinyNode {
+  -                             _text: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  -                             attributes: Map(0) {},
+  -                             checked: false,
+  -                             children: [],
+  -                             className: 'rail-row-value is-mono',
+  -                             disabled: false,
+  -                             listeners: Map(0) {},
+  -                             ownerDocument: TinyDocument {
+  -                               activeElement: null
+  -                             },
+  -                             parentNode: [Circular *15],
+  -                             tagName: 'span',
+  -                             value: ''
+  -                           }
+  -                         ],
+  -                         className: 'rail-row',
+  -                         disabled: false,
+  -                         listeners: Map(0) {},
+  -                         ownerDocument: TinyDocument {
+  -                           activeElement: null
+  -                         },
+  -                         parentNode: [Circular *13],
+  -                         tagName: 'p',
+  -                         value: ''
+  -                       }
+  -                     ],
+  -                     className: 'sd-run-summary-detail',
+  -                     disabled: false,
+  -                     listeners: Map(0) {},
+  -                     ownerDocument: TinyDocument {
+  -                       activeElement: null
+  -                     },
+  -                     parentNode: [Circular *11],
+  -                     tagName: 'div',
+  -                     value: ''
+  -                   }
+  -                 ],
+  -                 className: 'sd-run-summary-disclosure sd-run-summary-information-disclosure',
+  -                 disabled: false,
+  -                 listeners: Map(0) {},
+  -                 open: false,
+  -                 ownerDocument: TinyDocument {
+  -                   activeElement: null
+  -                 },
+  -                 parentNode: [Circular *10],
+  -                 tagName: 'details',
+  -                 value: ''
+  -               }
+  -             ],
+  -             className: 'rail-card sd-run-summary',
+  -             disabled: false,
+  -             hidden: false,
+  -             listeners: Map(0) {},
+  -             ownerDocument: TinyDocument {
+  -               activeElement: null
+  -             },
+  -             parentNode: null,
+  -             tagName: 'section',
+  -             value: ''
+  -           },
+  -           tagName: 'details',
+  -           value: ''
+  -         },
+  -         tagName: 'div',
+  -         value: ''
+  -       },
+  -       tagName: 'ul',
+  -       value: ''
+  -     },
+  -     tagName: 'li',
+  -     value: ''
+  -   },
+  -   tagName: 'button',
+  -   value: ''
+  - }
+  
+      at file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/.summary-before.test.mjs:306:14
+      at file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/tiny-dom.mjs:153:17
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/summary-be41-construction-20260911/Courtwork/app/tests/.summary-before.test.mjs:287:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [TinyNode],
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

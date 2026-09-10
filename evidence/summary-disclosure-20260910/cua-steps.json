@@ -1,0 +1,484 @@
+{
+  "environment": {
+    "os": "macOS",
+    "browser": "Codex in-app browser / Chromium",
+    "viewport": "per PNG dimensions; verified DOM innerWidth for final breakpoint checks",
+    "scale": "CSS viewport overrides; 720x500 equivalent reflow only, not native 200% zoom"
+  },
+  "captions": {
+    "retry-recovered-1440.png": {
+      "caption": "retry recovered 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "adjacent-settings.png": {
+      "caption": "adjacent settings",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "adjacent-file-tab.png": {
+      "caption": "adjacent file tab",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "disclosure-1440-dark.png": {
+      "caption": "disclosure 1440 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "adjacent-home.png": {
+      "caption": "adjacent home",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "long-390-dark.png": {
+      "caption": "long 390 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "summary-1440-light.png": {
+      "caption": "summary 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "counterexample-id-overflow.png": {
+      "caption": "counterexample id overflow",
+      "productSha": null,
+      "classification": "diagnostic before first product freeze; source hashes in counterexample-source-hashes.json"
+    },
+    "disclosure-1440-light.png": {
+      "caption": "disclosure 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "before-1440.png": {
+      "caption": "before 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "interrupted-read-1440.png": {
+      "caption": "interrupted read 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "disclosure-1280-dark.png": {
+      "caption": "disclosure 1280 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "error-1440-light.png": {
+      "caption": "error 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "disclosure-1280-light.png": {
+      "caption": "disclosure 1280 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "disclosure-390-dark.png": {
+      "caption": "disclosure 390 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "run-tab-1440-light.png": {
+      "caption": "run tab 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "disclosure-390-light.png": {
+      "caption": "disclosure 390 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "reflow-720x500.png": {
+      "caption": "reflow 720x500",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "run-sheet-390.png": {
+      "caption": "run sheet 390",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    "final-preview-390-dark.png": {
+      "caption": "final preview 390 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-other-session-1280-dark.png": {
+      "caption": "final other session 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "balanced-information-1440-light.png": {
+      "caption": "balanced information 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-expanded-1680-light.png": {
+      "caption": "final expanded 1680 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "balanced-long-files-390-light.png": {
+      "caption": "balanced long files 390 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "delivered-summary-1440-light.png": {
+      "caption": "delivered summary 1440 light",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "final product; CUA",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-files-1280-light.png": {
+      "caption": "product files 1280 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-summary-1440-light.png": {
+      "caption": "product summary 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "balanced-summary-1440-light.png": {
+      "caption": "balanced summary 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-reflow-720x500-dark.png": {
+      "caption": "final reflow 720x500 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "balanced-long-preview-390-light.png": {
+      "caption": "balanced long preview 390 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-preview-390-dark.png": {
+      "caption": "product preview 390 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-three-pane-1680-dark.png": {
+      "caption": "product three pane 1680 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-preview-1680-light.png": {
+      "caption": "final preview 1680 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-directory-390-dark.png": {
+      "caption": "product directory 390 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "balanced-files-1440-light.png": {
+      "caption": "balanced files 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-files-1440-dark.png": {
+      "caption": "product files 1440 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-strip-1024-light.png": {
+      "caption": "final strip 1024 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-summary-1440-light.png": {
+      "caption": "final summary 1440 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-files-1440-light.png": {
+      "caption": "final files 1440 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-preview-1440-light.png": {
+      "caption": "product preview 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-files-1280-dark.png": {
+      "caption": "final files 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-directory-390-light.png": {
+      "caption": "product directory 390 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-home-1280-dark.png": {
+      "caption": "final home 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "delivered-files-1440-light.png": {
+      "caption": "delivered files 1440 light",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "final product; CUA",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-files-1440-light.png": {
+      "caption": "product files 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "final-directory-390-dark.png": {
+      "caption": "final directory 390 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-files-1280-dark.png": {
+      "caption": "product files 1280 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "product-settings-1280-light.png": {
+      "caption": "product settings 1280 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    "audit-01-before-focus.png": {
+      "caption": "Before: square disclosure focus",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    "audit-02-home.png": {
+      "caption": "Adjacent Home solid material",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    "audit-03-rounded-focus.png": {
+      "caption": "Rounded shared focus after CSS correction",
+      "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    "audit-04-return-focus.png": {
+      "caption": "Same-file Preview Escape returns focus",
+      "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    "semantic-summary.png": {
+      "caption": "Default collapsed existing card semantics; Runtime unread stays unknown",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
+    },
+    "semantic-files-return.png": {
+      "caption": "Current workspace file returns focus with Files disclosure preserved",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
+    },
+    "entries-expanded-light.png": {
+      "caption": "entries-expanded-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    "entries-compact-fixed.png": {
+      "caption": "entries-compact-fixed.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    "entries-1440-light.png": {
+      "caption": "entries-1440-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    "entries-390-light.png": {
+      "caption": "entries-390-light.png",
+      "productSha": null,
+      "classification": "R2-SD03 intermediate diagnostic before final compact/mobile corrections; not final acceptance"
+    },
+    "entries-390-fixed.png": {
+      "caption": "entries-390-fixed.png",
+      "productSha": "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+      "classification": "R2-SD03 final author CUA"
+    },
+    "entries-compact-final.png": {
+      "caption": "entries-compact-final.png",
+      "productSha": "337e522f253a4f41d7bf6f7305b5a52b4ff72ae6",
+      "classification": "R2-SD03 final author CUA"
+    }
+  },
+  "steps": [
+    {
+      "step": "Home → synthetic Session: directory visible, Files and Run information default closed",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Enter/Space disclosure; Tab/Enter file action; file close and Escape return to run-summary-file:0",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Run information → Run tab → Escape: same Run and both disclosure states retained",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "1024 strip Run action opens same Run; 1024→1440 maps focus strip:run to run-summary-files",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "1680 Preview → Expand preview → Restore preview: same active document and content; chrome y=0 height55 in both layouts",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "390 sheet: toolbar Hide right edge374 within390; file tab list may scroll internally",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Other synthetic Session: no stale Run summary or Run tab; Home and Settings remain separate pages",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "720x500 keyboard open/Escape: no document horizontal overflow; rail scrolls within500px sheet",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Final 1ab7f44: Home→same Session after settled navigation restores visible directory",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    }
+  ],
+  "limitations": [
+    "Synthetic data and local-fake HTTP/Pi loopback; no paid provider, deployment, native-host or personal-data verification.",
+    "Production UI is served unchanged; historical fixture.mjs/css and 2111375 images are retained only as prior candidate evidence.",
+    "Independent review is static/tests only because reviewer browser surfaces were unavailable. Astra authored host/layout and operated CUA; no independent visual acceptance is claimed.",
+    "Full suite at0ec8184:656/657, one unchanged Core ready-timeout failure; separate Core lifecycle13/13 passed. Later UI changes have38/38 targeted tests, not a new full-suite run.",
+    "720x500 is equivalent reflow, not actual browser200% zoom.",
+    "Balanced long-file captures predate final ellipsis; final fulltitle/aria and wrapping are covered by14 module tests.",
+    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions.",
+    "R2-SD02 bounded CUA:1195x772 light,1024 Runtime strip→Settings Developer→Back; no complete new dark/mobile matrix.",
+    "R2-SD03 author checks1024/1440/390 light; no full new dark/forced-colors/200% matrix. Final compact capture confirms old strip hidden; collapsed width44 restored."
+  ]
+}

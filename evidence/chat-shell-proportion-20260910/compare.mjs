@@ -1,0 +1,24 @@
+// WO-CS-01 · before/after/target table from before/ and after/ measurements.
+import { readFile, writeFile } from 'node:fs/promises';
+const load = async (d) => ({ m: JSON.parse(await readFile(`${d}/measurements.json`, 'utf8')), c: JSON.parse(await readFile(`${d}/checks.json`, 'utf8')) });
+const B = await load('before'), A = await load('after');
+const pick = (x, state, width, theme = 'light') => x.m.captures.find((c) => c.state === state && c.width === width && c.theme === theme).geometry;
+const check = (x, id) => x.c.results.find((r) => r.id === id);
+const rows = [];
+const row = (item, target, f) => rows.push({ item, target, before: f(B), after: f(A) });
+row('nav row height / glyph (1440)', '32 / 16', (x) => { const n = pick(x, 'summary', 1440).nav.rows[0]; return `${n.rect.height} / ${n.icon.width}`; });
+row('nav item gap / group gap (1440)', '4 / 16', (x) => { const n = pick(x, 'summary', 1440).nav; return `${n.itemGaps[0]} / ${n.groupGapAfterNav}`; });
+row('nav touch hit (390 overlay, min)', '≥44', (x) => Math.min(...check(x, 'touch.44').nav390.map((r) => r.h)));
+row('band: brand / chat header / preview tab band (1440)', '48, shared', (x) => `${pick(x, 'summary', 1440).band.sidebarHeader.height} / ${pick(x, 'summary', 1440).band.chatHeader.height} / ${pick(x, 'preview', 1440).band.surfaceHeader.height}`);
+row('title block height / meta word (1440)', 'one line; no repeated Chat', (x) => `${pick(x, 'summary', 1440).title.wrap.height} / "${pick(x, 'summary', 1440).title.meta}"`);
+for (const w of [1440, 1280, 390]) row(`prose vs composer edge delta L/R (${w})`, '≤1px', (x) => `${pick(x, 'summary', w).column.leftDelta} / ${pick(x, 'summary', w).column.rightDelta}`);
+for (const w of [1440, 1280, 390]) row(`content inset from stream edge (${w})`, w === 390 ? '16' : '40 ample / 32 tight (+ centring)', (x) => pick(x, 'summary', w).column.insetLeft);
+for (const w of [1440, 1280]) row(`reading column width (${w}, cards open)`, '≤740, ≥640 with cards', (x) => pick(x, 'summary', w).column.list.width);
+for (const w of [1440, 1280]) row(`summary width / gap to column (${w})`, '288 / ≥32', (x) => `${pick(x, 'summary', w).summary.panel.width} / ${pick(x, 'summary', w).summary.gapToColumn}`);
+row('1195×772 (ruling viewport): mode / column / gap', 'strip before prose narrows', (x) => { const t = check(x, 'summary.column-floor-and-gap').thresholds.find((r) => r.width === 1195); return `${t.mode} / ${t.column} / ${t.gap}`; });
+row('composer empty height (1440 / 390)', 'content-driven, < 150', (x) => `${pick(x, 'summary', 1440).composer.form.height} / ${pick(x, 'summary', 390).composer.form.height}`);
+row('composer field: empty → 5 lines → 20 lines', 'grows, bounded, scrolls', (x) => check(x, 'composer.grows-with-content').heights.filter(([s]) => ['empty', '5 lines', '20 lines'].includes(s)).map(([, h]) => h).join(' → '));
+row('Home composer width / height (1440)', '820 unchanged', (x) => `${check(x, 'home.keeps-820').composer.width} / ${check(x, 'home.keeps-820').composer.height}`);
+row('native packet toolbar 40 / 52 / 60 → band', 'max(48, toolbar)', (x) => check(x, 'native.band-is-max-of-target-and-toolbar').shellBand.slice(1).map((s) => s.band).join(' / '));
+await writeFile('comparison.json', JSON.stringify({ schemaVersion: 1, note: 'before = 438bb9c product bytes; after = working tree of this branch; both on synthetic data', rows, checks: { before: `${B.c.results.filter((r) => r.pass).length}/${B.c.results.length}`, after: `${A.c.results.filter((r) => r.pass).length}/${A.c.results.length}` } }, null, 2));
+for (const r of rows) console.log(`| ${r.item} | ${r.before} | ${r.after} | ${r.target} |`);

@@ -1,0 +1,46 @@
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (0.99375ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.188334ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.371917ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.303333ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.8325ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.2445ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.066792ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (5.5375ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.837541ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.749833ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.267708ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (140.109125ms)
+✔ skin-policy.js is an exact synchronous static route (63.045125ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.81875ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.104459ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.181791ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.211416ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.151542ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.068167ms)
+✔ Run card starts collapsed with Files and Run information disclosures (1.768917ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.356083ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.50425ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (4.1875ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.847416ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.057ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.550041ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.4345ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (0.901292ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.113709ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.247167ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.151875ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (0.722875ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.352875ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.261167ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (0.357958ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.276792ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.303333ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (0.243ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1289.254583

@@ -175,7 +175,7 @@ CourtWork 侧只可能是 REVERSE / REFERENCE / PROTOCOL / AVOID-COUPLING 四类
 | empty | `app.mjs:3217` `placeholder`（Home / Work / 无会话三句各一）；`app.mjs:3170` 空草稿时 Send 关闭 |
 | error | `app.mjs:647-700` `ERROR_COPY` 表 + `setPersistentFeedback`；不确定回执有独立句子，不与失败混同（FN-19） |
 | disabled | `app.mjs:3183` `textarea.disabled = !session`；`app.mjs:3190-3196` Send 的五个关闭条件；`app.mjs:3202` Cancel 的两个 |
-| dense | `styles.css:1317-1330` `.composer-controls` 单层；Work variant 初始高 80–96（WK-97） |
+| dense | `styles.css:1317-1330` `.composer-controls` 单层；Work variant 空态两行内容、随字号扩展、增长到 180 后滚动（WK-97；初始高按合流节点 2026-09-11 裁定改为两行内容，取代 80–96） |
 | narrow | `styles.css:1334` `max-width: 170px`（model chip）；`styles.css:2115` 窄屏段；390 实测溢出 0 |
 | long-content | `textarea` 自身滚动；草稿按 `draftRevision` 版本化保存（`app.mjs:1212`），长草稿不因重渲染丢失 |
 

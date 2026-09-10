@@ -1,0 +1,23 @@
+PASS doc-links pass/no problems
+PASS home four records
+PASS same 1440x900 medium empty premise
+PASS current Modules captured
+PASS current Simple captured
+PASS main Modules explicit and attributed
+PASS main Simple explicit and attributed
+PASS six WORK-3 phases
+PASS WORK-3 bounded and controls inside
+PASS WORK-3 full text scrolls at 180
+PASS WORK-3 clear returns to empty
+PASS WORK-3 large text expands
+PASS error matrix visible/above/untruncated
+PASS browser-checks JSON array
+doc-links documents=815 checked=3696
+home candidateModules=0.4936805555555556 mainModules=0.4971180555555555 candidateSimple=0.5600173611111111 mainSimple=0.5600173611111111
+main8393d7b styles sha256=871689646bd4bbe00118d544970b1e9190804ac319e9c0f4e983d0ba53e46607 (receipt claim rechecked)
+--- key image dimensions ---
+/Users/lesprivilege/.codex/worktrees/summary-be41-sd-fix-final-independent-20260911/Courtwork/evidence/summary-be41-construction-20260911/sd-fix/home-main-modules-premise.png:     JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 1440x900, components 3
+/Users/lesprivilege/.codex/worktrees/summary-be41-sd-fix-final-independent-20260911/Courtwork/evidence/summary-be41-construction-20260911/sd-fix/home-main-simple-premise.png:      JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 1440x900, components 3
+/Users/lesprivilege/.codex/worktrees/summary-be41-sd-fix-final-independent-20260911/Courtwork/evidence/summary-be41-construction-20260911/sd-fix/native-chrome-200-return.png:      JPEG image data, JFIF standard 1.01, aspect ratio, density 72x72, segment length 16, Exif Standard: [TIFF image data, big-endian, direntries=1], baseline, precision 8, 1316x768, components 3
+/Users/lesprivilege/.codex/worktrees/summary-be41-sd-fix-final-independent-20260911/Courtwork/evidence/summary-be41-construction-20260911/sd-fix/final-unicode-390-light-large.png: JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 390x844, components 3
+/Users/lesprivilege/.codex/worktrees/summary-be41-sd-fix-final-independent-20260911/Courtwork/evidence/summary-be41-construction-20260911/sd-fix/work3-error-large.png:             JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 1280x720, components 3

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "browser": "Chrome/152.0.7977.83",
+  "mode": "classic scrollbars (no --hide-scrollbars)",
+  "rows": [
+    {
+      "width": 1440,
+      "scrollbar": 0,
+      "scrolls": false,
+      "leftDelta": 0,
+      "rightDelta": 0
+    },
+    {
+      "width": 1280,
+      "scrollbar": 0,
+      "scrolls": true,
+      "leftDelta": 0,
+      "rightDelta": 0
+    },
+    {
+      "width": 1195,
+      "scrollbar": 0,
+      "scrolls": true,
+      "leftDelta": 0,
+      "rightDelta": 0
+    }
+  ]
+}

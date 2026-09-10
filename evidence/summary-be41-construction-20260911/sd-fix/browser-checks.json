@@ -1,0 +1,4947 @@
+[
+  {
+    "name": "unicode-1440-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 738,
+      "height": 116.1875,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 634,
+              "height": 17.25,
+              "right": 979.9921875,
+              "scrollWidth": 634,
+              "width": 633.9921875,
+              "x": 346,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 1047.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 987.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 289.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 324.25,
+              "clientWidth": 587,
+              "height": 54,
+              "right": 933.9609375,
+              "scrollWidth": 587,
+              "width": 586.9609375,
+              "x": 347,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 1037,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 941.9609375,
+              "y": 288.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 289.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 714,
+      "height": 54.1875,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-1280-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 646,
+      "height": 116.1875,
+      "right": 936,
+      "scrollWidth": 646,
+      "width": 648,
+      "x": 288,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 304,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 288,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 542,
+              "height": 17.25,
+              "right": 853.9921875,
+              "scrollWidth": 542,
+              "width": 541.9921875,
+              "x": 312,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 921.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 861.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 305,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 289,
+              "y": 298.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 342.25,
+              "clientWidth": 495,
+              "height": 72,
+              "right": 807.9609375,
+              "scrollWidth": 495,
+              "width": 494.9609375,
+              "x": 313,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 911,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 815.9609375,
+              "y": 297.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 935,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 919,
+              "y": 298.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 622,
+      "height": 54.1875,
+      "right": 923,
+      "scrollWidth": 622,
+      "width": 622,
+      "x": 301,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1280,
+      "height": 900,
+      "right": 1280,
+      "scrollWidth": 1280,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-390-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 124.1875,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 659.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 260.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 252,
+              "height": 17.25,
+              "right": 291.9921875,
+              "scrollWidth": 252,
+              "width": 251.9921875,
+              "x": 40,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 359.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 299.9921875,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 375.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 455.75,
+              "clientWidth": 236,
+              "height": 144,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 311.75
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 399.5,
+              "clientWidth": 64,
+              "height": 31.5,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 368
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 375.75
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 54.1875,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 668.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 249,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 214.5
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 249,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 214.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 291.5,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 257
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 291.5,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 257
+        }
+      },
+      {
+        "box": {
+          "bottom": 659,
+          "clientWidth": 324,
+          "height": 327.75,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 331.25
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 383,
+          "clientWidth": 205,
+          "height": 51.75,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 331.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-1440-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 738,
+      "height": 116.1875,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 634,
+              "height": 17.25,
+              "right": 979.9921875,
+              "scrollWidth": 634,
+              "width": 633.9921875,
+              "x": 346,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 1047.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 987.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 289.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 324.25,
+              "clientWidth": 587,
+              "height": 54,
+              "right": 933.9609375,
+              "scrollWidth": 587,
+              "width": 586.9609375,
+              "x": 347,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 1037,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 941.9609375,
+              "y": 288.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 289.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 714,
+      "height": 54.1875,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-1280-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 646,
+      "height": 116.1875,
+      "right": 936,
+      "scrollWidth": 646,
+      "width": 648,
+      "x": 288,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 304,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 288,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 542,
+              "height": 17.25,
+              "right": 853.9921875,
+              "scrollWidth": 542,
+              "width": 541.9921875,
+              "x": 312,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 921.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 861.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 305,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 289,
+              "y": 298.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 342.25,
+              "clientWidth": 495,
+              "height": 72,
+              "right": 807.9609375,
+              "scrollWidth": 495,
+              "width": 494.9609375,
+              "x": 313,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 911,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 815.9609375,
+              "y": 297.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 935,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 919,
+              "y": 298.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 622,
+      "height": 54.1875,
+      "right": 923,
+      "scrollWidth": 622,
+      "width": 622,
+      "x": 301,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1280,
+      "height": 900,
+      "right": 1280,
+      "scrollWidth": 1280,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-390-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 124.1875,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 659.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 260.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 252,
+              "height": 17.25,
+              "right": 291.9921875,
+              "scrollWidth": 252,
+              "width": 251.9921875,
+              "x": 40,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 359.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 299.9921875,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 375.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 455.75,
+              "clientWidth": 236,
+              "height": 144,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 311.75
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 399.5,
+              "clientWidth": 64,
+              "height": 31.5,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 368
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 375.75
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 54.1875,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 668.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 249,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 214.5
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 249,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 214.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 291.5,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 257
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 291.5,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 257
+        }
+      },
+      {
+        "box": {
+          "bottom": 659,
+          "clientWidth": 324,
+          "height": 327.75,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 331.25
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 383,
+          "clientWidth": 205,
+          "height": 51.75,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 331.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "unicode-390-dark-expanded",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 124.1875,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 659.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 260.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 252,
+              "height": 17.25,
+              "right": 291.9921875,
+              "scrollWidth": 252,
+              "width": 251.9921875,
+              "x": 40,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 359.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 299.9921875,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 375.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 455.75,
+              "clientWidth": 236,
+              "height": 144,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 311.75
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 399.5,
+              "clientWidth": 64,
+              "height": 31.5,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 368
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 375.75
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 54.1875,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 668.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 249,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 214.5
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 249,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 214.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 291.5,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 257
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 291.5,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 257
+        }
+      },
+      {
+        "box": {
+          "bottom": 659,
+          "clientWidth": 324,
+          "height": 327.75,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 331.25
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 383,
+          "clientWidth": 205,
+          "height": 51.75,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 331.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-1440-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 738,
+      "height": 116.1875,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 634,
+              "height": 17.25,
+              "right": 979.9921875,
+              "scrollWidth": 634,
+              "width": 633.9921875,
+              "x": 346,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 1047.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 987.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 289.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 324.25,
+              "clientWidth": 587,
+              "height": 54,
+              "right": 933.9609375,
+              "scrollWidth": 587,
+              "width": 586.9609375,
+              "x": 347,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 1037,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 941.9609375,
+              "y": 288.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 289.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 714,
+      "height": 54.1875,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-run-return-1440-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-open"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 738,
+      "height": 116.1875,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 634,
+              "height": 17.25,
+              "right": 979.9921875,
+              "scrollWidth": 634,
+              "width": 633.9921875,
+              "x": 346,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 1047.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 987.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 289.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 324.25,
+              "clientWidth": 587,
+              "height": 54,
+              "right": 933.9609375,
+              "scrollWidth": 587,
+              "width": 586.9609375,
+              "x": 347,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 1037,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 941.9609375,
+              "y": 288.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 289.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 714,
+      "height": 54.1875,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 42.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 8
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 42.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 8
+        }
+      },
+      {
+        "box": {
+          "bottom": 85,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 50.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 85,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 50.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 538.75,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 124.75
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 176.5,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 124.75
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-1280-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-open"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 646,
+      "height": 116.1875,
+      "right": 936,
+      "scrollWidth": 646,
+      "width": 648,
+      "x": 288,
+      "y": 731.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 304,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 288,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 542,
+              "height": 17.25,
+              "right": 853.9921875,
+              "scrollWidth": 542,
+              "width": 541.9921875,
+              "x": 312,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 921.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 861.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 305,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 289,
+              "y": 298.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 342.25,
+              "clientWidth": 495,
+              "height": 72,
+              "right": 807.9609375,
+              "scrollWidth": 495,
+              "width": 494.9609375,
+              "x": 313,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 911,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 815.9609375,
+              "y": 297.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 935,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 919,
+              "y": 298.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 622,
+      "height": 54.1875,
+      "right": 923,
+      "scrollWidth": 622,
+      "width": 622,
+      "x": 301,
+      "y": 744.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 42.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 8
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 42.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 8
+        }
+      },
+      {
+        "box": {
+          "bottom": 85,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 50.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 85,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 50.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 538.75,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 124.75
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 176.5,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 124.75
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1280,
+      "height": 900,
+      "right": 1280,
+      "scrollWidth": 1280,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-390-dark",
+    "active": {
+      "id": "",
+      "key": "run-summary-open"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 124.1875,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 659.8125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 260.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 252,
+              "height": 17.25,
+              "right": 291.9921875,
+              "scrollWidth": 252,
+              "width": 251.9921875,
+              "x": 40,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 359.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 299.9921875,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 375.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 455.75,
+              "clientWidth": 236,
+              "height": 144,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 311.75
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 399.5,
+              "clientWidth": 64,
+              "height": 31.5,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 368
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 375.75
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 54.1875,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 668.8125
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 249,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 214.5
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 249,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 214.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 291.5,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 257
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 291.5,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 257
+        }
+      },
+      {
+        "box": {
+          "bottom": 659,
+          "clientWidth": 324,
+          "height": 327.75,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 331.25
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 383,
+          "clientWidth": 205,
+          "height": 51.75,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 331.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-1440-light-large",
+    "active": {
+      "id": "",
+      "key": "run-summary-files"
+    },
+    "composer": {
+      "bottom": 846.953125,
+      "clientWidth": 738,
+      "height": 123.84375,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 723.109375
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 247.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 231.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 626,
+              "height": 19.7109375,
+              "right": 971.8671875,
+              "scrollWidth": 626,
+              "width": 625.8671875,
+              "x": 346,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 1046.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 979.8671875,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 358.4609375,
+              "clientWidth": 575,
+              "height": 82.3125,
+              "right": 922.3984375,
+              "scrollWidth": 575,
+              "width": 575.3984375,
+              "x": 347,
+              "y": 276.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 327.15625,
+              "clientWidth": 107,
+              "height": 19.7109375,
+              "right": 1037,
+              "scrollWidth": 107,
+              "width": 106.6015625,
+              "x": 930.3984375,
+              "y": 307.4453125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 796.90625,
+      "clientWidth": 714,
+      "height": 60.796875,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 736.109375
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "180px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 234.3671875,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 194.4453125
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 234.3671875,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 194.9453125
+        }
+      },
+      {
+        "box": {
+          "bottom": 282.2890625,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 242.3671875
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 282.2890625,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 242.8671875
+        }
+      },
+      {
+        "box": {
+          "bottom": 876.1953125,
+          "clientWidth": 254,
+          "height": 551.90625,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 324.2890625
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 403.6328125,
+          "clientWidth": 159,
+          "height": 78.84375,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 324.7890625
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-1280-light-large",
+    "active": {
+      "id": "",
+      "key": "run-summary-files"
+    },
+    "composer": {
+      "bottom": 846.953125,
+      "clientWidth": 646,
+      "height": 123.84375,
+      "right": 936,
+      "scrollWidth": 646,
+      "width": 648,
+      "x": 288,
+      "y": 723.109375
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.296875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 304,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 288,
+              "y": 260.296875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 278.1484375,
+              "clientWidth": 534,
+              "height": 19.7109375,
+              "right": 845.8671875,
+              "scrollWidth": 534,
+              "width": 533.8671875,
+              "x": 312,
+              "y": 258.4375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 278.1484375,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 920.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 853.8671875,
+              "y": 258.4375
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 354.453125,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 305,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 289,
+              "y": 338.453125
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 387.609375,
+              "clientWidth": 483,
+              "height": 82.3125,
+              "right": 796.3984375,
+              "scrollWidth": 483,
+              "width": 483.3984375,
+              "x": 313,
+              "y": 305.296875
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 356.3046875,
+              "clientWidth": 107,
+              "height": 19.7109375,
+              "right": 911,
+              "scrollWidth": 107,
+              "width": 106.6015625,
+              "x": 804.3984375,
+              "y": 336.59375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 354.453125,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 935,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 919,
+              "y": 338.453125
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 796.90625,
+      "clientWidth": 622,
+      "height": 60.796875,
+      "right": 923,
+      "scrollWidth": 622,
+      "width": 622,
+      "x": 301,
+      "y": 736.109375
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "180px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 234.3671875,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 194.4453125
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 234.3671875,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 194.9453125
+        }
+      },
+      {
+        "box": {
+          "bottom": 282.2890625,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 242.3671875
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 282.2890625,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 242.8671875
+        }
+      },
+      {
+        "box": {
+          "bottom": 876.1953125,
+          "clientWidth": 254,
+          "height": 551.90625,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 324.2890625
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 403.6328125,
+          "clientWidth": 159,
+          "height": 78.84375,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 324.7890625
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1280,
+      "height": 900,
+      "right": 1280,
+      "scrollWidth": 1280,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-390-light-large",
+    "active": {
+      "id": "",
+      "key": "run-summary-files"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 130.796875,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 653.203125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 286.296875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 270.296875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 288.1484375,
+              "clientWidth": 244,
+              "height": 19.7109375,
+              "right": 283.8671875,
+              "scrollWidth": 244,
+              "width": 243.8671875,
+              "x": 40,
+              "y": 268.4375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 288.1484375,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 358.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 291.8671875,
+              "y": 268.4375
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 421.8984375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 405.8984375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 506.5,
+              "clientWidth": 236,
+              "height": 185.203125,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 321.296875
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 431.8984375,
+              "clientWidth": 64,
+              "height": 36,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 395.8984375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 421.8984375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 405.8984375
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 60.796875,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 662.203125
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "180px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 257.2109375,
+          "clientWidth": 324,
+          "height": 39.921875,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 217.2890625
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 257.2109375,
+          "clientWidth": 205,
+          "height": 39.421875,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 217.7890625
+        }
+      },
+      {
+        "box": {
+          "bottom": 305.1328125,
+          "clientWidth": 324,
+          "height": 39.921875,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 265.2109375
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 305.1328125,
+          "clientWidth": 205,
+          "height": 39.421875,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 265.7109375
+        }
+      },
+      {
+        "box": {
+          "bottom": 761.0625,
+          "clientWidth": 324,
+          "height": 413.9296875,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 347.1328125
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 406.765625,
+          "clientWidth": 205,
+          "height": 59.1328125,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 347.6328125
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-reflow-720-light-large",
+    "active": {
+      "id": "",
+      "key": "run-summary-files"
+    },
+    "composer": {
+      "bottom": 390,
+      "clientWidth": 686,
+      "height": 130.796875,
+      "right": 704,
+      "scrollWidth": 686,
+      "width": 688,
+      "x": 16,
+      "y": 259.203125
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 257.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 241.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 574,
+              "height": 19.7109375,
+              "right": 613.8671875,
+              "scrollWidth": 574,
+              "width": 573.8671875,
+              "x": 40,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 688.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 621.8671875,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 374.4609375,
+              "clientWidth": 566,
+              "height": 82.3125,
+              "right": 607,
+              "scrollWidth": 566,
+              "width": 566,
+              "x": 41,
+              "y": 292.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 351.3046875,
+              "clientWidth": 64,
+              "height": 36,
+              "right": 679,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 615,
+              "y": 315.3046875
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 703,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 687,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 329,
+      "clientWidth": 670,
+      "height": 60.796875,
+      "right": 695,
+      "scrollWidth": 670,
+      "width": 670,
+      "x": 25,
+      "y": 268.203125
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "126px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 237.5,
+          "clientWidth": 654,
+          "height": 20.2109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 217.2890625
+        },
+        "columns": "212.664px 425.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 237.5,
+          "clientWidth": 425,
+          "height": 19.7109375,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 217.7890625
+        }
+      },
+      {
+        "box": {
+          "bottom": 265.7109375,
+          "clientWidth": 654,
+          "height": 20.2109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 245.5
+        },
+        "columns": "212.664px 425.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 265.7109375,
+          "clientWidth": 425,
+          "height": 19.7109375,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 246
+        }
+      },
+      {
+        "box": {
+          "bottom": 504.8203125,
+          "clientWidth": 654,
+          "height": 197.109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 307.7109375
+        },
+        "columns": "212.664px 425.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 347.6328125,
+          "clientWidth": 425,
+          "height": 39.421875,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 308.2109375
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 450,
+      "clientWidth": 720,
+      "height": 450,
+      "right": 720,
+      "scrollWidth": 720,
+      "width": 720,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-composer-two-lines-large",
+    "active": {
+      "id": "composer-input",
+      "key": null
+    },
+    "composer": {
+      "bottom": 846.953125,
+      "clientWidth": 738,
+      "height": 123.84375,
+      "right": 1218,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 478,
+      "y": 723.109375
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 247.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 494,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 478,
+              "y": 231.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 626,
+              "height": 19.7109375,
+              "right": 1127.8671875,
+              "scrollWidth": 626,
+              "width": 625.8671875,
+              "x": 502,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 1202.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 1135.8671875,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 495,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 479,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 358.4609375,
+              "clientWidth": 575,
+              "height": 82.3125,
+              "right": 1078.3984375,
+              "scrollWidth": 575,
+              "width": 575.3984375,
+              "x": 503,
+              "y": 276.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 327.15625,
+              "clientWidth": 107,
+              "height": 19.7109375,
+              "right": 1193,
+              "scrollWidth": 107,
+              "width": 106.6015625,
+              "x": 1086.3984375,
+              "y": 307.4453125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1217,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1201,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 796.90625,
+      "clientWidth": 714,
+      "height": 60.796875,
+      "right": 1205,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 491,
+      "y": 736.109375
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "180px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-home-draft-large",
+    "active": {
+      "id": "composer-input",
+      "key": null
+    },
+    "composer": {
+      "bottom": 524.265625,
+      "clientWidth": 818,
+      "height": 111.046875,
+      "right": 1258,
+      "scrollWidth": 818,
+      "width": 820,
+      "x": 438,
+      "y": 413.21875
+    },
+    "flows": [],
+    "input": {
+      "bottom": 474.21875,
+      "clientWidth": 794,
+      "height": 48,
+      "right": 1245,
+      "scrollWidth": 794,
+      "width": 794,
+      "x": 451,
+      "y": 426.21875
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "160px",
+      "minHeight": "48px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "draft-continuity",
+    "chat": "Line one · 合成草稿\nLine two · preserved"
+  },
+  {
+    "name": "final-composer-long-large",
+    "active": {
+      "id": "composer-input",
+      "key": null
+    },
+    "composer": {
+      "bottom": 846.953125,
+      "clientWidth": 738,
+      "height": 243.046875,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 603.90625
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 247.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 231.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 626,
+              "height": 19.7109375,
+              "right": 971.8671875,
+              "scrollWidth": 626,
+              "width": 625.8671875,
+              "x": 346,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 249,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 1046.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 979.8671875,
+              "y": 229.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 358.4609375,
+              "clientWidth": 575,
+              "height": 82.3125,
+              "right": 922.3984375,
+              "scrollWidth": 575,
+              "width": 575.3984375,
+              "x": 347,
+              "y": 276.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 327.15625,
+              "clientWidth": 107,
+              "height": 19.7109375,
+              "right": 1037,
+              "scrollWidth": 107,
+              "width": 106.6015625,
+              "x": 930.3984375,
+              "y": 307.4453125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 325.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 309.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 796.90625,
+      "clientWidth": 714,
+      "height": 180,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 616.90625
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "180px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 234.3671875,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 194.4453125
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 234.3671875,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 194.9453125
+        }
+      },
+      {
+        "box": {
+          "bottom": 282.2890625,
+          "clientWidth": 254,
+          "height": 39.921875,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 242.3671875
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 282.2890625,
+          "clientWidth": 159,
+          "height": 39.421875,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 242.8671875
+        }
+      },
+      {
+        "box": {
+          "bottom": 876.1953125,
+          "clientWidth": 254,
+          "height": 551.90625,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 324.2890625
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 403.6328125,
+          "clientWidth": 159,
+          "height": 78.84375,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 324.7890625
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-composer-short-viewport-large",
+    "active": {
+      "id": "",
+      "key": "run-summary-files"
+    },
+    "composer": {
+      "bottom": 390,
+      "clientWidth": 686,
+      "height": 196,
+      "right": 704,
+      "scrollWidth": 686,
+      "width": 688,
+      "x": 16,
+      "y": 194
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 257.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 241.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 574,
+              "height": 19.7109375,
+              "right": 613.8671875,
+              "scrollWidth": 574,
+              "width": 573.8671875,
+              "x": 40,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 688.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 621.8671875,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 374.4609375,
+              "clientWidth": 566,
+              "height": 82.3125,
+              "right": 607,
+              "scrollWidth": 566,
+              "width": 566,
+              "x": 41,
+              "y": 292.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 351.3046875,
+              "clientWidth": 64,
+              "height": 36,
+              "right": 679,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 615,
+              "y": 315.3046875
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 703,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 687,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 329,
+      "clientWidth": 670,
+      "height": 126,
+      "right": 695,
+      "scrollWidth": 670,
+      "width": 670,
+      "x": 25,
+      "y": 203
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "126px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 237.5,
+          "clientWidth": 654,
+          "height": 20.2109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 217.2890625
+        },
+        "columns": "212.664px 425.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 237.5,
+          "clientWidth": 425,
+          "height": 19.7109375,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 217.7890625
+        }
+      },
+      {
+        "box": {
+          "bottom": 265.7109375,
+          "clientWidth": 654,
+          "height": 20.2109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 245.5
+        },
+        "columns": "212.664px 425.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 265.7109375,
+          "clientWidth": 425,
+          "height": 19.7109375,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 246
+        }
+      },
+      {
+        "box": {
+          "bottom": 504.8203125,
+          "clientWidth": 654,
+          "height": 197.109375,
+          "right": 687,
+          "scrollWidth": 654,
+          "width": 654,
+          "x": 33,
+          "y": 307.7109375
+        },
+        "columns": "212.664px 425.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 347.6328125,
+          "clientWidth": 425,
+          "height": 39.421875,
+          "right": 687,
+          "scrollWidth": 425,
+          "width": 425.3359375,
+          "x": 261.6640625,
+          "y": 308.2109375
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 450,
+      "clientWidth": 720,
+      "height": 450,
+      "right": 720,
+      "scrollWidth": 720,
+      "width": 720,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-composer-short-visible-large",
+    "active": {
+      "id": "show-surface-button",
+      "key": null
+    },
+    "composer": {
+      "bottom": 390,
+      "clientWidth": 686,
+      "height": 196,
+      "right": 704,
+      "scrollWidth": 686,
+      "width": 688,
+      "x": 16,
+      "y": 194
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 257.1484375,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 241.1484375
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 574,
+              "height": 19.7109375,
+              "right": 613.8671875,
+              "scrollWidth": 574,
+              "width": 573.8671875,
+              "x": 40,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 259,
+              "clientWidth": 67,
+              "height": 19.7109375,
+              "right": 688.8046875,
+              "scrollWidth": 67,
+              "width": 66.9375,
+              "x": 621.8671875,
+              "y": 239.2890625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 374.4609375,
+              "clientWidth": 566,
+              "height": 82.3125,
+              "right": 607,
+              "scrollWidth": 566,
+              "width": 566,
+              "x": 41,
+              "y": 292.1484375
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 351.3046875,
+              "clientWidth": 64,
+              "height": 36,
+              "right": 679,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 615,
+              "y": 315.3046875
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 341.3046875,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 703,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 687,
+              "y": 325.3046875
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 329,
+      "clientWidth": 670,
+      "height": 126,
+      "right": 695,
+      "scrollWidth": 670,
+      "width": 670,
+      "x": 25,
+      "y": 203
+    },
+    "inputStyle": {
+      "lineHeight": "26.4033px",
+      "maxHeight": "126px",
+      "minHeight": "60.7969px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "box": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "columns": "minmax(0px, 1fr) minmax(0px, 2fr)",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 0,
+          "clientWidth": 0,
+          "height": 0,
+          "right": 0,
+          "scrollWidth": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 450,
+      "clientWidth": 720,
+      "height": 450,
+      "right": 720,
+      "scrollWidth": 720,
+      "width": 720,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "short-two-line-bounds",
+    "buttons": [
+      {
+        "bottom": 340,
+        "height": 44,
+        "label": "Chat files",
+        "top": 296
+      },
+      {
+        "bottom": 340,
+        "height": 44,
+        "label": "Connection · Local test · Local test",
+        "top": 296
+      },
+      {
+        "bottom": 0,
+        "height": 0,
+        "label": "Cancel run",
+        "top": 0
+      },
+      {
+        "bottom": 340,
+        "height": 44,
+        "label": "Send",
+        "top": 296
+      }
+    ],
+    "height": 126,
+    "lineHeight": "26.4033px",
+    "maxHeight": "126px",
+    "minHeight": "60.7969px"
+  },
+  {
+    "name": "final-unicode-1440-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 738,
+      "height": 242,
+      "right": 1062,
+      "scrollWidth": 738,
+      "width": 740,
+      "x": 322,
+      "y": 606
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 338,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 322,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 634,
+              "height": 17.25,
+              "right": 979.9921875,
+              "scrollWidth": 634,
+              "width": 633.9921875,
+              "x": 346,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 1047.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 987.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 339,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 323,
+              "y": 289.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 324.25,
+              "clientWidth": 587,
+              "height": 54,
+              "right": 933.9609375,
+              "scrollWidth": 587,
+              "width": 586.9609375,
+              "x": 347,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 1037,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 941.9609375,
+              "y": 288.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 305.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 1061,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 1045,
+              "y": 289.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 714,
+      "height": 180,
+      "right": 1049,
+      "scrollWidth": 714,
+      "width": 714,
+      "x": 335,
+      "y": 619
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1399,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 1145,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1399,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1240.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1440,
+      "height": 900,
+      "right": 1440,
+      "scrollWidth": 1440,
+      "width": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-1280-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 848,
+      "clientWidth": 646,
+      "height": 242,
+      "right": 936,
+      "scrollWidth": 646,
+      "width": 648,
+      "x": 288,
+      "y": 606
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 241.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 304,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 288,
+              "y": 225.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 542,
+              "height": 17.25,
+              "right": 853.9921875,
+              "scrollWidth": 542,
+              "width": 541.9921875,
+              "x": 312,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 241.875,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 921.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 861.9921875,
+              "y": 224.625
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 305,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 289,
+              "y": 298.25
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 342.25,
+              "clientWidth": 495,
+              "height": 72,
+              "right": 807.9609375,
+              "scrollWidth": 495,
+              "width": 494.9609375,
+              "x": 313,
+              "y": 270.25
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.875,
+              "clientWidth": 95,
+              "height": 17.25,
+              "right": 911,
+              "scrollWidth": 95,
+              "width": 95.0390625,
+              "x": 815.9609375,
+              "y": 297.625
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 314.25,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 935,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 919,
+              "y": 298.25
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 799,
+      "clientWidth": 622,
+      "height": 180,
+      "right": 923,
+      "scrollWidth": 622,
+      "width": 622,
+      "x": 301,
+      "y": 619
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 225,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 190.5
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 225,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 190.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 267.5,
+          "clientWidth": 254,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 233
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 267.5,
+          "clientWidth": 159,
+          "height": 34.5,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 233
+        }
+      },
+      {
+        "box": {
+          "bottom": 721.25,
+          "clientWidth": 254,
+          "height": 414,
+          "right": 1239,
+          "scrollWidth": 254,
+          "width": 254,
+          "x": 985,
+          "y": 307.25
+        },
+        "columns": "79.3281px 158.672px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 359,
+          "clientWidth": 159,
+          "height": 51.75,
+          "right": 1239,
+          "scrollWidth": 159,
+          "width": 158.671875,
+          "x": 1080.328125,
+          "y": 307.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 900,
+      "clientWidth": 1280,
+      "height": 900,
+      "right": 1280,
+      "scrollWidth": 1280,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "name": "final-unicode-390-light",
+    "active": {
+      "id": "",
+      "key": "run-summary-information"
+    },
+    "composer": {
+      "bottom": 784,
+      "clientWidth": 356,
+      "height": 250,
+      "right": 374,
+      "scrollWidth": 356,
+      "width": 358,
+      "x": 16,
+      "y": 534
+    },
+    "flows": [
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 276.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 32,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 16,
+              "y": 260.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 252,
+              "height": 17.25,
+              "right": 291.9921875,
+              "scrollWidth": 252,
+              "width": 251.9921875,
+              "x": 40,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 277.375,
+              "clientWidth": 60,
+              "height": 17.25,
+              "right": 359.5546875,
+              "scrollWidth": 60,
+              "width": 59.5625,
+              "x": 299.9921875,
+              "y": 260.125
+            },
+            "tag": "SPAN"
+          }
+        ]
+      },
+      {
+        "align": "center",
+        "items": [
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 33,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 17,
+              "y": 375.75
+            },
+            "tag": "svg"
+          },
+          {
+            "box": {
+              "bottom": 455.75,
+              "clientWidth": 236,
+              "height": 144,
+              "right": 277,
+              "scrollWidth": 236,
+              "width": 236,
+              "x": 41,
+              "y": 311.75
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 399.5,
+              "clientWidth": 64,
+              "height": 31.5,
+              "right": 349,
+              "scrollWidth": 64,
+              "width": 64,
+              "x": 285,
+              "y": 368
+            },
+            "tag": "SPAN"
+          },
+          {
+            "box": {
+              "bottom": 391.75,
+              "clientWidth": 16,
+              "height": 16,
+              "right": 373,
+              "scrollWidth": 16,
+              "width": 16,
+              "x": 357,
+              "y": 375.75
+            },
+            "tag": "svg"
+          }
+        ]
+      }
+    ],
+    "input": {
+      "bottom": 723,
+      "clientWidth": 340,
+      "height": 180,
+      "right": 365,
+      "scrollWidth": 340,
+      "width": 340,
+      "x": 25,
+      "y": 543
+    },
+    "inputStyle": {
+      "lineHeight": "23.1px",
+      "maxHeight": "180px",
+      "minHeight": "54.1875px",
+      "paddingBottom": "4px",
+      "paddingTop": "4px"
+    },
+    "rows": [
+      {
+        "box": {
+          "bottom": 249,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 214.5
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Run7902e2b4-c30c-4de1-bf12-9aa29ce1bde1",
+        "value": {
+          "bottom": 249,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 214.5
+        }
+      },
+      {
+        "box": {
+          "bottom": 291.5,
+          "clientWidth": 324,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 257
+        },
+        "columns": "102.664px 205.336px",
+        "text": "Sessionf3f36bfb-3fcf-40fa-a924-afb5e2971c98",
+        "value": {
+          "bottom": 291.5,
+          "clientWidth": 205,
+          "height": 34.5,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 257
+        }
+      },
+      {
+        "box": {
+          "bottom": 659,
+          "clientWidth": 324,
+          "height": 327.75,
+          "right": 357,
+          "scrollWidth": 324,
+          "width": 324,
+          "x": 33,
+          "y": 331.25
+        },
+        "columns": "102.664px 205.336px",
+        "text": "SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txtea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701",
+        "value": {
+          "bottom": 383,
+          "clientWidth": 205,
+          "height": 51.75,
+          "right": 357,
+          "scrollWidth": 205,
+          "width": 205.3359375,
+          "x": 151.6640625,
+          "y": 331.25
+        }
+      }
+    ],
+    "viewport": {
+      "bottom": 844,
+      "clientWidth": 390,
+      "height": 844,
+      "right": 390,
+      "scrollWidth": 390,
+      "width": 390,
+      "x": 0,
+      "y": 0
+    }
+  }
+]

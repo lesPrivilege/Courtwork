@@ -1,0 +1,30 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:18981/".
+1 AXWebArea CourtWork, URL: 127.0.0.1:18981/
+	2 container Spark
+		3 container
+			4 heading Spark, Value: 2, ID: spark-title
+				5 text Spark
+			6 text Maintenance state read from Core — which Matters have fallen behind their current source set.
+			7 button Close Spark
+		8 pop up button (collapsed, settable) Description: Spark project, Value: test-project, Secondary Actions: Expand
+			9 menu
+				10 (selected) test-project
+		11 button Refresh
+		12 tab group Spark view
+			13 tab (selected, settable, boolean) Overview, Value: 1, ID: spark-tab-overview
+			14 tab (selectable, settable, boolean) Activity, Value: 0, ID: spark-tab-activity
+		15 container Description: Overview, ID: spark-panel
+			16 text As of 2026-09-10T18:50:05.840Z
+			17 heading UP TO DATE, Value: 3
+				18 text UP TO DATE
+			19 button Open Synthetic maintenance 25 in Work
+			20 text Source revision 1 0 current, none stale
+			21 text No prior source revision recorded.
+			22 button Open Synthetic maintenance 26 in Work
+			23 text Source revision 2 0 current, none stale
+			24 text Revision 1 → 2 · no membership change
+			25 text Every Matter in scope is current with its source set. No prompt is generated for a quiet read.
+			26 button Previous Matters
+			27 text 26–27 of 27 Matters
+
+The focused UI element is 7 button Close Spark

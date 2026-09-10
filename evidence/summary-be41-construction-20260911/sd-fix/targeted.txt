@@ -1,0 +1,37 @@
+✔ band · 48 on the web, a native host only raises it (0.955792ms)
+✔ band · one title line; Chat is the default mode and is not restated (0.145833ms)
+✔ sidebar · 16 glyph on a 32 row, 4 between nav rows, 16 between groups, 44 on touch (0.255708ms)
+✔ content column · prose and composer share one inset resolved against one width (0.208708ms)
+✔ summary · cards fold to the strip before the reading column drops under 640 + two tight insets (0.110459ms)
+✔ composer · content-driven and bounded; growth never writes value (0.269625ms)
+✔ Home keeps its own 820 column and composer sizes (0.09675ms)
+✔ CI-B · support is read from CSS.supports, never assumed (0.766625ms)
+✔ CI-B · fit follows scrollHeight and respects the box model (0.138083ms)
+✔ CI-B · with native support nothing is installed; without it, input refits and value is never written (0.127458ms)
+✔ CI-F · only an image-only paste gets a sentence; text is never swallowed (0.141875ms)
+✔ CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, the module is served (0.378125ms)
+✔ CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box (0.2655ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.722625ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.092833ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.17025ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.204875ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.148291ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.056791ms)
+✔ Run card starts collapsed with Files and Run information disclosures (1.745083ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.647625ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.4995ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.708667ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.738542ms)
+✔ Run card only offers Retry for an error and exposes callback failures (0.985542ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.531291ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.198958ms)
+✔ Summary run preserves the clicked opener when disabling it clears browser focus (0.711125ms)
+✔ Summary file preserves the clicked opener when disabling it clears browser focus (0.505583ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 115.20975

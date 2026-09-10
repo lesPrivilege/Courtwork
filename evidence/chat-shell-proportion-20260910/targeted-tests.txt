@@ -1,0 +1,48 @@
+✔ band · 48 on the web, a native host only raises it (58.000417ms)
+✔ band · one title line; Chat is the default mode and is not restated (0.46775ms)
+✔ sidebar · 16 glyph on a 32 row, 4 between nav rows, 16 between groups, 44 on touch (0.633917ms)
+✔ content column · prose and composer share one inset resolved against one width (0.493167ms)
+✔ summary · cards fold to the strip before the reading column drops under 640 + two tight insets (0.270083ms)
+✔ composer · content-driven and bounded; growth never writes value (0.377375ms)
+✔ Home keeps its own 820 column and composer sizes (0.257542ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (76.712ms)
+✔ WK-92 · Continue in Work 只走既有的 extension 路由；不新增端点、不复制、不迁移 (3.871708ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (6.873416ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (5.850875ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.592625ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (27.960875ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (3.941292ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (5.454792ms)
+✔ Run projection fails closed for missing or cross-Session identity (4.043292ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.602125ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.576375ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (4.694917ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.4495ms)
+✔ Run card starts collapsed with Files and Run information disclosures (10.229375ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (4.553958ms)
+✔ Run card rejects stale Open intents after identity or generation changes (1.811333ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (20.547042ms)
+✔ a late rejected action cannot block or annotate a replacement identity (18.125666ms)
+✔ Run card only offers Retry for an error and exposes callback failures (6.893375ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (4.608083ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.760666ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (2.615ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (4.514958ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (1.656167ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.402792ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (1.766292ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.932375ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (1.322292ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (18.604125ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.965209ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.876042ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (0.725666ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1344.674291
+EXIT 0

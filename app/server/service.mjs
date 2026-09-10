@@ -1412,6 +1412,32 @@ export class RuntimeService {
     }});
   }
 
+  async getWorkDerivations(params = new URLSearchParams()) {
+    for (const key of params.keys()) {
+      if (!['projectId', 'limit', 'offset', 'snapshotRef'].includes(key) || params.getAll(key).length !== 1)
+        throw new ServiceError(400, 'invalid_input', 'Invalid derivations query');
+    }
+    const projectId = text(params.get('projectId'), 'projectId', { max: 200 });
+    const page = { limit: 25, offset: 0 };
+    for (const key of ['limit', 'offset']) if (params.has(key)) {
+      const value = params.get(key);
+      if (!/^(0|[1-9][0-9]*)$/.test(value) || !Number.isSafeInteger(Number(value)) ||
+          (key === 'limit' && (Number(value) < 1 || Number(value) > 100)))
+        throw new ServiceError(400, 'invalid_input', 'Invalid derivations page');
+      page[key] = Number(value);
+    }
+    const snapshotRef = params.get('snapshotRef');
+    if (snapshotRef !== null && !/^core-state:[a-f0-9]{64}$/.test(snapshotRef))
+      throw new ServiceError(400, 'invalid_input', 'Invalid derivations snapshot');
+    if (!this.store.listProjects().some(p => p.id === projectId)) throw new ServiceError(404, 'not_found', 'project not found');
+    try {
+      return await this.workCore.call('work_derivations', { project_id: projectId, ...page, snapshot_ref: snapshotRef });
+    } catch (error) {
+      if (error.code === 'DERIVATIONS_SNAPSHOT_CHANGED') throw new ServiceError(409, 'derivations_snapshot_changed', 'Core changed; refresh before paging');
+      throw error;
+    }
+  }
+
   async listWork(projectId) {
     if (!this.store.listProjects().find(p=>p.id===projectId)) throw new ServiceError(404,'not_found','project not found');
     return this.workCore.call('list_work',{project_id:projectId});

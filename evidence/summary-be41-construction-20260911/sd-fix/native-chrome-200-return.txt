@@ -1,0 +1,33 @@
+The following is a diff from the previous accessibility tree for Window: "CourtWork" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 283-405
+~					277 container Work surface
+~							279 heading Work surface, Value: 2
+~								282 text Work surface
++						283 container
++							284 container Run summary
++								285 heading Run, Value: 3
++									286 text Run
++								287 text Completed
++								288 disclosure triangle Files · 1
++									289 text Files · 1
++								290 container
++									291 disclosure triangle Run information
++										292 text Run information
++									293 text Run 7902e2b4-c30c-4de1-bf12-9aa29ce1bde1 Session f3f36bfb-3fcf-40fa-a924-afb5e2971c98 FILE SHA-256 SHA-256 · out/来源修订-0-café-é-🧭/来源修订-1-café-é-🧭/来源修订-2-café-é-🧭/来源修订-3-café-é-🧭/来源修订-4-café-é-🧭/来源修订-5-café-é-🧭/来源修订-6-café-é-🧭/来源修订-7-café-é-🧭/来源修订-8-café-é-🧭/来源修订-9-café-é-🧭/来源修订-10-café-é-🧭/来源修订-11-café-é-🧭/完整证据文件-审阅版本.txt ea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701
++									294 button Open run details
++							295 container Workspace
++								296 heading Workspace, Value: 3
++									297 text Workspace
++								298 text 1 file
++								299 button Open workspace
++								300 text OUT/来源修订-0-CAFÉ-É-🧭/来源修订-1-CAFÉ-É-🧭/来源修订-2-CAFÉ-É-🧭/来源修订-3-CAFÉ-É-🧭/来源修订-4-CAFÉ-É-🧭/来源修订-5-CAFÉ-É-🧭/来源修订-6-CAFÉ-É-🧭/来源修订-7-CAFÉ-É-🧭/来源修订-8-CAFÉ-É-🧭/来源修订-9-CAFÉ-É-🧭/来源修订-10-CAFÉ-É-🧭/来源修订-11-CAFÉ-É-🧭
++								301 button 完整证据文件-审阅版本.txt 139 B
++									302 text 完整证据文件-审阅版本.txt
++									303 text 139 B
++							304 container Runtime
++								305 heading Runtime, Value: 3
++									306 text Runtime
++								307 text 24 resources
++								308 button Open runtime
++								309 text Capabilities 14 Context 0 Attention 0
+The focused UI element is 294 button Open run details

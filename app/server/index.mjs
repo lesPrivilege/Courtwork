@@ -16,12 +16,14 @@ const STATIC = new Map([
   ["/index.html", { file: path.join(APP_ROOT, "web", "index.html"), type: "text/html; charset=utf-8" }],
   ["/web/app.mjs", { file: path.join(APP_ROOT, "web", "app.mjs"), type: "text/javascript; charset=utf-8" }],
   ["/web/markdown-reader.css", { file: path.join(APP_ROOT, "web", "markdown-reader.css"), type: "text/css; charset=utf-8" }],
+  ["/web/summary-disclosure.css", { file: path.join(APP_ROOT, "web", "summary-disclosure.css"), type: "text/css; charset=utf-8" }],
+  ["/web/surface-layout.css", { file: path.join(APP_ROOT, "web", "surface-layout.css"), type: "text/css; charset=utf-8" }],
   ["/web/styles.css", { file: path.join(APP_ROOT, "web", "styles.css"), type: "text/css; charset=utf-8" }],
   ["/extensions/evidence-memo/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "evidence-memo", "renderer.mjs"), type: "text/javascript; charset=utf-8" }],
   ["/extensions/inbound-nda/renderer.mjs", { file: path.join(APP_ROOT, "extensions", "inbound-nda", "renderer.mjs"), type: "text/javascript; charset=utf-8", optional: true }],
 ]);
 
-for (const name of ["skin-policy.js", "surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "coordination-view.mjs", "coordination-projection.mjs", "spark-view.mjs", "spark-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
+for (const name of ["skin-policy.js", "summary-disclosure.mjs", "summary-disclosure-projection.mjs", "surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "composer-field.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "coordination-view.mjs", "coordination-projection.mjs", "spark-view.mjs", "spark-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
 STATIC.set("/web/provider-config.mjs", {file:path.join(APP_ROOT,"web/provider-config.mjs"),type:"text/javascript; charset=utf-8"});
 // WO-SD-01 / SD-18: the five Spark sample scenarios are product assets now (moved from app/tests/fixtures via git mv, one file with two readers).
@@ -134,6 +136,7 @@ function routeService(service, req, url) {
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage") return () => service.getWorkMetrics("usage", url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-usage-details") return () => service.getWorkMetrics("details", url.searchParams);
   if (method === "POST" && tail.length === 1 && tail[0] === "work-usage-runs") return async () => service.getUsageRuns(await body(req));
+  if (method === "GET" && tail.length === 1 && tail[0] === "work-derivations") return () => service.getWorkDerivations(url.searchParams);
   if (method === "GET" && tail.length === 1 && tail[0] === "work-summary") return () => service.getWorkSummary(url.searchParams);
   if (method === "GET" && tail.length === 3 && tail[0] === "projects" && tail[2] === "work") return () => service.listWork(tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "projects") return () => service.listProjects();

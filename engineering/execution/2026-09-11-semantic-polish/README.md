@@ -2,7 +2,9 @@
 
 2026-09-11 · Astra负责架构、裁决、整合、节奏与依赖模型能力的瓶颈实现；Luna负责fast explore、有成熟参考且边界明确的实现和另一作者的有界复核。本页是[总roadmap](../../roadmap.md)的本轮执行附件；[current](../../current.md)拥有交付状态，不另建总队列。
 
-**状态：PREPARED / WAITING_FOR_USER_MERGE。** 接单固定 `main@9bc6090b5b463bdf6286a0c42bdcd399781fc067`；用户要求先准备，待其merge得到清洁节点后再loop施工。本页已完成来源入账、相关PR/节点review、有界explore及计划；产品全量审计、修约、实现、浏览器验收尚未开始。本轮不merge/push/deploy、不占用共享UI checkout。
+**当前状态：ACTIVE。** 2026-09-11用户确认main本地/远端590739f并要求goal模式开工；原等待条件已满足，以下准备时点保留。Astra持异步调度/高阶视觉与架构，Luna探索研究，Sol high仅有界较难后端，不写文案或前端。
+
+**准备时点：PREPARED / WAITING_FOR_USER_MERGE。** 接单固定 `main@9bc6090b5b463bdf6286a0c42bdcd399781fc067`；用户要求先准备，待其merge得到清洁节点后再loop施工。本页已完成来源入账、相关PR/节点review、有界explore及计划；产品全量审计、修约、实现、浏览器验收尚未开始。本轮不merge/push/deploy、不占用共享UI checkout。
 
 ## 最新补充：P0.5 Product Semantics Registry
 

@@ -15,7 +15,7 @@
  *           with no card frame and no `Backend pending` row
  *   WORK-1  no Home dashboard primitive is rendered
  *   WORK-2  composer docked at the foot, same measure as the reading column
- *   WORK-3  composer body initial height 80–96
+ *   WORK-3  composer starts with two visible lines and bounded controls
  *   WORK-4  with the right-hand surface open the reading measure stays ≥ 640
  *   SHELL-1 under a desktop shell nothing focusable enters the top-left
  *           window-control safe area
@@ -52,6 +52,12 @@ const GEOMETRY = `(() => {
     area,
     composer,
     input: rect(document.getElementById("composer-input")),
+    inputMetrics: (() => {
+      const node = document.getElementById("composer-input");
+      const css = getComputedStyle(node);
+      return { lineHeight: parseFloat(css.lineHeight), contentHeight: node.clientHeight - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom), maxHeight: parseFloat(css.maxHeight) };
+    })(),
+    controls: [...form.querySelectorAll("button")].filter(node => !node.hidden).map(rect),
     intro: introHidden ? null : rect(intro),
     introText: introHidden ? "" : intro.textContent.trim(),
     bandHidden: !band || band.hidden || !band.getClientRects().length,
@@ -168,13 +174,75 @@ try {
   record("WORK-2", g.order.at(-1) === "composer-area" && Math.abs(g.composer.width - 740) <= 2, {
     order: g.order, width: Math.round(g.composer.width),
   });
-  record("WORK-3", g.input.height >= 80 && g.input.height <= 96, {
-    input: Math.round(g.input.height),
-  });
+  /* WORK-3 · two lines of content, at the default and the Large text size. */
+  const FIELD = `(() => {
+    const t = document.getElementById("composer-input");
+    const f = document.getElementById("composer-form");
+    const cs = getComputedStyle(t);
+    const lh = parseFloat(cs.lineHeight);
+    const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const fr = f.getBoundingClientRect();
+    const inside = (id) => {
+      const n = document.getElementById(id);
+      if (!n || !n.getClientRects().length) return null;
+      const b = n.getBoundingClientRect();
+      return b.left >= fr.left - 0.5 && b.right <= fr.right + 0.5 && b.top >= fr.top - 0.5 && b.bottom <= fr.bottom + 0.5;
+    };
+    return {
+      height: t.getBoundingClientRect().height,
+      contentLines: (t.clientHeight - pad) / lh,
+      maxHeight: parseFloat(cs.maxHeight),
+      scrolls: t.scrollHeight > t.clientHeight + 1,
+      formOverflows: f.scrollHeight > f.clientHeight + 1,
+      tools: { files: inside("materials-button"), model: inside("model-settings-button"), send: inside("send-button") },
+    };
+  })()`;
+  const fill = (text) => ev(`(() => { const t = document.getElementById("composer-input"); t.focus(); t.select();
+    document.execCommand(${JSON.stringify(text)} ? "insertText" : "delete", false, ${JSON.stringify(text)}); return true; })()`);
+  const workField = {};
+  for (const size of ["medium", "large"]) {
+    await ev(`(document.documentElement.dataset.textSize = ${JSON.stringify(size)}, true)`);
+    await fill("");
+    await sleep(200);
+    const empty = await ev(FIELD);
+    // The composer's own error slot, filled synthetically for layout only.
+    await ev(`(() => { const s = document.getElementById("draft-status"); s.textContent = "Draft not saved — synthetic error line for layout only."; return true; })()`);
+    const error = await ev(`(() => { const s = document.getElementById("draft-status").getBoundingClientRect();
+      const f = document.getElementById("composer-form").getBoundingClientRect();
+      const n = document.getElementById("draft-status");
+      return { visible: s.height > 0 && s.top >= 0, aboveForm: s.bottom <= f.top + 1, truncated: n.scrollWidth > n.clientWidth + 1 }; })()`);
+    await ev(`(document.getElementById("draft-status").textContent = "", true)`);
+    await fill(Array.from({ length: 20 }, (_, i) => `Line ${i + 1} of a long draft.`).join("\n"));
+    await sleep(200);
+    const full = await ev(FIELD);
+    await fill("");
+    await sleep(200);
+    const cleared = await ev(FIELD);
+    workField[size] = { empty, error, full, cleared };
+  }
+  await ev(`(delete document.documentElement.dataset.textSize, true)`);
+  const toolsIn = (f) => Object.values(f.tools).every((v) => v === true);
+  const w = workField;
+  record(
+    "WORK-3",
+    ["medium", "large"].every((k) =>
+      w[k].empty.contentLines >= 1.98 &&
+      toolsIn(w[k].empty) && !w[k].empty.formOverflows &&
+      w[k].error.visible && w[k].error.aboveForm && !w[k].error.truncated &&
+      w[k].full.height > w[k].empty.height && w[k].full.height <= w[k].full.maxHeight + 0.5 && w[k].full.scrolls &&
+      toolsIn(w[k].full) && !w[k].full.formOverflows &&
+      Math.abs(w[k].cleared.height - w[k].empty.height) <= 1,
+    ) && w.large.empty.height > w.medium.empty.height,
+    {
+      medium: { emptyLines: +w.medium.empty.contentLines.toFixed(2), empty: +w.medium.empty.height.toFixed(1), full: +w.medium.full.height.toFixed(1), max: w.medium.full.maxHeight, error: w.medium.error, tools: w.medium.full.tools },
+      large: { emptyLines: +w.large.empty.contentLines.toFixed(2), empty: +w.large.empty.height.toFixed(1), full: +w.large.full.height.toFixed(1), max: w.large.full.maxHeight, error: w.large.error, tools: w.large.full.tools },
+    },
+  );
   record("WORK-overflow", g.overflow <= 1, { overflow: g.overflow });
 
   /* ── Work with the right-hand surface open ─────────────────────────── */
-  await ev(`document.getElementById('show-surface-button')?.click(), true`);
+  const openOnEntry = await ev(`window.__V5_UI__.state.surface.open`);
+  if (!openOnEntry) await ev(`document.getElementById('show-surface-button')?.click(), true`);
   await sleep(600);
   g = await ev(GEOMETRY);
   await shot("work-surface-1440-light");
@@ -182,6 +250,7 @@ try {
     "WORK-4",
     g.surfaceOpen === true && g.readingWidth >= 640 && g.composer.width >= 640,
     {
+      openOnEntry,
       surfaceOpen: g.surfaceOpen,
       readingWidth: Math.round(g.readingWidth ?? 0),
       composerMeasure: Math.round(g.composer.width),

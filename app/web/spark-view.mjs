@@ -93,11 +93,13 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     loading = true; error = ''; unimplemented = false; rejected = ''; render();
     try {
       const qs = new URLSearchParams({ projectId, limit: '25', offset: String(offset) });
+      if (expectSnapshot) qs.set('snapshotRef', expectSnapshot);
       const raw = await request(`/work-derivations?${qs}`);
       if (own !== generation) return;
       const projected = validSparkDerivations(raw);
       if (projected && projected.scopeRef !== `project:${projectId}`) throw new Error('Spark received an observation for a different project. Refresh to read this scope.');
       if (!projected) throw new Error('Spark received a maintenance observation this surface does not recognise.');
+      sample = false; sampleData = null;
       if (expectSnapshot && !sameSnapshot({ snapshotRef: expectSnapshot }, projected)) {
         rejected = REJECTED_SNAPSHOT;
         data = null;
@@ -110,7 +112,10 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     } catch (e) {
       if (own !== generation) return;
       data = null;
-      if (e.status === 404) {
+      if (e.status === 409 && e.body?.error?.code === 'derivations_snapshot_changed') {
+        rejected = REJECTED_SNAPSHOT;
+        sample = false; sampleData = null;
+      } else if (e.status === 404) {
         // SD-19: 404 is the one outcome that leaves an active sample state
         // exactly as it was — this is still "no source", not a change.
         unimplemented = true;
@@ -370,7 +375,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
       const pager = el('div', { className: 'spark-controls' });
       if (data.page.offset > 0) pager.append(button('Previous Matters', () => load(Math.max(0, data.page.offset - data.page.limit), { expectSnapshot: data.snapshotRef })));
       if (data.page.offset + data.matters.length < data.page.total) pager.append(button('More Matters', () => load(data.page.offset + data.page.limit, { expectSnapshot: data.snapshotRef })));
-      pager.append(el('span', { className: 'form-help', text: `${data.page.offset + 1}–${data.page.offset + data.matters.length} of ${data.page.total} Matters` }));
+      pager.append(el('span', { className: 'form-help', text: data.matters.length ? `${data.page.offset + 1}–${data.page.offset + data.matters.length} of ${data.page.total} Matters` : `No Matters on this page · ${data.page.total} total` }));
       panel.append(pager);
     }
   }

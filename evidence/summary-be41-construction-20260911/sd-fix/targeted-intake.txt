@@ -1,0 +1,31 @@
+✔ CI-B · support is read from CSS.supports, never assumed (0.996792ms)
+✔ CI-B · fit follows scrollHeight and respects the box model (0.1935ms)
+✔ CI-B · with native support nothing is installed; without it, input refits and value is never written (0.148667ms)
+✔ CI-F · only an image-only paste gets a sentence; text is never swallowed (0.200666ms)
+✔ CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, the module is served (0.477625ms)
+✔ CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box (0.293ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (2.37925ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.209666ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.273875ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.237167ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.325167ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.148917ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.675833ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.4035ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.979542ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (4.922625ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.814834ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.263666ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.642292ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.2745ms)
+✔ Summary run preserves the clicked opener when disabling it clears browser focus (0.854292ms)
+✔ Summary file preserves the clicked opener when disabling it clears browser focus (0.664041ms)
+✔ Summary file focus identity follows the recorded version when files reorder (1.059417ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 193.475209

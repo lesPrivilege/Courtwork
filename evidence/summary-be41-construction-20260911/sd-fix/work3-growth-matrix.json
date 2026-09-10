@@ -1,0 +1,146 @@
+[
+  {
+    "phase": "medium-empty",
+    "formOverflows": false,
+    "height": 54.1875,
+    "lines": 1.9913419913419912,
+    "max": 180,
+    "scrolls": false,
+    "textSize": "medium",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 0
+  },
+  {
+    "phase": "medium-full",
+    "formOverflows": false,
+    "height": 180,
+    "lines": 7.445887445887445,
+    "max": 180,
+    "scrolls": true,
+    "textSize": "medium",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 685
+  },
+  {
+    "phase": "medium-cleared",
+    "formOverflows": false,
+    "height": 54.1875,
+    "lines": 1.9913419913419912,
+    "max": 180,
+    "scrolls": false,
+    "textSize": "medium",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 0
+  },
+  {
+    "phase": "large-empty",
+    "formOverflows": false,
+    "height": 60.796875,
+    "lines": 2.007324841970511,
+    "max": 180,
+    "scrolls": false,
+    "textSize": "large",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 0
+  },
+  {
+    "phase": "large-full",
+    "formOverflows": false,
+    "height": 180,
+    "lines": 6.51433722299864,
+    "max": 180,
+    "scrolls": true,
+    "textSize": "large",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 685
+  },
+  {
+    "phase": "large-cleared",
+    "formOverflows": false,
+    "height": 60.796875,
+    "lines": 2.007324841970511,
+    "max": 180,
+    "scrolls": false,
+    "textSize": "large",
+    "tools": [
+      {
+        "id": "materials-button",
+        "inside": true
+      },
+      {
+        "id": "model-settings-button",
+        "inside": true
+      },
+      {
+        "id": "send-button",
+        "inside": true
+      }
+    ],
+    "valueLength": 0
+  }
+]
