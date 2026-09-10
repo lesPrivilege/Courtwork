@@ -1,0 +1,45 @@
+✔ band · 48 on the web, a native host only raises it (1.242375ms)
+✔ band · one title line; Chat is the default mode and is not restated (0.187041ms)
+✔ sidebar · 16 glyph on a 32 row, 4 between nav rows, 16 between groups, 44 on touch (0.2935ms)
+✔ content column · prose and composer share one inset resolved against one width (0.216208ms)
+✔ summary · cards fold to the strip before the reading column drops under 640 + two tight insets (0.113209ms)
+✔ composer · content-driven and bounded; growth never writes value (0.277291ms)
+✔ Home keeps its own 820 column and composer sizes (0.099208ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.492209ms)
+✔ WK-92 · Continue in Work 只走既有的 extension 路由；不新增端点、不复制、不迁移 (0.84575ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (1.061417ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.260417ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.186917ms)
+✔ CI-B · support is read from CSS.supports, never assumed (1.096834ms)
+✔ CI-B · fit follows scrollHeight and respects the box model (0.155ms)
+✔ CI-B · with native support nothing is installed; without it, input refits and value is never written (0.133ms)
+✔ CI-F · only an image-only paste gets a sentence; text is never swallowed (0.156209ms)
+✔ CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, the module is served (0.399959ms)
+✔ CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box (0.229125ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (1.510625ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.281667ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (2.167667ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.118958ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.213833ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.297959ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.188041ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.072667ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.918708ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.325167ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.538625ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.94025ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.82775ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.111875ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.546875ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.246625ms)
+✔ Summary run preserves the clicked opener when disabling it clears browser focus (0.981541ms)
+✔ Summary file preserves the clicked opener when disabling it clears browser focus (0.754292ms)
+✔ Summary file focus identity follows the recorded version when files reorder (0.918709ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.729791

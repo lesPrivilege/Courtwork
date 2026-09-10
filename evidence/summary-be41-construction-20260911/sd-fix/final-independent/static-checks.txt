@@ -1,0 +1,40 @@
+$ node --check scoped modules
+PASS app/web/app.mjs
+PASS app/web/summary-disclosure.mjs
+PASS app/web/summary-disclosure-projection.mjs
+PASS app/web/composer-field.mjs
+PASS app/web/surface-modules.mjs
+PASS evidence/summary-be41-construction-20260911/sd-fix/serve.mjs
+PASS engineering/mvp/execution/work-surface-kit/evidence/fe01/composition-checks.mjs
+$ git diff --check 445fb48..466bdfd
+engineering/design/tps-specimen-2026-09-10/reference/captures/pi-pulse-render-demo.output.txt:3: trailing whitespace.
++final: 
+engineering/design/tps-specimen-2026-09-10/reference/captures/pi-pulse-render-demo.output.txt:6: trailing whitespace.
++final: 
+evidence/summary-be41-construction-20260911/sd-fix/before-opener-tests.txt:18: trailing whitespace.
++  
+evidence/summary-be41-construction-20260911/sd-fix/before-opener-tests.txt:638: trailing whitespace.
++  
+evidence/summary-be41-construction-20260911/sd-fix/before-opener-tests.txt:656: trailing whitespace.
++  
+evidence/summary-be41-construction-20260911/sd-fix/before-opener-tests.txt:1200: trailing whitespace.
++  
+evidence/summary-be41-construction-20260911/sd-fix/contrast.txt:174: new blank line at EOF.
+FAIL git diff --check
+$ git status --short --branch
+## HEAD (no branch)
+?? app/node_modules
+?? evidence/summary-be41-construction-20260911/sd-fix/final-independent/
+$ fixed HEAD
+466bdfdc8f3795e0205508c8f26de5acf6c140fa
+
+$ git diff --check 466^..466
+fatal: ambiguous argument '466^..466': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+FAIL fixed-commit-only diff check
+$ git diff --check 445..466, excluding preserved historical/raw logs
+PASS selected product/docs diff check
+
+$ git diff --check 466bdfd^..466bdfd
+PASS fixed-commit-only diff check
