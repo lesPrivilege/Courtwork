@@ -1,7 +1,7 @@
 /* WO-SP1-FE · The only place in app/web that knows the shape of the frozen
  * BE-41 read-only projection (`GET /work-derivations`), per
- * `engineering/design/spark-surface-2026-09-10/be41-dto.md`. BE-41 itself is
- * not implemented yet; this module validates the frozen shape and does not
+ * `engineering/design/spark-surface-2026-09-10/be41-dto.md`. BE-41 is served by the existing Core read-only projection; this module validates
+ * its shape and does not
  * invent fields the doc did not freeze.
  *
  * Rules, matching the conventions already written down for the other
@@ -44,7 +44,7 @@ const object = (value) => Boolean(value) && typeof value === "object" && !Array.
 function projectSourceRef(ref) {
   if (!object(ref)) return null;
   if (!isString(ref.sourceId)) return null;
-  if (!Number.isSafeInteger(ref.version) || ref.version < 1) return null;
+  if (!Number.isSafeInteger(ref.version) || ref.version < 0) return null;
   return { sourceId: ref.sourceId, version: ref.version };
 }
 
@@ -52,7 +52,7 @@ function projectReplacedRef(ref) {
   if (!object(ref)) return null;
   if (!isString(ref.sourceId)) return null;
   if (!Number.isSafeInteger(ref.fromVersion) || !Number.isSafeInteger(ref.toVersion)) return null;
-  if (ref.fromVersion < 1 || ref.toVersion <= ref.fromVersion) return null;
+  if (ref.fromVersion < 0 || ref.toVersion < 0 || ref.toVersion === ref.fromVersion) return null;
   return { sourceId: ref.sourceId, fromVersion: ref.fromVersion, toVersion: ref.toVersion };
 }
 
@@ -64,7 +64,7 @@ const INVALID = Symbol("invalid-source-set-change");
 function projectSourceSetChange(change) {
   if (change === null) return null;
   if (!object(change)) return INVALID;
-  if (!Number.isSafeInteger(change.fromRevision) || change.fromRevision < 1) return INVALID;
+  if (!Number.isSafeInteger(change.fromRevision) || change.fromRevision < 0) return INVALID;
   if (!Number.isSafeInteger(change.toRevision) || change.toRevision <= change.fromRevision) return INVALID;
   if (!Array.isArray(change.added) || !Array.isArray(change.replaced) || !Array.isArray(change.removed)) return INVALID;
   const added = change.added.map(projectSourceRef);
@@ -107,8 +107,8 @@ function projectByStatus(entry, observed) {
 function projectMatter(matter) {
   if (!object(matter)) return null;
   if (!isString(matter.matterId) || !isString(matter.title) || !isString(matter.extensionId)) return null;
-  if (!Number.isSafeInteger(matter.version) || matter.version < 1) return null;
-  if (!Number.isSafeInteger(matter.sourceVersion) || matter.sourceVersion < 1) return null;
+  if (!Number.isSafeInteger(matter.version) || matter.version < 0) return null;
+  if (!Number.isSafeInteger(matter.sourceVersion) || matter.sourceVersion < 0) return null;
   if (!isString(matter.snapshotRef)) return null;
   if (!AVAILABILITY_STATES.includes(matter.availability)) return null;
   const observed = matter.availability === "observed";
@@ -191,7 +191,7 @@ export function validSparkDerivations(payload) {
   if (!isCount(offset) || !isCount(total)) return null;
   if (!Array.isArray(payload.matters)) return null;
   if (payload.matters.length > limit) return null;
-  if (offset + payload.matters.length > total) return null;
+  if (payload.matters.length && offset + payload.matters.length > total) return null;
 
   const matters = [];
   for (const raw of payload.matters) {
@@ -204,6 +204,11 @@ export function validSparkDerivations(payload) {
   // must agree on which snapshot it was read at.
   const snapshotRefs = new Set(matters.map((m) => m.snapshotRef));
   if (snapshotRefs.size > 1) return null;
+  // The live endpoint binds even an empty page. Legacy explicit sample files
+  // omit this field and keep their row-bound snapshot compatibility.
+  if ("snapshotRef" in payload && (typeof payload.snapshotRef !== "string" ||
+      !/^core-state:[0-9a-f]{64}$/.test(payload.snapshotRef))) return null;
+  if ("snapshotRef" in payload && matters.some(m => m.snapshotRef !== payload.snapshotRef)) return null;
 
   return {
     schemaVersion: 1,
@@ -212,17 +217,15 @@ export function validSparkDerivations(payload) {
     coverage: { matters: payload.coverage.matters, reason: payload.coverage.reason },
     page: { limit, offset, total },
     matters,
-    // `null` only for an empty page (no Matter to bind a snapshot to); never
-    // a placeholder value that could be mistaken for a real observation.
-    snapshotRef: matters[0]?.snapshotRef ?? null,
+    // Null remains possible only for legacy empty samples without a token.
+    snapshotRef: payload.snapshotRef ?? matters[0]?.snapshotRef ?? null,
   };
 }
 
 /**
- * Two reads name the same Core state iff both carry a Matter and their
- * snapshots agree. An empty page (no `snapshotRef` of its own) can never be
- * confirmed consistent with another read, so pagination past an empty page
- * is refused rather than silently accepted.
+ * Two reads name the same Core state when their nonempty tokens agree.
+ * Live empty pages carry a token; legacy tokenless samples cannot establish
+ * consistency with another read.
  */
 export function sameSnapshot(a, b) {
   return Boolean(a?.snapshotRef) && Boolean(b?.snapshotRef) && a.snapshotRef === b.snapshotRef;
