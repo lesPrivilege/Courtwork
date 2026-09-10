@@ -1,0 +1,2766 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-backdrop="dense" data-a11y="default">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FE-05 · Material / blur specimen · Courtwork</title>
+<!-- app/web/styles.css is linked verbatim and is never modified by this page.
+     Every product role, radius, shadow, type step and control anatomy below
+     comes from it; specimen.css only adds the candidate materials and this
+     page's own scaffolding. -->
+<link rel="stylesheet" href="../../../app/web/styles.css" />
+<link rel="stylesheet" href="specimen.css" />
+</head>
+<body class="spec-body">
+<div class="spec-wrap">
+
+  <header class="spec-masthead">
+    <h1>FE-05 · Material / blur specimen</h1>
+    <p>Round 6/6. One question: on Courtwork's already-stable geometry, typography and interaction hierarchy, which short functional surfaces gain useful layer separation from translucency, and which should stay solid.</p>
+    <p>Material is the final dependent variable. Composition, typography, shape, interaction semantics and placement are all held constant. Blur radii are fixed at the two existing tokens — <code>--blur-chrome</code> 12px and <code>--blur-transient</code> 16px — and no third radius is compared.</p>
+    <p>Base: <code id="spec-base-sha">see README.md</code>. FE-05a has not landed on main; this specimen consumes actual main, not a private imitation of a future baseline.</p>
+    <span class="spec-stamp">Design specimen only · not production UI · no merge, deploy or acceptance claimed</span>
+  </header>
+
+  <section class="spec-controls" aria-label="Specimen controls">
+    <span class="spec-controls-title">Specimen controls — these belong to this page, not to Courtwork Settings</span>
+    <div class="spec-control-group">
+      <span>Theme</span>
+      <div role="group" data-control="theme">
+        <button type="button" data-value="light" aria-pressed="true">Light</button>
+        <button type="button" data-value="dark" aria-pressed="false">Dark</button>
+      </div>
+    </div>
+    <div class="spec-control-group">
+      <span>Backdrop behind the material</span>
+      <div role="group" data-control="backdrop">
+        <button type="button" data-value="quiet" aria-pressed="false">B0 quiet</button>
+        <button type="button" data-value="dense" aria-pressed="true">B1 dense</button>
+        <button type="button" data-value="code" aria-pressed="false">B2 code</button>
+        <button type="button" data-value="selected" aria-pressed="false">B3 selected</button>
+        <button type="button" data-value="status" aria-pressed="false">B4 status</button>
+      </div>
+    </div>
+    <div class="spec-control-group">
+      <span>Accessibility / capability simulation</span>
+      <div role="group" data-control="a11y">
+        <button type="button" data-value="default" aria-pressed="true">Default</button>
+        <button type="button" data-value="reduce" aria-pressed="false">Reduce transparency</button>
+        <button type="button" data-value="nosupport" aria-pressed="false">No backdrop-filter</button>
+        <button type="button" data-value="forced" aria-pressed="false">Forced colours (sim)</button>
+      </div>
+    </div>
+    <div class="spec-control-group">
+      <span>Static checks</span>
+      <div>
+        <button type="button" id="spec-run-checks">Run specimen checks</button>
+      </div>
+    </div>
+    <output id="spec-check-output" style="width:100%;font-size:var(--text-caption);color:var(--muted-strong);white-space:pre-wrap"></output>
+  </section>
+
+  <section class="spec-board" id="board-main">
+    <h2>Board A · Main comparison</h2>
+    <p class="spec-note">Column 1 solid baseline · column 2 existing or simple glass · column 3 proposed refinement · column 4 accessibility fallback. Rows with no applicable fourth semantic variant say <code>not_applicable</code> rather than inventing a filler design.</p>
+    
+  <p class="spec-eyebrow">Row 1 · Jump to latest — Chrome, already registered</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>JF · solid baseline</h3>
+    <p class="spec-cell-note">Same pill, same label, same action, no material. This is what the product already renders under reduced transparency.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+        <button class="jump-latest-button" type="button" data-surface="jump-latest" data-variant="jf">Back to latest</button>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>J0 · current production glass</h3>
+    <p class="spec-cell-note">Untouched <code>.jump-latest-button</code>: <code>--glass</code> + <code>blur(--blur-chrome)</code> 12px + <code>--line</code> + <code>--rim</code> + <code>--shadow-float</code>.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+        <button class="jump-latest-button" type="button" data-surface="jump-latest" data-variant="j0">Back to latest</button>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>no proposed refinement</h3>
+    <p class="spec-cell-note">The work order deliberately admits no third, stronger glass here. J0 is the reference upper bound for how conspicuous product glass may feel.</p>
+    <div class="spec-na "><span>not_applicable<br /><br />J0 is the reference, not a redesign target.</span></div>
+  </div>
+  <div class="spec-cell">
+    <h3>JF · accessibility fallback</h3>
+    <p class="spec-cell-note">Identical to column 1. Only the material disappears; label, geometry, focus order and action are unchanged.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+        <button class="jump-latest-button" type="button" data-surface="jump-latest" data-variant="jf">Back to latest</button>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow">Row 2 · Context popover — Transient, already registered</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>PF · solid baseline</h3>
+    <p class="spec-cell-note"><code>--float</code>, no blur, no mask, same edge and depth.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="pf">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>P0 · current production recipe</h3>
+    <p class="spec-cell-note"><code>--glass-muted</code> (today identical to <code>--glass</code>) + <code>blur(--blur-transient)</code> 16px + <code>saturate(1.4)</code>.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p0">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>P2 · proposed alpha, neutral saturation</h3>
+    <p class="spec-cell-note">Alpha 0.92 light / 0.16 dark, <code>saturate(1)</code>. P1 (proposed alpha, saturation kept at 1.4) is on the calibration board below.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p2">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>PF · accessibility fallback</h3>
+    <p class="spec-cell-note">Same as column 1. Width, padding, type, rows and dismissal semantics are unchanged.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="pf">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow">Row 3 · Work header — solid today, strongest new Chrome candidate</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>H0 · production baseline</h3>
+    <p class="spec-cell-note">Solid <code>--panel</code>, one <code>border-bottom: 1px solid var(--line)</code>, no blur. Scroll the stream: the content already dissolves at this edge through the stream's own 16px mask.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h0" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H1 · uniform Chrome material</h3>
+    <p class="spec-cell-note"><code>--glass</code> + <code>blur(--blur-chrome)</code> on the header itself, hairline kept, no mask, no extension.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h1" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H2 / H3 · progressive edge</h3>
+    <p class="spec-cell-note">One sampling layer in <code>::before</code>, one gradient mask, hairline kept. H3 adds the bounded desktop sampling extension. Both are isolated on the mechanics board below.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>solid + line · accessibility fallback</h3>
+    <p class="spec-cell-note">Every header candidate collapses to this: solid, no blur, mask cleared, hairline present. It must be indistinguishable from H0.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h0" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow">Row 4 · Composer — resting control surface</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>C0 · current</h3>
+    <p class="spec-cell-note">Solid <code>--float</code>, <code>--line-strong</code>, <code>--shadow-float</code>. Its own non-scrolling band, unchanged.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+        <footer class="composer-area">
+          <form class="composer-form" data-surface="composer" data-variant="c0" onsubmit="return false">
+            <label class="sr-only" for="ci-c0-x">Message</label>
+            <textarea class="spec-composer-input" id="ci-c0-x" rows="2" placeholder="What would you like to work on?"></textarea>
+            <div class="spec-composer-controls">
+              <span class="spec-composer-meta">Meridian NDA · recorded</span>
+              <button class="primary-button" type="button">Send</button>
+            </div>
+          </form>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>C1 · Chrome glass</h3>
+    <p class="spec-cell-note"><code>--glass</code> + <code>blur(--blur-chrome)</code>. No mask, no extension, no geometry change of any kind.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+        <footer class="composer-area">
+          <form class="composer-form" data-surface="composer" data-variant="c1" onsubmit="return false">
+            <label class="sr-only" for="ci-c1-x">Message</label>
+            <textarea class="spec-composer-input" id="ci-c1-x" rows="2" placeholder="What would you like to work on?"></textarea>
+            <div class="spec-composer-controls">
+              <span class="spec-composer-meta">Meridian NDA · recorded</span>
+              <button class="primary-button" type="button">Send</button>
+            </div>
+          </form>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>no proposed refinement</h3>
+    <p class="spec-cell-note">Nothing beyond C1 is admitted. Any candidate that needs the composer moved over the stream is a composition change, not a material one.</p>
+    <div class="spec-na "><span>not_applicable<br /><br />Moving the composer to manufacture a glass use case is forbidden.</span></div>
+  </div>
+  <div class="spec-cell">
+    <h3>C0 · accessibility fallback</h3>
+    <p class="spec-cell-note">Identical to column 1: the composer's fallback is its current material.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+        <footer class="composer-area">
+          <form class="composer-form" data-surface="composer" data-variant="c0" onsubmit="return false">
+            <label class="sr-only" for="ci-c0-x">Message</label>
+            <textarea class="spec-composer-input" id="ci-c0-x" rows="2" placeholder="What would you like to work on?"></textarea>
+            <div class="spec-composer-controls">
+              <span class="spec-composer-meta">Meridian NDA · recorded</span>
+              <button class="primary-button" type="button">Send</button>
+            </div>
+          </form>
+        </footer>
+      </main>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow">Row 5 · Representative Inspector tile — future Transient, not production UI</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>solid raised baseline</h3>
+    <p class="spec-cell-note"><code>--float</code> + <code>--line</code> + <code>--rim</code> + <code>--shadow-float</code>.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <aside class="spec-inspector" data-surface="inspector" data-variant="solid">
+        <span class="eyebrow">Representative Inspector material specimen · not production UI</span>
+        <dl>
+          <dt>Recorded version</dt><dd>4</dd>
+          <dt>Path</dt><dd>evidence/runs/8f21c04/annex-b.pdf</dd>
+          <dt>Hash</dt><dd>sha256:9c1f…a047</dd>
+        </dl>
+        <footer><button class="quiet-button" type="button">Open in surface</button></footer>
+      </aside>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>no current production surface</h3>
+    <p class="spec-cell-note">The Inspector is not built. There is no existing material to show in this column.</p>
+    <div class="spec-na "><span>not_applicable<br /><br />Round 5 owns Inspector IA; this round only supplies a recipe.</span></div>
+  </div>
+  <div class="spec-cell">
+    <h3>proposed Transient recipe</h3>
+    <p class="spec-cell-note">The same recipe as P2, carrying richer content than today's popover: recorded version, path, hash, one action.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <aside class="spec-inspector" data-surface="inspector" data-variant="transient">
+        <span class="eyebrow">Representative Inspector material specimen · not production UI</span>
+        <dl>
+          <dt>Recorded version</dt><dd>4</dd>
+          <dt>Path</dt><dd>evidence/runs/8f21c04/annex-b.pdf</dd>
+          <dt>Hash</dt><dd>sha256:9c1f…a047</dd>
+        </dl>
+        <footer><button class="quiet-button" type="button">Open in surface</button></footer>
+      </aside>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>solid raised · accessibility fallback</h3>
+    <p class="spec-cell-note">Same as column 1. Same rows, same hash, same action.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <aside class="spec-inspector" data-surface="inspector" data-variant="solid">
+        <span class="eyebrow">Representative Inspector material specimen · not production UI</span>
+        <dl>
+          <dt>Recorded version</dt><dd>4</dd>
+          <dt>Path</dt><dd>evidence/runs/8f21c04/annex-b.pdf</dd>
+          <dt>Hash</dt><dd>sha256:9c1f…a047</dd>
+        </dl>
+        <footer><button class="quiet-button" type="button">Open in surface</button></footer>
+      </aside>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow">Row 6 · Human review tint — no blur, no glass</p>
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>R0 · neutral</h3>
+    <p class="spec-cell-note">Solid raised micro-surface, 0% review tint. The explicit <em>Needs you</em> label carries the state.</p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r0">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  <div class="spec-cell">
+    <h3>no glass variant</h3>
+    <p class="spec-cell-note">Review tint is evaluated independently from material. There is no translucent version of this surface.</p>
+    <div class="spec-na is-short"><span>not_applicable<br /><br />Chroma and blur are separate decisions.</span></div>
+  </div>
+  <div class="spec-cell">
+    <h3>R1 / R2 · 5% / 10% surface tint</h3>
+    <p class="spec-cell-note">Only the surface concentration changes. Shown at 10% here; all three are side by side on the review board below.</p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r2">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  <div class="spec-cell">
+    <h3>R0 · neutral fallback</h3>
+    <p class="spec-cell-note">With colour removed the surface must still read. Same label, same structure, same actions.</p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r0">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  </div>
+  </section>
+
+  <section class="spec-board" id="board-header">
+    <h2>Board B · Header mechanics</h2>
+    <p class="spec-note">Four stages, one variable each, so the cause of any difference stays attributable. Note the wording: the blur radius is constant at 12px in H1, H2 and H3. H2 and H3 add a <em>progressive material edge</em> — a gradient mask over one constant-radius sampling layer — not a continuous interpolation of blur radius. H3 adds a sampling extension, not a stronger blur.</p>
+    
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>H0 · solid + line</h3>
+    <p class="spec-cell-note">background <code>--panel</code> · blur none · mask none · extension 0 · border <code>--line</code> · rim none</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h0" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H1 · glass + line</h3>
+    <p class="spec-cell-note">background <code>--glass</code> · blur <code>--blur-chrome</code> 12px · mask none · extension 0 · border <code>--line</code></p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h1" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H2 · glass + mask + line</h3>
+    <p class="spec-cell-note">one <code>::before</code> sampling layer · blur 12px · mask <code>linear-gradient(to bottom, #000 62%, transparent)</code> · extension 0 · border <code>--line</code></p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h2" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H3 · glass + mask + sampling extension + line</h3>
+    <p class="spec-cell-note">same one layer · blur still 12px · mask to bottom · extension 24px desktop / 0 below 768 · border <code>--line</code></p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow" style="margin-top:28px">Composition-dependency diagnostic — <strong>not a candidate, not current geometry, not a proposal</strong></p>
+  <p class="spec-note">In production <code>.chat-header</code> is a <code>flex: none</code> sibling above the scroll container: nothing scrolls behind it, and its backdrop is <code>.chat-panel</code>'s own solid <code>--panel</code>. Blurring a uniform colour returns the same uniform colour, which is why H1 above is a flat tint rather than layer separation, and why H1's pixel delta in <code>measurements.json</code> is identical over every backdrop state. These three stages move the header — and nothing else — over the stream so the mechanics of the mask and the sampling extension are visible. The recommendation in <code>observations.md</code> is taken from the production-geometry board, not from this row.</p>
+  <div class="spec-grid cols-3">
+  <div class="spec-cell">
+    <h3>H1 over scrolling content</h3>
+    <p class="spec-cell-note">Overlay geometry. Uniform Chrome material with something real to sample.</p>
+    <div class="spec-stage " data-geometry="overlay">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h1" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H2 over scrolling content</h3>
+    <p class="spec-cell-note">Overlay geometry. One sampling layer, one gradient mask, no extension.</p>
+    <div class="spec-stage " data-geometry="overlay">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h2" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H3 over scrolling content</h3>
+    <p class="spec-cell-note">Overlay geometry. Same layer, same 12px radius, 24px sampling extension.</p>
+    <div class="spec-stage " data-geometry="overlay">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow" style="margin-top:28px">Edge sidecar · the same candidate with and without the hairline</p>
+  <p class="spec-note">Governance default is B0, retain <code>--line</code>. WK-127 kept the hairline as coexisting structure; it is not removed merely because a blurred edge looks sufficient.</p>
+  <div class="spec-grid cols-2">
+  <div class="spec-cell">
+    <h3>E0 · selected candidate + --line</h3>
+    <p class="spec-cell-note">H3 with the production hairline. This is the default.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e0">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>E1 · same candidate, no --line</h3>
+    <p class="spec-cell-note">H3 with <code>border-bottom-color: transparent</code>. Nothing else differs.</p>
+    <div class="spec-stage " data-geometry="production">
+      <main class="chat-panel">
+      <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e1">
+        <div class="chat-header-inner">
+          <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+          <div class="chat-header-actions">
+            <span class="session-mode">Work</span>
+            <button class="quiet-button" type="button">Context</button>
+          </div>
+        </div>
+      </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  </div>
+  </section>
+
+  <section class="spec-board" id="board-transient">
+    <h2>Board C · Transient calibration</h2>
+    <p class="spec-note">Sequential ablation: P0 → P1 changes alpha only; P1 → P2 changes saturation only. The question for P2 is not which looks richer, but whether the transient stays semantically neutral as the content behind it changes. Switch the backdrop control to <strong>B4 status</strong> and compare P1 with P2.</p>
+    
+  <div class="spec-grid cols-4">
+  <div class="spec-cell">
+    <h3>P0 · current production recipe</h3>
+    <p class="spec-cell-note"><code>--glass-muted</code> (0.86 light / 0.10 dark today) · blur 16px · <code>saturate(1.4)</code></p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p0">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>P1 · proposed transient alpha</h3>
+    <p class="spec-cell-note">alpha 0.92 light / 0.16 dark · blur 16px · <code>saturate(1.4)</code>. Only alpha changes from P0.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p1">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>P2 · proposed alpha, neutral saturation</h3>
+    <p class="spec-cell-note">alpha 0.92 / 0.16 · blur 16px · <code>saturate(1)</code>. Only saturation changes from P1.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p2">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>PF · solid fallback</h3>
+    <p class="spec-cell-note"><code>--float</code> · no blur · no mask · same edge and depth.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="pf">
+        <p class="eyebrow">Context</p>
+        <button class="context-row" type="button">Bound project · Meridian NDA</button>
+        <button class="context-row" type="button">Recorded run · 8f21c04</button>
+        <div class="context-group">
+          <p class="eyebrow">Sources</p>
+          <button class="context-row" type="button">annex-b.pdf</button>
+          <button class="context-row" type="button">schedule-2026.csv</button>
+        </div>
+        <p class="context-meta">Read from the recorded run, not recomputed.</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  </section>
+
+  <section class="spec-board" id="board-review">
+    <h2>Board D · Human review tint</h2>
+    <p class="spec-note">No blur, no glass, no different icon, no red text substitution, no red rail, glow, shadow or focus ring. All three must remain understandable with colour removed: the explicit <em>Needs you</em> label and the existing structure are the redundant signal. The question is whether the tint points attention without turning the object into an error.</p>
+    
+  <div class="spec-grid cols-3">
+  <div class="spec-cell">
+    <h3>R0 · no review surface tint</h3>
+    <p class="spec-cell-note">background <code>--float</code></p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r0">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  <div class="spec-cell">
+    <h3>R1 · 5%</h3>
+    <p class="spec-cell-note">background <code>color-mix(in srgb, var(--attention-review) 5%, var(--float))</code></p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r1">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  <div class="spec-cell">
+    <h3>R2 · 10%</h3>
+    <p class="spec-cell-note">background <code>color-mix(in srgb, var(--attention-review) 10%, var(--float))</code></p>
+    <div class="spec-stage is-short" style="padding:24px;background:var(--panel)">
+      <div class="spec-review" data-surface="review" data-variant="r2">
+        <div class="spec-review-head">
+          <h4>Effective date</h4>
+          <span class="spec-review-state">Needs you</span>
+        </div>
+        <p>The filed copy and the amended annex give different effective dates. The run recorded both and stopped.</p>
+        <div class="spec-review-actions">
+          <button class="primary-button" type="button">Record a decision</button>
+          <button class="quiet-button" type="button">Open both</button>
+        </div>
+      </div></div>
+  </div>
+  </div>
+  </section>
+
+  <section class="spec-board" id="board-negative">
+    <h2>Board E · Negative controls and preserved boundaries</h2>
+    <p class="spec-note">These are not options. They are drawn once so a future agent can see the boundary rather than rediscover it.</p>
+    
+  <p class="spec-eyebrow">Glass-on-glass · hard negative</p>
+  <div class="spec-grid cols-3">
+  <div class="spec-cell">
+    <h3>glass transient over glass chrome</h3>
+    <p><span class="spec-verdict is-rejected">REJECTED</span></p>
+    <p class="spec-cell-note">Two active sampling layers stacked. The inner surface samples an already-blurred surface: the boundary between them stops being readable and the compositing cost doubles for nothing.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="spec-nested-parent" data-parent="glass">
+        <span class="eyebrow">Chrome glass parent</span>
+        <div class="spec-nested-child" data-child="glass">Transient glass child</div>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>glass transient over solid parent</h3>
+    <p><span class="spec-verdict">VALID</span></p>
+    <p class="spec-cell-note">One sampling layer. The transient reads as the higher surface because the plane under it is solid.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="spec-nested-parent" data-parent="solid">
+        <span class="eyebrow">Solid raised parent</span>
+        <div class="spec-nested-child" data-child="glass">Transient glass child</div>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>solid raised transient over glass parent</h3>
+    <p><span class="spec-verdict">VALID</span></p>
+    <p class="spec-cell-note">One sampling layer, the other way round. Which layer keeps the glass follows the interaction topology, not the size of the surface.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="spec-nested-parent" data-parent="glass">
+        <span class="eyebrow">Chrome glass parent</span>
+        <div class="spec-nested-child" data-child="solid">Solid raised child</div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <p class="spec-eyebrow" style="margin-top:28px">Boundaries preserved for future agents</p>
+  <div class="spec-grid cols-3">
+  <div class="spec-cell">
+    <h3>Product atmosphere field</h3>
+    <p><span class="spec-verdict">NOT ADMITTED</span></p>
+    <p class="spec-cell-note">No ambient glow, background mesh, noise texture, coloured fog or large blurred orb is admitted into the app. These stay potential Pages / provider-showcase vocabulary.</p>
+    <div class="spec-field-off"><span>Product atmosphere field<br />Status: NOT ADMITTED</span></div>
+  </div>
+  <div class="spec-cell">
+    <h3>Long document / diff</h3>
+    <p><span class="spec-verdict">SOLID ONLY</span></p>
+    <p class="spec-cell-note">Content planes are solid. No glass twin is shown, because there is no candidate: this is the boundary itself.</p>
+    <div class="spec-stage is-short"><div class="spec-doc"><h3>Amended annex B · diff</h3><p>Long text, documents, diffs and tables stay on an opaque reading plane. Hierarchy here comes from measure, spacing and boundaries.</p><pre>- effective on the Closing Date
++ effective on 1 March 2026</pre><p>Nothing about this surface changes when a material decision is made elsewhere in the product.</p></div></div>
+  </div>
+  <div class="spec-cell">
+    <h3>True modal</h3>
+    <p><span class="spec-verdict">SOLID + SMOKE</span></p>
+    <p class="spec-cell-note">Solid elevated surface with smoke behind it. Smoke follows actual blocking, not importance: an inline Attention decision or approval card gets none.</p>
+    <div class="spec-stage is-short"><main class="chat-panel">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></main><div class="spec-modal-scrim"></div><div class="spec-modal"><h4>Delete this recorded run?</h4><p>The evidence directory and its hashes are removed. This cannot be undone.</p><div class="spec-modal-actions"><button class="quiet-button" type="button">Cancel</button><button class="primary-button" type="button">Delete</button></div></div></div>
+  </div>
+  </div>
+  </section>
+
+  <section class="spec-board" id="board-focus">
+    <h2>Board F · Focus</h2>
+    <p class="spec-note">Focus stays the product's own colour and geometry in glass, in the solid fallback, in light and in dark. No material colour substitution, no glow-only focus, and the focused control is never itself blurred.</p>
+    
+  <div class="spec-grid cols-4 spec-focus-demo">
+  <div class="spec-cell">
+    <h3>J0 focused</h3>
+    <p class="spec-cell-note">Product focus colour and geometry over Chrome glass. The control itself is never blurred.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+        <button class="jump-latest-button spec-force-focus" type="button" data-surface="jump-latest" data-variant="j0">Back to latest</button>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>JF focused</h3>
+    <p class="spec-cell-note">The same ring on the solid fallback.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+        <button class="jump-latest-button spec-force-focus" type="button" data-surface="jump-latest" data-variant="jf">Back to latest</button>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>P2 row focused</h3>
+    <p class="spec-cell-note">Focus inside a transient surface. No material colour substitution, no glow-only focus.</p>
+    <div class="spec-stage ">
+      <main class="chat-panel">
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+      <div class="context-popover" data-surface="context-popover" data-variant="p2">
+        <p class="eyebrow">Context</p>
+        <button class="context-row spec-force-focus" type="button">Recorded run · 8f21c04</button>
+        <button class="context-row" type="button">annex-b.pdf</button>
+      </div>
+    </div>
+  </div>
+  <div class="spec-cell">
+    <h3>H3 header control focused</h3>
+    <p class="spec-cell-note">The header's own control keeps the ring while the material fades behind it.</p>
+    <div class="spec-stage">
+      <main class="chat-panel">
+        <header class="chat-header" data-surface="work-header" data-h="h3" data-edge="e0">
+          <div class="chat-header-inner">
+            <div class="chat-title-wrap"><h1>Reconcile the payment schedule</h1></div>
+            <div class="chat-header-actions">
+              <button class="quiet-button spec-force-focus" type="button">Context</button>
+            </div>
+          </div>
+        </header>
+        <div class="conversation-body">
+      <div class="message-stream-wrap">
+        <section class="message-stream" data-spec-scroll>
+          <div class="message-list">
+        <div class="spec-backdrop-block" data-backdrop="quiet">
+          <h3>Recorded run</h3>
+          <p>The workspace kept one answer and the file it changed.</p>
+          <p>Nothing else is waiting on you right now.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="dense">
+          <p>The projection reads the recorded run rather than the transcript, so a reopened session shows the same facts it showed when the run finished. Every row below is a recorded value; none of them is recomputed on read.</p>
+          <p>Where two sources disagree the surface says which one it took and why, and the disagreement stays visible instead of being resolved silently in favour of whichever arrived last.</p>
+          <p>A conflict qualifies for human adjudication only when the domain projection actually asks for it. Everything else resolves on the recorded evidence.</p>
+          <p>The reading column stays at its own measure regardless of how wide the panel becomes, so a wider window buys context around the text rather than a longer line.</p>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="code">
+          <pre>export function projectRun(run, evidence) {
+  const recorded = evidence.filter((e) =&gt; e.runId === run.id);
+  if (!recorded.length) return { state: "unknown", rows: [] };
+  return {
+    state: run.outcome ?? "unknown",
+    rows: recorded.map(toRow),
+    hash: run.contentHash,
+  };
+}</pre>
+          <pre>$ courtwork verify --run 8f21c04 --strict
+  reading  evidence/runs/8f21c04/manifest.json
+  ok       12 recorded rows, 0 recomputed
+  ok       content hash matches</pre>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="selected">
+          <div class="spec-row-neutral">Draft the settlement summary</div>
+          <div class="spec-row-hovered">Compare exhibit B against the filed copy</div>
+          <div class="spec-row-selected">Reconcile the payment schedule</div>
+          <div class="spec-row-neutral">Extract the termination clause</div>
+          <div class="spec-row-selected">Bind the NDA review to this project</div>
+          <div class="spec-row-hovered">Re-read the amended annex</div>
+          <div class="spec-row-neutral">Record the reviewer's decision</div>
+        </div>
+        <div class="spec-backdrop-block" data-backdrop="status">
+          <div class="spec-status-danger">Run failed — the source file moved between read and write.</div>
+          <div class="spec-status-success">Recorded — 12 rows written, content hash matches.</div>
+          <div class="spec-status-review">Needs you — two sources disagree on the effective date.</div>
+          <div class="spec-status-danger">Run failed — provider returned no usable answer.</div>
+          <div class="spec-status-success">Recorded — the amended annex is bound to this project.</div>
+          <div class="spec-status-review">Needs you — the reviewer's decision is not recorded yet.</div>
+        </div>
+          </div>
+        </section>
+      </div></div>
+      </main>
+    </div>
+  </div>
+  </div>
+  </section>
+
+</div>
+<script type="module" src="specimen.mjs"></script>
+</body>
+</html>

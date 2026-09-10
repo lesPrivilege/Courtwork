@@ -1,0 +1,897 @@
+/* FE-05 · Material specimen — specimen-local stylesheet.
+   This file is NOT product CSS. It is never loaded by app/web and never
+   registered in tools/lint-materials.mjs. It exists to render candidate
+   materials on top of the *unmodified* app/web/styles.css, which index.html
+   links verbatim.
+
+   Rules that hold everywhere in this file:
+     · blur radii come only from var(--blur-chrome) / var(--blur-transient);
+     · translucent surface colour comes only from --glass / --glass-muted or a
+       --specimen-* alpha declared in §0;
+     · no refraction, no lensing, no animated backdrop-filter, no parent
+       opacity, no new radius / shadow / border colour;
+     · every glass variant below has a solid fallback in §9. */
+
+/* ── §0 · specimen-local tokens ─────────────────────────────────────────── */
+:root {
+  /* Frozen FE-05 proposal for the Transient band (§33 of the work order).
+     Light 0.92 / dark 0.16. Production --glass-muted today equals --glass
+     (0.86 / 0.10); this is the only alpha the specimen changes. */
+  --specimen-transient-alpha: 0.92;
+  --specimen-glass-transient-proposed: rgba(
+    var(--alpha-paper),
+    var(--specimen-transient-alpha)
+  );
+  /* Bounded sampling extension for header candidate H3. Desktop only.
+     It is an extension of the sampling rectangle, not a stronger blur:
+     the radius stays var(--blur-chrome) = 12px in every header candidate. */
+  --specimen-sampling-extension: 24px;
+  /* Review-surface tint concentrations under evaluation (R1 / R2). */
+  --specimen-review-tint-1: 5%;
+  --specimen-review-tint-2: 10%;
+}
+:root[data-theme="dark"] {
+  --specimen-transient-alpha: 0.16;
+}
+/* §11 · narrow screens switch the sampling extension off. They do not get a
+   stronger blur to compensate. */
+@media (max-width: 767px) {
+  :root {
+    --specimen-sampling-extension: 0px;
+  }
+}
+
+/* ── §1 · page scaffolding (specimen only) ──────────────────────────────── */
+/* app/web/styles.css sets `body { overflow: hidden }` for the app shell. A
+   scrolling document needs that back; nothing else about body is touched. */
+body.spec-body {
+  overflow: auto;
+  height: auto;
+  background: var(--frame);
+  padding: 0 0 96px;
+}
+.spec-wrap {
+  max-width: 1392px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.spec-masthead {
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+.spec-masthead h1 {
+  font-size: 26px;
+  letter-spacing: var(--tracking-heading);
+  margin: 0 0 8px;
+}
+.spec-masthead p {
+  margin: 0 0 6px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  line-height: 1.6;
+  max-width: 92ch;
+}
+.spec-masthead code,
+.spec-note code,
+.spec-cell-note code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+.spec-stamp {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 8px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-small);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.spec-board {
+  margin: 0 0 48px;
+}
+.spec-board > h2 {
+  font-size: var(--text-title);
+  letter-spacing: var(--tracking-heading);
+  margin: 0 0 6px;
+}
+.spec-board > .spec-note {
+  margin: 0 0 18px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  line-height: 1.65;
+  max-width: 92ch;
+}
+.spec-eyebrow {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  margin: 0 0 4px;
+}
+
+/* ── §2 · SPECIMEN CONTROLS · deliberately unlike any Courtwork surface ── */
+.spec-controls {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  margin: 0 0 32px;
+  padding: 14px 16px;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--radius-small);
+  background: var(--panel-muted);
+  font-family: var(--font-mono);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: flex-start;
+}
+.spec-controls legend,
+.spec-controls .spec-controls-title {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  width: 100%;
+}
+.spec-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.spec-control-group > span {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.spec-control-group > div {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.spec-controls button {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  padding: 5px 9px;
+  min-height: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-small);
+  background: var(--panel);
+  color: var(--ink);
+}
+.spec-controls button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--panel);
+  border-color: var(--ink);
+}
+
+/* ── §3 · the stage: a real .chat-panel column with real scrolling content ─ */
+/* Class names inside a stage are the product's own, so app/web/styles.css —
+   not this file — supplies their geometry, type and colour. */
+.spec-stage {
+  position: relative;
+  height: 340px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+}
+.spec-stage.is-short {
+  height: 260px;
+}
+.spec-stage .chat-panel {
+  flex: 1;
+  min-height: 0;
+}
+.spec-stage .message-stream {
+  padding-top: var(--space-4);
+}
+.spec-stage .message-list p {
+  margin: 0 0 12px;
+  font-size: var(--text-reading);
+  line-height: 1.7;
+}
+.spec-stage .message-list h3 {
+  font-size: var(--text-section);
+  margin: 0 0 8px;
+}
+.spec-backdrop-block {
+  display: none;
+}
+:root[data-backdrop="quiet"] .spec-backdrop-block[data-backdrop="quiet"],
+:root[data-backdrop="dense"] .spec-backdrop-block[data-backdrop="dense"],
+:root[data-backdrop="code"] .spec-backdrop-block[data-backdrop="code"],
+:root[data-backdrop="selected"] .spec-backdrop-block[data-backdrop="selected"],
+:root[data-backdrop="status"] .spec-backdrop-block[data-backdrop="status"] {
+  display: block;
+}
+.spec-backdrop-block pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  margin: 0 0 12px;
+  white-space: pre;
+  overflow-x: auto;
+}
+.spec-row-neutral,
+.spec-row-hovered,
+.spec-row-selected {
+  padding: 9px 12px;
+  border-radius: var(--radius-small);
+  font-size: var(--text-body);
+  margin-bottom: 4px;
+}
+.spec-row-hovered {
+  background: var(--hover);
+}
+.spec-row-selected {
+  background: var(--selected);
+}
+.spec-status-danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+  padding: 9px 12px;
+  border-radius: var(--radius-small);
+  margin-bottom: 4px;
+  font-size: var(--text-body);
+}
+.spec-status-success {
+  color: var(--success);
+  background: var(--success-soft);
+  padding: 9px 12px;
+  border-radius: var(--radius-small);
+  margin-bottom: 4px;
+  font-size: var(--text-body);
+}
+.spec-status-review {
+  color: var(--attention-review);
+  font-weight: 600;
+  padding: 9px 12px;
+  margin-bottom: 4px;
+  font-size: var(--text-body);
+}
+
+/* ── §4 · board grid ───────────────────────────────────────────────────── */
+.spec-grid {
+  display: grid;
+  gap: 20px;
+}
+.spec-grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.spec-grid.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.spec-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 1279px) {
+  .spec-grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .spec-grid.cols-4,
+  .spec-grid.cols-3,
+  .spec-grid.cols-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.spec-cell > h3 {
+  font-size: var(--text-label);
+  font-family: var(--font-mono);
+  margin: 0 0 2px;
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+/* Fixed so every cell's stage starts at the same y. Without this a longer
+   caption shifts a stage by a few pixels and the pixel comparison in
+   measurements.json picks up text antialiasing instead of material. */
+.spec-cell-note {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  line-height: 1.55;
+  margin: 4px 0 8px;
+  min-height: 5.2em;
+}
+.spec-na {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 340px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-card);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  text-align: center;
+  padding: 16px;
+  line-height: 1.6;
+}
+.spec-na.is-short {
+  height: 260px;
+}
+.spec-verdict {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: var(--radius-small);
+  border: 1px solid var(--line-strong);
+  color: var(--muted-strong);
+  margin-bottom: 6px;
+}
+.spec-verdict.is-rejected {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* ── §5 · Jump to latest · J0 (current) / JF (solid fallback) ──────────── */
+/* J0 is not restyled at all: .jump-latest-button in app/web/styles.css owns it.
+   JF forces the same fallback the product already ships under
+   prefers-reduced-transparency, so the two cells differ only in material. */
+.spec-stage .jump-latest-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control);
+  padding: 0 var(--space-3);
+}
+.jump-latest-button[data-variant="jf"] {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ── §6 · Work header · H0 / H1 / H2 / H3 ──────────────────────────────── */
+/* Every candidate keeps the production .chat-header geometry, the production
+   border-bottom: 1px solid var(--line), and blur(var(--blur-chrome)) = 12px.
+   H2/H3 isolate the material into ::before so the title, tabs, buttons and
+   focus ring are never touched by the mask (§8 of the work order). */
+.spec-stage .chat-header {
+  position: relative;
+  z-index: 2;
+}
+.spec-stage .chat-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* H0 · production baseline: solid panel + one hairline. */
+.chat-header[data-h="h0"] {
+  background: var(--panel);
+}
+
+/* H1 · uniform Chrome material on the element itself. One sampling layer. */
+.chat-header[data-h="h1"] {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
+}
+
+/* H2 · progressive edge. One sampling layer, one gradient mask, no extension.
+   The mask fades the *material*, not the header's content. */
+.chat-header[data-h="h2"],
+.chat-header[data-h="h3"] {
+  background: transparent;
+}
+.chat-header[data-h="h2"]::before,
+.chat-header[data-h="h3"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 62%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, #000 0, #000 62%, transparent 100%);
+}
+
+/* H3 · same single sampling layer, extended a bounded distance into the
+   scrolling side so the blur has pixels to sample near the edge. The radius is
+   unchanged; only the sampling rectangle grows. */
+.chat-header[data-h="h3"]::before {
+  bottom: calc(-1 * var(--specimen-sampling-extension));
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 46%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, #000 0, #000 46%, transparent 100%);
+}
+
+/* COMPOSITION-DEPENDENCY diagnostic. Not a candidate and not a proposal: it
+   shows what the same H1/H2/H3 recipes would do IF the header ever overlaid
+   scrolling content. Today .chat-header is a flex sibling above the scroll
+   container, so nothing scrolls behind it. Only the header's position changes
+   here; the material declarations are the same ones used above. */
+.spec-stage[data-geometry="overlay"] .chat-panel {
+  position: relative;
+}
+.spec-stage[data-geometry="overlay"] .chat-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.spec-stage[data-geometry="overlay"] .conversation-body {
+  padding-top: var(--band-top);
+}
+.spec-stage[data-geometry="overlay"] .message-stream {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* E-sidecar · the same selected candidate with and without the hairline. */
+.chat-header[data-edge="e1"] {
+  border-bottom-color: transparent;
+}
+
+/* ── §7 · Context popover · P0 / P1 / P2 / PF ──────────────────────────── */
+/* Width, padding, radius, border, rim, shadow, type and row anatomy all come
+   from .context-popover in app/web/styles.css. The specimen changes position
+   (fixed → absolute inside its stage) and, for P1/P2, alpha and saturation.
+   Nothing else. */
+.spec-stage .context-popover {
+  position: absolute;
+  inset: 16px 16px auto auto;
+  max-height: calc(100% - 32px);
+  width: 288px;
+}
+.context-popover[data-variant="p1"],
+.context-popover[data-variant="p2"] {
+  background: var(--specimen-glass-transient-proposed);
+}
+.context-popover[data-variant="p2"] {
+  -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1);
+  backdrop-filter: blur(var(--blur-transient)) saturate(1);
+}
+.context-popover[data-variant="pf"] {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ── §8 · Composer · C0 (solid, current) / C1 (Chrome glass) ───────────── */
+/* Geometry is untouched: the composer keeps its own non-scrolling band, its
+   inset, its height, its border and its shadow. Only the surface changes. */
+.composer-form[data-variant="c1"] {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
+}
+.spec-stage .composer-area {
+  padding: 8px 16px 12px;
+}
+.spec-stage .composer-form {
+  max-width: none;
+}
+.spec-stage #spec-composer-input,
+.spec-stage .spec-composer-input {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  padding: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-reading);
+  resize: none;
+}
+.spec-composer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.spec-composer-meta {
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+
+/* ── §9 · representative Inspector tile (Transient recipe, not product UI) ─ */
+.spec-inspector {
+  position: absolute;
+  inset: 16px 16px auto auto;
+  width: 288px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  color: var(--ink);
+  box-shadow: var(--rim), var(--shadow-float);
+}
+.spec-inspector[data-variant="solid"] {
+  background: var(--float);
+}
+.spec-inspector[data-variant="transient"] {
+  background: var(--specimen-glass-transient-proposed);
+  -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1);
+  backdrop-filter: blur(var(--blur-transient)) saturate(1);
+}
+.spec-inspector dl {
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 12px;
+  font-size: var(--text-meta);
+}
+.spec-inspector dt {
+  color: var(--muted-strong);
+}
+.spec-inspector dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.spec-inspector .eyebrow {
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+  display: block;
+  margin-bottom: 6px;
+}
+.spec-inspector footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── §10 · human review tint · R0 / R1 / R2 ────────────────────────────── */
+/* Solid raised micro-surface. No blur, no glass, no red rail, glow, shadow or
+   focus ring. The only thing that changes across R0/R1/R2 is the surface
+   concentration; the explicit "Needs you" label carries the state. */
+.spec-review {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+  padding: 16px;
+}
+.spec-review[data-variant="r1"] {
+  background: color-mix(
+    in srgb,
+    var(--attention-review) var(--specimen-review-tint-1),
+    var(--float)
+  );
+}
+.spec-review[data-variant="r2"] {
+  background: color-mix(
+    in srgb,
+    var(--attention-review) var(--specimen-review-tint-2),
+    var(--float)
+  );
+}
+.spec-review-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.spec-review-state {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--attention-review);
+}
+.spec-review h4 {
+  margin: 0;
+  font-size: var(--text-body);
+}
+.spec-review p {
+  margin: 0 0 12px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+.spec-review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── §11 · negative controls ───────────────────────────────────────────── */
+/* Glass-on-glass exists here only to be marked REJECTED. */
+.spec-nested-parent {
+  position: absolute;
+  inset: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  padding: 16px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-chrome));
+  backdrop-filter: blur(var(--blur-chrome));
+  box-shadow: var(--rim), var(--shadow-float);
+}
+.spec-nested-parent[data-parent="solid"] {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.spec-nested-child {
+  margin-top: 40px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--rim), var(--shadow-float);
+  font-size: var(--text-label);
+  background: var(--specimen-glass-transient-proposed);
+  -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1);
+  backdrop-filter: blur(var(--blur-transient)) saturate(1);
+}
+.spec-nested-child[data-child="solid"] {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* Product atmosphere field · declared absent, drawn as nothing. */
+.spec-field-off {
+  height: 160px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+  text-align: center;
+  line-height: 1.7;
+  padding: 16px;
+}
+/* Long content and modal boundaries: solid only, shown once, no glass twin. */
+.spec-doc {
+  padding: 20px 24px;
+  background: var(--panel);
+  height: 100%;
+  overflow: auto;
+}
+.spec-doc h3 {
+  margin: 0 0 10px;
+  font-size: var(--text-section);
+}
+.spec-doc p {
+  font-size: var(--text-reading);
+  line-height: 1.7;
+  margin: 0 0 12px;
+  max-width: 68ch;
+}
+.spec-doc pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  background: var(--panel-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  padding: 12px;
+  overflow-x: auto;
+}
+.spec-modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 20;
+}
+.spec-modal {
+  position: absolute;
+  z-index: 21;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, calc(100% - 40px));
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+.spec-modal h4 {
+  margin: 0 0 8px;
+  font-size: var(--text-body);
+}
+.spec-modal p {
+  margin: 0 0 16px;
+  font-size: var(--text-label);
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+.spec-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── §12 · fallbacks ───────────────────────────────────────────────────── */
+/* Three separate conditions, kept separate on purpose:
+     (a) the viewer asked for less transparency        → prefers-reduced-transparency
+     (b) the engine cannot sample a backdrop at all    → @supports not (...)
+     (c) forced / high-contrast rendering              → forced-colors
+   The declarations below are duplicated under the specimen's own
+   [data-a11y] simulation attribute so the lab controls can show each state on
+   a machine where the real media feature is not being emulated. The two copies
+   are identical; measurements.json records which mechanism produced each
+   capture. */
+
+/* (a) reduced transparency — mask-image: none is mandatory. A solid surface
+   that still fades out through a mask is not a valid fallback. */
+@media (prefers-reduced-transparency: reduce) {
+  .jump-latest-button,
+  .context-popover,
+  .chat-header[data-h="h1"],
+  .composer-form[data-variant="c1"],
+  .spec-inspector[data-variant="transient"],
+  .spec-nested-parent,
+  .spec-nested-child {
+    background: var(--float);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .chat-header[data-h="h2"],
+  .chat-header[data-h="h3"] {
+    background: var(--panel);
+  }
+  .chat-header[data-h="h2"]::before,
+  .chat-header[data-h="h3"]::before {
+    content: none;
+  }
+}
+:root[data-a11y="reduce"] .jump-latest-button,
+:root[data-a11y="reduce"] .context-popover,
+:root[data-a11y="reduce"] .chat-header[data-h="h1"],
+:root[data-a11y="reduce"] .composer-form[data-variant="c1"],
+:root[data-a11y="reduce"] .spec-inspector[data-variant="transient"],
+:root[data-a11y="reduce"] .spec-nested-parent,
+:root[data-a11y="reduce"] .spec-nested-child {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+:root[data-a11y="reduce"] .chat-header[data-h="h2"],
+:root[data-a11y="reduce"] .chat-header[data-h="h3"] {
+  background: var(--panel);
+}
+:root[data-a11y="reduce"] .chat-header[data-h="h2"]::before,
+:root[data-a11y="reduce"] .chat-header[data-h="h3"]::before {
+  content: none;
+}
+
+/* (b) no backdrop-filter support. A different condition from (a): the person
+   never asked for anything. Geometry, label, controls and information stay;
+   only the material disappears. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .chat-header[data-h="h1"],
+  .composer-form[data-variant="c1"],
+  .spec-inspector[data-variant="transient"],
+  .spec-nested-parent,
+  .spec-nested-child {
+    background: var(--float);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .chat-header[data-h="h2"],
+  .chat-header[data-h="h3"] {
+    background: var(--panel);
+  }
+  .chat-header[data-h="h2"]::before,
+  .chat-header[data-h="h3"]::before {
+    content: none;
+  }
+}
+:root[data-a11y="nosupport"] .jump-latest-button,
+:root[data-a11y="nosupport"] .context-popover,
+:root[data-a11y="nosupport"] .chat-header[data-h="h1"],
+:root[data-a11y="nosupport"] .composer-form[data-variant="c1"],
+:root[data-a11y="nosupport"] .spec-inspector[data-variant="transient"],
+:root[data-a11y="nosupport"] .spec-nested-parent,
+:root[data-a11y="nosupport"] .spec-nested-child {
+  background: var(--float);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+:root[data-a11y="nosupport"] .chat-header[data-h="h2"],
+:root[data-a11y="nosupport"] .chat-header[data-h="h3"] {
+  background: var(--panel);
+}
+:root[data-a11y="nosupport"] .chat-header[data-h="h2"]::before,
+:root[data-a11y="nosupport"] .chat-header[data-h="h3"]::before {
+  content: none;
+}
+
+/* (c) forced colours. A static page cannot certify Windows high contrast; this
+   is a failure-mode check: filters off, tint non-essential, boundary and focus
+   still readable, text still present. */
+@media (forced-colors: active) {
+  .jump-latest-button,
+  .context-popover,
+  .chat-header[data-h],
+  .composer-form[data-variant="c1"],
+  .spec-inspector,
+  .spec-nested-parent,
+  .spec-nested-child,
+  .spec-review[data-variant] {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+  .chat-header[data-h]::before {
+    content: none;
+  }
+}
+/* Simulation of (c). Not a certification; it approximates the two facts that
+   matter here — every filter and tint is dropped, and every boundary must
+   still be carried by a real border and real text. */
+:root[data-a11y="forced"] {
+  --glass: transparent;
+  --glass-muted: transparent;
+  --specimen-glass-transient-proposed: transparent;
+  --rim: none;
+  --shadow-float: none;
+  --shadow: none;
+}
+:root[data-a11y="forced"] .jump-latest-button,
+:root[data-a11y="forced"] .context-popover,
+:root[data-a11y="forced"] .chat-header[data-h],
+:root[data-a11y="forced"] .composer-form,
+:root[data-a11y="forced"] .spec-inspector,
+:root[data-a11y="forced"] .spec-nested-parent,
+:root[data-a11y="forced"] .spec-nested-child,
+:root[data-a11y="forced"] .spec-review[data-variant] {
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+  box-shadow: none;
+}
+:root[data-a11y="forced"] .chat-header[data-h] {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+}
+:root[data-a11y="forced"] .chat-header[data-h]::before {
+  content: none;
+}
+
+/* ── §13 · focus ───────────────────────────────────────────────────────── */
+/* The focus ring is the product's own. This block only forces the persistent
+   focus capture used for the focus screenshots; it changes no focus colour or
+   geometry, and no control is blurred while focused. */
+.spec-focus-demo :focus-visible,
+.spec-force-focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ── §14 · motion ──────────────────────────────────────────────────────── */
+/* The specimen is static. No transition or animation is declared on any
+   material property anywhere in this file; the only motion is whatever
+   app/web/styles.css already gives the controls it owns. */
