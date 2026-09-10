@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-10T14:11:33.859417+00:00",
+  "reviewDocumentCommit": "d22eb66ef1b335b95202c8c0a34c425acb59a2f9",
+  "productCodeCommit": "a2b084da09ba14a92f4e94bae49c9540d2e6dced",
+  "originalMessageId": null,
+  "conversationUrl": null,
+  "platformVerifiedModelLabel": null,
+  "missingProvenanceReason": "The environment did not expose these platform identifiers. Local intake must bind the original chat reply separately.",
+  "executionRole": "requested Pro architecture review; no separate reviewer process was launched",
+  "productAcceptance": "not-run",
+  "localIntegrationStatus": "not performed",
+  "githubWrites": false,
+  "deployment": false,
+  "artifactHashScope": "Every listed file; excludes this manifest itself and SHA256SUMS to avoid recursion. SHA256SUMS additionally covers this manifest. ZIP outer hash is separate.",
+  "artifacts": [
+    {
+      "path": "FULL_REVIEW.md",
+      "bytes": 79150,
+      "sha256": "b498d56fad7e96cfc83ed784c9725f112a066b53f96bde4851165a8eea39f9cc",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0020",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "HPR-01-baseline.md",
+      "bytes": 11295,
+      "sha256": "bec1a180918db8d45c72a6cc32003782aa80cbc3ffa21ff9d98450b9ad0486a3",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "HPR-02-work-orders.md",
+      "bytes": 37270,
+      "sha256": "9cee4c739628e3783def4d31599296f2e5386b25d00b3c1edbf3eaeccb29ab6a",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0020",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "HPR-03-gates.md",
+      "bytes": 6435,
+      "sha256": "b963d05f2a9d857dd8dbd81c47cd2e0057506447f0dfa60cea336fdf74e59fc9",
+      "outputIds": [
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2968,
+      "sha256": "9f27d6c7071bec24a2ea1a900a948fafd17b0891eeffcad12bd5e6063bc6037b",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0021",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "architecture-contracts.md",
+      "bytes": 18910,
+      "sha256": "5ceed51482986b7d1d6367ab6b0d93d51e9d9ce036ceefc4be9f58b65840ce8b",
+      "outputIds": [
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "collection-handoff.md",
+      "bytes": 1772,
+      "sha256": "db96d63fcf8acbc1f68075c3c851bdc0f14761ef1a8d20156f44ec74931679b3",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0021",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "contracts/ports.d.ts",
+      "bytes": 4310,
+      "sha256": "262a1871001b48938e16bf196308b946e841e472eb2198afae698fdc7b47fd1f",
+      "outputIds": [
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0010",
+        "HPRO-0013"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "decision-register.csv",
+      "bytes": 3838,
+      "sha256": "2fba36dc7c26de46c0d938f10c9c4fc4e738306381c9e3bdb8bf06c6beb6cb56",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0020",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "decision-register.json",
+      "bytes": 14623,
+      "sha256": "b75e2fa367c7d747d3df9837205a79421d36429dd9d98592af71aede284626b3",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0020",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "evidence/TEST-SCOPE.md",
+      "bytes": 1577,
+      "sha256": "0a4c3a51fa195607bebcb6936377a930baf43e0f3a78ed7b9499f8eab15799da",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "evidence/baseline-byte-check.json",
+      "bytes": 438,
+      "sha256": "067f2a138bf8cf7debe08e22cd796dd0cd3576bd466392296a8fc73251a2c94a",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "evidence/baseline-mcp.tap",
+      "bytes": 1188,
+      "sha256": "8db880d3d08b10ba312960fae29d4d43f64ce5d37b5eb7eca6bd652a3223c623",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "evidence/reference-catalog.tap",
+      "bytes": 1813,
+      "sha256": "cd7c39f19d6299345b241444f56137d94c01d9a6f216099708c72bd0473022a4",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "implementation-map.json",
+      "bytes": 9796,
+      "sha256": "886b16662d7149d9c314ae44efe731f8b8c022e54668af2b0d71916c9ff2fba7",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0007",
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0016",
+        "HPRO-0017",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0020",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "reference/collect-catalog.mjs",
+      "bytes": 2828,
+      "sha256": "15c0fa4a9d7307241be6da82db9e9764d9a6d99a46002539dd59fce2ccca6dcb",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "reference/mcp-manager.baseline.mjs",
+      "bytes": 6836,
+      "sha256": "bc1cb6ac420103f85ef8ebc713e248810cc7d4858de0e8b65a959e3e3e527ddd",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 22607,
+      "sha256": "b35addc15bfbed8380c91cad3cabb039fff6ba054fad8b279221b6733775b02e",
+      "outputIds": [
+        "HPRO-0001"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "tests/baseline-mcp.test.mjs",
+      "bytes": 5218,
+      "sha256": "31285f37c1a4378dd93755fca94f01c1cc0529b5b8234db0a552147451043368",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0009",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "tests/reference-catalog.test.mjs",
+      "bytes": 2658,
+      "sha256": "c2336a6b062c9373da74ed4f5c2be0254484eca6aaea6cdb65f7c477100b5ba0",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "verify-package.py",
+      "bytes": 4014,
+      "sha256": "a234167da1e65519a66d657f9fc2eef45f0b485c0f3a2987250cb8bc47b67144",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0021",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P00.md",
+      "bytes": 2379,
+      "sha256": "9cfad0d75de5daf73ffdf093db31c35995f5d7220088c928d36340128e60e8c2",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0007",
+        "HPRO-0016",
+        "HPRO-0018",
+        "HPRO-0021",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P01.md",
+      "bytes": 2479,
+      "sha256": "bd5deba58fa71b9de5a4ed8fa673c0f5f0a2bd9f97ed1958de5f8fa927506490",
+      "outputIds": [
+        "HPRO-0008",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P02.md",
+      "bytes": 2543,
+      "sha256": "623a52327ec803d148c1e19281c768c2f3f34d253d41afa7b0cb6368e138265b",
+      "outputIds": [
+        "HPRO-0005",
+        "HPRO-0009",
+        "HPRO-0020"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P03.md",
+      "bytes": 2585,
+      "sha256": "d83e7567a6dc46fc92b928bbfc1a7bbd686a4b7063f066b33d4f6884f1a32b22",
+      "outputIds": [
+        "HPRO-0002",
+        "HPRO-0004",
+        "HPRO-0005",
+        "HPRO-0016"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P04.md",
+      "bytes": 3102,
+      "sha256": "c480f7dc733ab1704a034d14a23f10ce21fb189f41dacffb06b64715713c1020",
+      "outputIds": [
+        "HPRO-0002",
+        "HPRO-0003",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0017",
+        "HPRO-0019"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P05.md",
+      "bytes": 2700,
+      "sha256": "70ae088e5c41a73488cf8c78793362f8fd495ca8807f540648f75a63e4a2122e",
+      "outputIds": [
+        "HPRO-0005",
+        "HPRO-0010",
+        "HPRO-0016",
+        "HPRO-0018"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P06.md",
+      "bytes": 2880,
+      "sha256": "aab7967b260a4649aef6314cf8ccca693340934b6f24f01540cfe5c57ff2a7ed",
+      "outputIds": [
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0017"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P07.md",
+      "bytes": 2695,
+      "sha256": "daafdcc5ece92aa85e89b5dffbad2dd9ffa184f872f18e21d6f09241e871ca1c",
+      "outputIds": [
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0017",
+        "HPRO-0018"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P08.md",
+      "bytes": 2757,
+      "sha256": "84f90f1ba85572fa525161dcb8a7a55a8bbf8ed74e10710a0114ca8122285044",
+      "outputIds": [
+        "HPRO-0005",
+        "HPRO-0013",
+        "HPRO-0018"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P09.md",
+      "bytes": 3033,
+      "sha256": "ef0a5437fa4b26f580a70f0ab26e0b1f126b74448dd8e8c1bf5547536fd23ae4",
+      "outputIds": [
+        "HPRO-0005",
+        "HPRO-0014",
+        "HPRO-0017",
+        "HPRO-0018"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P10.md",
+      "bytes": 2632,
+      "sha256": "4e0c50767bd187a76e8c68be8e442f7e58f5ccc5d6e3e8c8bc4253e54c0a485b",
+      "outputIds": [
+        "HPRO-0011",
+        "HPRO-0015",
+        "HPRO-0017"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P11.md",
+      "bytes": 2844,
+      "sha256": "bc20135cadab30073729f297be24e15c6a6cbb09d2d69052170f380decaf6332",
+      "outputIds": [
+        "HPRO-0010",
+        "HPRO-0011",
+        "HPRO-0012",
+        "HPRO-0013",
+        "HPRO-0014",
+        "HPRO-0015",
+        "HPRO-0017"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    },
+    {
+      "path": "work-orders/HPR02-P12.md",
+      "bytes": 2879,
+      "sha256": "319a0b6009b043bb0c68f28bf0ece0914528588408faf8a852ad4fe7428dd58e",
+      "outputIds": [
+        "HPRO-0001",
+        "HPRO-0005",
+        "HPRO-0006",
+        "HPRO-0016",
+        "HPRO-0018",
+        "HPRO-0019",
+        "HPRO-0021",
+        "HPRO-0022",
+        "HPRO-0023",
+        "HPRO-0024"
+      ],
+      "treatment": "preserve original bytes; disposition through linked output IDs; not automatically accepted"
+    }
+  ]
+}

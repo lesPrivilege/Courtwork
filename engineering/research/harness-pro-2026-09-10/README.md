@@ -1,5 +1,7 @@
 # Harness Pro · 送审与输出全量消费
 
+附件接收：用户上传的[f1700fb0包](received/f1700fb0/receipt.md)已按原字节保存并解包核验，实际24项/13卡；与后版声明hash和316项/14卡不符，独立分版、不替代后版。只完成归档与结构检查，尚未逐项架构接受。
+
 后续本地输入：[参考设计原则 / Control Plane与Miles/TITO](../control-principles-2026-09-10/README.md)，含完整对话、截图及14项处置，外部主张待核验。此补充不在已送审 `d22eb66` manifest中；用户后续追加送审时须显式给新SHA，不能宣称Pro已读。
 
 当前状态：Pro两版正文已返回并完整保存，接口未提供最终附件；[覆盖与缺口](return-coverage.md)分开两版及其编号/证据，不称已消费316项完整台账。入口为 [架构设计与标杆工单](../../execution/2026-09-10-harness-pro-review.md)，总顺序见 [roadmap](../../roadmap.md)。

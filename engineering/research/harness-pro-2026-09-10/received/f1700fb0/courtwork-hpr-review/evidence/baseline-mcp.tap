@@ -1,0 +1,36 @@
+TAP version 13
+# (node:427) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: baseline: a paged catalogue is published healthy after only the first page
+ok 1 - baseline: a paged catalogue is published healthy after only the first page
+  ---
+  duration_ms: 3.790582
+  type: 'test'
+  ...
+# Subtest: baseline: a synthetic effect followed by isError does not invoke the unknown-effect callback
+ok 2 - baseline: a synthetic effect followed by isError does not invoke the unknown-effect callback
+  ---
+  duration_ms: 2.184499
+  type: 'test'
+  ...
+# Subtest: baseline control: a transport-style rejection invokes the unknown-effect callback
+ok 3 - baseline control: a transport-style rejection invokes the unknown-effect callback
+  ---
+  duration_ms: 3.016814
+  type: 'test'
+  ...
+# Subtest: baseline control: successful text result reaches the caller
+ok 4 - baseline control: successful text result reaches the caller
+  ---
+  duration_ms: 1.786613
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 72.34432

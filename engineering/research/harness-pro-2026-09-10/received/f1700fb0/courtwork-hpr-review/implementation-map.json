@@ -1,0 +1,419 @@
+{
+  "schemaVersion": 1,
+  "outputToWorkOrders": {
+    "HPRO-0001": [
+      "HPR02-P00",
+      "HPR02-P12"
+    ],
+    "HPRO-0002": [
+      "HPR02-P03",
+      "HPR02-P04"
+    ],
+    "HPRO-0003": [
+      "HPR02-P04"
+    ],
+    "HPRO-0004": [
+      "HPR02-P03"
+    ],
+    "HPRO-0005": [
+      "HPR02-P02",
+      "HPR02-P03",
+      "HPR02-P04",
+      "HPR02-P05",
+      "HPR02-P08",
+      "HPR02-P09",
+      "HPR02-P12"
+    ],
+    "HPRO-0006": [
+      "HPR02-P04",
+      "HPR02-P12"
+    ],
+    "HPRO-0007": [
+      "HPR02-P00"
+    ],
+    "HPRO-0008": [
+      "HPR02-P01"
+    ],
+    "HPRO-0009": [
+      "HPR02-P02"
+    ],
+    "HPRO-0010": [
+      "HPR02-P05",
+      "HPR02-P06",
+      "HPR02-P11"
+    ],
+    "HPRO-0011": [
+      "HPR02-P06",
+      "HPR02-P10",
+      "HPR02-P11"
+    ],
+    "HPRO-0012": [
+      "HPR02-P07",
+      "HPR02-P11"
+    ],
+    "HPRO-0013": [
+      "HPR02-P07",
+      "HPR02-P08",
+      "HPR02-P11"
+    ],
+    "HPRO-0014": [
+      "HPR02-P09",
+      "HPR02-P11"
+    ],
+    "HPRO-0015": [
+      "HPR02-P10",
+      "HPR02-P11"
+    ],
+    "HPRO-0016": [
+      "HPR02-P00",
+      "HPR02-P03",
+      "HPR02-P05",
+      "HPR02-P12"
+    ],
+    "HPRO-0017": [
+      "HPR02-P04",
+      "HPR02-P06",
+      "HPR02-P07",
+      "HPR02-P09",
+      "HPR02-P10",
+      "HPR02-P11"
+    ],
+    "HPRO-0018": [
+      "HPR02-P00",
+      "HPR02-P05",
+      "HPR02-P07",
+      "HPR02-P08",
+      "HPR02-P09",
+      "HPR02-P12"
+    ],
+    "HPRO-0019": [
+      "HPR02-P04",
+      "HPR02-P12"
+    ],
+    "HPRO-0020": [
+      "HPR02-P01",
+      "HPR02-P02"
+    ],
+    "HPRO-0021": [
+      "HPR02-P00",
+      "HPR02-P12"
+    ],
+    "HPRO-0022": [
+      "HPR02-P12"
+    ],
+    "HPRO-0023": [
+      "HPR02-P12"
+    ],
+    "HPRO-0024": [
+      "HPR02-P00",
+      "HPR02-P12"
+    ]
+  },
+  "workOrderToOutputs": {
+    "HPR02-P00": [
+      "HPRO-0001",
+      "HPRO-0007",
+      "HPRO-0016",
+      "HPRO-0018",
+      "HPRO-0021",
+      "HPRO-0024"
+    ],
+    "HPR02-P01": [
+      "HPRO-0008",
+      "HPRO-0020"
+    ],
+    "HPR02-P02": [
+      "HPRO-0005",
+      "HPRO-0009",
+      "HPRO-0020"
+    ],
+    "HPR02-P03": [
+      "HPRO-0002",
+      "HPRO-0004",
+      "HPRO-0005",
+      "HPRO-0016"
+    ],
+    "HPR02-P04": [
+      "HPRO-0002",
+      "HPRO-0003",
+      "HPRO-0005",
+      "HPRO-0006",
+      "HPRO-0017",
+      "HPRO-0019"
+    ],
+    "HPR02-P05": [
+      "HPRO-0005",
+      "HPRO-0010",
+      "HPRO-0016",
+      "HPRO-0018"
+    ],
+    "HPR02-P06": [
+      "HPRO-0010",
+      "HPRO-0011",
+      "HPRO-0017"
+    ],
+    "HPR02-P07": [
+      "HPRO-0012",
+      "HPRO-0013",
+      "HPRO-0017",
+      "HPRO-0018"
+    ],
+    "HPR02-P08": [
+      "HPRO-0005",
+      "HPRO-0013",
+      "HPRO-0018"
+    ],
+    "HPR02-P09": [
+      "HPRO-0005",
+      "HPRO-0014",
+      "HPRO-0017",
+      "HPRO-0018"
+    ],
+    "HPR02-P10": [
+      "HPRO-0011",
+      "HPRO-0015",
+      "HPRO-0017"
+    ],
+    "HPR02-P11": [
+      "HPRO-0010",
+      "HPRO-0011",
+      "HPRO-0012",
+      "HPRO-0013",
+      "HPRO-0014",
+      "HPRO-0015",
+      "HPRO-0017"
+    ],
+    "HPR02-P12": [
+      "HPRO-0001",
+      "HPRO-0005",
+      "HPRO-0006",
+      "HPRO-0016",
+      "HPRO-0018",
+      "HPRO-0019",
+      "HPRO-0021",
+      "HPRO-0022",
+      "HPRO-0023",
+      "HPRO-0024"
+    ]
+  },
+  "workOrders": [
+    {
+      "id": "HPR02-P00",
+      "file": "work-orders/HPR02-P00.md",
+      "owner": "本地集成唯一 owner（Astra）",
+      "dependsOn": [],
+      "allowedPaths": [
+        "engineering/research/harness-pro-2026-09-10/outputs/<intake-id>/** [new]",
+        "engineering/execution/hpr02-p00-baseline.md [new]",
+        "evidence/hpr02-p00/** [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P01",
+      "file": "work-orders/HPR02-P01.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P00"
+      ],
+      "allowedPaths": [
+        "app/runtime/mcp-manager.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p01.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P02",
+      "file": "work-orders/HPR02-P02.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P01"
+      ],
+      "allowedPaths": [
+        "app/runtime/mcp-manager.mjs",
+        "app/server/service.mjs",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p02.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P03",
+      "file": "work-orders/HPR02-P03.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P02"
+      ],
+      "allowedPaths": [
+        "app/runtime/pi-runtime-adapter.mjs [new]",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/runtime/runtime-port.d.ts [new]",
+        "app/tests/hpr_p03.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P04",
+      "file": "work-orders/HPR02-P04.md",
+      "owner": "本地后端唯一 writer；前端仍由原 writer 独立消费",
+      "dependsOn": [
+        "HPR02-P03"
+      ],
+      "allowedPaths": [
+        "app/server/runtime.mjs",
+        "app/server/harness-runtime.mjs [new]",
+        "app/server/work-application.mjs [new]",
+        "app/server/service.mjs",
+        "app/runtime/extension-registry.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/runtime/attention-tools.mjs",
+        "app/tests/hpr_p04.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P05",
+      "file": "work-orders/HPR02-P05.md",
+      "owner": "RuntimeStore 的唯一后端 owner",
+      "dependsOn": [
+        "HPR02-P04"
+      ],
+      "allowedPaths": [
+        "app/runtime/run-inputs.mjs [new]",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/server/store.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p05.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P06",
+      "file": "work-orders/HPR02-P06.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P05"
+      ],
+      "allowedPaths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/server/work-application.mjs [new in P04]",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p06.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P07",
+      "file": "work-orders/HPR02-P07.md",
+      "owner": "RuntimeControlPlane 唯一后端 owner",
+      "dependsOn": [
+        "HPR02-P06"
+      ],
+      "allowedPaths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/server/service.mjs",
+        "app/tests/hpr_p07.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P08",
+      "file": "work-orders/HPR02-P08.md",
+      "owner": "RuntimeStore 的唯一后端 owner",
+      "dependsOn": [
+        "HPR02-P07"
+      ],
+      "allowedPaths": [
+        "app/server/service.mjs",
+        "app/server/store.mjs",
+        "app/server/index.mjs",
+        "app/runtime/pi-runtime-adapter.mjs [new in P03]",
+        "app/runtime/control-contract.d.ts",
+        "app/tests/hpr_p08.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P09",
+      "file": "work-orders/HPR02-P09.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P05",
+        "HPR02-P06"
+      ],
+      "allowedPaths": [
+        "app/runtime/web-fetch.mjs [new]",
+        "app/runtime/run-inputs.mjs [new in P05]",
+        "app/runtime/control-tools.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/server/service.mjs",
+        "app/package.json",
+        "app/package-lock.json",
+        "app/tests/hpr_p09.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P10",
+      "file": "work-orders/HPR02-P10.md",
+      "owner": "本地后端唯一 writer",
+      "dependsOn": [
+        "HPR02-P06"
+      ],
+      "allowedPaths": [
+        "app/runtime/skill-intake.mjs [new]",
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/server/service.mjs",
+        "app/server/index.mjs",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p10.test.mjs [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P11",
+      "file": "work-orders/HPR02-P11.md",
+      "owner": "既有前端唯一 writer；后端只维护冻结合同",
+      "dependsOn": [
+        "HPR02-P06",
+        "HPR02-P08",
+        "HPR02-P09",
+        "HPR02-P10"
+      ],
+      "allowedPaths": [
+        "app/web/runtime-view.mjs",
+        "app/tests/hpr_p11.test.mjs [new]",
+        "app/scripts/hpr-browser-gates.mjs [new]",
+        "engineering/design/hpr02-ui-consumption.md [new]"
+      ],
+      "status": "proposed-not-created"
+    },
+    {
+      "id": "HPR02-P12",
+      "file": "work-orders/HPR02-P12.md",
+      "owner": "独立验收者；实现作者只修其明确负责的失败",
+      "dependsOn": [
+        "HPR02-P11"
+      ],
+      "allowedPaths": [
+        "app/tests/hpr_p12.test.mjs [new]",
+        "app/scripts/hpr-browser-gates.mjs [new in P11]",
+        "evidence/hpr02-p12/** [new]",
+        "engineering/execution/hpr02-stable-node.md [new]"
+      ],
+      "status": "proposed-not-created"
+    }
+  ]
+}

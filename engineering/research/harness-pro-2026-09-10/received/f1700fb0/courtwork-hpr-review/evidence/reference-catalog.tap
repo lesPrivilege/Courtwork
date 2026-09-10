@@ -1,0 +1,70 @@
+TAP version 13
+# Subtest: reference: collects two pages before publishing a complete catalogue
+ok 1 - reference: collects two pages before publishing a complete catalogue
+  ---
+  duration_ms: 2.549765
+  type: 'test'
+  ...
+# Subtest: reference: a finite empty page is valid
+ok 2 - reference: a finite empty page is valid
+  ---
+  duration_ms: 0.212089
+  type: 'test'
+  ...
+# Subtest: reference: repeated cursor is rejected
+ok 3 - reference: repeated cursor is rejected
+  ---
+  duration_ms: 0.440937
+  type: 'test'
+  ...
+# Subtest: reference: duplicate identity across pages is rejected
+ok 4 - reference: duplicate identity across pages is rejected
+  ---
+  duration_ms: 0.164272
+  type: 'test'
+  ...
+# Subtest: reference: total item cap applies across pages
+ok 5 - reference: total item cap applies across pages
+  ---
+  duration_ms: 0.269747
+  type: 'test'
+  ...
+# Subtest: reference: cumulative decoded byte cap applies
+ok 6 - reference: cumulative decoded byte cap applies
+  ---
+  duration_ms: 0.26329
+  type: 'test'
+  ...
+# Subtest: reference: cancellation before call makes zero reads
+ok 7 - reference: cancellation before call makes zero reads
+  ---
+  duration_ms: 0.304281
+  type: 'test'
+  ...
+# Subtest: reference: cancellation after read prevents publication
+ok 8 - reference: cancellation after read prevents publication
+  ---
+  duration_ms: 0.222087
+  type: 'test'
+  ...
+# Subtest: reference: malformed cursor is rejected
+ok 9 - reference: malformed cursor is rejected
+  ---
+  duration_ms: 0.246259
+  type: 'test'
+  ...
+# Subtest: reference: page cap prevents an unbounded cursor chain
+ok 10 - reference: page cap prevents an unbounded cursor chain
+  ---
+  duration_ms: 0.372234
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.542623

@@ -1,0 +1,10 @@
+{
+  "source": "lesPrivilege/Courtwork",
+  "commit": "a2b084da09ba14a92f4e94bae49c9540d2e6dced",
+  "path": "app/runtime/mcp-manager.mjs",
+  "bytes": 6836,
+  "gitBlobSha1": "055e66223a91eec4a4aade665f8d96af488e9573",
+  "gitBlobVerified": true,
+  "sha256": "bc1cb6ac420103f85ef8ebc713e248810cc7d4858de0e8b65a959e3e3e527ddd",
+  "method": "Manually preserved connector file text, then exact Git blob identity check; not a repository clone."
+}

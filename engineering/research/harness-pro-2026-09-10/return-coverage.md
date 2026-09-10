@@ -1,5 +1,7 @@
 # Pro 返回覆盖 · 部分回收，等待最终附件
 
+后续收到用户上传[f1700fb0包](received/f1700fb0/receipt.md)：24项/13卡，原ZIP及独立FULL_REVIEW一致性已核验。与下述后版hash不同，故“最终附件未取得”仍成立；两版原文与本次上传件分别保留。
+
 来源：[审查合入送审分支](chatgpt-conversation://6aa2b031-2c20-83ec-b7bb-02e638a4fcac)。本地接单 main `b07c178`；送审文档 `d22eb66`、产品基线 `a2b084d` 不改写。
 
 成功读取2个completed turn、4条消息（2 user、2 assistant），hasMore=false、nextCursor=null；[原始返回正文](inputs/return-conversation.json)完整保存。接口 attachments=[]，`:chatgpt-content-reference` 21/22/23无可用URL，不是可下载附件。原回答声称的源码/上游读取与探针结果只登记为作者自述，尚未本地复核。

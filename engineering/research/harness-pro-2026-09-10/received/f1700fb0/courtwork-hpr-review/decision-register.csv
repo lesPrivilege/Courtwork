@@ -1,0 +1,25 @@
+﻿id,kind,title,primaryArtifact,reviewRecommendation,localDisposition,implementationTargets,sourceIds
+HPRO-0001,fact/coverage,固定基线、已读范围与本轮证据限制,HPR-01-baseline.md,preserve,,HPR02-P00;HPR02-P12,S01;S02;S03;S05;S06;S14
+HPRO-0002,decision,保留Pi，两个责任层和一个应用组合点,architecture-contracts.md,adopt,,HPR02-P03;HPR02-P04,S04;S08;S09;S10
+HPRO-0003,finding/design,反向依赖与Core-free Harness构造,architecture-contracts.md,adopt,,HPR02-P04,C01;C02;C03;C07;C08;C09
+HPRO-0004,interface,ExecutionAdapter与ProviderDriver区分,architecture-contracts.md,adopt,,HPR02-P03,C02;C05;U01
+HPRO-0005,interface/invariant,命令、取消、审批与结算合同,architecture-contracts.md,preserve-and-extend,,HPR02-P02;HPR02-P03;HPR02-P04;HPR02-P05;HPR02-P08;HPR02-P09;HPR02-P12,C02;C04;C05;S10
+HPRO-0006,interface/invariant,Work贡献接缝与人类决定隔离,architecture-contracts.md,preserve-and-extract,,HPR02-P04;HPR02-P12,C08;C09;S10
+HPRO-0007,matrix,任务/入口/执行/owner/证据/选型矩阵,HPR-01-baseline.md,use-as-bounded-baseline,,HPR02-P00,C01;C02;C03;C04;C05;C06;C07;C10;C12;C13
+HPRO-0008,reproduced-counterexample,分页结果只读首面却公布healthy,HPR-01-baseline.md,fix-after-real-SDK-confirmation,,HPR02-P01,C06;W03
+HPRO-0009,reproduced-counterexample,isError不等于已确认无外部效果,HPR-01-baseline.md,conservative-fence,,HPR02-P02,C06;W03
+HPRO-0010,design/interface,实际有效Run输入快照,architecture-contracts.md,adopt,,HPR02-P05;HPR02-P06;HPR02-P11,C03;C05;C13
+HPRO-0011,design,多级指令：角色、顺序、权限分别处理,architecture-contracts.md,bounded-change-with-ablation,,HPR02-P06;HPR02-P10;HPR02-P11,C02;C03;C05;S08
+HPRO-0012,design,人维护memory_text，不冒充memory_provider,architecture-contracts.md,adopt-scoped-first-slice,,HPR02-P07;HPR02-P11,C03;C07;C12;S10
+HPRO-0013,design/counterexample,memory关闭与clean-context generation分开,architecture-contracts.md,adopt-explicit-two-step,,HPR02-P07;HPR02-P08;HPR02-P11,C05;S10;S11
+HPRO-0014,design/selection,有界web_fetch，不扩大到浏览器/认证,architecture-contracts.md,adopt-with-security-entry-gate,,HPR02-P09;HPR02-P11,C04;C10;C13;U03;U04
+HPRO-0015,design/selection,授权workspace skill检查/登记/按需load,architecture-contracts.md,adopt,,HPR02-P10;HPR02-P11,C03;C04;C05;C10;U01
+HPRO-0016,invariant,保留provider连接、pending、verify修复,architecture-contracts.md,preserve,,HPR02-P00;HPR02-P03;HPR02-P05;HPR02-P12,S14;C02;C05
+HPRO-0017,design/invariant,单一前端writer消费真实typed能力,architecture-contracts.md,preserve-and-extend,,HPR02-P04;HPR02-P06;HPR02-P07;HPR02-P09;HPR02-P10;HPR02-P11,C12;C13;S01
+HPRO-0018,migration-contract,各owner独立版本、完整停机备份回退,architecture-contracts.md,adopt,,HPR02-P00;HPR02-P05;HPR02-P07;HPR02-P08;HPR02-P09;HPR02-P12,S14;S10
+HPRO-0019,hardening-candidate,关闭链先确认writer退出，不机械释放锁,architecture-contracts.md,test-first-not-proven-incident,,HPR02-P04;HPR02-P12,C01;C09;S14
+HPRO-0020,reference-code/tests,字节一致MCP诊断与有界分页参考函数,HPR-01-baseline.md,reference-only-not-product-patch,,HPR02-P01;HPR02-P02,C06;W03
+HPRO-0021,work-breakdown,13个候选小PR与串行共享路径纪律,HPR-02-work-orders.md,map-to-existing-roadmap,,HPR02-P00;HPR02-P12,S01;S02;S06
+HPRO-0022,gate-contract,有限自足节点与双轨验收,HPR-03-gates.md,adopt-with-independent-review,,HPR02-P12,S01;S11;S14
+HPRO-0023,deferred-direction,第二runtime/外部agent/Rust的后续树,HPR-03-gates.md,defer-until-stable-node,,HPR02-P12,S08;S09;S10;S11;U02;W01
+HPRO-0024,open-questions/stop,本地diff/SDK/网络/版本/真实体验补证边界,HPR-03-gates.md,bind-to-entry-and-stop-conditions,,HPR02-P00;HPR02-P12,S01;S02;S11;S14

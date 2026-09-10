@@ -1,0 +1,583 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Review output register; not accepted decisions",
+  "localDispositionVocabulary": "Use the existing repository intake contract; this bundle introduces no replacement enum.",
+  "items": [
+    {
+      "id": "HPRO-0001",
+      "kind": "fact/coverage",
+      "title": "固定基线、已读范围与本轮证据限制",
+      "primaryArtifact": "HPR-01-baseline.md",
+      "sourceIds": [
+        "S01",
+        "S02",
+        "S03",
+        "S05",
+        "S06",
+        "S14"
+      ],
+      "reviewRecommendation": "preserve",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0002",
+      "kind": "decision",
+      "title": "保留Pi，两个责任层和一个应用组合点",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "S04",
+        "S08",
+        "S09",
+        "S10"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [
+        "S08:D09",
+        "S08:D11",
+        "S08:D13"
+      ],
+      "implementationTargets": [
+        "HPR02-P03",
+        "HPR02-P04"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0003",
+      "kind": "finding/design",
+      "title": "反向依赖与Core-free Harness构造",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C01",
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P04"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0004",
+      "kind": "interface",
+      "title": "ExecutionAdapter与ProviderDriver区分",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C02",
+        "C05",
+        "U01"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [
+        "S08:D09",
+        "S08:D11",
+        "S08:D13"
+      ],
+      "implementationTargets": [
+        "HPR02-P03"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0005",
+      "kind": "interface/invariant",
+      "title": "命令、取消、审批与结算合同",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C02",
+        "C04",
+        "C05",
+        "S10"
+      ],
+      "reviewRecommendation": "preserve-and-extend",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P02",
+        "HPR02-P03",
+        "HPR02-P04",
+        "HPR02-P05",
+        "HPR02-P08",
+        "HPR02-P09",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0006",
+      "kind": "interface/invariant",
+      "title": "Work贡献接缝与人类决定隔离",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C08",
+        "C09",
+        "S10"
+      ],
+      "reviewRecommendation": "preserve-and-extract",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P04",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0007",
+      "kind": "matrix",
+      "title": "任务/入口/执行/owner/证据/选型矩阵",
+      "primaryArtifact": "HPR-01-baseline.md",
+      "sourceIds": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C10",
+        "C12",
+        "C13"
+      ],
+      "reviewRecommendation": "use-as-bounded-baseline",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0008",
+      "kind": "reproduced-counterexample",
+      "title": "分页结果只读首面却公布healthy",
+      "primaryArtifact": "HPR-01-baseline.md",
+      "sourceIds": [
+        "C06",
+        "W03"
+      ],
+      "reviewRecommendation": "fix-after-real-SDK-confirmation",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P01"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0009",
+      "kind": "reproduced-counterexample",
+      "title": "isError不等于已确认无外部效果",
+      "primaryArtifact": "HPR-01-baseline.md",
+      "sourceIds": [
+        "C06",
+        "W03"
+      ],
+      "reviewRecommendation": "conservative-fence",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P02"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0010",
+      "kind": "design/interface",
+      "title": "实际有效Run输入快照",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C03",
+        "C05",
+        "C13"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P05",
+        "HPR02-P06",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0011",
+      "kind": "design",
+      "title": "多级指令：角色、顺序、权限分别处理",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C02",
+        "C03",
+        "C05",
+        "S08"
+      ],
+      "reviewRecommendation": "bounded-change-with-ablation",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [
+        "S08:D09",
+        "S08:D11",
+        "S08:D13"
+      ],
+      "implementationTargets": [
+        "HPR02-P06",
+        "HPR02-P10",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0012",
+      "kind": "design",
+      "title": "人维护memory_text，不冒充memory_provider",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C03",
+        "C07",
+        "C12",
+        "S10"
+      ],
+      "reviewRecommendation": "adopt-scoped-first-slice",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P07",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0013",
+      "kind": "design/counterexample",
+      "title": "memory关闭与clean-context generation分开",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C05",
+        "S10",
+        "S11"
+      ],
+      "reviewRecommendation": "adopt-explicit-two-step",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P07",
+        "HPR02-P08",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0014",
+      "kind": "design/selection",
+      "title": "有界web_fetch，不扩大到浏览器/认证",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C04",
+        "C10",
+        "C13",
+        "U03",
+        "U04"
+      ],
+      "reviewRecommendation": "adopt-with-security-entry-gate",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P09",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0015",
+      "kind": "design/selection",
+      "title": "授权workspace skill检查/登记/按需load",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C03",
+        "C04",
+        "C05",
+        "C10",
+        "U01"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P10",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0016",
+      "kind": "invariant",
+      "title": "保留provider连接、pending、verify修复",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "S14",
+        "C02",
+        "C05"
+      ],
+      "reviewRecommendation": "preserve",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00",
+        "HPR02-P03",
+        "HPR02-P05",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0017",
+      "kind": "design/invariant",
+      "title": "单一前端writer消费真实typed能力",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C12",
+        "C13",
+        "S01"
+      ],
+      "reviewRecommendation": "preserve-and-extend",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P04",
+        "HPR02-P06",
+        "HPR02-P07",
+        "HPR02-P09",
+        "HPR02-P10",
+        "HPR02-P11"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0018",
+      "kind": "migration-contract",
+      "title": "各owner独立版本、完整停机备份回退",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "S14",
+        "S10"
+      ],
+      "reviewRecommendation": "adopt",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00",
+        "HPR02-P05",
+        "HPR02-P07",
+        "HPR02-P08",
+        "HPR02-P09",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0019",
+      "kind": "hardening-candidate",
+      "title": "关闭链先确认writer退出，不机械释放锁",
+      "primaryArtifact": "architecture-contracts.md",
+      "sourceIds": [
+        "C01",
+        "C09",
+        "S14"
+      ],
+      "reviewRecommendation": "test-first-not-proven-incident",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P04",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0020",
+      "kind": "reference-code/tests",
+      "title": "字节一致MCP诊断与有界分页参考函数",
+      "primaryArtifact": "HPR-01-baseline.md",
+      "sourceIds": [
+        "C06",
+        "W03"
+      ],
+      "reviewRecommendation": "reference-only-not-product-patch",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P01",
+        "HPR02-P02"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0021",
+      "kind": "work-breakdown",
+      "title": "13个候选小PR与串行共享路径纪律",
+      "primaryArtifact": "HPR-02-work-orders.md",
+      "sourceIds": [
+        "S01",
+        "S02",
+        "S06"
+      ],
+      "reviewRecommendation": "map-to-existing-roadmap",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0022",
+      "kind": "gate-contract",
+      "title": "有限自足节点与双轨验收",
+      "primaryArtifact": "HPR-03-gates.md",
+      "sourceIds": [
+        "S01",
+        "S11",
+        "S14"
+      ],
+      "reviewRecommendation": "adopt-with-independent-review",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0023",
+      "kind": "deferred-direction",
+      "title": "第二runtime/外部agent/Rust的后续树",
+      "primaryArtifact": "HPR-03-gates.md",
+      "sourceIds": [
+        "S08",
+        "S09",
+        "S10",
+        "S11",
+        "U02",
+        "W01"
+      ],
+      "reviewRecommendation": "defer-until-stable-node",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [
+        "S08:D09",
+        "S08:D11",
+        "S08:D13"
+      ],
+      "implementationTargets": [
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "HPRO-0024",
+      "kind": "open-questions/stop",
+      "title": "本地diff/SDK/网络/版本/真实体验补证边界",
+      "primaryArtifact": "HPR-03-gates.md",
+      "sourceIds": [
+        "S01",
+        "S02",
+        "S11",
+        "S14"
+      ],
+      "reviewRecommendation": "bind-to-entry-and-stop-conditions",
+      "localDisposition": null,
+      "localReason": null,
+      "supersedes": [],
+      "preserves": [],
+      "implementationTargets": [
+        "HPR02-P00",
+        "HPR02-P12"
+      ],
+      "implementationSha": null,
+      "acceptanceEvidence": null
+    }
+  ]
+}
