@@ -1,6 +1,6 @@
 # R2-SD01 · 摘要目录与稳定阅读层级
 
-最终产品 `1c4138b800e5cb2a78968f83793346aa2f2a9be5`，分支 `codex/summary-disclosure-r2`。从 `67ed0fd` 隔离实现；未合流、推送或部署。Runtime11/Core4/app5不变。
+最终产品 `731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e`，分支 `codex/summary-disclosure-r2`。从 `67ed0fd` 隔离实现；未合流、推送或部署。Runtime11/Core4/app5不变。
 
 ## 交付
 
@@ -37,3 +37,11 @@
 4. Preview返回：正常。Tab/Enter打开同文件，Escape返回run-summary-file:0；1195px视口无横向溢出。[返回焦点](audit-04-return-focus.png)。
 
 玻璃grammar仍由jump-latest-button与context-popover消费；本卡片持续承载文件与信息，按合同使用solid/raised。没有新增依赖或玻璃名额。短Preview chrome具备未来材质探索资格，当前未新增该效果。末次增量14/14与颜色/交互/材质/形状lint、对比报告通过；误写单数lint-shape命令未找到脚本，改用仓库实际lint-shapes后通过。末次仅在默认1195×772浅色检查CSS增量，前述完整多尺寸明暗矩阵属此前产品版本；不宣称增量完整无障碍或独立视觉接受。
+
+## R2-SD02：卡片语义增量
+
+[类别映射与十项缺口](../../engineering/execution/2026-09-10-summary-disclosure/card-semantics.md)覆盖已裁类型；File/Workspace/Runtime补原生中间披露，Runtime紧凑入口与会话匹配修补，Run记录文件标明不承载接受效力。34项针对通过，见[日志](semantic-tests.txt)。Astra作者CUA验证默认收敛、Workspace当前文件往返焦点/展开保持、Runtime资源披露、切会话复位；1024紧凑Runtime实际进入Settings Developer并返回。截图[收敛](semantic-summary.png)、[返回](semantic-files-return.png)。未跑本增量完整明暗/窄屏矩阵；非作者静态复核单独记录。主线/部署状态不变。
+
+末次731ee5c将已提供的owner版本纳入披露目标键；690af79截图保留其准确版本，不挪用为731视觉证据。
+
+[非作者有界静态复核](semantic-review.md)：固定690af79及731ee5c无阻断；不称独立浏览器或全量接受。

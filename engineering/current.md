@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## R2-SD02 · 卡片语义补齐（2026-09-10）
+
+隔离产品`731ee5c`补File/Workspace/Runtime局部披露、Runtime紧凑入口及会话匹配；[语义登记与缺口](execution/2026-09-10-summary-disclosure/card-semantics.md)覆盖既有裁定的12类，不宣称Task/Explore等所有reader完成。34项针对与有界作者CUA通过，未覆盖末次完整明暗窄屏矩阵；非作者静态复核另记。未改Claude的ChatSpace/composer，未合流/推送/部署，schema不变。前片历史版本与证据如下。
+
 ## R2-SD01 · 摘要与阅读层级候选（2026-09-10）
 
 隔离分支`codex/summary-disclosure-r2`产品`1c4138b`已将Run摘要→Files披露→同对象Preview接入原生产host，并统一有界目录、顶部tab、文档关闭/工作面隐藏、宽屏展开/还原与返回焦点。用户明确要求各级稳定，覆盖首轮fixture-only边界。最终38项针对通过；初次全量656/657的未改动Core启动超时经隔离13/13复验，原日志保留。Astra完成有界CUA；Luna仅静态/测试复核，无独立视觉接受。[交付、版本与限制](../evidence/summary-disclosure-20260910/README.md)。末次补披露圆角、内距与已有rim；保持实色材质合同，14项增量通过。本地候选未合流/推送/部署，Runtime11/Core4/app5不变，不覆盖在途PV/SD集成的状态或schema，也不关闭G1–G5。

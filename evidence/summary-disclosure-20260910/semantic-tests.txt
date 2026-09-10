@@ -1,0 +1,42 @@
+✔ card middle layer retains same-target disclosure, resets target and scope, keeps warnings outside (3.810084ms)
+✔ Runtime summary rejects previous-session counts and preserves unknown rather than zero (1.035458ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.462375ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.263834ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.417084ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (1.288041ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.575041ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.286833ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.08675ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (2.641458ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.135833ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.221792ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.425708ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.39425ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (1.081875ms)
+✔ Run card starts collapsed with Files and Run information disclosures (3.326917ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (1.788458ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.625667ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (4.246375ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.670208ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.788958ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.629542ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.210834ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (2.181167ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.324208ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.608333ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.341125ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (0.873334ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.38475ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.27325ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (0.40325ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.335125ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.326833ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (2.9825ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 192.337083

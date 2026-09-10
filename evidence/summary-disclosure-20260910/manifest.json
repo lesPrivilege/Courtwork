@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+  "productSha": "731ee5ca9d4b005486a5ba528e0dd39c3eb8fb7e",
   "pageBuildSha": null,
   "pageBuildStatus": "No Pages build or deployment in this task",
   "dataKind": "synthetic; real local HTTP/Pi loopback Run plus explicit read-state projection fixtures",
@@ -22,7 +22,7 @@
     },
     {
       "path": "app/web/summary-disclosure.mjs",
-      "sha256": "cb01df60b1520b462ddf8208acdb49da8b4126359be2703891a659166516fffa"
+      "sha256": "e643119571e74c53a46c37e5d994b205d4647afba2aa69738d5551302484a4ff"
     },
     {
       "path": "app/web/summary-disclosure.css",
@@ -30,7 +30,7 @@
     },
     {
       "path": "app/web/app.mjs",
-      "sha256": "77baa2fba335036f431699823f916ab38364ff578d5bc9b773f1f1da7fdde356"
+      "sha256": "e13936a9792e6ec4b82757907a97c07e2167862ac49e582308a02d512024de9c"
     },
     {
       "path": "app/web/index.html",
@@ -43,6 +43,10 @@
     {
       "path": "app/web/surface-layout.css",
       "sha256": "29f3cbaa0de8f143e4d96dab9a17ceb79c5537aa9181af50f3fecf17909bd746"
+    },
+    {
+      "path": "app/web/surface-modules.mjs",
+      "sha256": "0f79fd75a4bf4a30f0c178353b626aeeaf8b33e39e78f7d259f0580f4bc40aa4"
     },
     {
       "path": "app/web/styles.css",
@@ -587,6 +591,22 @@
       "classification": "prior candidate; superseded by user visual revision"
     },
     {
+      "file": "semantic-files-return.png",
+      "sha256": "20b4b976866649c717334ed3ab34af8d0da2c02e661366484c038abb7b53b44e",
+      "bytes": 61157,
+      "caption": "Current workspace file returns focus with Files disclosure preserved",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
+    },
+    {
+      "file": "semantic-summary.png",
+      "sha256": "114aabe0ea525b03f23f225ae765cdee342feea6b2507ac7e40b0b41d4e1c569",
+      "bytes": 55166,
+      "caption": "Default collapsed existing card semantics; Runtime unread stays unknown",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
+    },
+    {
       "file": "summary-1440-light.png",
       "sha256": "f11eb4e08297a2e2b42ab4ed906ab8a1e2fbe5c39948029ee9d4e75977b58854",
       "bytes": 56083,
@@ -649,6 +669,7 @@
     "Full suite at0ec8184:656/657, one unchanged Core ready-timeout failure; separate Core lifecycle13/13 passed. Later UI changes have38/38 targeted tests, not a new full-suite run.",
     "720x500 is equivalent reflow, not actual browser200% zoom.",
     "Balanced long-file captures predate final ellipsis; final fulltitle/aria and wrapping are covered by14 module tests.",
-    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions."
+    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions.",
+    "R2-SD02 bounded CUA:1195x772 light,1024 Runtime strip→Settings Developer→Back; no complete new dark/mobile matrix."
   ]
 }

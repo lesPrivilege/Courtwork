@@ -381,6 +381,16 @@
       "caption": "Same-file Preview Escape returns focus",
       "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
       "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    "semantic-summary.png": {
+      "caption": "Default collapsed existing card semantics; Runtime unread stays unknown",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
+    },
+    "semantic-files-return.png": {
+      "caption": "Current workspace file returns focus with Files disclosure preserved",
+      "productSha": "690af79032330e62c52145d95ea194ad1b0a9ebe",
+      "classification": "R2-SD02 author CUA"
     }
   },
   "steps": [
@@ -437,6 +447,7 @@
     "Full suite at0ec8184:656/657, one unchanged Core ready-timeout failure; separate Core lifecycle13/13 passed. Later UI changes have38/38 targeted tests, not a new full-suite run.",
     "720x500 is equivalent reflow, not actual browser200% zoom.",
     "Balanced long-file captures predate final ellipsis; final fulltitle/aria and wrapping are covered by14 module tests.",
-    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions."
+    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions.",
+    "R2-SD02 bounded CUA:1195x772 light,1024 Runtime strip→Settings Developer→Back; no complete new dark/mobile matrix."
   ]
 }
