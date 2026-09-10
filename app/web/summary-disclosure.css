@@ -42,7 +42,7 @@
 
 .sd-run-summary .rail-row {
   display: grid;
-  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: baseline;
 }
 

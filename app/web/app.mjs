@@ -168,6 +168,7 @@ const state = {
     runId: null,
     fileRef: null,
     returnFocus: null,
+    returnFocusEpoch: null,
     runReadGeneration: 0,
     runReadController: null,
     workspaceGeneration: 0,
@@ -228,6 +229,7 @@ function setWorkspaceTitle(title) {
 function restoreLayerFocus(preferred, fallback = $("session-title")) {
   const target =
     preferred?.isConnected &&
+    !preferred.disabled &&
     !preferred.closest("[inert]") &&
     preferred.getClientRects().length
       ? preferred
@@ -3559,31 +3561,34 @@ function surfaceTabButtons() {
     (tab) => !tab.hidden && tab.closest("[hidden]") === null,
   );
 }
-function surfaceReturnFocus(opener = state.surface.returnFocus) {
-  if (opener?.isConnected) return opener;
-  const key = opener?.dataset?.focusKey;
-  return key ? document.querySelector(`[data-focus-key="${CSS.escape(key)}"]`) : null;
+function rememberSurfaceFocus(opener) {
+  state.surface.returnFocus = opener;
+  state.surface.returnFocusEpoch = state.sessionEpoch;
 }
-/* 关闭活跃文档 tab：回紧凑目录，并把焦点还给打开它的那个控件（restoreLayerFocus）。 */
+function surfaceReturnFocus(opener = state.surface.returnFocus) {
+  // A focus key can be reused by another Session; never resolve across scope.
+  if (state.surface.returnFocusEpoch !== state.sessionEpoch) return null;
+  const usable = node => node?.isConnected && !node.disabled &&
+    !node.closest("[inert], [hidden]") && node.getClientRects().length;
+  if (usable(opener)) return opener;
+  const key = opener?.dataset?.focusKey;
+  const replacement = key ? document.querySelector(`[data-focus-key="${CSS.escape(key)}"]`) : null;
+  if (usable(replacement)) return replacement;
+  // The original action may disappear after a refresh; stay in its disclosure.
+  const fallbackKey = key?.startsWith("run-summary-file:") ? "run-summary-files"
+    : key?.startsWith("run-summary-") ? "run-summary-information" : null;
+  const fallback = fallbackKey ? document.querySelector(`[data-focus-key="${fallbackKey}"]`) : null;
+  return usable(fallback) ? fallback : null;
+}
+/* Closing a document returns through the same scoped focus resolver as Escape. */
 function closeDocumentTab() {
   if (!surfaceDocumentRef()) return;
-  const opener = state.surface.returnFocus;
-  /* 打开它的那一行在聊天流里，回来时那条流会重画一遍，于是原来那个节点已经不在
-     文档里了。既有的 `data-focus-key`（Chat Flow 的行本来就带着它）说的正是"重画
-     之后还是同一行"，所以按它把焦点找回来，而不是按节点身份。 */
-  const openerKey = opener?.dataset?.focusKey ?? null;
   state.surface.fileRef = null;
   if (state.surface.kind === "file") state.surface.kind = "preview";
   fileView?.dispose();
   setSurfaceExpanded(false, { focus: false });
   renderSurfaceVisibility();
-  const again =
-    openerKey && !opener?.isConnected
-      ? document.querySelector(
-          `[data-focus-key="${CSS.escape(openerKey)}"]`,
-        )
-      : opener;
-  restoreLayerFocus(again, $("show-surface-button"));
+  restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
 /* WK-118 ⑤ · agent activity 以微型 indicator 入对应类型 tab，不造 banner。形状与
  * 文字各说一遍，不只靠颜色（FN-28）：running 实心、waiting_user 空心环、failed 方块，
@@ -3633,7 +3638,7 @@ function closeSurface({ restoreFocus = true } = {}) {
  * because choosing one is what the cards are for. */
 function openSurfaceRail() {
   if (!currentSession()) return;
-  if (!state.surface.open) state.surface.returnFocus = document.activeElement;
+  if (!state.surface.open) rememberSurfaceFocus(document.activeElement);
   state.navigationOpen = false;
   state.surface.open = true;
   state.surface.expanded = false;
@@ -3928,8 +3933,8 @@ const railHost = {
   sessionId: () => state.activeSessionId,
   container: (kind) => $(surfaceModule(kind).contentId),
   open: (kind) => activateSurface(kind),
-  openFile: (ref) => openFile(ref),
-  openRun: (id) => openRun(id),
+  openFile: (ref, opener) => openFile(ref, opener),
+  openRun: (id, opener) => openRun(id, opener),
   refreshRun: () => readRunDetails(),
   refreshWorkspace: () => void loadWorkspaceTree(),
   loadFile: (ref) => {
@@ -3954,8 +3959,8 @@ function runSummarySnapshot() {
 }
 const runSummaryCard = createRunSummaryCard({
   getSnapshot: runSummarySnapshot,
-  onOpen: snapshot => railHost.openRun(snapshot.identity.runId),
-  onOpenFile: ref => railHost.openFile(ref),
+  onOpen: (snapshot, opener) => railHost.openRun(snapshot.identity.runId, opener),
+  onOpenFile: (ref, opener) => railHost.openFile(ref, opener),
 });
 function renderSurfaceRail() {
   const rail = $("surface-rail");
@@ -4042,9 +4047,9 @@ function loadRailFacts() {
   if (!state.surface.info?.extension) void loadWorkspaceTree();
   void runtimeView?.load();
 }
-function activateSurface(kind) {
+function activateSurface(kind, opener = document.activeElement) {
   if (!currentSession() || !surfaceModule(kind)?.tabId) return;
-  if (!state.surface.expanded) state.surface.returnFocus = document.activeElement;
+  if (!state.surface.expanded) rememberSurfaceFocus(opener);
   state.navigationOpen = false;
   state.surface.kind = kind;
   state.surface.open = true;
@@ -4058,19 +4063,18 @@ function activateSurface(kind) {
   loadRailFacts();
   loadSurfaceKind(kind);
 }
-function openRun(runId) {
+function openRun(runId, opener = document.activeElement) {
   state.surface.runId = runId;
-  activateSurface("run");
+  activateSurface("run", opener);
 }
-function openFile(ref) {
+function openFile(ref, opener = document.activeElement) {
   if (ref.sessionId !== state.activeSessionId) return;
   /* 关闭这份文档时焦点要回到**打开它的那个控件**，所以在这里记下来。沿用既有的
      `returnFocus` 字段，不新增状态。 */
-  const opener = document.activeElement;
   if (opener && opener !== document.body && opener.isConnected)
-    state.surface.returnFocus = opener;
+    rememberSurfaceFocus(opener);
   state.surface.fileRef = ref;
-  activateSurface("file");
+  activateSurface("file", opener);
 }
 /* The rail and its open pane are one render: a run that moves changes the Run
  * card and the Run pane at the same moment, from the same facts. */

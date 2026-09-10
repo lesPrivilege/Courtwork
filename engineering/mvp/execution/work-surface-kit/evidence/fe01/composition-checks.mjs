@@ -15,7 +15,7 @@
  *           with no card frame and no `Backend pending` row
  *   WORK-1  no Home dashboard primitive is rendered
  *   WORK-2  composer docked at the foot, same measure as the reading column
- *   WORK-3  composer body initial height 80–96
+ *   WORK-3  composer starts with two visible lines and bounded controls
  *   WORK-4  with the right-hand surface open the reading measure stays ≥ 640
  *   SHELL-1 under a desktop shell nothing focusable enters the top-left
  *           window-control safe area
@@ -52,6 +52,12 @@ const GEOMETRY = `(() => {
     area,
     composer,
     input: rect(document.getElementById("composer-input")),
+    inputMetrics: (() => {
+      const node = document.getElementById("composer-input");
+      const css = getComputedStyle(node);
+      return { lineHeight: parseFloat(css.lineHeight), contentHeight: node.clientHeight - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom), maxHeight: parseFloat(css.maxHeight) };
+    })(),
+    controls: [...form.querySelectorAll("button")].filter(node => !node.hidden).map(rect),
     intro: introHidden ? null : rect(intro),
     introText: introHidden ? "" : intro.textContent.trim(),
     bandHidden: !band || band.hidden || !band.getClientRects().length,
@@ -168,8 +174,10 @@ try {
   record("WORK-2", g.order.at(-1) === "composer-area" && Math.abs(g.composer.width - 740) <= 2, {
     order: g.order, width: Math.round(g.composer.width),
   });
-  record("WORK-3", g.input.height >= 80 && g.input.height <= 96, {
-    input: Math.round(g.input.height),
+  record("WORK-3", g.inputMetrics.contentHeight >= 2 * g.inputMetrics.lineHeight - 1 &&
+    g.input.height <= g.inputMetrics.maxHeight + 1 &&
+    g.controls.every(r => r && r.height > 0 && r.top >= g.composer.top && r.bottom <= g.composer.bottom + 1), {
+    input: g.input, metrics: g.inputMetrics, controls: g.controls,
   });
   record("WORK-overflow", g.overflow <= 1, { overflow: g.overflow });
 

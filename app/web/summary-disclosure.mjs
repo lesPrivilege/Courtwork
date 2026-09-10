@@ -149,14 +149,14 @@ export function createRunSummaryCard({
     if (current) render(current);
   }
 
-  function invoke(callback, snapshot) {
+  function invoke(callback, snapshot, opener) {
     if (busy || disposed || typeof callback !== "function") return;
     actionError = null;
     const token = ++actionToken;
     setBusy(true);
     let result;
     try {
-      result = callback(snapshot);
+      result = callback(snapshot, opener);
     } catch {
       actionFailure(null, token);
       return;
@@ -230,7 +230,7 @@ export function createRunSummaryCard({
 
     if (snapshot.files.length) {
       const list = el("ul", { className: "sd-run-summary-files" });
-      for (const [index, file] of snapshot.files.entries()) {
+      for (const file of snapshot.files) {
         const item = el("li", { className: "sd-run-summary-file" });
         const copy = el(
           "span",
@@ -257,11 +257,11 @@ export function createRunSummaryCard({
             () => {
               const latest = actionSnapshot(snapshot, (next) => next.readerAvailable && next.files.some((entry) => entry.path === file.path && entry.sha256 === file.sha256));
               const target = latest?.files.find((entry) => entry.path === file.path && entry.sha256 === file.sha256);
-              if (target) invoke(onOpenFile, target);
+              if (target) invoke(onOpenFile, target, fileButton);
             },
             {
               className: "rail-file rail-file-open sd-run-summary-file-preview",
-              attrs: { "data-focus-key": `run-summary-file:${index}` },
+              attrs: { "data-focus-key": `run-summary-file:${encodeURIComponent(JSON.stringify([file.sessionId, file.runId, file.path, file.sha256]))}` },
             },
           );
           fileButton.setAttribute("title", file.path);
@@ -319,15 +319,16 @@ export function createRunSummaryCard({
 
     if ((snapshot.phase === "ready" || snapshot.phase === "empty") && snapshot.readerAvailable && typeof onOpen === "function") {
       const openButton = action(
-        "panel-right",
-        "Open run in right panel",
+        "chevron-right",
+        "Open run details",
         () => {
           const latest = actionSnapshot(snapshot, (next) => next.readerAvailable && (next.phase === "ready" || next.phase === "empty"));
-          if (latest) invoke(onOpen, latest);
+          if (latest) invoke(onOpen, latest, openButton);
         },
         {
-          visible: "Open in right panel",
+          visible: "Run details",
           trailing: true,
+          size: 16,
           className: "quiet-button sd-run-summary-open",
           attrs: { "data-focus-key": "run-summary-open" },
         },
@@ -342,7 +343,7 @@ export function createRunSummaryCard({
         "Retry run summary",
         () => {
           const latest = actionSnapshot(snapshot, (next) => next.phase === "error");
-          if (latest) invoke(onRetry, latest);
+          if (latest) invoke(onRetry, latest, retryButton);
         },
         {
           visible: "Retry",
@@ -359,7 +360,7 @@ export function createRunSummaryCard({
     setBusy(busy);
 
     if (focusKey && sameTarget) {
-      const focusTarget = root.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
+      const focusTarget = [...root.querySelectorAll("[data-focus-key]")].find(node => node.dataset.focusKey === focusKey);
       if (focusTarget) focusTarget.focus();
       else {
         const fallbackKey = focusKey === "run-summary-open" || focusKey === "run-summary-retry" || focusKey === "run-summary-information"

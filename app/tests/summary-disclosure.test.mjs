@@ -281,3 +281,56 @@ test("Run card hides incompatible projection schemas instead of rendering stale 
     assert.equal(card.element.textContent, "");
   });
 });
+
+for (const kind of ['run', 'file']) {
+  test(`Summary ${kind} preserves the clicked opener when disabling it clears browser focus`, async () => {
+    await withTinyDom(async () => {
+      const pending = deferred();
+      let received;
+      const card = createRunSummaryCard({
+        getSnapshot: () => project(),
+        [kind === 'run' ? 'onOpen' : 'onOpenFile']: (snapshot, opener) => {
+          received = opener;
+          assert.notEqual(document.activeElement, opener);
+          return pending.promise;
+        },
+      });
+      const button = card.element.querySelector(kind === 'run' ? '.sd-run-summary-open' : '.sd-run-summary-file-preview');
+      let disabled = false;
+      Object.defineProperty(button, 'disabled', {
+        get: () => disabled,
+        set: value => { disabled = value; if (value && document.activeElement === button) document.activeElement = null; },
+      });
+      button.focus();
+      button.click();
+      assert.equal(received, button);
+      assert.equal(button.disabled, true);
+      // A refresh may replace the DOM while the asynchronous reader is pending.
+      card.update(project());
+      assert.notEqual(card.element.querySelector(kind === 'run' ? '.sd-run-summary-open' : '.sd-run-summary-file-preview'), button);
+      pending.resolve();
+      await flush();
+      assert.equal(card.element.querySelector(kind === 'run' ? '.sd-run-summary-open' : '.sd-run-summary-file-preview').disabled, false);
+    });
+  });
+}
+
+test('Summary file focus identity follows the recorded version when files reorder', async () => {
+  await withTinyDom(async () => {
+    let snapshot = project({runs:[run({artifacts:[
+      {kind:'content-version',path:'out/a.txt',sha256:HASH,bytes:1},
+      {kind:'content-version',path:'out/b.txt',sha256:HASH_2,bytes:1},
+    ]})]});
+    const card = createRunSummaryCard({getSnapshot:()=>snapshot,onOpenFile(){}});
+    const original = card.element.querySelectorAll('.sd-run-summary-file-preview')[0];
+    const key = original.dataset.focusKey;
+    original.focus();
+    snapshot = {...snapshot,files:[...snapshot.files].reverse()};
+    card.update(snapshot);
+    assert.equal(document.activeElement.dataset.focusKey,key);
+    assert.equal(document.activeElement.getAttribute('title'),'out/a.txt');
+    snapshot = {...snapshot,files:snapshot.files.filter(file=>file.path !== 'out/a.txt')};
+    card.update(snapshot);
+    assert.equal(document.activeElement.dataset.focusKey,'run-summary-files');
+  });
+});
