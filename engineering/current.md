@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Chat icon / Fake UI 先行
+
+用户明确Chat space icon应从Fake UI先行落地、逆向登记独立后端缺口；[最新裁定与截图](design/chat-controls-2026-09-10/fake-ui-first/README.md)覆盖此前B/C整体等待安排。当前fresh Astra单写接续：先做可交互action row、沿现有能力接线，缺失能力通过合成adapter验证状态并逐项登记接口；生产不伪报成功。B最小对照裁定与C前端实施连续推进，共享文件串行，后端与最终组合非作者验证分别接续。本条是施工要求，尚未宣称icon已交付。
+
 ## 2026-09-11 · Claude 交接接收与 Astra 单写收尾
 
 用户确认fresh Astra已经施工，Claude各线已停止。已接收[交接裁决与收尾单](execution/2026-09-11-claude-intake/README.md)：handoff5fd701c、TPS62295b4、EX-IC2 A f3895aa及87a202f限定目录的历史复核证据。TPS登记BE-42，未接生产；A截图过时须重拍。产品组合仍不在本次接收内。施工Astra候选445fb48已存在，WORK-3以其版本为主、d2fdeed只作定向donor，D1/D2接合及真机联调由同一Astra负责；Claude源分支只读。B未交付、C未开工，待固定产品节点后按收尾单接续；SD-ENTRY与BE41保持独立，不关闭产品门。
