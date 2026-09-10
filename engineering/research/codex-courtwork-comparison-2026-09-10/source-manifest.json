@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "source": "chatgpt-conversation://6aa27a87-e3ac-83ec-8999-789ddc1f40f9",
+  "title": "Codex 与 Courtwork 对比",
+  "retrieval": {
+    "tool": "mcp__codex_app__read_thread",
+    "request": {
+      "threadId": "6aa27a87-e3ac-83ec-8999-789ddc1f40f9",
+      "turnLimit": 10,
+      "includeOutputs": true,
+      "maxOutputCharsPerItem": 20000
+    },
+    "pages": [
+      {
+        "order": "newest_first",
+        "limit": 10,
+        "nextCursor": null,
+        "hasMore": false
+      }
+    ],
+    "followUpCursors": [],
+    "attachments": [],
+    "truncation": "No truncation marker was returned; the single assistant item was below the 20,000-character per-item limit."
+  },
+  "coverage": {
+    "turns": 1,
+    "messages": 2,
+    "userMessages": 1,
+    "assistantMessages": 1,
+    "turnId": "5f131689-037b-429e-8a54-512c3ae19cc4",
+    "messageIds": [
+      "5f131689-037b-429e-8a54-512c3ae19cc4",
+      "920a98e4-298e-4884-9ee6-0ccb9ddd90a2"
+    ]
+  },
+  "rawFile": "inputs/conversation.json",
+  "rawFileBytes": 11609,
+  "rawFileLines": 50,
+  "rawFileSha256": "219d9de8e13c7be0f13b2be722325a5b570838fd68cf937f5dbbcc6fea2cfb6e",
+  "sourceLimitations": [
+    "Opaque citation identifiers in the conversation have no URL mapping in the read_thread response.",
+    "No external browsing or OpenAI capability verification was performed for this intake.",
+    "The conversation is discussion material, not an implementation instruction or product acceptance record."
+  ]
+}
