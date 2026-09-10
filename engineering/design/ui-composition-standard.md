@@ -99,7 +99,9 @@ Settings 注（WK-116 / CC-S）：进入 Settings 后全局侧栏不渲染，这
 | 读法 | 从中心向下展开 | 从顶部向底部推进 | 可组合的背景信息 |
 | L1 锚点 | composer，全页唯一 | reading column | 无；card 是模块与编排单位 |
 | composer 宽 | 760–880（现 820） | 与 reading measure 同宽（现 740） | — |
-| composer 本体初始高 | 92–112（现 96） | 80–96（现 88） | — |
+| composer 本体初始高 | 92–112（现 96） | 两行 `calc(2lh + 8px)`，默认字号约 54（WO-CS-01；尺寸候选，待与 CI-B 回退、Home 锚点、大字号一并复验；此前 80–96 / 88） | — |
+| composer 本体增长（CI-B） | 随内容长到 160，之后框内滚动；锚点按静止高度量，向下长 | 随内容长到 180，之后框内滚动 | — |
+| 短视口上限（CI-B，暂定） | `min(160px, 28dvh)`，仅支持 dvh 时覆盖；否则 160 | `min(180px, 28dvh)`，同左；否则 180 | — |
 | composer 垂直位置 | 中心落在主区高的 55 % 或更下（现 56 %），由 `--home-lead` 量出 | 沉底 | — |
 | 其上非 chrome 内容 | ≤180，其中 orientation ≤120 且不含数字 | 只有 thread | — |
 | 下方 | Today 三数字 strip → Continue 行 → 有数据源才出现的 compact card；ragged layout，不填满 grid | 禁止出现任何 Home dashboard primitive | card 内无框内容，禁止 nested card |
