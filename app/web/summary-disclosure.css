@@ -1,0 +1,105 @@
+/* R2-SD01 · local Run card anatomy.  The card reuses rail-card, rail-row,
+ * rail-note, and the existing semantic role tokens; this file adds no visual
+ * material or state vocabulary. */
+.sd-run-summary {
+  min-width: 0;
+}
+
+.sd-run-summary-id {
+  margin: 0;
+  color: var(--muted-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+
+.sd-run-summary-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sd-run-summary-disclosure {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.sd-run-summary-trigger {
+  color: var(--ink);
+  cursor: pointer;
+  font-size: var(--text-label);
+  font-weight: 500;
+  min-height: var(--control);
+}
+
+.sd-run-summary .rail-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.sd-run-summary .rail-row-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.sd-run-summary-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.sd-run-summary-files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sd-run-summary-file {
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+
+.sd-run-summary-file-head,
+.sd-run-summary-file-meta {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sd-run-summary-path,
+.sd-run-summary-file-meta code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.sd-run-summary-file-meta {
+  align-items: flex-start;
+  color: var(--muted-strong);
+  flex-wrap: wrap;
+  font-size: var(--text-caption);
+}
+
+.sd-run-summary-file-open {
+  flex: none;
+  margin-left: auto;
+}
+
+.sd-run-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}

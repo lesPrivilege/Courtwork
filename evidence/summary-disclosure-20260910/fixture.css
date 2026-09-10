@@ -1,0 +1,12 @@
+/* Fixture placement only; production host integration remains reserved.
+   No tab/renderer/layout authority is copied here. */
+.sd-fixture-has-card { position: relative; padding-right: 320px; }
+.sd-fixture-dock { position: absolute; right: var(--space-4); top: var(--space-4); width: 288px; max-height: calc(100% - var(--space-8)); overflow: auto; display: flex; flex-direction: column; gap: var(--space-3); }
+.sd-fixture-controls { font-size: var(--text-meta); color: var(--muted-strong); }
+.sd-fixture-controls label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-2); }
+@media (max-width: 1023px) {
+ .sd-fixture-has-card { padding-right: 0; overflow: auto; }
+ .sd-fixture-dock { position: static; width: auto; max-height: none; overflow: visible; flex: none; margin: var(--space-4); }
+ .sd-fixture-has-card .message-stream-wrap { flex: none; }
+ .sd-fixture-has-card .message-stream { overflow: visible; }
+}

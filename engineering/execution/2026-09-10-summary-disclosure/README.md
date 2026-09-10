@@ -1,0 +1,67 @@
+# R2-SD01 · 常驻摘要 → 局部披露 → 同对象 tab
+
+2026-09-10，Astra 架构裁决与工作单。类别：产品前端模块 + 显式隔离 fixture 接线；生产 host 接线待单 writer 窗口，不复制 host。
+
+## 目标与固定输入
+
+用户工作时直接看见一张有来源摘要，先在卡内展开信息，再按需在原右侧 tab 阅读同一对象；收起和返回不改变对象或正式接受状态。首片只晋升一个已有 reader 的对象，不同时实现 Task/Explore/Context/Diff 平台。
+
+实际开工 cwd 为独立 Courtwork worktree，HEAD `67ed0fd748017f3d71d426de51d9f1f63860ea54`，无改动、detached；本任务建立 `codex/summary-disclosure-r2`。RuntimeStore11/Core4/app5。准备包按 `13874d32310e4d09817d32c46a9e948925ff4ba0:engineering/execution/2026-09-10-release-roundmap/{README.md,audit.md,work-order-format.md,fresh-astra-handoff.md}` 读取，未 merge 资料或产品链。
+
+Provider 观察固定 PV-BE03 `76cd11f` / PV-FE02 `6ddb94a`（产品 `f4e601b`），不是组合接受。即使树干净，预约未释放。无 merge/push/deploy、个人数据或付费 provider。
+
+## 来源消费与最近先例
+
+- 本地 canonical：`app/web/surface-modules.mjs` 的 facts→adapter→card/pane、`railHost`（`app/web/app.mjs`）的 open/openFile/openRun；host 保留 tab、renderer、Escape、returnFocus 与读代际。新模块只投影与发 read/navigation intent。
+- Disclosure：`engineering/design/home-composition-2026-09-10/disclosure-overlay.md` 原生 details/summary，普通文档流、不自动展开、Enter/Space 保持触发器焦点、无新 overlay/motion。
+- Tab：同目录 `tab-view-grammar.md`。lens 不伪装可关闭文档；文件身份保留 session/path/read kind/SHA/run，具体 renderer 生命周期继续既有 host。
+- UI Continuity：`engineering/design/agent-interface-2026-09-10/frontend-contract.md` 与对应 precedent-map 的 work.composition / tab.chrome / projection.status / button.action。使用原 `ui-controls`、rail-card/rail-row/rail-note 与已有 tokens；PropertyRow 不重复实施。
+- 用户方向：固定包 `engineering/design/sidebar-intake-2026-09-10/README.md` 的常驻→向下→同对象 tab。采用明确中间层及常驻入口；窄屏改为文档流内可达卡片，不能挤掉正文。Task/Explore 留既有 owner 接口，不造计数/执行态。
+- 外部机制只复用上述本地已消费的 disclosure/tab 规则；未重查外站、没有新增依赖/许可。原文外部主张、截图、动效数值仍未核验。EX-SS1 未接受稿与 CC-I `41966b6` 不消费。
+
+## Owner 与写权
+
+Astra：对象/authority/版本与 host 边界、fixture bridge、最终集成裁决。Luna：有界只读 Explore，边界冻结后实施新模块及定向测试；作者测试不得称独立接受。Astra 对 Luna 模块做 CUA；若 Astra 改产品代码，另请非作者 Luna 复核。
+
+允许：新 `app/web/summary-disclosure*.mjs`、新 `app/web/summary-disclosure.css`、`app/tests/summary-disclosure.test.mjs`、本工单目录、本 evidence 目录。禁止：`app.mjs`、`ui-controls.mjs`、`surface-modules.mjs`、`styles.css`、`model-picker.mjs`、`settings-view.mjs`、Models 测试、server 生产路由、site/、Core/Runtime/schema、共享工作树。
+
+隔离 fixture 允许按精确源路径加载真实 app/index 与原 host，仅在测试 HTTP 响应追加 read/navigation bridge exports。无生产代码替换、无新 tab host、无自动安装入口。fixture 页面明确标示模拟状态和 provider 方式；不将此 bridge 称生产接线。
+
+## 共同状态与交互验收
+
+|状态|显示/动作|恢复与归属|
+|---|---|---|
+|正常|常驻身份摘要，默认折叠；局部事实；明确 Open in right panel|同一 scope/identity/version 发 host intent|
+|loading|读取中，不补计数/成功；避免重复请求|adapter/host 管读代际|
+|empty|有对象但无已记录内容；无对象则不造卡|不推导 completed|
+|unknown|明确状态未知和缺少事实|不当作 0/失败/完成|
+|error|可读失败原因，只有 adapter 提供 retry 才有重试|同对象重试；过期回包不覆盖|
+|撤权/切目标/版本变更|不继续暴露旧对象详情，不执行旧 Open|scope/identity/revision 校验；清理本地披露记忆|
+|renderer缺席/不兼容|准确不可用，不能有假可用 Open|重新得到匹配 reader/facts 后同清单回测|
+|关闭/重开/重启|host 管 tab/焦点；披露仅局部 UI 状态|不持久新域事实、不新增权限|
+
+验证：纯投影负例、重复/迟到/切目标、默认不展开、Enter/Space、Tab、Escape、返回焦点、同对象右 tab；包含邻接完整 Work/Home/Settings、1440/1280/390、light/dark、长文与200%可读性。按风险跑 interaction/color/material lint、contrast 与精确测试。CUA 实操必须实际操作而非 headless 冒充；OS/browser/viewport/scale/SHA/data kind/步骤预期实际/原图hash/单一caption/作者与复核身份写 evidence。
+
+## 交付分栏与回溯
+
+Design定型、FE视觉、FE交互(fixture/live)、生产接线、非作者复核分列。生产 adapter 接入需等待 host writer 窗口，并沿此处 schema/映射和同一回归清单重跑；fixture 不关闭 G1–G5，不宣称真实推理或 native 宿主通过。下一记录补具体对象、projection v1 字段和最终路径。
+
+## Astra 冻结的首对象与接缝 v1
+
+选 **Run**。现有 Run lens 有已实现 reader；记录文件只是该 Run 的已报告 content-version，不冒称 Source/Task/Explore。未新增 closable Run tab：该类型是 lens，关闭工作面沿 host；文档关闭另测邻接原 host。
+
+`projectRunSummary(facts, options)` 的输入是 `surfaceFacts` 的 sessionId/runId/runs/events；options.phase/error/readerAvailable/generation 是 adapter 的读取状态，不属于后端事实。输出 `schemaVersion:1`、`identity:{sessionId,runId}` 和已校验的记录文件；`generation` 仅 UI 请求代际，不冒作 domain revision。不同 scope 或过期 intent 不执行。Run 可变状态按 owner 读取结果，文件版本按 path+sha256+runId；没有 Run-level revision 的字段就明确无，不能补一个看似正式版本。
+
+`createRunSummaryCard({getSnapshot,onOpen,onRetry})` 返回 element/update/dispose，只拥有 disclosure 与 busy/focus 的局部状态；Open 前重新读取快照，identity+generation 匹配且 reader 可用才交 `railHost.openRun(runId)`。既有 `GET /api/v5/sessions/:id` 和 `GET /api/v5/runs/:id` 为真实接线目标，RuntimeStore 持 Run，原 `readRunDetails` 的 scope/代际处理继续有效。没有新 endpoint/schema/registry。
+
+Fixture adapter：`evidence/summary-disclosure-20260910/serve.mjs` 从 `app/tests/helpers.mjs` 启动独立临时 Runtime11/Core4/app5，通过 HTTP/Pi loopback 合成一个 Run 与 `out/source-note.txt`。使用仓库已有测试用 fake credential 常量，不读个人凭据。`fixture.mjs` 只消费匹配 session 的 host facts；故障/未知/空/长文分支是显式模拟投影，不能称生产服务返回这些状态。Retry 演示有 generation 窗口并实际重读同一 Run；真实 host 会在自己的 reader 中继续验证。
+
+常驻位置这次只在 fixture CSS 中接入：桌面聊天右侧卡片，<1024 在聊天文档流前端；expanded tab 仍使用原 host 的中宽 view switch 和窄屏 sheet。不是擅改生产断点，也不称完成生产常驻编排。待共同 host 路径单 writer 释放后，按本片实测再接 production placement/事实刷新/必要 static route，不能直接把测试 exports 搬进产品。
+
+## 首轮 CUA / 非作者发现后的有界修补
+
+Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；Luna新增局部换行约束。投影补Unicode/长路径、缺文件列表不等于0、schema/scope/代际检查，按钮披露重绘焦点与异步失败可读回退由作者修补。
+
+非作者 Luna 在 fixture retry 中复现切会话后永久 Loading。Astra桥接补 activeSession/view/sessionEpoch 变化失效、HTTP返回后的同scope检查、中断后的可重试error，并将成功的确切Run读包作为该次fixture读快照，不以旧包伪装刷新成功。
+
+原host的Escape先回旧rail；此fixture位置已有摘要卡，因而桥接仅在本卡发出Open后观察host的expanded→collapsed，调用原 `closeSurface()` 收尾，原host恢复returnFocus。没有第二套Escape/tab handler或renderer生命周期。此协调是fixture的显式差异，生产host窗口仍待接续，不能把测试export/observer直接认作生产发布方案。
