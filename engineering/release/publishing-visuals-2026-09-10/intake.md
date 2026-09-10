@@ -4,7 +4,7 @@
 
 目的：为 Courtwork Pages 的影像层做筹备——语义源、视觉语法、渲染器分工、QA 与首批工作单。**本批不写 `site/` 代码，不派发 agent。**
 
-输入：[影像 Skill 参考索引](inputs/visual-reference-index-2026-09-10.md)。用户裁定：色、纸等材质取本地裁定；该索引仅供参考、按需消费。
+输入：[影像 Skill 参考索引](inputs/visual-reference-index-2026-09-10.md)（含追加的 Cue）。用户裁定：色、纸等材质取本地裁定；该索引仅供参考、按需消费。
 
 ## 事实
 
@@ -59,6 +59,8 @@ p5.js 等 skill 只作方法参考，不作依赖。
 **VG-11 位置。** 索引的 `site/visuals/{semantics,briefs,accepted,generated,manifests}` 收窄为：语义归 registry，brief 归本批，接受的图放 `site/src/assets/figures/`，一份 `figures.json` manifest；生成的中间产物不入库。registry 与 grammar 经用户接受后迁入 `engineering/design/`，本批目录只保留草案与回执。
 
 **VG-12 单一写者。** `site/` campaign 归 Astra（F1）。本批不改 `site/`；图的施工只在 U-VG2 定下写者之后派发，同一时刻只有一个 site 写者。
+
+**VG-13 Cue 按条目消费。** 只在某个具体工作项需要交互或动效参考时，于免费层浏览对应条目，登记条目来源（原站点、页面类型），按 F10 只取机制。不连接其 MCP，不付费，不把生成的 prompt 或 React 源码直接用作施工输入。条目本身是第三方站点的再策展，采用前须回溯原站核实。
 
 ## 待用户裁定
 

@@ -24,3 +24,9 @@
 | BenoshAntonyBenoy/repo-graphics、Sma1lboy/brand-studio | 仓库内视觉资产的组织 |
 
 以上仓库均未在本批读取；许可、维护状态与实际内容待 EX-VG1 核实。
+
+## 追加 · Cue（用户本轮贴入）
+
+[cuedesign.space](https://www.cuedesign.space/)：个人手工策展的 UI 组件与交互参考库，条目取自 Awwwards Site of the Day、Behance 精选交互或生产站点；提供面向 Cursor / v0 / Claude 等的 prompt 生成、React 源码（逐步上线）与 MCP server。免费层可浏览（每日 prompt 数有限），终身授权为付费。2026-09-10 仅读取首页。
+
+它的对象是**页面交互与组件**，不是图的语法，因此与本批的 `plate` / `object` 关系弱，与 campaign 的交互和动效（纸层 hover、三投影切换、ambient）关系强。处置见 intake VG-13。

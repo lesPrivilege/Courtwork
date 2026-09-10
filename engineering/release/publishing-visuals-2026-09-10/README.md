@@ -4,7 +4,7 @@ Courtwork Pages 影像层的筹备批次：语义源、视觉语法、渲染器�
 
 | 文件 | 内容 |
 |---|---|
-| [intake.md](intake.md) | 事实 F1–F10，裁定 VG-1…VG-12，待用户裁定的 U-VG1…U-VG4 |
+| [intake.md](intake.md) | 事实 F1–F10，裁定 VG-1…VG-13，待用户裁定的 U-VG1…U-VG4 |
 | [visual-semantic-registry.md](visual-semantic-registry.md) | 概念 → 权威定义 → 声称状态 → 可用母题 / 禁忌；现有图对照表 |
 | [inputs/](inputs/) | 用户提供的影像 skill 参考索引（仅供参考，按需消费） |
 | [work-orders/](work-orders/) | EX-VG1（未派发）、WO-VG-01（骨架） |
