@@ -1,0 +1,126 @@
+{
+  "figures": [
+    {
+      "id": "fig-00-matter-object",
+      "status": "concept",
+      "red": null,
+      "svgs": 1
+    },
+    {
+      "id": "anatomy-instrument",
+      "status": "shipped",
+      "red": null,
+      "svgs": 0
+    },
+    {
+      "id": "state-to-commit",
+      "status": "shipped",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 0,
+        "texts": 8,
+        "edges": 6
+      }
+    },
+    {
+      "id": "pricing-local",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pricing-hosted",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pricing-organization",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pipeline",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 13,
+        "texts": 34,
+        "edges": 7
+      }
+    },
+    {
+      "id": "spark",
+      "status": "research",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 6,
+        "texts": 9,
+        "edges": 2
+      }
+    },
+    {
+      "id": "attention",
+      "status": "research",
+      "red": "#fig-attention-elevated",
+      "svgs": 1,
+      "geometry": {
+        "rects": 49,
+        "texts": 3,
+        "edges": 3
+      }
+    },
+    {
+      "id": "roles",
+      "status": "research",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 7,
+        "texts": 11,
+        "edges": 2
+      }
+    }
+  ],
+  "problems": [
+    {
+      "figure": "attention",
+      "why": "mounted markup differs from its source file",
+      "detail": "site/src/assets/figures/attention.svg"
+    },
+    {
+      "figure": "attention",
+      "why": "more than one red element",
+      "detail": [
+        "fig-attention-elevated",
+        "<rect class=\"fig-quiet fig-attention\" x=\"8\" y=\"104\" width=\"14\" height=\"14\" />"
+      ]
+    },
+    {
+      "figure": "attention",
+      "why": "registered red element not found as the figure's only red",
+      "detail": {
+        "registered": "#fig-attention-elevated",
+        "found": [
+          "fig-attention-elevated",
+          "<rect class=\"fig-quiet fig-attention\" x=\"8\" y=\"104\" width=\"14\" height=\"14\" />"
+        ]
+      }
+    },
+    {
+      "why": "page carries figure red elements the manifest does not register",
+      "detail": {
+        "onPage": 2,
+        "registered": 1
+      }
+    }
+  ],
+  "pass": false
+}

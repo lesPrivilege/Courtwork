@@ -1,0 +1,19 @@
+{
+  "sha": "2eca4885a7f1ebab4c6e8b7d38e76ffbe3d09a50",
+  "reviewer": "Astra",
+  "metrics": [
+    {
+      "bodyWidth": 390,
+      "overflowX": "auto",
+      "parentScroll": 720,
+      "parentWidth": 342,
+      "svgWidth": 720,
+      "viewport": 390
+    }
+  ],
+  "observations": [
+    "Final Retrieve labels possibly relevant / object and Compile context projection visible at1440",
+    "390 has local720px SVG inside342px overflow-auto parent; body390",
+    "Source screenshots from author retained separately; this is bounded final-label capture"
+  ]
+}

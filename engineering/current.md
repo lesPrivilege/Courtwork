@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 最新接收：VG01 与比较研究入账（2026-09-10）
+
+用户授权接收 VG01 固定 `2eca488`：Opus 图示、Fable VG14–20 与 Pages 校验，经 Luna 固定版本有界独验及 Astra 最终页面检查后合入本地 main。[整合凭据](../evidence/vg01-main-integration-20260910/README.md)记录正反例和归因。Registry 迁往 design 留待 Fable 接续；无产品/schema改动，未推送或部署，不关闭 G1–G5。
+
+[Codex 与 Courtwork 对比](research/codex-courtwork-comparison-2026-09-10/README.md)已完整登记可访问对话及来源哈希；其中外部产品主张待核验，不作为已采纳架构。下列记录保留各自交付时点。
+
 ## 最新接收：五项顺序独验与主线整合（2026-09-10）
 
 用户授权的 ICON、FE-05a、FE-05 材质 specimen、ATT-FE-01 与 Spark 均已由 Luna 顺序独立验收通过，产品合流固定 `d0118ab356c541f0ff2dcd9bc867c438399d3e7d`；本轮台账回执提交后快进并推送唯一远端 main。当前 **RuntimeStore 11 / Core 4 / app 5**，保留 SK-1…4、Q01/Q02。此前各段 schema 数字仅属历史时点。
