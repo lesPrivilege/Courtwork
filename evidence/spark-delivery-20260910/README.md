@@ -9,3 +9,9 @@ Astra 发现并修补：切换 project 后请求未决仍显示旧 scope 的可�
 冻结 DTO 未定义 snapshot 查询参数；分页沿合同已定义的 project/limit/offset 查询，并在客户端保留预期 snapshot 拒绝不同快照。这不宣称服务器快照锁定或历史回读已实现。
 
 从仓库根目录运行 `node evidence/spark-delivery-20260910/browser-regressions.mjs`。服务采用系统分配空闲端口，Chrome CDP 默认 20230，可用 `WK6_CDP_PORT` 覆盖。夹具仅在脚本注入，不进入运行产品数据源。
+
+## Work 路由补修
+
+非作者 Luna 在 `20d8330` 真实宿主验证中发现：选中绑定会话后 Work pane 仍隐藏（21 个浏览器检查中唯一失败）。`selectSession` 正确清除旧 surface，但 Spark 路由缺少后续激活。Astra 现在沿 `activateSurface("preview")` 打开既有 Work pane；异步查找或选择期间有新导航时取消旧激活，并在加载后重验所选 project/session/Matter binding。不创建会话、绑定或新 surface 类型。
+
+[六项真实宿主函数定向测试](../../app/tests/spark-routing.test.mjs)控制异步导航/绑定变化/加载失败边界；[补前日志](routing-unit-before.log)保留反例，[补后与原有单测](routing-unit.log)44/44 通过。真实浏览器复验由非作者 Luna 另记；本段是补丁作者检查。

@@ -1577,7 +1577,8 @@ async function refreshNavigationAndSession() {
  * surface" (WO-SP1-FE §交付) means finding the Session already bound to this
  * Matter the same way `coordination-projection.mjs` already does
  * (`extensionBinding.binding.matterId`) and calling the existing
- * `selectProject(projectId, {sessionId})` route — never creating a binding.
+ * `selectProject(projectId, {sessionId})` route, then activating the existing
+ * Work preview after the selected session and binding are revalidated.
  * A Matter with no currently open Session is left unopened, with a plain
  * notice; Spark does not start a new Work chat on a maintenance read. */
 /* Matter -> Session is not a contract relation: `{detach:true}` releases a
@@ -1589,10 +1590,23 @@ async function refreshNavigationAndSession() {
  * fans out session loads across every project. */
 async function openMatterSurface(matterId, projectId) {
   if (!projectId) { showToast("No open Work chat is bound to this Matter yet.", "error"); return; }
+  const lookupEpoch = state.navigationEpoch;
   const sessions = state.sessionsByProject.get(projectId) ?? await loadSessionsForProject(projectId);
+  if (state.navigationEpoch !== lookupEpoch) return;
   const owners = (sessions || []).filter((session) => session.extensionBinding?.binding?.matterId === matterId);
   const owner = owners.slice().sort((a, b) => a.id.localeCompare(b.id))[0];
-  if (owner) { await selectProject(projectId, { sessionId: owner.id }); return; }
+  if (owner) {
+    const selection = selectProject(projectId, { sessionId: owner.id });
+    const selectionEpoch = state.navigationEpoch;
+    await selection;
+    if (state.navigationEpoch !== selectionEpoch || state.activeProjectId !== projectId || currentSession()?.id !== owner.id) return;
+    if (currentSession()?.extensionBinding?.binding?.matterId !== matterId) {
+      showToast("No open Work chat is bound to this Matter yet.", "error");
+      return;
+    }
+    activateSurface("preview");
+    return;
+  }
   showToast("No open Work chat is bound to this Matter yet.", "error");
 }
 
