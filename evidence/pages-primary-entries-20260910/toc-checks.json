@@ -1,0 +1,16 @@
+{
+  "desktop": {
+    "left": 470.84375,
+    "links": 4,
+    "paper": true,
+    "right": 470.84375,
+    "scrollWidth": 1440,
+    "tour": false,
+    "width": 1440
+  },
+  "mobile": {
+    "links": 4,
+    "scrollWidth": 390,
+    "width": 390
+  }
+}

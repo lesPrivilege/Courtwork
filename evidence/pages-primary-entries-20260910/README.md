@@ -9,3 +9,7 @@ The Tour page leads with four linked phases; the complete eleven-node directory 
 [Browser checks](browser-checks.json) cover desktop at 1195 px and mobile at 390 px, exclusive Paper/Tour disclosure, keyboard Return to collapse, deep links, actual Review state navigation, four stages and eleven retained states. Screenshots in this directory show both expanded chapters and the Tour path. No horizontal overflow observed. Source review confirms native HTML fallback; no browser no-JavaScript run is claimed.
 
 Build, local links, material and public-data checks, document links and diff checks are recorded in [checks](checks.json). Application code did not change, so the previous 522-test product result is not presented as a new run. No deploy or paid provider.
+
+## Follow-up: persistent Tour contents
+
+User screenshot showed unused space below the collapsed Tour beside expanded Paper. Tour now keeps a concise four-link directory outside its optional explanatory disclosure. Paper and Tour can expand independently. At 1440 px the directory and Paper body share exactly the same separator position (470.84375 px in the captured viewport); 390 px has no overflow. See `toc-checks.json` and `toc-aligned-desktop.jpg`. This supersedes the earlier exclusive-disclosure behavior.

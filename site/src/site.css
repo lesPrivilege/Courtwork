@@ -823,3 +823,14 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
   .entry-cover { padding: 14px; }
   .entry-cover-tour { gap: 8px; font-size: 9px; }
 }
+
+/* Keep Tour's short contents visible alongside an expanded Paper. */
+.entry-tour details[open] .entry-closed, .entry-tour details[open] .entry-sign::after { display: none; }
+.entry-tour details[open] .entry-open { display: inline; }
+.entry-extra { margin: 0 32px; padding: 24px 0; border-top: 1px solid var(--campaign-rule); font-size: 14px; }
+.entry-extra p:first-child { margin-top: 0; }
+.entry-extra p:last-child { margin-bottom: 0; }
+.entry-toc .entry-flow { margin: 0; }
+.entry-toc .entry-flow a { align-items: center; padding: 20px 0; }
+.entry-toc .entry-flow strong { font-weight: 500; }
+@media (max-width: 720px) { .entry-extra { margin: 0 24px; } }

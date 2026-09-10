@@ -8,7 +8,7 @@
 
 Pages消费既有21e8a9b六子页，保留叙事与纸层视觉并展示实际新版Home；15份合成实录分离于9e5384f旧标本。用户随后指定本轮新讨论的核心自研理念，已消费研究370b891并加入确定性资料治理→Spark可重建派生/恢复→稀疏Attention，以及角色/执行分离与全生命周期质量/成本方向；均明确研究与待实现，不视为ME-01–10交付。[合流、验证与边界](../evidence/pages-main-visual-20260910/README.md)。共享未提交证据保持；未部署、未跑真实provider、未迁移个人数据，不关闭G1–G5。
 
-Paper/Tour入口接续：用户指定“Paper承载理念、Tour承载编排”。首页首屏叙事后加入两大原生展开章节，位于Home实录之前；Paper接独立论文与明确标注的本轮产品研究，Tour接四步工作路径及既有11节点实录。六子页导航同步，当前Home与来源固定保持。[交付与浏览器验证](../evidence/pages-primary-entries-20260910/README.md)。仅Pages UI，无产品runtime/schema变更，未部署。
+Paper/Tour入口接续：用户指定“Paper承载理念、Tour承载编排”。首页首屏叙事后加入两大原生展开章节，位于Home实录之前；Paper接独立论文与明确标注的本轮产品研究，Tour接四步工作路径及既有11节点实录。六子页导航同步，当前Home与来源固定保持。[交付与浏览器验证](../evidence/pages-primary-entries-20260910/README.md)。后续按用户截图将Tour四项简明目录常驻，与Paper展开正文分隔线对齐；说明独立展开。仅Pages UI，无产品runtime/schema变更，未部署。
 
 ## 多专家全turn与long-life施工准备（2026-09-10）
 
