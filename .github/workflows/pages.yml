@@ -20,6 +20,11 @@ on:
       - "app/web/styles.css"
       - "evidence/publishing-surface-2026-09-09/**"
   workflow_dispatch:
+    inputs:
+      allow_pending_captures:
+        description: "Publish the current layout with empty capture slots"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -42,7 +47,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.19"
-      - name: Require the merged screenshot batch
+      - name: Validate screenshot publication policy
+        env:
+          ALLOW_PENDING_CAPTURES: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_pending_captures }}
         run: node site/scripts/check-capture-ready.mjs
       - name: Build the site
         run: node site/build.mjs
