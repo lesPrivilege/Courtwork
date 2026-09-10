@@ -439,7 +439,7 @@ export function renderConnectionCard(
   const groups = [
     el(
       "section",
-      { className: "context-group" },
+      { className: "context-card" },
       el("h4", { text: "Model & connection" }),
       el(
         "dl",
@@ -461,7 +461,7 @@ export function renderConnectionCard(
     groups.push(
       el(
         "section",
-        { className: "context-group" },
+        { className: "context-card" },
         el("h4", { text: "File access · this chat" }),
         segmentedPermission({
           value: mode,

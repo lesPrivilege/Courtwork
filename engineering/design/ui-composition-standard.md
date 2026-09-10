@@ -61,6 +61,28 @@
 | window-control 安全区 | 80 × `--band-top` | `--window-safe-area` | 宿主的窗口按钮区，产品不在其中放控件；契约见 [interface-components](../../docs/interface-components.md) |
 | 模糊 | 12 / 16 | `--blur-chrome` / `--blur-transient` | WK-102 的闭集；只有登记表面可用 |
 
+### Shape 角色（WK-125 (b) / WK-128，2026-09-10 FE-05a 登记）
+
+圆角与字阶一样是一张有限的角色表，不是每个组件各自的口味。静态取值由
+`tools/lint-shapes.mjs` 守（只允许 token、显式 `0`、以及由 token 派生的表达式）；
+父子是否同心是布局事实，由 `evidence/fe05a/shape-checks.mjs` 的 SHAPE-* 在真实渲染上量。
+
+| Shape 角色 | 值 | token | 它回答什么 |
+|---|---|---|---|
+| `control.compact` | 6 = 8 − 2 | `calc(var(--radius-control) - 2px)` | ≤28 高的小控件与分段：它坐在一条 8 圆角、2 内边距的轨道里，弧线要与轨道同心 |
+| `control.default` | 8 | `--radius-control`（别名 `--radius`） | 标准控件的外形；28 高不联动收紧（WK-128 ⑥） |
+| `surface.card` | 12 | `--radius-card` | 有背景与边界的卡：会话概览的每一组、阅读器的外框 |
+| `surface.container` | 16 | `--radius-container` | 容器级的面：composer 外壳、dialog、popover |
+| `full` | 999 | `--radius-pill` | 满弧。正方形上它就是圆；`50%` 不再使用（非正方形上 50% 是椭圆，WK-128 ③） |
+| `0` | 0 | 显式 `0` | tab strip 与贴死视口边缘的面：没有"暴露边"可圆 |
+
+两条派生规则：
+
+- **同心**：`R_child = max(R_min, R_parent − inset)`，`R_min` = `--radius-small` 4，`inset` 取父级内边距。三处此前沉睡的违例（popover 内的行、composer 外壳内的输入面、dialog 内的内容井）已把公理写进声明本身，而不是写一个算好的数字。
+- **焦点环**：offset 一律 2；弧线由引擎沿元素自身的 `border-radius` 走，所以有圆角的元素不重复声明 radius。唯一手写 radius 的是本身没有圆角、却要靠 outline 长出一个圆角边界的容器（`.settings-section`），那里写"视觉预期 + offset"。
+
+**满弧只给 composer 唯一的那个浮动主动作**（Send / Cancel run 是同一位置的两端）。同为 32 见方的图标按钮不因为是图标就变成圆：`#new-project-button` / `#home-create-project` 保持 `control.default`（SHAPE-6 逐次盯住这条对照）。
+
 Settings 注（WK-116 / CC-S）：进入 Settings 后全局侧栏不渲染，这一页的两列因此是它自己的，四个 `--settings-*` 值不与 `--nav` / `--page-gutter` 共享。改其中任何一个都要同时改 `composition-checks` 的 SETTINGS-* 断言。
 
 侧栏宽注：`--nav` 原为 250（WK-42），低于视觉审查建议的 256–280 下沿 6px；WK-105 ⑤ 裁定落到 256，FE-02 第 0 项执行，Home / Work 几何断言随之更新。

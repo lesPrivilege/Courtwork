@@ -425,6 +425,10 @@ a,
 [tabindex] {
   -webkit-tap-highlight-color: transparent;
 }
+/* WK-128 ⑤ · 焦点环只有一处派生：offset 2；弧线由浏览器沿元素自己的
+   `border-radius` 走，所以有圆角的元素不必再写一遍 radius。唯一需要手写 radius 的
+   是本身没有圆角、却要靠 outline 长出一个圆角边界的容器（见 `.settings-section`），
+   那里写的是"视觉预期 + offset"。组件之间不再各写各的 offset。 */
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
@@ -551,7 +555,7 @@ button {
 .eyebrow,
 .section-heading h2,
 .message-role,
-.context-group h4 {
+.context-card h4 {
   font-size: var(--text-caption);
   line-height: 1.5;
   font-weight: 500;
@@ -1361,7 +1365,11 @@ details[open] > summary.flow-row::after {
 .composer-form:focus-within {
   border-color: var(--ink);
 }
+/* WK-128 ① · 融入型文本域：它没有自己的边框与底色，此前却从通用的
+   `input, textarea, select` 那里继承到一个 `control.default` 的 8px —— 一个不属于
+   它语境的角色，眼下不可见，材质或密度一变就会显形。按公理派生：外壳 16、内缩 12。 */
 #composer-input {
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - 12px));
   display: block;
   resize: none;
   width: 100%;
@@ -1413,7 +1421,7 @@ details[open] > summary.flow-row::after {
   content: "";
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   background: var(--accent);
   flex: none;
   animation: se-pulse 1.6s var(--ease-out) infinite;
@@ -1578,7 +1586,7 @@ details[open] > summary.flow-row::after {
   margin-left: var(--space-2);
   vertical-align: middle;
   border: 1.5px solid currentColor;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   flex: none;
 }
 .tab-activity.running,
@@ -2099,7 +2107,11 @@ select {
   width: 420px;
   padding: var(--panel-padding);
 }
+/* WK-128 ① · dialog 的 `overflow: auto` 今天替子级做了裁切，所以这处直角看不出来；
+   一旦某个分区条自带底色，缝隙就会露出来。同一条公理写在这里：外框 16、内缩是这一页
+   自己的 `--panel-padding`。 */
 .form-dialog form {
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - var(--panel-padding)));
   display: grid;
   gap: 12px;
 }
@@ -2579,15 +2591,17 @@ select {
     backdrop-filter: none;
   }
 }
-.context-group {
-  border-top: 1px solid var(--line);
-  margin-top: 12px;
-  padding-top: 12px;
-}
-.context-group > .eyebrow {
+/* WK-128 ② · 这个类名此前有两份声明（这里一份、下面卡片一份），谁在后面谁赢，
+   两种解剖因此叠在同一批元素上。现在只留一种：会话概览里的每一组是一张卡
+   （`.context-card`），它自己的上边距在卡的规则里；没有第二种 `.context-group`。 */
+.context-card > .eyebrow {
   margin-bottom: 8px;
 }
+/* WK-128 ① · R_child = max(R_min, R_parent − inset)。行的父级是 `.context-card`
+   （12 圆角、12 内边距），弧线在内缩点上早已收敛，所以行取 R_min。写成公理本身而
+   不是一个数字：卡的圆角或内边距一旦改，行跟着改。 */
 .context-row {
+  border-radius: max(var(--radius-small), calc(var(--radius-card) - 12px));
   width: 100%;
   justify-content: flex-start;
   text-align: left;
@@ -2694,9 +2708,13 @@ button[aria-disabled="true"] {
   margin: 0;
   overflow-wrap: anywhere;
 }
+/* WK-128 ③ ⑦ · 满弧写 `--radius-pill`，不写 `50%`（正方形上二者同值，非正方形上
+   50% 是椭圆）。圆形只给 composer 唯一的那个浮动主动作：送出与停止是同一个位置的
+   两端，它们独处于输入面的末端、以实心 accent 承载。图标按钮默认仍是圆角矩形 ——
+   `#new-project-button` 同为 32 见方的图标按钮，保持 `--radius-control`。 */
 #send-button,
 #cancel-run-button {
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   color: var(--on-accent);
   padding: 0;
   background: var(--ink);
@@ -2734,13 +2752,14 @@ button[aria-disabled="true"] {
 .workspace-add {
   margin-top: 4px;
 }
-.context-group {
+.context-card {
+  margin-top: 12px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--panel);
 }
-.context-group h4 {
+.context-card h4 {
   margin-bottom: 8px;
 }
 .run-history-inner {
@@ -2854,7 +2873,7 @@ summary:hover {
   content: "";
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   background: currentColor;
   flex: none;
 }
@@ -3052,7 +3071,9 @@ dialog[open]::backdrop {
   bottom: 2px;
   left: 2px;
   width: calc((100% - 4px - (var(--segments) - 1) * 2px) / var(--segments));
-  border-radius: 6px;
+  /* WK-128 ⑧ · 6 = 轨道 8 − 内边距 2，是全表里唯一严格满足公理的一组；不为它提
+     炼新 token，写成派生式，轨道的圆角一改，滑块与分段跟着改。 */
+  border-radius: calc(var(--radius-control) - 2px);
   background: var(--panel);
   box-shadow: var(--shadow-thumb);
   transition: translate var(--duration) var(--ease-out);
@@ -3074,7 +3095,7 @@ dialog[open]::backdrop {
   justify-content: center;
   min-height: 28px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: calc(var(--radius-control) - 2px);
   font-size: var(--text-meta);
   color: var(--muted-strong);
   cursor: pointer;
@@ -3102,7 +3123,7 @@ dialog[open]::backdrop {
 }
 .segment:has(input:focus-visible) {
   outline: 2px solid var(--focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .segmented:disabled .segment {
   cursor: not-allowed;
@@ -5011,7 +5032,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 }
 .settings-tab:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .settings-nav-select {
   display: none;
@@ -5026,10 +5047,11 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-section {
   max-width: var(--settings-measure);
 }
+/* 本身没有圆角的容器：radius = 视觉预期（卡）+ offset。 */
 .settings-section:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 4px;
-  border-radius: var(--radius-card);
+  outline-offset: 2px;
+  border-radius: calc(var(--radius-card) + 2px);
 }
 .settings-section-title {
   margin: 0 0 var(--space-4);
@@ -5476,11 +5498,12 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .attention-agent-message.is-permission > button { margin-right: 8px; }
 .attention-agent-status { padding: 0 24px; }
 .attention-agent-status > p { margin: 0 0 6px; }
-.attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: 12px 20px 16px; padding: 5px 6px 5px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--float); }
+.attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: 12px 20px 16px; padding: 5px 6px 5px 16px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }
 .attention-agent-composer:focus-within { border-color: var(--muted-strong); }
 .attention-agent-composer input { flex: 1; min-width: 0; width: 100%; height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .attention-agent-composer input:focus { outline: none; }
-.attention-agent-composer button { flex: 0 0 auto; border-radius: 10px; }
+/* 外壳 16、内缩 6（右内边距），派生 10。 */
+.attention-agent-composer button { flex: 0 0 auto; border-radius: max(var(--radius-small), calc(var(--radius-container) - 6px)); }
 .attention-agent-runtime { flex: 1; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
 .attention-agent-runtime > div { max-height: 160px; overflow: auto; }
 .attention-agent-runtime p { margin: 8px 0; line-height: 1.5; }
@@ -5547,7 +5570,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
 .usage-tabs button[aria-selected="true"] { border-bottom:2px solid var(--ink); }
 .usage-total { font-size:28px; letter-spacing:-.02em; margin:20px 0 8px; }
 .usage-heatmap { display:grid; grid-template-columns:repeat(7, minmax(30px,44px)); gap:6px; margin:20px 0; }
-.usage-heatmap button { aspect-ratio:1; min-height:30px; padding:0; border-radius:6px; color:var(--ink); }
+.usage-heatmap button { aspect-ratio:1; min-height:30px; padding:0; border-radius:calc(var(--radius-control) - 2px); color:var(--ink); }
 .usage-heat.level-0 { background:var(--usage-level-0); }
 .usage-heat.level-1 { background:var(--usage-level-1); }
 .usage-heat.level-2 { background:var(--usage-level-2); }

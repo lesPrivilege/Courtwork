@@ -83,7 +83,7 @@ export function renderSessionOverview(
   const group = (title, ...children) =>
     el(
       "section",
-      { className: "context-group" },
+      { className: "context-card" },
       el("h4", { text: title }),
       ...children,
     );
