@@ -1,0 +1,152 @@
+{
+  "base_sha": "a579929edd66544e6aa7cd8cd7d2399fae8265d3",
+  "code_sha": "583a1b3c8a0a462400d12b6f540640731abf8dc6",
+  "status": "verified-bounded",
+  "author": "Astra: publication/schema/integration; Luna baseline_explore: pure fields and migration fixtures; Luna q01_tests: loopback/failure tests",
+  "schema": {
+    "runtime": 11,
+    "core": 4,
+    "app": 5
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=2 tests/*.test.mjs ../tests/*.test.mjs",
+      "cwd": "app",
+      "log": "author-full-initial-incomplete.log",
+      "exit_code": 137,
+      "result": "incomplete; old invalid empty-provider fixtures and schema assertions, one hung owned child terminated; no total"
+    },
+    {
+      "command": "node --test --test-concurrency=2 --test-timeout=90000 tests/*.test.mjs ../tests/*.test.mjs",
+      "cwd": "app",
+      "code_sha": "583a1b3c8a0a462400d12b6f540640731abf8dc6",
+      "log": "author-full-551-of-553.log",
+      "exit_code": 1,
+      "tests": 553,
+      "pass": 551,
+      "fail": 2,
+      "failures": "work-summary-consistency uses unsupported fixture API; test-only literal correction in 9380fd5"
+    },
+    {
+      "command": "node --test app/tests/work-summary-consistency.test.mjs",
+      "cwd": ".",
+      "log": "author-summary-fixture-2-of-2.log",
+      "exit_code": 0,
+      "tests": 2,
+      "pass": 2
+    },
+    {
+      "command": "node --test tests/review-provider-roundtrip.test.mjs",
+      "cwd": "app",
+      "log": "independent-roundtrip.log",
+      "tests": 13,
+      "pass": 13,
+      "exit_code": 0
+    },
+    {
+      "command": "node --test tests/review-provider-publication-migration.test.mjs",
+      "cwd": "app",
+      "log": "independent-migration.log",
+      "tests": 4,
+      "pass": 4,
+      "exit_code": 0
+    },
+    {
+      "command": "node --test tests/provider-connections.test.mjs tests/provider-preview.test.mjs tests/provider-protocol.test.mjs",
+      "cwd": "app",
+      "log": "independent-provider.log",
+      "tests": 13,
+      "pass": 13,
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/runtime-smoke.mjs",
+      "cwd": "app",
+      "log": "author-smoke.log",
+      "exit_code": 0
+    },
+    {
+      "command": "node evidence/rv26-q02-independent/edge-check.mjs [repo-root]",
+      "code_sha": "583a1b3c8a0a462400d12b6f540640731abf8dc6",
+      "log": "independent-edges.log",
+      "checks": 4,
+      "pass": 4,
+      "exit_code": 0
+    },
+    {
+      "command": "node --test app/tests/work-summary-consistency.test.mjs",
+      "code_sha": "9380fd515ec0c5f09cb0de5eb5e96aa80bd1a11a",
+      "log": "independent-summary-fixture.log",
+      "tests": 2,
+      "pass": 2,
+      "exit_code": 0
+    },
+    {
+      "command": "node --test app/tests/review-provider-publication-migration.test.mjs",
+      "code_sha": "52b93308557205567039d052fa937e97973d8ea8",
+      "log": "author-migration-portable.log",
+      "tests": 4,
+      "pass": 4,
+      "exit_code": 0
+    },
+    {
+      "kind": "independent-read-only-diff-review",
+      "commit": "52b93308557205567039d052fa937e97973d8ea8",
+      "result": "migration test uses OS temporary directory; product bytes unchanged; no test rerun by reviewer"
+    },
+    {
+      "command": "node tools/check-doc-links.mjs",
+      "log": "doc-links.log",
+      "pass": true,
+      "documents": 696,
+      "checked_links": 3246
+    }
+  ],
+  "not_run": [
+    "paid/real provider",
+    "personal data migration",
+    "power-loss durability",
+    "deployment",
+    "G1–G5 product acceptance"
+  ],
+  "test_fixture_fix_sha": "9380fd515ec0c5f09cb0de5eb5e96aa80bd1a11a",
+  "independent_reviewer": "Luna q02_independent, non-author, separate fixed-SHA worktree",
+  "node": "v25.9.0",
+  "portable_test_fixture_sha": "52b93308557205567039d052fa937e97973d8ea8",
+  "independent_script_commit": "61927c53ba771e7523ef0d5b33ab6e20dae5cf49",
+  "fixtures_at_code_sha": {
+    "app/tests/fixtures/review-provider/loopback.mjs": "ea4ad7495cf36d357ed8cabfafe2f567a1ac80fbdcb88e43266be39d19806723",
+    "app/tests/review-provider-roundtrip.test.mjs": "ccbde31147be520fbacb7332a4d16ae85e0bb77444d00fcc6b07ec38920321ed",
+    "app/tests/review-provider-publication-migration.test.mjs": "d4cbc99f1951cb49ee3a1eead7ad3bd2e729eac5f8ce4fe5c12dcf271425a07a",
+    "app/tests/work-summary-consistency.test.mjs": "b7e045a1188b870323b2962408757237495d9b887bb50a7cedd1532963957132"
+  },
+  "fixtures_at_delivery": {
+    "app/tests/fixtures/review-provider/loopback.mjs": "ea4ad7495cf36d357ed8cabfafe2f567a1ac80fbdcb88e43266be39d19806723",
+    "app/tests/review-provider-roundtrip.test.mjs": "ccbde31147be520fbacb7332a4d16ae85e0bb77444d00fcc6b07ec38920321ed",
+    "app/tests/review-provider-publication-migration.test.mjs": "e2697d49c230f6670fa7258572e83a692eab820efc3b1583d88be67b8650769f",
+    "app/tests/work-summary-consistency.test.mjs": "79b3672e98ec6b477ec560299853be1a0e1e4b4641939b698c7644ea7f58d485",
+    "evidence/rv26-q02-independent/edge-check.mjs": "2fb942a6e658c76584daee3e24fb854d302220c44493cb49e3a0341626d911ae"
+  },
+  "limitations": [
+    "Full sweep at product SHA: 551/553. Only unsupported API literals in work-summary test fixture failed; fixed in test-only commit and author/non-author focused 2/2 passed. No claim of a single 553/553 sweep.",
+    "Independent edge script initially failed to resolve a dependency at evidence path; loader corrected; original failure preserved.",
+    "Historical reader compatibility does not confer execution authority; new writes and Host activation/admission enforce current domain."
+  ],
+  "log_sha256": {
+    "author-full-551-of-553.log": "f12763b3d6624a930a906038ffff8c714d6afa9cc9970e3faa9daa67182d45ea",
+    "author-full-initial-incomplete.log": "0e9df8f4f6c022ccb24db4be4debfcfbca4a0c2141fca4c0eda25cd06d2b8bfe",
+    "author-migration-portable.log": "4e1c78510764fa696b15092904dc57d4723da9b5a3749f1df6809b5b06e52081",
+    "author-provider-existing.log": "a49b73f7d68bd8edda30dd59ddb03781b0e66f817cbe0616cba210765886152b",
+    "author-q02-focused.log": "b0a97ed0e74105f6652394985b65fac5a2e516f679e7267552fe9dc465da1e3b",
+    "author-smoke.log": "ebb9d9f72edbe7fb369d304f2813dcb6083e00be220c47d6aca6cb89726e0133",
+    "author-summary-fixture-2-of-2.log": "159fc8a0fcb9de70ee9a1aee619596e918457d627ac19fe25f65b3c3560f93bf",
+    "doc-links.log": "044397d5d0fcd5a6e174eccbc561cc20cfcddb7fc197115156d62ebb8dced980",
+    "independent-edge-loader-initial-failure.log": "89b9aeff40f56a734dcdc4074909d2ebde05a08fc2ea2ece7896032ad6c84c09",
+    "independent-edges-initial.log": "7e5a572e506d094dfb6bda770a80f51b43679f18f0d36c001ff65f62a41b6163",
+    "independent-edges.log": "8acea763c6fb6d95e5060c8d7f92d5ec751c83dbe3dbc1158be287c90b7c0129",
+    "independent-migration.log": "7208a93afdcda5b5e4d4bc2f2d51bb76fcf643387955b053955e7af70de328bd",
+    "independent-provider.log": "5dff699545148f6b93c7424e8f70618a4ba907bc05c3941a5b8d6763806d2995",
+    "independent-roundtrip.log": "7a3e239ac5757dbf4d6eb862b5ef53a7254b4dc813567535c83f3ba3e432abad",
+    "independent-summary-fixture.log": "110ab3a33f43d039e596d308c61d53655c2d39c046235bd197845e5f8d7c8d97"
+  }
+}

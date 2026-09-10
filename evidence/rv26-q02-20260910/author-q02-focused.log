@@ -1,0 +1,22 @@
+✔ Q02 · HTTP/store field boundaries preserve valid Unicode and reject controls without changing files (209.087375ms)
+✔ Q02 · a 240-character model and 2048-character endpoint survive reopen and keep the execution descriptor (378.518875ms)
+✔ Q02 · registration failure leaves a recoverable record without a ghost provider (80.3205ms)
+✔ Q02 · a provider store failure can be retried with PUT and does not publish a ghost registration (82.714417ms)
+✔ Q02 · replacing a connection fences the route when the new store write fails, then recovers after restart (127.810583ms)
+▶ Q02 · credential file, runtime key, and generation failures remain inspectable and retryable
+  ✔ runtime-key (77.36425ms)
+  ✔ credential-path (101.790542ms)
+  ✔ generation (90.931584ms)
+✔ Q02 · credential file, runtime key, and generation failures remain inspectable and retryable (270.536125ms)
+✔ Q02 · credential_delete explicitly abandons a pending credential_set and clears its key (72.009708ms)
+✔ Q02 · a final pending-marker persist failure fences an already-applied credential until the same retry (71.3635ms)
+✔ Q02 · startup skips pending registration/key load, preserves receipt replay, and only same-operation retry clears it (212.873042ms)
+✔ Q02 · a pending delete with a missing record can be retried to clean credentials (121.087667ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2627.179666

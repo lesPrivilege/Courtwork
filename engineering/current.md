@@ -10,6 +10,14 @@
 
 产品 `c415012` 从 main `a579929` 隔离实施：单一同步 `skin-policy.js` 服务首帧与设置模块；外观有效域 v1、旧完整值原文留存/导出、ignored/invalid 披露、草稿/应用分离、Reset/Remove 焦点与存储失败提示。Review/danger/success/focus/material 固定随 scheme，不随 skin；没有 runtime schema 或个人数据迁移。55 项针对测试、18 组浏览器固定角色矩阵、真实编辑/导出/首帧反例、三宽度明暗/高对比检查通过。[证据与独立复核](../evidence/skin-boundary-sk2-20260910/README.md)。SK-3 与整页收尾按自主完成清单接续。
 
+## RV26-Q02 · 配置校验与持久化（2026-09-10）
+
+从main `a579929` 串行接续Q01，产品 `583a1b3` 统一Provider字段域并持久化最小pending：部分失败可inspect、阻止新Run、重启继续隔离，同操作重试恢复。Runtime **11** 新增pending字段，Core4/app5不变；3–10旧库原字节备份升级，保留schema10连接；旧host拒11、独立备份回读已验证。此段覆盖下文历史Runtime10当前值，原验收时点不改。
+
+Astra负责schema/发布顺序/执行门，Luna有界字段与测试；另一非作者Luna固定版本30/30及四项独立反例通过。全量553项中551通过，另外两项旧夹具的不支持API字面值已在 `9380fd5` 修正，作者/非作者定向2/2通过；不宣称一次553/553。迁移测试的临时路径可移植性修正 `52b9330`，作者4/4。smoke与文档链接通过；[证据与限制](../evidence/rv26-q02-20260910/README.md)保留完整过程。
+
+Q03接续RuntimeStore publication/lock，沿原串行写权；本单未调用真实provider、迁移个人数据、推送或部署，不关闭33单或G1–G5。共享UI checkout和既有未提交证据保持。
+
 ## SK-1：Review 与皮肤 accent 解耦（2026-09-10）
 
 第一片产品整改已实施：Review 在 slate、gray-steel、合法 custom 下使用同一 scheme 语义色；Home 列表/详情与 Attention 列表只由 `needs_you` 接入。自定义对比预检补固定 Review × panel/float，并修复候选 token 探针继承旧 role 的问题。39 项针对测试、18 组 Chromium scheme/skin/system 计算色场景与低对比候选反例通过；作者证据与独立复核分列于 [SK-1 回执](../evidence/skin-review-sk1-20260910/README.md)。

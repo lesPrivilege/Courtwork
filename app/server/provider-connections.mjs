@@ -8,6 +8,7 @@
 // whose capabilities the directory never reported.
 
 import { API_FORMATS, DEEPSEEK_PROVIDER_ID, FAKE_API_ID, FAKE_PROVIDER_ID, OPENAI_PROVIDER_ID } from "../runtime/pi-session-runtime.mjs";
+import { assertProviderApiKey, assertProviderApi, normalizeProviderBaseUrl, validateProviderModels } from "./provider-fields.mjs";
 
 /** Catalog provider identities: the closed set this build ships with. */
 export const CATALOG_PROVIDER_IDS = Object.freeze([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
@@ -19,10 +20,6 @@ export const USER_CONNECTION_PREFIX = "conn-";
  * context window was never reported. The host does not invent a window, and
  * does not pretend compaction is running. */
 export const UNKNOWN_WINDOW_NOTICE = "context window unknown, compaction disabled";
-
-const MIN_CONTEXT_WINDOW = 4;
-const MAX_CONTEXT_WINDOW = 100_000_000;
-const MAX_MODELS_PER_CONNECTION = 200;
 
 /** Connection id of the default connection for a catalog provider identity.
  * Disjoint from `USER_CONNECTION_PREFIX` and from the provider ids themselves. */
@@ -97,35 +94,13 @@ function invalid(message) {
 }
 
 function normalizedBaseUrl(value) {
-  if (typeof value !== "string" || !value.trim() || value.length > 2048 || /[\s\\]/.test(value)) invalid("baseUrl is invalid");
-  let parsed;
-  try { parsed = new URL(value); } catch { invalid("baseUrl is invalid"); }
-  if (!["http:", "https:"].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) {
-    invalid("baseUrl is not an allowed endpoint");
-  }
-  return value.replace(/\/+$/, "");
+  try { return normalizeProviderBaseUrl(value); }
+  catch (error) { invalid(error.message); }
 }
 
 function normalizedModels(value) {
-  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_MODELS_PER_CONNECTION) invalid("models must be a non-empty list");
-  const seen = new Set();
-  return value.map((entry) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) invalid("model entry is invalid");
-    const keys = Object.keys(entry);
-    if (keys.some((key) => !["id", "contextWindow"].includes(key))) invalid("model entry has unsupported fields");
-    const id = entry.id;
-    if (typeof id !== "string" || !id.trim() || id.length > 240 || /[\x00-\x1f\x7f]/.test(id)) invalid("model id is invalid");
-    if (seen.has(id)) invalid("model ids must be unique");
-    seen.add(id);
-    let contextWindow = null;
-    if (entry.contextWindow !== undefined && entry.contextWindow !== null) {
-      if (!Number.isSafeInteger(entry.contextWindow) || entry.contextWindow < MIN_CONTEXT_WINDOW || entry.contextWindow > MAX_CONTEXT_WINDOW) {
-        invalid("contextWindow must be a positive integer or omitted");
-      }
-      contextWindow = entry.contextWindow;
-    }
-    return { id, contextWindow };
-  });
+  try { return validateProviderModels(value); }
+  catch (error) { invalid(error.message); }
 }
 
 /** Validate the body of a compatible-connection create/replace request.
@@ -134,15 +109,14 @@ export function validateConnectionInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) invalid("body must be an object");
   const keys = Object.keys(value);
   if (keys.some((key) => !["api", "baseUrl", "models", "apiKey"].includes(key))) invalid("body has unsupported fields");
-  if (typeof value.api !== "string" || !API_FORMATS.includes(value.api)) invalid("unsupported API format");
+  try { assertProviderApi(value.api, API_FORMATS); }
+  catch (error) { invalid(error.message); }
   const baseUrl = normalizedBaseUrl(value.baseUrl);
   const models = normalizedModels(value.models);
   let apiKey;
   if (value.apiKey !== undefined) {
-    if (typeof value.apiKey !== "string" || value.apiKey.length === 0 || value.apiKey.length > 4000 || !/^[\x21-\x7e]+$/.test(value.apiKey)) {
-      invalid("apiKey is invalid");
-    }
-    apiKey = value.apiKey;
+    try { apiKey = assertProviderApiKey(value.apiKey); }
+    catch (error) { invalid(error.message); }
   }
   return { record: { api: value.api, baseUrl, models }, apiKey };
 }

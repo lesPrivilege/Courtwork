@@ -14,7 +14,7 @@ for (const operation of ["resolve", "cancel"]) {
       const project = await store.createProject("project");
       const session = await store.createSession({ projectId: project.id, title: "session", workspaceDir: "/unused" });
       const { run } = await store.createRun({ sessionId: session.id, input: "private prompt", adapterId: "fixture",
-        provider: { provider: "fixture", model: "fixture", api: "fixture", realProvider: false }, commandId: "one", credentialGeneration: 0 });
+        provider: { provider: "fixture", model: "fixture", api: "openai-completions", realProvider: false }, commandId: "one", credentialGeneration: 0 });
       const question = await store.openQuestion({ runId: run.id, kind: "ask_user", prompt: "private question" });
       const receivers = new Set([question.id]);
       const before = store.getWorkSummary({}, receivers);

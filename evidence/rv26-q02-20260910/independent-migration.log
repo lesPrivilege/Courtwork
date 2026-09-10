@@ -1,0 +1,12 @@
+✔ Runtime11 migrates a real schema10 byte sequence, preserves provider fields, and fences the old host (1639.822333ms)
+✔ a fixed schema10 host can read an exact schema10 backup in an independent directory (1359.910917ms)
+✔ Runtime11 pending configuration markers survive reopen and finish durably (607.10875ms)
+✔ Runtime11 refuses a malformed pending marker without changing the original bytes (318.577ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4290.899209

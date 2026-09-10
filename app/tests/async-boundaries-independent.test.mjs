@@ -24,7 +24,8 @@ async function setup(adapter, canUse = () => true) {
   const project = await store.createProject('p');
   const session = await store.createSession({ projectId: project.id, title: 's' });
   const made = await store.createRun({
-    sessionId: session.id, input: 'i', adapterId: 'a', provider: {},
+    sessionId: session.id, input: 'i', adapterId: 'a',
+    provider: { provider: 'fake-openai-loopback', model: 'fake-model', api: 'openai-completions', realProvider: false },
     commandId: 'c', credentialGeneration: 0,
   });
   const tasks = new AsyncTasks({ store, adapters: [adapter], canUse });
