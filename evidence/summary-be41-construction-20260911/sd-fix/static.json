@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/web/summary-disclosure.mjs",
+    "status": 200
+  },
+  {
+    "path": "/web/summary-disclosure-projection.mjs",
+    "status": 200
+  },
+  {
+    "path": "/web/summary-disclosure.css",
+    "status": 200
+  },
+  {
+    "path": "/web/surface-layout.css",
+    "status": 200
+  },
+  {
+    "path": "/web/composer-field.mjs",
+    "status": 200
+  },
+  {
+    "path": "/web/not-a-declared-module.mjs",
+    "status": 404
+  }
+]

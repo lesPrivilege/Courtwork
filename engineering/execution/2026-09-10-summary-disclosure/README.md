@@ -31,7 +31,7 @@ Astra：对象/authority/版本与 host 边界、fixture bridge、最终集成�
 
 |状态|显示/动作|恢复与归属|
 |---|---|---|
-|正常|常驻身份摘要，默认折叠；局部事实；明确 Open in right panel|同一 scope/identity/version 发 host intent|
+|正常|常驻身份摘要，默认折叠；局部事实；明确 Run details 阅读入口（2026-09-11：chevron-right；panel-right 仅用于工作面开关）|同一 scope/identity/version 发 host intent|
 |loading|读取中，不补计数/成功；避免重复请求|adapter/host 管读代际|
 |empty|有对象但无已记录内容；无对象则不造卡|不推导 completed|
 |unknown|明确状态未知和缺少事实|不当作 0/失败/完成|
