@@ -132,6 +132,7 @@ test("Run card starts collapsed with Files and Run information disclosures", asy
     assert.match(card.element.textContent, /out\//);
     assert.match(card.element.textContent, /18 B/);
     assert.match(card.element.textContent, /Preview/);
+    assert.equal(card.element.querySelector(".sd-run-summary-file-preview").getAttribute("title"), "out/source-note.txt");
     assert.equal(card.element.querySelector(".sd-run-summary-id"), null);
     assert.equal(card.element.querySelector(".sd-run-summary-file-open"), null);
     assert.doesNotMatch(card.element.textContent, /Recording a file does not establish review acceptance/);

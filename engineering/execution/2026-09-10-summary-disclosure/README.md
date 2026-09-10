@@ -81,3 +81,7 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 生产方案沿同一surface-panel与surface-rail：Run摘要替换原Run card，持久组件实例保留同对象局部披露；其它模块沿原目录，统一一个长卡容器。桌面进入Session默认显示目录；用户关闭后不因轮询自动重开。窄屏沿原按需sheet，不强制弹出modal。收起从原host恢复opener；不再依赖fixture MutationObserver。保留1680三栏/1024视图切换的既有最小阅读宽度。标题分隔线上为动作或tab，目录在线下共用col-gap；视图切换时旧标题带退出可视层，tab占同一带。新CSS为产品入口加载、静态白名单明确列出。
 
 `serve.mjs`默认只提供真实产品与合成数据，测试exports/fixture UI注入改为显式`SD_FIXTURE_ADAPTER=1`历史诊断模式。新生产CUA不得以注入模式截图冒充。
+
+最终留白修订：用户指出长卡过满，目录改为自然内容高度、最小360px（受可用高约束）、最大不超过标题带以下可用高，底部固定16px内距。当前样本收敛约360px、完整Run information约620px；不得以固定填满视口表现“长卡”。tab-list内部横向滚动，toolbar动作不参与挤压，390px Close右缘374px。`serve.mjs`最终移除所有exports/DOM/CSS注入路径，只代理产品原字节；前述`SD_FIXTURE_ADAPTER`模式已退役，`fixture.mjs/css`仅为早期候选留存，旧运行方式按`2111375`固定版本召回。
+
+20:31 用户补充frontier/Claude对照，指出双关闭×混淆：文档tab的×仅关闭文档；工作面整体隐藏改为panel-right图标与Hide work surface；阅读时聊天标题中的重复surface入口退出。宽屏三栏Preview增加显式Expand preview/Restore preview，使用host内临时maximized布局位，保留同一个tab/fileRef/renderer，不新增正式状态或浏览器全屏权限。<1680沿既有主区阅读、窄屏sheet保持。紧凑strip的Run入口改用同一summary snapshot与点击前身份/代际检查，卡片↔strip切换时焦点按同模块映射。

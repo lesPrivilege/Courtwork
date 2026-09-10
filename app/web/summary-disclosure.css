@@ -116,8 +116,9 @@
 .sd-run-summary-file-name,
 .sd-run-summary-file-parent {
   min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sd-run-summary-file-name {

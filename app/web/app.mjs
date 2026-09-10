@@ -174,6 +174,7 @@ const state = {
     // rail states, so collapsing and expanding never re-reads the same tree.
     workspace: null,
     expanded: false,
+    maximized: false,
     /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条
      * 与否，以及 composer 当前占去的高度。 */
     strip: false,
@@ -1458,6 +1459,7 @@ async function selectSession(
   state.lastSeq = 0;
   state.bindingExtensionId = null;
   state.surface.expanded = false;
+  state.surface.maximized = false;
   state.recordedContext.clear();
   runtimeView?.pause();
   renderAll();
@@ -1528,6 +1530,7 @@ function clearActiveSession() {
   state.lastSeq = 0;
   state.bindingExtensionId = null;
   state.surface.expanded = false;
+  state.surface.maximized = false;
   state.recordedContext.clear();
   runtimeView?.pause();
   writeUiState();
@@ -3408,6 +3411,7 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   if (next && !was && $("message-stream").clientHeight)
     rememberMessageReading($("message-stream"));
   state.surface.expanded = next;
+  if (!next) state.surface.maximized = false;
   if (next && !was) {
     if (!visibleSurfaceKinds().includes(state.surface.kind))
       state.surface.kind = "preview";
@@ -3425,6 +3429,17 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
       : restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
 
+/* Geometry-only transition: keep the active tab and renderer instance mounted. */
+function toggleSurfaceMaximized() {
+  if (!state.surface.expanded || surfaceOverlayQuery.matches) return;
+  const next = !state.surface.maximized;
+  if (next && $("message-stream").clientHeight) rememberMessageReading($("message-stream"));
+  state.surface.maximized = next;
+  renderSurfaceVisibility();
+  if (!next) renderMessageStream();
+  $("surface-expand-button").focus();
+}
+
 /* The panel is a modal only where it really covers the work: below 1024 the
  * expanded pane is an overlay, and below 768 so is the collapsed sheet
  * (docs/ui-composition.md §responsive). From 768 up the collapsed state is a
@@ -3439,7 +3454,7 @@ function surfaceViewSwitch() {
       state.surface.expanded &&
       currentSession() &&
       !surfaceOverlayQuery.matches &&
-      !surfaceThreePaneQuery.matches,
+      (state.surface.maximized || !surfaceThreePaneQuery.matches),
   );
 }
 function renderConversationBodyVisibility() {
@@ -3569,6 +3584,7 @@ function renderTabActivity(tab, status) {
 
 function closeSurface({ restoreFocus = true } = {}) {
   state.surface.expanded = false;
+  state.surface.maximized = false;
   state.surface.open = false;
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
@@ -3588,6 +3604,7 @@ function openSurfaceRail() {
   state.navigationOpen = false;
   state.surface.open = true;
   state.surface.expanded = false;
+  state.surface.maximized = false;
   writeUiState();
   loadRailFacts();
   renderSurfaceVisibility();
@@ -3649,7 +3666,7 @@ function renderSurfaceVisibility() {
   const overlay = surfaceOverlayQuery.matches;
   /* WK-113 ① · 展开态有两种，不是一种：≥1680 三栏并列（C），1024–1679 主区内的
    * 视图切换（B）。<1024 仍是那张全屏 sheet。 */
-  const threePane = expanded && surfaceThreePaneQuery.matches && !overlay;
+  const threePane = expanded && surfaceThreePaneQuery.matches && !overlay && !state.surface.maximized;
   const viewSwitch = expanded && !overlay && !threePane;
   const modal = surfaceIsModal(),
     navModal = overlay && state.navigationOpen && !open;
@@ -3710,19 +3727,20 @@ function renderSurfaceVisibility() {
   setAction(
     $("show-surface-button"),
     "panel-right",
-    open && !expanded ? "Close work surface" : "Open work surface",
+    expanded ? "Collapse work surface" : open ? "Hide work surface" : "Open work surface",
   );
   /* C 态两面并列，"回到聊天"这句话没有对象可指：那里的同一个控件说的是把文档面收回
    * 紧凑目录。B 态由 strip 左端的 ← Chat 承担返回，展开钮此刻不画，免得一行里出现
    * 两个说同一件事的控件。 */
   setAction(
     $("surface-expand-button"),
-    expanded ? "minimize-2" : "maximize-2",
-    expanded ? "Collapse work surface" : "Expand work surface",
+    state.surface.maximized ? "minimize-2" : "maximize-2",
+    state.surface.maximized ? "Restore preview" : expanded ? "Expand preview" : "Expand work surface",
   );
-  $("surface-expand-button").setAttribute("aria-expanded", String(expanded));
+  $("surface-expand-button").setAttribute("aria-expanded", String(state.surface.maximized));
   $("surface-expand-button").hidden =
-    viewSwitch || (window.matchMedia("(max-width: 767px)").matches && !expanded);
+    (viewSwitch && !state.surface.maximized) || overlay;
+  $("show-surface-button").hidden = expanded || state.settings.open || state.attentionOpen || !currentSession();
   const back = $("surface-back-button");
   back.hidden = !viewSwitch;
   if (viewSwitch) {
@@ -3908,9 +3926,11 @@ function renderSurfaceRail() {
     state.surface.open && currentSession() && !state.surface.expanded,
   );
   rail.hidden = !visible;
-  runSummaryCard.update(runSummarySnapshot());
+  const summarySnapshot = runSummarySnapshot();
+  runSummaryCard.update(summarySnapshot);
   if (!visible) return;
   const focusKey = document.activeElement?.dataset?.focusKey;
+  const focusModule = document.activeElement?.closest("[data-module]")?.dataset?.module;
   const scroll = rail.scrollTop;
   const facts = surfaceFacts();
   /* WK-72 · below the width where a 740 column and a 360 card can stand side by
@@ -3918,9 +3938,16 @@ function renderSurfaceRail() {
    * and its title is the accessible name (IC-1: a stable object, not a state). */
   if (state.surface.strip && !narrowQuery.matches) {
     const glyphs = surfaceModules
-      .filter((module) => module.adapter(facts))
+      .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
       .map((module) =>
-        action(module.icon, module.title, () => activateSurface(module.kind), {
+        action(module.icon, module.title, () => {
+          if (module.kind !== "run") return activateSurface(module.kind);
+          const latest = runSummarySnapshot();
+          if (latest && summarySnapshot && latest.generation === summarySnapshot.generation &&
+              latest.identity.sessionId === summarySnapshot.identity.sessionId &&
+              latest.identity.runId === summarySnapshot.identity.runId)
+            openRun(latest.identity.runId);
+        }, {
           attrs: {
             "data-module": module.kind,
             "data-focus-key": `strip:${module.kind}`,
@@ -3928,6 +3955,10 @@ function renderSurfaceRail() {
         }),
       );
     rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs));
+    if (focusKey && document.activeElement === document.body) {
+      const key = focusKey.startsWith("strip:") ? focusKey : `strip:${focusModule === "run-summary" ? "run" : focusModule}`;
+      rail.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
+    }
     return;
   }
   const cards = [];
@@ -3942,8 +3973,12 @@ function renderSurfaceRail() {
   }
   rail.replaceChildren(...cards);
   rail.scrollTop = scroll;
-  if (focusKey && document.activeElement === document.body)
-    rail.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
+  if (focusKey && document.activeElement === document.body) {
+    const direct = rail.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
+    const fromStrip = focusKey === "strip:run" ? runSummaryCard.element.querySelector("summary") :
+      focusKey.startsWith("strip:") ? rail.querySelector(`[data-module="${CSS.escape(focusKey.slice(6))}"] button`) : null;
+    (direct || fromStrip)?.focus();
+  }
 }
 /* Panes that draw from facts repaint whenever the facts move; panes that own a
  * fetch or a renderer instance are entered once, on activation. */
@@ -6047,7 +6082,7 @@ function wireEvents() {
     "clear-nav-filter-button": ["x", "Clear filter"],
     "show-run-button": ["activity", "Chat overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
-    "close-surface-button": ["x", "Close work surface"],
+    "close-surface-button": ["panel-right", "Hide work surface"],
     "close-materials-button": ["x", "Close files"],
     "materials-button": ["paperclip", "Chat files"],
     "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
@@ -6275,7 +6310,7 @@ function wireEvents() {
       : openSurfaceRail(),
   );
   $("surface-expand-button").addEventListener("click", () =>
-    setSurfaceExpanded(!state.surface.expanded),
+    state.surface.expanded ? toggleSurfaceMaximized() : setSurfaceExpanded(true),
   );
   $("nav-filter-input").addEventListener("input", (event) => {
     state.navigationFilter = event.currentTarget.value;

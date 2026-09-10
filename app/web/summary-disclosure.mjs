@@ -264,6 +264,7 @@ export function createRunSummaryCard({
               attrs: { "data-focus-key": `run-summary-file:${index}` },
             },
           );
+          fileButton.setAttribute("title", file.path);
           actionButtons.push(fileButton);
           item.append(display(fileButton));
         } else {
@@ -313,7 +314,7 @@ export function createRunSummaryCard({
     if (snapshot.files.length) {
       informationDetail.append(el("p", { className: "rail-group", text: "File SHA-256" }));
       for (const file of snapshot.files)
-        informationDetail.append(row(`SHA-256 · ${fileName(file.path)}`, file.sha256, { mono: true }));
+        informationDetail.append(row(`SHA-256 · ${file.path}`, file.sha256, { mono: true }));
     }
 
     if ((snapshot.phase === "ready" || snapshot.phase === "empty") && snapshot.readerAvailable && typeof onOpen === "function") {

@@ -33,7 +33,7 @@
   }
   .surface-panel.is-open:not(.is-expanded):not(.is-strip) .rail-card:last-child { border-bottom: 0; }
 }
-@media (min-width: 1024px) and (max-width: 1679px) {
+@media (min-width: 1024px) {
   .surface-panel.is-view-switch {
     top: 0;
     left: 0;

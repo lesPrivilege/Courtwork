@@ -1,9 +1,8 @@
-// Explicit local fixture only. Serves the unchanged production UI with a narrow
-// read/navigation export appended to app.mjs; never a second surface/tab host.
+// Synthetic data only. The browser receives the exact production UI bytes.
+// No app exports, DOM adapter, or CSS is injected into the product.
 import http from 'node:http';
-import { readFile } from 'node:fs/promises';
 import { boot } from '../../app/tests/helpers.mjs';
-const fixturePath = process.env.SD_FIXTURE_LONG === '1' ? 'out/'+('source-version-'.repeat(14))+'note.txt' : 'out/source-note.txt';
+const fixturePath = process.env.SD_FIXTURE_LONG === '1' ? 'out/'+('source-version-'.repeat(12))+'note.txt' : 'out/source-note.txt';
 const note = 'Synthetic source note\n\nThe summary, disclosure and right panel refer to the same recorded run.\nReading this note does not accept a result.\n';
 const h = await boot({fakeResponder:({body,requestNumber})=>{
  const messages=body.messages||[];
@@ -18,32 +17,17 @@ if (made.status !== 200) throw Error(JSON.stringify(made));
 const run = await h.pollRun(made.json.run.id,{timeoutMs:30000});
 const other = await h.createSession({title:'Other synthetic chat'});
 const config = {schemaVersion:1,otherSessionId:other.id,sessionId:session.id,runId:run.id,dataKind:'synthetic local HTTP/Pi loopback',provider:'local-fake; no paid provider'};
-const files = new Map([
-  ['/fixture.mjs',new URL('./fixture.mjs',import.meta.url)],
-  ['/fixture.css',new URL('./fixture.css',import.meta.url)],
-  ['/web/summary-disclosure.mjs',new URL('../../app/web/summary-disclosure.mjs',import.meta.url)],
-  ['/web/summary-disclosure-projection.mjs',new URL('../../app/web/summary-disclosure-projection.mjs',import.meta.url)],
-  ['/web/summary-disclosure.css',new URL('../../app/web/summary-disclosure.css',import.meta.url)],
-]);
 const server = http.createServer(async (req,res)=>{
  try {
   const allowedOrigin = `http://127.0.0.1:${server.address().port}`;
   if(req.headers.host !== new URL(allowedOrigin).host || (req.headers.origin && req.headers.origin !== allowedOrigin)){res.statusCode=403;res.end('Fixture origin denied');return;}
   const url = new URL(req.url,allowedOrigin);
   if(url.pathname === '/fixture-config.json') {res.setHeader('content-type','application/json');res.end(JSON.stringify(config));return;}
-  if(files.has(url.pathname)) {res.setHeader('content-type',url.pathname.endsWith('.css')?'text/css':'text/javascript');res.end(await readFile(files.get(url.pathname)));return;}
   const headers = {...req.headers,host:new URL(h.runtime.url).host};
   // Loopback proxy preserves the product's origin check against its own port.
   if(headers.origin) headers.origin = h.runtime.url;
   const upstream = http.request(h.runtime.url+req.url,{method:req.method,headers},response=>{
-   if(url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/web/app.mjs') {
-    const chunks=[];response.on('data',c=>chunks.push(c));response.on('end',()=>{
-     let body = Buffer.concat(chunks).toString();
-     if(process.env.SD_FIXTURE_ADAPTER === '1' && url.pathname.endsWith('.mjs')) body += '\nexport { railHost, surfaceFacts, selectSession, closeSurface };\n';
-     else if(process.env.SD_FIXTURE_ADAPTER === '1' && !url.pathname.endsWith('.mjs') && !url.searchParams.has('baseline')) body = body.replace('</head>','<link rel="stylesheet" href="/web/summary-disclosure.css"><link rel="stylesheet" href="/fixture.css"></head>').replace('</body>','<script type="module" src="/fixture.mjs"></script></body>');
-     res.writeHead(response.statusCode,{'content-type':response.headers['content-type'],'cache-control':'no-store'});res.end(body);
-    });
-   } else {res.writeHead(response.statusCode,response.headers);response.pipe(res);}
+   res.writeHead(response.statusCode,response.headers);response.pipe(res);
   });
   upstream.on('error',error=>{res.statusCode=502;res.end(error.message);});req.pipe(upstream);
  } catch(error){res.statusCode=500;res.end(error.message);}
