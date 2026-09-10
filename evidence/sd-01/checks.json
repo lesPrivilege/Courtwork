@@ -1,0 +1,104 @@
+{
+  "base": "http://127.0.0.1:8919",
+  "projects": {
+    "a": "2435ab66-793d-4490-b5ae-03bb74e44009",
+    "b": "0812076b-21e8-4906-91af-7d37a98a31e8"
+  },
+  "checks": [
+    {
+      "id": "SD01-1",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BRefreshOverviewActivityNo source yet. This runt"
+    },
+    {
+      "id": "SD01-2",
+      "pass": true,
+      "labelCount": 1,
+      "selectValue": "stale",
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BOverviewActivitySample dataStaleQuietEmptyPartialTruncatedCheck for a source againHide sample dataAs of 2026-09-10T12:34:56.000ZBehind the current "
+    },
+    {
+      "id": "SD01-3",
+      "pass": true,
+      "checked": [
+        "stale",
+        "quiet",
+        "empty",
+        "partial",
+        "truncated"
+      ]
+    },
+    {
+      "id": "SD01-4",
+      "pass": true,
+      "rowIsSpan": "SPAN",
+      "before": {
+        "open": true,
+        "url": "http://127.0.0.1:8919/"
+      },
+      "after": {
+        "open": true,
+        "url": "http://127.0.0.1:8919/"
+      }
+    },
+    {
+      "id": "SD01-5",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BRefreshOverviewActivityAs of 2026-09-10T09:13:28.738ZBehind the current source setLive MatterSource revision 21 stale of 1Pending · 1 stale / 0 cur",
+      "hasEntry": false
+    },
+    {
+      "id": "SD01-6",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BRefreshOverviewActivityAs of 2026-09-10T09:13:28.857ZNo Matters in this project’s scope."
+    },
+    {
+      "id": "SD01-7",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BOverviewActivitySample dataStaleQuietEmptyPartialTruncatedCheck for a source againHide sample dataAs of 2026-09-10T12:34:56.000ZBehind the current "
+    },
+    {
+      "id": "SD01-10",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BRefreshOverviewActivitySynthetic maintenance read failedRetry",
+      "hasEntry": false
+    },
+    {
+      "id": "SD01-8",
+      "pass": true,
+      "text": "SparkMaintenance state read from Core — which Matters have fallen behind their current source set.Close SparkSpark sample project ASpark sample project BRefreshOverviewActivityNo source yet. This runtime has no maintenance source connected here.Show sample data"
+    },
+    {
+      "id": "SD01-9",
+      "pass": true,
+      "statics": [
+        {
+          "name": "stale",
+          "status": 200,
+          "type": "application/json; charset=utf-8"
+        },
+        {
+          "name": "quiet",
+          "status": 200,
+          "type": "application/json; charset=utf-8"
+        },
+        {
+          "name": "empty",
+          "status": 200,
+          "type": "application/json; charset=utf-8"
+        },
+        {
+          "name": "partial",
+          "status": 200,
+          "type": "application/json; charset=utf-8"
+        },
+        {
+          "name": "truncated",
+          "status": 200,
+          "type": "application/json; charset=utf-8"
+        }
+      ]
+    }
+  ],
+  "pass": true
+}
