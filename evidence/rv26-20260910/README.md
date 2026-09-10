@@ -34,3 +34,5 @@ T-RESTART-1 的旧fixture在worker-ready断言失败后未进入清理路径，�
 ## 边界与后续
 
 本轮交付仅 RV26-00 与 Q01，下一串行单 Q02；其余31单的 queued/conditional 状态以 dispatch 为准，不声称全部施工完成。前端单 writer、公开事实与 G1–G5 维持原门；未跑真实provider、个人数据迁移、浏览器接受、远端Actions或部署。OS不可中断工作下，TERM/KILL升级期限不保证任意进程在固定墙钟时间内被回收；client完成仍等实际close。`outcome` 为内部 CoreClient error 属性，本单没有声称新增HTTP字段。
+
+合流前重新消费 main `82c6036` 的 Skin/Review 与前端连续性文档，组合 `4977c55` 无冲突；相对固定受测产品 `74ab7ca` 的 app/tests 字节无变化，只澄清合同用词。合流账本与文档链接检查通过，见[组合记录](integration.json)。本地main快进不构成远端发布或整体验收。

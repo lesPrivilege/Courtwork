@@ -1,0 +1,20 @@
+{
+  "product_sha": "74ab7ca69a928b12631683fbf66341456dbdb67e",
+  "incoming_main_sha": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+  "combined_sha": "4977c55f90f1309514b842597863bc2d019b31b2",
+  "conflicts": [],
+  "product_delta_after_validation": false,
+  "contract_clarification": "seals admission, not permanently seals instance",
+  "ledger_check": {
+    "pass": true,
+    "tickets": 33,
+    "source_hashes": 44
+  },
+  "doc_links": {
+    "pass": true,
+    "documents": 692,
+    "checked": 3223
+  },
+  "acceptance": "Q01 bounded acceptance only; full-run timing failures remain recorded",
+  "main_publication": "local fast-forward; no remote push or deployment"
+}
