@@ -64,3 +64,16 @@ test('HTTP Usage scope, strict input and changed-snapshot rejection use actual r
     assert.equal((await h.api('POST','/work-usage-runs',query)).status,409);
   }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
 });
+
+test('Usage calendar shares Home Monday-first orientation with bounded keyboard movement', async()=>{
+  const {usageCalendar,usageCalendarTarget}=await import('../web/usage-projection.mjs');
+  const buckets=Array.from({length:30},(_,i)=>({date:new Date(Date.UTC(2026,7,12+i)).toISOString().slice(0,10)}));
+  const grid=usageCalendar(buckets);assert.equal(grid.offset,2);assert.equal(grid.weeks,5);
+  assert.deepEqual(grid.labels.map(v=>v.week),[0,2,4]);
+  assert.equal(usageCalendarTarget(0,'ArrowLeft',grid.offset,30),0);
+  assert.equal(usageCalendarTarget(0,'ArrowRight',grid.offset,30),7);
+  assert.equal(usageCalendarTarget(4,'ArrowDown',grid.offset,30),4);
+  assert.equal(usageCalendarTarget(5,'ArrowUp',grid.offset,30),5);
+  assert.equal(usageCalendarTarget(20,'End',grid.offset,30),29);
+  assert.equal(usageCalendarTarget(20,'Tab',grid.offset,30),null);
+});

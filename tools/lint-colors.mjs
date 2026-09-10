@@ -49,6 +49,9 @@ const LEVEL_BACKGROUNDS = new Set([
 const KEYWORDS = /^(transparent|none|inherit|currentColor|initial|unset)$/;
 /* 登记的非区域填充：选择器 → 它是什么。只有实心控件与数据标记可以入表。 */
 const FILL = new Map([
+  [".usage-rank-bar", "VS-03 interval reported-token rank uses the existing usage series roles"],
+  [".request-timing-bar", "VS-03 measured host interval, not a surface background"],
+  [".request-timing-marker", "VS-03 measured first-output/text marker, including forced colors"],
   ...[0,1,2,3,4].map(level => [`.usage-heat.level-${level}`, "Reported token intensity; retained-scope data mark, outside review themes"]),
   [".usage-stacked-bar button", "Configured model token series; exact values/table and native forced-colors fallback"],
   [".usage-series-label::before", "Categorical model legend mark, paired with text and exact table"],

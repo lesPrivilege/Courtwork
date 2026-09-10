@@ -2645,7 +2645,8 @@ select {
     padding: 20px 16px;
   }
   .surface-header {
-    padding: 12px 16px;
+    /* The fixed header height already contains the 44px touch targets. */
+    padding: 0 16px;
   }
   .form-dialog {
     padding: var(--panel-padding);
@@ -5820,7 +5821,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .usage-drilldown { margin-top:24px; padding:16px; background:var(--float); border:1px solid var(--line); border-radius:var(--radius-card); }
 .usage-drilldown > button { display:block; max-width:100%; margin:8px 0; text-align:left; }
 @media(max-width:600px) { .usage-dialog { padding:16px; } .usage-controls { gap:6px; } .usage-controls select { flex:1; min-width:110px; } .usage-total { font-size:24px; } }
-@media(forced-colors:active) { .usage-stacked-bar button { background:CanvasText; border:1px solid Canvas; } }
+@media(forced-colors:active) { .usage-stacked-bar button, .usage-rank-bar { background:CanvasText; border:1px solid Canvas; } }
 
 /* WO-SP1-FE · Spark's read-only maintenance dialog. Structure mirrors
    .usage-dialog (header/controls/tabs/panel); Spark rows are their own
@@ -6000,3 +6001,58 @@ html[data-theme="dark"] {
   --glass-alpha: var(--material-glass-alpha);
   --rim-alpha: var(--material-rim-alpha);
 }
+
+/* VS-03 · measured host intervals; widths are data, never progress. */
+.request-measurements h3 { margin: 0 0 12px; font-size: var(--text-body); }
+.request-detail { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.request-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px 16px; align-items: center; cursor: pointer; font-size: var(--text-meta); }
+.request-summary::before { content: none; }
+.request-phase { color: var(--muted-strong); }
+.request-disclosure { grid-column: 4; grid-row: 1; }
+.request-detail[open] .request-disclosure { transform: rotate(90deg); }
+.request-phase { grid-column: 2; grid-row: 1; }
+.request-duration { grid-column: 3; grid-row: 1; }
+.request-duration { font-variant-numeric: tabular-nums; }
+.request-timing { grid-column: 1 / -1; position: relative; display: block; height: 12px; border-bottom: 1px solid var(--line); margin: 2px 2px 4px; }
+.request-timing-bar { display: block; height: 4px; background: var(--muted); position: absolute; top: 4px; }
+.request-timing-marker { position: absolute; width: 2px; height: 10px; top: 0; background: var(--ink); transform: translateX(-50%); }
+.request-timing-marker.marker-text { height: 6px; top: 5px; width: 6px; border: 1px solid var(--panel); }
+.request-detail .data-list { margin-top: 16px; }
+.request-definitions { margin-top: 12px; font-size: var(--text-meta); }
+.request-scale { margin-top: 12px; }
+@media (forced-colors: active) {
+  .request-timing-bar { background: CanvasText; forced-color-adjust: none; }
+  .request-timing-marker { background: Highlight; forced-color-adjust: none; }
+  .request-timing-marker.marker-text { border-color: Canvas; }
+}
+.run-usage-overview { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin: 0 0 16px; }
+.run-usage-overview dt { font-size: var(--text-meta); color: var(--muted-strong); }
+.run-usage-overview dd { margin: 4px 0 0; font-size: var(--text-body); font-variant-numeric: tabular-nums; }
+.inspector-tool-list { margin: 16px 0 0; padding-left: 24px; }
+.inspector-tool-list > li { padding: 8px 0 8px 8px; }
+.inspector-tool-list summary { overflow-wrap: anywhere; }
+.inspector-tool-list summary .form-help { margin-left: 16px; }
+.inspector-tool-list h4 { font-size: var(--text-meta); margin: 12px 0 4px; }
+.version-details .version-line code { overflow-wrap: anywhere; min-width: 0; }
+/* VS-03 · Home's Monday-first calendar grammar, with exact labels and scroll. */
+.usage-calendar { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 10px; margin: 20px 0; }
+.usage-calendar-scroll { overflow-x: auto; padding: 3px; }
+.usage-heatmap { grid-auto-flow: column; grid-template-rows: repeat(7,32px); grid-template-columns: repeat(var(--usage-weeks),32px); gap: 4px; margin: 8px 0 0; width: max-content; }
+.usage-heatmap button { min-height: 0; min-width: 0; }
+.usage-week-labels { display: grid; grid-template-columns: repeat(var(--usage-weeks),32px); gap: 4px; width: max-content; font-size: var(--text-meta); color: var(--muted-strong); height: 16px; }
+.usage-week-labels span { white-space: nowrap; }
+.usage-weekdays { display: grid; grid-template-rows: repeat(7,32px); gap: 4px; padding-top: 27px; font-size: var(--text-meta); color: var(--muted-strong); align-items: center; }
+.usage-dialog #usage-panel > details { margin-top: 12px; font-size: var(--text-meta); }
+.usage-dialog #usage-panel > details > summary { cursor: pointer; }
+@media(max-width:600px) {
+  .usage-heatmap { grid-template-rows: repeat(7,44px); grid-template-columns: repeat(var(--usage-weeks),44px); }
+  .usage-week-labels { grid-template-columns: repeat(var(--usage-weeks),44px); }
+  .usage-weekdays { grid-template-rows: repeat(7,44px); }
+}
+.usage-overview-charts { display: grid; grid-template-columns: minmax(0,1fr) minmax(240px,1fr); gap: 32px; }
+.usage-ranked { padding-top: 20px; min-width: 0; }
+.usage-ranked h3 { font-size: var(--text-meta); margin: 0 0 16px; }
+.usage-rank-row { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 16px; padding: 12px 0; border: 0; border-radius: 0; text-align: left; background: transparent; font-size: var(--text-meta); }
+.usage-rank-name { overflow-wrap: anywhere; }
+.usage-rank-bar { grid-column: 1 / -1; display: block; height: 5px; background: var(--usage-series); }
+@media(max-width:760px) { .usage-overview-charts { grid-template-columns: minmax(0,1fr); gap: 0; } }

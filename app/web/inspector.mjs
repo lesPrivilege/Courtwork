@@ -1,3 +1,4 @@
+import { projectThread, toolStateWord } from "./thread-projection.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { projectMarkdown, readCoreFile, MAX_MARKDOWN_BYTES } from "./markdown-source.mjs";
 import { createMarkdownReader } from "./markdown-reader.mjs";
@@ -154,16 +155,14 @@ export function renderRun(
           el("span", { text: `Recorded version · ${formatBytes(file.bytes)}` }),
           current,
         ),
-        el(
-          "div",
-          { className: "version-line" },
-          el("code", { text: file.sha256.slice(0, 12) }),
-          copyAction(
-            file.sha256,
-            "Copy recorded version hash",
-            `artifact-hash:${run.id}:${index}`,
-          ),
-        ),
+        (() => {
+          const version = el("details", { className: "version-details", attrs: { "data-section": `file-version-${index}` } },
+            el("summary", { text: "Version details" }),
+            el("div", { className: "version-line" }, el("code", { text: file.sha256 }),
+              copyAction(file.sha256, "Copy recorded version hash", `artifact-hash:${run.id}:${index}`)));
+          version.open = opened.has(`file-version-${index}`);
+          return version;
+        })(),
       ),
     );
   }
@@ -177,38 +176,23 @@ export function renderRun(
   container.append(section);
   const usage = run.usage;
   if (usage) {
-    const dl = el("dl", { className: "data-list usage-list" });
+    const dl = el("dl", { className: "run-usage-overview" });
     const prefix = usage.missing ? "At least " : "";
-    for (const [key, label] of [
-      ["input", "Input tokens"],
-      ["output", "Output tokens"],
-      ["cacheRead", "Cached input"],
-      ["cacheWrite", "Cache writes"],
-      ["turns", "Model turns"],
-    ])
-      datum(
-        dl,
-        label,
-        Number.isFinite(usage[key])
-          ? `${prefix}${usage[key].toLocaleString()}`
-          : "Not reported",
-      );
-    container.append(
-      el(
-        "section",
-        { className: "inspector-section" },
-        el("h3", { text: "Usage" }),
-        dl,
-        usage.missing
-          ? el("p", {
-              className: "form-help",
-              text: "Usage is incomplete. Reported values are lower bounds.",
-            })
-          : null,
-      ),
-    );
+    for (const [key, label] of [["input", "Input tokens"], ["output", "Output tokens"], ["turns", "Model turns"]]) {
+      const group = el("div");
+      datum(group, label, Number.isFinite(usage[key]) ? `${prefix}${usage[key].toLocaleString()}` : "Not reported");
+      dl.append(group);
+    }
+    const cache = el("details", { attrs: { "data-section": "cache-usage" } }, el("summary", { text: "Cache counts" }));
+    cache.open = opened.has("cache-usage");
+    const cached = el("dl", { className: "data-list" });
+    for (const [key,label] of [["cacheRead","Cached input"],["cacheWrite","Cache writes"]])
+      datum(cached,label,Number.isFinite(usage[key]) ? `${prefix}${usage[key].toLocaleString()}` : "Not reported");
+    cache.append(cached,el("p", { className: "form-help", text: "Cache counts can overlap input tokens." }));
+    container.append(el("section", { className: "inspector-section" }, el("h3", { text: "Usage" }), dl, cache,
+      usage.missing ? el("p", { className: "form-help", text: "Usage is incomplete. Reported values are lower bounds." }) : null));
   }
-  container.append(renderRequestMeasurements(records, run.id));
+  container.append(renderRequestMeasurements(records, run.id, { opened }));
   const notices = records.filter((e) => e.type === "run.notice");
   if (notices.length) {
     const list = el("div", { className: "notice-list" });
@@ -225,6 +209,22 @@ export function renderRun(
       ),
     );
   }
+  const activityRows = projectThread(records, [run], sessionId).rows.filter(row => row.kind === "tool");
+  const activity = el("details", { className: "inspector-section", attrs: { "data-section": "activity" } },
+    el("summary", { text: `Tool activity · ${activityRows.length} ${activityRows.length === 1 ? "action" : "actions"}` }));
+  activity.open = opened.has("activity");
+  const activityList = el("ol", { className: "inspector-tool-list" });
+  for (const row of activityRows) {
+    const item = el("details", { attrs: { "data-section": `tool-${row.id}` } },
+      el("summary", {}, el("span", { text: row.name }), el("span", { className: "form-help", text: toolStateWord(row, run.status) || "Completed" })));
+    item.open = opened.has(`tool-${row.id}`);
+    for (const [label,value] of [["Arguments",row.request],["Result",row.result]])
+      if (value !== undefined) item.append(el("h4", { text: label }), el("pre", { className: "diagnostic-text", text: typeof value === "string" ? value : JSON.stringify(value,null,2) }));
+    activityList.append(el("li", {}, item));
+  }
+  if (activityRows.length) activity.append(activityList);
+  else activity.append(el("p", { className: "form-help", text: "No tool actions were recorded." }));
+  container.append(activity);
   const recorded = renderRecordedContext(runtimeContext);
   if (recorded) {
     recorded.open = opened.has("runtime-context");
@@ -261,7 +261,7 @@ export function renderRun(
   const trace = el(
     "details",
     { className: "inspector-section", attrs: { "data-section": "events" } },
-    el("summary", { text: `Activity · ${records.length} events` }),
+    el("summary", { text: `Event trace · ${records.length} ${records.length === 1 ? "event" : "events"}` }),
   );
   trace.open = opened.has("events");
   if (records.length > 100)

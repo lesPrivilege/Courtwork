@@ -20,3 +20,19 @@ export function validUsageDetails(value) {
     && counts(value) && Array.isArray(value.models) && value.models.every(model=>typeof model.key==='string'&&counts(model))
     && Array.isArray(value.buckets) && value.buckets.length===value.interval?.days && value.buckets.every(day=>/^\d{4}-\d{2}-\d{2}$/.test(day.date)&&counts(day)&&Array.isArray(day.models)&&day.models.every(counts));
 }
+
+// Same Monday-first, column-wise calendar grammar as Home's retained-run instrument.
+export function usageCalendar(buckets) {
+  if(!buckets.length)return {offset:0,weeks:0,labels:[]};
+  const offset=(new Date(`${buckets[0].date}T00:00:00Z`).getUTCDay()+6)%7;
+  const weeks=Math.ceil((offset+buckets.length)/7),step=Math.max(2,Math.ceil(weeks/8));
+  const labels=[];
+  for(let week=0;week<weeks;week+=step)labels.push({week,date:buckets[Math.max(0,week*7-offset)].date});
+  return {offset,weeks,labels};
+}
+export function usageCalendarTarget(index,key,offset,length) {
+  if(key==='Home')return 0;if(key==='End')return length-1;
+  const row=(offset+index)%7;
+  const step={ArrowLeft:-7,ArrowRight:7,ArrowUp:row===0?0:-1,ArrowDown:row===6?0:1}[key];
+  return step===undefined?null:Math.max(0,Math.min(length-1,index+step));
+}
