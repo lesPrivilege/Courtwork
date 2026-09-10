@@ -356,6 +356,12 @@ that does not support one is a request failure). `/provider-models` rows gain
 `origin` (`"catalog"` vs `"connection"` — see above) and `reasoningSource`
 (`"catalog"` / `"user"` once declared / `"unknown"` while still the default).
 
+For the currently selected provider identity, verification applies the same
+configured API and optional endpoint override as Run, including when probing
+another admissible model on that identity. An inactive connection uses its own
+registered route; it never inherits another identity's override. The existing
+configuration-version binding invalidates receipts when this route changes.
+
 `POST /api/v5/provider-connections/:id/verify` (`{model}`, BE-39) asks one
 admissible model to answer a single fixed, short prompt through the exact
 same pi path a Run uses (`ModelRuntime.complete`, the same runtime credential

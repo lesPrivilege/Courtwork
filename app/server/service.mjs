@@ -1074,8 +1074,14 @@ export class RuntimeService {
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["model"]));
     const modelId = text(value.model, "model", { max: 240 });
-    const model = this.#admissibleModel(connection, modelId);
-    if (!model) throw new ServiceError(400, "invalid_provider", "the model is not admissible on this connection");
+    const admitted = this.#admissibleModel(connection, modelId);
+    if (!admitted) throw new ServiceError(400, "invalid_provider", "the model is not admissible on this connection");
+    // The selected identity may have an explicit API/endpoint override.
+    // Probe the same wire route Run would use, even for a different model
+    // on that identity; never borrow another connection's active override.
+    const model = this.providerConfig.provider === connection.providerIdentity
+      ? this.#resolveModel({ ...this.providerConfig, model: modelId })
+      : admitted;
     // PV-62's credential_missing gate excepts the fixture identity, matching
     // the SAME exemption Run execution already has (`#executeRun`'s
     // `credentialConfigured = provider.provider === FAKE_PROVIDER_ID || ...`
