@@ -401,6 +401,9 @@ try {
     const red = getComputedStyle(probe).color;
     probe.remove();
     const groundOf = (node) => { for (let n = node; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(c)) return parse(c); } return [255, 255, 255]; };
+    // Hidden tab panels measure as empty boxes; show them so every figure is
+    // measured as drawn. The page is reloaded before anything else is checked.
+    for (const panel of document.querySelectorAll('[role="tabpanel"][hidden]')) panel.hidden = false;
     const out = [];
     for (const entry of figures) {
       const host = entry.mount === "data-figure" ? document.querySelector('[data-figure="' + entry.id + '"]') : document.querySelector(entry.mount);
@@ -453,6 +456,7 @@ try {
         }
       }
       row.width = Math.round(svg.getBoundingClientRect().width);
+      if (!row.width) row.problems.push("figure has no rendered width");
       out.push(row);
     }
     return { red, figures: out };
