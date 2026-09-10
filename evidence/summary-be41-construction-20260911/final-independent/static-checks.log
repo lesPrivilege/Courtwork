@@ -1,0 +1,5 @@
+$ node --check app/web/spark-projection.mjs
+$ node --check app/web/spark-view.mjs
+$ node --check app/server/index.mjs
+$ git diff --check 0cbbf7e^ 0cbbf7e
+$ git diff --check 901d5f9^ 901d5f9
