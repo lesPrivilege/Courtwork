@@ -300,7 +300,7 @@
   --doc-measure: 740px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
-  --control: 32px;
+  --control: 28px;
   --radius-small: 4px;
   --radius-control: 8px;
   --radius-card: 12px;
@@ -311,17 +311,22 @@
      WK-78 · Text size 是一个根变量：每个字号角色乘 --text-scale，三档只改这一处，
      角色之间的比例不变。角色之外写死的五处显示级字号用同一乘子，否则放大后它们独自不动。
      命中区、间距与行高不随字号缩放（FN-27 的可用性下限另计）。 */
+  /* M-11 / WK-120 · V1「chrome 收敛，正文不动」（约束表 §3，用户 WK-123 (b) 选向）。
+     阅读 15 与正文 14 一字未动；标题、导航标题、分节、标签、元数据与说明各下移一档，
+     字重同时收一档，于是层级差从 1–2px 拉到 2–3.5px 并叠加字重差 —— 层级由字号与
+     字重成立，不靠颜色与框线补（anti-slop 门 hierarchy 项）。桌面控件 32 → 28；
+     390 与触控仍是 44（下面两条 :root 覆写在源码顺序上更靠后，命中区不受此影响）。 */
   --text-scale: 1;
-  --text-title: calc(20px * var(--text-scale));
-  --text-navigation-title: calc(17px * var(--text-scale));
+  --text-title: calc(18px * var(--text-scale));
+  --text-navigation-title: calc(15px * var(--text-scale));
   --text-reading: calc(15px * var(--text-scale));
-  --text-label: calc(13px * var(--text-scale));
-  --text-caption: calc(11px * var(--text-scale));
-  --text-section: calc(14px * var(--text-scale));
+  --text-label: calc(12px * var(--text-scale));
+  --text-caption: calc(10.5px * var(--text-scale));
+  --text-section: calc(13px * var(--text-scale));
   --text-body: calc(14px * var(--text-scale));
-  --text-meta: calc(12px * var(--text-scale));
+  --text-meta: calc(11.5px * var(--text-scale));
   --tracking-heading: -0.02em;
-  --tracking-caps: 0.06em;
+  --tracking-caps: 0.08em;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
   /* Motion · two durations, one exit curve; only opacity/transform/colour move */
@@ -398,7 +403,7 @@ p {
 h1 {
   font-size: var(--text-navigation-title);
   line-height: 1.35;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
 h2 {
@@ -461,6 +466,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  /* V1 · 按钮的字比正文小一档：控件是 chrome，不是正文（约束表 §3）。 */
+  font-size: var(--text-label);
   min-height: var(--control);
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -518,7 +525,7 @@ button {
   background: var(--accent);
   color: var(--on-accent);
   border-color: var(--accent);
-  font-weight: 550;
+  font-weight: 500;
 }
 .primary-button:hover {
   background: var(--accent-strong);
@@ -903,6 +910,8 @@ button {
 .session-mode,
 .session-scope {
   font-size: var(--text-caption);
+  font-weight: 450;
+  line-height: 1.45;
   color: var(--muted-strong);
   display: inline-flex;
   align-items: center;
@@ -917,6 +926,8 @@ button {
 .run-badge,
 .extension-status {
   font-size: var(--text-caption);
+  font-weight: 450;
+  line-height: 1.45;
   color: var(--muted-strong);
   display: inline-flex;
   align-items: center;
@@ -1399,6 +1410,7 @@ details[open] > summary.flow-row::after {
 .composer-model,
 .permission-mode {
   font-size: var(--text-meta);
+  line-height: 1.45;
   max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3093,7 +3105,7 @@ dialog[open]::backdrop {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
+  min-height: 26px;
   padding: 0 10px;
   border-radius: calc(var(--radius-control) - 2px);
   font-size: var(--text-meta);
@@ -3155,7 +3167,7 @@ dialog[open]::backdrop {
 .settings-row-help {
   font-size: var(--text-meta);
   color: var(--muted-strong);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .settings-row-control {
   display: flex;
@@ -5010,6 +5022,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-tab {
   display: block;
   width: 100%;
+  font-weight: 450;
   min-height: var(--control);
   padding: 6px 10px;
   border: 0;
@@ -5028,7 +5041,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-tab.is-current {
   background: var(--selected);
   color: var(--ink);
-  font-weight: 550;
+  font-weight: 500;
 }
 .settings-tab:focus-visible {
   outline: 2px solid var(--focus);
@@ -5056,6 +5069,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-section-title {
   margin: 0 0 var(--space-4);
   font-size: var(--text-title);
+  font-weight: 500;
   letter-spacing: var(--tracking-heading);
 }
 /* 一节 = 一张平卡：把成组的行圈起来，不额外加一层高度。 */
@@ -5074,6 +5088,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-block-title {
   margin: var(--space-3) 0 var(--space-1);
   font-size: var(--text-section);
+  font-weight: 500;
 }
 .settings-block > .section-heading {
   margin-top: var(--space-3);

@@ -1,0 +1,139 @@
+{
+ "results": [
+  {
+   "id": "TYPE-1",
+   "pass": true,
+   "tokens": {
+    "--text-title": 18,
+    "--text-navigation-title": 15,
+    "--text-reading": 15,
+    "--text-body": 14,
+    "--text-section": 13,
+    "--text-label": 12,
+    "--text-meta": 11.5,
+    "--text-caption": 10.5,
+    "--tracking-caps": "0.08em",
+    "--control": "28px",
+    "--radius-control": "8px",
+    "--text-scale": "1"
+   },
+   "expected": {
+    "--text-title": 18,
+    "--text-navigation-title": 15,
+    "--text-reading": 15,
+    "--text-body": 14,
+    "--text-section": 13,
+    "--text-label": 12,
+    "--text-meta": 11.5,
+    "--text-caption": 10.5,
+    "--tracking-caps": "0.08em",
+    "--control": "28px"
+   }
+  },
+  {
+   "id": "TYPE-2",
+   "pass": true,
+   "reading": 15,
+   "readingLineHeight": "25.5px",
+   "body": 14,
+   "expected": {
+    "reading": 15,
+    "body": 14
+   }
+  },
+  {
+   "id": "TYPE-6",
+   "pass": true,
+   "selector": "eyebrow",
+   "letterSpacing": "0.84px",
+   "fontSize": 10.5,
+   "transform": "uppercase",
+   "expected": 0.84
+  },
+  {
+   "id": "TYPE-3-desktop",
+   "pass": true,
+   "control": 28,
+   "segmentBaseRule": "26px",
+   "segmentInstances": [
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    },
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    },
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    },
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    },
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    },
+    {
+     "parent": "segmented",
+     "height": 32,
+     "minHeight": "32px"
+    }
+   ],
+   "note": "Settings 行里的 segment 走 .settings-row .segment 的换行变体（32），基线 26 今天没有可见实例"
+  },
+  {
+   "id": "TYPE-3-390",
+   "pass": true,
+   "total": 9,
+   "under44": [],
+   "control": "44px"
+  },
+  {
+   "id": "TYPE-4",
+   "pass": true,
+   "send": {
+    "id": "send-button",
+    "label": null,
+    "width": 28,
+    "height": 28,
+    "scrollWidth": 26,
+    "clientWidth": 26,
+    "wrapped": false,
+    "glyph": true,
+    "iconOnly": true,
+    "aria": "Send"
+   },
+   "cancel": {
+    "id": "cancel-run-button",
+    "label": null,
+    "width": 28,
+    "height": 28,
+    "scrollWidth": 26,
+    "clientWidth": 26,
+    "wrapped": false,
+    "glyph": true,
+    "iconOnly": true,
+    "aria": "Cancel run"
+   },
+   "wrapped": [],
+   "lockedAndLabelled": []
+  },
+  {
+   "id": "TYPE-5",
+   "pass": true,
+   "sampled": 160,
+   "below": [],
+   "source": "measurements/v1.json"
+  }
+ ],
+ "passed": 7,
+ "total": 7
+}

@@ -1,11 +1,10 @@
 {
  "out": "baseline-repaired",
- "sampledAt": "2026-09-10T01:12:06.896Z",
+ "sampledAt": "2026-09-10T01:26:01.989Z",
  "surfaces": {
   "settings-1440-light": {
-   "title": null,
-   "section": {
-    "selector": ".settings-section h3",
+   "title": {
+    "selector": ".settings-section-title",
     "text": "General",
     "fontSize": 20,
     "fontWeight": "600",
@@ -16,10 +15,68 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "row-label": null,
-   "help": null,
+   "block-title": {
+    "selector": ".settings-block-title",
+    "text": "New chats",
+    "fontSize": 14,
+    "fontWeight": "700",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "row-title": {
+    "selector": ".settings-row-title",
+    "text": "File access",
+    "fontSize": 14,
+    "fontWeight": "500",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "row-help": {
+    "selector": ".settings-row-help",
+    "text": "The value a chat starts with",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "readout": {
+    "selector": ".settings-readout",
+    "text": "Not reported",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 72.59,
+    "radius": "0px",
+    "contrast": 5.46
+   },
    "nav-item": {
-    "selector": ".settings-tab",
+    "selector": ".settings-tab:not(.is-current)",
+    "text": "Appearance",
+    "fontSize": 13,
+    "fontWeight": "400",
+    "lineHeight": 19.5,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 240,
+    "radius": "8px",
+    "contrast": 5.46
+   },
+   "nav-current": {
+    "selector": ".settings-tab.is-current",
     "text": "General",
     "fontSize": 13,
     "fontWeight": "550",
@@ -29,6 +86,18 @@
     "width": 240,
     "radius": "8px",
     "contrast": 10.34
+   },
+   "search": {
+    "selector": ".settings-search",
+    "text": "",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 36,
+    "width": 240,
+    "radius": "8px",
+    "contrast": 12.87
    },
    "segment": {
     "selector": ".segment",
@@ -43,7 +112,7 @@
     "contrast": 10.98
    },
    "select": null,
-   "button": null,
+   "control-button": null,
    "back": {
     "selector": "#settings-back-button",
     "text": "Back to app",
@@ -97,9 +166,102 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 111.09,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 78,
+    "width": 145.09,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 607.73,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 39,
+    "width": 85.92,
+    "radius": "8px",
+    "contrast": 12.87
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -127,7 +289,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 12s · ",
+    "text": "Waiting for you · 27m 07s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -148,6 +310,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 14.05
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 5.46
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -190,9 +364,102 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 111.09,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 78,
+    "width": 145.09,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 607.73,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 39,
+    "width": 85.92,
+    "radius": "8px",
+    "contrast": 12.87
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -220,7 +487,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 13s · ",
+    "text": "Waiting for you · 27m 08s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -241,6 +508,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 14.05
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 5.46
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -271,9 +550,8 @@
    "__overflow": 0
   },
   "settings-390-light": {
-   "title": null,
-   "section": {
-    "selector": ".settings-section h3",
+   "title": {
+    "selector": ".settings-section-title",
     "text": "General",
     "fontSize": 20,
     "fontWeight": "600",
@@ -284,9 +562,68 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "row-label": null,
-   "help": null,
+   "block-title": {
+    "selector": ".settings-block-title",
+    "text": "New chats",
+    "fontSize": 14,
+    "fontWeight": "700",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "row-title": {
+    "selector": ".settings-row-title",
+    "text": "File access",
+    "fontSize": 14,
+    "fontWeight": "500",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "row-help": {
+    "selector": ".settings-row-help",
+    "text": "The value a chat starts with",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 54,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "readout": {
+    "selector": ".settings-readout",
+    "text": "Not reported",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 72.59,
+    "radius": "0px",
+    "contrast": 5.46
+   },
    "nav-item": null,
+   "nav-current": null,
+   "search": {
+    "selector": ".settings-search",
+    "text": "",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 358,
+    "radius": "8px",
+    "contrast": 12.87
+   },
    "segment": {
     "selector": ".segment",
     "text": "Ask before editing",
@@ -300,7 +637,7 @@
     "contrast": 10.98
    },
    "select": null,
-   "button": null,
+   "control-button": null,
    "back": {
     "selector": "#settings-back-button",
     "text": "Back to app",
@@ -354,9 +691,102 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 112.63,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 74,
+    "width": 142.63,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 225.73,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 324,
+    "radius": "8px",
+    "contrast": 12.87
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -384,7 +814,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 16s · ",
+    "text": "Waiting for you · 27m 11s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -405,6 +835,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 14.05
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 4.66
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -447,9 +889,102 @@
     "radius": "0px",
     "contrast": 12.87
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 112.63,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 74,
+    "width": 142.63,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 12.87
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 225.73,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 5.46
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 324,
+    "radius": "8px",
+    "contrast": 12.87
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -477,7 +1012,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 17s · ",
+    "text": "Waiting for you · 27m 12s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -498,6 +1033,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 14.05
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 4.66
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -528,9 +1075,8 @@
    "__overflow": 0
   },
   "settings-1440-dark": {
-   "title": null,
-   "section": {
-    "selector": ".settings-section h3",
+   "title": {
+    "selector": ".settings-section-title",
     "text": "General",
     "fontSize": 20,
     "fontWeight": "600",
@@ -541,10 +1087,68 @@
     "radius": "0px",
     "contrast": 14
    },
-   "row-label": null,
-   "help": null,
+   "block-title": {
+    "selector": ".settings-block-title",
+    "text": "New chats",
+    "fontSize": 14,
+    "fontWeight": "700",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "row-title": {
+    "selector": ".settings-row-title",
+    "text": "File access",
+    "fontSize": 14,
+    "fontWeight": "500",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "row-help": {
+    "selector": ".settings-row-help",
+    "text": "The value a chat starts with",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 778,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "readout": {
+    "selector": ".settings-readout",
+    "text": "Not reported",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 72.59,
+    "radius": "0px",
+    "contrast": 8.1
+   },
    "nav-item": {
-    "selector": ".settings-tab",
+    "selector": ".settings-tab:not(.is-current)",
+    "text": "Appearance",
+    "fontSize": 13,
+    "fontWeight": "400",
+    "lineHeight": 19.5,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 240,
+    "radius": "8px",
+    "contrast": 8.1
+   },
+   "nav-current": {
+    "selector": ".settings-tab.is-current",
     "text": "General",
     "fontSize": 13,
     "fontWeight": "550",
@@ -554,6 +1158,18 @@
     "width": 240,
     "radius": "8px",
     "contrast": 8.3
+   },
+   "search": {
+    "selector": ".settings-search",
+    "text": "",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 36,
+    "width": 240,
+    "radius": "8px",
+    "contrast": 14
    },
    "segment": {
     "selector": ".segment",
@@ -568,7 +1184,7 @@
     "contrast": 10.44
    },
    "select": null,
-   "button": null,
+   "control-button": null,
    "back": {
     "selector": "#settings-back-button",
     "text": "Back to app",
@@ -622,9 +1238,102 @@
     "radius": "0px",
     "contrast": 14
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 111.09,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 78,
+    "width": 145.09,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 607.73,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 39,
+    "width": 85.92,
+    "radius": "8px",
+    "contrast": 14
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -652,7 +1361,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 20s · ",
+    "text": "Waiting for you · 27m 15s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -673,6 +1382,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 11.72
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 8.1
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -715,9 +1436,102 @@
     "radius": "0px",
     "contrast": 14
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 111.09,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 78,
+    "width": 145.09,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 607.73,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 39,
+    "width": 85.92,
+    "radius": "8px",
+    "contrast": 14
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -745,7 +1559,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 21s · ",
+    "text": "Waiting for you · 27m 16s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -766,6 +1580,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 11.72
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 32,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 8.1
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -796,9 +1622,8 @@
    "__overflow": 0
   },
   "settings-390-dark": {
-   "title": null,
-   "section": {
-    "selector": ".settings-section h3",
+   "title": {
+    "selector": ".settings-section-title",
     "text": "General",
     "fontSize": 20,
     "fontWeight": "600",
@@ -809,9 +1634,68 @@
     "radius": "0px",
     "contrast": 14
    },
-   "row-label": null,
-   "help": null,
+   "block-title": {
+    "selector": ".settings-block-title",
+    "text": "New chats",
+    "fontSize": 14,
+    "fontWeight": "700",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "row-title": {
+    "selector": ".settings-row-title",
+    "text": "File access",
+    "fontSize": 14,
+    "fontWeight": "500",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 21,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "row-help": {
+    "selector": ".settings-row-help",
+    "text": "The value a chat starts with",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 54,
+    "width": 320,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "readout": {
+    "selector": ".settings-readout",
+    "text": "Not reported",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 72.59,
+    "radius": "0px",
+    "contrast": 8.1
+   },
    "nav-item": null,
+   "nav-current": null,
+   "search": {
+    "selector": ".settings-search",
+    "text": "",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 358,
+    "radius": "8px",
+    "contrast": 14
+   },
    "segment": {
     "selector": ".segment",
     "text": "Ask before editing",
@@ -825,7 +1709,7 @@
     "contrast": 10.44
    },
    "select": null,
-   "button": null,
+   "control-button": null,
    "back": {
     "selector": "#settings-back-button",
     "text": "Back to app",
@@ -879,9 +1763,102 @@
     "radius": "0px",
     "contrast": 14
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 112.63,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 74,
+    "width": 142.63,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 225.73,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 324,
+    "radius": "8px",
+    "contrast": 14
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -909,7 +1886,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 23s · ",
+    "text": "Waiting for you · 27m 18s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -930,6 +1907,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 11.72
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 9.28
    },
    "surface-button": {
     "selector": "#show-surface-button",
@@ -972,9 +1961,102 @@
     "radius": "0px",
     "contrast": 14
    },
-   "reading": null,
-   "message-role": null,
-   "status-badge": null,
+   "reading": {
+    "selector": ".markdown-body p",
+    "text": "/fixture question",
+    "fontSize": 15,
+    "fontWeight": "400",
+    "lineHeight": 25.5,
+    "letterSpacing": "normal",
+    "height": 25.5,
+    "width": 112.63,
+    "radius": "0px",
+    "contrast": 14.56
+   },
+   "user-message": {
+    "selector": ".user-message-content",
+    "text": "/fixture question\nSource/fix",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 74,
+    "width": 142.63,
+    "radius": "18px",
+    "contrast": 14.56
+   },
+   "session-mode": {
+    "selector": ".session-mode",
+    "text": "Chat",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 24.67,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "run-badge": {
+    "selector": ".run-badge",
+    "text": "Waiting for you",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 89,
+    "radius": "0px",
+    "contrast": 14
+   },
+   "flow-title": {
+    "selector": ".flow-title",
+    "text": "1 tool action",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 225.73,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "flow-meta": {
+    "selector": ".flow-meta",
+    "text": "Waiting for you",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 18,
+    "width": 85.13,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "timestamp": {
+    "selector": ".user-message-actions time",
+    "text": "8:58 AM",
+    "fontSize": 11,
+    "fontWeight": "400",
+    "lineHeight": 16.5,
+    "letterSpacing": "normal",
+    "height": 16.5,
+    "width": 44.63,
+    "radius": "0px",
+    "contrast": 8.1
+   },
+   "answer-button": {
+    "selector": ".question-card .request-width",
+    "text": "Answer",
+    "fontSize": 14,
+    "fontWeight": "400",
+    "lineHeight": 21,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 324,
+    "radius": "8px",
+    "contrast": 14
+   },
    "composer-input": {
     "selector": "#composer-input",
     "text": "",
@@ -1002,7 +2084,7 @@
    },
    "run-hint": {
     "selector": ".composer-run-hint",
-    "text": "Waiting for you · 13m 24s · ",
+    "text": "Waiting for you · 27m 19s · ",
     "fontSize": 12,
     "fontWeight": "400",
     "lineHeight": 18,
@@ -1023,6 +2105,18 @@
     "width": 69.08,
     "radius": "8px",
     "contrast": 11.72
+   },
+   "permission-mode": {
+    "selector": ".permission-mode",
+    "text": "Allow edits",
+    "fontSize": 12,
+    "fontWeight": "400",
+    "lineHeight": 18,
+    "letterSpacing": "normal",
+    "height": 44,
+    "width": 101.41,
+    "radius": "8px",
+    "contrast": 9.28
    },
    "surface-button": {
     "selector": "#show-surface-button",
