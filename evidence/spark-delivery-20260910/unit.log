@@ -1,0 +1,46 @@
+✔ SP1-FE · stale.json validates: one Matter behind, one fully current, sharing a snapshot (2.386875ms)
+✔ SP1-FE · quiet.json validates: every Matter current, no prompt-worthy bucket (0.283083ms)
+✔ SP1-FE · empty.json validates: no Matters, page.total 0 (0.188625ms)
+✔ SP1-FE · partial.json validates: unavailable Matter keeps null counts, not zero (0.471292ms)
+✔ SP1-FE · truncated.json validates: 20 refs loaded, true count stated separately (0.350125ms)
+✔ SP1-FE · a 0 where a non-observed Matter must publish null is rejected, not read as zero (0.11075ms)
+✔ SP1-FE · an observed Matter reporting stale:null instead of a real zero is rejected (0.088791ms)
+✔ SP1-FE · a genuine zero-stale Matter is accepted and stays a real, distinct zero (0.124667ms)
+✔ SP1-FE · staleRefsTruncated true with fewer than 20 loaded refs is rejected (0.107125ms)
+✔ SP1-FE · staleRefsTruncated false while refs fall short of the stated stale count is rejected (0.143209ms)
+✔ SP1-FE · more than the 20-ref page ceiling is rejected outright (0.121625ms)
+✔ SP1-FE · two Matters in one page reporting different snapshotRefs is rejected (0.087875ms)
+✔ SP1-FE · sameSnapshot refuses to confirm consistency across a null snapshot (0.057708ms)
+✔ SP1-FE · wrong schemaVersion is rejected (0.075541ms)
+✔ SP1-FE · a stale ref not actually behind the Matter's source revision is rejected (0.072708ms)
+✔ SP1-FE · byStatus counts that don't sum to derivations.current/stale are rejected (0.059791ms)
+✔ SP1-FE · an observed Matter must not carry a reason (0.060333ms)
+✔ SP1-FE · a partial Matter must carry a reason (0.054292ms)
+✔ SP1-FE · sourceSetChange with a non-increasing revision pair is rejected (0.071209ms)
+✔ SP1-FE · a missing sourceSetChange key (vs. an explicit null) is rejected (0.074834ms)
+✔ SP1-FE · duplicate matterId within one page is rejected (0.058958ms)
+✔ SP1-FE · page bounds exceeding the reported total are rejected (0.052667ms)
+✔ SP1-FE · coverage.matters partial without a machine-readable reason is rejected (0.045166ms)
+✔ SP1-FE · a non-object payload, and a missing top-level field, are both rejected (0.05325ms)
+✔ SP1-FE · activityRows narrows to one candidate status without reordering (0.107625ms)
+✔ SP1-FE · truncationNote is null once every stale ref for a Matter is loaded (0.064917ms)
+✔ SP1-FE · createSparkView keeps the frozen constructor signature (0.925959ms)
+✔ SP1-FE · a projection module fetches nothing, writes nothing, reads no clock (0.181708ms)
+✔ SP1-FE · Spark makes no request path containing 'attention' — it resolves, creates or edits no Attention item (0.109291ms)
+✔ SP1-FE · Spark writes nothing: no POST/PUT/PATCH/DELETE method anywhere in the view (0.102666ms)
+✔ SP1-FE · no Spark-private persistence: no localStorage, sessionStorage or IndexedDB (0.082084ms)
+✔ SP1-FE · Spark introduces no new dependency: only relative app/web imports (0.199375ms)
+✔ SP1-FE · a 404 is read as unimplemented, never rendered as zero maintenance items (0.073292ms)
+✔ SP1-FE · Unavailable is stated in words, not shown as a bare number (0.053042ms)
+✔ SP1-FE · pagination carries the prior snapshotRef and can be rejected (0.070875ms)
+✔ SP1-FE · row navigation calls the host's onOpenMatter and opens no dialog/session of its own (0.130458ms)
+✔ SP1-FE · static allowlist: spark-view.mjs / spark-projection.mjs are registered (0.810667ms)
+✔ SP1-FE · app.mjs wires the sidebar entry without touching the static allowlist array itself (0.146583ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 109.66225

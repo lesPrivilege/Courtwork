@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-10T12:34:56.000Z",
+  "scopeRef": "project:p-1",
+  "coverage": { "matters": "complete", "reason": null },
+  "page": { "limit": 25, "offset": 0, "total": 2 },
+  "matters": [
+    {
+      "matterId": "m-1",
+      "title": "Acme inbound NDA",
+      "extensionId": "inbound-nda",
+      "version": 7,
+      "sourceVersion": 3,
+      "snapshotRef": "core-state:9f2c1ab4",
+      "availability": "observed",
+      "reason": null,
+      "derivations": {
+        "total": 5,
+        "current": 3,
+        "stale": 2,
+        "byStatus": [
+          { "status": "pending", "current": 1, "stale": 2 },
+          { "status": "accepted", "current": 2, "stale": 0 }
+        ]
+      },
+      "staleRefs": [
+        { "candidateId": "c-9", "status": "pending", "candidateSourceVersion": 1, "matterSourceVersion": 3, "supersedes": null },
+        { "candidateId": "c-10", "status": "pending", "candidateSourceVersion": 2, "matterSourceVersion": 3, "supersedes": "c-9" }
+      ],
+      "staleRefsTruncated": false,
+      "sourceSetChange": {
+        "fromRevision": 2,
+        "toRevision": 3,
+        "added": [{ "sourceId": "s-2", "version": 1 }],
+        "replaced": [{ "sourceId": "s-1", "fromVersion": 1, "toVersion": 2 }],
+        "removed": []
+      }
+    },
+    {
+      "matterId": "m-2",
+      "title": "Acme employment agreement",
+      "extensionId": "inbound-nda",
+      "version": 4,
+      "sourceVersion": 2,
+      "snapshotRef": "core-state:9f2c1ab4",
+      "availability": "observed",
+      "reason": null,
+      "derivations": {
+        "total": 3,
+        "current": 3,
+        "stale": 0,
+        "byStatus": [
+          { "status": "accepted", "current": 3, "stale": 0 }
+        ]
+      },
+      "staleRefs": [],
+      "staleRefsTruncated": false,
+      "sourceSetChange": null
+    }
+  ]
+}

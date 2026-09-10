@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "project loading removes prior scope rows and preserves selector focus",
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   focus: null,\n+   rows: 2\n-   focus: 'Spark project',\n-   rows: 0\n  }\n"
+    },
+    {
+      "name": "wrong scope response is rejected",
+      "pass": false,
+      "error": "Timed out: document.querySelector(\"[role=alert]\")"
+    },
+    {
+      "name": "Retry repeats failed page query",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/work-derivations?projectId=p-1&limit=25&offset=0'\n- '/work-derivations?projectId=p-1&limit=25&offset=25'\n"
+    },
+    {
+      "name": "Retry keeps snapshot consistency guard",
+      "pass": false,
+      "error": "Timed out: document.querySelector(\"[role=alert]\")"
+    },
+    {
+      "name": "Tab activation and filters retain keyboard focus",
+      "pass": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ ''\n- 'spark-tab-activity'\n"
+    },
+    {
+      "name": "Open Work closes Spark before host navigation",
+      "pass": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    args: [\n      'm-1',\n      'p-1'\n    ],\n+   open: true\n-   open: false\n  }\n"
+    }
+  ],
+  "pass": false
+}

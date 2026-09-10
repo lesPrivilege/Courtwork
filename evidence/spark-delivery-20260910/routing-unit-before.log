@@ -1,0 +1,78 @@
+✖ Spark route selects a stable bound owner and opens the existing Work preview (17.584ms)
+✔ Spark route cannot manufacture a Work session for an unbound Matter (1.472791ms)
+✖ a newer navigation cancels a pending Spark owner lookup (0.77525ms)
+✔ a newer navigation cancels Spark Work activation after session selection (0.92925ms)
+✖ Spark revalidates the loaded session binding before activating Work (0.848709ms)
+✔ Spark does not activate Work when the selected session failed to load (3.119875ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 3
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 198.478
+
+✖ failing tests:
+
+test at app/tests/spark-routing.test.mjs:31:1
+✖ Spark route selects a stable bound owner and opens the existing Work preview (17.584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'preview'
+  - ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-spark-delivery-repair-20260910/app/tests/spark-routing.test.mjs:33:56)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'preview' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/spark-routing.test.mjs:39:1
+✖ a newer navigation cancels a pending Spark owner lookup (0.77525ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   [
+  +     'p-1',
+  +     's-a'
+  +   ]
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-spark-delivery-repair-20260910/app/tests/spark-routing.test.mjs:42:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ [ 'p-1', 's-a' ] ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/spark-routing.test.mjs:49:1
+✖ Spark revalidates the loaded session binding before activating Work (0.848709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-spark-delivery-repair-20260910/app/tests/spark-routing.test.mjs:53:67)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
