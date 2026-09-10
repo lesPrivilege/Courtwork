@@ -1,10 +1,16 @@
 # 当前工程状态
 
+## 2026-09-11 · Summary / BE-41 施工派单
+
+用户授权以 fresh Astra light 主责、Luna explore 接续，[认领施工单](execution/2026-09-11-summary-be41-dispatch/README.md)已就绪（READY_TO_CLAIM，未宣称worker已认领）。SD-FIX优先，SD-ENTRY另节点；BE41-A可隔离核账/准备，BE41-B真实前端接线待前端固定节点后串行。必须消费最新合推裁定与成熟实践index，记录采用/适配/拒绝及本地证据。此授权允许BE-41准备，不改变基础前端/通用Harness优先级，不把派单计为产品接受。
+
 ## 2026-09-11 · 前端与通用 Harness 的下一合推节点
 
 本次从实际main `9097cbf` 核本地187棵非冻结工作树及远端PR；远端main `9c8b64e`，本地领先57提交，当前产品仍与已接受 `654411e` 的app/docs/tests完全相同。[Astra裁决与证据](execution/2026-09-11-merge-node/README.md)覆盖此前next-round核账时点：下一产品节点为 **Summary D1/D2修复 + CI-B/F × CS-01固定组合非作者验收**，当前NOT_READY，不直接合推68b3341或796c3a5。两行起步方向采纳，WORK-3从旧固定textarea高度改为两行可见、随字号扩展和控件可达的行为门；产品/测试尚未据此修改。Card/Entry新增语义单独复核，EX-IC2 C等固定产品基线。
 
 Harness并行P00现状/版本清账，下一产品候选聚焦MCP结果保真与实际SDK目录接缝，effect语义先冻结；RV26-Q03独立沿store/service串行接收。Pro前版包有效但逐项处置未完，缺失后版不混编号；BE-41、第二runtime、Rust及新MAS实现后置。Benchmark/Pages两个远端Draft均未消费其独有补丁，继续保留。RD-005与本轮核账仅文档接入本地main；未做产品merge、remote push或部署，未关闭前端整体/通用Harness/G1–G5完成门。
+
+Google Workspace CLI补充材料（2026-09-11）：[参考包](research/google-workspace-cli-2026-09-11/README.md)保存269行原文/哈希与14项处置，登记EX-GWS-01～03为未派工研究候选。Discovery、watch/subscribe、auth/dry-run、Skills等外部主张未核验；沿既有Tool ABI/Attention入口后续消费，不改变本节前端/通用Harness节点，未接入Google账户或产品能力。
 
 ## Pro 架构送审准备（2026-09-10）
 

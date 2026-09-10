@@ -1,0 +1,269 @@
+这个项目很值得建档，而且对 CW 的价值比“又一个 Google Workspace CLI”高得多。它几乎正好给前面讨论的 **Tool ABI / Capability Registry / Attention Assistant** 提供了一个现实 specimen。
+
+`gws` 最重要的设计不是命令多，而是：**它不静态维护 Google API 命令表，而是在运行时读取 Google Discovery Service，动态生成整个 command surface**；同时提供 `gws schema ...` 让调用者检查某个方法真实的 request/response schema。 这非常接近我们刚才说的：
+
+```text
+Provider/API schema
+        ↓
+Capability catalog
+        ↓
+按需发现 / materialize
+        ↓
+本 Run 的 tool surface
+```
+
+而不是：
+
+```text
+Google Drive → 手写 40 个 tools
+Gmail        → 再手写 60 个 tools
+Calendar     → 再手写……
+```
+
+### 对 CW 最有价值的是四层分离
+
+`gws` 本身已经无意中形成了一个很漂亮的层次：
+
+```text
+Google Discovery API
+        ↓
+generic generated methods
+        ↓
+gws schema / structured JSON
+        ↓
+hand-written +helpers
+        ↓
+Agent Skills / recipes
+```
+
+它自己还规定，`+helper` **不能只是重新包装一个已经存在的 API call**；只有多步骤编排、格式转换、跨 API composition 才值得成为 helper。
+
+这条纪律非常适合 CW：
+
+```text
+raw provider capability
+        ≠
+CW logical capability
+        ≠
+Expert workflow
+```
+
+例如：
+
+```text
+Google Gmail API
+users.messages.get
+        ↓
+gws generic method
+        ↓
+CW capability: mail.message.read
+        ↓
+Attention / Legal Expert:
+"inspect incoming counterparty mail"
+```
+
+**不要让 Google API method 名直接成为 Expert ontology。**
+
+---
+
+更直接的是 Attention Assistant。
+
+这个 repo 已经提供：
+
+* `gmail +triage`：未读邮件摘要；
+* `gmail +watch`：监听新邮件并持续输出 NDJSON；
+* `events +subscribe`：订阅 Google Workspace Events，同样输出 NDJSON；
+* Calendar agenda / meeting prep；
+* Drive / Docs / Chat 等读写 helper。
+
+其中 `gmail +watch` 尤其契合我们刚才定义的：
+
+```text
+Watch
+  ↓
+External Event
+  ↓
+Attention Signal
+  ↓
+materiality / dedupe / policy
+  ↓
+Attention Item
+```
+
+它不是让 Attention 每五分钟问一次模型“有没有新邮件”。它利用 Gmail watch + Pub/Sub，收到事件后输出 NDJSON；订阅资源还能保留下来供重连，Gmail watch 本身约 7 天需要续期。
+
+这甚至比第一轮自己设计 polling connector 更符合 CW 的方向：
+
+> **event-first，而不是 model-poll-first。**
+
+`events +subscribe` 也已经有 CloudEvents 类型、target、subscription、ack/no-ack 等概念。 这些都可以在 adapter 边界终止，然后归一成 CW 自己的 `ExternalEvent / Signal`，不把 Pub/Sub 或 Google event schema 泄漏到 Attention ontology。
+
+---
+
+### 它还是 Tool ABI 的非常好 specimen
+
+前面我们画过：
+
+```text
+logical capability: web.fetch
+
+     ├ CW host
+     ├ runtime native
+     ├ provider hosted
+     └ MCP
+```
+
+Google Workspace 可以照样做：
+
+```text
+logical capability: mail.read
+
+     ├ Google Workspace / gws
+     ├ Gmail MCP
+     ├ future native connector
+     └ sovereign/internal mail adapter
+```
+
+这里 `gws` 是一个 **realization**，不是 capability 本身。
+
+而且 CW 现有 Runtime Control 已经有 `tool / plugin / provider / permission_policy / secret` 这些资源类型，scope/exposure/provenance 也已经存在。因此它比较适合被包成一个 host-side provider/plugin，而不是再建立一套 Google 特例。
+
+我甚至不建议第一版直接：
+
+```text
+Agent → shell → gws ...
+```
+
+尽管这样半小时就能 dogfood。
+
+更稳的正式结构应是：
+
+```text
+          CW Capability Registry
+                  │
+             mail.read
+             mail.search
+             mail.send
+             drive.read
+             calendar.read
+                  │
+                  ▼
+           GoogleWorkspaceAdapter
+                  │
+             constrained argv
+                  │
+                  ▼
+                 gws
+                  │
+          structured JSON
+                  │
+                  ▼
+          normalized receipt
+```
+
+**认证凭据留在 Host/CLI 一侧，不交给模型。**
+
+`gws` 本身对此也做了不少 agent-oriented 防护：OAuth credentials 可加密保存；AI/LLM 输入被视为 adversarial，路径 traversal、URL/path segment、resource name 都有显式验证要求。 它还提供 `--dry-run`，以及 Model Armor response sanitization。共享 skill 明确建议 write/delete 前请求确认。
+
+不过最后这一条在 CW 里**不能只继承它的 prompt convention**。应翻译成：
+
+```text
+gws --dry-run
+      ↓
+Proposed Effect
+      ↓
+CW Permission / Review gate
+      ↓
+human decision
+      ↓
+real gws write
+      ↓
+effect receipt
+```
+
+也就是 SE 的：
+
+**proposal ≠ permission ≠ execution ≠ accepted state**。
+
+---
+
+### 还有一个很值得消费的点：100+ Skills 反而不是最重要的
+
+它现在有 100+ `SKILL.md`，包括 API skills、helper skills 和大量 recipes。 这些非常适合拿来做 **Expert loop / task recipe 的语料与 UX 研究**，但我不会把它们作为 CW 集成的核心。
+
+更耐久的资产其实是：
+
+```text
+Discovery schema
++ typed structured output
++ helper boundary
++ event subscription
++ auth
++ safe execution contract
+```
+
+Skills 可以被重生成。它甚至明确要求某些 skill 先读取 `gws-shared`；这仍然属于 harness-specific context choreography。
+
+所以对 CW 来说可以：
+
+```text
+Discovery / schema       → P0 消费
+event/watch mechanics    → P0 消费
+auth + dry-run + safety  → P0 消费
+helper taxonomy          → P1 消费
+SKILL recipes            → P1/P2 研究 Expert loop
+Gemini extension         → interoperability precedent
+```
+
+---
+
+### 我会直接把它加入前面那组 Explore Index
+
+可以新增：
+
+**EX-GWS-01 · Google Workspace Capability Provider**
+
+研究目标不是“集成 Google CLI”，而是验证：
+
+```text
+dynamic external API catalog
+→ lazy capability discovery
+→ normalized CW capability
+→ policy-bound execution
+→ typed receipt
+```
+
+第一轮只取 Gmail / Calendar / Drive 三个域。
+
+然后：
+
+**EX-GWS-02 · Attention Event Bridge**
+
+```text
+gmail +watch
+events +subscribe
+        ↓
+NDJSON ingestion
+        ↓
+ExternalEvent
+        ↓
+Watch / Signal
+        ↓
+Attention
+```
+
+验证断线重连、duplicate/ack、subscription renewal、source identity、事件发生时间与 ingestion time 分离。
+
+再加：
+
+**EX-GWS-03 · Schema-driven Tool Materialization**
+
+利用 `gws schema` / Discovery 验证我们刚才的 Tool ABI：**catalog 可以非常大，但本 Run 不需要看见全部 tools。** 先 catalog-only，需求出现后再生成/暴露精确 schema。
+
+这和当前 `runtime_load` 的设计甚至是天然接得上的。
+
+因此我会把这个 repo 的定位定得比普通参考更高：
+
+> **DSH Web seam 是 CW Tool ABI 的单能力 precedent；`googleworkspace/cli` 则可以成为“超大动态 SaaS API 如何被 Agent 安全、按需地消费”的第一个完整 specimen。**
+
+而且它正好能成为 Attention Assistant 第一批真实数据源之一，与 GitHub 并列；不需要等 Experts runtime 全部成熟后再开始。
