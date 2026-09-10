@@ -45,6 +45,7 @@ Scout（发现）→ Section / Product precedent（成熟产品怎么做）→ D
 | material / blur | S10 官方规范 → 60fps `Blur` 作反例 / 正例池 → FE-05 specimen | FE-05（WK-124 / 127） |
 | iconography | WK-133 候选（MingCute / Phosphor / Remix）→ EX-IC1 | FE-05a 后 |
 | identity | Rebrand Gallery → GI（WK-130 minimal） | 品牌线 |
+| agent continuity / local construction | S21 Appica agent-facing distribution（仅供参考、未核验）→ 当前 AGENTS.md / Design Scout / Atlas / grammar / specimen / WK 证据链 | **候选治理方向**：nearest canonical precedent、按任务渐进披露、禁止重复 hand-roll；不自动创建 `AGENT-RULES.md`、`llms.txt` 或组件依赖 |
 
 ### 2b. 公共站（Courtwork Pages / README，PS 批次；另一工作树）
 

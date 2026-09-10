@@ -15,6 +15,7 @@
 | [decisions.md](decisions.md) | 局部设计选择与裁决格式；作者推荐和用户选择分开 |
 | [sources.md](sources.md) | 官方 skill、官方规范、社区转译和产品能力资料的来源边界 |
 | [scout/README.md](scout/README.md) | Design Scout 层：X 聚合来源、capture schema、disposition 与各 grammar 的消化路径（WK-134） |
+| [agent-interface-2026-09-10/README.md](agent-interface-2026-09-10/README.md) | Agent-facing design-system / UI Continuity 候选索引；只记录召回路径与未裁方向，不构成组件或 runtime 选型 |
 | [reference-consumption.md](reference-consumption.md) | 历史本地巧思、网页端建议与外部工具的裁取，隔离旧 context |
 | [frontend-layering-spec.md](frontend-layering-spec.md) | 前端分层与自定义入口主规范（FN-01…29、反例 FE-T01…12、候选裁决）；对象、接口、状态与权限的不变量，布局与 token 留在体例与产品配置 |
 | [work-surface-boundaries.md](work-surface-boundaries.md) | Chrome / Domain / Expert责任，Review与commit语义、同源投影和组件adapter边界；连接Fable现有契约 |

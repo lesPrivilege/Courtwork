@@ -33,7 +33,7 @@
 
 ## 4. 方法与边界（不重裁）
 
-WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵、misfit 台账、anti-slop 门）；WK-120 成熟感 = 密度 + 留白对齐 + 层级；WK-123 Auto；WK-122 四层来源 + 六级 atlas 格式 + ui-state-vocabulary（无契约状态不画）；WK-125 Visual Grammar；WK-129 Control Grammar；WK-133 Iconography（一时一族、donor 逐枚归一、Lucide 设计指南为验收规则、glyph 不承担状态）；WK-134 / 137 Scout 层（按问题寻址；capture 不是规则、concept 不成 canonical、pull 不 push；60fps motion donor、SaaSFrame product precedent、section galleries 只服务公共站）。硬边界：前端单 writer；不引 React / 依赖（donor 只取行为）；Always allow 不采纳；侧栏实色、内容不 blur；field / 氛围层只作 specimen；不复制 OpenCode 风格；Schema constraint ≠ UI affordance。
+WK-112 constraint-driven loop（§VI 契约头、变体、消融、状态矩阵、misfit 台账、anti-slop 门）；WK-120 成熟感 = 密度 + 留白对齐 + 层级；WK-123 Auto；WK-122 四层来源 + 六级 atlas 格式 + ui-state-vocabulary（无契约状态不画）；WK-125 Visual Grammar；WK-129 Control Grammar；WK-133 Iconography（一时一族、donor 逐枚归一、Lucide 设计指南为验收规则、glyph 不承担状态）；WK-134 / 137 Scout 层（按问题寻址；capture 不是规则、concept 不成 canonical、pull 不 push；60fps motion donor、SaaSFrame product precedent、section galleries 只服务公共站）。补充的 S21 / S22 与 [agent interface 索引](../../../design/agent-interface-2026-09-10/README.md)目前仅供参考，不新增前端队列或硬性组件选型。硬边界：前端单 writer；不引 React / 依赖（donor 只取行为）；Always allow 不采纳；侧栏实色、内容不 blur；field / 氛围层只作 specimen；不复制 OpenCode 风格；Schema constraint ≠ UI affordance。
 
 ## 5. fresh Fable 续接清单
 
