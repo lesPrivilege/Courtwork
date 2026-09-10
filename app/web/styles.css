@@ -477,6 +477,13 @@ button {
   min-width: var(--control);
   padding: 0;
 }
+/* M-16（WK-123 (b)）· 一个按钮要么是 icon-only 的见方几何，要么是带内边距的
+   标签几何，二者不能同时成立。看得见的标签因此不折行：按钮的宽度由静止标签的
+   自然宽度给出（M-9 的影子标签负责在途换词时不改宽），字被压成两行的那一刻，
+   按钮就不再是可按的东西而是一块色块。 */
+.button-label {
+  white-space: nowrap;
+}
 /* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与静止态、在途态的
    影子标签叠在同一个 grid 格子里，按钮的宽度因此是两者的较大值：`Sending…` 出现时
    没有一个邻居会挪位，指针已经落在半路上的用户不会点到另一个决定。影子不进无障碍
@@ -843,6 +850,21 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+/* M-15（WK-126 ⑦，CC-W §13 ⑦）· B 态（1024–1679 的视图切换）里聊天列不在屏幕上，
+   顶带下面那块地方是文档面，不是 740 的阅读列。顶带若仍居中到 740，标题就与文档
+   正文的左缘错开（实测 500 对 304）。沿 CC-S 对 Settings 顶带的做法：这一态里顶带
+   不再居中，而是与文档面自己的内容原点共用一条 gutter —— 面板从主区起缩
+   `--col-gap`，面板内容再缩一个 `--col-gap`，所以顶带的 gutter 正是这两步之和。
+   与 Settings 顶带同一个做法：这条 gutter 的第一件东西是那个按钮，标题跟在它后面。
+   C 态（≥1680 三栏）的顶带不动：那一态聊天列还在，740 仍是它的阅读列。 */
+.surface-view-switch .chat-header {
+  padding-left: calc(var(--col-gap) * 2);
+  padding-right: calc(var(--col-gap) * 2);
+}
+.surface-view-switch .chat-header-inner {
+  max-width: none;
+  margin: 0;
 }
 .chat-title-wrap {
   min-width: 0;
@@ -3210,6 +3232,19 @@ dialog[open]::backdrop {
   }
   .status-badge {
     display: none;
+  }
+}
+/* M-17（WK-132）· 命中区规则此前没有覆盖到 `.segment`：`.settings-row .segment`
+   等两级选择器写在窄屏那条 `.segment` 之后，32 因此赢了 44（实测 390 下 39px）。
+   把窄屏与触控的命中区写成同样两级的显式规则，放在全部 `.segment` 覆写之后，
+   桌面仍按各自的密度取值。量的是包着 radio 的那个 `<label>`，不是 1px 的 radio。 */
+@media (max-width: 767px), (pointer: coarse) {
+  .segment,
+  .settings-row .segment,
+  .settings-form .segment,
+  .connection-paths .segment,
+  .connection-popover .segment {
+    min-height: 44px;
   }
 }
 

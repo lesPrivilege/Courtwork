@@ -357,6 +357,9 @@ function workRow(card, onOpen) {
 function workCard(card, onOpen) {
   const status = card.runStatus;
   const open = action("chevron-right", `Open ${card.title}`, onOpen, {
+    visible: "Open",
+    trailing: true,
+    size: 16,
     className: "quiet-button rail-open",
     attrs: {
       /* The one control the list keyboard activates for this card, so that
@@ -365,11 +368,6 @@ function workCard(card, onOpen) {
       "data-focus-key": `home:open:${card.sessionId}`,
     },
   });
-  open.classList.remove("icon-only");
-  open.replaceChildren(
-    el("span", { className: "button-label", text: "Open" }),
-    icon("chevron-right", { size: 16 }),
-  );
   const time = recordedTime(card);
   return el(
     "article",

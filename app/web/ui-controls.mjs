@@ -98,32 +98,45 @@ export function flowRow(
     action,
   );
 }
-export function setAction(button, name, label, { visible = false } = {}) {
-  button.replaceChildren(
-    icon(name),
-    el("span", {
-      className: visible ? "button-label" : "sr-only",
-      text: label,
-    }),
-  );
+/* M-16（WK-131 / WK-132）· 一个动作按钮的解剖只有一个主人。
+ *
+ * 此前三处调用方各自在 `setAction` 之后 `classList.remove("icon-only")` 再
+ * `replaceChildren`：可见标签、图标位置与 icon-only 的几何锁因此散在三份代码里，
+ * 任何一次重绘只要漏掉其中一步，按钮就会既锁着 `--control` 见方的零内边距几何、
+ * 又装着一行看得见的字。这里把五件事收回同一处：字形、可见 / sr-only 标签槽位、
+ * aria 名、tooltip、以及 icon-only 类名。`visible` 取字符串时是"看得见的短词 +
+ * 完整可访问名"（WK-59）；`trailing` 把字形放到标签之后；`size` 保留各处既有字号。 */
+export function setAction(
+  button,
+  name,
+  label,
+  { visible = false, trailing = false, size } = {},
+) {
+  const shown = typeof visible === "string" ? visible : visible ? label : null;
+  const glyph = icon(name, size ? { size } : undefined);
+  const text = el("span", {
+    className: shown ? "button-label" : "sr-only",
+    text: shown ?? label,
+  });
+  button.replaceChildren(...(trailing ? [text, glyph] : [glyph, text]));
   button.setAttribute("aria-label", label);
   button.removeAttribute("title");
-  if (visible) delete button.dataset.tooltip;
+  if (shown) delete button.dataset.tooltip;
   else button.dataset.tooltip = label;
-  button.classList.toggle("icon-only", !visible);
+  button.classList.toggle("icon-only", !shown);
   return button;
 }
 export function action(
   name,
   label,
   onClick,
-  { visible = false, className = "quiet-button", attrs = {} } = {},
+  { visible = false, trailing = false, size, className = "quiet-button", attrs = {} } = {},
 ) {
   const button = setAction(
     el("button", { className, attrs: { type: "button", ...attrs } }),
     name,
     label,
-    { visible },
+    { visible, trailing, size },
   );
   if (onClick) button.addEventListener("click", onClick);
   return button;
