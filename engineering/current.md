@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-11 · Summary / Entry / BE41 自足节点接收
+
+用户确认交付035134b并授权合推及归档任务分支。132项哈希核对、固定源码范围与原非作者回执已检查；接收范围为Summary D1/D2、WORK-3、SD-ENTRY、BE41-A/B，RuntimeStore12/Core4/app5。[本次接收与分支归档回执](../evidence/convergence-20260911/README.md)持有最终验证和清理结果。此前NOT_READY与在途段落保留历史时点，本段接收仅限这次自足范围。
+
+Chat actions明确不在本次交付，WIP固定2361a83，召回路径与归档方式见接收回执；Fake UI先行裁定继续有效但暂停续作。Q1/Q3、原生/浏览器未验范围、BE-42及Spark重建/恢复和G1–G5仍开放。用户后续整体polish另行施工，活跃semantic-polish与其他未提交现场不因分支清理丢弃。
+
 ## 2026-09-11 · Chat icon / Fake UI 先行
 
 用户明确Chat space icon应从Fake UI先行落地、逆向登记独立后端缺口；[最新裁定与截图](design/chat-controls-2026-09-10/fake-ui-first/README.md)覆盖此前B/C整体等待安排。当前fresh Astra单写接续：先做可交互action row、沿现有能力接线，缺失能力通过合成adapter验证状态并逐项登记接口；生产不伪报成功。B最小对照裁定与C前端实施连续推进，共享文件串行，后端与最终组合非作者验证分别接续。本条是施工要求，尚未宣称icon已交付。
