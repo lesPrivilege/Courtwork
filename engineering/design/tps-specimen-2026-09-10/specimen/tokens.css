@@ -1,0 +1,106 @@
+/* Product tokens, copied verbatim (values and names) from app/web/styles.css at main 1992e90.
+   Only the subset this specimen uses. No new scale value, role or duration is introduced here.
+   Source lines are given per block; if the product file moves, these copies are stale by design
+   (a specimen, not a consumer). */
+
+/* tier:S · Slate light — styles.css lines 7–40 (subset) */
+:root {
+  color-scheme: light;
+  --gray-2: #f9f9fb;
+  --gray-3: #f0f0f3;
+  --gray-6: #d9d9e0;
+  --gray-8: #b9bbc6;
+  --gray-10: #80838d;
+  --gray-11: #60646c;
+  --gray-12: #1c2024;
+  --paper: #fdfdfe;
+  --float-s: #fdfdfe;
+  --frame-s: #f0f0f3;
+}
+/* tier:S · Slate dark — styles.css lines 43–75 (subset) and the same values under the
+   system-dark media query, lines 76–100 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --gray-2: #18191b;
+  --gray-3: #212225;
+  --gray-6: #363a3f;
+  --gray-8: #5a6169;
+  --gray-10: #777b84;
+  --gray-11: #b0b4ba;
+  --gray-12: #edeef0;
+  --paper: #212225;
+  --float-s: #272a2d;
+  --frame-s: #111113;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --gray-2: #18191b;
+    --gray-3: #212225;
+    --gray-6: #363a3f;
+    --gray-8: #5a6169;
+    --gray-10: #777b84;
+    --gray-11: #b0b4ba;
+    --gray-12: #edeef0;
+    --paper: #212225;
+    --float-s: #272a2d;
+    --frame-s: #111113;
+  }
+}
+/* tier:S · fixed system focus — styles.css lines 5904–5935 (focus only) */
+:root { --system-focus: #2a2c2c; }
+:root[data-theme="dark"] { --system-focus: #f4f5f6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --system-focus: #f4f5f6; } }
+
+/* tier:R · roles — styles.css lines 293–313 (subset); space 335–341; radius 378–383;
+   type 393–405; motion 406–409; base font 410–418 */
+:root {
+  --frame: var(--frame-s);
+  --panel: var(--paper);
+  --panel-muted: var(--gray-2);
+  --float: var(--float-s);
+  --hover: var(--gray-3);
+  --line: var(--gray-6);
+  --line-strong: var(--gray-8);
+  --ink: var(--gray-12);
+  --muted: var(--gray-10);        /* non-text only: icons, hairlines, placeholders; >= 3:1 */
+  --muted-strong: var(--gray-11); /* every secondary text role; >= 4.5:1 on --panel */
+  --focus: var(--system-focus);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-container: 16px;
+  --text-scale: 1;
+  --text-title: calc(18px * var(--text-scale));
+  --text-label: calc(12px * var(--text-scale));
+  --text-caption: calc(10.5px * var(--text-scale));
+  --text-section: calc(13px * var(--text-scale));
+  --text-body: calc(14px * var(--text-scale));
+  --text-meta: calc(11.5px * var(--text-scale));
+  --tracking-caps: 0.08em;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --duration-fast: 120ms;
+  --duration: 180ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: calc(14px * var(--text-scale));
+}
+/* WK-78 text size "large" — styles.css lines 424–426 (used by the capture script only) */
+:root[data-text-size="large"] { --text-scale: 1.143; }
+
+/* Reduced motion — styles.css lines 2619–2637, verbatim rule shape: the system query and the
+   forced `data-motion="reduce"` attribute both stop every animation/transition (instant cut). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+
+/* Focus ring — styles.css lines 511–514 */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }

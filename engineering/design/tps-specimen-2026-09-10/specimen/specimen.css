@@ -1,0 +1,80 @@
+/* WO-TPS-01 specimen layout + candidate locus. Product shapes are copied from
+   app/web/styles.css (lines given); everything under "candidate" is new and is the
+   thing under review. Components only reference tier:R roles from tokens.css. */
+
+* { box-sizing: border-box; } /* styles.css lines 427–429 */
+body { margin: 0; background: var(--frame); color: var(--ink); }
+.stage { max-width: 1180px; margin: 0 auto; padding: var(--space-8) var(--space-6) 64px; }
+.stage h1 { font-size: var(--text-title); font-weight: 600; margin: 0 0 var(--space-2); }
+.stage h2 { font-size: var(--text-section); font-weight: 600; margin: 40px 0 var(--space-1); }
+.stage > p, .section-note { font-size: var(--text-meta); color: var(--muted-strong); margin: 0 0 var(--space-4); max-width: 78ch; line-height: 1.6; }
+.synthetic-banner {
+  border: 1px solid var(--line-strong); border-radius: var(--radius-card); background: var(--panel);
+  padding: var(--space-3) var(--space-4); margin: var(--space-4) 0; font-size: var(--text-meta); line-height: 1.6; max-width: 78ch;
+}
+.synthetic-banner strong { font-size: var(--text-label); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+.controls { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0 0 var(--space-4); align-items: center; }
+.controls [role="group"] { display: flex; gap: var(--space-1); align-items: center; }
+.controls .group-label { font-size: var(--text-caption); color: var(--muted-strong); text-transform: uppercase; letter-spacing: var(--tracking-caps); margin-right: var(--space-1); }
+.controls button {
+  font: inherit; font-size: var(--text-meta); min-height: 28px; padding: 3px 10px; border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control); background: var(--panel); color: var(--ink); cursor: pointer;
+}
+.controls button[aria-pressed="true"] { background: var(--hover); border-color: var(--ink); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-6) var(--space-4); align-items: start; }
+.frame-label { font-size: var(--text-caption); color: var(--muted-strong); text-transform: uppercase; letter-spacing: var(--tracking-caps); margin: 0 0 6px; }
+
+/* ── product shapes ───────────────────────────────────────────────────────────
+   .context-popover lines 2680–2690 + .connection-popover 3142–3148: 340px, padding 16,
+   radius-container, border line. Glass/blur is deliberately NOT copied: material is not
+   under review here and the solid --float is the product's reduced-transparency fallback. */
+.popover-frame { width: 340px; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }
+/* Inside the product popover the measurements section is a direct child (settings-view.mjs
+   renderConnectionCard appends it after the context cards), so its data-list spans the full
+   306px content box. .section-heading lines 675–680; .request-measurements lines 5705–5707. */
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.section-heading .frame-label { margin: 0; }
+.section-heading h3 { margin: 0; font-size: var(--text-section); font-weight: 600; }
+.request-measurements { padding: 8px 0 0; }
+.request-measurements h4 { margin: 12px 0 8px; font-size: var(--text-meta); font-weight: 600; }
+/* .data-list lines 1793–1810 */
+.data-list { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(0, 1.3fr); gap: 8px 12px; font-size: var(--text-meta); margin: 12px 0; }
+.data-list dt { color: var(--muted-strong); }
+.data-list dd { margin: 0; overflow-wrap: anywhere; display: flex; align-items: center; gap: 4px; justify-content: space-between; }
+/* .form-help lines 647–652 */
+.form-help { font-size: var(--text-meta); color: var(--muted-strong); line-height: 1.6; margin: 8px 0 0; }
+/* PV-79 provenance word (Fable performance specimen, claude/fable-round4d): caption, muted-strong, right edge */
+.data-list dd .prov { font-size: var(--text-caption); color: var(--muted-strong); white-space: nowrap; margin-left: auto; padding-left: 12px; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ── candidate: the metric locus ─────────────────────────────────────────────── */
+.stamp { font-size: var(--text-caption); font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
+.locus { display: inline-flex; align-items: center; gap: 6px; } /* never shrinks: an overflow must be measurable, not hidden */
+.spark { display: block; flex: none; height: 12px; overflow: visible; }
+.spark .bar { fill: var(--muted); }
+.spark .bar.latest { fill: var(--ink); }
+.spark .slot-void { fill: var(--muted); } /* failed/cancelled: floating dash, not a zero bar */
+/* Motion: entrance (once, when the first bar arrives) is separate from live update
+   (only the newly arrived bar). Numbers are replaced, never ticked. Opacity only. */
+.spark.entering { animation: locus-enter var(--duration) var(--ease-out) both; }
+.spark .bar.fresh { animation: bar-arrive var(--duration-fast) var(--ease-out) both; }
+@keyframes locus-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bar-arrive { from { opacity: 0; } to { opacity: 1; } }
+
+/* Keyboard-reachable disclosure: native details/summary (atlas tool-card precedent, in-place). */
+.method { margin-top: 8px; font-size: var(--text-meta); }
+.method > summary { color: var(--muted-strong); cursor: pointer; width: fit-content; border-radius: 4px; }
+.method > summary:hover { color: var(--ink); }
+.method .data-list { margin: 8px 0 4px; }
+.method .values { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--muted-strong); overflow-wrap: anywhere; margin: 4px 0 0; }
+
+/* Mobile collapse (product narrow breakpoint max-width 767px, styles.css line 3362 block):
+   the sparkline leaves, the number + source word + disclosure stay. */
+@media (max-width: 767px) {
+  .spark[data-collapsible] { display: none; }
+  .stage { padding: var(--space-6) var(--space-4) 48px; }
+}
+/* Capture-only switch so the 390 collapse can be shown beside the wide form on one page. */
+.force-collapse .spark[data-collapsible] { display: none; }
+
+.contract { font-family: var(--font-mono); font-size: var(--text-caption); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-3); overflow-x: auto; max-width: 78ch; line-height: 1.6; white-space: pre; }

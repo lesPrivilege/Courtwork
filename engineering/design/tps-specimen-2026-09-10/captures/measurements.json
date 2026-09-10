@@ -1,0 +1,766 @@
+{
+  "page": "http://127.0.0.1:8884/specimen/index.html",
+  "synthetic": true,
+  "generatedAt": "2026-09-10T13:48:51.018Z",
+  "widths": {
+    "1440-default": {
+      "width-40": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 91,
+        "provWidth": 58,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 17,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 10
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 50
+        }
+      },
+      "width-48": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 99,
+        "provWidth": 58,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 9,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": 2
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 42
+        }
+      },
+      "width-60": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 111,
+        "provWidth": 58,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": true,
+        "slack": -3,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": -10
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 30
+        }
+      },
+      "form-spark": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 91,
+        "provWidth": 58,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 17,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 10
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 50
+        }
+      },
+      "form-number": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      }
+    },
+    "1440-large": {
+      "width-40": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 96,
+        "provWidth": 64,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 6,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": -2
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 42
+        }
+      },
+      "width-48": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 104,
+        "provWidth": 64,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": true,
+        "slack": -2,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": -10
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 34
+        }
+      },
+      "width-60": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 116,
+        "provWidth": 64,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": true,
+        "slack": -14,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": -22
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 22
+        }
+      },
+      "form-spark": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 96,
+        "provWidth": 64,
+        "sparkShown": true,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 6,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": false,
+          "slack": -2
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 42
+        }
+      },
+      "form-number": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      }
+    },
+    "390-default": {
+      "width-40": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      },
+      "width-48": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      },
+      "width-60": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      },
+      "form-spark": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      },
+      "form-number": {
+        "ddWidth": 166,
+        "ddHeight": 17,
+        "locusWidth": 45,
+        "provWidth": 58,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 63,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 56
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 96
+        }
+      }
+    },
+    "390-large": {
+      "width-40": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      },
+      "width-48": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      },
+      "width-60": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      },
+      "form-spark": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      },
+      "form-number": {
+        "ddWidth": 166,
+        "ddHeight": 20,
+        "locusWidth": 50,
+        "provWidth": 64,
+        "sparkShown": false,
+        "oneLine": true,
+        "overflow": false,
+        "slack": 52,
+        "threeDigit": {
+          "text": "188 tok/s + synthetic",
+          "fits": true,
+          "slack": 44
+        },
+        "longestState": {
+          "text": "— + cancelled",
+          "fits": true,
+          "slack": 88
+        }
+      }
+    }
+  },
+  "states": {
+    "state-streaming": {
+      "headline": "Request 5 · agent · streaming",
+      "rows": [
+        "Decode TPS per completed request, 4 requests; min 27, median 28, max 32 tokens per second. Synthetic data.—in flight"
+      ],
+      "sparkLabel": "Decode TPS per completed request, 4 requests; min 27, median 28, max 32 tokens per second. Synthetic data.",
+      "bars": 4,
+      "inked": 0,
+      "voids": 0
+    },
+    "state-completed": {
+      "headline": "Request 5 · agent · completed",
+      "rows": [
+        "Decode TPS per completed request, 5 requests; min 27, median 29, max 53 tokens per second. Synthetic data.53 tok/ssynthetic"
+      ],
+      "sparkLabel": "Decode TPS per completed request, 5 requests; min 27, median 29, max 53 tokens per second. Synthetic data.",
+      "bars": 5,
+      "inked": 1,
+      "voids": 0
+    },
+    "state-idle": {
+      "headline": "Run ended · 6 requests",
+      "rows": [
+        "Decode TPS per request in the ended run, 6 requests; min 26, median 28, max 53 tokens per second. Synthetic data.28 tok/ssynthetic",
+        "760synthetic"
+      ],
+      "sparkLabel": "Decode TPS per request in the ended run, 6 requests; min 26, median 28, max 53 tokens per second. Synthetic data.",
+      "bars": 6,
+      "inked": 0,
+      "voids": 0
+    },
+    "state-unavailable": {
+      "headline": "Request 5 · agent · completed",
+      "rows": [
+        "Unavailable · no token deltas"
+      ],
+      "sparkLabel": null,
+      "bars": 0,
+      "inked": 0,
+      "voids": 0
+    },
+    "state-failed": {
+      "headline": "Request 5 · agent · failed",
+      "rows": [
+        "Decode TPS per completed request, 5 requests; min 28, median 33, max 41 tokens per second; 1 request without a rate. Synthetic data.—failed"
+      ],
+      "sparkLabel": "Decode TPS per completed request, 5 requests; min 28, median 33, max 41 tokens per second; 1 request without a rate. Synthetic data.",
+      "bars": 4,
+      "inked": 0,
+      "voids": 1
+    },
+    "state-cancelled": {
+      "headline": "Request 4 · agent · cancelled",
+      "rows": [
+        "Decode TPS per completed request, 4 requests; min 29, median 31, max 42 tokens per second; 1 request without a rate. Synthetic data.—cancelled"
+      ],
+      "sparkLabel": "Decode TPS per completed request, 4 requests; min 29, median 31, max 42 tokens per second; 1 request without a rate. Synthetic data.",
+      "bars": 3,
+      "inked": 0,
+      "voids": 1
+    }
+  },
+  "motion": {
+    "on": {
+      "latestBarOpacityAt40ms": "0.817476",
+      "sha": "ce76dd5a816b2250"
+    },
+    "reduce-system": {
+      "latestBarOpacityAt40ms": "1",
+      "sha": "508a3ad7532e18fc"
+    },
+    "reduce-toggle": {
+      "latestBarOpacityAt40ms": "1",
+      "sha": "508a3ad7532e18fc"
+    }
+  },
+  "frames": [
+    {
+      "label": "a-req4-streaming",
+      "t": 21571,
+      "delivered": 40,
+      "renders": {
+        "request": 7,
+        "interval": 40
+      },
+      "settled": true,
+      "domSig": {
+        "request": "1842:1965915796",
+        "interval": 3038551313
+      },
+      "requestSha": "a0d4f7a88a9adf16",
+      "intervalSha": "42bbc5f3b5ccec3a"
+    },
+    {
+      "label": "b-req4-streaming+1500ms",
+      "t": 23071,
+      "delivered": 43,
+      "renders": {
+        "request": 7,
+        "interval": 43
+      },
+      "settled": true,
+      "domSig": {
+        "request": "1842:1965915796",
+        "interval": 370669885
+      },
+      "requestSha": "a0d4f7a88a9adf16",
+      "intervalSha": "cfdad9241a98d85f"
+    },
+    {
+      "label": "c-req4-completed",
+      "t": 26303,
+      "delivered": 50,
+      "renders": {
+        "request": 8,
+        "interval": 50
+      },
+      "settled": true,
+      "domSig": {
+        "request": "1906:1207869852",
+        "interval": 2744809981
+      },
+      "requestSha": "c3d4fceb6f67da5b",
+      "intervalSha": "9e08ab11df98c634"
+    },
+    {
+      "label": "d-req5-in-flight",
+      "t": 27793,
+      "delivered": 53,
+      "renders": {
+        "request": 9,
+        "interval": 53
+      },
+      "settled": true,
+      "domSig": {
+        "request": "1930:2816568518",
+        "interval": 645525624
+      },
+      "requestSha": "c320b981f3f07a10",
+      "intervalSha": "b375e7b0b5e26b63"
+    },
+    {
+      "label": "e-run-ended",
+      "t": 34148,
+      "delivered": 66,
+      "renders": {
+        "request": 12,
+        "interval": 65
+      },
+      "settled": true,
+      "domSig": {
+        "request": "2204:3040567956",
+        "interval": 50411773
+      },
+      "requestSha": "ddaf1a6a066affb4",
+      "intervalSha": "f93eb297ec049c9c"
+    },
+    {
+      "label": "f-run-ended+3s",
+      "t": 34148,
+      "delivered": 66,
+      "renders": {
+        "request": 12,
+        "interval": 65
+      },
+      "settled": true,
+      "domSig": {
+        "request": "2204:3040567956",
+        "interval": 50411773
+      },
+      "requestSha": "ddaf1a6a066affb4",
+      "intervalSha": "f93eb297ec049c9c"
+    }
+  ],
+  "focus": {
+    "light": {
+      "tabPresses": 9,
+      "reached": true,
+      "open": true,
+      "focusVisible": true
+    },
+    "dark": {
+      "tabPresses": 9,
+      "reached": true,
+      "open": true,
+      "focusVisible": true
+    }
+  },
+  "shots": [
+    {
+      "name": "page__1440-light.png",
+      "sha": "b66a68f4495d6b9a"
+    },
+    {
+      "name": "states__1440-light.png",
+      "sha": "c63a93aee5e9748f"
+    },
+    {
+      "name": "today__1440-light.png",
+      "sha": "595b4385509a55d2"
+    },
+    {
+      "name": "widths__1440-light.png",
+      "sha": "89b56bf6c0edc785"
+    },
+    {
+      "name": "forms__1440-light.png",
+      "sha": "1c5e452533f69c98"
+    },
+    {
+      "name": "page__1440-dark.png",
+      "sha": "fe16f9742bff299a"
+    },
+    {
+      "name": "states__1440-dark.png",
+      "sha": "f2bb1007a7530953"
+    },
+    {
+      "name": "today__1440-dark.png",
+      "sha": "bc3f3820a925b6c2"
+    },
+    {
+      "name": "widths__1440-dark.png",
+      "sha": "4c327d1feb59ac2e"
+    },
+    {
+      "name": "forms__1440-dark.png",
+      "sha": "954a95ed2b6d7294"
+    },
+    {
+      "name": "page__390-light.png",
+      "sha": "ca31276f9e37c7ea"
+    },
+    {
+      "name": "states__390-light.png",
+      "sha": "0765ba681f3c0061"
+    },
+    {
+      "name": "today__390-light.png",
+      "sha": "47e006c938a7f79a"
+    },
+    {
+      "name": "widths__390-light.png",
+      "sha": "479f1a91f78fa42f"
+    },
+    {
+      "name": "forms__390-light.png",
+      "sha": "182d210a356f6f00"
+    },
+    {
+      "name": "page__390-dark.png",
+      "sha": "d986db01d5691185"
+    },
+    {
+      "name": "states__390-dark.png",
+      "sha": "56881243fbaf3d1b"
+    },
+    {
+      "name": "today__390-dark.png",
+      "sha": "9269cde31c93d50d"
+    },
+    {
+      "name": "widths__390-dark.png",
+      "sha": "06e69f1eebaa921e"
+    },
+    {
+      "name": "forms__390-dark.png",
+      "sha": "27fe02466739b105"
+    },
+    {
+      "name": "states__1440-dark-attr-over-light-system.png",
+      "sha": "f2bb1007a7530953"
+    },
+    {
+      "name": "widths__1440-light-text-large.png",
+      "sha": "433cff35acfa0fbd"
+    },
+    {
+      "name": "motion__on.png",
+      "sha": "ce76dd5a816b2250"
+    },
+    {
+      "name": "motion__reduce-system.png",
+      "sha": "508a3ad7532e18fc"
+    },
+    {
+      "name": "motion__reduce-toggle.png",
+      "sha": "508a3ad7532e18fc"
+    },
+    {
+      "name": "focus-disclosure__1440-light.png",
+      "sha": "176c6b40dc8d6285"
+    },
+    {
+      "name": "focus-disclosure__1440-dark.png",
+      "sha": "ca2367b87951232b"
+    },
+    {
+      "name": "frame-1-a-req4-streaming__request.png",
+      "sha": "a0d4f7a88a9adf16"
+    },
+    {
+      "name": "frame-1-a-req4-streaming__interval.png",
+      "sha": "42bbc5f3b5ccec3a"
+    },
+    {
+      "name": "frame-2-b-req4-streaming+1500ms__request.png",
+      "sha": "a0d4f7a88a9adf16"
+    },
+    {
+      "name": "frame-2-b-req4-streaming+1500ms__interval.png",
+      "sha": "cfdad9241a98d85f"
+    },
+    {
+      "name": "frame-3-c-req4-completed__request.png",
+      "sha": "c3d4fceb6f67da5b"
+    },
+    {
+      "name": "frame-3-c-req4-completed__interval.png",
+      "sha": "9e08ab11df98c634"
+    },
+    {
+      "name": "frame-4-d-req5-in-flight__request.png",
+      "sha": "c320b981f3f07a10"
+    },
+    {
+      "name": "frame-4-d-req5-in-flight__interval.png",
+      "sha": "b375e7b0b5e26b63"
+    },
+    {
+      "name": "frame-5-e-run-ended__request.png",
+      "sha": "ddaf1a6a066affb4"
+    },
+    {
+      "name": "frame-5-e-run-ended__interval.png",
+      "sha": "f93eb297ec049c9c"
+    },
+    {
+      "name": "frame-6-f-run-ended+3s__request.png",
+      "sha": "ddaf1a6a066affb4"
+    },
+    {
+      "name": "frame-6-f-run-ended+3s__interval.png",
+      "sha": "f93eb297ec049c9c"
+    },
+    {
+      "name": "live__1440-light-end.png",
+      "sha": "672f5d3da902bc98"
+    }
+  ]
+}

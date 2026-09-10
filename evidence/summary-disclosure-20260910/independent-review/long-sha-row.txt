@@ -1,0 +1,4 @@
+# HEAD eff0e41 2026-09-10T14:48:45Z
+{"name":"390-light-long-sha-row","sha":{"rowWidth":324,"labelWidth":308,"valueWidth":0,"valueHeight":1104,"cardHeight":1465}}
+{"name":"1440-dark-long-sha-row","sha":{"rowWidth":254,"labelWidth":238,"valueWidth":0,"valueHeight":1104,"cardHeight":1452}}
+{"name":"1440-light-normal-sha-row","sha":{"rowWidth":254,"labelWidth":169,"valueWidth":69,"valueHeight":138,"cardHeight":486}}

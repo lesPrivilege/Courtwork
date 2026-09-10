@@ -1,0 +1,805 @@
+{
+  "head": "eff0e41a9cd3ceabd9c79d913f6a80089deb9ea6",
+  "port": 8885,
+  "browser": "Playwright chrome 152.0.7977.83 headless",
+  "dataKind": "synthetic local HTTP/Pi loopback",
+  "provider": "local-fake; no paid provider",
+  "results": [
+    {
+      "id": "prod-mode",
+      "pass": true,
+      "detail": "no fixture DOM/text in production page"
+    },
+    {
+      "id": "normal-default-collapsed",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed Files · 1 Run information",
+        "state": "Completed",
+        "files": "Files · 1",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "c12fbe14-361f-4b96-ba25-1359b0ea46bb"
+      }
+    },
+    {
+      "id": "enter-opens-files-focus-stays",
+      "pass": true,
+      "detail": {
+        "open": [
+          true,
+          false
+        ],
+        "focus": {
+          "tag": "SUMMARY",
+          "key": "run-summary-files",
+          "label": "Files · 1",
+          "id": null
+        }
+      }
+    },
+    {
+      "id": "space-toggles-files-focus-stays",
+      "pass": true,
+      "detail": {
+        "open": [
+          false,
+          false
+        ],
+        "focus": {
+          "tag": "SUMMARY",
+          "key": "run-summary-files",
+          "label": "Files · 1",
+          "id": null
+        }
+      }
+    },
+    {
+      "id": "tab-order-files-open",
+      "pass": true,
+      "detail": [
+        "run-summary-file:0",
+        "run-summary-information",
+        "rail-open:preview",
+        "rail-file:out/source-note.txt"
+      ]
+    },
+    {
+      "id": "tab-order-information-open",
+      "pass": true,
+      "detail": [
+        "run-summary-open",
+        "rail-open:preview"
+      ]
+    },
+    {
+      "id": "idle-rerender-5s",
+      "pass": null,
+      "detail": "card childList rebuilds in 5s idle: 0"
+    },
+    {
+      "id": "file-opens-in-right-tab",
+      "pass": true,
+      "detail": {
+        "cls": "surface-panel is-open is-expanded is-view-switch",
+        "railHidden": true,
+        "selected": [
+          "surface-document-select"
+        ],
+        "doc": "source-note.txt",
+        "docHidden": false,
+        "runPane": null
+      }
+    },
+    {
+      "id": "escape-from-file-returns-to-summary-row",
+      "pass": true,
+      "detail": {
+        "focus": {
+          "tag": "BUTTON",
+          "key": "run-summary-file:0",
+          "label": "Open recorded file out/source-note.txt",
+          "id": null
+        },
+        "cls": "surface-panel is-open"
+      }
+    },
+    {
+      "id": "run-opens-in-right-tab",
+      "pass": true,
+      "detail": {
+        "selected": [
+          "surface-run-tab"
+        ],
+        "cls": "surface-panel is-open is-expanded is-view-switch"
+      }
+    },
+    {
+      "id": "run-open-requests",
+      "pass": null,
+      "detail": "GET /runs/c12fbe14-361f-4b96-ba25-1359b0ea46bb: 1 after one Enter; 2 after an extra click on the Open control while the Run tab is shown"
+    },
+    {
+      "id": "run-tab-same-identity",
+      "pass": null,
+      "detail": "run pane text contains run id prefix: true"
+    },
+    {
+      "id": "escape-from-run-returns-to-open",
+      "pass": true,
+      "detail": {
+        "tag": "BUTTON",
+        "key": "run-summary-open",
+        "label": "Open run in right panel",
+        "id": null
+      }
+    },
+    {
+      "id": "doc-close-only-closes-document",
+      "pass": true,
+      "detail": {
+        "labels": {
+          "docClose": "Close out/source-note.txt",
+          "hide": "Hide work surface",
+          "expand": "Expand preview",
+          "showHidden": true
+        },
+        "after": {
+          "cls": "surface-panel is-open",
+          "railHidden": false,
+          "selected": [],
+          "doc": "source-note.txt",
+          "docHidden": true,
+          "runPane": null
+        },
+        "focus": {
+          "tag": "BUTTON",
+          "key": "run-summary-file:0",
+          "label": "Open recorded file out/source-note.txt",
+          "id": null
+        }
+      }
+    },
+    {
+      "id": "hide-work-surface-label",
+      "pass": true,
+      "detail": "Hide work surface"
+    },
+    {
+      "id": "hide-work-surface-hides-all",
+      "pass": true,
+      "detail": {
+        "cls": "surface-panel",
+        "railHidden": true,
+        "selected": [],
+        "doc": "source-note.txt",
+        "docHidden": true,
+        "runPane": null
+      }
+    },
+    {
+      "id": "reopen-keeps-local-disclosure",
+      "pass": null,
+      "detail": {
+        "open": [
+          true,
+          true
+        ],
+        "note": "same identity; card state is UI-local"
+      }
+    },
+    {
+      "id": "switch-session-new-identity-collapsed",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed Files · 1 Run information",
+        "state": "Completed",
+        "files": "Files · 1",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "d5e814bc-eaa0-4a4f-a995-952a828b7b48"
+      }
+    },
+    {
+      "id": "stale-open-after-session-switch-ignored",
+      "pass": true,
+      "detail": {
+        "cls": "surface-panel is-open",
+        "railHidden": false,
+        "selected": [],
+        "doc": "source-note.txt",
+        "docHidden": true,
+        "runPane": null
+      }
+    },
+    {
+      "id": "multi-latest-run-selected",
+      "pass": true,
+      "detail": {
+        "runRow": "d5e814bc-eaa0-4a4f-a995-952a828b7b48",
+        "expected": "d5e814bc-eaa0-4a4f-a995-952a828b7b48"
+      }
+    },
+    {
+      "id": "return-session-disclosure-cleared",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed Files · 1 Run information",
+        "state": "Completed",
+        "files": "Files · 1",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "c12fbe14-361f-4b96-ba25-1359b0ea46bb"
+      }
+    },
+    {
+      "id": "new-run-replaces-summary-identity",
+      "pass": null,
+      "detail": {
+        "card": {
+          "hidden": false,
+          "text": "Run Completed Files · 1 Run information",
+          "state": "Completed",
+          "files": "Files · 1",
+          "open": [
+            false,
+            false
+          ],
+          "runRow": "68994ace-dce3-415b-a761-a0f03c65b1c6"
+        },
+        "staleDetached": true
+      }
+    },
+    {
+      "id": "stale-open-after-new-run-ignored",
+      "pass": true,
+      "detail": "surface-panel is-open"
+    },
+    {
+      "id": "no-disclosure-persistence",
+      "pass": true,
+      "detail": "{\"schema-engineering.ui.v6\":\"{\\\"activeProjectId\\\":\\\"06806bd4-609e-4b08-ab87-45a2393ab67a\\\",\\\"activeSessionId\\\":\\\"81b43de9-c243-4d17-aacf-b00b70c185a9\\\",\\\"openProjectIds\\\":[\\\"06806bd4-609e-4b08-ab87-45a2393ab67a\\\"],\\\"surfaceOpen\\\":true}\"}"
+    },
+    {
+      "id": "empty-run-known-zero",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed No files were recorded for this run. Files · 0 Run information",
+        "state": "Completed",
+        "files": "Files · 0",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "3ca0cf84-08d7-4cd1-bcdd-7baa15de8628"
+      }
+    },
+    {
+      "id": "empty-run-message",
+      "pass": true,
+      "detail": "Run Completed No files were recorded for this run. Files · 0 No files were recorded for this run. Run information"
+    },
+    {
+      "id": "failed-run-status",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Failed No files were recorded for this run. Files · 0 Run information",
+        "state": "Failed",
+        "files": "Files · 0",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "05f62c3b-2940-48be-a8ec-b5ec836c7a6b"
+      }
+    },
+    {
+      "id": "no-run-no-card",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "id": "long-name-bounded",
+      "pass": true,
+      "detail": {
+        "o": {
+          "pageScrollX": 0,
+          "railScrollW": 0,
+          "railScrollH": 845,
+          "railOverflowY": "auto",
+          "railRect": {
+            "top": 80,
+            "bottom": 876,
+            "left": 1128,
+            "right": 1416,
+            "height": 796
+          },
+          "viewportH": 900,
+          "escapes": 0
+        },
+        "ell": {
+          "clipped": true,
+          "title": 192,
+          "aria": 211
+        }
+      }
+    },
+    {
+      "id": "long-card-bounded-scrolls",
+      "pass": true,
+      "detail": {
+        "pageScrollX": 0,
+        "railScrollW": 0,
+        "railScrollH": 845,
+        "railOverflowY": "auto",
+        "railRect": {
+          "top": 80,
+          "bottom": 876,
+          "left": 1128,
+          "right": 1416,
+          "height": 796
+        },
+        "viewportH": 900,
+        "escapes": 0
+      }
+    },
+    {
+      "id": "network-mock-missing",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed Recorded files are unavailable. Files · unavailable Run information",
+        "state": "Completed",
+        "files": "Files · unavailable",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "68994ace-dce3-415b-a761-a0f03c65b1c6"
+      }
+    },
+    {
+      "id": "network-mock-malformed",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Completed Recorded files are unavailable. Files · unavailable Run information",
+        "state": "Completed",
+        "files": "Files · unavailable",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "68994ace-dce3-415b-a761-a0f03c65b1c6"
+      }
+    },
+    {
+      "id": "network-mock-unknown",
+      "pass": true,
+      "detail": {
+        "hidden": false,
+        "text": "Run Unknown Files · 1 Run information",
+        "state": "Unknown",
+        "files": "Files · 1",
+        "open": [
+          false,
+          false
+        ],
+        "runRow": "68994ace-dce3-415b-a761-a0f03c65b1c6"
+      }
+    },
+    {
+      "id": "late-session-reply-does-not-overwrite",
+      "pass": true,
+      "detail": {
+        "during": {
+          "hidden": true,
+          "text": "",
+          "open": []
+        },
+        "after": {
+          "hidden": false,
+          "text": "Run Completed Files · 1 Run information Run d5e814bc-eaa0-4a4f-a995-952a828b7b48 Session d1105b4f-5286-45d0-8059-d23f7a43efa2 FILE SHA-256 SHA-256 · out/second-note.txt 9e789da8cc6519acbaae9154f080d2753967fbf8d590682f8737d53096b05c16 Open in right panel",
+          "state": "Completed",
+          "files": "Files · 1",
+          "open": [
+            false,
+            true
+          ],
+          "runRow": "d5e814bc-eaa0-4a4f-a995-952a828b7b48"
+        },
+        "header": "Toggle navigation\nReview · two runs\nChat\nChat overview\nHide "
+      }
+    },
+    {
+      "id": "late-run-read-after-switch",
+      "pass": true,
+      "detail": {
+        "surface": "surface-panel is-open",
+        "card": "Run Completed Files · 1 Run information"
+      }
+    },
+    {
+      "id": "layout-1440-light",
+      "pass": true,
+      "detail": {
+        "pageScrollX": 0,
+        "railScrollW": 0,
+        "railScrollH": 0,
+        "railOverflowY": "auto",
+        "railRect": {
+          "top": 80,
+          "bottom": 790,
+          "left": 1128,
+          "right": 1416,
+          "height": 710
+        },
+        "viewportH": 900,
+        "escapes": 0
+      }
+    },
+    {
+      "id": "layout-1280-light",
+      "pass": true,
+      "detail": {
+        "pageScrollX": 0,
+        "railScrollW": 0,
+        "railScrollH": 14,
+        "railOverflowY": "auto",
+        "railRect": {
+          "top": 80,
+          "bottom": 776,
+          "left": 968,
+          "right": 1256,
+          "height": 696
+        },
+        "viewportH": 800,
+        "escapes": 0
+      }
+    },
+    {
+      "id": "narrow-light-default-placement",
+      "pass": null,
+      "detail": {
+        "cardVisibleInline": false,
+        "afterHeader": null,
+        "beforeBody": null,
+        "surfaceOpen": false,
+        "showButton": true
+      }
+    },
+    {
+      "id": "narrow-light-sheet",
+      "pass": null,
+      "detail": {
+        "cls": "surface-panel is-open",
+        "card": {
+          "top": 72,
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        "modal": "true"
+      }
+    },
+    {
+      "id": "narrow-light-escape-focus",
+      "pass": true,
+      "detail": {
+        "tag": "BUTTON",
+        "key": "run-summary-file:0",
+        "label": "Open recorded file out/second-note.txt",
+        "id": null
+      }
+    },
+    {
+      "id": "layout-1440-dark",
+      "pass": true,
+      "detail": {
+        "pageScrollX": 0,
+        "railScrollW": 0,
+        "railScrollH": 0,
+        "railOverflowY": "auto",
+        "railRect": {
+          "top": 80,
+          "bottom": 790,
+          "left": 1128,
+          "right": 1416,
+          "height": 710
+        },
+        "viewportH": 900,
+        "escapes": 0
+      }
+    },
+    {
+      "id": "layout-1280-dark",
+      "pass": true,
+      "detail": {
+        "pageScrollX": 0,
+        "railScrollW": 0,
+        "railScrollH": 14,
+        "railOverflowY": "auto",
+        "railRect": {
+          "top": 80,
+          "bottom": 776,
+          "left": 968,
+          "right": 1256,
+          "height": 696
+        },
+        "viewportH": 800,
+        "escapes": 0
+      }
+    },
+    {
+      "id": "narrow-dark-default-placement",
+      "pass": null,
+      "detail": {
+        "cardVisibleInline": false,
+        "afterHeader": null,
+        "beforeBody": null,
+        "surfaceOpen": false,
+        "showButton": true
+      }
+    },
+    {
+      "id": "narrow-dark-sheet",
+      "pass": null,
+      "detail": {
+        "cls": "surface-panel is-open",
+        "card": {
+          "top": 72,
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        "modal": "true"
+      }
+    },
+    {
+      "id": "narrow-dark-escape-focus",
+      "pass": true,
+      "detail": {
+        "tag": "BUTTON",
+        "key": "run-summary-file:0",
+        "label": "Open recorded file out/second-note.txt",
+        "id": null
+      }
+    },
+    {
+      "id": "strip-1024",
+      "pass": null,
+      "detail": {
+        "strip": true,
+        "glyphs": [
+          "run",
+          "preview",
+          "runtime"
+        ]
+      }
+    },
+    {
+      "id": "strip-run-open-and-return",
+      "pass": true,
+      "detail": {
+        "selected": [
+          "surface-run-tab"
+        ],
+        "focusAfterEscape": {
+          "tag": "BUTTON",
+          "key": "strip:run",
+          "label": "Run",
+          "id": null
+        }
+      }
+    },
+    {
+      "id": "reflow-720x450",
+      "pass": true,
+      "detail": "equivalent reflow (not native 200% zoom)"
+    },
+    {
+      "id": "maximize-restore-keeps-renderer",
+      "pass": true,
+      "detail": {
+        "before": "surface-panel is-open is-expanded is-three-pane",
+        "max": {
+          "cls": "surface-panel is-open is-expanded is-view-switch",
+          "label": "Restore preview",
+          "same": true
+        },
+        "restored": {
+          "cls": "surface-panel is-open is-expanded is-three-pane",
+          "same": true
+        }
+      }
+    },
+    {
+      "id": "adjacent-home-no-card",
+      "pass": true,
+      "detail": "Home: no summary card, no horizontal overflow"
+    },
+    {
+      "id": "adjacent-settings-no-card",
+      "pass": true,
+      "detail": "Settings: no summary card, no horizontal overflow"
+    }
+  ],
+  "shots": {
+    "1440-light-collapsed.png": {
+      "caption": "1440 light: summary collapsed",
+      "viewport": "1440x900",
+      "sha256": "2d9b36f2a9e076e2115f97586660fddfafb5786865cd848075dd7c6740598afe"
+    },
+    "1440-light-both-open.png": {
+      "caption": "1440 light: Files and Run information open",
+      "viewport": "1440x900",
+      "sha256": "c66980e42bcb8d6ce558940e11a13c5efd8157828a6187d134d3a4cb5f65f7cf"
+    },
+    "1440-light-file-tab.png": {
+      "caption": "1440 light: recorded file in right tab",
+      "viewport": "1440x900",
+      "sha256": "ba265c8089e7447504c8b540ae4bb18972b13f6a67012a2ebfcc9b1b79ee7a5b"
+    },
+    "1440-light-run-tab.png": {
+      "caption": "Run opened from summary in the right panel",
+      "viewport": "1440x900",
+      "sha256": "0ddc8c94cbdb6afa1818cd5af7874bc73ecde5d61869663b3186ed99c019e5ba"
+    },
+    "1440-light-after-new-run.png": {
+      "caption": "same session after a newer run; summary follows latest run",
+      "viewport": "1440x900",
+      "sha256": "662ebb07265700ec2c6649d9aa37893f99cc679d1560b11bfd66327fd50bca14"
+    },
+    "1440-light-empty-run.png": {
+      "caption": "run with zero recorded files (known zero)",
+      "viewport": "1440x900",
+      "sha256": "7e2d0f737c3890821b10ceeb086170e61ea12df155b807a8f96b9713e5b447d7"
+    },
+    "1440-light-failed-run.png": {
+      "caption": "failed run status",
+      "viewport": "1440x900",
+      "sha256": "9b0b780c23d93fbcc5375267944d1b7c4d7e6e90cd5f57962dd00621378b9c33"
+    },
+    "1440-light-long-both-open.png": {
+      "caption": "long file name, both disclosures open; card bounded and scrolls internally",
+      "viewport": "1440x900",
+      "sha256": "e80cee8f3a872ac99c06a78a9d11d888535ca87a672575b21ac0b0387e1a4386"
+    },
+    "1440-light-long-scrolled.png": {
+      "caption": "long card scrolled to bottom inside the card",
+      "viewport": "1440x900",
+      "sha256": "65e36f396851691809726cf77131faada0ab7703e4fa95c34baceae903b8db9a"
+    },
+    "1440-light-netmock-missing.png": {
+      "caption": "network-mock: session JSON with missing artifact list",
+      "viewport": "1440x900",
+      "sha256": "a4c8e1068ae88188a59c92ca80b9ec0698cf32c4cde93e1da7dd9a9fd417b58f"
+    },
+    "1440-light-netmock-malformed.png": {
+      "caption": "network-mock: session JSON with malformed artifact list",
+      "viewport": "1440x900",
+      "sha256": "66c43235a434d79e0d1eaa31face11c2a0e417246235a97c5a9fb1a5e736a862"
+    },
+    "1440-light-netmock-unknown.png": {
+      "caption": "network-mock: session JSON with unknown run status",
+      "viewport": "1440x900",
+      "sha256": "88bab315fc0c81fb1ee648f84e783c8874574cb0315fb0b8777df8a922c441e1"
+    },
+    "1280-light-collapsed.png": {
+      "caption": "1280 light: summary collapsed",
+      "viewport": "1280x800",
+      "sha256": "bfc4ea6064f6f0928e73632c27e1693f9e8ad4818bd6baf85340bde7124a3cf2"
+    },
+    "1280-light-both-open.png": {
+      "caption": "1280 light: Files and Run information open",
+      "viewport": "1280x800",
+      "sha256": "dfdb24621c8e75f55e20ef2fbb94a7b30afa6aadf11717cf2cc96c6389c0b368"
+    },
+    "1280-light-file-tab.png": {
+      "caption": "1280 light: recorded file in right tab",
+      "viewport": "1280x800",
+      "sha256": "f9f5c136c173b79307851bf72adefb379f99b1a1bdffe56f3db6415dc545e5fb"
+    },
+    "390-light-chat.png": {
+      "caption": "390 light: chat default (summary not forced open)",
+      "viewport": "390x844",
+      "sha256": "d9411e5623e57fe2fd7651b6cba78fdb419d380565fa22e17429b8bef685d693"
+    },
+    "390-light-sheet-files.png": {
+      "caption": "390 light: on-demand sheet with Files open",
+      "viewport": "390x844",
+      "sha256": "8210da8a0577fc2a7943acfdf3adf6671f9d5436ad001f712962453ad8380037"
+    },
+    "390-light-sheet-preview.png": {
+      "caption": "390 light: file preview in sheet",
+      "viewport": "390x844",
+      "sha256": "d5cef872f91989a85217163974a54951ea0e50038d82141f9a7d337b6da5a945"
+    },
+    "1440-dark-collapsed.png": {
+      "caption": "1440 dark: summary collapsed",
+      "viewport": "1440x900",
+      "sha256": "2d2cbcf1d4251a1c7a50f1ff1269e6d1747b02df062684adabb0f652f913bb5c"
+    },
+    "1440-dark-both-open.png": {
+      "caption": "1440 dark: Files and Run information open",
+      "viewport": "1440x900",
+      "sha256": "46587e72dd425f64cd6e32b71268e98b052307ad1819a4ca54f5bb95373ef526"
+    },
+    "1440-dark-file-tab.png": {
+      "caption": "1440 dark: recorded file in right tab",
+      "viewport": "1440x900",
+      "sha256": "50b1c91b0c98244fbdc8024eada27d670222b6a7f50e6e20e7bf79dfe77e7fa4"
+    },
+    "1280-dark-collapsed.png": {
+      "caption": "1280 dark: summary collapsed",
+      "viewport": "1280x800",
+      "sha256": "c732f6165dcbebc6be69c4b37a29b0354e63dce3ba7d38e4d97cca6f3d755efc"
+    },
+    "1280-dark-both-open.png": {
+      "caption": "1280 dark: Files and Run information open",
+      "viewport": "1280x800",
+      "sha256": "ba82fa619c2b464dd717d8b6dcd4dd8c87c0e38e3c41f0335e9155a04baffff1"
+    },
+    "1280-dark-file-tab.png": {
+      "caption": "1280 dark: recorded file in right tab",
+      "viewport": "1280x800",
+      "sha256": "5fbce1cca9b6060b360ceb8206b2ece547064e143625d1329d3739ea7e96fbfb"
+    },
+    "390-dark-chat.png": {
+      "caption": "390 dark: chat default (summary not forced open)",
+      "viewport": "390x844",
+      "sha256": "16f0dc7aecdc40183a9f15246014df144ec5d2e8b4626af90f7ca3ccbb14af10"
+    },
+    "390-dark-sheet-files.png": {
+      "caption": "390 dark: on-demand sheet with Files open",
+      "viewport": "390x844",
+      "sha256": "23463809beca15be2ee269a8fb788bbb24ac2608993dfc259362141a12a51eea"
+    },
+    "390-dark-sheet-preview.png": {
+      "caption": "390 dark: file preview in sheet",
+      "viewport": "390x844",
+      "sha256": "bc1e206bac240099f44e74fc95d85fb9184c863ff439f7814b4f338419a4811c"
+    },
+    "1024-light-strip.png": {
+      "caption": "1024 light: compact strip",
+      "viewport": "1024x768",
+      "sha256": "053c0c5ae489fcb745e040f53cd045f050a0328b4ad04bccb8a0ecb8b9b0007c"
+    },
+    "720x450-light-reflow.png": {
+      "caption": "720x450 equivalent reflow",
+      "viewport": "720x450",
+      "sha256": "33df2999f40c1c1bcb1af1faaf155859f3bf05e85316113cf9aae2123593dba2"
+    },
+    "1680-light-three-pane.png": {
+      "caption": "1680 three-pane preview",
+      "viewport": "1680x1000",
+      "sha256": "9ca75855f67d2708c75a6aa4c9abeb19a4139cfecc2133d0f987df65a199b30f"
+    },
+    "1680-light-maximized.png": {
+      "caption": "1680 Expand preview (maximized)",
+      "viewport": "1680x1000",
+      "sha256": "9d2334d4729e8eb7432707d2e44026fc6edf376878760a64c0418468db5a92dc"
+    },
+    "1440-light-adjacent-home.png": {
+      "caption": "adjacent Home page",
+      "viewport": "1440x900",
+      "sha256": "0401defa39855f9e361fe51a2e12f109883931acec6cac1f524c5e9f2a471315"
+    },
+    "1440-light-adjacent-settings.png": {
+      "caption": "adjacent Settings page",
+      "viewport": "1440x900",
+      "sha256": "4723d17ea1cd68de8a60402f6b600c1294df2d109124fed50195c5e7648f165d"
+    }
+  }
+}

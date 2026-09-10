@@ -1,0 +1,57 @@
+{
+  "keyboard": [
+    {
+      "check": "user-message hover actions reachable via Tab (focus-within)",
+      "selected": true,
+      "anchorPresent": true,
+      "focusLanded": true,
+      "reached": true
+    }
+  ],
+  "errors": [
+    {
+      "name": "select-perm-pending",
+      "error": "Error: waitFor timed out: Boolean(document.querySelector(\".question-actions\"))\n    at waitFor (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:213:9)\n    at async file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:431:3\n    at async step (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:306:5)\n    at async file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:420:1"
+    },
+    {
+      "name": "select-question-pending",
+      "error": "Error: waitFor timed out: Boolean(document.querySelector(\"input[data-question-key]\"))\n    at waitFor (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:213:9)\n    at async file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:461:3\n    at async step (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:306:5)\n    at async file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:455:1"
+    },
+    {
+      "name": "question-card-sending",
+      "error": "Error: input[data-question-key] not present — question card did not render in time\n    at file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:466:21\n    at async step (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:306:5)\n    at async file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:464:1"
+    },
+    {
+      "name": "artifact-row-in-stream",
+      "error": "no .artifact-thread-row present in this session's stream (recorded-version row did not project)"
+    },
+    {
+      "name": "keyboard-menu-close-focus-return",
+      "error": "Error: step \"keyboard-menu-close-focus-return\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "keyboard-tooltip-escape",
+      "error": "Error: step \"keyboard-tooltip-escape\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "attention-open",
+      "error": "Error: step \"attention-open\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "attention-with-answered",
+      "error": "Error: step \"attention-with-answered\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "attention-recent-rename",
+      "error": "Error: step \"attention-recent-rename\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "attention-permission-pending",
+      "error": "Error: step \"attention-permission-pending\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    },
+    {
+      "name": "attention-390",
+      "error": "Error: step \"attention-390\" exceeded 20000ms\n    at Timeout._onTimeout (file:///private/tmp/se-agent-ic2/engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs:308:58)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)"
+    }
+  ]
+}
