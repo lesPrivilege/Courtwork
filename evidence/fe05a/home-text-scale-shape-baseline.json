@@ -1,0 +1,153 @@
+{
+ "results": [
+  {
+   "id": "HOME-16-small",
+   "pass": true,
+   "textSize": "small",
+   "expectedScale": 0.929,
+   "scale": "0.929",
+   "dataTextSize": "small",
+   "layout": "modules",
+   "area": {
+    "top": 56,
+    "height": 900,
+    "bottom": 956
+   },
+   "composer": {
+    "top": 450,
+    "height": 117,
+    "bottom": 567
+   },
+   "segments": [
+    {
+     "id": "home-module-band",
+     "height": 323
+    },
+    {
+     "id": "composer-area",
+     "height": 204
+    },
+    {
+     "id": "home-top-band",
+     "height": 102
+    },
+    {
+     "id": "message-stream-wrap",
+     "height": 638
+    }
+   ],
+   "todo": {
+    "top": 748,
+    "height": 69,
+    "bottom": 818
+   },
+   "room": 208,
+   "largest": {
+    "id": "message-stream-wrap",
+    "height": 638
+   },
+   "overflow": 0,
+   "threshold": 12
+  },
+  {
+   "id": "HOME-16-medium",
+   "pass": true,
+   "textSize": "medium",
+   "expectedScale": 1,
+   "scale": "1",
+   "dataTextSize": "medium",
+   "layout": "modules",
+   "area": {
+    "top": 56,
+    "height": 900,
+    "bottom": 956
+   },
+   "composer": {
+    "top": 455,
+    "height": 120,
+    "bottom": 575
+   },
+   "segments": [
+    {
+     "id": "home-module-band",
+     "height": 325
+    },
+    {
+     "id": "composer-area",
+     "height": 211
+    },
+    {
+     "id": "home-top-band",
+     "height": 107
+    },
+    {
+     "id": "message-stream-wrap",
+     "height": 659
+    }
+   ],
+   "todo": {
+    "top": 764,
+    "height": 72,
+    "bottom": 836
+   },
+   "room": 192,
+   "largest": {
+    "id": "message-stream-wrap",
+    "height": 659
+   },
+   "overflow": 0,
+   "threshold": 12
+  },
+  {
+   "id": "HOME-16-large",
+   "pass": true,
+   "textSize": "large",
+   "expectedScale": 1.143,
+   "scale": "1.143",
+   "dataTextSize": "large",
+   "layout": "modules",
+   "area": {
+    "top": 56,
+    "height": 900,
+    "bottom": 956
+   },
+   "composer": {
+    "top": 485,
+    "height": 127,
+    "bottom": 611
+   },
+   "segments": [
+    {
+     "id": "home-module-band",
+     "height": 350
+    },
+    {
+     "id": "composer-area",
+     "height": 225
+    },
+    {
+     "id": "home-top-band",
+     "height": 119
+    },
+    {
+     "id": "message-stream-wrap",
+     "height": 701
+    }
+   ],
+   "todo": {
+    "top": 818,
+    "height": 78,
+    "bottom": 895
+   },
+   "room": 138,
+   "largest": {
+    "id": "message-stream-wrap",
+    "height": 701
+   },
+   "overflow": 0,
+   "threshold": 12
+  }
+ ],
+ "passed": 3,
+ "total": 3
+}
