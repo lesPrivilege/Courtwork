@@ -1,0 +1,59 @@
+[
+  {
+    "id": "PVFE2-1",
+    "pass": true,
+    "status": "Answered in 30 ms · SIMULATED fake response: This is a connection check, not a real conversation. Reply with one short sentence to confirm you received it.",
+    "failed": false,
+    "smoke": " · Answered",
+    "rows": [
+      "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itAnswered 07:01 PM · fake-modelConfigure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+    ]
+  },
+  {
+    "id": "PVFE2-2",
+    "pass": true,
+    "verifyCountBeforeSaveOnly": 1,
+    "verifyCountAfter": 1,
+    "status": "",
+    "hidden": true,
+    "error": ""
+  },
+  {
+    "id": "PVFE2-3",
+    "pass": true,
+    "customPanelOpen": true,
+    "status": "Saved and selected. It will be used for the next run.",
+    "closed": false,
+    "verifyCountBeforeCustom": 1,
+    "verifyCountAfter": 1
+  },
+  {
+    "id": "PVFE2-4",
+    "pass": true,
+    "selectedAfterCustom": {
+      "model": "unknown-ghost",
+      "path": true
+    },
+    "status": "The provider returned HTTP 404 · 404: {\"message\":\"The model `unknown-ghost` does not exist\"}",
+    "failed": true,
+    "rows": [
+      "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · 1 modelcontext window unknown, compaction disabledLast ask failed 07:02 PM · The provider returned HTTP 404Configure",
+      "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+      "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+    ]
+  },
+  {
+    "id": "PVFE2-5",
+    "pass": true,
+    "verifyCountBeforeAskAgain": 2,
+    "verifyCountAfter": 3
+  },
+  {
+    "id": "PVFE2-6",
+    "pass": true,
+    "normalMotion": "0.18s, 0.18s",
+    "reducedMotion": "0s"
+  }
+]
