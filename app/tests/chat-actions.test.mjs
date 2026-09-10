@@ -36,3 +36,25 @@ test('regeneration requires explicit confirmation and retains original scope',()
 test('synthetic playback can be paused, resumed and stopped without a speech service',async()=>{
  const a=createDemoActionAdapter({delay:0});assert.equal((await a.invoke('read-aloud',target,{operation:'play'})).state,'playing');assert.equal((await a.invoke('read-aloud',target,{operation:'pause'})).state,'paused');assert.equal((await a.invoke('read-aloud',target,{operation:'resume'})).state,'playing');assert.equal((await a.invoke('stop-reading',target)).state,'idle');
 });
+
+test('production rejects undeclared lifecycle handlers even when supplied', async () => {
+  for (const intent of ['like','dislike','pin','read-aloud','share','regenerate']) {
+    let called=false;
+    const adapter=createProductionActionAdapter({[intent]:()=>{called=true;return {state:'success'};}});
+    assert.equal(adapter.availability(intent).available,false);
+    await assert.rejects(adapter.invoke(intent,target));
+    assert.equal(called,false);
+  }
+});
+test('same bytes and key from a replacement record cannot accept an async result', () => withTinyDom(async container => {
+  for (const field of ['sessionId','runId','projectionId']) {
+    const captured={...target,sessionId:'s1',runId:'r1',projectionId:'p1'};
+    let current=captured; const wait=deferred();
+    const root=mount(container,{target:captured,getTarget:()=>current,adapter:{availability:()=>({available:true}),invoke:()=>wait.promise}});
+    button(root,'like').click(); current={...captured,[field]:'replacement'};
+    wait.resolve({state:'selected',selection:'like',message:'stale response'});await flush();
+    assert.doesNotMatch(root.textContent,/stale response/);
+    assert.equal(button(root,'like').getAttribute('aria-pressed'),'false');
+    container.replaceChildren();
+  }
+}));

@@ -22,15 +22,16 @@ const REASONS = Object.freeze({
 
 /** Production admits only a supplied, existing handler. No endpoint guessing,
  * browser speech service, local feedback store, optimistic pin, or fake result. */
+const PRODUCTION_ACTIONS = new Set(['copy', 'edit', 'copy-path', 'copy-hash']);
 export function createProductionActionAdapter(handlers = {}) {
   return {
     availability(intent) {
-      return typeof handlers[intent] === 'function'
+      return PRODUCTION_ACTIONS.has(intent) && typeof handlers[intent] === 'function'
         ? { available: true }
         : { available: false, reason: REASONS[intent] || 'This action is not available here.' };
     },
     async invoke(intent, target, context) {
-      if (typeof handlers[intent] !== 'function') throw new Error(REASONS[intent] || 'Action unavailable.');
+      if (!PRODUCTION_ACTIONS.has(intent) || typeof handlers[intent] !== 'function') throw new Error(REASONS[intent] || 'Action unavailable.');
       const result = await handlers[intent](target, context);
       if (result === false) throw new Error('The action could not be completed.');
       return { state: 'success', message: intent.startsWith('copy') ? 'Copied.' : '' };
@@ -39,7 +40,8 @@ export function createProductionActionAdapter(handlers = {}) {
 }
 
 const sameTarget = (a, b) => Boolean(a && b && a.key === b.key && a.role === b.role &&
-  a.text === b.text && a.pending === b.pending && a.path === b.path && a.sha256 === b.sha256);
+  a.text === b.text && a.pending === b.pending && a.path === b.path && a.sha256 === b.sha256 &&
+  a.sessionId === b.sessionId && a.runId === b.runId && a.projectionId === b.projectionId);
 let nextMenu = 0;
 
 /** The adapter owns results. This component owns transient controls, pending
