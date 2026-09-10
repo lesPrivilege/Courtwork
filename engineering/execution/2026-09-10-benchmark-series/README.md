@@ -1,6 +1,6 @@
 # Benchmark series · 2026-09-10
 
-Baseline: Courtwork main `df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1`. Astra owns architecture and editorial integration; Luna explores public surfaces. User requested benchmark PR preparation before the public narrative. This series extends Continuity rather than inventing a competing doctrine.
+Original design baseline (2026-09-10): Courtwork main `df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1`. Astra owns architecture and editorial integration; Luna explores public surfaces. User requested benchmark PR preparation before the public narrative. This series extends Continuity rather than inventing a competing doctrine.
 
 | PR | Deliverable | State |
 |---|---|---|
