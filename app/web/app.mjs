@@ -16,7 +16,7 @@ import {
 } from "./ui-controls.mjs";
 
 import { projectRunSummary } from "./summary-disclosure-projection.mjs";
-import { createRunSummaryCard } from "./summary-disclosure.mjs";
+import { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDirectory } from "./summary-disclosure.mjs";
 
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
@@ -3962,7 +3962,21 @@ const runSummaryCard = createRunSummaryCard({
   onOpen: (snapshot, opener) => railHost.openRun(snapshot.identity.runId, opener),
   onOpenFile: (ref, opener) => railHost.openFile(ref, opener),
 });
+const surfaceEntryDirectory = createSurfaceEntryDirectory({getSnapshot: () => {
+  if (state.view !== "session" || state.settings.open || !currentSession()) return null;
+  const summary = runSummarySnapshot();
+  const runReader = detail => summary ? {
+    state: "ready", identity: summary.identity.runId, detail,
+    open: () => railHost.openRun(summary.identity.runId),
+  } : {state: "empty", detail: "No run recorded in this chat."};
+  return {schemaVersion: 1, scope: `${state.activeSessionId}:${state.sessionEpoch}`, entries: {
+    activity: runReader("Read this run’s recorded activity."),
+    context: runReader("Read recorded context in Run details."),
+  }};
+}});
+const cardDisclosures = createCardDisclosureMemory();
 function renderSurfaceRail() {
+  cardDisclosures.resetScope(`${state.activeSessionId}:${state.sessionEpoch}`);
   const rail = $("surface-rail");
   const visible = Boolean(
     state.surface.open && currentSession() && !state.surface.expanded,
@@ -3970,6 +3984,7 @@ function renderSurfaceRail() {
   rail.hidden = !visible;
   const summarySnapshot = runSummarySnapshot();
   runSummaryCard.update(summarySnapshot);
+  surfaceEntryDirectory.update();
   if (!visible) return;
   const focusKey = document.activeElement?.dataset?.focusKey;
   const focusModule = document.activeElement?.closest("[data-module]")?.dataset?.module;
@@ -3983,6 +3998,7 @@ function renderSurfaceRail() {
       .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
       .map((module) =>
         action(module.icon, module.title, () => {
+          if (module.kind === "runtime") return railHost.openRuntimeSettings();
           if (module.kind !== "run") return activateSurface(module.kind);
           const latest = runSummarySnapshot();
           if (latest && summarySnapshot && latest.generation === summarySnapshot.generation &&
@@ -3996,7 +4012,7 @@ function renderSurfaceRail() {
           },
         }),
       );
-    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs));
+    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs), surfaceEntryDirectory.element);
     if (focusKey && document.activeElement === document.body) {
       const key = focusKey.startsWith("strip:") ? focusKey : `strip:${focusModule === "run-summary" ? "run" : focusModule}`;
       rail.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
@@ -4011,8 +4027,16 @@ function renderSurfaceRail() {
     }
     const schema = module.adapter(facts);
     /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
-    if (schema) cards.push(module.card(schema, railHost));
+    if (schema) {
+      const identity = JSON.stringify(module.kind === "file" ? schema.ref :
+        [facts.sessionId, module.kind, schema.extension?.id || null,
+          schema.extension?.generation ?? null, schema.projection?.stateVersion ?? null, schema.revision ?? null]);
+      const label = module.kind === "file" ? "File information" :
+        module.kind === "runtime" ? "Resources" : schema.extension ? "Work information" : "Files";
+      cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
+    }
   }
+  cards.push(surfaceEntryDirectory.element);
   rail.replaceChildren(...cards);
   rail.scrollTop = scroll;
   if (focusKey && document.activeElement === document.body) {

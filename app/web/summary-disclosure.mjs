@@ -280,7 +280,7 @@ export function createRunSummaryCard({
         }
         list.append(item);
       }
-      filesDetail.append(list);
+      filesDetail.append(list, el("p", { className: "rail-note", text: "Recorded files; review acceptance is not recorded here." }));
       if (!snapshot.filesKnown)
         filesDetail.append(el("p", { className: "rail-note", text: "Some recorded files are unavailable." }));
     } else {
@@ -398,6 +398,115 @@ export function createRunSummaryCard({
       actionButtons = [];
       root.replaceChildren();
       root.hidden = true;
+    },
+  };
+}
+
+/* Shared middle layer for existing rail modules. Scope and target changes
+ * discard UI memory; neither expanded rows nor navigation confer authority. */
+export function createCardDisclosureMemory() {
+  let scope = null;
+  const entries = new Map();
+  return {
+    resetScope(next) {
+      if (next !== scope) { scope = next; entries.clear(); }
+    },
+    wrap(card, kind, identity, label) {
+      const old = entries.get(kind);
+      const entry = old?.identity === identity ? old : { identity, open: false };
+      entry.open = entry.node?.open ?? entry.open;
+      entries.set(kind, entry);
+      const rows = [...card.children].filter(node =>
+        node.classList.contains('rail-row') || node.classList.contains('rail-file') || node.classList.contains('rail-group'));
+      if (!rows.length) return card;
+      const details = el('details', { className: 'sd-run-summary-disclosure' },
+        el('summary', { className: 'sd-run-summary-trigger', text: label,
+          attrs: { 'data-focus-key': `rail-disclosure:${kind}` } }));
+      details.open = entry.open;
+      entry.node = details;
+      const body = el('div', { className: 'sd-run-summary-detail' });
+      for (const row of rows) { row.remove(); body.append(row); }
+      details.append(body);
+      details.addEventListener('toggle', () => {
+        if (entries.get(kind) === entry && entry.node === details) entry.open = details.open;
+      });
+      card.append(details);
+      return card;
+    },
+  };
+}
+
+/* Presentation slots, not a domain/capability registry. The host supplies each
+ * slot's read state and reader; a named slot alone never admits an action. */
+export const surfaceEntryDefinitions = Object.freeze([
+  ['activity', 'Activity', 'Work'],
+  ['task', 'Tasks', 'Work'],
+  ['explore', 'Explore', 'Work'],
+  ['diff', 'Changes', 'Work'],
+  ['context', 'Context', 'Information'],
+  ['source', 'Sources', 'Information'],
+  ['browser', 'Browser', 'Tools'],
+  ['computer-use', 'Computer use', 'Tools'],
+].map(([id, title, group]) => Object.freeze({id, title, group})));
+const ENTRY_STATES = new Set(['ready', 'loading', 'empty', 'error', 'unavailable', 'unsupported']);
+const ENTRY_COPY = {
+  loading: 'Reading…', empty: 'Nothing recorded here.', error: 'Could not read this entry.',
+  unavailable: 'Not available yet.', unsupported: 'Not supported in this view.',
+  ready: 'Available to read.',
+};
+
+export function createSurfaceEntryDirectory({getSnapshot}) {
+  const root = el('section', {className:'rail-card sd-entry-directory', attrs:{'aria-label':'More surfaces', 'data-module':'more'}});
+  let scope = null;
+  let disclosure = null;
+  return {
+    element: root,
+    update() {
+      const snapshot = getSnapshot();
+      const sameScope = snapshot?.scope && snapshot.scope === scope;
+      const open = Boolean(sameScope && disclosure?.open);
+      const focused = root.contains(document.activeElement) ? document.activeElement?.dataset?.focusKey : null;
+      scope = typeof snapshot?.scope === "string" && snapshot.scope ? snapshot.scope : null;
+      root.hidden = !scope;
+      root.replaceChildren();
+      if (!scope) { disclosure = null; return; }
+      const capturedScope = scope;
+      disclosure = el('details', {}, el('summary', {className:'sd-run-summary-trigger', text:'More',
+        attrs:{'data-focus-key':'surface-entry-more'}}));
+      disclosure.open = open;
+      const body = el('div', {className:'sd-entry-groups'});
+      let group = null;
+      let list = null;
+      for (const definition of surfaceEntryDefinitions) {
+        if (group !== definition.group) {
+          group = definition.group;
+          list = el('div', {className:'sd-entry-group', attrs:{role:'group','aria-label':group}},
+            el('p', {className:'rail-group',text:group}));
+          body.append(list);
+        }
+        const entry = snapshot.schemaVersion === 1 ? snapshot.entries?.[definition.id] : {state: "unsupported"};
+        const state = entry ? (ENTRY_STATES.has(entry.state) ? entry.state : 'unsupported') : 'unavailable';
+        const canOpen = state === 'ready' && typeof entry?.identity === 'string' && entry.identity.length > 0 && typeof entry.open === 'function';
+        const fallback = state === "ready" && !canOpen ? "Reading is not available here yet." : ENTRY_COPY[state];
+        const detail = typeof entry?.detail === 'string' && entry.detail ? entry.detail : fallback;
+        const row = el(canOpen ? 'button' : 'div', {className:'sd-entry-row', attrs:{
+          'data-entry':definition.id, 'data-entry-state':state === 'ready' && !canOpen ? 'unavailable' : state,
+          ...(canOpen ? {type:'button','data-focus-key':`surface-entry:${definition.id}`,'aria-label':`${definition.title}: ${detail}`} : {}),
+        }}, el('span',{className:'sd-entry-title',text:definition.title}),
+        el('span',{className:'sd-entry-detail',text:detail}));
+        if (canOpen) {
+          row.addEventListener('click', () => {
+            const latest = getSnapshot();
+            const next = latest?.entries?.[definition.id];
+            if (latest?.schemaVersion === 1 && latest?.scope === capturedScope && next?.state === 'ready' &&
+                next.identity === entry.identity && next.revision === entry.revision && typeof next.open === 'function') next.open();
+          });
+        }
+        list.append(row);
+      }
+      disclosure.append(body);
+      root.append(disclosure);
+      if (focused) (root.querySelector(`[data-focus-key="${focused}"]`) || root.querySelector('summary'))?.focus();
     },
   };
 }

@@ -61,3 +61,26 @@
 .surface-header .surface-tab { flex: none; }
 .surface-header .surface-document-tab { max-width: min(260px, 100%); }
 .surface-header .toolbar { flex: none; }
+/* The narrow sheet keeps the same grouped directory, not the retired stack
+   of separately raised cards. Its own header/close/focus contract is unchanged. */
+@media (max-width: 767px) {
+  .surface-panel.is-open:not(.is-expanded) .surface-rail {
+    margin: var(--space-4);
+    padding: 0 0 var(--space-4);
+    gap: 0;
+    background: var(--float);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    box-shadow: var(--rim);
+  }
+  .surface-panel.is-open:not(.is-expanded) .rail-card {
+    flex: none;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: var(--space-3) var(--space-4);
+  }
+  .surface-panel.is-open:not(.is-expanded) .rail-card:last-child { border-bottom: 0; }
+}
