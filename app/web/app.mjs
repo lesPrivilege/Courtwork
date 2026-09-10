@@ -16,7 +16,7 @@ import {
 } from "./ui-controls.mjs";
 
 import { projectRunSummary } from "./summary-disclosure-projection.mjs";
-import { createRunSummaryCard } from "./summary-disclosure.mjs";
+import { createRunSummaryCard, createCardDisclosureMemory } from "./summary-disclosure.mjs";
 
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
@@ -3921,7 +3921,9 @@ const runSummaryCard = createRunSummaryCard({
   onOpen: snapshot => railHost.openRun(snapshot.identity.runId),
   onOpenFile: ref => railHost.openFile(ref),
 });
+const cardDisclosures = createCardDisclosureMemory();
 function renderSurfaceRail() {
+  cardDisclosures.resetScope(`${state.activeSessionId}:${state.sessionEpoch}`);
   const rail = $("surface-rail");
   const visible = Boolean(
     state.surface.open && currentSession() && !state.surface.expanded,
@@ -3942,6 +3944,7 @@ function renderSurfaceRail() {
       .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
       .map((module) =>
         action(module.icon, module.title, () => {
+          if (module.kind === "runtime") return railHost.openRuntimeSettings();
           if (module.kind !== "run") return activateSurface(module.kind);
           const latest = runSummarySnapshot();
           if (latest && summarySnapshot && latest.generation === summarySnapshot.generation &&
@@ -3970,7 +3973,13 @@ function renderSurfaceRail() {
     }
     const schema = module.adapter(facts);
     /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
-    if (schema) cards.push(module.card(schema, railHost));
+    if (schema) {
+      const identity = JSON.stringify(module.kind === "file" ? schema.ref :
+        [facts.sessionId, module.kind, schema.extension?.id || null]);
+      const label = module.kind === "file" ? "File information" :
+        module.kind === "runtime" ? "Resources" : schema.extension ? "Work information" : "Files";
+      cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
+    }
   }
   rail.replaceChildren(...cards);
   rail.scrollTop = scroll;

@@ -349,7 +349,8 @@ const workspaceModule = {
     /* Before the tree has arrived the card states the module and its way in,
      * and nothing it does not yet know. */
     if (!schema.files)
-      return railCard(workspaceModule, { stateWord: null, open: open() });
+      return railCard(workspaceModule, { stateWord: null, open: open() },
+        el("p", { className: "rail-note", text: "Workspace files have not been read." }));
     const groups = new Map();
     for (const file of schema.files) {
       const slash = file.path.lastIndexOf("/");
@@ -357,7 +358,8 @@ const workspaceModule = {
       if (!groups.has(directory)) groups.set(directory, []);
       groups.get(directory).push(file);
     }
-    const rows = [];
+    const rows = [el("p", { className: "rail-note", text: schema.files.length
+      ? "Current workspace files." : "No workspace files recorded." })];
     for (const [directory, entries] of groups) {
       rows.push(el("p", { className: "rail-group", text: directory }));
       for (const file of entries)
@@ -427,10 +429,11 @@ const runtimeModule = {
   icon: "settings-2",
   adapter({ sessionId, runtime }) {
     if (!sessionId) return null;
-    return runtime || { loaded: false };
+    return runtime?.sessionId === sessionId ? runtime : { loaded: false };
   },
   card(schema, host) {
     const rows = [];
+    if (!schema.loaded) rows.push(el("p", { className: "rail-note", text: "Runtime details have not been read." }));
     /* FN-16 · while a run holds the runtime the group is read only. The card
      * keeps that consequence and does not promise a later application. */
     if (schema.frozen)

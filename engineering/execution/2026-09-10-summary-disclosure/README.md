@@ -93,3 +93,7 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 ### 外壳比例裁定
 
 用户20:57明确ChatSpace/composer由Claude独立开工，Astra仅裁定。[尺寸关系与写权交接](layout-ruling.md)记录导航图标/行距、顶带安全高度、中间列留白与右卡收起条件；本轮不改产品或覆盖Claude施工。
+
+### R2-SD02：卡片语义补全
+
+用户授权先补前端并登记缺口，覆盖首片Run-only范围。见[卡片类别、既有reader与缺口](card-semantics.md)：现有File/Workspace/Runtime补中间披露，未接类别保留真实挂载边界；不触及Claude的ChatSpace/composer施工。

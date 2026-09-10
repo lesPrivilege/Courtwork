@@ -280,7 +280,7 @@ export function createRunSummaryCard({
         }
         list.append(item);
       }
-      filesDetail.append(list);
+      filesDetail.append(list, el("p", { className: "rail-note", text: "Recorded files; review acceptance is not recorded here." }));
       if (!snapshot.filesKnown)
         filesDetail.append(el("p", { className: "rail-note", text: "Some recorded files are unavailable." }));
     } else {
@@ -397,6 +397,40 @@ export function createRunSummaryCard({
       actionButtons = [];
       root.replaceChildren();
       root.hidden = true;
+    },
+  };
+}
+
+/* Shared middle layer for existing rail modules. Scope and target changes
+ * discard UI memory; neither expanded rows nor navigation confer authority. */
+export function createCardDisclosureMemory() {
+  let scope = null;
+  const entries = new Map();
+  return {
+    resetScope(next) {
+      if (next !== scope) { scope = next; entries.clear(); }
+    },
+    wrap(card, kind, identity, label) {
+      const old = entries.get(kind);
+      const entry = old?.identity === identity ? old : { identity, open: false };
+      entry.open = entry.node?.open ?? entry.open;
+      entries.set(kind, entry);
+      const rows = [...card.children].filter(node =>
+        node.classList.contains('rail-row') || node.classList.contains('rail-file') || node.classList.contains('rail-group'));
+      if (!rows.length) return card;
+      const details = el('details', { className: 'sd-run-summary-disclosure' },
+        el('summary', { className: 'sd-run-summary-trigger', text: label,
+          attrs: { 'data-focus-key': `rail-disclosure:${kind}` } }));
+      details.open = entry.open;
+      entry.node = details;
+      const body = el('div', { className: 'sd-run-summary-detail' });
+      for (const row of rows) { row.remove(); body.append(row); }
+      details.append(body);
+      details.addEventListener('toggle', () => {
+        if (entries.get(kind) === entry && entry.node === details) entry.open = details.open;
+      });
+      card.append(details);
+      return card;
     },
   };
 }
