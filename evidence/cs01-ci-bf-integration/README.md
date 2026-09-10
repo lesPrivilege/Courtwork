@@ -15,10 +15,18 @@ bf508fe  merge WO-CS-01 bb0a501 (106330b product + bb0a501 evidence;
 1614318  docs: composition standard states the integrated composer sizes
 ```
 
-`eff0e41` (summary disclosure) is carried because it is CS-01's build base; per the
-ruling it is under a separate non-author review and being here does not accept it.
-Astra's summary branch has since moved on (`796c3a5`); this branch still carries
-`eff0e41`.
+`eff0e41` (summary disclosure) is carried because it is CS-01's build base; being
+here does not accept it. **Non-author review (2026-09-10, `2265649` on
+`claude/summary-disclosure-review`): conditional pass, fixes pending.** Two P2
+defects must be fixed by the module's owners (Astra/Luna) and re-verified by a
+non-author: D1 focus returns to `<body>` after closing a file / Run opened from a
+card (Chromium 147; not reproduced on 152); D2 the Run information SHA-256 row
+collapses to a 0-width column on long paths and pushes Open down ~1000px. P3 D5
+(hard-coded threshold in `app.mjs`) is already superseded here by CS-01's accepted
+640 formula; D6 (`current.md`) is the conflict resolved at CS-01's build base.
+Q1–Q3 await Astra. Astra's branch is at `796c3a5`, whose later commits do not touch
+D1/D2; this branch still carries `eff0e41`. When the fix SHA lands it is merged
+here and the combined checks and full suite are rerun.
 
 ## What the integration decided
 
