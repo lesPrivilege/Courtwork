@@ -206,5 +206,19 @@
       "site/verification/main-20260910/"
     ]
   },
-  "schema_reservations": []
+  "schema_reservations": [],
+  "inputs": [
+    {
+      "name": "courtwork-implementation-plan-20260910.zip",
+      "sha256": "d35dcf657754248d038bcd91466208b0e95556355f7d87e900dd8425f834cb5f"
+    },
+    {
+      "name": "pasted-text.txt",
+      "sha256": "aa858100e294e379bf8b862e6f85ff44a2c3625b37c1b1e9d0a071dc66605e38"
+    }
+  ],
+  "remote_main_observed": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+  "remote_observation_command": "git ls-remote origin refs/heads/main",
+  "pre_integration_main_sha": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+  "pre_integration_delta": "Skin/Review and UI continuity documentation plus AGENTS UI entry; no app/tests/docs-work-core delta"
 }

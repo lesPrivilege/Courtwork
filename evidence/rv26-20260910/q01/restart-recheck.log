@@ -1,0 +1,25 @@
+✖ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (6561.589ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49933.697417
+
+✖ failing tests:
+
+test at app/tests/lifecycle.test.mjs:51:1
+✖ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (6561.589ms)
+  AssertionError [ERR_ASSERTION]: worker did not reach waiting_user in time
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/lifecycle.test.mjs:87:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,444 @@
+worktree /Users/lesprivilege/Projects/Courtwork-legacy-frozen
+HEAD f9ade85b72e5abcdc64c3a6c43ed3a13a2292476
+detached
+
+worktree /private/tmp/courtwork-pages-authoritative
+HEAD a0f9fe4e4c2363c3e511b82b20410feb46d9d4d0
+branch refs/heads/codex/pages-authoritative-20260910
+
+worktree /private/tmp/courtwork-pages-polish
+HEAD 590f395f24f7af93f3c7e82cd494ead323d05d5c
+branch refs/heads/codex/pages-polish-20260910
+
+worktree /private/tmp/courtwork-reconcile-20260908
+HEAD 6799ef6acddfcd36810a25873c896eb88ba6f7f3
+branch refs/heads/codex/reconcile-preparation
+
+worktree /private/tmp/courtwork-runtime-resolver-20260908
+HEAD dc754045a9fd0b6a5d394bc4d75e93228c5fe774
+branch refs/heads/codex/runtime-source-resolver
+
+worktree /private/tmp/cw-am-b-t3-task-view
+HEAD bd4b92a137b3a6ee365b14512bc2f476385c7a42
+branch refs/heads/codex/am-b-t3-task-view
+
+worktree /private/tmp/cw-architecture-maintenance
+HEAD 61ab8637f549c78d903cc7a1a0ea53b30efc67e4
+branch refs/heads/codex/architecture-maintenance-roadmap
+
+worktree /private/tmp/cw-astra-execution-state-contract
+HEAD 42a4c2f25fcb21b0663e6d1a0de08341a3f0f63c
+branch refs/heads/codex/astra-execution-state-contract
+
+worktree /private/tmp/cw-astra-node2
+HEAD 3926a5eda76f40552bdc8e310a12560b84c6bfb6
+branch refs/heads/codex/astra-node2
+
+worktree /private/tmp/cw-astra-provider-preview
+HEAD f58c28cfb7e20b19cc0631e53022763451b67f26
+branch refs/heads/codex/astra-provider-preview
+
+worktree /private/tmp/cw-async-loop-dispatch-20260909
+HEAD dcfc33dcb30eee99683cbf1e3b7d426efc704545
+branch refs/heads/codex/async-loop-dispatch-20260909
+
+worktree /private/tmp/cw-async-loop-implementation
+HEAD 85693a6d185f284ecc68324e4dda6d7d677abb03
+branch refs/heads/codex/async-loop-implementation
+
+worktree /private/tmp/cw-async-wrapper-old.duA2PK
+HEAD 35f4bf057392e67a9c9b3b91727d5895edb12e0c
+detached
+
+worktree /private/tmp/cw-attention-human-loop
+HEAD 7033232d2a3a5893fc6d1003a6d8429d982f3c94
+branch refs/heads/codex/attention-human-loop-handoff
+
+worktree /private/tmp/cw-attention-ui-roadmap
+HEAD d112beb8e4f602bf0704174418f2822def792cae
+branch refs/heads/codex/attention-ui-roadmap
+
+worktree /private/tmp/cw-backend-dispatch-20260909
+HEAD c529923f158f702bcdb8a2952e9fc245d906d212
+branch refs/heads/codex/backend-dispatch-20260909
+
+worktree /private/tmp/cw-backend-governance-20260910
+HEAD 964c37ff99b75192e10a36c12235b6effef3eb3a
+branch refs/heads/codex/backend-governance-20260910
+
+worktree /private/tmp/cw-be5-integration
+HEAD 5123d0f71b4ab45beb3786979892ea50dbaedc70
+branch refs/heads/codex/be5-integration-20260910
+
+worktree /private/tmp/cw-be5-resolver-service-delivery
+HEAD 85693a6d185f284ecc68324e4dda6d7d677abb03
+branch refs/heads/codex/be5-resolver-service-delivery
+
+worktree /private/tmp/cw-br01-resume
+HEAD 15b6464dba56347dc3350d7ccf20165ac3ac53e8
+branch refs/heads/codex/br01-resume
+
+worktree /private/tmp/cw-brand-br1
+HEAD d799a7fabceae2f84d70d00c504ecf6f88e269f9
+branch refs/heads/codex/brand-host-colors
+
+worktree /private/tmp/cw-browser-capability-research
+HEAD 5163ae95c3ce950dcc2b380ef93c37cedd84dbec
+branch refs/heads/codex/browser-capability-research
+
+worktree /private/tmp/cw-ccd0a-integration
+HEAD 4f7278f8a370fdad8a1dfa1a8fd42275bc5c7108
+branch refs/heads/codex/ccd0a-main-integration
+
+worktree /private/tmp/cw-ccs-integration
+HEAD 414b196d965a8dc7cc67b37486d523c38f95ed94
+branch refs/heads/codex/ccs-integration
+
+worktree /private/tmp/cw-ccw-integration
+HEAD 0b5ccd27e9d0be5940714e913f4fc197f9ec7a05
+branch refs/heads/codex/ccw-integration
+
+worktree /private/tmp/cw-clean-cool-design
+HEAD cc99571a0b4e67b51eeef9f20e9f495ca78655e7
+branch refs/heads/codex/clean-cool-design-review
+
+worktree /private/tmp/cw-cleanup-20260910
+HEAD 42a537f6bb259eeb3e6a8a1206257f856c0b55a7
+branch refs/heads/codex/cleanup-20260910
+
+worktree /private/tmp/cw-composer-icon-repair
+HEAD 9e5384fcabdac432259b3ffab7928251bea49859
+branch refs/heads/codex/composer-icon-repair
+
+worktree /private/tmp/cw-design-shell-refinement
+HEAD c0f1b515d78a3a46675864a901a0221bcb3fc752
+branch refs/heads/codex/design-shell-refinement
+
+worktree /private/tmp/cw-design-window-composition
+HEAD 386fbc65530d97b8f620fdd76141c8d4fa5967ef
+branch refs/heads/codex/design-window-composition
+
+worktree /private/tmp/cw-execution-state-pr-prep
+HEAD a431650b8c4726adc10905485aaadfdb1983689c
+branch refs/heads/codex/execution-state-pr-prep
+
+worktree /private/tmp/cw-fe01-integration
+HEAD 2b6c2214cfe596b6cc179ad4e368abc4e4e6b749
+branch refs/heads/codex/fe01-integration
+
+worktree /private/tmp/cw-fe02-integration
+HEAD 4d9714e61ba4f817045e7d275e11738a6b2d34fc
+branch refs/heads/codex/fe02-integration
+
+worktree /private/tmp/cw-fe03-integration
+HEAD af95bcb94d8373ae424462eb4a09535a6992d04b
+branch refs/heads/codex/fe03-integration
+
+worktree /private/tmp/cw-fe04-integration
+HEAD 683b6d1419242bd08d20b7deec77ce12af7dcf12
+branch refs/heads/codex/fe04-integration
+
+worktree /private/tmp/cw-harness-main-integration-20260908
+HEAD a2c2e4cdda08a4976be6eca96b61237555633809
+branch refs/heads/codex/harness-main-integration
+
+worktree /private/tmp/cw-harness-next-round
+HEAD 95cfb165ed368e8b4c6afca7ab5c8c838cb4653c
+branch refs/heads/codex/harness-next-round
+
+worktree /private/tmp/cw-home-composition-20260910
+HEAD 405ad76906516e51ad7ea2a513d0e9f3ea3376f9
+branch refs/heads/codex/home-composition-20260910
+
+worktree /private/tmp/cw-http-body-limit-20260910
+HEAD ecccac2e3d51f276b4f0fe31be430ef675e2b1c9
+branch refs/heads/codex/http-body-limit-20260910
+
+worktree /private/tmp/cw-local-governance-roadmap
+HEAD 4c1c4205a4bc9479e1699471f40342d85cbc2b75
+branch refs/heads/codex/local-governance-roadmap
+
+worktree /private/tmp/cw-luna-async-review
+HEAD 57ebd397a6cb4554ca87de5bab09de3258ebf8cf
+branch refs/heads/codex/luna-async-review-20260910
+
+worktree /private/tmp/cw-luna-maintenance-core-validation
+HEAD 79826634373a84e0c0183313a42fba9238cb6bce
+branch refs/heads/codex/luna-maintenance-core-validation
+
+worktree /private/tmp/cw-markdown-review
+HEAD a243a6ca0f43c12f5d1f69aa80dbf1b29e38dd29
+branch refs/heads/codex/markdown-review-architecture
+
+worktree /private/tmp/cw-mr-a1a-integration
+HEAD b17673857e1c0d40857a46eb2c7aba6422dedfef
+branch refs/heads/codex/mr-a1a-integration
+
+worktree /private/tmp/cw-mr-a1a-source-coordinates
+HEAD 7a6db4a0ba8c6a438218e12ae15e6f5551e5a6c8
+branch refs/heads/codex/mr-a1a-source-coordinates
+
+worktree /private/tmp/cw-multi-experts-longlife
+HEAD 852bd3e01a06077c105d356004b64021d821b888
+branch refs/heads/codex/multi-experts-longlife-20260910
+
+worktree /private/tmp/cw-opus-attention-chat
+HEAD f552e228a6c6047e1278d570313f6ca7a87ba806
+branch refs/heads/claude/attention-chat-closure
+
+worktree /private/tmp/cw-pages-entry-20260910
+HEAD 9983a4614dcde5501d7e26946a6899d350f652e9
+branch refs/heads/codex/pages-entry-20260910
+
+worktree /private/tmp/cw-pages-first-release
+HEAD 8e690328bfd34e743b0367e4e96237a2efbac342
+branch refs/heads/codex/pages-first-release
+
+worktree /private/tmp/cw-pages-main-visual-20260910
+HEAD 9157bbbdaf3f4bd0c844cde5b62cdbb8a068d8ad
+branch refs/heads/codex/pages-main-visual-20260910
+
+worktree /private/tmp/cw-pages-new-evidence-9e5384f
+HEAD 9e5384fcabdac432259b3ffab7928251bea49859
+detached
+
+worktree /private/tmp/cw-pro-review-remediation-20260908
+HEAD 7a906a181f3b4be66246d975f925413dfbf211a4
+branch refs/heads/codex/pro-review-remediation
+
+worktree /private/tmp/cw-ps01-resume
+HEAD 230a7193d268a60ab712289eca722ef9821f6b89
+branch refs/heads/codex/ps01-resume
+
+worktree /private/tmp/cw-ps02-resume
+HEAD f412a6247467997765efd8da832752b24313dfbc
+branch refs/heads/codex/ps02-resume
+
+worktree /private/tmp/cw-public-repository-cleanup
+HEAD a0ebcf026d20b052c5cab7b1ad8b0a5f7ad63b73
+branch refs/heads/codex/public-repository-cleanup
+
+worktree /private/tmp/cw-r4d-design-review
+HEAD 015fac9331c1bcaaa368df746f2da23e434a494d
+branch refs/heads/codex/r4d-design-review
+
+worktree /private/tmp/cw-review-actions-20260908
+HEAD 7941bdbdd2ca2bfcaaa36e451ab8a15b1e72e866
+branch refs/heads/codex/work-review-actions
+
+worktree /private/tmp/cw-runtime-source-service-20260910
+HEAD 470498b5cbd2f42c93e0d0508ebb775972d62e9c
+branch refs/heads/codex/runtime-source-service-20260910
+
+worktree /private/tmp/cw-rv26-execution
+HEAD 74ab7ca69a928b12631683fbf66341456dbdb67e
+branch refs/heads/codex/rv26-execution-20260910
+
+worktree /private/tmp/cw-rv26-main-integration
+HEAD 82c60360704fd79ad7d5b80f47372f2cfe230d1a
+branch refs/heads/main
+
+worktree /private/tmp/cw-rv26-q01-review
+HEAD 74ab7ca69a928b12631683fbf66341456dbdb67e
+detached
+
+worktree /private/tmp/cw-se-continuity-benchmark-20260908
+HEAD 61df606889b060a5d91451ca2d476835b6bdbbe3
+branch refs/heads/codex/se-continuity-benchmark
+
+worktree /private/tmp/cw-skin-injection-20260910
+HEAD 82c60360704fd79ad7d5b80f47372f2cfe230d1a
+branch refs/heads/codex/skin-injection-20260910
+
+worktree /private/tmp/cw-skin-review-decoupling
+HEAD 82c60360704fd79ad7d5b80f47372f2cfe230d1a
+branch refs/heads/codex/skin-review-decoupling-20260910
+
+worktree /private/tmp/cw-spark-fe-20260910
+HEAD 0c60f4ffe0e4d939712df3910d2404c226e8bfdf
+branch refs/heads/codex/spark-fe-20260910
+
+worktree /private/tmp/cw-spark-integration-20260910
+HEAD 4b1ac9362a83f0759da3b83aa8c843dd2764448e
+branch refs/heads/codex/spark-integration-20260910
+
+worktree /private/tmp/cw-t3-integration
+HEAD ecccac2e3d51f276b4f0fe31be430ef675e2b1c9
+branch refs/heads/codex/t3-integration-20260910
+
+worktree /private/tmp/cw-terra-async-boundaries
+HEAD 4b8ba2cb1c96838f8ac2229a151d3323a7cb8cf7
+branch refs/heads/codex/terra-async-boundaries
+
+worktree /private/tmp/cw-terra-async-fixture
+HEAD 0c5db70cf7544a7a754d9ed72c7a5370e85c646a
+branch refs/heads/codex/terra-async-fixture
+
+worktree /private/tmp/cw-terra-async-fixture-fixed-review
+HEAD 95f118db8870a2e8be330f10bac31b4e6d6f89a3
+detached
+
+worktree /private/tmp/cw-terra-async-protocol
+HEAD aaba970520a76aefd6a6e612bf7d089992349a00
+branch refs/heads/codex/terra-async-protocol
+
+worktree /private/tmp/cw-terra-async-recovery-independent
+HEAD 5e8106f38abb77f89fcf2844f7df0198e3713233
+branch refs/heads/codex/terra-async-recovery-independent
+
+worktree /private/tmp/cw-terra-human-fixtures
+HEAD d4096758190405e7f30bab0df04d0072cbd2b693
+branch refs/heads/codex/terra-human-fixtures
+
+worktree /private/tmp/cw-wk10b-integration-20260908
+HEAD 62556b7f65170ecf30efb2869447ae85fe69d721
+branch refs/heads/codex/wk10b-integration
+
+worktree /private/tmp/cw-wk10b2-integration
+HEAD b7fa5e27d013886250c04af07dc40523bd8bd67f
+branch refs/heads/codex/wk10b2-integration
+
+worktree /private/tmp/cw-wk11-integration
+HEAD 1688a7b237e9507da477f91742293abc173461e9
+branch refs/heads/codex/wk11-integration
+
+worktree /private/tmp/cw-wk12-integration
+HEAD 14ebd61877545ab71e20ce54a720d4e1e13c6b78
+branch refs/heads/codex/wk12-integration
+
+worktree /private/tmp/cw-wk13-integration
+HEAD 429fdd68febb9998f322a0b53c323651fc8cd7fd
+branch refs/heads/codex/wk13-integration
+
+worktree /private/tmp/se-agent-br01
+HEAD df9331a0af253ea5d91c7ae3a5af48ac488e7c04
+branch refs/heads/claude/br01-brand-primitive
+
+worktree /private/tmp/se-agent-cci1
+HEAD a8856605be6dc6e85406fbbf9da35ce3348279e0
+branch refs/heads/claude/cci1-property-row
+
+worktree /private/tmp/se-agent-pg01
+HEAD 539907a99f82ce2387a1c84d2f999a3d843022da
+branch refs/heads/claude/pg01-interaction-lint
+
+worktree /private/tmp/se-agent-ps01
+HEAD e492dc93f4075651edf33bce389c90c5ff8891ff
+branch refs/heads/claude/ps01-site
+
+worktree /private/tmp/se-agent-ps01-bench-tree
+HEAD 172130e8d0ba1e6642e967ac0c1e0938e221d4a8
+detached
+
+worktree /private/tmp/se-agent-pvbe02
+HEAD e61c9d51e654088723798168aa9b4f552f389ba3
+branch refs/heads/claude/pv-be02-connections
+
+worktree /private/tmp/se-agent-pvfe01
+HEAD 84c39a7d860d61a93c7c42980f3fd1a0f07b88b2
+branch refs/heads/claude/pvfe01-connections
+
+worktree /private/tmp/se-agent-rc
+HEAD 83504283323df5f3db3f381d9edc72644900c96c
+branch refs/heads/claude/rc-runtime-ui
+
+worktree /private/tmp/se-agent-wk10
+HEAD 5f76b2e2addc37efd5c47c5ffcad71c275f6a6dc
+branch refs/heads/claude/wk10-rail
+
+worktree /private/tmp/se-agent-wk10c
+HEAD bcbca1b3b6b848f8976a12e697e0972cf975b3bf
+branch refs/heads/claude/wk10c-finish
+
+worktree /private/tmp/se-agent-wk10r2
+HEAD e170b9934f77ae3bfd93f6064a115a1bc3e38160
+branch refs/heads/claude/wk10-r2
+
+worktree /private/tmp/se-agent-wk6
+HEAD 688e065f94c7ac29255e61ef90db9b97735e1ceb
+branch refs/heads/claude/wk6-home-brand
+
+worktree /private/tmp/se-agent-wk7
+HEAD 10f1afeab24fc234ee664e699bafafe708751b8f
+branch refs/heads/claude/wk7-color-governance
+
+worktree /private/tmp/se-agent-wsk
+HEAD 0a307802b61a6847ee88bfea870bdf340647caee
+branch refs/heads/claude/wsk-integration
+
+worktree /private/tmp/se-att-fe01
+HEAD b893e752f0cd5adcd701eed49e1ed4ee7b52c851
+branch refs/heads/claude/att-fe01-triage
+
+worktree /private/tmp/se-bg02
+HEAD e7e08e08b1e14d777200a5ee6a500a773d3eba18
+branch refs/heads/claude/bg02-run-lineage
+
+worktree /private/tmp/se-cci-applicability
+HEAD 82c60360704fd79ad7d5b80f47372f2cfe230d1a
+branch refs/heads/codex/web-gpt-design-cci-applicability
+
+worktree /private/tmp/se-fable-ic
+HEAD 32b0c3729ab89e7304459b1670d7d90ea8697823
+branch refs/heads/claude/fable-ic-ruling
+
+worktree /private/tmp/se-fable-ps
+HEAD dcae9d7f279b724393de363e0d42089a3c01c320
+branch refs/heads/claude/fable-publishing-surface
+
+worktree /private/tmp/se-fable-r4d
+HEAD 7f0509c9dd2f05e96a280211294db44eb22b0214
+branch refs/heads/claude/fable-round4d
+
+worktree /private/tmp/se-fe05a
+HEAD 0879b32727a379d59de3499c603e84cb8b4e6e22
+branch refs/heads/claude/fe05a-type-density
+
+worktree /private/tmp/se-icon-ex-ic1
+HEAD f5890fa5804e2fa603a28512f0bffda21f81ac93
+branch refs/heads/claude/ex-ic1-icon-specimen
+
+worktree /private/tmp/se-ma2-docs
+HEAD 4c32d21559f7d31d3e3050325ba29c993ff8d2f5
+branch refs/heads/claude/ma2-round2-docs
+
+worktree /private/tmp/se-ma2-fe
+HEAD 8bef96412327e185459bf85bcfc6d4fc8a284bf8
+branch refs/heads/claude/ma2-frontend
+
+worktree /private/tmp/se-ma2-tests
+HEAD d0feb07735692badbe6242d68caece65bda47072
+branch refs/heads/claude/ma2-backend-tests
+
+worktree /private/tmp/se-provider-main-independent
+HEAD 9157bbbdaf3f4bd0c844cde5b62cdbb8a068d8ad
+detached
+
+worktree /Users/lesprivilege/.codex/worktrees/99f0/Courtwork
+HEAD ae595ed5e0a585117b2642b3125a0c7a7e01fa23
+branch refs/heads/codex/attention-backend-20260909
+
+worktree /Users/lesprivilege/.codex/worktrees/b6dc/Courtwork
+HEAD d6247a8e27dc512a00fd113c9fec9835d24d6594
+branch refs/heads/codex/harness-core
+
+worktree /Users/lesprivilege/.codex/worktrees/b755/Courtwork
+HEAD 52f75ddcbdc2181c313d3176eecaf07dc43d17c1
+branch refs/heads/codex/backend-bounded-20260909
+
+worktree /Users/lesprivilege/.codex/worktrees/c228/Courtwork
+HEAD 5899765024e62deec1118de37989f8e12fcff727
+branch refs/heads/codex/home-backlog-construction
+
+worktree /Users/lesprivilege/.codex/worktrees/f757/Courtwork
+HEAD 3926a5eda76f40552bdc8e310a12560b84c6bfb6
+branch refs/heads/codex/fresh-web-integration
+
+worktree /Users/lesprivilege/Projects/Courtwork
+HEAD 3a6133686014973f62fcf58e71e779af36616876
+branch refs/heads/codex/web-gpt-design-continuity
+
+worktree /Users/lesprivilege/Projects/Courtwork-fresh
+HEAD b0173deab477b9be577df75a712f446d14e3c356
+branch refs/heads/codex/fresh-courtwork
+

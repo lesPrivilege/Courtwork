@@ -1,0 +1,11 @@
+startup: reconciled workspace of session ebd05cb2-f2ff-489d-b092-75720d3be837 after an interrupted run; 0 file(s) are not covered by a recorded content version
+✔ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (1996.002291ms)
+✔ T-USAGE-5: a long waiting_user then an answer completes with whole usage and no budget trip (2999.446083ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5955.940292

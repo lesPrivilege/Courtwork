@@ -1,0 +1,9 @@
+✔ T-BUDGET-1: waiting_user time is excluded from the execution deadline (3621.4285ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4698.228042

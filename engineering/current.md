@@ -6,7 +6,7 @@
 
 用户授权依序开工并指定 Astra 负责架构、裁决和关键自研 Core，Luna 负责探索与有界局部实现。从实际设计交接 HEAD `12eb220` 隔离消费固定 `0c60f4f` 审查包，33 单仅为现有路线执行别名；[基线与写权](reviews/2026-09-10/README.md)、[派工依赖](reviews/2026-09-10/dispatch.json)保留原单映射及条件触发。实际 Runtime10/Core4/app5 不变，架构入口旧值已纠正，BE-40 两来源限定消歧。原包字节与历史验收保持。
 
-首片 RV26-Q01 由 Astra 撰写 CoreClient 生命周期，Luna 构造有界故障反例；Q02 配置持久化随后串行，Q04/Q05/LG00 待明确各自写权。资料治理→Spark→稀疏 Attention 依赖链保留，现有前端单 writer 不变；本轮不代表33单交付、真实模型验证或 G1–G5 关闭。具体完成范围以[本轮回执](../evidence/rv26-20260910/README.md)为准。
+首片 RV26-Q01 产品 `74ab7ca` 已实现：Astra 撰写 CoreClient 有界生命周期、失败 worker 回收、代际/admission 隔离与关闭后兼容重开；Luna 构造13项故障反例，另一个非作者 Luna 在固定SHA独立树复核13/13通过。Q02 配置持久化随后串行，Q04/Q05/LG00 待明确各自写权。资料治理→Spark→稀疏 Attention 依赖链保留，现有前端单 writer 不变；本轮不代表33单交付、真实模型验证或 G1–G5 关闭。具体完成范围以[本轮回执](../evidence/rv26-20260910/README.md)为准。
 
 ## 当前合流：Pages 实录、并行产品与新研究理念（2026-09-10）
 

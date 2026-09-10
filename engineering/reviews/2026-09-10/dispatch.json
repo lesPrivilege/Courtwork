@@ -36,15 +36,16 @@
       ],
       "architecture_owner": "Astra",
       "implementation_owner": "Astra",
-      "reviewer": "non-author Luna / Astra according to author",
-      "status": "in-progress",
+      "reviewer": "Luna baseline_explore (non-author), fixed SHA lifecycle 13/13",
+      "status": "verified-bounded",
       "write_allowlist": [
         "app/core/client.mjs",
         "app/tests/review-core-client-lifecycle.test.mjs（新）",
         "app/tests/fixtures/review-core-client/**（新）",
         "docs/work-core/contract.md（生命周期段）"
       ],
-      "conditional_on": null
+      "conditional_on": null,
+      "code_sha": "74ab7ca69a928b12631683fbf66341456dbdb67e"
     },
     {
       "id": "RV26-Q02",

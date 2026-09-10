@@ -1,0 +1,20 @@
+✔ file candidate identity, exact replay, immutable pages, closed admission and atomic acceptance (256.815292ms)
+✔ coverage is monotone; frozen candidate precedes later unknown input; semantic failures stay diagnostic (192.053709ms)
+✔ failed deterministic checks cannot accept, and source membership changes invalidate file basis (133.45625ms)
+✔ illegal provenance, encoding, count, path and byte limits reject without candidate side effects (115.839333ms)
+✔ SIGKILL file save and accept commit boundaries leave zero or one complete durable effect (3912.202834ms)
+✔ metadata byte boundary, escaped wire envelope, file/path/count boundaries and empty files are exact (228.826417ms)
+✔ file diff binds only frozen base, uses linear replacement, preserves newlines and refuses oversized output (120.108459ms)
+✔ corrupt bytes, manifest, column bindings and a verification record copied from another identity refuse reads and acceptance (1641.10625ms)
+✔ a changed trusted policy cannot accept an old PASS; empty evidence is diagnostic failed (257.242709ms)
+✔ unknown file schema exposes scoped bounded metadata but cannot decode or accept (275.102042ms)
+✔ verification outcome corruption is refused and acceptance rechecks required evidence (238.310875ms)
+✔ file runs require a concrete Session identity at the private bridge boundary (100.667125ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7582.701

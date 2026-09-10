@@ -10,7 +10,7 @@
 
 ## RV26-00 基线
 
-施工从共享设计交接 HEAD `12eb2208f931c1b530f54c7f947351a041c92c1d` 隔离，保留 `main@2e9da09` 及其后的设计检索交接。相对审查 `0c60f4f` 只有六份设计文档变化，没有产品代码差异，因此附件缺陷不能标已修。共享目录的两项未提交证据没有纳入本单。origin/main 为本地缓存观测，未以其声称远端已同步。
+施工从共享设计交接 HEAD `12eb2208f931c1b530f54c7f947351a041c92c1d` 隔离，保留 `main@2e9da09` 及其后的设计检索交接。相对审查 `0c60f4f` 只有六份设计文档变化，没有产品代码差异，因此附件缺陷不能标已修。共享目录的两项未提交证据没有纳入本单。初始 origin/main 仅为缓存；随后 `git ls-remote origin refs/heads/main` 确认远端当时同为 `2e9da09`，没有将远端内容写回共享目录。
 
 实际常量为 RuntimeStore 10、Core 4、bridge app 5；修正 architecture 当前入口，历史 evidence 不改版本。未预留或修改任何新 schema。BE-40 原两条分别限定为 `BE-40@Provider`（PV-56）与 `BE-40@Attention`（WK-156/157），原来源、需求与未完成状态保留；裸编号不能领取/关闭。
 
@@ -18,7 +18,7 @@
 
 Astra 独占本轮 Core client 与合同、current/architecture 和串行合流。Luna 可写所分配的新测试/fixture，或在只读探索后承接局部实现；非作者复核须分列证据。现有 UI writer 不变，本轮不写 web/Pages。
 
-首片 Q01：Astra 写 `app/core/client.mjs` 与 `docs/work-core/contract.md`；Luna 写独立故障测试路径。下一片 Q02 的 service/store 接缝等待 Q01 交付后串行领取；Q04、Q05、LG00 只有在基线清账和各自文件写权明确后可并行。后续严格消费 dispatch 的 depends_on；queued 不表示已经开工。
+首片 Q01 产品 `74ab7ca` 已完成有界独验：Astra 写 `app/core/client.mjs` 与 `docs/work-core/contract.md`；Luna 写独立故障测试路径。下一片 Q02 的 service/store 接缝等待 Q01 交付后串行领取；Q04、Q05、LG00 只有在基线清账和各自文件写权明确后可并行。后续严格消费 dispatch 的 depends_on；queued 不表示已经开工。
 
 回执与未检项见 [本轮证据](../../../evidence/rv26-20260910/README.md)。功能实现、作者自测与有界非作者复核分别记录，不关闭产品接受门。
 
@@ -35,3 +35,7 @@ Luna `baseline_explore` 对固定 `12eb220` 只读核对了源码、合同、原
 | 前端 | 原单 writer 队列保持 | FE-05a → FE-05 → ATT-FE-01 → CC-I；[Home backlog](../../design/home-backlog-2026-09-10/README.md)的 Runtime/Usage 已交付，余项不能由 RV26 UI 越队 |
 
 RV26-00 完成的是本地固定基线清账、owner/依赖、编号消歧与上述只读有界复核；没有据此宣称所有旧门重跑通过。后续每单进入实际新 HEAD 时重查 delta。
+
+可复验的账本检查：`node engineering/reviews/2026-09-10/verify-ledger.mjs` 验证源包字节、33单原依赖/映射、唯一编号与owner，并执行重复ID和环的拒绝反例。
+
+Q04 待办补充（本轮真实观察）：service lifecycle 的6秒worker-ready断言失败后，fixture未清理子进程；并行全量存在400ms预算与等待用例的时序敏感性。沿产品CI单补失败清理与环境稳定性调查，不能放宽断言或将分次通过伪称一次全量通过。

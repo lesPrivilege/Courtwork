@@ -1,0 +1,99 @@
+{
+  "base_sha": "12eb2208f931c1b530f54c7f947351a041c92c1d",
+  "ledger_sha": "994fe3c",
+  "code_sha": "74ab7ca69a928b12631683fbf66341456dbdb67e",
+  "product_author": "Astra",
+  "test_author": "Luna q01_tests",
+  "schema_changes": [],
+  "sha256": {
+    "app/core/client.mjs": "68007e6a9f6b7b2cfdbc7f2cd864327f8242bf8e3eccd3022e95a2e40c06ed6a",
+    "app/tests/review-core-client-lifecycle.test.mjs": "3c728afb3dac5ab81033b8cc192a074defbf74223165a40627ad1bee5c7c6272",
+    "app/tests/fixtures/review-core-client/worker.py": "7bca112628308928c25f19cac7c8048afa742769bb5504bcee4e7c18de934ddb"
+  },
+  "commands": [
+    {
+      "command": "COURTWORK_CORE_CLIENT=<isolated git-show baseline client> node --test app/tests/review-core-client-lifecycle.test.mjs",
+      "log": "lifecycle-red.log",
+      "expectation": "regressions fail on original transport"
+    },
+    {
+      "command": "node --test --test-concurrency=1 app/tests/review-core-client-lifecycle.test.mjs",
+      "log": "lifecycle-green.log",
+      "expectation": "13 pass"
+    },
+    {
+      "command": "node --test --test-concurrency=1 app/tests/execution-file-candidates.test.mjs",
+      "log": "file-compatibility.log",
+      "expectation": "12 pass"
+    },
+    {
+      "command": "node --test --test-concurrency=4 app/tests/*.test.mjs tests/*.test.mjs",
+      "log": "full-tests-final.log",
+      "expectation": "full discovered suite; see actual summary and timing failure"
+    },
+    {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='T-BUDGET-1' app/tests/lifecycle.test.mjs",
+      "log": "budget-recheck.log",
+      "expectation": "1 pass, no assertion changes"
+    },
+    {
+      "command": "cd app && npm run smoke",
+      "log": "smoke-final.log",
+      "expectation": "passed; real provider not_run"
+    },
+    {
+      "command": "node --test --test-concurrency=2 app/tests/*.test.mjs tests/*.test.mjs",
+      "log": "full-tests-confirmation.log",
+      "expectation": "full discovered suite at supported lower concurrency; actual summary authoritative"
+    },
+    {
+      "command": "node --test --test-concurrency=1 app/tests/lifecycle.test.mjs",
+      "log": "lifecycle-service-recheck.log",
+      "result": "9/9 passed"
+    },
+    {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='T-RESTART-1|T-USAGE-5' app/tests/lifecycle.test.mjs",
+      "base_sha": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+      "log": "baseline-timing.log",
+      "result": "2/2 passed"
+    },
+    {
+      "command": "node --test --test-concurrency=1 app/tests/markdown-core-read.test.mjs",
+      "log": "markdown-read-recheck.log",
+      "result": "2/2 passed"
+    }
+  ],
+  "not_run": [
+    "real provider",
+    "personal data migration",
+    "power loss durability",
+    "browser UI acceptance",
+    "remote Actions",
+    "deployment"
+  ],
+  "limitations": [
+    "OS process reaping is awaited; escalation deadline is not a hard wall-time guarantee under uninterruptible kernel work",
+    "outcome unknown is a CoreClient error property; no new public HTTP response field claimed",
+    "Existing timing-sensitive lifecycle cases failed in parallel full runs; fixed product complete lifecycle file passed 9/9 separately. Load was high but root cause is not proven. Full-run failures are retained."
+  ],
+  "independent_review": {
+    "reviewer": "Luna baseline_explore (neither product nor test author)",
+    "code_sha": "74ab7ca69a928b12631683fbf66341456dbdb67e",
+    "command": "cd app && node --test tests/review-core-client-lifecycle.test.mjs",
+    "result": "13/13 passed",
+    "log": "independent-lifecycle.log",
+    "log_sha256": "3c619de9e1ab4698d5be2a82fa6a47337cdf4be549ba63efee47d5950a0e7ec8",
+    "scope": "bounded lifecycle only; clean detached checkout and syntax check; no complete independent product acceptance"
+  },
+  "full_run_results": {
+    "concurrency4": {
+      "passed": 534,
+      "total": 535
+    },
+    "concurrency2": {
+      "passed": 532,
+      "total": 535
+    },
+    "single_full_green_claimed": false
+  }
+}
