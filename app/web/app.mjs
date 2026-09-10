@@ -1580,13 +1580,19 @@ async function refreshNavigationAndSession() {
  * `selectProject(projectId, {sessionId})` route — never creating a binding.
  * A Matter with no currently open Session is left unopened, with a plain
  * notice; Spark does not start a new Work chat on a maintenance read. */
-async function openMatterSurface(matterId) {
-  for (const project of state.projects) {
-    let sessions = state.sessionsByProject.get(project.id);
-    if (!sessions) sessions = await loadSessionsForProject(project.id);
-    const owner = (sessions || []).find((session) => session.extensionBinding?.binding?.matterId === matterId);
-    if (owner) { await selectProject(project.id, { sessionId: owner.id }); return; }
-  }
+/* Matter -> Session is not a contract relation: `{detach:true}` releases a
+ * binding while the formal work survives, so a Matter can have no bound
+ * session at all, and nothing forbids more than one over time. The binding
+ * shape read here is the server's own (service.mjs queryWork reads
+ * `session.extensionBinding.binding.matterId`), not a UI convention. The
+ * search stays inside the project Spark is scoped to, so opening a row never
+ * fans out session loads across every project. */
+async function openMatterSurface(matterId, projectId) {
+  if (!projectId) { showToast("No open Work chat is bound to this Matter yet.", "error"); return; }
+  const sessions = state.sessionsByProject.get(projectId) ?? await loadSessionsForProject(projectId);
+  const owners = (sessions || []).filter((session) => session.extensionBinding?.binding?.matterId === matterId);
+  const owner = owners.slice().sort((a, b) => a.id.localeCompare(b.id))[0];
+  if (owner) { await selectProject(projectId, { sessionId: owner.id }); return; }
   showToast("No open Work chat is bound to this Matter yet.", "error");
 }
 
@@ -6455,7 +6461,7 @@ async function init() {
     );
   }
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
-  sparkView = createSparkView({ request, onOpenMatter: (matterId) => void openMatterSurface(matterId) });
+  sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {

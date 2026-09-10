@@ -30,12 +30,12 @@ import {
 const STATUS_LABELS = { pending: 'Pending', accepted: 'Accepted', rejected: 'Rejected', needs_evidence: 'Needs evidence' };
 const REJECTED_SNAPSHOT = 'This runtime’s maintenance state moved on since the last page. Refresh to read it again; the two pages are not shown together.';
 
-export function createSparkView({ request, onOpenMatter }) {
+export function createSparkView({ request, getProjects, onOpenMatter }) {
   const dialog = el('dialog', { className: 'spark-dialog', attrs: { 'aria-labelledby': 'spark-title' } });
   document.body.append(dialog);
 
   let visible = false, opener = null, generation = 0;
-  let projects = [], projectId = '', projectsError = '';
+  let projects = [], projectId = '';
   let tab = 'overview', activityMatter = 'all', activityStatus = 'all';
   let loading = false, error = '', unimplemented = false, rejected = '', data = null;
 
@@ -51,15 +51,12 @@ export function createSparkView({ request, onOpenMatter }) {
     return node;
   }
 
-  async function loadProjects(preferredId) {
-    try {
-      const result = await request('/projects');
-      projects = Array.isArray(result?.projects) ? result.projects : [];
-      projectsError = '';
-    } catch (e) {
-      projects = [];
-      projectsError = e.message || 'Projects are unavailable.';
-    }
+  /* The host already holds the project list; Spark reads it rather than
+   * re-fetching /projects, so the scope selector can never disagree with the
+   * shell's own list. Same seam as createUsageView's getProjects. */
+  function loadProjects(preferredId) {
+    const known = getProjects();
+    projects = Array.isArray(known) ? known : [];
     projectId = projects.some((p) => p.id === preferredId) ? preferredId : (projects[0]?.id ?? '');
   }
 
@@ -90,7 +87,7 @@ export function createSparkView({ request, onOpenMatter }) {
   }
 
   function matterRow(matter, { quiet = false, unavailable = false } = {}) {
-    const open = button(matter.title, () => onOpenMatter(matter.matterId), { 'aria-label': `Open ${matter.title} in Work` }, 'spark-matter-open');
+    const open = button(matter.title, () => onOpenMatter(matter.matterId, projectId), { 'aria-label': `Open ${matter.title} in Work` }, 'spark-matter-open');
     const meta = el('div', { className: 'spark-matter-meta' });
     if (unavailable) {
       meta.append(el('span', { className: 'spark-unavailable', text: `Unavailable · ${matter.reason}` }));
@@ -158,7 +155,7 @@ export function createSparkView({ request, onOpenMatter }) {
       if (!rows.length) continue;
       any = true;
       const section = el('section', { className: 'spark-activity-matter' });
-      section.append(button(matter.title, () => onOpenMatter(matter.matterId), {}, 'spark-matter-open'));
+      section.append(button(matter.title, () => onOpenMatter(matter.matterId, projectId), {}, 'spark-matter-open'));
       const table = el('table', { className: 'spark-table' });
       const head = el('tr');
       for (const title of ['Candidate', 'Status', 'Candidate revision', 'Behind by', 'Supersedes'])
@@ -220,7 +217,6 @@ export function createSparkView({ request, onOpenMatter }) {
     const panel = el('section', { attrs: { id: 'spark-panel', role: 'tabpanel', 'aria-labelledby': `spark-tab-${tab}` } });
     dialog.replaceChildren(header, controls, tabs, panel);
 
-    if (!projects.length && projectsError) { panel.append(el('p', { text: projectsError, attrs: { role: 'alert' } })); return; }
     if (!projectId) { panel.append(el('p', { className: 'form-help', text: 'No project to read maintenance state for.' })); return; }
     if (loading) panel.append(el('p', { text: 'Loading maintenance state…', attrs: { role: 'status' } }));
     if (unimplemented) { panel.append(el('p', { text: 'No source yet. This runtime has no maintenance source connected here.', attrs: { role: 'status' } })); return; }
@@ -249,7 +245,7 @@ export function createSparkView({ request, onOpenMatter }) {
       dialog.showModal();
       render();
       void (async () => {
-        await loadProjects(preferredProjectId);
+        loadProjects(preferredProjectId);
         await load(0);
       })();
     },

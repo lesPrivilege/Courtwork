@@ -16,8 +16,14 @@ const projectionSource = readFileSync(`${root}web/spark-projection.mjs`, "utf8")
 const serverSource = readFileSync(`${root}server/index.mjs`, "utf8");
 const appSource = readFileSync(`${root}web/app.mjs`, "utf8");
 
+/* The signature gained `getProjects` in Astra's integration patch: Spark reads
+ * the host's already-loaded project list instead of re-fetching /projects, the
+ * same seam createUsageView uses. The assertion still pins the shape so a
+ * future edit cannot quietly reintroduce a second, independently-fetched
+ * project list that could disagree with the shell's. */
 test("SP1-FE · createSparkView keeps the frozen constructor signature", () => {
-  assert.match(viewSource, /export function createSparkView\(\{\s*request,\s*onOpenMatter\s*\}\)/);
+  assert.match(viewSource, /export function createSparkView\(\{\s*request,\s*getProjects,\s*onOpenMatter\s*\}\)/);
+  assert.doesNotMatch(viewSource, /request\(\s*['"`]\/projects/);
 });
 
 test("SP1-FE · a projection module fetches nothing, writes nothing, reads no clock", () => {
@@ -66,20 +72,21 @@ test("SP1-FE · pagination carries the prior snapshotRef and can be rejected", (
 });
 
 test("SP1-FE · row navigation calls the host's onOpenMatter and opens no dialog/session of its own", () => {
-  assert.match(viewSource, /onOpenMatter\(matter\.matterId\)/);
+  assert.match(viewSource, /onOpenMatter\(matter\.matterId, projectId\)/);
   assert.doesNotMatch(viewSource, /new URL\(.*sessions/);
 });
 
 /* ---- Known gap, recorded rather than silently assumed away (WO-SP1-FE
- * §交付: "静态准入由 Astra 登记"). This is NOT a passing assertion that the
- * modules are already served — it is the opposite: proof of exactly what
- * is still missing, so a later run of this file catches Astra's follow-up
- * landing (the two module names moving into the allowlist), and a reviewer
- * reading only test output today sees the gap named, not silently green. */
-test("SP1-FE · static allowlist: spark-view.mjs / spark-projection.mjs registration is Astra's follow-up, not yet present", () => {
+ * §交付: "静态准入由 Astra 登记"). Astra's follow-up has landed, so this now
+ * asserts presence: both modules must stay in the allowlist array, or /web
+ * serves them as a silent 404 with no build or test error anywhere else.
+ * static-web-manifest.test.mjs makes the same check mechanically for every
+ * module; this one names the two Spark files so a regression here reads as
+ * a Spark regression. */
+test("SP1-FE · static allowlist: spark-view.mjs / spark-projection.mjs are registered", () => {
   const allowlist = serverSource.slice(serverSource.indexOf("for (const name of ["), serverSource.indexOf('STATIC.set("/web/vendor/icons.svg"'));
   const registered = ["spark-view.mjs", "spark-projection.mjs"].filter((name) => new RegExp(`"${name}"`).test(allowlist));
-  assert.deepEqual(registered, [], "if this fails, Astra's allowlist follow-up has landed — update this test to assert presence instead");
+  assert.deepEqual(registered, ["spark-view.mjs", "spark-projection.mjs"], "both Spark modules must be in the /web static allowlist");
 });
 
 test("SP1-FE · app.mjs wires the sidebar entry without touching the static allowlist array itself", () => {
