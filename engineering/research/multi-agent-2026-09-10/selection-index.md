@@ -11,3 +11,7 @@
 | Tracing | OTel GenAI（来自 MA-S2）、当前Host request telemetry | origin保留；child结果/消息无Core接受权 | 本片不加OTel依赖/导出，不把现有telemetry叫因果trace全覆盖。 |
 
 外部项目名称是 donor 定位，不是兼容承诺。生产依赖没有变化；参见 [来源等级](source-index.md) 与 [runtime matrix](runtime-matrix.md)。
+
+## 后续研究消费
+
+[多智能体实践选型](../multi-agent-selection-2026-09-10/README.md) / [RD-005](../RD-005-multi-agent-selection.md)：含PicoAgents、SoL-Pi及原MA-01…06到MAS/ME映射；保留MA2-D15，不重开vendor lane。

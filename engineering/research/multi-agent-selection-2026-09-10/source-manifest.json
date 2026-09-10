@@ -1,0 +1,52 @@
+{
+  "source": "read_thread normalized response",
+  "conversationId": "6aa27ea9-8784-83ec-b4cf-5914f6e69525",
+  "turns": 3,
+  "messages": 6,
+  "hasMore": false,
+  "sha256": "e0c10edf1903411e79be89b45640fc0c9e31a7ea992616ca872d40e264e51bef",
+  "items": [
+    {
+      "turn": 1,
+      "id": "0ba0f893-0ad3-4499-8e11-5e8791f3e968",
+      "type": "userMessage",
+      "characters": 88,
+      "sha256": "77f10c10f2ee2f788291f40b8c7f1ad68fee119d89421fbe4eb214adcf5b72ba"
+    },
+    {
+      "turn": 1,
+      "id": "eea16cee-710b-4ac8-9a15-c7c510e4a8ad",
+      "type": "agentMessage",
+      "characters": 17705,
+      "sha256": "c64d874e7859ada61ffd2ad0429173722cfd04310446a630c97fe021bd895009"
+    },
+    {
+      "turn": 2,
+      "id": "4a49c0cb-5a4d-4468-9fc3-a0d120f8dec8",
+      "type": "userMessage",
+      "characters": 59,
+      "sha256": "534f8a9d0a0b6bd724fc85d8c4fc363a2f39e7c108fbddd357c735be7e4ebffd"
+    },
+    {
+      "turn": 2,
+      "id": "c8a918d8-9c49-423d-bbf2-8d0606d29a77",
+      "type": "agentMessage",
+      "characters": 6548,
+      "sha256": "902857f3db23f499440477000696f328b5b193613be4ddb3e8fe33f97e99299e"
+    },
+    {
+      "turn": 3,
+      "id": "5ac9470e-e1a4-4418-8e22-531613279b9b",
+      "type": "userMessage",
+      "characters": 55,
+      "sha256": "d0345ff2e564b38c2a801d915bf96324f6c7876b59dea97f0056398ad64da96f"
+    },
+    {
+      "turn": 3,
+      "id": "38357113-05a7-4b1c-b530-bb32429f3905",
+      "type": "agentMessage",
+      "characters": 11772,
+      "sha256": "93e51e088762e25950f74c241c762696ae9a51d8b9af9cb00df0ed45f48163e0"
+    }
+  ]
+}
