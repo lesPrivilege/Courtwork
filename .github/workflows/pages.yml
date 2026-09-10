@@ -52,6 +52,8 @@ jobs:
           diff /tmp/first.sha /tmp/second.sha
       - name: Check product material inheritance
         run: node site/scripts/check-material.mjs
+      - name: Check figures against their manifest
+        run: node site/scripts/check-figures.mjs
       - name: Check public recording projection
         run: node --test site/scripts/public-data.test.mjs
       - name: Check repository documentation links
