@@ -8,6 +8,13 @@ import { deriveWorkSummary } from "./work-summary.mjs";
 import { maybeCrash } from "../runtime/test-hooks.mjs";
 import { emptyCoordination, validateCoordination } from '../harness/coordination-state.mjs';
 import { validateAsyncTasks } from './async-task-state.mjs';
+import {
+  assertProviderApi,
+  assertProviderBaseUrl,
+  assertProviderModelId,
+  PROVIDER_API_FORMATS,
+  validateProviderModels,
+} from './provider-fields.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
@@ -20,10 +27,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 10;
+const SCHEMA_VERSION = 11;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
-  "credentialGeneration", "asyncTasks", "coordination", "providerConnections",
+  "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -32,7 +39,7 @@ function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
     providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
-    providerConnections: [],
+    providerConnections: [], providerConfigurationPending: [],
   };
 }
 
@@ -59,7 +66,7 @@ function timestamp(value, label) { text(value, label, 80); assert(!Number.isNaN(
 function nonNegativeInt(value, label) { assert(Number.isSafeInteger(value) && value >= 0, label + " is invalid"); }
 function sha256Hex(value, label) { assert(typeof value === "string" && /^[0-9a-f]{64}$/.test(value), label + " is invalid"); }
 
-function validateDescriptor(value, label, { allowRealProvider = false, schema = SCHEMA_VERSION } = {}) {
+function validateDescriptor(value, label, { allowRealProvider = false, schema = SCHEMA_VERSION, legacy = false } = {}) {
   assert(isRecord(value), label + " must be an object");
   // Only a RUN descriptor carries connection provenance: it is a record of what
   // one run actually used, not part of the editable configuration pointer.
@@ -67,13 +74,29 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance]);
   assert(Object.keys(value).every((key) => allowed.has(key)), label + " has unsupported fields");
   id(value.provider, label + ".provider");
-  id(value.model, label + ".model");
-  id(value.api, label + ".api");
+  if (schema >= SCHEMA_VERSION && !legacy) {
+    try { assertProviderModelId(value.model); }
+    catch { throw invalidState(label + ".model is invalid"); }
+    try { assertProviderApi(value.api, PROVIDER_API_FORMATS); }
+    catch { throw invalidState(label + ".api is invalid"); }
+  } else {
+    // Preserve historical descriptors without normalization. Schema10 also
+    // admits the HTTP 240/2048 limits that its old reader incorrectly capped
+    // at 200. New writes take the strict branch; Host admission rechecks them.
+    text(value.model, label + ".model", schema >= 10 ? 240 : 200);
+    assert(value.model.length > 0, label + ".model is invalid");
+    id(value.api, label + ".api");
+  }
   if (value.baseUrl !== undefined) {
-    id(value.baseUrl, label + ".baseUrl");
-    let parsed;
-    try { parsed = new URL(value.baseUrl); } catch { throw invalidState(label + ".baseUrl is invalid"); }
-    assert(["http:", "https:"].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.search && !parsed.hash, label + ".baseUrl is invalid");
+    if (schema >= SCHEMA_VERSION && !legacy) {
+      try { assertProviderBaseUrl(value.baseUrl); }
+      catch { throw invalidState(label + ".baseUrl is invalid"); }
+    } else {
+      text(value.baseUrl, label + ".baseUrl", schema >= 10 ? 2048 : 200);
+      let parsed;
+      try { parsed = new URL(value.baseUrl); } catch { throw invalidState(label + ".baseUrl is invalid"); }
+      assert(["http:", "https:"].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.search && !parsed.hash, label + ".baseUrl is invalid");
+    }
   }
   if (value.reasoningEffort !== undefined) assert(["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(value.reasoningEffort), label + ".reasoningEffort is invalid");
   if (allowRealProvider) assert(typeof value.realProvider === "boolean", label + ".realProvider is invalid");
@@ -81,6 +104,18 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   if (value.credentialSource !== undefined && value.credentialSource !== null) id(value.credentialSource, label + ".credentialSource");
   if (value.contextWindowSource !== undefined) assert(["catalog", "user", "unknown"].includes(value.contextWindowSource), label + ".contextWindowSource is invalid");
   if (value.capabilityNotice !== undefined && value.capabilityNotice !== null) text(value.capabilityNotice, label + ".capabilityNotice", 200);
+}
+
+const CONFIGURATION_OPERATIONS = new Set(['connection_save', 'connection_delete', 'credential_set', 'credential_delete']);
+function validatePending(value) {
+  assert(Array.isArray(value), 'providerConfigurationPending must be an array');
+  const seen = new Set();
+  for (const item of value) {
+    exactKeys(item, new Set(['connectionId', 'operation']), 'providerConfigurationPending item');
+    id(item.connectionId, 'providerConfigurationPending.connectionId');
+    assert(!seen.has(item.connectionId), 'duplicate pending connection'); seen.add(item.connectionId);
+    assert(CONFIGURATION_OPERATIONS.has(item.operation), 'invalid pending configuration operation');
+  }
 }
 
 function validateBinding(value, label) {
@@ -117,10 +152,10 @@ function validateArtifact(value, label) {
   timestamp(value.writtenAt, label + ".writtenAt");
 }
 
-function validateState(parsed, schema = SCHEMA_VERSION) {
+function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8 or 9 can be upgraded)`);
-  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections'))), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9 or 10 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -161,7 +196,7 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
     assert(RUN_STATUSES.has(run.status), "run.status is invalid"); assert(typeof run.admissionOpen === "boolean", "run.admissionOpen is invalid");
-    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema });
+    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema, legacy: legacyDescriptors });
     if (run.extension !== null) {
       exactKeys(run.extension, new Set(["id", "version", "generation"]), "run.extension");
       id(run.extension.id, "run.extension.id"); id(run.extension.version, "run.extension.version");
@@ -232,18 +267,19 @@ function validateState(parsed, schema = SCHEMA_VERSION) {
     timestamp(question.createdAt, "question.createdAt");
   }
   nonNegativeInt(parsed.credentialGeneration, "state.credentialGeneration");
-  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema });
+  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: legacyDescriptors });
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   if (schema >= 8) validateCoordination(parsed.coordination);
-  if (schema >= 10) validateConnections(parsed.providerConnections);
+  if (schema >= 10) validateConnections(parsed.providerConnections, { historical: true });
+  if (schema >= 11) validatePending(parsed.providerConfigurationPending);
   return structuredClone(parsed);
 }
 
 /** A connection is the persisted unit of provider identity: one endpoint, one
  * wire format, one model list, one credential key. `credentialStatus` is NOT
  * stored here — the credential file is its only source of truth. */
-function validateConnections(value) {
+function validateConnections(value, { historical = false } = {}) {
   assert(Array.isArray(value), "providerConnections must be an array");
   const ids = new Set();
   const identities = new Set();
@@ -252,24 +288,42 @@ function validateConnections(value) {
     id(connection.id, "providerConnection.id");
     assert(["catalog", "compatible"].includes(connection.kind), "providerConnection.kind is invalid");
     id(connection.providerIdentity, "providerConnection.providerIdentity");
-    id(connection.api, "providerConnection.api");
+    try { if (historical) id(connection.api, "providerConnection.api"); else assertProviderApi(connection.api, PROVIDER_API_FORMATS); }
+    catch { throw invalidState("providerConnection.api is invalid"); }
     assert(!ids.has(connection.id), "providerConnection.id is not unique");
     assert(!identities.has(connection.providerIdentity), "providerConnection.providerIdentity is not unique");
     ids.add(connection.id); identities.add(connection.providerIdentity);
     if (connection.baseUrl !== null) {
-      id(connection.baseUrl, "providerConnection.baseUrl");
-      let parsed;
-      try { parsed = new URL(connection.baseUrl); } catch { throw invalidState("providerConnection.baseUrl is invalid"); }
-      assert(["http:", "https:"].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.search && !parsed.hash, "providerConnection.baseUrl is invalid");
+      try { if (historical) {
+        text(connection.baseUrl, "providerConnection.baseUrl", 2048);
+        const url = new URL(connection.baseUrl);
+        assert(["http:", "https:"].includes(url.protocol) && !url.username && !url.password && !url.search && !url.hash, "providerConnection.baseUrl is invalid");
+      } else assertProviderBaseUrl(connection.baseUrl); }
+      catch { throw invalidState("providerConnection.baseUrl is invalid"); }
     }
     assert(Array.isArray(connection.models), "providerConnection.models must be an array");
-    const modelIds = new Set();
     for (const model of connection.models) {
       exactKeys(model, new Set(["id", "contextWindow"]), "providerConnection.model");
-      id(model.id, "providerConnection.model.id");
-      assert(!modelIds.has(model.id), "providerConnection.model.id is not unique");
-      modelIds.add(model.id);
-      assert(model.contextWindow === null || (Number.isSafeInteger(model.contextWindow) && model.contextWindow > 0), "providerConnection.model.contextWindow is invalid");
+      assert(model.contextWindow !== undefined, "providerConnection.model.contextWindow is invalid");
+    }
+    try {
+      if (historical) {
+        const seen = new Set();
+        for (const model of connection.models) {
+          text(model.id, "providerConnection.model.id", 240);
+          assert(model.id.length > 0 && !seen.has(model.id), "providerConnection.model.id is invalid or duplicate"); seen.add(model.id);
+          assert(model.contextWindow === null || (Number.isSafeInteger(model.contextWindow) && model.contextWindow > 0), "providerConnection.model.contextWindow is invalid");
+        }
+      } else validateProviderModels(connection.models, { allowEmpty: true });
+    } catch (error) {
+      // Keep the state boundary's stable diagnostic paths while sharing the
+      // public model-ID/count/contextWindow domain with HTTP input.
+      if (error?.field === "modelId") throw invalidState("providerConnection.model.id is invalid");
+      if (error?.field === "contextWindow") throw invalidState("providerConnection.model.contextWindow is invalid");
+      if (error?.message === "model ids must be unique") throw invalidState("providerConnection.model.id is not unique");
+      throw invalidState(error?.message === "models must be a non-empty list"
+        ? "providerConnection.models is invalid"
+        : "providerConnection.model is invalid");
     }
     assert(connection.kind !== "compatible" || (connection.baseUrl !== null && connection.models.length > 0), "a compatible connection requires a baseUrl and at least one model");
   }
@@ -370,15 +424,15 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
-            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(), providerConnections: [],
+            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(), providerConnections: parsed.providerConnections ?? [], providerConfigurationPending: [],
             sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
-            runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) });
+            runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -538,6 +592,12 @@ export class RuntimeStore {
    * same commandId still observe each other in order).
    */
   async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null }) {
+    // Validate and detach the descriptor before it enters the mutation queue.
+    // A caller must not be able to mutate a checked object while an earlier
+    // queued write is still pending, and an invalid descriptor must never
+    // reach the durable state closure.
+    const checkedProvider = structuredClone(provider);
+    validateDescriptor(checkedProvider, "run.provider", { allowRealProvider: true, schema: SCHEMA_VERSION });
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
@@ -550,7 +610,7 @@ export class RuntimeStore {
       const timestamp = now();
       const run = {
         id: randomUUID(), sessionId, status: "running", admissionOpen: true, adapterId,
-        provider: structuredClone(provider), extension: extension ? structuredClone(extension) : null,
+        provider: checkedProvider, extension: extension ? structuredClone(extension) : null,
         startedAt: timestamp, endedAt: null, error: null,
         commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
@@ -701,10 +761,39 @@ export class RuntimeStore {
     });
   }
 
-  async setProviderConnections(connections) { return this._mutate((state) => { validateConnections(connections); state.providerConnections = structuredClone(connections); return state.providerConnections; }); }
+  getProviderConfigurationPending() { return structuredClone(this.state.providerConfigurationPending); }
+  async beginProviderConfiguration(connectionId, operation) {
+    validatePending([{ connectionId, operation }]);
+    return this._mutate((state) => {
+      const previous = state.providerConfigurationPending.find(item => item.connectionId === connectionId);
+      assert(!previous || previous.operation === operation || operation === 'connection_delete' || (operation === 'credential_delete' && previous.operation === 'credential_set'), 'incompatible pending configuration operation');
+      state.providerConfigurationPending = state.providerConfigurationPending.filter(item => item.connectionId !== connectionId);
+      state.providerConfigurationPending.push({ connectionId, operation });
+      return { connectionId, operation };
+    });
+  }
+  async finishProviderConfiguration(connectionId) {
+    return this._mutate((state) => { state.providerConfigurationPending = state.providerConfigurationPending.filter(item => item.connectionId !== connectionId); });
+  }
+
+  async setProviderConnections(connections) {
+    const checkedConnections = structuredClone(connections);
+    validateConnections(checkedConnections, { historical: true });
+    return this._mutate((state) => {
+      for (const connection of checkedConnections) {
+        const previous = state.providerConnections.find(item => item.id === connection.id);
+        if (!previous || JSON.stringify(previous) !== JSON.stringify(connection)) validateConnections([connection]);
+      }
+      state.providerConnections = checkedConnections; return state.providerConnections;
+    });
+  }
   getProviderConnections() { return structuredClone(this.state.providerConnections); }
 
-  async setProviderConfig(config) { return this._mutate((state) => { state.providerConfig = structuredClone(config); return state.providerConfig; }); }
+  async setProviderConfig(config) {
+    const checkedConfig = structuredClone(config);
+    validateDescriptor(checkedConfig, "providerConfig", { schema: SCHEMA_VERSION });
+    return this._mutate((state) => { state.providerConfig = checkedConfig; return state.providerConfig; });
+  }
   getProviderConfig() { return structuredClone(this.state.providerConfig); }
   async setExtensionRecords(records) { return this._mutate((state) => { state.extensionRecords = structuredClone(records); return state.extensionRecords; }); }
   getExtensionRecords() { return structuredClone(this.state.extensionRecords); }

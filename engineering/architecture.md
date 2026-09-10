@@ -25,7 +25,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 10）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 10 分别演进。
+Host 的 runtime JSON（schema 11）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 11 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 

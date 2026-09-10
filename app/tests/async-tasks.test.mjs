@@ -126,9 +126,9 @@ test('schema3/4 migrate through exclusive backup and refuse existing backup path
     const dir = await mkdtemp(path.join(tmpdir(), 'cw-async-schema-'));
     let store = await new RuntimeStore({ dataDir: dir }).open(); await store.close();
     const file = path.join(dir, 'runtime-state.json'), state = JSON.parse(await readFile(file, 'utf8'));
-    state.schemaVersion = version; delete state.asyncTasks; delete state.coordination; delete state.providerConnections; state.sessions.forEach(session => delete session.scope);
+    state.schemaVersion = version; delete state.asyncTasks; delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; state.sessions.forEach(session => delete session.scope);
     const old = JSON.stringify(state); await writeFile(file, old);
-    store = await new RuntimeStore({ dataDir: dir }).open(); assert.equal(store.state.schemaVersion, 10); await store.close();
+    store = await new RuntimeStore({ dataDir: dir }).open(); assert.equal(store.state.schemaVersion, 11); await store.close();
     const backup = (await readdir(dir)).find(p => p.startsWith('runtime-state.schema' + version));
     assert.equal(await readFile(path.join(dir, backup), 'utf8'), old);
     await writeFile(file, old);
@@ -148,7 +148,7 @@ test('invalid UTF-8 schema4 is refused before backup or replacement', async () =
   try {
     const store = await new RuntimeStore({ dataDir: dir }).open(); await store.createProject('unique-marker'); await store.close();
     const file = path.join(dir, 'runtime-state.json');
-    const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 4; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; old.sessions.forEach(session => delete session.scope);
+    const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 4; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; delete old.providerConfigurationPending; old.sessions.forEach(session => delete session.scope);
     const encoded = Buffer.from(JSON.stringify(old)); encoded[encoded.indexOf('unique-marker')] = 0xff;
     await writeFile(file, encoded);
     await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), { code: 'INVALID_STATE' });

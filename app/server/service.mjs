@@ -1,3 +1,4 @@
+import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
 import { COORDINATION_TOOLS, coordinationTools } from '../harness/tools.mjs';
 import { Coordination } from '../harness/coordination.mjs';
@@ -106,19 +107,11 @@ function validateProviderDescriptor(value, knownIdentities = ALLOWED_PROVIDER_ID
     if (!["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(input.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "unsupported reasoning effort");
     result.reasoningEffort = input.reasoningEffort;
   }
-  if (input.baseUrl !== undefined) {
-    const baseUrl = text(input.baseUrl, "baseUrl", { max: 2048 });
-    let parsed;
-    try {
-      parsed = new URL(baseUrl);
-    } catch {
-      throw new ServiceError(400, "invalid_provider", "baseUrl is invalid");
-    }
-    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.search || parsed.hash) {
-      throw new ServiceError(400, "invalid_provider", "baseUrl is not an allowed endpoint");
-    }
-    result.baseUrl = baseUrl.replace(/\/$/, "");
-  }
+  try {
+    assertProviderModelId(result.model);
+    assertProviderApi(result.api);
+    if (input.baseUrl !== undefined) result.baseUrl = normalizeProviderBaseUrl(input.baseUrl);
+  } catch { throw new ServiceError(400, 'invalid_provider', 'provider fields are invalid'); }
   if (!knownIdentities.has(result.provider)) {
     throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
   }
@@ -168,6 +161,8 @@ export class RuntimeService {
     this.questionWaiters = new Map();
     this.providerConfig = null;
     this.connections = [];
+    this.pendingConfigurations = new Map();
+    this.unavailableConnections = new Set();
     this.credentialsConfigured = new Set();
     this.knownSecrets = new Set();
     this.budget = {
@@ -194,18 +189,23 @@ export class RuntimeService {
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
 
-    // Connections come back BEFORE any request can be served: every user
-    // connection is re-registered on the ModelRuntime here, so a saved route
-    // survives a restart. A connection whose model list no longer resolves
-    // still registers; it fails later at the existing Run admission gate
-    // rather than preventing the host from starting.
+    // Restore published connections before serving requests. Historical
+    // records outside today's domain remain inspectable but unavailable;
+    // pending records wait for an explicit recovery operation.
     const storedConnections = this.store.getProviderConnections();
     this.connections = storedConnections.length ? storedConnections : defaultConnections();
     if (!storedConnections.length) await this.store.setProviderConnections(this.connections);
+    this.#refreshPendingConfigurations();
     for (const connection of this.connections) {
-      if (connection.kind !== "compatible") continue;
+      try { this.#validateConnectionForActivation(connection); }
+      catch { this.unavailableConnections.add(connection.id); continue; }
+      if (connection.kind !== "compatible" || this.pendingConfigurations.has(connection.id)) continue;
       try { registerConnectionProvider(this.modelRuntime, connection.providerIdentity, registrationInput(connection)); }
-      catch (error) { this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`); }
+      catch (error) {
+        this.unavailableConnections.add(connection.id);
+        try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* fenced by Host */ }
+        this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`);
+      }
     }
 
     // One migration off the old provider-id credential key space. No
@@ -222,8 +222,17 @@ export class RuntimeService {
       const connection = this.#connectionById(connectionId);
       if (!connection) continue;
       this.knownSecrets.add(apiKey);
-      await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
-      this.credentialsConfigured.add(connectionId);
+      if (this.#configurationStatusOf(connectionId) !== "ready") continue;
+      try {
+        await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
+        this.credentialsConfigured.add(connectionId);
+      } catch {
+        this.unavailableConnections.add(connectionId);
+        if (connection.kind === 'compatible') {
+          try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* Host admission remains fenced */ }
+        }
+        try { await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity); } catch { /* Host admission remains fenced */ }
+      }
     }
 
     // A process restart cannot resume an in-flight AgentSession or question;
@@ -323,7 +332,7 @@ export class RuntimeService {
       source: "installed-runtime-catalog",
       apiFormats: [...API_FORMATS],
       models: this.modelRuntime.getModels()
-        .filter((model) => this.#knownIdentities().has(model.provider))
+        .filter((model) => this.#knownIdentities().has(model.provider) && this.#configurationStatusOf(this.#connectionByIdentity(model.provider).id) === "ready")
         .map(model => { const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
           return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium") }; }),
     };
@@ -722,12 +731,100 @@ export class RuntimeService {
     return new Set(this.connections.map((connection) => connection.providerIdentity));
   }
 
+  #configurationStatusOf(connectionId) {
+    if (this.pendingConfigurations.has(connectionId)) return "recovery_required";
+    return this.unavailableConnections.has(connectionId) || !this.#connectionById(connectionId) ? "unavailable" : "ready";
+  }
+
+  #refreshPendingConfigurations() {
+    this.pendingConfigurations = new Map(this.store.getProviderConfigurationPending().map((item) => [item.connectionId, item]));
+  }
+
+  #requireReadyConnection(connectionId) {
+    const configurationStatus = this.#configurationStatusOf(connectionId);
+    if (configurationStatus !== "ready") throw new ServiceError(503, "configuration_incomplete",
+      "provider configuration is unavailable; repeat the incomplete operation or remove the compatible connection",
+      { connectionId, configurationStatus });
+  }
+
+  /** One narrow publication protocol, serialized by configurationQueue. The
+   * durable marker is installed before any SDK/credential side effect and is
+   * cleared only after every participant succeeds. It is not a cross-file
+   * transaction: failures remain inspectable and fenced across restart. */
+  async #changeConnection(connection, operation, publish) {
+    const pending = this.pendingConfigurations.get(connection.id);
+    if (pending && pending.operation !== operation && operation !== "connection_delete" && !(operation === "credential_delete" && pending.operation === "credential_set")) {
+      throw new ServiceError(409, "configuration_recovery_required", "repeat the incomplete operation before another configuration change",
+        { connectionId: connection.id, configurationStatus: "recovery_required", operation: pending.operation });
+    }
+    let began = false;
+    try {
+      await this.store.beginProviderConfiguration(connection.id, operation);
+      this.#refreshPendingConfigurations();
+      began = true;
+      await publish();
+      await this.store.finishProviderConfiguration(connection.id);
+      this.#refreshPendingConfigurations();
+      this.unavailableConnections.delete(connection.id);
+    } catch {
+      // The store publishes its in-memory snapshot only after its file. Use
+      // that snapshot, never a speculative target or the old SDK registry.
+      this.connections = this.store.getProviderConnections();
+      this.#refreshPendingConfigurations();
+      if (began || this.pendingConfigurations.has(connection.id)) {
+        this.unavailableConnections.add(connection.id);
+        this.credentialsConfigured.delete(connection.id);
+        if (connection.kind === "compatible") {
+          try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* Host admission remains fenced */ }
+        }
+        try { await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity); } catch { /* Host admission remains fenced */ }
+      }
+      throw new ServiceError(503, "configuration_incomplete", "provider configuration update did not complete",
+        { connectionId: connection.id, configurationStatus: this.#configurationStatusOf(connection.id), operation });
+    }
+  }
+
+  #validateConnectionForActivation(connection) {
+    try {
+      const identityValid = connection.kind === 'compatible'
+        ? connection.id.startsWith('conn-') && connection.providerIdentity === connection.id && connection.baseUrl !== null
+        : ALLOWED_PROVIDER_IDS.has(connection.providerIdentity) && connection.id === catalogConnectionId(connection.providerIdentity) && connection.baseUrl === null;
+      if (!identityValid) throw new Error('invalid connection identity');
+      assertProviderApi(connection.api);
+      assertProviderBaseUrl(connection.baseUrl, { nullable: connection.kind === 'catalog' });
+      validateProviderModels(connection.models, { allowEmpty: connection.kind === 'catalog' });
+    } catch { throw new ServiceError(400, 'invalid_connection', 'update the saved connection fields before activation'); }
+  }
+
+  async #activateConnection(connection) {
+    this.#validateConnectionForActivation(connection);
+    if (connection.kind === "compatible") registerConnectionProvider(this.modelRuntime, connection.providerIdentity, registrationInput(connection));
+    const entries = await readCredentialFile(this.dataDir);
+    const apiKey = entries[connection.id];
+    if (apiKey !== undefined) {
+      this.knownSecrets.add(apiKey);
+      await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
+      this.credentialsConfigured.add(connection.id);
+    } else {
+      await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
+      this.credentialsConfigured.delete(connection.id);
+    }
+  }
+
+  async #writeCredential(connection, apiKey) {
+    // Reserve the generation BEFORE publishing new credential bytes. A failed
+    // attempt may leave a gap; it cannot label a new key with the prior epoch.
+    this.knownSecrets.add(apiKey);
+    await this.store.bumpCredentialGeneration();
+    await setCredential(this.dataDir, connection.id, apiKey);
+  }
+
   #credentialStatusOf(connection) {
-    return this.credentialsConfigured.has(connection.id) ? "configured" : "not_configured";
+    return this.#configurationStatusOf(connection.id) === "ready" && this.credentialsConfigured.has(connection.id) ? "configured" : "not_configured";
   }
 
   #publicConnection(connection) {
-    return publicConnection(connection, { credentialStatus: this.#credentialStatusOf(connection) });
+    return { ...publicConnection(connection, { credentialStatus: this.#credentialStatusOf(connection) }), configurationStatus: this.#configurationStatusOf(connection.id) };
   }
 
   /** What this host actually knows about the selected model's capacity. An
@@ -735,6 +832,9 @@ export class RuntimeService {
    * never substitutes a window it invented (PV-27 / PV-30). */
   #capabilityOf(provider) {
     const connection = this.#connectionByIdentity(provider.provider);
+    if (connection && this.#configurationStatusOf(connection.id) !== "ready") return {
+      contextWindow: null, contextWindowSource: "unknown", compactionEnabled: false, notice: "provider configuration unavailable",
+    };
     const model = this.#resolveModel(provider);
     const contextWindow = Number.isSafeInteger(model?.contextWindow) ? model.contextWindow : null;
     const entry = connection?.models.find((candidate) => candidate.id === provider.model) ?? null;
@@ -765,17 +865,23 @@ export class RuntimeService {
   getProviderConfig() {
     const realProvider = this.providerConfig.provider !== FAKE_PROVIDER_ID;
     const connection = this.#connectionByIdentity(this.providerConfig.provider);
+    let configurationStatus = this.#configurationStatusOf(connection?.id ?? this.providerConfig.provider);
+    if (configurationStatus === 'ready') {
+      try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
+      catch { configurationStatus = 'unavailable'; }
+    }
     return {
       config: publicProviderConfig(this.providerConfig),
+      configurationStatus,
       execution: { mode: realProvider ? "real" : "local-fake", realProvider, adapterId: this.adapterId },
-      credentialStatus: connection && this.credentialsConfigured.has(connection.id) ? "configured" : "not_configured",
+      credentialStatus: connection ? this.#credentialStatusOf(connection) : "not_configured",
       connection: connection ? this.#publicConnection(connection) : null,
       capability: this.#capabilityOf(this.providerConfig),
     };
   }
 
   getProviderConnections() {
-    return { connections: this.connections.map((connection) => this.#publicConnection(connection)) };
+    return { connections: this.connections.map((connection) => this.#publicConnection(connection)), pendingConfigurations: [...this.pendingConfigurations.values()].map((item) => ({ ...item, stored: this.connections.some((connection) => connection.id === item.connectionId) })) };
   }
 
   createProviderConnection(input) { return this.#withConfiguration(() => this.#saveProviderConnection(null, input)); }
@@ -790,7 +896,8 @@ export class RuntimeService {
   async #saveProviderConnection(connectionId, input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
     const existing = connectionId ? this.#connectionById(connectionId) : null;
-    if (connectionId && !existing) throw new ServiceError(404, "not_found", "connection not found");
+    const recoveringCreate = connectionId && this.pendingConfigurations.get(connectionId)?.operation === "connection_save" && connectionId.startsWith("conn-");
+    if (connectionId && !existing && !recoveringCreate) throw new ServiceError(404, "not_found", "connection not found");
     if (existing && existing.kind !== "compatible") throw new ServiceError(400, "invalid_connection", "catalog connections are defined by the installed runtime catalog");
     let parsed;
     try { parsed = validateConnectionInput(input); }
@@ -813,38 +920,36 @@ export class RuntimeService {
 
     const record = existing
       ? { ...existing, ...parsed.record }
-      : (() => { const id = "conn-" + randomUUID().replace(/-/g, "").slice(0, 12); return { id, kind: "compatible", providerIdentity: id, ...parsed.record }; })();
-    registerConnectionProvider(this.modelRuntime, record.providerIdentity, registrationInput(record));
+      : (() => { const id = connectionId ?? "conn-" + randomUUID().replace(/-/g, "").slice(0, 12); return { id, kind: "compatible", providerIdentity: id, ...parsed.record }; })();
     const next = existing ? this.connections.map((connection) => (connection.id === record.id ? record : connection)) : [...this.connections, record];
-    await this.store.setProviderConnections(next);
-    this.connections = next;
-    if (parsed.apiKey !== undefined) await this.#applyCredential(record, parsed.apiKey);
+    await this.#changeConnection(record, "connection_save", async () => {
+      await this.store.setProviderConnections(next);
+      this.connections = next;
+      if (parsed.apiKey !== undefined) await this.#writeCredential(record, parsed.apiKey);
+      await this.#activateConnection(record);
+    });
     return { connection: this.#publicConnection(record) };
   }
 
   async #deleteProviderConnection(connectionId) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
-    const connection = this.#connectionById(connectionId);
-    if (!connection) throw new ServiceError(404, "not_found", "connection not found");
-    if (connection.kind !== "compatible") throw new ServiceError(400, "invalid_connection", "catalog connections cannot be removed");
+    const existing = this.#connectionById(connectionId);
+    const pending = this.pendingConfigurations.get(connectionId);
+    if (!existing && !pending) throw new ServiceError(404, "not_found", "connection not found");
+    if ((existing && existing.kind !== "compatible") || !connectionId.startsWith("conn-")) throw new ServiceError(400, "invalid_connection", "catalog connections cannot be removed");
+    const connection = existing ?? { id: connectionId, kind: "compatible", providerIdentity: connectionId };
     if (this.providerConfig.provider === connection.providerIdentity) throw new ServiceError(409, "connection_in_use", "the selected connection cannot be removed");
-    const next = this.connections.filter((candidate) => candidate.id !== connection.id);
-    await this.store.setProviderConnections(next);
-    this.connections = next;
-    unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity);
-    await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
-    const removed = await deleteCredential(this.dataDir, connection.id);
-    this.credentialsConfigured.delete(connection.id);
-    if (removed) await this.store.bumpCredentialGeneration();
+    await this.#changeConnection(connection, "connection_delete", async () => {
+      const next = this.connections.filter((candidate) => candidate.id !== connection.id);
+      await this.store.setProviderConnections(next);
+      this.connections = next;
+      unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity);
+      await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
+      await this.store.bumpCredentialGeneration();
+      await deleteCredential(this.dataDir, connection.id);
+      this.credentialsConfigured.delete(connection.id);
+    });
     return { removed: true, connectionId: connection.id };
-  }
-
-  async #applyCredential(connection, apiKey) {
-    await setCredential(this.dataDir, connection.id, apiKey);
-    this.knownSecrets.add(apiKey);
-    await this.modelRuntime.setRuntimeApiKey(connection.providerIdentity, apiKey);
-    this.credentialsConfigured.add(connection.id);
-    await this.store.bumpCredentialGeneration();
   }
 
   #withConfiguration(operation) {
@@ -861,6 +966,7 @@ export class RuntimeService {
     const config = validateProviderDescriptor(input, this.#knownIdentities());
     const connection = this.#connectionByIdentity(config.provider);
     if (!connection) throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
+    this.#requireReadyConnection(connection.id);
     if (connection.kind === "compatible") {
       // A user connection owns its endpoint and format, and admits only the
       // models saved on it — the discovered ids are the catalog here (PV-24).
@@ -893,8 +999,14 @@ export class RuntimeService {
     const connectionId = text(value.connectionId, "connectionId", { max: 200 });
     const connection = this.#connectionById(connectionId);
     if (!connection) throw new ServiceError(400, "invalid_connection", "connection is not one of the saved connections");
-    const apiKey = text(value.apiKey, "apiKey", { max: 4000 });
-    await this.#applyCredential(connection, apiKey);
+    let apiKey;
+    try { apiKey = assertProviderApiKey(value.apiKey); }
+    catch { throw new ServiceError(400, 'invalid_input', 'apiKey is invalid'); }
+    this.#validateConnectionForActivation(connection);
+    await this.#changeConnection(connection, "credential_set", async () => {
+      await this.#writeCredential(connection, apiKey);
+      await this.#activateConnection(connection);
+    });
     return { configured: true, connectionId: connection.id };
   }
 
@@ -907,10 +1019,12 @@ export class RuntimeService {
     const connectionId = text(value.connectionId, "connectionId", { max: 200 });
     const connection = this.#connectionById(connectionId);
     if (!connection) throw new ServiceError(400, "invalid_connection", "connection is not one of the saved connections");
-    await deleteCredential(this.dataDir, connection.id);
-    await this.modelRuntime.removeRuntimeApiKey(connection.providerIdentity);
-    this.credentialsConfigured.delete(connection.id);
-    await this.store.bumpCredentialGeneration();
+    this.#validateConnectionForActivation(connection);
+    await this.#changeConnection(connection, "credential_delete", async () => {
+      await this.store.bumpCredentialGeneration();
+      await deleteCredential(this.dataDir, connection.id);
+      await this.#activateConnection(connection);
+    });
     return { configured: false, connectionId: connection.id };
   }
 
@@ -1219,6 +1333,9 @@ export class RuntimeService {
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
     const connection = this.#connectionByIdentity(this.providerConfig.provider);
+    this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
+    try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
+    catch { throw new ServiceError(503, 'configuration_incomplete', 'saved provider configuration must be updated before execution'); }
     if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
     const capability = this.#capabilityOf(this.providerConfig);
     const provider = {

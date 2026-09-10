@@ -304,3 +304,22 @@ schemas 3–8 receive `supersedes: null`. Connections start empty and are initia
 by the service owner. Provider connection provenance on Run descriptors belongs
 to schema 10. Older hosts must not share the upgraded directory. No personal
 store is migrated by this integration.
+
+
+### Q02: RuntimeStore 11 configuration publication (2026-09-10)
+
+Runtime11 adds `providerConfigurationPending: [{ connectionId, operation }]` to the existing store. Operations are `connection_save`, `connection_delete`, `credential_set`, `credential_delete`; markers contain no credential or target configuration. Valid schemas 3–10 migrate only after validation and an exact original-byte SHA-256 backup. Schema10 connections are preserved. Older hosts reject schema11; use the backup in a separate data directory for rollback, never open upgraded data with an old host.
+
+New connection/config/Run writes share model ID ≤240, endpoint ≤2048, the two installed OpenAI wire formats, and context window null or integer 4–100,000,000. API keys use 1–4000 printable non-space ASCII characters at both credential entry points. ASCII controls are rejected; endpoint whitespace, backslashes, userinfo, query and fragment are rejected. Historical descriptors and unchanged historical connections remain readable without normalization; newly changed records must satisfy the current domain. Startup fences historical connections outside that domain, and Run admission checks the selected descriptor again. Credential mutation validates the saved connection before creating a marker, so a historical invalid connection can still be repaired by connection PUT. A missing connection or invalid selected descriptor reports `unavailable`. Read compatibility is not execution authorization.
+
+Connection and credential changes are serialized with Run admission. After input validation and discovery, the host writes a pending marker, persists the connection, reserves credential generation before writing any new key, activates the SDK using the credential file, then removes the marker. This is not a cross-file transaction. Partial failure returns HTTP503 `configuration_incomplete`, including `connectionId`, `operation` and `configurationStatus`. A failure before the marker is persisted leaves the unchanged connection ready; after the marker it is `recovery_required`. Failed SDK cleanup cannot bypass Host admission. Startup skips pending registration/key activation; SDK startup failures appear as `unavailable` and block new Runs. Prior command receipts remain queryable.
+
+GET connections includes per-connection `configurationStatus` (`ready`, `recovery_required`, `unavailable`) and `pendingConfigurations` (marker fields plus `stored`). Credential status is `not_configured` while blocked. Retry the same complete operation to recover; a failed create can be retried with PUT using the returned connection ID even if its record was not saved. DELETE of an unselected compatible connection can abandon any pending operation; credential DELETE can abandon credential SET. Different operations return409 `configuration_recovery_required`. Pending deletion without a remaining connection record remains inspectable. Generation may contain gaps after failed attempts; it must never attribute new key bytes to an old generation. No marker stores a key, and errors never echo provider exceptions or key content.
+
+A synthetic failure shape for frontend consumption (connection creation failed after the marker but before its record was saved):
+
+```json
+{"error":{"code":"configuration_incomplete","message":"provider configuration update did not complete","connectionId":"conn-0123456789ab","configurationStatus":"recovery_required","operation":"connection_save"}}
+```
+
+The corresponding GET ledger includes `{"connectionId":"conn-0123456789ab","operation":"connection_save","stored":false}` in `pendingConfigurations`. This is a recovery fact, not a configured connection. The executable loopback fixture and assertions are in [Q02 roundtrip tests](../tests/review-provider-roundtrip.test.mjs).

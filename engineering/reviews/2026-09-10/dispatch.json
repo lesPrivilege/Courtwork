@@ -58,16 +58,23 @@
         "RV26-00"
       ],
       "architecture_owner": "Astra",
-      "implementation_owner": "Luna bounded, Astra integration",
+      "implementation_owner": "Astra schema/service/publication; Luna pure fields and bounded tests",
       "reviewer": "non-author Luna / Astra according to author",
-      "status": "queued",
+      "status": "implemented-awaiting-independent-verification",
       "write_allowlist": [
         "app/server/provider-connections.mjs",
         "app/server/store.mjs（Provider校验与setter）",
         "app/server/service.mjs（Provider配置方法）",
-        "app/tests/review-provider-roundtrip.test.mjs（新）"
+        "app/tests/review-provider-roundtrip.test.mjs（新）",
+        "app/server/provider-fields.mjs（共享纯验证）",
+        "app/server/credential-file.mjs（失败传播）",
+        "app/tests/review-provider-publication-migration.test.mjs（新）",
+        "app/tests/fixtures/review-provider/**（新）",
+        "app/tests/*（当前schema断言及合成降级fixture适配）",
+        "app/docs/runtime-foundation.md（合同）"
       ],
-      "conditional_on": null
+      "conditional_on": null,
+      "decision_record": "q02/README.md"
     },
     {
       "id": "RV26-Q03",

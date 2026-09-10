@@ -27,9 +27,13 @@ async function writeCredentialFile(dataDir, entries) {
   await mkdir(dataDir, { recursive: true });
   const target = filePath(dataDir);
   const tempPath = target + "." + randomUUID() + ".tmp";
-  await writeFile(tempPath, JSON.stringify(entries, null, 2), { encoding: "utf8", mode: 0o600 });
-  await chmod(tempPath, 0o600);
-  await rename(tempPath, target);
+  try {
+    await writeFile(tempPath, JSON.stringify(entries, null, 2), { encoding: "utf8", mode: 0o600 });
+    await chmod(tempPath, 0o600);
+    await rename(tempPath, target);
+  } finally {
+    await unlink(tempPath).catch((error) => { if (error.code !== "ENOENT") throw error; });
+  }
 }
 
 export async function setCredential(dataDir, connectionId, apiKey) {
@@ -42,7 +46,7 @@ export async function setCredential(dataDir, connectionId, apiKey) {
  * key space onto connection ids. */
 export async function replaceCredentialFile(dataDir, entries) {
   if (Object.keys(entries).length === 0) {
-    await unlink(filePath(dataDir)).catch(() => {});
+    await unlink(filePath(dataDir)).catch((error) => { if (error.code !== "ENOENT") throw error; });
     return;
   }
   await writeCredentialFile(dataDir, entries);
@@ -53,7 +57,7 @@ export async function deleteCredential(dataDir, connectionId) {
   if (!(connectionId in entries)) return false;
   delete entries[connectionId];
   if (Object.keys(entries).length === 0) {
-    await unlink(filePath(dataDir)).catch(() => {});
+    await unlink(filePath(dataDir)).catch((error) => { if (error.code !== "ENOENT") throw error; });
   } else {
     await writeCredentialFile(dataDir, entries);
   }
