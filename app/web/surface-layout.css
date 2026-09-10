@@ -15,7 +15,7 @@
     background: var(--float);
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-float);
+    box-shadow: var(--rim), var(--shadow-float);
     gap: 0;
     padding-bottom: var(--space-4);
     overflow: auto;

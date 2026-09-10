@@ -85,3 +85,7 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 最终留白修订：用户指出长卡过满，目录改为自然内容高度、最小360px（受可用高约束）、最大不超过标题带以下可用高，底部固定16px内距。当前样本收敛约360px、完整Run information约620px；不得以固定填满视口表现“长卡”。tab-list内部横向滚动，toolbar动作不参与挤压，390px Close右缘374px。`serve.mjs`最终移除所有exports/DOM/CSS注入路径，只代理产品原字节；前述`SD_FIXTURE_ADAPTER`模式已退役，`fixture.mjs/css`仅为早期候选留存，旧运行方式按`2111375`固定版本召回。
 
 20:31 用户补充frontier/Claude对照，指出双关闭×混淆：文档tab的×仅关闭文档；工作面整体隐藏改为panel-right图标与Hide work surface；阅读时聊天标题中的重复surface入口退出。宽屏三栏Preview增加显式Expand preview/Restore preview，使用host内临时maximized布局位，保留同一个tab/fileRef/renderer，不新增正式状态或浏览器全屏权限。<1680沿既有主区阅读、窄屏sheet保持。紧凑strip的Run入口改用同一summary snapshot与点击前身份/代际检查，卡片↔strip切换时焦点按同模块映射。
+
+### 材质与焦点回查（用户 20:45 纠正）
+
+最近先例：`app/web/styles.css` 的 `.home-attention` / `.home-attention-item`、全局 `:focus-visible`（WK-128）与 `.rail-card`；依据 `engineering/design/home-composition-2026-09-10/material-grammar.md`。Home 与持续文件/阅读面为 solid/raised；glass 仍仅两个已登记消费者，不存在本卡片漏装的 blur 依赖。新 summary 原本无 radius，导致共享 focus 呈方形。局部补 `--radius-small`、8px 控件内距及既有 hover/pressed；外层复用 `--rim`，保留浮层边界和阴影。focus 色、2px 线/offset、原生 Enter/Space 与 owner facts 保持。Astra 作者执行真实浏览器 Home 对照和焦点计算样式；本增量不声称独立视觉接受，不新增玻璃消费者。

@@ -20,13 +20,24 @@
 }
 
 .sd-run-summary-trigger {
+  border-radius: var(--radius-small);
   color: var(--ink);
   cursor: pointer;
   font-size: var(--text-label);
   font-weight: 500;
   min-height: var(--control);
   overflow-wrap: anywhere;
-  padding: var(--space-1) 0;
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Native disclosure keeps the shared focus role/offset. Its own rounded hit
+ * area supplies the geometry, as with Home's actionable rows (WK-128). */
+.sd-run-summary-trigger:hover {
+  background: var(--hover);
+}
+
+.sd-run-summary-trigger:active {
+  background: var(--pressed);
 }
 
 .sd-run-summary .rail-row {
@@ -90,7 +101,7 @@
   cursor: pointer;
   font: inherit;
   min-height: 0;
-  padding: var(--space-2) 0;
+  padding: var(--space-2);
   text-align: left;
 }
 
