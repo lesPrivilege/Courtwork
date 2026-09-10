@@ -19,7 +19,9 @@ import { SessionManager } from "@earendil-works/pi-coding-agent";
 
 import {
   classifyRuntimeError,
+  classifyVerifyOutcome,
   mapSessionEvent,
+  assistantMessageText,
   registerFakeProvider,
   createSessionRun,
   resolveCompactionPolicy,
@@ -33,6 +35,8 @@ import {
   credentialSourceOf,
   registerConnectionProvider,
   unregisterConnectionProvider,
+  registerCatalogExtraModels,
+  nativeCatalogModelIds,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
@@ -50,13 +54,24 @@ import {
   migrateCredentialKeys,
   publicConnection,
   registrationInput,
+  registrationExtras,
   validateConnectionInput,
+  validateCatalogConnectionInput,
 } from "./provider-connections.mjs";
 
 const DEEPSEEK_API_ID = "openai-completions";
 const ALLOWED_PROVIDER_IDS = new Set([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
 const MAX_MATERIAL_BYTES = 1024 * 1024;
 const MATERIAL_NAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+// PV-62: a fixed short prompt (never user-supplied), a small output ceiling,
+// and a bounded wall-clock timeout -- this is a connectivity probe, not a
+// conversation. `VERIFY_TIMEOUT_MS` and `VERIFY_MAX_TOKENS` are this host's
+// own choice (PV-37 leaves the exact numbers to the author); see the delivery
+// page for the reasoning.
+const VERIFY_PROMPT = "This is a connection check, not a real conversation. Reply with one short sentence to confirm you received it.";
+const VERIFY_MAX_TOKENS = 16;
+const VERIFY_TIMEOUT_MS = 20_000;
+const VERIFY_REPLY_PREVIEW_CHARS = 200;
 
 export class ServiceError extends Error {
   /** `details` carries the machine-readable facts a client needs to recover
@@ -196,15 +211,32 @@ export class RuntimeService {
     this.connections = storedConnections.length ? storedConnections : defaultConnections();
     if (!storedConnections.length) await this.store.setProviderConnections(this.connections);
     this.#refreshPendingConfigurations();
+    // Native identities (deepseek/openai/the fixture) are already registered
+    // by `createIsolatedModelRuntime`/`registerFakeProvider` before the
+    // service exists. This pass adds the two things a saved connection needs
+    // on top of that: a compatible connection's whole provider, and a
+    // catalog connection's extra models re-layered onto its native id
+    // (PV-59) -- in that order does not matter, since the two never touch the
+    // same provider id.
     for (const connection of this.connections) {
       try { this.#validateConnectionForActivation(connection); }
       catch { this.unavailableConnections.add(connection.id); continue; }
-      if (connection.kind !== "compatible" || this.pendingConfigurations.has(connection.id)) continue;
-      try { registerConnectionProvider(this.modelRuntime, connection.providerIdentity, registrationInput(connection)); }
-      catch (error) {
-        this.unavailableConnections.add(connection.id);
-        try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* fenced by Host */ }
-        this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`);
+      if (this.pendingConfigurations.has(connection.id)) continue;
+      if (connection.kind === "compatible") {
+        try { registerConnectionProvider(this.modelRuntime, connection.providerIdentity, registrationInput(connection)); }
+        catch (error) {
+          this.unavailableConnections.add(connection.id);
+          try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* fenced by Host */ }
+          this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`);
+        }
+      } else if (connection.models.length) {
+        try { registerCatalogExtraModels(this.modelRuntime, connection.providerIdentity, registrationExtras(connection)); }
+        catch (error) {
+          // Unlike a compatible connection (whose WHOLE provider comes from
+          // this step), the native models stay resolvable either way -- an
+          // extras failure does not fence the connection.
+          this.logger(`startup: catalog connection ${connection.id} extra models could not be registered: ${safeMessage(error, "registration failed")}`);
+        }
       }
     }
 
@@ -333,8 +365,20 @@ export class RuntimeService {
       apiFormats: [...API_FORMATS],
       models: this.modelRuntime.getModels()
         .filter((model) => this.#knownIdentities().has(model.provider) && this.#configurationStatusOf(this.#connectionByIdentity(model.provider).id) === "ready")
-        .map(model => { const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
-          return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium") }; }),
+        .map(model => {
+          const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
+          // A row is "connection" (PV-60/61) when it comes from a
+          // connection's OWN saved model list — the whole list for a
+          // compatible connection, only the extras for a catalog one; a
+          // native catalog row for a catalog connection is never in that
+          // list. `reasoningSource` is "user" only once a person has
+          // actually declared the tri-state field on that entry (PV-61):
+          // `false` (declared off) counts as declared, `null`/omitted does not.
+          const entry = this.#connectionByIdentity(provider)?.models.find((candidate) => candidate.id === id) ?? null;
+          const origin = entry ? "connection" : "catalog";
+          const reasoningSource = origin === "catalog" ? "catalog" : (entry.reasoning === null || entry.reasoning === undefined ? "unknown" : "user");
+          return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium"), origin, reasoningSource };
+        }),
     };
   }
 
@@ -731,6 +775,20 @@ export class RuntimeService {
     return new Set(this.connections.map((connection) => connection.providerIdentity));
   }
 
+  /** PV-59: whether `modelId` may be selected or Run on `connection` --
+   * registered in pi under the connection's own provider identity, and for a
+   * compatible connection, present on the connection's own list too (its
+   * list IS its whole directory, unlike a catalog connection's, which is
+   * only the extras). The SAME check admits a model for `/provider-config`,
+   * a Run, and `verify`; "hits the installed catalog" is no longer a
+   * separate, narrower door -- a catalog connection's extra models are
+   * registered (`registerCatalogExtraModels`) before this is ever asked, so
+   * `getModel` alone already answers for both connection kinds. */
+  #admissibleModel(connection, modelId) {
+    if (connection.kind === "compatible" && !connection.models.some((model) => model.id === modelId)) return null;
+    return this.modelRuntime.getModel(connection.providerIdentity, modelId) ?? null;
+  }
+
   #configurationStatusOf(connectionId) {
     if (this.pendingConfigurations.has(connectionId)) return "recovery_required";
     return this.unavailableConnections.has(connectionId) || !this.#connectionById(connectionId) ? "unavailable" : "ready";
@@ -824,7 +882,25 @@ export class RuntimeService {
   }
 
   #publicConnection(connection) {
-    return { ...publicConnection(connection, { credentialStatus: this.#credentialStatusOf(connection) }), configurationStatus: this.#configurationStatusOf(connection.id) };
+    return {
+      ...publicConnection(connection, { credentialStatus: this.#credentialStatusOf(connection) }),
+      configurationStatus: this.#configurationStatusOf(connection.id),
+      lastVerification: this.#lastVerificationOf(connection),
+    };
+  }
+
+  /** PV-42: the last verify receipt for this connection, or `null` if there
+   * is none OR its binding no longer matches the epoch it ran against — a
+   * stale "Answered ..." line would be a claim this host cannot back up.
+   * `providerConfigVersion` is deliberately coarse (bumped by ANY connection
+   * write, not just this one, see `store.setProviderConnections`); reading
+   * it back the same way it was written keeps the check meaningful. */
+  #lastVerificationOf(connection) {
+    const receipt = this.store.getProviderVerification(connection.id);
+    if (!receipt) return null;
+    if (receipt.binding.providerConfigVersion !== this.store.getProviderConfigVersion()
+      || receipt.binding.credentialGeneration !== this.credentialGeneration) return null;
+    return receipt;
   }
 
   /** What this host actually knows about the selected model's capacity. An
@@ -896,6 +972,7 @@ export class RuntimeService {
   async #saveProviderConnection(connectionId, input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
     const existing = connectionId ? this.#connectionById(connectionId) : null;
+    if (existing?.kind === "catalog") return this.#saveCatalogConnectionModels(existing, input);
     const recoveringCreate = connectionId && this.pendingConfigurations.get(connectionId)?.operation === "connection_save" && connectionId.startsWith("conn-");
     if (connectionId && !existing && !recoveringCreate) throw new ServiceError(404, "not_found", "connection not found");
     if (existing && existing.kind !== "compatible") throw new ServiceError(400, "invalid_connection", "catalog connections are defined by the installed runtime catalog");
@@ -931,6 +1008,34 @@ export class RuntimeService {
     return { connection: this.#publicConnection(record) };
   }
 
+  /** Save a catalog connection's extra models (PV-59): the models a person
+   * added beyond the installed catalog. No directory probe here — unlike a
+   * compatible connection, there is no endpoint of the person's own to ask;
+   * the model is admitted onto pi at save time and stands or falls on a real
+   * Run/verify the same as any other model. A shorter list than before
+   * (including empty) is how the extras are cleared back out: registration
+   * always recomputes from the native baseline, so nothing lingers. */
+  async #saveCatalogConnectionModels(connection, input) {
+    let parsed;
+    try { parsed = validateCatalogConnectionInput(input); }
+    catch (error) {
+      if (error instanceof ConnectionInputError) throw new ServiceError(400, error.code, error.message);
+      throw error;
+    }
+    const nativeIds = nativeCatalogModelIds(this.modelRuntime, connection.providerIdentity);
+    const shadowed = parsed.models.filter((model) => nativeIds.has(model.id)).map((model) => model.id);
+    if (shadowed.length) throw new ServiceError(400, "invalid_connection", "these ids are already in the installed catalog", { models: shadowed });
+
+    const record = { ...connection, models: parsed.models };
+    const next = this.connections.map((candidate) => (candidate.id === record.id ? record : candidate));
+    await this.#changeConnection(record, "connection_save", async () => {
+      await this.store.setProviderConnections(next);
+      this.connections = next;
+      registerCatalogExtraModels(this.modelRuntime, record.providerIdentity, registrationExtras(record));
+    });
+    return { connection: this.#publicConnection(record) };
+  }
+
   async #deleteProviderConnection(connectionId) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
     const existing = this.#connectionById(connectionId);
@@ -950,6 +1055,74 @@ export class RuntimeService {
       this.credentialsConfigured.delete(connection.id);
     });
     return { removed: true, connectionId: connection.id };
+  }
+
+  /** PV-62/BE-39: ask one saved connection to actually answer once. Routed
+   * through the same `#withConfiguration` queue as every other connection
+   * write, so a concurrent connection/credential/config change cannot land
+   * mid-probe and leave the persisted receipt bound to a epoch that was
+   * already stale the moment it was written; the cost is that this call
+   * blocks other connection writes for up to `VERIFY_TIMEOUT_MS`, which is
+   * the deliberate, minimal trade this author made (see the delivery page). */
+  verifyProviderConnection(connectionId, input) { return this.#withConfiguration(() => this.#verifyProviderConnection(connectionId, input)); }
+
+  async #verifyProviderConnection(connectionId, input) {
+    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "verify is frozen while a run is active");
+    const connection = this.#connectionById(connectionId);
+    if (!connection) throw new ServiceError(404, "not_found", "connection not found");
+    this.#requireReadyConnection(connection.id);
+    const value = requireObject(input, "body");
+    assertKeys(value, new Set(["model"]));
+    const modelId = text(value.model, "model", { max: 240 });
+    const model = this.#admissibleModel(connection, modelId);
+    if (!model) throw new ServiceError(400, "invalid_provider", "the model is not admissible on this connection");
+    // PV-62's credential_missing gate excepts the fixture identity, matching
+    // the SAME exemption Run execution already has (`#executeRun`'s
+    // `credentialConfigured = provider.provider === FAKE_PROVIDER_ID || ...`
+    // and its `setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY)`):
+    // local-fake mode is a deterministic loopback fixture, not a connection
+    // whose whole point is proving a person's own credential works.
+    if (connection.providerIdentity === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
+    const credentialSource = credentialSourceOf(this.modelRuntime, connection.providerIdentity);
+    if (!credentialSource) throw new ServiceError(400, "credential_missing", "connection has no credential configured");
+
+    const startedAt = Date.now();
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, VERIFY_TIMEOUT_MS);
+    let message;
+    try {
+      // Same pi path a Run uses (ModelRuntime -> the model's own `api`
+      // dispatch -> the SAME runtime credential resolution, PV-37/62): no
+      // AgentSession, so by construction no tools, no workspace, and nothing
+      // is appended to any session's history. `complete()` resolves rather
+      // than rejects even on a provider failure (see `classifyVerifyOutcome`).
+      message = await this.modelRuntime.complete(model, {
+        messages: [{ role: "user", content: VERIFY_PROMPT, timestamp: startedAt }],
+      }, { maxTokens: VERIFY_MAX_TOKENS, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+    const latencyMs = Date.now() - startedAt;
+    const status = classifyVerifyOutcome(message, timedOut);
+    const succeeded = status === "ok";
+    const replyText = succeeded ? redact(assistantMessageText(message), this.knownSecrets).trim() : "";
+    const receipt = {
+      connectionId: connection.id,
+      model: modelId,
+      status,
+      message: succeeded
+        ? "The model answered."
+        : redact(message.errorMessage || "The provider returned an error.", this.knownSecrets),
+      observedModel: message.responseModel ?? null,
+      replyFirstLine: replyText ? replyText.split("\n")[0].slice(0, VERIFY_REPLY_PREVIEW_CHARS) : null,
+      latencyMs,
+      checkedAt: new Date(startedAt).toISOString(),
+      credentialSource,
+      binding: { providerConfigVersion: this.store.getProviderConfigVersion(), credentialGeneration: this.credentialGeneration },
+    };
+    await this.store.setProviderVerification(receipt);
+    return receipt;
   }
 
   #withConfiguration(operation) {
@@ -972,10 +1145,14 @@ export class RuntimeService {
       // models saved on it — the discovered ids are the catalog here (PV-24).
       if (config.api !== connection.api) throw new ServiceError(400, "invalid_provider", "this connection uses a different API format");
       if (config.baseUrl !== undefined && config.baseUrl !== connection.baseUrl) throw new ServiceError(400, "invalid_provider", "this connection uses its own endpoint");
-      if (!connection.models.some((model) => model.id === config.model)) throw new ServiceError(400, "invalid_provider", "the model is not saved on this connection");
       config.baseUrl = connection.baseUrl;
     }
-    const catalogModel = this.modelRuntime.getModel(config.provider, config.model);
+    // PV-59: a catalog connection's extras are registered onto pi ahead of
+    // this check (initialize()/#saveCatalogConnectionModels), so the SAME
+    // getModel-based check now admits "hits the installed catalog" and
+    // "saved as an extra on this connection" alike -- there is no separate,
+    // narrower closed-set door left to ask.
+    const catalogModel = this.#admissibleModel(connection, config.model);
     if (!catalogModel) throw new ServiceError(400, "invalid_provider", "unknown provider model");
     if (!API_FORMATS.includes(config.api)) throw new ServiceError(400, "invalid_provider", "unsupported API format");
     if (config.provider === FAKE_PROVIDER_ID && (config.api !== FAKE_API_ID || config.baseUrl)) {
@@ -1347,17 +1524,23 @@ export class RuntimeService {
       capabilityNotice: capability.notice,
     };
     if (provider.provider === FAKE_PROVIDER_ID) {
-      if (provider.model !== FAKE_MODEL_ID || provider.api !== FAKE_API_ID || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)) {
+      // The fixture identity keeps its fixed wire format and endpoint (this
+      // is "local-fake mode", not an arbitrary connection), but PV-59 still
+      // applies to which MODEL runs: the native fixture model or an extra
+      // this connection saved on top of it (the loopback fixture answers any
+      // model id, so this is how a catalog connection's extras get end-to-end
+      // Run/verify coverage without leaving loopback).
+      if (provider.api !== FAKE_API_ID || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)
+        || !this.#admissibleModel(connection, provider.model)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
       }
     } else if (connection.kind === "compatible") {
       if (provider.api !== connection.api || provider.baseUrl !== connection.baseUrl
-        || !connection.models.some((model) => model.id === provider.model)
-        || !this.modelRuntime.getModel(provider.provider, provider.model)) {
+        || !this.#admissibleModel(connection, provider.model)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
       }
     } else {
-      if (!API_FORMATS.includes(provider.api) || !this.modelRuntime.getModel(provider.provider, provider.model)
+      if (!API_FORMATS.includes(provider.api) || !this.#admissibleModel(connection, provider.model)
         || (provider.provider === DEEPSEEK_PROVIDER_ID && provider.api !== DEEPSEEK_API_ID && !provider.baseUrl)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
       }
