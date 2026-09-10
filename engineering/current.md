@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## R2-SD01 · 摘要与阅读层级候选（2026-09-10）
+
+隔离分支`codex/summary-disclosure-r2`产品`1c4138b`已将Run摘要→Files披露→同对象Preview接入原生产host，并统一有界目录、顶部tab、文档关闭/工作面隐藏、宽屏展开/还原与返回焦点。用户明确要求各级稳定，覆盖首轮fixture-only边界。最终38项针对通过；初次全量656/657的未改动Core启动超时经隔离13/13复验，原日志保留。Astra完成有界CUA；Luna仅静态/测试复核，无独立视觉接受。[交付、版本与限制](../evidence/summary-disclosure-20260910/README.md)。末次补披露圆角、内距与已有rim；保持实色材质合同，14项增量通过。本地候选未合流/推送/部署，Runtime11/Core4/app5不变，不覆盖在途PV/SD集成的状态或schema，也不关闭G1–G5。
+
 ## 最新接收：VG01 与比较研究入账（2026-09-10）
 
 用户授权接收 VG01 固定 `2eca488`：Opus 图示、Fable VG14–20 与 Pages 校验，经 Luna 固定版本有界独验及 Astra 最终页面检查后合入本地 main。[整合凭据](../evidence/vg01-main-integration-20260910/README.md)记录正反例和归因。Registry 迁往 design 留待 Fable 接续；无产品/schema改动，未推送或部署，不关闭 G1–G5。
