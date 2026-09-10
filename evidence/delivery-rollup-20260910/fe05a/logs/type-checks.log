@@ -1,0 +1,10 @@
+$ APP_URL=http://127.0.0.1:8939 WK6_CDP_PORT=20170 node evidence/fe05a/type-checks.mjs
+ok TYPE-1
+ok TYPE-2
+ok TYPE-6
+ok TYPE-3-desktop
+ok TYPE-3-390
+ok TYPE-4
+ok TYPE-5
+7/7
+exit=0

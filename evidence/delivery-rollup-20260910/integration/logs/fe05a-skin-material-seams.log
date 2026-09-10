@@ -1,0 +1,22 @@
+lint-materials: 2 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+✔ 产品样式表通过材质 lint 两项 (83.536375ms)
+✔ 未登记的类名上出现 backdrop-filter 会被拒绝 (69.442417ms)
+✔ 半透明表面缺少 reduced-transparency 回退会被拒绝 (67.120458ms)
+✔ 私有 blur 取值会被拒绝 (65.432791ms)
+✔ legacy values remain readable while projection ignores semantic and material keys (3.060125ms)
+✔ unknown, semantic, and material declarations cannot enter the modern skin (1.364958ms)
+✔ first paint retains raw storage but writes only canonical projected CSS (1.496292ms)
+✔ a legal input over 4000 bytes and under 8000 bytes projects identically at first paint (1.412958ms)
+✔ the policy is a synchronous classic script before the first-frame bootstrap (0.173708ms)
+✔ Dystopia uses one closed preference registry and unknown choices fall back (1.934166ms)
+✔ Dystopia is exactly the permitted opaque appearance scale in both modes (0.736291ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 572.319292

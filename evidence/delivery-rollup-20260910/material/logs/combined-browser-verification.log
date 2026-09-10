@@ -1,0 +1,18 @@
+{
+  "pass": false,
+  "samples": 6,
+  "failures": [
+    "1440-light/media reduced retained material",
+    "1440-light/media forced retained material",
+    "1024-light/media reduced retained material",
+    "1024-light/media forced retained material",
+    "390-light/media reduced retained material",
+    "390-light/media forced retained material",
+    "1440-dark/media reduced retained material",
+    "1440-dark/media forced retained material",
+    "1024-dark/media reduced retained material",
+    "1024-dark/media forced retained material",
+    "390-dark/media reduced retained material",
+    "390-dark/media forced retained material"
+  ]
+}

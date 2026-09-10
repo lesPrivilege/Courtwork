@@ -1,0 +1,40 @@
+{
+  "candidate": "20d8330dc6555d073a6bdec7ebf1e6bafc7aee99",
+  "base": "http://127.0.0.1:8973",
+  "fixture": {
+    "title": "Acme inbound NDA — 2026 cross-border data processing, regulatory retention, confidentiality and source revision review for Singapore, United States, and European Union operations",
+    "candidateIds": [
+      "candidate-2026-09-10-inbound-nda-source-revision-003-cross-border-retention-review-00000000000000000001",
+      "candidate-2026-09-10-inbound-nda-source-revision-003-cross-border-retention-review-00000000000000000002"
+    ]
+  },
+  "screenshots": [
+    "long-content-light-390.png",
+    "long-content-dark-390.png",
+    "long-content-200-equivalent.png"
+  ],
+  "checks": [
+    {
+      "name": "390 light long title remains visible and wraps within the dialog",
+      "pass": true
+    },
+    {
+      "name": "390 light long candidate IDs stay in the bounded table without page overflow",
+      "pass": true
+    },
+    {
+      "name": "390 dark long title remains visible and wraps within the dialog",
+      "pass": true
+    },
+    {
+      "name": "390 dark long candidate IDs stay in the bounded table without page overflow",
+      "pass": true
+    },
+    {
+      "name": "200% equivalent 720 CSS px reflows long Spark content without page or dialog clipping",
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "network": []
+}

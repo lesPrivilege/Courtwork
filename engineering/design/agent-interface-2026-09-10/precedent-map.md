@@ -222,8 +222,9 @@
 | verification entry | [tools/lint-materials.mjs](../../../tools/lint-materials.mjs) |
 | status | `canonical`（仅既有material grammar与两处生产blur边界） |
 | do_not_infer | 内容层 glass；侧栏 glass；material = agent 状态；glass-on-glass；省略 reduced-transparency / unsupported 回退 |
-| deferred scope | EX-CC6/progressive blur与新增材质specimen，非已接受生产先例 |
-| next_if_missing | FE-05 specimen 有前置（FE-05a 先落地），未完成前只做静态对照 |
+| specimen evidence | [FE-05 标本](../material-specimen-2026-09-10/README.md) 经真实媒体回退修补后完成[独立检查](../../../evidence/delivery-rollup-20260910/material/independent-verification.md)，原始与 FE-05a 组合证据分列 |
+| deferred scope | EX-CC6/progressive blur与新增材质的生产实施、用户选向和真机帧性能仍未接受 |
+| next_if_missing | FE-05a 已落地；后续材质实施须另定范围，不把标本合流当生产选择 |
 
 ### `shape.control`
 
@@ -236,8 +237,8 @@
 | verification entry | [evidence/fe04-main-integration-20260909](../../../evidence/fe04-main-integration-20260909) |
 | status | `canonical`（仅已裁Shape grammar与既有role） |
 | do_not_infer | 引入 `corner-shape` 为必需；新增半径档；破坏 concentricity 公理 |
-| deferred scope | FE-05a的新增密度/Shape实现；不得把工单或对照图当作已发货 |
-| next_if_missing | 按 FE-05a 工单，不自行加档 |
+| accepted scope | FE-05a baseline 修补、Shape、V1 与 HOME-16 已独立验收并合入；[验收回执](../../../evidence/delivery-rollup-20260910/fe05a/independent-verification.md)限定证据范围 |
+| next_if_missing | 按 FE-05a 已落地约束，不自行加档 |
 
 ### `iconography`
 
@@ -250,7 +251,8 @@
 | verification entry | [evidence/ui-maturity](../../../evidence/ui-maturity) |
 | status | `canonical`（仅Lucide既有发货范围） |
 | related references | MingCute / Phosphor只作来源参考，不属于本条canonical范围 |
-| deferred scope | EX-IC1 specimen与图标族替换，尚待对应工单/选择 |
+| specimen ruling | [EX-IC1](../icon-specimen/README.md) 已完成，WK-163 选择 D：保留 Lucide；[独立复核](../../../evidence/delivery-rollup-20260910/README.md)验证固定交付与 vendor 一致性 |
+| deferred scope | 图标族迁移未授权；specimen 接受不授予混族或替换权限 |
 | do_not_infer | 混用家族；自绘"通用动作"字形；无 schema 的 fill = 状态；替换 sprite / 新增依赖 |
 | next_if_missing | 走 [S17](../sources.md) 的 donor 归一规则与 manifest，不直接换族 |
 
@@ -267,6 +269,7 @@
 | verification entry | [tools/lint-interaction.mjs](../../../tools/lint-interaction.mjs) |
 | status | `deferred`（通用contextual toolbar与applicability事实表未交付） |
 | implemented precursor | PropertyRow第一片是属性行先例，见precedents.md；它不能支撑泛化toolbar的canonical声明 |
+| scoped action precedent | [Attention typed actions](../../../evidence/delivery-rollup-20260910/attention/independent-verification.md) 已独立验收：动作来自 human_actions，revision / request_id 由既有合同约束；不是通用 toolbar authority |
 | do_not_infer | 通用 command palette；新的域动作；把不可用动作渲染成 disabled 占位 |
 | next_if_missing | 先补 `appliesTo / requiresSelection / requiresCapability / risk / frequency / preferredSurface` 事实表 |
 
@@ -316,4 +319,4 @@
 
 ## 8. 覆盖与缺口
 
-本表当前 21 个条目 / 21 个 status 行，覆盖 22 个 problem_key（两种 material 合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1仍deferred，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
+本表当前 21 个条目 / 21 个 status 行，覆盖 22 个 problem_key（两种 material 合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1已完成且裁定保留Lucide，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。

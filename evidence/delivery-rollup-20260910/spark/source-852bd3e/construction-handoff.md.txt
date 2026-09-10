@@ -1,0 +1,31 @@
+# Spark 前端施工增量 · SP0 → SP1 → SP2
+
+本单先交付隔离SP0，不占`app/web/**`写权。现有[Home backlog](../home-backlog-2026-09-10/README.md)仍由Astra负责composer与Chat Flow后的顺序，Fable/Opus其他前端队列不在此重新派发。用户本轮对Spark UI的授权支持先做可review样本；真实入口由当前前端owner在接缝齐备后串行接入。
+
+## SP0 · 已实现，可直接消费
+
+文件：[index](index.html)、[spark view](spark.mjs)、[fixtures](fixtures.mjs)、[CSS](spark.css)。使用现有CSS token与icon sprite；全部合成，无API fetch、provider、scheduler、localStorage或外部请求。日/周及Matter过滤、五页、九scene、trace/Attention inspector、question refs、policy draft/error已实现。样本加载静态模块不等于运行产品runtime。
+
+场景名保持`SCENE.spark.overview/activity/report/usage/controls/trace`的语义坐标即可；不据此创建一套新UI registry。用当前无新增依赖的vanilla组件行为演示，后续消费者再抽最小可复用部分，不机械把整个静态页搬入生产。
+
+## 后续 PR
+
+| 单 | 最小交付 / 写权 | 前置与反例 | 完工上限 |
+|---|---|---|---|
+| SP1-A · Maintenance事实与只读projection | Astra后端；沿LG/ME-01/03、既有Core/Runtime/Attention，提供一类source check的scope/window/snapshot/coverage与来源refs | [projection要求](projection-contract.md)：重复/迟到、换source版本、撤权、partial/unknown、不同scope、重建；不新建超级Spark Log真源 | 只证明一类维护事实，不能由owner自己签独立接受 |
+| SP1-FE · Spark真实只读入口 | 当前前端单writer；`app/web`侧栏/路由、纯adapter/读面，静态准入由Astra；优先Overview+Activity+existing Usage drill-down | SP1-A冻结DTO和fixture；明暗/390/桌面、缺测/404/409/无权限、loading/error/retry、键盘焦点；有一个真实来源才开放对应metric | 数据缺席显示Unavailable或省略；没有scheduler不画正在自主维护；不抢composer/Chat Flow |
+| SP1-R · Report + Context / outcome接缝 | 先owner aggregation/measurement，再Reports及技术下钻UI | 不同tokenizer/单位、actual input大于compiled、重复candidate/无时钟、cohort漂移、report纠错、跨scope泄露反例 | 只支持已测量阶段；不宣传节省比例或跨期转换率 |
+| SP2-C · 受治理的Controls | 先policy/schedule/run lifecycle与CAS，后UI Controls；沿原Attention/ME-06/AM/BG队列 | scope≠grant、budget边界、撤权、幂等、pause不cancel、effect unknown不重放、版本冲突草稿保留 | 可操作控件只反映真实owner；真实provider/自动化按其合同另验证 |
+| SP2-Q · Ask about this | Session owner接精确ref+问题意图，前端展示新对话入口与来源范围 | source/run缺席、跨Matter权限、旧版本、目标Chat变动、发送失败；不给整trace无限context | 不能从静态question packet声称新Chat/Run已实现 |
+
+SP0的左侧位置是设计提议：Spark与Attention同级，matter列表在下；不因prototype可点击而改写现有导航恢复、历史Chat scope或Attention状态。若live首片只有一类事实，可以只开放Overview/Activity，其余不做可用空tab承诺。
+
+## 设计准入 / 需要比较的局部
+
+已采用：实色sidebar/内容、单一icon族、quiet状态不pulse、数值不动画膨胀、明确scope/时窗、Inspector渐进披露、错误保留草稿。可读的字阶/留白先于材质。
+
+仍待实际消费者比较：常驻Spark入口的最终排序；Context阶段可视化是否比表更易理解；Report与Overview的重叠；Controls多选scope在大量Matter时是否需picker。每次只比较一个变量，沿Scout→本地specimen→owner事实→最终裁决，不借第三方截图直接canonical。
+
+## 接单检查与回退
+
+先重查cwd/branch/HEAD/worktree和最新delivery；本页不是实时进度总表。前后端分别固定实现SHA、契约、合成输入、失败/未检项与非作者证据。UI撤下不会删除来源、候选、运行或报告事实；关闭新增调度需保留在途/unknown，数据schema回退另案。上游读取不足就留research-only，不靠模拟schema伪造backend承诺。

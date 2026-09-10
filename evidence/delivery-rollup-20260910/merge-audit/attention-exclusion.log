@@ -1,0 +1,113 @@
+ATT-FE-01 source exclusion audit
+The original delivery commit was based on a579929 but its direct tree delta includes unrelated rollback/deletion work. The scoped extraction is the only ATT source used by the rollup.
+
+[original delivery]
+$ git diff --name-status a579929edd66544e6aa7cd8cd7d2399fae8265d3 cd1326d8481e4965e96e8ee4f40cc531a67d4fef
+shortstat: 144 files changed, 3838 insertions(+), 14108 deletions(-)
+status counts: A30/M21/D90/R3
+
+[scoped extraction]
+$ git diff --name-status a579929edd66544e6aa7cd8cd7d2399fae8265d3 9db6fc4362a07dc8ff20e1914e2ac471f20b62c1
+shortstat: 37 files changed, 3812 insertions(+), 141 deletions(-)
+status counts: A33/M4
+
+The original destructive delta is specifically the following deletion set (90 paths):
+app/tests/fixtures/review-core-client/worker.py
+app/tests/review-core-client-lifecycle.test.mjs
+engineering/design/agent-interface-2026-09-10/change-template.md
+engineering/design/agent-interface-2026-09-10/continuity-checklist.md
+engineering/design/agent-interface-2026-09-10/frontend-contract.md
+engineering/design/agent-interface-2026-09-10/input-conversation.md
+engineering/design/agent-interface-2026-09-10/precedent-map.md
+engineering/design/agent-interface-2026-09-10/precedents.md
+engineering/design/agent-interface-2026-09-10/sources-review.md
+engineering/design/skin-injection-2026-09-10/README.md
+engineering/design/skin-injection-2026-09-10/external-index.md
+engineering/design/skin-injection-2026-09-10/input-conversation.md
+engineering/design/skin-injection-2026-09-10/migration-notes.md
+engineering/design/skin-injection-2026-09-10/repo-inventory.md
+engineering/design/skin-injection-2026-09-10/skin-constitution.md
+engineering/design/skin-injection-2026-09-10/specimen-proposals.md
+engineering/design/skin-injection-2026-09-10/verification.md
+engineering/reviews/2026-09-10/README.md
+engineering/reviews/2026-09-10/baseline.json
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/BACKLOG-DISPOSITION.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/IMPLEMENTATION-PLAN.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/PACKAGE-VERIFICATION.json
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/README.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/SHA256SUMS.txt
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/SOURCE-INDEX.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/contracts/PROPOSED-DTOS.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/evidence/README.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/evidence/core-client-lifecycle-result.json
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/scripts/core-client-lifecycle.mjs
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/scripts/preflight.sh
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/tickets.json
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-00.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-AT01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-AT02.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-EV01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-FE01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-FE02.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-FE03.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-FE04.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-HC01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-HC02.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-HC03.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-HC04.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG00.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG01A.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG01B.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG01C.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG02A.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG02B.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-LG04.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OPT01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OPT02.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OPT03.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OPT04.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OPT05.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-OUT01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-PV01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-Q01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-Q02.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-Q03.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-Q04.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-Q05.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-REL01.md
+engineering/reviews/2026-09-10/courtwork-implementation-plan-20260910/work-orders/RV26-SP01.md
+engineering/reviews/2026-09-10/dispatch.json
+engineering/reviews/2026-09-10/verify-ledger.mjs
+evidence/rv26-20260910/README.md
+evidence/rv26-20260910/doc-links.log
+evidence/rv26-20260910/integration.json
+evidence/rv26-20260910/ledger-verification.json
+evidence/rv26-20260910/q01/baseline-timing.log
+evidence/rv26-20260910/q01/budget-recheck.log
+evidence/rv26-20260910/q01/core-tests-serial.log
+evidence/rv26-20260910/q01/core-tests.log
+evidence/rv26-20260910/q01/file-compatibility.log
+evidence/rv26-20260910/q01/full-tests-confirmation.log
+evidence/rv26-20260910/q01/full-tests.log
+evidence/rv26-20260910/q01/independent-lifecycle.log
+evidence/rv26-20260910/q01/lifecycle-green.log
+evidence/rv26-20260910/q01/lifecycle-red.log
+evidence/rv26-20260910/q01/lifecycle-service-recheck.log
+evidence/rv26-20260910/q01/manifest.json
+evidence/rv26-20260910/q01/markdown-read-recheck.log
+evidence/rv26-20260910/q01/restart-recheck.log
+evidence/rv26-20260910/q01/smoke-final.log
+evidence/rv26-20260910/worktree-occupancy.txt
+evidence/skin-review-sk1-20260910/README.md
+evidence/skin-review-sk1-20260910/browser.json
+evidence/skin-review-sk1-20260910/browser.mjs
+evidence/skin-review-sk1-20260910/tests.log
+
+The original delta also reports three evidence renames; these are retained as source history and are not treated as a scoped ATT write:
+R090	evidence/skin-review-sk1-20260910/contrast.md	evidence/att-fe01/contrast.log
+R096	evidence/rv26-20260910/q01/smoke.log	evidence/att-fe01/smoke.log
+R053	evidence/rv26-20260910/q01/full-tests-final.log	evidence/att-fe01/tests.log
+
+Safe extraction: a579929edd66544e6aa7cd8cd7d2399fae8265d3..9db6fc4362a07dc8ff20e1914e2ac471f20b62c1 is A33/M4/D0/R0; the merge 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662..1097fd453a6da0d0302cb64a881b48c583dc06d1 carries the same 37-path ATT delta.
+Accepted ATT merge: 055cffcbc18eb26d15f3818aada50b82a4bd0fa8 has parents aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a 1097fd453a6da0d0302cb64a881b48c583dc06d1; first-parent delta from material baseline is the same A33/M4/D0/R0.
+Evidence retained: attention/independent-verification.md, attention/independent-browser-verification.json, attention/logs/astra-current-main-seams.log, and attention/logs/astra-scope-repair-tests.log.

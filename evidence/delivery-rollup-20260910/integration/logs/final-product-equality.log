@@ -1,0 +1,1 @@
+command: git diff --exit-code 1f8317a999abf04508b7fc9d65e758796374aafd HEAD -- app tools docs/work-core docs/runtime-control domains brand

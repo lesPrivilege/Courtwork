@@ -1,0 +1,45 @@
+✔ the projection accepts exactly the actions this app was built against (1.854958ms)
+✔ a descriptor fails closed on a stale revision, an unknown action or a widened schema (0.37475ms)
+✔ the detail offers only advertised, understood actions and never an out-of-scope control (33.1725ms)
+✔ an item whose descriptors this app cannot read offers no controls at all (0.885666ms)
+✔ acknowledge is the action itself: an empty payload, no dialog, no toggle (5.029416ms)
+✔ resolve requires a reason and refuses to send without one (2.580834ms)
+✔ snooze records a next action and only sends a due time when the trigger is one (2.842292ms)
+✔ a recorded due time is required for the at trigger and is sent with its zone (2.857834ms)
+✔ resume and reopen name their target state and offer no third one (1.588959ms)
+✔ a resolved item offers reopen and nothing the contract withdrew (1.014875ms)
+✔ nothing is optimistic: only the submit control changes while a request is open (1.605542ms)
+✔ when the last row of a page leaves, the view backs up to a page that exists (2.004917ms)
+✔ ATT-ACT-1 · a submitted action carries the inspected revision and is read back canonically (318.09925ms)
+✔ ATT-ACT-2 · a stale revision is refused, announced and never silently replayed (1008.615833ms)
+✔ ATT-ACT-3 · a lost response is recovered from the receipt, not guessed (290.926834ms)
+✔ ATT-ACT-4 · a request that never left is retried under its own identity, once (703.281667ms)
+✔ ATT-ACT-5 · a reused identity with different content is refused and surfaced (295.158333ms)
+✔ Snooze records Later, which stays a visible view and starts no timer (711.238ms)
+✔ the workspace holds no timer of its own (1.125958ms)
+✔ relative time reads the recorded instant without rewriting it (13.403ms)
+✔ the state strip is six explicit views and each one is its own exact query (4.864ms)
+✔ All renders the order the server returned and adds no client sort (0.4265ms)
+✔ a row states its status and when the record was updated, and nothing else (0.413042ms)
+✔ J K and the arrows walk the list, clamp at both ends and stay out of text controls (0.844708ms)
+✔ Enter opens the focused row and Escape returns focus to it (1.931875ms)
+✔ Back to items returns to the row, never to the project selector (1.804791ms)
+✔ pagination is explicit and a view change starts again at the first page (0.963542ms)
+✔ a pending query keeps the workspace readable and never sorts a half page (0.414958ms)
+✔ a refused read speaks the adjudicated sentence, never the wire code (0.665416ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (2.596375ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.507958ms)
+✔ Home Attention detail accepts only the display contract (0.235042ms)
+✔ standalone Attention ignores an older project query after a newer open (17.554459ms)
+✔ standalone Attention ignores a stale detail after project selection changes (2.12675ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.504167ms)
+✔ Back to items clears a pending detail and rejects its late response (1.177ms)
+✔ Review belongs only to needs_you across Home and Attention states (1.2175ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5836.892833

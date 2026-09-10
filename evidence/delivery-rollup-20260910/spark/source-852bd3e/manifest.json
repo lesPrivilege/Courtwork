@@ -1,0 +1,20 @@
+[
+  {
+    "source_commit": "852bd3e01a06077c105d356004b64021d821b888",
+    "source_path": "engineering/design/spark-surface-2026-09-10/README.md",
+    "archive_path": "README.md.txt",
+    "sha256": "a6da7a289ff128278f45103f9154fd8a9379148aabc3081c5238d73eba0a5e7d"
+  },
+  {
+    "source_commit": "852bd3e01a06077c105d356004b64021d821b888",
+    "source_path": "engineering/design/spark-surface-2026-09-10/projection-contract.md",
+    "archive_path": "projection-contract.md.txt",
+    "sha256": "3d2c9bfbf60b5a1b3f6f5bea6d7a63fc97319318dd4bc235c604b1e779830456"
+  },
+  {
+    "source_commit": "852bd3e01a06077c105d356004b64021d821b888",
+    "source_path": "engineering/design/spark-surface-2026-09-10/construction-handoff.md",
+    "archive_path": "construction-handoff.md.txt",
+    "sha256": "762062c1ab9e5bb31f364cb7f0fce4b2f901fda6434d007682b79349283624e3"
+  }
+]

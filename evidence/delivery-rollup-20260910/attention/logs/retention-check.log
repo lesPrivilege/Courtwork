@@ -1,0 +1,6 @@
+Candidate retention check (read-only, detached tree):
+  git merge-base --is-ancestor 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 1097fd453a6da0d0302cb64a881b48c583dc06d1
+  exit 0
+  git diff --name-only 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662..1097fd453a6da0d0302cb64a881b48c583dc06d1 | wc -l
+  37
+The delta is scoped to app/web Attention files, focused tests/fixtures, and ATT-FE-01 delivery/evidence. No app/core, app/server, app/runtime, Runtime11, SK-1, or FE-05a source/evidence files are in the delta. Runtime11/SK-1/FE-05a are inherited from 68b8d3d; the candidate does not merge the superseded cd1326d directly.

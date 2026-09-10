@@ -1,0 +1,11 @@
+$ APP_URL=http://127.0.0.1:8939 WK6_CDP_PORT=20170 node evidence/fe05a/shape-checks.mjs
+ok SHAPE-2
+ok SHAPE-7
+ok SHAPE-4
+ok SHAPE-5
+ok SHAPE-6
+ok SHAPE-1-row
+ok SHAPE-1-card
+ok SHAPE-3
+8/8
+exit=0

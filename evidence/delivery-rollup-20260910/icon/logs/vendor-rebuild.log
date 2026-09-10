@@ -1,0 +1,2 @@
+$ node tools/ui-vendor/build.mjs
+exit=0

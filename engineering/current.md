@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 最新接收：五项顺序独验与主线整合（2026-09-10）
+
+用户授权的 ICON、FE-05a、FE-05 材质 specimen、ATT-FE-01 与 Spark 均已由 Luna 顺序独立验收通过，产品合流固定 `d0118ab356c541f0ff2dcd9bc867c438399d3e7d`；本轮台账回执提交后快进并推送唯一远端 main。当前 **RuntimeStore 11 / Core 4 / app 5**，保留 SK-1…4、Q01/Q02。此前各段 schema 数字仅属历史时点。
+
+整合排除了原 Attention 分支的非工单回退；材质真实媒体回退与 Spark 绑定 Work 路由经 Astra 修补后分别由 Luna 复验。最终全量 **643/643**，Spark 独立 44/44 针对测试与 22/22 浏览器、Attention 独立 29/29 针对与 116/116 浏览器通过；FE-05a 的 baseline/Shape/治理/字阶/Home16、材质实际媒体与 ICON 重建核对通过。固定测试版本、最终树一致性、各轮归因与原始失败证据见[整合回执](../evidence/delivery-rollup-20260910/README.md)及[独立合流审计](../evidence/delivery-rollup-20260910/merge-audit/README.md)。
+
+FE-05 接收范围仅材质标本及回退，不代表生产材质选向 A–E 已实施；BE-40@Attention 默认排序、grant/proposal 与 BE-41 Spark 后端仍开放，前端不关闭 RV26-SP01 / ME03。先前 CC-I `41966b6` 独验不通过保持。G1–G5 不关闭；未运行真实 provider、迁移个人数据或部署。下列历史交付描述保留原时点，不覆盖本段最新结果。
+
 用户授权的 Skin/Review/Appearance 界面自主续行已完成；[完成清单与证据](design/skin-injection-2026-09-10/autonomous-loop.md)全部适用项通过，收束本轮 heartbeat。本轮无已知有界界面阻断，不扩大后端 authority、其余产品队列或部署授权。
 
 ## SK-3 / SK-4：Dystopia 与主题诊断（2026-09-10）

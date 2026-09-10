@@ -1,0 +1,272 @@
+{
+  "kind": "FE-05 independent CSSOM @supports fallback verification",
+  "source": {
+    "tree": "repair v2 tree /private/tmp/cw-material-delivery-repair-20260910",
+    "product": "93a641fd91e1615f2f8495f4f4576d310753740c",
+    "base": "a579929edd66544e6aa7cd8cd7d2399fae8265d3"
+  },
+  "environment": {
+    "url": "http://127.0.0.1:8933/engineering/design/material-specimen-2026-09-10/index.html",
+    "chrome": "Chrome/152.0.7977.83",
+    "cdpPort": 20187,
+    "widths": [
+      1440,
+      1024,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "method": "same-origin CSSOM replace @supports not(backdrop-filter) with @supports (display:block); declaration execution only"
+  },
+  "samples": [
+    {
+      "width": 1440,
+      "height": 900,
+      "scheme": "light",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    },
+    {
+      "width": 1024,
+      "height": 900,
+      "scheme": "light",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scheme": "light",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "scheme": "dark",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    },
+    {
+      "width": 1024,
+      "height": 900,
+      "scheme": "dark",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scheme": "dark",
+      "before": {
+        "rows": 18,
+        "activeSamplingLayers": 10,
+        "masks": 3,
+        "overflow": 0,
+        "check": true
+      },
+      "cssomPatch": {
+        "ok": true,
+        "index": 106,
+        "beforeCondition": "not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) )",
+        "afterCondition": "(display: block)",
+        "beforeSnippet": "@supports not ( (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) ) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[da",
+        "afterSnippet": "@supports (display: block) {\n  :root .jump-latest-button, :root .context-popover, :root .chat-header[data-h=\"h1\"], :root .composer-form[data-variant=\"c1\"], :root .spec-inspector[data-variant=\"transient\"], :root .spec-nested-parent, :root .s"
+      },
+      "after": {
+        "rows": 18,
+        "activeSamplingLayers": 0,
+        "masks": 0,
+        "overflow": 0,
+        "geometryUnchanged": true,
+        "check": {
+          "ok": true,
+          "checks": [
+            "sampling layers only on declared specimen variants",
+            "blur radius in {12px, 16px}",
+            "no nested sampling layers outside the negative control",
+            "reduce / nosupport clear both backdrop-filter and mask-image",
+            "fallback preserves label, control count and geometry",
+            "no content plane carries a material"
+          ],
+          "problems": []
+        },
+        "residualMaterialStyles": []
+      }
+    }
+  ],
+  "network": {
+    "failed": [],
+    "responses": []
+  },
+  "runtimeExceptions": [],
+  "failures": [],
+  "pass": true
+}

@@ -1,0 +1,2 @@
+command: node tools/lint-materials.mjs
+lint-materials: ok (3 files · 登记类名与 reduced-transparency 回退两项)

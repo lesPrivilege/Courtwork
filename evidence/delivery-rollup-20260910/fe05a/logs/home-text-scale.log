@@ -1,0 +1,6 @@
+$ APP_URL=http://127.0.0.1:8939 WK6_CDP_PORT=20170 node evidence/fe05a/home-text-scale.mjs
+ok HOME-16-small room=227 scale=0.929
+ok HOME-16-medium room=213 scale=1
+ok HOME-16-large room=159 scale=1.143
+3/3
+exit=0

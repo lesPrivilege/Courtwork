@@ -1,0 +1,14 @@
+command: node tools/lint-shapes.mjs
+lint-shapes: ok (3 files · token / 0 / 派生式三种取值)
+lint-shapes: 满弧登记 11 处（人工复核 isolated / prominent，见 WK-128 ⑦）：
+  app/web/styles.css:1420 .jump-latest-button
+  app/web/styles.css:1510 .composer-run-hint::before
+  app/web/styles.css:1675 .tab-activity
+  app/web/styles.css:2803 #send-button, #cancel-run-button
+  app/web/styles.css:2962 .run-badge.running::before, .run-badge.waiting_user::before
+  app/web/styles.css:3109 .status-badge
+  app/web/styles.css:3654 .connection-dot
+  app/web/styles.css:3969 .runtime-switch input::before
+  app/web/styles.css:3980 .runtime-switch input::after
+  app/web/styles.css:4192 .runtime-chip
+  app/web/styles.css:5753 .spark-chip

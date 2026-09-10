@@ -1,0 +1,33 @@
+Incremental Spark Work-route merge audit
+Generated from immutable Git trees; no product files, providers, credentials, or mutable state were read or changed.
+repository: /private/tmp/cw-delivery-rollup-20260910
+base: 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 (Spark shape candidate before route repair)
+repair source: 936239dca9d7eac0cab859960f8b19950c760193 (parent 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99)
+pre-repair candidate: 4003c548a314246d8c46516c4033fa5602e19c4b (first parent of final candidate)
+final candidate: 1f8317a999abf04508b7fc9d65e758796374aafd (parents 4003c548a314246d8c46516c4033fa5602e19c4b, 936239dca9d7eac0cab859960f8b19950c760193)
+
+Source delta 20d..936:
+  A	app/tests/spark-routing.test.mjs; M	app/web/app.mjs; M	evidence/spark-delivery-20260910/README.md; A	evidence/spark-delivery-20260910/routing-unit-before.log; A	evidence/spark-delivery-20260910/routing-unit.log
+  status counts: A3,M2
+  shortstat: 5 files changed, 210 insertions(+), 2 deletions(-)
+
+Merge integration 4003..1f:
+  A	app/tests/spark-routing.test.mjs; M	app/web/app.mjs; M	evidence/spark-delivery-20260910/README.md; A	evidence/spark-delivery-20260910/routing-unit-before.log; A	evidence/spark-delivery-20260910/routing-unit.log
+  changed path set equals source delta: PASS
+  shortstat: 5 files changed, 210 insertions(+), 2 deletions(-)
+
+Per-path mode/blob result in spark-route-incremental-retention.tsv:
+  union tree paths: 3594
+  retained_exact: 3589
+  patch_applied_exact: 5
+  UNEXPECTED_MERGE_DIFF: 0
+  result: PASS
+
+Boundary:
+  4003 is the pre-repair candidate, so its old app.mjs/README blobs and absent new evidence/test files are expected before 936 is merged.
+  1f contains all five 936 source-delta paths with exact mode/blob equality; its other 3589 tree paths retain 4003 mode/blob equality.
+  This is source/merge evidence only. It does not independently accept the patch, claim BE-41 snapshot readback, or close RV26-SP01/ME03.
+
+Diff-check note:
+  git diff --check 20d..936 and 4003..1f report six inherited trailing-whitespace lines in routing-unit-before.log; those bytes are preserved as failure provenance.
+  protected app/server/index.mjs and app/core.mjs unchanged across 4003..1f: PASS

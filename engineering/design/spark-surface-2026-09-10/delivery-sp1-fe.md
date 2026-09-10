@@ -1,5 +1,7 @@
 # WO-SP1-FE · 交付回执
 
+整合补记（2026-09-10）：原交付 `63840a7` 经 Astra 接缝与路由修补为 `936239d`，非作者 Luna 最终独立 44/44 针对测试、22/22 真实 host 浏览器通过，已合流 `d0118ab`。见[独立回执](../../../evidence/delivery-rollup-20260910/spark/independent-verify-repair-20260910/README.md)与[整合总账](../../../evidence/delivery-rollup-20260910/README.md)。当前签名、分页/scope 校验与 Work 路由以最终源码及补丁为准；下文保留原作者时点，不能把原始 `/projects` / `getProjects` 接缝描述当作最终实现。BE-41 仍未实现；前端通过不关闭 RV26-SP01 / ME03。
+
 作者 Luna。开工基线 main `0c60f4f`，工作树 `/private/tmp/cw-spark-fe-20260910`，分支 `codex/spark-fe-20260910`。数据目录 `/private/tmp/cw-spark-fe-data`（未使用：本片无 mutation，无需数据目录）。端口 8861（仅用于本回执"验证"节所述的只读临时静态服务，未起产品 server）。
 
 作者验证不构成独立接受，按 [SP-9](integration-ruling.md) 与工单，需未参与该代码的 Luna（或指定复核者）独立验证。

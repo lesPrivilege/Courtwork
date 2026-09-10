@@ -1,0 +1,35 @@
+✔ Home Activity rejects malformed dates, totals, and requested periods (2.862083ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.384875ms)
+✔ Home Attention detail accepts only the display contract (0.197666ms)
+✔ standalone Attention ignores an older project query after a newer open (3.477708ms)
+✔ standalone Attention ignores a stale detail after project selection changes (1.277458ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.258875ms)
+✔ Back to items clears a pending detail and rejects its late response (0.653917ms)
+✔ Review belongs only to needs_you across Home and Attention states (37.833709ms)
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+✔ 产品样式表通过形状 lint (77.722917ms)
+✔ 满弧写成 50% 会被拒绝，并指回 --radius-pill (68.170209ms)
+✔ 组件私有的游离圆角会被拒绝 (65.730708ms)
+✔ 不建立在形状角色上的表达式会被拒绝，派生式与多角声明通过 (136.122083ms)
+✔ 登记表内的形状按登记放行 (65.895375ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (0.85375ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.098833ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.224208ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.142125ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (0.704625ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.334208ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.250208ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (0.31775ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.270208ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.292834ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (0.238542ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 760.013625

@@ -1,5 +1,7 @@
 # FE-05a 交付 · 缺陷基线修复、Shape 语法与 V1 字阶密度
 
+整合补记（2026-09-10）：固定作者头 `463d57c`、证据冻结 `0b457f8` 已由非作者 Luna 完成[独立有界验收](../../../../evidence/delivery-rollup-20260910/fe05a/independent-verification.md)，合流 `68b8d3d`。后续组合全量为 643/643，见[整合回执](../../../../evidence/delivery-rollup-20260910/README.md)。下文保留作者交付时点与其验证数字，不与后续独立结果混称。
+
 2026-09-10 · Claude Opus，**作者验证**。独立验收另计；本页不代它写结论，也不自称独验。
 工单 [WO-CC-round5 §FE-05a](work-orders/WO-CC-round5.md)、[WO-FE05A 派单提示词](work-orders/WO-FE05A-dispatch-prompt.md)。
 上游裁定：WK-120（成熟感 = 密度 + 留白对齐 + 层级）、WK-123 (b)（选向 **V1**）、WK-126 ⑦（M-15）、

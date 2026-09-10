@@ -1,0 +1,56 @@
+# Spark Projection · 前端需求合同草案
+
+SP0使用合成fixture表达产品问题。下面是Astra的接缝裁决，**不是新API/schema已冻结**；实施前由相应owner给出字段、时钟、授权与动作后果。Luna源码核对基线为main `8b1e0b1`。
+
+## 字段来源与准入
+
+| UI要求 | 今日可复用 | 当前缺口 / 生产准入 |
+|---|---|---|
+| 维护status、active matters、next run | Runtime Run状态；async task状态 | 无Spark运行身份/taxonomy/scheduler。不得把任何Run都算maintenance；enabled、paused、next_run均需owner |
+| sources checked/changed、notes refreshed、indexes rebuilt | Core Source/Candidate/Decision/Artifact身份/版本 | 没有这些维护operation事实；需要明确发生时间、计数单位、去重键、effect/结果与失败覆盖 |
+| since last seen | Attention对象seen已有 | 无Spark cursor；不得复用。先显示固定interval/asOf与coverage，后做view watermark |
+| Activity / usage | `work-metrics` UTC retained Run buckets；`usage-details`每日/model、snapshotId与匹配Run读面 | 计量对象是Run，不是维护次数；需可验证的Spark origin映射再筛选。删除会话导致保留记录变化，历史完整度仍unknown |
+| Context path | request telemetry有字符/4的heuristic；runtime有context容量与admitted/deferred chars | 不是corpus/retrieval/compiled token计数。定义每阶段单位、tokenizer、snapshot、去重与内容范围后再画；现有estimate绝不变meter |
+| Work mix | Run model/effort及tool调用身份 | 不能推出deterministic/fast/strong/human分类；需显式operation policy分类与版本。总数包含unclassified时不得叫classified |
+| Candidate outcomes / promotion | Core candidate状态与Decision/accepted Artifact | 当前cohort可由正式owner提供；不能把supersedes当stale note，不由无时间的记录推期内funnel。Validation/evidence/acceptance保持不同轴 |
+| Attention links | `needs_you`、revision、reason、next_action、source/relation refs | Spark→Attention何时创建、去重/撤回/解决均需同owner合同，UI不自行新增事项或resolve |
+| ReportFacts / history | 既有owner记录可作为未来聚合输入 | 无Spark report snapshot、周期/更新/更正合同。报告id和asOf不等于新的正式状态owner |
+| Trace | 当前semantic events有callId/tool/status；request host延迟与usage | 无完整span parent/start/end。不得伪造OTel tree、provider TTFT/TPS或成本；内容capture默认无，真实opt-in另定 |
+| Controls | 既有Runtime policy与对象披露规则可借行为 | 无Spark budget、schedule、retention、fallback政策。UI稿不授予新权限；只读live首片不包含这些mutation |
+| Ask about this | 可以绑定当前Run/Source refs的问句意图 | 实际新Chat/Run和权限重验须现有Session owner接入，source version需要确切绑定；不dump全trace |
+
+源码入口：[work-metrics](../../../app/server/work-metrics.mjs)、[usage-details](../../../app/server/usage-details.mjs)、[request telemetry](../../../app/docs/request-telemetry.md)、[Attention](../../../app/docs/attention-agent.md)、[Core](../../../docs/work-core/contract.md)、[async](../../../app/docs/async-tasks.md)。`scheduler:false`与BG-02有界lineage不能被页面上的Run now/paused反向改成可用能力。
+
+## 投影 envelope 候选
+
+```ts
+// Proposed semantics only. No endpoint or persistence table is created by SP0.
+type Measurement = {
+  value: number | null;
+  availability: 'observed' | 'estimated' | 'partial' | 'unavailable';
+  unit: string;
+  basis: string;              // owner fact / derivation and version
+  scopeRef: string;
+  snapshotRef: string;
+  asOf: string;
+  interval?: { start: string; endExclusive: string; timezone: 'UTC' };
+};
+// Synthetic is an environment provenance flag, not a production availability state.
+// A synthetic sample can still contain observed-like, partial or unavailable values.
+```
+
+生产的identity/authorization/versions在owner；projection只返回受当前权限限制的事实。分页与drill-down携带同snapshot/scope/filter，源版本或权限变化须拒绝旧观察或返回显式失效，不能把过期report串成当前值。零、缺失、估算、部分不同；不同单位不能加总，不能把无记录画成历史无活动。
+
+## 各图形的约束
+
+- **Context**：单一Run/source snapshot，具体阶段有不同内容；actual input包含instructions/tools且可能高于compiled。只有证明同口径、包含关系、去重与tokenizer后才准入比例；仍不能由“少喂tokens”直接宣称正确性或成本节省。
+- **Work mix**：一个operation最多一个class；总数、未分类、遗漏/in-flight均披露。时间、费用、tool调用、source checks、人类决定是其他单位。展示百分比需分母非零；不能按provider强弱刻板归类。
+- **Promotion**：固定cohort与observation；当前互斥outcome可加总。Validation与evidence核验有自己的状态，未必是串行漏斗；如做真正转换率须同一cohort、合法时间范围、重试/取代/重复去重定义。
+- **Heatmap**：source-check occurrences与现有retained Run/token热图分别命名；UTC日、阈值可见、exact table、键盘/触摸等价。缺失/partial不涂成零；不把activity强度变人的生产力评分。
+- **Report**：先确定性aggregation得到带来源/版本/coverage的ReportFacts，再可选叙事。叙事不得增加数字/效果，纠错保留report版本关系，不复制formal接受。
+
+## 控制与动作
+
+Scope选择不授予source访问；tier/fallback不越现有ceiling；取消请求不等于取消完成；paused是禁止新调度，不能清除正在运行/未知效果。Run now要明确目标binding、commandId、权限、预算与幂等，不能跳过BG-02/BG-03。Save应CAS绑定policy revision，冲突/拒绝保留草稿；新来源/权限变化不可静默save成功。
+
+SP0仅演示trigger、scope、boolean capability、number、choice、disclosure、save/error与run场景预览，不强行画齐原材料18类控件。生产缺少owner的slider、permission matrix、raw cron、full-content opt-in均后置。Retention不得由一个数字删除正式证据，技术trace与来源/决定的保留要求分开。

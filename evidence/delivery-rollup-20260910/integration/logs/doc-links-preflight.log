@@ -1,0 +1,12 @@
+{
+  "pass": false,
+  "documents": 723,
+  "checked": 3413,
+  "problems": [
+    {
+      "file": "evidence/delivery-rollup-20260910/merge-audit/README.md",
+      "target": "evidence/spark-delivery-20260910/browser-regressions.json",
+      "reason": "not a repository source path"
+    }
+  ]
+}

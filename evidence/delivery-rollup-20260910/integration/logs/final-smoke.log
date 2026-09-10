@@ -1,0 +1,16 @@
+command: node app/scripts/runtime-smoke.mjs
+{
+  "status": "passed",
+  "provider": "local-fake",
+  "transport": "public runtime service",
+  "checks": [
+    "material read",
+    "tool write",
+    "persisted artifact",
+    "runtime close/reopen",
+    "session continuation",
+    "revision",
+    "historical bytes"
+  ],
+  "realProvider": "not_run"
+}

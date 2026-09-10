@@ -1,0 +1,4 @@
+Command (detached verify tree):
+  node --test app/tests/attention-triage.test.mjs app/tests/attention-actions.test.mjs app/tests/attention-triage-recovery.test.mjs
+Result captured 2026-09-10: 29 tests, 29 pass, 0 fail, 0 cancelled, 0 skipped.
+Coverage: typed descriptor closed set; stale revision/no replay; lost response and pre-send retry; idempotency conflict; Later/no scheduler; exact views/order/row/time; J/K/Enter/Escape/focus; pagination and refusal copy.

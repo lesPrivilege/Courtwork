@@ -1,0 +1,26 @@
+{
+  "projectId": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+  "count": 5,
+  "items": [
+    {
+      "id": "counsel",
+      "status": "waiting"
+    },
+    {
+      "id": "filing",
+      "status": "later"
+    },
+    {
+      "id": "indexing",
+      "status": "investigating"
+    },
+    {
+      "id": "renewal",
+      "status": "needs_you"
+    },
+    {
+      "id": "served",
+      "status": "resolved"
+    }
+  ]
+}

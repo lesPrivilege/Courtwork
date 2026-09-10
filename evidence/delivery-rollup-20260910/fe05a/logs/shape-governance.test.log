@@ -1,0 +1,18 @@
+$ node --test app/tests/shape-governance.test.mjs
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+✔ 产品样式表通过形状 lint (73.86425ms)
+✔ 满弧写成 50% 会被拒绝，并指回 --radius-pill (63.963459ms)
+✔ 组件私有的游离圆角会被拒绝 (68.85275ms)
+✔ 不建立在形状角色上的表达式会被拒绝，派生式与多角声明通过 (127.688791ms)
+✔ 登记表内的形状按登记放行 (65.20025ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 488.295584
+exit=0

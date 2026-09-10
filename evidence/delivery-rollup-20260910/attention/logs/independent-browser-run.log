@@ -1,0 +1,8 @@
+Command:
+  APP_URL=http://127.0.0.1:8951 WK6_CDP_PORT=20191 node scripts/independent-browser-verify-20260910.mjs
+Source execution tree:
+  /private/tmp/cw-attention-delivery-verify-20260910 @ 1097fd453a6da0d0302cb64a881b48c583dc06d1
+Synthetic data:
+  /private/tmp/cw-att-fe01-verify-data-20260910c
+Result: exit 0; independent-browser-verification.json overall PASS; 116 recorded assertions; page exceptions 0.
+The run used local HTTP only and no paid provider, credentials, personal data, or external delivery.

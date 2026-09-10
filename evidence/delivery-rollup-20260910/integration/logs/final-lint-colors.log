@@ -1,0 +1,2 @@
+command: node tools/lint-colors.mjs
+lint-colors: ok (30 files · 字面量与高度层两项)

@@ -1,5 +1,7 @@
 # ATT-FE-01 交付 · Attention 处置面（WK-158）
 
+整合补记（2026-09-10）：谱系修复 `9db6fc4` 与当前主线组合 `1097fd4` 已由非作者 Luna 完成[独立验收](../../../../evidence/delivery-rollup-20260910/attention/independent-verification.md)，116/116 浏览器与 29/29 针对测试通过，合流 `055cffc`。BE-40@Attention 默认排序合同仍未关闭；grant / proposal 等后续范围不变。下文为原作者交付时点，数字不与后续组合 643/643 混称。
+
 2026-09-10，Claude Opus，**作者验证**；未独验，未部署，不代表产品验收。
 派单 [WO-ATT-FE01 §切片 d](work-orders/WO-ATT-FE01.md) 与本轮执行单（Round 4/6，Fable）。
 设计裁定 [attention-triage-2026-09-10](../../../design/attention-triage-2026-09-10/README.md)（WK-152…WK-160）。
@@ -9,7 +11,7 @@
 
 | 项 | 值 |
 |---|---|
-| 基线 | `main` `2e9da09`（执行时的 HEAD，与规划快照同一提交） |
+| 声明的差分基线 | `main` `2e9da09`；实际提交父节点与谱系修复见下方更正 |
 | 分支 | `claude/att-fe01-triage` |
 | 端口 / 数据 | 8899、CDP 19951；`/private/tmp/se-att-fe01-data/*`，全程 local-fake / loopback，无真实 provider、无凭据读取 |
 

@@ -97,3 +97,7 @@ design_task:
 **明确不在本单**（留待后续施工）：source-aware 行与 source-native 详情（等 HL-A0 typed 观察快照）、proposal 的实际渲染与批准流（等 HL-A1）、批量动作、saved views、密度档、batching / bundles / delivery schedule（需 scheduler owner）、TPS 与 live instrumentation（已冻结为 null）、真实 Email / GitHub 接入（需真实账户与外发授权，均未授权）。
 
 **四项派单前置已全部关闭**：词表 §6 已定（WK-136）；M-3 定稿（WK-158）；入口位置由既有事实关闭（侧栏 `index.html:119`，与 `New chat` / `Home` 同排——unresolved ① 消解）；动作动词表见 copy-convention §3.8。原 unresolved ②（详情在 Attention 面内还是作为 Work surface 一个 tab 类型）由既有事实关闭：详情已在 Attention 面内，四类型合同未动。
+
+## 2026-09-10 执行回执
+
+切片 d 经谱系修复和非作者 Luna 独立验收，接入主线组合 `055cffc`；[交付补记](../delivery-att-fe01.md)与[独立证据](../../../../../evidence/delivery-rollup-20260910/attention/independent-verification.md)分列作者与复核结果。WK-155 的落点反转由 Astra 本次合流确认：侧栏打开事项面，助手保留为面内显式入口。状态条使用后端现有返回顺序；BE-40@Attention 排序合同仍待后端单，不以本片关闭。grant、attach_relation、proposal、批量与 scheduler 未扩大为交付。

@@ -1,0 +1,5239 @@
+{
+  "candidate": "1097fd453a6da0d0302cb64a881b48c583dc06d1",
+  "origin": "http://127.0.0.1:8951",
+  "viewport": {
+    "last": {
+      "width": 1440,
+      "height": 900
+    },
+    "theme": "light"
+  },
+  "views": {
+    "labels": [
+      "All",
+      "Investigating",
+      "Needs you",
+      "Waiting",
+      "Later",
+      "Resolved"
+    ],
+    "pressed": [
+      "All"
+    ],
+    "group": "Attention views"
+  },
+  "rows": {
+    "serverOrder": [
+      "Counsel review of the draft",
+      "Filing window check",
+      "Exhibit index rebuild",
+      "Contract renewal reply",
+      "Service confirmation"
+    ],
+    "anatomy": [
+      {
+        "id": "item-counsel",
+        "title": "Counsel review of the draft",
+        "status": "Waiting",
+        "time": "Updated 0m ago",
+        "datetime": "2026-09-10T06:24:31.513+00:00",
+        "rowText": "Counsel review of the draftWaitingUpdated 0m ago"
+      },
+      {
+        "id": "item-filing",
+        "title": "Filing window check",
+        "status": "Later",
+        "time": "Updated 0m ago",
+        "datetime": "2026-09-10T06:24:31.517+00:00",
+        "rowText": "Filing window checkLaterUpdated 0m ago"
+      },
+      {
+        "id": "item-indexing",
+        "title": "Exhibit index rebuild",
+        "status": "Investigating",
+        "time": "Updated 0m ago",
+        "datetime": "2026-09-10T06:24:31.509+00:00",
+        "rowText": "Exhibit index rebuildInvestigatingUpdated 0m ago"
+      },
+      {
+        "id": "item-renewal",
+        "title": "Contract renewal reply",
+        "status": "Needs you",
+        "time": "Updated 0m ago",
+        "datetime": "2026-09-10T06:24:31.507+00:00",
+        "rowText": "Contract renewal replyNeeds youUpdated 0m ago"
+      },
+      {
+        "id": "item-served",
+        "title": "Service confirmation",
+        "status": "Resolved",
+        "time": "Updated 0m ago",
+        "datetime": "2026-09-10T06:24:31.521+00:00",
+        "rowText": "Service confirmationResolvedUpdated 0m ago"
+      }
+    ],
+    "rendered": [
+      "Counsel review of the draft",
+      "Filing window check",
+      "Exhibit index rebuild",
+      "Contract renewal reply",
+      "Service confirmation"
+    ]
+  },
+  "keyboard": {
+    "start": "item-counsel",
+    "afterJ": "item-counsel",
+    "afterSecondJ": "item-filing",
+    "afterK": "item-counsel",
+    "afterArrowUp": "item-counsel",
+    "clampedAtTop": "item-counsel",
+    "openedTitle": "Counsel review of the draft",
+    "returnedFocus": "item-counsel"
+  },
+  "actions": {
+    "advertised": {
+      "investigating": [
+        "acknowledge",
+        "attach_relation",
+        "request_disclosure",
+        "resolve",
+        "resume",
+        "set_waiting",
+        "snooze"
+      ],
+      "needs_you": [
+        "acknowledge",
+        "attach_relation",
+        "request_disclosure",
+        "resolve",
+        "resume",
+        "set_waiting",
+        "snooze"
+      ],
+      "waiting": [
+        "acknowledge",
+        "attach_relation",
+        "request_disclosure",
+        "resolve",
+        "resume",
+        "set_waiting",
+        "snooze"
+      ],
+      "later": [
+        "acknowledge",
+        "attach_relation",
+        "request_disclosure",
+        "resolve",
+        "resume",
+        "set_waiting",
+        "snooze"
+      ],
+      "resolved": [
+        "acknowledge",
+        "attach_relation",
+        "reopen",
+        "request_disclosure"
+      ]
+    },
+    "rendered": {
+      "investigating": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ],
+      "needs_you": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ],
+      "waiting": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ],
+      "later": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ],
+      "resolved": [
+        "acknowledge",
+        "reopen"
+      ]
+    },
+    "snoozeRequest": {
+      "schema_version": 1,
+      "request_id": "cf79ff05-79e0-4651-bdf5-13a7b746513c",
+      "attention_id": "renewal",
+      "expected_revision": 2,
+      "action": "snooze",
+      "payload": {
+        "reason": "Nothing to do until the window opens.",
+        "next_action": {
+          "kind": "inspect",
+          "label": "Check the filing window",
+          "trigger": "at",
+          "due_at": "2026-09-20T01:30:00.000Z"
+        }
+      }
+    },
+    "snoozeStatus": "later",
+    "unavailable": "This item is unavailable."
+  },
+  "recovery": {
+    "lostResponse": {
+      "actionRequest": {
+        "schema_version": 1,
+        "request_id": "8a910958-41f8-425a-b701-7b062bb8d71d",
+        "attention_id": "indexing",
+        "expected_revision": 1,
+        "action": "acknowledge",
+        "payload": {}
+      },
+      "queryRequestId": "8a910958-41f8-425a-b701-7b062bb8d71d",
+      "acknowledgeEvents": 1,
+      "seen": true
+    },
+    "preSendDrop": {
+      "actionRequests": [
+        {
+          "schema_version": 1,
+          "request_id": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+          "attention_id": "filing",
+          "expected_revision": 2,
+          "action": "acknowledge",
+          "payload": {}
+        },
+        {
+          "schema_version": 1,
+          "request_id": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+          "attention_id": "filing",
+          "expected_revision": 2,
+          "action": "acknowledge",
+          "payload": {}
+        }
+      ],
+      "queryRequestId": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+      "acknowledgeEvents": 1
+    }
+  },
+  "concurrency": {
+    "conflictCopy": "This item changed while you were deciding. Reload it and try again.",
+    "conflictRole": "alert",
+    "firstActionCount": 1,
+    "secondActionCount": 2,
+    "freshRequestId": true
+  },
+  "narrow": {
+    "labelsLight": [
+      "All",
+      "Investigating",
+      "Needs you",
+      "Waiting",
+      "Later",
+      "Resolved"
+    ],
+    "truncatedLight": [],
+    "scrollLight": false,
+    "viewTargetsLight": [
+      44,
+      44,
+      44,
+      44,
+      44,
+      44
+    ],
+    "detailLightListHidden": true,
+    "controlsLight": [
+      {
+        "key": "list-back",
+        "height": 44
+      },
+      {
+        "key": "action-acknowledge",
+        "height": 44
+      },
+      {
+        "key": "action-resume",
+        "height": 44
+      },
+      {
+        "key": "action-set_waiting",
+        "height": 44
+      },
+      {
+        "key": "action-snooze",
+        "height": 44
+      },
+      {
+        "key": "action-resolve",
+        "height": 44
+      },
+      {
+        "key": "open-assistant",
+        "height": 44
+      }
+    ],
+    "truncatedDark": [],
+    "scrollDark": false,
+    "returnedFocus": "item-renewal"
+  },
+  "network": {
+    "requestedPaths": [
+      "/",
+      "/api/v5/attention/conversations",
+      "/api/v5/attention/counsel",
+      "/api/v5/attention/counsel/actions",
+      "/api/v5/attention/filing",
+      "/api/v5/attention/filing/actions",
+      "/api/v5/attention/indexing",
+      "/api/v5/attention/indexing/actions",
+      "/api/v5/attention/no-such-item",
+      "/api/v5/attention/query",
+      "/api/v5/attention/renewal",
+      "/api/v5/attention/renewal/actions",
+      "/api/v5/attention/served",
+      "/api/v5/bootstrap",
+      "/api/v5/extensions",
+      "/api/v5/projects",
+      "/api/v5/provider-config",
+      "/api/v5/sessions",
+      "/api/v5/work-activity",
+      "/api/v5/work-summary",
+      "/brand/src/court-symbol.mjs",
+      "/brand/src/geometry.generated.mjs",
+      "/brand/src/symbol.mjs",
+      "/favicon.ico",
+      "/web/app.mjs",
+      "/web/attention-agent-view.mjs",
+      "/web/attention-conversation.mjs",
+      "/web/attention-view.mjs",
+      "/web/coordination-projection.mjs",
+      "/web/coordination-view.mjs",
+      "/web/home-view.mjs",
+      "/web/inspector.mjs",
+      "/web/markdown-reader.css",
+      "/web/markdown-reader.mjs",
+      "/web/markdown-source.mjs",
+      "/web/materials-view.mjs",
+      "/web/model-picker.mjs",
+      "/web/presentation-adapters.mjs",
+      "/web/runtime-view.mjs",
+      "/web/settings-view.mjs",
+      "/web/shell-layout.mjs",
+      "/web/skin-policy.js",
+      "/web/styles.css",
+      "/web/surface-modules.mjs",
+      "/web/telemetry-view.mjs",
+      "/web/thread-projection.mjs",
+      "/web/ui-controls.mjs",
+      "/web/usage-projection.mjs",
+      "/web/usage-view.mjs",
+      "/web/user-message.mjs",
+      "/web/vendor/floating.mjs",
+      "/web/vendor/icons.svg",
+      "/web/vendor/marked.mjs",
+      "/web/vendor/purify.mjs",
+      "/web/workspace-view.mjs",
+      "image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJXaW5kb3dUZXh0IiBkPSJNMjAgM2gtMVYxaC0ydjJIN1YxSDV2Mkg0Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6bTAgMThINFY4aDE2djEzeiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4="
+    ],
+    "runResponses": 0,
+    "recordedRunCount": 0,
+    "sessions": 0,
+    "pageExceptions": 0
+  },
+  "checks": [
+    {
+      "name": "HTTP 200 /projects",
+      "status": "PASS",
+      "details": {
+        "projects": [
+          {
+            "id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+            "name": "Northside Housing",
+            "createdAt": "2026-09-10T06:24:31.398Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "six explicit state view labels",
+      "status": "PASS",
+      "details": [
+        "All",
+        "Investigating",
+        "Needs you",
+        "Waiting",
+        "Later",
+        "Resolved"
+      ]
+    },
+    {
+      "name": "All is default view",
+      "status": "PASS",
+      "details": [
+        "All"
+      ]
+    },
+    {
+      "name": "state view group label",
+      "status": "PASS",
+      "details": "Attention views"
+    },
+    {
+      "name": "HTTP 200 /attention/query",
+      "status": "PASS",
+      "details": {
+        "count": 5,
+        "disclosure": {
+          "count_scope": "visible",
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "items": [
+          {
+            "attention_id": "counsel",
+            "descriptor": {
+              "title": "Counsel review of the draft"
+            },
+            "disclosure": {
+              "fields": [
+                "details",
+                "events",
+                "registry",
+                "relations",
+                "signal",
+                "sources"
+              ],
+              "policy": "local-attention-v1",
+              "purpose": "human-attention"
+            },
+            "freshness": "current",
+            "revision": 2,
+            "schema_version": 1,
+            "status": "waiting",
+            "updated_at": "2026-09-10T06:24:31.513+00:00"
+          },
+          {
+            "attention_id": "filing",
+            "descriptor": {
+              "title": "Filing window check"
+            },
+            "disclosure": {
+              "fields": [
+                "details",
+                "events",
+                "registry",
+                "relations",
+                "signal",
+                "sources"
+              ],
+              "policy": "local-attention-v1",
+              "purpose": "human-attention"
+            },
+            "freshness": "current",
+            "revision": 2,
+            "schema_version": 1,
+            "status": "later",
+            "updated_at": "2026-09-10T06:24:31.517+00:00"
+          },
+          {
+            "attention_id": "indexing",
+            "descriptor": {
+              "title": "Exhibit index rebuild"
+            },
+            "disclosure": {
+              "fields": [
+                "details",
+                "events",
+                "registry",
+                "relations",
+                "signal",
+                "sources"
+              ],
+              "policy": "local-attention-v1",
+              "purpose": "human-attention"
+            },
+            "freshness": "unknown",
+            "revision": 1,
+            "schema_version": 1,
+            "status": "investigating",
+            "updated_at": "2026-09-10T06:24:31.509+00:00"
+          },
+          {
+            "attention_id": "renewal",
+            "descriptor": {
+              "title": "Contract renewal reply"
+            },
+            "disclosure": {
+              "fields": [
+                "details",
+                "events",
+                "registry",
+                "relations",
+                "signal",
+                "sources"
+              ],
+              "policy": "local-attention-v1",
+              "purpose": "human-attention"
+            },
+            "freshness": "current",
+            "revision": 2,
+            "schema_version": 1,
+            "status": "needs_you",
+            "updated_at": "2026-09-10T06:24:31.507+00:00"
+          },
+          {
+            "attention_id": "served",
+            "descriptor": {
+              "title": "Service confirmation"
+            },
+            "disclosure": {
+              "fields": [
+                "details",
+                "events",
+                "registry",
+                "relations",
+                "signal",
+                "sources"
+              ],
+              "policy": "local-attention-v1",
+              "purpose": "human-attention"
+            },
+            "freshness": "current",
+            "revision": 2,
+            "schema_version": 1,
+            "status": "resolved",
+            "updated_at": "2026-09-10T06:24:31.521+00:00"
+          }
+        ],
+        "next_offset": null,
+        "offset": 0,
+        "schema_version": 1,
+        "truncated": false
+      }
+    },
+    {
+      "name": "All preserves server registry order",
+      "status": "PASS",
+      "details": [
+        "Counsel review of the draft",
+        "Filing window check",
+        "Exhibit index rebuild",
+        "Contract renewal reply",
+        "Service confirmation"
+      ]
+    },
+    {
+      "name": "rows expose title status and updated_at time",
+      "status": "PASS"
+    },
+    {
+      "name": "registry rows remain minimal",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit investigating view queries server state",
+      "status": "PASS",
+      "details": [
+        "indexing"
+      ]
+    },
+    {
+      "name": "explicit needs_you view queries server state",
+      "status": "PASS",
+      "details": [
+        "renewal"
+      ]
+    },
+    {
+      "name": "explicit waiting view queries server state",
+      "status": "PASS",
+      "details": [
+        "counsel"
+      ]
+    },
+    {
+      "name": "explicit later view queries server state",
+      "status": "PASS",
+      "details": [
+        "filing"
+      ]
+    },
+    {
+      "name": "explicit resolved view queries server state",
+      "status": "PASS",
+      "details": [
+        "served"
+      ]
+    },
+    {
+      "name": "keyboard starts on first server row",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "J clamps at first row",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "J advances to next row",
+      "status": "PASS",
+      "details": "item-filing"
+    },
+    {
+      "name": "K moves back",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "ArrowUp moves back",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "K/ArrowUp clamp at top",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "Enter opens focused item",
+      "status": "PASS",
+      "details": "Counsel review of the draft"
+    },
+    {
+      "name": "Escape returns focus to originating row",
+      "status": "PASS",
+      "details": "item-counsel"
+    },
+    {
+      "name": "HTTP 200 /attention/indexing?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "indexing",
+        "basis": {
+          "event_id": "attevt-71670cc9-0a75-4b2a-9f74-1fcf064f9d6c",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 1,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Exhibit index rebuild"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "unknown",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 1,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-71670cc9-0a75-4b2a-9f74-1fcf064f9d6c",
+        "next_action": {
+          "due_at": null,
+          "kind": "inspect",
+          "label": "Compare the two lists",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Two exhibit lists disagree about the same document set.",
+        "relation_refs": [],
+        "revision": 1,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "investigating",
+        "updated_at": "2026-09-10T06:24:31.509+00:00"
+      }
+    },
+    {
+      "name": "investigating controls are exactly recognized advertised actions",
+      "status": "PASS",
+      "details": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ]
+    },
+    {
+      "name": "investigating omits out-of-scope relation/grant controls",
+      "status": "PASS"
+    },
+    {
+      "name": "investigating advertisements carry inspected revision/schema",
+      "status": "PASS"
+    },
+    {
+      "name": "investigating does not invent disclosure state or scheduler",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /attention/renewal?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "renewal",
+        "basis": {
+          "event_id": "attevt-fa8b5f48-ae5d-40e7-84d0-c15f2b20d267",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Contract renewal reply"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-fa8b5f48-ae5d-40e7-84d0-c15f2b20d267",
+        "next_action": {
+          "due_at": null,
+          "kind": "inspect",
+          "label": "Inspect",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "This is the decision that is waiting on a person.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "needs_you",
+        "updated_at": "2026-09-10T06:24:31.507+00:00"
+      }
+    },
+    {
+      "name": "needs_you controls are exactly recognized advertised actions",
+      "status": "PASS",
+      "details": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ]
+    },
+    {
+      "name": "needs_you omits out-of-scope relation/grant controls",
+      "status": "PASS"
+    },
+    {
+      "name": "needs_you advertisements carry inspected revision/schema",
+      "status": "PASS"
+    },
+    {
+      "name": "needs_you does not invent disclosure state or scheduler",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /attention/counsel?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "counsel",
+        "basis": {
+          "event_id": "attevt-eb4578c9-9398-497f-9313-d7e2a97003b2",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Counsel review of the draft"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-eb4578c9-9398-497f-9313-d7e2a97003b2",
+        "next_action": {
+          "due_at": null,
+          "kind": "wait",
+          "label": "Wait for counsel to reply",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Counsel has it.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "waiting",
+        "updated_at": "2026-09-10T06:24:31.513+00:00"
+      }
+    },
+    {
+      "name": "waiting controls are exactly recognized advertised actions",
+      "status": "PASS",
+      "details": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ]
+    },
+    {
+      "name": "waiting omits out-of-scope relation/grant controls",
+      "status": "PASS"
+    },
+    {
+      "name": "waiting advertisements carry inspected revision/schema",
+      "status": "PASS"
+    },
+    {
+      "name": "waiting does not invent disclosure state or scheduler",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /attention/filing?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "filing",
+        "basis": {
+          "event_id": "attevt-5b739769-97dc-4bb6-a25f-873c3bedbdf2",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Filing window check"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-5b739769-97dc-4bb6-a25f-873c3bedbdf2",
+        "next_action": {
+          "due_at": "2026-09-20T09:30:00.000Z",
+          "kind": "follow_up",
+          "label": "Check the filing window",
+          "trigger": "at"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Nothing to do until the window opens.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "later",
+        "updated_at": "2026-09-10T06:24:31.517+00:00"
+      }
+    },
+    {
+      "name": "later controls are exactly recognized advertised actions",
+      "status": "PASS",
+      "details": [
+        "acknowledge",
+        "resume",
+        "set_waiting",
+        "snooze",
+        "resolve"
+      ]
+    },
+    {
+      "name": "later omits out-of-scope relation/grant controls",
+      "status": "PASS"
+    },
+    {
+      "name": "later advertisements carry inspected revision/schema",
+      "status": "PASS"
+    },
+    {
+      "name": "later does not invent disclosure state or scheduler",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /attention/served?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "served",
+        "basis": {
+          "event_id": "attevt-66163cb2-f039-45d8-9522-5b5298ce991f",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Service confirmation"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "reopen",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-66163cb2-f039-45d8-9522-5b5298ce991f",
+        "next_action": {
+          "due_at": null,
+          "kind": "none",
+          "label": "No next action",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Recorded as handled; nothing further is waiting.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "resolved",
+        "updated_at": "2026-09-10T06:24:31.521+00:00"
+      }
+    },
+    {
+      "name": "resolved controls are exactly recognized advertised actions",
+      "status": "PASS",
+      "details": [
+        "acknowledge",
+        "reopen"
+      ]
+    },
+    {
+      "name": "resolved omits out-of-scope relation/grant controls",
+      "status": "PASS"
+    },
+    {
+      "name": "resolved advertisements carry inspected revision/schema",
+      "status": "PASS"
+    },
+    {
+      "name": "resolved does not invent disclosure state or scheduler",
+      "status": "PASS"
+    },
+    {
+      "name": "390 light retains all view labels",
+      "status": "PASS",
+      "details": [
+        "All",
+        "Investigating",
+        "Needs you",
+        "Waiting",
+        "Later",
+        "Resolved"
+      ]
+    },
+    {
+      "name": "390 light view labels do not truncate",
+      "status": "PASS",
+      "details": []
+    },
+    {
+      "name": "390 light has no horizontal document scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "390 light state views have 44px targets",
+      "status": "PASS"
+    },
+    {
+      "name": "390 detail hides list behind detail",
+      "status": "PASS"
+    },
+    {
+      "name": "390 light actionable controls meet 44px target",
+      "status": "PASS"
+    },
+    {
+      "name": "390 dark detail has no truncated view labels",
+      "status": "PASS",
+      "details": []
+    },
+    {
+      "name": "390 dark detail has no horizontal document scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "390 Back returns focus to originating row",
+      "status": "PASS",
+      "details": "item-renewal"
+    },
+    {
+      "name": "lost response performs action then scoped request recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "lost response query uses same request_id",
+      "status": "PASS",
+      "details": "8a910958-41f8-425a-b701-7b062bb8d71d"
+    },
+    {
+      "name": "HTTP 200 /attention/query",
+      "status": "PASS",
+      "details": {
+        "events": [
+          {
+            "action": "create",
+            "attention_id": "indexing",
+            "context": {
+              "actor": "local-user",
+              "execution": null,
+              "project_id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+              "purpose": "human-attention"
+            },
+            "event_id": "attevt-71670cc9-0a75-4b2a-9f74-1fcf064f9d6c",
+            "payload": {
+              "descriptor": {
+                "summary": null,
+                "title": "Exhibit index rebuild"
+              },
+              "next_action": {
+                "due_at": null,
+                "kind": "inspect",
+                "label": "Compare the two lists",
+                "trigger": "manual"
+              },
+              "reason": "Two exhibit lists disagree about the same document set.",
+              "relation_refs": [],
+              "source_refs": []
+            },
+            "previous_revision": 0,
+            "recorded_at": "2026-09-10T06:24:31.509+00:00",
+            "request_id": "5ae43648-61d1-4d05-a85f-c40426befbf8",
+            "result": {
+              "attention_id": "indexing",
+              "event_id": "attevt-71670cc9-0a75-4b2a-9f74-1fcf064f9d6c",
+              "request_id": "5ae43648-61d1-4d05-a85f-c40426befbf8",
+              "revision": 1,
+              "schema_version": 1,
+              "status": "investigating"
+            },
+            "revision": 1,
+            "schema_version": 1,
+            "state_digest": "ee107173e22747ac9fb6a5226826d0b058ee4689e13ea36b6125e313c3da85d5"
+          },
+          {
+            "action": "acknowledge",
+            "attention_id": "indexing",
+            "context": {
+              "actor": "local-user",
+              "execution": null,
+              "project_id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+              "purpose": "human-attention"
+            },
+            "event_id": "attevt-1960ab18-fbbf-4d15-8fc4-fd87b97e9e7a",
+            "payload": {},
+            "previous_revision": 1,
+            "recorded_at": "2026-09-10T06:24:45.800+00:00",
+            "request_id": "8a910958-41f8-425a-b701-7b062bb8d71d",
+            "result": {
+              "attention_id": "indexing",
+              "event_id": "attevt-1960ab18-fbbf-4d15-8fc4-fd87b97e9e7a",
+              "request_id": "8a910958-41f8-425a-b701-7b062bb8d71d",
+              "revision": 2,
+              "schema_version": 1,
+              "status": "investigating"
+            },
+            "revision": 2,
+            "schema_version": 1,
+            "state_digest": "32f45d4fe46a299ece4fd84fd86028183701e93e10197d3ecbb91225558a574c"
+          }
+        ],
+        "next_offset": null,
+        "revision": 2,
+        "schema_version": 1,
+        "truncated": false
+      }
+    },
+    {
+      "name": "lost response creates exactly one acknowledge event",
+      "status": "PASS",
+      "details": 1
+    },
+    {
+      "name": "HTTP 200 /attention/indexing?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "indexing",
+        "basis": {
+          "event_id": "attevt-1960ab18-fbbf-4d15-8fc4-fd87b97e9e7a",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Exhibit index rebuild"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "unknown",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-1960ab18-fbbf-4d15-8fc4-fd87b97e9e7a",
+        "next_action": {
+          "due_at": null,
+          "kind": "inspect",
+          "label": "Compare the two lists",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Two exhibit lists disagree about the same document set.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": true,
+        "source_refs": [],
+        "status": "investigating",
+        "updated_at": "2026-09-10T06:24:45.800+00:00"
+      }
+    },
+    {
+      "name": "lost response recovery reads committed seen state",
+      "status": "PASS",
+      "details": true
+    },
+    {
+      "name": "committed lost response clears uncertain retry state",
+      "status": "PASS"
+    },
+    {
+      "name": "pre-send drop queries scoped receipt",
+      "status": "PASS"
+    },
+    {
+      "name": "pre-send recovery query uses same request_id",
+      "status": "PASS",
+      "details": "b376867e-4cd1-47e3-b973-8727fee8f58a"
+    },
+    {
+      "name": "pre-send drop remains explicitly uncertain",
+      "status": "PASS"
+    },
+    {
+      "name": "pre-send recovery has one original attempt and one retry",
+      "status": "PASS",
+      "details": 2
+    },
+    {
+      "name": "retry preserves exact request identity and payload",
+      "status": "PASS",
+      "details": {
+        "schema_version": 1,
+        "request_id": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+        "attention_id": "filing",
+        "expected_revision": 2,
+        "action": "acknowledge",
+        "payload": {}
+      }
+    },
+    {
+      "name": "HTTP 200 /attention/query",
+      "status": "PASS",
+      "details": {
+        "events": [
+          {
+            "action": "create",
+            "attention_id": "filing",
+            "context": {
+              "actor": "local-user",
+              "execution": null,
+              "project_id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+              "purpose": "human-attention"
+            },
+            "event_id": "attevt-0e18f1ab-9a80-448c-946a-26f909485529",
+            "payload": {
+              "descriptor": {
+                "summary": null,
+                "title": "Filing window check"
+              },
+              "next_action": {
+                "due_at": null,
+                "kind": "follow_up",
+                "label": "Check the window",
+                "trigger": "manual"
+              },
+              "reason": "The filing window opens later and there is nothing to do before then.",
+              "relation_refs": [],
+              "source_refs": []
+            },
+            "previous_revision": 0,
+            "recorded_at": "2026-09-10T06:24:31.515+00:00",
+            "request_id": "f7d2801f-0254-4cdb-874d-c98daa5686cd",
+            "result": {
+              "attention_id": "filing",
+              "event_id": "attevt-0e18f1ab-9a80-448c-946a-26f909485529",
+              "request_id": "f7d2801f-0254-4cdb-874d-c98daa5686cd",
+              "revision": 1,
+              "schema_version": 1,
+              "status": "investigating"
+            },
+            "revision": 1,
+            "schema_version": 1,
+            "state_digest": "e3ff225b0e0af38cd9a93441d38143b540b5ac0d94fc9c8518ba63e41ff147c0"
+          },
+          {
+            "action": "snooze",
+            "attention_id": "filing",
+            "context": {
+              "actor": "local-user",
+              "execution": null,
+              "project_id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+              "purpose": "human-attention"
+            },
+            "event_id": "attevt-5b739769-97dc-4bb6-a25f-873c3bedbdf2",
+            "payload": {
+              "next_action": {
+                "due_at": "2026-09-20T09:30:00.000Z",
+                "kind": "follow_up",
+                "label": "Check the filing window",
+                "trigger": "at"
+              },
+              "reason": "Nothing to do until the window opens."
+            },
+            "previous_revision": 1,
+            "recorded_at": "2026-09-10T06:24:31.517+00:00",
+            "request_id": "a8e79ac8-999e-4dc5-85d5-c3ea019cfd23",
+            "result": {
+              "attention_id": "filing",
+              "event_id": "attevt-5b739769-97dc-4bb6-a25f-873c3bedbdf2",
+              "request_id": "a8e79ac8-999e-4dc5-85d5-c3ea019cfd23",
+              "revision": 2,
+              "schema_version": 1,
+              "status": "later"
+            },
+            "revision": 2,
+            "schema_version": 1,
+            "state_digest": "a977579f626c30bd6597b773499307d9391420a3ff71f7484f5d60c58918c370"
+          },
+          {
+            "action": "acknowledge",
+            "attention_id": "filing",
+            "context": {
+              "actor": "local-user",
+              "execution": null,
+              "project_id": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+              "purpose": "human-attention"
+            },
+            "event_id": "attevt-f984689b-0f22-4835-9871-21553f492482",
+            "payload": {},
+            "previous_revision": 2,
+            "recorded_at": "2026-09-10T06:24:47.770+00:00",
+            "request_id": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+            "result": {
+              "attention_id": "filing",
+              "event_id": "attevt-f984689b-0f22-4835-9871-21553f492482",
+              "request_id": "b376867e-4cd1-47e3-b973-8727fee8f58a",
+              "revision": 3,
+              "schema_version": 1,
+              "status": "later"
+            },
+            "revision": 3,
+            "schema_version": 1,
+            "state_digest": "3e75e134b68e306744db496ec95922b32affe414c0cc4aff24becd36aa6d7948"
+          }
+        ],
+        "next_offset": null,
+        "revision": 3,
+        "schema_version": 1,
+        "truncated": false
+      }
+    },
+    {
+      "name": "pre-send retry creates exactly one acknowledge event",
+      "status": "PASS",
+      "details": 1
+    },
+    {
+      "name": "HTTP 200 /attention/filing?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "filing",
+        "basis": {
+          "event_id": "attevt-f984689b-0f22-4835-9871-21553f492482",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 3,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Filing window check"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-f984689b-0f22-4835-9871-21553f492482",
+        "next_action": {
+          "due_at": "2026-09-20T09:30:00.000Z",
+          "kind": "follow_up",
+          "label": "Check the filing window",
+          "trigger": "at"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Nothing to do until the window opens.",
+        "relation_refs": [],
+        "revision": 3,
+        "schema_version": 1,
+        "seen": true,
+        "source_refs": [],
+        "status": "later",
+        "updated_at": "2026-09-10T06:24:47.770+00:00"
+      }
+    },
+    {
+      "name": "pre-send retry eventually commits seen state",
+      "status": "PASS",
+      "details": true
+    },
+    {
+      "name": "HTTP 200 /attention/counsel?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "counsel",
+        "basis": {
+          "event_id": "attevt-eb4578c9-9398-497f-9313-d7e2a97003b2",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Counsel review of the draft"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-eb4578c9-9398-497f-9313-d7e2a97003b2",
+        "next_action": {
+          "due_at": null,
+          "kind": "wait",
+          "label": "Wait for counsel to reply",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Counsel has it.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "waiting",
+        "updated_at": "2026-09-10T06:24:31.513+00:00"
+      }
+    },
+    {
+      "name": "external concurrent acknowledge commits before browser submit",
+      "status": "PASS",
+      "details": {
+        "attention_id": "counsel",
+        "event_id": "attevt-f677aa23-2129-48f0-b6fc-13a54d143f1a",
+        "request_id": "62a997ce-1711-4ff4-8393-65fe3585058c",
+        "revision": 3,
+        "schema_version": 1,
+        "status": "waiting"
+      }
+    },
+    {
+      "name": "VERSION_CONFLICT copy",
+      "status": "PASS",
+      "details": "This item changed while you were deciding. Reload it and try again."
+    },
+    {
+      "name": "VERSION_CONFLICT is announced as alert",
+      "status": "PASS",
+      "details": "alert"
+    },
+    {
+      "name": "HTTP 200 /attention/counsel?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "counsel",
+        "basis": {
+          "event_id": "attevt-f677aa23-2129-48f0-b6fc-13a54d143f1a",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 3,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Counsel review of the draft"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-f677aa23-2129-48f0-b6fc-13a54d143f1a",
+        "next_action": {
+          "due_at": null,
+          "kind": "wait",
+          "label": "Wait for counsel to reply",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Counsel has it.",
+        "relation_refs": [],
+        "revision": 3,
+        "schema_version": 1,
+        "seen": true,
+        "source_refs": [],
+        "status": "waiting",
+        "updated_at": "2026-09-10T06:24:49.532+00:00"
+      }
+    },
+    {
+      "name": "VERSION_CONFLICT makes no partial status change",
+      "status": "PASS",
+      "details": "waiting"
+    },
+    {
+      "name": "VERSION_CONFLICT keeps human draft",
+      "status": "PASS",
+      "details": "Resolved after comparing both lists."
+    },
+    {
+      "name": "VERSION_CONFLICT is not silently replayed",
+      "status": "PASS",
+      "details": 1
+    },
+    {
+      "name": "second decision sends exactly one fresh request",
+      "status": "PASS",
+      "details": 2
+    },
+    {
+      "name": "second decision has new request_id",
+      "status": "PASS"
+    },
+    {
+      "name": "second decision uses re-inspected revision",
+      "status": "PASS",
+      "details": 3
+    },
+    {
+      "name": "HTTP 200 /attention/counsel?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "counsel",
+        "basis": {
+          "event_id": "attevt-1d266184-9ff5-46b2-a037-de6402f4cbfa",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 4,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Counsel review of the draft"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 4,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 4,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "reopen",
+            "expected_revision": 4,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 4,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-1d266184-9ff5-46b2-a037-de6402f4cbfa",
+        "next_action": {
+          "due_at": null,
+          "kind": "none",
+          "label": "No next action",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Resolved after comparing both lists.",
+        "relation_refs": [],
+        "revision": 4,
+        "schema_version": 1,
+        "seen": true,
+        "source_refs": [],
+        "status": "resolved",
+        "updated_at": "2026-09-10T06:24:49.650+00:00"
+      }
+    },
+    {
+      "name": "second decision commits canonical resolved status",
+      "status": "PASS",
+      "details": "resolved"
+    },
+    {
+      "name": "HTTP 200 /attention/renewal?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "renewal",
+        "basis": {
+          "event_id": "attevt-fa8b5f48-ae5d-40e7-84d0-c15f2b20d267",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 2,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Contract renewal reply"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 2,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-fa8b5f48-ae5d-40e7-84d0-c15f2b20d267",
+        "next_action": {
+          "due_at": null,
+          "kind": "inspect",
+          "label": "Inspect",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "This is the decision that is waiting on a person.",
+        "relation_refs": [],
+        "revision": 2,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "needs_you",
+        "updated_at": "2026-09-10T06:24:31.507+00:00"
+      }
+    },
+    {
+      "name": "snooze sends typed action request",
+      "status": "PASS"
+    },
+    {
+      "name": "action request has exact contract keys",
+      "status": "PASS",
+      "details": [
+        "action",
+        "attention_id",
+        "expected_revision",
+        "payload",
+        "request_id",
+        "schema_version"
+      ]
+    },
+    {
+      "name": "snooze carries inspected revision",
+      "status": "PASS",
+      "details": 2
+    },
+    {
+      "name": "snooze action name",
+      "status": "PASS",
+      "details": "snooze"
+    },
+    {
+      "name": "snooze reason",
+      "status": "PASS",
+      "details": "Nothing to do until the window opens."
+    },
+    {
+      "name": "snooze next action kind defaults from descriptor",
+      "status": "PASS",
+      "details": "inspect"
+    },
+    {
+      "name": "snooze next action trigger",
+      "status": "PASS",
+      "details": "at"
+    },
+    {
+      "name": "snooze due_at is timezone-qualified ISO",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /attention/renewal?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "renewal",
+        "basis": {
+          "event_id": "attevt-14383447-8808-4960-b711-ad33ee2aebef",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 3,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Contract renewal reply"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resolve",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "resume",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "set_waiting",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "snooze",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "next_action": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "due_at": {
+                      "format": "date-time",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "inspect",
+                        "decide",
+                        "wait",
+                        "follow_up",
+                        "none"
+                      ]
+                    },
+                    "label": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "enum": [
+                        "manual",
+                        "at",
+                        "after",
+                        "external"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "trigger",
+                    "due_at"
+                  ],
+                  "type": "object"
+                },
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reason",
+                "next_action"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-14383447-8808-4960-b711-ad33ee2aebef",
+        "next_action": {
+          "due_at": "2026-09-20T01:30:00.000Z",
+          "kind": "inspect",
+          "label": "Check the filing window",
+          "trigger": "at"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Nothing to do until the window opens.",
+        "relation_refs": [],
+        "revision": 3,
+        "schema_version": 1,
+        "seen": false,
+        "source_refs": [],
+        "status": "later",
+        "updated_at": "2026-09-10T06:24:51.470+00:00"
+      }
+    },
+    {
+      "name": "snooze records Later",
+      "status": "PASS",
+      "details": "later"
+    },
+    {
+      "name": "Later has no countdown or scheduler promise",
+      "status": "PASS"
+    },
+    {
+      "name": "resolve requires a reason",
+      "status": "PASS",
+      "details": "A reason is required."
+    },
+    {
+      "name": "required reason is announced",
+      "status": "PASS",
+      "details": "alert"
+    },
+    {
+      "name": "empty resolve does not send a request",
+      "status": "PASS",
+      "details": 0
+    },
+    {
+      "name": "resolve sends after required reason",
+      "status": "PASS"
+    },
+    {
+      "name": "resolve action name",
+      "status": "PASS",
+      "details": "resolve"
+    },
+    {
+      "name": "resolve payload exact",
+      "status": "PASS",
+      "details": {
+        "reason": "Recorded as handled after review."
+      }
+    },
+    {
+      "name": "HTTP 200 /attention/indexing?projectId=5509ea83-359b-4ad7-9553-ccdac9c160a9",
+      "status": "PASS",
+      "details": {
+        "attention_id": "indexing",
+        "basis": {
+          "event_id": "attevt-7397ead0-5bb6-499c-b80e-d4a7e197b1f0",
+          "execution_availability": "historical_observation_only",
+          "external_availability": "unknown",
+          "revision": 3,
+          "sources": "exact_version_refs"
+        },
+        "descriptor": {
+          "summary": null,
+          "title": "Exhibit index rebuild"
+        },
+        "disclosure": {
+          "fields": [
+            "details",
+            "events",
+            "registry",
+            "relations",
+            "signal",
+            "sources"
+          ],
+          "policy": "local-attention-v1",
+          "purpose": "human-attention"
+        },
+        "execution_provenance": [],
+        "freshness": "current",
+        "human_actions": [
+          {
+            "action": "acknowledge",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {},
+              "required": [],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "attach_relation",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "add",
+                    "remove"
+                  ]
+                },
+                "relation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "matter",
+                        "session",
+                        "run",
+                        "external"
+                      ]
+                    },
+                    "relation": {
+                      "enum": [
+                        "about",
+                        "execution",
+                        "origin"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "relation"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "operation",
+                "relation"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "reopen",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "maxLength": 4000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "investigating",
+                    "needs_you"
+                  ]
+                }
+              },
+              "required": [
+                "reason"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          },
+          {
+            "action": "request_disclosure",
+            "expected_revision": 3,
+            "payload_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "grant": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adapter_id": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "expires_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "fields": {
+                      "items": {
+                        "enum": [
+                          "details",
+                          "events",
+                          "registry",
+                          "relations",
+                          "signal",
+                          "sources"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "purpose": {
+                      "const": "attention-runtime"
+                    }
+                  },
+                  "required": [
+                    "adapter_id",
+                    "purpose",
+                    "fields",
+                    "expires_at"
+                  ],
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "grant"
+              ],
+              "type": "object"
+            },
+            "schema_version": 1
+          }
+        ],
+        "last_event_id": "attevt-7397ead0-5bb6-499c-b80e-d4a7e197b1f0",
+        "next_action": {
+          "due_at": null,
+          "kind": "none",
+          "label": "No next action",
+          "trigger": "manual"
+        },
+        "policy": {
+          "grant": null,
+          "version": 1
+        },
+        "reason": "Recorded as handled after review.",
+        "relation_refs": [],
+        "revision": 3,
+        "schema_version": 1,
+        "seen": true,
+        "source_refs": [],
+        "status": "resolved",
+        "updated_at": "2026-09-10T06:24:53.354+00:00"
+      }
+    },
+    {
+      "name": "resolve canonical status",
+      "status": "PASS",
+      "details": "resolved"
+    },
+    {
+      "name": "NOT_FOUND renders uniform unavailable copy",
+      "status": "PASS",
+      "details": "This item is unavailable."
+    },
+    {
+      "name": "unavailable copy does not infer existence",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP 200 /work-activity?days=1",
+      "status": "PASS",
+      "details": {
+        "schemaVersion": 1,
+        "observedAt": "2026-09-10T06:24:54.998Z",
+        "timeZone": "UTC",
+        "interval": {
+          "start": "2026-09-10T00:00:00.000Z",
+          "endExclusive": "2026-09-11T00:00:00.000Z",
+          "days": 1,
+          "runTimeField": "startedAt"
+        },
+        "scope": {
+          "kind": "retained-recorded-runs",
+          "projectId": null
+        },
+        "coverage": {
+          "retainedRecords": "complete",
+          "historical": "unknown",
+          "reason": "deleted_sessions_remove_run_records"
+        },
+        "recordedRunCount": 0,
+        "deduplicationKey": "run.id",
+        "buckets": [
+          {
+            "date": "2026-09-10",
+            "recordedRunCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "HTTP 200 /sessions",
+      "status": "PASS",
+      "details": {
+        "sessions": []
+      }
+    },
+    {
+      "name": "Attention browser flow makes no Run HTTP requests",
+      "status": "PASS",
+      "details": 0
+    },
+    {
+      "name": "Attention browser flow records no Run",
+      "status": "PASS",
+      "details": 0
+    },
+    {
+      "name": "Attention browser flow creates no Session",
+      "status": "PASS",
+      "details": 0
+    },
+    {
+      "name": "browser flow has no Runtime exceptions",
+      "status": "PASS",
+      "details": 0
+    },
+    {
+      "name": "Attention view has no setTimeout",
+      "status": "PASS"
+    },
+    {
+      "name": "Attention view has no setInterval",
+      "status": "PASS"
+    },
+    {
+      "name": "Attention view has no requestAnimationFrame",
+      "status": "PASS"
+    },
+    {
+      "name": "Attention view has no requestIdleCallback",
+      "status": "PASS"
+    }
+  ],
+  "overall": "PASS",
+  "projectId": "5509ea83-359b-4ad7-9553-ccdac9c160a9",
+  "generatedAt": "2026-09-10T06:24:55.001Z",
+  "observationSummary": {
+    "responseCount": 733,
+    "exceptionCount": 0
+  }
+}

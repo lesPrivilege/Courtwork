@@ -1,0 +1,142 @@
+Merge audit diff log
+Generated 2026-09-10 from the rollup repository; status summaries are read-only.
+Each command is reproducible from the repository root. Full path lists remain recoverable with the same command plus --name-status.
+
+[B0 primary]
+$ git diff --name-status 2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1
+shortstat: 264 files changed, 30068 insertions(+), 514 deletions(-)
+status counts: A221/M43
+deletion-like statuses: 0
+
+[I1 primary]
+$ git diff --name-status df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1 e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf
+shortstat: 103 files changed, 11445 insertions(+), 13 deletions(-)
+status counts: A91/M12
+deletion-like statuses: 0
+
+[I1 second-parent]
+$ git diff --name-status ab09b0dee05f73e8e615c0a5f9107a8ba15ff697 e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf
+shortstat: 244 files changed, 25793 insertions(+), 483 deletions(-)
+status counts: A206/M38
+deletion-like statuses: 0
+
+[I2 primary]
+$ git diff --name-status e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf 6169f015f1cacd342f89cd29c2b7acad9a426ef3
+shortstat: 2 files changed, 121 insertions(+), 120 deletions(-)
+status counts: M2
+deletion-like statuses: 0
+
+[S0 primary]
+$ git diff --name-status 6169f015f1cacd342f89cd29c2b7acad9a426ef3 0220d350b05aac9eafabe9620d34673f3d01adc7
+shortstat: 3 files changed, 237 insertions(+)
+status counts: A3
+deletion-like statuses: 0
+
+[S0 second-parent]
+$ git diff --name-status 4b1ac9362a83f0759da3b83aa8c843dd2764448e 0220d350b05aac9eafabe9620d34673f3d01adc7
+shortstat: 364 files changed, 41625 insertions(+), 527 deletions(-)
+status counts: A313/M51
+deletion-like statuses: 0
+
+[F1 primary]
+$ git diff --name-status 0220d350b05aac9eafabe9620d34673f3d01adc7 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662
+shortstat: 255 files changed, 31516 insertions(+), 76 deletions(-)
+status counts: A246/M9
+deletion-like statuses: 0
+
+[F1 second-parent]
+$ git diff --name-status 0b457f87259ea4ecd4ca27d7b5c6ffe475ac6dab 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662
+shortstat: 366 files changed, 41751 insertions(+), 527 deletions(-)
+status counts: A315/M51
+deletion-like statuses: 0
+
+[A0 primary]
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 1097fd453a6da0d0302cb64a881b48c583dc06d1
+shortstat: 37 files changed, 3812 insertions(+), 141 deletions(-)
+status counts: A33/M4
+deletion-like statuses: 0
+
+[A0 second-parent]
+$ git diff --name-status 9db6fc4362a07dc8ff20e1914e2ac471f20b62c1 1097fd453a6da0d0302cb64a881b48c583dc06d1
+shortstat: 515 files changed, 59172 insertions(+), 457 deletions(-)
+status counts: A468/M47
+deletion-like statuses: 0
+
+[M1 primary]
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a
+shortstat: 51 files changed, 11664 insertions(+)
+status counts: A51
+deletion-like statuses: 0
+
+[M1 second-parent]
+$ git diff --name-status 93a641fd91e1615f2f8495f4f4576d310753740c aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a
+shortstat: 515 files changed, 59172 insertions(+), 457 deletions(-)
+status counts: A468/M47
+deletion-like statuses: 0
+
+[A1 primary]
+$ git diff --name-status aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a 055cffcbc18eb26d15f3818aada50b82a4bd0fa8
+shortstat: 37 files changed, 3812 insertions(+), 141 deletions(-)
+status counts: A33/M4
+deletion-like statuses: 0
+
+[A1 second-parent]
+$ git diff --name-status 1097fd453a6da0d0302cb64a881b48c583dc06d1 055cffcbc18eb26d15f3818aada50b82a4bd0fa8
+shortstat: 51 files changed, 11664 insertions(+)
+status counts: A51
+deletion-like statuses: 0
+
+[SP1 primary]
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 9761303450280c8100aec4b0c4617f9d2c55e7bb
+shortstat: 14 files changed, 1368 insertions(+), 2 deletions(-)
+status counts: A10/M4
+deletion-like statuses: 0
+
+[SP1 second-parent]
+$ git diff --name-status 63840a7df22914e7a13cffcee0f646b8ded6ab9f 9761303450280c8100aec4b0c4617f9d2c55e7bb
+shortstat: 618 files changed, 73267 insertions(+), 603 deletions(-)
+status counts: A561/M57
+deletion-like statuses: 0
+
+[SP2 primary]
+$ git diff --name-status 9761303450280c8100aec4b0c4617f9d2c55e7bb eccacd04f715cc7502f755b4e3df71e5353bcce2
+shortstat: 6 files changed, 217 insertions(+), 5 deletions(-)
+status counts: A5/M1
+deletion-like statuses: 0
+
+[SP3 primary]
+$ git diff --name-status eccacd04f715cc7502f755b4e3df71e5353bcce2 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99
+shortstat: 3 files changed, 15 insertions(+), 2 deletions(-)
+status counts: A1/M2
+deletion-like statuses: 0
+
+[C0 primary]
+$ git diff --name-status 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 4003c548a314246d8c46516c4033fa5602e19c4b
+shortstat: 37 files changed, 3812 insertions(+), 141 deletions(-)
+status counts: A33/M4
+deletion-like statuses: 0
+
+[C0 second-parent]
+$ git diff --name-status 1097fd453a6da0d0302cb64a881b48c583dc06d1 4003c548a314246d8c46516c4033fa5602e19c4b
+shortstat: 20 files changed, 1593 insertions(+), 2 deletions(-)
+status counts: A16/M4
+deletion-like statuses: 0
+
+[AS primary]
+$ git diff --name-status a579929edd66544e6aa7cd8cd7d2399fae8265d3 9db6fc4362a07dc8ff20e1914e2ac471f20b62c1
+shortstat: 37 files changed, 3812 insertions(+), 141 deletions(-)
+status counts: A33/M4
+deletion-like statuses: 0
+
+[AX primary]
+$ git diff --name-status a579929edd66544e6aa7cd8cd7d2399fae8265d3 cd1326d8481e4965e96e8ee4f40cc531a67d4fef
+shortstat: 144 files changed, 3838 insertions(+), 14108 deletions(-)
+status counts: A30/M21/D90/R3
+deletion-like statuses: 93
+
+[candidate parent topology]
+$ git show -s --format="%H %P %s" 4003c548a314246d8c46516c4033fa5602e19c4b
+4003c548a314246d8c46516c4033fa5602e19c4b 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 1097fd453a6da0d0302cb64a881b48c583dc06d1 merge: assemble product candidate for bounded integration testing
+first-parent delta: 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99..4003c548a314246d8c46516c4033fa5602e19c4b; 37 files changed, 3812 insertions(+), 141 deletions(-); A33/M4
+second-parent delta: 1097fd453a6da0d0302cb64a881b48c583dc06d1..4003c548a314246d8c46516c4033fa5602e19c4b; 20 files changed, 1593 insertions(+), 2 deletions(-); A16/M4
+

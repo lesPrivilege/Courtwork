@@ -1,0 +1,120 @@
+{
+ "results": [
+  {
+   "id": "SHAPE-2",
+   "pass": true,
+   "parent": ".composer-form",
+   "child": "#composer-input",
+   "found": true,
+   "parentRadius": 16,
+   "childRadius": 4,
+   "inset": 12,
+   "derived": 4
+  },
+  {
+   "id": "SHAPE-7",
+   "pass": true,
+   "found": true,
+   "track": 8,
+   "inset": 2,
+   "thumb": 6,
+   "segment": 6,
+   "derived": 6
+  },
+  {
+   "id": "SHAPE-4",
+   "pass": true,
+   "declared": [
+    {
+     "selector": ":focus-visible",
+     "offset": "2px",
+     "radius": null
+    },
+    {
+     "selector": ".segment:has(input:focus-visible)",
+     "offset": "2px",
+     "radius": null
+    },
+    {
+     "selector": ".settings-tab:focus-visible",
+     "offset": "2px",
+     "radius": null
+    },
+    {
+     "selector": ".settings-section:focus-visible",
+     "offset": "2px",
+     "radius": "calc(var(--radius-card) + 2px)"
+    },
+    {
+     "selector": ".home-heatmap-cell:focus-visible",
+     "offset": "2px",
+     "radius": null
+    }
+   ]
+  },
+  {
+   "id": "SHAPE-5",
+   "pass": true,
+   "withRadius": [
+    {
+     "selector": ".settings-section:focus-visible",
+     "offset": "2px",
+     "radius": "calc(var(--radius-card) + 2px)"
+    }
+   ]
+  },
+  {
+   "id": "SHAPE-6",
+   "pass": true,
+   "send": {
+    "id": "send-button",
+    "radius": "999px",
+    "width": 28,
+    "height": 28
+   },
+   "project": {
+    "id": "home-create-project",
+    "radius": "8px",
+    "width": 116,
+    "height": 30
+   },
+   "sendIsFull": true,
+   "projectIsFull": false
+  },
+  {
+   "id": "SHAPE-1-row",
+   "pass": true,
+   "parent": ".context-card",
+   "child": ".context-row",
+   "found": true,
+   "parentRadius": 12,
+   "childRadius": 4,
+   "inset": 12,
+   "derived": 4
+  },
+  {
+   "id": "SHAPE-1-card",
+   "pass": true,
+   "parent": ".context-popover",
+   "child": ".context-card",
+   "found": true,
+   "parentRadius": 16,
+   "childRadius": 12,
+   "inset": 16,
+   "rule": "嵌套面的圆角不得大于其父面（刻度单调）"
+  },
+  {
+   "id": "SHAPE-3",
+   "pass": true,
+   "parent": "#project-dialog",
+   "child": "form",
+   "found": true,
+   "parentRadius": 16,
+   "childRadius": 4,
+   "inset": 24,
+   "derived": 4
+  }
+ ],
+ "passed": 8,
+ "total": 8
+}

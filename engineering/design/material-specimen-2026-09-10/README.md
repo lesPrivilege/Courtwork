@@ -153,4 +153,4 @@ real fallback selectors to the same effective boundary and completed the
 unsupported-engine block for popover/jump surfaces. Product CSS is unchanged.
 Original captures and measurements remain evidence of the frozen author tree;
 they are not relabelled as evidence of this repair or the later FE-05a baseline.
-The repair requires a new independent real-media check before acceptance.
+Fixed repair `93a641f` and its FE-05a combination passed the [independent real-media and bounded CSSOM review](../../../evidence/delivery-rollup-20260910/material/independent-verification.md), then merged as `aa2c55b`. FE-05a is now integrated; DEPENDENCY-NOT-LANDED above records only the original experiment base. This accepts the specimen evidence and fallback repair, not a production material selection or old-engine/performance certification.

@@ -1,0 +1,10 @@
+{
+  "pass": true,
+  "tickets": 33,
+  "sourceHashes": 44,
+  "negativeCases": [
+    "duplicate identity",
+    "cycle"
+  ],
+  "qualifiedBE40": true
+}

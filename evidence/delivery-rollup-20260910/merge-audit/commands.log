@@ -1,0 +1,38 @@
+Merge audit command manifest
+Run from the repository root (the rollup worktree). All commands are read-only.
+Generated 2026-09-10; no full-suite run or paid provider was used; bounded targeted/browser checks were materialized below.
+
+git status --short --branch
+git show -s --format="%H %P %s" <round-or-candidate>
+git diff --name-status <first-parent> <merge>
+git diff --shortstat <first-parent> <merge>
+git diff --quiet <first-parent> <merge> -- <protected-paths>
+git diff --check df9fc18 4003c548
+git diff --name-status a579929 cd1326d
+git diff --name-status a579929 9db6fc4
+python3 evidence/delivery-rollup-20260910/merge-audit/retention-check.py
+  -> retention-check.tsv: 1506 path rows; UNEXPLAINED_DIFF=0; retention-check.log: PASS
+python3 evidence/delivery-rollup-20260910/merge-audit/spark-route-incremental-audit.py
+  -> spark-route-incremental-retention.tsv: 3589 retained_exact + 5 patch_applied_exact; UNEXPECTED_MERGE_DIFF=0; spark-route-incremental-retention.log: PASS
+python3 evidence/delivery-rollup-20260910/merge-audit/final-reconciliation-audit.py
+  -> final-material-retention.tsv: 51/51 retained_exact; final-product-equality.tsv: 3594/3594 product_exact; final-reconciliation.log: FINAL RESULT PASS
+
+Materialized during this audit on detached candidate (actual logs in this directory):
+node --test [17 targeted attention/home/Spark/static/shape/skin/settings/shell/work-surface/color files] -> 154 pass, 0 fail (targeted-154.log)
+WK6_CDP_PORT=20231 node evidence/spark-delivery-20260910/browser-regressions.mjs -> 6/6 pass (spark-browser-6.log)
+
+Existing source evidence (not rerun while creating this audit):
+npm run smoke
+node --check [changed JavaScript files]
+node --test --test-concurrency=1 --test-timeout=60000 [package.json test globs]
+
+Evidence locations:
+  integration/logs/full-suite-result.json (4003c548, 637/637, 470.11s, timeout false)
+  integration/logs/full-suite.log
+  integration/logs/smoke.log
+  attention/independent-verification.md (116/116 browser, 29/29 targeted)
+  spark-delivery-20260910/browser-regressions.json (6/6 browser)
+
+Scope note: this manifest covers the listed SHAs/topologies and commands; later changes require a separate incremental audit.
+Incremental scope: 20d8330..936239d and 4003c548..1f8317a; no full suite or paid provider was rerun for this source/merge check.
+Final scope: aa2c55b..d0118 material retention plus 1f8317a..d0118 non-material product-tree equality; supplied final 643/643 and final-* checks were inspected without rerun.

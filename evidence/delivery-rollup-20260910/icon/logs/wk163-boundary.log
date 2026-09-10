@@ -1,0 +1,19 @@
+$ git diff --name-only 82c6036..HEAD -- app tools/ui-vendor
+app/tests/static-web-manifest.test.mjs
+app/web/vendor/LICENSES.txt
+app/web/vendor/icons.svg
+app/web/vendor/manifest.json
+tools/ui-vendor/lucide/plug.svg
+tools/ui-vendor/lucide/sources.json
+$ git diff --name-only 82c6036..HEAD -- app/web/*.mjs app/server app/runtime app/domains
+$ git diff --name-only 82c6036..HEAD -- tools/ui-vendor
+tools/ui-vendor/lucide/plug.svg
+tools/ui-vendor/lucide/sources.json
+$ git diff --name-only 82c6036..HEAD -- app/web/vendor
+app/web/vendor/LICENSES.txt
+app/web/vendor/icons.svg
+app/web/vendor/manifest.json
+--- boundary assertions ---
+PASS: only Lucide plug source + sources manifest changed under tools/ui-vendor
+PASS: no runtime/product JS or server/domain implementation changed
+PASS: WK-163 D boundary has no family migration or implementation path change

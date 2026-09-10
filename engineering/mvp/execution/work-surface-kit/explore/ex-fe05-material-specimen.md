@@ -1,5 +1,7 @@
 # EX-FE05 · Material / blur specimen
 
+Integration update (2026-09-10): the original source state below is retained. FE-05a is now integrated, and repaired specimen `93a641f` passed [independent original/current-baseline verification](../../../../../evidence/delivery-rollup-20260910/material/independent-verification.md), merged as `aa2c55b`. No proposed material was installed in the product.
+
 Round 6/6 of the web-GPT design line, 2026-09-10, Claude. Execution base
 `main` `a579929`; branch `codex/web-gpt-design-fe05-material`. Design specimen
 only — no product code, no production lint registration, no acceptance, no merge.

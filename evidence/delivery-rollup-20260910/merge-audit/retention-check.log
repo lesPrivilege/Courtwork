@@ -1,0 +1,57 @@
+Delivery rollup blob-retention audit
+Generated from git ls-tree/git diff; no product files, providers, credentials, or mutable state were read or changed.
+source repository: /private/tmp/cw-delivery-rollup-20260910
+candidate target T4003: 4003c548a314246d8c46516c4033fa5602e19c4b (parents 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99, 1097fd453a6da0d0302cb64a881b48c583dc06d1)
+accepted target T055: 055cffcbc18eb26d15f3818aada50b82a4bd0fa8 (parents aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a, 1097fd453a6da0d0302cb64a881b48c583dc06d1)
+
+Method:
+  For every source-delta path, compare Git mode and blob ID from the source commit to each target tree.
+  retained_exact means both mode and blob are equal. authorized_later means the target blob changed and the later owner/commit/hunk is recorded in shared-invariants.tsv.
+  topology_excluded is never counted as retained: the target predates the source or the candidate was built before a later accepted delivery.
+  UNEXPLAINED_DIFF is a hard audit failure; the generated table must contain none.
+
+B0 -> T055: paths=264; retained_exact=255; authorized_later=9
+B0 -> T4003: paths=264; retained_exact=252; authorized_later=12
+I1 -> T055: paths=103; retained_exact=101; authorized_later=2
+I1 -> T4003: paths=103; retained_exact=101; authorized_later=2
+F1 -> T055: paths=255; retained_exact=254; authorized_later=1
+F1 -> T4003: paths=255; retained_exact=254; authorized_later=1
+A1 -> T055: paths=37; retained_exact=37
+A1 -> T4003: paths=37; retained_exact=36; authorized_later=1
+M1 -> T055: paths=51; retained_exact=51
+M1 -> T4003: paths=51; topology_excluded=51
+SP1 -> T055: paths=14; topology_excluded=14
+SP1 -> T4003: paths=14; retained_exact=12; authorized_later=2
+SP2 -> T055: paths=6; topology_excluded=6
+SP2 -> T4003: paths=6; retained_exact=5; authorized_later=1
+SP3 -> T055: paths=3; topology_excluded=3
+SP3 -> T4003: paths=3; retained_exact=2; authorized_later=1
+SPF -> T055: paths=20; topology_excluded=20
+SPF -> T4003: paths=20; retained_exact=19; authorized_later=1
+
+Source delta definitions:
+  B0: 2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f..df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1 (baseline; baseline product range) statuses=A221,M43
+  I1: df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1..e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf (icon; ICON delivery) statuses=A91,M12
+  F1: 0220d350b05aac9eafabe9620d34673f3d01adc7..68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 (fe05a; FE-05a accepted delivery) statuses=A246,M9
+  A1: aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a..055cffcbc18eb26d15f3818aada50b82a4bd0fa8 (att; ATT accepted delivery) statuses=A33,M4
+  M1: 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662..aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a (material; material specimen delivery) statuses=A51
+  SP1: 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662..9761303450280c8100aec4b0c4617f9d2c55e7bb (spark-1; Spark source merge) statuses=A10,M4
+  SP2: 9761303450280c8100aec4b0c4617f9d2c55e7bb..eccacd04f715cc7502f755b4e3df71e5353bcce2 (spark-2; Spark scope/focus repair) statuses=A5,M1
+  SP3: eccacd04f715cc7502f755b4e3df71e5353bcce2..20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 (spark-3; Spark shape repair) statuses=A1,M2
+  SPF: 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662..20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 (spark-final; Spark source sequence final tree) statuses=A16,M4
+
+Verified later shared-file hunk classes:
+  SK lineage is inherited by baseline df9; Review remains needs_you-only and skin changes do not become Review authority. See shared-invariants.tsv SK rows and skin evidence.
+  FE-05a's four product commits are separately listed with full SHAs and checks; its accepted source delta has 254 exact blobs and one shared styles.css later hunk.
+  ICON has 101 exact blobs; only generator.py/index specimen bytes change in 6169f01, while vendor bytes remain equal.
+  ATT accepted to candidate has 36 exact blobs and one Spark-shared styles.css hunk; ATT accepted to itself is 37 exact blobs.
+  Spark final source tree (68..20d, 20 paths) has 19 exact blobs and one ATT-shared styles.css hunk in candidate 4003.
+
+Explicit topology/reconciliation findings:
+  M1 -> T055: 51/51 material source blobs retained exactly.
+  M1 -> T4003: all 51 material source paths are absent because 4003 was assembled from Spark+ATT before aa2 material merge; these rows are topology_excluded and require final merge reconciliation. They are not silently counted as retained.
+  SP1/SP2/SP3/SPF -> T055 are topology_excluded because accepted ATT HEAD predates Spark; this is a pre-merge comparison, not a rollback claim.
+
+No later authorized modify produced an additional unexplained path/blob difference. This is a bounded result for the listed SHAs/topologies; any later commit requires another incremental table run.
+table rows (excluding header): 1506
+table audit result: PASS

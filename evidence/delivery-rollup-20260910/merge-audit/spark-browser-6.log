@@ -1,0 +1,37 @@
+Merge audit Spark browser run
+source tree: 4003c548a314246d8c46516c4033fa5602e19c4b (detached candidate)
+working directory: repository root
+command: WK6_CDP_PORT=20231 node evidence/spark-delivery-20260910/browser-regressions.mjs
+exit: 0
+--- captured JSON output ---
+{
+  "checks": [
+    {
+      "name": "project loading removes prior scope rows and preserves selector focus",
+      "pass": true
+    },
+    {
+      "name": "wrong scope response is rejected",
+      "pass": true
+    },
+    {
+      "name": "Retry repeats failed page query",
+      "pass": true
+    },
+    {
+      "name": "Retry keeps snapshot consistency guard",
+      "pass": true
+    },
+    {
+      "name": "Tab activation and filters retain keyboard focus",
+      "pass": true
+    },
+    {
+      "name": "Open Work closes Spark before host navigation",
+      "pass": true
+    }
+  ],
+  "pass": true
+}
+
+--- end captured JSON output ---

@@ -1,0 +1,39 @@
+Final delivery reconciliation audit
+Generated from immutable Git trees and already-materialized evidence; no full suite, provider, migration, or product command was run.
+material source: aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a (parent 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662)
+fixed product candidate: 1f8317a999abf04508b7fc9d65e758796374aafd
+final product merge: d0118ab356c541f0ff2dcd9bc867c438399d3e7d (parents 055cffcbc18eb26d15f3818aada50b82a4bd0fa8, 936239dca9d7eac0cab859960f8b19950c760193)
+
+Material specimen retention aa2..d0118:
+  source delta status: A51
+  source paths: 51
+  retained_exact: 51
+  MISSING_FINAL: 0
+  CHANGED_FINAL: 0
+  result: PASS
+
+Fixed product equality 1f..d0118 (all non-material candidate paths):
+  candidate paths compared: 3594
+  non-material union paths compared: 3594
+  product_exact: 3594
+  UNEXPECTED_PRODUCT_DIFF: 0
+  final-only paths equal material set: PASS (final-only=51, material=51)
+  scope app: 265/265 exact
+  scope tools: 42/42 exact
+  scope docs/work-core: 5/5 exact
+  scope docs/runtime-control: 8/8 exact
+  scope app/domains: 5/5 exact
+  scope brand: 87/87 exact
+  scope full-test-glob: 142/142 exact
+  result: PASS
+
+Supplied final verification evidence (read-only inspection):
+  metadata_commit=PASS; exit_code_0=PASS; not_timed_out=PASS; tests_643=PASS; pass_643=PASS; fail_0=PASS; cancelled_0=PASS; skipped_0=PASS
+  smoke=PASS; lint_colors=PASS; lint_interaction=PASS; lint_materials=PASS; lint_shapes=PASS; doc_links=PASS; ledger=PASS
+  No large suite was rerun; full-suite-final-result.json/log are the supplied 643/643 run.
+
+Receipt/current bounded-wording check:
+  engineering/current.md:3-11 keeps BE-41 backend, RV26-SP01/ME03, G1-G5, real-provider, migration, and deployment boundaries explicit: PASS
+  evidence/delivery-rollup-20260910/README.md:27,31,35-43 distinguishes front-end acceptance from BE-41, preserves material specimen scope, and keeps deployment/G1-G5 boundaries: PASS
+
+FINAL RESULT: PASS

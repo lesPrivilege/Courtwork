@@ -1,0 +1,151 @@
+{
+  "candidate": "20d8330dc6555d073a6bdec7ebf1e6bafc7aee99",
+  "base": "http://127.0.0.1:8973",
+  "seed": {
+    "projectId": "07d00bbc-5224-44b0-aa96-069cdcb45ca7",
+    "boundSessionId": "2d8148a3-391b-489b-b138-2eb523b4af36",
+    "plainSessionId": "8dc8a03b-991a-475a-a9d5-75a2c014d2a9",
+    "matterId": "matter-7817ba08-7b25-4d7c-854c-96340b08e406"
+  },
+  "staticChecks": [
+    {
+      "path": "/web/spark-view.mjs",
+      "status": 200
+    },
+    {
+      "path": "/web/spark-projection.mjs",
+      "status": 200
+    }
+  ],
+  "initialState": {
+    "url": "http://127.0.0.1:8973/",
+    "buttons": [
+      "Close navigation",
+      "New chat",
+      "Home",
+      "Attention",
+      "Spark",
+      "Clear filter",
+      "New project",
+      "spark-host-verify",
+      "New chat in spark-host-verify",
+      "Plain chat session",
+      "Bound Work sessionWork",
+      "Refresh workspace",
+      "Settings",
+      "Toggle navigation",
+      "Back to app",
+      "Chat overview",
+      "Open work surface",
+      "Attention",
+      "Activity",
+      "28d",
+      "84d",
+      "Manage connections",
+      "Hide modules",
+      "Chat files",
+      "Local test",
+      "Cancel run",
+      "Send",
+      "New project",
+      "File access",
+      "Waiting for you0Open questions and approval requests, all retained work, right now."
+    ],
+    "sessionTitle": "\n              Home\n            ",
+    "surfaceHidden": true
+  },
+  "screenshots": [
+    "stale-overview-light-1440.png",
+    "stale-activity-dark-390.png"
+  ],
+  "checks": [
+    {
+      "name": "real host serves Spark static modules",
+      "pass": true
+    },
+    {
+      "name": "Spark sidebar follows Attention and precedes Find",
+      "pass": true
+    },
+    {
+      "name": "real host BE-41 404 renders unimplemented without maintenance numbers",
+      "pass": true
+    },
+    {
+      "name": "unimplemented dialog closes and returns focus to Spark opener",
+      "pass": true
+    },
+    {
+      "name": "loading state has no stale data while request is pending",
+      "pass": true
+    },
+    {
+      "name": "404 state remains unimplemented under integrated Spark instance",
+      "pass": true
+    },
+    {
+      "name": "error state exposes retry and preserves the same query",
+      "pass": true
+    },
+    {
+      "name": "empty state renders no section or numeric maintenance summary",
+      "pass": true
+    },
+    {
+      "name": "quiet state separates current Matters and emits no stale prompt",
+      "pass": true
+    },
+    {
+      "name": "stale Overview partitions active and quiet Matters with source revision change",
+      "pass": true
+    },
+    {
+      "name": "Activity lists stale refs and keeps matter/status filters",
+      "pass": true
+    },
+    {
+      "name": "partial state says Unavailable and never paints null counts as zero",
+      "pass": true
+    },
+    {
+      "name": "truncated Activity states loaded refs versus the total stale count",
+      "pass": true
+    },
+    {
+      "name": "paged state carries the same snapshotRef and never mixes page rows",
+      "pass": true
+    },
+    {
+      "name": "paged state rejects changed snapshot without showing both pages",
+      "pass": true
+    },
+    {
+      "name": "wrong project scope is rejected before any Matter row is shown",
+      "pass": true
+    },
+    {
+      "name": "light 1440 stale page has no document-level horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "tab keyboard navigation moves focus and panel labelling",
+      "pass": true
+    },
+    {
+      "name": "matter row is keyboard reachable and closes with Escape restoring opener",
+      "pass": false,
+      "error": "AssertionError [ERR_ASSERTION]: The \"string\" argument must be of type string. Received type object (null)\n    at file:///private/tmp/cw-spark-independent-browser-20260910.mjs:256:12\n    at async check (file:///private/tmp/cw-spark-independent-browser-20260910.mjs:25:9)\n    at async file:///private/tmp/cw-spark-independent-browser-20260910.mjs:246:3"
+    },
+    {
+      "name": "dark 390 Activity page has visible filter controls and no document overflow",
+      "pass": true
+    },
+    {
+      "name": "host row click closes Spark and selects the bound Work session",
+      "pass": false,
+      "error": "AssertionError [ERR_ASSERTION]: {\"sparkOpen\":false,\"sessionTitle\":\"\\n              spark-host-verifyBound Work session\\n            \",\"activeSessionText\":\"\\n              spark-host-verifyBound Work session\\n            \",\"surfaceHidden\":true,\"surfaceOpen\":false,\"surfaceExpanded\":false,\"toast\":\"\\n          Connection lost. Reconnecting…\\n        \"}\n\nfalse !== true\n\n    at file:///private/tmp/cw-spark-independent-browser-20260910.mjs:307:12\n    at async check (file:///private/tmp/cw-spark-independent-browser-20260910.mjs:25:9)\n    at async file:///private/tmp/cw-spark-independent-browser-20260910.mjs:286:3"
+    }
+  ],
+  "pass": false,
+  "network": []
+}

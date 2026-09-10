@@ -1,6 +1,6 @@
 # Spark 集成裁决 · SP-1…SP-9
 
-产品基线 main `0c60f4f`。样本基线为 `codex/multi-experts-longlife-20260910` 的 `852bd3e`，其产品基线 `8b1e0b1`。本页只作裁决与接单边界，不含实现；SP0 样本的 [README](README.md)、[projection-contract](projection-contract.md) 与 [construction-handoff](construction-handoff.md) 仍为输入，本页在其上收窄。
+产品基线 main `0c60f4f`。样本基线为 `codex/multi-experts-longlife-20260910` 的 `852bd3e`，其产品基线 `8b1e0b1`。本页只作裁决与接单边界，不含实现；SP0 样本的 [README](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/README.md.txt)、[projection-contract](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/projection-contract.md.txt) 与 [construction-handoff](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/construction-handoff.md.txt) 仍为输入，本页在其上收窄。
 
 ## 基线核对
 
@@ -58,7 +58,7 @@ BE-41 最小责任：
 
 ## SP-6 · 交互契约
 
-只读，无 mutation，不申请新权限。每个数值携 [projection-contract](projection-contract.md) 的 Measurement envelope，`availability` 区分 observed、estimated、partial、unavailable；缺测显示 Unavailable，不涂为零。列表按 project 权限过滤，分页与下钻携同一 snapshot 与 filter；源版本或权限变化时拒绝旧观察或显式失效。行的点击进入既有 Work 面，不新建面。明暗、390 宽度、键盘焦点与错误保留草稿沿现有 grammar。
+只读，无 mutation，不申请新权限。每个数值携 [projection-contract](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/projection-contract.md.txt) 的 Measurement envelope，`availability` 区分 observed、estimated、partial、unavailable；缺测显示 Unavailable，不涂为零。列表按 project 权限过滤，分页与下钻携同一 snapshot 与 filter；源版本或权限变化时拒绝旧观察或显式失效。行的点击进入既有 Work 面，不新建面。明暗、390 宽度、键盘焦点与错误保留草稿沿现有 grammar。
 
 ## SP-7 · 场景收敛
 
@@ -83,3 +83,5 @@ BE-41 未交付前不派 SP1-FE。
 **SP-11 覆盖 SP-4 中的 Attention 部分。** SP1-FE 不含 Attention 引用。Spark 与 Attention 之间何时创建、去重、撤回事项尚无合同（SP-5），前端不得自行建立该关系。两页均只投影派生失效。
 
 **SP-12 覆盖 SP-9 的顺序。** 顺序改为 SP1-FE（Luna，合成数据）→ BE-41（Astra）→ 接线与真实覆盖 → 独立验证。DTO 已按 [BE-41 冻结件](be41-dto.md) 固定，前端按该形状写 adapter，不自造字段。
+
+原始 SP0 三份输入按固定 `852bd3e01a06077c105d356004b64021d821b888` 的 SHA + path 原字节归档，见 [来源清单](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/manifest.json)。`.md.txt` 保留历史正文与当时相对链接，不作为当前实现状态；本合同的后续裁决优先。

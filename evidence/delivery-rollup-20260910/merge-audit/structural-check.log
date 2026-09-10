@@ -1,0 +1,80 @@
+Merge audit structural checks
+Generated 2026-09-10. No full-suite run or paid provider was used; bounded targeted/browser checks were run on the detached candidate.
+
+$ git status --short --branch
+## codex/delivery-rollup-20260910
+ M engineering/design/agent-interface-2026-09-10/precedent-map.md
+ M engineering/design/material-specimen-2026-09-10/README.md
+ M engineering/design/spark-surface-2026-09-10/integration-ruling.md
+ M engineering/design/spark-surface-2026-09-10/wo-sp1-fe.md
+ M engineering/mvp/execution/work-surface-kit/delivery-att-fe01.md
+ M engineering/mvp/execution/work-surface-kit/delivery-fe05a.md
+ M engineering/mvp/execution/work-surface-kit/explore/ex-fe05-material-specimen.md
+ M engineering/mvp/execution/work-surface-kit/work-orders/WO-ATT-FE01.md
+?? evidence/delivery-rollup-20260910/
+
+$ git diff --check df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1 4003c548a314246d8c46516c4033fa5602e19c4b
+exit=2
+evidence/att-fe01/contrast.log:106: new blank line at EOF.
+evidence/fe05a/baseline-checks.mjs:142: trailing whitespace.
++    t.focus(); t.value = 'Summarise the retainer letter'; 
+evidence/fe05a/contrast.log:106: new blank line at EOF.
+evidence/fe05a/type-checks.mjs:45: trailing whitespace.
++  const read = (name) => { probe.style.fontSize = getComputedStyle(root).getPropertyValue(name);
+Note: warnings are inherited evidence-file bytes and are preserved for provenance; no normalization was performed.
+
+$ git diff --name-status a579929edd66544e6aa7cd8cd7d2399fae8265d3 9db6fc4362a07dc8ff20e1914e2ac471f20b62c1 | reject D/R/C/T
+scoped ATT source: counts A33/M4; delete-like=0; result=PASS
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 1097fd453a6da0d0302cb64a881b48c583dc06d1 | reject D/R/C/T
+ATT prepared merge: counts A33/M4; delete-like=0; result=PASS
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a | reject D/R/C/T
+material merge: counts A51; delete-like=0; result=PASS
+$ git diff --name-status aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a 055cffcbc18eb26d15f3818aada50b82a4bd0fa8 | reject D/R/C/T
+ATT accepted merge first parent: counts A33/M4; delete-like=0; result=PASS
+$ git diff --name-status 1097fd453a6da0d0302cb64a881b48c583dc06d1 055cffcbc18eb26d15f3818aada50b82a4bd0fa8 | reject D/R/C/T
+ATT accepted merge second parent: counts A51; delete-like=0; result=PASS
+$ git diff --name-status 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 9761303450280c8100aec4b0c4617f9d2c55e7bb | reject D/R/C/T
+Spark source candidate first parent: counts A10/M4; delete-like=0; result=PASS
+$ git diff --name-status 9761303450280c8100aec4b0c4617f9d2c55e7bb eccacd04f715cc7502f755b4e3df71e5353bcce2 | reject D/R/C/T
+Spark integration fix: counts A5/M1; delete-like=0; result=PASS
+$ git diff --name-status eccacd04f715cc7502f755b4e3df71e5353bcce2 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 | reject D/R/C/T
+Spark radius fix: counts A1/M2; delete-like=0; result=PASS
+$ git diff --name-status 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 4003c548a314246d8c46516c4033fa5602e19c4b | reject D/R/C/T
+final candidate first parent: counts A33/M4; delete-like=0; result=PASS
+$ git diff --name-status 1097fd453a6da0d0302cb64a881b48c583dc06d1 4003c548a314246d8c46516c4033fa5602e19c4b | reject D/R/C/T
+final candidate second parent: counts A16/M4; delete-like=0; result=PASS
+
+$ git diff --quiet df9fc18b9f1a8374d72fa071c2b9c1e61e0010d1 e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf -- app/server app/core
+ICON merge protects backend: exit=0; result=PASS
+$ git diff --quiet e2ab3f5ef106b6bcbbbb5a7574282a40904d3faf 6169f015f1cacd342f89cd29c2b7acad9a426ef3 -- app/web/vendor
+ICON whitespace leaves product vendor bytes: exit=0; result=PASS
+$ git diff --quiet 6169f015f1cacd342f89cd29c2b7acad9a426ef3 0220d350b05aac9eafabe9620d34673f3d01adc7 -- app
+Spark contract leaves product app: exit=0; result=PASS
+$ git diff --quiet 0220d350b05aac9eafabe9620d34673f3d01adc7 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 -- app/server app/core
+FE-05a merge protects backend: exit=0; result=PASS
+$ git diff --quiet 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 1097fd453a6da0d0302cb64a881b48c583dc06d1 -- app/server app/core
+ATT prepared merge protects backend: exit=0; result=PASS
+$ git diff --quiet 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a -- app
+material merge leaves app source: exit=0; result=PASS
+$ git diff --quiet aa2c55b74dd872c9f9156b09dcdf9b7f07075c8a 055cffcbc18eb26d15f3818aada50b82a4bd0fa8 -- app/server app/core
+ATT accepted merge protects backend: exit=0; result=PASS
+$ git diff --quiet 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 9761303450280c8100aec4b0c4617f9d2c55e7bb -- app/core
+Spark candidate merge protects Core: exit=0; result=PASS
+$ git diff --name-only 68b8d3d67d6b66d1a6c2c8d4f72ff7079135b662 9761303450280c8100aec4b0c4617f9d2c55e7bb -- app/server
+Spark static seam: app/server/index.mjs (expected)
+$ git diff --quiet 20d8330dc6555d073a6bdec7ebf1e6bafc7aee99 4003c548a314246d8c46516c4033fa5602e19c4b -- app/server app/core
+final candidate first parent protects backend: exit=0; result=PASS
+$ git diff --quiet 1097fd453a6da0d0302cb64a881b48c583dc06d1 4003c548a314246d8c46516c4033fa5602e19c4b -- app/core
+final candidate second parent protects Core: exit=0; result=PASS
+$ git diff --name-only 1097fd453a6da0d0302cb64a881b48c583dc06d1 4003c548a314246d8c46516c4033fa5602e19c4b -- app/server
+final candidate Spark static seam: app/server/index.mjs (expected)
+$ git diff --quiet a579929edd66544e6aa7cd8cd7d2399fae8265d3 9db6fc4362a07dc8ff20e1914e2ac471f20b62c1 -- app/server app/core
+scoped ATT source protects backend: exit=0; result=PASS
+
+Materialized independent audit logs (run on detached candidate; no paid providers):
+  targeted-154.log: node --test [17 targeted attention/home/Spark/static/shape/skin/settings/shell/work-surface/color files] -> exit 0, 154 pass, 0 fail
+  spark-browser-6.log: WK6_CDP_PORT=20231 node evidence/spark-delivery-20260910/browser-regressions.mjs -> exit 0, 6/6 pass
+Existing source evidence referenced by the rollup (not rerun here):
+  npm run smoke -> local-fake material/tool/artifact/reopen/continuation/revision/history checks (integration/logs/smoke.log)
+  node --check [changed JavaScript files] -> pass (delivery evidence)
+  integration/logs/full-suite-result.json records 637/637 at 4003c548; this audit did not rerun the full suite.

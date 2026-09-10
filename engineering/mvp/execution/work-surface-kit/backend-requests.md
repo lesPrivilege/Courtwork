@@ -93,3 +93,9 @@ ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限
 **明确不请求**（附理由，免得后续 session 重开）：registry 加 `reason` 摘要——合同刻意的最小视图边界，WO 约束表原话「不把 registry 当详情权限」；每状态计数——WK-117 (b) 不以 count 代替条目，且需五次查询；snooze 到期自动回归——需 scheduler owner，合同明说 due time 不是调度器。
 
 编号消歧（RV26-00，2026-09-10）：原 BE-40 两条来源均保留，现使用 `BE-40@Provider`（PV-56）与 `BE-40@Attention`（WK-156/157）作为唯一限定别名；裸 BE-40 不得用于领取或关闭。不是删除或关闭任一需求。
+
+## BE-41 · Spark 派生失效只读投影（冻结，未实现）
+
+[冻结 DTO](../../../design/spark-surface-2026-09-10/be41-dto.md)与[SP-10…12 裁决](../../../design/spark-surface-2026-09-10/integration-ruling.md)已接入。后端由 Astra 沿现有 Core / project 权限承担：`GET /api/v5/work-derivations?projectId=<id>&limit=<n>&offset=<n>`，只读现有 Matter / candidate / source_history 事实，不建立 Spark 私有 store。
+
+状态仍为**后端未实现**。前端可先按冻结形状独立验收；真实 host 的 404 显示 unimplemented，不显示合成数值或把缺测当零。客户端分页保留预期 snapshot 并拒绝变化，不代表服务端快照回读或真实维护覆盖已交付。BE-41 接线与真实覆盖继续按原顺序施工；本轮前端合流不关闭 RV26-SP01 或 ME-03。

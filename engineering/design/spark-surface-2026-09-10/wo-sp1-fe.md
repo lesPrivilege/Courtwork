@@ -1,8 +1,10 @@
 # WO-SP1-FE · Spark 只读读面（合成数据）
 
+状态补记（2026-09-10）：前端修补 `936239d` 已经非作者 Luna 独立验收并合流 `d0118ab`，见[交付补记](delivery-sp1-fe.md)。BE-41 后端及 RV26-SP01 / ME03 仍开放。下文保留派单时点。
+
 作者 Luna。开工基线 main `0c60f4f`，工作树 `/private/tmp/cw-spark-fe-20260910`，分支 `codex/spark-fe-20260910`。数据目录 `/private/tmp/cw-spark-fe-data`，端口 8861。
 
-前置：[集成裁决 SP-1…SP-12](integration-ruling.md)、[BE-41 冻结 DTO](be41-dto.md)。样本 [SP0](README.md) 位于 `codex/multi-experts-longlife-20260910` 的 `852bd3e`，作视觉与交互参考，**不整页搬入**。
+前置：[集成裁决 SP-1…SP-12](integration-ruling.md)、[BE-41 冻结 DTO](be41-dto.md)。样本 [SP0](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/README.md.txt) 位于 `codex/multi-experts-longlife-20260910` 的 `852bd3e`，作视觉与交互参考，**不整页搬入**。
 
 ## 范围
 
@@ -61,3 +63,5 @@ createSparkView({ request, onOpenMatter })
 不得从合成 fixture 声称任何真实维护能力已实现。不得把 `unimplemented` 态画成"暂时没有数据"以外的任何承诺。不得在 Spark 内 resolve、创建或修改 Attention 事项。不得引入 Spark 私有 store 或本地持久化。
 
 `app/web/coordination-view.mjs` 与 `coordination-projection.mjs` 为样本基线之后新增（SP-8），接单第 0 项先核对布局、路由与语义是否与 Spark 读面冲突，结论写入回执。
+
+原始 SP0 三份输入按固定 `852bd3e01a06077c105d356004b64021d821b888` 的 SHA + path 原字节归档，见 [来源清单](../../../evidence/delivery-rollup-20260910/spark/source-852bd3e/manifest.json)。`.md.txt` 保留历史正文与当时相对链接，不作为当前实现状态；本合同的后续裁决优先。

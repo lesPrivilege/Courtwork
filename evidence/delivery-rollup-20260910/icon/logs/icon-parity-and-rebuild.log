@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "fixedHead": "ab09b0dee05f73e8e615c0a5f9107a8ba15ff697",
+  "base": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+  "counts": {
+    "allowlist": 24,
+    "sourceSvg": 24,
+    "spriteSymbols": 24,
+    "manifestGlyphs": 24
+  },
+  "families": [
+    "Lucide canonical source only",
+    "WK-163 D: no family migration"
+  ],
+  "plug": {
+    "source": "tools/ui-vendor/lucide/plug.svg",
+    "sha256": "11ba780e4b6f15d37906a8a73537144b59720333d7a9fc8048a437d0389422f8",
+    "sprite": true
+  },
+  "manifestOutputs": {
+    "floating.mjs": {
+      "sha256": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
+      "matchesDisk": true
+    },
+    "marked.mjs": {
+      "sha256": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
+      "matchesDisk": true
+    },
+    "purify.mjs": {
+      "sha256": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
+      "matchesDisk": true
+    },
+    "icons.svg": {
+      "sha256": "dbc6fdc0d82ce02605e095d395394a238a5b7d5f967ab3193563b6c6a00cb6cb",
+      "matchesDisk": true
+    },
+    "LICENSES.txt": {
+      "sha256": "1f7ddce9e3dabb8acadef1c17bfcf4f60a3f11723019b94a406a2f6af7e472df",
+      "matchesDisk": true
+    }
+  },
+  "licenses": {
+    "lucideSourceSuffix": true
+  }
+}
