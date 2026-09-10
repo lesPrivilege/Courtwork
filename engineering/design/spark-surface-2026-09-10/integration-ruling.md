@@ -73,3 +73,13 @@ S3 source drift 为主场景。S0、S2、S4、S5、S8 可由真实数据表达�
 BE-41 由 Astra 实现，含测试与非作者验证；SP1-FE 由 Luna 单 writer 实现，写权限于 `app/web`；Astra 合流、补衔接代码并撰写 PR；再由未参与该代码的 Luna 独立验证。SP0 样本作视觉与交互参考，不整页搬入。
 
 BE-41 未交付前不派 SP1-FE。
+
+## SP-10…SP-12 · 用户裁定后的修订（2026-09-10）
+
+用户裁定：前端先用合成数据施工，真实 run 覆盖后置。以下三条覆盖前文对应部分。
+
+**SP-10 覆盖 SP-1。** Spark 本轮进入侧栏，位置在 Attention 之后、查找之前。SP-1 推迟入栏的理由是与 Home 的 activity/usage 重复；SP-2 把内容收为派生失效之后该重复不再存在，理由消灭。BE-41 未交付期间该面呈 `unimplemented` 态，显示尚无来源，不显示任何合成数字。
+
+**SP-11 覆盖 SP-4 中的 Attention 部分。** SP1-FE 不含 Attention 引用。Spark 与 Attention 之间何时创建、去重、撤回事项尚无合同（SP-5），前端不得自行建立该关系。两页均只投影派生失效。
+
+**SP-12 覆盖 SP-9 的顺序。** 顺序改为 SP1-FE（Luna，合成数据）→ BE-41（Astra）→ 接线与真实覆盖 → 独立验证。DTO 已按 [BE-41 冻结件](be41-dto.md) 固定，前端按该形状写 adapter，不自造字段。
