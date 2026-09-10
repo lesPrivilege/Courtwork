@@ -10,6 +10,7 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 - Preserve other writers' edits. Use isolated worktrees and independent synthetic data/ports; never checkout, stash or reset an active shared UI checkout.
 - Keep state/evidence ownership in the existing service/domain contracts. UI and brand motion display facts; they do not confer authority or formal acceptance.
 - `engineering/current.md` owns current project status; contracts/RD own their specific facts. `brand/` is a separately usable zero-dependency SVG package. SE's filesystem directory maintains papers, not product tickets.
+- For UI work, read `engineering/design/agent-interface-2026-09-10/frontend-contract.md` and load only the relevant entries from its precedent index. Record the nearest implemented precedent, affected grammar and verification evidence; review semantics remain independent of skin.
 
 ## Verification and Git
 

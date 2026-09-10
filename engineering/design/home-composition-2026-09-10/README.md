@@ -1,5 +1,7 @@
 # Home composition · 2026-09-10
 
+Skin后续裁决：用户明确Review稳定、不随skin变化，见[分离合同](../skin-injection-2026-09-10/skin-constitution.md)。下文custom/gray-steel回退accent是本交付历史行为，现登记为待整改，不再作为新UI的可复制规范。
+
 Astra implements and adjudicates from `00b2f2886e04aa7b7facb588d4375a246f3e341d`; Luna provides bounded source and non-author verification. This document supersedes the geometry/admission assumptions of CC-D0-a for this delivery, following the user's explicit Home composition request. [Evidence](../../../evidence/home-composition-20260910/README.md).
 
 ## Composition and service boundaries

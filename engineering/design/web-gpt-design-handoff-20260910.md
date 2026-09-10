@@ -30,6 +30,8 @@
 
 ### B · Agent Interface / UI Continuity 文档 PR（现在可做，docs-only）
 
+2026-09-10接续：用户已授权建立[前端连续性v1](agent-interface-2026-09-10/frontend-contract.md)与[先例索引](agent-interface-2026-09-10/precedents.md)，并要求Luna核对。本候选的规范入口已交付；后续扩展先消费现有文件，不重复建立第二套索引。自动loader/全库机械lint仍未实现。
+
 **目的**：把短上下文 agent 如何延续既有 Polish 的工作法写成可召回 handoff，而不是新增 runtime 或组件库。
 
 **依据**：[agent-interface 候选索引](agent-interface-2026-09-10/README.md)、[S21–S22 来源登记](sources.md)、[补充转录](../mvp/execution/work-surface-kit/inputs/control-grammar-supplement-2026-09-10.md)。

@@ -1,5 +1,7 @@
 # Material grammar · token draft and component mapping
 
+2026-09-10后续用户裁决：[Skin/Review分离](../skin-injection-2026-09-10/skin-constitution.md)。Review色与review material tint属于固定语义层，不受skin控制；下文“new review themes may override”是早期提案，现已覆盖。Skin不扩blur名额；所有产品/发布材质边界保持。当前legacy accent fallback尚待整改。
+
 2026-09-10 · Astra. Baseline `f666c09`. Consumes the user's inline Material Constitution and the complete attached 135-candidate / 13-primary-page research summary. Counts are user-reported, not a new Exa sweep. Extends [existing material input](../../mvp/execution/work-surface-kit/inputs/material-grammar-2026-09-09.md) and [blur/identity input](../../mvp/execution/work-surface-kit/inputs/material-grammar-2-generative-identity-2026-09-09.md); the narrower product rules below govern new material work. [Home delivery](README.md).
 
 ## Local decisions
