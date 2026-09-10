@@ -6,7 +6,7 @@
 
 “清洁自足”在本任务界面范围内落为以下可验证条件，不以审美承诺代替证据：
 
-- [ ] SK-2：首帧与设置编辑共享一份版本化外观规则；固定 Review/danger/success/focus/material 不随皮肤；旧原文保留/导出，ignored 与 invalid 有解释，draft/stored/effective 分开，Reset 不删除原文。
+- [x] SK-2：首帧与设置编辑共享一份版本化外观规则；固定 Review/danger/success/focus/material 不随皮肤；旧原文保留/导出，ignored 与 invalid 有解释，draft/stored/effective 分开，Reset 不删除原文。
 - [ ] SK-3：按既有提案完成 Dystopia 中性 preset；与其他 preset 使用同一准入与明暗切换路径，固定语义对比可读，默认 Slate 保持。
 - [ ] SK-4：实际 needs_you 消费与状态转换、灰度文字、材质/fallback 有界核对；若没有新的领域事实，不新增着色或 material consumer。
 - [ ] Appearance、相邻设置与包含它的 Home/Attention 场景：1440/1280/390、light/dark、键盘/返回焦点、200% zoom、长文/草稿/错误/空状态、重载保留通过；发现的本范围内阻断缺口修复后重验。
@@ -16,7 +16,7 @@ SK-5 Pages A/B/C 属独立发布面提案，不是本产品界面完工的隐藏
 
 ## 当前切片
 
-SK-2 / Astra single UI writer。最近先例：SK-1 `1d34cec` 的固定 Review 与本地 contrast probe；WK12 Appearance/no-flash；CC-I `settingsRow/createPreferenceGovernance`。保留原存储键、reset/remove 区别、原生控件、S→R→U 与 scheme；改变的是允许生效的 token 域与保存/生效解释。
+SK-2 已完成，独立复核无有界阻断；见 [SK-2 回执](../../../evidence/skin-boundary-sk2-20260910/README.md)。下一片 SK-3，随后 SK-4/完整场景验证。Astra single UI writer。最近先例：SK-1 `1d34cec` 的固定 Review 与本地 contrast probe；WK12 Appearance/no-flash；CC-I `settingsRow/createPreferenceGovernance`。保留原存储键、reset/remove 区别、原生控件、S→R→U 与 scheme；改变的是允许生效的 token 域与保存/生效解释。
 
 新增 `skin-policy.js` 是无 DOM/存储依赖的同步策略入口，精确静态路由；index 首帧和 settings 模块消费相同文件。没有第三方包、第二份 role 映射、runtime schema 或个人数据迁移。现代输入只含完整外观色阶；旧全量解析仅供兼容读取，固定键只留存/导出，不进入 CSS。导出的内容是已存原文，不混入未提交草稿。
 

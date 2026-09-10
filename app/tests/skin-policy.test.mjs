@@ -140,7 +140,9 @@ test("unknown, semantic, and material declarations cannot enter the modern skin"
     const result = policy.validateSkinTokens(base.replace("}", `${declaration} }`));
     assert.equal(result.ok, false, declaration);
     assert.equal(result.css, "", declaration);
-    assert.equal(policy.projectSkin(base.replace("}", `${declaration} }`)).ok, false, declaration);
+    const rejected = policy.projectSkin(base.replace("}", `${declaration} }`));
+    assert.equal(rejected.ok, false, declaration);
+    assert.equal(rejected.sourceFormat, "invalid");
   }
 });
 

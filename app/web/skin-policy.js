@@ -126,7 +126,7 @@ function parseSkinTokens(input, legacy = false) {
     const modern = validateSkinTokens(input);
     const parsed = modern.ok ? modern : validateLegacySkinTokens(input);
     const sourceFormat = modern.ok ? "appearance-v1" : "legacy";
-    if (!parsed.ok) return { ...parsed, version: SKIN_POLICY_VERSION, sourceFormat, ignored: [] };
+    if (!parsed.ok) return { ...parsed, version: SKIN_POLICY_VERSION, sourceFormat: "invalid", ignored: [] };
     const allowed = new Set(SKIN_COLOR_TOKENS);
     const ignored = Object.keys(parsed.values).filter(name => !allowed.has(name));
     const values = Object.fromEntries(Object.entries(parsed.values).filter(([name]) => allowed.has(name)));

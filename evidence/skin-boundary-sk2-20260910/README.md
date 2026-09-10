@@ -26,6 +26,6 @@ Reproduce with `node app/server/index.mjs --data-dir <independent-synthetic-dire
 
 ## Independent review / remaining scope
 
-Luna Continuity is reviewing fixed `c415012`; author checks are not independent acceptance. No full backend suite rerun is claimed for this frontend/static-route change. RV26's existing full-suite timing failures retain their own record.
+Luna Continuity independently reviewed fixed `c415012`: 36/36 targeted tests and separate parser/browser counterexamples pass; no bounded blocker. Transparent/semantic input falls back before first paint, raw values survive, and valid→invalid application clears stale CSS. The 390 dark and 1440 light Appearance screenshots show no layout blocker. One diagnostic-only quirk was corrected afterward: unparseable input reports sourceFormat `invalid` rather than `legacy`, with empty effective CSS unchanged. No full backend suite rerun is claimed for this frontend/static-route change. RV26's existing full-suite timing failures retain their own record.
 
 SK-3 Dystopia and SK-4 state/material audit plus complete Home/Attention composition checks remain next. This slice does not close the autonomous completion list, G1–G5, native-host acceptance or deployment gates.
