@@ -136,7 +136,7 @@ export const BUILD = {
     ["Web UI.", "原生 ES module 前端，呈现会话、运行、文件与审阅。"],
     [
       "Host runtime.",
-      "Pi AgentSession 0.85.1 驱动运行，本地控制面管理配置、权限、资源与 MCP。",
+      "组织模型与工具执行，管理配置、权限与上下文。",
     ],
     [
       "Domain core.",
@@ -144,7 +144,7 @@ export const BUILD = {
     ],
   ],
   upstream:
-    "CourtWork 运行在 Pi agent SDK（`@earendil-works/pi-*` 0.85.1）与官方 MCP client 2.0.0 之上；harness core 管理策略、状态与审阅。",
+    "从模型连接到工作审阅，各层通过明确的契约协作。局部实现与依赖见仓库架构文档。",
 };
 
 export const FOOTER = {

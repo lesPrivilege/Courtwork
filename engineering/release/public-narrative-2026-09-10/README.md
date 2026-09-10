@@ -29,3 +29,7 @@ External page reading on 2026-09-10: [Mastra](https://mastra.ai/) organizes capa
 The source-change diagrams are abstract relationship graphics built with SVG and existing campaign tokens. No external artwork or dependency was copied. Paper/Tour cards retain their existing layout and native disclosure behavior. New interactive labels and concepts carry no test scores or measurement claims.
 
 Benchmark draft PR: [BM-01 and BM-02–05 implementation briefs](https://github.com/lesPrivilege/Courtwork/pull/1). The public-surface PR is stacked on that contract branch so its exported method files are available at build time.
+
+## Final public language and intake pass
+
+Pi/AgentSession and dependency versions now remain in internal architecture instead of public prose. Matter/Experts use sources, responsibility, rules and decisions to explain the work contract. The local two-page resume adds a continuity relationship strip; both rendered pages were visually checked and 65 compiler checks passed. The [data-organization intake](../../research/data-organization-2026-09-10/README.md) contains the complete normalized conversation, hashes, primary-source index, owner-aligned follow-up briefs and the decision to retain Paper 9.6. No organization platform or third-party policy engine was implemented.

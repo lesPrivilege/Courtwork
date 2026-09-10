@@ -308,7 +308,7 @@ function longWork() {
     <div class="long-work-stages">
       <section><p class="index">MATTER</p><h3>Work has an address.</h3><p>来源、候选、决定与未完事项留在同一个 Matter。每件工作携带自己的契约：什么算证据，谁能决定，怎样才算完成。</p></section>
       <section><p class="index">EXPERTS / PRODUCT DIRECTION</p><h3>Roles compose.</h3><p>Expert 定义角色、工具与工作契约。不同责任围绕同一 Matter 组合，交接仍有共同的工作依据。</p></section>
-      <section><p class="index">RUNTIME</p><h3>Intelligence is replaceable.</h3><p>Runtime 承担执行，Matter 保存工作。以 Pi 为执行入口，让模型选择与正式工作状态各有归属。</p></section>
+      <section><p class="index">RUNTIME</p><h3>Intelligence is replaceable.</h3><p>Runtime 承担执行，Matter 保存工作。模型与工具可以更换，来源、成果与决定持续保留。</p></section>
     </div>
     <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
   </section>`;

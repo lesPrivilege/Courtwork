@@ -1,0 +1,43 @@
+{
+  "conversation_id": "6aa24aea-2894-83ec-add7-721747db9e4e",
+  "title": "数据组织工程融合",
+  "retrieval": "Normalized read_thread text export; not original attachment bytes",
+  "turns": [
+    {
+      "turn_id": "069500ae-b9e2-45b3-8808-fbc96b4afdc3",
+      "item_id": "069500ae-b9e2-45b3-8808-fbc96b4afdc3",
+      "type": "userMessage",
+      "file": "1-user.md",
+      "started_at": 1789020913.5434098,
+      "sha256": "f73dbe51e79e6012ed3537f83a5e0e58f2a9d6db922c495c2daf47255107b9c7",
+      "bytes": 33
+    },
+    {
+      "turn_id": "069500ae-b9e2-45b3-8808-fbc96b4afdc3",
+      "item_id": "08dd7f6d-0ca4-41ce-ac4f-504cf94ecd99",
+      "type": "agentMessage",
+      "file": "1-assistant.md",
+      "started_at": 1789020913.5434098,
+      "sha256": "73492d1d6d36aaeb075582ad6053ce6b1b771d87c680a09edcae9a1d886f53cc",
+      "bytes": 9708
+    },
+    {
+      "turn_id": "4989406a-0e8b-4d27-a48d-2d33158d7c81",
+      "item_id": "4989406a-0e8b-4d27-a48d-2d33158d7c81",
+      "type": "userMessage",
+      "file": "2-user.md",
+      "started_at": 1789021621.133281,
+      "sha256": "786aa0463a5ad16095a8fce91f494180789ac587e3fe67762c428eadb850d0fb",
+      "bytes": 81
+    },
+    {
+      "turn_id": "4989406a-0e8b-4d27-a48d-2d33158d7c81",
+      "item_id": "d3502db0-8d04-451c-8e7b-52fcea456738",
+      "type": "agentMessage",
+      "file": "2-assistant.md",
+      "started_at": 1789021621.133281,
+      "sha256": "aa0b4dcd88fdaae24b29a891cd4c9578a7c004938f0ea34a09569e2be44b8547",
+      "bytes": 11877
+    }
+  ]
+}

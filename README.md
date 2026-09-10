@@ -12,7 +12,7 @@ CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与
 
 **Attention · Make attention count.** 从全局对话进入工作，让需要人判断的变化有明确对象。候选与依据一起进入 Review，决定绑定具体版本。
 
-**Runtime · Intelligence is replaceable.** Pi 承担执行入口，模型与运行配置各有归属；正式来源、成果与决定由工作状态持有。
+**Runtime · Intelligence is replaceable.** 模型与运行配置各有归属；正式来源、成果与决定由工作状态持有。
 
 **Spark & Experts · Product direction.** Spark 围绕稳定来源组织可重建的派生知识；Experts 通过角色、工具与契约组合专业责任，围绕同一 Matter 接力。
 
@@ -39,22 +39,11 @@ npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data 
 
 打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。详细配置、数据迁移与备份见 [运行文档](app/README.md)。
 
-## 架构
+## 工作如何衔接
 
-Web UI 通过本地 Host 发起运行、查询与审阅。Host 编排 Pi AgentSession、权限和上下文；领域适配器把 NDA 等工作接入同一个 Work Core。Core 保存候选、证据、版本与决定。
+材料进入 Matter，模型与工具形成候选，Review 将判断落到具体版本。新的执行者从已有来源、决定与未完事项继续。
 
-```mermaid
-flowchart LR
-  UI["Web UI<br/>Chat · Files · Review"] <-->|HTTP / events| Host["Local Host<br/>Runs · permissions · context"]
-  Host --> Pi["Pi AgentSession<br/>Models · tools · MCP"]
-  Host -->|query / review| Adapter["Work adapters<br/>NDA · Evidence memo"]
-  Pi -->|domain tools| Adapter
-  Adapter --> Core["Work Core<br/>Candidates · evidence · decisions"]
-  Host --> Sessions["Session store<br/>Events · files"]
-  Core --> Matters["Matter store<br/>Versions · accepted work"]
-```
-
-CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。模块入口与数据归属见 [架构文档](engineering/architecture.md)。
+CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。模块归属、执行框架与局部选型见 [内部架构文档](engineering/architecture.md)。
 
 ## 项目结构
 
