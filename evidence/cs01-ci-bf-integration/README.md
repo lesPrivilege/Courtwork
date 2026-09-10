@@ -15,10 +15,53 @@ bf508fe  merge WO-CS-01 bb0a501 (106330b product + bb0a501 evidence;
 1614318  docs: composition standard states the integrated composer sizes
 ```
 
-`eff0e41` (summary disclosure) is carried because it is CS-01's build base; per the
-ruling it is under a separate non-author review and being here does not accept it.
-Astra's summary branch has since moved on (`796c3a5`); this branch still carries
-`eff0e41`.
+`eff0e41` (summary disclosure) is carried because it is CS-01's build base; being
+here does not accept it. **Non-author review (2026-09-10, `2265649` on
+`claude/summary-disclosure-review`): conditional pass, fixes pending.** Two P2
+defects must be fixed by the module's owners (Astra/Luna) and re-verified by a
+non-author: D1 focus returns to `<body>` after closing a file / Run opened from a
+card (Chromium 147; not reproduced on 152); D2 the Run information SHA-256 row
+collapses to a 0-width column on long paths and pushes Open down ~1000px. P3 D5
+(hard-coded threshold in `app.mjs`) is already superseded here by CS-01's accepted
+640 formula; D6 (`current.md`) is the conflict resolved at CS-01's build base.
+Astra's branch is at `796c3a5`, whose later commits do not touch D1/D2; this branch
+still carries `eff0e41`. When the fix SHA lands it is merged here and the combined
+checks, full suite and STATIC recheck are rerun.
+
+**User rulings on the review's Q1–Q3 (2026-09-10; Q text at
+`se-agent-sdr/evidence/summary-disclosure-20260910/independent-review/README.md:102-104`):**
+
+- **Q1** — "no card + host reader" is accepted for this order but is *not* full
+  card-state coverage. loading / error / unavailable / incompatible / Retry are
+  recorded as **unit-tested only, not wired in production**, never as passed. A Run's
+  `Failed` is not a read error; `readerAvailable:true` only states the fixed built-in
+  reader, it proves no absent-reader compatibility. Independent card read states
+  need their own wiring order later; not this round.
+- **Q2** — the whole `<1024px` range, 768–1023 included, stays on the existing
+  on-demand sheet; the review point asking for an inline summary before the prose is
+  corrected accordingly. Focus containment, Escape close and focus return inside the
+  sheet must still be verified. Automatic switch to the sheet across the breakpoint
+  and desktop overriding `surfaceOpen:false` stay existing behaviour, with no new
+  interaction acceptance.
+- **Q3** — the host sync limit stays; cross-client revocation is **not** recorded as
+  met. Deleting a Session and revoking permission are different things: a card not
+  updating within 6 s proves a sync gap, not a server boundary failure. Reads and
+  actions after a stale Open must still pass the server's existence and permission
+  checks; if one returned data the caller may no longer access, that is a blocker,
+  not display lag.
+- Consequence: after D1/D2 are fixed and re-verified by a non-author, the summary
+  module can enter a **bounded** combined acceptance; Q1's unwired states and Q3's
+  sync limit stay open and do not close the full state matrix.
+
+**Q3 server-side check on this base (`revoke-probe.mjs`, scratch data, 8934):**
+after `DELETE /api/v5/sessions/:id` (200) every read a stale Open would issue is
+refused — `GET /runs/:id` 404 "run not found"; workspace tree, workspace file,
+artifact file, surface and events 404 "session not found" (the existence check fires
+before any path or locator is read; workspace bytes are retained on disk by design,
+`workspaceRetained: true`, and are not reachable through these routes). So the stale
+card only re-shows what the page already held. This covers **deletion** only; there
+is no separate permission-revocation path to exercise, and the card's stale Open was
+not re-driven in a browser here (the review did that: `revoke-check.txt`).
 
 ## What the integration decided
 
