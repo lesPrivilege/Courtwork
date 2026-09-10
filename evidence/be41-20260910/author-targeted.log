@@ -1,0 +1,18 @@
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (204.135875ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (189.477084ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (956.773333ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (522.467167ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (255.436834ms)
+✔ BE41 empty/zero, project scope, stable pages and stale snapshot rejection without writes (195.8115ms)
+✔ BE41 exact status counts, immutable lineage, 20-ref truncation and source membership diff (132.684875ms)
+✔ BE41 migrated missing source history gives null counts and project-wide partial coverage (193.213541ms)
+✔ BE41 authenticated HTTP validates queries; no Session or producer required (196.209125ms)
+✔ BE41 source rollback is real, large diffs are partial, and policy/off-page membership invalidates tokens (202.93275ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2231.5655

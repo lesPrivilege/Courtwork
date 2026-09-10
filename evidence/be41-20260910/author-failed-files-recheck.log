@@ -1,0 +1,21 @@
+✔ history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them (455.529416ms)
+✔ history cancellation waits for the Git process to exit and the next save repairs interrupted init (1234.005417ms)
+✔ existing non-blob history object is an integrity failure (204.589917ms)
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (607.770417ms)
+✔ a Run waits for its final event to persist before publishing completion (811.305333ms)
+✔ event persistence failure is reported as runtime failure instead of completion (181.615709ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (1368.813958ms)
+✔ work summary distinguishes empty, no-run, completed, failed and unknown (804.322416ms)
+✔ live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409 (1019.254209ms)
+✔ summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq (125.139333ms)
+✔ restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID (1666.087333ms)
+✔ summary keeps project sources separate and has deterministic tie ordering, offsets and bounds (109.342ms)
+✔ summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results (397.071875ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10893.818084

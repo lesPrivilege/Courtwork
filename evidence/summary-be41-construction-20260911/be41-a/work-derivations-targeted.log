@@ -1,0 +1,18 @@
+✔ BE41-A HTTP snapshot binds project identity and rejects off-page changes (189.670083ms)
+✔ BE41-A HTTP keeps a top-level snapshot token on an empty beyond-total page (145.572917ms)
+✔ BE41-A preserves FILE/Matter version zero and reports source revision zero as partial (184.166708ms)
+✔ BE41-A staleRefs thresholds 19/20/21 retain exact refs and truncation (128.0745ms)
+✔ BE41 empty/zero, project scope, stable pages and stale snapshot rejection without writes (177.049291ms)
+✔ BE41 exact status counts, immutable lineage, 20-ref truncation and source membership diff (102.895917ms)
+✔ BE41 migrated missing source history gives null counts and project-wide partial coverage (185.043958ms)
+✔ BE41 authenticated HTTP validates queries; no Session or producer required (183.991583ms)
+✔ BE41 source rollback is real, large diffs are partial, and policy/off-page membership invalidates tokens (194.028166ms)
+✔ BE41 oversized identity metadata refuses explicitly rather than breaking the worker frame (94.543209ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1649.006166

@@ -100,6 +100,8 @@ ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限
 
 状态仍为**后端未实现**。前端可先按冻结形状独立验收；真实 host 的 404 显示 unimplemented，不显示合成数值或把缺测当零。客户端分页保留预期 snapshot 并拒绝变化，不代表服务端快照回读或真实维护覆盖已交付。BE-41 接线与真实覆盖继续按原顺序施工；本轮前端合流不关闭 RV26-SP01 或 ME-03。
 
+BE-41后端作者实现（2026-09-10，待组合接收）：[交付与限制](../../../../evidence/be41-20260910/README.md)、[DTO补充](../../../design/spark-surface-2026-09-10/be41-dto.md)。隔离分支交付只读Core查询与服务端快照校验；前端零版本/源文件版本回退与预期token接线仍待修复，不关闭真实覆盖。此段覆盖BE-41的“后端未实现”，非main已接收。
+
 ## BE-42 · 通用 Harness 缺口 · 每请求 decode 终值（Claude 转 Astra，2026-09-10）
 
 用户裁定（TPS D-1）：此项进入通用 Harness 缺口队列，排在基本功能之后，不抢先施工。编号由 Astra 分配；BE-40 曾出现过撞号，所以这里不自取编号。main 在 `a2b084d` 之后把基本 GUI 与通用 harness 完备排在前面，并开了 Pro 评审单 `engineering/execution/2026-09-10-harness-pro-review.md`；本条作为 HPR-01 矩阵 provider/streaming 行的一项输入，由 Astra 决定并入哪一张施工单。
