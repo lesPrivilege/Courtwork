@@ -1,6 +1,6 @@
 /* FE-03 · Chat / Work / Memory shell（WK-92）。只测本单新增的判断：
  * (1) Chat 与 Work 是同一个会话的两种模式，判断只读既有的 `extensionBinding`；
- * (2) Continue in Work 走既有的 `POST /sessions/:id/extension`，没有新端点、
+ * (2) Continue in Matter 走既有的 `POST /sessions/:id/extension`，没有新端点、
  *     没有复制、没有迁移；
  * (3) scope 位在 BE-19 前只是一句陈述：无 popover、无控件（CC-W / M-2 之后它在
  *     工作面的标题带上，不在会话 meta 行上）；
@@ -34,9 +34,9 @@ test("WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状
   assert.deepEqual(SESSION_MODE_LABELS, { chat: "Chat", work: "Work" });
 });
 
-test("WK-92 · Continue in Work 只走既有的 extension 路由；不新增端点、不复制、不迁移", () => {
+test("WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移", () => {
   // 界面上这个动作的名字是产品词，不是"绑定"。
-  assert.match(appSource, /text: "Continue in Work"/);
+  assert.match(appSource, /text: "Continue in Matter"/);
   assert.doesNotMatch(appSource, /text: "Bind to chat"/);
   assert.doesNotMatch(appSource, /text: "Create binding"/);
   // 唯一的写入路径仍是 POST /sessions/:id/extension，且既有 / 新建两条都用它。
