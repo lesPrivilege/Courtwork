@@ -4,13 +4,16 @@
 日期：2026-09-10。树：`/private/tmp/se-agent-pvbe03`，分支 `claude/pv-be03-open-admission`。
 全程 local-fake / loopback，未联网，未读取任何凭据文件（包括 `~/.pi/agent/auth.json`）。
 
+**PV-84 补丁（2026-09-10，同一分支追加提交）**：intake §19 复核认定原 §5.2 的"只有 `ok`/`timeout`/`unknown` 可达"漏检了 `onResponse` 钩子，退回补丁。本次补丁核实后发现 `onResponse` 本身虽然被 `ModelRuntime` 透传，但在 vendored `openai` SDK 里从不在失败路径上触发（见改判后的 §5.2），因此改用同样被透传的 `fetch` 选项捕获 `httpStatus`；`authentication_failed`/`http_error`/`unreachable` 三类因此变为可达。全文按此更新；旧结论保留在 §8① 的删除线里供追溯，新头见 §1.1/§1。
+
 ## 1. 基线与提交
 
 | 项 | 值 |
 |---|---|
 | 基线 SHA | `9c8b64e85e1b4a906dcd23cd5be621da1ba90638`（工单所写基线，与本树 `main` 头一致） |
 | 分支 | `claude/pv-be03-open-admission` |
-| 分支头（作者验证跑在此 SHA） | `c419ec71895279380d3933b111ff96d399280df9` |
+| 验证命令实跑于（PV-84 补丁头） | `2ad4ecc22810ead7270244200d68fc48e941b0d3` |
+| 分支头（+evidence 提交后） | `58753758c7b481d1cb6aa0303f902c62ce462de1` |
 
 ### 1.1 commit 表
 
@@ -21,6 +24,10 @@
 | `cba91d3` | `feat: unify model admission and add the BE-39 connection verify endpoint` |
 | `688b259` | `docs: record schema 12 and the WO-PV-BE03 open admission / verify contract` |
 | `c419ec7` | `test: cover open admission, reasoning tri-state, and BE-39 verify; update schema-12 fixtures` |
+| `6e55508` | `docs: add WO-PV-BE03 delivery page` |
+| `9c8dfb6` | `fix: capture verify httpStatus through a wrapped fetch, not onResponse alone (PV-84)` |
+| `2ad4ecc` | `test: cover verify httpStatus classification per PV-84` |
+| `5875375` | `chore: add PV-be03 verification evidence for the PV-84 patch head`（PV-85 ①，见 §8①） |
 
 全部提交使用显式路径 `git add`，无一处 `git add -A`。未合并、未推送。
 
@@ -30,12 +37,12 @@
 |---|---|---|
 | `app/server/provider-fields.mjs` | 改 | `normalizeProviderReasoning`（PV-61 三态：`true`/`false`/`null`，缺省 `null`）；`validateModelEntry` 接受可选 `reasoning` |
 | `app/server/provider-connections.mjs` | 改 | `publicConnection`/`registrationInput` 消费 `reasoning`；新增 `registrationExtras`（目录连接额外模型的 pi 注册形状）与 `validateCatalogConnectionInput`（目录连接 PUT 只接受 `{models}`） |
-| `app/server/store.mjs` | 改 | schema 11 → 12：`providerConfigVersion`（单调计数，`providerConnections`/`providerConfig` 任一写入即 +1）、`providerVerifications`（回执账本，`setProviderVerification`/`getProviderVerification`）；`validateConnections` 按 schema 门控 `reasoning` 字段；迁移时给旧连接的模型补 `reasoning: null` |
-| `app/runtime/pi-session-runtime.mjs` | 改 | 按 `ModelRuntime` 实例（`WeakMap`）而非模块级单例捕获原生目录模板；新增 `registerCatalogExtraModels`（目录连接额外模型的注册，见 §4）、`nativeCatalogModelIds`（影子校验用）、`classifyVerifyOutcome`（PV-62 分类器，见 §5.2） |
+| `app/server/store.mjs` | 改 | schema 11 → 12：`providerConfigVersion`（单调计数，`providerConnections`/`providerConfig` 任一写入即 +1）、`providerVerifications`（回执账本，`setProviderVerification`/`getProviderVerification`）；`validateConnections` 按 schema 门控 `reasoning` 字段；迁移时给旧连接的模型补 `reasoning: null`。**PV-84**：`validateVerifications` 的 `exactKeys` 与类型校验增 `httpStatus`（`number` in `[100,599]` 或 `null`），schema 不变（仍是 12） |
+| `app/runtime/pi-session-runtime.mjs` | 改 | 按 `ModelRuntime` 实例（`WeakMap`）而非模块级单例捕获原生目录模板；新增 `registerCatalogExtraModels`（目录连接额外模型的注册，见 §4）、`nativeCatalogModelIds`（影子校验用）、`classifyVerifyOutcome`（PV-62/PV-84 分类器，见 §5.2）。**PV-84**：`classifyVerifyOutcome` 签名改 `(message, {timedOut, httpStatus})`，判据表与函数头注释整段重写 |
 | `app/runtime/fake-provider.mjs` | 改 | 新增两个仅测试可触发的分支：请求的 `model` 以 `unknown-` 开头恒 404（与 prompt 无关，因为 verify 的 prompt 固定）；连接的 key 等于 `FIXTURE_WRONG_KEY` 恒 401 |
-| `app/server/service.mjs` | 改 | 新增私有 `#admissibleModel`，`#setProviderConfig`、`#createRun`（含此前硬编码 `FAKE_MODEL_ID` 的 fixture 分支）与新端点三处共用同一判据；`#saveProviderConnection` 对目录连接分流到新 `#saveCatalogConnectionModels`；`initialize()` 在原生注册后重注册全部目录连接的额外模型；`getProviderModels()` 新增 `origin`/`reasoningSource`；`#publicConnection` 新增 `lastVerification`；新增 `verifyProviderConnection`/`#verifyProviderConnection`（PV-62/BE-39） |
+| `app/server/service.mjs` | 改 | 新增私有 `#admissibleModel`，`#setProviderConfig`、`#createRun`（含此前硬编码 `FAKE_MODEL_ID` 的 fixture 分支）与新端点三处共用同一判据；`#saveProviderConnection` 对目录连接分流到新 `#saveCatalogConnectionModels`；`initialize()` 在原生注册后重注册全部目录连接的额外模型；`getProviderModels()` 新增 `origin`/`reasoningSource`；`#publicConnection` 新增 `lastVerification`；新增 `verifyProviderConnection`/`#verifyProviderConnection`（PV-62/BE-39）。**PV-84**：`#verifyProviderConnection` 的 `modelRuntime.complete()` 调用增 `fetch`（httpStatus 的实际来源，见 §5.2）与 `onResponse`（字面要求，成功路径上重复确认）两个选项；回执对象增 `httpStatus` |
 | `app/server/index.mjs` | 改 | `POST /api/v5/provider-connections/:id/verify` 一条路由 |
-| `app/docs/runtime-foundation.md` | 改 | 新增 "WO-PV-BE03: open admission and verify" 一节；`/provider-models`、连接记录字段表补充新字段 |
+| `app/docs/runtime-foundation.md` | 改 | 新增 "WO-PV-BE03: open admission and verify" 一节；`/provider-models`、连接记录字段表补充新字段。**PV-84**：回执字段表增 `httpStatus`，可达类别列表按改判后的 §5.2 重写 |
 | `app/README.md` | 改 | schema 段落更新到 v12；修正一处过期注释（`credentials.json` 早在 WO-PV-BE02 起已按连接 id 键，README 仍写着旧的 provider id） |
 | `app/tests/provider-open-admission.test.mjs` | 新增 | 8 条用例，见 §6 |
 | `app/tests/provider-connections.test.mjs`、`app/tests/review-provider-publication-migration.test.mjs`、`app/tests/async-recovery-independent.test.mjs`、`app/tests/async-tasks.test.mjs`、`app/tests/attention-agent.test.mjs`、`app/tests/control-plane.test.mjs`、`app/tests/coordination.test.mjs`、`app/tests/durability.test.mjs`、`app/tests/request-telemetry.test.mjs`、`app/tests/run-lineage.test.mjs`、`app/tests/runtime.test.mjs` | 改 | schema 12 波及：手工构造的连接/模型 fixture 补 `reasoning` 字段；每处 schema 降级模拟补删 `providerConfigVersion`/`providerVerifications`（新增字段，不删就不是真的旧字节）；`schemaVersion` 断言与"旧宿主拒绝"的错误消息正则从 11 改到 12。全部是契约更新，无一处放宽断言（见 §8① 的详细说明） |
@@ -81,6 +88,7 @@
   "latencyMs": 12,
   "checkedAt": "2026-09-10T12:00:00.000Z",
   "credentialSource": "runtime",
+  "httpStatus": 200,
   "binding": { "providerConfigVersion": 3, "credentialGeneration": 1 }
 }
 ```
@@ -95,24 +103,29 @@
 | `latencyMs` | 本次调用的墙钟耗时（`Date.now()` 差值），不是 provider 报的 TTFT/TPS |
 | `checkedAt` | 调用发起时刻的 ISO 时间戳 |
 | `credentialSource` | 与 run 记录同源，`credentialSourceOf(modelRuntime, connection.providerIdentity)`，不自造分类（PV-33 的既有约束） |
+| `httpStatus` | **新增（PV-84）**。`number \| null`：真实 HTTP 状态码，成功与失败两侧都有值；网络层从未拿到响应（连接被拒、DNS 失败等）时为 `null`。捕获机制见 §5.2 |
 | `binding` | 见 §5.3 |
 
-### 5.2 类别 ← 依据表（PV-62 ①）
+### 5.2 类别 ← 依据表（PV-62 ①，PV-84 改判）
 
-**只有 `ok`、`timeout`、`unknown` 三类在 pi-coding-agent 0.85.1 下经 `ModelRuntime.complete()` 真的可达。** 依据（`classifyVerifyOutcome`，`pi-session-runtime.mjs`，与 ex-pv5 §3.1 独立核证一致）：
+**补丁前的结论有一处漏洞，已被 PV-84 指出并在本补丁中修正。** 原判据只读了 `AssistantMessage` 的返回面（`stopReason`/`errorMessage`），认定 `onResponse` 从未被证实可达；但 EX-PV5 §3.1 与工单附录第 2 条已经指出两个 api 模块都会调 `options.onResponse?.({status,headers}, model)`（`openai-completions.js:218`、`openai-responses.js:128`），且 `ModelRuntime.prepareRequest` 把它原样转发给 api 模块（`pi-coding-agent/dist/core/model-runtime.js:433` 只解构出 `transformHeaders`；`:441-448` 把其余 options 原样展开进传给 `provider.stream` 的对象；`:455` 那次调用本身）——这一步的核实本身没有问题，本补丁独立重核一致。
+
+**但把 `onResponse` 接上之后，用它取 `httpStatus` 仍然拿不到失败状态**：作者用一个针对本地 fixture 的探测脚本实测（同时静态读过 `app/node_modules/openai` 源码印证），`onResponse` 在成功（200）时按预期触发，但在 401 与 404 上从未触发——因为本项目锁定的 `openai` npm SDK 版本里，`client...create(...).withResponse()`（`openai/core/api-promise.js` 的 `parse()`/`asResponse()`）对任何非 2xx 响应都会先 REJECT（`openai/client.js` 的 `Client#makeRequest`，`if (!response.ok) { ...; throw err; }` 分支），这个 reject 发生在 `openai-completions.js:213` 的 `await retryProviderRequest(...)` 处，早于第 218 行的 `onResponse` 调用点——所以 401/404 的错误还没到 `onResponse` 就已经把控制权扔进了外层 `catch`（`openai-completions.js:506`）。这意味着如果只按 PV-84 字面实现（只传 `onResponse`），`httpStatus` 在任何失败路径上都会保持 `null`，`authentication_failed`/`http_error` 两个分支永远走不到——这会让本补丁自己要求的第 4 项用例（401 → `authentication_failed`、`unknown-` 模型 → `http_error`）实测失败。
+
+**因此改用 pi 转发的另一个选项 `fetch`。** `createClient`（`openai-completions.js:203`）把 `options?.fetch` 原样递给 `new OpenAI({...,fetch,...})`，而 `fetch` 与 `onResponse` 一样，由同一条 `prepareRequest` 展开路径原样转发（同样只被 `transformHeaders` 解构排除）。`#verifyProviderConnection`（`app/server/service.mjs`）因此传入一个包一层的 `fetch`：在 OpenAI SDK 自己检查 `response.ok` 并抛错**之前**，先拿到原始 `Response`，记下 `response.status`，再把 `Response` 原样交还。这条路径不受 SDK 的成功/失败分支影响，200/401/404/网络失败全部经过它。`onResponse` 仍然一并传入（无害，且是 PV-84 字面要求的），但只能在成功路径上重复确认 `fetch` 包装器已经拿到的同一个值。
 
 | 类别 | 依据（file:line） | 本宿主下可达？ |
 |---|---|---|
-| `ok` | `AssistantMessage.stopReason` 是结构化字段，非 `"error"` 且非 `"aborted"`（`pi-ai/dist/types.d.ts` 的 `AssistantMessage` 定义） | **可达**——唯一走结构化判据的成功分支 |
-| `timeout` | 本宿主自己持有的 `AbortController`/`setTimeout`：超时回调设 `timedOut=true` 再 abort，是本宿主自己的状态，不是从 `errorMessage` 猜的 | **可达**——本宿主自控，结构化 |
-| `authentication_failed` | 若可达，本应来自上游 HTTP 401/403 | **不可达**：`openai-completions.js:518` `output.errorMessage = formatProviderError(normalizeProviderError(error))` 把 `normalizeProviderError` 探测到的 `status`（含 401/403）拍扁进一条字符串后丢弃；`AssistantMessage` 上没有并行的 `status`/`code` 字段（`event-stream.js` 的 `AssistantMessageEventStream` 把 `"error"` 事件的 `error` 与 `"done"` 事件的 `message` 走同一 `.result()` 出口） |
-| `model_not_found` | 若可达，本应来自上游 HTTP 404 | **不可达**，同上——404 与 401 经过完全相同的拍扁路径，没有留下可供程序判断的结构化差异 |
-| `unreachable` | 若可达，本应来自 fetch 失败（网络层） | **不可达**：网络异常同样落进 `openai-completions.js` 的同一 `catch` 块，`normalizeProviderError` 对无 `.status` 的错误只返回 `{message}`，`formatProviderError` 原样透传 `message`——不比 HTTP 错误更结构化 |
-| `http_error` | 若可达，本应来自任意非 2xx 状态 | **不可达**，理由同 `authentication_failed`/`model_not_found` |
-| `malformed_response` | 若可达，本应来自响应体无法解析 | **不可达**：SDK 要么成功解析要么把解析失败同样折成 `errorMessage` 字符串，没有第三条路径能把"解析失败"与"其它失败"区分开 |
-| `unknown` | `errorMessage` 是唯一幸存的信息，原样透传进 `message` | **是本宿主实际落地的失败出口**——本项目自己的 `provider-preview.mjs`（`/provider-connection/test`、`/provider-models/discover`）**能**达到 `authentication_failed`/`http_error`/`unreachable` 等类别，因为那个模块直接读原始 `fetch` Response，是完全不同的代码路径；verify 走的是 pi 的生成 API，两者不能类比 |
+| `ok` | `AssistantMessage.stopReason` 是结构化字段，非 `"error"` 且非 `"aborted"`（`pi-ai/dist/types.d.ts` 的 `AssistantMessage` 定义） | **可达** |
+| `timeout` | 本宿主自己持有的 `AbortController`/`setTimeout`：超时回调设 `timedOut=true` 再 abort，是本宿主自己的状态 | **可达** |
+| `authentication_failed` | 包装 `fetch` 捕获的 `response.status`（401/403），在 SDK 抛错前拿到（`app/server/service.mjs` 的 `#verifyProviderConnection`；对照 `openai/client.js` `Client#makeRequest` 的 `!response.ok` 分支） | **可达（PV-84 新增）**——fixture 用例：连接凭据等于 `FIXTURE_WRONG_KEY` → `httpStatus:401` |
+| `model_not_found` | 若可达，本应来自上游 404 的响应体（body），但 `httpStatus` 只是一个数字状态码，不带 body | **不可达**——404 与任何其它非 2xx 状态在 `httpStatus` 层面无法区分成因，区分需要解析响应体，PV-62 ① 禁止对 prose 做正则/解析；见下一行 `http_error`，同一个 404 落在那一类 |
+| `unreachable` | 包装 `fetch` 本身从未 resolve 出一个 `Response`（`await fetch(...)` 抛出：连接被拒、DNS 失败等），`httpStatus` 保持 `null` | **可达（PV-84 新增）**——用例：一条兼容连接的 `baseUrl` 指向一个本机曾经监听、随后被关闭的 loopback 端口 |
+| `http_error` | 包装 `fetch` 捕获的 `response.status`，非 2xx 且不是 401/403 | **可达（PV-84 新增）**——fixture 用例：模型 id 以 `unknown-` 开头 → fixture 返回结构化 404 → `httpStatus:404` |
+| `malformed_response` | `httpStatus` 落在 2xx，但 `stopReason` 仍是 `"error"`（响应头已经 200，但流式体在解析途中失败） | **理论可达，未被本宿主任何 fixture 场景触发**——本地 fixture 的成功响应体总是良构的；见 §9 未检项 |
+| `unknown` | `classifyVerifyOutcome` 判据表的字面兜底分支（信号既不是 `ok`/`timeout`，也不落在 401/403/非 2xx/`null`/2xx 的任一桶里，例如一次不是本宿主自己计时器发起的 `signal` 中止） | **理论可达，未被本宿主任何 fixture 场景触发**——`httpStatus` 一旦存在就必然落进上述五个桶之一，`null` 必然落进 `unreachable`，这个兜底目前是代数上覆盖不到的安全网 |
 
-**设计含义**：`status` 枚举保留全部 8 个值（并非本单擅自收窄契约），但如实记录哪些在**当前 pi 版本**下可达。若未来 pi 升级后在生成路径上暴露结构化状态，`classifyVerifyOutcome` 可以在不改回执 schema 的前提下扩展判据。
+**设计含义**：`status` 枚举保留全部 8 个值；补丁前 PV-62 ①"不可达"的判断出在只核了 `AssistantMessage` 返回面、没有核到 `fetch`/`onResponse` 这层转发是否被 vendored SDK 的抛错时机切断——这正是补丁要求"先核实 `onResponse` 是否透传"背后要防的那类漏检,只是漏检出现在下一层（透传成立,但触发时机不覆盖失败路径）。`model_not_found` 保持不可达的结论没有变。
 
 ### 5.3 绑定与失效（PV-42）
 
@@ -128,7 +141,7 @@
 | `PV-59 · 追加的模型 id 不得与已装目录冲突` |
 | `PV-59 · 目录连接加一个不在已装目录的模型：可保存、可选为生效、run 发起门放行；删掉后 run 发起门 503；原生模型仍可解析` |
 | `PV-61 · reasoning 三态：true → supportedEfforts 非 off；null → off + reasoningSource unknown；false → off + reasoningSource user` |
-| `PV-62 · verify 三类 fixture 结果：成功 ok、401→unknown、未知模型→unknown，且不冒充精度` |
+| `PV-62/PV-84 · verify 四类 fixture 结果：成功 ok、401→authentication_failed、未知模型→http_error、不可达→unreachable，且不冒充精度` |
 | `PV-62 · verify 的三道门：模型不可准入 400、连接无凭据 400、活动 run 期间 409` |
 | `PV-42 · 回执绑定失配返回 null；重启后额外模型与回执可用` |
 | `T-CRED-VERIFY · fixture 除外：fake 连接的 verify 不要求预先配置凭据；兼容连接仍要求，且不读 HOME/.pi 与环境变量` |
@@ -138,7 +151,7 @@
 - 追加模型 id 与已装目录冲突（对 fixture 身份即 `fake-model`）→ 400 `invalid_connection`，`error.models` 列出冲突 id。
 - 额外模型注册后 `/provider-models` 能查到它（`origin:"connection"`），原生模型同时仍在（`origin:"catalog"`，`reasoningSource:"catalog"`）；选中额外模型后一次真实 Run 走到 `completed`；原生模型选中后仍可正常 Run；PUT 一个不含该额外模型的更短列表后，同一 session 新起的 Run 遇 503 `provider_unsupported`。
 - `reasoning:true` 的连接模型行 `supportedEfforts` 非 `["off"]`；`reasoning` 缺省（`null`）时 `supportedEfforts:["off"]` 且 `reasoningSource:"unknown"`；`reasoning:false`（显式声明关闭）同样 `["off"]` 但 `reasoningSource:"user"`——三态里 "缺省" 与 "显式声明关闭" 的区别只体现在 `reasoningSource`，不体现在 `supportedEfforts`，这是刻意的（PV-61 原文）。
-- fixture 三类可证结果：成功（`status:"ok"`，`message`、`replyFirstLine`、`credentialSource`、`binding` 均有值）；模型 id 以 `unknown-` 开头（本地已放行、fixture 上游 404）→ `status:"unknown"`，`message` 含上游原话 `"does not exist"`；连接凭据等于 `FIXTURE_WRONG_KEY`（fixture 401）→ `status:"unknown"`，`message` 含 `"Incorrect API key"`，且断言 key 字符串本身不出现在回执里。
+- fixture 四类可证结果（PV-84 改判后）：成功（`status:"ok"`，`httpStatus:200`，`message`、`replyFirstLine`、`credentialSource`、`binding` 均有值）；模型 id 以 `unknown-` 开头（本地已放行、fixture 上游结构化 404）→ `status:"http_error"`，`httpStatus:404`，`message` 含上游原话 `"does not exist"`；连接凭据等于 `FIXTURE_WRONG_KEY`（fixture 401）→ `status:"authentication_failed"`，`httpStatus:401`，`message` 含 `"Incorrect API key"`，且断言 key 字符串本身不出现在回执里；一条兼容连接指向一个先起后停的 loopback fixture 端口 → `status:"unreachable"`，`httpStatus:null`。
 - 不可准入模型 → 400 `invalid_provider`；无凭据的兼容连接 → 400 `credential_missing`；活动 run 期间 → 409 `active_run`；不存在的连接 → 404。
 - 一条回执写入后 `GET /provider-connections` 的 `lastVerification` 与该回执逐字相等；任意连接写入（哪怕是另一条连接的凭据）后该字段变回 `null`；重启后，binding 未变的回执仍能读到，额外模型也仍能解析。
 - `fake` 目录连接在从未配置凭据的情况下 verify 仍返回 `status:"ok"`（`credentialSource:"runtime"`）；同一进程里一条兼容连接（同样没配凭据）verify 得 400 `credential_missing`；全程 `HOME/.pi/agent/auth.json` 的哨兵字节不变、目录下无新文件。
@@ -151,13 +164,13 @@
 | `npm --prefix app test` | `tests 651 / pass 651 / fail 0`，退出码 0 |
 | `npm --prefix app run smoke` | `{"status":"passed","provider":"local-fake","realProvider":"not_run"}` |
 
-三条命令均在分支头 `c419ec71895279380d3933b111ff96d399280df9` 上跑，并发度为 Node 内置 test runner 默认并发（未显式指定 `--test-concurrency`，未联网）。原始输出留在本地 `evidence/pv-be03/`（`npm-ci.txt`/`npm-test.txt`/`npm-smoke.json`/`HEAD-sha-at-verification.txt`），**未提交**——见 §8①。
+三条命令均在 PV-84 补丁头 `2ad4ecc22810ead7270244200d68fc48e941b0d3` 上跑（`npm ci` 277 包、0 漏洞与补丁前一致，未变化），并发度为 Node 内置 test runner 默认并发（未显式指定 `--test-concurrency`，未联网）。原始输出提交在 `evidence/pv-be03/`（`npm-ci.txt`/`npm-test.txt`/`npm-smoke.json`/`HEAD-sha-at-verification.txt`，commit `5875375`）——见 §8①。
 
 **真实 provider 证据：`not_run`。** 理由同 BE02：凭据只在 Web UI 输入，本单不持有任何真实 key，也不读取任何凭据文件。
 
 ## 8. 待裁定
 
-① **验证命令原始输出未提交**。工单写权表明列 `app/server`、`app/runtime`、`app/tests`、`app/docs`、`app/README.md` 加交付页，没有列 `evidence/`（BE02 交付页引用过 `evidence/pv-be02/`，但那是否是本单也可以写入的路径，工单没有重新授权）。本单选择保守：三条命令的原始输出与 SHA 生成在本地 `evidence/pv-be03/`（供复核时我可以直接提供），但**未 `git add`、未提交**——交付页正文（§7）已经以文字形式记全了命令、SHA、通过/失败计数,不依赖这些文件存在。若裁定 `evidence/` 是本批次沿用的既有约定、本单也可以写入，我可以把这个目录补提交进同一分支。
+① **已解决（PV-85 ①，2026-09-10）**：intake §19 裁定 `evidence/` 是本批次沿用的既有约定（BE02/FE01 均有先例），本单也可以写入。PV-84 补丁落地后按此裁定补提交了 `evidence/pv-be03/`（`npm-ci.txt`/`npm-test.txt`/`npm-smoke.json`/`HEAD-sha-at-verification.txt`，均为 PV-84 补丁后新头上重跑的原始输出），commit 见 §1.1。原文保留在下方供追溯：<br>~~验证命令原始输出未提交。工单写权表明列 `app/server`、`app/runtime`、`app/tests`、`app/docs`、`app/README.md` 加交付页，没有列 `evidence/`……~~
 
 ② **verify 记成完全瞬态，不记一条带 probe 标记的 run（PV-37 授权作者按最小改动定）**。`#verifyProviderConnection` 完全不经过 `store.createRun`/`this.active`/`AgentSession`：直接调用 `this.modelRuntime.complete()`，只把回执写进新的 `providerVerifications` 账本。理由：① Run 记录天然绑定 session/workspace/lineage，而 verify 只绑定连接，没有 session；把它塞进 Run 模型意味着要么发明一个"无 session 的 Run"，要么借用某个 session 挂账，两者都比"回执是连接的一个独立账本"更复杂。② `AssistantMessage.stopReason`/`responseModel`/`errorMessage` 已经是 `modelRuntime.complete()` 的现成返回值，不需要 `createSessionRun` 的 AgentSession 全套机制（工具、compaction、事件投影）来获得它们，而 PV-62 本就要求"无工具、无 workspace、不进会话历史"——用最小的 API 表面自然满足，不需要先搭一个会话再逐项关掉它的功能。
 
@@ -171,8 +184,8 @@
 
 - 真实 provider 未跑：DeepSeek / OpenAI / 任何远端兼容网关都未接触，`not_run`（凭据只在 UI 输入）。
 - **`deepseek`/`openai` 两个目录连接的额外模型只验证了"保存 → 注册 → `/provider-models` 可见"，未验证"选中 → Run/verify 端到端成功"**——它们的原生 `baseUrl` 指向真实网络端点，端到端验证只能在联网环境或有真实凭据时进行。本单选择的替代证据是 fixture 身份（`catalog-fake-openai-loopback`）的额外模型端到端 Run 与 verify（§6），因为它是三个目录连接里唯一 `baseUrl` 指向 loopback 的一个；`#createRun` 的 fixture 分支因此也被本单改动触及（§3），这是保持"不联网也能端到端验证 PV-59"的必要代价，不是范围外的顺手改动。
-- `openai-responses` 格式的额外模型（无论目录连接还是兼容连接）未端到端跑：loopback fixture 只实现 `openai-completions` 语义的 chat/completions。
-- `classifyVerifyOutcome` 的判据（§5.2）核实基于 `openai-completions.js`；未逐行核对 `openai-responses.js`/`anthropic-messages.js` 等其它 API 模块是否用完全相同的 `normalizeProviderError`/`formatProviderError` 落地方式——`error-body.js` 是共享工具，大概率一致，但未逐一确认调用点（与 EX-PV5 未检项 ③ 相同的空白）。
-- `retryProviderRequest`（`pi-ai` 内部对某些错误的自动重试）在 verify 路径上的行为未单独验证：`latencyMs` 若包含了一次内部重试的耗时，不会体现为回执里的任何单独字段——如实记录墙钟耗时,重试是否发生对调用方不可见,这点未做进一步探测。
+- `openai-responses` 格式的额外模型（无论目录连接还是兼容连接）未端到端跑：loopback fixture 只实现 `openai-completions` 语义的 chat/completions。`httpStatus` 的捕获机制（包装 `fetch`）在 `openai-responses.js` 里走的是同一 `createClient`/`options?.fetch` 形状（第 203 行附近同构），静态读过一致，但没有一个 fixture 场景真正让 `openai-responses` 格式的请求失败过，所以这条路径的 `httpStatus` 只有静态依据，没有本宿主自己的运行时证据。
+- `classifyVerifyOutcome` 的 `malformed_response`（2xx 之后 `stopReason` 仍 `error`）与字面兜底 `unknown` 两类未被任何本地 fixture 场景实际触发过（见 §5.2 表）：本地 fixture 的成功响应体总是良构的，没有"返回 200 但流式体损坏"的脚本分支；PV-84 的验收用例也没有要求这两类。判据本身是代数完备的（`httpStatus` 的每种取值都落进上表某一桶），但 `malformed_response` 这一桶从未被跑到过。
+- `retryProviderRequest`（`pi-ai` 内部对某些错误的自动重试）在 verify 路径上的行为未单独验证，且包装 `fetch` 与它的交互也未验证：`retryProviderRequest` 每次重试会重新调用 `request()`（`openai-completions.js:213`），也就是重新走一遍 `client...create(...).withResponse()`；本宿主的包装 `fetch` 因此可能在一次 verify 调用里被触发不止一次，且 `httpStatus` 只保留"最后一次赋值"（最后一次尝试的状态）——`latencyMs` 若包含了内部重试的耗时，同样不会体现为回执里的任何单独字段。fixture 的 401/404 分支都不触发 pi 的自动重试（`isRetryableProviderError` 只对 408/409/429/5xx 及 `x-should-retry` 头重试，401/404 都不在内),所以本单的四条用例没有实际经过这条路径，但连续多次 `httpStatus` 赋值本身是否会在 5xx 场景下产生误导（最终值总是"最后一次尝试"的状态，这本身是合理语义，但未经真实 5xx 场景验证）未做进一步探测。
 - `registerCatalogExtraModels`/`nativeCatalogModelIds` 的按-`ModelRuntime`-实例 `WeakMap` 设计只由"多个 `ModelRuntime` 实例共存于测试进程"这一事实驱动，未验证在真实单进程单实例部署下是否还有其它需要多实例隔离的场景。
 - 未读取任何凭据文件；未联网；未改动本树以外的任何目录。
