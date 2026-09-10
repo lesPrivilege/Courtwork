@@ -1,0 +1,54 @@
+$ git rev-parse HEAD
+exit=0
+9bc6090b5b463bdf6286a0c42bdcd399781fc067
+
+$ git status --short
+exit=0
+?? engineering/execution/2026-09-11-semantic-polish/
+?? engineering/research/semantic-governance-2026-09-11/
+
+$ git merge-base --is-ancestor bd1f815a99c88f2431244671e871e97ddcc082fa main
+exit=0
+
+$ git cherry main bd1f815a99c88f2431244671e871e97ddcc082fa
+exit=0
+
+$ git diff --stat main bd1f815a99c88f2431244671e871e97ddcc082fa -- site
+exit=0
+ site/README.md                                     |  12 +-
+ site/build.mjs                                     |  11 +-
+ site/scripts/capture-plan.test.mjs                 |  38 ---
+ site/scripts/check-capture-ready.mjs               |  14 -
+ site/scripts/check-figures.mjs                     | 321 ---------------------
+ site/scripts/verify.mjs                            | 160 +---------
+ site/specimen/shell.mjs                            |  13 +-
+ site/src/assets/diagram.svg                        |  14 +-
+ site/src/assets/figures/attention.svg              |  64 ----
+ site/src/assets/figures/figures.json               | 242 ----------------
+ site/src/assets/figures/figures.mjs                |  25 --
+ site/src/assets/figures/pipeline.svg               |  85 ------
+ site/src/assets/figures/roles.svg                  |  43 ---
+ site/src/assets/figures/spark.svg                  |  34 ---
+ site/src/capture-plan.mjs                          |  42 ---
+ site/src/copy.mjs                                  |  36 ++-
+ site/src/page.mjs                                  | 103 +++----
+ site/src/pricing.mjs                               |  13 +-
+ site/src/product-interactions.mjs                  |  18 +-
+ site/src/product-pages.mjs                         |  43 +--
+ site/src/readme.mjs                                |   2 +-
+ site/src/site.css                                  | 102 +------
+ site/src/specimen-page.mjs                         |   4 +-
+ site/src/steps.mjs                                 |  20 +-
+ .../ordered-design/11-mobile-320-header.png        | Bin 32072 -> 0 bytes
+ .../ordered-design/18-pipeline-desktop-final.png   | Bin 59123 -> 0 bytes
+ .../19-three-figures-desktop-final.png             | Bin 94787 -> 0 bytes
+ .../ordered-design/21-release-desktop.png          | Bin 79489 -> 0 bytes
+ .../ordered-design/22-paper-tour-final.png         | Bin 82941 -> 0 bytes
+ .../ordered-design/23-mobile-390-final.png         | Bin 35668 -> 0 bytes
+ 30 files changed, 155 insertions(+), 1304 deletions(-)
+
+$ git for-each-ref --format="%(refname:short) %(objectname) %(subject)" refs/heads/codex/summary-be41-construction-20260911 refs/heads/codex/be41-compatibility-20260911 refs/heads/codex/summary-disclosure-r2
+exit=0
+codex/be41-compatibility-20260911 c71eb0229bb33456daf9569b83f244d3dce340fa test: verify BE41 derivations compatibility edges
+codex/summary-be41-construction-20260911 035134b919c195fe9454f279c297052bb8e32089 docs: close Summary and BE41 merge-ready delivery with source manifest
+codex/summary-disclosure-r2 796c3a5de9bbeb6728b8968d227b4ec4e52725d5 Record entry grammar and compact directory verification

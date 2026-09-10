@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-11 · 语义与界面polish准备
+
+后续用户补充已并入[P0.5 Product Semantics Registry计划](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)：semantic与glyph分层、single/multi-purpose、六族碰撞审查、跨App/Pages映射及机器gate；复用现有renderer与来源账，不开始实现。
+
+[语义治理与对齐入账包](research/semantic-governance-2026-09-11/README.md)登记全部5 turn/9消息及附件；一条接口截断已从原对话UI补齐可见正文，原始Markdown字节限制明确。Astra完成PR/路线review、Luna有界源码explore，省并为[WO-VS-01本轮roadmap](execution/2026-09-11-semantic-polish/README.md)。固定准备基线9bc6090，等待用户merge清洁节点后再loop；只交文档计划，未改产品、未启动UI验收或部署。PR1已MERGED，PR2仍OPEN但head已在main祖先中，不重复合旧树。
+
+
 ## 2026-09-11 · Chat icon / Fake UI 先行
 
 用户明确Chat space icon应从Fake UI先行落地、逆向登记独立后端缺口；[最新裁定与截图](design/chat-controls-2026-09-10/fake-ui-first/README.md)覆盖此前B/C整体等待安排。当前fresh Astra单写接续：先做可交互action row、沿现有能力接线，缺失能力通过合成adapter验证状态并逐项登记接口；生产不伪报成功。B最小对照裁定与C前端实施连续推进，共享文件串行，后端与最终组合非作者验证分别接续。本条是施工要求，尚未宣称icon已交付。

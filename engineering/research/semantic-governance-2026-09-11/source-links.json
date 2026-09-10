@@ -1,0 +1,31 @@
+{
+  "note": "原文可解析外链；未逐条核验；opaque citations仍未解析",
+  "urls": [
+    "https://a2a-protocol.org/latest/specification/",
+    "https://claude.com/product/claude-code",
+    "https://code.claude.com/docs/en/desktop",
+    "https://code.claude.com/docs/en/glossary",
+    "https://cursor.com/product",
+    "https://developer.apple.com/design/human-interface-guidelines/labels",
+    "https://developer.apple.com/design/human-interface-guidelines/sf-symbols",
+    "https://developer.apple.com/videos/play/wwdc2026/290/",
+    "https://developers.openai.com/api/docs/guides/agents/running-agents",
+    "https://devin.ai/desktop",
+    "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-how-it-works.html",
+    "https://docs.langchain.com/langsmith/view-traces",
+    "https://fluent2.microsoft.design/content-design",
+    "https://github.com/lesPrivilege/Courtwork/actions/runs/34515737079",
+    "https://github.com/phosphor-icons/react",
+    "https://langfuse.com/docs/observability/features/agent-graphs",
+    "https://lesprivilege.github.io/Courtwork/",
+    "https://linear.app/docs/conceptual-model",
+    "https://linear.app/homepage",
+    "https://lucide.dev/contribute/icons/design-principles",
+    "https://openrouter.ai/blog/announcements/activity-dashboard/",
+    "https://shopify.dev/docs/apps/design/content",
+    "https://vercel.com/",
+    "https://vercel.com/docs/ai-gateway/observability-and-spend/observability",
+    "https://www.braintrust.dev/docs/observe/examine-traces",
+    "https://www.kimi.com/resources/kimi-work-introduction"
+  ]
+}

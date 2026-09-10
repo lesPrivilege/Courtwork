@@ -1,0 +1,492 @@
+可以。这一轮我用 Exa 重新扫了 
+											156 text 40 个结果、4 条外部 workstream
+											157 text ，并全文对照了 Courtwork 线上首页及主要子页、
+											158 text main@9bc6090
+											159 text  的 Pages 源码、架构/roadmap、Attention 与 Spark 裁定、旧 copy convention。结论已经足够稳定，可以直接进入一轮 
+											160 text Pages product-language + information-hierarchy polish
+											161 text 。
+											162 text 最关键的判断是：
+											163 text 现在的 Pages 已经有很好的产品基因，但仍然有两套叙事叠在一起。
+											164 text  上半段是产品——
+											165 text Work that survives the model
+											166 text 、Matter、Spark、Attention、Review；下半段经常突然变成架构说明书——Run、Runtime、Binding、Context Projection、Host runtime、Provider contract。repo 自己其实早已把两者分开：Work Core 持有 Matter、Candidate、Evidence、Decision，Generic Runtime 在 Host Adapter 之后，是独立替换轴。 roadmap 也已经明确“通用 agent harness 与 Semantic Work Core 分开”，Codex 等是后续 runtime 替换验证对象，而非产品本体。
+											167 text 外部对照也很一致。
+											168 link Description: Cursor, Value: cursor.com/product?utm_source=chatgpt.com
+											169 text 、
+											170 link Description: Devin Desktop, Value: devin.ai/desktop
+											171 text 、
+											172 link Description: Claude Code, Value: claude.com/product/claude-code
+											173 text 、
+											174 link Description: Kimi Work, Value: kimi.com/resources/kimi-work-introduction
+											175 text 、
+											176 link Description: Linear, Value: linear.app/homepage
+											177 text  都把首页留给
+											178 text 用户工作、产品对象和可见结果
+											179 text 。Devin 虽然甚至支持 ACP 和多种 agent，但把 interoperability 放在“All the models, All the agents”这样的后段能力里；只有 
+											180 link Description: Vercel, Value: vercel.com/
+											181 text  会把 Infrastructure 放 Hero，因为基础设施本身就是它出售的产品。Courtwork 显然属于前一类。
+											182 text 另外，召回的旧裁定与当前 repo 有一个必须一起修掉的冲突：9 月 9 日的 
+											183 text copy-convention.md
+											184 text  曾把 
+											185 text Run
+											186 text  定为用户词，把 Matter 隐在产品 UI 后面；但之后 Spark、Attention、Work Core、多 Expert 与 runtime replaceability 的裁定已经反转了这个权重。 因此不能只改 Pages 文案，否则 canonical copy spec 会继续把旧词重新带回来。
+											187 text 下面可直接交本地 agent。
+											188 container
+												189 container
+													190 button Edit
+													191 button Copy
+													192 pop up button
+													193 button Open editor
+												194 text entry area (settable) CourtWork Pages · Commercial Surface Polish
+Baseline: main@9bc6090
+0. Product ruling
+Pages represents CourtWork as a finished commercial product.
+It is not the README rendered large.
+It is not an architecture diagram with marketing typography.
+It is not a progress report.
+The public surface talks about the product that exists in the user's mental model.
+The architecture may be more detailed than the product. The product must not inherit that complexity merely because the backend can name it precisely.
+CourtWork's public hierarchy is:
+Level
+Product meaning
+CourtWork
+the product
+Matter
+durable work
+Spark
+rebuildable knowledge around changing sources
+Attention
+the resident agent and human-attention surface
+Experts
+specialized roles that work within Matters
+Review
+where proposals meet evidence and human judgment
+Models · Tools · Connections
+replaceable capabilities
+Runtime · Run · Binding · Host · Adapter
+implementation
+Runtime is therefore not a peer of Matter, Experts, Spark or Attention.
+Run is not a public product object.
+Runtime interchangeability remains an important architectural property, but Pages expresses its benefit:
+Use the right model or agent without moving the work.
+not its implementation:
+Choose a Runtime for each Run.
+
+1. Preserve the strongest existing decisions
+The current Hero stays conceptually intact:
+Work that survives the model.
+模型可以离场，工作继续。
+This is CourtWork's strongest positioning line because it describes the product consequence of the architecture without teaching the architecture.
+Preserve the archival Matter object as the distinctive Hero visual language. Do not replace it with a generic full-width SaaS screenshot.
+Preserve Spark and Attention as branded CourtWork concepts. Their independent naming is justified because they are first-party product ideas rather than generic UI features.
+Preserve the sparse judgment/accent color policy. Human attention and consequential review may carry the exceptional color; ordinary navigation and decoration do not.
+Preserve Proposal / Evidence / Decision as the Review grammar.
+Preserve the local-first acquisition story and model choice.
+
+2. Correct the public ontology
+Current Pages incorrectly elevate several implementation concepts.
+Immediate removals from ordinary marketing copy:
+Current
+Ruling
+Runtime
+remove as feature/category
+Host runtime
+remove
+Local runtime
+remove
+Hosted runtime
+remove
+Managed runtime
+remove
+Expert runtime
+remove
+Runtime controls
+remove from marketing links
+A choice for each run
+remove
+Choose for each run
+remove
+Run as a Matter-tour step
+describe the visible work instead
+Run context
+remove
+Binding
+remove
+ROLE → BINDING → EXECUTION
+replace
+Context Projection as headline concept
+demote to research/developer depth
+Provider contract
+developer documentation only
+run may remain an ordinary English verb where natural, such as Run locally or Run tests. The ban concerns Run as a product noun.
+Do not mechanically substitute Execution for Run.
+Delete the noun when the user does not need an object.
+
+3. Spark, Attention, Matter and Experts
+These four must no longer appear as four interchangeable “architecture pieces”.
+They have different roles.
+Matter
+Matter is the durable object.
+A concise public definition is sufficient:
+Sources, proposals, files and decisions stay with the work.
+The reader does not need Matter Repository, stateVersion, CAS or Core ownership to understand it.
+Spark
+Spark is a branded capability, not another truth store.
+Public promise:
+Sources change. Knowledge catches up.
+Show source → derived view → changed source → rebuilt view.
+Its distinction is not “RAG” or “memory”. It is that derivations can change while the underlying work retains provenance.
+Attention
+Attention is a branded agent/surface.
+Public promise:
+Work keeps moving. You step in when judgment matters.
+Do not use Attention as the generic name of every notification list or colored state.
+Attention can surface things that need the person; the item itself can simply be Waiting, Review, Approval, etc.
+Experts
+Experts are reusable professional roles inside durable work.
+Public promise:
+Bring the right expertise to the same work.
+They do not own a separate world. They operate on the same Matter, sources, evidence and review boundary.
+Replace:
+ROLE → BINDING → EXECUTION
+with a product-level composition such as:
+MATTER → EXPERT → REVIEW
+or a visual in which Matter is the common work object and multiple Experts contribute proposals back into Review.
+The important point is not the literal arrow order. It is that Runtime disappears from the conceptual diagram.
+
+4. Homepage information hierarchy
+Current homepage has too many similarly weighted editorial sections.
+page.mjs currently renders Hero → Spark/Attention → Paper/Tour → Home → Matter → Review → long-work → Eval → Architecture → Portability → Three Views → Pricing → Build.
+That sequence treats product, research, architecture and acquisition as peers.
+Change the homepage narrative to:
+Order
+Question answered
+Surface
+1
+What is CourtWork?
+Hero
+2
+Is this a real product?
+real product UI
+3
+What is different?
+Spark + Attention
+4
+What stays?
+Matter
+5
+Who does the work?
+Experts
+6
+How do I stay in control?
+Review
+7
+Am I locked to one intelligence stack?
+Models & tools
+8
+Can I trust the work?
+short Eval / Privacy proof
+9
+What does it cost?
+Pricing
+10
+What do I do now?
+Download / final CTA
+The Paper, architecture anatomy, raw state projections and build internals become secondary destinations.
+Schema Engineering should be the grammar behind the page, not homework before understanding the product.
+A lower Research link may say that CourtWork is designed around Schema Engineering and lead to the paper. The homepage itself demonstrates those ideas through product behavior.
+
+5. Move product proof upward
+The current archival Hero can remain.
+But the actual application currently arrives too late, after Spark/Attention and the “Two ways into CourtWork” Paper/Tour block.
+Move the real Home/product surface into the first product-proof band.
+Preferred rhythm:
+Hero → Product proof → Spark + Attention → Matter…
+or, if the current Spark/Attention composition is visually exceptional:
+Hero → Spark + Attention → Product proof → Matter…
+Both are acceptable.
+Paper / Tour must not stand between the visitor and the first real product image.
+Cursor, Claude Code, Devin and Linear all make the working surface visible extremely early. CourtWork should do the same without adopting their generic giant-Hero-screenshot composition.
+
+6. Navigation
+There are currently two competing navigation systems:
+top-level Tour / Paper / Release, followed on product pages by nine product links.
+This makes the product feel like a published research project with a product microsite underneath.
+Use one commercial global navigation.
+Recommended public set:
+Product · Experts · Eval · Pricing · Download
+Product may route to Features or the Tour depending on final information architecture.
+Move these downward:
+Paper / Research · GitHub · CLI · Changelog · Models · Privacy
+They remain accessible through footer, contextual links, or developer navigation.
+Specific rulings:
+Release → Download
+Get CourtWork may remain as contextual CTA copy, but the stable navigation noun should be Download.
+Paper is no longer primary navigation.
+Models remains a useful secondary product page, not a top-level product pillar.
+Do not retain a second nine-item horizontal product-nav beneath the masthead.
+
+7. Features page
+Current feature hierarchy:
+Matter
+Spark
+Attention
+Experts
+Runtime
+is wrong because it makes execution infrastructure appear to be the fifth product principle.
+Recompose around:
+Matter
+Work that remains.
+Spark
+Knowledge that rebuilds.
+Attention
+Judgment at the right moment.
+Experts
+Specialists for the same work.
+Review
+Evidence before commitment.
+Models, tools and connections form a lower compatibility/control section, not a fifth ontology element.
+
+8. Experts page
+Current copy repeatedly states:
+“角色定义责任，Runtime 承担执行，Matter 保留共同依据。”
+This is architecturally defensible and commercially weak.
+Replace the story with the work relationship:
+Experts bring specialized judgment to the same Matter.
+Show:
+Matter
+→ Expert contribution
+→ Proposal + Evidence
+→ Review
+→ Decision
+Models and tools may differ between Experts, but that is supporting capability.
+A later compact section can say:
+Use different models and tools without fragmenting the work.
+No Runtime noun is needed.
+
+9. Models page
+The page should answer four user questions only:
+Models — What intelligence can I use?
+Connections — Where does it come from?
+Control — What can it access?
+Usage — Who accounts for consumption?
+Remove:
+RUNTIME
+A choice for each run.
+Connect once. Choose for each run.
+Runtime controls
+A suitable product thesis is simply:
+Bring your models.
+or retain the current:
+Bring your intelligence.
+Provider, Base URL and protocol details belong beneath Connections / Advanced, not in the page's conceptual hierarchy.
+This page is the place to demonstrate runtime replaceability without naming runtime.
+
+10. Download page
+Remove:
+A few commands. Your own runtime.
+Prefer:
+Start locally.
+or:
+Run CourtWork on your machine.
+The installation command is the evidence.
+Run locally as an action is fine because run is an ordinary verb here.
+Source host, POSIX adapter and comparable implementation labels belong in installation details rather than acquisition headline material.
+The page should visually make the future signed desktop build the primary commercial object and source installation the developer route.
+The currently empty desktop/download affordance can already own that hierarchy before packaging is complete.
+
+11. Pricing
+Pricing is valuable because it makes the fictional product feel complete. Keep it.
+Remove topology from what the plans sell.
+Local
+Sell:
+Local work
+Own models
+Spark + Attention
+Matter history
+Review and evidence
+Open source
+Professional
+Sell:
+Desktop app
+Sync
+Updates
+Integrations
+Longer history
+Managed services
+Organization
+Sell:
+Shared Matters
+Experts
+Access
+Review policy
+Audit
+SSO
+Private deployment
+Delete Local runtime, Hosted runtime, Managed runtime, and Expert runtime.
+The pricing diagrams should show who owns the work and what capability becomes available, not which execution substrate hosts it.
+Model usage can remain explicitly separate. That is a comprehensible commercial fact.
+
+12. Tour and the 13 screenshots
+Do not delete the 13 capture slots.
+Do not let 13 screenshots create 13 product concepts either.
+The current flat sequence makes Agent running, Permission, Artifact, Matter, Integrations, two Attention screens, Models and Settings all appear semantically equal.
+Group them into a small number of stories while preserving individual capture IDs.
+Recommended grouping:
+Story
+Captures
+Start
+Home · Agent working · File
+Know
+Spark · Matter · Continue
+Judge
+Attention · Approval · Review
+Specialize
+Experts · Models
+Control
+Integrations · Settings · Attention conversation where appropriate
+The screenshot heading describes what the visitor is seeing, not the backend state that generated it.
+Examples:
+Agent running → Working
+Permission / a specific action → Approval
+Artifact / file → Files
+Models / configure deliberately → Models
+Integrations / explicit scope → Connections or Tools, according to the screenshot.
+The full screenshot can contain richer product vocabulary. The campaign caption should not teach the internal implementation.
+
+13. Changelog
+Current Changelog still speaks as an engineering journal:
+“Models 重构为 Connections 与 Add provider”
+“Provider inspection”
+This breaks the fictional-commercial frame.
+A commercial changelog describes observable product changes.
+For example:
+More model connections
+Connect compatible model services from one place.
+Review before connecting
+Inspect a model directory before saving it.
+A new Home
+Return to active work, Attention and usage from one place.
+Commit links may remain beneath the copy as open-source evidence.
+The headline never needs to explain which component was refactored.
+
+14. Eval
+Eval is a legitimate CourtWork differentiator and can remain public.
+But the commercial question is:
+Can the work continue correctly?
+That current headline is strong.
+Keep Continuity / State Machine / Fault & Replay / Disclosure as deeper dimensions, but lead each with the failure the user cares about rather than test-infrastructure terminology.
+Do not insert maturity disclaimers into the selling narrative.
+Methodology, synthetic/real distinctions, hashes and exact evidence boundaries live in the detailed Eval/report surface.
+
+15. Privacy
+Privacy is already one of the stronger secondary pages.
+This is an appropriate place for more technical nouns because a reader is explicitly asking where data goes.
+Keep the distinctions among:
+Matter data
+Model requests
+Credentials
+Tool effects
+Provider and endpoint can appear when materially necessary.
+Still avoid Runtime as an explanatory shortcut.
+Local storage must never be written as though it means every model/tool action stays local.
+
+16. Research / Schema Engineering
+Current homepage gives the Paper too much navigational weight while simultaneously explaining SE repeatedly inside product sections.
+Consolidate.
+One lower-confidence/research band is enough:
+Designed for work that outlives a conversation.
+Briefly connect CourtWork to Schema Engineering, then link:
+Paper
+Practice
+GitHub
+The product sections themselves should simply behave according to SE:
+sources have versions
+derived knowledge can rebuild
+decisions remain
+review has evidence
+new agents can continue
+No paragraph needs to say “this is the SE principle of…” before the visitor sees the benefit.
+
+17. Visual hierarchy
+The content problem is currently reinforced by CSS.
+The homepage h1 tops out around 46px while secondary product-page headings reach roughly 88px. Secondary pages therefore have a stronger campaign voice than the primary landing page.
+The homepage Hero must own the strongest typographic level.
+Also, nearly every major homepage section currently uses the same:
+88px separation
+top rule
+similar H2 scale
+same approximately 1040px stage
+This visually says “thirteen equal chapters”.
+Introduce distinct hierarchy:
+L0 — Hero
+largest type, archival object, clear CTA.
+L1 — Signature product
+Spark / Attention and the real product proof. Large compositions, little explanatory prose.
+L2 — Work story
+Matter / Experts / Review. Alternating screenshot or diagram compositions.
+L3 — Trust and compatibility
+Models / Eval / Privacy. Quieter and denser.
+L4 — Acquisition / footer
+Pricing, Download, Research, GitHub.
+Not every transition needs a horizontal rule.
+Not every section needs an uppercase monospace eyebrow.
+The archival/figure vocabulary should remain a distinctive accent rather than becoming the default wrapper around every feature.
+
+18. Screenshot stage
+Keep the text reading measure constrained.
+Allow real product screenshots to escape the editorial measure and become the visual evidence.
+The page does not need to become a 1440px generic SaaS canvas, but selected screenshots can use a wider stage than the current prose/content column.
+Screenshots should demonstrate a user job:
+Matter continuity
+Spark rebuild
+Attention intervention
+Expert work
+Review with evidence
+Do not spend prime screenshot slots proving Settings implementation or backend diagnostics unless the section is specifically about control.
+
+19. Canonical language governance
+This PR must not patch Pages alone.
+Update engineering/design/copy-convention.md in the same semantic change.
+The newer ruling supersedes its 2026-09-09 assumption that Run is a normal product noun and Matter should remain invisible.
+Add a three-tier vocabulary:
+Product
+Matter · Spark · Attention · Experts · Review · Models · Tools · Sources · Files · Access · Activity · Usage
+Contextual / advanced
+Provider · Connection · Endpoint · Trace · History
+Developer
+Runtime · Run ID · Binding · Admission · Composition · Adapter · Host · RuntimeStore
+Then add Pages to the same lexical regression checks as application copy.
+A future local frontend PR must not be able to reintroduce Runtime as a product feature merely because the backend exports that field.
+
+20. Acceptance
+The Pages polish passes when a visitor can understand the product without knowing what a runtime is.
+Within the first two major scroll regions, the visitor can answer:
+What is CourtWork?
+What does it look like?
+Why is it different?
+Spark and Attention are visibly first-party CourtWork concepts.
+Matter and Experts have stable, non-overlapping meanings.
+Runtime does not appear as a product pillar.
+Run does not appear as a recurring product noun.
+The Home page is visually stronger than its secondary pages.
+Research and architecture deepen the product rather than interrupt its first explanation.
+The 13 screenshots form several coherent product stories rather than thirteen equally weighted ontology nodes.
+Pricing describes value.
+Changelog describes shipped product changes.
+Privacy describes boundaries.
+Eval describes what is tested.
+The final page feels like a product whose architecture happens to be rigorous, not an architecture project trying to explain why it might become a product.
+											195 text 我会把这轮的优先级定成 
+											196 text P0 语义与 IA → P1 首页层级 → P2 子页重写 → P3 13 图编排 → P4 截图补齐
+											197 text 。其中 P0 应先修 
+											198 text copy-convention.md
+											199 text ，再消费到 
+											200 text copy.mjs / page.mjs / product-pages.mjs / pricing.mjs
+											201 text ；否则只 Polish 网站，下一批 agent 很容易按旧 canonical vocabulary 把 
+											202 text Run / Runtime
+											203 text  又写回来。
+											204 text 目前不建议大改视觉基因：灰阶、archive instrument、极少 attention 色、克制 blur 都值得保留。真正需要改的是
+											205 text 谁获得最大字号、谁先出现、谁值得独立一屏
+											206 text 。这比再找一套漂亮 SaaS 皮肤更重要。
+										207 

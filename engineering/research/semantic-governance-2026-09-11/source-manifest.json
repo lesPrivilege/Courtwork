@@ -1,0 +1,129 @@
+{
+  "conversationId": "6aa2f24e-7bfc-83ec-bff0-77fdbad0ca05",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "coverage": "5 turns / 9 messages; one interface truncation supplemented with rendered native AX plus tail; no raw Markdown recovery claim",
+  "turns": [
+    {
+      "id": "5bc431b0-b71d-4ed2-a9f3-578159e66412",
+      "messages": [
+        {
+          "id": "5bc431b0-b71d-4ed2-a9f3-578159e66412",
+          "type": "userMessage",
+          "truncated": false
+        },
+        {
+          "id": "9f424f17-720a-4de6-afaa-256395e80b6f",
+          "type": "agentMessage",
+          "truncated": false
+        }
+      ]
+    },
+    {
+      "id": "c43aca4f-f8c7-468c-a73d-218c75f737d3",
+      "messages": [
+        {
+          "id": "c43aca4f-f8c7-468c-a73d-218c75f737d3",
+          "type": "userMessage",
+          "truncated": false
+        },
+        {
+          "id": "6a000143-f4ed-431d-8029-bc250e3ad39e",
+          "type": "agentMessage",
+          "truncated": false
+        }
+      ]
+    },
+    {
+      "id": "d703cd35-5f70-4877-974e-49b887301697",
+      "messages": [
+        {
+          "id": "d703cd35-5f70-4877-974e-49b887301697",
+          "type": "userMessage",
+          "truncated": false
+        }
+      ]
+    },
+    {
+      "id": "5f52fcdc-570d-4608-98a1-7eea92b6ffc9",
+      "messages": [
+        {
+          "id": "5f52fcdc-570d-4608-98a1-7eea92b6ffc9",
+          "type": "userMessage",
+          "truncated": false
+        },
+        {
+          "id": "21f42f94-5a31-4db2-9a77-577c5b8423ac",
+          "type": "agentMessage",
+          "truncated": true
+        }
+      ]
+    },
+    {
+      "id": "043dd1f0-05af-4ede-9069-6d17f7500e55",
+      "messages": [
+        {
+          "id": "043dd1f0-05af-4ede-9069-6d17f7500e55",
+          "type": "userMessage",
+          "truncated": false
+        },
+        {
+          "id": "9bc9998d-85e5-4874-85ed-360efd8ec7f8",
+          "type": "agentMessage",
+          "truncated": false
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "conversation.json",
+      "bytes": 83859,
+      "sha256": "d92d42cda56e8cd7679c853a5f43cdc55b3592e26f9186e4301a1dfe20c862cb"
+    },
+    {
+      "path": "input-conversation.md",
+      "bytes": 64470,
+      "sha256": "d3eb8ba727f0109f439b38bb6ac2082275a9970bf13838c5df9803a0cdca0359"
+    },
+    {
+      "path": "pages-response-ax.txt",
+      "bytes": 21394,
+      "sha256": "f6adf31a280cfc23c72ed34f215395ad454fde60902d9c758d33b375a7bc61e5"
+    },
+    {
+      "path": "pages-response-tail.md",
+      "bytes": 842,
+      "sha256": "efef57daa62fb78561c1b2bd6aa7d35473dc405a45cb59ee286cc5d2a547bb63"
+    },
+    {
+      "path": "IMG_2413.png",
+      "bytes": 664108,
+      "sha256": "bf6f75536e0d5a09931fbdf32efd51068130db6d9024fb486df6a0237e8c198b"
+    },
+    {
+      "path": "source-links.json",
+      "bytes": 1595,
+      "sha256": "2e8a4bf8f6fc8c8dae4bb8614f76f16fabbb3ad91f547371cb84ff6cdc296b3b"
+    },
+    {
+      "path": "pr-snapshot.json",
+      "bytes": 3255,
+      "sha256": "3e974fcc308d499d70ff85d4a37410f3452190a68c867a586da97eb88073d558"
+    },
+    {
+      "path": "semantic-registry-supplement.txt",
+      "bytes": 12250,
+      "sha256": "54a82e205d144f6e96846be82d827ce4c4c1aaebdf79dbf179cc3fac58c0902f"
+    }
+  ],
+  "supplement": {
+    "kind": "user supplied pasted text in follow-up",
+    "date": "2026-09-11",
+    "disposition": "../../execution/2026-09-11-semantic-polish/semantic-registry-plan.md"
+  }
+}

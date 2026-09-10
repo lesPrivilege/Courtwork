@@ -47,3 +47,5 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 - 2026-09-10 · [数据工程与组织工程](data-organization-2026-09-10/README.md)：完整输入、局部选型索引、既有路线映射及 Paper 不修订裁决。
 - 2026-09-11 · [Google Workspace CLI / Tool ABI与Attention](google-workspace-cli-2026-09-11/README.md)：原文269行及hash、14项处置与EX-GWS-01～03消费索引已登记；上游主张未核验，候选未派工，不改变前端/通用Harness优先级。
 
+
+- 2026-09-11 · [语义治理与对齐](semantic-governance-2026-09-11/README.md)：5 turn/9消息、附件与截断补录、25项处置、PR review、Luna explore及统一polish roadmap；待用户merge清洁节点开工。

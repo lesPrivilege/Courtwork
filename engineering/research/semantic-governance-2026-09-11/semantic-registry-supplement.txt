@@ -1,0 +1,454 @@
+是，而且我会把它提升到和词汇治理**同一层级**：不是 Icon System 的附属问题，而是 **Product Semantics Registry** 的一部分。
+
+Exa 这一轮最值得消费的是 Atlassian 最近一次大规模 icon 重构的经验：他们最终把图标分成 **single-purpose** 与 **multi-purpose**。前者按“它意味着什么”命名，后者才按“它长什么样”命名；原因正是他们发现同一 glyph 在不同产品中被赋予不同含义后，会让用户形成错误预期。后来甚至用统一 Icon Lab、迁移映射、lint 和 facade 治理数万 callsite。Apple 的原则也一致：glyph 应直接关联它代表的 action/content，而 fill/slash 等 variant 应表达同一对象的状态，不应该偷偷生成第二套语义。
+
+Courtwork 现有文档其实已经走到这一步，只差 enforcement：`interaction-vocabulary.md` 已经规定 semantic key 与 glyph name 分离，甚至明确指出 sparkle 不能同时代表 Agent、Tool、Expert、Model、Reasoning。 `icon-controls.md` 也已经锁定 Lucide canonical family，并把自绘/donor 限制在真实语义缺口。 但实际 renderer 目前仍只是 `icon(name)` 的 24 个几何名称 allowlist，也就是说**代码只能防止陌生 SVG 进入，防不了熟悉 SVG 被用错意思**。
+
+建议直接给上一单加一个 P0.5 裁定：
+
+# CourtWork Semantic & Icon Grammar
+
+## Decision
+
+Words, glyphs, colour, placement and interaction are projections of the same product semantics.
+
+They are not independent decoration systems.
+
+The canonical path is:
+
+**Product concept → semantic key → word / glyph / colour role / interaction**
+
+not:
+
+**page → choose a nice icon**
+
+A product callsite should eventually ask for a semantic concept, not choose arbitrary geometry.
+
+---
+
+## 1. Separate meaning from drawing
+
+Maintain two registries.
+
+### Semantic registry
+
+Examples:
+
+`attention.agent`
+`spark.surface`
+`matter.object`
+`expert.role`
+`chat.object`
+`review.open`
+`approval.request`
+`activity.view`
+`connection.object`
+`tool.object`
+`surface.close`
+
+Each entry owns:
+
+* one product meaning
+* canonical visible word
+* accessible-name rule
+* object / action / state / brand role
+* allowed surfaces
+* glyph policy
+* colour role
+* state variants
+* capability predicate
+
+### Glyph registry
+
+Examples:
+
+`square-pen`
+`message-square`
+`folder`
+`activity`
+`plug`
+`x`
+
+A glyph entry owns geometry only:
+
+* source family
+* asset
+* version / hash / licence
+* optical metrics
+* variants
+
+A Lucide asset does not own CourtWork product meaning by itself.
+
+---
+
+## 2. Four semantic classes
+
+Every visible symbol must first be classified.
+
+| Class      | Examples                             | Rule                                     |
+| ---------- | ------------------------------------ | ---------------------------------------- |
+| **Object** | Matter, Chat, Expert, File, Project  | identifies what something is             |
+| **Action** | Add, Close, Copy, Send, Review       | predicts what clicking does              |
+| **State**  | Waiting, Failed, Selected, Connected | describes current condition              |
+| **Brand**  | CourtWork, Spark, Attention          | identifies a first-party product concept |
+
+Never silently move a glyph between classes.
+
+A check used for `Completed` cannot casually become `Approve`.
+
+A message bubble used for `Chat` cannot automatically become `Attention`.
+
+A pulse used for `Activity` cannot also mean “Agent is running”.
+
+A plug used for `Connection` cannot simultaneously stand for `Plugin`, `Tool` and `MCP`.
+
+---
+
+## 3. Single-purpose vs multi-purpose
+
+Adopt the useful Atlassian distinction.
+
+### Single-purpose
+
+Once assigned, these own one CourtWork meaning across App and Pages.
+
+Examples may eventually include:
+
+**Attention**
+**Spark**
+**Matter**
+**Expert**
+
+These are candidates for dedicated semantic glyphs because they are distinctive product concepts.
+
+### Multi-purpose
+
+Geometry whose meaning is supplied by local context:
+
+arrow
+chevron
+plus
+ellipsis
+search
+folder
+document
+
+These may be reused, but only where surrounding text/control semantics remove ambiguity.
+
+`plus` may appear for both New chat and New project because the visible/accessibility label supplies the object.
+
+A branded Attention glyph cannot mean something else merely because the label changes.
+
+---
+
+## 4. Current collision audit
+
+Several families deserve explicit review during this polish.
+
+### Chat / Attention / Waiting
+
+`message-square` is already an obvious collision risk.
+
+Chat is a conversation object.
+
+Attention is a resident CourtWork agent/product concept.
+
+Waiting for you is a state.
+
+These must not collapse into one speech-bubble vocabulary.
+
+Reserve `attention.agent` now. Do not choose its permanent asset opportunistically during Pages construction.
+
+Until a symbol is adjudicated, **Attention + text is preferable to the wrong icon**.
+
+### Project / Matter
+
+Project is a container.
+
+Matter is governed durable work.
+
+If `folder` already means Project, it must not become the final Matter symbol when both objects can appear together.
+
+Matter may justify a dedicated CourtWork glyph, but only after an actual specimen compares it against established metaphors.
+
+### Agent / Expert / Model / Reasoning
+
+This is the most dangerous AI-product collision family.
+
+Do not use:
+
+sparkle = AI
+sparkle = Agent
+sparkle = Expert
+sparkle = Model
+sparkle = Reasoning
+
+as interchangeable decoration.
+
+Agent is an actor/configuration.
+
+Expert is a professional role.
+
+Model is intelligence selected beneath the agent.
+
+Reasoning is a model setting or observable process.
+
+They require independent semantic keys even if some ultimately have no icon.
+
+### Tool / Plugin / Connection / MCP
+
+These are also distinct.
+
+Tool = callable action.
+
+Plugin = package.
+
+Connection = configured relationship to a service.
+
+MCP server = one protocol-level service.
+
+Do not let `plug`, puzzle-piece or wrench casually migrate across all four.
+
+### Attention / Review / Approval
+
+These three must remain especially strict.
+
+Attention = what deserves human attention / resident product role.
+
+Review = inspect substantive work and evidence.
+
+Approval = authorize one consequential action.
+
+Never allow one shield/check/bell glyph to collapse these.
+
+Their red/accent treatment must not collapse them either.
+
+### Activity / History / Trace
+
+Activity = what happened.
+
+History = what existed before.
+
+Trace = diagnostic execution detail.
+
+`activity` may own Activity.
+
+It must not become the generic glyph for Run, agent execution, History and Trace merely because all are chronological.
+
+---
+
+## 5. State must not mutate identity
+
+An object's icon identifies the object.
+
+State is projected separately.
+
+For example:
+
+**Matter** + stale
+**Expert** + working
+**Connection** + failed
+
+rather than replacing each base icon with unrelated state imagery.
+
+Allowed state mechanisms include:
+
+text
+small modifier
+semantic colour
+badge
+fill/outline variant
+
+but state remains redundant information, never colour-only.
+
+Filled versus outline variants may indicate selection when conventional.
+
+They must not encode:
+
+Draft vs Accepted
+Agent vs Expert
+Read vs Write
+Review vs Approval
+
+unless an explicit semantic contract says so.
+
+---
+
+## 6. Pages shares semantics, not necessarily presentation
+
+Pages may be visually more expressive than the application.
+
+It does **not** get a separate icon ontology.
+
+The same concept must still mean the same thing.
+
+However:
+
+App:
+small operational glyph
+
+Pages:
+larger diagram, illustration, motion or typographic lockup
+
+can represent the same semantic key.
+
+For example Spark may have:
+
+`Spark` word
+a small product glyph
+a large source→derived→rebuild diagram
+
+These are three representations of **one concept**, not three meanings.
+
+Do not place decorative Lucide icons beside every marketing heading merely because a slot exists.
+
+Signature concepts deserve visual identity.
+
+Ordinary features often need only typography and product screenshots.
+
+---
+
+## 7. Branded glyph admission
+
+CourtWork should remain conservative about custom glyphs, with one important refinement.
+
+Custom symbols are justified not by visual taste but by **semantic independence**.
+
+Potential candidates:
+
+**Spark** — strong candidate
+**Attention** — strong candidate
+**Matter** — candidate
+**Expert** — candidate only if ordinary role/person metaphors remain ambiguous
+
+Do not design all four merely for symmetry.
+
+Each must pass:
+
+1. existing metaphor search
+2. collision audit
+3. real-size product specimen
+4. Pages specimen
+5. monochrome test
+6. optical-family test beside Lucide
+7. no-confusion test against neighboring concepts
+
+If no candidate wins, text remains canonical.
+
+“No icon” is an accepted result.
+
+---
+
+## 8. Implementation boundary
+
+Do not replace `icon(name)` as the low-level renderer.
+
+Add a semantic layer above it.
+
+Conceptually:
+
+`semantic("surface.close")`
+→ label `Close`
+→ glyph `x`
+→ action role
+→ tooltip/accessibility policy
+
+while:
+
+`icon("x")`
+
+remains the geometry renderer.
+
+Product code should progressively migrate to semantic keys.
+
+Raw glyph calls remain permitted inside the semantic adapter, specimens and explicitly designated decorative/diagram code.
+
+---
+
+## 9. Collision gate
+
+Add a machine-readable registry and validation.
+
+The gate should catch:
+
+* one single-purpose semantic key mapped to multiple unrelated glyphs
+* one single-purpose glyph assigned to multiple unrelated semantic concepts
+* different visible nouns for the same semantic key
+* state represented as an unrelated object glyph
+* direct product callsites bypassing migrated semantic mappings
+* mixed icon families
+* custom SVG without provenance
+* brand glyph used as generic decoration
+* icon-only control without accessible action name
+
+Do not make the rule naïvely one-glyph-one-meaning globally.
+
+`plus`, arrows, chevrons and other true multi-purpose geometry legitimately depend on context.
+
+The registry explicitly declares which glyphs are multi-purpose.
+
+---
+
+## 10. Pages acceptance
+
+As part of the current commercial Pages polish, review every icon and diagram against the semantic registry.
+
+Especially inspect:
+
+Spark
+Attention
+Matter
+Experts
+Review
+Models
+Connections
+Download
+Privacy
+Eval
+
+For every recurring visual mark ask:
+
+**What concept is this?**
+**Does the word say the same thing?**
+**Does this glyph already mean something else nearby?**
+**Does colour accidentally create another meaning?**
+**Would the same mark mean the same thing inside the application?**
+
+A visitor should be able to move from Pages into CourtWork and encounter the same conceptual language.
+
+The marketing site can be richer.
+
+Its semantics cannot be looser.
+
+---
+
+## 11. Revised polish order
+
+The Pages polish order becomes:
+
+**P0 — Product ontology**
+Matter / Spark / Attention / Experts / Review; demote Runtime/Run.
+
+**P0.5 — Semantic registry**
+words + icons + colour roles + interaction roles.
+
+**P1 — Information architecture**
+navigation and page hierarchy.
+
+**P2 — Visual hierarchy**
+scale, rhythm, screenshot prominence, diagrams.
+
+**P3 — Cross-surface copy/icon migration**
+App + Pages + canonical design docs.
+
+**P4 — Screenshot composition**
+13 captures grouped into coherent product stories.
+
+**P5 — Regression gates**
+copy vocabulary + semantic-icon collisions + family/provenance checks.
+
+The semantic registry is therefore upstream of the visual polish, not cleanup afterward.
+
+这里还有一个值得直接翻案的旧惯性：**“同一个东西到处用同一个 icon”只对 single-purpose semantic icon 成立；“同一个几何 icon 永远只能一个意思”则过严。** `+ / chevron / arrow / x` 这类本来就是语法符号，它们的意义由 control 和对象补全。真正需要严格一一对应的是 `Attention / Spark / Matter / Expert` 这类一等概念。
+
+反过来，Pages 也不需要把这些一等概念全部“logo 化”。尤其 **Expert** 很可能文字比一个含混的“人形/机器人/星星”更好。先建立 semantic slot，再决定有没有资格拥有 glyph，这样就不会再次出现“先挑了一个好看的 SVG，随后让产品语义去适配它”的倒置。
