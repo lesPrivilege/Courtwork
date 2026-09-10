@@ -248,7 +248,9 @@ test("CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不�
   assert.match(activity, /className: "sr-only", text: word/);
   assert.ok(!activity.includes("banner"), "不造 banner");
   // 形状分档：实心 / 空心环 / 方块。
-  assert.match(styles, /\.tab-activity \{[\s\S]{0,200}border-radius: 50%;/);
+  // WK-128 ③（FE-05a）· 满弧改写 --radius-pill，`50%` 不再使用；断言跟着契约走，
+  // 量的仍是"这一档是圆"，不是放宽（正方形上 999px 与 50% 渲染同值）。
+  assert.match(styles, /\.tab-activity \{[\s\S]{0,200}border-radius: var\(--radius-pill\);/);
   assert.match(styles, /\.tab-activity\.failed,[\s\S]{0,120}border-radius: 0;/);
   // 颜色沿 run-badge 的三档，没有新色。
   assert.match(styles, /\.tab-activity\.waiting_user \{[\s\S]{0,60}color: var\(--accent-ink\);/);

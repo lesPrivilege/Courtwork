@@ -374,7 +374,7 @@
   --doc-measure: 740px;
   --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
   --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
-  --control: 32px;
+  --control: 28px;
   --radius-small: 4px;
   --radius-control: 8px;
   --radius-card: 12px;
@@ -385,17 +385,22 @@
      WK-78 · Text size 是一个根变量：每个字号角色乘 --text-scale，三档只改这一处，
      角色之间的比例不变。角色之外写死的五处显示级字号用同一乘子，否则放大后它们独自不动。
      命中区、间距与行高不随字号缩放（FN-27 的可用性下限另计）。 */
+  /* M-11 / WK-120 · V1「chrome 收敛，正文不动」（约束表 §3，用户 WK-123 (b) 选向）。
+     阅读 15 与正文 14 一字未动；标题、导航标题、分节、标签、元数据与说明各下移一档，
+     字重同时收一档，于是层级差从 1–2px 拉到 2–3.5px 并叠加字重差 —— 层级由字号与
+     字重成立，不靠颜色与框线补（anti-slop 门 hierarchy 项）。桌面控件 32 → 28；
+     390 与触控仍是 44（下面两条 :root 覆写在源码顺序上更靠后，命中区不受此影响）。 */
   --text-scale: 1;
-  --text-title: calc(20px * var(--text-scale));
-  --text-navigation-title: calc(17px * var(--text-scale));
+  --text-title: calc(18px * var(--text-scale));
+  --text-navigation-title: calc(15px * var(--text-scale));
   --text-reading: calc(15px * var(--text-scale));
-  --text-label: calc(13px * var(--text-scale));
-  --text-caption: calc(11px * var(--text-scale));
-  --text-section: calc(14px * var(--text-scale));
+  --text-label: calc(12px * var(--text-scale));
+  --text-caption: calc(10.5px * var(--text-scale));
+  --text-section: calc(13px * var(--text-scale));
   --text-body: calc(14px * var(--text-scale));
-  --text-meta: calc(12px * var(--text-scale));
+  --text-meta: calc(11.5px * var(--text-scale));
   --tracking-heading: -0.02em;
-  --tracking-caps: 0.06em;
+  --tracking-caps: 0.08em;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
   /* Motion · two durations, one exit curve; only opacity/transform/colour move */
@@ -472,7 +477,7 @@ p {
 h1 {
   font-size: var(--text-navigation-title);
   line-height: 1.35;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
 h2 {
@@ -499,6 +504,10 @@ a,
 [tabindex] {
   -webkit-tap-highlight-color: transparent;
 }
+/* WK-128 ⑤ · 焦点环只有一处派生：offset 2；弧线由浏览器沿元素自己的
+   `border-radius` 走，所以有圆角的元素不必再写一遍 radius。唯一需要手写 radius 的
+   是本身没有圆角、却要靠 outline 长出一个圆角边界的容器（见 `.settings-section`），
+   那里写的是"视觉预期 + offset"。组件之间不再各写各的 offset。 */
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
@@ -531,6 +540,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  /* V1 · 按钮的字比正文小一档：控件是 chrome，不是正文（约束表 §3）。 */
+  font-size: var(--text-label);
   min-height: var(--control);
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -550,6 +561,13 @@ button {
   width: var(--control);
   min-width: var(--control);
   padding: 0;
+}
+/* M-16（WK-123 (b)）· 一个按钮要么是 icon-only 的见方几何，要么是带内边距的
+   标签几何，二者不能同时成立。看得见的标签因此不折行：按钮的宽度由静止标签的
+   自然宽度给出（M-9 的影子标签负责在途换词时不改宽），字被压成两行的那一刻，
+   按钮就不再是可按的东西而是一块色块。 */
+.button-label {
+  white-space: nowrap;
 }
 /* M-9（WK-118 (d)，CC-W 第 0 项）· 在途换词不换宽度。看得见的标签与静止态、在途态的
    影子标签叠在同一个 grid 格子里，按钮的宽度因此是两者的较大值：`Sending…` 出现时
@@ -581,7 +599,7 @@ button {
   background: var(--accent);
   color: var(--on-accent);
   border-color: var(--accent);
-  font-weight: 550;
+  font-weight: 500;
 }
 .primary-button:hover {
   background: var(--accent-strong);
@@ -618,7 +636,7 @@ button {
 .eyebrow,
 .section-heading h2,
 .message-role,
-.context-group h4 {
+.context-card h4 {
   font-size: var(--text-caption);
   line-height: 1.5;
   font-weight: 500;
@@ -918,6 +936,21 @@ button {
   align-items: center;
   gap: 12px;
 }
+/* M-15（WK-126 ⑦，CC-W §13 ⑦）· B 态（1024–1679 的视图切换）里聊天列不在屏幕上，
+   顶带下面那块地方是文档面，不是 740 的阅读列。顶带若仍居中到 740，标题就与文档
+   正文的左缘错开（实测 500 对 304）。沿 CC-S 对 Settings 顶带的做法：这一态里顶带
+   不再居中，而是与文档面自己的内容原点共用一条 gutter —— 面板从主区起缩
+   `--col-gap`，面板内容再缩一个 `--col-gap`，所以顶带的 gutter 正是这两步之和。
+   与 Settings 顶带同一个做法：这条 gutter 的第一件东西是那个按钮，标题跟在它后面。
+   C 态（≥1680 三栏）的顶带不动：那一态聊天列还在，740 仍是它的阅读列。 */
+.surface-view-switch .chat-header {
+  padding-left: calc(var(--col-gap) * 2);
+  padding-right: calc(var(--col-gap) * 2);
+}
+.surface-view-switch .chat-header-inner {
+  max-width: none;
+  margin: 0;
+}
 .chat-title-wrap {
   min-width: 0;
   flex: 1;
@@ -951,6 +984,8 @@ button {
 .session-mode,
 .session-scope {
   font-size: var(--text-caption);
+  font-weight: 450;
+  line-height: 1.45;
   color: var(--muted-strong);
   display: inline-flex;
   align-items: center;
@@ -965,6 +1000,8 @@ button {
 .run-badge,
 .extension-status {
   font-size: var(--text-caption);
+  font-weight: 450;
+  line-height: 1.45;
   color: var(--muted-strong);
   display: inline-flex;
   align-items: center;
@@ -1413,7 +1450,11 @@ details[open] > summary.flow-row::after {
 .composer-form:focus-within {
   border-color: var(--ink);
 }
+/* WK-128 ① · 融入型文本域：它没有自己的边框与底色，此前却从通用的
+   `input, textarea, select` 那里继承到一个 `control.default` 的 8px —— 一个不属于
+   它语境的角色，眼下不可见，材质或密度一变就会显形。按公理派生：外壳 16、内缩 12。 */
 #composer-input {
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - 12px));
   display: block;
   resize: none;
   width: 100%;
@@ -1443,6 +1484,7 @@ details[open] > summary.flow-row::after {
 .composer-model,
 .permission-mode {
   font-size: var(--text-meta);
+  line-height: 1.45;
   max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1465,7 +1507,7 @@ details[open] > summary.flow-row::after {
   content: "";
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   background: var(--accent);
   flex: none;
   animation: se-pulse 1.6s var(--ease-out) infinite;
@@ -1630,7 +1672,7 @@ details[open] > summary.flow-row::after {
   margin-left: var(--space-2);
   vertical-align: middle;
   border: 1.5px solid currentColor;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   flex: none;
 }
 .tab-activity.running,
@@ -2151,7 +2193,11 @@ select {
   width: 420px;
   padding: var(--panel-padding);
 }
+/* WK-128 ① · dialog 的 `overflow: auto` 今天替子级做了裁切，所以这处直角看不出来；
+   一旦某个分区条自带底色，缝隙就会露出来。同一条公理写在这里：外框 16、内缩是这一页
+   自己的 `--panel-padding`。 */
 .form-dialog form {
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - var(--panel-padding)));
   display: grid;
   gap: 12px;
 }
@@ -2631,15 +2677,17 @@ select {
     backdrop-filter: none;
   }
 }
-.context-group {
-  border-top: 1px solid var(--line);
-  margin-top: 12px;
-  padding-top: 12px;
-}
-.context-group > .eyebrow {
+/* WK-128 ② · 这个类名此前有两份声明（这里一份、下面卡片一份），谁在后面谁赢，
+   两种解剖因此叠在同一批元素上。现在只留一种：会话概览里的每一组是一张卡
+   （`.context-card`），它自己的上边距在卡的规则里；没有第二种 `.context-group`。 */
+.context-card > .eyebrow {
   margin-bottom: 8px;
 }
+/* WK-128 ① · R_child = max(R_min, R_parent − inset)。行的父级是 `.context-card`
+   （12 圆角、12 内边距），弧线在内缩点上早已收敛，所以行取 R_min。写成公理本身而
+   不是一个数字：卡的圆角或内边距一旦改，行跟着改。 */
 .context-row {
+  border-radius: max(var(--radius-small), calc(var(--radius-card) - 12px));
   width: 100%;
   justify-content: flex-start;
   text-align: left;
@@ -2746,9 +2794,13 @@ button[aria-disabled="true"] {
   margin: 0;
   overflow-wrap: anywhere;
 }
+/* WK-128 ③ ⑦ · 满弧写 `--radius-pill`，不写 `50%`（正方形上二者同值，非正方形上
+   50% 是椭圆）。圆形只给 composer 唯一的那个浮动主动作：送出与停止是同一个位置的
+   两端，它们独处于输入面的末端、以实心 accent 承载。图标按钮默认仍是圆角矩形 ——
+   `#new-project-button` 同为 32 见方的图标按钮，保持 `--radius-control`。 */
 #send-button,
 #cancel-run-button {
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   color: var(--on-accent);
   padding: 0;
   background: var(--ink);
@@ -2786,13 +2838,14 @@ button[aria-disabled="true"] {
 .workspace-add {
   margin-top: 4px;
 }
-.context-group {
+.context-card {
+  margin-top: 12px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--panel);
 }
-.context-group h4 {
+.context-card h4 {
   margin-bottom: 8px;
 }
 .run-history-inner {
@@ -2906,7 +2959,7 @@ summary:hover {
   content: "";
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   background: currentColor;
   flex: none;
 }
@@ -3104,7 +3157,9 @@ dialog[open]::backdrop {
   bottom: 2px;
   left: 2px;
   width: calc((100% - 4px - (var(--segments) - 1) * 2px) / var(--segments));
-  border-radius: 6px;
+  /* WK-128 ⑧ · 6 = 轨道 8 − 内边距 2，是全表里唯一严格满足公理的一组；不为它提
+     炼新 token，写成派生式，轨道的圆角一改，滑块与分段跟着改。 */
+  border-radius: calc(var(--radius-control) - 2px);
   background: var(--panel);
   box-shadow: var(--shadow-thumb);
   transition: translate var(--duration) var(--ease-out);
@@ -3124,9 +3179,9 @@ dialog[open]::backdrop {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
+  min-height: 26px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: calc(var(--radius-control) - 2px);
   font-size: var(--text-meta);
   color: var(--muted-strong);
   cursor: pointer;
@@ -3154,7 +3209,7 @@ dialog[open]::backdrop {
 }
 .segment:has(input:focus-visible) {
   outline: 2px solid var(--focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .segmented:disabled .segment {
   cursor: not-allowed;
@@ -3186,7 +3241,7 @@ dialog[open]::backdrop {
 .settings-row-help {
   font-size: var(--text-meta);
   color: var(--muted-strong);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .settings-row-control {
   display: flex;
@@ -3284,6 +3339,19 @@ dialog[open]::backdrop {
   }
   .status-badge {
     display: none;
+  }
+}
+/* M-17（WK-132）· 命中区规则此前没有覆盖到 `.segment`：`.settings-row .segment`
+   等两级选择器写在窄屏那条 `.segment` 之后，32 因此赢了 44（实测 390 下 39px）。
+   把窄屏与触控的命中区写成同样两级的显式规则，放在全部 `.segment` 覆写之后，
+   桌面仍按各自的密度取值。量的是包着 radio 的那个 `<label>`，不是 1px 的 radio。 */
+@media (max-width: 767px), (pointer: coarse) {
+  .segment,
+  .settings-row .segment,
+  .settings-form .segment,
+  .connection-paths .segment,
+  .connection-popover .segment {
+    min-height: 44px;
   }
 }
 
@@ -5028,6 +5096,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-tab {
   display: block;
   width: 100%;
+  font-weight: 450;
   min-height: var(--control);
   padding: 6px 10px;
   border: 0;
@@ -5046,11 +5115,11 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-tab.is-current {
   background: var(--selected);
   color: var(--ink);
-  font-weight: 550;
+  font-weight: 500;
 }
 .settings-tab:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .settings-nav-select {
   display: none;
@@ -5065,14 +5134,16 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-section {
   max-width: var(--settings-measure);
 }
+/* 本身没有圆角的容器：radius = 视觉预期（卡）+ offset。 */
 .settings-section:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 4px;
-  border-radius: var(--radius-card);
+  outline-offset: 2px;
+  border-radius: calc(var(--radius-card) + 2px);
 }
 .settings-section-title {
   margin: 0 0 var(--space-4);
   font-size: var(--text-title);
+  font-weight: 500;
   letter-spacing: var(--tracking-heading);
 }
 /* 一节 = 一张平卡：把成组的行圈起来，不额外加一层高度。 */
@@ -5091,6 +5162,7 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-block-title {
   margin: var(--space-3) 0 var(--space-1);
   font-size: var(--text-section);
+  font-weight: 500;
 }
 .settings-block > .section-heading {
   margin-top: var(--space-3);
@@ -5514,11 +5586,12 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .attention-agent-message.is-permission > button { margin-right: 8px; }
 .attention-agent-status { padding: 0 24px; }
 .attention-agent-status > p { margin: 0 0 6px; }
-.attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: 12px 20px 16px; padding: 5px 6px 5px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--float); }
+.attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: 12px 20px 16px; padding: 5px 6px 5px 16px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }
 .attention-agent-composer:focus-within { border-color: var(--muted-strong); }
 .attention-agent-composer input { flex: 1; min-width: 0; width: 100%; height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .attention-agent-composer input:focus { outline: none; }
-.attention-agent-composer button { flex: 0 0 auto; border-radius: 10px; }
+/* 外壳 16、内缩 6（右内边距），派生 10。 */
+.attention-agent-composer button { flex: 0 0 auto; border-radius: max(var(--radius-small), calc(var(--radius-container) - 6px)); }
 .attention-agent-runtime { flex: 1; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
 .attention-agent-runtime > div { max-height: 160px; overflow: auto; }
 .attention-agent-runtime p { margin: 8px 0; line-height: 1.5; }
@@ -5585,7 +5658,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .usage-tabs button[aria-selected="true"] { border-bottom:2px solid var(--ink); }
 .usage-total { font-size:28px; letter-spacing:-.02em; margin:20px 0 8px; }
 .usage-heatmap { display:grid; grid-template-columns:repeat(7, minmax(30px,44px)); gap:6px; margin:20px 0; }
-.usage-heatmap button { aspect-ratio:1; min-height:30px; padding:0; border-radius:6px; color:var(--ink); }
+.usage-heatmap button { aspect-ratio:1; min-height:30px; padding:0; border-radius:calc(var(--radius-control) - 2px); color:var(--ink); }
 .usage-heat.level-0 { background:var(--usage-level-0); }
 .usage-heat.level-1 { background:var(--usage-level-1); }
 .usage-heat.level-2 { background:var(--usage-level-2); }

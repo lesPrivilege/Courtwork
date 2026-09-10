@@ -1,0 +1,124 @@
+[
+  {
+    "id": "FE-T03-a",
+    "obligation": "FN-14 · 三层可分别读出",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "bound": [
+        {
+          "sessionId": "22979ac4-d659-406d-9937-3b4c646c799f",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "8485893f-c329-41df-b5ec-8490fbe47d05",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-b",
+    "obligation": "FN-14 / 16 · 请求值不冒充有效值",
+    "pass": false,
+    "detail": {
+      "drafted": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro"
+      },
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "row": [
+        "Local testIn forceLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+        "DeepSeekProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+        "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+      ],
+      "claims": []
+    }
+  },
+  {
+    "id": "FE-T03-c",
+    "obligation": "FN-14 / 15 · 有效值变、绑定值不变",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro",
+        "baseUrl": null
+      },
+      "row": [
+        "Local testLocal endpoint fixed by the host · openai-completions · No key needed · No models saved on itConfigure",
+        "DeepSeekIn forceProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure",
+        "OpenAIProvider default endpoint · openai-completions · No API key saved · No models saved on itConfigure"
+      ],
+      "boundBefore": [
+        {
+          "sessionId": "22979ac4-d659-406d-9937-3b4c646c799f",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "8485893f-c329-41df-b5ec-8490fbe47d05",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ],
+      "boundAfter": [
+        {
+          "sessionId": "22979ac4-d659-406d-9937-3b4c646c799f",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "8485893f-c329-41df-b5ec-8490fbe47d05",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-d",
+    "obligation": "FN-14 · 绑定值自始至终不被改写",
+    "pass": true,
+    "detail": {
+      "effective": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "baseUrl": null
+      },
+      "bound": [
+        {
+          "sessionId": "22979ac4-d659-406d-9937-3b4c646c799f",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        },
+        {
+          "sessionId": "8485893f-c329-41df-b5ec-8490fbe47d05",
+          "provider": "fake-openai-loopback",
+          "model": "fake-model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "FE-T03-e",
+    "obligation": "FN-16 · 冻结时不假装排队",
+    "pass": true,
+    "detail": {
+      "error": "provider config is frozen during a run",
+      "errorShown": true,
+      "effective": "fake-openai-loopback",
+      "queueWords": []
+    }
+  }
+]

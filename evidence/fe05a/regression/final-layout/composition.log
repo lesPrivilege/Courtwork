@@ -1,0 +1,72 @@
+FAIL HOME-1 {"centre":0.4971,"threshold":0.55}
+FAIL HOME-2 {"aboveComposerHeight":373}
+PASS HOME-3 {"orientation":34,"text":"Work that exists beyond the model."}
+PASS HOME-4 {"width":820}
+FAIL HOME-5 {"input":54}
+PASS HOME-6 {}
+PASS HOME-7 {"stats":3,"planned":0,"backendPendingOnHome":false,"order":["home-module-band","composer-area","home-top-band","message-stream-wrap"]}
+PASS HOME-overflow {"overflow":0}
+PASS HOME-narrow-dock {"order":["home-module-band","home-top-band","message-stream-wrap","composer-area"]}
+PASS HOME-narrow-overflow {"overflow":0}
+PASS WORK-1 {"homePrimitives":0,"bandHidden":true}
+PASS WORK-2 {"order":["home-top-band","message-stream-wrap","home-module-band","composer-area"],"width":740}
+PASS WORK-3 {"input":88}
+PASS WORK-overflow {"overflow":0}
+PASS WORK-4 {"surfaceOpen":true,"readingWidth":1184,"composerMeasure":740}
+PASS SHELL-1 {"unsafeControls":[]}
+PASS SETTINGS-1 {"settingsActive":true,"navHidden":true,"navInert":true,"navRects":0,"navFocusable":0,"toggleNavHidden":true}
+PASS SETTINGS-2 {"navColumn":240,"contentColumn":820,"leftGutter":48,"rightGutter":48}
+PASS SETTINGS-3 {"blockGaps":[40],"rowPaddingTopBottom":[12,12],"rowSpacing":24}
+PASS SETTINGS-4 {"labelLeftEdges":[341],"controlRightEdges":[1119]}
+PASS SETTINGS-back-label {"backLabel":"Back to app","backVisible":true}
+PASS SETTINGS-title {"pageTitle":"Settings","settingsHeadingsOnScreen":1,"labelledBy":"session-title"}
+PASS SETTINGS-1440-overflow {"overflow":0}
+PASS SETTINGS-5 {"settingsOpen":false,"view":"home","sidebarBack":true,"focus":"quiet-button icon-only"}
+PASS SETTINGS-1680-gutter {"leftGutter":64,"overflow":0}
+PASS SETTINGS-1024-overflow {"overflow":0,"sidebarRendered":0}
+PASS SETTINGS-6 {"selectVisible":true,"navListVisible":false,"gutter":16,"controlsUnder44":[],"overflow":0}
+PASS SETTINGS-7 {"overflow":0,"cssViewport":720}
+PASS SHELL-2 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-3 {"host":"desktop","unsafeControls":[]}
+PASS SHELL-2-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-3-browser {"host":"browser","unsafeControls":null}
+PASS WORK-5 {"shape":"app-shell surface-expanded surface-view-switch","docPane":1136,"strip":44,"proseGap":24,"backdropHidden":true,"shadow":"none","radius":"0px","chatColumn":{"hidden":true,"inert":true,"inDom":true},"overflow":0}
+PASS WORK-6 {"shape":"app-shell surface-expanded surface-three-pane","columns":"256px 688px 736px","position":"static","nav":256,"chat":688,"doc":688,"docMin":688,"scrolls":{"doc":"auto","chat":"auto","nav":"visible"},"chromeBaseline":{"chat":{"top":0,"left":256,"width":687,"height":56,"bottom":56},"doc":{"top":0,"left":944,"width":736,"height":56,"bottom":56}},"composerWhole":true,"overflow":0}
+PASS WORK-7 {"1679":{"shape":"app-shell surface-expanded surface-view-switch","doc":1375,"overflow":0},"1680":{"shape":"app-shell surface-expanded surface-three-pane","doc":688,"chat":688,"overflow":0}}
+PASS WORK-8 {"height":720,"composerWhole":true,"composer":{"top":493,"left":280,"width":639,"height":175,"bottom":668},"overflow":0}
+PASS WORK-9 {"cssViewport":720,"shape":"app-shell surface-expanded","overflow":0}
+PASS SHELL-4 {"host":"desktop","shape":"app-shell surface-expanded surface-view-switch","unsafeControls":[]}
+PASS SHELL-5 {"host":"desktop","shape":"app-shell surface-expanded surface-three-pane","unsafeControls":[]}
+PASS SHELL-4-browser {"host":"browser","unsafeControls":null}
+PASS SHELL-5-browser {"host":"browser","unsafeControls":null}
+PASS HOME-8 {"layout":"simple","inDocument":true,"shown":false,"children":0,"hidden":true,"order":["composer-area","home-top-band","home-module-band","message-stream-wrap"]}
+PASS HOME-1-simple-900 {"centre":0.56,"threshold":0.55,"layout":"simple","viewportHeight":900}
+PASS HOME-6-simple-900 {"layout":"simple","viewportHeight":900}
+PASS HOME-11-simple-900 {"layout":"simple","viewportHeight":900,"todoTop":885,"areaBottom":956,"visible":71}
+PASS HOME-16-simple-900 {"layout":"simple","viewportHeight":900,"visible":71,"threshold":12}
+PASS HOME-overflow-simple-900 {"overflow":0,"layout":"simple"}
+PASS HOME-1-simple-1058 {"centre":0.5596,"threshold":0.55,"layout":"simple","viewportHeight":1058}
+PASS HOME-6-simple-1058 {"layout":"simple","viewportHeight":1058}
+PASS HOME-11-simple-1058 {"layout":"simple","viewportHeight":1058,"todoTop":973,"areaBottom":1114,"visible":141}
+PASS HOME-16-simple-1058 {"layout":"simple","viewportHeight":1058,"visible":141,"threshold":12}
+PASS HOME-overflow-simple-1058 {"overflow":0,"layout":"simple"}
+FAIL HOME-1-modules-900 {"centre":0.4971,"threshold":0.55,"layout":"modules","viewportHeight":900}
+PASS HOME-6-modules-900 {"layout":"modules","viewportHeight":900}
+PASS HOME-11-modules-900 {"layout":"modules","viewportHeight":900,"todoTop":743,"areaBottom":956,"visible":213}
+PASS HOME-16-modules-900 {"layout":"modules","viewportHeight":900,"visible":213,"threshold":12}
+PASS HOME-overflow-modules-900 {"overflow":0,"layout":"modules"}
+FAIL HOME-1-modules-1058 {"centre":0.4229,"threshold":0.55,"layout":"modules","viewportHeight":1058}
+PASS HOME-6-modules-1058 {"layout":"modules","viewportHeight":1058}
+PASS HOME-11-modules-1058 {"layout":"modules","viewportHeight":1058,"todoTop":743,"areaBottom":1114,"visible":371}
+PASS HOME-16-modules-1058 {"layout":"modules","viewportHeight":1058,"visible":371,"threshold":12}
+PASS HOME-overflow-modules-1058 {"overflow":0,"layout":"modules"}
+FAIL HOME-9 {"order":["home-module-band","composer-area","home-top-band","message-stream-wrap"],"bandTop":56,"todayTop":643,"streamTop":703}
+FAIL HOME-10 {"rows":0,"names":[],"bandText":"AttentionNorthside HousingCoastal Freight0 items · all statesNo attention items recorded in this project.Activity28d84d3 recorded runs · 84 days · all retained work2026-06-19 — 2026-09-10UTC · Retained runs only. Deleted-chat history is unknown.Manage connectionsHide modules","framedNodes":88,"cards":0,"modelChip":"Local test","forbiddenFound":["Activity","Attention"]}
+PASS HOME-7-modules {"stats":3,"order":["home-module-band","composer-area","home-top-band","message-stream-wrap"]}
+PASS HOME-4-modules {"composer":820,"bandColumn":820,"bandLeft":438,"composerLeft":438}
+FAIL HOME-5-modules {"input":54}
+FAIL HOME-12 {"order":["attention-workspace-link","attention-project","open-usage","activity-days-28","activity-days-84","activity-day-2026-06-19","activity-day-2026-06-20","activity-day-2026-06-21","activity-day-2026-06-22","activity-day-2026-06-23","activity-day-2026-06-24","activity-day-2026-06-25","activity-day-2026-06-26","activity-day-2026-06-27","activity-day-2026-06-28","activity-day-2026-06-29","activity-day-2026-06-30","activity-day-2026-07-01","activity-day-2026-07-02","activity-day-2026-07-03","activity-day-2026-07-04","activity-day-2026-07-05","activity-day-2026-07-06","activity-day-2026-07-07","activity-day-2026-07-08","activity-day-2026-07-09","activity-day-2026-07-10","activity-day-2026-07-11","activity-day-2026-07-12","activity-day-2026-07-13","activity-day-2026-07-14","activity-day-2026-07-15","activity-day-2026-07-16","activity-day-2026-07-17","activity-day-2026-07-18","activity-day-2026-07-19","activity-day-2026-07-20","activity-day-2026-07-21","activity-day-2026-07-22","activity-day-2026-07-23","activity-day-2026-07-24","activity-day-2026-07-25","activity-day-2026-07-26","activity-day-2026-07-27","activity-day-2026-07-28","activity-day-2026-07-29","activity-day-2026-07-30","activity-day-2026-07-31","activity-day-2026-08-01","activity-day-2026-08-02","activity-day-2026-08-03","activity-day-2026-08-04","activity-day-2026-08-05","activity-day-2026-08-06","activity-day-2026-08-07","activity-day-2026-08-08","activity-day-2026-08-09","activity-day-2026-08-10","activity-day-2026-08-11","activity-day-2026-08-12","activity-day-2026-08-13","activity-day-2026-08-14","activity-day-2026-08-15","activity-day-2026-08-16","activity-day-2026-08-17","activity-day-2026-08-18","activity-day-2026-08-19","activity-day-2026-08-20","activity-day-2026-08-21","activity-day-2026-08-22","activity-day-2026-08-23","activity-day-2026-08-24","activity-day-2026-08-25","activity-day-2026-08-26","activity-day-2026-08-27","activity-day-2026-08-28","activity-day-2026-08-29","activity-day-2026-08-30","activity-day-2026-08-31","activity-day-2026-09-01","activity-day-2026-09-02","activity-day-2026-09-03","activity-day-2026-09-04","activity-day-2026-09-05","activity-day-2026-09-06","activity-day-2026-09-07","activity-day-2026-09-08","activity-day-2026-09-09","activity-day-2026-09-10","home-module-models","home-module-collapse","composer-input","model-settings-button","home-project-input","home-create-project","home-permission-input","stat:pendingItems","stat:sessionCandidates","stat:inspectionCandidates","home:pendingItems:f710d767-6f41-45c7-b7f4-8ce365a31b0b","home:sessionCandidates:f748b6c0-52b8-4d53-a8a6-2f12316620b1","home:sessionCandidates:d96c7592-d23b-48ea-9ae4-0dc402dd62c7","home:sessionCandidates:0542af76-5271-4b40-97bc-d03f51b21b51","home:sessionCandidates:4adc928d-cc7e-4a64-8410-34f44a8725d4","home:inspectionCandidates:e7b6be00-1284-48e5-b95a-1736190733e4"],"stats":["stat:pendingItems","stat:sessionCandidates","stat:inspectionCandidates"],"bandControls":["home-module-models","home-module-collapse"]}
+FAIL HOME-13 {"collapsed":{"rows":0,"expanded":"false"},"afterReload":{"rows":0,"expanded":"false"},"reExpanded":{"rows":0,"expanded":"true"}}
+FAIL HOME-14 {"order":["home-module-band","home-top-band","message-stream-wrap","composer-area"],"toggle":{"width":91,"height":44},"overflow":0}
+PASS HOME-15 {"before":false,"afterSwitchToModules":true,"afterSwitchBack":false}
+60 / 71

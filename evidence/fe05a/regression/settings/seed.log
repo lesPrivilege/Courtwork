@@ -1,0 +1,9 @@
+{
+ "stage": "rows",
+ "sessions": 4,
+ "totals": {
+  "pendingItems": 1,
+  "sessionCandidates": 4,
+  "inspectionCandidates": 1
+ }
+}

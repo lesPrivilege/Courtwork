@@ -28,28 +28,19 @@ import { renderWorkspaceFilesView } from "./workspace-view.mjs";
  * heading beside it. `action` writes the full name into aria-label and the
  * tooltip, so only the visible span is shortened. */
 function openAction(fullName, focusKey, onClick) {
-  const button = action("chevron-right", fullName, onClick, {
+  return action("chevron-right", fullName, onClick, {
+    visible: "Open",
+    trailing: true,
     className: "quiet-button rail-open",
     attrs: { "data-focus-key": focusKey },
   });
-  button.classList.remove("icon-only");
-  button.replaceChildren(
-    el("span", { className: "button-label", text: "Open" }),
-    icon("chevron-right"),
-  );
-  return button;
 }
 
 function retryAction(fullName, onClick) {
-  const button = action("refresh-cw", fullName, onClick, {
+  return action("refresh-cw", fullName, onClick, {
+    visible: "Retry",
     className: "secondary-button",
   });
-  button.classList.remove("icon-only");
-  button.replaceChildren(
-    icon("refresh-cw"),
-    el("span", { className: "button-label", text: "Retry" }),
-  );
-  return button;
 }
 
 /* The one card anatomy, shared by every module (WK-47 (2), Codex right-column

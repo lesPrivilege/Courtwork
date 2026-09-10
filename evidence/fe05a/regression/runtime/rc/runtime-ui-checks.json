@@ -1,0 +1,127 @@
+{
+  "app": "http://127.0.0.1:8909/",
+  "viewport": "1440x900",
+  "media": "light",
+  "results": [
+    {
+      "id": "surface",
+      "obligation": "runtime is six intent blocks placed in the Settings groups WK-90 names, each inside a tabpanel",
+      "pass": true,
+      "detail": "[{\"name\":\"overview\",\"count\":1,\"group\":\"settings-developer\",\"tabpanel\":true,\"expected\":\"settings-developer\"},{\"name\":\"composition\",\"count\":1,\"group\":\"settings-developer\",\"tabpanel\":true,\"expected\":\"settings-developer\"},{\"name\":\"instructions-and-context\",\"count\":1,\"group\":\"settings-skills\",\"tabpanel\":true,\"expected\":\"settings-skills\"},{\"name\":\"capabilities-and-connections\",\"count\":1,\"group\":\"settings-tools\",\"tabpanel\":true,\"expected\":\"settings-tools\"},{\"name\":\"permissions\",\"count\":1,\"group\":\"settings-permissions\",\"tabpanel\":true,\"expected\":\"settings-permissions\"},{\"name\":\"environment\",\"count\":1,\"group\":\"settings-models\",\"tabpanel\":true,\"expected\":\"settings-models\"}]"
+    },
+    {
+      "id": "precedence",
+      "obligation": "a static precedence sentence sits above the scope tabs (RC-3 revision)",
+      "pass": true,
+      "detail": "Session overrides workspace, and workspace overrides user. A narrower scope cannot loosen a deny or ask that a wider one set."
+    },
+    {
+      "id": "scopes-from-server",
+      "obligation": "scope tabs and revision come from the server, not from the page",
+      "pass": true,
+      "detail": "tabs=user,workspace,session note=Editing the session layer · c8663c40-f690-4e15-9852-3d7964d34333. Revision 9."
+    },
+    {
+      "id": "four-dimensions",
+      "obligation": "installed / running / exposed / permitted stay separate (RC-2, acceptance)",
+      "pass": true,
+      "detail": "23 rows"
+    },
+    {
+      "id": "running-null",
+      "obligation": "running:null renders as n/a, not as disconnected; nothing is silently dropped",
+      "pass": true,
+      "detail": "n/a rows 22, contract nulls among rows 22; not rows: provider:provider:current, model:model:current, secret:secret:provider, sandbox:sandbox:workspace, permission_policy:policy:host, session_context:context:session"
+    },
+    {
+      "id": "no-inferred-authority",
+      "obligation": "no switch shows a value the server did not report (acceptance)",
+      "pass": true,
+      "detail": "23 switches agree with the snapshot"
+    },
+    {
+      "id": "permission-trace",
+      "obligation": "a tool's permission effect and trace read as a DataList on disclosure",
+      "pass": true,
+      "detail": "Source | Requested | Effective | Bound | Effect | Step 1 · host-ceiling | Step 2 · host-default | Kind | Owning scope | Activation | Health | Default exposure | Policy action"
+    },
+    {
+      "id": "source-identity",
+      "obligation": "source type, owning scope and hash or URI are shown",
+      "pass": true,
+      "detail": "Source | Requested | Effective | Bound | Effect | Step 1 · host-ceiling | Step 2 · host-default | Kind | Owning scope | Activation | Health | Default exposure | Policy action"
+    },
+    {
+      "id": "unsupported-kinds",
+      "obligation": "adapter-required kinds are labelled, with no controls",
+      "pass": true,
+      "detail": "memory_provider, workflow, hook, registry · sections=4 · interactive=0"
+    },
+    {
+      "id": "profile-compatibility",
+      "obligation": "the selected profile's compatibility is shown (acceptance)",
+      "pass": true,
+      "detail": "Profileagent:general · compatibleAdapterpi-coding-agent@0.85.1/agent-sessionExposed16 of 32 resourcesActive runs0"
+    },
+    {
+      "id": "ui-slots-declarative",
+      "obligation": "profile UI slots are declared, not executed (acceptance)",
+      "pass": true,
+      "detail": "builtin · pi-coding-agent@0.85.1/agent-sessionno hash recorded | Nothing requested in the session layer. | Exposed to the next runserver revision 9 | No recorded run is open.choose one under Recorded bindings | Agent profile | user · local | always | healthy | exposed | yes · compatible | runtime.inspector, work.surface — declared, not executed"
+    },
+    {
+      "id": "selection-not-exposure",
+      "obligation": "selecting a profile is distinguished from generic exposure (acceptance)",
+      "pass": true,
+      "detail": "Selecting a profile is a different act from exposing a resource: a profile filters and restricts, and it can never grant authority the host does not already hold. These rows are the profiles themselves — the selection is the control above, and none of them has a switch."
+    },
+    {
+      "id": "mcp-states",
+      "obligation": "configured / connected / exposed are separate words from the snapshot (RC-6)",
+      "pass": true,
+      "detail": "Stateconfigured · connected · buttons Connect,Disconnect,Restart"
+    },
+    {
+      "id": "parent-gate-readonly",
+      "obligation": "a parent gate disables the child switch and does not pretend it is a removable override",
+      "pass": true,
+      "detail": "2 parent-gated remote children"
+    },
+    {
+      "id": "remote-tools",
+      "obligation": "remote tools are indented under their server and marked remote + hash",
+      "pass": true,
+      "detail": "2 of 10 indented rows are remote; contract expects 2"
+    },
+    {
+      "id": "characters-not-tokens",
+      "obligation": "context sizes say characters, not tokens (RC-5)",
+      "pass": true,
+      "detail": "174 characters · 1 deferred / 92 characters / 43 characters · 1 deferred / Sizes use characters, not tokens. Counts include injected instructions, catalog text and formatting. Deferred bodies load only on request; templates remain draft-only. Session history and other host context are excluded."
+    },
+    {
+      "id": "token-usage-null",
+      "obligation": "tokenUsage null shows no token line at all",
+      "pass": true,
+      "detail": "tokenUsage=null"
+    },
+    {
+      "id": "deferred-dash",
+      "obligation": "zero-contribution kinds are dashes; catalog contributions count without admitting deferred bodies",
+      "pass": true,
+      "detail": "Prompt template · user-invoked"
+    },
+    {
+      "id": "bar-no-limit",
+      "obligation": "the bar shows composition only: no percentage, free space or quota line",
+      "pass": true,
+      "detail": "3 segments"
+    },
+    {
+      "id": "planned-inert",
+      "obligation": "the Planned section carries text rows and zero interactive descendants (WK-27)",
+      "pass": true,
+      "detail": "interactive=0, rows=8, group=settings-developer"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+PASS PRB-1 · test ok：状态与后端原话逐字上屏 {"text":"ok · Model directory handshake succeeded; generation was not tested.","models":[]}
+PASS PRB-2 · discover ok：目录报告 3 个模型，ID 原样列出 {"text":"ok · Model directory handshake succeeded; generation was not tested.","catalogue":["The directory reports 3 models. They become this connection's model list when you save; the directory reporting them is not a check that any can answer."],"models":["probe-model-a","probe-model-b","probe-model-c"]}
+FAIL PRB-3 · discover 的模型 ID 不进 Model 下拉，也不进已保存配置 {"modelOptions":["probe-model-a","probe-model-b","probe-model-c"],"configUnchanged":true}
+PASS PRB-6 · 无 key 时 apiKey 字段被省略：目标目录收到的请求没有 Authorization {"requests":[{"url":"/ok/models","authorization":null,"extra":[]},{"url":"/ok/models","authorization":null,"extra":[]}]}
+PASS PRB-7 · 有 key 时只作 Bearer 送出，且不加任何自定义 header {"requests":[{"url":"/ok/models","authorization":"Bearer synthetic-probe-key","extra":[]}],"text":"ok · Model directory handshake succeeded; generation was not tested."}
+PASS PRB-8 · 改地址后上一次的结果离开 {"hidden":true}
+PASS PRB-4 · authentication_failed 原样呈现，且不被改写成一句更好听的话 {"text":"authentication_failed · The model directory rejected authentication."}
+PASS PRB-5 · unsupported 原样呈现，且没有目录行 {"text":"unsupported · The target does not support this model directory endpoint.","catalogue":[]}
+7 / 8

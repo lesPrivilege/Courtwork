@@ -1,0 +1,158 @@
+[
+ {
+  "name": "CCW-1 · 文档 tab 至多一个、带名字、截断保留可访问全名；类型 tab 无关闭区；file 档不画两遍",
+  "pass": true,
+  "actual": {
+   "openedLabel": "out/note-for-the-document-tab.txtRecorded version",
+   "documentTabVisible": true,
+   "documentTabs": 1,
+   "label": "note-for-the-document-tab.txt",
+   "title": "out/note-for-the-document-tab.txt",
+   "accessibleName": "out/note-for-the-document-tab.txt",
+   "selected": "true",
+   "fileTypeTabVisible": false,
+   "visibleTabIds": [
+    "surface-preview-tab",
+    "surface-document-select"
+   ],
+   "typeTabsWithClose": [],
+   "selectBox": {
+    "left": 481,
+    "right": 685,
+    "width": 204,
+    "height": 41
+   },
+   "closeBox": {
+    "left": 685,
+    "right": 709,
+    "width": 24,
+    "height": 24
+   },
+   "closeLabel": "Close out/note-for-the-document-tab.txt",
+   "backOutsideTablist": true,
+   "backRole": null,
+   "scope": null,
+   "expanded": true,
+   "open": true,
+   "kind": "file",
+   "fileRef": {
+    "kind": "content-version",
+    "sessionId": "20cc25ab-fb8d-4646-a0d4-7c79bf7796e6",
+    "runId": "4d404df5-47af-4d7d-882b-8a1c434ae24b",
+    "path": "out/note-for-the-document-tab.txt",
+    "sha256": "3131aea393abc0803697fafb9f2811c60509a3e4d530707acad306a7eabaec33"
+   },
+   "paneLabelledBy": "surface-document-select"
+  }
+ },
+ {
+  "name": "CCW-2 · 方向键 / Home / End 只在 role=tab 之间走，关闭钮不是这条 tablist 的一站",
+  "pass": true,
+  "actual": {
+   "start": "surface-document-select",
+   "home": "surface-preview-tab",
+   "end": "surface-document-select",
+   "left": "surface-preview-tab"
+  }
+ },
+ {
+  "name": "CCW-3 · Delete 关闭活跃文档 tab：回紧凑目录，焦点还给打开它的那个控件",
+  "pass": true,
+  "actual": {
+   "documentTabVisible": false,
+   "open": true,
+   "expanded": false,
+   "kind": "preview",
+   "fileRef": null,
+   "focusKey": "artifact:13",
+   "focusClass": "flow-row artifact-thread-row",
+   "railVisible": true,
+   "opener": {
+    "label": "out/note-for-the-document-tab.txtRecorded version",
+    "focusKey": "artifact:13"
+   }
+  }
+ },
+ {
+  "name": "CCW-4 · 面板 1136 里正文仍是一行的长度（≤ --doc-measure），代码块在自己的盒子里横向滚动",
+  "pass": true,
+  "actual": {
+   "panel": 1136,
+   "limit": 740,
+   "widestProse": 740,
+   "preOverflowX": "auto",
+   "preScrolls": true,
+   "paneScroll": "auto"
+  }
+ },
+ {
+  "name": "CCW-5 · M-9：Sending… 不改按钮宽度，邻居不位移，焦点留在按下的那个决定上",
+  "pass": true,
+  "actual": {
+   "before": [
+    {
+     "key": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:deny",
+     "text": "Deny this write",
+     "width": 106,
+     "left": 956
+    },
+    {
+     "key": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:allow",
+     "text": "Approve this write",
+     "width": 127,
+     "left": 1070
+    }
+   ],
+   "during": [
+    {
+     "key": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:deny",
+     "text": "Deny this write",
+     "width": 106,
+     "left": 956
+    },
+    {
+     "key": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:allow",
+     "text": "Sending…",
+     "width": 127,
+     "left": 1070
+    }
+   ],
+   "focusBefore": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:allow",
+   "focusDuring": "e0585134-d58b-458f-a24e-3c68e1553dca:1c0b8f69-d29b-407e-9a28-2c3a68730a18:b2018f53-7e8b-474a-ad53-9725f1ae214a:allow"
+  }
+ },
+ {
+  "name": "CCW-6 · M-10：首个 tooltip 等 400ms，窗口内相邻即时切换，出窗口回到延迟",
+  "pass": true,
+  "actual": {
+   "anchors": 2,
+   "first": 440,
+   "adjacent": 21,
+   "afterWindow": 453
+  }
+ },
+ {
+  "name": "CCW-7 · agent activity 以微型记号入类型 tab，不造 banner，且不只靠颜色",
+  "pass": true,
+  "actual": {
+   "tab": "surface-run-tab",
+   "status": [
+    "running"
+   ],
+   "word": "Running",
+   "radius": "999px",
+   "background": "rgb(42, 44, 44)",
+   "banners": 0
+  }
+ },
+ {
+  "name": "本单没有任何请求离开本 origin",
+  "pass": true,
+  "actual": []
+ },
+ {
+  "name": "页面没有抛出异常",
+  "pass": true,
+  "actual": []
+ }
+]

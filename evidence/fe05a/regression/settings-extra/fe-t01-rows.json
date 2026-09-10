@@ -1,0 +1,47 @@
+[
+  {
+    "name": "FE-T01 · 无绑定 · 会话可读可写，未绑定不被叫作空 Matter",
+    "pass": true,
+    "actual": {
+      "binding": null,
+      "mode": "Chat",
+      "scope": null,
+      "composerDisabled": false,
+      "matterHits": 0,
+      "bandHidden": true
+    }
+  },
+  {
+    "name": "FE-T01 · 无绑定（WK-92）· 头部说 Chat，且没有 scope 位",
+    "pass": true,
+    "actual": {
+      "mode": "Chat",
+      "scope": null
+    }
+  },
+  {
+    "name": "FE-T01 · 读取失败 · tile 保留最后确认的值，不塌成 0",
+    "pass": true,
+    "actual": {
+      "before": [
+        "1",
+        "4",
+        "1"
+      ],
+      "after": [
+        "1",
+        "4",
+        "1"
+      ]
+    }
+  },
+  {
+    "name": "FE-T01 · 读取失败 · 出现失败句与 Retry",
+    "pass": true,
+    "actual": {
+      "error": "The local runtime could not be reached.",
+      "retry": true,
+      "body": "Today Waiting for you 1 Open questions and approval requests, all retained work, right now. In progress 4 Chats with recorded activity, all retained work, right now. Needs a look 1 Runs recorded failed or unknown, all retained work, right n"
+    }
+  }
+]
