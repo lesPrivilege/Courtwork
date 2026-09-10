@@ -16,7 +16,7 @@ import {
 } from "./ui-controls.mjs";
 
 import { projectRunSummary } from "./summary-disclosure-projection.mjs";
-import { createRunSummaryCard, createCardDisclosureMemory } from "./summary-disclosure.mjs";
+import { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDirectory } from "./summary-disclosure.mjs";
 
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
@@ -3921,6 +3921,18 @@ const runSummaryCard = createRunSummaryCard({
   onOpen: snapshot => railHost.openRun(snapshot.identity.runId),
   onOpenFile: ref => railHost.openFile(ref),
 });
+const surfaceEntryDirectory = createSurfaceEntryDirectory({getSnapshot: () => {
+  if (state.view !== "session" || state.settings.open || !currentSession()) return null;
+  const summary = runSummarySnapshot();
+  const runReader = detail => summary ? {
+    state: "ready", identity: summary.identity.runId, revision: summary.generation, detail,
+    open: () => railHost.openRun(summary.identity.runId),
+  } : {state: "empty", detail: "No run recorded in this chat."};
+  return {schemaVersion: 1, scope: `${state.activeSessionId}:${state.sessionEpoch}`, entries: {
+    activity: runReader("Read this run’s recorded activity."),
+    context: runReader("Read recorded context in Run details."),
+  }};
+}});
 const cardDisclosures = createCardDisclosureMemory();
 function renderSurfaceRail() {
   cardDisclosures.resetScope(`${state.activeSessionId}:${state.sessionEpoch}`);
@@ -3931,6 +3943,7 @@ function renderSurfaceRail() {
   rail.hidden = !visible;
   const summarySnapshot = runSummarySnapshot();
   runSummaryCard.update(summarySnapshot);
+  surfaceEntryDirectory.update();
   if (!visible) return;
   const focusKey = document.activeElement?.dataset?.focusKey;
   const focusModule = document.activeElement?.closest("[data-module]")?.dataset?.module;
@@ -3958,7 +3971,7 @@ function renderSurfaceRail() {
           },
         }),
       );
-    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs));
+    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs), surfaceEntryDirectory.element);
     if (focusKey && document.activeElement === document.body) {
       const key = focusKey.startsWith("strip:") ? focusKey : `strip:${focusModule === "run-summary" ? "run" : focusModule}`;
       rail.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
@@ -3982,6 +3995,7 @@ function renderSurfaceRail() {
       cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
     }
   }
+  cards.push(surfaceEntryDirectory.element);
   rail.replaceChildren(...cards);
   rail.scrollTop = scroll;
   if (focusKey && document.activeElement === document.body) {

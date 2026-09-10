@@ -97,3 +97,7 @@ Astra CUA 发现288px卡内Session/Run身份被原rail-row的flex:none挤出；L
 ### R2-SD02：卡片语义补全
 
 用户授权先补前端并登记缺口，覆盖首片Run-only范围。见[卡片类别、既有reader与缺口](card-semantics.md)：现有File/Workspace/Runtime补中间披露，未接类别保留真实挂载边界；不触及Claude的ChatSpace/composer施工。
+
+### R2-SD03：入口先行
+
+用户21:43要求先建立渐进入口/兜底行，21:50指出紧凑旧卡暴露。本片[入口体例与注入接缝](entry-grammar.md)覆盖未接类别只留文档的旧策略，并统一紧凑/手机分组容器；无虚构计数/执行动作。
