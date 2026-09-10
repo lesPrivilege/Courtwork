@@ -251,3 +251,100 @@ export function toHomeAttentionDetail(data) {
     reason:data.reason,next_action:{kind:next.kind,label:next.label,trigger:next.trigger,due_at:next.due_at},
     updated_at:data.updated_at,revision:data.revision,freshness:data.freshness };
 }
+
+/* WK-158 · `human_actions` → the closed set of editors this app understands.
+ *
+ * This is a validator, not a form generator. `payload_schema` is evidence that
+ * the host and this app agree on the shape of an action that exists today; it
+ * is not a licence to render arbitrary controls for an arbitrary future schema.
+ * Each action below has a recognizer for the exact schema it was written
+ * against, and anything else — an unknown action, a widened schema, a
+ * descriptor whose `expected_revision` no longer matches the object that was
+ * inspected — is omitted with a stated reason rather than guessed at.
+ *
+ * Pure, like every adapter in this file: no fetch, no clock, no request IDs, no
+ * DOM, and no authority. A descriptor here says the host advertised the action;
+ * the server may still refuse it. */
+const NEXT_KINDS = ["inspect", "decide", "wait", "follow_up", "none"];
+const NEXT_TRIGGERS = ["manual", "at", "after", "external"];
+const STATUS_TARGETS = ["investigating", "needs_you"];
+/* Advertised but deliberately not built here. `attach_relation` is relation
+ * maintenance and needs its own entity-selection review; `request_disclosure`
+ * is the policy editor (CC-P); `create` is not a detail action and
+ * `record_signal` is Runtime-only. Omission is explicit, never a dead button. */
+const OUT_OF_SCOPE = new Set(["attach_relation", "request_disclosure", "create", "record_signal"]);
+
+const sameSet = (value, expected) => Array.isArray(value) && value.length === expected.length &&
+  new Set(value).size === value.length && expected.every(entry => value.includes(entry));
+const objectSchema = (schema, required, properties) => Boolean(schema) && schema.type === "object" &&
+  schema.additionalProperties === false && sameSet(schema.required ?? [], required) &&
+  sameSet(Object.keys(schema.properties ?? {}), properties);
+/* A bounded string field returns its recorded maximum so the editor can honour
+ * the host's own limit instead of inventing one. */
+const boundedText = (schema, max) => schema && schema.type === "string" && schema.minLength === 1 &&
+  schema.maxLength === max ? { maxLength: max } : null;
+const enumField = (schema, values) => Boolean(schema) && sameSet(schema.enum, values);
+function nextActionField(schema) {
+  if (!objectSchema(schema, ["kind", "label", "trigger", "due_at"], ["kind", "label", "trigger", "due_at"])) return null;
+  const { kind, label, trigger, due_at: due } = schema.properties;
+  if (!enumField(kind, NEXT_KINDS) || !enumField(trigger, NEXT_TRIGGERS)) return null;
+  if (!due || !sameSet(due.type, ["string", "null"]) || due.format !== "date-time") return null;
+  const text = boundedText(label, 500);
+  if (!text) return null;
+  /* `none` is a recorded next action, not a disposition: snooze and set_waiting
+   * both refuse it in the contract, so it is never offered by these editors. */
+  return { kinds: NEXT_KINDS.filter(entry => entry !== "none"), triggers: [...NEXT_TRIGGERS], labelMaxLength: text.maxLength };
+}
+const reasonOnly = properties => ({ reason: boundedText(properties.reason, 4000) });
+const ADAPTERS = {
+  acknowledge: schema => objectSchema(schema, [], []) ? {} : null,
+  resolve: schema => {
+    if (!objectSchema(schema, ["reason"], ["reason"])) return null;
+    const { reason } = reasonOnly(schema.properties);
+    return reason ? { reason } : null;
+  },
+  snooze: schema => deferralFields(schema),
+  set_waiting: schema => deferralFields(schema),
+  resume: schema => statusFields(schema),
+  reopen: schema => statusFields(schema),
+};
+function deferralFields(schema) {
+  if (!objectSchema(schema, ["reason", "next_action"], ["reason", "next_action"])) return null;
+  const { reason } = reasonOnly(schema.properties);
+  const nextAction = nextActionField(schema.properties.next_action);
+  return reason && nextAction ? { reason, nextAction } : null;
+}
+function statusFields(schema) {
+  if (!objectSchema(schema, ["reason"], ["reason", "status"])) return null;
+  const { reason } = reasonOnly(schema.properties);
+  if (!reason || !enumField(schema.properties.status, STATUS_TARGETS)) return null;
+  return { reason, status: { options: [...STATUS_TARGETS] } };
+}
+/* The order the choices are offered in: the cheapest disposition first, the two
+ * that end the object's life last. */
+const ACTION_ORDER = ["acknowledge", "resume", "set_waiting", "snooze", "resolve", "reopen"];
+
+/**
+ * @returns `{ actions, omitted }` — normalized descriptors this app can edit,
+ * and every advertised action it will not render, with the reason it did not.
+ * Returns `null` when the response carries no local human action list at all.
+ */
+export function toAttentionActionDescriptors(detail) {
+  if (!detail || !Array.isArray(detail.human_actions) || !Number.isSafeInteger(detail.revision)) return null;
+  const actions = [];
+  const omitted = [];
+  for (const descriptor of detail.human_actions) {
+    const action = descriptor?.action;
+    if (!descriptor || typeof action !== "string") { omitted.push({ action: null, reason: "malformed-descriptor" }); continue; }
+    if (descriptor.schema_version !== 1) { omitted.push({ action, reason: "unsupported-schema-version" }); continue; }
+    if (descriptor.expected_revision !== detail.revision) { omitted.push({ action, reason: "revision-mismatch" }); continue; }
+    if (OUT_OF_SCOPE.has(action)) { omitted.push({ action, reason: "out-of-scope" }); continue; }
+    const adapter = ADAPTERS[action];
+    if (!adapter) { omitted.push({ action, reason: "unknown-action" }); continue; }
+    const fields = adapter(descriptor.payload_schema);
+    if (!fields) { omitted.push({ action, reason: "unsupported-payload-schema" }); continue; }
+    actions.push({ action, expectedRevision: descriptor.expected_revision, fields });
+  }
+  actions.sort((left, right) => ACTION_ORDER.indexOf(left.action) - ACTION_ORDER.indexOf(right.action));
+  return { actions, omitted };
+}

@@ -1,0 +1,46 @@
+{
+  "views": [
+    "All",
+    "Investigating",
+    "Needs you",
+    "Waiting",
+    "Later",
+    "Resolved"
+  ],
+  "keyboard": {
+    "start": "item-counsel",
+    "afterJ": "item-counsel",
+    "afterSecondJ": "item-filing",
+    "afterK": "item-counsel",
+    "afterArrowUp": "item-counsel",
+    "clampedAtTop": "item-counsel",
+    "openedTitle": "Counsel review of the draft",
+    "returnedFocus": "item-counsel"
+  },
+  "offered": [
+    "Mark as seen",
+    "Resume",
+    "Set waiting",
+    "Snooze",
+    "Resolve"
+  ],
+  "inFlight": {
+    "submit": "Sending…",
+    "detailStatus": "Needs you",
+    "rowStatus": "Needs you"
+  },
+  "conflict": {
+    "conflictCopy": "This item changed while you were deciding. Reload it and try again.",
+    "conflictRole": "alert",
+    "draftKept": "Resolved after comparing both lists.",
+    "canonicalStatus": "investigating",
+    "events": [
+      "create",
+      "acknowledge"
+    ]
+  },
+  "narrowTargets": 44,
+  "runResponses": 0,
+  "recordedRunCount": 0,
+  "exceptions": 0
+}
