@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 范围登记：Chat 全量按钮、hover 与 Icon grammar（2026-09-10）
+
+按用户补充接收两份研究原文和文件交付参考图，[EX-IC2 / Chat controls](design/chat-controls-2026-09-10/README.md)已进入本地 PR 施工稿、前端与长期 roadmap。覆盖全量 Chat space 按钮/hover/focus、浮层、消息与文件卡；无真实后端仅登记缺口。现有 IC-8 不换族保持；未完成全量逐控件盘点、未实现 Registry/新 glyph、未创建远端 PR。外部研究主张仍是转交输入，不称本轮已核验。产品仍为下段 PV/SD 已接受版本，本次仅文档登记。
+
 ## 最新接收：Provider 接入与 Spark 显式样本（2026-09-10）
 
 用户授权 PV `bb21027` 与 SD `6b62579` 独验合流，候选从实际 main `67ed0fd` 隔离整合。产品固定 `654411e`，RuntimeStore **12 / Core 4 / app 5**；PV-54 纯投影已抽离并登记静态白名单，[SP-13](design/spark-surface-2026-09-10/integration-ruling.md)记录用户允许的显式、带来源标签、只读样本例外。

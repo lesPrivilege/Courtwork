@@ -1,5 +1,9 @@
 # 前端 roadmap（Fable，2026-09-09 收敛节点）
 
+## 2026-09-10 增量 · EX-IC2 与 Chat 全量控件
+
+[范围及来源](../../../design/chat-controls-2026-09-10/README.md) / [PR 施工稿](../../../design/chat-controls-2026-09-10/pr-plan.md)：全量 Chat space Button、hover/focus、tooltip/menu/popover、消息动作和文件卡进入 A 清点 → B 真实槽位 specimen → C 经裁决接线。缺真实后端/宿主能力不挡 A/B，仅登记原 owner 缺口，不能假成功。此项承接 FE-04/CC-I/Iconography，未启动产品 writer、未选择新 family；IC-8 不换族保持。下文队列保留历史时点，当前交付以 engineering/current 为准。
+
 本页是本轮（WK-105…129）的收敛点，供 fresh Fable 续接。裁定原文在 [intake-round-3](intake-round-3.md) §4k–§4ah；台账 [dispatch-round-4](dispatch-round-4.md)；工单 [WO-CC-round5](work-orders/WO-CC-round5.md)；misfit [misfit-ledger](misfit-ledger.md)；索引 [atlas](../../../design/atlas/README.md)。
 
 ## 1. 已合流（main）与待合流

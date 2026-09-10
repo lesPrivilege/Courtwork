@@ -1,0 +1,145 @@
+可以。我用 Exa 沿着 **Essay 本体 / 作者与工作室生态 / 小众写作软件 / 独立 Mac 工具与官网** 四个方向扫了约 **95 个搜索结果（含重叠）**。这一轮比传统 SaaS 更值得消费，因为它们普遍不是“组件更漂亮”，而是**产品判断直接塑造 UI，UI 又直接塑造网站**。
+
+### 先说 Astra：这个推测有迹象，但目前不能坐实
+
+Exa 找到 Essay 上 2026-01-28 的一篇很特殊的文章：作者以“守门人接管破旧城堡”隐喻维护代码，正文直接出现“重构”，描写清理旧结构、逐步替换、处理突然冒出的严重 bug，最后落到 `BUG FIXED V11.0 prerelease`。这非常像一个 coding agent 接管历史项目后的拟人化工作日志。[这篇《守门人》/ 重构文章](https://www.essay.ink/essays/vpwbxvqcurqfigyjhtqx?utm_source=chatgpt.com)
+
+但我没有在公开 Repo、发布说明、Essay 页面或作者公开材料里找到“这次重构由 Astra 完成”的明确归因。所以目前比较严谨的记法应该是：
+
+> **Essay 确实存在一次明显的重构叙事，而且高度像 agent-assisted / agent-led maintenance；Astra attribution 暂列 hypothesis，不列 fact。**
+
+有意思的是，Essay 背后的 UOMS 同时列了 **5ire 和 Essay** 为作品，因此至少可以确认两者来自非常接近的设计/开发语境。[UOMS](https://uo.ms/?utm_source=chatgpt.com)
+
+---
+
+## Essay 真正值得参考的是“Attention Budget”
+
+它的视觉当然干净，但我认为最值得拿走的是下面这一层。
+
+| Essay 的选择                   | 它真正解决的问题        | 可泛化的设计规则                               |
+| --------------------------- | --------------- | -------------------------------------- |
+| 只支持有限 Markdown              | 防止格式工具反过来支配写作   | **能力存在 ≠ 必须暴露为 UI**                    |
+| 默认只展示第一张图片，其余渐进展开           | 图片天然抢夺视觉注意力     | **高 attention modality 必须有预算**         |
+| 首页“广场 / 频道 / 阅览室 / Self”    | 不用数据库式抽象词描述人的活动 | **导航命名可以来自场景语义，不必来自数据模型**              |
+| “先不登录，随便写写”                 | CTA 直接兑现核心行为    | **先让用户进入 primary loop，再要求 setup**      |
+| Desktop 只是 Editor + Publish | 不因为有桌面壳就复制全站能力  | **不同 surface 应拥有不同的能力密度**              |
+| AccessToken 放左下 Settings    | 基础设施需求退到工作流边缘   | **configuration 不应占据 primary surface** |
+
+其中前两点是 Essay 官方明确写出来的产品判断：样式太多会同时干扰创作和阅读；图片由于视觉优先级过高，所以默认只让第一张进入正文，其余需要用户主动展开。([Essay][1])
+
+甚至首页本身也贯彻这一点：主文案不是“Publish faster / Grow your audience”，而是“文字，在此自由流淌”，下面直接提供“先不登录，随便写写”。([Essay][2])
+
+这对 agent UI 很有启发：**tool trace、thinking、usage、preview、artifact、attention request 其实也都是不同 attention 权重的信息类型，不能因为“有数据”就等权铺出来。**
+
+Essay 最近移动端还有一个很小但很好的例子：长内容的 Collapse 被改成了**浮动操作**，让动作跟着当前阅读上下文，而不是要求用户回到固定 toolbar。[Essay App Store 版本记录](https://apps.apple.com/fi/app/essay-ink/id6738198003?utm_source=chatgpt.com)
+
+---
+
+## 更值得建档的“小众软件”参考池
+
+我会优先留下面这些，而不是再收一批 Linear/Vercel 类站点。
+
+| 产品               | 最值得拿走的巧思                                                                                                                  | 更适合参考什么                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| **Essay**        | attention budget；主动删 UI；场景化词汇；不同 surface 不等权                                                                              | 产品全局原则                           |
+| **Verso**        | **官网本身就是 word processor**；Hero 用 tracked-change/Accept/Reject；release history 写成 revisions；明确写“Nothing here is a mock-up” | 发布面、review UI                    |
+| **StoryaWrite**  | 首页第一屏就是“正文 + Codex”真实工作面；提出 “Six surfaces. Each one earns its place.”                                                     | 多 surface 信息架构                   |
+| **Quoin**        | 不把功能都塞进 app：Spotlight、Quick Look、Services、Shortcuts、Handoff 都成为产品 surface                                                 | Desktop / OS integration         |
+| **Haunts**       | 全产品可以压成 `hotkey → warm list → land`；明确说明自己**不是什么**                                                                        | 单点 workflow、command UI           |
+| **Yakit / Iris** | studio 与产品共用一套人格；三键完成完整 interaction loop；信任信息成为界面内容                                                                       | 小团队产品官网                          |
+| **Asomium**      | 官网完全用产品自身 terminal/spec grammar；`Inputs → system → Outputs`；trust signals 就放在 Hero 下方                                     | 技术型发布面、架构展示                      |
+| **Purrchiver**   | 完成任务只出现安静的 inline confirmation，不弹 celebration；复杂配置放一个 sheet                                                               | feedback / toast / sheet grammar |
+
+### Verso 尤其值得单独看
+
+它是这轮我认为**网页设计最聪明**的一例。
+
+网站开头不是“Hero screenshot + 3 cards”，而是直接拿**产品里的 tracked changes**做 Hero；首页接着就是 Recent revisions，把 changelog 伪装成“稿件修改史”；截图旁边直接写 “mid-edit, nothing here is a mock-up”。而产品里的 Focus Mode 又是让 toolbar/sidebar 消失、非当前段落降低强度。([Verso][3])
+
+所以它做到了：
+
+**product metaphor → UI interaction → website composition → release narrative**
+
+四者完全同源。
+
+这比“官网统一一套 brand color”高一个层次。
+
+---
+
+### StoryaWrite 也很像一个值得消费的反例教材
+
+它直接提出：
+
+> Most writing apps optimise for managing the project. StoryaWrite optimises for finishing the prose.
+
+所以不是先设计 Dashboard，再往里塞功能，而是反过来规定 **“Six surfaces. Each one earns its place.”**。它甚至明确拒绝 streak、badge、庆祝动画这一整套现代 productivity SaaS 惯例，因为这些东西不服务写小说。([Storya][4])
+
+这句话其实可以变成一个非常好的 UI review gate：
+
+**这个 surface 有没有 earn its place？**
+
+没有，就不该因为后端有能力而拥有一个 Tab。
+
+---
+
+### Quoin 更值得学“桌面应用不等于一个窗口”
+
+Quoin 把很多能力交给了 macOS 本身：Spotlight 搜索、Quick Look、Services、Shortcuts、Handoff、Open With。尤其有一个细节很好：
+
+**用户只打开单个 Markdown 文件时，它不会留下一个毫无意义的空 Library sidebar，而直接变成 full-width editor。**
+
+这属于“layout follows available semantics”，而不是“app shell 永远三栏”。[Quoin](https://2389-research.github.io/Quoin/?utm_source=chatgpt.com)
+
+对于任何桌面 Work/Agent 软件，这都比单纯研究 sidebar width 有价值得多：**同一套组件可以存在，但 surface topology 应按当前任务改变。**
+
+---
+
+### Haunts 是“产品模型本身就是动效脚本”
+
+它只有一个真正重要的 loop：
+
+`⌥Space → warm list → narrow → land`
+
+而且 Enter / Cmd+Enter / Ctrl+Enter 分别去 Finder、editor、terminal。官网也按这三个动作组织，而不是列二十个 feature card。更重要的是，它花了很大篇幅解释为什么**不取代** Spotlight、Raycast、Alfred。[Haunts](https://gethaunts.app/?utm_source=chatgpt.com)
+
+这对发布面尤其有用：不要总写“我们还能做什么”，可以通过**边界**让产品轮廓显出来。
+
+---
+
+### Yakit 和 Asomium 是网站层很好的两个极端
+
+Yakit 更“studio”：产品、manifesto、privacy、pricing、品牌隐喻都用同一种语言，而且把 interaction loop 压缩成三步——shortcut、find、act and disappear。([Yakit][5])
+
+Asomium 则更激进：整个网站直接采用 terminal / spec 语法：
+
+`$ asomium --status`
+`SPEC 01`
+`FN.01.03`
+`~/asomium · metadata`
+
+同时把 `mac-native / keychain-secured / API direct / license-key not account` 这种通常埋在 FAQ 的信任信息，提到 Hero 下面成为产品视觉的一部分。它还把整个产品画成 **Inputs → ASOMIUM → Outputs**，非常适合复杂工具解释能力边界。([Asomium][6])
+
+这里值得学的是**“陌生化必须来自产品结构”**。不是为了 cool 把字体换 monospace，而是它真的在处理开发者 release pipeline，所以 terminal grammar 是合法的。
+
+---
+
+## 如果把这一轮压成可以入 Design Index 的 7 条
+
+1. **Attention Budget**：不同信息类型有不同默认视觉权重；高权重内容必须显式获得展示资格。
+2. **Surface must earn its place**：新增后端能力不自动获得 Tab、Card 或 Sidebar item。
+3. **Context reshapes chrome**：没有语义的栏位直接消失，而不是保留空壳。
+4. **Primary loop before configuration**：先进入工作，账户、Provider、Token、权限逐步披露。
+5. **Website as product specimen**：官网可以直接运行产品的 control grammar，而不仅展示截图。
+6. **Release history as design material**：版本、diff、修订史本身可以成为可信、漂亮的发布内容。
+7. **Domain-native vocabulary**：稳定基础控件可以标准化，但顶部信息架构、状态名和 metaphor 应从产品自己的工作语义长出来。
+
+我尤其会把 **Essay + Verso + StoryaWrite + Quoin + Haunts** 作为一组单独的小众软件 specimen。它们共同提供的不是又一套 UI kit，而是一种很适合成熟 agent/work 软件的原则：
+
+**不是让所有能力“看起来一致”，而是让所有界面像由同一个关于 attention、work 和 restraint 的判断体系长出来。**
+
+[1]: https://www.essay.ink/essays/isskoupgekcxlwpqlydj "Essay 服务常见问题解答 - FAQ / Essay"
+[2]: https://www.essay.ink/ "www.essay.ink"
+[3]: https://www.versowriter.app/?utm_source=chatgpt.com "Verso - Minimalist Word Processor for Mac"
+[4]: https://write.storya.app/?utm_source=chatgpt.com "StoryaWrite. A Mac writing environment for novelists."
+[5]: https://yakit.dev/?utm_source=chatgpt.com "Yakit — Mac apps for developers who care about craft"
+[6]: https://asomium.com/?utm_source=chatgpt.com "Asomium — App Store Connect workspace for indie Mac & iOS devs"

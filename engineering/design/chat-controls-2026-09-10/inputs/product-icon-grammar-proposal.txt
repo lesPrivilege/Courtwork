@@ -1,0 +1,362 @@
+是。先把过往裁决与这一张实机图重新对起来，这个问题已经不是“左栏换几个图标”，而是可以正式提级为 **Courtwork 的泛化 Icon System / Product Icon Registry**。
+
+我用 Exa 回溯了 **57 个结果、4 个方向**，并进一步读了 Lucide、Primer/Octicons、VS Code Product Icons、MingCute、Phosphor 的一手材料。新的证据反而把我们前几轮的方向收得更清楚了。
+
+### 先 recall：此前其实已经走到这一步
+
+前几轮不是从零开始：
+
+* **09-06 P2** 已经做过 Lucide / Phosphor / Tabler + text baseline 的真实 SVG specimen，要求版本、LICENSE、真实按钮状态一起测。
+* 后来又把 **MingCute** 纳入候选，计划在真实 semantic slots，而不是 icon gallery 中比较。
+* **EX-IC1** 已经被定义成 Design-only specimen：实际槽位比较，而不是立即生产迁移。
+* 当时的暂定原则是：
+  **通用 GUI 语义由稳定 icon family 承担；Courtwork 独有的 domain / product semantics 才自绘。**
+* 同时已经明确不能把 `24×24 SVG → CSS 缩成任意 14/15/16px` 当作“大小统一”；需要考虑 **optical volume、stroke、pixel fitting、host control size**。
+
+这一张截图正好给了新的生产证据：**现在应该从“选 icon library”转成“建立 Courtwork icon grammar”。**
+
+---
+
+## 这张图的问题，确实不只是 SVG `width/height`
+
+左边 Codex 和内层 Courtwork 同屏之后非常明显。
+
+Codex 那组 `New chat / Scheduled / Plugins / Explore` 的 glyph 在文字旁边有比较稳定的“墨量”；Courtwork 的 `New chat / Home / Attention / Spark` 则整体显得：
+
+**偏小 + 偏轻 + live area 偏收缩。**
+
+特别是 `Home` 和 `Attention`，数学上的 bounding box 即使都是 16px，也会因为内部留白、stroke 以及形状本身，让 Courtwork 图标看起来像 12–13px。
+
+这正是 Lucide 自己的设计指南明确处理的问题：不能只看 canvas，必须控制 **optical volume、center of gravity、visual density**。[Lucide Icon Design Guide](https://lucide.dev/contribute/icon-design-guide)
+
+GitHub Primer 更适合解释为什么 Codex/成熟桌面 UI 看起来“紧”：Octicons 直接为 **16px 和 24px 分别绘制 geometry**，而不是简单把同一枚 24px 图标缩小，并要求用 reference shapes 控制 optical volume。[Primer Octicons Design Guidelines](https://primer.style/foundations/icons/design-guidelines/)
+
+所以这轮我不会建议简单做：
+
+```text
+.icon { width: 18px; height: 18px }
+```
+
+这可能让 Home 正常，却把 Spark / Refresh / Plus 放得过重。
+
+---
+
+# 更好的选型已经出现：不是“再选一个库”，而是三层体系
+
+我现在会把此前的“Lucide 主库”裁决稍微修订一下。
+
+### L0 — Semantic Registry
+
+这是最重要的一层，**库名不进入业务组件**。
+
+例如：
+
+```text
+navigation.home
+navigation.attention
+navigation.spark
+navigation.new-chat
+
+action.add
+action.close
+action.refresh
+action.send
+action.expand
+action.more
+
+state.working
+state.waiting
+state.completed
+state.failed
+state.needs-attention
+
+object.project
+object.matter
+object.document
+object.artifact
+object.tool
+object.runtime
+object.model
+object.agent
+object.expert
+object.session
+
+review.comment
+review.approve
+review.request-change
+review.evidence
+```
+
+组件只能请求：
+
+```text
+Icon("navigation.attention")
+```
+
+而不是：
+
+```text
+<LucideMessageSquare />
+```
+
+这其实就是 **VS Code Product Icon** 的成熟做法：UI 引用稳定的 product icon ID，icon ID 与实际 glyph 是两回事，因此具体图形以后可以换 theme、换 asset，而产品语义不变。[VS Code Product Icon Reference](https://code.visualstudio.com/api/references/icons-in-labels)
+
+这与 SE 的方向也非常合：**稳定接口是 semantic identifier；glyph 是可替换实现。**
+
+---
+
+### L1 — Canonical UI family
+
+这一层负责大约 **80–90% 的普通 GUI 动作**。
+
+经过这次重新比较，我会把候选顺序调成：
+
+| 候选                  | Courtwork 中的角色                       | 当前判断         |
+| ------------------- | ------------------------------------ | ------------ |
+| **Primer Octicons** | dense desktop / developer/work UI 参考 | **应新增为强候选**  |
+| **Lucide**          | 通用默认 family                          | 仍然非常稳        |
+| **MingCute**        | 更有设计感的 line/fill 对照                  | 继续 specimen  |
+| **Phosphor**        | 多 weight / fill state                | 局部非常有价值      |
+| Tabler              | coverage fallback / comparison       | 不必成为主 family |
+
+这里最大的新增结论其实是 **Octicons 值得正式进入 EX-IC1**。
+
+原因不是 GitHub 风格本身，而是 Courtwork 当前越来越接近：
+
+> dense work surface + review + agent + repo/tool/activity
+
+Octicons 本来就是在这种环境里打磨的，并且现在甚至已经有 `agent-16/24`、`ai-model-16/24` 等语义。更关键的是，它原生承认 **16px icon 是独立设计问题**，这一点直接命中截图里的毛病。
+
+---
+
+## Phosphor 为什么反而不适合作为这条左栏的直接答案
+
+这次找到了一个非常相关的上游讨论。
+
+Phosphor 自己曾有用户专门报告 **16px Regular 太薄、不够 sharp**。维护者明确解释，他们采用的是比较 flexible 的“one glyph fits multiple sizes”，因此与真正 per-size pixel-cut 的集合相比存在 trade-off；后续 v2 虽然改善了 pixel fitting，但这个基本取舍仍在。[Phosphor #85](https://github.com/phosphor-icons/phosphor-home/issues/85)
+
+这和你当前截图几乎是同一个问题。
+
+所以我仍然喜欢 Phosphor 的：
+
+```text
+regular → inactive
+fill    → active
+duotone → exceptional/product display
+```
+
+但**不会拿 Phosphor Regular 直接统一 Courtwork 的 16px dense sidebar**。
+
+---
+
+# L2 — Courtwork Native Glyphs
+
+这里我赞成你说的：
+
+> 使用 image 模型提供更多 SVG。
+
+但用途应该严格限定。
+
+不是让 image 模型“再造一个 500 枚 icon library”，而是给我们大约 **20–40 枚真正不存在于公共库中的 Courtwork product glyph** 做视觉探索。
+
+例如这些非常值得自有：
+
+```text
+Attention
+Spark
+
+Matter
+Evidence / provenance
+Governed state
+Compiled context
+
+Expert
+Expert presence
+Human review
+Handoff
+
+Trace projection
+Runtime
+Harness
+Context compile
+
+Retained work
+Recorded run
+Work beyond model
+```
+
+`Home / Search / Close / Refresh / Plus / Folder / Settings` 则**绝对不应该让模型重新发明**。
+
+这就能避免“AI 生成 icon slop”。
+
+---
+
+## Image 2.5 最适合作为“icon designer”，不是 canonical asset authority
+
+推荐工作链是：
+
+```text
+semantic definition
+      ↓
+reference glyphs
+Octicons / Lucide / MingCute / Phosphor
+      ↓
+Image 2.5
+generate 6–12 shape hypotheses
+      ↓
+human / Design agent selection
+      ↓
+reconstruct as constrained SVG
+      ↓
+optical normalization
+      ↓
+contact sheet
+16 / 18 / 20 / 24px
+rest / hover / active / disabled
+light / dark
+      ↓
+lint + snapshot
+      ↓
+registry
+```
+
+即使模型能直接输出 SVG，也不要把第一版 path 当 production artifact。
+
+它必须通过同一套几何 contract。
+
+例如如果最后 Courtwork 选择接近 Lucide/Octicons 的线性基因，可以冻结：
+
+```text
+canonical grid     24 × 24
+primary render     16px / 18px / 20px
+stroke             固定语法
+caps / joins       固定
+currentColor       required
+gradients          forbidden for UI glyph
+filters            forbidden
+embedded bitmap    forbidden
+minimum gaps       fixed
+optical keylines   circle / square / portrait / landscape
+```
+
+然后机器生成只负责**形态搜索**。
+
+---
+
+# 还有一个比“图标库”更重要的外部参考
+
+这次 Exa 找到 VS Code 的 Product Icon 架构，我认为值得 Courtwork 真正消费，而不只是参观。
+
+它把：
+
+```text
+semantic icon ID
+        ↓
+default glyph
+        ↓
+product icon theme / override
+```
+
+彻底解耦了。
+
+这刚好适合 Courtwork 后面的：
+
+```text
+native skin
+provider skin
+expert pack
+extension
+runtime
+possibly theme
+```
+
+甚至以后 expert extension 可以注册：
+
+```text
+expert.contract
+expert.case-review
+expert.discovery
+```
+
+而不要求业务 UI 知道它来自哪个 SVG 文件。
+
+**所以 Icon Registry 本身应该是长期稳定面；具体 icon family 反而是可替换实施面。**
+
+这比“全局 import Lucide”更符合你目前对长期 harness 自维护的要求。
+
+---
+
+## 我建议下一轮 EX-IC1 直接升级成这样的 specimen
+
+不是再做一整面 icon gallery，而是只取 **24 个高价值真实槽位**：
+
+```text
+Navigation
+Home · Attention · Spark · New Chat
+
+Objects
+Project · Matter · Document · Artifact
+Agent · Expert · Runtime · Model
+
+Actions
+Add · Close · Refresh · Search
+Send · Expand · More · Settings
+
+States
+Working · Waiting · Completed · Failed
+```
+
+每个槽位横向：
+
+```text
+Current
+Octicons
+Lucide
+MingCute
+Phosphor
+Native candidate（仅真正需要自绘者）
+```
+
+纵向同时测：
+
+```text
+16px
+18px
+20px
+
+normal
+selected
+muted
+```
+
+这里甚至**不先选 winner**。
+
+先看同屏 contact sheet，截图里现在这种“不和谐”会非常容易肉眼裁定。
+
+---
+
+### 对当前 sidebar 的一个临时预测
+
+还没看实际 SVG source，所以不把它说成事实；但从截图我预计最终不会靠统一放大解决。
+
+更可能的收敛是：
+
+```text
+sidebar row icon slot:    固定
+glyph render size:        16px 左右
+optical live area:        提高
+stroke / perceived weight:提高一点
+text–icon gap:            再统一
+```
+
+而 `Spark` 这种动态/产品概念可以稍有例外。
+
+换句话说，**Codex 和谐感来自 icon metrics 是一套系统，不是因为它的 SVG 单纯比较大。**
+
+这轮外部追溯之后，我认为可以正式把此前的 `EX-IC1 Iconography specimen` 提级为：
+
+> **EX-IC2 — Courtwork Product Icon Grammar**
+>
+> semantic registry → canonical family → native product glyphs → optical-size specimens → lint/contact-sheet gate
+
+然后 Image 2.5 只进入 **Native product glyph exploration** 这一支，不污染通用 GUI vocabulary。这样这次修左栏，实际会留下整个 Courtwork 后续稳定场景、语义、状态、交互都能复用的 icon 基建。

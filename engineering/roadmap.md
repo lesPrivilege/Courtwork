@@ -1,5 +1,7 @@
 # Long-life Roadmap · 全场景与交互架构
 
+2026-09-10 全交互范围补充：[Chat space 全量控件与 Product icon grammar](design/chat-controls-2026-09-10/README.md)已落[本地 PR 施工稿](design/chat-controls-2026-09-10/pr-plan.md)。包括全量按钮及 hover/focus/浮层、消息与文件动作，缺后端/宿主逐项登记；按清点→specimen→有合同的最小接线推进，不以界面参考创建能力或修改已接受的 icon family。
+
 状态：长期架构设计，2026-09-08建立，2026-09-10补入多专家全turn与long-life消费路线。当前实现与验收只见 [current](current.md)；模块所有权见 [architecture](architecture.md)，提交与恢复契约见 [core-contracts](core-contracts.md)。本文件定义覆盖方向、依赖和证伪门，不把设计目标计作已实现能力。
 
 “全场景”指不同工作能够以适当厚度接入同一套语义与治理边界。“全交互”指人在不同工作表面提出、检查、修订和裁决时，状态后果保持一致。覆盖地图需要完整，施工按最小消费者递进；不要求先建设全平台，也不以一个法律 demo 代表全部工作。
