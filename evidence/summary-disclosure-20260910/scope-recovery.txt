@@ -1,0 +1,14 @@
+Browser tab: 1, Title: "CourtWork", URL: "http://127.0.0.1:8976/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						153 pop up button (collapsed, settable) Description: Fixture read state, Value: ready, Secondary Actions: Expand
+~								155 (selected) ready
+~								156 loading
+~						179 text Completed
+~						181 text Results 1 recorded file
+~							185 text RUN IDENTITY Session 1ade0d90-2afb-4eae-840d-dd3ce1224d53 Run 8b8ee989-0a38-4e3d-9872-69223836c6c2 Status Completed RECORDED FILES
++							186 content list
++								187 container
++									188 text out/source-note.txt ea423d156d4cc8db455e415d0ed697bb0e01f3184ddbc205d79839c44e841701 139 B
++							189 text Recording a file does not establish review acceptance.
++							190 button Open run in right panel
+The focused UI element is 183 button (expanded) Details, Secondary Actions: Collapse

@@ -1,0 +1,654 @@
+{
+  "schemaVersion": 1,
+  "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+  "pageBuildSha": null,
+  "pageBuildStatus": "No Pages build or deployment in this task",
+  "dataKind": "synthetic; real local HTTP/Pi loopback Run plus explicit read-state projection fixtures",
+  "provider": "local-fake only; no paid provider",
+  "runtimeSchema": 11,
+  "coreSchema": 4,
+  "appSchema": 5,
+  "environment": {
+    "os": "macOS",
+    "browser": "Codex in-app browser / Chromium",
+    "viewport": "per PNG dimensions; verified DOM innerWidth for final breakpoint checks",
+    "scale": "CSS viewport overrides; 720x500 equivalent reflow only, not native 200% zoom"
+  },
+  "operator": "Astra; non-author of summary module, author of production host/layout and synthetic harness",
+  "sourceHashes": [
+    {
+      "path": "app/web/summary-disclosure-projection.mjs",
+      "sha256": "11bb08594646996c64be58a6d92ea68da0c5561d282f3edaae3433e03317b214"
+    },
+    {
+      "path": "app/web/summary-disclosure.mjs",
+      "sha256": "cb01df60b1520b462ddf8208acdb49da8b4126359be2703891a659166516fffa"
+    },
+    {
+      "path": "app/web/summary-disclosure.css",
+      "sha256": "6cd3af3c15ec12428d3aac027462f4dd9a04339f5599988916ea8b28bf10d54b"
+    },
+    {
+      "path": "app/web/app.mjs",
+      "sha256": "77baa2fba335036f431699823f916ab38364ff578d5bc9b773f1f1da7fdde356"
+    },
+    {
+      "path": "app/web/index.html",
+      "sha256": "422125c609f963df29d91626072ef34f2febd2def147fb22e23cbd3ca0c03df5"
+    },
+    {
+      "path": "app/server/index.mjs",
+      "sha256": "5581e7fce23f879a9c766a58c6f2010a1f0b888e967b8c337d98dd2542a10d68"
+    },
+    {
+      "path": "app/web/surface-layout.css",
+      "sha256": "29f3cbaa0de8f143e4d96dab9a17ceb79c5537aa9181af50f3fecf17909bd746"
+    },
+    {
+      "path": "app/web/styles.css",
+      "sha256": "a42a0c7496d87d9e569460f03a119c8b5f749816210cc7c5e78d687edd3f98eb"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/serve.mjs",
+      "sha256": "0a1020a7f053db957c10377c83ae944f19d3804723dafdcb188804f171b164fa"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/fixture.mjs",
+      "sha256": "0ee6c46eda2a23897e149311d3b7ebf58e673465a736bb55d16b22f220bc1dcf"
+    },
+    {
+      "path": "evidence/summary-disclosure-20260910/fixture.css",
+      "sha256": "d4aed99010686dc01e7feafa6a892f0e852d450846b18c19810a70a9d5043613"
+    }
+  ],
+  "captures": [
+    {
+      "file": "adjacent-file-tab.png",
+      "sha256": "d1ff156e340e3f10b555e0cd7b5aa2516c6104404230cbce15e7bacf025de58c",
+      "bytes": 42326,
+      "caption": "adjacent file tab",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "adjacent-home.png",
+      "sha256": "087af79fa6d65ec4035cae950fd7a62a837b73e56ca8557277e54dca2bd4e50a",
+      "bytes": 69558,
+      "caption": "adjacent home",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "adjacent-settings.png",
+      "sha256": "1ba3b8ce2ea88d2c14089962157635d690ef28b9fad26607656b4d41406067b6",
+      "bytes": 60937,
+      "caption": "adjacent settings",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "audit-01-before-focus.png",
+      "sha256": "1b84edfc699dd91968debd710d616bb86dddcc7d6b15b0d5cbad60b83c7ffcb4",
+      "bytes": 58637,
+      "caption": "Before: square disclosure focus",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    {
+      "file": "audit-02-home.png",
+      "sha256": "3afa867bb100b49f77b43de9ee74ebf336c01821a12d78f6296c95f05368095b",
+      "bytes": 61593,
+      "caption": "Adjacent Home solid material",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    {
+      "file": "audit-03-rounded-focus.png",
+      "sha256": "bc554b7b8fb82db3c0de5ab47397fb634b5f5f34ca3d594ff5acdcccef7dfc3a",
+      "bytes": 56115,
+      "caption": "Rounded shared focus after CSS correction",
+      "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    {
+      "file": "audit-04-return-focus.png",
+      "sha256": "0dc15954a116f760f81386f1fa33631b34371c164157a3c812e075b0d6d838e0",
+      "bytes": 62356,
+      "caption": "Same-file Preview Escape returns focus",
+      "productSha": "1c4138b800e5cb2a78968f83793346aa2f2a9be5",
+      "classification": "material/focus audit; author CUA, not independent acceptance"
+    },
+    {
+      "file": "balanced-files-1440-light.png",
+      "sha256": "6ddbd071ccb79a6b016747dc627ca91bd2adf80c2d05ecb0e0326ca48207ba7b",
+      "bytes": 59090,
+      "caption": "balanced files 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "balanced-information-1440-light.png",
+      "sha256": "3f17da5509dd5a85d74b4ef9038d74fdb8fc4fe75ecdc63a9a9abff50f9b363f",
+      "bytes": 59164,
+      "caption": "balanced information 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "balanced-long-files-390-light.png",
+      "sha256": "c07d90c012b3951b2e16f9f130b12ba97ecc5f104b080f269bd9c21a654fe0eb",
+      "bytes": 30120,
+      "caption": "balanced long files 390 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "balanced-long-preview-390-light.png",
+      "sha256": "425046545bcf6dadbbf6c14fc0d1e7a3be1015ebc4f316cea0e2dce249439987",
+      "bytes": 35369,
+      "caption": "balanced long preview 390 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "balanced-summary-1440-light.png",
+      "sha256": "c99d549129432b7f5a5eef88824c67633dd3f169c136adf7dd9da000f9171651",
+      "bytes": 57214,
+      "caption": "balanced summary 1440 light",
+      "productSha": "a432f09d546bbd6ded3ea840e096321ba3e19d3b",
+      "classification": "prior balance candidate; later chrome and ellipsis revisions",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "before-1440.png",
+      "sha256": "9f4c65c9ade2bf674051c42709de025dc76957844b7c283e43ca3d93d167e23d",
+      "bytes": 48393,
+      "caption": "before 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "counterexample-id-overflow.png",
+      "sha256": "1b67b32e9217bccacd7218e4497926a8485378d20a3277d1e24a6339d0cc39d2",
+      "bytes": 71556,
+      "caption": "counterexample id overflow",
+      "productSha": null,
+      "classification": "diagnostic before first product freeze; source hashes in counterexample-source-hashes.json"
+    },
+    {
+      "file": "delivered-files-1440-light.png",
+      "sha256": "8e293319df4bc8d94198b26a19d2de30a64a04ece9f62c1fc4c954d158ff5538",
+      "bytes": 59539,
+      "caption": "delivered files 1440 light",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "final product; CUA",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "delivered-summary-1440-light.png",
+      "sha256": "ecea199a56b7f68340e2cb6d159aa94dcd7b5152e9f164c55df1463cb7915a5e",
+      "bytes": 61713,
+      "caption": "delivered summary 1440 light",
+      "productSha": "1ab7f442061bef261d11eff729a93e9741bf5cbc",
+      "classification": "final product; CUA",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "disclosure-1280-dark.png",
+      "sha256": "9da33525ab1b7a3a742508909e00fa345026f41755f6c2e69091a7c51ac66c63",
+      "bytes": 73771,
+      "caption": "disclosure 1280 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "disclosure-1280-light.png",
+      "sha256": "76fab5c14e8442062b50783b09707dbc33356660c2ff6e743928bb884a0aac0e",
+      "bytes": 72873,
+      "caption": "disclosure 1280 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "disclosure-1440-dark.png",
+      "sha256": "15304983dcab4151e8839b89f782fb063718ca72662d892745739e564331a7bd",
+      "bytes": 76093,
+      "caption": "disclosure 1440 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "disclosure-1440-light.png",
+      "sha256": "f835dd680705da5008ec4b17a460d2afd7df78a2571d8494bd19c5d321ad0012",
+      "bytes": 72586,
+      "caption": "disclosure 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "disclosure-390-dark.png",
+      "sha256": "8e5fe1103edeeefa74d05b5e5ba1b1e68cb5a1b1149a2301eebda45577aa8cae",
+      "bytes": 36002,
+      "caption": "disclosure 390 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "disclosure-390-light.png",
+      "sha256": "ba66cfa4ee8dfee45cee38ec6ec96786a5b96d31c6b93d6487e11c9b2e7ce92a",
+      "bytes": 36747,
+      "caption": "disclosure 390 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "error-1440-light.png",
+      "sha256": "1bdae33437e79cd3c465d9ad6e4038483b6386ae738b2c27921891c9168b1976",
+      "bytes": 67310,
+      "caption": "error 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "final-directory-390-dark.png",
+      "sha256": "e1a95eeb3d86b5063243a0c365b636eb8c8a61c8cb9ff87278509b93a1b94841",
+      "bytes": 19517,
+      "caption": "final directory 390 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-expanded-1680-light.png",
+      "sha256": "0958c47ad2f2b1b09fc4a2a84656aa6c8718e1db14e4c5d7271fcb09e72425f8",
+      "bytes": 38321,
+      "caption": "final expanded 1680 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-files-1280-dark.png",
+      "sha256": "113a80c229dbc56db16c73306d50bf0fb5fd46e165973f0470271732d64719ee",
+      "bytes": 22301,
+      "caption": "final files 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-files-1440-light.png",
+      "sha256": "7e53dfb725ec667c0f44292ef33d04b0c043e90cf0f06dee05d9654dda945f38",
+      "bytes": 61550,
+      "caption": "final files 1440 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-home-1280-dark.png",
+      "sha256": "0872e03b23e05cc587cdf53d297f850f9ae29c92ac5cb4a27ef4386445b52c49",
+      "bytes": 69971,
+      "caption": "final home 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-other-session-1280-dark.png",
+      "sha256": "aa8866fd0f600a2f8f85921ae96cf8c43511e59c2f2365c66c2a99ed59f9fe5b",
+      "bytes": 41454,
+      "caption": "final other session 1280 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-preview-1680-light.png",
+      "sha256": "a1958476816e919befba2ade5dbffa289a47cfd98e443329dc9f0991d09dd1b3",
+      "bytes": 65359,
+      "caption": "final preview 1680 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-preview-390-dark.png",
+      "sha256": "161ea9e78ecb2a30105aee7338884b4630874559d80cb4d58716f87befa99ca6",
+      "bytes": 19179,
+      "caption": "final preview 390 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-reflow-720x500-dark.png",
+      "sha256": "3a2f179a07dcac72f17667fc02ab6359a282fdb9bbdeb87864beddd5e5b01727",
+      "bytes": 20005,
+      "caption": "final reflow 720x500 dark",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-strip-1024-light.png",
+      "sha256": "946b0974932f13741168f33e0c59dc568e46e5525b40309d50b540077718f953",
+      "bytes": 44933,
+      "caption": "final strip 1024 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "final-summary-1440-light.png",
+      "sha256": "931b5fae48237b605c594c4b06701999b2a04eabde70606eef0719f4d3414d46",
+      "bytes": 59544,
+      "caption": "final summary 1440 light",
+      "productSha": "32260043bb5821436816869e83261f30966adbec",
+      "classification": "final hierarchy; predecessor differing only Home resume condition",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "interrupted-read-1440.png",
+      "sha256": "031d27e3711149d8a17ec0efcdfc27b1c03b14fabce6c987bccdbcb018dd6da2",
+      "bytes": 60219,
+      "caption": "interrupted read 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "long-390-dark.png",
+      "sha256": "576c4db076f46f6f51df43e4533d5793471fb87e0cf4b13b6855c4eecc650b66",
+      "bytes": 43417,
+      "caption": "long 390 dark",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "product-directory-390-dark.png",
+      "sha256": "e21f8571b9da66219f02d040a1717d3deb431218dce4924698ad4a5c2c3d63ea",
+      "bytes": 23029,
+      "caption": "product directory 390 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-directory-390-light.png",
+      "sha256": "44d0a40c7f4d0382d5daa228467cd1bd2331edbfe3189194fb3581a41260403b",
+      "bytes": 4290,
+      "caption": "product directory 390 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-files-1280-dark.png",
+      "sha256": "acc83788bb24a5f5fd3240f5463453443a838914daa247973ae2bb1d415e6667",
+      "bytes": 62346,
+      "caption": "product files 1280 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-files-1280-light.png",
+      "sha256": "91645b43e4aba5ec8c0dce80a130395e4bd40b18cd6b72ff52ac4d2e80bd5ed4",
+      "bytes": 59408,
+      "caption": "product files 1280 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-files-1440-dark.png",
+      "sha256": "61487a317a4635122d511318a090188a624d9e113020005950e0a06990347190",
+      "bytes": 61734,
+      "caption": "product files 1440 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-files-1440-light.png",
+      "sha256": "47a27d4923f43ebac0e88545ed00da295ab6dff71861f6ab2d7d1e302cfd7b03",
+      "bytes": 65643,
+      "caption": "product files 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-preview-1440-light.png",
+      "sha256": "3b8149cc923aad113675cc360eaee2ec868ce78db47ff4086a24a6f3ef030685",
+      "bytes": 36132,
+      "caption": "product preview 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-preview-390-dark.png",
+      "sha256": "e4b329c9a53ad7561452ee95fd468006cbea966ba7836a6bf3aefb649caa4f15",
+      "bytes": 19189,
+      "caption": "product preview 390 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-settings-1280-light.png",
+      "sha256": "a7255bdaeb681e196a184a421d200f29149191dcf49f64d0bf058ae619eca5fd",
+      "bytes": 56068,
+      "caption": "product settings 1280 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-summary-1440-light.png",
+      "sha256": "c7c196e8c68ee5a0a59bbf7c2cbe5515bf25dbe0358f992611c9dc77655ebcef",
+      "bytes": 63657,
+      "caption": "product summary 1440 light",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "product-three-pane-1680-dark.png",
+      "sha256": "022f6ea26dccb3902512f57155e37c81c12f7a6d6e12fd97fec96968eb5f1eda",
+      "bytes": 65747,
+      "caption": "product three pane 1680 dark",
+      "productSha": null,
+      "classification": "intermediate production candidate (0ec8184 to 0feefc3); not final acceptance",
+      "viewport": {
+        "width": 65536,
+        "height": 4292542531
+      }
+    },
+    {
+      "file": "reflow-720x500.png",
+      "sha256": "383df5d5e82497a9d07b12d61cc4c0a3c4f3fe9389f60eaddd6e92d62211d109",
+      "bytes": 23406,
+      "caption": "reflow 720x500",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "retry-recovered-1440.png",
+      "sha256": "d375d45cd84b6efca78a42da65eb6a8549a73edca0595e21425bcd2d5e2a1b22",
+      "bytes": 75114,
+      "caption": "retry recovered 1440",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "run-sheet-390.png",
+      "sha256": "68815fd52511a217e4f3265bc7f62f4988c608b53b60e59a15c05646fe0768d2",
+      "bytes": 26964,
+      "caption": "run sheet 390",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "run-tab-1440-light.png",
+      "sha256": "d7426387b7ea089523ad97286bd37165e1cfd376124d9d291d18427a31a80c9b",
+      "bytes": 61268,
+      "caption": "run tab 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    },
+    {
+      "file": "summary-1440-light.png",
+      "sha256": "f11eb4e08297a2e2b42ab4ed906ab8a1e2fbe5c39948029ee9d4e75977b58854",
+      "bytes": 56083,
+      "caption": "summary 1440 light",
+      "productSha": "21113758a73d5c8311eee570864856c6ab4f7947",
+      "classification": "prior candidate; superseded by user visual revision"
+    }
+  ],
+  "steps": [
+    {
+      "step": "Home → synthetic Session: directory visible, Files and Run information default closed",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Enter/Space disclosure; Tab/Enter file action; file close and Escape return to run-summary-file:0",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Run information → Run tab → Escape: same Run and both disclosure states retained",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "1024 strip Run action opens same Run; 1024→1440 maps focus strip:run to run-summary-files",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "1680 Preview → Expand preview → Restore preview: same active document and content; chrome y=0 height55 in both layouts",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "390 sheet: toolbar Hide right edge374 within390; file tab list may scroll internally",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Other synthetic Session: no stale Run summary or Run tab; Home and Settings remain separate pages",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "720x500 keyboard open/Escape: no document horizontal overflow; rail scrolls within500px sheet",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    },
+    {
+      "step": "Final 1ab7f44: Home→same Session after settled navigation restores visible directory",
+      "expected": "pass within stated scope",
+      "actual": "passed via CUA"
+    }
+  ],
+  "limitations": [
+    "Synthetic data and local-fake HTTP/Pi loopback; no paid provider, deployment, native-host or personal-data verification.",
+    "Production UI is served unchanged; historical fixture.mjs/css and 2111375 images are retained only as prior candidate evidence.",
+    "Independent review is static/tests only because reviewer browser surfaces were unavailable. Astra authored host/layout and operated CUA; no independent visual acceptance is claimed.",
+    "Full suite at0ec8184:656/657, one unchanged Core ready-timeout failure; separate Core lifecycle13/13 passed. Later UI changes have38/38 targeted tests, not a new full-suite run.",
+    "720x500 is equivalent reflow, not actual browser200% zoom.",
+    "Balanced long-file captures predate final ellipsis; final fulltitle/aria and wrapping are covered by14 module tests.",
+    "Final CSS-only material/focus delta checked at1195x772 light; earlier breakpoint/theme matrix remains tied to its recorded versions."
+  ]
+}

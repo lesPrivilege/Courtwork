@@ -1,0 +1,185 @@
+/* R2-SD01 · Run card anatomy.  The card reuses rail-card, rail-row,
+ * rail-note, rail-file, and the existing semantic role tokens. */
+.sd-run-summary {
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.sd-run-summary-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sd-run-summary-disclosure {
+  border-top: 1px solid var(--line);
+  min-width: 0;
+  padding-top: var(--space-1);
+}
+
+.sd-run-summary-trigger {
+  border-radius: var(--radius-small);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: var(--text-label);
+  font-weight: 500;
+  min-height: var(--control);
+  overflow-wrap: anywhere;
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Native disclosure keeps the shared focus role/offset. Its own rounded hit
+ * area supplies the geometry, as with Home's actionable rows (WK-128). */
+.sd-run-summary-trigger:hover {
+  background: var(--hover);
+}
+
+.sd-run-summary-trigger:active {
+  background: var(--pressed);
+}
+
+.sd-run-summary .rail-row {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  align-items: baseline;
+}
+
+.sd-run-summary .rail-row-label,
+.sd-run-summary .rail-row-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.sd-run-summary .rail-row-value {
+  text-align: right;
+}
+
+.sd-run-summary-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-top: var(--space-1);
+}
+
+.sd-run-summary-files {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.sd-run-summary-file {
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.sd-run-summary-file:first-child {
+  border-top: 0;
+}
+
+.sd-run-summary-file-preview,
+.sd-run-summary-file-static {
+  align-items: center;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.sd-run-summary-file-preview {
+  border: 0;
+  border-radius: var(--radius-small);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 0;
+  padding: var(--space-2);
+  text-align: left;
+}
+
+.sd-run-summary-file-preview:hover {
+  background: var(--hover);
+}
+
+.sd-run-summary-file-preview:active {
+  background: var(--pressed);
+}
+
+.sd-run-summary-file-static {
+  padding: var(--space-2) 0;
+}
+
+.sd-run-summary-file-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sd-run-summary-file-name,
+.sd-run-summary-file-parent {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-run-summary-file-name {
+  font-size: var(--text-label);
+  font-weight: 500;
+}
+
+.sd-run-summary-file-parent,
+.sd-run-summary-file-bytes {
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
+}
+
+.sd-run-summary-file-bytes {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sd-run-summary-file-preview-label {
+  color: var(--muted-strong);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sd-run-summary-file-preview .ui-icon,
+.sd-run-summary-file-static .ui-icon {
+  color: var(--muted-strong);
+  flex: none;
+}
+
+.sd-run-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+@media (max-width: 360px) {
+  .sd-run-summary {
+    padding-inline: 12px;
+  }
+
+  .sd-run-summary-file-preview,
+  .sd-run-summary-file-static {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .sd-run-summary-file-preview-label {
+    grid-column: 2 / -1;
+    justify-self: end;
+  }
+}

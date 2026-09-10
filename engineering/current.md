@@ -16,6 +16,10 @@ Google Workspace CLI补充材料（2026-09-11）：[参考包](research/google-w
 
 用户确认通用 Agent Harness / Semantic Work Core 解耦，授权 Pro 主导选型裁决、必要自研设计与施工拆单；基本 GUI 与通用 harness 完备在先，Work Core 深化、第二 runtime 与 Rust 实施后置。[送审工单](execution/2026-09-10-harness-pro-review.md)和[原始输出/逐项处置规范](research/harness-pro-2026-09-10/README.md)已建立，覆盖既有决策重开、源码证据、接口/反例/迁移与回退。用户授权审查合并后推送选定送审分支，网页端由用户唤醒；实际远端结果见交接回执，不宣称 Pro 已接单或输出已消费。本次仅文档，产品接受与既有门不变。
 
+## R2-SD01 · 摘要与阅读层级候选（2026-09-10）
+
+隔离分支`codex/summary-disclosure-r2`产品`1c4138b`已将Run摘要→Files披露→同对象Preview接入原生产host，并统一有界目录、顶部tab、文档关闭/工作面隐藏、宽屏展开/还原与返回焦点。用户明确要求各级稳定，覆盖首轮fixture-only边界。最终38项针对通过；初次全量656/657的未改动Core启动超时经隔离13/13复验，原日志保留。Astra完成有界CUA；Luna仅静态/测试复核，无独立视觉接受。[交付、版本与限制](../evidence/summary-disclosure-20260910/README.md)。末次补披露圆角、内距与已有rim；保持实色材质合同，14项增量通过。本地候选未合流/推送/部署，Runtime11/Core4/app5不变，不覆盖在途PV/SD集成的状态或schema，也不关闭G1–G5。
+
 ## 范围登记：Chat 全量按钮、hover 与 Icon grammar（2026-09-10）
 
 按用户补充接收两份研究原文和文件交付参考图，[EX-IC2 / Chat controls](design/chat-controls-2026-09-10/README.md)已进入本地 PR 施工稿、前端与长期 roadmap。覆盖全量 Chat space 按钮/hover/focus、浮层、消息与文件卡；无真实后端仅登记缺口。现有 IC-8 不换族保持；未完成全量逐控件盘点、未实现 Registry/新 glyph、未创建远端 PR。外部研究主张仍是转交输入，不称本轮已核验。产品仍为下段 PV/SD 已接受版本，本次仅文档登记。

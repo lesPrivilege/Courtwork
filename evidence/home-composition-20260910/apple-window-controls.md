@@ -51,7 +51,7 @@ The host provides `window.__CW_NATIVE_CHROME__` at document start so the first l
 
 Chromium app-region CSS marks the header as draggable and product controls as no-drag. AppKit/WKWebView still needs native dragging and hit-testing; CSS alone does not implement those behaviors.
 
-The shared product band remains at least 56px; a larger measured toolbar height may raise it with `max(56px, hostToolbarHeight)`. A host measurement must not shrink the product baseline or the 32/44px control hit-area rules. The host may use AppKit's `contentLayoutRect`/`contentLayoutGuide` and the embedded WebView's view coordinates to produce the CSS-pixel packet; the web code does not infer the value from `NSScreen.safeAreaInsets`.
+The shared product band remains at least 48px (revised by WO-CS-01 on 2026-09-10; this record originally said 56px); a larger measured toolbar height may raise it with `max(48px, hostToolbarHeight)`. No real native host has been measured against this rule, and compatibility is not inferred from a WebKit or Safari version. A host measurement must not shrink the product baseline or the 32/44px control hit-area rules. The host may use AppKit's `contentLayoutRect`/`contentLayoutGuide` and the embedded WebView's view coordinates to produce the CSS-pixel packet; the web code does not infer the value from `NSScreen.safeAreaInsets`.
 
 ## Verification boundary
 

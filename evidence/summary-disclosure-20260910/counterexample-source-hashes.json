@@ -1,0 +1,18 @@
+{
+  "baseline": "67ed0fd748017f3d71d426de51d9f1f63860ea54",
+  "state": "in-flight author candidate before fixed product commit; screenshot is diagnostic, not acceptance",
+  "files": [
+    {
+      "path": "app/web/summary-disclosure.mjs",
+      "sha256": "833cba20dc55cbab3511bfc39eed692362ac9d930447b1584b17a22603646275"
+    },
+    {
+      "path": "app/web/summary-disclosure.css",
+      "sha256": "442a2f42e2230287d664513eb197ec83cef842513743b2f4690fa0a9416d3b99"
+    },
+    {
+      "path": "app/web/summary-disclosure-projection.mjs",
+      "sha256": "11bb08594646996c64be58a6d92ea68da0c5561d282f3edaae3433e03317b214"
+    }
+  ]
+}

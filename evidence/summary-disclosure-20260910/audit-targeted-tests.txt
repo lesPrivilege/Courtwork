@@ -1,0 +1,22 @@
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.944ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.110458ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.193125ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.213125ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.141084ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.056041ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.061792ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.335209ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.5ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.706708ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.886292ms)
+✔ Run card only offers Retry for an error and exposes callback failures (2.481125ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.80775ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.229875ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.639833
