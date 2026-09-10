@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 const root = new URL("..", import.meta.url).pathname;
 const base = readFileSync(`${root}app/web/styles.css`, "utf8");
-const skins = { "lead-gray": base, "gray-steel": base + "\n" + readFileSync(`${root}app/web/skins/gray-steel.css`, "utf8") };
+const skins = { "lead-gray": base, "gray-steel": base, "dystopia": base };
 function blocks(css, selector) {
   const out = {};
   const re = new RegExp(selector.replace(/[[\]().:*+?]/g, "\\$&") + "\\s*\\{([^}]*)\\}", "g");
@@ -22,6 +22,7 @@ const pairs = [
   ["focus", "panel", 3], ["focus", "float", 3], ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],
   ["danger", "danger-soft", 4.5],
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
+  ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
 ];
 let fail = 0;
 console.log("# WK7 对比度表（WCAG 2.x 相对亮度）\n\n生成：`node tools/contrast-report.mjs`。门槛：文字 4.5:1，非文字 3:1。边线（line / line-strong）不作为控件的唯一指示（输入有焦点环），不设门槛，见 color-governance §2。\n");
@@ -29,9 +30,13 @@ for (const [skin, css] of Object.entries(skins)) {
   const R = blocks(css, ":root");
   for (const scheme of ["light", "dark"]) {
     let S = scheme === "light" ? R : { ...R, ...blocks(css, ':root[data-theme="dark"]') };
+    if (skin !== "lead-gray") {
+      S = { ...S, ...blocks(css, `:root[data-skin="${skin}"]`) };
+      if (scheme === "dark") S = { ...S, ...blocks(css, `:root[data-skin="${skin}"][data-theme="dark"]`) };
+    }
     if (scheme === "dark") S = { ...S, ...blocks(css, 'html[data-theme="dark"]') };
     if (skin === "lead-gray") {
-      S = { ...S, ...blocks(css, 'html:not([data-skin="custom"]):not([data-skin="gray-steel"])') };
+      S = { ...S, ...blocks(css, 'html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dystopia"])') };
     }
     console.log(`## ${skin} · ${scheme}\n\n| 角色 | 底面 | 比值 | 门槛 | 结果 |\n|---|---|---:|---:|---|`);
     for (const [fg, bg, min] of [...pairs, ...(skin === "lead-gray" ? [["muted-strong", "panel-muted", 4.5]] : [])]) {

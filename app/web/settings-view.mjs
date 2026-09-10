@@ -1380,7 +1380,7 @@ export function isSettingsSection(id) {
 
 // One synchronous policy also runs before the first paint in index.html.
 export const { SKIN_COLOR_TOKENS, validateSkinTokens, validateLegacySkinTokens,
-  projectSkin, SKIN_POLICY_VERSION, SKIN_LIMIT } = globalThis.__cwSkinPolicy;
+  projectSkin, SKIN_POLICY_VERSION, SKIN_LIMIT, SKIN_PRESETS, SKIN_CHOICES, resolveSkinPreference } = globalThis.__cwSkinPolicy;
 export const SKIN_NUMERIC_TOKENS = globalThis.__cwSkinPolicy.LEGACY_SKIN_NUMERIC_TOKENS;
 
 /* WK-87 (b) · 用户 skin 接受前的对比度警告。对照对与门槛逐条取自
@@ -1400,6 +1400,7 @@ export const CONTRAST_PAIRS = [
   ["ink", "hover", 4.5], ["ink", "selected", 4.5], ["ink", "accent-soft", 4.5],
   ["danger", "danger-soft", 4.5],
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
+  ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
 ];
 function hexChannels(value) {
   const text = String(value || "").trim();
@@ -1467,7 +1468,7 @@ export const PREFERENCE_DEFAULTS = {
 };
 const PREFERENCE_VALUES = {
   scheme: ["system", "light", "dark"],
-  skin: ["slate", "gray-steel", "custom"],
+  skin: SKIN_CHOICES,
   textSize: ["small", "medium", "large"],
   motion: ["system", "reduce"],
   homeLayout: ["simple", "modules"],
@@ -1902,7 +1903,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   const skinCompatibility = el("div", { className: "settings-row-help" });
   const storageStatus = el("p", { className: "settings-row-help", attrs: { role: "status" } });
   const skinDraftState = el("p", { className: "settings-row-help", attrs: { role: "status" } });
-  const effectivePrefs = () => ({ ...prefs, skin: prefs.skin === "custom" && !projectSkin(prefs.customSkin).ok ? "slate" : prefs.skin });
+  const effectivePrefs = () => ({ ...prefs, skin: resolveSkinPreference(prefs).effective });
   skinInput.addEventListener("input", () => {
     skinDraftState.textContent = skinInput.value === prefs.customSkin ? "" : "Draft changes are not applied.";
     skinErrors.replaceChildren();
@@ -2071,8 +2072,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
        `data-skin` 属性不变：那是实现，不是用户词。 */
     const skin = el("select", { attrs: { "aria-label": "Palette" } });
     for (const [value, text] of [
-      ["slate", "Slate"],
-      ["gray-steel", "Gray steel"],
+      ...SKIN_PRESETS.map(({ id, label }) => [id, label]),
       ["custom", "Custom tokens"],
     ])
       skin.append(el("option", { attrs: { value }, text }));

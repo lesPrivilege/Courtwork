@@ -212,6 +212,79 @@
     --rim-alpha: 0.12;
   }
 }
+/* ==== tier:S · Dystopia · authored cold ash / graphite appearance only ====
+   SK-3: fixed semantic/material roles stay scheme-owned; default Slate stays. */
+:root[data-skin="dystopia"] {
+  --gray-1: #f8fafb;
+  --gray-2: #e4e9ec;
+  --gray-3: #dde4e8;
+  --gray-4: #d3dde2;
+  --gray-5: #c9d5dc;
+  --gray-6: #bdc8cf;
+  --gray-7: #aab8c1;
+  --gray-8: #7e8d96;
+  --gray-9: #6f7e88;
+  --gray-10: #64737d;
+  --gray-11: #54616a;
+  --gray-12: #242d33;
+  --accent-3: #e4e9ec;
+  --accent-9: #242d33;
+  --accent-10: #172025;
+  --accent-11: #242d33;
+  --paper: #edf1f3;
+  --float-s: #f9fbfc;
+  --frame-s: #dbe2e6;
+  --ink-max: #172025;
+  --on-accent-s: #f9fbfc;
+}
+:root[data-skin="dystopia"][data-theme="dark"] {
+  --gray-1: #11171b;
+  --gray-2: #171f24;
+  --gray-3: #2b373f;
+  --gray-4: #34434c;
+  --gray-5: #3c4c56;
+  --gray-6: #465762;
+  --gray-7: #566a76;
+  --gray-8: #738994;
+  --gray-9: #82939d;
+  --gray-10: #95a5af;
+  --gray-11: #b2c1ca;
+  --gray-12: #e4ebef;
+  --accent-3: #2b373f;
+  --accent-9: #e4ebef;
+  --accent-10: #f5f8fa;
+  --accent-11: #e4ebef;
+  --paper: #202b32;
+  --float-s: #2a363e;
+  --frame-s: #151c21;
+  --ink-max: #f5f8fa;
+  --on-accent-s: #151c21;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="dystopia"]:not([data-theme="light"]) {
+    --gray-1: #11171b;
+    --gray-2: #171f24;
+    --gray-3: #2b373f;
+    --gray-4: #34434c;
+    --gray-5: #3c4c56;
+    --gray-6: #465762;
+    --gray-7: #566a76;
+    --gray-8: #738994;
+    --gray-9: #82939d;
+    --gray-10: #95a5af;
+    --gray-11: #b2c1ca;
+    --gray-12: #e4ebef;
+    --accent-3: #2b373f;
+    --accent-9: #e4ebef;
+    --accent-10: #f5f8fa;
+    --accent-11: #e4ebef;
+    --paper: #202b32;
+    --float-s: #2a363e;
+    --frame-s: #151c21;
+    --ink-max: #f5f8fa;
+    --on-accent-s: #151c21;
+  }
+}
 /* ==== tier:R · role（名称与层级比稳定：1–2 纸 · 3–5 交互 · 6–8 线 · 9–10 实心 · 11–12 文） ==== */
 /* Re-resolve candidate scales locally; inherited roles are already computed. */
 .skin-contrast-probe, :root {
@@ -5319,7 +5392,7 @@ html[data-theme="dark"] {
 :root { --attention-review: var(--home-attention-review-foreground); }
 /* tier:R · components consume semantic roles. Review hue is never assigned
    to runs, activity intensity, links, send, hover, selection, focus or errors. */
-html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
+html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dystopia"]) {
   --frame: var(--home-neutral-frame);
   --panel: var(--home-neutral-paper);
   --float: var(--home-neutral-raised);

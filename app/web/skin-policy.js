@@ -118,6 +118,19 @@ function parseSkinTokens(input, legacy = false) {
 
   // Versioned appearance projection. Legacy values are readable, never authority.
   const SKIN_POLICY_VERSION = 1;
+  const SKIN_PRESETS = Object.freeze([
+    Object.freeze({ id: "slate", label: "Slate" }),
+    Object.freeze({ id: "gray-steel", label: "Gray steel" }),
+    Object.freeze({ id: "dystopia", label: "Dystopia" }),
+  ]);
+  const SKIN_CHOICES = Object.freeze([...SKIN_PRESETS.map(preset => preset.id), "custom"]);
+  function resolveSkinPreference(prefs = {}) {
+    prefs = prefs && typeof prefs === "object" ? prefs : {};
+    const requested = SKIN_CHOICES.includes(prefs.skin) ? prefs.skin : "slate";
+    const custom = projectSkin(prefs.customSkin);
+    return { requested, effective: requested === "custom" && !custom.ok ? "slate" : requested, custom };
+  }
+
   const SKIN_COLOR_TOKENS = Object.freeze(LEGACY_SKIN_COLOR_TOKENS.filter(name =>
     !name.startsWith("--danger-") && !name.startsWith("--success-")));
   function validateSkinTokens(input) { return parseSkinTokens(input); }
@@ -137,7 +150,7 @@ function parseSkinTokens(input, legacy = false) {
     const css = Object.entries(values).map(([name,value]) => `${name}: ${value};`).join(" ");
     return { ...parsed, values, css, ignored, version: SKIN_POLICY_VERSION, sourceFormat };
   }
-  globalThis.__cwSkinPolicy = Object.freeze({ SKIN_POLICY_VERSION, SKIN_COLOR_TOKENS,
+  globalThis.__cwSkinPolicy = Object.freeze({ SKIN_POLICY_VERSION, SKIN_PRESETS, SKIN_CHOICES, resolveSkinPreference, SKIN_COLOR_TOKENS,
     LEGACY_SKIN_COLOR_TOKENS: Object.freeze(LEGACY_SKIN_COLOR_TOKENS),
     LEGACY_SKIN_NUMERIC_TOKENS: Object.freeze(LEGACY_SKIN_NUMERIC_TOKENS),
     SKIN_LIMIT, validateSkinTokens, validateLegacySkinTokens, projectSkin });

@@ -26,9 +26,9 @@
           if (p.scheme === "light" || p.scheme === "dark")
             root.setAttribute("data-theme", p.scheme);
           else root.removeAttribute("data-theme");
-          var custom = window.__cwSkinPolicy && window.__cwSkinPolicy.projectSkin(p.customSkin);
-          if (p.skin === "gray-steel") root.setAttribute("data-skin", p.skin);
-          else if (p.skin === "custom" && custom && custom.ok) root.setAttribute("data-skin", "custom");
+          var selection = window.__cwSkinPolicy && window.__cwSkinPolicy.resolveSkinPreference(p);
+          var custom = selection && selection.custom;
+          if (selection && selection.effective !== "slate") root.setAttribute("data-skin", selection.effective);
           else root.removeAttribute("data-skin");
           if (p.textSize === "small" || p.textSize === "large")
             root.setAttribute("data-text-size", p.textSize);
