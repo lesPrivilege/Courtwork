@@ -19,7 +19,7 @@ import {
 } from "../web/spark-projection.mjs";
 
 const root = new URL("../", import.meta.url).pathname;
-const fixture = (name) => JSON.parse(readFileSync(`${root}tests/fixtures/spark-derivations/${name}.json`, "utf8"));
+const fixture = (name) => JSON.parse(readFileSync(`${root}web/samples/spark-derivations/${name}.json`, "utf8"));
 
 /* ---- The five frozen fixtures all validate, with the shapes the fixture
  * table (be41-dto.md) promises. ---- */
