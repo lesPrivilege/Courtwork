@@ -1,5 +1,7 @@
 # Agent Interface / UI Continuity · 前端规范入口
 
+研究补充（2026-09-10）：[视觉编译器概念](../../research/visual-compilation-2026-09-10/README.md)已全量登记可访问对话与截图，Kami/diagram-design/lan-xiaohei/Appica作为同一Visual Compilation候选索引。仅方法输入与逐项处置，不改变本页规范、安装skill或引入新Design Harness；外部主张仍按包内核验限制消费。
+
 2026-09-10用户授权建立前端规范并派Luna核对。[UI Continuity v1](frontend-contract.md)是施工规范，[precedent-map](precedent-map.md)按问题导航，[precedents](precedents.md)给出本次固定基线的具体实现符号，[change-template](change-template.md)收交付字段，[continuity-checklist](continuity-checklist.md)提供扩展检查与dry run；各文件只承担这一职责，不形成第二套grammar。
 
 本入口整合Astra `b2f6b3c` 与并行文档 `12eb220`，保留同一个owner/事实/设计先例模型。Review稳定且独立于skin，以[用户最新裁决](../skin-injection-2026-09-10/skin-constitution.md)为准。完整[3轮输入](input-conversation.md)与[限定一手核验](sources-review.md)可回溯。

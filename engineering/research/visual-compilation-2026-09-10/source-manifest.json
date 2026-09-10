@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "6aa2b3ac-963c-83ec-934f-894054705403",
+  "title": "视觉编译器概念",
+  "baseline": "d22eb66ef1b335b95202c8c0a34c425acb59a2f9",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "turnCount": 2,
+  "messageCount": 4,
+  "turns": [
+    {
+      "id": "b1136c38-1cce-480d-81b4-bd2b5d8cc878",
+      "status": "completed",
+      "messageIds": [
+        "b1136c38-1cce-480d-81b4-bd2b5d8cc878",
+        "8783689a-13ad-4bdc-9037-07805e43f618"
+      ]
+    },
+    {
+      "id": "e7b2d4dd-0973-4c4b-8583-f1cf324527f3",
+      "status": "completed",
+      "messageIds": [
+        "e7b2d4dd-0973-4c4b-8583-f1cf324527f3",
+        "01a6381a-30d1-43fe-8141-c47c8b503e8d"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "inputs/conversation.json",
+      "bytes": 17830,
+      "sha256": "def45e140e37f0f80f1d08b93cf6f4ecc4ca3199b5813fbae2c60ec0b9dac63e"
+    },
+    {
+      "path": "inputs/IMG_2406.jpeg",
+      "bytes": 445248,
+      "sha256": "ea5d1bd2102580da5fbebd3ec4958e197a7e8a86da57e4cf38d2451bc20e8d2a",
+      "inspected": true
+    }
+  ],
+  "limits": [
+    "External repository claims not independently verified",
+    "Opaque citations have no URL mapping",
+    "Screenshot observed, no linked skill installed or tested"
+  ],
+  "dispositionIds": [
+    "VC-01",
+    "VC-02",
+    "VC-03",
+    "VC-04",
+    "VC-05",
+    "VC-06",
+    "VC-07",
+    "VC-08",
+    "VC-09",
+    "VC-10",
+    "VC-11",
+    "VC-12"
+  ]
+}
