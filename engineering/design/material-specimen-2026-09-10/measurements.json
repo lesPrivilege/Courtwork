@@ -1,0 +1,6923 @@
+{
+  "round": "FE-05 · Material / blur specimen",
+  "kind": "design specimen · no product code, no production lint registration, no acceptance",
+  "source": {
+    "execution_main": "a579929edd66544e6aa7cd8cd7d2399fae8265d3",
+    "branch": "codex/web-gpt-design-fe05-material",
+    "planning_snapshot": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f (ancestor of the execution base)",
+    "blobs": {
+      "app/web/styles.css": "c17a68c7d05af3cf74116fc50261b27508159e74",
+      "app/web/index.html": "e4e1f1a904feb067b31461ec58380fba9dbffc40",
+      "tools/lint-materials.mjs": "a8468cdab4f9aa8649b949761741a2920d21f478",
+      "engineering/design/home-composition-2026-09-10/material-grammar.md": "38bae90f3cc42f9a43d8f533400183efdfe7cc86",
+      "engineering/mvp/execution/work-surface-kit/explore/ex-cc6-progressive-blur.md": "8e6cdc07afe97995acd83c23b52c24ee07482664",
+      "engineering/mvp/execution/work-surface-kit/work-orders/WO-FE05A-dispatch-prompt.md": "911c2d9600463123f8cc77c52fd7a0eef579837d"
+    },
+    "fe05a_baseline": "DEPENDENCY-NOT-LANDED — main still carries --control: 32px; the specimen builds against actual main",
+    "sampled_at": "2026-09-10T02:08:58.184Z"
+  },
+  "environment": {
+    "browser": "Google Chrome 152.0.7977.83, --headless=new, GPU not disabled, --force-color-profile=srgb",
+    "served_from": "static file server rooted at the repository, port 8931 (scratch, stopped afterwards)",
+    "application_server_started": false,
+    "provider_configured": false,
+    "credential_files_read": "none",
+    "backdrop_filter_supported": true,
+    "render_proof": {
+      "method": "the Jump-to-latest row captured with the material active and with it removed",
+      "pixels_differ": true,
+      "meaning": "the engine really composites backdrop-filter; a null result would not have been a design finding"
+    }
+  },
+  "closed_variables": {
+    "blur_tokens": {
+      "--blur-chrome": "12px",
+      "--blur-transient": "16px"
+    },
+    "no_other_radius_compared": true,
+    "shape_constant": true,
+    "depth_constant": [
+      "--shadow-float",
+      "--rim"
+    ],
+    "edge_colours_constant": [
+      "--line",
+      "--line-strong",
+      "--rim"
+    ]
+  },
+  "frozen_proposal_values": {
+    "chrome": {
+      "light_alpha": 0.86,
+      "dark_alpha": 0.1,
+      "note": "equals production --glass; unchanged by this specimen"
+    },
+    "transient": {
+      "light_alpha": 0.92,
+      "dark_alpha": 0.16,
+      "note": "production --glass-muted today equals --glass (0.86 / 0.10)"
+    }
+  },
+  "frame_cost": "not_measured",
+  "frame_cost_reason": "EX-CC6 established that headless rAF cadence and Performance.getMetrics cannot see compositor blur cost. No non-headless trace was taken in this pass, so no performance number is claimed.",
+  "accessibility_mechanisms": {
+    "prefers-reduced-transparency": "real Emulation.setEmulatedMedia feature AND an identical [data-a11y] simulation",
+    "forced-colors": "real Emulation media feature for the media block AND a [data-a11y] simulation; a static specimen cannot certify Windows high contrast",
+    "@supports not (backdrop-filter)": "simulation only — capability support cannot be emulated"
+  },
+  "specimen_checks": {
+    "ok": true,
+    "checks": [
+      "sampling layers only on declared specimen variants",
+      "blur radius in {12px, 16px}",
+      "no nested sampling layers outside the negative control",
+      "reduce / nosupport clear both backdrop-filter and mask-image",
+      "fallback preserves label, control count and geometry",
+      "no content plane carries a material"
+    ],
+    "problems": []
+  },
+  "production_ancestor_facts": [
+    {
+      "fact": ".chat-header is a flex: none sibling above #conversation-body inside main.chat-panel",
+      "source": "app/web/index.html:188-246, app/web/styles.css .chat-panel/.chat-header",
+      "consequence": "nothing scrolls behind the header; a header material samples .chat-panel’s solid --panel"
+    },
+    {
+      "fact": ".chat-panel declares overflow: hidden",
+      "source": "app/web/styles.css .chat-panel",
+      "consequence": "a header ::before extending DOWNWARD stays inside .chat-panel and is not clipped; an outward/upward extension would be"
+    },
+    {
+      "fact": ".message-stream already carries mask-image: linear-gradient(to bottom, transparent, #000 16px)",
+      "source": "app/web/styles.css, comment \"Scroll surfaces: content dissolves under the header instead of being cut\"",
+      "consequence": "the header edge already dissolves today, on the content side, with no material at all"
+    },
+    {
+      "fact": ".composer-area is a flex: none band below the scroll container",
+      "source": "app/web/index.html:281, app/web/styles.css .composer-area",
+      "consequence": "nothing scrolls behind the resting composer either"
+    },
+    {
+      "fact": ".jump-latest-button is position: absolute inside .message-stream-wrap, over .message-stream",
+      "source": "app/web/styles.css .jump-latest-button / .message-stream-wrap",
+      "consequence": "genuine overlay; the only registered chrome consumer with something to sample"
+    },
+    {
+      "fact": ".context-popover is position: fixed",
+      "source": "app/web/styles.css .context-popover",
+      "consequence": "genuine overlay over whatever is beneath it"
+    }
+  ],
+  "surfaces": [
+    {
+      "surface": "jump-latest",
+      "variant": "jf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "j0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "pf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h0",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h1",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "solid",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "transient",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.968235 0.921176 0.918824)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h2",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e1",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgba(0, 0, 0, 0)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 660,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.984118 0.960588 0.959412)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 385,
+        "height": 150
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "jf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(46, 51, 53)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "j0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "pf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(46, 51, 53)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.16)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h0",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(34, 38, 39)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h1",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(244, 245, 246)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(46, 51, 53)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(115, 126, 132)",
+          "box_shadow": "rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(115, 126, 132)",
+          "box_shadow": "rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "solid",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(46, 51, 53)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "transient",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.16)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(46, 51, 53)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.256078 0.246667 0.251373)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h2",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(244, 245, 246)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e1",
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgba(0, 0, 0, 0)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(237, 238, 240, 0.1)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(244, 245, 246)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 660,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(237, 238, 240, 0.16)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(237, 238, 240, 0.12) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "dark",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.218235 0.223333 0.229608)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(68, 77, 81)",
+          "box_shadow": "rgba(0, 0, 0, 0.4) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 385,
+        "height": 150
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "jf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "j0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "pf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h0",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h1",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "solid",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "transient",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.968235 0.921176 0.918824)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h2",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e1",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgba(0, 0, 0, 0)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 660,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "reduce",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.984118 0.960588 0.959412)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 385,
+        "height": 150
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "jf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "j0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 32
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "pf",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h0",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h1",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 287,
+        "height": 123
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "solid",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "transient",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 223
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r0",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r2",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.968235 0.921176 0.918824)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 271,
+        "height": 192
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h2",
+      "edge": "e0",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 319,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e1",
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgba(0, 0, 0, 0)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 24,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 660,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 297
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r1",
+      "edge": null,
+      "viewport": "1440x900",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "nosupport",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.984118 0.960588 0.959412)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 385,
+        "height": 150
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "jf",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 44
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "jump-latest",
+      "variant": "j0",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "999px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 103,
+        "height": 44
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "pf",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 306
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p0",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 306
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p2",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 306
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h0",
+      "edge": "e0",
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(244, 245, 246)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 340,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h1",
+      "edge": "e0",
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 340,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e0",
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 340,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c0",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 308,
+        "height": 126
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "composer",
+      "variant": "c1",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(139, 148, 154)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 308,
+        "height": 126
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "solid",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 234
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "inspector",
+      "variant": "transient",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1)",
+          "blur_px": "16px",
+          "saturation": 1,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 234
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r0",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgb(255, 255, 255)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 292,
+        "height": 182
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r2",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.968235 0.921176 0.918824)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 292,
+        "height": 182
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h2",
+      "edge": "e0",
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 62%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 340,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "work-header",
+      "variant": "h3",
+      "edge": "e1",
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(0, 0, 0, 0)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgba(0, 0, 0, 0)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        },
+        {
+          "layer": "::before",
+          "background": "rgba(253, 253, 254, 0.86)",
+          "backdrop_filter": "blur(12px)",
+          "blur_px": "12px",
+          "saturation": 1,
+          "mask": "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)",
+          "border": "0px rgb(42, 44, 44)",
+          "box_shadow": "none",
+          "border_radius": "0px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "12px"
+      ],
+      "saturation": [
+        1
+      ],
+      "mask": [
+        "linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 46%, rgba(0, 0, 0, 0) 100%)"
+      ],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "main.chat-panel",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 340,
+        "height": 56
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "context-popover",
+      "variant": "p1",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "rgba(253, 253, 254, 0.92)",
+          "backdrop_filter": "blur(16px) saturate(1.4)",
+          "blur_px": "16px",
+          "saturation": 1.4,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(253, 253, 254, 0.7) 0px 0px 0px 1px inset, rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "16px"
+        }
+      ],
+      "backdrop_sampling_layers": 1,
+      "blur_px": [
+        "16px"
+      ],
+      "saturation": [
+        1.4
+      ],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 288,
+        "height": 306
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    },
+    {
+      "surface": "review",
+      "variant": "r1",
+      "edge": null,
+      "viewport": "390x844",
+      "theme": "light",
+      "backdrop_state": "dense",
+      "accessibility_state": "default",
+      "layers": [
+        {
+          "layer": "element",
+          "background": "color(srgb 0.984118 0.960588 0.959412)",
+          "backdrop_filter": "none",
+          "blur_px": null,
+          "saturation": null,
+          "mask": "none",
+          "border": "1px rgb(203, 210, 214)",
+          "box_shadow": "rgba(28, 32, 36, 0.08) 0px 12px 30px 0px",
+          "border_radius": "12px"
+        }
+      ],
+      "backdrop_sampling_layers": 0,
+      "blur_px": [],
+      "saturation": [],
+      "mask": [],
+      "sampling_extension_px": 0,
+      "nearest_backdrop_root": {
+        "selector": "document",
+        "reasons": []
+      },
+      "clipping_ancestor": {
+        "selector": "div.spec-stage.is-short",
+        "overflow": "hidden"
+      },
+      "clipped": false,
+      "size": {
+        "width": 292,
+        "height": 182
+      },
+      "backdrop_filter_supported": true,
+      "frame_cost": "not_measured"
+    }
+  ],
+  "pixel_comparisons": {
+    "method": "each candidate and its baseline are captured at their own element box (identical content, identical alignment) and compared channel-wise inside the browser; mean_abs_delta is the mean per-pixel maximum channel difference on 0-255",
+    "caveat": "a static contrast number from one background sample is not proof of contrast over every translucent backdrop; these are backdrop-variation measurements, reported separately from any static contrast figure",
+    "rows": [
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 4.142,
+        "max_abs_delta": 8,
+        "changed_pixels_pct": 59.79,
+        "mean_rgb_a": [
+          233,
+          234,
+          235
+        ],
+        "mean_rgb_b": [
+          237,
+          238,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 3.33,
+        "max_abs_delta": 7,
+        "changed_pixels_pct": 51.64,
+        "mean_rgb_a": [
+          233,
+          234,
+          235
+        ],
+        "mean_rgb_b": [
+          236,
+          238,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 5.565,
+        "max_abs_delta": 41,
+        "changed_pixels_pct": 71.72,
+        "mean_rgb_a": [
+          233,
+          234,
+          235
+        ],
+        "mean_rgb_b": [
+          239,
+          240,
+          241
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 2.247,
+        "max_abs_delta": 41,
+        "changed_pixels_pct": 20.06,
+        "mean_rgb_a": [
+          236,
+          238,
+          239
+        ],
+        "mean_rgb_b": [
+          239,
+          240,
+          241
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 4.702,
+        "max_abs_delta": 122,
+        "changed_pixels_pct": 24.65,
+        "mean_rgb_a": [
+          234,
+          235,
+          236
+        ],
+        "mean_rgb_b": [
+          233,
+          234,
+          235
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 8.458,
+        "max_abs_delta": 180,
+        "changed_pixels_pct": 22.13,
+        "mean_rgb_a": [
+          233,
+          234,
+          235
+        ],
+        "mean_rgb_b": [
+          236,
+          237,
+          238
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 3.562,
+        "max_abs_delta": 14,
+        "changed_pixels_pct": 88.15,
+        "mean_rgb_a": [
+          238,
+          238,
+          239
+        ],
+        "mean_rgb_b": [
+          235,
+          236,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 3.661,
+        "max_abs_delta": 30,
+        "changed_pixels_pct": 59.57,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          240,
+          241,
+          242
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 1.119,
+        "max_abs_delta": 3,
+        "changed_pixels_pct": 1.88,
+        "mean_rgb_a": [
+          240,
+          241,
+          242
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 0.034,
+        "max_abs_delta": 1,
+        "changed_pixels_pct": 0,
+        "mean_rgb_a": [
+          241,
+          242,
+          243
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 2.558,
+        "max_abs_delta": 30,
+        "changed_pixels_pct": 58.9,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.468,
+        "max_abs_delta": 120,
+        "changed_pixels_pct": 90.69,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          228,
+          223,
+          223
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 20.288,
+        "max_abs_delta": 213,
+        "changed_pixels_pct": 90.41,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          224,
+          214,
+          213
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "dense",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 5.306,
+        "max_abs_delta": 53,
+        "changed_pixels_pct": 80.07,
+        "mean_rgb_a": [
+          236,
+          236,
+          237
+        ],
+        "mean_rgb_b": [
+          230,
+          231,
+          233
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 4.142,
+        "max_abs_delta": 8,
+        "changed_pixels_pct": 59.79,
+        "mean_rgb_a": [
+          232,
+          233,
+          234
+        ],
+        "mean_rgb_b": [
+          236,
+          237,
+          238
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 3.33,
+        "max_abs_delta": 7,
+        "changed_pixels_pct": 51.64,
+        "mean_rgb_a": [
+          232,
+          233,
+          234
+        ],
+        "mean_rgb_b": [
+          235,
+          236,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 5.241,
+        "max_abs_delta": 41,
+        "changed_pixels_pct": 70.38,
+        "mean_rgb_a": [
+          232,
+          233,
+          234
+        ],
+        "mean_rgb_b": [
+          237,
+          238,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 1.916,
+        "max_abs_delta": 41,
+        "changed_pixels_pct": 18.74,
+        "mean_rgb_a": [
+          235,
+          236,
+          237
+        ],
+        "mean_rgb_b": [
+          237,
+          238,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 4.937,
+        "max_abs_delta": 122,
+        "changed_pixels_pct": 25.09,
+        "mean_rgb_a": [
+          234,
+          235,
+          236
+        ],
+        "mean_rgb_b": [
+          233,
+          234,
+          235
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 8.922,
+        "max_abs_delta": 175,
+        "changed_pixels_pct": 26.08,
+        "mean_rgb_a": [
+          233,
+          234,
+          235
+        ],
+        "mean_rgb_b": [
+          235,
+          236,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 3.562,
+        "max_abs_delta": 14,
+        "changed_pixels_pct": 88.15,
+        "mean_rgb_a": [
+          238,
+          238,
+          239
+        ],
+        "mean_rgb_b": [
+          235,
+          236,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 3.227,
+        "max_abs_delta": 8,
+        "changed_pixels_pct": 59.23,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          241,
+          241,
+          242
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 0.986,
+        "max_abs_delta": 3,
+        "changed_pixels_pct": 1.2,
+        "mean_rgb_a": [
+          241,
+          241,
+          242
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 0.031,
+        "max_abs_delta": 1,
+        "changed_pixels_pct": 0,
+        "mean_rgb_a": [
+          241,
+          242,
+          243
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 2.277,
+        "max_abs_delta": 5,
+        "changed_pixels_pct": 58.69,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          241,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.468,
+        "max_abs_delta": 120,
+        "changed_pixels_pct": 90.69,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          228,
+          223,
+          223
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 20.288,
+        "max_abs_delta": 213,
+        "changed_pixels_pct": 90.41,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          224,
+          214,
+          213
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "code",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 3.001,
+        "max_abs_delta": 5,
+        "changed_pixels_pct": 70.87,
+        "mean_rgb_a": [
+          236,
+          237,
+          237
+        ],
+        "mean_rgb_b": [
+          233,
+          234,
+          235
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 4.142,
+        "max_abs_delta": 8,
+        "changed_pixels_pct": 59.79,
+        "mean_rgb_a": [
+          231,
+          236,
+          234
+        ],
+        "mean_rgb_b": [
+          235,
+          240,
+          238
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 3.33,
+        "max_abs_delta": 7,
+        "changed_pixels_pct": 51.64,
+        "mean_rgb_a": [
+          231,
+          236,
+          234
+        ],
+        "mean_rgb_b": [
+          234,
+          239,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 5.391,
+        "max_abs_delta": 35,
+        "changed_pixels_pct": 78.7,
+        "mean_rgb_a": [
+          231,
+          236,
+          234
+        ],
+        "mean_rgb_b": [
+          236,
+          241,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 2.069,
+        "max_abs_delta": 35,
+        "changed_pixels_pct": 26.91,
+        "mean_rgb_a": [
+          234,
+          239,
+          237
+        ],
+        "mean_rgb_b": [
+          236,
+          241,
+          239
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 4.181,
+        "max_abs_delta": 122,
+        "changed_pixels_pct": 23.89,
+        "mean_rgb_a": [
+          232,
+          238,
+          235
+        ],
+        "mean_rgb_b": [
+          231,
+          237,
+          235
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 8.133,
+        "max_abs_delta": 172,
+        "changed_pixels_pct": 28.5,
+        "mean_rgb_a": [
+          231,
+          237,
+          235
+        ],
+        "mean_rgb_b": [
+          235,
+          239,
+          238
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 3.562,
+        "max_abs_delta": 14,
+        "changed_pixels_pct": 88.15,
+        "mean_rgb_a": [
+          238,
+          238,
+          239
+        ],
+        "mean_rgb_b": [
+          235,
+          236,
+          237
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 3.465,
+        "max_abs_delta": 10,
+        "changed_pixels_pct": 59.63,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          241,
+          241,
+          242
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 1.095,
+        "max_abs_delta": 4,
+        "changed_pixels_pct": 4.78,
+        "mean_rgb_a": [
+          241,
+          241,
+          242
+        ],
+        "mean_rgb_b": [
+          242,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 0.214,
+        "max_abs_delta": 1,
+        "changed_pixels_pct": 0,
+        "mean_rgb_a": [
+          242,
+          242,
+          243
+        ],
+        "mean_rgb_b": [
+          242,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 2.376,
+        "max_abs_delta": 6,
+        "changed_pixels_pct": 58.81,
+        "mean_rgb_a": [
+          244,
+          244,
+          245
+        ],
+        "mean_rgb_b": [
+          242,
+          242,
+          243
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.466,
+        "max_abs_delta": 120,
+        "changed_pixels_pct": 90.69,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          228,
+          223,
+          223
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 20.288,
+        "max_abs_delta": 213,
+        "changed_pixels_pct": 90.41,
+        "mean_rgb_a": [
+          231,
+          231,
+          231
+        ],
+        "mean_rgb_b": [
+          224,
+          214,
+          213
+        ]
+      },
+      {
+        "theme": "light",
+        "backdrop": "status",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 3.26,
+        "max_abs_delta": 46,
+        "changed_pixels_pct": 72.09,
+        "mean_rgb_a": [
+          236,
+          236,
+          236
+        ],
+        "mean_rgb_b": [
+          233,
+          233,
+          234
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 12.27,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 59.66,
+        "mean_rgb_a": [
+          47,
+          51,
+          52
+        ],
+        "mean_rgb_b": [
+          59,
+          63,
+          64
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 9.852,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 56.23,
+        "mean_rgb_a": [
+          47,
+          51,
+          52
+        ],
+        "mean_rgb_b": [
+          57,
+          60,
+          61
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 14.335,
+        "max_abs_delta": 33,
+        "changed_pixels_pct": 82.84,
+        "mean_rgb_a": [
+          47,
+          51,
+          52
+        ],
+        "mean_rgb_b": [
+          60,
+          63,
+          64
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 4.65,
+        "max_abs_delta": 33,
+        "changed_pixels_pct": 44.39,
+        "mean_rgb_a": [
+          57,
+          60,
+          61
+        ],
+        "mean_rgb_b": [
+          60,
+          63,
+          64
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 6.008,
+        "max_abs_delta": 145,
+        "changed_pixels_pct": 29.8,
+        "mean_rgb_a": [
+          63,
+          67,
+          68
+        ],
+        "mean_rgb_b": [
+          61,
+          64,
+          65
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 11.682,
+        "max_abs_delta": 185,
+        "changed_pixels_pct": 51.54,
+        "mean_rgb_a": [
+          61,
+          64,
+          65
+        ],
+        "mean_rgb_b": [
+          64,
+          67,
+          68
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 8,
+        "max_abs_delta": 17,
+        "changed_pixels_pct": 89.77,
+        "mean_rgb_a": [
+          60,
+          64,
+          66
+        ],
+        "mean_rgb_b": [
+          68,
+          71,
+          72
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 16.531,
+        "max_abs_delta": 42,
+        "changed_pixels_pct": 61.27,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          66,
+          70,
+          72
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 6.82,
+        "max_abs_delta": 13,
+        "changed_pixels_pct": 60.73,
+        "mean_rgb_a": [
+          66,
+          70,
+          72
+        ],
+        "mean_rgb_b": [
+          72,
+          77,
+          79
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 0.625,
+        "max_abs_delta": 2,
+        "changed_pixels_pct": 0,
+        "mean_rgb_a": [
+          72,
+          77,
+          79
+        ],
+        "mean_rgb_b": [
+          73,
+          77,
+          78
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 23.525,
+        "max_abs_delta": 52,
+        "changed_pixels_pct": 61.37,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          73,
+          77,
+          78
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.12,
+        "max_abs_delta": 139,
+        "changed_pixels_pct": 90.33,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          77,
+          78,
+          80
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 18.283,
+        "max_abs_delta": 198,
+        "changed_pixels_pct": 90.04,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          85,
+          83,
+          85
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "dense",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 26.272,
+        "max_abs_delta": 53,
+        "changed_pixels_pct": 85.07,
+        "mean_rgb_a": [
+          65,
+          70,
+          72
+        ],
+        "mean_rgb_b": [
+          91,
+          94,
+          95
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 12.27,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 59.66,
+        "mean_rgb_a": [
+          49,
+          53,
+          54
+        ],
+        "mean_rgb_b": [
+          62,
+          65,
+          66
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 9.852,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 56.23,
+        "mean_rgb_a": [
+          49,
+          53,
+          54
+        ],
+        "mean_rgb_b": [
+          59,
+          63,
+          64
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 14.347,
+        "max_abs_delta": 32,
+        "changed_pixels_pct": 83.46,
+        "mean_rgb_a": [
+          49,
+          53,
+          54
+        ],
+        "mean_rgb_b": [
+          62,
+          66,
+          67
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 4.656,
+        "max_abs_delta": 32,
+        "changed_pixels_pct": 44.55,
+        "mean_rgb_a": [
+          59,
+          63,
+          64
+        ],
+        "mean_rgb_b": [
+          62,
+          66,
+          67
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 6.487,
+        "max_abs_delta": 176,
+        "changed_pixels_pct": 30.26,
+        "mean_rgb_a": [
+          64,
+          67,
+          68
+        ],
+        "mean_rgb_b": [
+          62,
+          65,
+          66
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 12.054,
+        "max_abs_delta": 206,
+        "changed_pixels_pct": 52.59,
+        "mean_rgb_a": [
+          62,
+          65,
+          66
+        ],
+        "mean_rgb_b": [
+          65,
+          68,
+          69
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 8,
+        "max_abs_delta": 17,
+        "changed_pixels_pct": 89.77,
+        "mean_rgb_a": [
+          60,
+          64,
+          66
+        ],
+        "mean_rgb_b": [
+          68,
+          71,
+          72
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 13.221,
+        "max_abs_delta": 43,
+        "changed_pixels_pct": 61.14,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          63,
+          67,
+          68
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 7.044,
+        "max_abs_delta": 13,
+        "changed_pixels_pct": 60.78,
+        "mean_rgb_a": [
+          63,
+          67,
+          68
+        ],
+        "mean_rgb_b": [
+          69,
+          74,
+          75
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 0.623,
+        "max_abs_delta": 2,
+        "changed_pixels_pct": 0,
+        "mean_rgb_a": [
+          69,
+          74,
+          75
+        ],
+        "mean_rgb_b": [
+          70,
+          73,
+          75
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 20.392,
+        "max_abs_delta": 53,
+        "changed_pixels_pct": 61.29,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          70,
+          73,
+          75
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.12,
+        "max_abs_delta": 139,
+        "changed_pixels_pct": 90.33,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          77,
+          78,
+          80
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 18.283,
+        "max_abs_delta": 198,
+        "changed_pixels_pct": 90.04,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          85,
+          83,
+          85
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "code",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 6.941,
+        "max_abs_delta": 9,
+        "changed_pixels_pct": 79.92,
+        "mean_rgb_a": [
+          64,
+          69,
+          71
+        ],
+        "mean_rgb_b": [
+          71,
+          75,
+          76
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H1 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 12.27,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 59.66,
+        "mean_rgb_a": [
+          40,
+          51,
+          48
+        ],
+        "mean_rgb_b": [
+          52,
+          63,
+          60
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H2 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 9.852,
+        "max_abs_delta": 21,
+        "changed_pixels_pct": 56.23,
+        "mean_rgb_a": [
+          40,
+          51,
+          48
+        ],
+        "mean_rgb_b": [
+          50,
+          61,
+          58
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H3 vs H0",
+        "pixels": 28072,
+        "mean_abs_delta": 13.431,
+        "max_abs_delta": 25,
+        "changed_pixels_pct": 82.42,
+        "mean_rgb_a": [
+          40,
+          51,
+          48
+        ],
+        "mean_rgb_b": [
+          52,
+          64,
+          60
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header",
+        "comparison": "H3 vs H2",
+        "pixels": 28072,
+        "mean_abs_delta": 3.755,
+        "max_abs_delta": 25,
+        "changed_pixels_pct": 43.79,
+        "mean_rgb_a": [
+          50,
+          61,
+          58
+        ],
+        "mean_rgb_b": [
+          52,
+          64,
+          60
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header-overlay",
+        "comparison": "H1o vs H2o",
+        "pixels": 38104,
+        "mean_abs_delta": 5.513,
+        "max_abs_delta": 135,
+        "changed_pixels_pct": 29.19,
+        "mean_rgb_a": [
+          54,
+          66,
+          62
+        ],
+        "mean_rgb_b": [
+          51,
+          63,
+          60
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "work-header-overlay",
+        "comparison": "H2o vs H3o",
+        "pixels": 38104,
+        "mean_abs_delta": 10.54,
+        "max_abs_delta": 174,
+        "changed_pixels_pct": 51.24,
+        "mean_rgb_a": [
+          51,
+          63,
+          60
+        ],
+        "mean_rgb_b": [
+          54,
+          66,
+          62
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "composer",
+        "comparison": "C1 vs C0",
+        "pixels": 35301,
+        "mean_abs_delta": 8,
+        "max_abs_delta": 17,
+        "changed_pixels_pct": 89.77,
+        "mean_rgb_a": [
+          60,
+          64,
+          66
+        ],
+        "mean_rgb_b": [
+          68,
+          71,
+          72
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P0 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 14.983,
+        "max_abs_delta": 53,
+        "changed_pixels_pct": 61.18,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          60,
+          64,
+          62
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P1 vs P0",
+        "pixels": 85536,
+        "mean_abs_delta": 7.44,
+        "max_abs_delta": 14,
+        "changed_pixels_pct": 60.79,
+        "mean_rgb_a": [
+          60,
+          64,
+          62
+        ],
+        "mean_rgb_b": [
+          67,
+          71,
+          70
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P2 vs P1",
+        "pixels": 85536,
+        "mean_abs_delta": 1.877,
+        "max_abs_delta": 12,
+        "changed_pixels_pct": 26.45,
+        "mean_rgb_a": [
+          67,
+          71,
+          70
+        ],
+        "mean_rgb_b": [
+          67,
+          70,
+          70
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "context-popover",
+        "comparison": "P2 vs PF",
+        "pixels": 85536,
+        "mean_abs_delta": 20.417,
+        "max_abs_delta": 52,
+        "changed_pixels_pct": 61.29,
+        "mean_rgb_a": [
+          50,
+          54,
+          56
+        ],
+        "mean_rgb_b": [
+          67,
+          70,
+          70
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "review",
+        "comparison": "R1 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 11.118,
+        "max_abs_delta": 139,
+        "changed_pixels_pct": 90.32,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          77,
+          78,
+          80
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "review",
+        "comparison": "R2 vs R0",
+        "pixels": 57750,
+        "mean_abs_delta": 18.283,
+        "max_abs_delta": 198,
+        "changed_pixels_pct": 90.04,
+        "mean_rgb_a": [
+          69,
+          73,
+          75
+        ],
+        "mean_rgb_b": [
+          85,
+          83,
+          85
+        ]
+      },
+      {
+        "theme": "dark",
+        "backdrop": "status",
+        "surface": "jump-latest",
+        "comparison": "J0 vs JF",
+        "pixels": 3296,
+        "mean_abs_delta": 9.892,
+        "max_abs_delta": 46,
+        "changed_pixels_pct": 81.37,
+        "mean_rgb_a": [
+          65,
+          70,
+          72
+        ],
+        "mean_rgb_b": [
+          75,
+          77,
+          78
+        ]
+      }
+    ]
+  },
+  "captures": [
+    {
+      "file": "board-a-main__1440-light.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-light.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-d-review__1440-light.png",
+      "board": "board-d-review",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-e-negative__1440-light.png",
+      "board": "board-e-negative",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-f-focus__1440-light.png",
+      "board": "board-f-focus",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__1440-dark.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-dark.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-dark.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-d-review__1440-dark.png",
+      "board": "board-d-review",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-e-negative__1440-dark.png",
+      "board": "board-e-negative",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-f-focus__1440-dark.png",
+      "board": "board-f-focus",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__390-light.png",
+      "board": "board-a-main",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__390-light.png",
+      "board": "board-b-header",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__390-light.png",
+      "board": "board-c-transient",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-d-review__390-light.png",
+      "board": "board-d-review",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-e-negative__390-light.png",
+      "board": "board-e-negative",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-f-focus__390-light.png",
+      "board": "board-f-focus",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__390-dark.png",
+      "board": "board-a-main",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__390-dark.png",
+      "board": "board-b-header",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__390-dark.png",
+      "board": "board-c-transient",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-d-review__390-dark.png",
+      "board": "board-d-review",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-e-negative__390-dark.png",
+      "board": "board-e-negative",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-f-focus__390-dark.png",
+      "board": "board-f-focus",
+      "viewport": "390x844",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__1440-light-reduce-transparency.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-b-header__1440-light-reduce-transparency.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-c-transient__1440-light-reduce-transparency.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-a-main__1440-dark-reduce-transparency.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-b-header__1440-dark-reduce-transparency.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-c-transient__1440-dark-reduce-transparency.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "reduce",
+      "backdrop": "dense",
+      "emulated_media": [
+        "prefers-reduced-transparency=reduce"
+      ]
+    },
+    {
+      "file": "board-c-transient__1440-light-zoom200.png",
+      "board": "board-c-transient",
+      "viewport": "720x450",
+      "device_scale": 2,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-d-review__1440-light-zoom200.png",
+      "board": "board-d-review",
+      "viewport": "720x450",
+      "device_scale": 2,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header-mechanics__1440-light-zoom200.png",
+      "board": "board-b-header-mechanics",
+      "viewport": "720x450",
+      "device_scale": 2,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__1440-light-nosupport.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "nosupport",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light-nosupport.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "nosupport",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-a-main__1440-light-forced-colors-sim.png",
+      "board": "board-a-main",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "forced",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light-forced-colors-sim.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "forced",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-light-forced-colors-sim.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "forced",
+      "backdrop": "dense",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-light-b4-status.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "status",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light-b4-status.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "status",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-dark-b4-status.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "dark",
+      "accessibility": "default",
+      "backdrop": "status",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light-b2-code.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "code",
+      "emulated_media": []
+    },
+    {
+      "file": "board-c-transient__1440-light-b2-code.png",
+      "board": "board-c-transient",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "code",
+      "emulated_media": []
+    },
+    {
+      "file": "board-b-header__1440-light-b0-quiet.png",
+      "board": "board-b-header",
+      "viewport": "1440x900",
+      "device_scale": 1,
+      "theme": "light",
+      "accessibility": "default",
+      "backdrop": "quiet",
+      "emulated_media": []
+    }
+  ],
+  "runtime_exceptions": [],
+  "layout": {
+    "no_horizontal_overflow": true,
+    "observed": [
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "document_scroll_width": 1440,
+        "viewport_width": 1440,
+        "horizontal_overflow": false
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "document_scroll_width": 1440,
+        "viewport_width": 1440,
+        "horizontal_overflow": false
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "document_scroll_width": 390,
+        "viewport_width": 390,
+        "horizontal_overflow": false
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "document_scroll_width": 390,
+        "viewport_width": 390,
+        "horizontal_overflow": false
+      }
+    ]
+  },
+  "static_contrast_report": {
+    "note": "Only the solid-fallback state has a single opaque surface colour, so only it yields a real static contrast number. A translucent surface has no one background colour; its readability is evidenced separately by the backdrop-variation comparisons in pixel_comparisons. A static figure from one background sample is never offered as proof for every translucent backdrop.",
+    "state": "reduce transparency (solid fallback)",
+    "rows": [
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "jump-latest",
+        "variant": "jf",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "jump-latest",
+        "variant": "j0",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "pf",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p0",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p2",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h0",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h1",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h3",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "composer",
+        "variant": "c0",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "composer",
+        "variant": "c1",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "inspector",
+        "variant": "solid",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "inspector",
+        "variant": "transient",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r0",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 6.23
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r2",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "color(srgb 0.968235 0.921176 0.918824)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h2",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p1",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r1",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "color(srgb 0.984118 0.960588 0.959412)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "jump-latest",
+        "variant": "jf",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "jump-latest",
+        "variant": "j0",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "pf",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p0",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p2",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h0",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h1",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h3",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "composer",
+        "variant": "c0",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "composer",
+        "variant": "c1",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "inspector",
+        "variant": "solid",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "inspector",
+        "variant": "transient",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r0",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.68
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r2",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "color(srgb 0.256078 0.246667 0.251373)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h2",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p1",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "1440x900",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r1",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "color(srgb 0.218235 0.223333 0.229608)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "jump-latest",
+        "variant": "jf",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "jump-latest",
+        "variant": "j0",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "pf",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p0",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p2",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h0",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h1",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 14.05
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h3",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "composer",
+        "variant": "c0",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "composer",
+        "variant": "c1",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "inspector",
+        "variant": "solid",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "inspector",
+        "variant": "transient",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r0",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 6.23
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r2",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "color(srgb 0.968235 0.921176 0.918824)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "work-header",
+        "variant": "h2",
+        "foreground": "rgb(42, 44, 44)",
+        "surface_background": "rgb(244, 245, 246)",
+        "foreground_contrast_static": 12.87
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "context-popover",
+        "variant": "p1",
+        "foreground": "rgb(97, 100, 102)",
+        "surface_background": "rgb(255, 255, 255)",
+        "foreground_contrast_static": 5.96
+      },
+      {
+        "viewport": "390x844",
+        "theme": "light",
+        "surface": "review",
+        "variant": "r1",
+        "foreground": "rgb(174, 54, 48)",
+        "surface_background": "color(srgb 0.984118 0.960588 0.959412)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "jump-latest",
+        "variant": "jf",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "jump-latest",
+        "variant": "j0",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "pf",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p0",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p2",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h0",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h1",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 11.72
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h3",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "composer",
+        "variant": "c0",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "composer",
+        "variant": "c1",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "inspector",
+        "variant": "solid",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "inspector",
+        "variant": "transient",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r0",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.68
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r2",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "color(srgb 0.256078 0.246667 0.251373)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "work-header",
+        "variant": "h2",
+        "foreground": "rgb(244, 245, 246)",
+        "surface_background": "rgb(34, 38, 39)",
+        "foreground_contrast_static": 14
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "context-popover",
+        "variant": "p1",
+        "foreground": "rgb(182, 190, 194)",
+        "surface_background": "rgb(46, 51, 53)",
+        "foreground_contrast_static": 6.78
+      },
+      {
+        "viewport": "390x844",
+        "theme": "dark",
+        "surface": "review",
+        "variant": "r1",
+        "foreground": "rgb(239, 170, 164)",
+        "surface_background": "color(srgb 0.218235 0.223333 0.229608)",
+        "foreground_contrast_static": "not_measured (surface background is not a single opaque colour)"
+      }
+    ]
+  }
+}
