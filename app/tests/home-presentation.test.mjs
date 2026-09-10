@@ -7,7 +7,7 @@ import {
   toHomeAttention,
   toHomeAttentionDetail,
 } from "../web/presentation-adapters.mjs";
-import { homeModules } from "../web/home-view.mjs";
+import { homeModules, renderHome } from "../web/home-view.mjs";
 import { createAttentionWorkspace } from "../web/attention-view.mjs";
 import { deferred, flush, withTinyDom } from "./tiny-dom.mjs";
 
@@ -265,3 +265,19 @@ test("Review belongs only to needs_you across Home and Attention states", async 
     assert.equal(labels(render({ projects, attention: { data: invalid } })).length, 0);
   });
 });
+
+test('text-only pending and failed Home rows render and retain their exact navigation scope',()=>withTinyDom(async container=>{
+  const opened=[];
+  const summary={
+    pendingItems:{items:[{projectId:'p',sessionId:'s',runId:'r',questionId:'q',kind:'question',label:'Answer requested'}],total:1},
+    sessionCandidates:{items:[],total:0},
+    inspectionCandidates:{items:[{projectId:'p',sessionId:'s2',runId:'r2',status:'failed',label:'Failed'}],total:1},
+  };
+  renderHome(container,{summary,projects:[{id:'p',name:'Synthetic'}],onSession:(item,options)=>opened.push({item,options})});
+  const rows=container.querySelectorAll('button').filter(b=>b.classList.contains('home-row'));
+  assert.equal(rows.length,2);
+  rows[0].click();rows[1].click();
+  assert.equal(opened[0].item.questionId,'q');assert.deepEqual(opened[0].options,{question:true,inspect:false});
+  assert.equal(opened[1].item.runId,'r2');assert.deepEqual(opened[1].options,{question:false,inspect:true});
+  for(const row of rows)assert.equal(row.querySelectorAll('svg').length,1,'Only the navigation chevron remains');
+}));

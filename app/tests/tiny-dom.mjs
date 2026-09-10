@@ -54,6 +54,7 @@ export class TinyNode {
   set textContent(value) { this._text = String(value); this.children = []; }
   get textContent() { return this._text + this.children.map(child => child.textContent).join(''); }
   get classList() { return new ClassList(this); }
+  get childElementCount() { return this.children.filter(child => child.tagName !== '#text').length; }
   get isContentEditable() { return this.getAttribute('contenteditable') === 'true'; }
   append(...children) {
     for (const child of children.flat()) {

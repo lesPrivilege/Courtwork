@@ -409,7 +409,7 @@ function pendingRow(item, onOpen) {
         "data-focus-key": `home:pendingItems:${item.questionId}`,
       },
     },
-    icon(setGlyphs.pendingItems, { size: 16 }),
+    setGlyphs.pendingItems ? icon(setGlyphs.pendingItems, { size: 16 }) : null,
     el(
       "span",
       { className: "home-row-content" },
@@ -439,7 +439,7 @@ function inspectionRow(item, onOpen) {
         "data-focus-key": `home:inspectionCandidates:${item.runId}`,
       },
     },
-    icon(setGlyphs.inspectionCandidates, { size: 16 }),
+    setGlyphs.inspectionCandidates ? icon(setGlyphs.inspectionCandidates, { size: 16 }) : null,
     el(
       "span",
       { className: "home-row-content" },
