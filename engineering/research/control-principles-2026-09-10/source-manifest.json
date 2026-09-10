@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "conversationId": "6aa2bc89-beac-83ec-aabc-f5dd23d2513d",
+  "title": "参考设计原则",
+  "baseline": "c851ef718b87332d9daacdc715d12007cde66ccc",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "turnCount": 2,
+  "messageCount": 4,
+  "turns": [
+    {
+      "id": "625318d0-4234-4bda-96a0-4df736e71e2c",
+      "messageIds": [
+        "625318d0-4234-4bda-96a0-4df736e71e2c",
+        "038e2f00-028e-43a2-af39-14e8ab60653f"
+      ]
+    },
+    {
+      "id": "05da0995-b8d4-4a27-b288-832c439ed23f",
+      "messageIds": [
+        "05da0995-b8d4-4a27-b288-832c439ed23f",
+        "fad9c036-bb9c-42d3-9eaa-bf9aa0d739a8"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "inputs/conversation.json",
+      "bytes": 23425,
+      "sha256": "40061d5699e4586541c6a36aaf7ac642a255ca940610694f29b5109dffb2a6ec"
+    },
+    {
+      "path": "inputs/IMG_2407.jpeg",
+      "bytes": 363714,
+      "sha256": "21eeab830649f76686a2275f4a296b0e6cecd4992a98c81bbb0bcb8b74d26d9a"
+    },
+    {
+      "path": "inputs/IMG_2408.png",
+      "bytes": 889255,
+      "sha256": "8a549d290d90d2cb59d76d9b2215091c52d71ac64ccca98419b1497d112a135c"
+    }
+  ],
+  "attachmentsInspected": true,
+  "externalClaimsVerified": false,
+  "dispositions": [
+    "CP-01",
+    "CP-02",
+    "CP-03",
+    "CP-04",
+    "CP-05",
+    "CP-06",
+    "CP-07",
+    "CP-08",
+    "CP-09",
+    "CP-10",
+    "CP-11",
+    "CP-12",
+    "CP-13",
+    "CP-14"
+  ]
+}

@@ -1,5 +1,7 @@
 # Harness Pro · 送审与输出全量消费
 
+后续本地输入：[参考设计原则 / Control Plane与Miles/TITO](../control-principles-2026-09-10/README.md)，含完整对话、截图及14项处置，外部主张待核验。此补充不在已送审 `d22eb66` manifest中；用户后续追加送审时须显式给新SHA，不能宣称Pro已读。
+
 当前状态：送审包已准备，用户负责网页端唤醒；Pro 输出未返回。入口为 [架构设计与标杆工单](../../execution/2026-09-10-harness-pro-review.md)，总顺序见 [roadmap](../../roadmap.md)。
 
 ## 固定输入
