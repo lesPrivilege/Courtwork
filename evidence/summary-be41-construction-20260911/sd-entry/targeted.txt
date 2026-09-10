@@ -1,0 +1,30 @@
+✔ card middle layer retains same-target disclosure, resets target and scope, keeps warnings outside (1.495625ms)
+✔ Runtime summary rejects previous-session counts and preserves unknown rather than zero (0.773167ms)
+✔ presentation entry directory retains honest fallback rows without synthetic actions (0.650458ms)
+✔ injected reader checks live scope identity revision and resets disclosure after scope change (0.902417ms)
+✔ entry reader receives the exact opener and scope changes do not transfer focus (0.595583ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.740167ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.1095ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.195166ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.229417ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.160416ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.058083ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.408875ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.357458ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.543375ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.552083ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.704583ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.0455ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.90525ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.529833ms)
+✔ Summary run preserves the clicked opener when disabling it clears browser focus (0.774458ms)
+✔ Summary file preserves the clicked opener when disabling it clears browser focus (0.566625ms)
+✔ Summary file focus identity follows the recorded version when files reorder (0.788333ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 118.379958

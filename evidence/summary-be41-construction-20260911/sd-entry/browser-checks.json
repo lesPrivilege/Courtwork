@@ -1,0 +1,976 @@
+[
+  {
+    "name": "entry-1440-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/",
+    "width": 1440
+  },
+  {
+    "name": "entry-activity-return-1440-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry:activity",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/",
+    "width": 1440
+  },
+  {
+    "name": "entry-context-return-1440-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry:context",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/",
+    "width": 1440
+  },
+  {
+    "name": "entry-1440-dark",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1440
+  },
+  {
+    "name": "entry-1280-dark",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1440
+  },
+  {
+    "name": "entry-390-dark",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1440
+  },
+  {
+    "name": "entry-390-dark",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry:activity",
+    "height": 844,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 390
+  },
+  {
+    "name": "entry-390-dark-return",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry:activity",
+    "height": 844,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 390
+  },
+  {
+    "name": "entry-390-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 844,
+    "moreOpen": false,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 390
+  },
+  {
+    "name": "entry-1280-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": false,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1280
+  },
+  {
+    "name": "entry-1024-light",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "height": 768,
+    "moreOpen": false,
+    "overflow": 0,
+    "stripDisplay": "flex",
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1024
+  },
+  {
+    "name": "entry-1024-light-expanded",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 768,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": "none",
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1024
+  },
+  {
+    "name": "entry-1280-light-expanded",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1280
+  },
+  {
+    "name": "entry-1280-dark-expanded",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 900,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1280
+  },
+  {
+    "name": "entry-new-scope-dark",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "empty",
+        "tag": "DIV",
+        "text": "ActivityNo run recorded in this chat."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "empty",
+        "tag": "DIV",
+        "text": "ContextNo run recorded in this chat."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "height": 900,
+    "moreOpen": false,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "dark",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 1280
+  },
+  {
+    "name": "entry-390-light-expanded",
+    "entries": [
+      {
+        "id": "activity",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ActivityRead this run’s recorded activity."
+      },
+      {
+        "id": "task",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "TasksNot available yet."
+      },
+      {
+        "id": "explore",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ExploreNot available yet."
+      },
+      {
+        "id": "diff",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "ChangesNot available yet."
+      },
+      {
+        "id": "context",
+        "state": "ready",
+        "tag": "BUTTON",
+        "text": "ContextRead recorded context in Run details."
+      },
+      {
+        "id": "source",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "SourcesNot available yet."
+      },
+      {
+        "id": "browser",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "BrowserNot available yet."
+      },
+      {
+        "id": "computer-use",
+        "state": "unavailable",
+        "tag": "DIV",
+        "text": "Computer useNot available yet."
+      }
+    ],
+    "focusKey": "surface-entry-more",
+    "height": 844,
+    "moreOpen": true,
+    "overflow": 0,
+    "stripDisplay": null,
+    "theme": "light",
+    "url": "http://127.0.0.1:18977/#",
+    "width": 390
+  }
+]
