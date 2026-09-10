@@ -27,10 +27,11 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 11;
+const SCHEMA_VERSION = 12;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
+  "providerConfigVersion", "providerVerifications",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -39,7 +40,7 @@ function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
     providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
-    providerConnections: [], providerConfigurationPending: [],
+    providerConnections: [], providerConfigurationPending: [], providerConfigVersion: 0, providerVerifications: [],
   };
 }
 
@@ -106,6 +107,44 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   if (value.capabilityNotice !== undefined && value.capabilityNotice !== null) text(value.capabilityNotice, label + ".capabilityNotice", 200);
 }
 
+/** BE-39's classification honesty (PV-62 ①): only the classes this host can
+ * actually reach with structured evidence under pi-coding-agent 0.85.1
+ * (`ok`, `timeout`, `unknown` -- see `classifyVerifyOutcome` in
+ * `app/runtime/pi-session-runtime.mjs`) are ever WRITTEN, but the persisted
+ * shape keeps the full contract enum so a future pi version that exposes
+ * more structure does not require a schema bump to use it. */
+const VERIFY_STATUSES = new Set([
+  "ok", "authentication_failed", "model_not_found", "unreachable", "timeout", "http_error", "malformed_response", "unknown",
+]);
+/** A verify receipt (PV-42/62): the most recent connection/model probe,
+ * bound to the configuration and credential epoch it was actually run
+ * against. One per connection id; a newer probe replaces the old one
+ * outright (`setProviderVerification`), it does not accumulate history. */
+function validateVerifications(value) {
+  assert(Array.isArray(value), "providerVerifications must be an array");
+  const seen = new Set();
+  for (const record of value) {
+    exactKeys(record, new Set([
+      "connectionId", "model", "status", "message", "observedModel", "replyFirstLine",
+      "latencyMs", "checkedAt", "credentialSource", "binding",
+    ]), "providerVerification");
+    id(record.connectionId, "providerVerification.connectionId");
+    assert(!seen.has(record.connectionId), "providerVerification.connectionId is not unique"); seen.add(record.connectionId);
+    try { assertProviderModelId(record.model); } catch { throw invalidState("providerVerification.model is invalid"); }
+    assert(VERIFY_STATUSES.has(record.status), "providerVerification.status is invalid");
+    text(record.message, "providerVerification.message", 4000);
+    if (record.observedModel !== null) text(record.observedModel, "providerVerification.observedModel", 240);
+    if (record.replyFirstLine !== null) text(record.replyFirstLine, "providerVerification.replyFirstLine", 400);
+    nonNegativeInt(record.latencyMs, "providerVerification.latencyMs");
+    timestamp(record.checkedAt, "providerVerification.checkedAt");
+    if (record.credentialSource !== null) id(record.credentialSource, "providerVerification.credentialSource");
+    assert(isRecord(record.binding), "providerVerification.binding must be an object");
+    exactKeys(record.binding, new Set(["providerConfigVersion", "credentialGeneration"]), "providerVerification.binding");
+    nonNegativeInt(record.binding.providerConfigVersion, "providerVerification.binding.providerConfigVersion");
+    nonNegativeInt(record.binding.credentialGeneration, "providerVerification.binding.credentialGeneration");
+  }
+}
+
 const CONFIGURATION_OPERATIONS = new Set(['connection_save', 'connection_delete', 'credential_set', 'credential_delete']);
 function validatePending(value) {
   assert(Array.isArray(value), 'providerConfigurationPending must be an array');
@@ -154,8 +193,8 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9 or 10 can be upgraded)`);
-  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending'))), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10 or 11 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -271,18 +310,25 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   if (schema >= 8) validateCoordination(parsed.coordination);
-  if (schema >= 10) validateConnections(parsed.providerConnections, { historical: true });
+  if (schema >= 10) validateConnections(parsed.providerConnections, { historical: true, schema });
   if (schema >= 11) validatePending(parsed.providerConfigurationPending);
+  if (schema >= 12) {
+    nonNegativeInt(parsed.providerConfigVersion, "state.providerConfigVersion");
+    validateVerifications(parsed.providerVerifications);
+  }
   return structuredClone(parsed);
 }
 
 /** A connection is the persisted unit of provider identity: one endpoint, one
  * wire format, one model list, one credential key. `credentialStatus` is NOT
- * stored here — the credential file is its only source of truth. */
-function validateConnections(value, { historical = false } = {}) {
+ * stored here — the credential file is its only source of truth. `schema`
+ * gates the `reasoning` tri-state field (PV-61), added in schema 12: reading
+ * an older validated state never requires a field that version did not have. */
+function validateConnections(value, { historical = false, schema = SCHEMA_VERSION } = {}) {
   assert(Array.isArray(value), "providerConnections must be an array");
   const ids = new Set();
   const identities = new Set();
+  const modelKeys = schema >= 12 ? ["id", "contextWindow", "reasoning"] : ["id", "contextWindow"];
   for (const connection of value) {
     exactKeys(connection, new Set(["id", "kind", "providerIdentity", "api", "baseUrl", "models"]), "providerConnection");
     id(connection.id, "providerConnection.id");
@@ -303,8 +349,9 @@ function validateConnections(value, { historical = false } = {}) {
     }
     assert(Array.isArray(connection.models), "providerConnection.models must be an array");
     for (const model of connection.models) {
-      exactKeys(model, new Set(["id", "contextWindow"]), "providerConnection.model");
+      exactKeys(model, new Set(modelKeys), "providerConnection.model");
       assert(model.contextWindow !== undefined, "providerConnection.model.contextWindow is invalid");
+      if (schema >= 12) assert(model.reasoning !== undefined, "providerConnection.model.reasoning is invalid");
     }
     try {
       if (historical) {
@@ -313,6 +360,7 @@ function validateConnections(value, { historical = false } = {}) {
           text(model.id, "providerConnection.model.id", 240);
           assert(model.id.length > 0 && !seen.has(model.id), "providerConnection.model.id is invalid or duplicate"); seen.add(model.id);
           assert(model.contextWindow === null || (Number.isSafeInteger(model.contextWindow) && model.contextWindow > 0), "providerConnection.model.contextWindow is invalid");
+          if (schema >= 12) assert(model.reasoning === null || typeof model.reasoning === "boolean", "providerConnection.model.reasoning is invalid");
         }
       } else validateProviderModels(connection.models, { allowEmpty: true });
     } catch (error) {
@@ -320,6 +368,7 @@ function validateConnections(value, { historical = false } = {}) {
       // public model-ID/count/contextWindow domain with HTTP input.
       if (error?.field === "modelId") throw invalidState("providerConnection.model.id is invalid");
       if (error?.field === "contextWindow") throw invalidState("providerConnection.model.contextWindow is invalid");
+      if (error?.field === "reasoning") throw invalidState("providerConnection.model.reasoning is invalid");
       if (error?.message === "model ids must be unique") throw invalidState("providerConnection.model.id is not unique");
       throw invalidState(error?.message === "models must be a non-empty list"
         ? "providerConnection.models is invalid"
@@ -424,13 +473,22 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
           const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
-            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(), providerConnections: parsed.providerConnections ?? [], providerConfigurationPending: [],
+            coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
+            // A pre-12 connection's models never reported reasoning; `null`
+            // (never declared, PV-61) is the only honest default, not a guess.
+            providerConnections: (parsed.providerConnections ?? []).map(connection => ({
+              ...connection,
+              models: connection.models.map(model => ({ ...model, reasoning: model.reasoning ?? null })),
+            })),
+            providerConfigurationPending: [],
+            providerConfigVersion: 0,
+            providerVerifications: [],
             sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
@@ -784,7 +842,15 @@ export class RuntimeStore {
         const previous = state.providerConnections.find(item => item.id === connection.id);
         if (!previous || JSON.stringify(previous) !== JSON.stringify(connection)) validateConnections([connection]);
       }
-      state.providerConnections = checkedConnections; return state.providerConnections;
+      state.providerConnections = checkedConnections;
+      // Coarse and deliberately global (PV-42): ANY connection write can
+      // change what a saved verify receipt actually proves (a different
+      // model list, a different endpoint), so every receipt's binding is
+      // checked against this one counter rather than a per-connection one.
+      // Over-invalidating is the safe direction; a stale receipt read as
+      // current is not.
+      state.providerConfigVersion += 1;
+      return state.providerConnections;
     });
   }
   getProviderConnections() { return structuredClone(this.state.providerConnections); }
@@ -792,9 +858,28 @@ export class RuntimeStore {
   async setProviderConfig(config) {
     const checkedConfig = structuredClone(config);
     validateDescriptor(checkedConfig, "providerConfig", { schema: SCHEMA_VERSION });
-    return this._mutate((state) => { state.providerConfig = checkedConfig; return state.providerConfig; });
+    return this._mutate((state) => { state.providerConfig = checkedConfig; state.providerConfigVersion += 1; return state.providerConfig; });
   }
   getProviderConfig() { return structuredClone(this.state.providerConfig); }
+  getProviderConfigVersion() { return this.state.providerConfigVersion; }
+
+  /** The most recent verify receipt for one connection, bound to the
+   * configuration/credential epoch it actually ran against (PV-42). Replaces
+   * any prior receipt for the same connection outright — one per connection,
+   * never a history. */
+  async setProviderVerification(verification) {
+    const checked = structuredClone(verification);
+    validateVerifications([checked]);
+    return this._mutate((state) => {
+      state.providerVerifications = state.providerVerifications.filter((record) => record.connectionId !== checked.connectionId);
+      state.providerVerifications.push(checked);
+      return checked;
+    });
+  }
+  getProviderVerification(connectionId) {
+    return structuredClone(this.state.providerVerifications.find((record) => record.connectionId === connectionId) ?? null);
+  }
+
   async setExtensionRecords(records) { return this._mutate((state) => { state.extensionRecords = structuredClone(records); return state.extensionRecords; }); }
   getExtensionRecords() { return structuredClone(this.state.extensionRecords); }
 }
