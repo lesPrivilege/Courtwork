@@ -43,7 +43,7 @@ export function messageSummary(text, limit = 280) {
 }
 
 // A view of an immutable input record. Edits prepare a new composer draft.
-export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key = row.id, editDisabled = false }) {
+export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key = row.id, editDisabled = false, actions = null }) {
   const message = el("article", {
     className: "message user",
     attrs: { "aria-label": "Your message" },
@@ -80,7 +80,8 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
       }),
     );
   }
-  footer.append(
+  if (actions) footer.append(actions);
+  else footer.append(
     action("copy", "Copy message", () => onCopy(row.text), {
       attrs: { "data-focus-key": `user-copy:${row.id}` },
     }),

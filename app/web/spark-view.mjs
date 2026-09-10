@@ -300,7 +300,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     const header = el('header', { className: 'spark-header' },
       el('div', {},
         el('h2', { text: 'Spark', attrs: { id: 'spark-title' } }),
-        el('p', { className: 'form-help', text: 'Maintenance state read from Core — which Matters have fallen behind their current source set.' })),
+        el('p', { className: 'form-help', text: 'See which Matters need updating after their sources change.' })),
       action('x', 'Close Spark', () => dialog.close()));
 
     const controls = el('div', { className: 'spark-controls' });

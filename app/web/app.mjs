@@ -77,6 +77,7 @@ import {
   shortRef,
 } from "./surface-modules.mjs";
 import { renderUserMessage } from "./user-message.mjs";
+import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";
 
 const API_BASE = "/api/v5";
@@ -2482,6 +2483,19 @@ function decisionReceiptRows(runId) {
  * `unknown`（或根本没有对应的 Run 记录）时，它为什么没有回来同样是未知的，写
  * `Interrupted` 是对未知事实的正面断言（FN-28）。第六个词因此是 `Unknown`
  * （glyph-semantics §3）。BE-33 交付后原因改由后端给出，这里的推断随之退役。 */
+function messageActionRow(row, session) {
+  const epoch = state.sessionEpoch;
+  const target = {key: JSON.stringify([session.id, epoch, row.kind, row.id]), role: row.kind,
+    sessionId: session.id, runId: row.runId, projectionId: row.id, text: row.text, pending: Boolean(row.pending)};
+  return createChatActions({target,
+    getTarget: () => currentSession()?.id === session.id && state.sessionEpoch === epoch ? target : null,
+    adapter: createProductionActionAdapter({
+      copy: async ({text}) => { await navigator.clipboard.writeText(text); showToast(row.kind === "user" ? "Message copied." : "Response copied."); },
+      ...(row.kind === "user" ? {edit: () => openMessageEditor(row)} : {}),
+    }),
+  });
+}
+
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
@@ -2607,6 +2621,7 @@ function renderMessageStream() {
       appendFlowRow(
         renderUserMessage(row, {
           key: sessionScopeKey("user", row.id), viewState: userMessageViews,
+          actions: messageActionRow(row, session),
           onCopy: async (text) => {
             try {
               await navigator.clipboard.writeText(text);
@@ -2634,22 +2649,7 @@ function renderMessageStream() {
         row.text,
         sessionScopeKey("assistant", row.id),
       );
-      const footer = element("footer", { className: "assistant-message-actions" });
-      if (!row.pending) footer.append(
-        action(
-          "copy",
-          "Copy response",
-          async () => {
-            try {
-              await navigator.clipboard.writeText(row.text);
-              showToast("Response copied.");
-            } catch {
-              showToast("Copy is unavailable.", "error");
-            }
-          },
-          { attrs: { "data-focus-key": `response:${row.id}` } },
-        ),
-      );
+      const footer = element("footer", { className: "assistant-message-actions" }, messageActionRow(row, session));
       wrapper.append(footer);
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
@@ -2995,7 +2995,13 @@ function renderMessageStream() {
           sha256: row.file.sha256,
         }),
       );
-      appendFlowRow(button);
+      const target = {key: JSON.stringify([session.id, state.sessionEpoch, row.id, row.file.sha256]),
+        role: "file", sessionId: session.id, runId: row.runId, path: row.file.path, sha256: row.file.sha256};
+      const fileActions = createChatActions({target, adapter: createProductionActionAdapter({
+        "copy-path": ({path}) => navigator.clipboard.writeText(path),
+        "copy-hash": ({sha256}) => navigator.clipboard.writeText(sha256),
+      })});
+      appendFlowRow(element("div", {className:"file-action-row"}, button, fileActions));
     } else if (row.kind === "notice") {
       appendFlowRow(
         element("p", {
@@ -3068,10 +3074,10 @@ function renderMessageStream() {
     !questionFocusTarget &&
     previousFocusKey &&
     document.activeElement === document.body
-  )
-    stream
-      .querySelector(`[data-focus-key="${CSS.escape(previousFocusKey)}"]`)
-      ?.focus();
+  ) {
+    if (previousFocusKey.startsWith("chat-action:")) restoreChatActionFocus(stream, previousFocusKey);
+    else stream.querySelector(`[data-focus-key="${CSS.escape(previousFocusKey)}"]`)?.focus();
+  }
   const reading = state.messageReading.get(session.id) || {
     followLatest,
     scrollTop: previousScrollTop,

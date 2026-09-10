@@ -1,6 +1,7 @@
+import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { renderUserMessage } from "./user-message.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
-import { el, action, markdown, copyAction } from './ui-controls.mjs';
+import { el, action, markdown } from './ui-controls.mjs';
 import { projectThread, toolStateWord, canAnswer, validPermission } from './thread-projection.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
 import { runLabels } from './inspector.mjs';
@@ -29,9 +30,22 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const recentList = el('div', { className: 'attention-recent-list' });
   const newConversation = el('button', { text: 'New conversation', attrs: { type: 'button' } });
   newConversation.addEventListener('click', () => { managing = false; signature = ''; void controller.choose(''); });
-  const recent = el('section', { className: 'attention-recents', attrs: { 'aria-label': 'Manage Attention conversations' } },
+  const recent = el('section', { className: 'attention-recents', attrs: { 'aria-label': 'Manage Attention conversations', id:'attention-conversations' } },
     el('div', { className: 'attention-recents-heading' }, el('h3', { text: 'Conversations' }), newConversation), search, recentList);
   search.addEventListener('input', renderRecent);
+  function messageActionRow(row, state) {
+    const sessionId = state.session?.id, own = openingEpoch;
+    const target = {key: JSON.stringify([sessionId, own, row.kind, row.id]), role: row.kind,
+      sessionId, runId: row.runId, projectionId: row.id, text: row.text, pending: Boolean(row.pending),
+      editDisabled: state.busy || Boolean(state.command)};
+    return createChatActions({target,
+      getTarget: () => visible && openingEpoch === own && controller.state.session?.id === sessionId ? target : null,
+      adapter: createProductionActionAdapter({
+        copy: ({text}) => navigator.clipboard.writeText(text),
+        ...(row.kind === 'user' ? {edit: () => {controller.setDraft(row.text); input.value=row.text; updateControls(); input.focus();}} : {}),
+      }),
+    });
+  }
   function renderRecent() {
     recentList.replaceChildren();
     const state = controller.state;
@@ -105,7 +119,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     }
     history.value = state.conversationId || '';
     updateControls();
-    recent.hidden = Boolean(state.conversationId) && !managing;
+    recent.hidden = !managing;
+    manage.setAttribute('aria-expanded', String(managing));
+    manage.setAttribute('aria-controls', 'attention-conversations');
     stream.hidden = managing;
     const recentKey = JSON.stringify([state.conversations, state.busy, Boolean(state.command)]);
     if (recentSignature !== recentKey) { recentSignature = recentKey; renderRecent(); }
@@ -148,6 +164,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
         if (row.kind === 'user') {
           block.className = 'attention-authored-message';
           block.append(renderUserMessage(row, { key: `${state.session?.id}:${row.id}`, viewState: messageViews,
+            actions: messageActionRow(row, state),
             editDisabled: state.busy || Boolean(state.command),
             onCopy: async text => { try { await navigator.clipboard.writeText(text); feedback.textContent = 'Message copied.'; } catch { feedback.textContent = 'Copy is unavailable.'; } feedback.hidden = false; },
             onEdit: () => { controller.setDraft(row.text); input.value = row.text; updateControls(); input.focus(); }
@@ -155,7 +172,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
         } else if (row.kind === 'assistant') {
           block.append(el('div', { className: 'attention-agent-message-heading' }, el('span', { className: 'message-role', text: 'Attention' })),
             markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
-          if (!row.pending) block.append(el('footer', { className: 'assistant-message-actions' }, copyAction(row.text, 'Copy response', row.id)));
+          block.append(el('footer', { className: 'assistant-message-actions' }, messageActionRow(row, state)));
         } else if (row.kind === 'tool') {
           const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);
           const summary = el('summary', { text: row.name });
@@ -165,12 +182,12 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           detail.open = expanded.has(row.id); block.append(detail);
         } else if (row.kind === 'question' || row.kind === 'permission') {
           const run = state.runs.find(run => run.id === row.runId);
-          block.append(el('strong', { text: row.kind === 'permission' ? 'Permission request' : 'Question' }), el('p', { text: row.prompt }));
+          block.append(el('strong', { text: row.kind === 'permission' ? 'Approval request' : 'Question' }), el('p', { text: row.prompt }));
           if (canAnswer(row, run)) {
             if (row.kind === 'permission') {
               if (validPermission(row.payload)) {
                 block.append(el('pre', { text: `${row.payload.tool} · ${row.payload.path}\n${row.payload.bytes} bytes · ${row.payload.contentSha256}\n${row.payload.preview}` }));
-                for (const [label, decision] of [['Deny','deny'],['Allow this action','allow']]) {
+                for (const [label, decision] of [['Deny','deny'],['Approve this action','allow']]) {
                   const button = el('button', { text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
                   button.disabled = state.busy || Boolean(state.readError);
                   button.addEventListener('click', () => controller.answer(row.runId, row.id, { decision })); block.append(button);
@@ -197,7 +214,8 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           activityGroup.append(block);
         } else (responseGroup || stream).append(block);
       }
-      if (focused) { let target = stream.querySelector(`[${focusAttribute}="${CSS.escape(focused)}"]`); if (target?.disabled) target = stream.querySelector(`[data-agent-focus="${CSS.escape(focused.replace(/:send$/, ''))}"]`); (target && !target.disabled ? target : input).focus(); if (target?.setSelectionRange && selection) target.setSelectionRange(...selection); }
+      if (focused?.startsWith('chat-action:')) restoreChatActionFocus(stream, focused);
+      else if (focused) { let target = stream.querySelector(`[${focusAttribute}="${CSS.escape(focused)}"]`); if (target?.disabled) target = stream.querySelector(`[data-agent-focus="${CSS.escape(focused.replace(/:send$/, ''))}"]`); (target && !target.disabled ? target : input).focus(); if (target?.setSelectionRange && selection) target.setSelectionRange(...selection); }
       stream.scrollTop = nearBottom ? stream.scrollHeight : oldTop;
     }
     clearTimeout(timer);

@@ -36,7 +36,7 @@ export const homeSets = [
 ];
 const setLabels = {
   pendingItems: "Waiting for you",
-  sessionCandidates: "In progress",
+  sessionCandidates: "Continue",
   inspectionCandidates: "Needs a look",
 };
 /* One condition sentence per empty set: what would put something here. */
@@ -144,7 +144,7 @@ export function renderHomeBand(
   const inner = el(
     "div",
     { className: "home-band-inner" },
-    el("h3", { className: "home-module-title", text: "Today" }),
+    el("h3", { className: "home-module-title", text: "Your work" }),
     row,
   );
   /* ux-conventions §4 · while a read is failing the tiles keep the last values
@@ -164,9 +164,9 @@ export function renderHomeBand(
 /* Home composition, 2026-09-10. Registry entries consume existing read-only
  * services. All requests and identity/generation guards remain in app.mjs. */
 export const homeModules = [
-  { id: "today", title: "Today", place: "band", source: "work-summary", installed: true },
+  { id: "today", title: "Your work", place: "band", source: "work-summary", installed: true },
   { id: "activity", render: activityCard, title: "Activity", place: "modules", source: "work-activity", installed: true },
-  { id: "attention", render: attentionCard, title: "Attention", place: "modules", source: "attention/query", installed: true },
+  { id: "attention", render: attentionCard, title: "Attention items", place: "modules", source: "attention/query", installed: true },
   { id: "models", title: "Models", place: "modules", source: null, installed: true },
 ];
 export const homeBandModules = () => homeModules.filter(m => m.installed && m.place === "modules");
@@ -232,18 +232,18 @@ function activityCard({ activity, onActivityDays, onActivityRetry, onOpenUsage }
 }
 function attentionCard({ attention, projects, onAttentionProject, onAttentionRetry, onAttentionPage, onAttentionOpen, onAttentionBack, onOpenAttentionWorkspace }) {
   const data = toHomeAttention(attention.data);
-  const card = el("section", { className: "home-insight-card home-attention", attrs: { "aria-label": "Attention" } });
+  const card = el("section", { className: "home-insight-card home-attention", attrs: { "aria-label": "Attention items" } });
   const project = el("select", { className: "home-attention-project", attrs: { "aria-label": "Attention project", "data-focus-key": "attention-project" } });
   project.append(...projects.map(p => el("option", { text: p.name, attrs: { value: p.id } })));
   project.value = attention.projectId ?? "";
   project.hidden = !projects.length;
   project.addEventListener("change", () => onAttentionProject(project.value));
-  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("message-square", { size: 16 }), homeButton("Attention", onOpenAttentionWorkspace, "attention-workspace-link", "home-attention-heading-link")), project));
+  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, homeButton("Attention items", onOpenAttentionWorkspace, "attention-workspace-link", "home-attention-heading-link")), project));
   if (!projects.length) {
     card.append(el("p", { className: "form-help", text: attention.loading ? "Loading projects…" : "Create a project to keep track of what needs attention." }));
     return card;
   }
-  moduleMessage(card, attention, "Attention", onAttentionRetry);
+  moduleMessage(card, attention, "Attention items", onAttentionRetry);
   if (attention.selectedId) {
     card.append(homeButton("Back to items", onAttentionBack, "attention-back"));
     if (attention.detailLoading) card.append(el("p", { className: "form-help", text: "Loading item…", attrs: { role: "status" } }));

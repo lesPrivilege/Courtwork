@@ -47,6 +47,17 @@ const icons = new Set([
   "message-square",
   "arrow-down",
   "external-link",
+  "volume-2",
+  "thumbs-up",
+  "thumbs-down",
+  "rotate-ccw",
+  "git-branch",
+  "share-2",
+  "pin",
+  "ellipsis",
+  "pause",
+  "play",
+  "download",
 ]);
 /* IC-1 / copy-convention §4 · the glyph slot is 16 in a row, 18 on a control and
  * 20 in navigation. The size is stated where the glyph is built, not patched

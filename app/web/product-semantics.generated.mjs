@@ -807,6 +807,510 @@ export const productSemantics = freeze({
       },
       "reviewStatus": "mapped",
       "ownerAnchor": "unknown"
+    },
+    {
+      "semanticKey": "message.copy",
+      "meaning": "Copy response for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Copy response"
+      },
+      "accessibleName": {
+        "en": "Copy response"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "copy",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "copy",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.edit",
+      "meaning": "Edit as new message for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Edit as new message"
+      },
+      "accessibleName": {
+        "en": "Edit as new message"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "square-pen",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "edit",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.read-aloud",
+      "meaning": "Read aloud for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Read aloud"
+      },
+      "accessibleName": {
+        "en": "Read aloud"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "volume-2",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "read-aloud",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.stop-reading",
+      "meaning": "Stop reading for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Stop reading"
+      },
+      "accessibleName": {
+        "en": "Stop reading"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "square",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "stop-reading",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.like",
+      "meaning": "Like response for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Like response"
+      },
+      "accessibleName": {
+        "en": "Like response"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "thumbs-up",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "like",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.dislike",
+      "meaning": "Dislike response for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Dislike response"
+      },
+      "accessibleName": {
+        "en": "Dislike response"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "thumbs-down",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "dislike",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.regenerate",
+      "meaning": "Regenerate response for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Regenerate response"
+      },
+      "accessibleName": {
+        "en": "Regenerate response"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "rotate-ccw",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "regenerate",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.fork",
+      "meaning": "Fork from this message for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Fork from this message"
+      },
+      "accessibleName": {
+        "en": "Fork from this message"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "git-branch",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "fork",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.share",
+      "meaning": "Share message for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Share message"
+      },
+      "accessibleName": {
+        "en": "Share message"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "share-2",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "share",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.pin",
+      "meaning": "Pin message for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Pin message"
+      },
+      "accessibleName": {
+        "en": "Pin message"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "pin",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "pin",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.copy-path",
+      "meaning": "Copy path for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Copy path"
+      },
+      "accessibleName": {
+        "en": "Copy path"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "copy",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "copy-path",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.copy-hash",
+      "meaning": "Copy recorded version hash for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Copy recorded version hash"
+      },
+      "accessibleName": {
+        "en": "Copy recorded version hash"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "copy",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "copy-hash",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.download",
+      "meaning": "Save a copy for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Save a copy"
+      },
+      "accessibleName": {
+        "en": "Save a copy"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "download",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "download",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.open-with",
+      "meaning": "Open with an app for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Open with an app"
+      },
+      "accessibleName": {
+        "en": "Open with an app"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "external-link",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "open-with",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.reveal",
+      "meaning": "Show in folder for the captured target; capability comes only from its action adapter.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Show in folder"
+      },
+      "accessibleName": {
+        "en": "Show in folder"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "folder",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "reveal",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.pause-reading",
+      "meaning": "Pause reading within its captured local target.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Pause reading"
+      },
+      "accessibleName": {
+        "en": "Pause reading"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "pause",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "pause-reading",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "message.resume-reading",
+      "meaning": "Resume reading within its captured local target.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Resume reading"
+      },
+      "accessibleName": {
+        "en": "Resume reading"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "play",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "resume-reading",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "menu.more",
+      "meaning": "More {target} actions within its captured local target.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "More {target} actions"
+      },
+      "accessibleName": {
+        "en": "More {target} actions"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "ellipsis",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/chat-actions.mjs#createProductionActionAdapter",
+      "interactionRole": "more",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
     }
   ]
 });

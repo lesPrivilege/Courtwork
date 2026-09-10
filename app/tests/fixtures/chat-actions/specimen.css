@@ -1,0 +1,9 @@
+body { display: block; height: auto; overflow: auto; }
+.action-specimen { max-width: 850px; margin: auto; padding: var(--space-5); color: var(--ink); }
+.action-specimen h1 { font-size: var(--text-page-title); }
+.specimen-controls { display: flex; flex-wrap: wrap; gap: var(--space-3); padding-block: var(--space-4); border-bottom: 1px solid var(--line); }
+.specimen-controls label { display: grid; gap: var(--space-1); }
+.specimen-controls select, .specimen-controls button { min-height: 44px; }
+#messages > article { margin-block: var(--space-5); padding-block: var(--space-4); border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+#messages > article > p { white-space: pre-wrap; }
+#messages h2 { font-size: var(--text-body); }

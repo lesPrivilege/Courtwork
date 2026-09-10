@@ -1038,14 +1038,12 @@ export function createRuntimeView(
       else open.add(resource.id);
       render();
     });
+    const compactTool = resource.kind === "tool" && resource.installed === true && resource.running === null;
+    const lifecycle = [dimension("Installed", resource.installed ? "Yes" : "No"), dimension(resource.kind === "mcp_server" ? "Connected" : "Running", resource.running === null ? "Not applicable" : resource.running ? "Yes" : "No")];
     const dimensions = el(
       "div",
       { className: "runtime-dimensions" },
-      dimension("Installed", resource.installed ? "Yes" : "No"),
-      dimension(
-        resource.kind === "mcp_server" ? "Connected" : "Running",
-        resource.running === null ? "n/a" : resource.running ? "Yes" : "No",
-      ),
+      ...(compactTool ? [] : lifecycle),
       readOnly
         ? dimension("Exposed", resource.exposed ? "Exposed" : "Not exposed")
         : exposureCell(resource, scope),
@@ -1059,7 +1057,7 @@ export function createRuntimeView(
     const row = el(
       "div",
       {
-        className: `runtime-row${child ? " is-child" : ""}`,
+        className: `runtime-row${child ? " is-child" : ""}${compactTool ? " is-tool-summary" : ""}`,
         attrs: { "data-resource": resource.id, "data-kind": resource.kind },
       },
       title,
@@ -1079,6 +1077,7 @@ export function createRuntimeView(
       attrs: { id: detailId, hidden: expanded ? null : "" },
     });
     if (expanded) {
+      if (compactTool) detail.append(el('div', {className:'runtime-dimensions'}, ...lifecycle));
       if (resource.description)
         detail.append(el("p", { className: "runtime-description", text: resource.description }));
       detail.append(...[layerBlock(resource, scope), permissionDetail(resource), sourceDetail(resource)].filter(Boolean));
@@ -1755,7 +1754,7 @@ export function createRuntimeView(
         "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft.",
       ),
       ...scopeStrip({ where: "instructions" }),
-      kindChips("instructions", CONTEXT_KINDS),
+      ...[kindChips("instructions", CONTEXT_KINDS)].filter(Boolean),
     );
     const resources = (snapshot.resources || []).filter((resource) =>
       CONTEXT_KINDS.includes(resource.kind),
@@ -1788,7 +1787,7 @@ export function createRuntimeView(
       mount.append(
         el("section", { className: "runtime-kind", attrs: { "data-kind": "unsupported" } },
           el("h5", { text: "Not available in this host" }),
-          note("Named by the runtime contract, with no adapter behind it. Listed so the absence is legible; there is nothing to operate."),
+          note("This host does not provide these capabilities."),
           planned),
       );
   }
@@ -1876,7 +1875,7 @@ export function createRuntimeView(
     }
     mount.append(
       note(
-        "Configured, connected, exposed and permitted are four different facts. A connected server grants the model nothing; an exposed tool still answers to the policy on every call.",
+        "Connect servers and choose tools. Each tool call still follows its access policy.",
       ),
       ...scopeStrip({ where: "capabilities" }),
     );
@@ -1924,14 +1923,15 @@ export function createRuntimeView(
       mount.append(
         el("section", { className: "runtime-kind", attrs: { "data-kind": "unsupported" } },
           el("h5", { text: "Not available in this host" }),
-          note("Named by the runtime contract, with no adapter behind it. Listed so the absence is legible; there is nothing to operate."),
+          note("This host does not provide these capabilities."),
           planned),
       );
   }
 
   function configurableView() {
     const wrap = el("div", { className: "runtime-tabpanel", attrs: { "data-panel": "configurable" } });
-    wrap.append(kindChips("capabilities", ["tool", "mcp_server"]));
+    const chips = kindChips("capabilities", ["tool", "mcp_server"]);
+    if (chips) wrap.append(chips);
     const resources = snapshot.resources || [];
     const children = new Map();
     for (const resource of resources) {
@@ -2245,6 +2245,7 @@ export function createRuntimeView(
 
   function environmentFacts() {
     const config = environment.config?.config;
+    const catalogModel = environment.catalog?.models?.find(entry=>entry.provider===config?.provider && entry.id===config?.model);
     const provider = resourceById("provider:current");
     const model = resourceById("model:current");
     const secret = resourceById("secret:provider");
@@ -2254,23 +2255,23 @@ export function createRuntimeView(
     const section = el("section", { className: "runtime-environment" });
     section.append(
       note(
-        "The same record the Connection above edits, read back from the host. It describes the next run, not one already going; a chat already running keeps the values its run froze. Budgets and the sandbox are facts the host reports, not settings.",
+        "Saved configuration for new runs. Existing runs keep their recorded configuration.",
       ),
       readOnlyRow("Provider", "Where model requests are sent.", provider?.title || config?.provider || "Not loaded"),
       readOnlyRow("Model", "Used for every new run in this workspace.", model?.title || config?.model || "Not loaded"),
       readOnlyRow("API format", "Wire format the provider expects.", config?.api || "Not loaded"),
       readOnlyRow("Base URL", "Empty means the provider default.", config?.baseUrl || "Provider default"),
       readOnlyRow(
-        "API key",
-        "Stored on this device only; it is never shown.",
-        secret?.credentialStatus === "configured" || environment.config?.credentialStatus === "configured"
-          ? "Saved"
-          : "Not saved",
+        "Credential",
+        "Availability reported by the host. The key is never shown.",
+        environment.config?.execution?.mode === "local-fake" ? "No key needed" :
+          secret?.credentialStatus === "configured" || environment.config?.credentialStatus === "configured"
+            ? "Configured" : environment.config ? "Not configured" : "Not loaded",
       ),
       readOnlyRow(
         "Reasoning effort",
-        "The provider does not report an effort value or the values it would accept, so this page cannot state one. Backend request BE-12.",
-        "Not reported",
+        "Saved request for new runs; actual effort is recorded in each request's measurements.",
+        config?.reasoningEffort || (config ? "Model default" : "Not loaded"),
       ),
       readOnlyRow(
         "Filesystem boundary",
@@ -2298,12 +2299,12 @@ export function createRuntimeView(
         hostPolicy?.title || "Not reported",
       ),
       readOnlyRow(
-        "Context budget",
-        "No maximum context size is reported over the API, so no share, quota or remaining figure is drawn.",
-        "Not reported",
+        "Context window",
+        "Declared capacity for this model; it is not remaining context.",
+        Number.isSafeInteger(catalogModel?.contextWindow) && catalogModel.contextWindow>0 ? `${catalogModel.contextWindow.toLocaleString()} tokens` : "Not reported",
       ),
     );
-    const edit = action("settings-2", "Edit in General", () => onEditConnection?.(), {
+    const edit = action("settings-2", "Edit connection", () => onEditConnection?.(), {
       visible: true,
       className: "quiet-button settings-jump",
     });
@@ -2339,7 +2340,10 @@ export function createRuntimeView(
       mount.append(note("The runtime has not been read yet."));
       return;
     }
-    mount.append(environmentFacts());
+    const details = el('details', {className:'runtime-environment-details'}, el('summary',{text:'Saved model and host details'}), environmentFacts());
+    details.open=open.has('environment-details');
+    details.addEventListener('toggle',()=>{if(details.open)open.add('environment-details');else open.delete('environment-details');});
+    mount.append(details);
   }
 
   /* ── render ────────────────────────────────────────────────────────── */

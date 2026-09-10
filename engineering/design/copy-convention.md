@@ -20,9 +20,13 @@
 
 可见文字、accessible name、tooltip 三者同词根；icon-only 控件的 accessible name 必须完整。
 
-## 3. 词表（用户可见的全部概念；只用此表，不发明）
+## 3. 词表（用户可见概念；沿 owner 与语义登记更新）
 
 2026-09-09 改写（WK-89，FE-01）。上一版为工程内部一致而回避了成熟产品已有的用户心智；本版逆转：**用户看见成熟 agent 的词，架构词退回 Developer 与代码。** 一行的三列是「用户看见什么 / 它是什么 / 什么词不再出现」。
+
+2026-09-11 · VS-01 修订：本表的工作对象与授权边界结合 [Product Semantics Registry](product-semantics/README.md) 使用。Registry 管已裁文字/图形映射，Runtime/Core/service 继续管对象、能力与状态。未迁移 raw consumer 不因登记存在而算完成。Attention 是代理；Attention items 是队列入口；不另创 Inbox owner。Spark 是维护面，不是 Refresh 的别名。Review 的证据判断、Approval 的单次许可、Permissions 的持久策略分别保留。
+
+Home 的 `Continue` 指保留 Chat 的读取列表，包含已完成、无 Run 与待续的会话，不声称正在运行。`Your work` 是当前保留工作汇总，不冒称今日时间桶。Usage 保留 UTC 期间和 reported tokens 口径。Inspector 的 `Model requests`、`Tool activity`、`Event trace` 分别是请求测量、工具生命周期与原始事件；不把 History、Activity、Trace 互换。
 
 ### 3.1 工作对象
 
@@ -30,9 +34,9 @@
 |---|---|---|
 | Chat | 一次会话；未绑定 Matter 时它就是全部 | Session（架构词，见 §3.6）· Thread · Task |
 | Work | 绑定了 Matter 的会话；同一个对象换了交互契约，不是另一份存储 | Workspace（那是文件夹）· Workbench |
-| Run | Work 内一次执行 | Job · Turn |
+| Run | Chat 或 Work 内一次记录的执行；不等于一个模型请求或一轮对话 | Job · Turn · 无条件改称 Execution |
 | Project | 若干 Chat / Work 与其文件的持久容器 | Folder（那是磁盘上的东西）· Space |
-| Matter | SE 的持久治理边界；产品 UI 现在不显 | — |
+| Matter | SE 的持久治理边界；Work、Spark 与有关详情按真实 owner 显示 | Project · Task |
 | Workspace | **只**指一次真实的文件夹绑定 | 泛指右侧工作面、泛指 Matter |
 | Run history · Chat overview · Chat files | 上述对象的三个只读入口 | Session overview · Session files |
 | Continue in Work | 把这个 Chat 绑定到一个 Matter 的那一个动作（既有 / 新建两条都叫它） | Bind to chat · Create binding · Convert · Migrate |

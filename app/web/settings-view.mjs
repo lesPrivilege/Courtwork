@@ -55,14 +55,15 @@ export function renderIntegrationsIntake(container) {
     el("h4", { className: "settings-block-title", text: "Adding an MCP server" }),
     el("p", {
       className: "form-help",
-      text: "A connection follows the same six steps as a model connection. Three of them have somewhere to happen today and three do not; this list says which is which rather than offering a control that cannot act.",
+      text: "Servers are added through host configuration. Manage imported servers below.",
     }),
     el(
-      "ol",
+      "details",
       { className: "connection-flow" },
+      el("summary", { text: "Setup steps and current limits" }),
       ...MCP_INTAKE_STEPS.map(([title, note]) =>
         el(
-          "li",
+          "div",
           {
             className: note.startsWith("Not available yet")
               ? "connection-step is-pending"
@@ -919,7 +920,7 @@ export function createSettingsView(
       session: getSession()?.session || null,
       active: Boolean(getSession()?.active),
     });
-    onRuntimeEnvironment?.({ config: snapshot, info });
+    onRuntimeEnvironment?.({ config: snapshot, info, catalog });
   }
   /* 一行一条连接。行的来源是后端的连接注册表，不是"生效的那一条"反推出来的单数：
      今日目录连接三条、用户连接零或多条，都走同一行结构。Configure 不是第二个编辑
@@ -2509,7 +2510,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       el("h4", { className: "settings-block-title", text: "New chats" }),
       settingsRow(
         "File access",
-        "The value a chat starts with. It applies when the chat is created; changing it never changes a chat that already exists.",
+        "Used when a chat is created. Existing chats keep their file access.",
         control,
       ),
     );
@@ -2523,27 +2524,17 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   }
   function renderData() {
     const info = latest.info;
-    document.getElementById("settings-data").replaceChildren(
-      el("h4", { className: "settings-block-title", text: "Data" }),
-      el("p", {
-        className: "settings-row-help",
-        text: "Read from the host's own report. Nothing here is editable from the browser.",
-      }),
-      /* FN-28 · 主机没有报数据目录，就说没有报，不拿 origin 冒充一个路径。
-         后端登记见 delivery-wk12 的 BE 请求。 */
-      readOnlyRow(
-        "Data directory",
-        "The runtime does not report its path over the API, so this page cannot state it. It is the --data-dir the host was started with.",
-        "Not reported",
-      ),
-      readOnlyRow("Adapter", "The runtime adapter serving this workspace.", info?.adapterId || "Not loaded"),
+    const mount = document.getElementById("settings-data");
+    const open = mount.querySelector('details')?.open || false;
+    const details = el('details', { className: 'settings-host-details' },
+      el('summary', { text: 'Host details' }),
+      readOnlyRow("Data directory", "The host does not report its data directory.", "Not reported"),
+      readOnlyRow("Adapter", "Serves this workspace.", info?.adapterId || "Not loaded"),
       readOnlyRow("Host state", "Whether the host is accepting work.", info?.state || "Not loaded"),
-      readOnlyRow(
-        "Tools",
-        "The tool names this host exposes to a run.",
-        (info?.capabilities?.tools || []).join(", ") || "Not loaded",
-      ),
+      readOnlyRow("Tools", "Tools exposed by this host.", (info?.capabilities?.tools || []).join(", ") || "Not loaded"),
     );
+    details.open = open;
+    mount.replaceChildren(el("h4", { className: "settings-block-title", text: "Data" }), details);
   }
 
   /* 只有 Data 依赖服务器快照，所以只有它跟着 update 重画。Appearance、Keyboard 与

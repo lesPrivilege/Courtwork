@@ -74,9 +74,9 @@ export function toStatTiles(summary, { scope, observedAt, load }) {
       `Open questions and approval requests, ${where}, right now.`,
     ),
     tile(
-      "In progress",
+      "Continue",
       "sessionCandidates",
-      `Chats with recorded activity, ${where}, right now.`,
+      `Retained chats, ${where}, right now.`,
     ),
     tile(
       "Needs a look",

@@ -7,7 +7,7 @@ import { semanticPresentation, semanticAction, semanticIcon } from '../web/seman
 import { withTinyDom } from './tiny-dom.mjs';
 const glyphSource=JSON.parse(await readFile(`${root}/tools/ui-vendor/lucide/sources.json`,'utf8'));
 const glyphs=new Set(Object.keys(glyphSource.files).map(name=>name.replace(/\.svg$/,'')));
-test('registry owners and generated browser projection agree',async()=>{assert.equal((await checkRegistry()).entries,27);});
+test('registry owners and generated browser projection agree',async()=>{assert.equal((await checkRegistry()).entries,productSemantics.entries.length);});
 test('single-purpose collisions fail while contextual shared geometry is admitted',()=>{
   assert.deepEqual(validateRegistry(productSemantics,glyphs),[]);
   const data=structuredClone(productSemantics);

@@ -90,7 +90,7 @@ test("toStatTiles reads the three sets' totals in the window the backend can exp
     tiles.map((tile) => [tile.label, tile.value]),
     [
       ["Waiting for you", 1],
-      ["In progress", 41],
+      ["Continue", 41],
       ["Needs a look", 1],
     ],
   );
