@@ -106,3 +106,4 @@ export CS_CONFIG=<serve 输出的 dataDir>/fixture-config.json
 - 第 4 项：`app.mjs` 按实际宽度计算收起阈值，属于本单合理范围，接受。
 - 第 5 项：740 是阅读列上限，不是最小值；640 暂作保留右栏的下限，1280 下 648 不判失败。
 - EX-IC2 的清点可以继续只读；产品整改等组合基线固定后再开写。
+- **摘要模块复核**：非作者复核 `2265649`（分支 `claude/summary-disclosure-review`）的结论是有条件通过，D1、D2 待修。用户对 Q1–Q3 的裁定记在整合分支 `420370c` 的 `evidence/cs01-ci-bf-integration/README.md`，本记录只作引用。
