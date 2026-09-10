@@ -1,0 +1,22 @@
+{
+  "source": "/mnt/data/cw-review/probe-source/client.mjs",
+  "gitBlob": "9e697d444a3990e674ee38224fd49d24cff1c442",
+  "node": "v22.16.0",
+  "scope": "Exact CoreClient code; synthetic workers; no real Core database, provider, or full-suite run",
+  "reports": [
+    {
+      "case": "close-no-ack",
+      "outcome": "deadline-exceeded",
+      "observedMs": 1502,
+      "workerAlive": true,
+      "pending": 1
+    },
+    {
+      "case": "startup-no-ready",
+      "ready": false,
+      "code": "CORE_UNAVAILABLE",
+      "message": "CORE_UNAVAILABLE: bridge ready timeout",
+      "workerAliveAfterFailure": true
+    }
+  ]
+}

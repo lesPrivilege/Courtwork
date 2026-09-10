@@ -41,7 +41,7 @@
 | BE-37 | 目录扩集：新增一个真实 provider 身份（首轮候选 `google` + Gemini API key）所需的允许集、目录条目与传输格式；保存与执行仍受允许集与凭据绑定约束（BE-17/18 的握手成功不等于可保存执行） | PV 首轮 dogfood；模型面按 provider 分组 | PV-11 / PV-12 |
 | BE-38 | 请求遥测的错误类别字段：失败与中断落一个闭集 error class（认证 / 配额 / 传输 / 目录 / 取消 / 其他），与 `phase` 分列；今日失败只落 `phase` 且清空 usage | PV-13 可追溯性；Run inspector 与 usage 面 | PV-18 |
 | BE-39 | 连接冒烟端点：对一条**已保存**的连接发一次最小的真实生成（同一 provider / 凭据解析 / wire 格式 / 模型 id，最小输出上限、无工具、无 workspace、不进会话历史），返回可显示的回执（时间、连接、模型、凭据来源档、`observedModel`、模型回复的首行、失败类别），回执绑 `{providerConfig 版本, credentialGeneration}` 持久化、二者一变即失效；只在用户显式触发时执行 | PV 连接面的第三级阶梯；WO-PV-FE01 第 6 项 | PV-35 / PV-37 / PV-38 / PV-39 |
-| BE-40 | `GET /provider-connections` 的每条记录附 capability（至少 contextWindow 已知与否、压缩是否启用），使连接列表每一行都能说出与生效行同一句能力原话，而不必由前端硬编码后端句子 | PV 连接列表非生效行 | PV-56 |
+| BE-40@Provider | `GET /provider-connections` 的每条记录附 capability（至少 contextWindow 已知与否、压缩是否启用），使连接列表每一行都能说出与生效行同一句能力原话，而不必由前端硬编码后端句子 | PV 连接列表非生效行 | PV-56 |
 | BE-29 | 跨 run / 会话的 usage 聚合端点：输入 / 输出 / 缓存 token 分列、计费来源是否等于账单、统计区间与时区、聚合层面的 "Not reported"（对应单 run `missing`） | CC-D0 Usage 模块；落地前不安装 | WK-114 / EX-CC2 |
 | BE-30 | 授权决定的乐观并发：`POST /runs/:id/questions/:qid` 接受可选 `expectedContentSha256` / `expectedToolCallId`，与服务端未决载荷比对，不一致返回 409 `version_mismatch`；前端不自造版本号 | Approval 卡（今日请求体只有 `{decision}`） | WK-115 / FE-04 §10 |
 | BE-31 | Question 的受限结构化 schema（`string` / `number` / `boolean` / `enum`，无嵌套）**连同**服务端复验 MCP "MUST NOT request sensitive information"；两句一体 | 问题卡（今日自由文本单值） | WK-115 ⑦ / FE-04 §10 |
@@ -84,10 +84,12 @@ ATT-FE沿既有单writer队列接入，不将最小registry视图当详情权限
 作者 `9cbae87` / `470498b` 的认证inspect-only服务经Astra非作者复核接收，见 [合流证据](../../../../evidence/runtime-source-service-integration-20260910/README.md) 与 [HTTP合同](../../../../docs/runtime-control/api.md)。现有解析器可经POST调用；不新增locator获取、安装、权限或模型工具。UI与完整R2获取仍未实现；共享body超限断连事实已明确，不宣称可见JSON 413。
 
 
-## BE-40 · Attention registry 排序口径（Fable，2026-09-10）
+## BE-40@Attention · Attention registry 排序口径（Fable，2026-09-10）
 
 | 编号 | 请求 | 依据 |
 |---|---|---|
-| BE-40 | **`GET /attention/registry` 与 `query{kind:registry}` 的返回顺序写进合同。** 现合同 §Queries 定义了 `items / count / offset / next_offset / truncated / disclosure`，但没有声明排序。triage 面的默认顺序是产品事实，前端不能在分页边界上自行重排（客户端排序跨页错乱）。请求默认序 `needs_you > investigating > waiting > later > resolved`，同档内 `updated_at` 降序，并在合同写明；若 `app/core/attention.py` 已有确定顺序，写明现状即可，不必改实现 | WK-156 / WK-157；[设计页 §2](../../../design/attention-triage-2026-09-10/README.md) |
+| BE-40@Attention | **`GET /attention/registry` 与 `query{kind:registry}` 的返回顺序写进合同。** 现合同 §Queries 定义了 `items / count / offset / next_offset / truncated / disclosure`，但没有声明排序。triage 面的默认顺序是产品事实，前端不能在分页边界上自行重排（客户端排序跨页错乱）。请求默认序 `needs_you > investigating > waiting > later > resolved`，同档内 `updated_at` 降序，并在合同写明；若 `app/core/attention.py` 已有确定顺序，写明现状即可，不必改实现 | WK-156 / WK-157；[设计页 §2](../../../design/attention-triage-2026-09-10/README.md) |
 
 **明确不请求**（附理由，免得后续 session 重开）：registry 加 `reason` 摘要——合同刻意的最小视图边界，WO 约束表原话「不把 registry 当详情权限」；每状态计数——WK-117 (b) 不以 count 代替条目，且需五次查询；snooze 到期自动回归——需 scheduler owner，合同明说 due time 不是调度器。
+
+编号消歧（RV26-00，2026-09-10）：原 BE-40 两条来源均保留，现使用 `BE-40@Provider`（PV-56）与 `BE-40@Attention`（WK-156/157）作为唯一限定别名；裸 BE-40 不得用于领取或关闭。不是删除或关闭任一需求。

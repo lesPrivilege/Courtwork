@@ -16,6 +16,12 @@
 
 更新：2026-09-10。唯一开发入口为 `Courtwork`，主线 `main`。本次Attention后端合流读取main基线 `fa90763a4da1cdede47778b6487c801c0acb74cc`；此前合流已接收 Harness Core `d6247a8`（代码 `1332691`）与 Fable 文档 `99a9279`，实际合流证据见 [清洁节点回执](../evidence/harness-main-integration-20260908/README.md)。实际接单前重查HEAD与工作树，不按历史fresh/current路径继续。
 
+## RV26 审查入账与首片施工（2026-09-10）
+
+用户授权依序开工并指定 Astra 负责架构、裁决和关键自研 Core，Luna 负责探索与有界局部实现。从实际设计交接 HEAD `12eb220` 隔离消费固定 `0c60f4f` 审查包，33 单仅为现有路线执行别名；[基线与写权](reviews/2026-09-10/README.md)、[派工依赖](reviews/2026-09-10/dispatch.json)保留原单映射及条件触发。实际 Runtime10/Core4/app5 不变，架构入口旧值已纠正，BE-40 两来源限定消歧。原包字节与历史验收保持。
+
+首片 RV26-Q01 产品 `74ab7ca` 已实现：Astra 撰写 CoreClient 有界生命周期、失败 worker 回收、代际/admission 隔离与关闭后兼容重开；Luna 构造13项故障反例，另一个非作者 Luna 在固定SHA独立树复核13/13通过。Q02 配置持久化随后串行，Q04/Q05/LG00 待明确各自写权。资料治理→Spark→稀疏 Attention 依赖链保留，现有前端单 writer 不变；本轮不代表33单交付、真实模型验证或 G1–G5 关闭。具体完成范围以[本轮回执](../evidence/rv26-20260910/README.md)为准。
+
 ## 当前合流：Pages 实录、并行产品与新研究理念（2026-09-10）
 
 从实际main `8b1e0b1` 隔离接收Attention收尾、MA2前后端/文档、provider connections及Fable裁决；产品固定到 `e818463`。RuntimeStore **10** 消解两分支schema9重号，保留主线Run.supersedes并严格原字节备份迁移；Core4/app5保持。全量522/522、smoke与Luna固定版本有界迁移复核通过。此段覆盖旧段的当前schema描述，历史验收记录仍保留原版本。

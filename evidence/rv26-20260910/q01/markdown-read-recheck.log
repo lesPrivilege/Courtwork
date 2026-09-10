@@ -1,0 +1,10 @@
+✔ real HTTP candidate pages preserve Markdown bytes, and wrong Matter scope is refused (2759.9725ms)
+✔ accepted Artifact pages remain exact after producer deletion and extension unload (2824.646916ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12102.037667

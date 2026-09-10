@@ -1,0 +1,18 @@
+✔ T-CANCEL-1: cancel during tool execution leaves no partial file (681.126042ms)
+✔ cancelling a run with no pending question also ends cancelled (205.780333ms)
+startup: reconciled workspace of session 32bfd4f1-3ac3-4b77-9a3d-839e90d6ed14 after an interrupted run; 0 file(s) are not covered by a recorded content version
+✔ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (1941.088041ms)
+✔ T-USAGE-1: a completed run records non-zero usage with missing:false (457.82725ms)
+✔ T-USAGE-2: cancelling in the second turn keeps the first turn's usage and marks missing (1029.045583ms)
+✔ T-USAGE-3: a provider error after a good turn fails the run without erasing usage (14472.771ms)
+✔ T-BUDGET-1: waiting_user time is excluded from the execution deadline (1495.416ms)
+✔ T-USAGE-4: a retried provider call is surfaced as a notice and counted once (2500.588958ms)
+✔ T-USAGE-5: a long waiting_user then an answer completes with whole usage and no budget trip (3003.782333ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26719.269583

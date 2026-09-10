@@ -1,0 +1,195 @@
+✖ no ready frame rejects within readyTimeoutMs and reaps the failed worker (320.962792ms)
+✖ a request with no response times out, clears pending, and reaps the transport (378.960209ms)
+✖ close ignores a missing close acknowledgement, is bounded, and reaps the worker (373.842083ms)
+✖ a partial response frame is bounded by the request deadline and the transport is reaped (371.826833ms)
+✖ invalid JSON invalidates and reaps the transport (555.20725ms)
+✖ an oversized unterminated frame is rejected before unbounded buffering (352.523917ms)
+✖ stderr is capped while a failed request is cleaned up (351.395417ms)
+✔ concurrent starts share one worker and one readiness result (49.680417ms)
+✖ close during startup rejects start and reaps the child (309.072917ms)
+✖ maxPending rejects excess calls and failed transport cleanup leaves no pending entries (169.339292ms)
+✖ a failed transport can restart after its child has been reaped (548.41125ms)
+✖ late events from an old generation cannot satisfy or damage the replacement (37.975792ms)
+✖ close rejects in-flight admissions, then permits a reaped replacement generation (341.088042ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 1
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4354.152458
+
+✖ failing tests:
+
+test at app/tests/review-core-client-lifecycle.test.mjs:83:1
+✖ no ready frame rejects within readyTimeoutMs and reaps the failed worker (320.962792ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:91:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:98:1
+✖ a request with no response times out, clears pending, and reaps the transport (378.960209ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:104:19)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:113:1
+✖ close ignores a missing close acknowledgement, is bounded, and reaps the worker (373.842083ms)
+  AssertionError [ERR_ASSERTION]: close waited indefinitely for a close acknowledgement
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:119:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:128:1
+✖ a partial response frame is bounded by the request deadline and the transport is reaped (371.826833ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:134:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:141:1
+✖ invalid JSON invalidates and reaps the transport (555.20725ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:148:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:154:1
+✖ an oversized unterminated frame is rejected before unbounded buffering (352.523917ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:160:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:167:1
+✖ stderr is capped while a failed request is cleaned up (351.395417ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:173:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:194:1
+✖ close during startup rejects start and reaps the child (309.072917ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  Symbol(timeout)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:201:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:210:1
+✖ maxPending rejects excess calls and failed transport cleanup leaves no pending entries (169.339292ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge stdout closed
+      at Interface.<anonymous> (file:///private/tmp/cw-rv26-q01-old.efd9VO/app/core/client.mjs:94:39)
+      at Interface.emit (node:events:521:24)
+      at Interface.close (node:internal/readline/interface:555:10)
+      at Socket.onend (node:internal/readline/interface:273:10)
+      at Socket.emit (node:events:521:24)
+      at endReadableNT (node:internal/streams/readable:1729:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge stdout closed',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:228:1
+✖ a failed transport can restart after its child has been reaped (548.41125ms)
+  AssertionError [ERR_ASSERTION]: first failed generation was not reaped
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:234:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:243:1
+✖ late events from an old generation cannot satisfy or damage the replacement (37.975792ms)
+  AssertionError [ERR_ASSERTION]: stale ready frame selected the old generation
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:250:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/review-core-client-lifecycle.test.mjs:259:1
+✖ close rejects in-flight admissions, then permits a reaped replacement generation (341.088042ms)
+  AssertionError [ERR_ASSERTION]: operation exceeded its configured lifecycle deadline
+      at assertRejected (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:76:10)
+      at TestContext.<anonymous> (file:///private/tmp/cw-rv26-execution/app/tests/review-core-client-lifecycle.test.mjs:271:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

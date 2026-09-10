@@ -1,0 +1,119 @@
+✖ governance policy SIGKILL before_commit preserves zero/one complete effect (6046.906667ms)
+✖ governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect (5579.476458ms)
+✖ Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup (7661.201959ms)
+✖ migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes (5343.772792ms)
+✔ governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together (6796.659292ms)
+✔ governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together (2788.755333ms)
+✔ disclosure expiry is checked at query time with a deterministic future clock (1014.757166ms)
+✖ artifact read is paged by code point and bound to an open trusted Matter/Run (6066.784959ms)
+✖ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (6207.898333ms)
+✖ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (5838.236875ms)
+✖ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (6947.384791ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (13071.245792ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (2225.731375ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 5
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42499.060083
+
+✖ failing tests:
+
+test at app/tests/governance-recovery.test.mjs:48:3
+✖ governance policy SIGKILL before_commit preserves zero/one complete effect (6046.906667ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/governance-recovery.test.mjs:48:3
+✖ governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect (5579.476458ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/governance-recovery.test.mjs:67:1
+✖ Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup (7661.201959ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/governance-recovery.test.mjs:81:1
+✖ migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes (5343.772792ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/work-artifact-read.test.mjs:9:1
+✖ artifact read is paged by code point and bound to an open trusted Matter/Run (6066.784959ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/work-core.test.mjs:26:1
+✖ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (6207.898333ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/work-core.test.mjs:55:1
+✖ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (5838.236875ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }
+
+test at app/tests/work-core.test.mjs:66:1
+✖ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (6947.384791ms)
+  Error [CoreClientError]: CORE_UNAVAILABLE: bridge ready timeout
+      at Timeout.<anonymous> (file:///private/tmp/cw-rv26-execution/app/core/client.mjs:98:9)
+      at listOnTimeout (node:internal/timers:605:17)
+      at process.processTimers (node:internal/timers:541:7) {
+    code: 'CORE_UNAVAILABLE',
+    detail: 'bridge ready timeout',
+    operation: null,
+    source: 'core_bridge'
+  }

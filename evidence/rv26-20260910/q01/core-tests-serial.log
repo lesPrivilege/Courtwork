@@ -1,0 +1,21 @@
+✔ governance policy SIGKILL before_commit preserves zero/one complete effect (1292.286708ms)
+✔ governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect (2573.335958ms)
+✔ Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup (3829.499166ms)
+✔ migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes (2631.976208ms)
+✔ governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together (680.315917ms)
+✔ governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together (752.24275ms)
+✔ disclosure expiry is checked at query time with a deterministic future clock (396.567334ms)
+✔ artifact read is paged by code point and bound to an open trusted Matter/Run (182.215375ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (356.518458ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (409.69125ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (1584.555583ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (987.409417ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (499.570167ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16706.866833

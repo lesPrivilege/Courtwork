@@ -1,0 +1,224 @@
+{
+  "base_sha": "12eb2208f931c1b530f54c7f947351a041c92c1d",
+  "review_sha": "0c60f4ffe0e4d939712df3910d2404c226e8bfdf",
+  "main_sha_observed": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+  "origin_main_cached": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+  "remote_fetched": false,
+  "delta_paths": [
+    "engineering/design/README.md",
+    "engineering/design/agent-interface-2026-09-10/README.md",
+    "engineering/design/agent-interface-2026-09-10/continuity-checklist.md",
+    "engineering/design/agent-interface-2026-09-10/precedent-map.md",
+    "engineering/design/sources.md",
+    "engineering/design/web-gpt-design-handoff-20260910.md"
+  ],
+  "schema": {
+    "runtime": 10,
+    "core": 4,
+    "app": 5
+  },
+  "node": "v25.9.0",
+  "lock_sha256": "9d8514262a9389875e4e99558d40e610438496e7b75464fd7168e0caf264b872",
+  "package_checks": [
+    {
+      "path": "BACKLOG-DISPOSITION.md",
+      "ok": true
+    },
+    {
+      "path": "IMPLEMENTATION-PLAN.md",
+      "ok": true
+    },
+    {
+      "path": "PACKAGE-VERIFICATION.json",
+      "ok": true
+    },
+    {
+      "path": "README.md",
+      "ok": true
+    },
+    {
+      "path": "SOURCE-INDEX.md",
+      "ok": true
+    },
+    {
+      "path": "contracts/PROPOSED-DTOS.md",
+      "ok": true
+    },
+    {
+      "path": "evidence/README.md",
+      "ok": true
+    },
+    {
+      "path": "evidence/core-client-lifecycle-result.json",
+      "ok": true
+    },
+    {
+      "path": "scripts/core-client-lifecycle.mjs",
+      "ok": true
+    },
+    {
+      "path": "scripts/preflight.sh",
+      "ok": true
+    },
+    {
+      "path": "tickets.json",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-00.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-AT01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-AT02.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-EV01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-FE01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-FE02.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-FE03.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-FE04.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-HC01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-HC02.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-HC03.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-HC04.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG00.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG01A.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG01B.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG01C.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG02A.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG02B.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-LG04.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OPT01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OPT02.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OPT03.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OPT04.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OPT05.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-OUT01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-PV01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-Q01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-Q02.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-Q03.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-Q04.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-Q05.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-REL01.md",
+      "ok": true
+    },
+    {
+      "path": "work-orders/RV26-SP01.md",
+      "ok": true
+    }
+  ],
+  "ticket_count": 33,
+  "dag_valid": true,
+  "shared_checkout_observed": {
+    "branch": "codex/web-gpt-design-continuity",
+    "dirty": [
+      "evidence/fe01-main-integration-20260909/wk98-regression.json",
+      "site/verification/main-20260910/"
+    ]
+  },
+  "schema_reservations": [],
+  "inputs": [
+    {
+      "name": "courtwork-implementation-plan-20260910.zip",
+      "sha256": "d35dcf657754248d038bcd91466208b0e95556355f7d87e900dd8425f834cb5f"
+    },
+    {
+      "name": "pasted-text.txt",
+      "sha256": "aa858100e294e379bf8b862e6f85ff44a2c3625b37c1b1e9d0a071dc66605e38"
+    }
+  ],
+  "remote_main_observed": "2e9da09bd163ca128e3cd2f4c91ef61ceec2fc2f",
+  "remote_observation_command": "git ls-remote origin refs/heads/main",
+  "pre_integration_main_sha": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+  "pre_integration_delta": "Skin/Review and UI continuity documentation plus AGENTS UI entry; no app/tests/docs-work-core delta"
+}

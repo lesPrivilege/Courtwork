@@ -1,0 +1,21 @@
+✔ no ready frame rejects within readyTimeoutMs and reaps the failed worker (90.028083ms)
+✔ a request with no response times out, clears pending, and reaps the transport (140.280292ms)
+✔ close ignores a missing close acknowledgement, is bounded, and reaps the worker (49.717417ms)
+✔ a partial response frame is bounded by the request deadline and the transport is reaped (141.988334ms)
+✔ invalid JSON invalidates and reaps the transport (46.806875ms)
+✔ an oversized unterminated frame is rejected before unbounded buffering (49.777666ms)
+✔ stderr is capped while a failed request is cleaned up (146.967625ms)
+✔ concurrent starts share one worker and one readiness result (36.467584ms)
+✔ close during startup rejects start and reaps the child (3.779334ms)
+✔ maxPending rejects excess calls and failed transport cleanup leaves no pending entries (138.049ms)
+✔ a failed transport can restart after its child has been reaped (142.965458ms)
+✔ late events from an old generation cannot satisfy or damage the replacement (252.477541ms)
+✔ close rejects in-flight admissions, then permits a reaped replacement generation (113.464292ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1465.905042

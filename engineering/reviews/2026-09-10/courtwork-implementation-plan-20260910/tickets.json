@@ -1,0 +1,1496 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposed-local-agent-dispatch",
+  "reviewDate": "2026-09-10",
+  "repository": "https://github.com/lesPrivilege/Courtwork",
+  "reviewedCommit": "0c60f4ffe0e4d939712df3910d2404c226e8bfdf",
+  "githubPullRequestsReturned": 0,
+  "runtimeStoreSchemaObserved": 10,
+  "coreSchemaReported": 4,
+  "bridgeAppSchemaReported": 5,
+  "allTasksProposedNotExecuted": true,
+  "tickets": [
+    {
+      "id": "RV26-00",
+      "title": "冻结现状、消除编号与版本漂移、建立唯一派工清单",
+      "maps_to": [
+        "AM-A",
+        "ME-00",
+        "current/roadmap"
+      ],
+      "owner_role": "集成负责人",
+      "depends_on": [],
+      "write_allowlist": [
+        "engineering/current.md",
+        "engineering/architecture.md",
+        "AGENTS.md",
+        "docs/work-core/*.md（仅当前版本入口）",
+        "engineering/mvp/execution/work-surface-kit/backend-requests.md",
+        "engineering/reviews/2026-09-10/**（建议新目录）"
+      ],
+      "goal": "把本包作为现有路线的执行分解，不创建第二套真源。",
+      "implementation": [
+        "记录实际HEAD、工作树、未合流writer、schema常量、锁文件hash和远端差异；对本审查SHA之后的修改做delta review。",
+        "把当前Runtime10/Core4/app5入口修正为实际代码值；历史migration/evidence保留原版本并标明适用年代，不能全局替换。",
+        "BE-40两条分别登记Provider capability与Attention ordering别名，保留原文来源；正式新编号由唯一登记人分配。",
+        "AM-B、MA通信、BG-02等逐条对照实现与证据，标implemented/partial/planned/not-tested；不从旧not_started标题重新派整单。",
+        "建立schema预留登记、合流顺序和工单文件写权；本包RV26编号只是dispatch alias。"
+      ],
+      "negative_tests": [
+        "同名编号指向不同需求时校验失败。",
+        "历史证据中的旧schema不得被自动改写。",
+        "新HEAD存在已实现任务时，应标superseded并引用代码，不重复实施。"
+      ],
+      "acceptance": [
+        "输出baseline.json、执行状态表、差异清单与每张工单owner；作者和独验人不同。",
+        "确认实际前端队列；本包不自行越过既有FE-05a/FE-05/ATT-FE-01/CC-I。"
+      ],
+      "rollback": "纯文档回退；不回退源码、数据库或用户工作树。",
+      "sources": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S10"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-Q01",
+      "title": "CoreClient有界生命周期与失败后的worker清理",
+      "maps_to": [
+        "M04",
+        "M05",
+        "AM-F"
+      ],
+      "owner_role": "后端/Core作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        "app/core/client.mjs",
+        "app/tests/review-core-client-lifecycle.test.mjs（新）",
+        "app/tests/fixtures/review-core-client/**（新）",
+        "docs/work-core/contract.md（生命周期段）"
+      ],
+      "goal": "修复已复现的close悬挂和ready超时后孤儿worker；不自动重放Core写请求。",
+      "implementation": [
+        "先将本包两项缺陷探针改为回归断言：修复后的close必须有界，失败启动必须终止并回收原worker。",
+        "为start/call/close区分生命周期状态；close先封闭新请求并启动截止计时，不在无期限await call(close)之后才设置计时。",
+        "给每代child、readline、timer和pending请求绑定generation；旧代exit/line不能清空新代状态；并发start只允许一个启动过程。",
+        "ready失败、协议破坏、超长帧、超时必须使该transport失效，拒绝pending并终止/回收child；stderr和pending数量有上限。",
+        "deadline后已发送写操作记结果未知，由原request_id查询决定回执；不能换ID重试decide/save以伪造确定性。"
+      ],
+      "negative_tests": [
+        "无ready、ready后无响应、close无响应、半帧后停顿、非法JSON、超长无换行、stderr洪泛。",
+        "旧worker晚exit不能使新worker失联；并发close/start不能产生两个数据库owner。",
+        "commit后丢ACK须查询原receipt，不新增Decision。"
+      ],
+      "acceptance": [
+        "目标Node>=22.19环境下故障矩阵通过；无孤儿进程/遗留pending/未处理Promise rejection。",
+        "现有Core/continuity/crash测试和smoke保持通过；接口默认兼容或明确记录新增错误语义。"
+      ],
+      "rollback": "回退client代码无schema迁移；恢复前先回收worker，未知写入先查receipt，不能删除数据库重来。",
+      "sources": [
+        "S12",
+        "S23"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-Q02",
+      "title": "统一Provider入站/落盘校验与失败发布顺序",
+      "maps_to": [
+        "PV连接注册",
+        "BE-21",
+        "M01"
+      ],
+      "owner_role": "后端/Provider作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        "app/server/provider-connections.mjs",
+        "app/server/store.mjs（Provider校验与setter）",
+        "app/server/service.mjs（Provider配置方法）",
+        "app/tests/review-provider-roundtrip.test.mjs（新）"
+      ],
+      "goal": "任何成功接受的配置必须可在重启后读取；失败更新不得留下伪装为成功的运行时注册。",
+      "implementation": [
+        "提取可共享的字段约束与纯验证器：模型ID、URL、API格式、contextWindow在HTTP、store、Run descriptor使用同一有效域；不要统一套200字符id()。",
+        "优先保留已公开240字符模型ID/2048字符URL的可用域，并同步更新持久化/Run校验；若必须收窄，应在HTTP边界明确4xx且解释兼容。",
+        "setProviderConfig在写盘前校验完整目标；覆盖catalog endpoint路径，不能只验证compatible connections。",
+        "所有输入验证先于registerConnectionProvider；登记、写盘、凭据更新分别注入失败，恢复旧注册或显式报告stored-but-unavailable，禁止返回configured成功。",
+        "明确当前多文件配置更新不是跨文件原子事务；已发生部分成功必须可inspect且禁止带不一致配置启动Run。复杂版本化配置发布留PV01，勿在本单创建通用事务平台。"
+      ],
+      "negative_tests": [
+        "URL长度199/200/201/2048/2049；模型ID199/200/201/240/241；合法Unicode与控制字符。",
+        "允许保存的每个配置：保存→close→open→读取→同一执行路由；无效配置拒绝且原文件hash不变。",
+        "已有连接update：SDK注册后store失败；store成功后credential失败；磁盘满；重启后不能声称旧凭据与新generation完全一致。"
+      ],
+      "acceptance": [
+        "有效域内roundtrip全部通过；无效域返回稳定4xx/诊断而不是事后INVALID_STATE。",
+        "没有残留可执行的幽灵注册；连接失败语义有fixture供前端消费。"
+      ],
+      "rollback": "使用原配置/注册的可验证快照恢复；不把凭据正文写入日志/证据。若数据形状未变，不无故升级schema。",
+      "sources": [
+        "S13",
+        "S14",
+        "S15"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-Q03",
+      "title": "验证并封闭Runtime锁丢失后的发布窗口",
+      "maps_to": [
+        "M06",
+        "AM-F"
+      ],
+      "owner_role": "持久化作者",
+      "depends_on": [
+        "RV26-00",
+        "RV26-Q02"
+      ],
+      "write_allowlist": [
+        "app/server/store.mjs（_persist/open/close）",
+        "app/server/runtime-lock.mjs",
+        "app/server/runtime-lock.py",
+        "app/tests/review-runtime-publication.test.mjs（新）"
+      ],
+      "goal": "先复现锁丢失窗口，再保证最终发布由仍持锁的owner完成；区分原子可见性和落盘耐久性。",
+      "implementation": [
+        "在临时文件write与rename之间加入仅测试故障点：杀死lock holder，让第二host取得锁并发布，再恢复第一host的挂起步骤。",
+        "检查旧host是否仍可rename覆盖第二host；单纯增加一次if(lockLost)只缩小窗口，不是完整fencing证明。",
+        "若复现，优先在现有锁持有进程中增加有界publish操作：接收受控临时文件名、hash/size，验证文件并在持有同一flock期间sync/replace；Node只stage，不能独立最终rename。不是新增第二存储owner。",
+        "持久化回执点晚于所承诺的sync步骤；处理file sync、rename、directory sync各失败，未确认的ACK不得冒充未提交。文件系统不能满足保证时显式失败/收窄承诺。",
+        "同一纪律覆盖schema升级的backup→publish；保留现有精确字节备份、旧host拒绝、新host验证，不允许自动修复损坏状态。"
+      ],
+      "negative_tests": [
+        "双host交错、holder SIGKILL、publish中断、rename后ACK前中断。",
+        "ENOSPC/EIO、已有backup/symlink、遗留tmp、异常UTF-8、重复迁移。",
+        "任何失败不允许出现两位可发布writer；恢复读取结果必须为某个完整版本。"
+      ],
+      "acceptance": [
+        "报告区分已复现缺陷与未能复现的风险；补足可重放故障证据。",
+        "进程崩溃验证不写成物理断电验证；具体macOS/Linux文件系统保证与未检项明确。"
+      ],
+      "rollback": "先停止写入并处理未决publication，再回退实现；已升级数据只在匹配host的独立目录恢复。",
+      "sources": [
+        "S13",
+        "S29"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-Q04",
+      "title": "建立产品级CI而非仅Pages检查",
+      "maps_to": [
+        "M12",
+        "M14"
+      ],
+      "owner_role": "测试/集成作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        ".github/workflows/product-checks.yml（新）",
+        "app/tests/review-test-discovery.test.mjs（按需新）",
+        "engineering/reviews/2026-09-10/ci.md（新）"
+      ],
+      "goal": "让后续小PR在组合版本上执行实际产品测试。",
+      "implementation": [
+        "为app/**、tests/**、相关tools/contract及lock变化建立PR/push产品job，不复用带发布权限的Pages deploy job。",
+        "固定Node支持版本和Python POSIX环境；使用app/package-lock执行npm ci、npm test、npm run smoke、check-doc-links。",
+        "普通job contents:read，不注入任何真实provider secret，不使用pull_request_target运行外部分支代码。",
+        "至少Linux必跑；macOS lock/恢复测试独立job或受控定期执行，Windows暂不宣称支持。",
+        "测试输出、失败fixture、环境与SHA可追溯；workflow成功不自动授权Pages发布。"
+      ],
+      "negative_tests": [
+        "故意破坏一个Core与一个FE合同断言，确认产品job真的失败。",
+        "仅改产品代码也必须触发；Pages通过不能替代产品job。"
+      ],
+      "acceptance": [
+        "全量真实测试发现路径覆盖app/tests和根tests；不以固定测试总数为正确性断言。",
+        "Actions版本/权限经集成负责人审核，采用固定版本或commit策略。"
+      ],
+      "rollback": "撤回新workflow不影响用户数据，但明确恢复为无产品CI保障。",
+      "sources": [
+        "S26",
+        "S27"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-Q05",
+      "title": "建立长会话写放大与Core读取容量基线",
+      "maps_to": [
+        "ME-09",
+        "M06",
+        "M12"
+      ],
+      "owner_role": "性能/独立测试作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        "app/tests/review-capacity.test.mjs（新）",
+        "benchmarks/capacity/**（新）",
+        "engineering/reviews/2026-09-10/capacity.md（新）"
+      ],
+      "goal": "先量化结构风险，不因大文件或语言偏好立即重构。",
+      "implementation": [
+        "固定事件payload与100/1000/10000事件、1/10/100会话的合成规模，记录mutation p50/p95、写字节、RSS、重启和查询时间。",
+        "增加同一Matter候选/决定/来源增长，分别测snapshot响应字节、state_digest成本和context metadata预算。",
+        "区分stream delta、terminal event、readonly查询、源码变更与缓存冷热；不得把UI下载全量历史成本算为模型成本。",
+        "给出最小规模和目标dogfood规模，预注册可接受退化与失败门；绝对预算必须附硬件/OS。",
+        "指出service/app集中写权导致的冲突热点；只建议沿新合同接缝抽模块，不交付全仓格式化。"
+      ],
+      "negative_tests": [
+        "容量不足必须明确LIMIT/分页/unknown，不可静默截断后称complete。",
+        "相同逻辑事件不能因重复投递被重复统计。"
+      ],
+      "acceptance": [
+        "发布原始CSV/JSON与命令、基线SHA；没有测量前不得写“性能提升X倍”。",
+        "是否启动RV26-OPT05有明确门槛；不以bench大规模失败否认已限定规模功能。"
+      ],
+      "rollback": "仅测试和报告，可直接停用；无生产数据与迁移。",
+      "sources": [
+        "S13",
+        "S16",
+        "S17",
+        "S18"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-LG00",
+      "title": "MatterPack、反例与数据合同冻结",
+      "maps_to": [
+        "LG-00",
+        "ME-01",
+        "ME-09"
+      ],
+      "owner_role": "合同作者+独立gold作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        "app/tests/fixtures/intake/**（新）",
+        "docs/intake/contract-v1.md（新）",
+        "benchmarks/intake/**（新）"
+      ],
+      "goal": "给资料治理一个可证伪、可重复的小问题，不从泛化索引平台起步。",
+      "implementation": [
+        "制作合成双版本协议、附件目录与缺件、同名不同字节、副本、更名、中英混合、非BMP字符、恶意指令及无权限文件。",
+        "先以UTF-8文本为强基线；一类可提取文字的PDF为独立子集，扫描/加密/损坏PDF作为unsupported或失败反例。",
+        "冻结SourceCapture、Rendition、Core绑定、QueryResult、FindingBasis字段、单位与大小上限；新DTO不是已存在API。",
+        "gold由非模型生成者独立核对：source span、缺件unknown、应发现/不应接受、source mutation后的适用性。",
+        "从第一单记录执行、缓存、人工复核成本；禁止把训练/调参fixture当held-out。"
+      ],
+      "negative_tests": [
+        "缺件资料不得因为检索空结果被判为绝对不存在。",
+        "中英/组合字符offset roundtrip必须成立，OCR/抽取准确性另验。",
+        "原始资料中的工具指令不能扩大scope或安装依赖。"
+      ],
+      "acceptance": [
+        "fixture hashes、生成脚本、gold身份、预注册指标与合法使用说明齐全。",
+        "所有团队使用同一组版本化DTO及最小允许/拒绝样本。"
+      ],
+      "rollback": "纯合成数据与合同可回退；后续工单须同步回到兼容DTO。",
+      "sources": [
+        "S07",
+        "S08",
+        "S06"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-LG01A",
+      "title": "只读Capture与不可变原始字节",
+      "maps_to": [
+        "LG-01",
+        "ME-01/D04"
+      ],
+      "owner_role": "Intake作者",
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-Q03"
+      ],
+      "write_allowlist": [
+        "app/intake/capture.mjs（新）",
+        "app/intake/blob-store.mjs（新）",
+        "app/intake/manifest.mjs（新）",
+        "app/tests/review-intake-capture.test.mjs（新）"
+      ],
+      "goal": "保存一次可解释的观察，而不是把任意目录扫描包装成原子snapshot。",
+      "implementation": [
+        "只有显式host选择的root/scope进入Intake；模型拿scopeId，不能传任意绝对路径。",
+        "不跟随目录外symlink；对实际打开的文件做身份/大小/前后stat检查并检测变动；race时重试或unstable，不发布complete。",
+        "流式计算原字节SHA-256，写专用Intake content-addressed blobs；路径观察、逻辑来源身份和内容hash分离。",
+        "先完成不可变blobs及manifest，再原子发布capture；metadata-only对象的contentHash必须为null。",
+        "限定文件数、单文件与总字节、深度和总耗时；本轮不解压归档、不递归下载、不写原目录。"
+      ],
+      "negative_tests": [
+        "同名改字节、更名同字节、重复副本、读到一半变更、权限失败、路径逃逸与嵌套symlink。",
+        "任何异常后用户目录hash不变；未完成manifest不出现在complete目录。"
+      ],
+      "acceptance": [
+        "重读捕获版本不依赖当前用户路径；删除派生索引不删除raw blobs。",
+        "Core、ArtifactHistory与Runtime state未被Intake越权写入。"
+      ],
+      "rollback": "关闭capture入口；保留已绑定raw；只清理未发布且未引用的staging。",
+      "sources": [
+        "S07",
+        "S08"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-LG01B",
+      "title": "有界Rendition：UTF-8文本与文字层PDF",
+      "maps_to": [
+        "LG-01",
+        "ME-01/D04"
+      ],
+      "owner_role": "Intake/extractor作者",
+      "depends_on": [
+        "RV26-LG01A"
+      ],
+      "write_allowlist": [
+        "app/intake/rendition.mjs（新）",
+        "app/intake/extractors/text.mjs（新）",
+        "app/intake/extractors/pdf_worker.py（新）",
+        "app/intake/requirements-pdf.lock（新）",
+        "app/tests/review-rendition.test.mjs（新）"
+      ],
+      "goal": "让抽取结果可以定位和失效，但不把抽取成功当成专业正确。",
+      "implementation": [
+        "文本reader严格UTF-8；保持BOM/换行原貌与原字节hash；模型/界面span统一Unicode code point，JS UTF-16转换在边界处理。",
+        "PDF候选锁定pypdf6.18.0（BSD-3-Clause），安装在独立extractor环境，不让Core启动依赖它；采纳前校验版本/许可/hash。",
+        "只支持允许的文字层PDF，逐页存text与page map；bbox未验证时为null，不制造视觉精确定位；扫描件不偷偷OCR。",
+        "worker输入为捕获blob而非任意路径；总超时、输出/内存/页数预算；资源限制不是OS安全沙箱，不宣称可安全运行任意插件。",
+        "cache key=rawHash+extractorVersion+configHash；failed/partial/unsupported单列，空文字不是complete语义抽取。"
+      ],
+      "negative_tests": [
+        "中文、跨页、连字、旋转页、重复页码、无文字层、恶意膨胀流、损坏/加密PDF。",
+        "相同版本命中；换版本/配置失效；半途失败没有complete标记。"
+      ],
+      "acceptance": [
+        "text span能回到固定rendition和原始PDF页；抽取误差与gold人工核验分列。",
+        "PDF不可用时文本基线和Core正常启动，UI诚实显示unsupported。"
+      ],
+      "rollback": "停用PDF adapter并只删其派生缓存；保留raw、曾使用的rendition版本和已记录决定依据。",
+      "sources": [
+        "S07",
+        "S08"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "pypdf是本报告新增有界候选，非仓库已有依赖；版本/许可门通过后方安装。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-LG01C",
+      "title": "原始Capture到现有Core来源的原子绑定",
+      "maps_to": [
+        "LG-01/03",
+        "M05/M07"
+      ],
+      "owner_role": "Core作者",
+      "depends_on": [
+        "RV26-LG01B",
+        "RV26-Q01",
+        "RV26-LG00"
+      ],
+      "write_allowlist": [
+        "app/core/core.py（来源绑定事务接缝）",
+        "app/core/bridge.py",
+        "app/core/client.mjs",
+        "app/extensions/work-adapter.mjs（精确接缝）",
+        "app/intake/core-binding.mjs（新）",
+        "app/tests/review-source-binding.test.mjs（新）"
+      ],
+      "goal": "Intake持有确切字节；Core仍独占被选来源集合、版本与接受依据。",
+      "implementation": [
+        "由host持有project/Matter与grant，把selected rendition text映射到既有Core source id/version/digest；Core的text digest绝不能被raw PDF hash替换。",
+        "必要时在同一Core数据库增加app-owned provenance映射：matter/source-set revision/source/version→capture/rawHash/renditionHash/config；不新建平行Source acceptance服务。",
+        "来源membership、provenance映射与绑定receipt同一SQLite事务；不能先调用会commit的replace_sources再写映射并宣称原子。",
+        "先durably保留raw/rendition，再提交Core绑定；跨文件系统/SQLite不声称单一事务。崩溃留下可回收未引用blob，不留下已接受但缺字节的引用。",
+        "source-set发生变化继续使用现有保守STALE_INPUT/CAS规则；不因某span hash未变就自动绕过旧候选过时检查。"
+      ],
+      "negative_tests": [
+        "绑定前/事务中/commit后ACK前崩溃；同request重放和改内容冲突。",
+        "跨Matter/project、错误raw/text digest、撤权、来源换版、独立原路径删除。",
+        "含新表时严格迁移与旧host拒绝；旧receipt hash不重写。"
+      ],
+      "acceptance": [
+        "新Session与producer缺席情况下，仍能检查已保留来源与映射。",
+        "正式接受链依旧为Candidate→可信决定→Artifact，不将manifest发布视为accept。"
+      ],
+      "rollback": "禁止新增绑定；旧绑定保持可读；带schema迁移只能用匹配版本的独立目录恢复。",
+      "sources": [
+        "S08",
+        "S16",
+        "S17",
+        "S23"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-LG02A",
+      "title": "可重建、固定Generation的exact/lexical检索",
+      "maps_to": [
+        "LG-02",
+        "ME-01/D06"
+      ],
+      "owner_role": "检索作者",
+      "depends_on": [
+        "RV26-LG01C"
+      ],
+      "write_allowlist": [
+        "app/intake/index-store.py（新）",
+        "app/intake/search.mjs（新）",
+        "app/intake/query-contract.mjs（新）",
+        "app/tests/review-source-search.test.mjs（新）"
+      ],
+      "goal": "先用可解释检索验证复用价值，不先引入向量数据库。",
+      "implementation": [
+        "最小可用路径为known-ID元数据+literal范围匹配；可重建SQLite索引与Core DB分离，不能写Core正式状态。",
+        "词法候选采用SQLite FTS5；英文unicode61与CJK trigram/有界literal路径分开测。短于3字符查询走显式fallback，不把trigram无命中当“不存在”。",
+        "构建generation绑定source/rendition/config，完成后发布指针；查询固定generation，不能一页旧版下一页新版。",
+        "所有命中在输出snippet前交叉检查Core绑定与当前授权；权限/撤回变化优先于缓存命中。",
+        "scope/filters/generation/compiler/预算/授权版本进入cache key；返回命中理由、source ref、span、coverage与有界cursor。"
+      ],
+      "negative_tests": [
+        "中文两字/三字词、合同编号、大小写、标点、百分号/下划线和FTS运算符注入。",
+        "重建中断、旧cursor、新source generation、撤权后旧cache命中、同内容跨Matter。"
+      ],
+      "acceptance": [
+        "exact结果与独立扫描oracle一致；lexical recall/误命中在冻结fixture上单列。",
+        "索引删除后能重建同一逻辑视图；未构建完成generation不可见。"
+      ],
+      "rollback": "回到上一合法generation或有界exact read；正式来源/候选/决定不变。",
+      "sources": [
+        "S08",
+        "S06"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-LG02B",
+      "title": "有界资料工具与Context manifest",
+      "maps_to": [
+        "LG-02",
+        "M03/M09"
+      ],
+      "owner_role": "Harness/Core接缝作者",
+      "depends_on": [
+        "RV26-LG02A",
+        "RV26-Q01"
+      ],
+      "write_allowlist": [
+        "app/intake/tools.mjs（新）",
+        "app/intake/context-manifest.mjs（新）",
+        "app/core/owner.mjs（限定context接缝）",
+        "app/runtime/control-tools.mjs（必要接入）",
+        "app/extensions/work-adapter.mjs（限定接缝）",
+        "app/tests/review-context-evidence.test.mjs（新）"
+      ],
+      "goal": "模型只获得有授权的定位器和预算内证据，不得到全盘目录或一份无法溯源的摘要。",
+      "implementation": [
+        "新增工具概念read_source_range/search_sources/list_sources，实际名字在合同冻结时与现有se_*命名对齐；host绑定scope，不接受caller注入actor/Matter。",
+        "manifest包含选入/排除原因、source/rendition/generation、精确span、读取ledger与未读范围；工具回执可核验。",
+        "保留现有24k JS字符元数据硬门；tokenBudget另设unit/tokenizer/version/estimate，不把text.length写成tokens。",
+        "短期不得截断blocking obligations、conflicts、unknown effects以满足预算；超预算显式拒绝或使用有合同的逐步披露。",
+        "ES file coverage对新输入仍按现有observer保守标unknown；没有独立证明前，不向ES已宣称complete路径注入这些新工具。"
+      ],
+      "negative_tests": [
+        "非BMP字符分页、超限cursor、作用域伪造、过时generation、已撤销grant。",
+        "预算不足时未知仍未知；“未检索到”保留coverage而非输出绝对否定。",
+        "配置变更或撤权后prefix影响可追溯；UI-only变更不改变模型输入。"
+      ],
+      "acceptance": [
+        "同一查询scope与版本可重放；每段模型证据可回到持久来源。",
+        "工具read permission与Matter accept authority无混淆。"
+      ],
+      "rollback": "禁用新工具，恢复原se_read_source/artifact路径；已记录context manifest保留历史可读。",
+      "sources": [
+        "S08",
+        "S18",
+        "S23",
+        "S19"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-LG04",
+      "title": "Delta refresh、撤回与独立全量重建等价",
+      "maps_to": [
+        "LG-04",
+        "ME-01"
+      ],
+      "owner_role": "Intake作者",
+      "depends_on": [
+        "RV26-LG02B"
+      ],
+      "write_allowlist": [
+        "app/intake/refresh.mjs（新）",
+        "app/intake/dependencies.mjs（新）",
+        "app/tests/review-intake-delta.test.mjs（新）",
+        "benchmarks/intake/mutations/**（新）"
+      ],
+      "goal": "来源变化只使受影响派生物失效，不重写人的历史决定。",
+      "implementation": [
+        "区分更名、相同字节副本、改字节、新增、缺失、撤回、处理器升级的事件与依赖。",
+        "capture/index generation与Core source-set revision分离：物理路径变更不能自动冒充正式来源修订。",
+        "执行新generation staging，成功后发布；失败保留旧合法generation或显式stale，不露出半成品。",
+        "增量与独立full rebuild对比logical source set、queries、spans、coverage；排除时间戳等非语义字段。",
+        "已接受成果保留历史accept事实，当前basis变更标受影响；是否revise由现有owner决定。"
+      ],
+      "negative_tests": [
+        "每种mutation中途崩溃并重复refresh；撤回后新query不得返回旧内容。",
+        "被删除的是原路径而非保留blob时，历史source仍可读；明确purge不在本单。"
+      ],
+      "acceptance": [
+        "全部mutation矩阵与full rebuild oracle等价；模型finding不通过重新跑LLM来假装可确定重建。",
+        "只丢弃派生缓存即可恢复，不删除Core记录来凑一致。"
+      ],
+      "rollback": "丢弃未发布generation并全量重建；不可回滚人的决定或撤权。",
+      "sources": [
+        "S08",
+        "S06"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-SP01",
+      "title": "第一种Spark finding：限定资料包内的缺件检查",
+      "maps_to": [
+        "LG-03",
+        "ME-03"
+      ],
+      "owner_role": "领域adapter作者",
+      "depends_on": [
+        "RV26-LG04"
+      ],
+      "write_allowlist": [
+        "app/domains/source-review/**（建议新域）",
+        "app/extensions/source-review-adapter.mjs（建议新adapter）",
+        "app/extensions/registry*.mjs（实际入口由00核定）",
+        "app/tests/review-spark-finding.test.mjs（新）",
+        "docs/work-core/source-review.md（新）"
+      ],
+      "goal": "用一个可被否定的语义任务验证Spark，不先造常驻多专家服务。",
+      "implementation": [
+        "先确定性提取附件名称与显式目录，再让一次有界模型Run产生缺件候选；首条用普通Pi Run，不以并行/常驻作为前提。",
+        "finding采用missing_attachment/not_found_in_capture语义，带支持/反对spans、覆盖范围、unread、uncertainty和producer/config。不得写“文件绝对不存在”。",
+        "通过既有Work adapter与Candidate存储保存typed payload；source-review是领域合同，不把法律目录字段提升为通用Core列。",
+        "唯一的模型观察/候选先持久登记，再生成可删摘要或报表；缓存删除后从保留的finding/decision重建视图，不能依赖模型再次说同一句话。",
+        "人的accept/reject/request_evidence/revise均沿既有Core权限与CAS；结构校验通过不标专业结论正确。"
+      ],
+      "negative_tests": [
+        "缺附件、读不全、相同名字但非同文档、文中命令、旧source generation、两个worker互相同意但无证据。",
+        "重复提交同候选不复制；改payload冲突；原Session/producer离场后历史仍可读。"
+      ],
+      "acceptance": [
+        "一类finding贯穿原资料→引用→候选→人决定→新Session续行。",
+        "强模型对照与cheap模型可替换；未证明质量收益不默认启用cheap层。"
+      ],
+      "rollback": "停用新producer，不删除已存候选/决定；fallback能读unsupported domain元数据。",
+      "sources": [
+        "S05",
+        "S06",
+        "S08",
+        "S16",
+        "S23"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-HC01",
+      "title": "Core历史读取分页与小型Recovery Projection",
+      "maps_to": [
+        "ME-04",
+        "M05/M09/M10"
+      ],
+      "owner_role": "Core作者",
+      "depends_on": [
+        "RV26-Q05",
+        "RV26-Q01"
+      ],
+      "write_allowlist": [
+        "app/core/bridge.py（有界query）",
+        "app/core/owner.mjs",
+        "app/core/client.mjs",
+        "app/server/service.mjs（只读工作query）",
+        "app/tests/review-core-read-capacity.test.mjs（新）"
+      ],
+      "goal": "避免长期Matter只能通过全量snapshot进入，保留现有正式版本含义。",
+      "implementation": [
+        "增加小型metadata/recovery query与候选、决定、来源history分页；首次不替换旧snapshot的返回形状。",
+        "cursor绑定Matter、查询种类、过滤、source/contract与真正涵盖候选新增的snapshot identity。Matter.version单独不足：新增候选未必推进它。",
+        "第一版可沿用既有state digest检出快照变化，诚实保留其计算成本；优化为read epoch需单独transactional schema门，不能偷换旧stateVersion算法。",
+        "每页仍复验scope/披露权限、完整内容hash；未知renderer/producer时只读成立。",
+        "支持metadata超限与必读义务超限的明确错误；不把分页做成后台自动全量拉取。"
+      ],
+      "negative_tests": [
+        "分页期间候选新增/决定/来源修订，cursor必须冲突或读取固定快照。",
+        "超wire容量、跨Matter cursor、digest损坏、已撤权历史链接。"
+      ],
+      "acceptance": [
+        "目标dogfood规模可先打开metadata并逐步读取，不要求一次返回全部历史。",
+        "当前旧客户端合同仍成立；有限容量如实声明，性能收益只引用Q05测量。"
+      ],
+      "rollback": "停用新增query继续旧接口；若已新增read epoch则执行版本化迁移回退，不重写历史receipt。",
+      "sources": [
+        "S16",
+        "S17",
+        "S18",
+        "S23"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-HC02",
+      "title": "显式Rehydrate：换Session不等于重放Run",
+      "maps_to": [
+        "ME-04",
+        "BG-02补接缝"
+      ],
+      "owner_role": "Harness/Core作者",
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-HC01"
+      ],
+      "write_allowlist": [
+        "app/core/owner.mjs",
+        "app/extensions/work-adapter.mjs",
+        "app/server/service.mjs（existingMatter绑定/只读恢复接缝）",
+        "app/tests/review-rehydrate.test.mjs（新）"
+      ],
+      "goal": "恢复当前工作依据、未决和历史，而不是恢复旧执行权限或“最近聊天”。",
+      "implementation": [
+        "从Core已保留来源、active artifact、pending findings、obligations、conflicts、unknown effects构建recovery manifest。",
+        "读取archive/历史不启动Run；新Session必须显式绑定既有project/Matter，创建新Run时重验provider/配置/权限。",
+        "保留BG-02同Session supersedes的原含义；跨Session引用叫continuation/recovery reference，不伪造supersedes链或复活已删Session。",
+        "对新的来源/合同版本，把历史接受和当前适用性分列；未决阻塞项不得由summary省略。",
+        "closeout报告先为派生投影，不新增通用Matter lifecycle表；只有明确消费者需要的状态转换另开合同。"
+      ],
+      "negative_tests": [
+        "删Session、卸载producer、换模型、撤权、来源换版、旧Run未确认效果。",
+        "从空模型上下文恢复，仍能知道未决/冲突；不是从旧transcript stuffed back得到结果。"
+      ],
+      "acceptance": [
+        "同一Matter换Session可完成有界续行；历史只读与执行动作完全分离。",
+        "未知效果不会因恢复变成可盲重试。"
+      ],
+      "rollback": "关闭新recovery入口，不改变已有绑定与Core；恢复旧Run只能走已有显式路径。",
+      "sources": [
+        "S05",
+        "S06",
+        "S21",
+        "S23"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-HC03",
+      "title": "两个角色的配置快照与权限交集",
+      "maps_to": [
+        "ME-02",
+        "BE-8"
+      ],
+      "owner_role": "Harness/config作者",
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-Q02"
+      ],
+      "write_allowlist": [
+        "app/runtime/control-plane.mjs（限定profile/composition）",
+        "app/server/service.mjs（Run绑定快照）",
+        "app/tests/review-role-snapshot.test.mjs（新）",
+        "docs/runtime-control/expert-snapshot.md（新）"
+      ],
+      "goal": "把Expert限定为角色与合同配置，不再造一层Runtime或私有memory。",
+      "implementation": [
+        "只试source-review与既有NDA两个真实角色：role preset、Matter binding、resolved execution descriptor分开。",
+        "快照固定model/API/adapter、effort、prompt/config hashes、tool schemas、policy revision与owner binding；不保存secret。",
+        "effective tools/scope取宿主授权与角色请求交集，profile配置不能提升grant；运行时每次调用仍检查撤权。",
+        "保留Pi native system prompt，CW只注入必要角色与工作上下文；采用AM-C方式对提示变更做消融/请求差异。",
+        "优先使用现有extension/profile版本；两角色还不足以证明需要通用注册市场。"
+      ],
+      "negative_tests": [
+        "同名Expert升级、旧批准版本重用、角色请求超scope、撤权、不同模型不支持effort。",
+        "UI-only修改不扰动出站prefix；实质权限变更不能被cache隐藏。"
+      ],
+      "acceptance": [
+        "两个角色的差异可以review；Run可还原实际使用配置。",
+        "不宣称热升级运行中的AgentSession；现有active-run配置冻结保持。"
+      ],
+      "rollback": "切回旧合法profile供新Run使用；旧Run记录永不重写。",
+      "sources": [
+        "S05",
+        "S06",
+        "S19",
+        "S15"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-HC04",
+      "title": "Pi真实接入面与FakeRuntime符合性矩阵",
+      "maps_to": [
+        "ME-05",
+        "AM-A/AM-C/AM-F"
+      ],
+      "owner_role": "Runtime/独验作者",
+      "depends_on": [
+        "RV26-00",
+        "RV26-Q01",
+        "RV26-Q02"
+      ],
+      "write_allowlist": [
+        "app/runtime/pi-session-runtime.mjs（仅已证缺口）",
+        "app/runtime/request-telemetry.mjs（限定observer）",
+        "app/tests/review-runtime-conformance.test.mjs（新）",
+        "docs/runtime-control/conformance.md（新）"
+      ],
+      "goal": "测试当前Pi AgentSession路径，而不是把RPC或论文中的能力当成已接通。",
+      "implementation": [
+        "固定pi-agent-core/pi-ai/pi-coding-agent0.85.1与lock hash；列出provider×API×model×auth×capability实际组合。",
+        "注册native/adapted/unsupported三档；当前原生async、production child/handoff不因helper存在就标支持。",
+        "FakeRuntime注入错误callId、重复/晚到事件、半参数、乱序、断连、取消与终结竞争；host不能据final文字跳过依赖。",
+        "在现有出站observer上记录semantic与prefix fingerprint，只使用合成payload，不持久化凭据或私人提示。",
+        "不引入最小共同分母SDK；第二runtime未出现前只有符合性协议与窄adapter。"
+      ],
+      "negative_tests": [
+        "真实encoder/stream parser路径与模型api字段不一致。",
+        "撤权后工具仍被暴露或旧adapter事件污染新Run。",
+        "fake仅证形状，cache hit/真实模型推理须另证。"
+      ],
+      "acceptance": [
+        "能力矩阵每行有精确入口、测试及not-tested；不通过整体升级Pi来掩盖一个缺口。",
+        "一条现有Pi路径完整回归，adapter注入失败保持可解释unknown。"
+      ],
+      "rollback": "关闭新诊断/可选adapter；保留已验证Pi路径和历史解释器。",
+      "sources": [
+        "S19",
+        "S20",
+        "S21",
+        "S26",
+        "S09"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-AT01",
+      "title": "Attention排序与分页合同收口",
+      "maps_to": [
+        "BE-40@Attention",
+        "ATT-FE-01"
+      ],
+      "owner_role": "Core/Attention作者",
+      "depends_on": [
+        "RV26-00"
+      ],
+      "write_allowlist": [
+        "app/core/attention.py（query排序接缝）",
+        "docs/work-core/attention.md",
+        "app/tests/review-attention-order.test.mjs（新）",
+        "engineering/mvp/execution/work-surface-kit/backend-requests.md（精确回执）"
+      ],
+      "goal": "前端不跨分页自行排序，不把registry当详情权限。",
+      "implementation": [
+        "读取实际SQL/过滤顺序，以当前确定性排序为基线；采用needs_you→investigating→waiting→later→resolved须明确是语义改约。",
+        "提供稳定tie-breaker与排序版本；过滤只在获授权字段上执行，hidden rows不影响可见count与cursor。",
+        "若offset分页在并发变化下不能保证连续，返回snapshot token/冲突，或明确refresh-reset；不要声称全局稳定排序。",
+        "不扩registry的summary/reason权限，不新增计数仪表盘或scheduler。"
+      ],
+      "negative_tests": [
+        "相同updated_at、跨页状态变化、隐藏对象、撤销details、重复请求。"
+      ],
+      "acceptance": [
+        "triage所需排序/分页fixture冻结，前端无需重新实现领域排序。",
+        "源BE-40冲突解决记录与当前编号映射可追溯。"
+      ],
+      "rollback": "恢复前一sort contract；旧cursor须拒绝或显式失效。",
+      "sources": [
+        "S10",
+        "S22"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "ready-after-baseline"
+    },
+    {
+      "id": "RV26-AT02",
+      "title": "Spark到Attention的稀疏Signal与去重",
+      "maps_to": [
+        "ME-06",
+        "HC6"
+      ],
+      "owner_role": "Attention/Harness作者",
+      "depends_on": [
+        "RV26-SP01",
+        "RV26-HC02"
+      ],
+      "write_allowlist": [
+        "app/harness/spark-signals.mjs（新）",
+        "app/server/service.mjs（现有Attention runtime adapter接缝）",
+        "app/core/attention.py（仅已证合同缺口）",
+        "app/tests/review-spark-attention.test.mjs（新）"
+      ],
+      "goal": "让变化成为可检查信号，而不是给Spark私有的提醒与解决权。",
+      "implementation": [
+        "初始只向人已创建且显式授予signal权限的Attention记录record_signal；没有对象/授权时返回待关联建议，由人走create，不偷用local-user身份。",
+        "事件按来源身份/版本、finding identity、ruleVersion和目标Attention生成稳定intent identity；重复callback/refresh不新增同一语义信号。",
+        "预算、quiet规则与去重在确定性host层；每次信号复验当前grant、expiry、Run admission。",
+        "record_signal只能写观察并使freshness unknown，不能resolve/snooze/accept或自动启动最近Session。",
+        "投影区分观察、运行、finding、人决定；未来自动create需独立可信actor与授权合同，不能利用本单顺手开放。"
+      ],
+      "negative_tests": [
+        "重启重复信号、scope变更、grant撤销、旧rule重复消息、目标resolved、原Run已结束。",
+        "源文档要求关闭Attention不得生效；状态计数不能驱动正式动作。"
+      ],
+      "acceptance": [
+        "同意图至多一份本地记录，可用原request查receipt；这不宣称外部exactly-once。",
+        "静默执行报告所有数字都能回到已有owner记录。"
+      ],
+      "rollback": "停用signal producer，历史Attention与finding不变；待关联建议可重建。",
+      "sources": [
+        "S05",
+        "S06",
+        "S22"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-FE01",
+      "title": "前后端共享Packet fixture与控制语义验收",
+      "maps_to": [
+        "FE-05a接缝",
+        "M10/M11"
+      ],
+      "owner_role": "FE合同作者",
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-AT01"
+      ],
+      "write_allowlist": [
+        "app/tests/fixtures/review-surfaces/**（新）",
+        "docs/intake/surface-contract-v1.md（新）",
+        "app/tests/review-surface-packets.test.mjs（新）"
+      ],
+      "goal": "先冻结能表达真相的packet，再把控件和样式接上。",
+      "implementation": [
+        "提供source/capture/finding/recovery/Attention packet：empty/loading/partial/stale/revoked/unsupported/integrity-failure和lost-ack。",
+        "候选fixture包含实际Core action schemaVersion与payload_schema/descriptor，不手造“accept enabled”布尔权威。",
+        "承认Work camelCase、Attention snake_case等既有合同差异，用显式adapter转换，不全仓改字段。",
+        "Control Grammar消费现有ui-controls和设计规范；声明toggle/menu/popover/disclosure/action的不同含义及键盘行为。",
+        "fixture生成校验和backend contract测试先合流；可做story/prototype，但后端没完成的控件不开放真实动作。"
+      ],
+      "negative_tests": [
+        "未知action schema、producer缺席、permission有但accept无、跨session晚响应。"
+      ],
+      "acceptance": [
+        "同一事实包驱动collapsed/expanded/detail；没有第二份领域状态。",
+        "前端writer与backend writer依赖清晰，视觉完成不关闭业务门。"
+      ],
+      "rollback": "回退fixture版本并禁用不兼容consumer，不改Core记录。",
+      "sources": [
+        "S11",
+        "S23",
+        "S24",
+        "S22"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "实际FE队列由RV26-00确认；本单可先只提交fixtures，不抢共享UI施工。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-FE02",
+      "title": "Source Review与Spark面板的最小真实消费",
+      "maps_to": [
+        "FE-05/后续Source面",
+        "ME-03"
+      ],
+      "owner_role": "唯一FE writer",
+      "depends_on": [
+        "RV26-FE01",
+        "RV26-SP01",
+        "RV26-HC01"
+      ],
+      "write_allowlist": [
+        "app/web/source-review-view.mjs（新）",
+        "app/web/spark-view.mjs（新）",
+        "app/web/surface-modules.mjs（注册精确模块）",
+        "app/web/app.mjs（限定host接入）",
+        "app/web/styles.css（仅既有token消费）",
+        "app/tests/review-source-ui.test.mjs（新）"
+      ],
+      "goal": "让用户看到原文、候选、依据与接管动作；报表不是代理权限。",
+      "implementation": [
+        "Source目录展示版本、raw/rendition区别、scope/coverage、partial原因；详情按固定引用读取，不跟随当前可变路径。",
+        "缺件finding并列claim、支持/反对证据、已读/未读范围、未知、可用人类动作；source stale时先刷新依据，不乐观改accept。",
+        "Spark面板先用run/finding/signal投影：观察量、命中/失效、候选量、失败/unknown、人工决定；不提供虚构节省时间。",
+        "使用现有surface-module接口；host保持layout/tab/焦点/lifecycle所有权；不要为了面板新增全局Spark状态仓。",
+        "检查1440/1024/390及200%缩放、键盘/焦点/长中文/长名称；切视图不重发Run、不取消任务、不切换文档版本。"
+      ],
+      "negative_tests": [
+        "旧请求晚到、rapid switch、producer缺席、renderer缺席、读取撤权、决定丢ACK。",
+        "source按钮可读不代表accept可用；badges/绿色点不代表任务有效。"
+      ],
+      "acceptance": [
+        "真实后台数据→同一packet→两个展示层均一致；未知和失败可辨。",
+        "截图属于真实synthetic运行并带SHA，不把fixture卡片当实时状态。"
+      ],
+      "rollback": "关闭新模块注册；generic read-only fallback及已存历史继续可读。",
+      "sources": [
+        "S24",
+        "S25",
+        "S11",
+        "S23"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "必须在实际FE队列可用槽位开工，不因本包默认覆盖既有FE-05工单。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-FE03",
+      "title": "Attention triage与丢回执恢复消费",
+      "maps_to": [
+        "ATT-FE-01",
+        "BE-40@Attention"
+      ],
+      "owner_role": "唯一FE writer",
+      "depends_on": [
+        "RV26-AT01",
+        "RV26-AT02",
+        "RV26-FE01"
+      ],
+      "write_allowlist": [
+        "app/web/attention-view.mjs（限定triage接缝）",
+        "app/web/attention-agent-view.mjs（限定intent接缝）",
+        "app/web/attention-conversation.mjs（仅已证缺口）",
+        "app/tests/review-attention-ui.test.mjs（新）"
+      ],
+      "goal": "进入Attention是审阅/决定，不把会话完结当事项解决。",
+      "implementation": [
+        "沿server排序分页；registry只显示允许字段，details/sources/events分别显式展开。",
+        "human actions按当前schema/expected_revision提交；unknown receipt保留原request ID和payload，先query再刷新，不生成新意图重试。",
+        "区别seen、waiting、later、resolved、freshness和execution status；due_at不是倒计时自动执行器。",
+        "复用现有Attention conversation command保留语义；新navigation与视图卸载只停止UI订阅，不取消Run。"
+      ],
+      "negative_tests": [
+        "跨页重排、hidden item、stale revision、网络丢ACK、重新进入页面、旧callback、快捷键误触resolve。"
+      ],
+      "acceptance": [
+        "可以从Spark signal回到来源和事项依据；无授权链接显示不可用而非偷偷扩权限。",
+        "自主信号不出现human resolve等动作的假receipt。"
+      ],
+      "rollback": "恢复现有Attention只读/基础交互；保留所有Core记录和请求身份。",
+      "sources": [
+        "S22",
+        "S25",
+        "S10"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "沿实际ATT-FE-01队列合并，不重建已有conversation controller。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-PV01",
+      "title": "能力/认证方式/已保存连接验证的真实模型",
+      "maps_to": [
+        "BE-36/37/38/39",
+        "BE-40@Provider",
+        "M01"
+      ],
+      "owner_role": "Provider作者",
+      "depends_on": [
+        "RV26-Q02",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "app/server/provider-connections.mjs",
+        "app/server/service.mjs（连接验证/配置快照）",
+        "app/runtime/pi-session-runtime.mjs（能力adapter）",
+        "app/runtime/request-telemetry.mjs（错误分类接缝）",
+        "app/tests/review-provider-capabilities.test.mjs（新）"
+      ],
+      "goal": "连接成功、目录可读、可生成、OAuth与执行权限分别有事实依据。",
+      "implementation": [
+        "公开authMethods与capabilities来源：当前仅已实现的api_key；OAuth/ambient没有adapter就unsupported，不能凭provider名画已可用入口。",
+        "注册能力按实际provider/API/model/adapter组合，不把compatible默认reasoning:false误描述为供应商能力已证不支持。",
+        "BE-39最小生成只有用户显式触发；不建Workspace/Session历史，不装tools，保存绑定configRevision与credentialGeneration的受限receipt，失效即stale。",
+        "把目录握手、认证核验、真实生成分别命名；真实生成receipt包含observedModel及错误分类，回复内容最小化且不含secret。",
+        "配置跨文件激活若存在无法恢复窗口，先为该连接定义prepared/active/unavailable与启动reconciliation，禁止新Run消费中间态；不要声称整个store有跨文件事务。"
+      ],
+      "negative_tests": [
+        "目录不验key、能列模型不能生成、凭据换代、配置改变、失败回执、context未知、错误provider/model组合。",
+        "read-only fake验证不能把lastVerifiedAt写成真实生成通过。"
+      ],
+      "acceptance": [
+        "连接UI可由返回的auth/capability数据编排，所有unknown保持unknown。",
+        "未授权不调用真实模型；本单不隐含Google OAuth已完成。"
+      ],
+      "rollback": "停用连接验证入口，保留旧api_key route；凭据版本与receipt保持审计，不重写历史Run。",
+      "sources": [
+        "S10",
+        "S14",
+        "S15",
+        "S19",
+        "S26"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-FE04",
+      "title": "Composer/连接/Usage遥测消费与统一体例",
+      "maps_to": [
+        "PV-FE",
+        "BE-40@Provider",
+        "CC-I"
+      ],
+      "owner_role": "唯一FE writer",
+      "depends_on": [
+        "RV26-PV01",
+        "RV26-FE01"
+      ],
+      "write_allowlist": [
+        "app/web/model-picker.mjs（限定能力消费）",
+        "app/web/telemetry-view.mjs",
+        "app/web/settings-view.mjs（限定连接面）",
+        "app/web/usage-view.mjs（限定口径）",
+        "app/tests/review-provider-ui.test.mjs（新）"
+      ],
+      "goal": "把成熟控件用在真实语义上，尤其不伪造TPS、缓存或费用。",
+      "implementation": [
+        "模型/effort可选项全部来自后端能力；更改只影响明确的next Run或现有合同允许范围。",
+        "connection列表显示每条自己的能力、认证方式和验证receipt，不拿当前生效连接的状态套所有行。",
+        "TPS仅在有token计数与定义明确的时间区间时呈现；provider output tokens/request wall time不得写成decode TPS；计数/时点不足则Not reported。",
+        "cache read/write/output分列，missing不变0；未知费用不能消费SDK占位cost:0当免费。",
+        "局部组件通过既有tokens、PropertyRow/控件grammar、状态fixtures；不引入第二视觉系统或全面换React。"
+      ],
+      "negative_tests": [
+        "终态无usage、取消/失败、推理token口径未知、长tool wait、换模型、旧验证receipt、contextWindow unknown。"
+      ],
+      "acceptance": [
+        "指标有单位、分母/时间口径和source；UI刷新不触发付费验证或重发Run。",
+        "布局、灰阶/attention语义、键盘及焦点回归通过；pixel审核由本地浏览器完成。"
+      ],
+      "rollback": "停用新指标，保留有证据的原始计数；不以空图伪装零消耗。",
+      "sources": [
+        "S10",
+        "S14",
+        "S19",
+        "S24"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "属于实际PV/CC-I前端队列的补充，不自动重开已验收视觉轮。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-EV01",
+      "title": "纵切对照与全生命周期证据包",
+      "maps_to": [
+        "ME-09",
+        "LG benchmark",
+        "SE continuity"
+      ],
+      "owner_role": "独立评测作者",
+      "depends_on": [
+        "RV26-LG00",
+        "RV26-HC02",
+        "RV26-FE02"
+      ],
+      "write_allowlist": [
+        "benchmarks/intake/**",
+        "benchmarks/continuity/**（只加consumer/对照）",
+        "evidence/review-longlife-20260910/**（新）"
+      ],
+      "goal": "证明治理带来的质量、恢复与成本变化，而不只报告token下降。",
+      "implementation": [
+        "先预注册T=重复直接读取、S=治理来源+确定性检索、E=S+Spark语义候选三条件，使用相同语料/问题/授权/任务预算。",
+        "冷缓存、暖缓存、改字节、撤回、重启、换Session分别测试；序列随机或配对，模型/提示/预算固定，重复次数由成本授权决定。",
+        "指标分开：引用定位、旧版误引、unsupported claim、false accept、unknown保真、增量重建、恢复义务、模型/人工时间和费用。",
+        "同一作者不得用自己的finding作为gold；held-out不调参；专业准确性与结构契约验收分开。",
+        "没有真实provider授权时只交离线符合性结果与not_run表，不能宣称模型层质量/成本改进。"
+      ],
+      "negative_tests": [
+        "cheap层自评高分但独验不通过；source mutation后命中旧cache；只读索引误充完整coverage。"
+      ],
+      "acceptance": [
+        "固定SHA、原始结果、失败案例、身份/许可与未检项可公开复现。",
+        "输出go/no-go：是否保留Spark、是否扩大格式、是否需第二runtime或数据库迁移。"
+      ],
+      "rollback": "停用不达标cheap/semantic层；保留确定性治理和已存正式历史。",
+      "sources": [
+        "S05",
+        "S06",
+        "S07",
+        "S28"
+      ],
+      "priority": "P2",
+      "conditional_on": null,
+      "extra_preconditions": "",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-REL01",
+      "title": "现有NDA真实闭环：独立于新平台路线收G1–G5",
+      "maps_to": [
+        "G1–G5",
+        "H0–H3"
+      ],
+      "owner_role": "集成+非作者验收",
+      "depends_on": [
+        "RV26-Q01",
+        "RV26-Q02",
+        "RV26-Q04",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "evidence/real-vertical-20260910/**（新）",
+        "engineering/current.md",
+        "README.md/Pages事实清单（仅证据更新）"
+      ],
+      "goal": "不要等LG/Spark/多专家全部完成才验证今天已有产品。",
+      "implementation": [
+        "在干净独立clone用合成NDA；按README启动，用户在GUI显式配置其授权provider，不读取个人CLI凭据代劳。",
+        "模型产生候选→人核对来源/未决→accept或要求证据→新Session继续同Matter；保留真实错误/取消/重启分支。",
+        "使用同一或源码等价且可证明的产品SHA采集UI与结果，不混剪不同实现版本。",
+        "按照G1启动、G2正式工作、G3连续性、G4公开演示、G5事实一致逐门记录，不以测试数替代。",
+        "真实provider/浏览器/平台未测则门保持open；只在用户授权后录制/发布，不改部署开关。"
+      ],
+      "negative_tests": [
+        "重复决定、旧版本、伪actor、producer卸载、网络丢ACK、Rununknown。"
+      ],
+      "acceptance": [
+        "已有闭环可独立验收；新LG/Spark路线不是所有G门的默认前提。",
+        "公开叙事只覆盖实际测得能力与合成专业场景。"
+      ],
+      "rollback": "撤回不成立的对外声称；保留失败证据，数据库不为录制而清洗。",
+      "sources": [
+        "S01",
+        "S23",
+        "S28"
+      ],
+      "priority": "P1",
+      "conditional_on": null,
+      "extra_preconditions": "真实provider调用与发布各需用户明确授权；本包不代为执行。",
+      "status": "blocked-by-dependencies"
+    },
+    {
+      "id": "RV26-OUT01",
+      "title": "一个只读外部消费面：先CLI后MCP选择门",
+      "maps_to": [
+        "ME-07",
+        "AT1",
+        "BG-01"
+      ],
+      "owner_role": "接口作者",
+      "depends_on": [
+        "RV26-HC02",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "app/cli/read-work.mjs（建议新）或一个MCP server模块（二选一）",
+        "app/tests/review-external-read.test.mjs（新）",
+        "docs/runtime-control/external-read.md（新）"
+      ],
+      "goal": "验证第二消费者复用同一Core，而不建立第二权限层。",
+      "implementation": [
+        "默认先实现本地CLI list/inspect/exact-read，复用同一授权query facade；只有实际MCP消费者确定后才选MCP server，不能同时做两套。",
+        "输出versioned DTO、source refs、分页与unavailable，所有scope由已验证caller权限求交。",
+        "不要直接暴露CoreClient通用call/op，不开放rawSQL、任意path或accept/resolve。",
+        "外部访问令牌不等于Core写能力；不顺手加tunnel/公网服务。"
+      ],
+      "negative_tests": [
+        "越权枚举、缓存跨caller、旧token、已撤销来源、隐藏对象计数泄露、任意op注入。"
+      ],
+      "acceptance": [
+        "第二消费者读同一决定/引用，与GUI一致；没有复制领域状态。",
+        "一条CLI或MCP路径可独立复现，未选路径明确not_implemented。"
+      ],
+      "rollback": "关闭外部入口与凭据，Core数据及GUI不受影响。",
+      "sources": [
+        "S05",
+        "S06",
+        "S22"
+      ],
+      "priority": "P2",
+      "conditional_on": "存在实际的第二只读消费者；否则不阻塞首条闭环。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    },
+    {
+      "id": "RV26-OPT01",
+      "title": "慢Intake任务消费现有AsyncTasks",
+      "maps_to": [
+        "AM-B增量",
+        "ME-01/03"
+      ],
+      "owner_role": "Harness作者",
+      "depends_on": [
+        "RV26-LG01B",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "app/intake/async-adapter.mjs（新）",
+        "app/server/async-tasks.mjs（仅证明必要的缺口）",
+        "app/tests/review-intake-async.test.mjs（新）"
+      ],
+      "goal": "只为已测慢读取提供可恢复handle，不把所有工具变成长任务。",
+      "implementation": [
+        "只注册有界只读capture/rendition任务，沿现有AsyncTasks execution/delivery分离、cancel/reconcile和scope。",
+        "当前Async tools只在特定unbound路径暴露；不得直接塞进Matter-bound/ES complete Run。需要新绑定时先补scope和input coverage合同。",
+        "等待A不阻塞已完成B的独立步骤；late/retry回执按原run/call，不投最近Session。"
+      ],
+      "negative_tests": [
+        "两任务乱序、重复wait、失联、cancel竞态、撤权、旧binding、生产adapter不存在。"
+      ],
+      "acceptance": [
+        "仅宣称adapted handle/get/wait，不宣称provider native async或通用scheduler。"
+      ],
+      "rollback": "关闭新adapter，保留历史结果可读；未决任务settle/unknown后再退出。",
+      "sources": [
+        "S09",
+        "S15",
+        "S21"
+      ],
+      "priority": "P2",
+      "conditional_on": "同步有界Intake已产生可测阻塞，且现有AM-B生产adapter缺口已核定。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    },
+    {
+      "id": "RV26-OPT02",
+      "title": "Google Auth路线的固定版本准入与实现",
+      "maps_to": [
+        "BE-36/37",
+        "Google dogfood"
+      ],
+      "owner_role": "Provider作者",
+      "depends_on": [
+        "RV26-PV01",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "docs/runtime-control/google-auth-admission.md（新）",
+        "app/runtime/google-auth-adapter.mjs（准入后新）",
+        "app/tests/review-google-auth.test.mjs（准入后新）"
+      ],
+      "goal": "保留用户Google Auth意图，不把API key或目录握手冒充OAuth。",
+      "implementation": [
+        "检查锁定Pi0.85.1实际公开Google auth入口与官方支持的授权产品；确认模型、project/region、scope、token刷新与使用条款，选定一种明确路线。",
+        "Google OAuth、Vertex/ADC、Gemini API key是不同配置与授权；不能默认为同一权益，不能冒用官方私有client身份。",
+        "准入后实现单连接auth lifecycle、token私有存储、credentialGeneration、撤销/过期/refresh失败；callback仅允许明确绑定state/PKCE及本地端点。",
+        "真实登录与生成由用户显式触发；不抓浏览器cookie、不读取未授权CLI凭据。不能证实时维持unsupported并给出阻塞证据。"
+      ],
+      "negative_tests": [
+        "取消登录、错误state、过期回调、scope不足、模型不可用、refresh失败、重启、撤销。"
+      ],
+      "acceptance": [
+        "auth成功与该模型生成成功分别留receipt；没有自动扩大provider允许集。"
+      ],
+      "rollback": "撤销新连接token并禁用route；现有provider继续可用，未知任务不盲重发。",
+      "sources": [
+        "S10",
+        "S19",
+        "S26"
+      ],
+      "priority": "P2",
+      "conditional_on": "选定的官方/公开OAuth路线与锁定SDK兼容，且用户明确授权真实登录。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    },
+    {
+      "id": "RV26-OPT03",
+      "title": "第二Runtime：只选Codex app-server一个轴",
+      "maps_to": [
+        "ME-08",
+        "D09/D13"
+      ],
+      "owner_role": "Runtime作者",
+      "depends_on": [
+        "RV26-HC04",
+        "RV26-HC02"
+      ],
+      "write_allowlist": [
+        "app/runtime/codex-adapter.mjs（准入后新）",
+        "app/tests/review-codex-conformance.test.mjs（新）",
+        "docs/runtime-control/codex-admission.md（新）"
+      ],
+      "goal": "证明可替换执行器，不重写Pi、Core或前端。",
+      "implementation": [
+        "固定app-server版本、协议、许可与实际调用入口；按HC04相同capability/permissions/unknown矩阵测试。",
+        "保证单控制者与原始身份，native TUI与CW不能同时对同Session发控制。",
+        "不兼容字段明确unsupported/lossy，不能为兼容吞掉输入来源/批准或rewrite system prompt。"
+      ],
+      "negative_tests": [
+        "重复事件、restart、未知effect、并行控制者、unsupported approvals、producer离场。"
+      ],
+      "acceptance": [
+        "一条读→候选→人决定→换Session路径经第二runtime成立，Pi仍默认可退。"
+      ],
+      "rollback": "禁用新adapter，按原来源保留历史读取；不把旧runtime任务转移成新任务重放。",
+      "sources": [
+        "S05",
+        "S06",
+        "S19",
+        "S20"
+      ],
+      "priority": "P2",
+      "conditional_on": "Pi符合性已成立且第二runtime有实际消费者；本轮不同时实现ACP/TUI/MCP App。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    },
+    {
+      "id": "RV26-OPT04",
+      "title": "外部副作用与Intent/Receipt恢复",
+      "maps_to": [
+        "BG-03",
+        "ME-06后续"
+      ],
+      "owner_role": "Core/connector作者",
+      "depends_on": [
+        "RV26-AT02",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "现有Core owner内的领域intent/outbox模块（准入后）",
+        "单一外部connector adapter（准入后）",
+        "app/tests/review-external-effects.test.mjs（新）"
+      ],
+      "goal": "只为一个真实外部写动作建立明确授权与未知结果恢复。",
+      "implementation": [
+        "先选择一个效果动作及scope，如发一封邮件或提交一个GitHub review；禁止通用arbitrary action。",
+        "人工批准精确参数/版本与idempotency key，intent先在现有owner持久化，执行/delivery/正式工作决定分开。",
+        "远端支持幂等/查询则核对；不支持则unknown交人，不用重新执行来探测旧执行。",
+        "副作用撤销是补偿合同，不等于配置rollback或删本地记录。"
+      ],
+      "negative_tests": [
+        "外部成功本地ACK丢失、intent后未dispatch、重复callback、scope撤销、来源换版、cancel/成功竞态。"
+      ],
+      "acceptance": [
+        "不宣称跨远端exactly-once；未知结果可定位、可解释、不会自动重复外发。"
+      ],
+      "rollback": "停止新增dispatch，保留intent/receipt并核对未决；不删除outbox来“回滚”。",
+      "sources": [
+        "S09",
+        "S22",
+        "S05"
+      ],
+      "priority": "P2",
+      "conditional_on": "有真实外部写消费者、明确授权与可测试provider；只读Attention阶段不得实施。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    },
+    {
+      "id": "RV26-OPT05",
+      "title": "Runtime持久化Backend替换门",
+      "maps_to": [
+        "M06",
+        "ME-09"
+      ],
+      "owner_role": "持久化作者",
+      "depends_on": [
+        "RV26-Q05",
+        "RV26-Q03",
+        "RV26-HC04"
+      ],
+      "write_allowlist": [
+        "app/server/store.mjs（保持公共接口）",
+        "app/server/runtime-store-backend.*（准入后新）",
+        "app/tests/review-store-conformance.test.mjs（新）"
+      ],
+      "goal": "只有测得全量JSON写放大阻塞目标规模，才替换执行存储实现。",
+      "implementation": [
+        "以相同Store API/事件排序/command receipt/迁移和恢复反例作为符合性合同；不是迁移Core权威或增加第二execution owner。",
+        "先比较有限batch与单owner SQLite实现；合并stream delta不得丢失治理所需边界/进度恢复。",
+        "选择单次切换：旧JSON精确备份只读，新backend单写；不长期dual-write、不两边任选真源。",
+        "如果SQLite解决目标瓶颈，无理由捆绑Rust/桌面壳/完整event-sourcing重写。"
+      ],
+      "negative_tests": [
+        "迁移中断、旧host、双writer、重复command、顺序/cursor、schema缺字段、备份冲突。"
+      ],
+      "acceptance": [
+        "在Q05同设备/规模/任务下证明确有收益且全部语义反例不退化。"
+      ],
+      "rollback": "回到匹配旧host和独立备份目录；切换后新增历史需明确导出/不可回退边界。",
+      "sources": [
+        "S13",
+        "S16",
+        "S29"
+      ],
+      "priority": "P2",
+      "conditional_on": "Q05预注册门失败且小范围措施不能满足已确认目标规模。",
+      "extra_preconditions": "",
+      "status": "conditional"
+    }
+  ]
+}
