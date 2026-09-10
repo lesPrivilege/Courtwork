@@ -135,3 +135,17 @@
 - **D-5 L0 composer 位置**：runtime-telemetry 提到 L0 保留当前状态，本单只把 locus 放在 connection card（measurements 已在那里），没有做 composer footer 槽位。
 - **D-6 forced-colors**：SVG 柱在 forced-colors 下的可见性未测，可能需要 `forced-color-adjust` 或改用 `CanvasText`。
 - **D-7 数字精度**：本单取整数 `tok/s`，以减少跳变；另一个选项是保留一位小数（Pi Pulse 先例）。disclosure 内已保留一位小数。
+
+## 11. 用户裁定（2026-09-10）
+
+用户核对了 `0d72a9b`，本轮未合流。结论：按请求终值比完整时间序列的要求小，这个方向成立，但测量来源仍是阻断。40px 柱图仍只是候选，不算视觉接受。
+
+- **D-1 合同归属**：归通用 Harness 的 provider/runtime 遥测边界。先研究每请求终值（§3 第 1 层），不先做完整序列。精确 tokenizer 加宿主收包时钟算不上推理引擎的 decode TPS，`host-tokenizer` 不得和 provider 时钟混成同一种测量；两种来源各自命名、分开记录。已进入通用 Harness 缺口队列，排在基本功能之后，不抢先施工。登记见 [backend-requests](../../mvp/execution/work-surface-kit/backend-requests.md) 末节。
+- **D-2 两行并存**：两种事实都保留。紧凑面可以只显示其中一项，另一项放在详情披露里；不能靠改名掩盖口径不同。
+- **D-3 idle**：idle 时不显示「当前速度」。Run 中位数先放进详情，并注明范围、有效样本数和排除规则（失败、取消、中断和无输出计数的请求如何处理）。
+- **D-4 大字模式**：空间不够时先隐藏小图，保留数字和来源，不缩小字号。
+- **D-5 composer**：暂不新增 TPS 槽位。
+- **D-6 forced-colors 与真实 200% 缩放**：两项都是产品接线前必须验证的。
+- **D-7 精度**：紧凑显示取整数可以接受，底层保留原始精度。
+
+§4、§6 与本节冲突的地方，以本节为准。specimen 页面暂不按本节重做，接线前再按本节修订。
