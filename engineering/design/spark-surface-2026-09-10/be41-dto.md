@@ -98,5 +98,5 @@
 - Core 通用字段与领域 contract 无关，因此新领域 contract 不自动令这组通用计数 unavailable，也不解码领域 payload 或推断接受资格。`current` 严格表示 source revision 相等，不表示 base/contract/obligation 当前或可接受。所有持久 status 均计入，包括 accepted/rejected/needs_evidence。
 - 前一修订取 `source_history` 中小于现行修订的最大实际 revision，可跳号；source 文件版本可以回退至已有的不可变版本，replaced 的 toVersion 不保证大于 fromVersion。Matter version 合法范围从 **0** 开始。当前前端对这两种值的过严校验须由接线单修复，后端不伪造递增值。
 - 缺少当前源历史，或只有大于1的现行修订且无法证明其为首修订，返回该 Matter `partial/source_history_unavailable`，全部计数 null、refs 空、sourceSetChange null。旧迁移只保留当前源成员时不编造前一修订。出现候选源修订领先 Matter 返回 `partial/source_version_inconsistent`。null 在 partial 下表示不可完整观察；仅 observed 下才可解释为无前修订。
-- 单 Matter 序列化投影预算8192 UTF-8字节（不含随后附加的固定长度snapshot），超限为 `partial/projection_budget_exceeded`，不暗中截断源差集。refs 正常至多20条且仍提供精确stale总数。项目任一行partial（包括页外行）使coverage为 `partial/matter_projection_incomplete`；total仍是已识别的全部拥有Matter。
+- 单 Matter 序列化投影预算8192 UTF-8字节（不含随后附加的固定长度snapshot），超限为 `partial/projection_budget_exceeded`，不暗中截断源差集。整页另有1,000,000 UTF-8字节上限；身份元数据本身仍超限时显式HTTP409 `PROJECTION_BUDGET`，不截断身份。refs 正常至多20条且仍提供精确stale总数。项目任一行partial（包括页外行）使coverage为 `partial/matter_projection_incomplete`；total仍是已识别的全部拥有Matter。
 - Core 整体读取/传输失败沿现有错误响应，不伪造空项目或零。没有足够身份信息时不制造 unavailable 行；DTO 对 unavailable/null 的既有语义保留。投影无历史数据回读，不提供candidate下钻新端点。现有客户端仅本地比较快照，顶层空页token与服务端预期token消费待前端接线。

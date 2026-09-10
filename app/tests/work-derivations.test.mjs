@@ -80,3 +80,11 @@ c.execute("INSERT INTO matter_disclosure VALUES('p','a',1,1,'{}','synthetic')")
 c.commit()`,path.join(dir,'state.db')],{encoding:'utf8'});assert.equal(injected.status,0,injected.stderr);
  await assert.rejects(query(core,{snapshot_ref:before.snapshotRef}),{code:'DERIVATIONS_SNAPSHOT_CHANGED'});
 }));
+test('BE41 oversized identity metadata refuses explicitly rather than breaking the worker frame',()=>fixture(async(core)=>{
+ for(const id of ['a','b']) {
+  await core.createMatter({matterId:id,title:id,source:source(id)});
+  await core.call('claim_work',{matter_id:id,project_id:'p',extension_id:'x'.repeat(510000)});
+ }
+ await assert.rejects(query(core),{code:'PROJECTION_BUDGET'});
+ assert.equal((await query(core,{project_id:'other'})).page.total,0);
+}));

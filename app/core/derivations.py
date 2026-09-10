@@ -1,4 +1,4 @@
-"""BE-41: read-only projection of Core metadata, never candidate/source bodies."""
+"""BE-41: read-only projection of Core metadata; no candidate/source bodies in DTO."""
 import hashlib
 from datetime import datetime, timezone
 
@@ -54,11 +54,14 @@ def project(store, request):
             raise CoreError('DERIVATIONS_SNAPSHOT_CHANGED', 'refresh derivations before paging')
         for item in selected:
             item['snapshotRef'] = snapshot
-        return {'schemaVersion': 1, 'asOf': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
+        result = {'schemaVersion': 1, 'asOf': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
                 'scopeRef': 'project:' + project_id, 'snapshotRef': snapshot,
                 'coverage': {'matters': 'partial' if partial else 'complete',
                              'reason': 'matter_projection_incomplete' if partial else None},
                 'page': {'limit': limit, 'offset': offset, 'total': total}, 'matters': selected}
+        if len(canonical_json(result).encode('utf-8')) > 1_000_000:
+            raise CoreError('PROJECTION_BUDGET', 'derivations identity metadata exceeds response budget')
+        return result
     finally:
         conn.rollback()
 
