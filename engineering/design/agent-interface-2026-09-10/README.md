@@ -251,3 +251,32 @@ new design decision
 ## 12. 外部来源的边界（S21 / S22）
 
 Storybook、Figma Code Connect、Appica UI、Atlassian token tooling 一律 `reference`，可消费的与明确拒绝的项见 [sources.md](../sources.md) S21 / S22 行。四者都**不**引入 Courtwork：不加 React、Tailwind、Storybook、Figma / Code Connect、Appica package、Atlaskit tooling 或其 token 名称。
+
+### 12.1 核验台账（S21 / S22，2026-09-10）
+
+核验方式：Fable 在 2026-09-10 只读抓取下列一手页面正文，没有登录、没有安装、没有运行上游代码，也没有把页面字节存入仓库。
+
+**可复现性的边界（必须先读）：** 远端页面可变，本轮未留快照，因此这里记录的是**核验坐标**（URL + 访问日 + 核验到的具体主张），不是可离线重放的证据。复核只能在更晚的日期重取同一 URL；重取结果与本表不一致时，以本表为**历史记录**，按本页 §6 登记 gap，不得直接改写本表当作当时已核。
+
+| # | 一手 URL | 访问日 | 本轮核验到的主张 | 本轮**未**核验 |
+|---|---|---|---|---|
+| V1 | [github.com/appica-dev/appica-ui](https://github.com/appica-dev/appica-ui) | 2026-09-10 | 仓库存在；MIT；包名 `@appica/ui-react`；React + Tailwind；仓内确有 `AGENTS.md` 与 `CLAUDE.md`；文档站指向 appica.dev/ui | "70+ components" 为仓库自述，未逐项计数；未在该仓核到 `llms.txt` 运行时；未核组件质量与可访问性主张 |
+| V2 | [storybook.js.org/docs/ai](https://storybook.js.org/docs/ai) | 2026-09-10 | `AGENTS.md` 为主指令源、`CLAUDE.md` 为替代入口；MCP server 经 `@storybook/addon-mcp` 安装，暴露 `docs-list` / `docs-show` / `test-run`；manifest 自动生成随 Storybook 更新 | 未安装、未运行、未验证 MCP 行为；未核 framework 覆盖面 |
+| V3 | [developers.figma.com/docs/code-connect/](https://developers.figma.com/docs/code-connect/) | 2026-09-10 | Code Connect 把 Figma 组件映射到真实代码实现，Dev Mode / Figma MCP 因此输出真实实现细节；映射须自行编写并发布；有 UI 与 CLI 两条路径 | 未建立任何映射、未接入 Figma；`help.figma.com` 的两个旧条目本轮返回 404，未取正文 |
+| V4 | [atlassian.design/foundations/tokens/use-tokens-in-code](https://atlassian.design/foundations/tokens/use-tokens-in-code) | 2026-09-10 | ESLint 规则 `@atlaskit/design-system/ensure-design-token-usage`、`no-unsafe-design-token-usage`、`no-deprecated-design-token-usage`；CSS / Less / Sass 走 Stylelint；迁移用 `@atlaskit/codemod-cli`；构建期 `@atlaskit/tokens/babel-plugin` 把 `token()` 换成 CSS 变量 | 未运行任一规则；Stylelint 具体规则名页面未给出；未核其对非 Atlaskit 栈的适用性（本地判定为**不适用**） |
+
+### 12.2 仍为 `unverified` 的残项
+
+[补充转录 §1.1 / §1.2](../../mvp/execution/work-surface-kit/inputs/control-grammar-supplement-2026-09-10.md) 中的以下主张**本轮未核验**，状态不变，只能当检索线索：
+
+```text
+appica.dev/ui/docs/react/agents        （本轮取用的 /docs/agents 路径返回 404，未取到正文）
+appica.dev/ui/docs/react/theming
+appica.dev/ui/docs/react/accessibility
+appica.dev/ui/docs/react/installation
+"versioned agent rules" 的具体绑定方式
+per-component Markdown 与 typed component API 的实际形态
+Appica 的组件数量、theming 与 accessibility 主张
+```
+
+V1 核到的是**仓库层事实**，不等于上述文档页已核验；不得用 V1 去抬升 §1.1 里任何一条页面主张的状态。[补充转录](../../mvp/execution/work-surface-kit/inputs/control-grammar-supplement-2026-09-10.md) 本身是输入记录，不因本轮核验而改写。
