@@ -309,4 +309,4 @@
 
 ## 8. 覆盖与缺口
 
-本表当前 20 行，覆盖 21 个 problem_key（`material.chrome` 与 `material.transient` 合并为一行）。其中 20 行给出 `canonical` 本地先例；`iconography` 与 `contextual.actions` 另各带一项 `deferred`（EX-IC1 specimen、applicability 事实表），`iconography` 的 MingCute / Phosphor 为 `reference`。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
+本表当前 21 个条目 / 21 个 status 行，覆盖 22 个 problem_key（`material.chrome` 与 `material.transient` 合并为一个条目）。21 行都给出 `canonical` 本地先例；`iconography` 与 `contextual.actions` 另各带一项 `deferred`（EX-IC1 specimen、applicability 事实表），`iconography` 的 MingCute / Phosphor 为 `reference`。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
