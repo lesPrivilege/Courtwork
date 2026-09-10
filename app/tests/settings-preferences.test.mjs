@@ -9,7 +9,9 @@ import { readFileSync } from "node:fs";
 
 import {
   validateSkinTokens,
+  validateLegacySkinTokens,
   readPreferences,
+  writePreferences,
   SKIN_COLOR_TOKENS,
   SKIN_NUMERIC_TOKENS,
   CODE_FONT_PATTERN,
@@ -54,12 +56,13 @@ test("一组完整的 Tier S token 通过，并被规范成可以直接落进样
   assert.doesNotMatch(result.css, /[{}]/);
 });
 
-test("styles.css 与 skins/gray-steel.css 的两个 skin 块都能通过同一套校验", () => {
+test("旧 gray-steel 全量块仍可读取，但新外观格式不接受其固定语义键", () => {
   for (const selector of [':root[data-skin="gray-steel"]', ':root[data-skin="gray-steel"][data-theme="dark"]']) {
     const tokens = block(styles, selector);
     const text = Object.entries(tokens).map(([name, value]) => `${name}: ${value};`).join("\n");
-    const result = validateSkinTokens(text);
+    const result = validateLegacySkinTokens(text);
     assert.equal(result.ok, true, `${selector}: ${JSON.stringify(result.errors)}`);
+    assert.equal(validateSkinTokens(text).ok, false);
   }
 });
 
@@ -125,14 +128,16 @@ test("行号指回原文，一次报完所有问题", () => {
   assert.deepEqual(result.errors.map((problem) => problem.line), [3, 4]);
 });
 
-test("两个 rgb 基底与三个 alpha 是数值不是颜色，各按自己的形状校验", () => {
+test("legacy 数值可读，但新外观许可域拒绝材质参数", () => {
+  const legacySet = () => fullSet().replace("}", "--danger-3: #fff; --danger-11: #fff; --success-3: #fff; --success-11: #fff; }");
   assert.equal(Object.keys(SKIN_NUMERIC_TOKENS).length, 5);
-  const ok = validateSkinTokens(fullSet().replace("}", "--alpha-ink: 28, 32, 36;\n--shadow-alpha: 0.08;\n}"));
+  assert.equal(validateSkinTokens(fullSet().replace("}", "--glass-alpha: 0.1; }")).ok, false);
+  const ok = validateLegacySkinTokens(legacySet().replace("}", "--alpha-ink: 28, 32, 36;\n--shadow-alpha: 0.08;\n}"));
   assert.equal(ok.ok, true, JSON.stringify(ok.errors));
-  const badTriple = validateSkinTokens(fullSet().replace("}", "--alpha-ink: 300, 0, 0;\n}"));
+  const badTriple = validateLegacySkinTokens(legacySet().replace("}", "--alpha-ink: 300, 0, 0;\n}"));
   assert.equal(badTriple.ok, false);
   assert.match(badTriple.errors[0].reason, /r, g, b triple/);
-  const badUnit = validateSkinTokens(fullSet().replace("}", "--rim-alpha: 3;\n}"));
+  const badUnit = validateLegacySkinTokens(legacySet().replace("}", "--rim-alpha: 3;\n}"));
   assert.equal(badUnit.ok, false);
   assert.match(badUnit.errors[0].reason, /between 0 and 1/);
 });
@@ -530,4 +535,27 @@ test("CC-I · appearance keeps no value controls; only the provider context wind
   assert.match(source, /Number\.isSafeInteger\(parsed\) && parsed >= 4/);
   // 复位是可逆的低风险操作，不加确认对话框（WK-122 / WK-140）。
   assert.doesNotMatch(source, /\bconfirm\(/);
+});
+
+
+test("failed browser storage keeps the active projection but exposes session-only persistence", () => {
+  const previousStore = globalThis.__cwPrefs;
+  const previousStorage = globalThis.localStorage;
+  let applied;
+  const store = { key: "synthetic", value: {}, apply: value => { applied = value; } };
+  try {
+    globalThis.__cwPrefs = store;
+    globalThis.localStorage = { setItem() { throw new Error("quota"); } };
+    const value = { ...PREFERENCE_DEFAULTS, scheme: "dark", customSkin: "retained raw" };
+    assert.equal(writePreferences(value), value);
+    assert.equal(applied, value);
+    assert.equal(store.value.customSkin, "retained raw");
+    assert.equal(store.storageError, true);
+    globalThis.localStorage = { setItem() {} };
+    writePreferences(value);
+    assert.equal(store.storageError, false);
+  } finally {
+    if (previousStore === undefined) delete globalThis.__cwPrefs; else globalThis.__cwPrefs = previousStore;
+    if (previousStorage === undefined) delete globalThis.localStorage; else globalThis.localStorage = previousStorage;
+  }
 });

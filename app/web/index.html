@@ -7,13 +7,8 @@
     <title>CourtWork</title>
     <link rel="stylesheet" href="/web/styles.css" />
     <link rel="stylesheet" href="/web/markdown-reader.css" />
-    <!-- WK-78 (5) · 本设备的外观偏好在第一帧之前应用，否则换宗、换 skin、换字号的人
-         每次开页都先看见默认值再跳一下。模块脚本一律 defer，来不及；所以读取与应用这一小段
-         同步内联在这里，并把两个函数挂到 window，供 settings-view.mjs 在改动时复用 ——
-         应用逻辑只有这一份。偏好的 schema、可选值与用户 token 集的校验都在 settings-view.mjs；
-         本段只照抄已存下的结果（未知的档位值落不到任何属性选择器上），并在拼进样式表前对两个
-         自由文本值再过一道同形状的窄闸，因为 localStorage 是可以被手改的。
-         键名带 origin 派生的 hash，一台机器上的两个工作区互不覆盖。 -->
+    <!-- The same policy validates stored appearance before paint and editor changes. -->
+    <script src="/web/skin-policy.js"></script>
     <script>
       (function () {
         function hash(text) {
@@ -31,8 +26,9 @@
           if (p.scheme === "light" || p.scheme === "dark")
             root.setAttribute("data-theme", p.scheme);
           else root.removeAttribute("data-theme");
+          var custom = window.__cwSkinPolicy && window.__cwSkinPolicy.projectSkin(p.customSkin);
           if (p.skin === "gray-steel") root.setAttribute("data-skin", p.skin);
-          else if (p.skin === "custom") root.setAttribute("data-skin", "custom");
+          else if (p.skin === "custom" && custom && custom.ok) root.setAttribute("data-skin", "custom");
           else root.removeAttribute("data-skin");
           if (p.textSize === "small" || p.textSize === "large")
             root.setAttribute("data-text-size", p.textSize);
@@ -46,17 +42,12 @@
             document.head.appendChild(style);
           }
           var rules = [];
-          /* 存进来的两个值本来就是 settings-view 校验过的，但 localStorage 是可以被手改的，
-             所以落地前再过一道同样形状的窄闸：字体名只有字母数字与引号逗号，token 集只有
-             既有 token 名与 hex / 数字。不符合的当作没有设置，绝不原样拼进样式表。 */
+          /* Font names have their own narrow grammar; palette text is never
+             interpolated raw. The shared projection supplies permitted declarations. */
           if (p.codeFont && /^[A-Za-z0-9 ,'"_-]{1,120}$/.test(p.codeFont))
             rules.push(":root{--font-mono:" + p.codeFont + ",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}");
-          if (p.skin === "custom" && p.customSkin && /^[a-z0-9#,.:;\s-]{1,4000}$/i.test(p.customSkin))
-            rules.push(
-              ':root[data-skin="custom"],:root[data-skin="custom"][data-theme="dark"],:root[data-skin="custom"]:not([data-theme="light"]){' +
-                p.customSkin +
-                "}",
-            );
+          if (p.skin === "custom" && custom && custom.ok)
+            rules.push(':root[data-skin="custom"],:root[data-skin="custom"][data-theme="dark"],:root[data-skin="custom"]:not([data-theme="light"]){' + custom.css + '}');
           style.textContent = rules.join("\n");
         }
         var stored = null;

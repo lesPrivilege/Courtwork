@@ -1,3 +1,4 @@
+import "./skin-policy.js";
 import { el, action, flowRow } from "./ui-controls.mjs";
 
 
@@ -1377,119 +1378,10 @@ export function isSettingsSection(id) {
   return SETTINGS_GROUPS.some((group) => group.id === id);
 }
 
-/* WK-78 (4) / FN-11 · 用户 skin 的全部词汇。「更开放」到此为止：一个 Tier S 色阶，
- * 不是一段 CSS。名字必须是既有 token 名 —— 新名字进不了 tier:R 的角色映射，只会是一段
- * 被忽略的声明，却让人以为改了；值必须是 hex（两个 rgb 基底与三个 alpha 除外，它们本来
- * 就不是颜色）。校验规则与 tools/lint-colors.mjs 同源：颜色字面量只许落在 Tier S。 */
-export const SKIN_COLOR_TOKENS = [
-  "--gray-1", "--gray-2", "--gray-3", "--gray-4", "--gray-5", "--gray-6",
-  "--gray-7", "--gray-8", "--gray-9", "--gray-10", "--gray-11", "--gray-12",
-  "--accent-3", "--accent-9", "--accent-10", "--accent-11",
-  "--danger-3", "--danger-11", "--success-3", "--success-11",
-  "--paper", "--float-s", "--frame-s", "--ink-max", "--on-accent-s",
-];
-export const SKIN_NUMERIC_TOKENS = {
-  "--alpha-ink": "triple",
-  "--alpha-paper": "triple",
-  "--shadow-alpha": "unit",
-  "--glass-alpha": "unit",
-  "--rim-alpha": "unit",
-};
-const SKIN_TOKEN_NAMES = new Set([
-  ...SKIN_COLOR_TOKENS,
-  ...Object.keys(SKIN_NUMERIC_TOKENS),
-]);
-const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
-const TRIPLE = /^(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})$/;
-const UNIT = /^(?:0|1|0?\.\d{1,3})$/;
-/* 危险形状先于逐行解析拒绝，因为它们说明这不是一个色阶，而是有人在往样式表里塞别的东西。 */
-const FORBIDDEN = [
-  ["url(", "url( is not a colour"],
-  ["expression", "expression is not a colour"],
-  ["@", "at-rules such as @import are not accepted"],
-  ["</", "markup is not accepted"],
-  ["\\", "escapes are not accepted"],
-  ["javascript:", "a URL is not a colour"],
-];
-const SKIN_LIMIT = 8000;
-
-/** 一组粘贴进来的 Tier S token。通过时返回可直接落进样式表的规范化文本；
- *  不通过时逐行返回问题，绝不「尽力而为」地应用一半。 */
-export function validateSkinTokens(input) {
-  const errors = [];
-  const text = typeof input === "string" ? input : "";
-  if (!text.trim())
-    return { ok: false, css: "", values: {}, missing: [], errors: [{ line: 0, text: "", reason: "Paste a Tier S token set first." }] };
-  if (text.length > SKIN_LIMIT)
-    return { ok: false, css: "", values: {}, missing: [], errors: [{ line: 0, text: "", reason: `A token set is at most ${SKIN_LIMIT} characters.` }] };
-  const lowered = text.toLowerCase();
-  for (const [needle, reason] of FORBIDDEN)
-    if (lowered.includes(needle))
-      errors.push({ line: 0, text: needle, reason });
-  if (errors.length) return { ok: false, css: "", values: {}, missing: [], errors };
-  /* 注释与外层的一对花括号先去掉，因为最自然的粘贴动作就是整块复制 styles.css 或
-     skins/*.css 的一个 :root 块；行号保持不变，报错才指得回原文。 */
-  const stripped = text.replace(/\/\*[\s\S]*?\*\//g, (match) =>
-    match.replace(/[^\n]/g, " "),
-  );
-  const opens = (stripped.match(/\{/g) || []).length;
-  const closes = (stripped.match(/\}/g) || []).length;
-  if (opens > 1 || closes > 1)
-    return { ok: false, css: "", values: {}, missing: [], errors: [{ line: 0, text: "", reason: "Paste one block at a time; this text holds more than one." }] };
-  if (opens !== closes)
-    return { ok: false, css: "", values: {}, missing: [], errors: [{ line: 0, text: "", reason: "The block's braces do not match." }] };
-  const body = opens
-    ? stripped.slice(stripped.indexOf("{") + 1, stripped.lastIndexOf("}"))
-    : stripped;
-  const offset = opens ? stripped.slice(0, stripped.indexOf("{")).split("\n").length - 1 : 0;
-  const values = {};
-  body.split("\n").forEach((rawLine, index) => {
-    const lineNumber = offset + index + 1;
-    for (const piece of rawLine.split(";")) {
-      const declaration = piece.trim();
-      if (!declaration) continue;
-      const match = /^(--[a-z0-9-]+)\s*:\s*(.+)$/i.exec(declaration);
-      if (!match) {
-        errors.push({ line: lineNumber, text: declaration, reason: "Not a `--token: value` declaration." });
-        continue;
-      }
-      const [, name, value] = [match[0], match[1].toLowerCase(), match[2].trim()];
-      if (!SKIN_TOKEN_NAMES.has(name)) {
-        errors.push({ line: lineNumber, text: declaration, reason: `${name} is not a Tier S token name.` });
-        continue;
-      }
-      const kind = SKIN_NUMERIC_TOKENS[name];
-      if (!kind) {
-        if (!HEX.test(value)) {
-          errors.push({ line: lineNumber, text: declaration, reason: "Only a hex colour is accepted here." });
-          continue;
-        }
-      } else if (kind === "triple") {
-        const parts = TRIPLE.exec(value);
-        if (!parts || parts.slice(1).some((part) => Number(part) > 255)) {
-          errors.push({ line: lineNumber, text: declaration, reason: "This token is an r, g, b triple." });
-          continue;
-        }
-      } else if (!UNIT.test(value)) {
-        errors.push({ line: lineNumber, text: declaration, reason: "This token is a number between 0 and 1." });
-        continue;
-      }
-      values[name] = value;
-    }
-  });
-  const missing = SKIN_COLOR_TOKENS.filter((name) => !(name in values));
-  if (missing.length && !errors.length)
-    errors.push({
-      line: 0,
-      text: "",
-      reason: `A skin is a whole scale. Missing: ${missing.join(", ")}.`,
-    });
-  if (errors.length) return { ok: false, css: "", values, missing, errors };
-  const css = Object.entries(values)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join(" ");
-  return { ok: true, css, values, missing: [], errors: [] };
-}
+// One synchronous policy also runs before the first paint in index.html.
+export const { SKIN_COLOR_TOKENS, validateSkinTokens, validateLegacySkinTokens,
+  projectSkin, SKIN_POLICY_VERSION, SKIN_LIMIT } = globalThis.__cwSkinPolicy;
+export const SKIN_NUMERIC_TOKENS = globalThis.__cwSkinPolicy.LEGACY_SKIN_NUMERIC_TOKENS;
 
 /* WK-87 (b) · 用户 skin 接受前的对比度警告。对照对与门槛逐条取自
  * tools/contrast-report.mjs（同一组角色 × 底面 × 门槛）；那份工具是 node 侧的构建检查，
@@ -1539,7 +1431,7 @@ export function skinContrastWarnings(values, { probeHost = globalThis.document?.
   probe.setAttribute("aria-hidden", "true");
   probe.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
   for (const [name, value] of Object.entries(values || {}))
-    probe.style.setProperty(name, value);
+    if (SKIN_COLOR_TOKENS.includes(name)) probe.style.setProperty(name, value);
   probeHost.append(probe);
   try {
     const computed = getComputedStyle(probe);
@@ -1590,7 +1482,7 @@ export function readPreferences() {
     if (allowed.includes(stored[name])) prefs[name] = stored[name];
   if (typeof stored.codeFont === "string" && CODE_FONT_PATTERN.test(stored.codeFont))
     prefs.codeFont = stored.codeFont;
-  if (typeof stored.customSkin === "string" && stored.customSkin.length <= SKIN_LIMIT)
+  if (typeof stored.customSkin === "string")
     prefs.customSkin = stored.customSkin;
   return prefs;
 }
@@ -1615,9 +1507,12 @@ export function writePreferences(prefs) {
   store.value = prefs;
   store.apply(prefs);
   try {
-    globalThis.localStorage?.setItem(store.key, JSON.stringify(prefs));
+    if (!globalThis.localStorage) throw new Error("Browser storage unavailable");
+    globalThis.localStorage.setItem(store.key, JSON.stringify(prefs));
+    store.storageError = false;
   } catch {
-    /* 一个被禁用或写满的浏览器存储不该拦住换宗这件事：本次会话内仍然生效。 */
+    // The current projection still applies; never claim reload persistence.
+    store.storageError = true;
   }
   return prefs;
 }
@@ -1997,12 +1892,21 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     attrs: {
       rows: "8",
       spellcheck: "false",
-      "aria-label": "Tier S token set",
+      "aria-label": "Appearance token set",
       placeholder: ":root {\n  --gray-1: …;\n  --gray-2: …;\n}",
     },
   });
+  skinInput.value = prefs.customSkin;
   const skinErrors = el("div", { className: "skin-errors", attrs: { role: "alert" } });
-  const skinState = el("p", { className: "settings-row-help" });
+  const skinState = el("p", { className: "settings-row-help", attrs: { role: "status" } });
+  const skinCompatibility = el("div", { className: "settings-row-help" });
+  const storageStatus = el("p", { className: "settings-row-help", attrs: { role: "status" } });
+  const skinDraftState = el("p", { className: "settings-row-help", attrs: { role: "status" } });
+  const effectivePrefs = () => ({ ...prefs, skin: prefs.skin === "custom" && !projectSkin(prefs.customSkin).ok ? "slate" : prefs.skin });
+  skinInput.addEventListener("input", () => {
+    skinDraftState.textContent = skinInput.value === prefs.customSkin ? "" : "Draft changes are not applied.";
+    skinErrors.replaceChildren();
+  });
   /* CC-I 第一片（WK-150）· 复位后的一句回执。沿用页面上探测结果那一处已有的
      `role="status"` 机制（本文件 413 行），不新造 toast：它是一条状态，不是一个决定
      （FN-26 的分工）。文字在重画之后才写，读屏才会念到新插入的那一句。 */
@@ -2011,7 +1915,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     attrs: { role: "status" },
   });
   const governance = createPreferenceGovernance({
-    read: () => prefs,
+    read: effectivePrefs,
     apply(property, value) {
       savePrefs({ [property]: value });
       /* Palette 的草稿与生效值是两条（FN-14 请求值 ≠ 有效值）：复位生效值时草稿
@@ -2030,17 +1934,38 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     if (Object.hasOwn(change, "homeLayout") || Object.hasOwn(change, "homeModuleBand"))
       onHomeLayout?.(prefs);
     governance.sync();
+    renderSkinEditor();
     return prefs;
   }
   function renderSkinEditor() {
     skinEditor.hidden = skinDraft !== "custom";
-    skinState.textContent =
-      prefs.skin === "custom"
-        ? "A token set of your own is applied on this device."
-        : prefs.customSkin
-          ? "A token set is stored but not applied."
-          : "No token set has been accepted yet.";
-    skinRemove.hidden = !prefs.customSkin;
+    const sessionOnly = Boolean(globalThis.__cwPrefs?.storageError);
+    storageStatus.hidden = !sessionOnly;
+    storageStatus.textContent = sessionOnly ? "Applied for this session only. Browser storage could not be updated; reload will restore the previously saved preferences." : "";
+    skinExport.textContent = sessionOnly ? "Export current tokens" : "Export stored tokens";
+    const projected = projectSkin(prefs.customSkin);
+    const applied = prefs.skin === "custom" && projected.ok;
+    skinState.textContent = applied
+      ? sessionOnly ? "Your appearance colours are applied for this session only." : "Your appearance colours are applied on this device."
+      : prefs.customSkin
+        ? prefs.skin === "custom" ? "The stored set cannot be applied. Slate is active; your original is retained." : "A token set is stored but not applied."
+        : "No token set is stored. Slate remains active until you apply a valid set.";
+    skinRemove.hidden = skinExport.hidden = !prefs.customSkin;
+    skinEditable.hidden = !projected.ok || !projected.ignored.length;
+    skinCompatibility.replaceChildren();
+    if (prefs.customSkin && !projected.ok)
+      skinCompatibility.append(el("p", { text: projected.errors.map(error => error.reason).join(" ") }));
+    if (projected.ok && projected.ignored.length)
+      skinCompatibility.append(el("p", { text: `Stored but not applied: ${projected.ignored.join(", ")}. Status colours, focus and materials follow the theme. Export keeps the original set.` }));
+    if (applied) {
+      const problems = skinContrastWarnings(projected.values);
+      if (problems.length) skinCompatibility.append(
+        el("p", { attrs: { "data-contrast-warning": String(problems.length) }, text: `${problems.length} contrast pairs are below the readable threshold in this theme. Colours remain applied.` }),
+        el("ul", { className: "skin-error-list" }, ...problems.map(problem => el("li", {
+          text: `${problem.foreground} on ${problem.background}: ${problem.ratio.toFixed(2)}:1, below ${problem.minimum}:1.`,
+        }))),
+      );
+    }
   }
   const skinApply = el("button", {
     className: "secondary-button",
@@ -2076,48 +2001,51 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       );
       return;
     }
-    /* WK-87 (b) · 对比度是警告不是门。先接受，再把低于门槛的对照对逐条说清楚：
-       拒绝一套合法的 Tier S 色阶会把「你的 token」变成「我们批准的 token」。 */
-    savePrefs({ skin: "custom", customSkin: result.css });
+    // Preserve exactly what was explicitly applied; the resolver owns effective CSS.
+    savePrefs({ skin: "custom", customSkin: skinInput.value });
     skinDraft = "custom";
+    skinDraftState.textContent = "";
     renderSkinEditor();
-    const problems = skinContrastWarnings(result.values);
-    skinErrors.append(
-      el("p", { className: "form-help", text: "Applied on this device." }),
-    );
-    if (problems.length)
-      skinErrors.append(
-        el("p", {
-          className: "settings-row-help",
-          attrs: { "data-contrast-warning": String(problems.length) },
-          text: `Applied, with ${problems.length} contrast ${problems.length === 1 ? "pair" : "pairs"} below the threshold this build checks. Text in these roles may be hard to read; nothing else about the interface changes.`,
-        }),
-        el(
-          "ul",
-          { className: "skin-error-list" },
-          ...problems.map((problem) =>
-            el("li", {
-              text: `${problem.foreground} on ${problem.background}: ${problem.ratio.toFixed(2)}:1, below ${problem.minimum}:1.`,
-            }),
-          ),
-        ),
-      );
+  });
+  const skinExport = el("button", { className: "quiet-button", attrs: { type: "button" }, text: "Export stored tokens" });
+  skinExport.addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([prefs.customSkin], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "courtwork-stored-palette.txt";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  const skinEditable = el("button", { className: "quiet-button", attrs: { type: "button" }, text: "Edit appearance colours" });
+  skinEditable.addEventListener("click", () => {
+    const projected = projectSkin(prefs.customSkin);
+    if (!projected.ok) return;
+    skinInput.value = projected.css.replaceAll("; ", ";\n");
+    skinDraftState.textContent = "Editable colours loaded as a draft. Your stored original is unchanged until you apply.";
+    skinErrors.replaceChildren();
+    skinInput.focus();
   });
   skinRemove.addEventListener("click", () => {
     savePrefs({ skin: "slate", customSkin: "" });
     skinDraft = "slate";
     skinInput.value = "";
+    skinDraftState.textContent = "";
     skinErrors.replaceChildren();
     renderAppearance();
+    appearance.querySelector('[aria-label="Palette"]')?.focus();
   });
   skinEditor.append(
     el("p", {
       className: "settings-row-help",
-      text: "Paste one Tier S scale: the existing token names, hex colours only. One set serves both Light and Dark. Nothing else is read from this box — no CSS rule, no URL, no font.",
+      text: "Paste a complete appearance scale using opaque hex colours: gray 1–12, accent 3/9/10/11, paper, float-s, frame-s, ink-max and on-accent-s. One set serves Light and Dark. Status colours, focus and materials are controlled by the theme.",
     }),
     skinInput,
-    el("div", { className: "credential-actions" }, skinRemove, skinApply),
+    el("div", { className: "credential-actions" }, skinRemove, skinExport, skinEditable, skinApply),
     skinState,
+    skinDraftState,
+    skinCompatibility,
     skinErrors,
   );
 
@@ -2126,10 +2054,11 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     attrs: { role: "alert", hidden: true },
   });
   function renderAppearance() {
+    const wasAdvancedOpen = appearance.querySelector(".settings-advanced")?.open ?? (prefs.skin !== "slate");
     governance.begin();
     /* 一个调用点只多一个词。有 owner 默认值的行写 `governed("scheme")`，没有的
        行什么都不写——加一行 provenance 不该逼着改十处调用（本片的缝就切在这里）。 */
-    const governed = (property) => ({ property, prefs, governance });
+    const governed = (property) => ({ property, prefs: effectivePrefs(), governance });
     const scheme = segmented({
       name: "settings-scheme",
       label: "Theme",
@@ -2220,9 +2149,10 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       ),
       skinEditor,
     );
-    advanced.open = prefs.skin !== "slate";
+    advanced.open = wasAdvancedOpen;
     appearance.replaceChildren(
       appearancePreview(),
+      storageStatus,
       settingsRow(
         "Theme",
         "Light, dark, or whatever this device is set to. It is kept on this device and never sent to the host.",

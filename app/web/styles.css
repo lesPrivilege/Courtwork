@@ -237,12 +237,12 @@
   --accent-strong: var(--accent-10);
   --accent-soft: var(--accent-3);
   --accent-ink: var(--accent-11); /* accent 作文字、链接、等待态状态词 */
-  --focus: var(--accent-11); /* 焦点环与聚焦边框，对相邻面 ≥ 3:1 */
+  --focus: var(--system-focus); /* 焦点环与聚焦边框，对相邻面 ≥ 3:1 */
   --on-accent: var(--on-accent-s); /* 实心 accent 上的文字 */
-  --danger: var(--danger-11); /* 文字与侧线；不作整片底色 */
-  --danger-soft: var(--danger-3);
-  --success: var(--success-11);
-  --success-soft: var(--success-3);
+  --danger: var(--system-danger); /* 文字与侧线；不作整片底色 */
+  --danger-soft: var(--system-danger-soft);
+  --success: var(--system-success);
+  --success-soft: var(--system-success-soft);
   --backdrop: rgba(var(--alpha-ink), 0.22);
   --scrim: rgba(var(--alpha-ink), 0.52); /* L4-12: ≥ 3:1 against the layer it disables */
   --shadow-float: 0 12px 30px rgba(var(--alpha-ink), var(--shadow-alpha)); /* floating layers only */
@@ -5633,3 +5633,54 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]) {
   .coordination-row select, .coordination-row input { flex: 1 1 100%; }
 }
 /* == END WO-MA2-02 · Thread consumer panel =================================== */
+
+
+/* tier:S · Fixed semantic and material primitives; appearance has no write access.
+   Scheme is the owner of this adaptation, independent of every palette. */
+:root {
+  --system-focus: #2a2c2c;
+  --system-danger: #9b3c35;
+  --system-danger-soft: #feebec;
+  --system-success: #3e704e;
+  --system-success-soft: #e6f6eb;
+  --material-ink: 28, 32, 36;
+  --material-paper: 253, 253, 254;
+  --material-shadow-alpha: 0.08;
+  --material-glass-alpha: 0.86;
+  --material-rim-alpha: 0.7;
+}
+html[data-theme="dark"] {
+  --system-focus: #f4f5f6;
+  --system-danger: #ff9592;
+  --system-danger-soft: #3b1219;
+  --system-success: #3dd68c;
+  --system-success-soft: #132d21;
+  --material-ink: 0, 0, 0;
+  --material-paper: 237, 238, 240;
+  --material-shadow-alpha: 0.4;
+  --material-glass-alpha: 0.1;
+  --material-rim-alpha: 0.12;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --system-focus: #f4f5f6;
+    --system-danger: #ff9592;
+    --system-danger-soft: #3b1219;
+    --system-success: #3dd68c;
+    --system-success-soft: #132d21;
+    --material-ink: 0, 0, 0;
+    --material-paper: 237, 238, 240;
+    --material-shadow-alpha: 0.4;
+    --material-glass-alpha: 0.1;
+    --material-rim-alpha: 0.12;
+  }
+}
+/* tier:R · Override the legacy preset's material aliases at equal specificity. */
+:root, :root[data-skin], :root[data-skin][data-theme], :root[data-skin]:not([data-theme="light"]) {
+  --focus: var(--system-focus);
+  --alpha-ink: var(--material-ink);
+  --alpha-paper: var(--material-paper);
+  --shadow-alpha: var(--material-shadow-alpha);
+  --glass-alpha: var(--material-glass-alpha);
+  --rim-alpha: var(--material-rim-alpha);
+}

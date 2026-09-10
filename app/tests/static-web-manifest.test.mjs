@@ -98,3 +98,20 @@ test("白名单决定 /web 的可取性：模块 200，未列入的仓内材料 
     await rm(h.dataDir, { recursive: true, force: true });
   }
 });
+
+test("skin-policy.js is an exact synchronous static route", async () => {
+  const h = await boot();
+  try {
+    const response = await fetch(h.runtime.url + "/web/skin-policy.js");
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") ?? "", /^text\/javascript/);
+    assert.match(await response.text(), /__cwSkinPolicy/);
+
+    const sibling = await fetch(h.runtime.url + "/web/skin-policy.js/extra");
+    assert.equal(sibling.status, 404);
+    await sibling.body?.cancel();
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+  }
+});
