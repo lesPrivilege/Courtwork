@@ -397,3 +397,7 @@ Attention Chat交接（2026-09-10）：用户改为另行唤醒Opus收尾，Astr
 Attention Chat 收尾独立验收与证据合流（2026-09-10）：当前 `main@9157bbb` 的独立树复核 Attention 定向 12/12、跨层接缝 18/18，主线完整套件 522/522；smoke、颜色/材质 lint、对比度与文档链接（632 份文档 / 2811 条链接）均通过。`4431dd7` 与 `0bff8b5` 的产品代码此前已在main祖先中；因此仅接收 `claude/attention-chat-closure@f552e22` 的 closure 文档与完整确认日志，非作者独立验收后以 `0d3297d` 合流。作者确认日志中 433/434 的唯一失败是 `work-summary` 测试自身递归快照在并发原子写 rename 窗口的竞态，非本片代码路径；其单独运行通过，已保留原始记录。收尾余项（会话读失败态、完整无障碍矩阵/原生宿主）与 FE-05a、FE-05、CC-I、ATT-FE-01 及 G1–G5 仍开放；未跑真实provider、未迁移个人数据、未部署。
 
 Icon 家族选型裁定（2026-09-10）：EX-IC1 specimen（`claude/ex-ic1-icon-specimen@f5890fa`，基 `2e9da09`）以真实槽位并排 Lucide / MingCute Regular / Phosphor Regular，Fable 非作者接受并裁定 [WK-163](mvp/execution/work-surface-kit/intake-round-3.md) **D：不做家族级迁移**——候选族同名义尺寸下全站小一档（占比 0.56 对 0.69），MingCute 的 butt / miter 与 Phosphor 的填充轮廓都不满足 IC-6 canonical geometry，Phosphor 缺 `panel-right`。Lucide 1.41.0 静态子集仍是唯一 canonical 家族，MingCute 保持首选 donor 来源，Phosphor 降为参考；symbol id 语义化不触发。specimen 先于 FE-05a 回执，因不换族不动尺寸档而登记不返工。唯一产品改动是 WO-IC-01（`3667641`）：`plug.svg` 进 `tools/ui-vendor/lucide/` 生成源并重建 sprite / manifest / LICENSES.txt，新增白名单–sprite–manifest 三集合、manifest–sources.json、outputs 哈希三条 parity 测试；此前 `plug` 是手工追加进 sprite 的，重建会丢。见 [IC-8](design/icon-controls.md)、[atlas Iconography](design/atlas/README.md)。
+
+## BE-41 后端隔离交付（2026-09-10，待组合接收）
+
+Astra从实际 `1992e90` 隔离实现Spark派生失效只读查询，沿Core/project owner，无schema迁移或第二store；[回执与剩余接线限制](../evidence/be41-20260910/README.md)。该条仅记录分支交付，不覆盖main当前接收状态；前端version0、源文件版本回退与snapshot参数接线仍开放，ME-03 / RV26-SP01 / G1–G5未关闭。

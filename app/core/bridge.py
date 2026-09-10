@@ -46,6 +46,7 @@ from file_candidates import FILE_SCHEMA, FILE_CONTRACT
 from attention import ATTENTION_SCHEMA
 import attention
 import governance
+import derivations
 from governance import GOVERNANCE_SCHEMA, GOVERNANCE_TABLES
 
 APP_SCHEMA_VERSION = 5
@@ -908,6 +909,8 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         if not prior or prior["project_id"] != p["project_id"] or prior["extension_id"] != p["extension_id"]:
             raise CoreError("BINDING_MISMATCH", "work ownership")
         return {"bound":True}
+    if op == "work_derivations":
+        return derivations.project(store, request_payload(request, {"project_id", "limit", "offset", "snapshot_ref"}))
     if op == "list_work":
         p = request_payload(request, {"project_id"})
         rows = store.conn.execute("SELECT matter_id,extension_id FROM app_work_scope WHERE project_id=? ORDER BY matter_id",(p["project_id"],)).fetchall()
