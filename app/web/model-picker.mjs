@@ -2,13 +2,11 @@ import { el, action } from './ui-controls.mjs';
 import {
   connectionLabel,
   connectionPathOfKind,
-  effortSelectable,
-  projectProviderConfig,
-  supportedEffortsOf,
   verifyDetailLine,
   verifyFailureLine,
   verifySuccessLine,
 } from './settings-view.mjs';
+import { effortSelectable, projectProviderConfig, supportedEffortsOf } from './provider-config.mjs';
 
 // Shared native modal. It saves the existing host provider configuration;
 // choosing a model never performs generation or discovers credentials.

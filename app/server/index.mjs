@@ -23,6 +23,7 @@ const STATIC = new Map([
 
 for (const name of ["skin-policy.js", "surface-modules.mjs", "workspace-view.mjs", "user-message.mjs", "ui-controls.mjs", "settings-view.mjs", "runtime-view.mjs", "inspector.mjs", "markdown-source.mjs", "markdown-reader.mjs", "vendor/markdown-parser.mjs", "materials-view.mjs", "home-view.mjs", "attention-view.mjs", "attention-agent-view.mjs", "attention-conversation.mjs", "model-picker.mjs", "telemetry-view.mjs", "usage-view.mjs", "usage-projection.mjs", "shell-layout.mjs", "presentation-adapters.mjs", "thread-projection.mjs", "coordination-view.mjs", "coordination-projection.mjs", "spark-view.mjs", "spark-projection.mjs", "vendor/floating.mjs", "vendor/marked.mjs", "vendor/purify.mjs"]) STATIC.set(`/web/${name}`, {file:path.join(APP_ROOT,"web",name),type:"text/javascript; charset=utf-8"});
 STATIC.set("/web/vendor/icons.svg", {file:path.join(APP_ROOT,"web/vendor/icons.svg"),type:"image/svg+xml"});
+STATIC.set("/web/provider-config.mjs", {file:path.join(APP_ROOT,"web/provider-config.mjs"),type:"text/javascript; charset=utf-8"});
 // WO-SD-01 / SD-18: the five Spark sample scenarios are product assets now (moved from app/tests/fixtures via git mv, one file with two readers).
 for (const name of ["stale", "quiet", "empty", "partial", "truncated"]) STATIC.set(`/web/samples/spark-derivations/${name}.json`, {file:path.join(APP_ROOT,"web","samples","spark-derivations",`${name}.json`),type:"application/json; charset=utf-8"});
 // Brand merge gate 3: the product admits the brand package's ES modules and
