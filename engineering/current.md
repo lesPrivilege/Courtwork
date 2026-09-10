@@ -377,3 +377,5 @@ Attention Chat 收尾独立验收与证据合流（2026-09-10）：当前 `main@
 Public narrative 接续：用户要求所有对外发布面采用独立承重语句。首页按用户最终裁定将 Spark/Attention 原子叙事与联动语义图置于 Hero 后，再接 Paper/Tour 并排入口；Matter/Experts/Runtime 后置，导航统一短标签；Features、Eval、Experts 承接产品判断与评测设计，README、Tour、Get、CLI、Models、Data、Changelog 与 replay framing 同步去除测试计数和工程旁白。固定合成媒体与 benchmark 原记录保持。career-kit 真实底稿与编译器另在本地修订为协调两页，私有简历未入仓。[交付与检查](release/public-narrative-2026-09-10/README.md)。本轮为发布面准备，无线上部署或新模型结果。
 
 数据组织输入接续（2026-09-10）：[完整消费包](research/data-organization-2026-09-10/README.md)登记两轮问答及hash，核验局部标准并映射DS/LG/ME/AM/BG。对外只消费来源、责任、规则与决定的契约叙事；Pi/AgentSession等局部选型移至内部架构。DO-01…05是既有路线消费别名，未新增组织registry、policy/workflow runtime或产品schema。固定SE9.6已有Work Contract语义，本轮不改Paper。
+
+合并后截图发布准备（2026-09-10）：用户授权先Luna explore并完成留空编排，等Spark/Attention UI完工merge后统一换真机截图、push与部署。[截图交接](release/merged-ui-captures-2026-09-10/README.md)登记13图位、合并节点与整批替换流程；首页/Tour/Models使用集中pending画框，Pages发布检查拒绝未完成批次。此片仅本地准备，不把旧图作为新UI，不启动新产品/采图/部署。

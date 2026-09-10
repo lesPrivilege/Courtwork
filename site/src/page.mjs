@@ -1,3 +1,4 @@
+import { renderCapture } from './capture-plan.mjs';
 // Render the page.
 //
 // One document, Chinese-led, no framework and no build-time templating engine:
@@ -34,25 +35,7 @@ const STATUS_CLASS = (status) =>
   status.startsWith("verified") ? "is-verified" : status.startsWith("runs") ? "is-local" : "is-not-yet";
 
 export function renderPage({ identity, evidence, recording, diagram, media, pageMedia }) {
-  // Media are addressed by id, so a picture the copy asks for and the capture
-  // never produced stops the build instead of becoming a broken image.
-  const shot = (id, { alt, caption, theme = "light", viewport = "1440x900", eager = false }) => {
-    const entries = pageMedia.media.filter((entry) => entry.id === id);
-    const light = entries.find((entry) => entry.viewport === viewport && entry.theme === theme);
-    if (!light) throw new Error(`media ${id} (${viewport}, ${theme}) was never captured`);
-    const dark = entries.find((entry) => entry.viewport === viewport && entry.theme === "dark");
-    const [w, h] = light.viewport.split("x");
-    const source = dark
-      ? `<source srcset="./media/${escape(path(dark))}" media="(prefers-color-scheme: dark)" />`
-      : "";
-    return `<figure class="shot">
-          <picture>${source}
-            <img src="./media/${escape(path(light))}" alt="${escape(alt)}" width="${w}" height="${h}" loading="${eager ? "eager" : "lazy"}" decoding="async" />
-          </picture>
-          <figcaption>${caption} · <a href="./media/main/manifest.json">Synthetic demo</a></figcaption>
-        </figure>`;
-  };
-  const path = (entry) => entry.asset_path.replace("site/media/", "");
+  const shot = (id, options) => renderCapture(pageMedia, id, options);
   // Placeholders the copy carries, filled from the release identity.
   const fill = (text) =>
     text
@@ -124,7 +107,7 @@ function hero(fill, shot) {
 }
 
 function currentHome(fill, shot) {
-  return `        <section class="home-capture-slot current-home" data-capture-slot="home" data-capture-status="captured" aria-labelledby="current-home-title">
+  return `        <section class="home-capture-slot current-home" data-capture-slot="home" aria-labelledby="current-home-title">
           <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看用量，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
 ${shot("M1", { alt: "Courtwork 当前 Home：项目、用量与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
           <nav class="home-product-links" aria-label="Explore the product">

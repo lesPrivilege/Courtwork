@@ -42,6 +42,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22.19"
+      - name: Require the merged screenshot batch
+        run: node site/scripts/check-capture-ready.mjs
       - name: Build the site
         run: node site/build.mjs
       # Built twice and compared: the page states recorded numbers, so a build
@@ -55,7 +57,7 @@ jobs:
       - name: Check product material inheritance
         run: node site/scripts/check-material.mjs
       - name: Check public recording projection
-        run: node --test site/scripts/public-data.test.mjs
+        run: node --test site/scripts/public-data.test.mjs site/scripts/capture-plan.test.mjs
       - name: Check repository documentation links
         run: node tools/check-doc-links.mjs
       - name: Check the sub-path
