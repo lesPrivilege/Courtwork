@@ -76,6 +76,8 @@ IC-1；实测见 gaps.md 的命中区量测）；**Evid.** = captures/ 下的 PN
 
 ## §2 · Composer
 
+> **范围边界（用户裁定，2026-09-10）**：Composer 单独施工，不并入 EX-IC2。增高机制归 CI-B，图片粘贴提示归 CI-F，空态尺寸归 CS-01。本节各行只作清点记录，EX-IC2 的分片 B/C 不对 composer 文件行使写权；本节暴露的问题转交 Composer 线。另外，本台账的动态截图取自 `1992e90`，外壳比例（CS-01）变更之后已不代表组合基线，分片 B 须在组合基线上重新捕获。
+
 | Key | Surface / selector | Src | Intent → Handler | Owner/cap | States | A11y (tooltip) | Glyph/hit | Evid. | Disposition (Gap) |
 |---|---|---|---|---|---|---|---|---|---|
 | `composer.input` | `textarea#composer-input` | `index.html:285-291` | 输入草稿 | `renderComposer()` 双向绑定 `state.draftCache` | disabled(无会话)/readonly(pending send)/rest/focus | label "Message"（`sr-only`）+ placeholder | 不适用 | `composer-rest-disabled-send`、`composer-text-entered-send-enabled` | 已接真实能力 |
