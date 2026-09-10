@@ -363,20 +363,28 @@ model is not admissible, `400 credential_missing` if the connection has none,
 `409 active_run` during a Run, routed through the same configuration queue as
 every other connection write. The receipt — `{connectionId, model, status,
 message, observedModel, replyFirstLine, latencyMs, checkedAt,
-credentialSource, binding:{providerConfigVersion, credentialGeneration}}` — is
-the newest addition to the store (`providerVerifications`, one per connection
-id) and is read back by `GET /api/v5/provider-connections` as each
-connection's `lastVerification`, `null` once its binding no longer matches
-the current `providerConfigVersion` (a new monotonic counter, bumped by any
-`providerConnections` or `providerConfig` write — deliberately coarse: PV-42
-would rather over-invalidate than let a stale receipt read as current) or
+credentialSource, httpStatus, binding:{providerConfigVersion,
+credentialGeneration}}` — is the newest addition to the store
+(`providerVerifications`, one per connection id) and is read back by
+`GET /api/v5/provider-connections` as each connection's `lastVerification`,
+`null` once its binding no longer matches the current `providerConfigVersion`
+(a new monotonic counter, bumped by any `providerConnections` or
+`providerConfig` write — deliberately coarse: PV-42 would rather
+over-invalidate than let a stale receipt read as current) or
 `credentialGeneration`. `status` is one of `ok | authentication_failed |
 model_not_found | unreachable | timeout | http_error | malformed_response |
-unknown`, but under pi-coding-agent 0.85.1's public `ModelRuntime` surface
-only `ok`, `timeout` (this host's own bounded wait) and `unknown` are ever
-actually written: every provider-side failure — HTTP status, network error,
-malformed body — is collapsed by pi-ai's own API module into a flat
-`errorMessage` string before it reaches this host, with no structured status
-or error-object field surviving (see `classifyVerifyOutcome` in
-`app/runtime/pi-session-runtime.mjs` for the full citation trail). The delivery
-page for WO-PV-BE03 carries the complete class-to-evidence table.
+unknown`. `httpStatus` (`number | null`, PV-84) is captured through a wrapped
+`fetch` passed to `ModelRuntime.complete` (not `onResponse` alone — the
+vendored OpenAI SDK throws before calling `onResponse` on any non-2xx
+response, so that hook only ever fires on success; the wrapped `fetch` sees
+the raw `Response` on every path). With a real status available,
+`authentication_failed` (401/403), `http_error` (any other non-2xx),
+`malformed_response` (a 2xx whose body pi then failed to parse into a
+complete message), `unreachable` (the fetch never resolved a response at
+all) join `ok` and `timeout` (this host's own bounded wait) as reachable.
+`model_not_found` stays unreachable: the hook that supplies `httpStatus`
+carries no response body, so there is no structured way to tell a 404 for a
+bad model id apart from any other non-2xx status without parsing prose,
+which PV-62 ① forbids. See `classifyVerifyOutcome` in
+`app/runtime/pi-session-runtime.mjs` for the full citation trail. The
+delivery page for WO-PV-BE03 carries the complete class-to-evidence table.

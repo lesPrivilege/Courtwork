@@ -1090,6 +1090,13 @@ export class RuntimeService {
     const controller = new AbortController();
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; controller.abort(); }, VERIFY_TIMEOUT_MS);
+    // PV-84: `httpStatus` is captured through a wrapped `fetch`, not just
+    // `onResponse` -- see the file:line evidence and reasoning in
+    // `classifyVerifyOutcome` (app/runtime/pi-session-runtime.mjs). `fetch`
+    // sees the raw Response on every path, success or failure; `onResponse`
+    // is passed too (both are forwarded unchanged by the same
+    // `ModelRuntime.prepareRequest` spread) but only ever fires on success.
+    let httpStatus = null;
     let message;
     try {
       // Same pi path a Run uses (ModelRuntime -> the model's own `api`
@@ -1099,12 +1106,21 @@ export class RuntimeService {
       // than rejects even on a provider failure (see `classifyVerifyOutcome`).
       message = await this.modelRuntime.complete(model, {
         messages: [{ role: "user", content: VERIFY_PROMPT, timestamp: startedAt }],
-      }, { maxTokens: VERIFY_MAX_TOKENS, signal: controller.signal });
+      }, {
+        maxTokens: VERIFY_MAX_TOKENS,
+        signal: controller.signal,
+        fetch: async (...args) => {
+          const response = await fetch(...args);
+          httpStatus = response.status;
+          return response;
+        },
+        onResponse: ({ status }) => { httpStatus = status; },
+      });
     } finally {
       clearTimeout(timer);
     }
     const latencyMs = Date.now() - startedAt;
-    const status = classifyVerifyOutcome(message, timedOut);
+    const status = classifyVerifyOutcome(message, { timedOut, httpStatus });
     const succeeded = status === "ok";
     const replyText = succeeded ? redact(assistantMessageText(message), this.knownSecrets).trim() : "";
     const receipt = {
@@ -1119,6 +1135,7 @@ export class RuntimeService {
       latencyMs,
       checkedAt: new Date(startedAt).toISOString(),
       credentialSource,
+      httpStatus,
       binding: { providerConfigVersion: this.store.getProviderConfigVersion(), credentialGeneration: this.credentialGeneration },
     };
     await this.store.setProviderVerification(receipt);

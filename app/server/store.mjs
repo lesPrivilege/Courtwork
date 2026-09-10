@@ -107,12 +107,17 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   if (value.capabilityNotice !== undefined && value.capabilityNotice !== null) text(value.capabilityNotice, label + ".capabilityNotice", 200);
 }
 
-/** BE-39's classification honesty (PV-62 ①): only the classes this host can
- * actually reach with structured evidence under pi-coding-agent 0.85.1
- * (`ok`, `timeout`, `unknown` -- see `classifyVerifyOutcome` in
- * `app/runtime/pi-session-runtime.mjs`) are ever WRITTEN, but the persisted
- * shape keeps the full contract enum so a future pi version that exposes
- * more structure does not require a schema bump to use it. */
+/** BE-39's classification honesty (PV-62 ①, revised by the PV-84 patch): a
+ * receipt's `status` is set only from a STRUCTURED signal -- `stopReason`,
+ * this host's own timeout, or `httpStatus` (below) -- never a regex over
+ * prose. Under pi-coding-agent 0.85.1, `ok`, `timeout`, `authentication_failed`,
+ * `http_error`, `unreachable`, `malformed_response` and `unknown` are all
+ * reachable this way; `model_not_found` stays unreachable because the
+ * transport-level hook that supplies `httpStatus` carries no body (see
+ * `classifyVerifyOutcome` in `app/runtime/pi-session-runtime.mjs` for the
+ * exact judgement and its file:line evidence). The persisted shape keeps the
+ * full contract enum regardless, so a future pi version that exposes more
+ * structure does not require a schema bump to use it. */
 const VERIFY_STATUSES = new Set([
   "ok", "authentication_failed", "model_not_found", "unreachable", "timeout", "http_error", "malformed_response", "unknown",
 ]);
@@ -126,12 +131,13 @@ function validateVerifications(value) {
   for (const record of value) {
     exactKeys(record, new Set([
       "connectionId", "model", "status", "message", "observedModel", "replyFirstLine",
-      "latencyMs", "checkedAt", "credentialSource", "binding",
+      "latencyMs", "checkedAt", "credentialSource", "binding", "httpStatus",
     ]), "providerVerification");
     id(record.connectionId, "providerVerification.connectionId");
     assert(!seen.has(record.connectionId), "providerVerification.connectionId is not unique"); seen.add(record.connectionId);
     try { assertProviderModelId(record.model); } catch { throw invalidState("providerVerification.model is invalid"); }
     assert(VERIFY_STATUSES.has(record.status), "providerVerification.status is invalid");
+    assert(record.httpStatus === null || (Number.isSafeInteger(record.httpStatus) && record.httpStatus >= 100 && record.httpStatus <= 599), "providerVerification.httpStatus is invalid");
     text(record.message, "providerVerification.message", 4000);
     if (record.observedModel !== null) text(record.observedModel, "providerVerification.observedModel", 240);
     if (record.replyFirstLine !== null) text(record.replyFirstLine, "providerVerification.replyFirstLine", 400);
