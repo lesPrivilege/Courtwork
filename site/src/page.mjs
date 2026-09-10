@@ -418,15 +418,15 @@ export function brandIcon() { return `<svg class="brand-icon" viewBox="0 0 64 64
 
 function primaryEntries() {
   return `<section class="primary-entries" aria-label="Paper 理念与 Tour 编排">
-    <div class="entry-heading"><p class="index">TWO WAYS INTO COURTWORK</p><p>从理念理解它，沿工作看它展开。</p></div>
+    <div class="entry-heading"><p class="index">TWO WAYS INTO COURTWORK</p></div>
     <div class="entry-grid">
       <details class="entry-chapter entry-paper" id="paper" >
         <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper<span>理念</span></span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">展开理念</span><span class="entry-open">收起理念</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
-        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 分开事件记录、工作状态与运行上下文，讨论工作如何跨越一次运行持续存在。</p><p class="entry-actions"><a href="${PAPER_ENTRY.href}">阅读 Paper ↗</a><a href="${PAPER_ENTRY.baseline}">采用基线 · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK / RESEARCH DIRECTION</p><p>本轮产品研究沿这条基础，继续探索确定性资料治理、Spark 可重建派生与稀疏 Attention。</p><a href="#long-work">展开新的自研理念 →</a></div></div>
+        <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><p class="entry-actions"><a href="${PAPER_ENTRY.href}">阅读 Paper ↗</a><a href="${PAPER_ENTRY.baseline}">Canonical · 9.6 ↗</a></p><div class="entry-next"><p class="index">COURTWORK / RESEARCH DIRECTION</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 构成长久工作的研究方向。</p><a href="#long-work">长期工作的理念 →</a></div></div>
       </details>
       <article class="entry-chapter entry-tour"><details id="tour">
         <summary><span class="entry-kicker">02 / THE ORCHESTRATION</span><span class="entry-title">Tour<span>编排</span></span><span class="entry-description">从一次行动，到人的介入，再到留下的工作。</span><span class="entry-cover entry-cover-tour" aria-hidden="true"><span>START</span><i>→</i><span>ACT</span><i>→</i><span>REVIEW</span><i>→</i><span>CONTINUE</span></span><span class="entry-toggle"><span class="entry-closed">查看路径说明</span><span class="entry-open">收起路径说明</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
-        <div class="entry-extra"><p>从 Home 进入工作，在执行时处理具体权限，查看文件与候选的依据，再把工作接续到事项。下方目录可直接打开对应实录。</p><p class="caption">实际界面与合成录制；运行中画面及完整连续性范围在各节点单独说明。</p></div></details>
+        <div class="entry-extra"><p>从 Home 找到工作，在执行中处理权限，带着依据审阅成果，再沿事项继续推进。</p></div></details>
         <nav class="entry-content entry-toc" aria-label="Tour 简明目录"><h3>In this tour.</h3><ol class="entry-flow"><li><a href="./tour.html#home"><span>01</span><strong>开始工作</strong><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#attention"><span>02</span><strong>执行与介入</strong><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#review"><span>03</span><strong>查看成果与依据</strong><span aria-hidden="true">↗</span></a></li><li><a href="./tour.html#continuity"><span>04</span><strong>把工作继续下去</strong><span aria-hidden="true">↗</span></a></li></ol><p class="entry-actions"><a href="./tour.html">进入完整 Tour →</a></p></nav>
       </article>
     </div>

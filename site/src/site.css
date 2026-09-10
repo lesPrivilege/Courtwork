@@ -774,7 +774,7 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .entry-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 20px 0; border-top: 1px solid var(--campaign-rule); }
 .entry-heading p { margin: 0; }
 .entry-heading > p:last-child { font-size: 14px; color: var(--muted-strong); }
-.entry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.entry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
 .entry-chapter { min-width: 0; border: 1px solid var(--campaign-rule); background: var(--panel); scroll-margin-top: 24px; }
 .entry-chapter summary { display: block; padding: 32px; cursor: pointer; list-style: none; }
 .entry-chapter summary::-webkit-details-marker { display: none; }
@@ -834,3 +834,8 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .entry-toc .entry-flow a { align-items: center; padding: 20px 0; }
 .entry-toc .entry-flow strong { font-weight: 500; }
 @media (max-width: 720px) { .entry-extra { margin: 0 24px; } }
+
+.entry-principles { margin: 24px 0; }
+.entry-principles > div { display: grid; grid-template-columns: 72px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.entry-principles dt { font: 12px/1.8 var(--font-mono); }
+.entry-principles dd { margin: 0; font-size: 14px; line-height: 1.8; }

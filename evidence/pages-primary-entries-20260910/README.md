@@ -13,3 +13,7 @@ Build, local links, material and public-data checks, document links and diff che
 ## Follow-up: persistent Tour contents
 
 User screenshot showed unused space below the collapsed Tour beside expanded Paper. Tour now keeps a concise four-link directory outside its optional explanatory disclosure. Paper and Tour can expand independently. At 1440 px the directory and Paper body share exactly the same separator position (470.84375 px in the captured viewport); 390 px has no overflow. See `toc-checks.json` and `toc-aligned-desktop.jpg`. This supersedes the earlier exclusive-disclosure behavior.
+
+## Follow-up: balanced cards and direct copy
+
+Removed reader instructions and protective commentary from the primary cards. Paper now briefly explains Event, State and Context; Tour retains the direct four-step path. Desktop grid items stretch to equal height, keeping spare space inside their borders. Both open cards measured 997.4140625 px high with matching top/bottom at 1440 px; mobile 390 px remains free of horizontal overflow. See `cards-balanced-desktop.jpg` and `cards-balanced-checks.json`. Build, links, material and diff checks passed.

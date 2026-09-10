@@ -1,0 +1,24 @@
+{
+  "desktop": {
+    "cards": [
+      {
+        "bottom": 1021.5625,
+        "height": 997.4140625,
+        "top": 24.1484375
+      },
+      {
+        "bottom": 1021.5625,
+        "height": 997.4140625,
+        "top": 24.1484375
+      }
+    ],
+    "paperOpen": true,
+    "scrollWidth": 1440,
+    "tourOpen": true,
+    "width": 1440
+  },
+  "mobile": {
+    "scrollWidth": 390,
+    "width": 390
+  }
+}
