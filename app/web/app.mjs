@@ -1423,6 +1423,7 @@ async function selectSession(
    * 会话流程，不还给打开设置的那个控件。 */
   closeSettings({ restoreFocus: false });
   if (sessionId === state.activeSessionId) {
+    if (state.view !== "session") state.surface.open = !surfaceOverlayQuery.matches;
     state.view = "session";
     closeNavigation({ restoreFocus: false });
     renderAll();
