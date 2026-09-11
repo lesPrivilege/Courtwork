@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Governed work loop裁决、合推与Pages节点
+
+[整体裁决与独立review入口](release/governed-work-loop-2026-09-12/README.md)采用四职责围绕受治理工作状态，Human保有最终治理权；状态owner不合并，Spark的schema写入不免授权，Expert可反查原文，核查不自动关闭。既有Memory Broker/义务闭环文稿已接入，架构设计不冒称已实现，不改发布叙事。用户授权合推部署；[Pages回执](release/governed-work-loop-2026-09-12/deployment.md)记录6f27f5a的run34644492998成功与线上19资源hash一致，包含ad5a03f深色一笔红修复。最终文档随main同步；提供固定main干净检出供独立review，已合入临时分支退役，原共享目录62个未提交文件保留。真实API/剩余产品门和用户下一节点排单仍开放。
+
 ## 2026-09-12 · 工作义务闭环裁决登记
 
 [Attention/Spark小闭环](research/obligation-closure-2026-09-12/README.md)由Astra裁定只作后续工程消费：采用带版本的义务/消费/实现/核查回执，Spark负责有界准备与检查，现Core owner保持关闭权限；不以Spark verified、heartbeat或已阅自动resolve，不以直线回执替换Attention状态机。已接ATT/ME-06/LG与下一Harness索引，Tension仅投影候选，频率/stale/调度等真实trace后另定。隔离5196文档链接通过；本地合流仅文档，无监控/运行/UI/schema或发布面变化，未push/deploy，用户未提交内容保留。
