@@ -315,8 +315,8 @@ if (allReds !== registeredReds) problems.push({ why: "page carries figure red el
 const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
 for (const [, selector, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
   if (!/var\(--campaign-attention-review\)/.test(body)) continue;
-  const ok = selector.split(",").every((part) => (/\.review-attention\b|\.fig-attention\b/.test(part) || part.trim() === ".hero-actions .hero-action-paper"));
-  if (!ok) problems.push({ why: "red token used outside Review, registered figures, or the authorized Hero paper link", detail: selector.trim() });
+  const ok = selector.split(",").every((part) => /\.review-attention\b|\.fig-attention\b/.test(part));
+  if (!ok) problems.push({ why: "red token used outside Review or registered figures", detail: selector.trim() });
 }
 
 if (process.argv.includes("--hashes")) {

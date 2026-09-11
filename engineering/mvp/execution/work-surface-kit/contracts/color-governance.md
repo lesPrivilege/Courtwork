@@ -74,3 +74,16 @@
 ## 2026-09-10 · Home review slot
 
 用户授权丰富灰阶和极少量 Attention colour。默认 slate 的新 neutral scale 通过全局既有 R roles 消费；新增 `--attention-review` 只用于 Attention `needs_you` 短标签。默认 slate 映射专用 review scale，custom/gray-steel 回退其自身 `accent-ink`，不强塞固定红色。它不是 danger、selection、focus、send 或 activity intensity。`tools/contrast-report.mjs` 已覆盖新角色/浅深宗；[当前视觉消费](../../../../design/home-composition-2026-09-10/README.md)。
+
+## 2026-09-11 · Ordinary control accent 与 unavailable pair
+
+Astra 批准新增普通交互控件 accent（[裁定](../../../../release/ui-publication-closure-2026-09-11/DECISION.md)，Luna [研究](../../../../release/ui-publication-closure-2026-09-11/red-control-research.md)）。四个 scheme-owned 角色，与 Review（`--attention-review`）、danger、diff（`--diff-add*`）、品牌红分别登记；skin 与 custom 外观不得写入（`skin-policy` 拒绝这些名字）：
+
+| 角色 | 浅 | 深 | 用途 | 门槛 |
+|---|---|---|---|---|
+| `--control-accent` | `#b8443c` | `#d9675f` | 交互控件的 on / selected：switch 轨道、原生 checkbox/radio `accent-color`、segmented 选中滑块的 1px 内环 | 对 panel / float / panel-muted ≥ 3:1（非文字）；panel 对它 ≥ 3:1（滑块） |
+| `--control-accent-strong` | `#9c352e` | `#e57d75` | 同一 on 轨道的 hover | 同上 |
+| `--control-unavailable-fill` | `#f2d6d4` | `#5a3634` | 真实不可用（`disabled` / `aria-disabled` 且无动作路径）控件的局部底：switch 轨道、segmented 轨道 | — |
+| `--control-unavailable-ink` | `#4a2320` | `#f1c7c3` | 同一不可用控件上的文字 / 滑块 | 对 fill ≥ 4.5:1 |
+
+规则：off 不是 disabled，保持中性；readonly 保持可读不涂淡红；unknown / loading 不得画成 off 或 disabled；Review 待决、失败、diff 各自沿既有角色。普通返回 / 工具 / 导航按钮保持中性；主要动作只在确有必要时用 accent。首个真实样板是 Developer 的 Runtime switch（`runtime-view.mjs` 的 authoritative `resource.exposed`），Settings 的 segmented / radio 沿同一合同扩展。Pages 的 Paper CTA 从 Review 色拆出为 `--campaign-action`，Review 红只留给 `.review-attention` 与登记的 figure 元素。登记：`tools/lint-colors.mjs` FILL 表、`tools/contrast-report.mjs` 与 `settings-view.mjs` 的 CONTRAST_PAIRS、`app/tests/control-accent.test.mjs`。

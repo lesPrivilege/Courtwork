@@ -1036,7 +1036,8 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
   .fig .fig-sheet, .fig .fig-sheet-candidate, .fig .fig-paper { fill: Canvas; stroke: CanvasText; }
 }
 
-/* User-requested reading emphasis; this link carries no pending-review state. */
+/* The Paper link is an ordinary action: it uses the campaign action token, not the
+ * Review marker, so the one red on the page keeps its meaning (Astra 2026-09-11). */
 .hero-copy > .hero-actions { justify-content:flex-start; text-align:left; flex-wrap:wrap; }
 .hero-actions .hero-action-paper { display:inline-flex; align-items:center; gap:6px; justify-self:start; min-height:48px; padding:0 20px; border:1px solid transparent; background:var(--campaign-action); color:var(--campaign-action-ink); font-weight:500; text-decoration:none; }
 .hero-actions .hero-action-paper:hover { text-decoration:underline; text-underline-offset:4px; }
