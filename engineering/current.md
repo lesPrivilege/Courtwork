@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · 机器人Presence Design交接
+
+[正式HANDOFF](research/agent-presence-2026-09-11/HANDOFF.md)按用户授权交本地agent完成Design，Luna负责[Scout/Chat分层索引](research/agent-presence-2026-09-11/reference-index.md)，Astra已裁横置原生SVG、A稳定/B几何下垂/C柔和下垂三组、flat小尺寸与soft 2.5D对照，以及runtime事实/氛围词分层。9轮17消息和原图固定；四图板/185词等未返回文件保持缺件，不阻塞按现有裁决原创Design。返件限独立specimen，含可运行场景、固定时钟/状态fixture、源SVG及证据；随后Astra做真实computer use视觉调试与集成裁决。当前hand-off ready，未派发或接收Design，未修改产品、部署；共享Claude UI writer和其他未提交研究保持。
+
 ## 2026-09-11 · Spark与Attention产品形象重设计
 
 用户指出两枚导航glyph偏工程结构、缺乏氛围与记忆点。[最新形象裁定](release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将现有造型记为临时实现，取消source→fan-out / streams→ring外形硬要求，改以Spark轻快迸发、Attention专注在场为感受目标。同一Claude ONE-SHOT继续三组轮廓方向与真实小尺寸导航候选；既有来源、生成与调用接收保持，Chat及Settings通用图标不重开。本轮保存用户原图并修订工单，无App资产替换或部署；文档链接4789项通过。
