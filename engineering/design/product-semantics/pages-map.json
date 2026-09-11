@@ -116,6 +116,10 @@
     "change-language": [
       "review.open",
       "file.object"
+    ],
+    "chat-carry": [
+      "chat.object",
+      "matter.object"
     ]
   }
 }

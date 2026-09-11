@@ -32,7 +32,7 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 Expert 用专业工作契约组织责任、能力需求与验证要求。各个入口共享工作的记录，让讨论、执行与判断能够衔接。
 
-[Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
+[Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
 ## Can the work continue?
 

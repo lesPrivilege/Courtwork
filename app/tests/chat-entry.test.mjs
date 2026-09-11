@@ -20,14 +20,13 @@ test("Chat sits in the Home / Attention / Spark group as a plain button", () => 
   assert.match(html, /id="new-session-button"/, "New chat stays");
 });
 
-test("openChat reuses selectSession / goHome and creates nothing", () => {
-  const body = fn(app, "openChat");
+test("openChatPage opens the page over the existing session and creates nothing", () => {
+  const body = fn(app, "openChatPage");
   assert.ok(body.length > 100);
-  assert.match(body, /selectSession\(/);
-  assert.match(body, /goHome\(\)/);
-  assert.match(body, /loadSessionsForProject\(/);
-  assert.doesNotMatch(body, /startNewSession|openDialog|request\(|attentionAgent|sparkView|createProject/);
-  assert.match(app, /\$\("chat-button"\)\.addEventListener\("click", \(\) => void openChat\(\)\)/);
+  assert.match(body, /persistCurrentDraft\(\)/);
+  assert.match(body, /chatPage\.open\(/);
+  assert.doesNotMatch(body, /startNewSession|openDialog|request\(|createProject|clearActiveSession/);
+  assert.match(app, /\$\("chat-button"\)\.addEventListener\("click", \(\) => void openChatPage\(\)\)/);
   assert.match(app, /\$\("chat-button"\)\.setAttribute\(\s*"aria-current"/);
   assert.match(app, /\$\("attention-button"\)\.addEventListener\("click", \(\) => attentionAgent\.open\(\)\)/, "Attention keeps its real entry");
   assert.match(app, /\$\("spark-button"\)\.addEventListener/, "Spark keeps its real entry");

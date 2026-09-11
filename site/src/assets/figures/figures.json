@@ -2,7 +2,7 @@
   "version": 1,
   "registry": "engineering/release/publishing-visuals-2026-09-10/visual-semantic-registry.md",
   "red_token": "--campaign-attention-review",
-  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour; user-authorized Hero paper reading link may use the same colour without implying pending review",
+  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour. The Hero paper link uses the campaign action token (2026-09-11), not this red.",
   "figures": [
     {
       "id": "fig-00-matter-object",
@@ -386,6 +386,30 @@
       "audit": {
         "verdict": "new",
         "reason": "Claude UI follow-through stage 3: same fixture and row model as Settings Appearance (app/web/diff-fixture.mjs, diff-view.mjs). The red here is the diff accent token, registered separately from the VG-15 attention red; no fig-attention element. Astra adapts block geometry to square full line cells and removes the decorative old-word outline; fixed source semantics retained."
+      }
+    },
+    {
+      "id": "chat-carry",
+      "concepts": [
+        "chat",
+        "candidate"
+      ],
+      "status": "concept",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/chat-carry.svg",
+        "basis": "file",
+        "sha256": "5476c4d448cf511e0514f5a223924b0f93ac23be6bb58dbd044978c83c8bad44"
+      },
+      "mount": "data-figure",
+      "page": "chat.html",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "左侧是一段持续的对话，其中一块被标为值得保留；右侧是工作页，一条线把那一块带到工作页并注明出处。对话不产生正式决定；被带走的片段在工作中仍指向它来自的那一句。",
+      "audit": {
+        "verdict": "new",
+        "reason": "Chat product page (DECISION 2026-09-11): the conversation → kept fragment → work sheet relation, drawn in the site's existing object grammar; no point needs a person, so no red."
       }
     }
   ]

@@ -23,12 +23,13 @@ import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
+import { createChatPage } from "./chat-page.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
-let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView;
+let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;
 import {
   createSettingsPage,
   createSettingsView,
@@ -100,6 +101,7 @@ const state = {
   navigationOpen: false,
   sidebarCollapsed: false,
   attentionOpen: false,
+  chatOpen: false,
   homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },
   homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },
   home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },
@@ -1422,6 +1424,7 @@ async function selectSession(
 ) {
   if (!sessionId) return;
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   /* 侧栏在 Settings 在场时是可点的（这正是页面而非模态的意思），所以走到一个会话
    * 就得让这一页退场：否则会话在底下换好了，顶带还写着 Settings。焦点交给下面的
@@ -1514,6 +1517,7 @@ async function selectSession(
 
 function clearActiveSession() {
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   stopPolling();
   void disposeSurfaceRenderer();
@@ -3118,7 +3122,9 @@ function renderChatHeader() {
   const settingsOpen = state.settings.open;
   $("settings-page").hidden = !settingsOpen;
   $("attention-workspace").hidden = !state.attentionOpen || settingsOpen;
+  $("chat-page").hidden = !state.chatOpen || settingsOpen;
   $("app-shell").classList.toggle("attention-active", state.attentionOpen && !settingsOpen);
+  $("app-shell").classList.toggle("chat-active", state.chatOpen && !settingsOpen);
   renderConversationBodyVisibility();
   $("app-shell").classList.toggle("settings-active", settingsOpen);
   /* WK-116 · 进入 Settings 后全局侧栏不渲染。`hidden` 让它离开无障碍树，`inert`
@@ -3137,7 +3143,7 @@ function renderChatHeader() {
   projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
   $("session-title-text").textContent = settingsOpen
     ? "Settings"
-    : state.attentionOpen ? "Attention" : state.view === "home"
+    : state.attentionOpen ? "Attention" : state.chatOpen ? "Chat" : state.view === "home"
       ? "Home"
       : session?.title || "Loading chat…";
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
@@ -3158,10 +3164,10 @@ function renderChatHeader() {
       );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
-  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || !session;
-  $("show-run-button").hidden = settingsOpen || state.attentionOpen || !session;
-  const home = state.view === "home" && !state.attentionOpen;
-  $("composer-area").hidden = settingsOpen || state.attentionOpen || (!home && !session);
+  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
+  $("show-run-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
+  const home = state.view === "home" && !state.attentionOpen && !state.chatOpen;
+  $("composer-area").hidden = settingsOpen || state.attentionOpen || state.chatOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
@@ -3232,7 +3238,7 @@ function renderChatHeader() {
   );
   $("chat-button").setAttribute(
     "aria-current",
-    !settingsOpen && !state.attentionOpen && state.view === "session" ? "page" : "false",
+    !settingsOpen && (state.chatOpen || (!state.attentionOpen && state.view === "session")) ? "page" : "false",
   );
 }
 
@@ -3505,8 +3511,8 @@ function surfaceViewSwitch() {
 function renderConversationBodyVisibility() {
   const body = $("conversation-body");
   const switched = surfaceViewSwitch();
-  body.hidden = state.settings.open || state.attentionOpen || switched;
-  body.inert = state.attentionOpen || (switched && !state.settings.open);
+  body.hidden = state.settings.open || state.attentionOpen || state.chatOpen || switched;
+  body.inert = state.attentionOpen || state.chatOpen || (switched && !state.settings.open);
 }
 function surfaceIsModal() {
   return (
@@ -5568,6 +5574,7 @@ async function openAttentionWorkspace(projectId = state.homeAttention.projectId 
   if (own !== state.navigationEpoch) return;
   closeSettings({ restoreFocus: false });
   state.attentionOpen = true;
+  state.chatOpen = false;
   closeNavigation({ restoreFocus: false });
   renderAll();
   void attentionWorkspace.open({ projects: state.projects, projectId, attentionId });
@@ -5575,6 +5582,7 @@ async function openAttentionWorkspace(projectId = state.homeAttention.projectId 
 }
 async function goHome() {
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   closeSettings({ restoreFocus: false });
   const own = ++state.navigationEpoch;
@@ -5585,38 +5593,30 @@ async function goHome() {
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }
-/* CA-01 · Chat entry. Returns to the ordinary conversation: the session already
- * open (also from under Settings or the Attention workspace), else the most
- * recently active chat of the active project, else Home, whose composer is the
- * existing way to start a chat. It never creates a project or session, never
- * turns an Attention conversation into a chat, and keeps drafts, selection and
- * the current run: selectSession / goHome persist the draft and the same-id
- * path re-renders nothing. */
-async function openChat() {
-  const session = currentSession();
-  if (session && state.view === "session" && !state.attentionOpen && !state.settings.open) {
-    closeNavigation({ restoreFocus: false });
-    restoreLayerFocus($("composer-input"));
-    return;
-  }
-  if (session) { await selectSession(session.id); return; }
-  /* The active project first; otherwise the projects already open in the
-   * sidebar, whose sessions are loaded. Nothing is fetched beyond what the
-   * navigation already shows. */
-  const projectIds = state.activeProjectId ? [state.activeProjectId] : [...state.openProjectIds];
-  const candidates = [];
-  for (const projectId of projectIds) {
-    const sessions = state.sessionsByProject.get(projectId) ?? (projectId === state.activeProjectId ? await loadSessionsForProject(projectId) : null);
-    for (const item of sessions || []) candidates.push({ projectId, session: item });
-  }
-  const stamp = (item) => String(item.session.updatedAt ?? item.session.createdAt ?? "");
-  const recent = candidates.sort((a, b) => stamp(b).localeCompare(stamp(a)) || a.session.id.localeCompare(b.session.id))[0];
-  if (recent) {
-    if (recent.projectId !== state.activeProjectId) await selectProject(recent.projectId, { sessionId: recent.session.id });
-    else await selectSession(recent.session.id);
-    return;
-  }
-  await goHome();
+/* The Chat page (chat-product-page DECISION, 2026-09-11) is the seat beside
+ * Attention and Spark: an independent page over the chats that exist, the real
+ * New chat route and the two sibling entries. It never creates a project or a
+ * session, never turns an Attention conversation into a chat, and keeps the
+ * open session, its draft and its run untouched underneath: persistCurrentDraft
+ * runs before the page shows, and "Return to …" goes back through selectSession. */
+async function openChatPage() {
+  const own = ++state.navigationEpoch;
+  await persistCurrentDraft();
+  if (own !== state.navigationEpoch) return;
+  closeSettings({ restoreFocus: false });
+  state.attentionOpen = false;
+  attentionWorkspace?.deactivate();
+  state.chatOpen = true;
+  closeNavigation({ restoreFocus: false });
+  renderAll();
+  chatPage.open({
+    projects: state.projects.filter((project) => state.openProjectIds.has(project.id) || project.id === state.activeProjectId),
+    sessionsByProject: state.sessionsByProject,
+    activeSessionId: state.activeSessionId,
+    currentSession: currentSession(),
+    example: state.preview?.available ? { label: "See the example workspace" } : null,
+  });
+  $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
 }
 function startNewSession({ projectId = null } = {}) {
   state.homeProjectRequest = false;
@@ -6224,7 +6224,7 @@ function wireEvents() {
   });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
-  $("chat-button").addEventListener("click", () => void openChat());
+  $("chat-button").addEventListener("click", () => void openChatPage());
   $("attention-button").addEventListener("click", () => attentionAgent.open());
   $("spark-button").addEventListener("click", () => sparkView.open(currentProject()?.id ?? null));
   $("workspace-home-link").addEventListener("click", (event) => {
@@ -6663,8 +6663,16 @@ async function init() {
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  chatPage = createChatPage($("chat-page"), {
+    onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
+    onNewChat: () => startNewSession({ projectId: state.activeProjectId }),
+    onOpenAttention: () => attentionAgent.open(),
+    onOpenSpark: () => sparkView.open(currentProject()?.id ?? null),
+    onExample: () => void openPreview?.(),
+  });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;
+    state.chatOpen = false;
     attentionWorkspace.deactivate();
     renderAll();
     $("attention-button").focus();
