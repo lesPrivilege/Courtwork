@@ -702,6 +702,13 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .review-attention > span { width: 5px; height: 5px; flex: none; border-radius: 50%; background: currentColor; }
 .review-attention > small { color: var(--muted-strong); font-size: inherit; font-weight: 400; }
 @media (prefers-color-scheme: dark) { :root { --campaign-attention-review: #ed9396; } }
+
+/* Ordinary campaign action: the accepted Paper common-red palette. This is
+ * separate from attention.review even where both appear on the same page.
+ * The deep ink keeps the 14px action label above the 4.5:1 text threshold on
+ * the fixed red in both schemes. */
+:root { --campaign-action: #c95e55; --campaign-action-ink: #10161a; }
+@media (prefers-color-scheme: dark) { :root { --campaign-action: #c95e55; --campaign-action-ink: #10161a; } }
 /* Single-red change language (user ruling 2026-09-11): one campaign accent for
  * what is new in a change, grey for what was there. It is not the review token
  * and not a state: it marks changed text only. Values mirror the product's
@@ -1031,7 +1038,7 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 
 /* User-requested reading emphasis; this link carries no pending-review state. */
 .hero-copy > .hero-actions { justify-content:flex-start; text-align:left; flex-wrap:wrap; }
-.hero-actions .hero-action-paper { display:inline-flex; align-items:center; gap:6px; justify-self:start; min-height:48px; padding:0 20px; border:1px solid transparent; background:var(--campaign-attention-review); color:var(--campaign-paper); font-weight:500; text-decoration:none; }
+.hero-actions .hero-action-paper { display:inline-flex; align-items:center; gap:6px; justify-self:start; min-height:48px; padding:0 20px; border:1px solid transparent; background:var(--campaign-action); color:var(--campaign-action-ink); font-weight:500; text-decoration:none; }
 .hero-actions .hero-action-paper:hover { text-decoration:underline; text-underline-offset:4px; }
 @media (forced-colors:active) { .hero-actions .hero-action-paper { background:ButtonFace; color:ButtonText; border-color:ButtonText; } }
 @media (max-width:480px) {

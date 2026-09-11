@@ -1,0 +1,41 @@
+{
+  "base": "cf4ab5604ba5a7319fc35121c818d75f516e79b3",
+  "scope": "site/src/site.css ordinary hero Paper campaign action only",
+  "action": {
+    "light": {
+      "background": "#c95e55",
+      "ink": "#10161a",
+      "text_contrast_ratio": 4.529,
+      "text_threshold": 4.5,
+      "pass": true
+    },
+    "dark": {
+      "background": "#c95e55",
+      "ink": "#10161a",
+      "text_contrast_ratio": 4.529,
+      "text_threshold": 4.5,
+      "pass": true
+    },
+    "same_common_red": true
+  },
+  "action_fill_edge": {
+    "light_campaign_paper": 3.689,
+    "dark_campaign_paper": 3.964,
+    "non_text_threshold": 3
+  },
+  "review_unchanged": {
+    "light": "#b3262d",
+    "dark": "#ed9396",
+    "matches_base": true
+  },
+  "diff_unchanged": {
+    "declaration": "--campaign-diff-change: #a13c36; --campaign-diff-block: #dd7068; --campaign-diff-block-ink: #172025; ",
+    "matches_base": true
+  },
+  "brand_lockup": "neutral ink hooks remain unchanged; no SVG/brand asset or figure registry change",
+  "selectors": {
+    "hero_action_paper": "var(--campaign-action) / var(--campaign-action-ink)",
+    "review_marker": "var(--campaign-attention-review)",
+    "figure_attention": "var(--campaign-attention-review)"
+  }
+}

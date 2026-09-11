@@ -1,0 +1,174 @@
+{
+  "created": "2026-09-11",
+  "baseSha": "cf4ab5604ba5a7319fc35121c818d75f516e79b3",
+  "branch": "codex/pages-common-red-20260911",
+  "scope": "Pages ordinary Hero campaign action color only",
+  "source": {
+    "path": "site/src/site.css",
+    "sha256": "891612adf903547b5080aec8b4974a64d8c801f0350f82b82c5c70ea28112ce6",
+    "bytes": 47026
+  },
+  "record": {
+    "path": "engineering/release/ui-publication-closure-2026-09-11/CW-PAGES-RED.md",
+    "sha256": "f958b9f490c49c941d849111373408f0449c6a59d1013d3258ae1f6e41672f00",
+    "bytes": 3959
+  },
+  "changedPaths": [
+    "site/src/site.css",
+    "engineering/release/ui-publication-closure-2026-09-11/CW-PAGES-RED.md",
+    "evidence/pages-common-red-20260911/"
+  ],
+  "palette": {
+    "action": "#c95e55",
+    "actionInk": "#10161a",
+    "lightDarkEqual": true,
+    "reviewLight": "#b3262d",
+    "reviewDark": "#ed9396",
+    "diffUnchanged": true
+  },
+  "checks": [
+    {
+      "command": "node site/build.mjs",
+      "result": "pass",
+      "log": "build.log"
+    },
+    {
+      "command": "node site/scripts/check-figures.mjs",
+      "result": "pass",
+      "log": "figures.log",
+      "figures": 15
+    },
+    {
+      "command": "node site/scripts/check-links.mjs",
+      "result": "pass",
+      "log": "links.log",
+      "localReferences": 263
+    },
+    {
+      "command": "node site/scripts/check-material.mjs",
+      "result": "pass",
+      "log": "site-material.log"
+    },
+    {
+      "command": "node tools/lint-colors.mjs",
+      "result": "pass",
+      "log": "lint-colors.log"
+    },
+    {
+      "command": "node tools/lint-materials.mjs",
+      "result": "pass",
+      "log": "lint-materials.log"
+    },
+    {
+      "command": "node tools/contrast-report.mjs",
+      "result": "pass",
+      "log": "contrast-report.log"
+    },
+    {
+      "command": "node --test site/scripts/public-data.test.mjs site/scripts/capture-plan.test.mjs",
+      "result": "pass",
+      "log": "public-data-capture-plan.log",
+      "tests": 5
+    },
+    {
+      "command": "node tools/check-pages-semantics.mjs",
+      "result": "pass",
+      "log": "pages-semantics.log",
+      "captureSlots": 13,
+      "figures": 15
+    },
+    {
+      "command": "node tools/check-doc-links.mjs",
+      "result": "pass",
+      "log": "doc-links.log"
+    },
+    {
+      "command": "git diff --check",
+      "result": "pass",
+      "log": "diff-check.log"
+    },
+    {
+      "command": "node site/scripts/check-capture-ready.mjs",
+      "result": "pass",
+      "log": "capture-ready.log"
+    }
+  ],
+  "files": [
+    {
+      "path": "evidence/pages-common-red-20260911/README.md",
+      "bytes": 1388,
+      "sha256": "424e031f5529ee04c439c3626a4d58c6fb8f1483089b567f46844a7a86ea4f4e"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/action-contrast.json",
+      "bytes": 1221,
+      "sha256": "7f33a3f4703cc8c9744c687a96925d1a80e054b894b4635d69557bea5e952e07"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/build.log",
+      "bytes": 6126,
+      "sha256": "19096f63f61c35e9dd0876f0f9605da58e87a0875e279626e5c496887137f7a0"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/capture-ready.log",
+      "bytes": 24,
+      "sha256": "b755668026a9975d85f9c1571b6d20722111c30f17ccb90f7aaa7b25e2616ebb"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/contrast-report.log",
+      "bytes": 8280,
+      "sha256": "c37e2eda97f483da3a9298c72fd0e18ff6ee4eb0de909d22cf0c8a36d11b4e5e"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/diff-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/doc-links.log",
+      "bytes": 76,
+      "sha256": "49514f7fed5379400b462cb1d0112558d185653756682a8ffeab4e7b9d86dd64"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/figures.log",
+      "bytes": 2756,
+      "sha256": "0a65c821d642a07c7522189deb798ad2d27e8b02142eed711b513fa949ef1166"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/links.log",
+      "bytes": 88,
+      "sha256": "cbd35c3c0447e5509ab9b859e67348807c1d04c9da333b2dbe20cd0b3c841f13"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/lint-colors.log",
+      "bytes": 58,
+      "sha256": "5ef25c7971f11559442748b7b2fe4734ca114b0ccef43a03f84d824f603755dd"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/lint-materials.log",
+      "bytes": 82,
+      "sha256": "19365883357daf0580a19c1e0088b3e46560af1eef6c9eb1ac27f9c942a4412c"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/page-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/pages-semantics.log",
+      "bytes": 33,
+      "sha256": "f51ef36708a6b77c5cc6c97bb8bd893a6206c6576aab8df685ab8f293580e382"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/public-data-capture-plan.log",
+      "bytes": 486,
+      "sha256": "6f1a698607266be7b0c11cf58f29da93eb2321680bf728f46a94a3e2f4ae0fef"
+    },
+    {
+      "path": "evidence/pages-common-red-20260911/site-material.log",
+      "bytes": 85,
+      "sha256": "b355b34a9ce56920cfc9af6e49586746da8a120bc14af2d2e95777e879eb0a8c"
+    }
+  ],
+  "review": "author source/self-check; independent browser/diff review pending; not deployed"
+}
