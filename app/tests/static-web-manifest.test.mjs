@@ -98,7 +98,9 @@ async function iconsSvgSymbolIds() {
  * excluding the bundled `LICENSE` entry, which is not a glyph. */
 async function manifestLucideIconNames() {
   const manifest = JSON.parse(await readFile(path.join(WEB_ROOT, "vendor/manifest.json"), "utf8"));
-  const files = Object.keys(manifest.lucide.files).filter((name) => name !== "LICENSE");
+  // The sprite is the Lucide pin plus the CourtWork domain glyphs recorded
+  // under manifest.courtwork (tools/ui-vendor/courtwork); both are sources.
+  const files = [...Object.keys(manifest.lucide.files), ...Object.keys(manifest.courtwork?.files ?? {})].filter((name) => name.endsWith(".svg"));
   assert.ok(files.length > 0, "no lucide.files entries were found in vendor/manifest.json");
   return new Set(files.map((name) => name.replace(/\.svg$/, "")));
 }

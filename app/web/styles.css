@@ -5175,7 +5175,10 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 }
 /* 命中区 32（IC-1），字号变化不缩小它。 */
 .settings-tab {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
   width: 100%;
   font-weight: 450;
   min-height: var(--control);
@@ -5198,6 +5201,13 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   color: var(--ink);
   font-weight: 500;
 }
+/* The glyph slot is 18 wide in every group; it inherits the tab's colour so the
+ * hover / current / disabled relation is one rule for text and glyph alike. */
+.settings-tab > .ui-icon { flex: none; width: 18px; height: 18px; color: var(--muted-strong); }
+.settings-tab:hover > .ui-icon, .settings-tab.is-current > .ui-icon { color: var(--ink); }
+.settings-tab:disabled { color: var(--muted); cursor: not-allowed; }
+.settings-tab:disabled > .ui-icon { color: var(--muted); }
+.settings-tab-label { min-width: 0; overflow-wrap: anywhere; }
 .settings-tab:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;

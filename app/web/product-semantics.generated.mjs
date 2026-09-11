@@ -164,18 +164,18 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "none",
-      "glyphRef": null,
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "attention",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "text",
+        "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved",
+      "reviewStatus": "mapped",
       "ownerAnchor": "## Identity and persistence"
     },
     {
@@ -224,18 +224,18 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "none",
-      "glyphRef": null,
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "spark",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "text",
+        "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved",
+      "reviewStatus": "mapped",
       "ownerAnchor": "## 语义"
     },
     {
@@ -1371,6 +1371,316 @@ export const productSemantics = freeze({
       },
       "reviewStatus": "mapped",
       "ownerAnchor": "## Workspace"
+    },
+    {
+      "semanticKey": "chat.surface",
+      "meaning": "The Chat page: a continuous conversation whose fragments can be kept, cited and handed to work; distinct from a single chat session row.",
+      "ownerRef": "engineering/design/chat-product-page-2026-09-11/DECISION.md",
+      "words": {
+        "en": "Chat"
+      },
+      "accessibleName": {
+        "en": "Chat"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "courtwork-domain",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "chat",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## 产品定义与承诺"
+    },
+    {
+      "semanticKey": "chat.overview",
+      "meaning": "Open the overview of the current chat beside the stream; a summary view, not the work surface.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Chat overview"
+      },
+      "accessibleName": {
+        "en": "Chat overview"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "text-align-start",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "disclose",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Chat composition"
+    },
+    {
+      "semanticKey": "settings.general",
+      "meaning": "The General group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "General"
+      },
+      "accessibleName": {
+        "en": "General"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "sliders-horizontal",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.appearance",
+      "meaning": "The Appearance group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Appearance"
+      },
+      "accessibleName": {
+        "en": "Appearance"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "palette",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.models",
+      "meaning": "The Models group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Models"
+      },
+      "accessibleName": {
+        "en": "Models"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "cpu",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.tools",
+      "meaning": "The Tools & Integrations group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Tools & Integrations"
+      },
+      "accessibleName": {
+        "en": "Tools & Integrations"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "plug",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.skills",
+      "meaning": "The Skills group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Skills"
+      },
+      "accessibleName": {
+        "en": "Skills"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "book-open",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.memory",
+      "meaning": "The Memory group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Memory"
+      },
+      "accessibleName": {
+        "en": "Memory"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "database",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.permissions",
+      "meaning": "The Permissions group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Permissions"
+      },
+      "accessibleName": {
+        "en": "Permissions"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "key-round",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.keyboard",
+      "meaning": "The Keyboard group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Keyboard"
+      },
+      "accessibleName": {
+        "en": "Keyboard"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "keyboard",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.developer",
+      "meaning": "The Developer group of the Settings page; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Developer"
+      },
+      "accessibleName": {
+        "en": "Developer"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "code",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
     }
   ]
 });

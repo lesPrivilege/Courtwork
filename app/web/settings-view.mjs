@@ -1,6 +1,7 @@
 import "./skin-policy.js";
 import { el, action, flowRow } from "./ui-controls.mjs";
 import { renderDiff } from "./diff-view.mjs";
+import { semanticIcon } from "./semantic-controls.mjs";
 import { DIFF_PREVIEW } from "./diff-fixture.mjs";
 import { effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
 export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
@@ -1972,9 +1973,11 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
 
   /* ── 导航 ─────────────────────────────────────────────────────────── */
   const tabs = SETTINGS_GROUPS.map((group) => {
+    /* One anatomy for every group: an 18px glyph slot, then the name. The
+     * glyph comes from the registry (settings.<group>) and only identifies the
+     * category; the name stays visible and is the accessible name. */
     const tab = el("button", {
       className: "settings-tab",
-      text: group.title,
       attrs: {
         type: "button",
         role: "tab",
@@ -1984,6 +1987,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         tabindex: "-1",
       },
     });
+    tab.append(semanticIcon(`settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));
