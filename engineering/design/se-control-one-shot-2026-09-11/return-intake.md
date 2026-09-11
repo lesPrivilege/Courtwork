@@ -28,3 +28,5 @@ Astra主责语义、视觉及合流裁决；Luna可核来源/有界独立复核�
 ## 固定vendor核对
 
 本仓库sources.json固定Lucide1.41.0、commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`。直接读取该commit的 `icons/text.svg` 返回HTTP404；目前不能给此路径编造sha或直接加入来源账。需核对该版本实际资源名与返回包中的路径/alias，是否采用该形状仍待实际视觉比较。
+
+固定commit的官方Git tree已确认存在 `icons/text-align-start.svg`，而无 `icons/text.svg`。进一步读取该SVG和metadata的请求停滞后已终止；尚未确认alias/几何/hash，不能把替代名称自动当作Design所选资产。
