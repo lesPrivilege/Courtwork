@@ -1,60 +1,69 @@
 # les Privilege
 
-对外署名与拟设厂商名称为 **les Privilege**，严格保留这一大小写、空格和拼写。`lesPrivilege` 是 handle；`le` 是图形标记，不再作为完整署名。名称与品牌背景已按用户 2026-09-11 指令登记，以下光学修订为本轮推荐稿。
+`les Privilege` 是本包登记的对外署名与拟设厂商名称，大小写、空格和拼写固定。`lesPrivilege` 只作 handle；`le` 只作图形标记。图形、名称、Paper 作品和 Paper 作者是不同对象，不能互相替代。
 
-## 品牌位置与对照
+## 当前坐标
 
-CourtWork 与 Schema Engineering 可在各自发布面消费这一 maker’s signature；产品名、论文作者和版本元数据仍由各自来源决定。此次只交付资产与登记，没有改产品或 Paper 的实际发布页面。
+当前资产坐标固定在 Astra 的 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`。manifest 的 `revision` 为 `optical-03`，状态仍明确写作 `pending-independent-review; not-published`：资产坐标已经固定，Paper 接入与发布仍是后续独立步骤。
 
-| 对照维度 | Anthropic 用户参考 | les Privilege |
-|---|---|---|
-| 名称 | Anthropic；作为用户给定的厂商对照 | les Privilege；私人署名兼拟设厂商 |
-| 图形 | 用户原图中的黑色 A 形与斜笔，紧凑、尖直 | 连续 L 与两条等长悬浮横笔；平直边缘、柔和圆角 |
-| 来路 | 用户提供的参考图，不提取为本项目资产 | 源于 CourtWork 原生竖笔与长、长、短母题 |
-| 可借用的观感 | 字母拼合的简洁性、厂牌尺度 | 第二眼才读出字母，首先作为完整标记成立 |
-| 色彩 | 参考图的暖浅底与近黑图形 | 深色 L、浅灰横笔、红色横笔；明暗适配 |
+Paper 仍由独立的 Schema Engineering 维护。SE 本地 main `0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75` 的当前 reader 仍使用旧图标；本包没有声称已经接入 Paper、更新 Paper 正文或发布线上页面。论文内容继续采用 `9.6 / 2026-09-07 / d78fd312955c1f594e59cbdcbb0d3074ac355940`。
 
-用户最新命名说明将 `les Privilege` 与英语 `less privilege`、缺乏顶尖实验室资源的个人生产条件，以及《红与黑》的“特权”意象联系起来；红与黑也与其 Dystopia 设计方向相合。这是用户自述的品牌背景，不是本次独立考证的法语歌词、词源或公司能力结论。保留原拼写，不改成 Le、LE、Leo、Less Privilege 或规范法语。背景作为暗层，不强制在首页解释。
+## 几何 · optical-03
 
-用户随后明确提出深色 L、右侧红横与浅色横组成三色，作为 Dystopia 与 anti-Anthropic 的 fake lab。此直接指令更新了早期“常态图标保持黑灰”的建议：红现在可以进入一条常态横笔。anti-Anthropic 登记为品牌反向参照与个人创作立场，不推导为对公司的事实指控。会话中“暖白背景”和 hover/favicon 动画等仅为建议，未覆盖既有 CourtWork 冷灰合同，也未成为新动效要求。
+九个 SVG 共用同一几何，64 × 64 viewBox。数值以 [`manifest.json`](manifest.json) 为准：
 
-## 光学修订
+| 项目 | 固定值 |
+|---|---|
+| L 笔画 | 9 |
+| 横笔 | 厚 7、长 23；`x=24` |
+| 横笔 y | `12`、`30` |
+| 竖笔到横笔间距 | 7 |
+| 顶端下退 | 4 |
+| 整体平移 | `translateX=4.5` |
+| L 圆角 / 横笔圆角 | 2.25 / 1.75 |
+| 墨迹边界 | `[12.5, 8, 51.5, 56]` |
+| L 底部右端 | 48.5 |
 
-[四稿对照](index.html) / [宽屏实拍](preview.png) / [窄屏实拍](mobile.png)。
+这里的“降低横笔的视觉重量”是 Astra 的设计意图和视觉判断，不是未经测量的定量事实。几何的下退也不产生 authority、review、permission 或任何运行状态。
 
-1. 前版：10 粗，双横与竖筆间距 10。
-2. 只减细 L：L 8.5，双横仍 10。右侧相对更突出，不推荐。
-3. 只内收：双横左移 4，间距 6。结构更聚拢，但连接处附近略挤。
-4. **推荐综合调整**：全部笔画由 10 减为 9，双横长度由 28 减为 26，间距由 10 减为 8；整体居中。既减轻右侧墨量，也保留 L 的支撑。
+旧稿只用于历史回溯。固定引用为 `bf4b8081a1e4c6c3d680d388472f6f5c93092e62:brand/les-privilege/README.md` 与 `bf4b8081a1e4c6c3d680d388472f6f5c93092e62:brand/les-privilege/manifest.json`；其中的 9/26/gap8、旧红色和早期“推荐稿”措辞不再描述当前资产，也不应与本页当前几何并列阅读。
 
-推荐稿采用 64 格画布，墨迹边界 x=10.5–53.5、y=8–56，笔画 9、行间距 10.5、圆角 2.25。两长横右端 53.5，短底横右端 46.5。分色版进一步让 L 先被看见；16–20 px 或印刷优先单色。
+## 并列两宗与色值
 
-## 并列两宗
+黑色宗和三色宗并列保留，共用上述几何。黑色宗是完整的单色署名，适合 Paper 默认阅读署名；三色宗是同一排印位置的可选身份适配。黑色宗不是三色宗的降级版本，三色宗也不替换黑色宗。
 
-[两宗明暗对照](identity.png) / [可打开的排印示意](identity.html)。
+| 宗别 | 浅底 | 深底 | 当前用途 |
+|---|---|---|---|
+| 黑色宗整体 | `#242d33` | `#e4ebef` | Paper 默认署名、单色或无色场景 |
+| 三色宗 L | `#242d33` | `#e4ebef` | 与黑色宗并列的身份适配 |
+| 三色宗次横 | `#6f7e88` | `#95a5af` | 三色宗的浅灰横笔 |
+| 三色宗红横 | `#b4423b` | `#e9847b` | 三色宗推荐的上横；只作品牌身份色 |
 
-**彩色宗与黑色宗并列保留，互不替代。** 彩色宗用于 Dystopia / anti-Anthropic 的 fake lab 品牌表达；黑色宗以完全单色的几何标记对标用户给出的 Anthropic `A\` 参考，拥有独立署名用途，不只是彩色稿的降级版本。两宗共用综合修订几何与正式名称，各自有明暗适配；深底的反白仍属于黑色宗。
+三色宗当前推荐为“上横红、下横浅灰、L 深色”（深底使用对应浅色适配）；中横红和灰阶变体继续作为候选对照，不是本轮默认。品牌红不映射 `error`、`active`、`review`、`permission` 或其他产品状态。品牌独立身份也不生成这些状态。
 
-黑色宗：[黑色标记](mark-light.svg) / [反白](mark-dark.svg) / [可继承色](mark.svg)。
+文件对应关系如下：
 
-## 彩色宗
+- 黑色宗：[浅底](mark-light.svg)、[深底](mark-dark.svg)、[currentColor](mark.svg)。
+- 三色宗推荐：[浅底](mark-tritone-light.svg)、[深底](mark-tritone-dark.svg)。
+- 三色宗对照：[中横红浅底](mark-tritone-middle-light.svg)、[中横红深底](mark-tritone-middle-dark.svg)。
+- 灰阶对照：[浅底](mark-tonal-light.svg)、[深底](mark-tonal-dark.svg)。
 
-推荐 **上横红、中横浅灰、L 深色**。上方的红笔承担第一眼识别，浅灰横笔减轻右侧重量，深色 L 托住底部；另一方案交换红灰横的位置，供直接比较。颜色位置是身份设计，不能被运行时解释成 error/active 等状态。
+`mark.svg` 通过 `currentColor` 继承宿主颜色；其余文件使用固定导出色。所有九个 SVG 的 geometry 相同，两宗只改变填色组合。
 
-浅底用石墨 `#242d33`、冷灰 `#6f7e88`、低饱和红 `#ad4844`；深底为保持可见性分别用 `#e4ebef`、`#95a5af`、`#df827b`。深底反白属于材质适配，L 仍保持比次横更强的明度对比。它们是这个独立厂牌的固定导出值，不修改产品语义 token。
+## 使用边界
 
-[三色浅底](mark-tritone-light.svg) / [三色深底](mark-tritone-dark.svg)；[中横红浅底](mark-tritone-middle-light.svg) / [中横红深底](mark-tritone-middle-dark.svg)。黑色宗还适用于小尺寸、单色印刷和无色场景，但不局限于这些场合。
+这是可单独取用的零依赖原生 SVG 包：不含字体、位图、脚本、网络、滤镜或运行时状态。每个 SVG 的 title/accessibility name 是 `les Privilege`。当标记旁边已经有可见的 `les Privilege` 署名时，宿主应把 SVG 当装饰并设置 `aria-hidden="true"`；需要读出标记时保留 accessible name。重复内联时，宿主必须为 title ID 使用唯一前缀，或改用外链 `<img>`，避免同一文档中的 ID 冲突。
 
-## 使用
+静态预览的 [`index.html`](index.html) 与 [`identity.html`](identity.html) 只展示几何、两宗、明暗和排印对照，不是产品 UI 或线上页面。`preview.png`、`mobile.png`、`identity.png` 是固定截图证据，不是运行时资源。预览中的系统字体文字也不是定制字体或已转路径的 wordmark；研究对照图不属于 SVG 导出资产。
 
-[mark.svg](mark.svg) 用 `currentColor`，适合内联；[浅底](mark-light.svg)、[深底](mark-dark.svg)、[浅底分色](mark-tonal-light.svg)、[深底分色](mark-tonal-dark.svg) 已固定填色，适合 `<img>`。外链 SVG 不继承宿主的 `color`。重复内联需给 title ID 加唯一前缀；装饰性消费由宿主隐藏可访问名称。
+Paper 可以在同一署名位置消费黑色宗默认版，并在同一位置验证三色宗上横红版；它不能由该图形改写 Paper 作者、作品标题、论文版本、review 或正式单位。品牌背景（包括 less privilege 的双关、《红与黑》、Dystopia 和 anti-Anthropic）只属于品牌登记的暗层，不能未经另行裁定写成论文命题、公司事实或产品能力。
 
-九个图标均为零依赖原生 SVG，无文字字体、位图、脚本、网络或滤镜依赖；可访问名称均为 les Privilege。预览中的文字是系统字体排印示意，不是定制字体或已转路径的 wordmark。Anthropic 原图只在研究对照页面引用，不混入图标包。
+Research lab、FakesNews 及其他未列入本轮的叙事和产品面不在本包规范范围内。
 
-`python3 brand/les-privilege/build.py` 可重建 SVG/预览 HTML/几何与 hash 清单。作者已检查 XML 安全元素、可访问名称、重建一致性与宽窄实拍，以及 16–64 px 明暗/三色效果；是作者视觉判断，未声称用户已选定最终几何或独立接受。
+## 重建与证据
 
-来源：[更新消费记录](../../engineering/research/le-brand-2026-09-11/update.md)；[上一轮几何研究](../studies/le-2026-09-11/README.md)。
+用 `python3 brand/les-privilege/build.py` 可以重建九个 SVG、静态预览 HTML、manifest 和几何对照。它不会接入 Paper、修改 SE 源文或发布站点。当前 manifest 记录的九个文件 hash 必须作为资产接入的来源；不要用历史 README 中的 hash 替换它们。
 
-## Paper施工裁定 · 2026-09-11
+[`verification.json`](verification.json) 记录 Astra 的作者检查：九个 SVG、`preview.png` 1280 × 2100、`mobile.png` 390 × 844、`identity.png` 960 × 461，以及窄屏无横向溢出。该文件同时明确 Paper integration is separate。Luna 的源、几何和语义核对见 [`les-privilege-paper-2026-09-11.md`](../../engineering/design/les-privilege-paper-2026-09-11.md)；文档作者核对不等于独立视觉验收。
 
-用户授权Claude串行开工后，Astra将综合修订几何与并列两宗固定为本轮[施工基线](../../engineering/release/claude-paper-2026-09-11/ONE-SHOT.md)：黑色宗用于默认阅读署名，彩色宗采用上横红，提供同一排印位置的明暗适配。此裁定结束本轮几何探索，未冒充独立视觉验收或上线；早期推荐与对照图保留来路。
+来源：[品牌消费记录](../../engineering/research/le-brand-2026-09-11/README.md)、[更新记录](../../engineering/research/le-brand-2026-09-11/update.md)、[上一轮 LE 几何研究](../studies/le-2026-09-11/README.md)。CourtWork 的母题来源和品牌接入边界见 [`brand/README.md`](../README.md)。

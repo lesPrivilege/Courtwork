@@ -14,3 +14,7 @@ This directory contains release handoffs, publication preparation and delivery r
 - [2026-09-09 publishing surface](publishing-surface-2026-09-09/README.md): Pages candidate intake, work orders and delivery receipts.
 
 These are release records and preparation contracts. A release note does not by itself mean that a build was deployed, a product gate was accepted, or a desktop artifact was shipped.
+
+## 2026-09-11 · Paper发布准备
+
+[Claude串行施工单](claude-paper-2026-09-11/PRE-PUBLISH.md)：补齐证据、可复现候选与发布方案，接入Astra optical-03资产；已授权待作者认领，未推送SE或部署。

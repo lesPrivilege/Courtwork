@@ -36,3 +36,9 @@ Claude负责独立 `return-paper-prepublish-v1/`：RETURN.md、source-manifest.j
 你不是唯一作者。不得编辑共享CourtWork/SE checkout、checkout/stash/reset他人工作、读取凭据或运行付费provider；不创建产品工单于SE论文目录。原生SVG沿现有零依赖资产系统，品牌展示不产生review、authority或错误状态。
 
 Astra拥有icon与跨仓集成、最终发布裁定；Luna负责新语义措辞与来源边界核对，不另立领域owner。Claude完成同范围后一次返回，不等重复批准。只有真实缺失输入或语义冲突需指出，同时继续独立可做的工作。
+
+## Astra资产收尾补交 · 可直接消费
+
+本单发出后的icon已固定为CourtWork `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`、`brand/les-privilege/manifest.json` revision `optical-03`。Claude现已具备第三阶段输入，无需再等几何选型；这条固定引用优先于上文“若尚未到”的条件分支。必须从该提交读资产，不从后来浮动HEAD猜测。
+
+采用L9、双横7×23、x24、y12/30、顶退4、水平间距7；红色浅底`#b4423b`、深底`#e9847b`。几何与色值由manifest和SVG字节持有；Paper当前0f23ad1尚未接入。黑宗默认／上横红彩宗并列，中横红／灰阶仍研究备选。Astra完成作者视觉收尾不等于Claude已接入、Luna已接受或线上已发布。
