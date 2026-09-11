@@ -1,6 +1,25 @@
 # Fresh Claude · Pages可视化 one-shot
 
-状态：**交接准备，尚未派发**。本包由Astra裁决，Luna提供只读索引核对；用户决定后续fresh Claude提交时点。执行前Astra须绑定实际输入commit与已裁A/B返回；当前准备源为 `c127961100871d2db7677a0ebb6ce0b0e1ee3f98`，不是未来施工基线。
+状态：**已授权开工，待Claude认领/返回**。2026-09-11用户明确批准，本Astra正式裁定。内容输入固定 `bf7fa82abe4b1e02bc470ff077ef6aba52000654`；该节点包含v2原件、接收裁决和CR-05。原c127961仅为历史准备源。当前派单提交负责授权/范围，不能改写该内容输入；执行时同时记录实际checkout HEAD，若产品源漂移只报告差异，不自行更换语义基线。
+
+## 本轮明确派单 · 可直接开始
+
+Claude已通过用户转交确认阅读v2裁决并接受修订。本授权解除“准备未派发”的等待条件，直接依下面范围修订、绘制和返回，不再等待Astra另选段落或批准候选清单。此状态记录授权，不宣称作者已实际启动。
+
+**第一步：修复A/B返回。** 按v2正式裁决逐项修正F1/F2/F3、F4 caption限定、F5 compact view、roles来源hash及画布palette声明、Spark reason、五板裁切、第五拍因果、RETURN旧账映射。F5修正已有候选但保持可选，不据此强加Pages新段落。合法Spark reason须引用实际DTO/fixture；找不到对应事实就删掉该虚构场景，不另造一个“合理”原因。CR-05只作阅读参考，本单不实施Chat。
+
+**第二步：以下两个关键段落，各交3个静态构图候选，共6个。** 每个段落内部固定同一claim/事实集比较；工程说明、产品序列、抽象意象是可选择的表达方式，不是要求用不同事实分别凑三张图。
+
+| 段落 | 固定claim与位置 | 三个候选方向 / 复用源 |
+|---|---|---|
+| P1 · 来源变化之后，工作如何接续 | Home双原子之后、研究内容之前的DR-06五拍：来源变化→既有派生失效→定位受影响对象→针对明确对象作判断→经实际重建/新派生形成后续版本并继续；判断本身不清除旧失效，旧candidate不被抹除 | ①沿读序展开的连续横向/窄屏纵向故事；②同一对象前后状态与局部放大；③纸面/派生分支与Attention汇聚的抽象构图。复用productAtoms、spark.svg、attention.svg、archive-stack语汇 |
+| P2 · 候选怎样成为持续工作的正式结果 | Tour架构解释位置的F2/F4公开阅读view：从已有state/context projection形成运行输入，执行产生候选，明确authority判断后才commit正式工作状态并供后续Run使用；runtime observations留给其owner，与正式work fact分开 | ①清晰的边界/回路；②同一对象经过proposal/candidate/commit的分层剖面；③以纸面、投影与边界跨越表达的抽象回路。复用diagram.svg、pipeline.svg、已修F2/F4；不把M09 Compile当完整已实现Work Compiler |
+
+P2先提出准确挂载点，不编辑生产page；P1既有Hero/nav/Ideas与双原子保持。两段各自的公开文案可精炼，但不能将P2工程机制挪作P1产品故事的替代。给出你推荐的各一版及理由，Astra在返回后选定再扩展整组；该选择不阻止本轮6候选制作。
+
+**写入与返回范围。** 在本Claude独立scratchpad建立新的 `return-v3/`，含 `repaired-ab/`、`pages-candidates/P1/`、`pages-candidates/P2/`、`RETURN.md`、`source-manifest.json`；允许自有离线预览、SVG/PNG及必要渲染脚本。保留v1/v2原件，不回写已归档ZIP，不写共享仓库或个人数据。返回完整ZIP及明确本地路径；候选说明、6图对照、已修项逐条回执和未跑项一并交回。Astra负责归档、选择、仓库集成和后续发布。
+
+每候选验证1440与390实际view，F5做真正紧凑版；工程plate如采用横向滚动，另证实完整内容可达。提供适用明暗和静态/reduced-motion等价，正文/标签不超框、子板不裁切、hash对应最终源。首轮以静态构图为准，motion只交理由与可选方案，选定前不投入整组动画。无需等待Luna再做一轮同范围探索，现L0–L3已可消费。
 
 ## 给Claude的任务正文
 
