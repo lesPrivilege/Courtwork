@@ -1,0 +1,57 @@
+{
+  "status": "local-candidate-verified; not-published",
+  "paper": {
+    "version": "9.6",
+    "edition": "2026-09-07",
+    "adoptedCommit": "d78fd312955c1f594e59cbdcbb0d3074ac355940"
+  },
+  "readerSourceCommit": "026d5cb0191816e44ae473e220ab557d24afbcfe",
+  "brand": {
+    "commit": "7b154a1c720fdeb40f6a838efae2e528b3357e0c",
+    "revision": "optical-03",
+    "paletteRevision": "common-red-v1",
+    "red": "#c95e55",
+    "manifestSha256": "c6e412620bd4112cb4eadb9dea7fd90eff972109eadcae4db9b50e99ab55bc55"
+  },
+  "candidateOutputs": [
+    {
+      "path": "papers/dist/index-en.html",
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    },
+    {
+      "path": "papers/dist/index.html",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html",
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    }
+  ],
+  "verification": {
+    "reader": 110,
+    "readerSource": "096b748 plus optical03 before final palette only",
+    "prepublishFinal": 54,
+    "signatureFinal": 12,
+    "translationGate": 8,
+    "resourceNegative": 3,
+    "doubleBuildIdentical": true,
+    "unchangedSourceTranslationHistoricalFiles": 20
+  },
+  "notRun": [
+    "native VoiceOver",
+    "native IME",
+    "real browser menu 200% zoom",
+    "physical printing",
+    "live deployment"
+  ],
+  "sourceArchive": "source.zip",
+  "evidence": "astra-verification/"
+}

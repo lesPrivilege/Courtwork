@@ -1,0 +1,15 @@
+{
+  "author": "Luna",
+  "sourceCommit": "a510036ec0ba2a55bbd41bfb8313debd14588fc2",
+  "report": {
+    "path": "luna-source-report.md",
+    "sha256": "7baf74f061b1321e73ca05215867843984e92f2b4b28b08a40bd0cc8ab22440b",
+    "bytes": 10580
+  },
+  "scope": "read-only source research; not implementation or independent product acceptance",
+  "userScreenshot": {
+    "path": "user-mono-diff.png",
+    "sha256": "ca6d6d464b6642e254f6a2b2f81729aa21ba6b0df2864ef60b894ba1bd380059",
+    "bytes": 396783
+  }
+}

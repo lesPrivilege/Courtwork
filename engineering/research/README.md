@@ -1,5 +1,9 @@
 # RD：研究与开发验证
 
+[2026-09-11 Paper预发布返回](claude-paper-return-2026-09-11/prepublish-v1/README.md)：原件、最终资产接入、独立补证与校正发布方案。
+
+[2026-09-11 Motto diff](motto-diff-2026-09-11/README.md)：固定源码研究，供共享renderer、Settings预览与Chat串行施工消费。
+
 [2026-09-11 Context Window产品化](context-window-2026-09-11/README.md)：1轮/2消息、1张截图与链接归档；用户指定稍后消费，未研究裁定或派单。
 
 [2026-09-11 Provider指控与Work临时能力](work-capability-input-2026-09-11/README.md)：12轮/24消息及截图归档；外部证据分级、Astra逐轮处置与WCI候选，接DRT/RD-005。

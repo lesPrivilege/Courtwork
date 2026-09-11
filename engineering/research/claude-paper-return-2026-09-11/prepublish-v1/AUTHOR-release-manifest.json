@@ -1,0 +1,174 @@
+{
+  "manifest": "release-manifest.json",
+  "status": "pre-publication candidate · NOT PUBLISHED · author checks only",
+  "author": "Claude (Fable 5.1)",
+  "date": "2026-09-11",
+  "paper_content": {
+    "text_revision": "9.6",
+    "edition": "2026-09-07",
+    "adopted_commit": "d78fd312955c1f594e59cbdcbb0d3074ac355940",
+    "translation_source_commit": "a0234bc42dda75767554a2da89c247d66c2ad022",
+    "unchanged_in_this_candidate": true
+  },
+  "reader_source": {
+    "base": "0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75",
+    "candidate_head_in_isolated_clone": "a6bf14002f165c13a2b164a0ccb556e806e41589 (branch claude/paper-prepublish-v1, scratchpad only)",
+    "patch": [
+      {
+        "path": "reader/patch/0001-fix-reader-print-under-system-dark-scheme-and-forced.patch",
+        "sha256": "03a40e28ae1334a0ad7af76a15e729897842df255ae11a4368b4bb7f5204014a"
+      }
+    ],
+    "files": [
+      {
+        "path": "papers/reader/reader.css",
+        "sha256": "68d650e011f5d9e5dc601c38ba800f5ea87e701806d348d24037b78d38a524f9"
+      },
+      {
+        "path": "papers/reader/reader.js",
+        "sha256": "282b3e61505e01d1bc98b34c1e314f5d52ef30018b238074af4d0cfc2920ab65"
+      },
+      {
+        "path": "papers/reader/signature.svg",
+        "sha256": "960a82cb52fffece29048928c304c0d9085daf9da64cc150fea36e1228cb2a04"
+      },
+      {
+        "path": "papers/reader/cover.svg",
+        "sha256": "8b6b7794fd4f867affaeed2e044eb799c18cebcd6ebcf93dabc748187e605099"
+      },
+      {
+        "path": "papers/reader/cover-compact.svg",
+        "sha256": "2581c7bccb1e6db1bdf46603c73150d5a7e743595a4689b272011f40d88f6100"
+      },
+      {
+        "path": "papers/build.py",
+        "sha256": "cdb5e17efec2a76b966fafa1af49de46e62a1deea750bdb634b4e7c8632cfe0b"
+      },
+      {
+        "path": "papers/validate.py",
+        "sha256": "85766cd97d4c718736bd21db64a6472f3c784cbad0cd3a900aeae14de5dcff9f"
+      }
+    ],
+    "reader_revision": "2026-09-11",
+    "reader_candidate": "paper-v1"
+  },
+  "courtwork_baseline": {
+    "dispatch_input": "bf4b8081a1e4c6c3d680d388472f6f5c93092e62",
+    "brand_assets_at_input": "0227673 geometry (mark.svg 4535bec6…9de8a); no newer brand asset at bf4b808/HEAD"
+  },
+  "signature": {
+    "status": "awaiting-astra-icon-finalization",
+    "current_asset": {
+      "path": "papers/reader/signature.svg",
+      "sha256": "960a82cb52fffece29048928c304c0d9085daf9da64cc150fea36e1228cb2a04"
+    },
+    "geometry_source": "brand/les-privilege/mark.svg@0227673 sha256 4535bec6e363cfef3d821a54e6004bbcc58cdea5755bd24301aa764af4f9de8a",
+    "replace_procedure": "RELEASE-PLAN.md §4",
+    "evidence_for_current_asset": "identity/signature-specimen-2x.png (16/20/24/32 × mono/colour × light/dark), identity/masthead-*.png (1440/1280/390), verification/run2-fixed print + forced-colors"
+  },
+  "candidate_outputs": [
+    {
+      "path": "papers/dist/index.html",
+      "bytes": 369397,
+      "sha256": "a18bfac249dc591c46f7194f25e7dc71008b4adeb406e10fbbcc9709a3162051"
+    },
+    {
+      "path": "papers/dist/index-en.html",
+      "bytes": 417088,
+      "sha256": "8588c8c950f90891138140ece59c01dc7da377044689f57cbbff0dd54408bda2"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html",
+      "bytes": 369397,
+      "sha256": "a18bfac249dc591c46f7194f25e7dc71008b4adeb406e10fbbcc9709a3162051"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html",
+      "bytes": 417088,
+      "sha256": "8588c8c950f90891138140ece59c01dc7da377044689f57cbbff0dd54408bda2"
+    }
+  ],
+  "reproducibility": {
+    "method": "build_en.py + build.py run twice in the isolated clone; sha256 of index.html and index-en.html compared",
+    "result": "identical"
+  },
+  "unchanged": {
+    "checked": "papers/src, papers/translations, README, CHANGELOG, build_en.py, qa/, reader.js, signature.svg, cover*.svg and all tracked historical dist files vs 0f23ad1",
+    "result": "unchanged (git diff --quiet + per-file blob hash equality)"
+  },
+  "commands": {
+    "build": [
+      "python3 -m pip install -r papers/requirements.txt",
+      "python3 papers/build_en.py",
+      "python3 papers/build.py",
+      "python3 papers/validate.py"
+    ],
+    "tests": [
+      "python3 papers/check_translation_alignment.py --self-test",
+      "python3 papers/qa/test_translation_gate.py",
+      "python3 papers/qa/test_reader_assets.py"
+    ],
+    "browser": [
+      "python3 -m http.server 8978 --directory papers/dist",
+      "node papers/qa/verify_reader.mjs --origin http://127.0.0.1:8978/ --out verification/qa-110 --cdp-port 19983",
+      "node tools/verify_prepublish.mjs --origin http://127.0.0.1:8978/ --out verification/run2-fixed --cdp-port 19982"
+    ],
+    "identity": [
+      "node tools/icon-specimen.mjs papers/reader identity \"signature@0f23ad1\"",
+      "node tools/shot.mjs identity/list.json identity/receipt.json"
+    ]
+  },
+  "dependencies": {
+    "python": "3.10+ (used 3.14) with markdown2==2.5.5",
+    "node": "22+ (used 25.9.0), no packages",
+    "browser": "headless Google Chrome via CDP, temporary profile, no network for the reader",
+    "fonts": "system stacks only"
+  },
+  "verification": {
+    "qa_110": {
+      "total": 110,
+      "pass": 110,
+      "fail": []
+    },
+    "prepublish_baseline_run1": {
+      "total": 50,
+      "pass": 36,
+      "fail": [
+        "zh-keyboard-details-toggle",
+        "zh-keyboard-390-details",
+        "zh-forced-colors-mapping",
+        "zh-print-system-dark-black-1440",
+        "zh-print-system-dark-black-390",
+        "zh-print-explicit-dark-color-1440",
+        "zh-print-explicit-dark-color-390",
+        "en-keyboard-details-toggle",
+        "en-keyboard-390-details",
+        "en-forced-colors-mapping",
+        "en-print-system-dark-black-1440",
+        "en-print-system-dark-black-390",
+        "en-print-explicit-dark-color-1440",
+        "en-print-explicit-dark-color-390"
+      ]
+    },
+    "prepublish_after_fix_run2": {
+      "total": 50,
+      "pass": 50,
+      "fail": []
+    },
+    "static_links": "fragment links 0 missing (zh 240 / en 240); 3–4 external GitHub links HEAD 200; chatgpt-conversation:// scheme links are source citations, not fetched",
+    "offline": "file:// load with mode+hash works; single inline stylesheet, no external scripts; network cut after load keeps mode switching"
+  },
+  "simulated_not_native": [
+    "200% zoom = 720px viewport at deviceScaleFactor 2 (device metrics), not native browser zoom",
+    "forced-colors = CDP media-feature emulation; SVG role mapping verified by computed styles, not a native Windows High Contrast render",
+    "print = CDP print media emulation + Page.printToPDF; no physical print",
+    "reduced-motion = media emulation"
+  ],
+  "not_run": [
+    "git push / workflow_dispatch / deployment",
+    "native VoiceOver, NVDA, IME",
+    "physical printing",
+    "live site byte comparison (candidate not published)",
+    "non-author acceptance"
+  ]
+}

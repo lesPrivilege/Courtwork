@@ -1,0 +1,85 @@
+{
+  "base": "0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75",
+  "unchanged": [
+    {
+      "path": "papers/dist/schema-engineering-2026-08-29.html",
+      "sha256": "aef45a6772ad6815d9525740a44b3a1e43fcb657eb7dd19fe66962197ec44fd4"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-01.html",
+      "sha256": "695a4e3a7a69b40bed45999a5c0a6f4b5301eaad025155d0a76c34931144d131"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-04.html",
+      "sha256": "83af9710a56d8e359030d576cbf7490e78262feaf961affe7694c1e73a467021"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-05.html",
+      "sha256": "3e7cb2707671e0ecde430ea3eb4b88b2acdaef1704cc6e388e357dec87b4daff"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-06.html",
+      "sha256": "e5d766f86170d0cd908d4f6db0f467c487545c12c09f93c5df5862e03af0c87d"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-10-en.html",
+      "sha256": "3b50eae25d9e5cb52baf7e5e98b3531ad87e2a41ae4c0d8340dcc9c08fd4f445"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-10.html",
+      "sha256": "bb6c87d9ed1c04dd008d285da28be7dfc03cd33574cfb45c872beffc4c575a1f"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-en.html",
+      "sha256": "976f24ea766a87729f3c26a305c5dd9c242f66894a5aeeecd267e3f530d1305a"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-reader-2026-09-11.html",
+      "sha256": "5a3ddbc90dafd61268b09fb9cdff1c9ed6a2a44bdf2befd4b213b79d427c6541"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07-v9.5.html",
+      "sha256": "e05d5849dd3539424898a4bddbd1ab2df53f64f26faae8099e15f9b47cbf7d1e"
+    },
+    {
+      "path": "papers/dist/schema-engineering-2026-09-07.html",
+      "sha256": "93ad2b128bdce45fe0fa9c61e30437091150345db4f51547aa6ec3e43ed54175"
+    },
+    {
+      "path": "papers/src/canonical.md",
+      "sha256": "9771dfce3863933db819029e8679b36bfd0933ac2028bab5b6bb2e1f73e4dc59"
+    },
+    {
+      "path": "papers/src/practice-index.md",
+      "sha256": "0ab68d37f07e33bd49c14ab42e75ee5452f1b593e0dd527200246eaf692bc894"
+    },
+    {
+      "path": "papers/src/practice.md",
+      "sha256": "cb5b106899d23429ff93e24a0470c93f8a22abb34c62c760a15426f61a39fc9d"
+    },
+    {
+      "path": "papers/translations/README.md",
+      "sha256": "60738d295933dcfa2d0f33558db564e5ae582d523ea80366e99950ee98079592"
+    },
+    {
+      "path": "papers/translations/en/canonical.md",
+      "sha256": "c6ff1f904b2b689fe525905d1f1b62c03acaf5bb7b586e9612737487a5343066"
+    },
+    {
+      "path": "papers/translations/en/practice-index.md",
+      "sha256": "5f2d9a11705c1ecce741f84cae97f3bbababa9971bd13af8c654ab501db5c88b"
+    },
+    {
+      "path": "papers/translations/en/practice.md",
+      "sha256": "5562a29c23b3256e8dee7921ec2eda886a77a66481a2e0b1484ca0e88b576379"
+    },
+    {
+      "path": "papers/translations/manifest.json",
+      "sha256": "c07526b8d5e7181ce99149481d76007c3ee930b744c46558d8e45a97a76c8367"
+    },
+    {
+      "path": "papers/translations/review-2026-09-10.md",
+      "sha256": "f0c7fdfd1dff6255e375f4bbc4b1f8d843a187bb60f425ffd1246da36c1a151d"
+    }
+  ]
+}

@@ -44,3 +44,7 @@
 用户另问CW核心icon是否可在某一横引入红色，尤其最下方短横。当前[canonical geometry](../../../brand/geometry/mark.svg)保持竖笔与长／长／短三行；最下方短横为19.2×9.6，上两横为28×9.6（64网格）。Astra建议优先比较底部短横红：其面积较小、位置较低，可在保留主体黑色的同时形成品牌强调；这是视觉判断，不是定量重心结论或已接受稿。
 
 建议保留单色宗，以固定底部短横红形成彩色品牌变体；与les Privilege的上横红建立同家族、不同角色的联系。不得根据未读数、错误或Review动态点亮品牌红。现有[品牌契约](../../../brand/CONTRACT.md)的actor／record／amendment及八个状态样板已有独立语义；后续若制作，只先在静态品牌实例比较，不一笔全局覆盖--cw-record或review颜色。本轮未修改CW canonical geometry、renderer、favicon、App或Pages。
+
+## 后续授权 · 2026-09-11
+
+用户随后明确由Claude串行施工并顺带加入Chat tab bar。CA-01已进入[正式接续工单](../../release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)，排在diff与Settings共享预览之后；当前是已授权待实现，长期分层研究仍未全裁。

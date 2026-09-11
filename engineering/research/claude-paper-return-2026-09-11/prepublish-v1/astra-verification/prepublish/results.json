@@ -1,0 +1,708 @@
+{
+  "at": "2026-09-11T12:09:57.652Z",
+  "origin": "http://127.0.0.1:8956/",
+  "results": [
+    {
+      "id": "zh-history-back",
+      "pass": true,
+      "mode": "practice",
+      "query": "practice",
+      "visible": "practice"
+    },
+    {
+      "id": "zh-history-forward",
+      "pass": true,
+      "mode": "index",
+      "query": "index"
+    },
+    {
+      "id": "zh-shared-link",
+      "pass": true,
+      "anchor": "23-完成条件必须外置",
+      "mode": "practice",
+      "top": 127.96875
+    },
+    {
+      "id": "zh-reload-keeps-position",
+      "pass": true,
+      "mode": "practice",
+      "top": 127.96875,
+      "hash": "23-完成条件必须外置"
+    },
+    {
+      "id": "zh-hash-alias-paper-index",
+      "pass": true,
+      "mode": "index"
+    },
+    {
+      "id": "zh-hash-alias-实践",
+      "pass": true,
+      "mode": "practice"
+    },
+    {
+      "id": "zh-hash-alias-practice",
+      "pass": true,
+      "mode": "practice"
+    },
+    {
+      "id": "zh-query-alias-view",
+      "pass": true
+    },
+    {
+      "id": "zh-toc-last-1440",
+      "pass": true,
+      "open": true,
+      "count": 38,
+      "inViewport": true,
+      "inToc": true,
+      "text": "六、来源登记",
+      "href": "六来源登记",
+      "landed": 128.421875
+    },
+    {
+      "id": "zh-toc-last-390",
+      "pass": true,
+      "open": true,
+      "count": 38,
+      "inViewport": true,
+      "inToc": true,
+      "text": "六、来源登记",
+      "href": "六来源登记",
+      "landed": 127.53125
+    },
+    {
+      "id": "zh-keyboard-order",
+      "pass": true,
+      "expected": [
+        "skip-link",
+        "canonical",
+        "practice",
+        "index",
+        "theme",
+        "language",
+        "toc-summary",
+        "toc-link",
+        "toc-link"
+      ],
+      "path": [
+        {
+          "tag": "A",
+          "text": "跳至论文",
+          "cls": "skip-link",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Canonical",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Practice",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Index",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "◐",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "English",
+          "cls": "language-switch",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Canonical · 章节目录",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "从通用能力到可提交工作的弱编译、工作编纂与分层治理方法",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "摘要",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "zh-keyboard-skip-link",
+      "pass": true,
+      "hash": "#reader-content",
+      "inMain": true,
+      "tag": "SUMMARY",
+      "text": "Canonical · 章节目录",
+      "cls": "",
+      "outline": "solid",
+      "width": "2px",
+      "visible": true
+    },
+    {
+      "id": "zh-keyboard-enter-mode",
+      "pass": true,
+      "mode": "practice",
+      "focus": {
+        "tag": "ARTICLE",
+        "text": "Practice · 章节目录Sparse Work Har",
+        "cls": "paper",
+        "outline": "auto",
+        "width": "1px",
+        "visible": true
+      }
+    },
+    {
+      "id": "zh-keyboard-details-toggle",
+      "pass": true,
+      "beforeToggle": {
+        "tag": "SUMMARY",
+        "open": true,
+        "mode": "practice"
+      },
+      "afterToggle": {
+        "tag": "SUMMARY",
+        "open": false
+      }
+    },
+    {
+      "id": "zh-keyboard-390-details",
+      "pass": true,
+      "narrowSummary": {
+        "tag": "SUMMARY",
+        "text": "Canonical · 章节目录",
+        "cls": "",
+        "outline": "solid",
+        "width": "2px",
+        "visible": true
+      },
+      "narrowOpen": true
+    },
+    {
+      "id": "zh-noscript-details",
+      "pass": true,
+      "visible": 3,
+      "open": true,
+      "compactCover": "block",
+      "requests": 1
+    },
+    {
+      "id": "zh-explicit-theme",
+      "pass": true,
+      "light": {
+        "canvas": "#edf1f3",
+        "bg": "rgb(237, 241, 243)",
+        "scheme": "light"
+      },
+      "dark": {
+        "canvas": "#202b32",
+        "bg": "rgb(32, 43, 50)",
+        "cover": "#2b373f"
+      }
+    },
+    {
+      "id": "zh-reduced-motion",
+      "pass": true,
+      "dur": "0s",
+      "animated": false
+    },
+    {
+      "id": "zh-motion-inventory",
+      "pass": true,
+      "transitions": []
+    },
+    {
+      "id": "zh-signature-optical03",
+      "pass": true,
+      "revision": "optical-03",
+      "transform": "translate(4.5 0)",
+      "bars": [
+        [
+          "24",
+          "12",
+          "23",
+          "7"
+        ],
+        [
+          "24",
+          "30",
+          "23",
+          "7"
+        ]
+      ]
+    },
+    {
+      "id": "zh-signature-stable-role",
+      "pass": true,
+      "light": "rgb(201, 94, 85)",
+      "dark": "rgb(201, 94, 85)",
+      "afterInkChange": "rgb(201, 94, 85)"
+    },
+    {
+      "id": "zh-forced-colors-mapping",
+      "pass": true,
+      "sysInk": "rgb(0, 0, 0)",
+      "sysCanvas": "rgb(255, 255, 255)",
+      "markTop": "rgb(0, 0, 0)",
+      "matches": true,
+      "plate": "rgb(255, 255, 255)",
+      "plateStroke": "rgb(0, 0, 0)",
+      "inkPlate": "rgb(0, 0, 0)",
+      "inkField": "rgb(0, 0, 0)",
+      "field": "rgb(255, 255, 255)",
+      "mark": "rgb(0, 0, 0)",
+      "current": "rgb(0, 0, 0)",
+      "note": "media emulation only; not a native high-contrast render"
+    },
+    {
+      "id": "zh-print-system-dark-black-1440",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "block",
+      "compact": "none",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "zh-print-system-dark-black-390",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "none",
+      "compact": "block",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "zh-print-explicit-dark-color-1440",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "block",
+      "compact": "none",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "zh-print-explicit-dark-color-390",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "none",
+      "compact": "block",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "zh-offline-after-load",
+      "pass": true,
+      "mode": "index",
+      "images": true,
+      "fonts": "loaded"
+    },
+    {
+      "id": "en-history-back",
+      "pass": true,
+      "mode": "practice",
+      "query": "practice",
+      "visible": "practice"
+    },
+    {
+      "id": "en-history-forward",
+      "pass": true,
+      "mode": "index",
+      "query": "index"
+    },
+    {
+      "id": "en-shared-link",
+      "pass": true,
+      "anchor": "23-完成条件必须外置",
+      "mode": "practice",
+      "top": 127.953125
+    },
+    {
+      "id": "en-reload-keeps-position",
+      "pass": true,
+      "mode": "practice",
+      "top": 127.953125,
+      "hash": "23-完成条件必须外置"
+    },
+    {
+      "id": "en-hash-alias-paper-index",
+      "pass": true,
+      "mode": "index"
+    },
+    {
+      "id": "en-hash-alias-实践",
+      "pass": true,
+      "mode": "practice"
+    },
+    {
+      "id": "en-hash-alias-practice",
+      "pass": true,
+      "mode": "practice"
+    },
+    {
+      "id": "en-query-alias-view",
+      "pass": true
+    },
+    {
+      "id": "en-toc-last-1440",
+      "pass": true,
+      "open": true,
+      "count": 38,
+      "inViewport": true,
+      "inToc": true,
+      "text": "VI. Source register",
+      "href": "六来源登记",
+      "landed": 128.015625
+    },
+    {
+      "id": "en-toc-last-390",
+      "pass": true,
+      "open": true,
+      "count": 38,
+      "inViewport": true,
+      "inToc": true,
+      "text": "VI. Source register",
+      "href": "六来源登记",
+      "landed": 128.21875
+    },
+    {
+      "id": "en-keyboard-order",
+      "pass": true,
+      "expected": [
+        "skip-link",
+        "canonical",
+        "practice",
+        "index",
+        "theme",
+        "language",
+        "toc-summary",
+        "toc-link",
+        "toc-link"
+      ],
+      "path": [
+        {
+          "tag": "A",
+          "text": "Skip to papers",
+          "cls": "skip-link",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Canonical",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Practice",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Index",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "BUTTON",
+          "text": "◐",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "中文",
+          "cls": "language-switch",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Canonical · Sections",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "A method of weak compilation, ",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        },
+        {
+          "tag": "A",
+          "text": "Abstract",
+          "cls": "",
+          "outline": "solid",
+          "width": "2px",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "en-keyboard-skip-link",
+      "pass": true,
+      "hash": "#reader-content",
+      "inMain": true,
+      "tag": "SUMMARY",
+      "text": "Canonical · Sections",
+      "cls": "",
+      "outline": "solid",
+      "width": "2px",
+      "visible": true
+    },
+    {
+      "id": "en-keyboard-enter-mode",
+      "pass": true,
+      "mode": "practice",
+      "focus": {
+        "tag": "ARTICLE",
+        "text": "Practice · SectionsSparse Work",
+        "cls": "paper",
+        "outline": "auto",
+        "width": "1px",
+        "visible": true
+      }
+    },
+    {
+      "id": "en-keyboard-details-toggle",
+      "pass": true,
+      "beforeToggle": {
+        "tag": "SUMMARY",
+        "open": true,
+        "mode": "practice"
+      },
+      "afterToggle": {
+        "tag": "SUMMARY",
+        "open": false
+      }
+    },
+    {
+      "id": "en-keyboard-390-details",
+      "pass": true,
+      "narrowSummary": {
+        "tag": "SUMMARY",
+        "text": "Canonical · Sections",
+        "cls": "",
+        "outline": "solid",
+        "width": "2px",
+        "visible": true
+      },
+      "narrowOpen": true
+    },
+    {
+      "id": "en-noscript-details",
+      "pass": true,
+      "visible": 3,
+      "open": true,
+      "compactCover": "block",
+      "requests": 1
+    },
+    {
+      "id": "en-explicit-theme",
+      "pass": true,
+      "light": {
+        "canvas": "#edf1f3",
+        "bg": "rgb(237, 241, 243)",
+        "scheme": "light"
+      },
+      "dark": {
+        "canvas": "#202b32",
+        "bg": "rgb(32, 43, 50)",
+        "cover": "#2b373f"
+      }
+    },
+    {
+      "id": "en-reduced-motion",
+      "pass": true,
+      "dur": "0s",
+      "animated": false
+    },
+    {
+      "id": "en-motion-inventory",
+      "pass": true,
+      "transitions": []
+    },
+    {
+      "id": "en-signature-optical03",
+      "pass": true,
+      "revision": "optical-03",
+      "transform": "translate(4.5 0)",
+      "bars": [
+        [
+          "24",
+          "12",
+          "23",
+          "7"
+        ],
+        [
+          "24",
+          "30",
+          "23",
+          "7"
+        ]
+      ]
+    },
+    {
+      "id": "en-signature-stable-role",
+      "pass": true,
+      "light": "rgb(201, 94, 85)",
+      "dark": "rgb(201, 94, 85)",
+      "afterInkChange": "rgb(201, 94, 85)"
+    },
+    {
+      "id": "en-forced-colors-mapping",
+      "pass": true,
+      "sysInk": "rgb(0, 0, 0)",
+      "sysCanvas": "rgb(255, 255, 255)",
+      "markTop": "rgb(0, 0, 0)",
+      "matches": true,
+      "plate": "rgb(255, 255, 255)",
+      "plateStroke": "rgb(0, 0, 0)",
+      "inkPlate": "rgb(0, 0, 0)",
+      "inkField": "rgb(0, 0, 0)",
+      "field": "rgb(255, 255, 255)",
+      "mark": "rgb(0, 0, 0)",
+      "current": "rgb(0, 0, 0)",
+      "note": "media emulation only; not a native high-contrast render"
+    },
+    {
+      "id": "en-print-system-dark-black-1440",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "block",
+      "compact": "none",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "en-print-system-dark-black-390",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "none",
+      "compact": "block",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "en-print-explicit-dark-color-1440",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "block",
+      "compact": "none",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "en-print-explicit-dark-color-390",
+      "pass": true,
+      "visible": 3,
+      "bodyBg": "rgb(255, 255, 255)",
+      "ink": "rgb(0, 0, 0)",
+      "field": "#e6e6e6",
+      "plate": "#fff",
+      "markL": "rgb(0, 0, 0)",
+      "markTop": "rgb(0, 0, 0)",
+      "wide": "none",
+      "compact": "block",
+      "controls": "none",
+      "maker": "flex"
+    },
+    {
+      "id": "en-offline-after-load",
+      "pass": true,
+      "mode": "index",
+      "images": true,
+      "fonts": "loaded"
+    }
+  ]
+}
