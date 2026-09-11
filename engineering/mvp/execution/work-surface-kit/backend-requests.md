@@ -115,3 +115,7 @@ BE-41后端作者实现（2026-09-10，待组合接收）：[交付与限制](..
 ## DRT-01–04 · DeepSeek与Runtime解耦候选（2026-09-11）
 
 Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile实验](../../../architecture-runtime-canon.md)登记主roadmap；使用DRT专属编号，不复用BE-40/41/42。本轮仅术语/发布准备，无runtime实现。先基本GUI与通用Harness，协议恢复沿现runtime owner，Core不吸收provider私有state。与BE-42共享遥测口径约束，真实provider按既有GUI授权路径另验；不因本文登记启动付费调用或关闭产品门。
+
+## 2026-09-12 · 延迟资源绑定前端消费
+
+[前端消费与缺口](../../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)已接入维度规则；DWB-01绑定/快照/迁移、DWB-02本地只读资源工具、DWB-03真实capability接线沿[原PR文稿](../../../research/deferred-workspace-binding-2026-09-12/pr-plan.md)推进。BE-23普通projectless Chat保持开放；未新增同义BE编号，不以现Attention global创建替代它。
