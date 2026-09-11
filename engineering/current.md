@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Presence嘴型最终收敛，待另session合并
+
+[收敛交接](design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md)按用户最终口径采用JP：静默`」`类下折角、明确thinking时原创斜下垂嘟嘴，双横眼、16px flat、当前assistant/Run工作块下方。保留旧A/B/C/AB原资产，新增两态×5尺寸SVG；Astra真实CUA复验，Luna有界核对来源/默认/拓扑。本轮在codex/agent-presence-convergence-20260912从ca91a78独立提交，由用户另session接收，不合main、不push。生产thinking事实和消息Run接线边界沿上一轮裁决。
+
 ## 2026-09-12 · Presence返件接受与消息下落位
 
 Claude原返件7fbbda6与Astra修订26eb8bb已快进接入main，限Design/specimen与证据。[真实CUA裁决](../evidence/agent-presence-review-20260912/README.md)采用A→B双横眼、16px flat；用户追加Claude Code截图后默认放当前assistant消息/Run工作块下方，替代composer状态行推荐。Astra修复真实刮条输入被旧时间覆盖及16s上限，宽窄明暗/详情滚动/Escape与19probe通过，定向17/17、局部三lint和链接通过；Luna对两处增量作有界非作者复核。生产App未接线，thinking_delta今日仅计时未投影，blocked仍fixture；七项gap裁决、终态归属、未独验200%/forced-colors/真实读屏与长期疲劳均在回执。其他writer未提交内容保留，未push/deploy。
