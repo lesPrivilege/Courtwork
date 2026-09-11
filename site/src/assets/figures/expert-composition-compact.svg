@@ -1,0 +1,14 @@
+<svg class="fig" viewBox="0 0 360 352" role="img" aria-labelledby="fig-expert-c-title fig-expert-c-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="fig-expert-c-title">Schema, Work Contract, Expert — compact</title>
+  <desc id="fig-expert-c-desc">Compact stacked view for narrow screens. An Expert composes a Work Contract and declares method, evaluation, capability requirements and presentation metadata; the Work Contract uses a Schema and states scope, inputs and outputs, evidence, completion and review requirements; the Schema is reusable alone. Composition, not containment; declaring requirements grants nothing.</desc>
+  <defs><marker id="fig-expert-c-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" /></marker></defs>
+  <text class="fig-label" x="8" y="16" font-size="11">COMPOSITION, NOT CONTAINMENT</text>
+  <g data-node="expert"><rect class="fig-node fig-centre" x="8" y="28" width="316" height="72" /><text class="fig-th" x="20" y="50" font-size="13">Expert</text><text class="fig-muted" x="20" y="70" font-size="10.5">method · eval · capability requirements</text><text class="fig-muted" x="20" y="86" font-size="10.5">surface metadata · review</text></g>
+  <line class="fig-edge" data-edge="expert-contract" x1="60" y1="102" x2="60" y2="124" marker-end="url(#fig-expert-c-arrow)" /><text class="fig-muted" x="70" y="118" font-size="10.5">composes</text>
+  <g data-node="contract"><rect class="fig-node" x="8" y="128" width="316" height="72" /><text class="fig-th" x="20" y="150" font-size="13">Work Contract</text><text class="fig-muted" x="20" y="170" font-size="10.5">scope · inputs · outputs</text><text class="fig-muted" x="20" y="186" font-size="10.5">evidence · completion · review</text></g>
+  <line class="fig-edge" data-edge="contract-schema" x1="60" y1="202" x2="60" y2="224" marker-end="url(#fig-expert-c-arrow)" /><text class="fig-muted" x="70" y="218" font-size="10.5">uses</text>
+  <g data-node="schema"><rect class="fig-node" x="8" y="228" width="316" height="72" /><text class="fig-th" x="20" y="250" font-size="13">Schema</text><text class="fig-muted" x="20" y="270" font-size="10.5">objects · relations · constraints · states</text><text class="fig-muted" x="20" y="286" font-size="10.5">reusable alone</text></g>
+  <path class="fig-trace" data-edge="expert-schema" d="M 300 102 V 116 H 340 V 250 H 328" marker-end="url(#fig-expert-c-arrow)" /><text class="fig-muted" x="334" y="216" font-size="10" text-anchor="end">may reuse directly</text>
+  <text class="fig-muted" x="8" y="326" font-size="11">declares requirements, grants nothing</text>
+  <text class="fig-muted" x="8" y="344" font-size="11">not “Schema &lt; Contract &lt; Expert” as containment</text>
+</svg>

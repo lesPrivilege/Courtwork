@@ -120,6 +120,29 @@
     "chat-carry": [
       "chat.object",
       "matter.object"
+    ],
+    "ownership": [
+      "matter.object",
+      "run.object",
+      "expert.role",
+      "model.object"
+    ],
+    "runtime-anatomy": [
+      "run.object",
+      "model.object",
+      "tool.object"
+    ],
+    "compile-commit": [
+      "expert.role",
+      "run.object",
+      "review.open",
+      "matter.object"
+    ],
+    "expert-composition": [
+      "expert.role"
+    ],
+    "expert-composition-compact": [
+      "expert.role"
     ]
   }
 }

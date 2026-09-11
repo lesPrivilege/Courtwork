@@ -1,0 +1,37 @@
+<svg class="fig" viewBox="0 0 500 220" role="img" aria-labelledby="fig-expert-title fig-expert-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="fig-expert-title">Schema, Work Contract, Expert: composition, not containment</title>
+  <desc id="fig-expert-desc">An Expert composes a Work Contract and declares method, evaluation, capability requirements and presentation (surface) metadata — never UI authority; the Work Contract uses a Schema and states scope, inputs and outputs, evidence, completion and review requirements; the Schema is reusable on its own. These are composition dependencies, not nesting: an Expert declares requirements and grants no permission.</desc>
+  <defs>
+    <marker id="fig-expert-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+  <text class="fig-label" x="8" y="16" font-size="11">COMPOSITION, NOT CONTAINMENT</text>
+  <g data-node="expert">
+    <rect class="fig-node fig-centre" x="8" y="30" width="150" height="92" />
+    <text class="fig-th" x="20" y="52" font-size="13">Expert</text>
+    <text class="fig-muted" x="20" y="72" font-size="10.5">method · eval · review</text>
+    <text class="fig-muted" x="20" y="88" font-size="10.5">capability requirements</text>
+    <text class="fig-muted" x="20" y="104" font-size="10.5">surface metadata</text>
+  </g>
+  <line class="fig-edge" data-edge="expert-contract" x1="160" y1="76" x2="184" y2="76" marker-end="url(#fig-expert-arrow)" />
+  <g data-node="contract">
+    <rect class="fig-node" x="188" y="30" width="146" height="92" />
+    <text class="fig-th" x="200" y="52" font-size="13">Work Contract</text>
+    <text class="fig-muted" x="200" y="72" font-size="10.5">scope · inputs · outputs</text>
+    <text class="fig-muted" x="200" y="88" font-size="10.5">evidence · completion</text>
+    <text class="fig-muted" x="200" y="104" font-size="10.5">review requirements</text>
+  </g>
+  <line class="fig-edge" data-edge="contract-schema" x1="336" y1="76" x2="360" y2="76" marker-end="url(#fig-expert-arrow)" />
+  <g data-node="schema">
+    <rect class="fig-node" x="364" y="30" width="126" height="92" />
+    <text class="fig-th" x="376" y="52" font-size="13">Schema</text>
+    <text class="fig-muted" x="376" y="72" font-size="10.5">objects · relations</text>
+    <text class="fig-muted" x="376" y="88" font-size="10.5">constraints · states</text>
+    <text class="fig-muted" x="376" y="104" font-size="10.5">reusable alone</text>
+  </g>
+  <path class="fig-trace" data-edge="expert-schema" d="M 83 124 V 146 H 427 V 124" marker-end="url(#fig-expert-arrow)" />
+  <text class="fig-muted" x="120" y="162" font-size="10.5">may reuse a Schema directly</text>
+  <text class="fig-muted" x="8" y="190" font-size="11">composes → · uses → · declares requirements, grants nothing</text>
+  <text class="fig-muted" x="8" y="208" font-size="11">surface = presentation metadata, not UI authority · not a containment chain</text>
+</svg>

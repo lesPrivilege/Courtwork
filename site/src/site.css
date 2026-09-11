@@ -1021,6 +1021,10 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .continuity-figure { margin-top: 36px; }
 .continuity-figure > .figure { margin: 0; }
 .continuity-figure .figure-compact { display: none; }
+.architecture-figures { margin-top: 64px; }
+.architecture-figures > .lede { max-width: 680px; }
+.architecture-figures > .figure + .figure { margin-top: 36px; }
+.architecture-figures .figure-plate .fig { max-width: 1000px; }
 .continuity-figure > .figure > figcaption { font-size: 14px; max-width: 760px; margin-top: 24px; }
 .fig .fig-sheet { fill: var(--campaign-raised); stroke: var(--campaign-rule); stroke-width: 1.2; }
 .fig .fig-sheet-candidate { fill: var(--campaign-raised); stroke: currentColor; stroke-width: 1.2; stroke-dasharray: 4 3; }

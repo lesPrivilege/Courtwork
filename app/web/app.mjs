@@ -3229,6 +3229,9 @@ function renderChatHeader() {
   // User refinement: attention and recorded activity orient Home above the
   // composer. DOM order is reading/tab order. Mobile keeps its docked composer.
   if (bandLayout && body.firstElementChild !== modules) body.prepend(modules);
+  // Stage 4 · the example banner is the first thing on Home in every layout.
+  const previewBanner = $("preview-banner");
+  if (home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
