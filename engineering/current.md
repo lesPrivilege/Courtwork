@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 成熟实践与资源治理前后端准备
+
+[RD-007](research/RD-007-resource-governance.md)消费《调研成熟实践》完整2轮/4消息、1张题录Library截图与22条原外链，Luna fast explore、Astra裁决。[前后端PR稿](research/mature-practices-2026-09-12/pr-plan.md)及[roadmap](research/mature-practices-2026-09-12/roadmap.md)沿LG/DS/BG/Runtime原owner，先来源保留/list与exact reader，再消息引用/Run版本保留/明确关联，后检索与版本注释；retention、disclosure、Core acceptance分轴，GC先只读盘点。六份一手规范/文档有限核验，其余成熟系统留候选，不引入DMS/向量库/工作流平台。本轮为叠于RD-006文档提交ebd3e52的隔离分支准备，未改产品/schema、未合主线/远端PR或部署，不重排在途writer与产品门。
+
 ## 2026-09-12 · 延迟工作区绑定研究与PR准备
 
 [RD-006](research/RD-006-deferred-workspace-binding.md)消费《探索延迟工作区绑定》完整1轮/2消息与追加5张语义截图，原件/hash入账。Luna有界探索、Astra裁定沿现有Session保留managed目录，增加显式外部资源绑定；project/global身份不热切，权限、执行位置、Git与模型分维。[DWB-01–03 PR文稿](research/deferred-workspace-binding-2026-09-12/pr-plan.md)先Runtime合同/迁移，再本地只读纵切，后入口UI；write/remote/跨project迁移后置。本轮为独立分支文档准备，未改产品、schema、部署或创建远端PR；不构成产品独立接受。

@@ -1,0 +1,44 @@
+{
+  "conversationId": "6aa41ab2-1280-83ec-a7f5-9b84139eae6f",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "messages": [
+    {
+      "turn": 1,
+      "turnId": "8a4a4441-3a3d-491c-8eb8-2dcb43b495db",
+      "messageId": "8a4a4441-3a3d-491c-8eb8-2dcb43b495db",
+      "role": "user",
+      "path": "inputs/01-user.md",
+      "truncated": false
+    },
+    {
+      "turn": 1,
+      "turnId": "8a4a4441-3a3d-491c-8eb8-2dcb43b495db",
+      "messageId": "13b33916-ad86-4eec-a587-bdad04f1c704",
+      "role": "assistant",
+      "path": "inputs/01-assistant.md",
+      "truncated": false
+    },
+    {
+      "turn": 2,
+      "turnId": "cb15f20f-efb1-440e-a12e-622b41c577dd",
+      "messageId": "cb15f20f-efb1-440e-a12e-622b41c577dd",
+      "role": "user",
+      "path": "inputs/02-user.md",
+      "truncated": false
+    },
+    {
+      "turn": 2,
+      "turnId": "cb15f20f-efb1-440e-a12e-622b41c577dd",
+      "messageId": "f90ec2ae-d221-4976-ae4c-870167c9f219",
+      "role": "assistant",
+      "path": "inputs/02-assistant.md",
+      "truncated": false
+    }
+  ],
+  "attachment": "inputs/reference-library.jpeg"
+}

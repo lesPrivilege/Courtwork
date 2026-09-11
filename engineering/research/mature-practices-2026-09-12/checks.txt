@@ -1,0 +1,8 @@
+PASS: 2 turns / 4 complete messages / 1 attachment; raw-to-extracted text equality; all source SHA-256 verified.
+Pre-sync doc links: {
+  "pass": true,
+  "documents": 1024,
+  "checked": 5058,
+  "problems": []
+}
+git diff --check: PASS.

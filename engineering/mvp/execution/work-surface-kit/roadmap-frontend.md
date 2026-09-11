@@ -63,3 +63,7 @@ CC-D0-a `30014cf` 与 r4d `5b4c981` 已按顺序无冲突组合，合流证据�
 3. **placement 由 applicability 推导**，不是选一个 toolbar variant：action 声明 `appliesTo / requiresSelection / requiresCapability / risk / frequency / preferredSurface`，再推出 fixed chrome / contextual toolbar / context menu / command palette / inspector / approval surface。
 
 另附 CC-I 第 0 项候选（EX-PG1 §3 Q1 发现，非本轮裁定）：`ui-controls.mjs` 的 `el()` 与 `app.mjs` 本地别名 `element()` 两个 element builder 共存（43 / 58 处），任何 control grammar 的机械检查与后续换族都要同时覆盖两条路径；收敛它属于 CC-I 的整备，不单独成单。
+
+## 2026-09-12 · 资源治理前端消费稿（未派发）
+
+[RG-FE-01…03](../../../research/mature-practices-2026-09-12/pr-plan.md)登记Session/Matter资源列表与Inspector、明确保留/关联动作、检索与版本注释，依[RG roadmap](../../../research/mature-practices-2026-09-12/roadmap.md)的真实读写接缝。此为后续消费输入，不重排上文历史或当前在途writer；Library不授予权限，文件卡不产生Core接受。开工重读current、frontend contract与最近实现先例，不先加全局导航/Graph或复制Finder。
