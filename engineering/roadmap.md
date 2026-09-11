@@ -223,7 +223,7 @@ R3 的任务集合表达覆盖目标，不要求第一轮并行做完。R4 的�
 | 外部agent消费 · R4，按需 | ME-07：同owner只读MCP/CLI；有用后再MCP App/tunnel；Google后置 | 同权限/版本/效力，capture只是Source；不能因外部界面扩大权限 |
 | 长期产品与学习 · R3–R5 | ME-09从第一片计成本，ME-10经权利与独立证据再编订规则/训练 | 成果质量和全生命周期净收益双门；保留失败/reversal，无PMF/训练收益不扩张 |
 
-本路线中的Spark是资料与派生维护责任名，Attention是人的筛选与动作队列；不因名称另建canonical store。Expert不等于runtime，presence/selection/working/Assignment/权限分别表达。默认Pi由T19最终讨论收敛；Codex/ACP是替换候选，Gemini/Antigravity、PTY与原生TUI后置。并行是局部瓶颈方案，未测得收益前不建DAG/多agent平台。
+[2026-09-11命名参考裁决](design/spark-surface-2026-09-10/naming-reference-2026-09-11.md)采纳稳定产品名与模型档位分层；自治控制面/自动续行仍按原ME与后端合同探索。本路线中的Spark是资料与派生维护责任名，Attention是人的筛选与动作队列；不因名称另建canonical store。Expert不等于runtime，presence/selection/working/Assignment/权限分别表达。默认Pi由T19最终讨论收敛；Codex/ACP是替换候选，Gemini/Antigravity、PTY与原生TUI后置。并行是局部瓶颈方案，未测得收益前不建DAG/多agent平台。
 
 [长期验证](research/multi-experts-2026-09-10/benchmark-plan.md)沿既有强T/S/E基线，覆盖首次摄取、增量、重建、执行、恢复、review和维护成本；tokens/cache只是分项。Long-life处理有限的机器和人的attention，不靠固定窗口大小定义价值。删除/降级/取代/压缩/过滤须保留真实义务和适用关系，外部pattern/厂商性能不自动成为SE或CW结果。
 
