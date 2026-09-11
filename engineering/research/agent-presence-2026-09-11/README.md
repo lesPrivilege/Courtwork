@@ -6,6 +6,10 @@
 
 用户已授权按Luna分层索引→Astra裁决→本地agent Design→Astra真实视觉调试执行。[正式HANDOFF](HANDOFF.md)为施工入口，[参考索引](reference-index.md)按需加载。本地agent负责独立specimen内设计和可运行返件；Astra保留后续视觉调试、模型能力瓶颈修正及生产接线。此分工覆盖下文早期AP-02作者安排；AP-03/04尚待返件。
 
+## 2026-09-12 · 返件接收与用户落位修订
+
+Claude返件7fbbda6已由Astra真实CUA审阅，修复刮条丢输入/16s上限。用户追加Claude Code截图后，采用A→B双横眼、16px flat并默认置于当前assistant消息/Run工作块下方，composer line保留对照。[本轮裁决、七项gap及证据](../../../evidence/agent-presence-review-20260912/README.md)覆盖早期placement推荐。返件与审阅修订为Design/specimen交付，尚未改生产App；thinking活动事实接线仍开放。
+
 ## 来源与完整性
 
 来源会话《探索机器人形象实践》，ID `6aa418c3-ed6c-83ec-9788-91c7275fa632`。接口返回9轮17消息、hasMore=false，消息无truncated标记；其中一轮只有用户消息。保存[原始消息快照](conversation.json)与[用户截图](attachments/IMG_2431.jpeg)，快照仅将临时附件路径改为包内路径。哈希见 [SHA256SUMS](SHA256SUMS)。

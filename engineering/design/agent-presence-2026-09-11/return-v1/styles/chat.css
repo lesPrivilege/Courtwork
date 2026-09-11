@@ -148,3 +148,24 @@ body { overflow: hidden; }
 @media (max-width: 767px) {
   .composer-context > .presence-trigger { max-width: 132px; }
 }
+
+
+/* Message: one run-scoped status beneath the latest assistant work block.
+   It scrolls with that block; the composer keeps only its input guidance. */
+.presence-message {
+  max-width: var(--column);
+  margin: var(--space-3) auto 0;
+  min-width: 0;
+}
+.presence-message[hidden] { display: none; }
+.presence-message > .presence-trigger {
+  max-width: 100%;
+  min-height: 32px;
+  margin-left: -4px;
+  font-size: var(--text-body);
+}
+.presence-message > .presence-detail {
+  position: static;
+  width: min(360px, 100%);
+  margin-top: var(--space-2);
+}

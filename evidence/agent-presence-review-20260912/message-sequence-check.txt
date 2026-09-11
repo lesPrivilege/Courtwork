@@ -1,0 +1,277 @@
+Browser tab: 1, Title: "Agent presence · return-v1 specimen", URL: "http://127.0.0.1:8894/engineering/design/agent-presence-2026-09-11/return-v1/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 77, 169, 172, 175, 178, 181, 184
+~			72 button Play, ID: play
+~				76 slider (settable, integer) t, Value: 0
++				241 text 0 ms
++				242 text Thinking
++				243 text Thinking
++				244 text Thinking
++				245 text Thinking
++				246 text Thinking
++				247 text Thinking
++					248 text Thinking
++			249 container check-out
++				250 text 19/19 probes pass.
++				251 table
++					252 row
++						253 cell
++							254 text sequence
++						255 cell
++							256 text step
++						257 cell
++							258 text t (ms)
++						259 cell
++							260 text pose
++						261 cell
++							262 text text
++						263 cell
++							264 text result
++					265 row
++						266 cell
++							267 text think-tool-permission-resume-complete
++						268 cell
++							269 text thinking
++						270 cell
++							271 text 50
++						272 cell
++							273 text think
++						274 cell
++							275 text Thinking
++						276 cell
++							277 text pass
++					278 row
++						279 cell
++							280 text think-tool-permission-resume-complete
++						281 cell
++							282 text thinking
++						283 cell
++							284 text 3600
++						285 cell
++							286 text think
++						287 cell
++							288 text Considering
++						289 cell
++							290 text pass
++					291 row
++						292 cell
++							293 text think-tool-permission-resume-complete
++						294 cell
++							295 text tool-reading
++						296 cell
++							297 text 4250
++						298 cell
++							299 text look
++						300 cell
++							301 text ws_read · app/web/composer-field.mjs
++						302 cell
++							303 text pass
++					304 row
++						305 cell
++							306 text think-tool-permission-resume-complete
++						307 cell
++							308 text waiting-permission
++						309 cell
++							310 text 6150
++						311 cell
++							312 text hold
++						313 cell
++							314 text Waiting for your approval
++						315 cell
++							316 text pass
++					317 row
++						318 cell
++							319 text think-tool-permission-resume-complete
++						320 cell
++							321 text waiting-permission
++						322 cell
++							323 text 9700
++						324 cell
++							325 text hold
++						326 cell
++							327 text Waiting for your approval
++						328 cell
++							329 text pass
++					330 row
++						331 cell
++							332 text think-tool-permission-resume-complete
++						333 cell
++							334 text thinking
++						335 cell
++							336 text 9850
++						337 cell
++							338 text think
++						339 cell
++							340 text Thinking
++						341 cell
++							342 text pass
++					343 row
++						344 cell
++							345 text think-tool-permission-resume-complete
++						346 cell
++							347 text completed
++						348 cell
++							349 text 13350
++						350 cell
++							351 text settle
++						352 cell
++							353 text Completed
++						354 cell
++							355 text pass
++					356 row
++						357 cell
++							358 text think-tool-permission-resume-complete
++						359 cell
++							360 text completed
++						361 cell
++							362 text 16900
++						363 cell
++							364 text settle
++						365 cell
++							366 text Completed
++						367 cell
++							368 text pass
++					369 row
++						370 cell
++							371 text think-cancel-requested-cancelled
++						372 cell
++							373 text thinking
++						374 cell
++							375 text 50
++						376 cell
++							377 text think
++						378 cell
++							379 text Thinking
++						380 cell
++							381 text pass
++					382 row
++						383 cell
++							384 text think-cancel-requested-cancelled
++						385 cell
++							386 text cancel-requested
++						387 cell
++							388 text 3350
++						389 cell
++							390 text hold
++						391 cell
++							392 text Stop requested · still working
++						393 cell
++							394 text pass
++					395 row
++						396 cell
++							397 text think-cancel-requested-cancelled
++						398 cell
++							399 text cancelled
++						400 cell
++							401 text 5650
++						402 cell
++							403 text rest
++						404 cell
++							405 text Cancelled
++						406 cell
++							407 text pass
++					408 row
++						409 cell
++							410 text think-cancel-requested-cancelled
++						411 cell
++							412 text cancelled
++						413 cell
++							414 text 9200
++						415 cell
++							416 text rest
++						417 cell
++							418 text Cancelled
++						419 cell
++							420 text pass
++					421 row
++						422 cell
++							423 text tool-disconnect-unknown
++						424 cell
++							425 text tool-searching
++						426 cell
++							427 text 50
++						428 cell
++							429 text look
++						430 cell
++							431 text ws_grep · "presence" in app/web
++						432 cell
++							433 text pass
++					434 row
++						435 cell
++							436 text tool-disconnect-unknown
++						437 cell
++							438 text disconnected-unknown
++						439 cell
++							440 text 3450
++						441 cell
++							442 text dim
++						443 cell
++							444 text Connection unknown
++						445 cell
++							446 text pass
++					447 row
++						448 cell
++							449 text tool-disconnect-unknown
++						450 cell
++							451 text disconnected-unknown
++						452 cell
++							453 text 7000
++						454 cell
++							455 text dim
++						456 cell
++							457 text Connection unknown
++						458 cell
++							459 text pass
++					460 row
++						461 cell
++							462 text concurrent-tools-partial
++						463 cell
++							464 text tools-concurrent
++						465 cell
++							466 text 50
++						467 cell
++							468 text look
++						469 cell
++							470 text 2 tools running
++						471 cell
++							472 text pass
++					473 row
++						474 cell
++							475 text concurrent-tools-partial
++						476 cell
++							477 text inline facts
++						478 cell
++							479 text 2650
++						480 cell
++							481 text look
++						482 cell
++							483 text ws_grep · "composer-run-hint" in app/web
++						484 cell
++							485 text pass
++					486 row
++						487 cell
++							488 text concurrent-tools-partial
++						489 cell
++							490 text thinking
++						491 cell
++							492 text 5050
++						493 cell
++							494 text think
++						495 cell
++							496 text Thinking
++						497 cell
++							498 text pass
++					499 row
++						500 cell
++							501 text concurrent-tools-partial
++						502 cell
++							503 text thinking
++						504 cell
++							505 text 8600
++						506 cell
++							507 text think
++						508 cell
++							509 text Considering
++						510 cell
++							511 text pass
+The focused UI element is 240 button Run check, ID: run-check

@@ -154,11 +154,17 @@ function applyFacts() {
   $("t-out").textContent = `${Math.round(clock.now())} ms`;
 }
 
+function paintTime(t) {
+  // Keep the scrubber's reachable range aligned with a long-running preview.
+  form.elements.t.max = Math.max(16000, Math.ceil(t / 16000) * 16000);
+  form.elements.t.value = t;
+  $("t-out").textContent = `${Math.round(t)} ms`;
+}
+
 function setTime(t) {
   clock.set(t);
   scene?.clock.set(t);
-  form.elements.t.value = t;
-  $("t-out").textContent = `${Math.round(t)} ms`;
+  paintTime(t);
 }
 
 function setPlaying(playing) {
@@ -184,8 +190,10 @@ form.addEventListener("change", (event) => {
 // Placement and width sit beside the scene but belong to this form (form=).
 for (const input of document.querySelectorAll('input[form="controls"]')) input.addEventListener("change", applyOptions);
 form.elements.t.addEventListener("input", () => {
+  // Pausing repaints the old clock value. Capture the user's target first.
+  const requestedTime = Number(value("t"));
   setPlaying(false);
-  setTime(Number(value("t")));
+  setTime(requestedTime);
 });
 form.addEventListener("submit", (e) => e.preventDefault());
 $("play").addEventListener("click", () => setPlaying(clock.paused));
@@ -193,8 +201,7 @@ $("restart").addEventListener("click", () => setTime(0));
 setInterval(() => {
   if (!clock.playing) return;
   const t = clock.now();
-  form.elements.t.value = Math.min(t, 16000);
-  $("t-out").textContent = `${Math.round(t)} ms`;
+  paintTime(t);
 }, 100);
 
 /* ---- 4 · sequence check -------------------------------------------------- */

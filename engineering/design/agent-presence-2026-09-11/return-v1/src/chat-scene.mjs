@@ -1,6 +1,7 @@
 // Agent presence · Chat scene driver (return-v1 specimen).
 //
-// Puts one presence into a synthetic Chat, in one of two placements:
+// Puts one presence into a synthetic Chat, in one of three placements:
+//   message — below the current assistant work block (user revision 2026-09-12)
 //   line   — the composer's long-running status line (today: composer-run-hint)
 //   corner — the composer's bottom-left corner, ahead of Files and the model
 // The scene shows no engineering control. index.html drives it through
@@ -25,6 +26,7 @@ const els = {
   form: $("composer-form"),
   line: $("presence-line"),
   context: $("composer-context"),
+  message: $("presence-message"),
   trigger: $("presence-trigger"),
   mark: $("presence-mark"),
   text: $("presence-text"),
@@ -38,10 +40,10 @@ const els = {
   hint: $("presence-hint"),
 };
 
-const DEFAULT_SIZE = { line: 16, corner: 20 };
+const DEFAULT_SIZE = { message: 16, line: 16, corner: 20 };
 const config = {
   candidate: q.get("candidate") || "AB",
-  placement: q.get("placement") === "corner" ? "corner" : "line",
+  placement: ["line", "corner"].includes(q.get("placement")) ? q.get("placement") : "message",
   material: q.get("material") || "flat",
   size: Number(q.get("size")) || null,
   seed: Number(q.get("seed") ?? wordsDoc.seed),
@@ -83,8 +85,14 @@ function currentFacts() {
 function place() {
   const { placement } = config;
   document.body.dataset.placement = placement;
-  if (placement === "corner") els.context.prepend(els.trigger);
-  else els.line.prepend(els.trigger);
+  if (placement === "message") {
+    els.message.prepend(els.trigger);
+    els.message.append(els.detail);
+  } else {
+    if (placement === "corner") els.context.prepend(els.trigger);
+    else els.line.prepend(els.trigger);
+    els.form.append(els.detail);
+  }
   lastKey = null; // repaint visibility for the new slot
   view.wake();
 }
@@ -102,7 +110,9 @@ function onFrame(frame) {
 
   // Line placement exists only while there is something to say (as today's
   // run hint); the corner keeps the face at rest as the chat's identity.
-  els.line.hidden = config.placement === "line" ? projection.key === "idle" : true;
+  els.message.hidden = config.placement !== "message" || projection.key === "idle";
+  els.line.hidden = config.placement === "line" ? projection.key === "idle" : config.placement === "message" ? !active : true;
+  if (projection.key === "idle") setOpen(false);
   els.trigger.setAttribute("aria-label", `${projection.announce}. Work details`);
 
   els.stop.hidden = !active;
@@ -134,7 +144,7 @@ function setOpen(open, { returnFocus = false } = {}) {
   if (!open && returnFocus) els.trigger.focus();
 }
 els.trigger.addEventListener("click", () => setOpen(els.detail.hidden));
-els.form.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !els.detail.hidden) {
     event.preventDefault();
     setOpen(false, { returnFocus: els.detail.contains(document.activeElement) || document.activeElement === els.trigger });
