@@ -24,7 +24,11 @@ installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
 import { createChatPage } from "./chat-page.mjs";
-import { createPreviewLayer, PreviewRefusal } from "./preview-layer.mjs";
+import {
+  createPreviewLayer,
+  PreviewRefusal,
+  shouldBypassPreviewStats,
+} from "./preview-layer.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
@@ -90,6 +94,8 @@ const UI_STORAGE_KEY = "schema-engineering.ui.v6";
  * recorded synthetic story and writes against example objects are refused
  * locally. Host facts, the data directory and every real object stay real. */
 const preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });
+const PREVIEW_ACTIVE_COPY = "Explore an example workspace. Your first real run closes the example.";
+const PREVIEW_OFFER_COPY = "Explore an example workspace. It creates nothing.";
 const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 // WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
@@ -4939,6 +4945,12 @@ function homeProjectId() {
   const own = state.projects.filter((project) => !project.preview);
   return own.find((project) => project.id === preferred)?.id || own[0]?.id || null;
 }
+function previewStatsRequestOptions() {
+  const realProjectCount = state.projects.filter((project) => !project.preview).length;
+  return shouldBypassPreviewStats({ previewActive: preview.active, realProjectCount })
+    ? { bypassPreview: true }
+    : {};
+}
 function renderHomeComposerContext() {
   const project = $("home-project-input");
   const own = state.projects.filter((item) => !item.preview);
@@ -5162,6 +5174,11 @@ async function submitSessionRun({ commandId = null } = {}) {
     state.pendingRuns.delete(sessionId);
     if (state.activeSessionId === sessionId && result.run?.id)
       mergeRun(result.run, { sessionId, preserveStatus: true });
+    // A matching 2xx receipt establishes the person's real work identity. The
+    // run may still be running or waiting on a person, so do this at admission
+    // rather than waiting for a terminal event.
+    if (preview.active && !preview.isExampleId(sessionId))
+      await leavePreview("established");
     const cleared = clearSubmittedDraft(operation);
     // WS-08: storage does not depend on which session is active — write the
     // outcome into this session's own feedback bucket regardless, so a
@@ -5493,7 +5510,7 @@ async function loadHomeActivity() {
   target.loading = true; target.error = null;
   if (state.view === "home") renderHomeState();
   try {
-    const data = await request(`/work-activity?days=${days}`);
+    const data = await request(`/work-activity?days=${days}`, previewStatsRequestOptions());
     if (!toHomeActivity(data, days)) throw new Error("Unsupported activity records.");
     if (own === target.generation) target.data = data;
   } catch (error) {
@@ -5579,7 +5596,7 @@ async function loadHome(key = null, offset = 0) {
   };
   if (key) query.set(names[key], String(offset));
   try {
-    const data = await request(`/work-summary?${query}`);
+    const data = await request(`/work-summary?${query}`, previewStatsRequestOptions());
     if (own !== state.home.generation) return;
     if (key && state.home.data) {
       const previous = state.home.data[key];
@@ -6789,6 +6806,8 @@ function renderPreviewChrome() {
   const home = state.view === "home" && !state.attentionOpen && !state.chatOpen && !settingsOpen;
   $("preview-chip").hidden = !preview.active || settingsOpen;
   const banner = $("preview-banner");
+  $("preview-banner-active").querySelector(".preview-banner-text").textContent = PREVIEW_ACTIVE_COPY;
+  $("preview-banner-offer").querySelector(".preview-banner-text").textContent = PREVIEW_OFFER_COPY;
   const offer = !preview.active && preview.available && !state.projects.length;
   banner.hidden = !home || !(preview.active || offer);
   banner.dataset.mode = preview.active ? "active" : "offer";

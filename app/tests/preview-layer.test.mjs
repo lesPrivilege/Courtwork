@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createPreviewLayer, PREVIEW_STORAGE_KEY, PreviewRefusal, requestKey } from "../web/preview-layer.mjs";
+import { createPreviewLayer, PREVIEW_STORAGE_KEY, PreviewRefusal, requestKey, shouldBypassPreviewStats } from "../web/preview-layer.mjs";
 
 const ROOT = path.resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const samples = JSON.parse(readFileSync(path.join(ROOT, "app/web/samples/preview/responses.json"), "utf8"));
@@ -76,6 +76,28 @@ test("writes: drafts on example chats are a no-op, every other write against an 
   assert.equal(l.intercept("/sessions", { method: "POST", body: { projectId: "real" } }), null);
   assert.equal(l.intercept("/projects", { method: "POST", body: { name: "Mine" } }), null);
   assert.equal(l.intercept("/sessions/real/runs", { method: "POST", body: {} }), null);
+});
+
+test("mutation bodies cannot target an example object through an ID-free route", async () => {
+  const { l } = await layer();
+  l.enter();
+  const session = l.intercept("/sessions", {
+    method: "POST",
+    body: { projectId: exampleProject, title: "Should stay local" },
+  });
+  assert.ok(session.refuse instanceof PreviewRefusal);
+  const nested = l.intercept("/sessions/real-session/runs", {
+    method: "POST",
+    body: { input: "continue", supersedes: exampleSession },
+  });
+  assert.ok(nested.refuse instanceof PreviewRefusal);
+  assert.equal(l.intercept("/sessions", { method: "POST", body: { projectId: "real-project" } }), null);
+});
+
+test("aggregate preview reads are bypassed only after real project context exists", () => {
+  assert.equal(shouldBypassPreviewStats({ previewActive: true, realProjectCount: 0 }), false);
+  assert.equal(shouldBypassPreviewStats({ previewActive: true, realProjectCount: 1 }), true);
+  assert.equal(shouldBypassPreviewStats({ previewActive: false, realProjectCount: 1 }), false);
 });
 
 test("exit: an admitted real run establishes the workspace for good; leaving by hand only remembers 'off' and can be reopened", async () => {
