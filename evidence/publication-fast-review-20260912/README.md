@@ -19,7 +19,7 @@ The user-approved complete fictional commercial product framing remains in force
 | Public projection and capture policy tests | 5/5 PASS |
 | Main/figures/preferences browser suite | 69/69 PASS; [results](browser-home.json), [raw log](browser-home.log) |
 | Product pages browser suite | 36/36 PASS; [results](browser-product.json), [raw log](browser-product.log) |
-| Documentation links after site README cleanup | 1037 documents / 5127 links, PASS |
+| Documentation links after site README cleanup | 1038 documents / 5149 links, PASS |
 
 Astra visually inspected fresh rendered Tour/Get/CLI/Changelog/Models/Data screens and the full home overview. The full-page screenshot is not proof that the lazy iframe was loaded at capture time; the browser suite separately scrolls to and verifies the specimen's seven steps. Browser preference/viewport emulations retain their tested scope and do not claim AppKit, physical zoom or assistive-technology acceptance.
 
@@ -31,4 +31,4 @@ Observed remote `main` was `ec240e7a3ff06ba25d4d9e8d1bc82ad45786d0ab`, an ancest
 
 The user subsequently explicitly instructed publication, cancelling the optional Spark data injection. Push/deployment outcome will be recorded separately after the final clean-copy checks. Existing 8804 validation service stays available for the user's next-round API verification.
 
-Independent scopes and Paper alignment: [Luna review](luna-review.md). User-authorized RD-007 `cf9ce49` is merged with eight original-source hashes verified; it changes research only. Next-node Harness indexing is separately prepared for the user’s independent review/order decision and does not authorize runtime implementation.
+Independent scopes and Paper alignment: [Luna review](luna-review.md). User-authorized RD-007 `cf9ce49` is merged with eight original-source hashes verified; it changes research only. The [next-node Harness index](../../engineering/release/harness-next-node-2026-09-12/README.md) is prepared for the user’s independent review/order decision and does not authorize runtime implementation.
