@@ -1,8 +1,8 @@
 # 当前工程状态
 
-## 2026-09-11 · Claude v3接收与Pages集成
+## 2026-09-11 · Claude v3接收与Pages已发布
 
-[v3原件与Astra裁定](research/se-control-design-return-2026-09-11/v3/README.md)固定完整231文件及作者不完整ZIP。选择P1-2/P2-3，修正旧候选版本和运行记录措辞，接Home/Tour宽窄图；按用户追加要求Hero补Attention红Paper按钮。A/B剩余工程图排布、DR-02–05和Runtime门未关闭。[集成证据](../evidence/pages-v3-20260911/README.md)记录测试与非作者复核；本段为集成记录，线上状态以发布回执为准。
+[v3原件与Astra裁定](research/se-control-design-return-2026-09-11/v3/README.md)固定完整231文件及作者不完整ZIP。选择P1-2/P2-3，修正旧候选版本和运行记录措辞，接Home/Tour宽窄图；按用户追加要求Hero补Attention红Paper按钮。A/B剩余工程图排布、DR-02–05和Runtime门未关闭。[集成证据](../evidence/pages-v3-20260911/README.md)记录测试与非作者复核；b9dc3f6已合推，手动部署34583848361成功；6项线上字节与发布构建一致，见[发布回执](../evidence/pages-v3-20260911/publication.md)。
 
 ## 2026-09-11 · Work临时能力研究输入
 

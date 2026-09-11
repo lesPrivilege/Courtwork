@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-09-11T09:23:53.003529+00:00",
+  "base": "https://lesprivilege.github.io/Courtwork/",
+  "deploymentRun": 34583848361,
+  "deployedCommit": "b9dc3f63ef1e26c10b6fb042228fd54be2c92262",
+  "site_sha": "15f9d5be4189f8b152c3ad64d64d7ab1e888b773c5de842e8dee0327724a8b0e",
+  "files": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 61935,
+      "sha256": "b5c30df954e4f0d0957b5d9528196fcff8d7815c1a73cc8d23258697a2aa1470",
+      "matchesLocal": true
+    },
+    {
+      "path": "tour.html",
+      "status": 200,
+      "bytes": 22092,
+      "sha256": "de9d195a8c9d74225b75a00f90d4c27581549b3f50127b41e1b718dc6f5adbb7",
+      "matchesLocal": true
+    },
+    {
+      "path": "site.css",
+      "status": 200,
+      "bytes": 45292,
+      "sha256": "0448a113b76b5613a3863ea1e5053f9e8dfd5a33247df37aea273cfdb7793ddd",
+      "matchesLocal": true
+    },
+    {
+      "path": "build-manifest.json",
+      "status": 200,
+      "bytes": 19997,
+      "sha256": "6fee952476810feac6a771bb001b5a657222ac517cb6d21f3a0b1e4330b43cd3",
+      "matchesLocal": true
+    },
+    {
+      "path": "media/manifest.json",
+      "status": 200,
+      "bytes": 10832,
+      "sha256": "c33deb18622bcd85f552ffd876d711cc90d6bc08c067b73c32e26c7cb1c9934d",
+      "matchesLocal": true
+    },
+    {
+      "path": "media/main/manifest.json",
+      "status": 200,
+      "bytes": 38325,
+      "sha256": "480caf5ce2730657580afb97caab7e2329d158e5a0455955e7839ecadec61142",
+      "matchesLocal": true
+    }
+  ]
+}
