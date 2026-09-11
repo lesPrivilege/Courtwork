@@ -290,7 +290,7 @@ function researchFigures() {
     <div class="long-work-stages">
       <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
       <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
-      <section><p class="index">EXPERTS & RUNTIME</p><h3>Roles compose.</h3><p>Expert 定义责任，Runtime 承担执行。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
+      <section><p class="index">EXPERTS & EXECUTION</p><h3>Roles compose.</h3><p>Expert 定义责任，执行配置承载这项工作。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
     </div>
     <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
   </section>`;

@@ -227,12 +227,12 @@
       "source": {
         "file": "site/src/assets/figures/roles.svg",
         "basis": "file",
-        "sha256": "da39235d315795bb44b4cdd4fedaa2cfafa8a1eede012f06737c4a1d40d3e604"
+        "sha256": "a6ec15e1d79c19e3e443186ebde1ece956043c43a378ad69e00d07eedc211901"
       },
       "mount": "data-figure",
       "red": null,
       "reducedMotion": "static",
-      "alt": "Research sketch: three swappable methods (Expert), one applied to the same Matter; below, one runtime in use and two empty, unconnected slots to verify when needed.",
+      "alt": "Research sketch: three swappable methods (Expert), one applied to the same Matter; below, one execution configuration in use and two empty, unconnected slots to verify when needed.",
       "audit": {
         "verdict": "new",
         "reason": "WO item 3 · ROLES & EXECUTION; one execution configuration is active; public labels omit the implementation name. No point needs a person, so no red."
