@@ -7,6 +7,10 @@
 - **作者 / 模型**：Claude Opus 5（`claude-opus-5`），Claude Code 本地 agent。
 - **写权**：只新增本目录。没有修改 `app/`、`brand/`、`site/`、语义 registry、Spark/Attention glyph 或 `engineering/current.md`。
 
+## 2026-09-12 · 最终设计收敛（待另session合并）
+
+最终默认候选 **JP / Quiet corner → sloping pout**：静默使用原创`」`类下折角，thinking使用不对称斜下垂嘟嘴；双横眼，16px flat，消息/Run工作块下方。旧AB及A/B/C保留历史，不再是默认。详见 [CONVERGENCE.md](CONVERGENCE.md)，该文件包含另一session可直接使用的合并与接线边界。最新独立分支从ca91a78建立，本轮未合main/未push。
+
 ## 2026-09-12 · Astra接收修订
 
 原作者版本固定7fbbda6，以下作者记录保留历史归因。Astra真实CUA修复刮条丢失输入与16s上限；用户追加Claude Code截图后，默认落位改为当前assistant消息/工作块下方，新增 `placement=message`（默认），line/corner仅对照。详情随消息正常流展开，Escape返回trigger。几何和状态采样保持；[Astra裁决与本轮证据](../../../../evidence/agent-presence-review-20260912/README.md)为最新采用口径，覆盖下文作者的line推荐。当前本目录SHA256SUMS对应修订文件；原56文件清单及7fbbda6原提交可召回。未接入App生产面。
@@ -22,11 +26,11 @@ node engineering/design/agent-presence-2026-09-11/return-v1/tools/serve.mjs --po
 然后打开：
 
 - 工具面：`http://127.0.0.1:8893/engineering/design/agent-presence-2026-09-11/return-v1/`
-- 独立 Chat 场景：`…/return-v1/chat.html?candidate=AB&placement=line&state=thinking&t=1400&theme=dark`
+- 独立 Chat 场景：`…/return-v1/chat.html?candidate=JP&placement=message&state=thinking&t=1400&theme=dark`
 
 server 零依赖，只绑定 127.0.0.1，只读服务仓库根目录（场景直接引用 `app/web/vendor/icons.svg`）。不需要 provider、凭据或外部字体，也没有 analytics。
 
-URL 参数（仅 `chat.html`）：`candidate` = `A|B|C|AB|AB:`，`placement` = `message|line|corner`，`state` = fixture id，`sequence` = 序列 id，`t` = 固定毫秒（给出即暂停；加 `play=1` 则从该时刻播放），`theme` = `light|dark`，`rm=1`，`seed`，`interval`，`material` = `flat|soft`，`size`，`depth=off`。
+URL 参数（仅 `chat.html`）：`candidate` = `JP|A|B|C|AB|AB:`，`placement` = `message|line|corner`，`state` = fixture id，`sequence` = 序列 id，`t` = 固定毫秒（给出即暂停；加 `play=1` 则从该时刻播放），`theme` = `light|dark`，`rm=1`，`seed`，`interval`，`material` = `flat|soft`，`size`，`depth=off`。
 
 工具面控件：候选、材质、明暗、reduced-motion、深度不支持、状态/序列、播放/暂停/重来、时间刮条、seed、词间隔、落位、场景宽度（1440/1280/390），以及序列自检。以上控件都只在工具面；Chat 场景里没有任何工程参数。
 
@@ -39,7 +43,7 @@ URL 参数（仅 `chat.html`）：`candidate` = `A|B|C|AB|AB:`，`placement` = `
 | 路径 | 内容 |
 |---|---|
 | `index.html`、`src/specimen.mjs`、`styles/specimen.css` | 工具面：比较板、动效台、嵌入的 Chat 场景、序列自检 |
-| `chat.html`、`src/chat-scene.mjs`、`styles/chat.css` | 完整 Chat 场景（按 `a3a337f` 的 shell/stream/composer 规则复刻），含两种落位与详情展开 |
+| `chat.html`、`src/chat-scene.mjs`、`styles/chat.css` | 完整 Chat 场景（按 `a3a337f` 的 shell/stream/composer 规则复刻），含三种落位与详情展开 |
 | `src/geometry.mjs` | 几何源：候选、光学笔重、pose 采样 `sample(pose, elapsed, {seed, reducedMotion})`、路径与材质层 |
 | `src/projection.mjs` | 纯投影：fixture 事实 → pose / 文案 / 读屏 / 详情；氛围词采样 |
 | `src/model.mjs`、`src/sequence.mjs`、`src/clock.mjs`、`src/presence.mjs` | 帧模型（无时钟）、序列重放、可冻结时钟、DOM 视图 |

@@ -25,6 +25,24 @@ export const EYES = {
 
 /* Mouths. The source symbol names topology only; the drawing is original. */
 export const MOUTHS = {
+  // Final quiet mouth: open at the top, a straight stem and lower return.
+  // The `」` reference supplies topology only; no upper bracket arm.
+  corner: [
+    [18.4, 7.0],
+    [18.4, 8.3], [18.4, 9.7], [18.4, 11.0],
+    [18.4, 12.6], [18.4, 14.2], [18.4, 15.8],
+    [18.4, 16.9], [17.9, 17.4], [16.8, 17.4],
+    [15.9, 17.4], [15.0, 17.4], [14.1, 17.4],
+  ],
+  // Original sloping pout: a smaller upper lip and heavier hanging lower lip.
+  // Asymmetric curved entry replaces the old flat `Ʒ` cap/diagonal.
+  pout: [
+    [15.0, 7.7],
+    [17.6, 7.8], [19.0, 8.6], [18.5, 10.4],
+    [18.2, 11.4], [16.9, 11.7], [16.5, 12.4],
+    [19.1, 12.1], [20.0, 13.9], [19.0, 15.8],
+    [18.1, 17.5], [16.2, 18.1], [14.7, 17.8],
+  ],
   // A · calm bracket-arc, between `]` and `)`: two short returns, one straight
   // vertical, corners opened to a 1.6-unit radius.
   bracket: [
@@ -58,6 +76,7 @@ export const MOUTHS = {
  * thinking fact morphs toward. A/B/C keep one mouth each (the comparison);
  * `AB` is the recommended route: A at rest, B while thinking. */
 export const CANDIDATES = {
+  JP: { id: "presence-corner-pout", name: "Quiet corner → sloping pout", eyes: "bars", rest: "corner", think: "pout" },
   A: { id: "presence-a-bracket", name: "A · calm bracket", eyes: "bars", rest: "bracket", think: "bracket" },
   B: { id: "presence-b-ezh", name: "B · geometric droop", eyes: "bars", rest: "ezh", think: "ezh" },
   C: { id: "presence-c-epsilon", name: "C · soft droop", eyes: "bars", rest: "epsilon", think: "epsilon" },

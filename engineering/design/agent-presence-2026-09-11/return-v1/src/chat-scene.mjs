@@ -42,7 +42,7 @@ const els = {
 
 const DEFAULT_SIZE = { message: 16, line: 16, corner: 20 };
 const config = {
-  candidate: q.get("candidate") || "AB",
+  candidate: q.get("candidate") || "JP",
   placement: ["line", "corner"].includes(q.get("placement")) ? q.get("placement") : "message",
   material: q.get("material") || "flat",
   size: Number(q.get("size")) || null,
