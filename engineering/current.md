@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-11 · Fable部分接收、Paper发布结案与Pages同红
+
+按用户要求由Luna独立审阅Fable限额前候选，先接收图标阶段2c7d181及90d7b65测试同步；Astra审小diff，组合19/19通过，主线集成为6292105。Stage2 Chat与Stage3控件仍有未提交进展，未作为完整返件接收；Stage4统一preview、Stage5工程图/最终媒体及1440展开工作面实机/完整证据继续开放。[部分接受与后续](release/ui-publication-closure-2026-09-11/ACCEPTANCE.md)保留精确来源、失败修正、模拟native边界和新增Settings参考采用/排除项。
+
+Paper reader独立结案：Schema-Engineering main/origin为026d5cb，Actions34612639655已build/deploy成功，Luna线上HTTP/hash/入口/fragment核对通过，用户明确目验接受；不重复部署，不改变Paper9.6语义基线。CW Pages普通Paper按钮从Review角色拆开，采用9bdbb55浅深同红#c95e55与深墨字，对比4.529:1；Review/danger/diff保持用途。此为CW主线修正，尚未重新部署CW；Astra最终computer use留给完整UI收尾。
+
 ## 2026-09-11 · Spark有界工作与首个适配目标
 
 [Spark产品与发布定义](research/spark-product-definition-2026-09-11/README.md)消费《Gemini Spark 产品解析》4轮7消息及用户直接补充：快速有界的整理、抽取、分类、翻译，后台准备与直接唤起并存；第一阶段是复用Harness Core的受限execution profile，DeepSeek V4.1 Flash为首个适配/评测目标。复用权限机制但限制授权范围，保留Run/恢复/来源记录，模型能力上限不授予执行权限。自然文案、同一示例中的局部翻译及三面并置已纳入现Claude ONE-SHOT；不新增writer或改旧ZIP。已完成一次有限官方来源读取，用户随后要求直接消费，不再扩展核验。本轮仅定义/来源登记，无生产catalog或runtime改动，无真实provider调用或部署；不改变SP/BE-41既有接受。
