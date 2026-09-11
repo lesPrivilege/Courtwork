@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Spark与Attention产品形象重设计
+
+用户指出两枚导航glyph偏工程结构、缺乏氛围与记忆点。[最新形象裁定](release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将现有造型记为临时实现，取消source→fan-out / streams→ring外形硬要求，改以Spark轻快迸发、Attention专注在场为感受目标。同一Claude ONE-SHOT继续三组轮廓方向与真实小尺寸导航候选；既有来源、生成与调用接收保持，Chat及Settings通用图标不重开。本轮保存用户原图并修订工单，无App资产替换或部署；文档链接4789项通过。
+
 ## 2026-09-11 · Fable部分接收、Paper发布结案与Pages同红
 
 按用户要求由Luna独立审阅Fable限额前候选，先接收图标阶段2c7d181及90d7b65测试同步；Astra审小diff，组合19/19通过，主线集成为6292105。Stage2 Chat与Stage3控件仍有未提交进展，未作为完整返件接收；Stage4统一preview、Stage5工程图/最终媒体及1440展开工作面实机/完整证据继续开放。[部分接受与后续](release/ui-publication-closure-2026-09-11/ACCEPTANCE.md)保留精确来源、失败修正、模拟native边界和新增Settings参考采用/排除项。
