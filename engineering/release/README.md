@@ -1,5 +1,7 @@
 # Engineering release and publication records
 
+[Claude Paper正式串行开工](claude-paper-2026-09-11/ONE-SHOT.md)：用户已授权，les Privilege两宗、原创编辑插画与独立阅读面候选；待作者认领/返回。
+
 [Claude A/B v2接收与Pages独立任务准备](fresh-claude-pages-2026-09-11/README.md)：Astra裁决、分层索引、构图与发布计划。
 
 

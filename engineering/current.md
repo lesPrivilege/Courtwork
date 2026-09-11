@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Claude Paper串行开工授权
+
+用户已授权；[正式开工单](release/claude-paper-2026-09-11/ONE-SHOT.md)固定CourtWork输入0227673、SE reader源2817b824。Astra裁定les Privilege综合几何及并列黑色/彩色两宗为施工基线；同一Claude依次完成署名/出版骨架、2–3原创插画、可运行三卷双语阅读面候选，无需逐阶段再批准。独立return-paper-v1整包返回后Astra裁定与集成。已授权、待作者认领/返回，未声称实际运行、产品接受或部署；已发布Home/Tour不重开。
+
 ## 2026-09-11 · les Privilege 厂商登记与光学修订
 
 [新增两轮会话消费](research/le-brand-2026-09-11/update.md)登记完整署名 **les Privilege**、命名双关及红黑/Dystopia 背景；`le`仅为图形。[品牌包](../brand/les-privilege/README.md)补 Anthropic 原图对照及四种光学稿，推荐全体减重、双横缩短内收，追加深色 L/浅灰横/红横的三色 fake lab 方向，彩色宗推荐上横红；黑色宗同时保留并对标 Anthropic `A\`，含九个 SVG 和宽窄实拍。名称已登记，几何为本轮推荐；未修改产品标识、论文作者元数据或部署。

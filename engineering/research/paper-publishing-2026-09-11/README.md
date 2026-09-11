@@ -42,3 +42,7 @@
 ## 用户追加 · SE未合入分支核查
 
 [Luna只读分支审计](se-branch-audit.md)刷新origin后确认：唯一未合入分支为`codex/dsh-observation-20260910`，tip fa71b782，相对本地main为3/1，相对origin/main为3/0；三提交均为非等价补丁，只涉及Practice Index。本地main2817b824另领先远端8b2839a一个reader-controls提交，reader-controls分支已进入本地main，无需重复合并。另两条已合入分支、两个prunable记录与两个含未提交改动的detached worktree分别登记。Astra接收此拓扑/现场结论；下一步是有界审阅DSH三提交及reader-controls推送条件，本轮未合并、推送或清理SE。
+
+## 后续 · 正式串行开工
+
+用户现已授权Claude开工；[正式开工单](../../release/claude-paper-2026-09-11/ONE-SHOT.md)替代本页历史“准备”状态，固定最新内容输入0227673与les Privilege两宗署名。品牌/出版骨架→插画→完整阅读面候选由同一作者串行完成、一次返回；不再等待阶段批准。实际作者运行/回包仍据回执记录。

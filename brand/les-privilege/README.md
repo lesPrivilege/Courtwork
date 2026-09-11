@@ -54,3 +54,7 @@ CourtWork 与 Schema Engineering 可在各自发布面消费这一 maker’s sig
 `python3 brand/les-privilege/build.py` 可重建 SVG/预览 HTML/几何与 hash 清单。作者已检查 XML 安全元素、可访问名称、重建一致性与宽窄实拍，以及 16–64 px 明暗/三色效果；是作者视觉判断，未声称用户已选定最终几何或独立接受。
 
 来源：[更新消费记录](../../engineering/research/le-brand-2026-09-11/update.md)；[上一轮几何研究](../studies/le-2026-09-11/README.md)。
+
+## Paper施工裁定 · 2026-09-11
+
+用户授权Claude串行开工后，Astra将综合修订几何与并列两宗固定为本轮[施工基线](../../engineering/release/claude-paper-2026-09-11/ONE-SHOT.md)：黑色宗用于默认阅读署名，彩色宗采用上横红，提供同一排印位置的明暗适配。此裁定结束本轮几何探索，未冒充独立视觉验收或上线；早期推荐与对照图保留来路。
