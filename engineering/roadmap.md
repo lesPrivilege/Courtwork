@@ -1,5 +1,7 @@
 # Long-life Roadmap · 全场景与交互架构
 
+2026-09-12：[Chat Memory Broker长期增量](research/chat-memory-broker-2026-09-12/README.md)接BE-19/20/23、LG/RG既有路线；Provider Session外的可选检索/编译与披露回执，不重写agent loop。只登记，用户仍独立审阅下一Harness节点后排单；不修改本次发布定义，不启动Provider接入或新memory API。
+
 ## 2026-09-12 · 资源、消息与持久成果治理准备
 
 [RD-007](research/RD-007-resource-governance.md)和[分期roadmap](research/mature-practices-2026-09-12/roadmap.md)登记RG-BE-01…06 / RG-FE-01…03：来源保留与只读资源面→消息引用/保留关联→检索/版本注释→引用盘点及按需互操作。沿LG/DS/BG/Runtime既有owner，Core接受不与Library共享混同；DWB目录执行授权与内容关系分开。当前仅文档准备，不抢在途前端writer，不把九份消费稿当必须全部实施的承诺。

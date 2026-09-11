@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[Chat Memory Broker长期增量](chat-memory-broker-2026-09-12/README.md)：2026-09-12，受治理检索/编译与可见对话分离；接BE-19/20/23、LG/RG既有PR文稿，不改变本次发布面，无实现。
+
 [RD-007 · 成熟实践与资源治理](RD-007-resource-governance.md)：2026-09-12，完整两轮来源、Luna fast explore、Astra裁决；RG前后端PR与roadmap接LG/DS/BG/Runtime，产品未实施。
 
 [RD-006 · 延迟工作区绑定](RD-006-deferred-workspace-binding.md)：2026-09-12，完整源会话与五张语义参考、Luna explore、Astra选型和DWB-01–03后续PR文稿。文档交付，产品未实施。

@@ -99,3 +99,7 @@ Astra冻结owner、架构、迁移和集成，Luna可按冻结合同实现有界
 ## 共用接受要求
 
 后续每PR提供实际base/product SHA、准确路径、source/fixture hash、运行命令/原始日志、失败及未跑项、回退策略。后端用独立synthetic data/端口，相关Run/权限/恢复/Core反例通过后再适度全量；不默认付费provider。前端跑相关行为与interaction lint，涉及颜色/材质再跑对应检查，并交真实服务浏览器证据。作者验证和非作者复核分开，本轮文档链接通过不替代任一实现验收。
+
+## Chat Memory Broker消费补充（2026-09-12，未派发）
+
+[Chat长期增量](../chat-memory-broker-2026-09-12/README.md)作为RG-BE-01/02/03 exact来源与关系、RG-BE-04检索/context的后续消费者；memory提案owner沿BE-19另行冻结，正式finding复用LG-03/Core接缝，不把本包扩大为全新Conversation库或Provider桥接实现。首个合成只读纵切须证明获准来源版本、可信连接grant、search/read之间撤权、预算/coverage和披露回执；跨Provider共享不消除安全域，实际模型使用保持独立证据。RG各片仍planned，不改变既定依赖和writer顺序。

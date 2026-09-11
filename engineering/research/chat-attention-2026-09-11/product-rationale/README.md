@@ -32,3 +32,7 @@
 ## 独立页面追加裁定
 
 用户进一步要求Chat具备与Spark/Attention同级的页面和专门视觉设计；见[Astra先行裁定](../../../design/chat-product-page-2026-09-11/DECISION.md)。此前仅占位按钮/Pages局部文案的最小交付升级为独立页面及同一Design系统增量绘制，后端边界保持。
+
+## 2026-09-12 · Memory Sidecar增量
+
+[Local Memory Broker登记](../../chat-memory-broker-2026-09-12/README.md)细化既有跨Provider连续性方向：可选受治理检索/编译，内部context与可见对话分开，Broker不持有第二份memory权威状态。通道能力与可信身份先验证，已披露不冒充模型实际使用；本轮只接BE-19/20/23、LG/RG既有文稿，不追加发布面定义或产品实现。

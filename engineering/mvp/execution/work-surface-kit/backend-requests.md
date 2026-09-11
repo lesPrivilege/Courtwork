@@ -125,3 +125,7 @@ Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile
 ## 2026-09-12 · 内容资源治理消费稿（未派发）
 
 [RD-007 / RG-BE-01…06](../../../research/mature-practices-2026-09-12/pr-plan.md)登记来源保留、消息附件引用、Run版本retain/目标owner关联、检索重建、版本注释与retention dry-run，依[roadmap](../../../research/mature-practices-2026-09-12/roadmap.md)接LG/DS/BG/Runtime原owner。不复用历史BE-24，不把BE-5…11 Runtime Resource当内容store，不以BE-17/18 provider preview或BE-41派生查询替代资源版本reader；一般projectless Chat继续BE-23。本轮仅后续PR文稿，未实现API/schema或重派已交付后端。
+
+## 2026-09-12 · Chat Memory Broker长期消费（未派发）
+
+[登记与消费矩阵](../../../research/chat-memory-broker-2026-09-12/README.md)沿BE-19的memory owner/来源披露/关闭、BE-20 temporary、BE-23普通Chat身份及LG/RG检索接缝。Broker只组合获准reader，Provider侧MCP注册不等于现有MCP客户端已提供该服务；先冻结可信身份、query/read逐次撤权检查、预算与disclosure回执。propose_memory仍为候选，内部context不伪装为用户消息，未启动connector/新API/schema或改发布面。

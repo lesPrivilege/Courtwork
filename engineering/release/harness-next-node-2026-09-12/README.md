@@ -45,3 +45,5 @@ Luna本次只读源码与固定返件，未改文件、未运行测试或真实S
 RV26-Q03依既有store/service串行接收边界核账；第二runtime、Rust和新增MAS没有因本索引或静态站发布而开工。作者实现与非作者接受继续分开，用户独立审阅与排单决定保持待定。
 
 Luna已对本索引作有界非作者文字核对；Astra收紧SDK分页证据上限、限定接受范围及structuredContent候选来源。此核对不代替运行验证。
+
+后续输入：[Chat Memory Broker](../../research/chat-memory-broker-2026-09-12/README.md)只登记为现context/披露与BE-19/LG/RG的未来消费者；不把provider侧connector与当前MCP客户端等同，不重排本索引候选。
