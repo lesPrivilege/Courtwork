@@ -53,7 +53,7 @@ All nine groups were read through the source inventory. Appearance was exercised
 
 ## Pages routes and media
 
-All nine generated product routes share Product · Experts · Eval · Pricing · Download; Paper and research depth remain reachable. The homepage archive-paper hero geometry is retained, two CTAs remain, and product proof moves directly after it. The [Pages ruling](pages.md) records the superseded navigation/IA choices and nearest existing rendering/figure precedents.
+The nine generated product routes plus the homepage share Product · Experts · Eval · Pricing · Download; Paper and research depth remain reachable. The homepage archive-paper hero geometry is retained, two CTAs remain, and product proof moves directly after it. The [Pages ruling](pages.md) records the superseded navigation/IA choices and nearest existing rendering/figure precedents.
 
 | Route | Disposition | Evidence and boundary |
 |---|---|---|
@@ -61,11 +61,13 @@ All nine generated product routes share Product · Experts · Eval · Pricing ·
 | tour | VISUALIZE via preserved 13 blank capture slots, grouped Start/Know/Judge/Specialize/Control | 390 author screenshot and navigation check; five links ≥44px, document width 390 after fix |
 | features | COMPRESS pillars around actual product concepts, Models/tools replaces Runtime pillar | Build/link/semantic source checks; no separate final full-page visual claim |
 | experts | COMPRESS roles around Matter/Experts/Review, technical explanation secondary | 1280 author screenshot and figure checks |
+| eval | KEEP existing evaluation/method content; ADAPT shared navigation and secondary research links | Build/link/public-data checks; no new measured benchmark claims |
+| cli | KEEP frozen CLI specimen and provenance; ADAPT shared navigation | Build/link/capture provenance checks; no new CLI execution capture |
 | models | COMPRESS choice/integration language; DISCLOSE diagnostic depth | Build/link/copy source review; no claim all providers were live-tested |
 | data | KEEP accurate local/external boundary, COMPRESS engineering terminology | Build/link/source checks; no new privacy or hosting capabilities |
 | get | COMPRESS acquisition path, retain source installation detail | Actual desktop acquisition dialog/Escape/focus-return check; no download invented |
 | changelog | COMPRESS visible entries to user outcomes, preserve dated source links | Build/link/source checks; no rewriting historical artifacts |
-| pricing | KEEP user-specified fictional offers/prices; ADAPT Professional/Organization product wording | 390 selection and ArrowRight focus/selection, correct diagram; no purchase/subscription action |
+| index#pricing (homepage section, not a separate route) | KEEP user-specified fictional offers/prices; ADAPT Professional/Organization product wording | 390 selection and ArrowRight focus/selection, correct diagram; no purchase/subscription action |
 
 The route list in build metadata is derived from rendered pages. The same semantic keys map 13 capture slots and 10 figure records; existing file-backed SVG bytes remain unchanged. Capture status stays pending and source remains null. These are intentional user-requested blank slots, not failed evidence or screenshots from the current candidate.
 
