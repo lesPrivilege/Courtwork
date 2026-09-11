@@ -1,0 +1,13 @@
+{
+  "status": "archived-links-not-verified",
+  "urls": [
+    "https://code.claude.com/docs/en/context-window",
+    "https://code.claude.com/docs/en/vscode",
+    "https://github.com/openai/codex/pull/17170",
+    "https://github.com/openai/codex/pull/17637",
+    "https://github.com/google-gemini/gemini-cli/blob/f8541cf7/packages/cli/src/ui/components/ContextUsageDisplay.tsx",
+    "https://cline.bot/blog/understanding-the-new-context-window-progress-bar-in-cline",
+    "https://agentclientprotocol.com/rfds/session-usage",
+    "https://agentclientprotocol.com/rfds/session-compaction"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "conversationId": "6aa3d30b-74ec-83ec-9817-9a0fbc5d9ead",
+  "title": "Context Window 产品化",
+  "capturedDate": "2026-09-11",
+  "baseline": "bb1cba2946157bf8eec0a7d95577a4118f078050",
+  "status": "registered-awaiting-consumption",
+  "turnCount": 1,
+  "messageCount": 2,
+  "userMessageCount": 1,
+  "assistantMessageCount": 1,
+  "attachmentCount": 1,
+  "hasMore": false,
+  "reportedTruncation": false,
+  "previewDeduplicated": true,
+  "externalClaimsVerified": false,
+  "attachmentOriginalName": "Screenshot 2026-09-11 at 18.08.05.png",
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 23129,
+      "sha256": "7c7733c214a19e5a5e1144c7cdd5bcf9904cab2939b1550537f205ef016e46f1"
+    },
+    {
+      "path": "input-snapshot.txt",
+      "bytes": 10648,
+      "sha256": "d7bc7483831b0e46d7d23538707dc8cbb6356c1b8a7d6e6389f087f14cb7d61b"
+    },
+    {
+      "path": "reference.png",
+      "bytes": 172153,
+      "sha256": "355c1ddc82456e23fb051324621f215ced5a1879f145cfc957b854275c43cabe"
+    },
+    {
+      "path": "reference-links.json",
+      "bytes": 592,
+      "sha256": "69b7096c58005db72be695bdc92be4f87a06d0d2e5eba43c00a3664e21a293c8"
+    }
+  ]
+}

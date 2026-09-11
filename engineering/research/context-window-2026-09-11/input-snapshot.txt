@@ -1,0 +1,282 @@
+## userMessage f102a757-340d-4137-aa9d-c2e9b172055d
+
+Context window 是否作为 composer 产品面出现，并提供相应 UI 交互与数据可视化？explore 成熟范式？@exa
+
+[User attached 1 image; image contents were not included]
+
+## agentMessage db5aabfd-5d95-4d2c-9dee-1c4fc0d2109f
+
+是。进一步看了 Claude Code、Codex、Gemini CLI、Cline 与 ACP 之后，**Context Window 已经足够成熟，可以视为 Agent composer 的一级产品语义**。但不建议把你截图里这一整块 breakdown 常驻在 composer；更成熟的收敛形态是：
+
+> **composer 上的 ambient meter → 点击后的 Context Inspector → transcript 中的 compaction boundary**
+
+这三层分别解决「我现在还有多少余量」「到底什么占了 context」「系统刚刚对 context 做了什么」。
+
+### 外部范式已经明显收敛
+
+| 实践 | 产品面 | 值得 CW 消费的点 |
+|---|---|---|
+| **Claude Code** | VS Code prompt box 直接显示 context indicator；`/context` 展开按类别的实时 breakdown；自动/手动 compact | **composer 是正确入口，breakdown 渐进披露**；还能解释什么在 compaction 后保留/重载。[官方 Context 文档](https://code.claude.com/docs/en/context-window) / [VS Code 文档](https://code.claude.com/docs/en/vscode) |
+| **Codex** | footer/composer status line 提供 context meter；一度把精确百分比改成粗 meter，社区大量反馈后又把百分比加回来 | 很有价值的真实 UX 实验：**只有图形 meter 不够，power user 确实需要精确 %**。[meter PR](https://github.com/openai/codex/pull/17170) / [恢复百分比 PR](https://github.com/openai/codex/pull/17637) |
+| **Gemini CLI** | footer 显示 `% used`；达到 compression threshold 转 warning，满窗为 error；支持配置 compression threshold | 「used」比「left」不容易与 quota 混淆；**threshold 和 hard window 是两个概念**。[ContextUsageDisplay](https://github.com/google-gemini/gemini-cli/blob/f8541cf7/packages/cli/src/ui/components/ContextUsageDisplay.tsx) |
+| **Cline** | task header 有 progress bar、input/output token；为实际可用窗口预留 buffer，并与 Auto Compact 联动 | 不只展示 model advertised max，而是展示**真正可操作的 usable budget / reserve**。[官方说明](https://cline.bot/blog/understanding-the-new-context-window-progress-bar-in-cline) |
+| **ACP** | `usage_update { used, size, cost }`，并单独设计 `compaction_update` 生命周期 | 对 CW 最重要：它把这件事抽象成 **session/runtime telemetry，而非某一家模型 UI**。[Session Usage RFD](https://agentclientprotocol.com/rfds/session-usage) / [Compaction RFD](https://agentclientprotocol.com/rfds/session-compaction) |
+
+这里尤其值得注意 Codex 的小型「自然实验」：**粗 progress bar 在视觉上更 clean，但对长 session 用户失去了决策精度**；几天后又合入了百分比。这说明 CW 不宜只画一个漂亮的小圆环。
+
+---
+
+## 我会把它正式纳入 CW Composer
+
+不是再加一个叫 `Context Window` 的 button，而是把 composer 底部已有的 runtime controls 组织成同一条 **运行态 telemetry grammar**：
+
+```text
+[ + ]   [Expert] [Model] [Effort]              [Context  ▰ 27%]   [Send]
+                                                    ↑
+                                                click / hover
+```
+
+低压时甚至可以收成：
+
+```text
+[Model] [High]                     ◔ 27%    ↑
+```
+
+其中：
+
+**0–50%**：neutral，低存在感。  
+**50–70%**：仍 neutral，但 hover/click 可精确查看。  
+**接近 runtime 自己的 compact threshold**：warning，而不是写死一个全局 80%。  
+**进入必须 compact / prompt 可能放不下的区域**：critical。
+
+也就是说，**颜色反映的是“操作压力”，而不是 token 数量本身**。
+
+Codex 的经验又说明，`◔` 后面最好保留 `27%`；窄屏才可以退化成纯 meter。
+
+---
+
+## 点击之后，不应只是 Token Counter
+
+你这张图的方向已经非常接近正确答案，但 CW 可以比它再推进一层。
+
+我建议 popover 顶部是：
+
+```text
+Context
+142k / 1M · 14%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ conversation   matter   tools   instructions   reserve    free
+```
+
+然后下面才是 breakdown：
+
+```text
+Conversation          54.2k    5.4%
+Matter projection     31.8k    3.2%
+Expert instructions   12.4k    1.2%
+System / runtime       10.1k    1.0%
+Tools                   8.7k    0.9%
+Memory                  4.8k    0.5%
+
+Reserved for output    32.0k    3.2%
+Free                  846.0k   84.6%
+
+Deferred
+MCP tools              20.4k
+Expert: Contract        8.1k
+```
+
+这里有一个我认为比截图本身更重要的变化：
+
+**不要把所有东西都称为 context 来源；明确区分 `included now` 和 `deferred / potential`。**
+
+截图里 `MCP tools (deferred)` 已经在碰这个概念了。对 CW，由于 Expert、MCP、Matter、runtime 都可能热插拔，这会非常有价值。
+
+---
+
+## 更重要的是把 `Matter projection` 做成一等公民
+
+这正好能把 SE 的架构判断转化为用户可见产品语义：
+
+**Event Log ≠ Matter State ≠ Model Context。**
+
+因此 Context Inspector 不应该暗示：
+
+> “你的所有 Matter / Memory 都塞进了模型。”
+
+相反，它应该非常清楚地显示：
+
+```text
+Matter
+Contract Review · 31.8k included
+
+12 sources available
+4 compiled into this turn
+8 deferred
+
+View compiled context →
+```
+
+进入第二层后，甚至可以看到：
+
+```text
+Included now
+✓ Matter brief                    4.2k
+✓ Governing-law findings          6.8k
+✓ Clauses under active review    15.1k
+✓ User review preferences         1.7k
+
+Available, not loaded
+○ Full agreement                    —
+○ Earlier review trace              —
+○ Prior expert runs                 —
+```
+
+这就不再是「开发者 token debugger」，而变成了真正的 **Work Agent context observability**。
+
+它回答的是一个普通 token bar 回答不了的问题：
+
+> **“Agent 此刻究竟知道什么？”**
+
+这实际上很可能是 CW 的产品特色之一。
+
+---
+
+## Data Viz 我会裁定为「小环 + 线性堆叠条」，不要 donut
+
+composer 用小环非常合适，因为空间极小。
+
+但展开后应该切换成 **stacked horizontal bar**。原因很简单：横条更容易比较 category 占用，而且天然容纳 `reserve` 与 `free space`。你的截图顶部那条极细 stacked bar，本身就是比饼图正确得多的方向。
+
+另外建议保持两个独立的视觉维度：
+
+**category 色**表达「是什么」；  
+**pressure 色**表达「危险不危险」。
+
+不要让 Messages=蓝、Tools=橙，然后 90% 时再把所有 category 变红。warning 应该落在外框、meter、percentage 或 threshold marker 上。
+
+还应明确显示一条 **reserved buffer**。Cline 的实践说明这非常重要：模型号称 1M，并不等于产品应该允许用户把 1M 全部吃满。output、tool continuation、compaction 都需要 headroom。
+
+---
+
+## Compaction 必须进入 transcript，而不能只让 meter 突然掉下去
+
+这是 ACP 新的 compaction RFD 最值得直接消费的一点。
+
+例如：
+
+```text
+──────── Context compacted ────────
+72% → 18% · Automatic · 14:32
+
+Retained
+Goal, current findings, pending review,
+matter references, 3 active decisions
+
+View retained context
+```
+
+它应该是 **session timeline 的一级 event**，而不是 assistant 发一句：
+
+> I compacted the conversation.
+
+这样用户重新打开 session 时仍然能回答：
+
+```text
+为什么这里 context 突然从 700k 变成 180k？
+什么时候 compact 的？
+这是自动还是手动？
+保留了什么？
+```
+
+ACP 正在明确把 `usage_update` 与 `compaction_update` 分开，理由也完全正确：前者是**当前状态**，后者是**历史事件**；一个不能代替另一个。
+
+这同样很符合 CW 已有的 Event / State 区分。
+
+---
+
+## 有一点我反而不会照抄截图
+
+截图把下面这些放在同一个 popover：
+
+```text
+Context window
+...
+Plan usage limits
+5-hour
+Weekly
+```
+
+Claude 这样做作为 account/status 总面板有其理由，但 **CW 最好不要在语义上混在一起**。
+
+它们实际上是：
+
+```text
+Context       → 当前 Agent session 的计算状态
+Usage / Cost  → Provider / Account 的资源与计费状态
+```
+
+两者都属于 telemetry，却不是一种资源。
+
+可以在 composer 相邻出现：
+
+```text
+◔ Context 27%     Usage
+```
+
+但点击 `Context` 就只进入 Context Inspector；provider quota/cost 进入单独的 Usage 面。否则用户很容易把「27% context」与「本周用了 73%」建立错误关联——Codex 今年把 `% left` 改掉的一个理由恰好就是它很容易与 quota 混淆。
+
+---
+
+## 对 CW 的实现边界也已经比较清楚
+
+我会把第一轮接口做得很薄：
+
+```text
+Runtime
+   ↓
+ContextUsageSnapshot
+   used
+   size
+   measured | estimated
+   updated_at
+   breakdown?      // optional
+   reserve?        // optional
+
+CompactionEvent
+   id
+   automatic | manual
+   before
+   after
+   status
+   retained_projection?
+```
+
+其中 **`used + size` 是最低共同语义**，正好与 ACP `usage_update` 接近；breakdown 是 provider/runtime 可选增强。
+
+绝对不要让前端自己根据 transcript 猜真实 context，也不要要求每个 provider 都必须交出 Messages/System/MCP/Skills 这么精确的 breakdown。拿不到就显示：
+
+```text
+162k / 1M · 16%
+Breakdown unavailable for this runtime
+```
+
+拿得到再 progressive enhancement。
+
+而且 cached tokens **仍然占 context window**，不能因为 cache hit 就从 meter 里扣掉；cache 是成本/延迟语义，不是 context occupancy。ACP 的 Session Usage RFD 也专门明确了这一点。
+
+---
+
+### 因而我会给这一项一个很明确的 Design 裁决
+
+**纳入 Composer，而且优先级不低。**
+
+但产品定义不是「Context Window 进度条」，而应该是：
+
+> **Context observability + context lifecycle control**
+
+第一轮 UI 就做 **composer 精确小 meter + popover breakdown + compaction timeline event**；第二轮再进入 Matter projection、deferred context、per-source provenance、cache/cost 等高级面。
+
+这比单独复制 Claude 截图更适合 CW：Claude 展示的是「token 都花到哪里去了」，而 CW 有条件进一步展示 **“当前 compiled context 是怎样从可治理的工作状态中生成的”**。这才会和普通 coding harness 拉开明显差异。
+
