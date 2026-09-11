@@ -1,0 +1,12 @@
+Source validation: PASS, 1 turn / 2 complete messages; hasMore=false.
+SHA-256: PASS, source JSON + 5 PNG files.
+Product tests: not run (documentation-only).
+Initial doc-link check: failed, 1011 documents / 5006 links; exactly 2 references to pending luna-explore.md. Recheck required after explorer delivery.
+Final doc-link check after explorer delivery: {
+  "pass": true,
+  "documents": 1012,
+  "checked": 5007,
+  "problems": []
+}
+git diff --check: PASS.
+Shared checkout recheck: main at original 647bc2167efe5437d0ca73a60a406549d9a1e268; other-writer status preserved.
