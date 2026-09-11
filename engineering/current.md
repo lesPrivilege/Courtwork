@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Chat／Attention／Spark产品理由
+
+[扩展快照与发布面裁定](research/chat-attention-2026-09-11/product-rationale/README.md)登记新增4轮、累计9轮/18消息，保留旧快照：Chat连续对话与可移植性、Attention跨工作判断、Spark持续来源工作三个产品理由成立。README补产品方向；Pages局部文案纳入现Claude串行工单，Chat仍为前端预留，不把普通coding session改名当跨Provider Chat。多Provider会话、导入导出、分层memory与provider接入仍为后续；来源72结果生态/条款主张未重验，不进入对外能力证明。未改App/site代码、架构canon、Paper或部署。
+
 ## 2026-09-11 · Paper预发布接收与单红diff串行接续
 
 [Paper最终接收](research/claude-paper-return-2026-09-11/prepublish-v1/README.md)已保存91文件原包；SE本地main为026d5cb，完成optical-03及common-red-v1接入，资产源7b154a1，品牌浅深同红#c95e55。最终补证54/54、署名12/12、双构建一致与20源文/译文/历史文件不变；未推送SE或部署。Luna核对Motto仓内单红主题，用户两张截图固定灰旧行／红新行／词段红底深字，取消绿色并升为Settings主展示及Pages局部语言；[Claude串行工单](release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)包括共享diff、Settings、Chat同层入口及Pages，已授权待认领，未声称实际施工。长期Chat分层及A工程图/DR-02–05其余门保留；本段替代下文旧icon待接与CA-01未授权状态。
