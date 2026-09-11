@@ -702,6 +702,12 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .review-attention > span { width: 5px; height: 5px; flex: none; border-radius: 50%; background: currentColor; }
 .review-attention > small { color: var(--muted-strong); font-size: inherit; font-weight: 400; }
 @media (prefers-color-scheme: dark) { :root { --campaign-attention-review: #ed9396; } }
+/* Single-red change language (user ruling 2026-09-11): one campaign accent for
+ * what is new in a change, grey for what was there. It is not the review token
+ * and not a state: it marks changed text only. Values mirror the product's
+ * --diff-change-* scale (app/web/styles.css). */
+:root { --campaign-diff-change: #a13c36; --campaign-diff-block: #dd7068; --campaign-diff-block-ink: #172025; }
+@media (prefers-color-scheme: dark) { :root { --campaign-diff-change: #e28b83; --campaign-diff-block: #d4685f; --campaign-diff-block-ink: #11171b; } }
 @media (forced-colors: active) { .review-attention { color: CanvasText; } }
 
 /* Record bars recede; the stem retains the identity's primary ink. */
@@ -869,6 +875,19 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .fig .fig-rule { stroke: var(--campaign-rule); stroke-width: 1; }
 .fig .fig-threshold { stroke: currentColor; stroke-dasharray: 6 4; }
 .fig .fig-attention { fill: var(--campaign-attention-review); }
+/* change-language figure: old lines grey, new line red, new words on a red block. */
+.fig.fig-diff text { font-family: var(--font-mono); }
+.fig .fig-diff-old { fill: var(--muted-strong); }
+.fig .fig-diff-new { fill: var(--campaign-diff-change); }
+.fig .fig-diff-mark { font-weight: 600; }
+.fig .fig-diff-block { fill: var(--campaign-diff-block); }
+.fig .fig-diff-block-ink { fill: var(--campaign-diff-block-ink); }
+.fig .fig-diff-old-block { fill: var(--campaign-soft); stroke: var(--campaign-rule); stroke-width: 1; }
+@media (forced-colors: active) {
+  .fig .fig-diff-block { fill: Highlight; } .fig .fig-diff-block-ink { fill: HighlightText; }
+  .fig .fig-diff-old-block { fill: Canvas; stroke: CanvasText; }
+  .fig .fig-diff-new, .fig .fig-diff-old { fill: CanvasText; }
+}
 /* FIG. 00: the candidate sheet has not been committed; line type says so. */
 .sheet-candidate { border-style: dashed; }
 @media (forced-colors: active) {

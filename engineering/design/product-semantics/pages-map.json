@@ -112,6 +112,10 @@
       "review.open",
       "run.object",
       "trace.view"
+    ],
+    "change-language": [
+      "review.open",
+      "file.object"
     ]
   }
 }

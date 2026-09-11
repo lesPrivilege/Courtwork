@@ -1635,6 +1635,7 @@ export const CONTRAST_PAIRS = [
   ["danger", "danger-soft", 4.5],
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
   ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
+  ["diff-add", "panel", 4.5], ["diff-add", "float", 4.5], ["diff-add", "panel-muted", 4.5], ["diff-add-mark-ink", "diff-add-mark", 4.5],
 ];
 function hexChannels(value) {
   const text = String(value || "").trim();
@@ -1926,15 +1927,18 @@ function appearancePreview() {
     "div",
     { className: "settings-preview" },
     el("span", { className: "settings-preview-label", text: "Preview" }),
+    /* The change language leads the preview; the tool row that produced the
+     * file follows it (user ruling 2026-09-11: red overlay as the primary
+     * display, no green). Same renderer, same fixture, no second copy. */
     el(
       "div",
       { className: "settings-preview-surface", attrs: { "aria-hidden": "true" } },
+      code,
       flowRow("div", {
         glyph: "file-text",
         title: `ws_write · ${DIFF_PREVIEW.file}`,
         meta: "Completed",
       }),
-      code,
     ),
   );
 }

@@ -5368,9 +5368,9 @@ html[data-theme="dark"] {
 .diff-mark { display: inline-block; width: 1.5ch; margin-left: 1ch; text-align: center; font-weight: 600; }
 /* The one solid block of this grammar: only the words that are actually new,
  * dark ink on the accent so the text stays readable inside the block. */
-.diff-add-word { background: var(--diff-add-mark); color: var(--diff-add-mark-ink); text-decoration: none; border-radius: 2px; padding: 0 1px; }
+.diff-add-word { background: var(--diff-add-mark); color: var(--diff-add-mark-ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
 /* Removed words sit on the existing selected-state layer: grey, never a second hue. */
-.diff-del-word { background: var(--selected); color: var(--ink); text-decoration: none; border-radius: 2px; padding: 0 1px; }
+.diff-del-word { background: var(--selected); color: var(--ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
 @media (forced-colors: active) {
   .diff-add-word { background: Highlight; color: HighlightText; forced-color-adjust: none; }
   .diff-del-word { background: transparent; color: CanvasText; outline: 1px solid CanvasText; }
