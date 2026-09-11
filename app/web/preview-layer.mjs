@@ -14,6 +14,30 @@
 export const PREVIEW_STORAGE_KEY = "schema-engineering.preview.v1";
 export const PREVIEW_SAMPLES_URL = "/web/samples/preview/responses.json";
 
+/* IDs that identify a durable object in a mutation payload. Free-form input
+ * text is deliberately excluded: mentioning an example in a prompt does not
+ * target that example. */
+const MUTATION_ID_FIELDS = new Set([
+  "id",
+  "projectId",
+  "project_id",
+  "sessionId",
+  "session_id",
+  "runId",
+  "run_id",
+  "questionId",
+  "question_id",
+  "attentionId",
+  "attention_id",
+  "matterId",
+  "matter_id",
+  "sourceId",
+  "source_id",
+  "candidateId",
+  "candidate_id",
+  "supersedes",
+]);
+
 /* Reads the example answers; everything else stays real. */
 const WORK_ROUTES = [/^\/projects(?:\?|$)/, /^\/sessions(?:\/|\?|$)/, /^\/runs\//, /^\/work-summary\?/, /^\/work-activity\?/, /^\/work-usage-details\?/, /^\/work-derivations\?/, /^\/attention(?:\/|$)/, /^\/coordination\//];
 
@@ -37,10 +61,24 @@ function hashBody(body) {
 }
 export const requestKey = (method, path, body) => `${method.toUpperCase()} ${path}${method.toUpperCase() === "GET" ? "" : `#${hashBody(body)}`}`;
 
+export function shouldBypassPreviewStats({ previewActive = false, realProjectCount = 0 } = {}) {
+  return Boolean(previewActive && realProjectCount > 0);
+}
+
 export function createPreviewLayer({ storage = null, fetchSamples = null } = {}) {
   const state = { available: false, active: false, samples: null, ids: new Set(), story: null, reason: null };
   const listeners = new Set();
   const emit = () => { for (const fn of listeners) fn(state); };
+
+  function bodyTargetsExample(value, key = null, seen = new Set()) {
+    if (key && MUTATION_ID_FIELDS.has(key) && typeof value === "string" && state.ids.has(value)) return true;
+    if (!value || typeof value !== "object") return false;
+    if (seen.has(value)) return false;
+    seen.add(value);
+    for (const [childKey, child] of Object.entries(value))
+      if (bodyTargetsExample(child, childKey, seen)) return true;
+    return false;
+  }
 
   function index(samples) {
     const map = new Map();
@@ -95,7 +133,10 @@ export function createPreviewLayer({ storage = null, fetchSamples = null } = {})
       const upper = method.toUpperCase();
       const isWork = WORK_ROUTES.some((route) => route.test(path));
       if (!isWork) return null;
-      if (upper === "GET" || (upper === "POST" && path === "/attention/query")) {
+      const readLikePost = upper === "POST" && path === "/attention/query";
+      if (upper !== "GET" && !readLikePost && bodyTargetsExample(body))
+        return { refuse: new PreviewRefusal("This is an example. Start your own chat from Home or New chat; the example changes nothing.") };
+      if (upper === "GET" || readLikePost) {
         const exact = state.samples.get(requestKey(upper, path, body));
         if (exact) return { payload: structuredClone(exact.payload) };
         // The story is finished: an incremental events page past what was
