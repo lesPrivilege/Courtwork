@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Chat同级页面与专门Design
+
+[Astra裁定](design/chat-product-page-2026-09-11/DECISION.md)已将Chat从最小导航占位升级为独立App预留页和专门Pages产品页；Luna完成[旧Design消费索引](design/chat-product-page-2026-09-11/reference-index.md)，固定研究/19板/v2/v3/现App与Pages先例及接受边界。现Claude串行单先消费裁定，再增量绘制三面并置和宽窄明暗设计，沿同一视觉系统施工；尚未绘制或实现新页面，不增加Provider/Memory后端，不部署。原A工程图/DR未闭门仍按证据保留。
+
 ## 2026-09-11 · Chat／Attention／Spark产品理由
 
 [扩展快照与发布面裁定](research/chat-attention-2026-09-11/product-rationale/README.md)登记新增4轮、累计9轮/18消息，保留旧快照：Chat连续对话与可移植性、Attention跨工作判断、Spark持续来源工作三个产品理由成立。README补产品方向；Pages局部文案纳入现Claude串行工单，Chat仍为前端预留，不把普通coding session改名当跨Provider Chat。多Provider会话、导入导出、分层memory与provider接入仍为后续；来源72结果生态/条款主张未重验，不进入对外能力证明。未改App/site代码、架构canon、Paper或部署。
