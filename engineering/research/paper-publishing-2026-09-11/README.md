@@ -37,3 +37,8 @@
 原始返回/快照hash与manifest相符，Luna索引中的归档和CourtWork三个源hash已由Astra复核；补固定token抽取脚本hash。Luna对独立SE源的只读核对显示本地main为2817b824，9/11 reader候选回执明确未部署；remote-tracking值不推为最新远端或当前线上。旧c127961/10图/无A/B包的异步Pages摘要属于早期状态，本轮不采纳为608ed1b当前事实，当前v3回执不被覆盖。
 
 文档链接检查通过（919文档、4367链接），新增活动文档的diff whitespace检查通过；原文快照第154行保留原消息Markdown硬换行的两个尾空格，作为原始输入字节例外，不修剪原文。本轮只有研究/任务稿/索引和优先级文档；未改产品或Paper运行代码，因此不跑App/Pages UI回归来冒充设计验收。插画与新版面仍待Claude实际返回，本文不称已绘制或已外发。
+
+
+## 用户追加 · SE未合入分支核查
+
+[Luna只读分支审计](se-branch-audit.md)刷新origin后确认：唯一未合入分支为`codex/dsh-observation-20260910`，tip fa71b782，相对本地main为3/1，相对origin/main为3/0；三提交均为非等价补丁，只涉及Practice Index。本地main2817b824另领先远端8b2839a一个reader-controls提交，reader-controls分支已进入本地main，无需重复合并。另两条已合入分支、两个prunable记录与两个含未提交改动的detached worktree分别登记。Astra接收此拓扑/现场结论；下一步是有界审阅DSH三提交及reader-controls推送条件，本轮未合并、推送或清理SE。

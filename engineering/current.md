@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · SE分支只读核查
+
+[Luna审计](research/paper-publishing-2026-09-11/se-branch-audit.md)：DSH观察分支fa71b782有3个Practice Index提交未进入本地/远端main；本地main2817b824的reader-controls已合入本地但领先远端一个提交。已合入旧分支、prunable及有未提交改动的detached worktree分别保留。本轮仅接收审计，未改SE分支或部署。
+
 ## 2026-09-11 · Paper出版面优先消费
 
 [《修订Paper发布版面》入账与裁定](research/paper-publishing-2026-09-11/README.md)固定可取得的2轮/3消息（首轮助手正文未返回），优先作为下一Paper出版设计输入。Claude原创编辑插画/出版view候选，Astra裁决，Luna固定[来源索引](research/paper-publishing-2026-09-11/source-index.md)；[可转交任务稿](research/paper-publishing-2026-09-11/CLAUDE-BRIEF.md)保留双语/三卷/主题，以CourtWork冷灰角色转译研究文章版式。9月11发布面修订与论文内容版本分开；本轮未改Paper UI、采用版本或部署，Pages v3线上保持。
