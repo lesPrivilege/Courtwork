@@ -74,10 +74,7 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
         ${primaryEntries()}
         ${architecture(fill, diagram)}
         ${rawGoverned(fill, recording)}
-        ${figure("pipeline", "plate", "从工作状态组织当前执行需要的上下文。")}
-        ${figure("roles", "object", "技术视图：责任、绑定与执行的分层。")}
-        ${figure("spark", "object", "知识派生的概念视图。 ")}
-        ${figure("attention", "object", "工作变化与人的介入。 ")}
+        ${researchFigures()}
       </details>
     </main>
     ${closingShot()}
@@ -292,6 +289,21 @@ function longWork() {
     <p class="lede">Expert 围绕明确的责任处理材料，提出有依据的候选。Matter 保留共同来源，成果进入 Review，下一步沿已有决定继续。</p>
     <dl class="words"><dt>Matter</dt><dd>找到同一件工作的材料、决定与未完事项。</dd><dt>Experts</dt><dd>让专业责任与本次工作的范围相匹配。</dd><dt>Review</dt><dd>带着来源与证据，决定哪些成果可以留下。</dd></dl>
     <p class="actions"><a href="./experts.html">Explore Experts →</a></p>
+  </section>`;
+}
+
+function researchFigures() {
+  return `<section class="section long-work" id="research-work" aria-labelledby="research-work-title">
+    <p class="index">HOW THE WORK CONTINUES</p>
+    <h2 id="research-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
+    <p class="lede">Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进工作，把新的判断留给下一次。</p>
+    ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
+    <div class="long-work-stages">
+      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
+      <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
+      <section><p class="index">EXPERTS & RUNTIME</p><h3>Roles compose.</h3><p>Expert 定义责任，Runtime 承担执行。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
+    </div>
+    <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>
   </section>`;
 }
 

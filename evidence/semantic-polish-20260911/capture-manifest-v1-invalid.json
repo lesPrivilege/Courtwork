@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 1,
   "date": "2026-09-11",
-  "policy": "JPEG bytes preserved unchanged; v1 misidentified PNG and read incorrect dimensions from JPEG offsets. V2 decodes each file with Pillow to verify actual format/dimensions. Historical v1 retained as invalid evidence; never use it for viewport verification. Null commits and source overrides retain their original limits.",
+  "policy": "PNG bytes preserved. Null commit means the intermediate capture is not pinned more precisely; never infer final acceptance. File mtimes are filesystem metadata, not independent capture attestations. Source overrides identify known pre-fix failures. Exact viewport comes from PNG dimensions; screenshots are viewport captures.",
   "captures": [
     {
-      "path": "baseline/01-home-1440.jpg",
+      "path": "baseline/01-home-1440.png",
       "sha256": "59e8105c540f45492e3b52fb640311f59059cc3d4342d545e2caed83cf94b7e9",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:34:29.666475+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -15,15 +15,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/02-home-corrected-1440.jpg",
+      "path": "baseline/02-home-corrected-1440.png",
       "sha256": "e8d57a9039103741927bf7d2e9021157e8dd8d97e66480da33524407f24d43a8",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:37:44.855097+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -31,15 +29,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/03-chat-1440.jpg",
+      "path": "baseline/03-chat-1440.png",
       "sha256": "c1d1311930b6a95845c14be576ad60897ff294c2dd8d8087ae99ec478f0d0441",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:37:55.469208+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -47,15 +43,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/04-inspector-1440.jpg",
+      "path": "baseline/04-inspector-1440.png",
       "sha256": "8a911eeb9ab8c603324f15e28b4546104c35cfc20a767a62d9031e531b06bc0e",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:38:01.342621+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -63,15 +57,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/05-settings-general-1440.jpg",
+      "path": "baseline/05-settings-general-1440.png",
       "sha256": "427f3bd952730ef785093064665723f6742fe19b3592ddfd3f2e387e7b3f3c44",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:38:33.347541+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -79,15 +71,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/06-settings-models-1440.jpg",
+      "path": "baseline/06-settings-models-1440.png",
       "sha256": "9239a13f3ec5200203d5ae503db96080da39454185f601da819d62f76db12aa0",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:38:51.086449+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -95,15 +85,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/07-settings-tools-1440.jpg",
+      "path": "baseline/07-settings-tools-1440.png",
       "sha256": "2ca1c27d01c60bb03c1c075ab851c6ca7c4ffa31295730c7ac6afa1af03892bb",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:40:32.841119+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -111,15 +99,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/08-attention-1440.jpg",
+      "path": "baseline/08-attention-1440.png",
       "sha256": "62d54fb45abded1ed0a327d10e06d7594bcadcd768633602bca953de96102b61",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:43:03.517258+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -127,15 +113,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/09-attention-item-1440.jpg",
+      "path": "baseline/09-attention-item-1440.png",
       "sha256": "2d9fe8ea3d195c086f2b366b333df11648c7316fd71ed90145de165a36a94068",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:43:19.207486+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -143,15 +127,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/10-spark-1440.jpg",
+      "path": "baseline/10-spark-1440.png",
       "sha256": "b31d225d3cd6920a1b5b9dae675668ad555dbe046c66a5f32625f3198cf4bbd6",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:43:29.108005+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -159,15 +141,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/11-usage-1440.jpg",
+      "path": "baseline/11-usage-1440.png",
       "sha256": "a3ab3ac5913494afa4485e64790e33c6e7cde69d61e246301f3ec6330d0cc529",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:43:49.088257+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -175,15 +155,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/12-usage-same-observation-1440.jpg",
+      "path": "baseline/12-usage-same-observation-1440.png",
       "sha256": "1691a906d072d27377ac76ab2cb0c5738ffcafe725ec62b3eeb3910e3b1f9c33",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:56:23.717064+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -191,15 +169,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/app-vs06-attention-dark-1440.jpg",
+      "path": "baseline/app-vs06-attention-dark-1440.png",
       "sha256": "8fc8b54e74bfd1d9b4c475fd41051dcd0f52b9c57c6764b4ae910a45adf1e975",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:50:38.171814+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -207,15 +183,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-home-dark-1440.jpg",
+      "path": "baseline/app-vs06-home-dark-1440.png",
       "sha256": "f645ae7961592cda274186bcbe9d44b68a8c1336b143a2e96e96fe716252a8fc",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:50:16.388230+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -223,15 +197,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-inspector-light-390.jpg",
+      "path": "baseline/app-vs06-inspector-light-390.png",
       "sha256": "d1ad0fbc4afec884f2365b507e1a009d2b691322c5a5ce18e4d3ef28696beef3",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T21:04:21.080195+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -239,15 +211,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-question-dark-1440.jpg",
+      "path": "baseline/app-vs06-question-dark-1440.png",
       "sha256": "263f9c29065b4578fb496ff8fcf4c5922e623ddb63e9fc5e8cb476b9ee2d3765",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:52:39.240594+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -255,15 +225,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-question-light-large-390.jpg",
+      "path": "baseline/app-vs06-question-light-large-390.png",
       "sha256": "6f4b3c4b799bc28c7659ba48eac2382490f3fd998ef6e7c498c25e95ff8e51ec",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:53:12.836531+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -272,15 +240,13 @@
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
       "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "source_override": "1eca099 pre-f99 scroll containment fix; diagnostic failure retained",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "source_override": "1eca099 pre-f99 scroll containment fix; diagnostic failure retained"
     },
     {
-      "path": "baseline/app-vs06-question-light-large-fixed-390.jpg",
+      "path": "baseline/app-vs06-question-light-large-fixed-390.png",
       "sha256": "883a653160308f7e26f844d34b2fe29dabfea7bdd414b7dd2c0277fc1f65839e",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:57:42.914320+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -288,15 +254,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-settings-general-light-large-390.jpg",
+      "path": "baseline/app-vs06-settings-general-light-large-390.png",
       "sha256": "4e66774d5883f544136a8b6cc7069ea086c6af7001d225a902a25f4bb433c4e9",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:59:05.974481+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -304,15 +268,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/app-vs06-tools-light-large-390.jpg",
+      "path": "baseline/app-vs06-tools-light-large-390.png",
       "sha256": "9e1a0c9fe368e08a886e917090ca5cdbdfe213f45dd3908c935cb7ef7d1369b1",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T21:00:10.500721+00:00",
       "phase": "final author QA",
       "staticSourceCommit": "f99af4695aa5796e703286b0875ec5663cc22c85",
@@ -320,15 +282,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Final candidate. question-light-large-390 is the pre-fix layout failure; see source_override."
     },
     {
-      "path": "baseline/chat-actions-production-dark-1440.jpg",
+      "path": "baseline/chat-actions-production-dark-1440.png",
       "sha256": "c0ca5e218d257f5f3dcee05390b7fb6b74c58bfe1bb93e88ab52c45c20aa76eb",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:15:31.900103+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -336,15 +296,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/chat-demo-dark-390.jpg",
+      "path": "baseline/chat-demo-dark-390.png",
       "sha256": "406c71aef64159d3d742c82b6ea6476039bc7c23db8480f1b06b9aac31bc6cca",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:13:17.131444+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -352,15 +310,13 @@
       "locale": "en",
       "sourceClass": "explicit synthetic action adapter",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/chat-demo-error-390.jpg",
+      "path": "baseline/chat-demo-error-390.png",
       "sha256": "72f055d83abe02849112782e1918164d7aea0d6b17aa8cd83f2708a874c84316",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:14:21.729513+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -368,15 +324,13 @@
       "locale": "en",
       "sourceClass": "explicit synthetic action adapter",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/chat-demo-streaming-390.jpg",
+      "path": "baseline/chat-demo-streaming-390.png",
       "sha256": "f80930ef769cf31578e8b5f998342f82b547eb69a1f0037267a4ac7bd126fb79",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:14:03.039630+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -384,15 +338,13 @@
       "locale": "en",
       "sourceClass": "explicit synthetic action adapter",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/home-vs04-dark-1440.jpg",
+      "path": "baseline/home-vs04-dark-1440.png",
       "sha256": "94716d1eb50ef527fb887aca6958113383f75849c563263336f43bc13552c883",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:21:03.555195+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -400,15 +352,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/pages-baseline-hero-1440.jpg",
+      "path": "baseline/pages-baseline-hero-1440.png",
       "sha256": "a7a807446cdf189d75fbb0dacc53f95da5abbb7055a71ac7a66db7a293280924",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:28:19.020578+00:00",
       "phase": "baseline",
       "staticSourceCommit": "590739fa3d1bc401905261172260143e36e82c5e",
@@ -416,15 +366,13 @@
       "locale": "en app / mixed en-zh Pages",
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact baseline static source; 01 is rejected seed, 12 uses same-observation read-only proxy."
     },
     {
-      "path": "baseline/pages-vs05-experts-1280.jpg",
+      "path": "baseline/pages-vs05-experts-1280.png",
       "sha256": "d0ababb84c9c473ac7936f8b2facfb3ebee485629cb5acfe7b03f8be97dcebf9",
-      "width": 1280,
-      "height": 900,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:46:56.541274+00:00",
       "phase": "VS-05 author QA",
       "staticSourceCommit": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
@@ -432,15 +380,13 @@
       "locale": "en app / mixed en-zh Pages",
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes."
     },
     {
-      "path": "baseline/pages-vs05-hero-1440.jpg",
+      "path": "baseline/pages-vs05-hero-1440.png",
       "sha256": "ba4058143fd1d5bba73cd70f2ec5c2655a514417193a684612bc84fe2197e88e",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:37:26.093729+00:00",
       "phase": "VS-05 author QA",
       "staticSourceCommit": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
@@ -448,15 +394,13 @@
       "locale": "en app / mixed en-zh Pages",
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes."
     },
     {
-      "path": "baseline/pages-vs05-pricing-390.jpg",
+      "path": "baseline/pages-vs05-pricing-390.png",
       "sha256": "43145a560c17b1037b23024b276daa96023514c38dfebf46f6c95e213d8f7362",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:46:36.346689+00:00",
       "phase": "VS-05 author QA",
       "staticSourceCommit": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
@@ -464,15 +408,13 @@
       "locale": "en app / mixed en-zh Pages",
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes."
     },
     {
-      "path": "baseline/pages-vs05-tour-390.jpg",
+      "path": "baseline/pages-vs05-tour-390.png",
       "sha256": "739bb367bc7c824cc0802afa9dc1b096cc82ff44771a457848233af7577c31c4",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:44:58.869651+00:00",
       "phase": "VS-05 author QA",
       "staticSourceCommit": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
@@ -481,15 +423,13 @@
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
       "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes.",
-      "source_override": "VS-05 uncommitted pre-wrap stylesheet before 89e437d; diagnostic failure retained",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "source_override": "VS-05 uncommitted pre-wrap stylesheet before 89e437d; diagnostic failure retained"
     },
     {
-      "path": "baseline/pages-vs05-tour-fixed-390.jpg",
+      "path": "baseline/pages-vs05-tour-fixed-390.png",
       "sha256": "748cf568ad95057a570c687d69ec7e8dfae8084b8eec98d04191743756b405d2",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:45:58.009900+00:00",
       "phase": "VS-05 author QA",
       "staticSourceCommit": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
@@ -497,15 +437,13 @@
       "locale": "en app / mixed en-zh Pages",
       "sourceClass": "static Pages",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Tour without fixed suffix records pre-fix mobile overflow; other files reflect final Pages bytes."
     },
     {
-      "path": "baseline/tools-vs04-compact-dark-1440.jpg",
+      "path": "baseline/tools-vs04-compact-dark-1440.png",
       "sha256": "48950f4ef14f579bb448d6f942e1e756af18aaf08979c8d1bf1e84e2e7e2898f",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:24:57.344662+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -513,15 +451,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "baseline/tools-vs04-dark-1440.jpg",
+      "path": "baseline/tools-vs04-dark-1440.png",
       "sha256": "707a6d7b9f2c528aa17555250024c3478b392e1f3bd23d91525f1b44021a9769",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:21:18.099606+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -529,15 +465,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/inspector-dark-1280.jpg",
+      "path": "candidate/inspector-dark-1280.png",
       "sha256": "670d14ed8c6884bfd9e7f65b5741695d18dc221aa56cb4e4dea118e7958bf904",
-      "width": 1280,
-      "height": 900,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:04:01.163610+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -545,15 +479,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/inspector-v1-1440.jpg",
+      "path": "candidate/inspector-v1-1440.png",
       "sha256": "f787276d15c74bc7818f58b5ccaa7a1ff888d25789da0cbe80e4ed1383bb6f24",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:49:34.789116+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -561,15 +493,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/inspector-v2-1440.jpg",
+      "path": "candidate/inspector-v2-1440.png",
       "sha256": "691a4ae00cf8363413db786c8a54ea41b1c7fd83e7895ac833968ed861d87666",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:51:52.505982+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -577,15 +507,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/inspector-v2-390.jpg",
+      "path": "candidate/inspector-v2-390.png",
       "sha256": "464a6d32d09f9922fbe484aed70e5ccdbcb36c684e9924cc451aef3f4b82d5e0",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:01:52.911299+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -593,15 +521,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/inspector-v3-390.jpg",
+      "path": "candidate/inspector-v3-390.png",
       "sha256": "c1b791249baac8c0a94e567449d88f3a5d88f4373c8ec4bb39883d0b20d84d18",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T20:03:10.520764+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -609,15 +535,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/usage-v1-1440.jpg",
+      "path": "candidate/usage-v1-1440.png",
       "sha256": "864d20a54d3e3aa3c2cda2afeab63bbdc44cd70f47ec93a7b5bf307e7515fcf7",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:56:23.819504+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -625,15 +549,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/usage-v2-1440.jpg",
+      "path": "candidate/usage-v2-1440.png",
       "sha256": "1d36a05d3a5ccb6106de9caf87fffa785b514e1a87f1317dc405bcf8d4b292bd",
-      "width": 1440,
-      "height": 1000,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:57:34.585289+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -641,15 +563,13 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     },
     {
-      "path": "candidate/usage-v2-390.jpg",
+      "path": "candidate/usage-v2-390.png",
       "sha256": "56c83a1e0ac41acee4b8f4caa901df9cfe52815f32ec962b2387d7476aace1c0",
-      "width": 390,
-      "height": 844,
+      "width": 65536,
+      "height": 4292542531,
       "capturedAtUtcFromFileMtime": "2026-09-10T19:58:38.848624+00:00",
       "phase": "intermediate author candidate",
       "staticSourceCommit": null,
@@ -657,9 +577,7 @@
       "locale": "en",
       "sourceClass": "synthetic HTTP/Pi loopback/Core",
       "attribution": "Astra author browser capture; not independent acceptance",
-      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot.",
-      "format": "JPEG",
-      "mimeType": "image/jpeg"
+      "note": "Exact capture-time commit not embedded; use slice review and phase record. Not a final-source screenshot."
     }
   ]
 }

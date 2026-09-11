@@ -150,7 +150,7 @@ large text while focusing the pending question: before, `chat-panel`
 21.5px of the 44px nav visible; after, `scrollHeight=844`, `scrollTop=0`, and
 the header at `0..48` with the nav at `1.5..45.5` (44px visible). The supplied
 fixed capture is
-`evidence/semantic-polish-20260911/baseline/app-vs06-question-light-large-fixed-390.png`.
+`evidence/semantic-polish-20260911/baseline/app-vs06-question-light-large-fixed-390.jpg`.
 Those browser measurements and the capture are author evidence; this source
 review does not claim independent visual or accessibility acceptance.
 

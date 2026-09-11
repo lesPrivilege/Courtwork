@@ -1,0 +1,293 @@
+{
+  "source": "d0ccc097934cec3be8132e1ccaad5dbb7adb4c0d",
+  "pass": true,
+  "captures": [
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/01-home-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/02-home-corrected-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/03-chat-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/04-inspector-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/05-settings-general-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/06-settings-models-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/07-settings-tools-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/08-attention-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/09-attention-item-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/10-spark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/11-usage-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/12-usage-same-observation-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-attention-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-home-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-inspector-light-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-question-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-question-light-large-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-question-light-large-fixed-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-settings-general-light-large-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/app-vs06-tools-light-large-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/chat-actions-production-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/chat-demo-dark-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/chat-demo-error-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/chat-demo-streaming-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/home-vs04-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-baseline-hero-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-vs05-experts-1280.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-vs05-hero-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-vs05-pricing-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-vs05-tour-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/pages-vs05-tour-fixed-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/tools-vs04-compact-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/baseline/tools-vs04-dark-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/inspector-dark-1280.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/inspector-v1-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/inspector-v2-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/inspector-v2-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/inspector-v3-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/usage-v1-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/usage-v2-1440.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "evidence/semantic-polish-20260911/candidate/usage-v2-390.jpg",
+      "sourceBytesUnchanged": true,
+      "format": "JPEG",
+      "width": 390,
+      "height": 844
+    }
+  ]
+}
