@@ -49,3 +49,5 @@ Luna已对本索引作有界非作者文字核对；Astra收紧SDK分页证据�
 后续输入：[Chat Memory Broker](../../research/chat-memory-broker-2026-09-12/README.md)只登记为现context/披露与BE-19/LG/RG的未来消费者；不把provider侧connector与当前MCP客户端等同，不重排本索引候选。
 
 后续输入：[工作义务闭环](../../research/obligation-closure-2026-09-12/README.md)只登记ATT/ME-06与Spark准备/核查的消费场景；不以heartbeat/模型核查代替完成或owner关闭，不启动周期任务或重排本索引。
+
+整体review入口：[governed work loop](../governed-work-loop-2026-09-12/README.md)。本索引仍是候选顺序输入，不因四角色职责裁决自动开工。

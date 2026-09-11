@@ -61,3 +61,7 @@ DRT-04不预定Minimal优胜，也不把host接收时间称provider decode TPS�
 
 
 2026-09-11研究接续：[WCI输入裁决](research/work-capability-input-2026-09-11/README.md)将provider身份来源、scoped capability与context重投影映射DRT-01–04。保留DEC-013现owner；新profile/结果投影/切换边界为待验证候选，不增全能Adaptor或正式Result Capsule对象。
+
+## 2026-09-12 · 产品闭环说明增量
+
+[Governed work loop裁决](release/governed-work-loop-2026-09-12/README.md)以Chat/Spark/Expert/Attention职责解释围绕受治理状态的工作闭环。不是四个固定agent或新runtime层；原owner、协议状态与正式接受边界保持，Spark治理性写入仍需授权和原owner命令。产品说明不宣称本canon目标已全部实现，也不改Paper采用版本。

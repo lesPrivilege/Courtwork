@@ -57,3 +57,5 @@ Tension只作为“未闭合义务引起的注意力需求”的可解释投影�
 首个候选验证场景是一个明确已采用的裁定、固定实现修订与已授权只读fixture，覆盖有证据、缺证据、覆盖不足和冲突四类，再验证只有owner动作改变正式关闭状态。这里只登记场景，不派工、不启用scheduler/heartbeat automation，不更改用户待定的Harness排序。
 
 本轮无UI实现、供应商能力核验、性能结论或Paper修订。发布叙事已有“Spark准备、Attention关注与判断”，无需加入内部receipt阶段或监督算法；所有变化限engineering文档。作者文档链接检查见[checks](checks.json)，不冒称非作者产品验收。
+
+整体模型接续见[四角色与governed work loop裁决](../../release/governed-work-loop-2026-09-12/README.md)：职责可组合，状态owner不合并；Spark准备/治理写入仍需独立授权，Expert可反查原始依据。此前关闭与heartbeat边界保持。
