@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Presence返件接受与消息下落位
+
+Claude原返件7fbbda6与Astra修订26eb8bb已快进接入main，限Design/specimen与证据。[真实CUA裁决](../evidence/agent-presence-review-20260912/README.md)采用A→B双横眼、16px flat；用户追加Claude Code截图后默认放当前assistant消息/Run工作块下方，替代composer状态行推荐。Astra修复真实刮条输入被旧时间覆盖及16s上限，宽窄明暗/详情滚动/Escape与19probe通过，定向17/17、局部三lint和链接通过；Luna对两处增量作有界非作者复核。生产App未接线，thinking_delta今日仅计时未投影，blocked仍fixture；七项gap裁决、终态归属、未独验200%/forced-colors/真实读屏与长期疲劳均在回执。其他writer未提交内容保留，未push/deploy。
+
 ## 2026-09-11 · 机器人Presence Design交接
 
 [正式HANDOFF](research/agent-presence-2026-09-11/HANDOFF.md)按用户授权交本地agent完成Design，Luna负责[Scout/Chat分层索引](research/agent-presence-2026-09-11/reference-index.md)，Astra已裁横置原生SVG、A稳定/B几何下垂/C柔和下垂三组、flat小尺寸与soft 2.5D对照，以及runtime事实/氛围词分层。9轮17消息和原图固定；四图板/185词等未返回文件保持缺件，不阻塞按现有裁决原创Design。返件限独立specimen，含可运行场景、固定时钟/状态fixture、源SVG及证据；随后Astra做真实computer use视觉调试与集成裁决。当前hand-off ready，未派发或接收Design，未修改产品、部署；共享Claude UI writer和其他未提交研究保持。
