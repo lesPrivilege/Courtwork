@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 首页文本六处缺口延后登记
+
+[首页待校记录](release/governed-work-loop-2026-09-12/home-text-followups.md)保留用户六项文本反馈与三项自洽观察；仅首页范围，子页、Release和specimen未核。本轮只登记，后续顺手维护，不修页面、不新增发布或自动跟进；条件性判断保留待核。
+
 ## 2026-09-12 · 第一个工作闭环公开文案已发布
 
 按用户授权直接main完成README、Home、Tour与Chat的小修：Chat作为稳定交互形式，说明准备、执行、核查与基于工作状态恢复的产品理念；Matter Recovery Contract工程条件登记在原恢复面文稿。源码c1ea9de已推送，Pages run34645870216成功，线上19资源HTTP/hash一致，14浏览器场景无溢出；[验证与发布回执](../evidence/work-loop-public-copy-20260912/README.md)。未提交文件保留，既有产品门继续按工程契约核查。
