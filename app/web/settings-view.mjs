@@ -1,5 +1,7 @@
 import "./skin-policy.js";
 import { el, action, flowRow } from "./ui-controls.mjs";
+import { renderDiff } from "./diff-view.mjs";
+import { DIFF_PREVIEW } from "./diff-fixture.mjs";
 import { effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
 export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
 
@@ -1633,6 +1635,7 @@ export const CONTRAST_PAIRS = [
   ["danger", "danger-soft", 4.5],
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
   ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
+  ["diff-add", "panel", 4.5], ["diff-add", "float", 4.5], ["diff-add", "panel-muted", 4.5], ["diff-add-mark-ink", "diff-add-mark", 4.5],
 ];
 function hexChannels(value) {
   const text = String(value || "").trim();
@@ -1910,40 +1913,32 @@ function segmented({ name, label, options, value, onChange }) {
  * 来回比对同一件事；一块放在最上面，改宗、改 skin、改字号、改代码字体都在同一处看见结果，
  * 消融掉的只是重复，不是任何判断。 */
 function appearancePreview() {
+  /* One fixed sample rendered by the shared diff renderer (diff-view.mjs), so
+   * the preview shows the same change language every theme and skin will use.
+   * It is a display sample: no file-diff request, no recorded artifact and no
+   * decision stand behind it. */
   const code = el(
     "div",
     { className: "code-block settings-preview-code" },
-    el("div", { className: "code-toolbar" }, el("span", { text: "notice.md" })),
-    el(
-      "pre",
-      { className: "settings-preview-diff" },
-      el("code", {}, ...[
-        [" ", "## Termination"],
-        ["-", "Either party may end this agreement at will."],
-        ["+", "Either party may end this agreement on 30 days' notice."],
-        [" ", "Notice is effective when received."],
-      ].map(([mark, text]) =>
-        el("span", {
-          className: "diff-line",
-          text: `${mark} ${text}\n`,
-          attrs: { "data-diff": mark === "+" ? "add" : mark === "-" ? "del" : "same" },
-        }),
-      )),
-    ),
+    el("div", { className: "code-toolbar" }, el("span", { text: DIFF_PREVIEW.file })),
+    renderDiff(DIFF_PREVIEW.lines, { label: DIFF_PREVIEW.label }),
   );
   return el(
     "div",
     { className: "settings-preview" },
     el("span", { className: "settings-preview-label", text: "Preview" }),
+    /* The change language leads the preview; the tool row that produced the
+     * file follows it (user ruling 2026-09-11: red overlay as the primary
+     * display, no green). Same renderer, same fixture, no second copy. */
     el(
       "div",
       { className: "settings-preview-surface", attrs: { "aria-hidden": "true" } },
+      code,
       flowRow("div", {
         glyph: "file-text",
-        title: "ws_write · notice.md",
+        title: `ws_write · ${DIFF_PREVIEW.file}`,
         meta: "Completed",
       }),
-      code,
     ),
   );
 }

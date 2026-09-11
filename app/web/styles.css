@@ -5321,27 +5321,59 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
 .settings-preview-code {
   background: var(--panel);
 }
-.settings-preview-diff {
+/* tier:S · Single-red change language: one accent for what is new, grey for
+   what was there. Default and dark values; the block colour must keep ≥ 4.5:1
+   against its dark word ink, the line colour ≥ 4.5:1 against every panel. */
+:root {
+  --diff-change-foreground: #a13c36;
+  --diff-change-block: #dd7068;
+  --diff-change-block-ink: #172025;
+}
+html[data-theme="dark"] {
+  --diff-change-foreground: #e28b83;
+  --diff-change-block: #d4685f;
+  --diff-change-block-ink: #11171b;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --diff-change-foreground: #e28b83;
+    --diff-change-block: #d4685f;
+    --diff-change-block-ink: #11171b;
+  }
+}
+/* tier:R · diff roles. They mean "changed text", never error, danger, review or
+   rejection; skins may not reassign them to a state colour. */
+:root {
+  --diff-add: var(--diff-change-foreground);
+  --diff-add-mark: var(--diff-change-block);
+  --diff-add-mark-ink: var(--diff-change-block-ink);
+}
+.diff-view { display: grid; gap: var(--space-1); }
+.diff-summary { margin: 0; padding: 0 var(--space-2); color: var(--muted-strong); font-size: var(--text-meta); }
+.diff-code {
   margin: 0;
   padding: var(--space-2);
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   line-height: 1.55;
   overflow-x: auto;
+  tab-size: 4;
 }
-.diff-line {
-  display: block;
-  padding: 0 4px;
-  border-radius: var(--radius-small);
-}
-/* 增删两行用稀缺色的 soft 底，符号 + / − 始终在场，颜色不是唯一载体（FN-28）。 */
-.diff-line[data-diff="add"] {
-  background: var(--success-soft);
-  color: var(--success);
-}
-.diff-line[data-diff="del"] {
-  background: var(--danger-soft);
-  color: var(--danger);
+.diff-line { display: block; white-space: pre; color: var(--muted-strong); }
+.diff-line[data-diff="add"] { color: var(--diff-add); }
+.diff-line[data-diff="del"], .diff-line[data-diff="same"] { color: var(--muted-strong); }
+.diff-line[data-diff="meta"] { color: var(--muted); font-style: italic; }
+.diff-no { display: inline-block; min-width: 4ch; text-align: right; color: var(--muted); user-select: none; }
+.diff-no + .diff-no { margin-left: 1ch; }
+.diff-mark { display: inline-block; width: 1.5ch; margin-left: 1ch; text-align: center; font-weight: 600; }
+/* The one solid block of this grammar: only the words that are actually new,
+ * dark ink on the accent so the text stays readable inside the block. */
+.diff-add-word { background: var(--diff-add-mark); color: var(--diff-add-mark-ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
+/* Removed words sit on the existing selected-state layer: grey, never a second hue. */
+.diff-del-word { background: var(--selected); color: var(--ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
+@media (forced-colors: active) {
+  .diff-add-word { background: Highlight; color: HighlightText; forced-color-adjust: none; }
+  .diff-del-word { background: transparent; color: CanvasText; outline: 1px solid CanvasText; }
 }
 /* 用户 token 集：一个纯文本框，逐行报错，不通过就不应用。 */
 .skin-editor {
