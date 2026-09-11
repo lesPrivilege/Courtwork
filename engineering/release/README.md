@@ -22,3 +22,7 @@ These are release records and preparation contracts. A release note does not by 
 ## 2026-09-11 · UI串行接续
 
 [Claude diff／Settings／Chat工单](claude-ui-followthrough-2026-09-11/ONE-SHOT.md)已授权待认领；Paper预发布已返回，由Astra完成最终icon接入与本地候选验证，见[接收回执](../research/claude-paper-return-2026-09-11/prepublish-v1/README.md)。未推送SE或部署。
+
+## 2026-09-11 · Chat专门设计追加
+
+[Astra页面裁定](../design/chat-product-page-2026-09-11/DECISION.md)将Chat升级为同级独立页面与专门视觉设计；Luna索引历史Design消费链，Claude在现有串行单增量绘制和前端施工，后端仍待后续。

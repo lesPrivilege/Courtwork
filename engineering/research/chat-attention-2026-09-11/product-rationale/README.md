@@ -28,3 +28,7 @@
 ## Claude Chat小单的相应修订
 
 [既有串行工单](../../../release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)继续先做前端位点，不抢做后端。新Chat产品方向独立于既有项目session/chat；不能仅把现有coding会话改标签就称跨Provider Chat已实现。占位说明用真实的规划文案，避免来源shell里的“Memory Local / Handoff Available”假可用状态；保留现有普通聊天与Attention入口行为。
+
+## 独立页面追加裁定
+
+用户进一步要求Chat具备与Spark/Attention同级的页面和专门视觉设计；见[Astra先行裁定](../../../design/chat-product-page-2026-09-11/DECISION.md)。此前仅占位按钮/Pages局部文案的最小交付升级为独立页面及同一Design系统增量绘制，后端边界保持。

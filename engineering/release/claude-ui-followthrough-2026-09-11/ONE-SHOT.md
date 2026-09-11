@@ -2,6 +2,12 @@
 
 2026-09-11。用户已授权：参考 Motto 的 TUI diff，消费时同步 Settings diff 预览，而后串行加 Chat tab bar。本文是可直接转交的正式工单，未声称已发送或作者已运行。仅一个 Claude writer 在独立 scratchpad/worktree 连续施工，无需逐阶段再批准；共享文件阶段交接记录固定提交。
 
+## 最新范围与执行顺序
+
+用户追加要求已经由[Astra Chat页面裁定](../../design/chat-product-page-2026-09-11/DECISION.md)写定：Chat必须有与Spark/Attention同级的独立App页面与专门Pages产品展示，不以一个导航按钮或几句文案交差。该裁定优先于下文较早的最小入口措辞。先消费Luna参考索引，按同一Design系统增量补画App、Pages和三面并置，再在本单串行实施前端；后端仍待后续。
+
+顺序：单红diff＋Settings基础 → Chat专门视觉设计与独立预留页 → Settings主展示/Pages单红语言及独立Chat产品页 → 同包验收返回。无需新开并行writer或另等逐阶段批准。
+
 ## 输入与先读
 
 Courtwork 本轮输入基线 `26d949b7a24b06b3280b0a3d19f721a76b9b5aef`，开工重新读取实际 HEAD/status、AGENTS、[current](../../current.md)、[前端连续性规范](../../design/agent-interface-2026-09-10/frontend-contract.md)及相关 precedent 条目。只消费本单与[Motto 研究](../../research/motto-diff-2026-09-11/README.md)，不把品牌红作为 diff token。你不是唯一作者，不修改共享 checkout、不覆盖其他 writer、不使用个人凭据或付费 provider。
@@ -20,7 +26,7 @@ Settings 各合法 appearance/浅深主题直接消费同 renderer/token；保�
 
 写入面：新 renderer、`settings-view.mjs` 的预览段、必要 `styles.css` 局部和定向测试。完成并记录阶段提交再进入 2。
 
-## 2 · Chat tab bar / CA-01 小单
+## 2 · Chat独立产品页面 / CA-01扩展
 
 消费 [Chat/Attention 时间快照与 CA-01](../../research/chat-attention-2026-09-11/README.md)；用户原话“Chat tap bar”按本轮上下文解释为 Chat/Attention/Spark 同层入口中的 Chat 位点，不解释成 Work Surface 文件 tabs 或新增会话 runtime。
 
@@ -61,3 +67,5 @@ Paper 预发布由 Astra 本轮收尾，不再把等待 icon 留给本单。Home
 消费[产品理由登记](../../research/chat-attention-2026-09-11/product-rationale/README.md)，这是用户随后确认的新方向：Chat回答“我想和谁持续交谈”，Attention回答“什么值得我处理”，Spark回答“哪些工作可以持续推进”。本条细化第2阶段：Chat是独立产品方向的前端预留，不能将普通coding session改标签就宣称跨Provider会话/memory已实现。既有普通聊天保持可达；若复用既有聊天作临时承载，必须明示实际能力，不假造独立会话所有权。占位不要提供假可用的Provider/Memory/Handoff控件。
 
 第3阶段Pages同时消费README新增方向：按现页面节奏局部说明三种用户目的，Chat用规划语境，Spark未来routine与当前来源/派生实现分开；Matter、Runtime、Expert责任保持。Home双原子无需硬改三张同权功能卡，不新增三套agent叙事；Features不列未实现能力为可用。不得直接使用来源助手的star、成熟度或条款摘要为发布证据。
+
+本单Chat交付已按最新DECISION升级为完整产品页面与专门视觉设计，旧CA-01最小按钮/仅局部Pages文案不再构成充分交付；不扩大到Provider/Memory后端。
