@@ -1,6 +1,6 @@
 # Claude A/B返回接收与独立Pages任务准备
 
-2026-09-11 · 用户裁定；Astra治理架构文档与语义，Luna只作有界explore，Claude负责获派范围的候选制作。历史准备基线c127961；现内容输入固定 `bf7fa82abe4b1e02bc470ff077ef6aba52000654`。用户已批准Claude开工，正式范围见[ONE-SHOT派单](ONE-SHOT.md)，待作者认领/返回。
+2026-09-11 · 用户裁定；Astra治理架构文档与语义，Luna只作有界explore，Claude负责获派范围的候选制作。历史准备基线c127961；现内容输入固定 `bf7fa82abe4b1e02bc470ff077ef6aba52000654`。用户已批准Claude开工，正式范围见[ONE-SHOT派单](ONE-SHOT.md)，v3已返回并由Astra选择集成，见[v3裁定](../../research/se-control-design-return-2026-09-11/v3/README.md)。
 
 ## 用户澄清后的串行顺序
 
@@ -18,7 +18,7 @@
 |---|---|---|
 | A 架构图 | 语义源3f5daf4；F1/F2/F3新图、F4逐边keep与caption/脚注建议、F5可选；FIGURES-README.md含hash/节点边/alt/placement；16张图渲染 | 已读SVG并查看16张作者PNG；方向适配接收，几何/owner/窄屏问题待修，未接受为发布资产 |
 | B 画布v2 | 原址标v2 after Astra ruling；19板、有效级联、sample/specimen纠正、Rebuild inert、28×28 Stop、disclosure、选择与A2光学候选；CHANGES.md | 已读返回账并查看19板；已修事项接收，残留问题单列；A2仅光学候选，未获canonical接受 |
-| Pages独立task | 用户明确为下一单；不再拆两路作者 | 已授权开工；A/B修订+P1/P2各3构图，独立scratchpad写权；待认领/返回，架构语义最终由本Astra裁决 |
+| Pages独立task | 用户明确为下一单；不再拆两路作者 | v3完整源已固定；Astra选P1-2/P2-3并修订集成，非作者源码复核通过，线上以发布回执为准 |
 
 作者明确未验VoiceOver、IME、forced-colors、200%、1280、IC-6模糊、真实site build；这些不随“完成”关闭。F2唯一红点与“a person decides”需针对图中authority范围核对，不能推导所有Review都强制同一人类动作。F4 keep仍需实际旧图/边/claim核对，不能按作者声明免审。
 

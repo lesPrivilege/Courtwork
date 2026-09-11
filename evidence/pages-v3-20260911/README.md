@@ -30,3 +30,8 @@
 
 
 最终作者主验证 **54/54通过**；源码冻结后两次构建 **104文件逐字节hash一致**，见[复现记录](build-reproducibility.json)。负向门 **2/2拒绝**。静态检查日志check-0–7依序对应links、capture-ready、material、figures、public-data/capture-plan、colors、contrast-report、materials；文档链接结果见[日志](doc-links.log)。这些结果不覆盖上文列明的旧扩展脚本失败或原生未跑项。
+
+
+## Astra接收裁定
+
+候选固定`04943b820ff99b177692aef047c496f138f15fbc`。[非作者源码复核](independent-review.md)判定该有界范围PASS，无源码阻断，未独立重跑浏览器或build。Astra据固定源、作者实拍和非作者源码结果接受本次Pages变更并依既有授权合推/发布；独立源码PASS不冒充完整产品接受，旧扩展门/原生未跑项如上保留。部署结果单独记录。
