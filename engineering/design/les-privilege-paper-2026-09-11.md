@@ -2,13 +2,13 @@
 
 2026-09-11。本文只规范本轮 icon、品牌和 Schema Engineering Paper 的署名接缝。Research lab、FakesNews、CourtWork 产品状态和其他未列入的品牌叙事不在范围内。本文是来源与显示边界，不建立 runtime schema、产品 token、权限模型或新的品牌宏大背景。
 
-当前品牌资产坐标为 Astra 固定提交 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`，manifest revision `optical-03`。Paper 当前 SE 本地 main 为 `0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75`，仍使用旧图标；本规范不把资产坐标写成已接入或已发布。
+当前品牌资产几何坐标为 Astra 固定提交 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`，manifest revision `optical-03`；本轮隔离 intake worktree 增加未提交的 `paletteRevision common-red-v1`，只统一品牌红，不改变几何。Paper 当前 SE 本地 main 为 `0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75`，仍使用旧图标；本规范不把资产坐标写成已接入或已发布。
 
 ## 对象、来源与 owner
 
 | 对象 / 事实 | 权威来源与坐标 | owner / 责任 | 本轮状态 |
 |---|---|---|---|
-| maker 署名 `les Privilege` | [`brand/les-privilege/README.md`](../../brand/les-privilege/README.md)、[`manifest.json`](../../brand/les-privilege/manifest.json) | 品牌资产由 Astra 固定；本文件由 Luna 记录语义边界 | optical-03 已固定；manifest 仍标 `pending-independent-review; not-published` |
+| maker 署名 `les Privilege` | [`brand/les-privilege/README.md`](../../brand/les-privilege/README.md)、[`manifest.json`](../../brand/les-privilege/manifest.json) | 品牌几何由 Astra 固定；本文件由 Luna 记录语义边界 | optical-03 已固定；`paletteRevision common-red-v1` 为本轮隔离候选；manifest 仍标 `pending-independent-review; not-published` |
 | handle `lesPrivilege` | 同上 | 品牌登记 | 仅作 handle，不是显示署名的替代拼写 |
 | 图形标记 `le` | 同上 | 品牌资产 | 仅作 glyph/mark，不是作者、作品或状态 |
 | Paper 作品 `Schema Engineering` | [`PAPER.md`](../../PAPER.md) 与 SE 三份源文 | Schema Engineering Paper owner | 独立于 maker 署名 |
@@ -29,10 +29,10 @@
 | 用途 | 浅底 | 深底 | 语义位置 |
 |---|---|---|---|
 | Paper 默认署名：黑色宗 | `mark-light.svg` · 整体 `#242d33` | `mark-dark.svg` · 整体 `#e4ebef` | 单色 maker mark |
-| Paper 同位可选：上横红三色宗 | `mark-tritone-light.svg` · L `#242d33`、灰 `#6f7e88`、红 `#b4423b` | `mark-tritone-dark.svg` · L `#e4ebef`、灰 `#95a5af`、红 `#e9847b` | 同一署名位置的品牌身份适配 |
+| Paper 同位可选：上横红三色宗 | `mark-tritone-light.svg` · L `#242d33`、灰 `#6f7e88`、红 `#c95e55` | `mark-tritone-dark.svg` · L `#e4ebef`、灰 `#95a5af`、红 `#c95e55` | 同一署名位置的品牌身份适配 |
 | 宽窄或宿主继承色 | `mark.svg` | 由宿主 `currentColor` 决定 | 仅在宿主明确负责颜色时使用 |
 
-上横红是三色宗的当前推荐；中横红 (`mark-tritone-middle-light.svg` / `mark-tritone-middle-dark.svg`) 与灰阶 (`mark-tonal-light.svg` / `mark-tonal-dark.svg`) 继续作为对照候选，不是本轮 Paper 默认。黑色宗与三色宗并列保留，共用几何；不能把一个说成另一个的降级版本。
+上横红是三色宗的当前推荐；`common-red-v1` 在浅深宗均使用 `#c95e55`，只作品牌 SVG 横笔和明确的非文字标记。以 Paper 实际底 `#edf1f3` / `#202b32` 计算，对比度为 `3.54:1` / `3.59:1`，满足非文字 `3:1` 参考门槛但不满足正文 `4.5:1` 门槛；相邻阅读文字保持宿主中性色。中横红 (`mark-tritone-middle-light.svg` / `mark-tritone-middle-dark.svg`) 与灰阶 (`mark-tonal-light.svg` / `mark-tonal-dark.svg`) 继续作为对照候选，不是本轮 Paper 默认。黑色宗与三色宗并列保留，共用几何；不能把一个说成另一个的降级版本。品牌红不进入 Attention review、error、active、permission、diff 或其他产品状态。
 
 九个 SVG 的来源 hash 由当前 manifest 固定如下；接入时以 manifest 与资产提交共同核对：
 
@@ -43,12 +43,12 @@
 | `mark-dark.svg` | `a035a019e092ded91ada848be5d6f736093d911143fcabf431e27a96ab05f935` |
 | `mark-tonal-light.svg` | `5eebaf69bcd24b98fdb52218e5f7f40ead0a2905c70762e7e923464a130c9956` |
 | `mark-tonal-dark.svg` | `a453d7b6329c710ea35d2a1ac73b9480940fc2b15b72520e9740051e5241c2e3` |
-| `mark-tritone-light.svg` | `392bf630ee4bcddc58bf6092cff9e87537d546d5c99aebfe043597e094aa9e99` |
-| `mark-tritone-dark.svg` | `f701005bf1bb352345f07cd281339c21b55f7171925a4b6787d73c0210297658` |
-| `mark-tritone-middle-light.svg` | `f5d02c5c2abdef86d933118298661434ca37a6263b7b79bab8dbdd41be4a5a14` |
-| `mark-tritone-middle-dark.svg` | `293f811b54ae03723ef7e4719e2a6dbf62b72d0c57cdc7e038c51219c65f2aff` |
+| `mark-tritone-light.svg` | `57bbc63525b13c2729c5b5f88c243366b9ab1cc371e186174833fff3d42ffabc` |
+| `mark-tritone-dark.svg` | `96f7e2d8ca7a177bc26b9ab20e27b1bb4898411bed49fe72c5fc55eef35d81a0` |
+| `mark-tritone-middle-light.svg` | `1c58eba29a58c2275b0f95df8684762eec4e88af19b6c36437e69f2ae4a333ea` |
+| `mark-tritone-middle-dark.svg` | `871f398eb9f98ef250844c174487b7a04fa84b8d8dd65f29af932ed91dcfa314` |
 
-当前 `manifest.json` SHA-256 为 `ca961fc31b65b57ad98f797cac042806f941d059a5764b75082b0439a60a6f82`；`build.py` SHA-256 为 `e6a87a1573810adb9252f36736d8fe45cd0fca7e8a8d457769bfb60ea7cf4c61`。若生成器再次变化，接入方必须重新固定 manifest、资产 hash 和候选坐标，不能沿用旧 hash。
+当前 `manifest.json` SHA-256 为 `c6e412620bd4112cb4eadb9dea7fd90eff972109eadcae4db9b50e99ab55bc55`；`build.py` SHA-256 为 `e4eb2ec8c36aa8e9bada4d3699005b6d1a90f2b4b15b7fa261a34760f5d7d6f1`。若生成器再次变化，接入方必须重新固定 manifest、资产 hash 和候选坐标，不能沿用旧 hash。
 
 ## 允许展示
 
@@ -87,8 +87,8 @@ Astra 或发布 owner 在真正接入时，需为同一候选保留以下证据�
 
 | 门 | 必须核对 | 通过条件 |
 |---|---|---|
-| 来源 | 提交、路径、manifest、逐文件 hash | 来自 `146e072...` 的明确路径与九个 hash 全部匹配；不消费历史 9/26/gap8 稿 |
-| 几何与色值 | `optical-03` 字段、两宗、明暗、候选位置 | 九个 SVG 几何相同；Paper 默认黑色宗；可选三色宗为上横红；中横红/灰阶仅候选 |
+| 来源 | 提交、路径、manifest、逐文件 hash | 仅几何来自 `146e072...` 的明确路径；本轮 `common-red-v1` 由隔离候选的 `build.py` 生成并待 Astra 固定；manifest 的九个候选 hash 全部匹配；不消费历史 9/26/gap8 稿 |
+| 几何与色值 | `optical-03` / `common-red-v1` 字段、两宗、明暗、候选位置 | 九个 SVG 几何相同；Paper 默认黑色宗；可选三色宗为浅深共用 `#c95e55` 的上横红；中横红/灰阶仅候选 |
 | 语义 | 相邻署名文字、作者/作品/版本来源 | `les Privilege` 只作 maker signature；Paper 作者、作品、`9.6/d78fd312` 和正式单位来自 SE，均未被图形改写 |
 | SVG 接入 | 零依赖、currentColor、ARIA/title | 无脚本、位图、网络、滤镜或事件属性；内联 title ID 不冲突；装饰实例不重复朗读 |
 | 阅读面 | 同一 reader、同一署名位置 | 不复制两套 reader，不增加新控件；候选仍保留三卷、双语、主题、hash/deep link、键盘和无脚本行为 |
@@ -96,17 +96,21 @@ Astra 或发布 owner 在真正接入时，需为同一候选保留以下证据�
 | 构建可复现 | release manifest、候选输出与命令 | 两次构建字节一致；论文内容、译文、review manifest、SE 源和线上版本坐标分开记录 |
 | 接入、复核与发布 | 实际 SE commit/path/hash；独立复核；workflow/线上字节 | 接入按实际代码坐标记录；非作者复核作为独立审查结论另列；只有实际发布 workflow 与线上字节回执齐全才可称已发布 |
 
-在这些证据出现前，推荐措辞是：“`optical-03` 品牌资产已固定于 `146e072...`；Paper 当前 SE local main `0f23ad1...` 仍使用旧图标，等待预发布候选按固定 hash 接入；论文内容仍为 `9.6 / 2026-09-07 / d78fd312`，尚无本轮线上发布回执。”
+在这些证据出现前，推荐措辞是：“`optical-03` 几何资产已固定于 `146e072...`；隔离候选将品牌色更新为 `common-red-v1` / `#c95e55`，仅用于非文字身份标记；Paper 当前 SE local main `0f23ad1...` 仍使用旧图标，等待预发布候选按固定 hash 接入；论文内容仍为 `9.6 / 2026-09-07 / d78fd312`，尚无本轮线上发布回执。”
 
 接入后必须写明实际 SE commit、Paper 文件路径、替换前后 hash、验证结果和未跑项。若只完成候选构建，使用“本地 Paper 候选”或“预发布候选”，不写“已上线”或“已发布”。如果资产已写入候选代码，可准确写“已接入该本地候选”，同时列实际提交与未决复核；接入事实不等于独立接受。
 
 ## Luna 只读核对与限制
 
-在当前工作树 HEAD `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`，Luna 独立执行了以下可复现核对：
+在几何源提交 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56` 的基础上，Luna 在当前隔离 intake worktree 对 `common-red-v1` 独立执行了以下可复现核对：
 
-- 用 `sha256sum brand/les-privilege/*.svg` 与只读 manifest 比对，九个文件全部匹配；manifest revision 为 `optical-03`。
+- 用 `sha256sum brand/les-privilege/*.svg` 与只读 manifest 比对，九个文件全部匹配；manifest revision 为 `optical-03`，paletteRevision 为 `common-red-v1`，浅深三色宗红横均为 `#c95e55`。
 - 用只读解析检查九个 SVG 的 viewBox、path、两枚 rect、`translate(4.5 0)`、`x=24`、`y=12/30`、`23 × 7` 几何，并确认九个文件几何元组相同。
 - 用 `xmllint --noout brand/les-privilege/*.svg` 检查 XML；用 `rg` 检查 `script`、`image`、`foreignObject`、`filter`、`style`、外部 href 和事件属性，均未发现。
-- 阅读 [`verification.json`](../../brand/les-privilege/verification.json)：Astra 的作者证据记录九个 SVG、1280 × 2100 宽屏预览、390 × 844 窄屏首屏、960 × 461 两宗对照及窄屏无横向溢出，并明确 Paper integration is separate。
+- 阅读 [`verification.json`](../../brand/les-privilege/verification.json)：既有 Astra 作者证据记录九个 SVG、1280 × 2100 宽屏预览、390 × 844 窄屏首屏、960 × 461 两宗对照及窄屏无横向溢出；这些 PNG 属于 optical-03 旧调色板参考，不代表 common-red-v1。本轮只更新源 SVG、预览 HTML、manifest 和语义记录，不伪造或重写 PNG，common-red-v1 的最终浅深视觉比较仍由 Astra 独立完成，并明确 Paper integration is separate。
 
 上述是源文件、几何、hash 和零依赖边界的核对。它没有运行 Paper 构建，没有改 SE checkout，没有把旧 icon 替换为 optical-03，没有做原生 VoiceOver/IME/forced-colors、实体打印或线上发布验收，也不把 Astra 的截图检查改称 Luna 的独立视觉接受。
+
+## Astra接收 common-red-v1
+
+Luna完成有界源实现与自检后，Astra独立核对9个SVG来源/几何及新浅深实拍，采纳同一红色 `#c95e55`。当前PNG已替换为本轮真实浏览器结果；上文“旧PNG/待视觉比较”描述仅为Luna交接时点，现由本段和verification.json替代。最终资产提交及Paper集成坐标见本轮[接收回执](../research/claude-paper-return-2026-09-11/prepublish-v1/README.md)。未发布。

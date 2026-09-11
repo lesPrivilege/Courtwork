@@ -1,6 +1,7 @@
 {
   "revision": "optical-03",
-  "review": "Astra author checks; Luna source review recorded separately",
+  "paletteRevision": "common-red-v1",
+  "review": "Luna source implementation/self-check; Astra independent source and visual review of palette change",
   "svgCount": 9,
   "xmlElements": "svg/title/g/path/rect only; no external references or event attributes",
   "accessibleName": "les Privilege",
@@ -12,8 +13,7 @@
         1280,
         2100
       ],
-      "scrollWidth": 1280,
-      "missingImages": 0
+      "sha256": "d92ff77adc71260fb349cf8c6925aae9e1c137df85cb5461b91cc4d30b35ceb8"
     },
     {
       "path": "mobile.png",
@@ -21,8 +21,8 @@
         390,
         844
       ],
-      "scrollWidth": 390,
-      "note": "narrow first viewport, not full page"
+      "note": "narrow first viewport, not full page",
+      "sha256": "34608d8f9ffdc94cbabb76cae8397845f6e08594ae548823fd762defde264ce9"
     },
     {
       "path": "identity.png",
@@ -30,10 +30,10 @@
         960,
         461
       ],
-      "scrollWidth": 960
+      "sha256": "14e8fd0080a5e45d1deb0c63311693f9137aa5f97e2e82df8347d59bed97faab"
     }
   ],
-  "visualInspection": "Astra inspected native SVG before/after, both families in light/dark at 64px and 16–64px ladders; narrow layout has no horizontal overflow. Paper integration is separate.",
+  "visualInspection": "Astra inspected common-red-v1 light/dark identity, 1280x2100 preview with 16\u201364px ladders and 390x844 first viewport; geometry optical-03 unchanged. Paper evidence recorded separately.",
   "sourceBaseline": "bf4b8081a1e4c6c3d680d388472f6f5c93092e62",
-  "buildSha256": "e6a87a1573810adb9252f36736d8fe45cd0fca7e8a8d457769bfb60ea7cf4c61"
+  "buildSha256": "e4eb2ec8c36aa8e9bada4d3699005b6d1a90f2b4b15b7fa261a34760f5d7d6f1"
 }

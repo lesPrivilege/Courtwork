@@ -4,6 +4,7 @@
   "mark": "le",
   "status": "astra-optical-finish; pending-independent-review; not-published",
   "revision": "optical-03",
+  "paletteRevision": "common-red-v1",
   "grid": 64,
   "geometry": {
     "LStroke": 9,
@@ -31,19 +32,20 @@
     "light": {
       "L": "#242d33",
       "secondary": "#6f7e88",
-      "red": "#b4423b"
+      "red": "#c95e55"
     },
     "dark": {
       "L": "#e4ebef",
       "secondary": "#95a5af",
-      "red": "#e9847b"
+      "red": "#c95e55"
     }
   },
   "families": {
     "color": "tritone; Dystopia",
     "black": "monochrome; Anthropic A-backslash reference"
   },
-  "recommendedColor": "red top bar; gray middle bar; dark L on light ground",
+  "recommendedColor": "red top bar; gray middle bar; dark L on light ground; common brand red across schemes",
+  "brandColorRole": "brand marker only; not text or product status",
   "variants": {
     "previous": [
       10,
@@ -109,19 +111,19 @@
     },
     {
       "path": "mark-tritone-light.svg",
-      "sha256": "392bf630ee4bcddc58bf6092cff9e87537d546d5c99aebfe043597e094aa9e99"
+      "sha256": "57bbc63525b13c2729c5b5f88c243366b9ab1cc371e186174833fff3d42ffabc"
     },
     {
       "path": "mark-tritone-dark.svg",
-      "sha256": "f701005bf1bb352345f07cd281339c21b55f7171925a4b6787d73c0210297658"
+      "sha256": "96f7e2d8ca7a177bc26b9ab20e27b1bb4898411bed49fe72c5fc55eef35d81a0"
     },
     {
       "path": "mark-tritone-middle-light.svg",
-      "sha256": "f5d02c5c2abdef86d933118298661434ca37a6263b7b79bab8dbdd41be4a5a14"
+      "sha256": "1c58eba29a58c2275b0f95df8684762eec4e88af19b6c36437e69f2ae4a333ea"
     },
     {
       "path": "mark-tritone-middle-dark.svg",
-      "sha256": "293f811b54ae03723ef7e4719e2a6dbf62b72d0c57cdc7e038c51219c65f2aff"
+      "sha256": "871f398eb9f98ef250844c174487b7a04fa84b8d8dd65f29af932ed91dcfa314"
     }
   ]
 }

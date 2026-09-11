@@ -4,7 +4,7 @@
 
 ## 当前坐标
 
-当前资产坐标固定在 Astra 的 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`。manifest 的 `revision` 为 `optical-03`，状态仍明确写作 `pending-independent-review; not-published`：资产坐标已经固定，Paper 接入与发布仍是后续独立步骤。
+当前几何坐标固定在 Astra 的 `146e072ce0c4f7d52adeecbdf670ef2d15f31b56`。本轮隔离 intake worktree 把 manifest 的 `revision` 保持为 `optical-03`，并生成待 Astra 固定的 `paletteRevision common-red-v1` 候选；状态仍明确写作 `pending-independent-review; not-published`：几何来源已经固定，当前调色板提交、Paper 接入与发布仍是后续独立步骤。
 
 Paper 仍由独立的 Schema Engineering 维护。SE 本地 main `0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75` 的当前 reader 仍使用旧图标；本包没有声称已经接入 Paper、更新 Paper 正文或发布线上页面。论文内容继续采用 `9.6 / 2026-09-07 / d78fd312955c1f594e59cbdcbb0d3074ac355940`。
 
@@ -37,9 +37,11 @@ Paper 仍由独立的 Schema Engineering 维护。SE 本地 main `0f23ad1ebed4ff
 | 黑色宗整体 | `#242d33` | `#e4ebef` | Paper 默认署名、单色或无色场景 |
 | 三色宗 L | `#242d33` | `#e4ebef` | 与黑色宗并列的身份适配 |
 | 三色宗次横 | `#6f7e88` | `#95a5af` | 三色宗的浅灰横笔 |
-| 三色宗红横 | `#b4423b` | `#e9847b` | 三色宗推荐的上横；只作品牌身份色 |
+| 三色宗红横 | `#c95e55` | `#c95e55` | 三色宗推荐的上横；只作品牌身份色 |
 
-三色宗当前推荐为“上横红、下横浅灰、L 深色”（深底使用对应浅色适配）；中横红和灰阶变体继续作为候选对照，不是本轮默认。品牌红不映射 `error`、`active`、`review`、`permission` 或其他产品状态。品牌独立身份也不生成这些状态。
+三色宗当前推荐为“上横红、下横浅灰、L 深色”（两宗共用 `#c95e55`；L 与浅灰横笔仍按明暗底适配）；中横红和灰阶变体继续作为候选对照，不是本轮默认。`common-red-v1` 只把品牌上横的红色固定为跨明暗同一值，不把它变成文字色。品牌红不映射 `error`、`active`、`review`、`permission`、`diff` 或其他产品状态；品牌独立身份也不生成这些状态。
+
+在当前 Paper 深浅底 `#edf1f3` / `#202b32` 上，`#c95e55` 的相对亮度对比度分别为 `3.54:1` / `3.59:1`，满足图形标记的非文字 `3:1` 参考门槛，但不满足正文 `4.5:1` 门槛。因此它只用于 SVG 的品牌横笔或明确的非文字标记；相邻阅读文字保持宿主中性色，Attention 的 review、error、diff 和 forced-colors / print 规则继续由各自 owner 负责。
 
 文件对应关系如下：
 
@@ -64,6 +66,10 @@ Research lab、FakesNews 及其他未列入本轮的叙事和产品面不在本�
 
 用 `python3 brand/les-privilege/build.py` 可以重建九个 SVG、静态预览 HTML、manifest 和几何对照。它不会接入 Paper、修改 SE 源文或发布站点。当前 manifest 记录的九个文件 hash 必须作为资产接入的来源；不要用历史 README 中的 hash 替换它们。
 
-[`verification.json`](verification.json) 记录 Astra 的作者检查：九个 SVG、`preview.png` 1280 × 2100、`mobile.png` 390 × 844、`identity.png` 960 × 461，以及窄屏无横向溢出。该文件同时明确 Paper integration is separate。Luna 的源、几何和语义核对见 [`les-privilege-paper-2026-09-11.md`](../../engineering/design/les-privilege-paper-2026-09-11.md)；文档作者核对不等于独立视觉验收。
+[`verification.json`](verification.json) 记录 Astra 的作者检查：九个 SVG、`preview.png` 1280 × 2100、`mobile.png` 390 × 844、`identity.png` 960 × 461，以及窄屏无横向溢出。现有 PNG 是 optical-03 旧调色板的参考证据，不代表 `common-red-v1`；本轮只更新源 SVG、预览 HTML、manifest 和语义记录，不伪造或重写既有 PNG。最终浅深视觉比较仍由 Astra 独立完成。该文件同时明确 Paper integration is separate。Luna 的源、几何和语义核对见 [`les-privilege-paper-2026-09-11.md`](../../engineering/design/les-privilege-paper-2026-09-11.md)；文档作者核对不等于独立视觉验收。
 
 来源：[品牌消费记录](../../engineering/research/le-brand-2026-09-11/README.md)、[更新记录](../../engineering/research/le-brand-2026-09-11/update.md)、[上一轮 LE 几何研究](../studies/le-2026-09-11/README.md)。CourtWork 的母题来源和品牌接入边界见 [`brand/README.md`](../README.md)。
+
+## Astra接收 common-red-v1
+
+Luna完成有界源实现与自检后，Astra独立核对9个SVG来源/几何及新浅深实拍，采纳同一红色 `#c95e55`。当前PNG已替换为本轮真实浏览器结果；上文“旧PNG/待视觉比较”描述仅为Luna交接时点，现由本段和verification.json替代。最终资产提交及Paper集成坐标见本轮[接收回执](../../engineering/research/claude-paper-return-2026-09-11/prepublish-v1/README.md)。未发布。
