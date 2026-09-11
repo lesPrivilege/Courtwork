@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Shell返回、提醒与观察契约优先消费
+
+[Shell控制面](design/shell-control-plane-2026-09-12/README.md)消费原始建议与三张追加截图：FE-NAV先冻结位置历史/选择筛选滚动与焦点恢复；Notification保持事件认知，与Core Attention以幂等引用关联；Usage承接已有Overview/Models、日历与date/model→Run快照下钻，小时矩阵和新Metric × Dimension先补owner/覆盖口径。已接活动前端规范与后端缺口，修正Usage先例路径；四项原件hash及隔离5067条链接通过。此轮仅合同/语义参考，无App、schema、箭头/Bell或新增统计实现，无非作者产品接受；8804保持运行，未push/deploy。
+
 ## 2026-09-12 · 前端节点接受与真实Runtime验证入口
 
 [最终前端节点](release/frontend-node-2026-09-12/README.md)已合入本地main：普通控件仅滑动开关用红、Session菜单tooltip避让、Matter/Expert glyph及Fable完整返件消费完成。App全量793/793、Pages36/36、26张1440×900原生明暗媒体及来源/hash校验通过；Luna有界非作者复核与Astra实机修正分别记录。消息动作尺寸审计与二级玻璃/blur材质快审未发现需追加补丁缺口。已消费/归档覆盖分支清理保留原目录与其他writer改动；Frozen Fresh远端开发ref在完整archive tag验证后退役。CW/SE main本轮未push、未部署。
