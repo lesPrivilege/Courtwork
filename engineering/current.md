@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Work优先定义与自然语言定稿
+
+[Astra裁定](release/work-first-narrative-2026-09-11/DECISION.md)消费最新3轮（累计12轮/24消息）及Court/人在场说明：Court是有机协作与正式编排的工作场合，Work Core为工程重心。首页、README真实生成源、Features/Experts与Paper导读已同步为连贯对外文案，主句为“Your work. With you in it.”；论文正文和App/Core未改。作者浏览器54/54、三路由18场景、构建一致性与链接检查通过，见[回执](release/work-first-narrative-2026-09-11/verification.md)。Chat专门Design与既有Claude串行单继续消费本定稿；不新增后端能力，不关闭原产品门，未部署。
+
 ## 2026-09-11 · Chat同级页面与专门Design
 
 [Astra裁定](design/chat-product-page-2026-09-11/DECISION.md)已将Chat从最小导航占位升级为独立App预留页和专门Pages产品页；Luna完成[旧Design消费索引](design/chat-product-page-2026-09-11/reference-index.md)，固定研究/19板/v2/v3/现App与Pages先例及接受边界。现Claude串行单先消费裁定，再增量绘制三面并置和宽窄明暗设计，沿同一视觉系统施工；尚未绘制或实现新页面，不增加Provider/Memory后端，不部署。原A工程图/DR未闭门仍按证据保留。
