@@ -1,4 +1,5 @@
 import { renderCapture } from './capture-plan.mjs';
+import { sourceChangeStory } from './continuity-figures.mjs';
 // Render the page.
 //
 // One document, Chinese-led, no framework and no build-time templating engine:
@@ -63,6 +64,7 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
       ${hero(fill, shot)}
       ${productAtoms()}
       ${primaryEntries()}
+      ${sourceChangeStory()}
       ${currentHome(fill, shot)}
       ${matter(fill)}
       ${review(fill, shot)}
@@ -102,7 +104,7 @@ function hero(fill, shot) {
         <p class="lede">${escape(HERO.lede)}</p>
         <p class="actions hero-actions" lang="en">${HERO.actions
           .map((a) => `<a class="hero-action${a.primary ? " hero-action-primary" : ""}" href="${escape(a.href)}">${escape(a.label)}</a>`)
-          .join("")}</p></div>
+          .join("")}<a class="hero-action-paper" href="${escape(PAPER_ENTRY.href)}">Review the paper <span aria-hidden="true">↗</span></a></p></div>
         <figure class="hero-object" data-figure="fig-00-matter-object" aria-labelledby="object-caption">
           <div class="object-register"><span>FIG. 00 / A MATTER, CONTINUED</span><span class="brand-lockup brand-lockup-small">${brandIcon()}<span class="brand-name">Court<span>Work</span></span></span></div>
           <div class="archive-stack" aria-hidden="true"><div class="archive-sheet sheet-source">01 / SOURCE<span>A starting point.</span></div><div class="archive-sheet sheet-candidate">02 / CANDIDATE<span>A possibility.</span></div><div class="archive-sheet sheet-work">03 / MATTER<span>The work<br>remains.</span><i>Source → Candidate → Decision</i></div></div>

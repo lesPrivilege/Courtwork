@@ -1,0 +1,226 @@
+{
+  "results": [
+    {
+      "id": "tour · light · contrast, layout and local resources",
+      "pass": false,
+      "failures": [],
+      "foreign": [
+        "http://127.0.0.1:8947/favicon.ico"
+      ],
+      "overflow": 0
+    },
+    {
+      "id": "tour · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "tour · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "tour · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "get · light · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "get · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "get · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "get · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "cli · light · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "cli · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "cli · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "cli · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "changelog · light · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "changelog · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "changelog · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "changelog · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "models · light · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "models · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "models · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "models · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "data · light · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "data · dark · contrast, layout and local resources",
+      "pass": true,
+      "failures": [],
+      "foreign": [],
+      "overflow": 0
+    },
+    {
+      "id": "data · 390px scale 1",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "data · 1440px scale 2",
+      "pass": true,
+      "overflow": 0
+    },
+    {
+      "id": "Desktop preview explains actual distribution",
+      "pass": false
+    },
+    {
+      "id": "Dialog Escape closes",
+      "pass": true
+    },
+    {
+      "id": "Install pins evidence and external data directory",
+      "pass": true,
+      "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824"
+    },
+    {
+      "id": "Denied clipboard retains manual copy",
+      "pass": true
+    },
+    {
+      "id": "CLI uses recorded counts and exact source",
+      "pass": true
+    },
+    {
+      "id": "CLI review does not decide; routes are explicit",
+      "pass": false
+    },
+    {
+      "id": "CLI input remains text and clear works",
+      "pass": true
+    },
+    {
+      "id": "CLI performs no remote requests",
+      "pass": true,
+      "foreign": []
+    },
+    {
+      "id": "Tour distinguishes captures from missing states",
+      "pass": false,
+      "states": 13,
+      "images": 13,
+      "provenance": 0,
+      "reserved": [
+        "home",
+        "running",
+        "artifact",
+        "spark",
+        "matter",
+        "continuity",
+        "attention",
+        "approval",
+        "review",
+        "models",
+        "integrations",
+        "settings",
+        "conversation"
+      ]
+    },
+    {
+      "id": "get · no-script content remains",
+      "pass": true
+    },
+    {
+      "id": "cli · no-script content remains",
+      "pass": true
+    },
+    {
+      "id": "tour · no-script content remains",
+      "pass": false
+    }
+  ],
+  "shots": [
+    "tour-1440.png",
+    "get-1440.png",
+    "cli-1440.png",
+    "changelog-1440.png",
+    "models-1440.png",
+    "data-1440.png"
+  ]
+}

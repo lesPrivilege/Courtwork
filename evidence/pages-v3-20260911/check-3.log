@@ -1,0 +1,138 @@
+{
+  "figures": [
+    {
+      "id": "fig-00-matter-object",
+      "status": "concept",
+      "red": null,
+      "svgs": 1
+    },
+    {
+      "id": "anatomy-instrument",
+      "status": "shipped",
+      "red": null,
+      "svgs": 0
+    },
+    {
+      "id": "state-to-commit",
+      "status": "shipped",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 0,
+        "texts": 8,
+        "edges": 6
+      }
+    },
+    {
+      "id": "pricing-local",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pricing-hosted",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pricing-organization",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": "measured by verify.mjs"
+    },
+    {
+      "id": "pipeline",
+      "status": "concept",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 13,
+        "texts": 34,
+        "edges": 7
+      }
+    },
+    {
+      "id": "spark",
+      "status": "research",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 6,
+        "texts": 9,
+        "edges": 2
+      }
+    },
+    {
+      "id": "attention",
+      "status": "research",
+      "red": "#fig-attention-elevated",
+      "svgs": 1,
+      "geometry": {
+        "rects": 49,
+        "texts": 3,
+        "edges": 3
+      }
+    },
+    {
+      "id": "roles",
+      "status": "research",
+      "red": null,
+      "svgs": 1,
+      "geometry": {
+        "rects": 7,
+        "texts": 11,
+        "edges": 2
+      }
+    },
+    {
+      "id": "source-change",
+      "status": "concept",
+      "red": "#source-change-decision",
+      "svgs": 1,
+      "geometry": {
+        "rects": 11,
+        "texts": 32,
+        "edges": 6
+      }
+    },
+    {
+      "id": "source-change-compact",
+      "status": "concept",
+      "red": "#source-change-compact-decision",
+      "svgs": 1,
+      "geometry": {
+        "rects": 8,
+        "texts": 21,
+        "edges": 2
+      }
+    },
+    {
+      "id": "candidate-to-record",
+      "status": "concept",
+      "red": "#candidate-to-record-decision",
+      "svgs": 1,
+      "geometry": {
+        "rects": 4,
+        "texts": 20,
+        "edges": 7
+      }
+    },
+    {
+      "id": "candidate-to-record-compact",
+      "status": "concept",
+      "red": "#candidate-to-record-compact-decision",
+      "svgs": 1,
+      "geometry": {
+        "rects": 5,
+        "texts": 20,
+        "edges": 4
+      }
+    }
+  ],
+  "problems": [],
+  "pass": true
+}

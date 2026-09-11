@@ -1,0 +1,13 @@
+✔ pending frames never disclose old UI or permit publication (1.885291ms)
+✔ ready is one complete batch pinned to one source (0.811917ms)
+✔ public projection preserves facts and does not mutate the recording (2.304084ms)
+✔ unexpected private content fails closed (0.334666ms)
+✔ publication rejects injected machine paths and accepts synthetic paths (9.378917ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.295458

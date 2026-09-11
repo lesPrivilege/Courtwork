@@ -985,3 +985,36 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .research-depth > summary { padding-block: 1.5rem; cursor: pointer; font-size: 1.125rem; }
 #evidence .boundary-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
 @media (max-width: 680px) { #evidence .boundary-pair { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+
+/* Pages continuity views: Claude v3 compositions adapted to the campaign.
+ * Their concepts and red points are registered in figures.json. */
+.continuity-story { margin-top: 64px; }
+.continuity-story > h2, .continuity-story > h3 { font-family: var(--campaign-serif); font-size: clamp(38px, 5vw, 68px); font-weight: 400; letter-spacing: -.04em; line-height: 1.08; }
+.continuity-story > .lede { max-width: 680px; }
+.continuity-figure { margin-top: 36px; }
+.continuity-figure > .figure { margin: 0; }
+.continuity-figure .figure-compact { display: none; }
+.continuity-figure > .figure > figcaption { font-size: 14px; max-width: 760px; margin-top: 24px; }
+.fig .fig-sheet { fill: var(--campaign-raised); stroke: var(--campaign-rule); stroke-width: 1.2; }
+.fig .fig-sheet-candidate { fill: var(--campaign-raised); stroke: currentColor; stroke-width: 1.2; stroke-dasharray: 4 3; }
+.fig .fig-paper { fill: var(--campaign-soft); stroke: var(--campaign-rule); stroke-width: 1.2; }
+.tour-continuity { padding-top: 48px; border-top: 1px solid var(--campaign-rule); }
+@media (max-width: 720px) {
+  .continuity-figure .figure-wide { display: none; }
+  .continuity-figure .figure-compact { display: block; }
+  .continuity-figure { margin-top: 24px; }
+  .continuity-story { margin-top: 48px; }
+}
+@media (forced-colors: active) {
+  .fig .fig-sheet, .fig .fig-sheet-candidate, .fig .fig-paper { fill: Canvas; stroke: CanvasText; }
+}
+
+/* User-requested reading emphasis; this link carries no pending-review state. */
+.hero-copy > .hero-actions { justify-content:flex-start; text-align:left; flex-wrap:wrap; }
+.hero-actions .hero-action-paper { display:inline-flex; align-items:center; gap:6px; justify-self:start; min-height:48px; padding:0 20px; border:1px solid transparent; background:var(--campaign-attention-review); color:var(--campaign-paper); font-weight:500; text-decoration:none; }
+.hero-actions .hero-action-paper:hover { text-decoration:underline; text-underline-offset:4px; }
+@media (forced-colors:active) { .hero-actions .hero-action-paper { background:ButtonFace; color:ButtonText; border-color:ButtonText; } }
+@media (max-width:480px) {
+  .hero-actions .hero-action-paper { justify-self:stretch; justify-content:center; }
+}

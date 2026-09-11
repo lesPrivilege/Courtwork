@@ -1,0 +1,42 @@
+<svg class="fig" viewBox="0 0 360 1062" role="img" aria-labelledby="candidate-to-record-compact-title candidate-to-record-compact-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="candidate-to-record-compact-title">A candidate becomes the work — compact</title>
+<desc id="candidate-to-record-compact-desc">当前Matter版本7中的正式成果、来源与义务被投影为本次执行的上下文：来源s-1版本2，来源集合修订3。执行产生候选c-11及单独的运行记录。候选绑定集合修订3与证据，经验证、授权和明确的接受决定后，Work Core提交正式成果与回执，Matter进入版本8，供下一次执行继续。此图画出人接受这一候选的实例。运行记录可作为证据引用，但不自动成为正式成果；较早候选c-9和c-10仍保留其过期来源。</desc>
+<defs><marker id="candidate-to-record-compact-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="currentColor"/></marker></defs>
+<text class="fig-label" x="16" y="22" font-size="12" >THE WORK SO FAR</text>
+<path class="fig-sheet" d="M30 60L300 48L308 178L38 190Z" data-deco="back-sheet"/>
+<rect class="fig-sheet" x="44" y="44" width="284" height="128" />
+<text class="fig-label" x="60" y="73" font-size="12" >MATTER · v7</text>
+<text class="fig-th" x="60" y="102" font-size="14" >Artifact · sources · decisions</text>
+<text class="fig-muted" x="60" y="130" font-size="13" >Open obligations</text>
+<path class="fig-trace" d="M180 192V230" data-edge="state-context" marker-end="url(#candidate-to-record-compact-arrow)"/>
+<text class="fig-label" x="16" y="260" font-size="12" >PROJECT THE CONTEXT</text>
+<rect class="fig-paper" x="44" y="276" width="284" height="116" />
+<text class="fig-th" x="60" y="304" font-size="15" >A bounded working set</text>
+<text class="fig-muted" x="60" y="332" font-size="13" >s-1 revision 2 · source set 3</text>
+<text class="fig-muted" x="60" y="361" font-size="13" >Contract · selected evidence</text>
+<path class="fig-edge" d="M180 396V426" data-edge="context-run" marker-end="url(#candidate-to-record-compact-arrow)"/>
+<text class="fig-label" x="16" y="455" font-size="12" >ONE RUN</text>
+<rect class="fig-paper" x="16" y="472" width="328" height="184" stroke-dasharray="4 3"/>
+<rect class="fig-sheet-candidate" x="40" y="492" width="280" height="96" />
+<text class="fig-label" x="56" y="520" font-size="13" >CANDIDATE · c-11</text>
+<text class="fig-muted" x="56" y="547" font-size="14" >Bound to source set 3</text>
+<text class="fig-th" x="56" y="574" font-size="14" >Ready for review</text>
+<circle class="fig-quiet" cx="44" cy="620" r="3"/>
+<circle class="fig-quiet" cx="62" cy="620" r="3"/>
+<circle class="fig-quiet" cx="80" cy="620" r="3"/>
+<text class="fig-muted" x="99" y="625" font-size="12" >Run record · evidence links</text>
+<path class="fig-edge" d="M180 660V696" data-edge="candidate-review" marker-end="url(#candidate-to-record-compact-arrow)"/>
+<text class="fig-label" x="16" y="728" font-size="12" >REVIEW THIS VERSION</text>
+<path class="fig-edge" d="M84 762H158" data-deco="gate"/>
+<path class="fig-edge" d="M202 762H276" data-deco="gate"/>
+<circle class="fig-attention" cx="180" cy="762" r="5" id="candidate-to-record-compact-decision"/>
+<text class="fig-th" x="180" y="796" font-size="15" text-anchor="middle">A person accepts c-11</text>
+<text class="fig-muted" x="180" y="821" font-size="13" text-anchor="middle">Validation · authority · reason</text>
+<path class="fig-edge" d="M180 837V871" data-edge="accept-commit" marker-end="url(#candidate-to-record-compact-arrow)"/>
+<path class="fig-sheet" d="M30 908L300 896L308 1030L38 1042Z" data-deco="back-sheet"/>
+<rect class="fig-node fig-engaged" x="44" y="890" width="284" height="130" />
+<text class="fig-label" x="60" y="920" font-size="13" >MATTER · v8</text>
+<text class="fig-th" x="60" y="948" font-size="13" >New artifact · decision · receipt</text>
+<text class="fig-muted" x="60" y="975" font-size="13" >c-9 and c-10 remain on record</text>
+<text class="fig-muted" x="60" y="1002" font-size="13" >The next run starts here</text>
+</svg>

@@ -1,0 +1,58 @@
+<svg class="fig" viewBox="0 0 968 506" role="img" aria-labelledby="source-change-title source-change-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="source-change-title">After a source changes</title>
+<desc id="source-change-desc">同一 Matter 的前后对照。来源 s-1 从版本1更新为2，来源集合从修订2变为3。Spark显示分别基于集合修订1和2的候选c-9、c-10已经落后；在Matter中检查c-10，带理由要求重新派生。新的候选c-11基于当前集合修订3生成，另经验证与授权接受后，正式成果进入Matter版本8。c-9、c-10及其来源仍可追溯，来源更新或要求重做本身均不构成接受。</desc>
+<defs><marker id="source-change-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="currentColor"/></marker></defs>
+<text class="fig-label" x="16" y="24" font-size="12" >BEFORE · SOURCE SET 2</text>
+<text class="fig-label" x="338" y="24" font-size="12" >WHAT CHANGED</text>
+<text class="fig-label" x="660" y="24" font-size="12" >AFTER · SOURCE SET 3</text>
+<rect class="fig-node" x="16" y="44" width="284" height="292" />
+<text class="fig-th" x="32" y="72" font-size="16" >Acme inbound NDA</text>
+<text class="fig-muted" x="32" y="96" font-size="13" >Matter v7 · source set 2</text>
+<path class="fig-rule" d="M32 114H284" data-deco="card-rule"/>
+<rect class="fig-node" x="660" y="44" width="284" height="292" />
+<text class="fig-th" x="676" y="72" font-size="16" >Acme inbound NDA</text>
+<text class="fig-muted" x="676" y="96" font-size="13" >Matter v8 · source set 3</text>
+<path class="fig-rule" d="M676 114H928" data-deco="card-rule"/>
+<rect class="fig-node" x="32" y="130" width="252" height="46" />
+<text class="fig-th" x="44" y="149" font-size="13" >c-9 · source set 1</text>
+<text class="fig-muted" x="44" y="167" font-size="12" >Pending review</text>
+<rect class="fig-node" x="32" y="188" width="252" height="46" />
+<text class="fig-th" x="44" y="207" font-size="13" >c-10 · source set 2</text>
+<text class="fig-muted" x="44" y="225" font-size="12" >Pending review</text>
+<text class="fig-muted" x="32" y="310" font-size="12" >Sources · decisions · obligations</text>
+<rect class="fig-candidate" x="676" y="130" width="252" height="46" />
+<text class="fig-muted" x="688" y="149" font-size="13" >c-9 · source set 1</text>
+<text class="fig-muted" x="688" y="167" font-size="12" >Stale · kept on record</text>
+<rect class="fig-candidate" x="676" y="188" width="252" height="46" />
+<text class="fig-muted" x="688" y="207" font-size="13" >c-10 · source set 2</text>
+<text class="fig-muted" x="688" y="225" font-size="12" >Stale · kept on record</text>
+<rect class="fig-node fig-engaged" x="676" y="246" width="252" height="56" />
+<text class="fig-th" x="688" y="268" font-size="13" >c-11 · source set 3</text>
+<text class="fig-th" x="688" y="288" font-size="13" >Accepted · Matter v8</text>
+<rect class="fig-sheet" x="338" y="44" width="284" height="62" />
+<text class="fig-th" x="352" y="68" font-size="13" >01  Source s-1: revision 1 → 2</text>
+<text class="fig-muted" x="352" y="90" font-size="12" >Source set becomes revision 3</text>
+<path class="fig-edge" d="M480 110V128" data-edge="source-spark" marker-end="url(#source-change-arrow)"/>
+<rect class="fig-node" x="338" y="134" width="284" height="56" />
+<text class="fig-th" x="352" y="157" font-size="13" >02  Spark finds older candidates</text>
+<text class="fig-muted" x="352" y="179" font-size="12" >c-9 and c-10 need a fresh view</text>
+<path class="fig-edge" d="M480 194V212" data-edge="spark-review" marker-end="url(#source-change-arrow)"/>
+<rect class="fig-node fig-engaged" x="338" y="218" width="284" height="64" />
+<circle class="fig-attention" cx="354" cy="240" r="4.5" id="source-change-decision"/>
+<text class="fig-th" x="368" y="244" font-size="13" >03  Review c-10 in its Matter</text>
+<text class="fig-muted" x="352" y="268" font-size="12" >Request a fresh derivation · reason</text>
+<path class="fig-edge" d="M480 286V304" data-edge="review-fresh" marker-end="url(#source-change-arrow)"/>
+<rect class="fig-node" x="338" y="310" width="284" height="70" />
+<text class="fig-th" x="352" y="334" font-size="13" >04  Derive c-11 from source set 3</text>
+<text class="fig-th" x="352" y="357" font-size="13" >05  Validate and accept c-11</text>
+<text class="fig-muted" x="352" y="374" font-size="11" >Matter v7 → v8 · receipt recorded</text>
+<path class="fig-edge" d="M302 168H332" data-edge="before-read" marker-end="url(#source-change-arrow)"/>
+<path class="fig-edge" d="M626 348H646V276H672" data-edge="accept-after" marker-end="url(#source-change-arrow)"/>
+<circle class="fig-paper" cx="802" cy="436" r="52"/>
+<path class="fig-trace" d="M930 212H952V436H856" data-edge="stale-lens"/>
+<text class="fig-th" x="802" y="425" font-size="12" text-anchor="middle">c-10 · still readable</text>
+<text class="fig-muted" x="802" y="446" font-size="12" text-anchor="middle">Source set 2</text>
+<text class="fig-th" x="16" y="418" font-size="21" >The work moves forward.</text>
+<text class="fig-muted" x="16" y="447" font-size="14" >Earlier candidates keep their sources and history.</text>
+<text class="fig-muted" x="16" y="471" font-size="14" >The next run starts from the accepted version.</text>
+</svg>

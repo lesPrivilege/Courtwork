@@ -90,6 +90,28 @@
       "expert.role",
       "matter.object",
       "run.object"
+    ],
+    "source-change": [
+      "spark.surface",
+      "matter.object",
+      "review.open"
+    ],
+    "source-change-compact": [
+      "spark.surface",
+      "matter.object",
+      "review.open"
+    ],
+    "candidate-to-record": [
+      "matter.object",
+      "review.open",
+      "run.object",
+      "trace.view"
+    ],
+    "candidate-to-record-compact": [
+      "matter.object",
+      "review.open",
+      "run.object",
+      "trace.view"
     ]
   }
 }

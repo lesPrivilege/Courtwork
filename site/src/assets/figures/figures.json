@@ -2,7 +2,7 @@
   "version": 1,
   "registry": "engineering/release/publishing-visuals-2026-09-10/visual-semantic-registry.md",
   "red_token": "--campaign-attention-review",
-  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour",
+  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour; user-authorized Hero paper reading link may use the same colour without implying pending review",
   "figures": [
     {
       "id": "fig-00-matter-object",
@@ -164,7 +164,7 @@
       "alt": "Store → Govern → Retrieve → Compile. Store keeps growing; Govern (contract, status, version, authority, applicability) is the centre; Retrieve only locates candidates — readable is not in effect; Compile produces a working set for one assignment, role and stage; a run's proposal returns to Store through candidate, review and commit. Below: the stock grows, the working set keeps its width.",
       "audit": {
         "verdict": "new",
-        "reason": "VG-7 first new plate; canonical :25, :27, :23, :427-445, :519-528. No point needs a person, so no red."
+        "reason": "VG-7 first new plate; canonical :25, :27, :23, :427-445, :519-528. No point needs a person, so no red. Compile denotes M09 context compilation, one responsibility within the target Work Compiler."
       }
     },
     {
@@ -236,6 +236,126 @@
       "audit": {
         "verdict": "new",
         "reason": "WO item 3 · ROLES & EXECUTION; one execution configuration is active; public labels omit the implementation name. No point needs a person, so no red."
+      }
+    },
+    {
+      "id": "source-change",
+      "concepts": [
+        "source",
+        "candidate",
+        "decision",
+        "state"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/source-change.svg",
+        "basis": "file",
+        "sha256": "413ab1ba82a8a6355ac60cab57114d58a6265a0d0a6dd2d84b5cf60f164f9e30"
+      },
+      "mount": "data-figure",
+      "page": "index.html",
+      "viewport": "wide",
+      "red": {
+        "element": "#source-change-decision",
+        "concept": "decision"
+      },
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "同一 Matter 的前后对照。来源 s-1 从版本1更新为2，来源集合从修订2变为3。Spark显示分别基于集合修订1和2的候选c-9、c-10已经落后；在Matter中检查c-10，带理由要求重新派生。新的候选c-11基于当前集合修订3生成，另经验证与授权接受后，正式成果进入Matter版本8。c-9、c-10及其来源仍可追溯，来源更新或要求重做本身均不构成接受。",
+      "audit": {
+        "verdict": "adapt",
+        "reason": "Claude v3 P1-2; Astra public wording, source-set distinction, readable compact typography, and connected geometry. Source ZIP retained in engineering/research/se-control-design-return-2026-09-11/v3."
+      }
+    },
+    {
+      "id": "source-change-compact",
+      "concepts": [
+        "source",
+        "candidate",
+        "decision",
+        "state"
+      ],
+      "status": "concept",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/source-change-compact.svg",
+        "basis": "file",
+        "sha256": "eed3edb779754f317b949d150103ac0ce7e1d34172e4bf3d36c87815ac9ef605"
+      },
+      "mount": "data-figure",
+      "page": "index.html",
+      "viewport": "compact",
+      "red": {
+        "element": "#source-change-compact-decision",
+        "concept": "decision"
+      },
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "同一 Matter 的前后对照。来源 s-1 从版本1更新为2，来源集合从修订2变为3。Spark显示分别基于集合修订1和2的候选c-9、c-10已经落后；在Matter中检查c-10，带理由要求重新派生。新的候选c-11基于当前集合修订3生成，另经验证与授权接受后，正式成果进入Matter版本8。c-9、c-10及其来源仍可追溯，来源更新或要求重做本身均不构成接受。",
+      "audit": {
+        "verdict": "adapt",
+        "reason": "Claude v3 P1-2 compact; Astra public wording, source-set distinction, readable compact typography, and connected geometry. Source ZIP retained in engineering/research/se-control-design-return-2026-09-11/v3."
+      }
+    },
+    {
+      "id": "candidate-to-record",
+      "concepts": [
+        "source",
+        "candidate",
+        "decision",
+        "state"
+      ],
+      "status": "concept",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/candidate-to-record.svg",
+        "basis": "file",
+        "sha256": "587a08792e91da9627f3c8fe0f2f8dbfd271e8403bb37d06c2fb3ae8bea8e5d1"
+      },
+      "mount": "data-figure",
+      "page": "tour.html",
+      "viewport": "wide",
+      "red": {
+        "element": "#candidate-to-record-decision",
+        "concept": "decision"
+      },
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "当前Matter版本7中的正式成果、来源与义务被投影为本次执行的上下文：来源s-1版本2，来源集合修订3。执行产生候选c-11及单独的运行记录。候选绑定集合修订3与证据，经验证、授权和明确的接受决定后，Work Core提交正式成果与回执，Matter进入版本8，供下一次执行继续。此图画出人接受这一候选的实例。运行记录可作为证据引用，但不自动成为正式成果；较早候选c-9和c-10仍保留其过期来源。",
+      "audit": {
+        "verdict": "adapt",
+        "reason": "Claude v3 P2-3; Astra public wording, source-set distinction, readable compact typography, and connected geometry. Source ZIP retained in engineering/research/se-control-design-return-2026-09-11/v3."
+      }
+    },
+    {
+      "id": "candidate-to-record-compact",
+      "concepts": [
+        "source",
+        "candidate",
+        "decision",
+        "state"
+      ],
+      "status": "concept",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/candidate-to-record-compact.svg",
+        "basis": "file",
+        "sha256": "fa503a7d8d627928ea4cee01e0578df6b364bdf8561a748c83b33551509f6559"
+      },
+      "mount": "data-figure",
+      "page": "tour.html",
+      "viewport": "compact",
+      "red": {
+        "element": "#candidate-to-record-compact-decision",
+        "concept": "decision"
+      },
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "当前Matter版本7中的正式成果、来源与义务被投影为本次执行的上下文：来源s-1版本2，来源集合修订3。执行产生候选c-11及单独的运行记录。候选绑定集合修订3与证据，经验证、授权和明确的接受决定后，Work Core提交正式成果与回执，Matter进入版本8，供下一次执行继续。此图画出人接受这一候选的实例。运行记录可作为证据引用，但不自动成为正式成果；较早候选c-9和c-10仍保留其过期来源。",
+      "audit": {
+        "verdict": "adapt",
+        "reason": "Claude v3 P2-3 compact; Astra public wording, source-set distinction, readable compact typography, and connected geometry. Source ZIP retained in engineering/research/se-control-design-return-2026-09-11/v3."
       }
     }
   ]

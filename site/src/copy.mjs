@@ -70,7 +70,7 @@ export const ARCHITECTURE = {
   ],
   figureTitle: "From state to committed change",
   caption:
-    "当前状态 → 运行上下文 → 候选 → 审阅 → 正式变化。",
+    "当前状态 → 上下文投影 → 候选 → 审阅 → 正式变化。",
   closing:
     "Schema Engineering 为工作的状态、变更与连续性提供语义基础。",
   links: [

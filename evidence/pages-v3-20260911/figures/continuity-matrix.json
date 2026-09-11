@@ -1,0 +1,752 @@
+[
+  {
+    "route": "index.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 80,
+          "y": 610.578125,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 224.40625,
+          "y": 610.578125,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 397.796875,
+          "y": 610.578125,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1440-light-default.png",
+    "bytes": 184211,
+    "clip": {
+      "width": 1280,
+      "height": 1183
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 1440,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 80,
+          "y": 610.578125,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(238, 240, 242)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 224.40625,
+          "y": 610.578125,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(237, 238, 240)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 397.796875,
+          "y": 610.578125,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(237, 147, 150)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1440-dark-default.png",
+    "bytes": 185119,
+    "clip": {
+      "width": 1280,
+      "height": 1183
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 1280,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 600.609375,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 168.40625,
+          "y": 600.609375,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 341.796875,
+          "y": 600.609375,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1280-light-default.png",
+    "bytes": 174412,
+    "clip": {
+      "width": 1232,
+      "height": 1149
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 1280,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 600.609375,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(238, 240, 242)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 168.40625,
+          "y": 600.609375,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(237, 238, 240)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 341.796875,
+          "y": 600.609375,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(237, 147, 150)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1280-dark-default.png",
+    "bytes": 175251,
+    "clip": {
+      "width": 1232,
+      "height": 1149
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 390,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 469.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 24,
+          "y": 531.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 24,
+          "y": 593.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-390-light-default.png",
+    "bytes": 101325,
+    "clip": {
+      "width": 342,
+      "height": 1261
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 390,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change-compact",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 469.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(238, 240, 242)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 24,
+          "y": 531.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(237, 238, 240)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 24,
+          "y": 593.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(32, 34, 36)",
+          "background": "rgb(237, 147, 150)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-390-dark-default.png",
+    "bytes": 102268,
+    "clip": {
+      "width": 342,
+      "height": 1261
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "zoom200",
+    "scale": 2,
+    "state": {
+      "views": 1,
+      "view": "source-change-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 376.125,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 168.40625,
+          "y": 376.125,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 341.796875,
+          "y": 376.125,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1440-light-zoom200.png",
+    "bytes": 164240,
+    "clip": {
+      "width": 672,
+      "height": 2050
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 390,
+    "theme": "dark",
+    "mode": "forced-colors",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change-compact",
+      "overflow": 0,
+      "marker": "rgb(255, 255, 255)",
+      "text": "rgb(255, 255, 255)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 469.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(0, 0, 0)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 24,
+          "y": 531.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(255, 255, 0)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 24,
+          "y": 593.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(0, 0, 0)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-390-dark-forced-colors.png",
+    "bytes": 83807,
+    "clip": {
+      "width": 342,
+      "height": 1261
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "grayscale",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 80,
+          "y": 610.578125,
+          "width": 132.40625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 224.40625,
+          "y": 610.578125,
+          "width": 161.390625,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 397.796875,
+          "y": 610.578125,
+          "width": 164.890625,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-1440-light-grayscale.png",
+    "bytes": 156671,
+    "clip": {
+      "width": 1280,
+      "height": 1183
+    }
+  },
+  {
+    "route": "index.html",
+    "width": 390,
+    "theme": "light",
+    "mode": "no-js",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "source-change-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [
+        {
+          "text": "Get CourtWork",
+          "href": "http://127.0.0.1:8947/Courtwork/get.html",
+          "x": 24,
+          "y": 469.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(40, 43, 45)"
+        },
+        {
+          "text": "Explore the product",
+          "href": "http://127.0.0.1:8947/Courtwork/tour.html",
+          "x": 24,
+          "y": 531.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(28, 32, 36)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Review the paper ↗",
+          "href": "https://lesprivilege.github.io/Schema-Engineering/",
+          "x": 24,
+          "y": 593.46875,
+          "width": 342,
+          "height": 50,
+          "color": "rgb(244, 245, 246)",
+          "background": "rgb(179, 38, 45)"
+        }
+      ],
+      "svg": true
+    },
+    "file": "source-change-390-light-no-js.png",
+    "bytes": 101325,
+    "clip": {
+      "width": 342,
+      "height": 1261
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1440-light-default.png",
+    "bytes": 142733,
+    "clip": {
+      "width": 1280,
+      "height": 1174
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1440,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1440-dark-default.png",
+    "bytes": 143140,
+    "clip": {
+      "width": 1280,
+      "height": 1174
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1280,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1280-light-default.png",
+    "bytes": 138411,
+    "clip": {
+      "width": 1232,
+      "height": 1138
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1280,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1280-dark-default.png",
+    "bytes": 138270,
+    "clip": {
+      "width": 1232,
+      "height": 1138
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 390,
+    "theme": "light",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-390-light-default.png",
+    "bytes": 95277,
+    "clip": {
+      "width": 342,
+      "height": 1431
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 390,
+    "theme": "dark",
+    "mode": "default",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record-compact",
+      "overflow": 0,
+      "marker": "rgb(237, 147, 150)",
+      "text": "rgb(176, 180, 186)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-390-dark-default.png",
+    "bytes": 95713,
+    "clip": {
+      "width": 342,
+      "height": 1431
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "zoom200",
+    "scale": 2,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1440-light-zoom200.png",
+    "bytes": 154031,
+    "clip": {
+      "width": 672,
+      "height": 2329
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 390,
+    "theme": "dark",
+    "mode": "forced-colors",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record-compact",
+      "overflow": 0,
+      "marker": "rgb(255, 255, 255)",
+      "text": "rgb(255, 255, 255)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-390-dark-forced-colors.png",
+    "bytes": 78844,
+    "clip": {
+      "width": 342,
+      "height": 1431
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 1440,
+    "theme": "light",
+    "mode": "grayscale",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-1440-light-grayscale.png",
+    "bytes": 121216,
+    "clip": {
+      "width": 1280,
+      "height": 1174
+    }
+  },
+  {
+    "route": "tour.html",
+    "width": 390,
+    "theme": "light",
+    "mode": "no-js",
+    "scale": 1,
+    "state": {
+      "views": 1,
+      "view": "candidate-to-record-compact",
+      "overflow": 0,
+      "marker": "rgb(179, 38, 45)",
+      "text": "rgb(96, 100, 108)",
+      "links": [],
+      "svg": true
+    },
+    "file": "candidate-to-record-390-light-no-js.png",
+    "bytes": 95277,
+    "clip": {
+      "width": 342,
+      "height": 1431
+    }
+  }
+]

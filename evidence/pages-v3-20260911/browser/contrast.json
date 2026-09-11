@@ -1,0 +1,6278 @@
+{
+  "light": [
+    {
+      "selector": "a.skip",
+      "text": "跳到正文",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.brand-name",
+      "text": "Court",
+      "size": 28,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work",
+      "size": 28,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Tour",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Release",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work that survives the model.",
+      "size": 87.8,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "模型可以离场，工作继续。",
+      "size": 24,
+      "ratio": 5.44,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action.hero-action-primary",
+      "text": "Get CourtWork",
+      "size": 13,
+      "ratio": 13.05,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action",
+      "text": "Explore the product",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action-paper",
+      "text": "Review the paper",
+      "size": 13,
+      "ratio": 5.95,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 13,
+      "ratio": 5.95,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "FIG. 00 / A MATTER, CONTINUED",
+      "size": 12,
+      "ratio": 11.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-source",
+      "text": "01 / SOURCE",
+      "size": 12,
+      "ratio": 14.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "A starting point.",
+      "size": 54,
+      "ratio": 14.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-candidate",
+      "text": "02 / CANDIDATE",
+      "size": 12,
+      "ratio": 14.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "A possibility.",
+      "size": 54,
+      "ratio": 14.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-work",
+      "text": "03 / MATTER",
+      "size": 12,
+      "ratio": 14.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "The work remains.",
+      "size": 54,
+      "ratio": 14.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "Source → Candidate → Decision",
+      "size": 12,
+      "ratio": 14.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "The work remains.",
+      "size": 12,
+      "ratio": 11.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "SPARK",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Knowledge,",
+      "size": 66,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "rebuilt.",
+      "size": 66,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-thesis",
+      "text": "来源更新，发现随之重建。 知识保持新鲜，决定保留来路。",
+      "size": 18,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Sources",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Derived knowledge",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-state",
+      "text": "当前来源，当前发现。",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button.atom-control",
+      "text": "更新来源",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "ATTENTION",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Attention,",
+      "size": 66,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "well spent.",
+      "size": 66,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-thesis",
+      "text": "让工作持续推进。 把你的注意力留给重要变化。",
+      "size": 18,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work in motion",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Human judgment",
+      "size": 12,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-state",
+      "text": "工作继续。",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.atom-more",
+      "text": "Explore the ideas",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "TWO WAYS INTO COURTWORK",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-kicker",
+      "text": "01 / THE IDEAS",
+      "size": 12,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-title",
+      "text": "Paper",
+      "size": 80,
+      "ratio": 16.12,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-description",
+      "text": "工作的状态、来源与判断，如何持续存在。",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "EVENT",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "STATE",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "CONTEXT",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-open",
+      "text": "Close ideas",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "The thinking behind the work.",
+      "size": 25,
+      "ratio": 16.12,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Schema Engineering 将长期工作组织为三个相互连接的层次。",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Event",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "记录行动与变化，保留工作的来路。",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "State",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "保存当前事实、正式判断与未完事项。",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Context",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "从当前工作中组织下一次运行需要的材料。",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical ↗",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice ↗",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Index ↗",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "COURTWORK",
+      "size": 11,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Att",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the ideas →",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-kicker",
+      "text": "02 / THE ORCHESTRATION",
+      "size": 12,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-title",
+      "text": "Tour",
+      "size": 80,
+      "ratio": 16.12,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-description",
+      "text": "从一次行动，到人的介入，再到留下的工作。",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "START",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "ACT",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "REVIEW",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "CONTINUE",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-closed",
+      "text": "Explore the path",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从 Home 找到工作，在执行中处理权限，带着依据审阅成果，再沿事项继续推进。",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "In this tour.",
+      "size": 25,
+      "ratio": 16.12,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "01",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Start work",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "02",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Act and intervene",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "03",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Review work and evidence",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "04",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Continue the work",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the full tour →",
+      "size": 16,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "AFTER A SOURCE CHANGES",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Keep the work.",
+      "size": 68,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "Move it forward.",
+      "size": 68,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "来源变了，先找到受影响的候选。沿着同一事项检查、更新、审阅，让新成果接上已有工作",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "BEFORE · SOURCE SET 2",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "WHAT CHANGED",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "AFTER · SOURCE SET 3",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Acme inbound NDA",
+      "size": 16,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v7 · source set 2",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Acme inbound NDA",
+      "size": 16,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v8 · source set 3",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 · source set 1",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Pending review",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · source set 2",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Pending review",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Sources · decisions · obligations",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 · source set 1",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Stale · kept on record",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · source set 2",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Stale · kept on record",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-11 · source set 3",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Accepted · Matter v8",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "01  Source s-1: revision 1 → 2",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Source set becomes revision 3",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "02  Spark finds older candidates",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 and c-10 need a fresh view",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "03  Review c-10 in its Matter",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Request a fresh derivation · reason",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "04  Derive c-11 from source set 3",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "05  Validate and accept c-11",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v7 → v8 · receipt recorded",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · still readable",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Source set 2",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "The work moves forward.",
+      "size": 21,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Earlier candidates keep their sources an",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "The next run starts from the accepted ve",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "来源集合从修订2更新到3，Spark 显示较早的派生。检查 c-10 后重新派生",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Follow the work →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "INSIDE COURTWORK / LOCAL APPLICATION",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A place to return.",
+      "size": 52,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开工作、查看活动，或与 Attention 继续对话。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the product tour →",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "回到项目，继续工作。",
+      "size": 11,
+      "ratio": 4.69,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THE WORKFLOW",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A matter in motion",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从第一条请求，到一次有据可循的决定。",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "summary",
+      "text": "Explore all 7 steps",
+      "size": 16,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "1",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Home",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask befor",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "2",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Run",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "每一次工具调用在发生时显示，不藏在摘要后面。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "3",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Approval",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写入之前，查看路径与具体内容，再批准这次行动。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "4",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Question",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "需要补充信息时，直接回答 Agent 的提问。问答随 Run 一起保留。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "5",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "File",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开这次运行产生的文件，沿原始内容继续阅读与审阅。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "6",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Continue in Work",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把会话接入 Matter，带着既有历史继续同一件工作。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "7",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Candidate → Decision",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "Interactive NDA walkthrough",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "逐步查看一次 NDA 工作的完整记录。",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "REVIEW",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Review is a first-class surface",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把候选、证据与来源放在一起。看清依据，再作决定。",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Proposal",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "逐条规则的候选，绑定它所依据的来源版本。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Evidence",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "直接查看候选引用的原文、事实与待补证据。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Decision",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "接受、退回，或要求补充证据。每次决定绑定明确的候选版本。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Provenance",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "逐条展开依据，比较修订，保留决定的完整来路。",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.review-attention",
+      "text": "待人审阅",
+      "size": 14,
+      "ratio": 5.95,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "候选与依据，一起进入审阅。",
+      "size": 11,
+      "ratio": 4.69,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "HOW THE WORK CONTINUES",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "More knowledge. A clearer next step.",
+      "size": 72,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "工作持续积累，每次只关注当下。",
+      "size": 28,
+      "ratio": 5.44,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Store",
+      "size": 17,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "preserve",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "sources",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "events",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "artifact versions",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "raw history",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "current state",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "keeps growing",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Govern",
+      "size": 22,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "makes objects selectable",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "contract",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "status",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "version",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "authority",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "applicability",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Retrieve",
+      "size": 17,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "possibly relevant",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "readable",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "≠ in effect",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Compile",
+      "size": 17,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "the working set",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "context",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "projection",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "per assignment",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "minimal, sufficient",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Run",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "model · tools",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "candidate → review → commit",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "STOCK GROWS · THE WORKING SET DOES NOT",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EARLIER",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "LATER",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "保存工作，治理版本与权限，再为当前任务组织上下文。",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "SPARK",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Rebuild the view.",
+      "size": 34,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "DERIVED · CAN BE REBUILT",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "old summary",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "may exit",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "rebuilt view",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "sources",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "decisions",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "open obligations",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "conflicts",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "STAYS · THE SOURCE LAYER",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "派生可以重建，工作依据持续保留。",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "ATTENTION",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Make room for judgment.",
+      "size": 34,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "HUMAN VIEW",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "brought to a person",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "QUIET WORK",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "安静推进的工作，与需要你的一刻。",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "EXPERTS & EXECUTION",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Roles compose.",
+      "size": 34,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Expert 定义责任，执行配置承载这项工作。角色与模型可以切换，Matter ",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EXPERT · ROLE, SWAPPABLE",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method A",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method B",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method C",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "methods change; the work does not",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EXECUTION",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "In use",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "On demand",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "On demand",
+      "size": 12,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "choose for the work",
+      "size": 11,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "责任、执行与工作，各有归属。",
+      "size": 13,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the features →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Meet the roles →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "MODELS & TOOLS",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Choose what the work needs.",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "连接你选择的模型，按能力调整推理设置与工具。模型可以变化，Matter 中的来源",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "模型请求发往你配置的 provider 或本地模型；模型用量由对应服务单独计费。",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore models →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Tools & connections →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "EVAL & PRIVACY",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Work you can examine.",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Can the work continue?",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "来源变化、执行中断、换人接手之后，检验哪些工作仍然有效。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the evals →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Where does the work go?",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作保存在本地。模型请求与工具按你的配置连接外部服务。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Data & privacy →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "PLANS",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-concept",
+      "text": "CHOOSE YOUR WORKSPACE",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Plans for the way you work",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从个人工作，到团队协作",
+      "size": 38.3,
+      "ratio": 5.44,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Your work. Your models. Room to grow.",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作留在手里，模型自由选择。",
+      "size": 15,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Local",
+      "size": 24,
+      "ratio": 16.12,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "$0",
+      "size": 72,
+      "ratio": 20.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Open source",
+      "size": 11,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Your work stays yours.",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local Matter store",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Event log & provenance",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Your provider or local models",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Public eval suite",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Exportable schemas",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "MIT source",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "View source",
+      "size": 11,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Professional",
+      "size": 24,
+      "ratio": 12.93,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "$29",
+      "size": 72,
+      "ratio": 16.57,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.pricing-price-unit",
+      "text": "/ month",
+      "size": 11,
+      "ratio": 16.57,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Managed",
+      "size": 11,
+      "ratio": 4.69,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "A maintained professional workbench.",
+      "size": 15,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Signed desktop builds",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed updates",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Cloud sync & backup",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed services",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Continuous private eval",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed integrations",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Longer history",
+      "size": 14,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore hosted →",
+      "size": 11,
+      "ratio": 12.93,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Organization",
+      "size": 24,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "Custom",
+      "size": 72,
+      "ratio": 18.86,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Private deployment",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Governed work at organizational scale.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Shared Matters",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Policy & review controls",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "RBAC / SSO",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Audit exports",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Private deployment",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Sovereign-model support",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Expert lifecycle management",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "SLA / deployment assistance",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore organization →",
+      "size": 11,
+      "ratio": 18.86,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-model-note",
+      "text": "Bring your own provider, use local model",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Local",
+      "size": 13,
+      "ratio": 13.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Professional",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Organization",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter store",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "CourtWork",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Your provider",
+      "size": 14,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "从本地到组织，材料、事件与版本始终随工作同行。",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "DOWNLOAD",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Bring the work home.",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "打开自己的工作空间，从第一份材料开始。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Get CourtWork →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run from source →",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "summary",
+      "text": "Research & architecture",
+      "size": 15.8,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THE COMMITMENT LOOP",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "From proposal to decision.",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "把提议变成有据可循的决定。",
+      "size": 38.3,
+      "ratio": 5.44,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然",
+      "size": 20,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption.diagram-title",
+      "text": "From state to committed change",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Governed work state",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Context projection",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Model / human proposal",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Candidate",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "validation · evidence · authority · revi",
+      "size": 12.5,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Committed change",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Updated state",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "next run",
+      "size": 12.5,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "当前状态 → 上下文投影 → 候选 → 审阅 → 正式变化。",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose.closing",
+      "text": "Schema Engineering 为工作的状态、变更与连续性提供语义基础。",
+      "size": 15,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice Index",
+      "size": 13,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THREE VIEWS",
+      "size": 11,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "One matter. Three views.",
+      "size": 58,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从来源到决定，每一步都有据可循",
+      "size": 38.3,
+      "ratio": 5.44,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Event",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Work state",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Review",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Decision",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Provenance",
+      "size": 14,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Work agents need governed state, not lon",
+      "size": 56,
+      "ratio": 15.01,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Agent 需要的是受治理的状态，不是更长的对话记录。",
+      "size": 15,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。",
+      "size": 15,
+      "ratio": 15.01,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.instrument-id",
+      "text": "MATTER / 01",
+      "size": 12,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.projection-caption",
+      "text": "ONE MATTER · THREE PROJECTIONS",
+      "size": 12,
+      "ratio": 14.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Event log",
+      "size": 13,
+      "ratio": 13.41,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Work state",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Context projection",
+      "size": 13,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Event log",
+      "size": 20,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "按时间追踪请求、工具调用、批准、回答与结果。随时回到工作的任何一步。",
+      "size": 15,
+      "ratio": 16.12,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "同一件工作：过程、状态与下一次执行需要的材料。",
+      "size": 14,
+      "ratio": 5.44,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "The model can leave.",
+      "size": 80,
+      "ratio": 13.05,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "The work remains.",
+      "size": 80,
+      "ratio": 13.05,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "COURTWORK",
+      "size": 144,
+      "ratio": 13.05,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 144,
+      "ratio": 13.05,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Research",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Features",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Eval",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Experts",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Product tour",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Get Courtwork",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "CLI study",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Changelog",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Models",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Data boundaries",
+      "size": 14,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "Open source",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source on GitHub",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "MIT License",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 4.96,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Schema Engineering 9.6",
+      "size": 13,
+      "ratio": 15.98,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ],
+  "dark": [
+    {
+      "selector": "a.skip",
+      "text": "跳到正文",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.brand-name",
+      "text": "Court",
+      "size": 28,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work",
+      "size": 28,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Tour",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Release",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work that survives the model.",
+      "size": 87.8,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "模型可以离场，工作继续。",
+      "size": 24,
+      "ratio": 7.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action.hero-action-primary",
+      "text": "Get CourtWork",
+      "size": 13,
+      "ratio": 13.97,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action",
+      "text": "Explore the product",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.hero-action-paper",
+      "text": "Review the paper",
+      "size": 13,
+      "ratio": 7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 13,
+      "ratio": 7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "FIG. 00 / A MATTER, CONTINUED",
+      "size": 12,
+      "ratio": 12.49,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-source",
+      "text": "01 / SOURCE",
+      "size": 12,
+      "ratio": 11.14,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "A starting point.",
+      "size": 54,
+      "ratio": 11.14,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-candidate",
+      "text": "02 / CANDIDATE",
+      "size": 12,
+      "ratio": 11.14,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "A possibility.",
+      "size": 54,
+      "ratio": 11.14,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "div.archive-sheet.sheet-work",
+      "text": "03 / MATTER",
+      "size": 12,
+      "ratio": 11.14,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "The work remains.",
+      "size": 54,
+      "ratio": 11.14,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "Source → Candidate → Decision",
+      "size": 12,
+      "ratio": 11.14,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "The work remains.",
+      "size": 12,
+      "ratio": 12.49,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "SPARK",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Knowledge,",
+      "size": 66,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "rebuilt.",
+      "size": 66,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-thesis",
+      "text": "来源更新，发现随之重建。 知识保持新鲜，决定保留来路。",
+      "size": 18,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Sources",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Derived knowledge",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-state",
+      "text": "当前来源，当前发现。",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button.atom-control",
+      "text": "更新来源",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "ATTENTION",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Attention,",
+      "size": 66,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "well spent.",
+      "size": 66,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-thesis",
+      "text": "让工作持续推进。 把你的注意力留给重要变化。",
+      "size": 18,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Work in motion",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Human judgment",
+      "size": 12,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.atom-state",
+      "text": "工作继续。",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a.atom-more",
+      "text": "Explore the ideas",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "TWO WAYS INTO COURTWORK",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-kicker",
+      "text": "01 / THE IDEAS",
+      "size": 12,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-title",
+      "text": "Paper",
+      "size": 80,
+      "ratio": 13.7,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-description",
+      "text": "工作的状态、来源与判断，如何持续存在。",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "EVENT",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "STATE",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "CONTEXT",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-open",
+      "text": "Close ideas",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "The thinking behind the work.",
+      "size": 25,
+      "ratio": 13.7,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Schema Engineering 将长期工作组织为三个相互连接的层次。",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Event",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "记录行动与变化，保留工作的来路。",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "State",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "保存当前事实、正式判断与未完事项。",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Context",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "从当前工作中组织下一次运行需要的材料。",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical ↗",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice ↗",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Index ↗",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "COURTWORK",
+      "size": 11,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Att",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the ideas →",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-kicker",
+      "text": "02 / THE ORCHESTRATION",
+      "size": 12,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-title",
+      "text": "Tour",
+      "size": 80,
+      "ratio": 13.7,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-description",
+      "text": "从一次行动，到人的介入，再到留下的工作。",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "START",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "ACT",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "REVIEW",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "i",
+      "text": "→",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "CONTINUE",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.entry-closed",
+      "text": "Explore the path",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从 Home 找到工作，在执行中处理权限，带着依据审阅成果，再沿事项继续推进。",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "In this tour.",
+      "size": 25,
+      "ratio": 13.7,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "01",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Start work",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "02",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Act and intervene",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "03",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Review work and evidence",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "04",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Continue the work",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 12,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the full tour →",
+      "size": 16,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "AFTER A SOURCE CHANGES",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Keep the work.",
+      "size": 68,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "Move it forward.",
+      "size": 68,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "来源变了，先找到受影响的候选。沿着同一事项检查、更新、审阅，让新成果接上已有工作",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "BEFORE · SOURCE SET 2",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "WHAT CHANGED",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "AFTER · SOURCE SET 3",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Acme inbound NDA",
+      "size": 16,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v7 · source set 2",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Acme inbound NDA",
+      "size": 16,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v8 · source set 3",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 · source set 1",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Pending review",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · source set 2",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Pending review",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Sources · decisions · obligations",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 · source set 1",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Stale · kept on record",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · source set 2",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Stale · kept on record",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-11 · source set 3",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Accepted · Matter v8",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "01  Source s-1: revision 1 → 2",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Source set becomes revision 3",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "02  Spark finds older candidates",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-9 and c-10 need a fresh view",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "03  Review c-10 in its Matter",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Request a fresh derivation · reason",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "04  Derive c-11 from source set 3",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "05  Validate and accept c-11",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter v7 → v8 · receipt recorded",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "c-10 · still readable",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Source set 2",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "The work moves forward.",
+      "size": 21,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Earlier candidates keep their sources an",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "The next run starts from the accepted ve",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "来源集合从修订2更新到3，Spark 显示较早的派生。检查 c-10 后重新派生",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Follow the work →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "INSIDE COURTWORK / LOCAL APPLICATION",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A place to return.",
+      "size": 52,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开工作、查看活动，或与 Attention 继续对话。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the product tour →",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "回到项目，继续工作。",
+      "size": 11,
+      "ratio": 6.85,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THE WORKFLOW",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "A matter in motion",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "从第一条请求，到一次有据可循的决定。",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "跟随一份 NDA，走过工具调用、写入批准、提问、文件生成和候选审阅。选择任一步，",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "summary",
+      "text": "Explore all 7 steps",
+      "size": 16,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "1",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Home",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写下要做的工作。选一个 Project，并决定文件如何被编辑：Ask befor",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "2",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Run",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "每一次工具调用在发生时显示，不藏在摘要后面。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "3",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Approval",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "写入之前，查看路径与具体内容，再批准这次行动。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "4",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Question",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "需要补充信息时，直接回答 Agent 的提问。问答随 Run 一起保留。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "5",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "File",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "打开这次运行产生的文件，沿原始内容继续阅读与审阅。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "6",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Continue in Work",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把会话接入 Matter，带着既有历史继续同一件工作。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.step-number",
+      "text": "7",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Candidate → Decision",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "候选逐条附证据与来源。人接受、退回，或要求补证据；正式成果与候选分开。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "Interactive NDA walkthrough",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "逐步查看一次 NDA 工作的完整记录。",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "REVIEW",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Review is a first-class surface",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "把候选、证据与来源放在一起。看清依据，再作决定。",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Proposal",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "逐条规则的候选，绑定它所依据的来源版本。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Evidence",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "直接查看候选引用的原文、事实与待补证据。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Decision",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "接受、退回，或要求补充证据。每次决定绑定明确的候选版本。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dt",
+      "text": "Provenance",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "dd",
+      "text": "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "逐条展开依据，比较修订，保留决定的完整来路。",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.review-attention",
+      "text": "待人审阅",
+      "size": 14,
+      "ratio": 7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "候选与依据，一起进入审阅。",
+      "size": 11,
+      "ratio": 6.85,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "HOW THE WORK CONTINUES",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "More knowledge. A clearer next step.",
+      "size": 72,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "工作持续积累，每次只关注当下。",
+      "size": 28,
+      "ratio": 7.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Store",
+      "size": 17,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "preserve",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "sources",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "events",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "artifact versions",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "raw history",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "current state",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "keeps growing",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Govern",
+      "size": 22,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "makes objects selectable",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "contract",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "status",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "version",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "authority",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "applicability",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Retrieve",
+      "size": 17,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "possibly relevant",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "object",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "readable",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "≠ in effect",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Compile",
+      "size": 17,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "the working set",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "context",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "projection",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "per assignment",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "minimal, sufficient",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Run",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "model · tools",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "candidate → review → commit",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "STOCK GROWS · THE WORKING SET DOES NOT",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EARLIER",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "LATER",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "保存工作，治理版本与权限，再为当前任务组织上下文。",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "SPARK",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Rebuild the view.",
+      "size": 34,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "DERIVED · CAN BE REBUILT",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "old summary",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "may exit",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "rebuilt view",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "sources",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "decisions",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "open obligations",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "conflicts",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "STAYS · THE SOURCE LAYER",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "派生可以重建，工作依据持续保留。",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "ATTENTION",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Make room for judgment.",
+      "size": 34,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "HUMAN VIEW",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "brought to a person",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "QUIET WORK",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "安静推进的工作，与需要你的一刻。",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "EXPERTS & EXECUTION",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Roles compose.",
+      "size": 34,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Expert 定义责任，执行配置承载这项工作。角色与模型可以切换，Matter ",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EXPERT · ROLE, SWAPPABLE",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method A",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method B",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "method C",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "methods change; the work does not",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "EXECUTION",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "In use",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "On demand",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "On demand",
+      "size": 12,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "choose for the work",
+      "size": 11,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "责任、执行与工作，各有归属。",
+      "size": 13,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the features →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Meet the roles →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "MODELS & TOOLS",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Choose what the work needs.",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "连接你选择的模型，按能力调整推理设置与工具。模型可以变化，Matter 中的来源",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.note",
+      "text": "模型请求发往你配置的 provider 或本地模型；模型用量由对应服务单独计费。",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore models →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Tools & connections →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "EVAL & PRIVACY",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Work you can examine.",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Can the work continue?",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "来源变化、执行中断、换人接手之后，检验哪些工作仍然有效。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore the evals →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Where does the work go?",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作保存在本地。模型请求与工具按你的配置连接外部服务。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Data & privacy →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "PLANS",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-concept",
+      "text": "CHOOSE YOUR WORKSPACE",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "Plans for the way you work",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从个人工作，到团队协作",
+      "size": 38.3,
+      "ratio": 7.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "在本地开始，按自己的节奏扩展。独立工作、托管运行或组织部署，共用一套可追溯的工作",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Your work. Your models. Room to grow.",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "工作留在手里，模型自由选择。",
+      "size": 15,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Local",
+      "size": 24,
+      "ratio": 13.7,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "$0",
+      "size": 72,
+      "ratio": 15.91,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Open source",
+      "size": 11,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Your work stays yours.",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Local Matter store",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Event log & provenance",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Your provider or local models",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Public eval suite",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Exportable schemas",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "MIT source",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "View source",
+      "size": 11,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Professional",
+      "size": 24,
+      "ratio": 12.29,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "$29",
+      "size": 72,
+      "ratio": 14.27,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.pricing-price-unit",
+      "text": "/ month",
+      "size": 11,
+      "ratio": 14.27,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Managed",
+      "size": 11,
+      "ratio": 6.85,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "A maintained professional workbench.",
+      "size": 15,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Signed desktop builds",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed updates",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Cloud sync & backup",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed services",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Continuous private eval",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Managed integrations",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Longer history",
+      "size": 14,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore hosted →",
+      "size": 11,
+      "ratio": 12.29,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Organization",
+      "size": 24,
+      "ratio": 16.25,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-price",
+      "text": "Custom",
+      "size": 72,
+      "ratio": 18.86,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-status",
+      "text": "Private deployment",
+      "size": 11,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-summary",
+      "text": "Governed work at organizational scale.",
+      "size": 15,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Shared Matters",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Policy & review controls",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "RBAC / SSO",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Audit exports",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Private deployment",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Sovereign-model support",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "Expert lifecycle management",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "li",
+      "text": "SLA / deployment assistance",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Explore organization →",
+      "size": 11,
+      "ratio": 18.86,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.pricing-model-note",
+      "text": "Bring your own provider, use local model",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "strong",
+      "text": "Model usage is separate.",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Local",
+      "size": 13,
+      "ratio": 12.43,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Professional",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Organization",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Matter store",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "CourtWork",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Your provider",
+      "size": 14,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "从本地到组织，材料、事件与版本始终随工作同行。",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "DOWNLOAD",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h2",
+      "text": "Bring the work home.",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "打开自己的工作空间，从第一份材料开始。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Get CourtWork →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run from source →",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "summary",
+      "text": "Research & architecture",
+      "size": 15.8,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THE COMMITMENT LOOP",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "From proposal to decision.",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "把提议变成有据可循的决定。",
+      "size": 38.3,
+      "ratio": 7.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose",
+      "text": "更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然",
+      "size": 20,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption.diagram-title",
+      "text": "From state to committed change",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Governed work state",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Context projection",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Model / human proposal",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Candidate",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "validation · evidence · authority · revi",
+      "size": 12.5,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Committed change",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "Updated state",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "text.[object.SVGAnimatedString]",
+      "text": "next run",
+      "size": 12.5,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "figcaption",
+      "text": "当前状态 → 上下文投影 → 候选 → 审阅 → 正式变化。",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.prose.closing",
+      "text": "Schema Engineering 为工作的状态、变更与连续性提供语义基础。",
+      "size": 15,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Read the paper",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Canonical",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Practice Index",
+      "size": 13,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.index",
+      "text": "THREE VIEWS",
+      "size": 11,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "One matter. Three views.",
+      "size": 58,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span.zh",
+      "text": "从来源到决定，每一步都有据可循",
+      "size": 38.3,
+      "ratio": 7.66,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Event",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Work state",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Run",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Review",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Decision",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "→",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Provenance",
+      "size": 14,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Work agents need governed state, not lon",
+      "size": 56,
+      "ratio": 13.75,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "Agent 需要的是受治理的状态，不是更长的对话记录。",
+      "size": 15,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.lede",
+      "text": "一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。",
+      "size": 15,
+      "ratio": 13.75,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.instrument-id",
+      "text": "MATTER / 01",
+      "size": 12,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.projection-caption",
+      "text": "ONE MATTER · THREE PROJECTIONS",
+      "size": 12,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Event log",
+      "size": 13,
+      "ratio": 12.43,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Work state",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "button",
+      "text": "Context projection",
+      "size": 13,
+      "ratio": 7.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "h3",
+      "text": "Event log",
+      "size": 20,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "按时间追踪请求、工具调用、批准、回答与结果。随时回到工作的任何一步。",
+      "size": 15,
+      "ratio": 13.7,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p.caption",
+      "text": "同一件工作：过程、状态与下一次执行需要的材料。",
+      "size": 14,
+      "ratio": 7.66,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "p",
+      "text": "The model can leave.",
+      "size": 80,
+      "ratio": 13.97,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "em",
+      "text": "The work remains.",
+      "size": 80,
+      "ratio": 13.97,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "COURTWORK",
+      "size": 144,
+      "ratio": 13.97,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "span",
+      "text": "↗",
+      "size": 144,
+      "ratio": 13.97,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Paper",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Research",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Features",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Eval",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Experts",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Product tour",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Get Courtwork",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "CLI study",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Changelog",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Models",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Data boundaries",
+      "size": 14,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.is-mono",
+      "text": "Open source",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Source on GitHub",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "MIT License",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "span.dot",
+      "text": "·",
+      "size": 13,
+      "ratio": 9.06,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "selector": "a",
+      "text": "Schema Engineering 9.6",
+      "size": 13,
+      "ratio": 16.25,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "case": "missing mount",
+    "exit": 1,
+    "rejected": true
+  },
+  {
+    "case": "source changed",
+    "exit": 1,
+    "rejected": true
+  }
+]

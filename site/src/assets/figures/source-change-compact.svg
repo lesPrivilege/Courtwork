@@ -1,0 +1,37 @@
+<svg class="fig" viewBox="0 0 360 864" role="img" aria-labelledby="source-change-compact-title source-change-compact-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="source-change-compact-title">After a source changes — compact</title>
+<desc id="source-change-compact-desc">同一 Matter 的前后对照。来源 s-1 从版本1更新为2，来源集合从修订2变为3。Spark显示分别基于集合修订1和2的候选c-9、c-10已经落后；在Matter中检查c-10，带理由要求重新派生。新的候选c-11基于当前集合修订3生成，另经验证与授权接受后，正式成果进入Matter版本8。c-9、c-10及其来源仍可追溯，来源更新或要求重做本身均不构成接受。</desc>
+<defs><marker id="source-change-compact-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="currentColor"/></marker></defs>
+<text class="fig-label" x="16" y="22" font-size="12" >BEFORE · SOURCE SET 2</text>
+<rect class="fig-node" x="16" y="38" width="328" height="166" />
+<text class="fig-th" x="32" y="66" font-size="16" >Acme inbound NDA</text>
+<text class="fig-muted" x="32" y="88" font-size="13" >Matter v7 · source set 2</text>
+<rect class="fig-node" x="32" y="104" width="296" height="38" />
+<text class="fig-muted" x="44" y="128" font-size="13" >c-9 · set 1 · pending review</text>
+<rect class="fig-node" x="32" y="148" width="296" height="38" />
+<text class="fig-muted" x="44" y="172" font-size="13" >c-10 · set 2 · pending review</text>
+<path class="fig-edge" d="M180 208V238" data-edge="before-change" marker-end="url(#source-change-compact-arrow)"/>
+<text class="fig-label" x="16" y="267" font-size="12" >WHAT CHANGED</text>
+<rect class="fig-sheet" x="16" y="284" width="328" height="202" />
+<text class="fig-th" x="32" y="310" font-size="13" >01  Source s-1: revision 1 → 2</text>
+<text class="fig-muted" x="32" y="331" font-size="13" >Source set becomes revision 3</text>
+<text class="fig-th" x="32" y="363" font-size="13" >02  Spark finds c-9 and c-10 behind</text>
+<circle class="fig-attention" cx="34" cy="393" r="4.5" id="source-change-compact-decision"/>
+<text class="fig-th" x="46" y="397" font-size="13" >03  Review c-10 in its Matter</text>
+<text class="fig-muted" x="32" y="418" font-size="13" >Request fresh work, with a reason</text>
+<text class="fig-th" x="32" y="450" font-size="13" >04  Derive c-11 from source set 3</text>
+<text class="fig-th" x="32" y="472" font-size="13" >05  Validate and accept c-11</text>
+<path class="fig-edge" d="M180 490V520" data-edge="accept-after" marker-end="url(#source-change-compact-arrow)"/>
+<text class="fig-label" x="16" y="550" font-size="12" >AFTER · SOURCE SET 3</text>
+<rect class="fig-node" x="16" y="568" width="328" height="222" />
+<text class="fig-th" x="32" y="597" font-size="16" >Acme inbound NDA</text>
+<text class="fig-muted" x="32" y="620" font-size="13" >Matter v8 · receipt recorded</text>
+<rect class="fig-candidate" x="32" y="638" width="296" height="36" />
+<text class="fig-muted" x="44" y="661" font-size="13" >c-9 · set 1 · stale, kept</text>
+<rect class="fig-candidate" x="32" y="682" width="296" height="36" />
+<text class="fig-muted" x="44" y="705" font-size="13" >c-10 · set 2 · stale, kept</text>
+<rect class="fig-node fig-engaged" x="32" y="726" width="296" height="42" />
+<text class="fig-th" x="44" y="753" font-size="14" >c-11 · set 3 · accepted</text>
+<text class="fig-th" x="16" y="820" font-size="14" >Earlier candidates stay readable.</text>
+<text class="fig-muted" x="16" y="844" font-size="13" >The next run starts from version 8.</text>
+</svg>

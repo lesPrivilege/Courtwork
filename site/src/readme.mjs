@@ -18,7 +18,7 @@ CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与
 
 **Runtime · Intelligence is replaceable.** 模型与运行配置各有归属；正式来源、成果与决定由工作状态持有。
 
-**Spark & Experts.** Spark 围绕稳定来源组织可重建的派生知识；Experts 通过角色、工具与契约组合专业责任，围绕同一 Matter 接力。
+**Spark & Experts.** Spark 围绕稳定来源组织可重建的派生知识；Expert 以专业工作契约组织适用范围、能力需求、证据与审阅要求；当前领域实现围绕同一 Matter 保留成果与决定。
 
 [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
@@ -44,7 +44,7 @@ ${BUILD.commands.slice(0,4).join("\n")}
 
 材料进入 Matter，模型与工具形成候选，Review 将判断落到具体版本。新的执行者从已有来源、决定与未完事项继续。
 
-CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。模块归属、执行框架与局部选型见 [内部架构文档](engineering/architecture.md)。
+CourtWork 将 [Schema Engineering 9.6](PAPER.md) 的工作状态模型落实为可运行的系统。当前执行集成复用 Pi，Work Core 持有正式工作状态；专业契约与运行适配分开。完整 Work Compiler 和第二 Runtime 替换验证属于后续研发项。模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
 
 ## 项目结构
 

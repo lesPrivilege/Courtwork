@@ -10,7 +10,7 @@
 // viewBox, no overlapping nodes, no connector through an unrelated node).
 // Geometry is estimated from a character-width table, deliberately generous;
 // site/scripts/verify.mjs measures the same three things with real glyphs.
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { SITE, ROOT } from "./release.mjs";
@@ -18,7 +18,9 @@ import { SITE, ROOT } from "./release.mjs";
 const DIST = path.join(SITE, "dist");
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 const manifest = JSON.parse(await readFile(path.join(SITE, "src", "assets", "figures", "figures.json"), "utf8"));
-const html = await readFile(path.join(DIST, "index.html"), "utf8");
+const pages = new Map(await Promise.all((await readdir(DIST)).filter(name => name.endsWith('.html')).map(async name => [name, await readFile(path.join(DIST, name), 'utf8')])));
+const allHtml = [...pages.values()].join('\n');
+let html = pages.get('index.html');
 const css = await readFile(path.join(DIST, "site.css"), "utf8");
 
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
@@ -220,7 +222,7 @@ const problems = [];
 const report = [];
 const hashes = {};
 
-const mounted = [...html.matchAll(/\bdata-figure="([^"]+)"/g)].map((m) => m[1]);
+const mounted = [...allHtml.matchAll(/\bdata-figure="([^"]+)"/g)].map((m) => m[1]);
 for (const id of mounted)
   if (!manifest.figures.some((entry) => entry.id === id)) problems.push({ figure: id, why: "data-figure has no manifest entry" });
 if (new Set(manifest.figures.map((entry) => entry.id)).size !== manifest.figures.length) problems.push({ why: "duplicate manifest ids" });
@@ -232,8 +234,12 @@ for (const entry of manifest.figures) {
   if (!["shipped", "recorded", "research", "concept"].includes(entry.status)) fail("unknown status", entry.status);
   if (!["plate", "object", "ambient"].includes(entry.grammar)) fail("unknown grammar", entry.grammar);
 
+  const route = entry.page ?? 'index.html';
+  html = pages.get(route);
+  if (!html) { fail("figure page is not built", route); continue; }
+  if (entry.viewport && !['wide', 'compact'].includes(entry.viewport)) fail("unknown responsive viewport", entry.viewport);
   const mount = mountOf(entry);
-  if (!mount) { fail("figure is not mounted in index.html", entry.mount); continue; }
+  if (!mount) { fail("figure is not mounted in its registered page", { page: route, mount: entry.mount }); continue; }
 
   // Source: a file-backed figure is its file, byte for byte. An inline figure is
   // campaign markup: the manifest records where it lives, not a hash (VG-16).
@@ -303,14 +309,14 @@ for (const entry of manifest.figures) {
 }
 
 // Red anywhere outside a registered figure, and the stylesheet's use of the token.
-const allReds = [...html.matchAll(/\bclass="[^"]*\bfig-attention\b/g)].length;
+const allReds = [...allHtml.matchAll(/\bclass="[^"]*\bfig-attention\b/g)].length;
 const registeredReds = manifest.figures.filter((entry) => entry.red).length;
 if (allReds !== registeredReds) problems.push({ why: "page carries figure red elements the manifest does not register", detail: { onPage: allReds, registered: registeredReds } });
 const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
 for (const [, selector, body] of code.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
   if (!/var\(--campaign-attention-review\)/.test(body)) continue;
-  const ok = selector.split(",").every((part) => /\.review-attention\b|\.fig-attention\b/.test(part));
-  if (!ok) problems.push({ why: "red token used outside the Review slot and the registered figure class", detail: selector.trim() });
+  const ok = selector.split(",").every((part) => (/\.review-attention\b|\.fig-attention\b/.test(part) || part.trim() === ".hero-actions .hero-action-paper"));
+  if (!ok) problems.push({ why: "red token used outside Review, registered figures, or the authorized Hero paper link", detail: selector.trim() });
 }
 
 if (process.argv.includes("--hashes")) {

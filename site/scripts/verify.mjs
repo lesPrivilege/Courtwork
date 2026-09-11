@@ -200,8 +200,8 @@ try {
     return { tabs: tabs.length, reached, afterArrow, tabStops: tabs.filter((t) => t.tabIndex === 0).length };
   })()`);
   record(
-    "V3 · all eight specimen steps are reachable and the tablist walks with the arrow keys",
-    keyboard.tabs === 8 && keyboard.reached.length === 8 && /Step 2 of 8/.test(keyboard.afterArrow) && keyboard.tabStops === 1,
+    "V3 · all seven specimen steps are reachable and the tablist walks with the arrow keys",
+    keyboard.tabs === 7 && keyboard.reached.length === 7 && /Step 2 of 7/.test(keyboard.afterArrow) && keyboard.tabStops === 1,
     keyboard,
   );
 
@@ -244,7 +244,7 @@ try {
     tabs[0].dispatchEvent(new KeyboardEvent("keydown", {key:"ArrowRight",bubbles:true}));
     return {count:tabs.length, reached, arrow:document.activeElement.id, concepts:document.querySelector(".pricing-concept").textContent, cards:document.querySelectorAll(".pricing-card").length};
   })()`);
-  record("V3c · pricing panels and keyboard selection", pricing.count === 3 && pricing.cards === 3 && pricing.reached.every(Boolean) && pricing.arrow === "pricing-tab-hosted" && /CONCEPT PLANS.*NOT CURRENTLY OFFERED/.test(pricing.concepts), pricing);
+  record("V3c · pricing panels and keyboard selection", pricing.count === 3 && pricing.cards === 3 && pricing.reached.every(Boolean) && pricing.arrow === "pricing-tab-hosted" && /CHOOSE YOUR WORKSPACE/.test(pricing.concepts), pricing);
 
   const instrument = await evaluate(`(() => {
     const group = document.querySelector('[data-tabs="layers"]');
@@ -252,9 +252,9 @@ try {
     const tabs = [...group.querySelectorAll('[role="tab"]')];
     const seen = tabs.map(tab => { tab.click(); return { projection: group.dataset.projection, same: group.querySelector('.instrument-object') === object, visible: [...group.querySelectorAll('[role="tabpanel"]')].filter(p => !p.hidden).length }; });
     tabs[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    return { seen, instant: group.dataset.motion === 'instant', caption: document.querySelector('.hero-object figcaption').textContent, slot: document.querySelector('[data-capture-slot="home"]').dataset.captureStatus };
+    return { seen, instant: group.dataset.motion === 'instant', caption: document.querySelector('.hero-object figcaption').textContent, slot: document.querySelector('figure[data-capture-slot="home"]').dataset.captureStatus };
   })()`);
-  record("V3d · one decorative object, three projections, current Home captured", instrument.seen.map(s => s.projection).join(',') === 'events,surface,context' && instrument.seen.every(s => s.same && s.visible === 1) && instrument.instant && /Concept study/.test(instrument.caption) && instrument.slot === 'captured', instrument);
+  record("V3d · one decorative object, three projections, current Home captured", instrument.seen.map(s => s.projection).join(',') === 'events,surface,context' && instrument.seen.every(s => s.same && s.visible === 1) && instrument.instant && /The work remains/.test(instrument.caption) && instrument.slot === 'captured', instrument);
 
   // ---- V4 · reduced motion and reduced transparency ------------------------
   for (const feature of ["prefers-reduced-motion", "prefers-reduced-transparency"]) {
@@ -311,10 +311,10 @@ try {
   const noscript = await evaluate(`(() => {
     const text = document.body.innerText;
     return {
-      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("[data-capture-slot=home]")?.dataset.captureStatus === "captured",
-      architecture: /让工作存在于模型之外/.test(text) && /已确认的决定/.test(text),
-      evidence: /Continuity conformance/.test(text) && /声称表/.test(text),
-      build: /npm --prefix app ci/.test(text) && /Domain core/.test(text),
+      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("figure[data-capture-slot=home]")?.dataset.captureStatus === "captured",
+      architecture: /工作持续积累/.test(text) && /Matter 保存来源/.test(text),
+      evidence: /Can the work continue/.test(text) && /Data & privacy/.test(text),
+      build: /Bring the work home/.test(text) && /Run from source/.test(text),
       layers: [...document.querySelectorAll(".tab-panel")].filter((p) => p.getClientRects().length).length,
       diagram: Boolean(document.querySelector(".diagram svg")),
     };
@@ -324,15 +324,15 @@ try {
   const served = await (await fetch(ORIGIN)).text();
   record("V6 · without scripting the first screen and sections 03 / 05 / 06 are complete", 
     /模型可以离场，工作继续/.test(served) && /data-capture-status="captured"/.test(served) &&
-      /让工作存在于模型之外/.test(served) && /已确认的决定/.test(served) &&
-      /Continuity conformance/.test(served) && /声称表/.test(served) &&
-      /npm --prefix app ci/.test(served) && /Domain core/.test(served) &&
+      /工作持续积累/.test(served) && /Matter 保存来源/.test(served) &&
+      /Can the work continue/.test(served) && /Data &amp; privacy/.test(served) &&
+      /Bring the work home/.test(served) && /Run from source/.test(served) &&
       !/hidden/.test(served.split('class="tab-panel"')[1]?.slice(0, 80) ?? ""),
     { evaluatedInPage: noscript, servedBytes: served.length });
   const servedSpecimen = await (await fetch(new URL("specimen/index.html", ORIGIN))).text();
   record("V6b · without scripting the specimen falls back to the step list with its stills",
     /<noscript>/.test(servedSpecimen) && (servedSpecimen.match(/fallback-shot/g) || []).length === 7 &&
-      (servedSpecimen.match(/fallback-text/g) || []).length === 8,
+      (servedSpecimen.match(/fallback-text/g) || []).length === 7,
     { stills: (servedSpecimen.match(/fallback-shot/g) || []).length });
   await cdp("Emulation.setScriptExecutionDisabled", { value: false });
 
@@ -408,6 +408,15 @@ try {
     for (const entry of figures) {
       const host = entry.mount === "data-figure" ? document.querySelector('[data-figure="' + entry.id + '"]') : document.querySelector(entry.mount);
       if (!host) { out.push({ id: entry.id, missing: true }); continue; }
+      if (entry.viewport) {
+        const expectedVisible = entry.viewport === (innerWidth <= 720 ? 'compact' : 'wide');
+        const visible = host.getClientRects().length > 0;
+        if (!expectedVisible) {
+          out.push({ id: entry.id, hidden: true, reds: [], problems: visible ? ['responsive alternate should be hidden'] : [] });
+          continue;
+        }
+        if (!visible) { out.push({ id: entry.id, missing: true, reds: [], problems: ['responsive view should be visible'] }); continue; }
+      }
       const svg = host.matches("svg") ? host : host.querySelector("svg:not([aria-hidden=true])");
       const row = { id: entry.id, problems: [], reds: [], animated: 0 };
       for (const el of host.querySelectorAll("*")) {
@@ -462,13 +471,15 @@ try {
     return { red, figures: out };
   })`;
   const redOf = (entry) => (entry.red ? [entry.red.element] : []);
-  for (const [width, height, theme] of [[1440, 900, "light"], [1440, 900, "dark"], [390, 844, "light"], [390, 844, "dark"]]) {
-    await load(ORIGIN, { width, height, theme });
-    const audit = await evaluate(`${FIGURE_AUDIT}(${JSON.stringify(FIGURES.figures)})`);
+  const figurePages = [...new Set(FIGURES.figures.map(e => e.page ?? 'index.html'))];
+  for (const route of figurePages) for (const [width, height, theme] of [[1440, 900, "light"], [1440, 900, "dark"], [1280, 900, "light"], [390, 844, "light"], [390, 844, "dark"]]) {
+    await load(new URL(route, ORIGIN).href, { width, height, theme });
+    const entries = FIGURES.figures.filter(e => (e.page ?? 'index.html') === route);
+    const audit = await evaluate(`${FIGURE_AUDIT}(${JSON.stringify(entries)})`);
     const bad = audit.figures.filter((f) => f.missing || f.problems?.length || f.animated ||
-      JSON.stringify(f.reds) !== JSON.stringify(redOf(FIGURES.figures.find((e) => e.id === f.id))) ||
+      (!f.hidden && JSON.stringify(f.reds) !== JSON.stringify(redOf(entries.find((e) => e.id === f.id)))) ||
       (f.title === false) || (f.desc === false));
-    record(`V9 · figures at ${width}px ${theme}: geometry, text contrast, red only where registered, nothing moves`, bad.length === 0, {
+    record(`V9 · ${route} figures at ${width}px ${theme}: geometry, text contrast, responsive view, registered red`, bad.length === 0, {
       figures: audit.figures.length, red: audit.red, reds: audit.figures.filter((f) => f.reds.length).map((f) => ({ id: f.id, reds: f.reds })),
       failures: bad.slice(0, 6),
     });
@@ -535,6 +546,40 @@ try {
   }
   await writeFile(path.join(FIGURES_OUT, "matrix.json"), JSON.stringify({ origin: ORIGIN, chrome: version.Browser, matrix }, null, 2) + "\n");
   record("V10 · figure screenshot matrix written", matrix.length === 2 * 2 * 3 * regions.length + 5, { shots: matrix.length, dir: path.relative(ROOT, FIGURES_OUT) });
+
+  // V11: new continuity stories and the explicitly requested Paper button.
+  const continuityMatrix = [];
+  for (const route of ['index.html', 'tour.html']) {
+    const region = route === 'index.html' ? '#source-change' : '#candidate-commit';
+    for (const [width, theme, mode, scale] of [[1440,'light','default',1],[1440,'dark','default',1],[1280,'light','default',1],[1280,'dark','default',1],[390,'light','default',1],[390,'dark','default',1],[1440,'light','zoom200',2],[390,'dark','forced-colors',1],[1440,'light','grayscale',1],[390,'light','no-js',1]]) {
+      if(mode === 'no-js') await cdp('Emulation.setScriptExecutionDisabled',{value:true});
+      await load(new URL(route,ORIGIN).href,{width,height:900,theme,scale,features: mode==='forced-colors'?[{name:'forced-colors',value:'active'}]:[]});
+      if(mode==='grayscale') await evaluate('document.documentElement.style.filter="grayscale(1)"');
+      const state = await evaluate(`(() => {
+        const host=document.querySelector(${JSON.stringify(region)});
+        const views=[...host.querySelectorAll('[data-figure]')].filter(e=>e.getClientRects().length);
+        const svg=views[0].querySelector('svg');
+        const red=svg.querySelector('.fig-attention');
+        const marker=getComputedStyle(red).fill;
+        const text=getComputedStyle(svg.querySelector('text')).fill;
+        const links=[...document.querySelectorAll('.hero-actions a')].map(a=>{const b=a.getBoundingClientRect();return {text:a.textContent.trim(),href:a.href,x:b.x,y:b.y,width:b.width,height:b.height,color:getComputedStyle(a).color,background:getComputedStyle(a).backgroundColor};});
+        return {views:views.length,view:views[0].dataset.figure,overflow:document.documentElement.scrollWidth-innerWidth,marker,text,links,svg:!!svg.querySelector('title')&&!!svg.querySelector('desc')};
+      })()`);
+      let pass=state.views===1 && state.overflow<=1 && state.svg;
+      if(mode==='forced-colors')pass=pass&&state.marker===state.text;
+      if(route==='index.html'){
+        const a=state.links; pass=pass&&a.length===3&&a.every(e=>e.height>=44)&&a[2].href==='https://lesprivilege.github.io/Schema-Engineering/';
+        if(width===390)pass=pass&&a[2].y>a[1].y&&Math.abs(a[2].x-a[0].x)<1&&Math.abs(a[2].width-a[0].width)<1;
+        if(width>=1280&&scale===1)pass=pass&&Math.abs(a[2].y-a[0].y)<1;
+      }
+      const label=route==='index.html'?'source-change':'candidate-to-record';
+      continuityMatrix.push({route,width,theme,mode,scale,state,...(await capture(`${label}-${width}-${theme}-${mode}.png`,region))});
+      if(route==='index.html')await capture(`hero-${width}-${theme}-${mode}.png`,'.hero-copy');
+      record(`V11 · ${route} ${width} ${theme} ${mode}`,pass,state);
+      if(mode==='no-js')await cdp('Emulation.setScriptExecutionDisabled',{value:false});
+    }
+  }
+  await writeFile(path.join(FIGURES_OUT,'continuity-matrix.json'),JSON.stringify(continuityMatrix,null,2)+'\n');
 
   await writeFile(
     path.join(OUT, "verify.json"),

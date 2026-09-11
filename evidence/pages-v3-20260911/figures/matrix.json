@@ -1,0 +1,756 @@
+{
+  "origin": "http://127.0.0.1:8947/Courtwork/",
+  "chrome": "Chrome/152.0.7977.83",
+  "matrix": [
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "default",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-light-default.png",
+      "bytes": 246525,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "default",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-1440-light-default.png",
+      "bytes": 17692,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "default",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-1440-light-default.png",
+      "bytes": 54167,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-light-reduced-motion.png",
+      "bytes": 246525,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-1440-light-reduced-motion.png",
+      "bytes": 17692,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-1440-light-reduced-motion.png",
+      "bytes": 54167,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "long-work-1440-light-no-js.png",
+      "bytes": 246525,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "state-to-commit-1440-light-no-js.png",
+      "bytes": 17692,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "fig-00-1440-light-no-js.png",
+      "bytes": 54167,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "default",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-dark-default.png",
+      "bytes": 244694,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "default",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-1440-dark-default.png",
+      "bytes": 17400,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "default",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-1440-dark-default.png",
+      "bytes": 50684,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-dark-reduced-motion.png",
+      "bytes": 244694,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-1440-dark-reduced-motion.png",
+      "bytes": 17400,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-1440-dark-reduced-motion.png",
+      "bytes": 50684,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "long-work-1440-dark-no-js.png",
+      "bytes": 244694,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "state-to-commit-1440-dark-no-js.png",
+      "bytes": 17400,
+      "clip": {
+        "width": 1280,
+        "height": 413
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "fig-00-1440-dark-no-js.png",
+      "bytes": 50684,
+      "clip": {
+        "width": 587,
+        "height": 606
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "default",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-light-default.png",
+      "bytes": 171429,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "default",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-390-light-default.png",
+      "bytes": 790,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "default",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-390-light-default.png",
+      "bytes": 38828,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-light-reduced-motion.png",
+      "bytes": 171429,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-390-light-reduced-motion.png",
+      "bytes": 790,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "reduced-motion",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-390-light-reduced-motion.png",
+      "bytes": 38828,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "long-work-390-light-no-js.png",
+      "bytes": 171429,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "state-to-commit-390-light-no-js.png",
+      "bytes": 790,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "no-js",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "fig-00-390-light-no-js.png",
+      "bytes": 38828,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "default",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-dark-default.png",
+      "bytes": 170697,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "default",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-390-dark-default.png",
+      "bytes": 791,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "default",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-390-dark-default.png",
+      "bytes": 36053,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-dark-reduced-motion.png",
+      "bytes": 170697,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "state-to-commit-390-dark-reduced-motion.png",
+      "bytes": 791,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "reduced-motion",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "fig-00-390-dark-reduced-motion.png",
+      "bytes": 36053,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "long-work-390-dark-no-js.png",
+      "bytes": 170697,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "state-to-commit",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "state-to-commit-390-dark-no-js.png",
+      "bytes": 793,
+      "clip": {
+        "width": 342,
+        "height": 239
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "no-js",
+      "region": "fig-00",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1,
+        "note": "emulated metrics; page scripts disabled"
+      },
+      "file": "fig-00-390-dark-no-js.png",
+      "bytes": 36053,
+      "clip": {
+        "width": 342,
+        "height": 431
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "grayscale",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-light-grayscale.png",
+      "bytes": 210011,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "mode": "grayscale",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-dark-grayscale.png",
+      "bytes": 208806,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "mode": "grayscale",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-light-grayscale.png",
+      "bytes": 141393,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "mode": "forced-colors",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-1440-light-forced-colors.png",
+      "bytes": 210822,
+      "clip": {
+        "width": 1280,
+        "height": 1867
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "mode": "forced-colors",
+      "region": "long-work",
+      "viewport": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "devicePixelRatio": 1
+      },
+      "file": "long-work-390-dark-forced-colors.png",
+      "bytes": 141026,
+      "clip": {
+        "width": 342,
+        "height": 2475
+      }
+    }
+  ]
+}
