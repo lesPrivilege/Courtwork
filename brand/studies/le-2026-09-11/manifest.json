@@ -1,0 +1,40 @@
+{
+  "status": "candidate",
+  "source": "brand/geometry/mark.svg",
+  "source_sha256": "522d4303216259490fb501458391431e8329a6aff8cfa3b463be6573d4614556",
+  "grid": 64,
+  "inkBounds": [
+    8,
+    8,
+    56,
+    56
+  ],
+  "stroke": 10,
+  "rowGap": 9,
+  "stemRowGap": 10,
+  "radius": 2.5,
+  "upperLength": 28,
+  "lowerVisibleLength": 18,
+  "files": [
+    {
+      "path": "le.svg",
+      "sha256": "a139147796a16f6a0330420eaeeb946db40186e3de444d13aae63828bed48270"
+    },
+    {
+      "path": "le-light.svg",
+      "sha256": "a4d08452a6d68cfe0472043d15d69414ed3cf34d172fa9f63d29f6950c4336f5"
+    },
+    {
+      "path": "le-dark.svg",
+      "sha256": "608d57a2e513b224283ad586981f9f8292a5e3badd4c24217f79488167048462"
+    },
+    {
+      "path": "le-hierarchy-light.svg",
+      "sha256": "66d4e65e15bfe26503ece6e3d7d67b8d50e1985f18da4537cdea56133e76df8d"
+    },
+    {
+      "path": "le-hierarchy-dark.svg",
+      "sha256": "0ae06722a4f7279477cfdae85b031e8b231f78cc41343f9cc40ebf0fe922e960"
+    }
+  ]
+}

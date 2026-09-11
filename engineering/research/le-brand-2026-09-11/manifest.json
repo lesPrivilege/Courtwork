@@ -1,0 +1,29 @@
+{
+  "conversationId": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+  "turns": 3,
+  "messages": 3,
+  "hasMore": false,
+  "limitation": "Only three user messages returned; no Chat SVG implementation or assistant messages available. Two attached images preserved.",
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 3276,
+      "sha256": "f9324ab86c608513a38902e1e4e0a3e0da7edd4e2232f13adbacbd5484e364a0"
+    },
+    {
+      "path": "input-snapshot.txt",
+      "bytes": 1139,
+      "sha256": "d60c0138afb6b9541ebc4e9653d9c609d698d7589451fd647076ac19a0561139"
+    },
+    {
+      "path": "reference-1.jpeg",
+      "bytes": 14583,
+      "sha256": "040d2cb675be7cf4aa0d6b41efb2662f6cb67c9a6a9602e2075e2bf94d375998"
+    },
+    {
+      "path": "reference-2.jpeg",
+      "bytes": 6889,
+      "sha256": "4f665f3fd5182ccbb584c60e5a2d8d06c1da470ee68d644665bfad1dff432adb"
+    }
+  ]
+}

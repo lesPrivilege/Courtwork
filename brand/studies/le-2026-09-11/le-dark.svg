@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="le-title le-desc">
+<title id="le-title">LE</title><desc id="le-desc">LE monogram: a continuous L and two equal horizontal strokes. The lower arm is shorter, and the top edges align.</desc>
+<path fill="#e4ebef" d="M10.5 8H15.5Q18 8 18 10.5V43.5Q18 46 20.5 46H43.5Q46 46 46 48.5V53.5Q46 56 43.5 56H10.5Q8 56 8 53.5V10.5Q8 8 10.5 8Z"/>
+<g fill="#e4ebef"><rect x="28" y="8" width="28" height="10" rx="2.5"/><rect x="28" y="27" width="28" height="10" rx="2.5"/></g>
+</svg>

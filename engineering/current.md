@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · LE 原生 SVG 署名候选
+
+[来源与裁定](research/le-brand-2026-09-11/README.md)接收可取得的3条用户消息与2张图，从原生 CourtWork 几何绘制连续 L 与两条等长横笔。[候选包](../brand/studies/le-2026-09-11/README.md)交付5个零依赖 SVG、尺寸/明暗署名对照和作者自检；推荐单色，保留分色比较。未替换产品品牌或部署 Paper 署名。
+
 ## 2026-09-11 · SE分支只读核查
 
 [Luna审计](research/paper-publishing-2026-09-11/se-branch-audit.md)：DSH观察分支fa71b782有3个Practice Index提交未进入本地/远端main；本地main2817b824的reader-controls已合入本地但领先远端一个提交。已合入旧分支、prunable及有未提交改动的detached worktree分别保留。本轮仅接收审计，未改SE分支或部署。
