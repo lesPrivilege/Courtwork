@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Chat薄能力边界登记
+
+[Chat薄能力层](research/chat-memory-broker-2026-09-12/thin-capabilities.md)采用Provider会话、本地连续性与可选检索/connector，Chat讨论和Agent有界执行互补，不新增完整执行环境。实际effect、来源披露、连接授权、治理写入与handoff保持原owner；网页不当裸模型，模型/Harness效果留待实测，Settings分类仅候选。已接既有BE/LG/RG与整体闭环，隔离5224文档链接通过；按用户要求仅登记本地main，无实现、push或部署，原未提交文件保留。
+
 ## 2026-09-12 · Governed work loop裁决、合推与Pages节点
 
 [整体裁决与独立review入口](release/governed-work-loop-2026-09-12/README.md)采用四职责围绕受治理工作状态，Human保有最终治理权；状态owner不合并，Spark的schema写入不免授权，Expert可反查原文，核查不自动关闭。既有Memory Broker/义务闭环文稿已接入，架构设计不冒称已实现，不改发布叙事。用户授权合推部署；[Pages回执](release/governed-work-loop-2026-09-12/deployment.md)记录6f27f5a的run34644492998成功与线上19资源hash一致，包含ad5a03f深色一笔红修复。最终文档随main同步；提供固定main干净检出供独立review，已合入临时分支退役，原共享目录62个未提交文件保留。真实API/剩余产品门和用户下一节点排单仍开放。
