@@ -5907,6 +5907,14 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 :root { --authored-base-s: #202426; --authored-raised-s: #303638; --authored-ink-s: #f5f7f8; --authored-muted-s: #c8cdd0; --authored-line-s: #596267; }
 /* ==== tier:R · user-requested authored plane; independent of review tint ==== */
 :root { --authored-surface: var(--authored-base-s); --authored-raised: var(--authored-raised-s); --authored-ink: var(--authored-ink-s); --authored-muted: var(--authored-muted-s); --authored-line: var(--authored-line-s); }
+/* Dark authored input sits above the reading plane, like the existing composer.
+   Keep light authored contrast and let each skin resolve its existing L2 role. */
+:root[data-theme="dark"] {
+  --authored-surface: var(--float);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --authored-surface: var(--float); }
+}
 /* ==== tier:U · authored message content; actions stay on the parent plane ==== */
 .user-message-content {
   --panel: var(--authored-surface); --panel-muted: var(--authored-raised);

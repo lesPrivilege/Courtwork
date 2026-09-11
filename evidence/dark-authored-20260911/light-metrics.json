@@ -1,0 +1,21 @@
+{
+  "styles": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(42, 44, 44)",
+      "selector": ".composer-form"
+    },
+    {
+      "background": "rgb(32, 36, 38)",
+      "color": "rgb(245, 247, 248)",
+      "selector": ".user-message-content"
+    },
+    {
+      "background": "rgb(244, 245, 246)",
+      "color": "rgb(42, 44, 44)",
+      "selector": "main"
+    }
+  ],
+  "theme": "light",
+  "width": 1440
+}

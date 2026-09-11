@@ -1,0 +1,48 @@
+{
+  "dark": [
+    {
+      "background": "rgb(46, 51, 53)",
+      "color": "rgb(244, 245, 246)",
+      "selector": ".composer-form",
+      "luminance": 0.03205536554794078,
+      "text_contrast": 11.72
+    },
+    {
+      "background": "rgb(46, 51, 53)",
+      "color": "rgb(245, 247, 248)",
+      "selector": ".user-message-content",
+      "luminance": 0.03205536554794078,
+      "text_contrast": 11.91
+    },
+    {
+      "background": "rgb(34, 38, 39)",
+      "color": "rgb(244, 245, 246)",
+      "selector": "main",
+      "luminance": 0.01872791077859808,
+      "text_contrast": 14.0
+    }
+  ],
+  "light": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(42, 44, 44)",
+      "selector": ".composer-form",
+      "luminance": 1.0,
+      "text_contrast": 14.05
+    },
+    {
+      "background": "rgb(32, 36, 38)",
+      "color": "rgb(245, 247, 248)",
+      "selector": ".user-message-content",
+      "luminance": 0.017087693459712325,
+      "text_contrast": 14.56
+    },
+    {
+      "background": "rgb(244, 245, 246)",
+      "color": "rgb(42, 44, 44)",
+      "selector": "main",
+      "luminance": 0.9119173314614325,
+      "text_contrast": 12.87
+    }
+  ]
+}
