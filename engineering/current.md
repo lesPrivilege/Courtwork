@@ -1,5 +1,15 @@
 # 当前工程状态
 
+## 2026-09-12 · 公开页面发布完成与下一Runtime索引
+
+按用户“先发布”授权，Courtwork main已推送，`78008ce`经GitHub Pages手动run34641097764 build/deploy成功。[发布回执](../evidence/publication-fast-review-20260912/README.md)含Luna公开文案/媒体有界复核、Astra两张架构图旁白修正、69/69与36/36浏览器检查、161文件重复构建及线上106路径HTTP/hash一致。仅静态站发布，不关闭真实provider或其余产品门；SE未重推部署。Spark临时数据注入已按用户取消；8804保留供下一轮用户真实API验证，原有未提交文件保留。
+
+[下一节点索引](release/harness-next-node-2026-09-12/README.md)汇总真实验证入口、现Harness/Pi与adapter接缝、旧版Pro P00–P12候选、DRT-01～04和未接受CS01/CI-BF归档。Luna只读整理并复核，Astra校正历史BE41状态和证据上限；供用户独立审阅与决定排单，不新增Runtime实现或付费调用。
+
+## 2026-09-12 · RD-007合入main
+
+用户指定`cf9ce49`已真实合流；[RD-007](research/RD-007-resource-governance.md)及[前后端PR稿/roadmap](research/mature-practices-2026-09-12/README.md)沿既有LG/DS/BG/Runtime owner登记，八份原件hash通过。此为研究/合同接受，不宣称Library、资源迁移或新schema已实现，不重排在途writer。
+
 ## 2026-09-12 · Shell返回、提醒与观察契约优先消费
 
 [Shell控制面](design/shell-control-plane-2026-09-12/README.md)消费原始建议与三张追加截图：FE-NAV先冻结位置历史/选择筛选滚动与焦点恢复；Notification保持事件认知，与Core Attention以幂等引用关联；Usage承接已有Overview/Models、日历与date/model→Run快照下钻，小时矩阵和新Metric × Dimension先补owner/覆盖口径。已接活动前端规范与后端缺口，修正Usage先例路径；四项原件hash及隔离5067条链接通过。此轮仅合同/语义参考，无App、schema、箭头/Bell或新增统计实现，无非作者产品接受；8804保持运行，未push/deploy。
