@@ -42,13 +42,15 @@ test("band · one title line; Chat is the default mode and is not restated", () 
   assert.match(meta, /appendRunBadge/);
 });
 
-test("sidebar · 16 glyph on a 32 row, 4 between nav rows, 16 between groups, 44 on touch", () => {
+test("sidebar · 16 glyph on a 32 row, 2 between nav rows, 16 between groups, 44 on touch", () => {
   assert.match(styles, /\.nav-home > \.ui-icon,\n#cancel-run-button \.ui-icon \{\n  width: 16px;\n  height: 16px;/);
   assert.doesNotMatch(styles, /\.nav-home > \.ui-icon \{\s*width: 20px/);
   assert.match(rule(styles, ".nav-home"), /min-height: max\(32px, var\(--control\)\);/);
   assert.doesNotMatch(rule(styles, ".sidebar"), /\bgap:/);
   assert.match(rule(styles, ".sidebar > * + *"), /margin-top: var\(--space-4\);/);
-  assert.match(rule(styles, ".sidebar > .nav-home + .nav-home"), /margin-top: var\(--space-1\);/);
+  // 2026-09-12: compact navigation keeps Home/New on one row.
+  assert.match(styles, /\.sidebar > \.nav-home \+ \.nav-home,\n\.sidebar > \.nav-home-row \+ \.nav-home/);
+  assert.match(rule(styles, ".sidebar > .nav-home-row + .nav-home"), /margin-top: calc\(var\(--space-1\) \/ 2\);/);
   // Text stays on the existing ladder: the nav row inherits the button label size.
   assert.doesNotMatch(rule(styles, ".nav-home"), /font-size/);
 });
