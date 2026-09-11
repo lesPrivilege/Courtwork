@@ -1,5 +1,7 @@
 # Product glyph set · 2026-09-11
 
+2026-09-11后续：[用户形象反馈与最新裁定](../../release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将Spark/Attention现有造型记为临时实现；下文是已接入来源记录，不再要求新造型继承拓扑隐喻。
+
 Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus three CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
 
 ## Sources and regeneration

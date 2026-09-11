@@ -1,5 +1,7 @@
 # 部分接收与Paper发布结案
 
+用户随后对Spark/Attention造型提出明确异议，见[最新形象裁定](icon-atmosphere-20260911/README.md)。两枚造型重新开放设计；前述来源/生成/调用接收保持，不构成两枚造型的视觉接受。
+
 2026-09-11 · Astra。用户要求先Luna独立审阅Fable限额前已完成工作，将Astra余量留给最终computer use。沿[部分审查](FABLE-PARTIAL-REVIEW.md)接收已提交Stage1 `2c7d181`，带上Luna作者修正`90d7b65`；Astra核对测试差异并在组合`116463a`复跑[19项检查](../../../evidence/fable-stage1-integration-20260911/README.md)。
 
 接收范围是Spark/Attention/Chat及Settings图标来源、生成、semantic mapping与真实调用，不把结构性接入称最终全场景视觉接受。Stage2/3源码和局部测试已有进展，但尚缺独立完整视觉/状态与RETURN证据，保持作者未提交状态不动；未提交本身不是否决理由，后续应按固定patch/hash接收。Stage4统一preview与Stage5完整工程图/最终媒体仍待交付；不用半成品覆盖主线。

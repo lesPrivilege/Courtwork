@@ -1,5 +1,7 @@
 # Claude Design · 最后一轮产品与发布筹备
 
+最新产品形象修订见[图标氛围方向](icon-atmosphere-20260911/README.md)：Spark与Attention现有拓扑造型为临时实现，重新设计直观轮廓与产品性格；该裁定覆盖旧source→fan-out / streams→ring外形要求，结构接入与通用图标族继续保留。
+
 本单由用户于2026-09-11授权，合并所有已知设计缺口与发布前筹备。一个Claude Design writer在独立worktree串行完成设计、资产与前端实现，再由Astra复核、merge和完成发布筹备。不是只交画板，也不在本单执行线上部署。无需逐阶段重新申请批准。
 
 ## 开工与统一来源
@@ -56,4 +58,4 @@ Astra批准新增普通交互控件accent角色，使开关、选中项等适当
 
 ## Spark定义接续 · 2026-09-11
 
-消费[Spark产品与发布定义](../../research/spark-product-definition-2026-09-11/README.md)：快速有界的整理、抽取、分类、翻译，后台准备与直接唤起并存；第一阶段是Harness Core受限profile，DeepSeek V4.1 Flash为首个适配目标，非已接入声明。纳入既有Spark面、三面并置及统一预览，沿用source→fan-out；局部翻译只能在明确示例身份中设计，不新增假可用生产按钮或后端。普通文案取登记稿，不采用未经CW实测的供应商性能结论。原16f6337完整ZIP保持原字节，此为同一工单补充。
+消费[Spark产品与发布定义](../../research/spark-product-definition-2026-09-11/README.md)：快速有界的整理、抽取、分类、翻译，后台准备与直接唤起并存；第一阶段是Harness Core受限profile，DeepSeek V4.1 Flash为首个适配目标，非已接入声明。纳入既有Spark面、三面并置及统一预览，产品glyph按最新形象裁定重设计；局部翻译只能在明确示例身份中设计，不新增假可用生产按钮或后端。普通文案取登记稿，不采用未经CW实测的供应商性能结论。原16f6337完整ZIP保持原字节，此为同一工单补充。
