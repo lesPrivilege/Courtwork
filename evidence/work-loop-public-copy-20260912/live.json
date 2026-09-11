@@ -1,0 +1,141 @@
+{
+  "sourceCommit": "c1ea9de696db695567ae61c666dee859ab527850",
+  "run": 34645870216,
+  "checkedAt": "2026-09-11T20:46:49.445763+00:00",
+  "resources": [
+    {
+      "path": "eval.html",
+      "status": 200,
+      "expected": "9e7e2eda254f2ad0aca3143a98336275adb4917506e50286f6fa89278d701073",
+      "actual": "9e7e2eda254f2ad0aca3143a98336275adb4917506e50286f6fa89278d701073",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "expected": "c4967cc9db6d63dba8a897f3e580131e93afc1999edb24f9230d73e68d38ce03",
+      "actual": "c4967cc9db6d63dba8a897f3e580131e93afc1999edb24f9230d73e68d38ce03",
+      "match": true
+    },
+    {
+      "path": "changelog.html",
+      "status": 200,
+      "expected": "4197408caa7d13ef0b4197b4ffb59054ed2934f58a7ec1c02973351a01404733",
+      "actual": "4197408caa7d13ef0b4197b4ffb59054ed2934f58a7ec1c02973351a01404733",
+      "match": true
+    },
+    {
+      "path": "product-pages.css",
+      "status": 200,
+      "expected": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "actual": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "match": true
+    },
+    {
+      "path": "tokens.css",
+      "status": 200,
+      "expected": "e5364fe55e9f71e2dc482bd125175b157fadd23a9d8c84d8ebb6f8a80609272f",
+      "actual": "e5364fe55e9f71e2dc482bd125175b157fadd23a9d8c84d8ebb6f8a80609272f",
+      "match": true
+    },
+    {
+      "path": "build-manifest.json",
+      "status": 200,
+      "expected": "94cfbf100fae92d3f2ae44b2f0688c56aea6589ffe680e7337e8822d62dc1cf4",
+      "actual": "94cfbf100fae92d3f2ae44b2f0688c56aea6589ffe680e7337e8822d62dc1cf4",
+      "match": true
+    },
+    {
+      "path": "data.html",
+      "status": 200,
+      "expected": "78829ed11da01aa76cad30cef4b8bc44c502a3d571c6acc22235c17dc3e91441",
+      "actual": "78829ed11da01aa76cad30cef4b8bc44c502a3d571c6acc22235c17dc3e91441",
+      "match": true
+    },
+    {
+      "path": "pricing.css",
+      "status": 200,
+      "expected": "36f4eb5cf8378d4d60e85736524bad148e57be62b6e3eae3d7f5347f1a0bfd7e",
+      "actual": "36f4eb5cf8378d4d60e85736524bad148e57be62b6e3eae3d7f5347f1a0bfd7e",
+      "match": true
+    },
+    {
+      "path": "cli.html",
+      "status": 200,
+      "expected": "9dbafbf56f849da6a676ea4945976701083a75048804a33686c696410c798251",
+      "actual": "9dbafbf56f849da6a676ea4945976701083a75048804a33686c696410c798251",
+      "match": true
+    },
+    {
+      "path": "site.css",
+      "status": 200,
+      "expected": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "actual": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "match": true
+    },
+    {
+      "path": "tour.html",
+      "status": 200,
+      "expected": "5bf7eb25dfddf846d08b81d9bc118d0f7a65a6dc2d3ea12d10ed1e3035bcdefa",
+      "actual": "5bf7eb25dfddf846d08b81d9bc118d0f7a65a6dc2d3ea12d10ed1e3035bcdefa",
+      "match": true
+    },
+    {
+      "path": "experts.html",
+      "status": 200,
+      "expected": "92d5ea93f901ad1bc18e4a06948c2bf1df00f4668ff09135bc53de14c82dc67d",
+      "actual": "92d5ea93f901ad1bc18e4a06948c2bf1df00f4668ff09135bc53de14c82dc67d",
+      "match": true
+    },
+    {
+      "path": "features.html",
+      "status": 200,
+      "expected": "8af436077ea9a02887ccf5dade219d015884286ddc297b51d2fca1f5c8873fb2",
+      "actual": "8af436077ea9a02887ccf5dade219d015884286ddc297b51d2fca1f5c8873fb2",
+      "match": true
+    },
+    {
+      "path": "models.html",
+      "status": 200,
+      "expected": "c6e8f43e006248f498acb03c6fd66347363f1c296c1285fcde372569627c7eca",
+      "actual": "c6e8f43e006248f498acb03c6fd66347363f1c296c1285fcde372569627c7eca",
+      "match": true
+    },
+    {
+      "path": "get.html",
+      "status": 200,
+      "expected": "b36882cfa18bdc445040a8bbebd0e532af3b4b217caac6e92bce6d0400259f61",
+      "actual": "b36882cfa18bdc445040a8bbebd0e532af3b4b217caac6e92bce6d0400259f61",
+      "match": true
+    },
+    {
+      "path": "chat.html",
+      "status": 200,
+      "expected": "9de5c85a9d7ca9eb124a3391a534a5977dc56b6fc135a6abc1d52e7b725c1dcb",
+      "actual": "9de5c85a9d7ca9eb124a3391a534a5977dc56b6fc135a6abc1d52e7b725c1dcb",
+      "match": true
+    },
+    {
+      "path": "specimen/index.html",
+      "status": 200,
+      "expected": "e3f0f43c9e253ce8b6c7be496a69dee9fac3327338a472080241437cb1b7c9a4",
+      "actual": "e3f0f43c9e253ce8b6c7be496a69dee9fac3327338a472080241437cb1b7c9a4",
+      "match": true
+    },
+    {
+      "path": "specimen/specimen.css",
+      "status": 200,
+      "expected": "42070e59fccde507123b52ca0e4467859dcd66d64a51b5bf7ce9bf149ab7de9c",
+      "actual": "42070e59fccde507123b52ca0e4467859dcd66d64a51b5bf7ce9bf149ab7de9c",
+      "match": true
+    },
+    {
+      "path": "specimen/vendor-product/web/styles.css",
+      "status": 200,
+      "expected": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "actual": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "match": true
+    }
+  ],
+  "passed": true
+}

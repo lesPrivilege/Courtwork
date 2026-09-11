@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 第一个工作闭环公开文案已发布
+
+按用户授权直接main完成README、Home、Tour与Chat的小修：Chat作为稳定交互形式，说明准备、执行、核查与基于工作状态恢复的产品理念；Matter Recovery Contract工程条件登记在原恢复面文稿。源码c1ea9de已推送，Pages run34645870216成功，线上19资源HTTP/hash一致，14浏览器场景无溢出；[验证与发布回执](../evidence/work-loop-public-copy-20260912/README.md)。未提交文件保留，既有产品门继续按工程契约核查。
+
 ## 2026-09-12 · 工作现场恢复与巡检范围登记
 
 [恢复面裁决](research/obligation-closure-2026-09-12/recovery-surface.md)采用获准工作集合、义务与版本证据核查、Spark异常投影及渐进Recovery Surface。输入Matter状态仅候选，冻结退出巡检不取消运行或关闭事项；跨owner观察不伪装原子快照，恢复理解不等于恢复进程，派工/关闭仍受原授权与回执约束。已接ME-06/LG与路线图，隔离5234文档链接通过；仅本地文档登记，无调度/API/UI实现、push或部署，原未提交文件保留。
