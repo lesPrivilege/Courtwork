@@ -94,8 +94,6 @@ const UI_STORAGE_KEY = "schema-engineering.ui.v6";
  * recorded synthetic story and writes against example objects are refused
  * locally. Host facts, the data directory and every real object stay real. */
 const preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });
-const PREVIEW_ACTIVE_COPY = "Explore an example workspace. Your first real run closes the example.";
-const PREVIEW_OFFER_COPY = "Explore an example workspace. It creates nothing.";
 const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 // WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
@@ -6805,8 +6803,6 @@ function renderPreviewChrome() {
   const home = state.view === "home" && !state.attentionOpen && !state.chatOpen && !settingsOpen;
   $("preview-chip").hidden = !preview.active || settingsOpen;
   const banner = $("preview-banner");
-  $("preview-banner-active").querySelector(".preview-banner-text").textContent = PREVIEW_ACTIVE_COPY;
-  $("preview-banner-offer").querySelector(".preview-banner-text").textContent = PREVIEW_OFFER_COPY;
   const offer = !preview.active && preview.available && !state.projects.length;
   banner.hidden = !home || !(preview.active || offer);
   banner.dataset.mode = preview.active ? "active" : "offer";
