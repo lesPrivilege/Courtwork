@@ -51,3 +51,7 @@ Pages增加一处局部展示该视觉语言，消费同语义fixture与最终�
 ## 其余 roadmap 的位置
 
 Paper 预发布由 Astra 本轮收尾，不再把等待 icon 留给本单。Home/Tour P1/P2 已发布，其主体不重开；本单新增的单红diff局部展示按第3阶段消费。后续仍有 A 工程图 F1/F2 拥挤与关系排布、F3 成熟度标注、按必要性处理 F5 窄屏 inset；F4 复用。B 产品施工仍按 [DR-02–05 合同](../../design/se-control-one-shot-2026-09-11/return-intake.md)保留 glyph/header、Spark/Attention、其余 Chat/Composer/Settings 及 Explore/Rebuild specimen 门。本单只消费其中有明确授权的 diff/Settings/CA-01 子片，不把一次小单称整批产品门闭合。未完成的 A 图局部修订可作为本作者下一串行包，沿 [逐图合同](../architecture-reconciliation-2026-09-11.md)，不与本单共享 app 文件并行改写。
+
+## 第二张截图 · 精确视觉层级
+
+用户随后提供[主要实现参照](../../research/motto-diff-2026-09-11/user-mono-diff-detail.png)：旧行/上下文灰字，新行红字，真正新增词段才有紧贴文字的实心红块＋深色反字，不是整行红底或遮掉内容。第1/3阶段按此层级施工；红块大小由真实差异片段决定，不做随机涂鸦。截图下方失败提示不属于本次diff grammar，不因此改变全局danger/Review映射。截图中的命令和路径仅为视觉样例，不执行。

@@ -11,5 +11,10 @@
     "path": "user-mono-diff.png",
     "sha256": "ca6d6d464b6642e254f6a2b2f81729aa21ba6b0df2864ef60b894ba1bd380059",
     "bytes": 396783
+  },
+  "userScreenshotDetail": {
+    "path": "user-mono-diff-detail.png",
+    "sha256": "f942c99306b0967731fe619ca4d55c01d9cbe3f39ff41552fd21312c4762bd02",
+    "bytes": 395797
   }
 }
