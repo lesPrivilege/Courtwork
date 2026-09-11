@@ -1,0 +1,43 @@
+{
+  "conversationId": "6aa3c4f0-ba08-83ec-afad-13c58b69581a",
+  "title": "修订Paper发布版面",
+  "readDate": "2026-09-11",
+  "inputCommit": "608ed1b35da3d88b3e57568b22120c9620fe5fdd",
+  "pages": 1,
+  "turns": 2,
+  "messages": 3,
+  "hasMore": false,
+  "returnedMessages": [
+    {
+      "id": "3e1c1375-95bf-4576-95f8-31eeeb63e2b9",
+      "type": "userMessage",
+      "characters": 438
+    },
+    {
+      "id": "66bbdfbe-7235-48ad-9089-f5efaf800291",
+      "type": "userMessage",
+      "characters": 103
+    },
+    {
+      "id": "34ace544-f449-4353-b7f6-38920ab30304",
+      "type": "agentMessage",
+      "characters": 4630
+    }
+  ],
+  "limitations": [
+    "First turn contains only the user message; no first-turn assistant response returned. Preview repeats the final assistant message and is not counted again."
+  ],
+  "attachments": [],
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 17868,
+      "sha256": "fa2e2b4fc812fda513238e0d6e5aa0336f1be28fa7a2fcd0bab8b91d24cc4c12"
+    },
+    {
+      "path": "input-snapshot.txt",
+      "bytes": 9238,
+      "sha256": "4d4383aa49ee1a0f689bcf1b474c57b0e78aab2fa82fe1eddd97a68f43be18be"
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## Paper出版面 · 当前优先设计输入（2026-09-11）
+
+优先消费[修订Paper发布版面](research/paper-publishing-2026-09-11/README.md)，Claude做原创编辑插画及出版view候选，Astra裁决，Luna索引。按[任务稿](research/paper-publishing-2026-09-11/CLAUDE-BRIEF.md)从独立SE Paper真实源和CourtWork角色token出发，保留双语/三卷/主题；不将发布面9月11修订替代论文内容版本。本项是出版设计优先，不重排独立在途产品writer或关闭下列产品门；当前交付为入账/索引/任务稿，未宣称Paper UI已实现。
+
 2026-09-11输入接续：[Work临时能力消费](research/work-capability-input-2026-09-11/README.md)登记WCI-01–05，分别接DRT身份/profile、RD-005有界执行、context重投影实验、CUA待核与后置局部UI；未选择拓扑或启动实现，不改当前Claude Pages派单。
 
 

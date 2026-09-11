@@ -50,6 +50,8 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 
 ## 近期来源消费
 
+- 2026-09-11 · [修订Paper发布版面](paper-publishing-2026-09-11/README.md)：优先出版设计输入、Astra逐项裁定、Claude原创插画任务稿与Luna固定源索引；Paper内容/发布面版本分开。
+
 - 2026-09-10 · [数据工程与组织工程](data-organization-2026-09-10/README.md)：完整输入、局部选型索引、既有路线映射及 Paper 不修订裁决。
 - 2026-09-11 · [Google Workspace CLI / Tool ABI与Attention](google-workspace-cli-2026-09-11/README.md)：原文269行及hash、14项处置与EX-GWS-01～03消费索引已登记；上游主张未核验，候选未派工，不改变前端/通用Harness优先级。
 

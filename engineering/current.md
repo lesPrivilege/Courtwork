@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Paper出版面优先消费
+
+[《修订Paper发布版面》入账与裁定](research/paper-publishing-2026-09-11/README.md)固定可取得的2轮/3消息（首轮助手正文未返回），优先作为下一Paper出版设计输入。Claude原创编辑插画/出版view候选，Astra裁决，Luna固定[来源索引](research/paper-publishing-2026-09-11/source-index.md)；[可转交任务稿](research/paper-publishing-2026-09-11/CLAUDE-BRIEF.md)保留双语/三卷/主题，以CourtWork冷灰角色转译研究文章版式。9月11发布面修订与论文内容版本分开；本轮未改Paper UI、采用版本或部署，Pages v3线上保持。
+
 ## 2026-09-11 · Claude v3接收与Pages已发布
 
 [v3原件与Astra裁定](research/se-control-design-return-2026-09-11/v3/README.md)固定完整231文件及作者不完整ZIP。选择P1-2/P2-3，修正旧候选版本和运行记录措辞，接Home/Tour宽窄图；按用户追加要求Hero补Attention红Paper按钮。A/B剩余工程图排布、DR-02–05和Runtime门未关闭。[集成证据](../evidence/pages-v3-20260911/README.md)记录测试与非作者复核；b9dc3f6已合推，手动部署34583848361成功；6项线上字节与发布构建一致，见[发布回执](../evidence/pages-v3-20260911/publication.md)。
