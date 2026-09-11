@@ -287,7 +287,7 @@ function researchFigures() {
   return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
     <p class="index">HOW THE WORK CONTINUES</p>
     <h2 id="long-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
-    <p class="lede">Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进工作，把新的判断留给下一次。</p>
+    <p class="lede">Chat 形成思路，Spark 整理来源与证据，Expert 推进工作，Attention 让未闭合事项保持可见。共同的 Matter 留下当前状态、决定与依据，让每次回来都有清楚的下一步。</p>
     ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
     <div class="long-work-stages">
       <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>

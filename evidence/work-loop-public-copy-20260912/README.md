@@ -1,0 +1,5 @@
+# Work loop public copy
+
+User authorized one public philosophy revision directly on main, followed by push and Pages deployment. Base d31d3d6. README source/generated README, Home long-work prose, Tour journal and Chat closing paragraph use Chat as the stable form and explain a shared Matter work loop and state-based recovery. Engineering gaps remain in the Matter Recovery Contract addition; no new runtime capability is claimed by this receipt.
+
+Nearest implemented precedent: site/src/product-pages.mjs journal/article and existing site/src/page.mjs long-work lede. Only editorial content changes; existing typography, layout, colors, media and controls remain. Author checked 14 browser cases across Home/Tour/Chat, light/dark and 1440/390 plus no-script, with zero page overflow; visually inspected Tour light-wide/dark-narrow. Results: [browser.json](browser.json). Build, capture gate, material, 21 figures, 296 public links and five publication policy tests passed. No independent product acceptance or real-provider test.

@@ -36,3 +36,11 @@ Spark异常面包含检查范围、各owner来源修订/观察时间、支持证
 沿[ME-06](../multi-experts-2026-09-10/pr-plan.md)的有意义变化/跟进、[LG-02/04](../local-governance-2026-09-09/pr-plan.md)的范围索引/重建、BE-41现有只读派生面及[Core Attention](../../../docs/work-core/attention.md)继续；BE-41不等于已提供通用Recovery Surface或生命周期调度。首片只读合成场景应覆盖集合变更/冻结、撤权、部分来源、旧决定替代、同名不同义务、索引重建、跨owner修订错位、未知运行效果、重复跟进和原执行者缺席。未冻结调度频率/stale门槛，不新增后台automation或UI。
 
 本轮只做作者文档链接与范围检查，不作独立产品接受；原发布面及现有API/schema不变。
+
+## Matter Recovery Contract · 2026-09-12收敛
+
+用户进一步要求恢复路径成为状态治理的一部分，而非每次临时生成大HANDOFF。采用最低回答集合：哪些工作活跃、什么已裁定、还欠什么、证据在哪里、什么被阻塞、最近变化、下一步应读取什么。每个答案绑定原owner/确切修订、观察时间、coverage与合法reader；空/未知/无权分开。index、decision/obligation/receipt查询、当前活动与recovery projection是逻辑接口，不新造平行ledger真源；Markdown/SQLite/JSONL等物理形式待实际合同与迁移裁决。
+
+兼容Agent须能理解相应schema/版本、scope及拒绝语义；只给必要启动投影与按需展开引用，不强制遍历全仓。handoff可作为有版本的便利快照，但不能成为唯一事实；源更新后须重编译/标失效，不能用旧摘要覆盖新决定。Spark只生成授权内的索引、异常或修复提案，Attention跟进未决，二者不自行裁定冲突或产生关闭事实。该合同仍待实现：工作恢复不承诺恢复进程、私有provider context或未知外部效果。
+
+对外采用稳定产品理念，使用Chat形态名；工程缺口保留本账，不在发布文案添加“尚未实现”旁白。本次不修订Paper定本，不开启自动扫描/修复/调度。

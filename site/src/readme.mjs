@@ -22,7 +22,7 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 **从当前工作继续。** 执行过程留下记录，正式工作状态保存有效决定，下一次运行按需取得相关材料。模型与运行配置可以变化，工作的依据继续保留。
 
-## 三种入口，让工作连贯
+## 第一个工作闭环：Chat、准备、执行与核查
 
 **Chat · 持续交谈。** 从一个问题或想法开始，选择交谈对象，逐步形成判断。对话中的材料和思路可以被保留、引用与交接，让讨论成为下一步工作的起点。
 
@@ -30,7 +30,9 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 **Spark · 围绕来源持续推进。** 从持续积累的资料中整理线索、比较变化、形成发现。每项发现都能回到来源；材料更新时，相关知识也能重新整理，为后续工作提供依据。
 
-Expert 用专业工作契约组织责任、能力需求与验证要求。各个入口共享工作的记录，让讨论、执行与判断能够衔接。
+Expert 用专业工作契约组织责任、能力需求与验证要求。Chat 形成思路，Spark 整理来源与证据，Expert 推进工作，Attention 让未闭合事项保持可见。人的判断落在同一份工作状态上。
+
+**回来，就知道从哪里继续。** Matter 把当前状态、已作决定、未完事项与相关证据组织在一起。新的参与者先看清工作到了哪里，再按需展开材料。连续性来自工作本身留下的状态，不依赖上一位参与者记住全部经过。
 
 [Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
