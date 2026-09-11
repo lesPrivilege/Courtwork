@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 延迟工作区绑定研究与PR准备
+
+[RD-006](research/RD-006-deferred-workspace-binding.md)消费《探索延迟工作区绑定》完整1轮/2消息与追加5张语义截图，原件/hash入账。Luna有界探索、Astra裁定沿现有Session保留managed目录，增加显式外部资源绑定；project/global身份不热切，权限、执行位置、Git与模型分维。[DWB-01–03 PR文稿](research/deferred-workspace-binding-2026-09-12/pr-plan.md)先Runtime合同/迁移，再本地只读纵切，后入口UI；write/remote/跨project迁移后置。本轮为独立分支文档准备，未改产品、schema、部署或创建远端PR；不构成产品独立接受。
+
 ## 2026-09-12 · Presence最终设计验收合并
 
 按用户“验收 merge”接收167463b，静默折角嘴与原创斜下垂thinking嘟嘴、当前assistant消息下落位成为本轮Design/specimen选定方案。接收session独立审增量和宽浅/窄深原始截图，复跑17/17测试、4876条文档链接、两份清单72文件hash及旧SVG字节核对通过；未重复宣称实机动态检查。已合入本地main，未push/deploy，生产App与真实thinking事实接线仍沿[收敛交接](design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md)。原返件及其hash证据保持；其他writer工作区修改保留。

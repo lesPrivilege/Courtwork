@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[RD-006 · 延迟工作区绑定](RD-006-deferred-workspace-binding.md)：2026-09-12，完整源会话与五张语义参考、Luna explore、Astra选型和DWB-01–03后续PR文稿。文档交付，产品未实施。
+
 [2026-09-11 Paper预发布返回](claude-paper-return-2026-09-11/prepublish-v1/README.md)：原件、最终资产接入、独立补证与校正发布方案。
 
 [2026-09-11 Motto diff](motto-diff-2026-09-11/README.md)：固定源码研究，供共享renderer、Settings预览与Chat串行施工消费。
