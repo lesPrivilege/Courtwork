@@ -1,0 +1,137 @@
+{
+  "main": "647bc2167efe5437d0ca73a60a406549d9a1e268",
+  "branches": [
+    {
+      "branch": "archive/courtwork-main",
+      "sha": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476"
+    },
+    {
+      "branch": "archive/fresh-pre-courtwork",
+      "sha": "c0c4d811044b08d1982ebd6ad23d50658a05e300"
+    },
+    {
+      "branch": "archive/legacy-branch/accept-pi-base-gui-2737c98-luna",
+      "sha": "385f18effd072879175abf146540dfb91ff5cd64"
+    },
+    {
+      "branch": "archive/legacy-branch/accept-pi-bounded-site-1",
+      "sha": "5f3e1ca6eb46df96f52abb414e520d2ffe6f1667"
+    },
+    {
+      "branch": "archive/legacy-branch/codex-arch-tool-read-1r1",
+      "sha": "a9aa6cd3c1168bd00e523b196fa4ab4f18d1d8b8"
+    },
+    {
+      "branch": "archive/legacy-branch/gui-hierarchy-1",
+      "sha": "d213d5f8568b20ad1d0ab0831c357c644e1a6dae"
+    },
+    {
+      "branch": "claude/ic2-controls-b",
+      "sha": "8421fdebb944d7d570d0b9f09a350781857653f5"
+    },
+    {
+      "branch": "claude/publication-final-v1",
+      "sha": "2effc325ee36dc5fc95ae3fa40bfef4c514a5580"
+    },
+    {
+      "branch": "claude/ui-followthrough-v1",
+      "sha": "f4dca5a947c676ba45c4e329eb0b3489450d8416"
+    },
+    {
+      "branch": "codex/agent-presence-convergence-20260912",
+      "sha": "167463b48018724179c7e4706c07b1fbe6db3497"
+    },
+    {
+      "branch": "codex/agent-presence-design-20260911",
+      "sha": "7fbbda68dafe97c2347decae7e22861c82e1200b"
+    },
+    {
+      "branch": "codex/agent-presence-review-20260912",
+      "sha": "26eb8bb53a40e9a2ad880cc7c6339a9133950969"
+    },
+    {
+      "branch": "codex/context-window-intake-20260911",
+      "sha": "2337ada33f1d59543c33ac9e98fcacc5a9e34d21"
+    },
+    {
+      "branch": "codex/deepseek-runtime-intake-20260911",
+      "sha": "f35968cf86d89064141acf5098564ce58183a9c5"
+    },
+    {
+      "branch": "codex/expert-sidebar-glyph-20260912",
+      "sha": "647bc2167efe5437d0ca73a60a406549d9a1e268"
+    },
+    {
+      "branch": "codex/fable-partial-integration-20260911",
+      "sha": "6292105e7fa6dbaee0de0b108f0949d07c42db23"
+    },
+    {
+      "branch": "codex/fable-stage1-testfix-20260911",
+      "sha": "90d7b653f5f4df63d0a6fb7c22769b3047d2f0e2"
+    },
+    {
+      "branch": "codex/fresh-courtwork",
+      "sha": "b0173deab477b9be577df75a712f446d14e3c356"
+    },
+    {
+      "branch": "codex/fresh-web-integration",
+      "sha": "3926a5eda76f40552bdc8e310a12560b84c6bfb6"
+    },
+    {
+      "branch": "codex/le-brand-study-20260911",
+      "sha": "bb1cba2946157bf8eec0a7d95577a4118f078050"
+    },
+    {
+      "branch": "codex/pages-common-red-20260911",
+      "sha": "9bdbb5594fbeef23c49082cb0f73139488f6ee80"
+    },
+    {
+      "branch": "codex/pages-v3-integration-20260911",
+      "sha": "608ed1b35da3d88b3e57568b22120c9620fe5fdd"
+    },
+    {
+      "branch": "codex/paper-prepublish-icon-20260911",
+      "sha": "89e2f0f69d7d0346504bd268b088f42826917cc1"
+    },
+    {
+      "branch": "codex/paper-prepublish-intake-20260911",
+      "sha": "320e77d6fb176b5ae60cd15b2934fdbccc029820"
+    },
+    {
+      "branch": "codex/paper-publishing-intake-20260911",
+      "sha": "c7ff265d1bd420d3167d34da06556218ce222911"
+    },
+    {
+      "branch": "codex/paper-v1-intake-20260911",
+      "sha": "18b0ecafbe4d3a2649d7c9848601fa154b9bf232"
+    },
+    {
+      "branch": "codex/preview-consumption-fixes-20260912",
+      "sha": "a0221b83e3f2cb0c6750060247cfd75bce04cfef"
+    },
+    {
+      "branch": "codex/product-icon-atmosphere-20260911",
+      "sha": "9761e1dbf097f601d42ab0c798fc6d0957592446"
+    },
+    {
+      "branch": "codex/semantic-polish-prep-20260911",
+      "sha": "16e9d37a47366de195e1217a6440dd88b660be90"
+    },
+    {
+      "branch": "codex/spark-product-definition-20260911",
+      "sha": "d9c3c86a05233e21602357484a4e0d81ada0158b"
+    },
+    {
+      "branch": "codex/ui-publication-integration-20260911",
+      "sha": "f7c6b4d4f38f76ea952d28f7cf4d077d2f0204b5"
+    },
+    {
+      "branch": "codex/work-first-narrative-20260911",
+      "sha": "c4693f61707a2436ec134c1e79321832f1c96445"
+    },
+    {
+      "branch": "main",
+      "sha": "647bc2167efe5437d0ca73a60a406549d9a1e268"
+    }
+  ]
+}

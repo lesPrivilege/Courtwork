@@ -1,0 +1,23 @@
+{
+  "main": "647bc2167efe5437d0ca73a60a406549d9a1e268",
+  "origin": "http://127.0.0.1:8804",
+  "checks": [
+    {
+      "route": "/",
+      "sha256": "80fcbd11d8490d2aeb30a87e42365257357aa41550f0f8d50a55e2dd8a0a4b6a",
+      "matches_main": true
+    },
+    {
+      "route": "/web/app.mjs",
+      "sha256": "d40a90ad5aff2ec759c910abdceabad40d45d23e8f3528ab66cd4ed8b9efdd0d",
+      "matches_main": true
+    },
+    {
+      "route": "/web/styles.css",
+      "sha256": "b4c812ef8ecd12089332e3402805926a5ecf9aacf36118cca9518f874f308876",
+      "matches_main": true
+    }
+  ],
+  "data": "separate persistent runtime-validation directory outside Git; no existing data migrated",
+  "provider_check": "not invoked; user configures key"
+}

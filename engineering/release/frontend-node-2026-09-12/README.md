@@ -31,3 +31,14 @@
 ## 仍开放，另有owner
 
 Session-turn指标契约、Spark受限profile/BE-41后续、跨provider/Memory/handoff、Expert实际routing/release/rollback、人类disclosure editor、原生AppKit/VoiceOver及长期G1–G5仍按各自合同推进。Run数不改称模型轮数，执行成功不等于候选被接受，静态Planned图标不等于能力已启用。真实200%浏览器缩放与全App forced-colors/reduced-motion矩阵未在本节点完整独验；Pages模拟检查不替代这些项。
+
+
+## 本地合流与清理回执
+
+Courtwork main已快进至647bc2167efe5437d0ca73a60a406549d9a1e268；62个既有未提交文件在合流前后逐文件hash相同。capture-ready祖先检查通过。已清理25条消费/归档覆盖的本地开发分支，保留本单临时集成分支至最后快审结束；[分支前态](cw-branches-before.json)与[逐项证明](cw-branch-cleanup.json)记录detached metadata操作，目录删除为0。远端旧codex/fresh-courtwork在完整archive tag已推送验证后删除；CW main及SE main未push，未部署。
+
+[Web对齐证明](web-alignment.json)：从唯一持久Courtwork main启动8804；HTML/App模块/CSS逐字匹配main。验证数据放仓库外独立目录，不迁移原有runtime数据。模型设置页已在浏览器打开，用户自行配置key；提示集不含任何凭据。
+
+二级浮层[材质快审](../../../evidence/secondary-material-review-20260912/README.md)未发现需补丁缺口。后续用户输入已并账为[GUI Agent控制面裁决](../../research/gui-agent-control-plane-2026-09-12/README.md)，细化既有BE-6/7首片；不把研究消费计作前端或Runtime新能力。
+
+收尾时已按PID与启动参数核对并停止本单6个合成采图/预览server；8804返回HTTP 200并按用户要求保持运行。新出现的其他writer开发分支保留，已消费分支清理回执不包含后续新任务。
