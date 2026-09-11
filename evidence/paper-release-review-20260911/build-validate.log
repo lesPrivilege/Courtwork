@@ -1,0 +1,44 @@
+build_en.py
+{
+  "pass": true,
+  "note": "仅结构守恒；不能代替语义审读。",
+  "files": [
+    {
+      "mode": "canonical",
+      "pass": true,
+      "problems": [],
+      "source_sha256": "9771dfce3863933db819029e8679b36bfd0933ac2028bab5b6bb2e1f73e4dc59",
+      "translation_sha256": "c6ff1f904b2b689fe525905d1f1b62c03acaf5bb7b586e9612737487a5343066",
+      "remaining_cjk_lines": []
+    },
+    {
+      "mode": "practice",
+      "pass": true,
+      "problems": [],
+      "source_sha256": "cb5b106899d23429ff93e24a0470c93f8a22abb34c62c760a15426f61a39fc9d",
+      "translation_sha256": "5562a29c23b3256e8dee7921ec2eda886a77a66481a2e0b1484ca0e88b576379",
+      "remaining_cjk_lines": []
+    },
+    {
+      "mode": "index",
+      "pass": true,
+      "problems": [],
+      "source_sha256": "0ab68d37f07e33bd49c14ab42e75ee5452f1b593e0dd527200246eaf692bc894",
+      "translation_sha256": "5f2d9a11705c1ecce741f84cae97f3bbababa9971bd13af8c654ab501db5c88b",
+      "remaining_cjk_lines": [
+        "[^manus-research-bench]: 葬愛咸鱼, with supplemental organization by Hoodie, “A Few Small Experiences from the Manus Team's Model Testing,” 2026-09-04, https://funeralai.substack.com/p"
+      ]
+    }
+  ]
+}
+Built: /Users/lesprivilege/Projects/Schema Engineering/papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html  (417,120 bytes)
+Current: /Users/lesprivilege/Projects/Schema Engineering/papers/dist/index-en.html
+build.py
+Built: /Users/lesprivilege/Projects/Schema Engineering/papers/dist/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html  (369,429 bytes)
+Current: /Users/lesprivilege/Projects/Schema Engineering/papers/dist/index.html
+English switch: enabled by reviewed translation manifest
+validate.py
+PASS: 3 Chinese sources, 14 reader checks, Edition 2026-09-07; English=reviewed
+PASS: schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html == index.html (369,429 bytes)
+PASS: schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html == index-en.html (417,120 bytes)
+PASS: historical schema-engineering-2026-09-07.html bytes unchanged

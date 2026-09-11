@@ -1,0 +1,21 @@
+✔ every registry glyph is in the sprite and in the ui-controls allowlist (0.763167ms)
+✔ sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes (2.652042ms)
+✔ domain glyphs follow the admitted geometry contract (0.324ms)
+✔ Spark, Attention and Chat seats and the Settings groups carry their registered glyphs (1.100292ms)
+✔ registry owners and generated browser projection agree (12.842583ms)
+✔ single-purpose collisions fail while contextual shared geometry is admitted (1.337417ms)
+✔ unknown geometry and unapproved identity state variants fail (0.448083ms)
+✔ contextual names are complete, no-icon and Pages representations are legal (0.313083ms)
+✔ semantic action preserves existing control anatomy and handler (0.915375ms)
+✔ migrated workspace close/add controls cannot return to raw glyph calls (1.100417ms)
+✔ Pages text projection cannot leak its App glyph, malformed owner and representations fail (0.52125ms)
+✔ actual workspace consumers preserve callbacks and contextual names (3.805875ms)
+✔ domain navigation preserves its handler with a visible label and glyph (0.28725ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.7105ms

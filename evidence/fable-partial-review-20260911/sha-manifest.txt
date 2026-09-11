@@ -1,0 +1,7 @@
+main cf4ab5604ba5a7319fc35121c818d75f516e79b3
+candidate 2c7d181c3f6af761b0d4d09b04097a9fce8b0460
+stage1-test-sync 90d7b653f5f4df63d0a6fb7c22769b3047d2f0e2
+native-raw-results 1fb958e48bda71d8e89c13ab66d6cdbfe279f29f7512c7d410bd40170e677150  /tmp/fable-native-chrome-review-20260911-a/results.json
+5040b8af4ae81db63f01fb4f56fe7ae103b534407c030e540adea565a634db67  evidence/fable-partial-review-20260911/stage1-candidate-combined.log
+16301aa4af56f7ae2917e3b3ebebdf065b280d700ccc3dce586896b602fbcebb  evidence/fable-partial-review-20260911/stage1-testfix-13.log
+f7ea590a3033c7e20fa67f1363c91f1ce3342cb73d9593ff3eb545bc3d3f5dbc  evidence/fable-partial-review-20260911/stage1-integration-19.log

@@ -1,0 +1,125 @@
+snapshot=/tmp/fable-stage1-snapshot.vB5j1W
+fatal: not a git repository (or any of the parent directories): .git
+✔ every registry glyph is in the sprite and in the ui-controls allowlist (0.952291ms)
+✔ sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes (18.223292ms)
+✔ domain glyphs follow the admitted geometry contract (1.01675ms)
+✔ Spark, Attention and Chat seats and the Settings groups carry their registered glyphs (5.850291ms)
+✔ registry owners and generated browser projection agree (23.214375ms)
+✖ single-purpose collisions fail while contextual shared geometry is admitted (2.793708ms)
+✔ unknown geometry and unapproved identity state variants fail (0.665875ms)
+✔ contextual names are complete, no-icon and Pages representations are legal (0.817125ms)
+✖ semantic action preserves existing control anatomy and handler (2.843375ms)
+✔ migrated workspace close/add controls cannot return to raw glyph calls (3.644875ms)
+✔ Pages text projection cannot leak its App glyph, malformed owner and representations fail (0.482458ms)
+✔ actual workspace consumers preserve callbacks and contextual names (6.136666ms)
+✖ text-reserved navigation preserves its handler without a blank icon slot (0.466833ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (6.627667ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.061208ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.656042ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.270792ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (161.52775ms)
+✔ skin-policy.js is an exact synchronous static route (72.897458ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 16
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1748.228375
+
+✖ failing tests:
+
+test at app/tests/product-semantics.test.mjs:11:1
+✖ single-purpose collisions fail while contextual shared geometry is admitted (2.793708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'attention.agent: glyph reference',
+  +   'spark.surface: glyph reference',
+  +   'chat.surface: glyph reference'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/pubfinal/cw/app/tests/product-semantics.test.mjs:12:10)
+      at Test.runInAsyncScope (node:internal/test_runner/test:1201:25)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at Test.processPendingSubtests (node:internal/test_runner/test:1208:7)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/test:1330:19) {
+    generatedMessage: true,
+    actual: [ 'attention.agent: glyph reference', 'spark.surface: glyph reference', 'chat.surface: glyph reference' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/product-semantics.test.mjs:33:1
+✖ semantic action preserves existing control anatomy and handler (2.843375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + <ref *1> TinyNode {
+  +   _text: '',
+  +   attributes: Map(12) {
+  +     'aria-hidden' => 'true',
+  +     'class' => 'ui-icon',
+  +     'data-semantic-key' => 'attention.agent',
+  +     'fill' => 'none',
+  +     'focusable' => 'false',
+  +     'height' => '20',
+  +     'stroke' => 'currentColor',
+  +     'stroke-linecap' => 'round',
+  +     'stroke-linejoin' => 'round',
+  +     'stroke-width' => '2',
+  +     'viewBox' => '0 0 24 24',
+  +     'width' => '20'
+  +   },
+  +   checked: false,
+  +   children: [
+  +     TinyNode {
+  +       _text: '',
+  +       attributes: Map(1) {
+  +         'href' => '/web/vendor/icons.svg#attention'
+  +       },
+  +       checked: false,
+  +       children: [],
+  +       className: '',
+  +       disabled: false,
+  +       listeners: Map(0) {},
+  +       ownerDocument: TinyDocument {
+  +         activeElement: null
+  +       },
+  +       parentNode: [Circular *1],
+  +       tagName: 'use',
+  +       value: ''
+  +     }
+  +   ],
+  +   className: '',
+  +   disabled: false,
+  +   listeners: Map(0) {},
+  +   ownerDocument: TinyDocument {
+  +     activeElement: null
+  +   },
+  +   parentNode: null,
+  +   tagName: 'svg',
+  +   value: ''
+  + }
+  - null
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/pubfinal/cw/app/tests/product-semantics.test.mjs:40:10
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/pubfinal/cw/app/tests/tiny-dom.mjs:154:17 {
+    generatedMessage: true,
+    actual: { tagName: 'svg', ownerDocument: { activeElement: null }, children: [ [Object] ], attributes: Map(12) { 'viewBox' => '0 0 24 24', 'width' => '20', 'height' => '20', 'fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '2', 'stroke-linecap' => 'round', 'stroke-linejoin' => 'round', 'aria-hidden' => 'true', 'focusable' => 'false', 'class' => 'ui-icon', 'data-semantic-key' => 'attention.agent' }, listeners: Map(0) {}, parentNode: null, _text: '', className: '', value: '', checked: false, disabled: false },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/product-semantics.test.mjs:64:1
+✖ text-reserved navigation preserves its handler without a blank icon slot (0.466833ms)
+  TypeError: Cannot read properties of null (reading 'textContent')
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/pubfinal/cw/app/tests/product-semantics.test.mjs:69:53
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:1258:7)

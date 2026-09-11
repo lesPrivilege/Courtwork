@@ -1,0 +1,27 @@
+✔ every registry glyph is in the sprite and in the ui-controls allowlist (0.801625ms)
+✔ sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes (5.40275ms)
+✔ domain glyphs follow the admitted geometry contract (0.374375ms)
+✔ Spark, Attention and Chat seats and the Settings groups carry their registered glyphs (2.791917ms)
+✔ registry owners and generated browser projection agree (14.064917ms)
+✔ single-purpose collisions fail while contextual shared geometry is admitted (1.35625ms)
+✔ unknown geometry and unapproved identity state variants fail (0.4605ms)
+✔ contextual names are complete, no-icon and Pages representations are legal (0.299666ms)
+✔ semantic action preserves existing control anatomy and handler (0.788583ms)
+✔ migrated workspace close/add controls cannot return to raw glyph calls (1.4575ms)
+✔ Pages text projection cannot leak its App glyph, malformed owner and representations fail (0.54ms)
+✔ actual workspace consumers preserve callbacks and contextual names (4.267084ms)
+✔ domain navigation preserves its handler with a visible label and glyph (0.288083ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (8.337292ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.306792ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.7625ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.583ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (122.137125ms)
+✔ skin-policy.js is an exact synchronous static route (60.959416ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2343.17225

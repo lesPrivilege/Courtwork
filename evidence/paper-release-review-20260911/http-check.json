@@ -1,0 +1,160 @@
+{
+  "checked_at_utc": "2026-09-11T15:02:30.539074+00:00",
+  "base": "https://lesprivilege.github.io/Schema-Engineering/",
+  "urls": {
+    "root": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "index": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/index.html",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/index.html",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "english": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/index-en.html",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/index-en.html",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "417120",
+      "last_modified": "Fri, 11 Sep 2026 14:52:06 GMT",
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    },
+    "version": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "version_en": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "417120",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    },
+    "mode_canonical": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/?mode=canonical",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/?mode=canonical",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "mode_practice": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/?mode=practice",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/?mode=practice",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "mode_index": {
+      "url": "https://lesprivilege.github.io/Schema-Engineering/?mode=index",
+      "status": 200,
+      "final_url": "https://lesprivilege.github.io/Schema-Engineering/?mode=index",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": "369429",
+      "last_modified": "Fri, 11 Sep 2026 14:52:07 GMT",
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    }
+  },
+  "expected_sha256": {
+    "root.html": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3",
+    "index-en.html": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced",
+    "version.html": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3",
+    "version-en.html": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+  },
+  "fragment_checks": {
+    "root.html": {
+      "title": "Schema Engineering · 2026-09-07 · zhles Privilege",
+      "ids": 247,
+      "hrefs": 250,
+      "missing_fragments": []
+    },
+    "index-en.html": {
+      "title": "Schema Engineering · 2026-09-07 · enles Privilege",
+      "ids": 247,
+      "hrefs": 251,
+      "missing_fragments": []
+    },
+    "version.html": {
+      "title": "Schema Engineering · 2026-09-07 · zhles Privilege",
+      "ids": 247,
+      "hrefs": 250,
+      "missing_fragments": []
+    },
+    "version-en.html": {
+      "title": "Schema Engineering · 2026-09-07 · enles Privilege",
+      "ids": 247,
+      "hrefs": 251,
+      "missing_fragments": []
+    }
+  },
+  "content_checks": {
+    "root.html": {
+      "required_present": {
+        "data-reader-revision=\"2026-09-11\"": true,
+        "data-reader-candidate=\"paper-v1\"": true,
+        "文本版本 9.6": true,
+        "Text revision 9.6": false,
+        "Canonical": true,
+        "Practice": true,
+        "Index": true
+      },
+      "unfinished_terms_absent": {
+        "TODO": true,
+        "placeholder": true,
+        "lorem": true,
+        "待准备": true,
+        "独立页正在准备": true,
+        "not published": true,
+        "local-candidate-verified": true
+      }
+    },
+    "index-en.html": {
+      "required_present": {
+        "data-reader-revision=\"2026-09-11\"": true,
+        "data-reader-candidate=\"paper-v1\"": true,
+        "文本版本 9.6": false,
+        "Text revision 9.6": true,
+        "Canonical": true,
+        "Practice": true,
+        "Index": true
+      },
+      "unfinished_terms_absent": {
+        "TODO": true,
+        "placeholder": true,
+        "lorem": true,
+        "待准备": true,
+        "独立页正在准备": true,
+        "not published": true,
+        "local-candidate-verified": true
+      }
+    }
+  }
+}

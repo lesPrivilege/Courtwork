@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "026d5cb0191816e44ae473e220ab557d24afbcfe",
+  "outputs": {
+    "index.html": {
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3",
+      "manifestExpected": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "index-en.html": {
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced",
+      "manifestExpected": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    },
+    "schema-engineering-2026-09-07-reader-2026-09-11-paper-v1.html": {
+      "bytes": 369429,
+      "sha256": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3",
+      "manifestExpected": "e2881697da019dd6262146a23e1e0ad7d09135fabc3026c5d185e3ddcdf39df3"
+    },
+    "schema-engineering-2026-09-07-reader-2026-09-11-paper-v1-en.html": {
+      "bytes": 417120,
+      "sha256": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced",
+      "manifestExpected": "03a8b779edab1dfc7db66a23870fb74f2e5e2a8cbc8ecb34c0d7cf1424201ced"
+    }
+  }
+}

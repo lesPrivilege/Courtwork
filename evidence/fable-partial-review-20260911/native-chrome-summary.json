@@ -1,0 +1,14 @@
+{
+  "rawResult": "/tmp/fable-native-chrome-review-20260911-a/results.json",
+  "rawResultSha256": "1fb958e48bda71d8e89c13ab66d6cdbfe279f29f7512c7d410bd40170e677150",
+  "records": 93,
+  "pass": 93,
+  "fail": 0,
+  "viewports": [1440, 1280, 390],
+  "packets": ["preview shell", "104x64", "zero inset", "plain URL", "overlay:false"],
+  "liveUpdates": {"1440": "pass", "1280": "pass", "390": "pass"},
+  "scope": "browser geometry and simulated packet only",
+  "nativeAppKit": "unverified",
+  "voiceOver": "unverified",
+  "expandedWorkSurface1440": "unverified"
+}

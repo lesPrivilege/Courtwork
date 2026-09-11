@@ -1,0 +1,45 @@
+{
+  "checked_at_utc": "2026-09-11T15:02:49.377434+00:00",
+  "links": [
+    {
+      "url": "https://github.com/lesPrivilege/Schema-Engineering/tree/a0234bc42dda75767554a2da89c247d66c2ad022/papers/src",
+      "status": 200,
+      "final_url": "https://github.com/lesPrivilege/Schema-Engineering/tree/a0234bc42dda75767554a2da89c247d66c2ad022/papers/src",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": null,
+      "last_modified": null,
+      "bytes": 228581,
+      "sha256": "a92e4d8a705c41abd67a59b3460a6c0a4a959b97b403371efe837dab25a6e8fb"
+    },
+    {
+      "url": "https://github.com/lesPrivilege/Schema-Engineering/blob/main/papers/translations/review-2026-09-10.md",
+      "status": 200,
+      "final_url": "https://github.com/lesPrivilege/Schema-Engineering/blob/main/papers/translations/review-2026-09-10.md",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": null,
+      "last_modified": null,
+      "bytes": 244470,
+      "sha256": "1954be7866cab53bb5243811b95b7ca31f7e47af251ca6354a23d5b121f778c8"
+    },
+    {
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/b260feb213bf60c39165d2070fcfe7c4940bb590/engineering/research/attention-2026-09-09/source-index.md",
+      "status": 200,
+      "final_url": "https://github.com/lesPrivilege/Courtwork/blob/b260feb213bf60c39165d2070fcfe7c4940bb590/engineering/research/attention-2026-09-09/source-index.md",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": null,
+      "last_modified": null,
+      "bytes": 309913,
+      "sha256": "32942a9906ae800325eb720447324db9af02933c030466ee1032d67cfdc28010"
+    },
+    {
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/b260feb213bf60c39165d2070fcfe7c4940bb590/engineering/research/attention-2026-09-09/verification.md",
+      "status": 200,
+      "final_url": "https://github.com/lesPrivilege/Courtwork/blob/b260feb213bf60c39165d2070fcfe7c4940bb590/engineering/research/attention-2026-09-09/verification.md",
+      "content_type": "text/html; charset=utf-8",
+      "content_length_header": null,
+      "last_modified": null,
+      "bytes": 316874,
+      "sha256": "d3029a1d1335438cd1281560d58eda6284ceaafc4d3a1bd12e74ddbcaff7b98b"
+    }
+  ]
+}
