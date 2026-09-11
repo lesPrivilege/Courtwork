@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-11 · Claude A/B v2接收与Pages另单准备
+
+[A/B原件与Astra裁决](research/se-control-design-return-2026-09-11/v2/README.md)已固定98文件/hash，并查看35张作者PNG；采纳已修方向，保留架构owner/窄屏/裁切/palette及Spark错误reason修订项。A2仍光学候选。下一独立Pages任务沿[分层one-shot](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)复用原资产、比较不同构图；本轮未改App/Pages或部署。用户消息截图已补CR-05，Chat阅读共五项接DR-04；未称实现或独立产品接受。
+
+
 ## 2026-09-11 · Runtime架构与发布语义准备
 
 已登记[DeepSeek Runtime会话与两份附件](research/deepseek-runtime-2026-09-11/README.md)，Astra完成DEC-013[概念/实际实现裁决](architecture-runtime-canon.md)，修正架构页RuntimeStore当前版本为12（Core4/app5不变）。README、后端DRT-01–04候选、[下一轮图表合同](release/architecture-reconciliation-2026-09-11.md)及[Chat阅读四项合同](design/chat-reading-2026-09-11.md)已接入。当前仅文档准备，未实施解耦/DeepSeek probe/彩色代码或修改Pages；独立架构review由用户后续提交，Claude绘图下一轮串行。原会话架构回答尾部截断如实保留，不补造原文；Paper仍固定SE9.6。

@@ -1,5 +1,8 @@
 # Engineering release and publication records
 
+[Claude A/B v2接收与Pages独立任务准备](fresh-claude-pages-2026-09-11/README.md)：Astra裁决、分层索引、构图与发布计划。
+
+
 [2026-09-11 Architecture / README / Claude figure准备](architecture-reconciliation-2026-09-11.md)：Astra语义与F1–F5逐图合同；用户下一轮串行绘制，当前未改Pages或部署。
 
 

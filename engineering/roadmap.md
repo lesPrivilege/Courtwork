@@ -1,5 +1,8 @@
 # Long-life Roadmap · 全场景与交互架构
 
+2026-09-11接续：[A/B v2接收](research/se-control-design-return-2026-09-11/v2/README.md)与[Pages独立任务](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)准备完成；待修候选按正式裁决消费，CR-05接DR-04，未新增产品接受。
+
+
 ## 2026-09-11 · 架构消费与发布准备
 
 [DEC-013概念与DRT-01–04](architecture-runtime-canon.md)纳入本路线：本轮先完成架构、README和[图合同](release/architecture-reconciliation-2026-09-11.md)，随后用户独立架构review，Claude可视化串行；产品实现仍依基本GUI/通用Harness→自足节点→runtime替换证明。DeepSeek优先作协议与解耦probe，不自动改默认provider或自研loop。[Chat阅读CR-01–04](design/chat-reading-2026-09-11.md)补入DR-04；浮现、syntax color、MD与色阶/weight已登记可消费，未称已实现。后端候选和图表准备不关闭现有产品门。
