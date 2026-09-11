@@ -48,3 +48,7 @@ Astra分别裁出版层次、题图隐喻、语义/版本和跨仓集成；Luna�
 同轮追加：厂牌支持深色 L、浅灰横、红横三色，推荐上横红。Dystopia / anti-Anthropic 是品牌背景，不要求写成首页口号。标记内的固定红色不承担 Paper 或 Runtime 的 error/active 状态。
 
 最新确认：彩色宗与黑色宗作为并列身份版本保留；黑色宗对标 Anthropic `A\`，并非只有 fallback 用途。版面可按语气选宗，不自创另一套几何。
+
+## 2026-09-11 · return-paper-v1已裁
+
+[原件、八项裁定与集成回执](../claude-paper-return-2026-09-11/v1/README.md)：采用E1、默认黑宗与可选上横红彩宗；有界修补后SE本地main为0f23ad1，110项浏览器检查通过。未推送SE或发布；本节替代先前待作者返回状态。

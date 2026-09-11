@@ -63,3 +63,7 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 ## 2026-09-11 · UI生态 / Visual Grammar / Taste Memory
 
 [完整输入、来源与裁定](ui-ecology-2026-09-11/README.md)进入[独立Design one-shot](../design/se-control-one-shot-2026-09-11/HANDOFF.md)。两轮对话、追加Taste研究与用户图标截图分开保留，研究作者覆盖数不算本地实测。
+
+## 2026-09-11 · Claude Paper返回
+
+[原件、八项裁定与本地集成](claude-paper-return-2026-09-11/v1/README.md)：E1与黑／彩两宗采用，SE本地main 0f23ad1，110项QA通过；未推送SE或发布。

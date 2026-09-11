@@ -1,0 +1,295 @@
+{
+  "consumed": [
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/mark.svg",
+      "sha256": "4535bec6e363cfef3d821a54e6004bbcc58cdea5755bd24301aa764af4f9de8a",
+      "use": "signature geometry",
+      "actual_sha256": "4535bec6e363cfef3d821a54e6004bbcc58cdea5755bd24301aa764af4f9de8a",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/mark-light.svg",
+      "sha256": "55e12a6590b782411c787becd8938234964385d579c724eeb217ee094dc4e103",
+      "use": "black family light",
+      "actual_sha256": "55e12a6590b782411c787becd8938234964385d579c724eeb217ee094dc4e103",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/mark-dark.svg",
+      "sha256": "965a29d2ed58df6007131a20d065a455703ed3b68a793af80087b0845ff27333",
+      "use": "black family dark",
+      "actual_sha256": "965a29d2ed58df6007131a20d065a455703ed3b68a793af80087b0845ff27333",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/mark-tritone-light.svg",
+      "sha256": "a1b508e516408dac03a29aaab1c21d2469090009724fc04fa135192eac4e3773",
+      "use": "color family light",
+      "actual_sha256": "a1b508e516408dac03a29aaab1c21d2469090009724fc04fa135192eac4e3773",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/mark-tritone-dark.svg",
+      "sha256": "6136b082b3c67d9ff01c17c24537d2864e0c3ad86af704413d7aa3c555db2775",
+      "use": "color family dark",
+      "actual_sha256": "6136b082b3c67d9ff01c17c24537d2864e0c3ad86af704413d7aa3c555db2775",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/manifest.json",
+      "sha256": "f2df3f4047c7c4ffe1acb4760b7db1afa69905c031f2a5fbe5667e4754024ff6",
+      "use": "palette exports",
+      "actual_sha256": "f2df3f4047c7c4ffe1acb4760b7db1afa69905c031f2a5fbe5667e4754024ff6",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "brand/les-privilege/README.md",
+      "sha256": "786a5652617616591cb3932113571f5cfcdd0ada8cfccb09a7443848e3b3ebd5",
+      "use": "brand registration and rules",
+      "actual_sha256": "786a5652617616591cb3932113571f5cfcdd0ada8cfccb09a7443848e3b3ebd5",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "app/web/styles.css",
+      "sha256": "81ed49ed5300f2ed7d2e75bcec18f70edf7c39fdba485f33aa21649cb053f769",
+      "use": "Dystopia authored block 215-261 and role mapping 288-318",
+      "actual_sha256": "81ed49ed5300f2ed7d2e75bcec18f70edf7c39fdba485f33aa21649cb053f769",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "site/src/site.css",
+      "sha256": "0448a113b76b5613a3863ea1e5053f9e8dfd5a33247df37aea273cfdb7793ddd",
+      "use": "Pages reading and figure precedents",
+      "actual_sha256": "0448a113b76b5613a3863ea1e5053f9e8dfd5a33247df37aea273cfdb7793ddd",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "site/src/page.mjs",
+      "sha256": "b29672d5eec26e2ef6d72b9f48319ae3fd0f9d711a59ef56bdd5028349b7d780",
+      "use": "page order precedent (read only)",
+      "actual_sha256": "b29672d5eec26e2ef6d72b9f48319ae3fd0f9d711a59ef56bdd5028349b7d780",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "engineering/research/paper-publishing-2026-09-11/CLAUDE-BRIEF.md",
+      "sha256": "95d3eb79dd73302b9ab7d3dfbb2c8b3b1a93db4fc05a39aba85bcc5251b59d08",
+      "use": "task brief",
+      "actual_sha256": "95d3eb79dd73302b9ab7d3dfbb2c8b3b1a93db4fc05a39aba85bcc5251b59d08",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "engineering/research/paper-publishing-2026-09-11/source-index.md",
+      "sha256": "0ce17b00031b8685e7b2d6b7bd3be391bc4d4fe89f4ecc01cf104356c812f4b0",
+      "use": "source index",
+      "actual_sha256": "0ce17b00031b8685e7b2d6b7bd3be391bc4d4fe89f4ecc01cf104356c812f4b0",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "engineering/research/paper-publishing-2026-09-11/external-references.md",
+      "sha256": "cefb2c3584f1d2e8bbe5ed96912f7c8093316bb25464a7d02768c15a0d966ecc",
+      "use": "external references",
+      "actual_sha256": "cefb2c3584f1d2e8bbe5ed96912f7c8093316bb25464a7d02768c15a0d966ecc",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "02276730db8a32c24dddd8d514fb4f3b29bf5a5c",
+      "path": "engineering/design/agent-interface-2026-09-10/frontend-contract.md",
+      "sha256": "505edc944144f84f6a31993e762256d8f26610ccf38f8f9a619ee7f50080a958",
+      "use": "continuity contract (precedent, verification list)",
+      "actual_sha256": "505edc944144f84f6a31993e762256d8f26610ccf38f8f9a619ee7f50080a958",
+      "matches": true
+    },
+    {
+      "repo": "Courtwork",
+      "sha": "bb1cba2946157bf8eec0a7d95577a4118f078050",
+      "path": "engineering/release/claude-paper-2026-09-11/ONE-SHOT.md",
+      "sha256": null,
+      "use": "dispatch (read from HEAD 2337ada; hash not pinned because the dispatch commit is not the content input)",
+      "actual_sha256": "8d70853e985e4335f1dba1cb1948dadde9b9364768d5a71f05a09cc122bcbbfb",
+      "verification": "Author explicitly left dispatch hash unpinned; exact committed bytes now pinned."
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/src/canonical.md",
+      "sha256": "9771dfce3863933db819029e8679b36bfd0933ac2028bab5b6bb2e1f73e4dc59",
+      "use": "paper body (read-only build input; claims for editorial)",
+      "actual_sha256": "9771dfce3863933db819029e8679b36bfd0933ac2028bab5b6bb2e1f73e4dc59",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/src/practice.md",
+      "sha256": "cb5b106899d23429ff93e24a0470c93f8a22abb34c62c760a15426f61a39fc9d",
+      "use": "paper body",
+      "actual_sha256": "cb5b106899d23429ff93e24a0470c93f8a22abb34c62c760a15426f61a39fc9d",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/src/practice-index.md",
+      "sha256": "0ab68d37f07e33bd49c14ab42e75ee5452f1b593e0dd527200246eaf692bc894",
+      "use": "paper body",
+      "actual_sha256": "0ab68d37f07e33bd49c14ab42e75ee5452f1b593e0dd527200246eaf692bc894",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/translations/en/canonical.md",
+      "sha256": "c6ff1f904b2b689fe525905d1f1b62c03acaf5bb7b586e9612737487a5343066",
+      "use": "reviewed translation cache",
+      "actual_sha256": "c6ff1f904b2b689fe525905d1f1b62c03acaf5bb7b586e9612737487a5343066",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/translations/en/practice.md",
+      "sha256": "5562a29c23b3256e8dee7921ec2eda886a77a66481a2e0b1484ca0e88b576379",
+      "use": "reviewed translation cache",
+      "actual_sha256": "5562a29c23b3256e8dee7921ec2eda886a77a66481a2e0b1484ca0e88b576379",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/translations/en/practice-index.md",
+      "sha256": "5f2d9a11705c1ecce741f84cae97f3bbababa9971bd13af8c654ab501db5c88b",
+      "use": "reviewed translation cache",
+      "actual_sha256": "5f2d9a11705c1ecce741f84cae97f3bbababa9971bd13af8c654ab501db5c88b",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/translations/manifest.json",
+      "sha256": "c07526b8d5e7181ce99149481d76007c3ee930b744c46558d8e45a97a76c8367",
+      "use": "translation binding",
+      "actual_sha256": "c07526b8d5e7181ce99149481d76007c3ee930b744c46558d8e45a97a76c8367",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/reader/reader.css",
+      "sha256": "1b2026dd7cfbd544ad8f9005174673294cf70c8b2d4a95d2bdae6992797790e0",
+      "use": "replaced by patch",
+      "actual_sha256": "1b2026dd7cfbd544ad8f9005174673294cf70c8b2d4a95d2bdae6992797790e0",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/reader/reader.js",
+      "sha256": "31541e131d7cdaea03fd56c0e53ce86493bee7c5fb2ec5ccd4c832183e8e8d14",
+      "use": "extended by patch",
+      "actual_sha256": "31541e131d7cdaea03fd56c0e53ce86493bee7c5fb2ec5ccd4c832183e8e8d14",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/build.py",
+      "sha256": "409b72964a3ce497f23802f573d232d2d0249045b1f8c8db27cc911ba6655048",
+      "use": "extended by patch",
+      "actual_sha256": "409b72964a3ce497f23802f573d232d2d0249045b1f8c8db27cc911ba6655048",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/build_en.py",
+      "sha256": "9136d0c65101591289ae4f67015d6b83ca0f747fc857d69480a2dac055f35bf4",
+      "use": "unchanged",
+      "actual_sha256": "9136d0c65101591289ae4f67015d6b83ca0f747fc857d69480a2dac055f35bf4",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/validate.py",
+      "sha256": "f81ffdfb5f52b0a3b86d7998e0ea8e9c35d27cc0f0d61c43d261bbf4a98a5c99",
+      "use": "extended by patch",
+      "actual_sha256": "f81ffdfb5f52b0a3b86d7998e0ea8e9c35d27cc0f0d61c43d261bbf4a98a5c99",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/qa/verify_reader.mjs",
+      "sha256": "d712fcd4c19439830e4cd0879e19b180b85cd4c56384b2a5b1b30fdaafdc5396",
+      "use": "run unchanged",
+      "actual_sha256": "d712fcd4c19439830e4cd0879e19b180b85cd4c56384b2a5b1b30fdaafdc5396",
+      "matches": true
+    },
+    {
+      "repo": "Schema-Engineering",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "path": "papers/check_translation_alignment.py",
+      "sha256": "53ceb69c896b89d35183fec9b48681e6b188a9b86f0a0afc8a7e582617621942",
+      "use": "run unchanged",
+      "actual_sha256": "53ceb69c896b89d35183fec9b48681e6b188a9b86f0a0afc8a7e582617621942",
+      "matches": true
+    },
+    {
+      "repo": "external",
+      "sha": null,
+      "path": "https://www.anthropic.com/research/automated-researchers-mitigate-alignment-failures",
+      "sha256": null,
+      "use": "rhythm reference; wide/narrow captures in refs/external",
+      "verification": "external reference, not re-fetched"
+    },
+    {
+      "repo": "external",
+      "sha": null,
+      "path": "https://www.anthropic.com/research/global-workspace",
+      "sha256": null,
+      "use": "rhythm reference",
+      "verification": "external reference, not re-fetched"
+    },
+    {
+      "repo": "external",
+      "sha": null,
+      "path": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "sha256": null,
+      "use": "rhythm reference",
+      "verification": "external reference, not re-fetched"
+    }
+  ],
+  "summary": {
+    "hashed_sources": 28,
+    "matched": 28,
+    "dispatch_hash_added": 1,
+    "external_not_refetched": 3
+  }
+}
