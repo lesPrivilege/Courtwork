@@ -1,0 +1,29 @@
+{
+  "capturedDate": "2026-09-11",
+  "title": "Chat与Attention分工",
+  "conversationId": "6aa3e21f-3c00-83ec-836a-72d6ed1aa1c0",
+  "sourceCreatedAt": 1789125154.099799,
+  "sourceUpdatedAt": 1789126766.064712,
+  "turns": 5,
+  "messages": 10,
+  "attachments": 0,
+  "hasMore": false,
+  "status": "time snapshot; partially deferred roadmap; CA-01 deferred to later integration; no implementation",
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 33759,
+      "sha256": "2e7295a1a23ca1ead4201d8297fb08f79032190afb0a0deb9ffb58c570131605"
+    },
+    {
+      "path": "input-snapshot.md",
+      "bytes": 30241,
+      "sha256": "96d51b8b853bfd4964eff37ef71450ea0466d59d155a951e2582b1a513e2a6b1"
+    },
+    {
+      "path": "reference-links.json",
+      "bytes": 527,
+      "sha256": "71f4546d0dda4646ef3a91a40401b0d1fab2205f3a88638392b18ce5f86bfe2f"
+    }
+  ]
+}

@@ -67,3 +67,7 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 ## 2026-09-11 · Claude Paper返回
 
 [原件、八项裁定与本地集成](claude-paper-return-2026-09-11/v1/README.md)：E1与黑／彩两宗采用，SE本地main 0f23ad1，110项QA通过；未推送SE或发布。
+
+## 2026-09-11 · Chat与Attention分工快照
+
+[5轮来源快照与CA-01](chat-attention-2026-09-11/README.md)：长期roadmap不全裁，Chat入口／命名小项留待稍后合流；外部生态主张未重新核验。
