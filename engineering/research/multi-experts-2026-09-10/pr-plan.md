@@ -61,3 +61,5 @@ ME-08 的 `PTY` 仅最后兼容候选，不是可依赖控制协议。上述目�
 ## ME-06后续消费 · 2026-09-12
 
 [义务回执与安静跟进](../obligation-closure-2026-09-12/README.md)补充registered/consumed/implemented/verified/closed分离、真实heartbeat/进展区别及Spark有界核查。沿现有Core关闭权限和Run owner，不另建监督平台；频率、阈值、自动关闭与周期扫描均未冻结/派工。
+
+ME-06接续：[工作集合与恢复面](../obligation-closure-2026-09-12/recovery-surface.md)登记范围化巡检及异常投影；Matter生命周期/纳入策略须由owner另定，重新派工检查原Run/未知效果与权限，不自动重试。无调度实现。

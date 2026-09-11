@@ -316,3 +316,5 @@ Design返回接收完成：[Astra裁决与DR-01–06](design/se-control-one-shot
 2026-09-12整体模型：[governed work loop及独立review入口](release/governed-work-loop-2026-09-12/README.md)采用四职责围绕受治理工作状态，沿现有BE/LG/RG/ATT/ME路线消费，不新增四agent架构或扩大自动关闭权限；review先审owner/回执/披露与实施缺口，再决定下一节点顺序。
 
 2026-09-12 Chat收敛：[薄能力层](research/chat-memory-broker-2026-09-12/thin-capabilities.md)采用人主导讨论与有界执行互补，按需补足检索/来源；模型能力与Harness效果不作未经验证的强弱/因果结论。仅登记main，沿现有路线消费，不改发布或排单。
+
+2026-09-12：[工作现场恢复](research/obligation-closure-2026-09-12/recovery-surface.md)接ME-06/LG与既有Core读面，先获准工作集合、版本证据和恢复理解，后定义巡检调度；不把输入生命周期枚举或跨Runtime恢复承诺当作已实现。
