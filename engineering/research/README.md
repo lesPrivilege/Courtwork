@@ -49,3 +49,7 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 
 
 - 2026-09-11 · [语义治理与对齐](semantic-governance-2026-09-11/README.md)：5 turn/9消息、附件与截断补录、25项处置、PR review、Luna explore及统一polish roadmap；待用户merge清洁节点开工。
+
+## 2026-09-11 · UI生态 / Visual Grammar / Taste Memory
+
+[完整输入、来源与裁定](ui-ecology-2026-09-11/README.md)进入[独立Design one-shot](../design/se-control-one-shot-2026-09-11/HANDOFF.md)。两轮对话、追加Taste研究与用户图标截图分开保留，研究作者覆盖数不算本地实测。

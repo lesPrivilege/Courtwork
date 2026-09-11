@@ -1,0 +1,285 @@
+{
+  "schema": "courtwork.se-control-one-shot.source-index.v1",
+  "current_product_head": "a01dee89e752111e63012b705ef81350ce518446",
+  "index_generated_from_head": "a01dee89e752111e63012b705ef81350ce518446",
+  "current_pages_capture_source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+  "current_pages_capture_batch": "merged-20260911",
+  "status_vocabulary": [
+    "canonical",
+    "reference",
+    "unverified",
+    "deferred"
+  ],
+  "entries": [
+    {
+      "path": "engineering/current.md",
+      "sha256": "c93cc8d3e5614cda7ede6052f098a28aa657e454de38d443a28ba2e0edcdb6eb",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# 当前工程状态",
+      "decision": "Current project status and main-line governance anchor.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/frontend-contract.md",
+      "sha256": "505edc944144f84f6a31993e762256d8f26610ccf38f8f9a619ee7f50080a958",
+      "introduced_sha": "4999a5632b0c93f1c945493c12fda4d852ebbaa9",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# 前端连续性规范 · UI Continuity v1",
+      "decision": "Continuity contract: four statuses, semantic/projection/visual/placement rules, and verification boundary."
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/README.md",
+      "sha256": "d4c3d4ef57e0dba22fd15fc3c33b85836d089eb04c262cab4633d92252a229ea",
+      "introduced_sha": "c851ef718b87332d9daacdc715d12007cde66ccc",
+      "status": "reference",
+      "exact_heading_or_symbol": "# Agent Interface / UI Continuity · 前端规范入口",
+      "decision": "Semantic governance delivery and PR chronology; current status is reconciled by convergence evidence.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/precedent-map.md",
+      "sha256": "77ec85ff1173b36ea38804907036bbaeaeebd804e1be51cb2890b13fb2f99a12",
+      "introduced_sha": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## 0. 使用规则",
+      "decision": "Problem-key navigation to the nearest local precedent and explicit scope."
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/precedents.md",
+      "sha256": "905c57a12158324d2c58bee5ef95f43ab8b9dcc4bd7ab91ad3f54dd3cbc366fc",
+      "introduced_sha": "82c60360704fd79ad7d5b80f47372f2cfe230d1a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## 证据类型与治理状态",
+      "decision": "Evidence type and governance-status definitions for precedent recall."
+    },
+    {
+      "path": "engineering/design/scout/README.md",
+      "sha256": "80bc2509949000df39027bb755d12e1507ad693cd15853a22af9d196e1c98e91",
+      "introduced_sha": "0c60f4ffe0e4d939712df3910d2404c226e8bfdf",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## 0. 消费链",
+      "decision": "Scout pull protocol and disposition chain."
+    },
+    {
+      "path": "engineering/design/atlas/README.md",
+      "sha256": "4eaabe94d6d10468d66bfdfb1c601539d6cb4eebb94bdd21b7ad343282acc22d",
+      "introduced_sha": "32b0c3729ab89e7304459b1670d7d90ea8697823",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## Projection Grammar 段（WK-139）",
+      "decision": "Local projection and control atlas; schema facts do not create UI affordance."
+    },
+    {
+      "path": "engineering/design/atlas/README.md",
+      "sha256": "4eaabe94d6d10468d66bfdfb1c601539d6cb4eebb94bdd21b7ad343282acc22d",
+      "introduced_sha": "32b0c3729ab89e7304459b1670d7d90ea8697823",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## Material 段（WK-124）",
+      "decision": "Material grammar scope and fallback boundary."
+    },
+    {
+      "path": "engineering/design/atlas/README.md",
+      "sha256": "4eaabe94d6d10468d66bfdfb1c601539d6cb4eebb94bdd21b7ad343282acc22d",
+      "introduced_sha": "32b0c3729ab89e7304459b1670d7d90ea8697823",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## Shape 段（WK-125）",
+      "decision": "Shape roles, tokens, concentricity, and forbidden inferences."
+    },
+    {
+      "path": "engineering/design/atlas/README.md",
+      "sha256": "4eaabe94d6d10468d66bfdfb1c601539d6cb4eebb94bdd21b7ad343282acc22d",
+      "introduced_sha": "32b0c3729ab89e7304459b1670d7d90ea8697823",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## Iconography 段（WK-133）",
+      "decision": "Accepted Lucide subset and donor-source boundary."
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/control-grammar-supplement-2026-09-10.md",
+      "sha256": "9438d453b778f2530a884c0f0c8fcb03bfc958fd46fdf535e9777367473623ab",
+      "introduced_sha": "b2f6b3c0e688b9a732ac6bc8452b47bd7f53aa5a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# 用户转交 · Control Grammar 补充 / Agent-facing continuity（2026-09-10）",
+      "decision": "Control grammar continuity references.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/explore/ex-pg1-projection-inventory.md",
+      "sha256": "6061123aa055ba82bfcaab0893cb47ff311b90fdfae5e0b0dd64aed7a998e987",
+      "introduced_sha": "5b405b3a5c94a06deb7680930308f3edd528cf63",
+      "status": "reference",
+      "exact_heading_or_symbol": "# EX-PG1",
+      "decision": "Projection/control local inventory and open gaps."
+    },
+    {
+      "path": "engineering/design/home-composition-2026-09-10/disclosure-overlay.md",
+      "sha256": "48c821e88a63d616c022722fb1b62feb36ade4d303dad66e6736314d417d5293",
+      "introduced_sha": "aa9f04fac69d3b28aebd99d7bd8854b3d14f2338",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# Disclosure / Anchored Overlay Grammar",
+      "decision": "Disclosure and anchored overlay family contracts."
+    },
+    {
+      "path": "engineering/design/home-composition-2026-09-10/material-grammar.md",
+      "sha256": "b11119f073c2e8ba2760d186a4a7c09e45751452a4914fde3b497c8264d6ac07",
+      "introduced_sha": "b2f6b3c0e688b9a732ac6bc8452b47bd7f53aa5a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# Material grammar · token draft and component mapping",
+      "decision": "Material tiers, boundaries, and fallbacks.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/design/home-composition-2026-09-10/runtime-telemetry.md",
+      "sha256": "11a5aeeec83c0da7ffa2af3842e2f404a9e9deba45d0cf849805d19eeec3cee1",
+      "introduced_sha": "f666c095c21d5067c095249a2ce9b9b08dc9a59a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# Composer Control / Runtime Telemetry consumption · 2026-09-10",
+      "decision": "Runtime projection and telemetry vocabulary.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/design/home-composition-2026-09-10/tab-view-grammar.md",
+      "sha256": "03c54c79bf013ec0f414409027f71b849eff0c755256e7362b78c4fd289d08d7",
+      "introduced_sha": "444f80d2673f413f405471020a03fffe452ce925",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# Tab / View-Switch input consumption · 2026-09-10",
+      "decision": "Tab/view semantics and reading-path preservation.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "engineering/design/ui-composition-standard.md",
+      "sha256": "30e8c71adc8ffa521866a34a80c91c662559dd6c691e1b8b369e1e3455c2642a",
+      "introduced_sha": "466bdfdc8f3795e0205508c8f26de5acf6c140fa",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# UI 文本与编排体例 · 2026-09-08",
+      "decision": "Current text, composition, size-token, shape, and border rules."
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/shape-grammar-generative-identity-2026-09-09.md",
+      "sha256": "9a8ef0e4deaa6226ca3830af1f1e60400c43e374bcad4a93cab605dd9d921d75",
+      "introduced_sha": "5a6d8ac5fcffbcf77d90ad27a58ba3e3a3170555",
+      "status": "canonical",
+      "exact_heading_or_symbol": "## 合成：Canonical Visual Grammar",
+      "decision": "Visual Grammar composition and specimen boundary."
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/contracts/color-governance.md",
+      "sha256": "d761cbd158552ef7d5191e6770fef6f5358f449296806d0f7765ca823cfd3558",
+      "introduced_sha": "b2f6b3c0e688b9a732ac6bc8452b47bd7f53aa5a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# 色彩三层治理契约（草案，Fable，2026-09-08）",
+      "decision": "Color S/R/U governance and material tier mapping."
+    },
+    {
+      "path": "engineering/design/skin-injection-2026-09-10/skin-constitution.md",
+      "sha256": "12e92b0cf8573fd12471f51287a21fd4b61bee75e05eac97a04a33e69abc1eb6",
+      "introduced_sha": "b2f6b3c0e688b9a732ac6bc8452b47bd7f53aa5a",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# Skin / Review 分离合同 · Astra 裁决",
+      "decision": "Skin/review separation and accessibility adaptation boundary."
+    },
+    {
+      "path": "engineering/design/icon-controls.md",
+      "sha256": "61e32fb4d226e87f5c945c2a3db5f576d10824acbfe78aeb146a921bbbf91261",
+      "introduced_sha": "1992e90bd92266a9c99076a0709617bae4d4cf67",
+      "status": "canonical",
+      "exact_heading_or_symbol": "# SVG 操作、文字语义与二级提示体例",
+      "decision": "Icon family and semantic SVG admission notes.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "app/web/settings-view.mjs",
+      "sha256": "014c350e4ae6e67b4d51ca9fbf09bb5edc97374c193474135e4f052a045d9163",
+      "introduced_sha": "89e437d43a5e6e19ee556811aca3127aad5fe0e2",
+      "status": "canonical",
+      "exact_heading_or_symbol": "import \"./skin-policy.js\";",
+      "decision": "Implemented property-row control/provenance/reset grammar.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "app/web/composer-field.mjs",
+      "sha256": "c110ceb45e0b488086414fe8d1d9f66fde3b84509380a14ea70be3ae57d8dfd9",
+      "introduced_sha": "589102cd0536bdc13859257fa620d7c8d597d7f2",
+      "status": "canonical",
+      "exact_heading_or_symbol": "/* CI-B / CI-F · the composer field's two behaviours that do not depend on what",
+      "decision": "Integrated composer structure and accepted control sizing.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "app/web/styles.css",
+      "sha256": "a1defabc4c4967b668117f4b4e509fc0b45cd04bed27ad4e66b60325ad747904",
+      "introduced_sha": "f99af4695aa5796e703286b0875ec5663cc22c85",
+      "status": "deferred",
+      "exact_heading_or_symbol": "/* ==== tier:S · skin lead-gray（铅灰）· light ======================   色彩三层治理（engineering/mvp/execution/work-surface-kit/contracts/color-governance.md）：",
+      "decision": "Dark composer and user bubble style selectors; current lighter correction is a follow-up.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "site/src/capture-plan.mjs",
+      "sha256": "25f71a439bf6098b1fed88923a8f077ded0af6894a9b72809e7a4ae84efe2366",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "canonical",
+      "exact_heading_or_symbol": "// One publication batch; pending slots never fall back to an older UI capture.",
+      "decision": "Ready guard for one matching light/dark pair per capture slot.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "site/media/merged-20260911/observations.json",
+      "sha256": "cd12b026cc2babeb2b88067d5deebdd7b9041eaa6ff602b893acf259c7ba5748",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "reference",
+      "exact_heading_or_symbol": "[",
+      "decision": "26 observations: 13 light/dark pairs, 1440×900 DPR 1, matching state IDs.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "site/media/main/manifest.json",
+      "sha256": "480caf5ce2730657580afb97caab7e2329d158e5a0455955e7839ecadec61142",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "reference",
+      "exact_heading_or_symbol": "{",
+      "decision": "Current Pages media manifest pinned to f1373cde.",
+      "anchor_note": "Corrected to an observed exact heading; see path for full section context."
+    },
+    {
+      "path": "evidence/summary-be41-construction-20260911/be41-b/README.md",
+      "sha256": "915bdde7e6f84322f1032632473e77e816538d85544ed20bb2e6c2b8e7d8cf7e",
+      "introduced_sha": "589102cd0536bdc13859257fa620d7c8d597d7f2",
+      "status": "reference",
+      "exact_heading_or_symbol": "# BE41-B · live Spark 接线",
+      "decision": "BE41-B live integration evidence: 77/77 targeted and 736/736 full suite."
+    },
+    {
+      "path": "evidence/semantic-polish-merge-20260911/README.md",
+      "sha256": "7e2ead3e1cde8959ce0bc32d4889143acd8ad56845e78858e89c476a510806c3",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "reference",
+      "exact_heading_or_symbol": "# Semantic polish / Pages integration · 2026-09-11",
+      "decision": "Merged Pages integration and publication boundary."
+    },
+    {
+      "path": "evidence/semantic-polish-merge-20260911/publication.md",
+      "sha256": "b6d8455c2bce49959ec45c00d3a3df0ecb4c4e319b4b8793485bdf2d9cbfcfd0",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "reference",
+      "exact_heading_or_symbol": "# Merged product capture and publication · 2026-09-11",
+      "decision": "Capture ownership, corrections, verification limits, and no-deployment boundary."
+    },
+    {
+      "path": "evidence/semantic-polish-merge-20260911/capture-review.md",
+      "sha256": "c49ed1cc518de1b09e380140bbe699e957d37da9413e28e92e3d0266a382a55e",
+      "introduced_sha": "a01dee89e752111e63012b705ef81350ce518446",
+      "status": "reference",
+      "exact_heading_or_symbol": "# Independent capture review",
+      "decision": "Independent image/API/source review and ruling."
+    },
+    {
+      "path": "evidence/convergence-20260911/README.md",
+      "sha256": "1aa16273a32fb14f5210c87964fa20f89b1f5e62734edf595c32c0d09557ed0d",
+      "introduced_sha": "590739fa3d1bc401905261172260143e36e82c5e",
+      "status": "reference",
+      "exact_heading_or_symbol": "# 2026-09-11 收敛节点",
+      "decision": "Current main convergence, WIP disposition, PR #2 chronology, and no-deployment boundary."
+    }
+  ],
+  "frozen_source_note": "a01 is the historical index snapshot; current product amendment is5e3a504. Read HANDOFF/current for latest state."
+}

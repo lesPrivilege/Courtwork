@@ -99,3 +99,7 @@ Material 的后补材料收敛为 [token 草案与组件辖区](../home-composit
 数据可视化后补输入见 [Activity / model Usage 消费](../home-composition-2026-09-10/data-visualization.md)：heat-graph 与 Recharts/shadcn 为 React donor，现有 vanilla Home 不新增依赖；每日/model token 接缝、缺失统计与下钻合同先于新图表。两张截图只作视觉参考。
 
 后续28结果/3线与38来源/4线两份材料依次消费为 [Disclosure / Overlay](../home-composition-2026-09-10/disclosure-overlay.md) 和 [Interaction vocabulary / glyph governance](../home-composition-2026-09-10/interaction-vocabulary.md)。研究数量为用户提供；D0–D4为待施工矩阵，MingCute提升候选优先级，未更换主族。
+
+## 2026-09-11 · 一次Design消费入口
+
+[系统交接包](../se-control-one-shot-2026-09-11/HANDOFF.md)按用户要求登记Luna蒸馏的渐进披露摘要；摘要帮助检索，固定原文与本地裁决仍持有权威。新生态和Taste研究不直接升级为规则。

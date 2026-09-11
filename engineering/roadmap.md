@@ -281,3 +281,7 @@ Evidence 分成源码机制、确定性 fixture、真实 runtime/provider/外部
 维护触发包括来源/法律/机构政策、模型/工具/宿主、schema/Artifact 格式、Reviewer 分歧、reversal、权益/许可、依赖停止维护和文档负担变化。按触发器重开受影响局部；定期人工复核依赖与恢复路径是维护建议，不是已部署的监控。来源探索和只读 diff 由 Luna 承担，Astra 负责架构、必要自研与集成，代码作者不自称独立验收；沿现有前端单一 writer 机制合流。
 
 Paper 的回流只包含有固定工程 commit 与证据支持的泛化观察，在唯一 Practice Index 裁决。日常状态留 current、模块责任留 architecture、具体实验留 RD/研究证据、本文件保留长期覆盖与依赖，避免再建立平行 revision ledger。
+
+## 2026-09-11 · 系统Design送审
+
+[SE控制面one-shot](design/se-control-one-shot-2026-09-11/HANDOFF.md)覆盖DG-01–09、Scout分层摘要和Taste Memory；用户提交独立Design后Astra裁决再拆施工。发布26图已有a01/34563551594回执，深色气泡修正另记5e3a504，不把送审计划写成产品接受。

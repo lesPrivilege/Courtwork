@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-11 · Pages已发布；独立Design one-shot送审准备
+
+`a01dee89e752111e63012b705ef81350ce518446`已合入并推送main，26张f137真实宿主合成状态截图ready；GitHub手动部署34563551594成功，线上媒体manifest与本地相同。[发布回执](../evidence/semantic-polish-merge-20260911/publication.md)记录来源、失败修正及限定。旧pending/准备段落为历史时点。
+
+用户随后要求系统性独立Design：Spark/Attention原生图标与核心控制面、Chat/Settings/协作及motion、Visual Grammar、Taste Memory与Design Scout渐进披露。已汇入[one-shot交接](design/se-control-one-shot-2026-09-11/HANDOFF.md)，由用户提交Design，返回后Astra逐项裁决及合流；未预报Design已接受。`5e3a504`是用户另行授权的深色气泡层级修正候选，独立检查与最终合流回执随后记录。产品schema/权限owner不变，BE42/真实Chat能力缺口/原生a11y及G1–G5不因发布或设计登记关闭。
+
 ## 2026-09-11 · Pages 第一性原理重裁与合流准备
 
 本轮消费旧 Pages 分支、PR/RD 落实与建设会话理由，纠正把助手五项导航建议写作用户裁决的归属。三项导航、Paper/Tour 主阅读入口与默认展开 Ideas 保留；新 Tour 分组、文案、真实 Home 入口及图示尺度修补接续，Runtime 公开图去除 Pi 实现名。作者完成实际前后对照，非作者源码复核与发布门分别记录于[本轮裁决](../evidence/semantic-polish-merge-20260911/visual-ruling.md)。下一步固定合流节点，由 Luna 通过真实 API 合成状态实拍 13 个图位明暗配对，再按既有授权推送部署；此段不预报合流、截图完成或线上结果。

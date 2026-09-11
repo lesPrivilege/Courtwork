@@ -1,0 +1,28 @@
+{
+  "thread_id": "6aa37f46-e5a8-83ec-a010-55528ecd74ba",
+  "turns": 2,
+  "messages": 4,
+  "has_more": false,
+  "attachments": [],
+  "limits": "52/3 and 48 are source-author search claims; original Exa results unavailable.",
+  "files": {
+    "input-thread-first.json": {
+      "sha256": "5f8e8c0f312584debe93679ce1bf235c013c9ce0105e6baf3a862b6b050ae819",
+      "bytes": 12620
+    },
+    "input-thread.json": {
+      "sha256": "afa1e46794db05f05be70c3a26b4263c53b99536dd73001a13c2370a92f7fc18",
+      "bytes": 27570
+    },
+    "input.md": {
+      "sha256": "ad8ddb3733d643a83a93f5b14b096e37933909015a426f82bbd1a3ff232be749",
+      "bytes": 15463
+    },
+    "taste-input.txt": {
+      "sha256": "ef90ba28643b65d6f2daab065c9eef68a90dd212473f1923ec2abe70af668239",
+      "bytes": 10605,
+      "source": "user-pasted supplement",
+      "limits": "40 sources/4 workstreams are source-author claims; no raw Exa results supplied"
+    }
+  }
+}

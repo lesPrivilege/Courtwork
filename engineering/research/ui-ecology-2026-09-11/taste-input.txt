@@ -1,0 +1,452 @@
+我用 Exa 看了 **40 个来源、4 条 workstream**：设计专长/隐性知识、主观偏好的统计测量、专业设计团队如何传递判断、2024–2026 的 UI/graphic-design preference datasets。结论比“taste 很主观所以无法工程化”要强得多：
+
+> **Taste 可以积累，也可以相当程度地量化；但不应被量化成一个“审美分数”。更准确地说，可以量化一个人/团队的 taste structure，以及某个模型对这种 taste 的预测能力。**
+
+### 1. Taste 不是“我喜欢什么”
+
+我会把它定义成：
+
+$$
+\text{Taste}
+=
+\text{Discrimination}
+\times
+\text{Contextual judgment}
+\times
+\text{Calibration}
+\times
+\text{Internalized repertoire}
+$$
+
+即四件事：
+
+**Discrimination**：能看到别人看不到的差异。
+14px 与 15px、这个灰阶与那个灰阶、这一层应该 raised 还是 flat，并非“不一样”，而是知道这个差异是否重要。
+
+**Contextual judgment**：知道什么时候什么才对。
+喜欢 glass 不等于到处 glass；喜欢 serif 不等于 composer 用 serif。真正的 taste 恰恰表现为：
+
+> 即使我个人喜欢 X，我知道 **X 在这里不对**。
+
+**Calibration**：判断经过大量现实反馈校正，而不是随机偏好。
+
+**Internalized repertoire**：脑中已经积累大量 precedent、反例、组合方式，最后很多判断变成无需逐项推导的直觉。
+
+这与设计专长研究非常吻合。[Aesthetic Experience and Design Expertise](https://doi.org/10.21606/eksig2013.107) 发现，专家反复经历：
+
+```text
+affection
+→ attention
+→ reflection
+→ internalization
+```
+
+最后形成一个 **“catalog of means”**。早期需要解释“为什么”，后来逐渐变成近乎自动的判断。
+
+2024 CHI 的 [Demystifying Tacit Knowledge in Graphic Design](https://arxiv.org/html/2403.06252v1) 更直接：采访专业设计师后发现，典型隐性知识就是：
+
+> “感觉这个 composition 在当前 context 下不自然。”
+
+而最难语言化的区域恰好就是**颜色、字体、视觉舒适度、composition**。
+
+所以 taste 很像一个经过大量后训练的 **perceptual + preference model**，而不是一套 if/else 规则。
+
+---
+
+## 2. 但 taste 中存在两个完全不同的部分
+
+这是这轮最重要的发现。
+
+### A. shared craft
+
+有相当稳定的跨设计师信号：
+
+```text
+alignment
+spatial relations
+typography
+visual hierarchy
+legibility
+affordance
+state clarity
+coherence
+```
+
+2026 年的 [TASTE](https://arxiv.org/html/2605.20731) 让专业设计师分别判断 typography、hierarchy、color harmony、spatial accuracy 等九个维度。
+
+结果所有维度都显著区别于随机判断，但信号强弱不同：
+
+> **typography / spatial accuracy 的共享信号约为 color harmony 的两倍。**
+
+这非常符合直觉：
+
+“这几个元素没对齐”通常比“这个蓝是不是太冷”更接近客观 craft。
+
+### B. situated taste
+
+而另一部分确实高度个体化。
+
+2025/26 的 [DesignPref](https://arxiv.org/html/2511.20513) 收集了 **20 位专业设计师、12,000 组 UI pairwise preference**。
+
+即便都是专业设计师，binary preference 的 Krippendorff α 也只有约 **0.25**。
+
+他们明确分歧于：
+
+```text
+dark vs bright
+dense vs sparse
+strong hierarchy vs quiet hierarchy
+decorative vs utilitarian
+expressive vs restrained
+```
+
+更有意思的是：
+
+> 用某一个设计师自己的少量历史偏好训练出的模型，预测这个人的判断，优于使用 **20 倍规模聚合设计师数据**训练的模型。
+
+因此不存在一个：
+
+```text
+Universal Good Taste Score = 87.4
+```
+
+更接近：
+
+```text
+              ┌ shared craft
+Taste ────────┼ product / domain taste
+              ├ team taste
+              └ individual taste
+```
+
+---
+
+# 3. 因而“量化 taste”的正确对象不是 score，而是 preference function
+
+假设让你看：
+
+```text
+A                 B
+────              ────
+浅 sidebar         深 sidebar
+sans heading       serif heading
+solid popover      blurred popover
+12px radius        8px radius
+```
+
+问一个问题：
+
+> **在这个具体 context 中，A 还是 B 更好？**
+
+这比：
+
+> “请给 B 的设计品味打 8.3 分。”
+
+可靠得多。
+
+这已经有非常成熟的统计方法。
+
+Thurstone / Bradley–Terry 的核心就是把大量：
+
+```text
+A > B
+A > C
+D > A
+C > D
+...
+```
+
+反推出一个 latent preference space。[paired comparison 方法](https://mayagupta.org/publications/PairedComparisonTutorialTsukidaGupta.pdf)最初就是为了把这种主观比较转成可分析的尺度。
+
+所以 Courtwork 完全可以有：
+
+```text
+A > B        strong
+B > C        weak
+D > A        strong
+```
+
+然后持续得到：
+
+```text
+density.preference
+surface.preference
+contrast.preference
+material.preference
+type.preference
+motion.preference
+...
+```
+
+但我甚至不会急着把它们压成一个总排名。
+
+---
+
+## 4. 对 CW，真正值得量化的是这五个指标
+
+不是“taste = 91”。
+
+而是：
+
+| 指标                 | 实际含义                         |
+| ------------------ | ---------------------------- |
+| **Consistency**    | 同类问题隔几周重新问，选择是否稳定            |
+| **Discrimination** | 能否稳定分辨细微但实际有意义的 A/B          |
+| **Agreement**      | 哪些判断属于 shared craft，哪些只是个人偏好 |
+| **Transitivity**   | 是否频繁出现 A>B、B>C、C>A           |
+| **Predictability** | 用过去选择能否预测新的选择                |
+
+最后一项尤其重要。
+
+假设用前 300 次你的裁决预测后 100 次：
+
+```text
+82 / 100 predicted correctly
+```
+
+那么我会说：
+
+> **我们已经能以 82% held-out accuracy 表征这部分 Courtwork taste。**
+
+这比声称：
+
+> “你的 taste 是 8.7/10”
+
+科学得多。
+
+也就是说，我们真正量化的是：
+
+$$
+P(\text{你会选 A over B}\mid context)
+$$
+
+而不是所谓客观“美”。
+
+---
+
+# 5. 更关键的是：taste 可以被“积累”
+
+而且现在已经有非常现实的实现。
+
+[Vercel 2026 的 product-design system](https://vercel.com/blog/teaching-agents-product-design-at-vercel) 基本已经在做我们讨论的事情：
+
+```text
+design review / PR / Slack / Figma
+             ↓
+           evidence
+             ↓
+         human judgment
+             ↓
+rule / reference / exemplar / lint / eval / no-change
+             ↓
+       repository knowledge
+```
+
+他们甚至明确强调：
+
+> shipped code 只是 evidence，不自动成为 precedent。
+
+并保存：
+
+```text
+decision
+rationale
+evidence
+exceptions
+good example
+bad example
+coverage gap
+```
+
+这其实就是把个人/团队 taste 从**参数权重里的隐性知识**逐步蒸馏成外部 state。
+
+但注意，不能把全部 taste 都“rule 化”。
+
+---
+
+# 6. 我会给 Courtwork 建这样的 Taste Memory
+
+不是一个 `STYLE_GUIDE.md`，而是四种不同资产：
+
+```text
+Taste Memory
+│
+├── 1. Grammar
+│      已经高度确定的规律
+│      surface / type / color / material / motion / control
+│
+├── 2. Exemplars
+│      好例 / 坏例 / before-after
+│      保留完整视觉证据
+│
+├── 3. Preference Log
+│      A > B
+│      context
+│      strength
+│      rationale
+│
+└── 4. Open Taste
+       尚不足以规则化的判断
+       disagreement
+       experiments
+       unresolved territory
+```
+
+尤其是第三层，会非常有价值。
+
+一条记录不是：
+
+```text
+prefer light UI
+```
+
+而是：
+
+```yaml
+context:
+  surface: document-preview
+  task: long-form-review
+  viewport: desktop
+
+A:
+  background: light-neutral
+  type: serif-document
+
+B:
+  background: dark
+  type: sans
+
+decision: A
+strength: strong
+
+why:
+  - document should read as authored artifact
+  - dark surface over-emphasizes chrome
+  - reading plane should dominate navigation
+
+not_generalized_to:
+  - command palette
+  - tool trace
+  - marketing page
+```
+
+这才是真正可以学习的 taste datum。
+
+---
+
+## 7. Pairwise diff 本身就是最好的 taste 训练集
+
+而 Courtwork 现在其实天然已经在产生它。
+
+你不断在做：
+
+```text
+T0 / T1 / T2
+before / after
+A / B
+Lucide / Phosphor / Tabler
+light / dark
+three-column / content-dominant
+glass / solid
+serif / sans
+```
+
+过去这些裁决完成以后，往往只保存最终结果。
+
+但真正最珍贵的数据其实是：
+
+> **被拒绝的那个方案 + 为什么拒绝。**
+
+因为最终代码只能告诉 agent：
+
+```text
+we use 8px
+```
+
+而 pairwise history 告诉它：
+
+```text
+8px > 12px
+because 12px made secondary controls look too consumer/SaaS,
+while the target surface needs denser desktop-tool character.
+```
+
+后者才接近 taste。
+
+---
+
+# 8. 所以甚至可以有一个真正的 Taste Eval
+
+比如固定留下 50–100 个没有写入 grammar 的 holdout visual pairs：
+
+```text
+Typography       15
+Surface          15
+Material         10
+Density          15
+Hierarchy        15
+Controls         10
+Motion           10
+Compound UI      10
+```
+
+让新的：
+
+```text
+Opus
+Sonnet
+Codex
+GPT
+未来 agent
+```
+
+只读取 CW 的 Taste Memory，然后选择 A/B 并解释。
+
+评价：
+
+```text
+pairwise accuracy
+dimension accuracy
+confidence calibration
+rule/exemplar retrieval
+novel-case generalization
+```
+
+这样便第一次可以说：
+
+> **这个 agent 对 Courtwork taste 的 fidelity 是 78%。**
+
+而不是凭感觉说“这个模型审美比较好”。
+
+这会非常有意思。
+
+---
+
+### 最后可以把 `taste` 分成三级
+
+```text
+Level 1 — Craft
+可明确、可 lint、可测试
+“这是错的”
+
+Level 2 — Judgment
+需要 context + precedent + pairwise history
+“这个在这里不对”
+
+Level 3 — Taste
+面对两个都正确的方案，
+稳定选择更属于这个产品的那个
+“这个更 Courtwork”
+```
+
+**Level 1 应尽量形式化。**
+**Level 2 应积累 rationale + exemplars。**
+**Level 3 不应该被粗暴 rule 化，而应该通过成对裁决持续学习。**
+
+所以回答最初的问题：
+
+> **Taste 是可以培养的；可以积累；可以测量；甚至可以训练模型去逼近。**
+>
+> 但真正成熟的做法不是把 taste 消灭成规则，而是把它变成一个有 provenance、有 context、有反例、有 uncertainty、可以持续 post-train 的 preference corpus。
+
+这反而很像 Courtwork 已经在做的 Schema Engineering：**不是把世界压成 schema，而是把能治理的部分治理，把不能完全显式化的判断也保存为可渐进披露、可继续学习的证据。**
