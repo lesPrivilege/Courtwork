@@ -2,8 +2,8 @@
 // Example-workspace audit (ONE-SHOT 2026-09-11 stage 4). Drives the real
 // product in headless Chrome against two servers this script starts itself:
 // an empty workspace with the local deterministic provider (new user, leave,
-// reopen, real handoff), the same without a provider (start failure), and the
-// running capture-fixture server for the existing-data case. No external
+// reopen, real handoff), the same with a provider that fails after admission,
+// and the running capture-fixture server for the existing-data case. No external
 // model, no user data directory, nothing deployed.
 //
 //   node evidence/publication-final-20260911/preview-audit.mjs --existing http://127.0.0.1:8848 --out <dir>
@@ -125,7 +125,7 @@ try {
   await sendComposer("hello, this is my first real instruction");
   await sleep(2500); s = await state();
   const runRows = await evaluate("document.querySelectorAll('#message-stream .message, #message-stream article, #message-stream [data-message-id]').length");
-  await sleep(3000); // the exit waits for the run to complete, not for its receipt
+  await sleep(3000); // completion is observed after the receipt already closes preview
   s = await state();
   record("3-first-run-closes-example", !s.chip && s.memory === "established" && s.tags === 0 && s.projects.includes("My matter") && s.title === "My first chat" && runRows > 0, { ...s, runRows });
   await shot("3-after-first-run");
@@ -144,15 +144,18 @@ try {
   await click('[data-chat-action="example"]'); await sleep(1500); s = await state();
   record("4-existing-data-reopen", s.chip && s.tags === 2 && s.projects.length >= 4, s);
   await shot("4-existing-data-reopened");
-  // ---- 5 · start failure: no provider; a real run that fails does not close the example
+  // ---- 5 · admitted run whose provider fails after the receipt closes the example
+  // This fixture returns a matching 2xx run receipt before its configured
+  // provider throws. That is an admitted run, so the preview closes at
+  // admission; a non-2xx admission response remains a separate rejection path.
   await newTab(); await load(withoutProvider.url); await clearMemory(); await load(withoutProvider.url); s = await state();
   record("5-failing-provider-still-enters", s.chip && s.mode === "active", s);
   await createProjectAndChat("Unready");
   await sendComposer("this run cannot start");
   await sleep(4000); s = await state();
   const failure = await evaluate("(document.querySelector('.composer-feedback, [data-feedback], .run-error, .persistent-feedback')?.textContent || '') + ' ' + [...document.querySelectorAll('#toast-region .toast')].map(t=>t.textContent).join(' ')");
-  record("5-start-failure-keeps-example", s.chip && s.memory === null && s.tags === 2, { ...s, failure: failure.trim().slice(0, 200) });
-  await shot("5-start-failure");
+  record("5-admitted-run-closes-example-after-provider-failure", !s.chip && s.memory === "established" && s.tags === 0, { ...s, failure: failure.trim().slice(0, 200) });
+  await shot("5-admitted-run-provider-failure");
   // ---- 6 · no runtime: the page against a closed port shows the runtime line, no example
   await newTab();
   const dead = withoutProvider.url; await withoutProvider.close?.();
