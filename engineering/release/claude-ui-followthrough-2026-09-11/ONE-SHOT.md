@@ -69,3 +69,7 @@ Paper 预发布由 Astra 本轮收尾，不再把等待 icon 留给本单。Home
 第3阶段Pages同时消费README新增方向：按现页面节奏局部说明三种用户目的，Chat用规划语境，Spark未来routine与当前来源/派生实现分开；Matter、Runtime、Expert责任保持。Home双原子无需硬改三张同权功能卡，不新增三套agent叙事；Features不列未实现能力为可用。不得直接使用来源助手的star、成熟度或条款摘要为发布证据。
 
 本单Chat交付已按最新DECISION升级为完整产品页面与专门视觉设计，旧CA-01最小按钮/仅局部Pages文案不再构成充分交付；不扩大到Provider/Memory后端。
+
+## 最新叙事基线 · Work优先
+
+先消费[Astra Work优先裁定](../work-first-narrative-2026-09-11/DECISION.md)与最近三轮来源。Court是有机协作与正式编排下的工作场合，不是角色扮演或律师工作流。首页/README/Paper导读已由Astra改文案，Claude后续从这些源码增量接设计，不用旧返回包覆盖新叙事。现有法律示例只代表一个应用。Runtime互换与轻量Spark仍待验证，不以Explore或视觉样例宣布实现；Chat的产品目的及前端范围保持已裁定义。

@@ -52,3 +52,7 @@
 ## 产品理由扩展登记
 
 [新增4轮、累计9轮/18消息的产品理由快照](product-rationale/README.md)固定Chat连续对话与可移植性、Attention跨工作判断、Spark持续来源工作三种用户理由；README小幅补方向，Pages纳入Claude局部文案工单。外部72结果生态及条款主张仍未独立核验，旧快照字节保留。
+
+## Work优先 · 最新三轮
+
+[新增3轮、累计12轮/24消息快照与索引](work-first/README.md)登记Runtime替换探索、Work Core/Court产品重心及发布/Paper导读。Astra从连续性/状态所有权出发裁定，优先修订定义和文案；用户明确Court是有机与正式编排的工作场合，非角色扮演或律师工作流。

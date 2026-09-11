@@ -2,7 +2,7 @@
 
 独立的 SVG 与 Web component 包，包含符号几何、状态样板、材质、导出与预览。原始图形来源为 Courtwork 固定提交 `f9ade85b72e5abcdc64c3a6c43ed3a13a2292476`，见 [来源清单](sources/legacy-provenance.json)。
 
-**品牌方向：CourtWork · A place for expert work to take form.** Court 是场景与专家在场的修辞，不把现有产品宣称为已实现 MoE 或完整专家编排。图形表达在场、活动和留存；不自行产生权限或正式接受。
+**品牌方向：CourtWork · Your work. With you in it. / 人在其中，工作继续。** Court 指有机协作与正式编排共同构成的工作场合。人的意图、判断与返回路径属于工作关系的一部分；“在场”不要求持续在线或亲自执行每一步。这一抽象理念不是角色扮演或律师工作流，不新增Court领域实体，也不宣称完整多Runtime编排已实现。图形仍只展示宿主给定的在场、活动和留存事实，不自行产生权限或正式接受。详见[叙事裁定](../engineering/release/work-first-narrative-2026-09-11/DECISION.md)。
 
 ## 交付与阅读
 

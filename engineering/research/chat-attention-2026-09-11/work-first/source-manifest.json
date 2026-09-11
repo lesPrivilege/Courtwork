@@ -1,0 +1,46 @@
+{
+  "conversationId": "6aa3e21f-3c00-83ec-836a-72d6ed1aa1c0",
+  "sourceUpdatedAt": 1789130557.678154,
+  "pageCount": 2,
+  "hasMore": false,
+  "turns": 12,
+  "messages": 24,
+  "previousSnapshotTurns": 9,
+  "newTurnIds": [
+    "76855190-af31-4e86-96e8-4732eaa7157b",
+    "2910dfb6-2432-4479-9763-2714cd4f6ead",
+    "d5a9c3a4-ccf0-4129-98ac-2542356e1d1c"
+  ],
+  "files": [
+    {
+      "path": "connector-page-1.json",
+      "bytes": 81007,
+      "sha256": "b5f7e9af051099ad54899ee57cf1f38bf17194adbfd80bbfff1fc93348a1c8b6"
+    },
+    {
+      "path": "connector-page-2.json",
+      "bytes": 21887,
+      "sha256": "22e8c77cc33f86f993e1027e9413e6142258b8819a8d9ccacca189538b494266"
+    },
+    {
+      "path": "input-snapshot.md",
+      "bytes": 82480,
+      "sha256": "e6a9469f1d7c76a949992becf997e01f35f0da398f029cbb671476349ad89c4f"
+    },
+    {
+      "path": "new-turns.md",
+      "bytes": 22069,
+      "sha256": "ea40693f2d28750df6ded10d480a487ecb217e687da7843222023254f7bbd162"
+    },
+    {
+      "path": "reference-links.json",
+      "bytes": 413,
+      "sha256": "c29ee22f66472efd61e40d6fcfd729295c3582a5a5d6d4eb72fb2bff0e3bd466"
+    },
+    {
+      "path": "user-clarifications.md",
+      "bytes": 986,
+      "sha256": "05da98a5f3c17e5a0201d813080b6671c0e26954cfe3290eb8b8b0c7c3e9c959"
+    }
+  ]
+}

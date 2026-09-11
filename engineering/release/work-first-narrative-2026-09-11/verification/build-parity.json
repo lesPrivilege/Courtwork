@@ -1,0 +1,9 @@
+{
+  "match": true,
+  "sha256": {
+    "README.md": "f920fcf923187c85a4b238ca95e8b298d2c7aa32c3d8ea4b8980be257095bdaa",
+    "site/dist/index.html": "a4fc248a0ecfe6d3dffaa669347cf5ecf2a48fbe2a0dbffbe6c4f09e411c8891",
+    "site/dist/features.html": "401c269034b6b43e5406fa1b2ac871fed994f95fb0c535db3159befc2e9dcfa0",
+    "site/dist/experts.html": "ca681c509ccdae1a8b75c10ec6edacf89788ce2a17e91380dcfe197094fd9f3b"
+  }
+}

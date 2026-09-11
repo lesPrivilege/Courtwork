@@ -1,5 +1,7 @@
 # Schema Engineering · Paper source
 
+当一件工作跨越多个会话、执行者与人的判断，哪些内容应持续保留，哪些变化需要明确依据？Schema Engineering 从工作状态、变更与上下文之间的关系研究这个问题；CourtWork 将相关边界落实为可运行的工作空间。
+
 Schema Engineering 论文继续在 [Schema-Engineering](https://github.com/lesPrivilege/Schema-Engineering) 独立编订。CourtWork 保存实现、设计与验收，本文只提供入口与版本绑定，不复制可编辑论文正文。
 
 ## 固定语义基线

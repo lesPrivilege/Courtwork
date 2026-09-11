@@ -26,3 +26,7 @@ These are release records and preparation contracts. A release note does not by 
 ## 2026-09-11 · Chat专门设计追加
 
 [Astra页面裁定](../design/chat-product-page-2026-09-11/DECISION.md)将Chat升级为同级独立页面与专门视觉设计；Luna索引历史Design消费链，Claude在现有串行单增量绘制和前端施工，后端仍待后续。
+
+## 2026-09-11 · Work优先发布叙事
+
+[Astra定义与文案裁定](work-first-narrative-2026-09-11/DECISION.md)消费最新三轮，修订README、首页与Paper导读；Court按有机协作和正式编排的工作场合理解，Runtime探索与已实现能力分开。

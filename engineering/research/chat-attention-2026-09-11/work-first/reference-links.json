@@ -1,0 +1,11 @@
+{
+  "status": "source-provided references, not reverified",
+  "links": [
+    "https://docs.ag-ui.com/introduction",
+    "https://docs.openclaw.ai/concepts/agent-loop.md",
+    "https://docs.openclaw.ai/start/why-openclaw",
+    "https://github.com/AcpKit/acp-kit",
+    "https://github.com/namanrajpal/acp-to-agui",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/features/codex-app-server-runtime"
+  ]
+}

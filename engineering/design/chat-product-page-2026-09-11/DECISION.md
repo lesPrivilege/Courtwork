@@ -38,3 +38,7 @@ Luna只负责源索引与消费等级；Claude负责设计及同包前端施工�
 返回材料含：每一视觉决定的最近先例/源坐标、继承和改变的grammar、App/Pages完整场景、1440/1280/390浅深、键盘/返回焦点/200%/reduced-motion与必要forced-colors，真实和模拟分别标注。新增路由/build/links检查、前端相关行为和源manifest/hash随包返回。设计preview与真实功能清楚区分，不靠一行脚注抵消整个界面的假可用暗示。
 
 本轮写定定义及施工合同，不直接实现App/site或发布。发布收尾队列为单红diff与Settings、Chat专门设计及前端/Pages、既有工程图局部修补、必要回归与最终发布验证；DR-02–05及runtime未闭门继续单列，不因页面齐全自动接受。
+
+## 工作场合叙事补充
+
+用户最新明确Court指有机协作与正式编排下的工作场合；[Astra Work优先裁定](../../release/work-first-narrative-2026-09-11/DECISION.md)为发布定义入口。Chat专门设计不做人物扮演/律师工作流，不添加法庭符号或剧情。场景先解释人的工作目的，再逐步引出术语；已有NDA仅是应用示例。

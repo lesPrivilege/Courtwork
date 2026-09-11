@@ -1,4 +1,4 @@
-// The page's words, publishing copy (public-copy-v3).
+// The page's words, publishing copy (work-first-2026-09-11).
 //
 // Copy is shared by the page and README. Version/count placeholders are filled
 // from the fixed evidence receipt. The current editorial policy is PS-26.
@@ -14,9 +14,9 @@ export const NAV = [
 
 export const HERO = {
   wordmark: "CourtWork",
-  tagline: "A place for expert work to take form.",
-  h1: ["Work that survives the model.", "模型可以离场，工作继续。"],
-  lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
+  tagline: "A place for work to continue.",
+  h1: ["Your work. With you in it.", "人在其中，工作继续。"],
+  lede: "CourtWork 是一个本地 AI 工作空间。你可以和 Agent 讨论，把任务交给它执行，查看成果并作出决定。材料、决定与未完事项留在同一件工作里，方便你随时回来接着做。",
   actions: [{ href: "./get.html", label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
 };
 
@@ -25,8 +25,8 @@ export const RAW_GOVERNED = {
   title: "One matter. Three views.",
   subtitle: "从来源到决定，每一步都有据可循",
   quote: [
-    "Work agents need governed state, not longer transcripts.",
-    "Agent 需要的是受治理的状态，不是更长的对话记录。",
+    "Keep the decisions. Prepare the next context.",
+    "决定与依据留存，下一次运行按需取用。",
   ],
   lede: "一次工作，三个视角：发生了什么、留下了什么、下一次带上什么。",
   tabs: [
@@ -64,15 +64,15 @@ export const ARCHITECTURE = {
   index: "THE COMMITMENT LOOP",
   title: ["From proposal to decision.", "把提议变成有据可循的决定。"],
   paragraphs: [
-    "模型负责搜索、比较、起草与执行。CourtWork 把材料、成果、审阅决定和未完事项留在一起。一次运行结束，工作继续。",
-    "每次运行从当前状态与相关材料开始。新的提议携带来源进入候选区，经验证与审阅后成为正式变化。",
-    "更换模型，开启新的会话，或隔一段时间再回来。已确认的决定、当前版本和待办义务依然有迹可循。",
+    "人和 Agent 参与搜索、比较、起草与执行。CourtWork 为同一件工作保留材料、成果、决定和未完事项，让交接有共同依据。",
+    "每项任务都有明确的范围、可用材料与完成要求。成果附上来源和依据，经过必要的检查与确认，再纳入正式工作记录。",
+    "一次执行结束后，已确认的决定、当前版本与待办义务仍可查证。下一次工作从这些记录出发。",
   ],
   figureTitle: "From state to committed change",
   caption:
     "当前状态 → 上下文投影 → 候选 → 审阅 → 正式变化。",
   closing:
-    "Schema Engineering 为工作的状态、变更与连续性提供语义基础。",
+    "Schema Engineering 研究跨会话工作应当保留什么，以及这些记录如何支持下一次执行。",
   links: [
     { label: "Read the paper", href: "https://lesprivilege.github.io/Schema-Engineering/" },
     {

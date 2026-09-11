@@ -1,0 +1,131 @@
+{
+  "at": "2026-09-11T12:57:07.833Z",
+  "results": [
+    {
+      "id": "index.html-1440-light",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-1440-light",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-1440-light",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "A role in the same work."
+    },
+    {
+      "id": "index.html-1440-dark",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-1440-dark",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-1440-dark",
+      "pass": true,
+      "width": 1440,
+      "overflow": false,
+      "title": "A role in the same work."
+    },
+    {
+      "id": "index.html-1280-light",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-1280-light",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-1280-light",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "A role in the same work."
+    },
+    {
+      "id": "index.html-1280-dark",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-1280-dark",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-1280-dark",
+      "pass": true,
+      "width": 1280,
+      "overflow": false,
+      "title": "A role in the same work."
+    },
+    {
+      "id": "index.html-390-light",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-390-light",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-390-light",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "A role in the same work."
+    },
+    {
+      "id": "index.html-390-dark",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "Your work. With you in it.\n人在其中，工作继续。"
+    },
+    {
+      "id": "features.html-390-dark",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "A longer life for the work."
+    },
+    {
+      "id": "experts.html-390-dark",
+      "pass": true,
+      "width": 390,
+      "overflow": false,
+      "title": "A role in the same work."
+    }
+  ]
+}

@@ -311,7 +311,7 @@ try {
   const noscript = await evaluate(`(() => {
     const text = document.body.innerText;
     return {
-      hero: /模型可以离场，工作继续/.test(text) && Boolean(document.querySelector(".hero-object")) && document.querySelector("figure[data-capture-slot=home]")?.dataset.captureStatus === "captured",
+      hero: (document.querySelector(".hero h1")?.textContent ?? "").includes("Your work. With you in it.") && Boolean(document.querySelector(".hero-object")) && document.querySelector("figure[data-capture-slot=home]")?.dataset.captureStatus === "captured",
       architecture: /工作持续积累/.test(text) && /Matter 保存来源/.test(text),
       evidence: /Can the work continue/.test(text) && /Data & privacy/.test(text),
       build: /Bring the work home/.test(text) && /Run from source/.test(text),
@@ -323,7 +323,7 @@ try {
   // so the same facts are read out of the served HTML instead.
   const served = await (await fetch(ORIGIN)).text();
   record("V6 · without scripting the first screen and sections 03 / 05 / 06 are complete", 
-    /模型可以离场，工作继续/.test(served) && /data-capture-status="captured"/.test(served) &&
+    served.includes("Your work. With you in it.") && /data-capture-status="captured"/.test(served) &&
       /工作持续积累/.test(served) && /Matter 保存来源/.test(served) &&
       /Can the work continue/.test(served) && /Data &amp; privacy/.test(served) &&
       /Bring the work home/.test(served) && /Run from source/.test(served) &&
