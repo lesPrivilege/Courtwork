@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Spark有界工作与首个适配目标
+
+[Spark产品与发布定义](research/spark-product-definition-2026-09-11/README.md)消费《Gemini Spark 产品解析》4轮7消息及用户直接补充：快速有界的整理、抽取、分类、翻译，后台准备与直接唤起并存；第一阶段是复用Harness Core的受限execution profile，DeepSeek V4.1 Flash为首个适配/评测目标。复用权限机制但限制授权范围，保留Run/恢复/来源记录，模型能力上限不授予执行权限。自然文案、同一示例中的局部翻译及三面并置已纳入现Claude ONE-SHOT；不新增writer或改旧ZIP。已完成一次有限官方来源读取，用户随后要求直接消费，不再扩展核验。本轮仅定义/来源登记，无生产catalog或runtime改动，无真实provider调用或部署；不改变SP/BE-41既有接受。
+
 ## 2026-09-11 · UI返件合流与最后一轮Design
 
 Claude返件f4dca5a经1ae1784合流，f7c6b4d补diff方角整行色块、去内套框与窄屏换行，并将首页/README主叙事更新为“Orchestrate your agents. Govern your work.”，先编排再引出Court。用户理解双列旧/新行号后明确保持原状。[集成证据](../evidence/ui-followthrough-integration-20260911/README.md)含App774/774、Pages54/54、实际宽窄明暗图及检查范围；Astra增量属于作者检查，未以此关闭产品门。清理三个已合入且clean的接收分支。
