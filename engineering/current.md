@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-11 · UI返件合流与最后一轮Design
+
+Claude返件f4dca5a经1ae1784合流，f7c6b4d补diff方角整行色块、去内套框与窄屏换行，并将首页/README主叙事更新为“Orchestrate your agents. Govern your work.”，先编排再引出Court。用户理解双列旧/新行号后明确保持原状。[集成证据](../evidence/ui-followthrough-integration-20260911/README.md)含App774/774、Pages54/54、实际宽窄明暗图及检查范围；Astra增量属于作者检查，未以此关闭产品门。清理三个已合入且clean的接收分支。
+
+余下产品glyph与Settings图标、Chat独立App/Pages、secondary host chrome、普通control accent与淡红不可用态、统一合成预览、A工程图及最终媒体统一进入[唯一Claude Design ONE-SHOT](release/ui-publication-closure-2026-09-11/ONE-SHOT.md)，Luna源码盘点与Astra裁定随包。用户授权同一writer先设计再前端接入，返回后由我们复核merge并完成发布筹备；尚未声称新单已施工或部署。SE本地026d5cb保持独立预发布状态，本轮未改或推送SE。
+
 ## 2026-09-11 · Work优先定义与自然语言定稿
 
 [Astra裁定](release/work-first-narrative-2026-09-11/DECISION.md)消费最新3轮（累计12轮/24消息）及Court/人在场说明：Court是有机协作与正式编排的工作场合，Work Core为工程重心。首页、README真实生成源、Features/Experts与Paper导读已同步为连贯对外文案，主句为“Your work. With you in it.”；论文正文和App/Core未改。作者浏览器54/54、三路由18场景、构建一致性与链接检查通过，见[回执](release/work-first-narrative-2026-09-11/verification.md)。Chat专门Design与既有Claude串行单继续消费本定稿；不新增后端能力，不关闭原产品门，未部署。
