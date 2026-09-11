@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · les Privilege 厂商登记与光学修订
+
+[新增两轮会话消费](research/le-brand-2026-09-11/update.md)登记完整署名 **les Privilege**、命名双关及红黑/Dystopia 背景；`le`仅为图形。[品牌包](../brand/les-privilege/README.md)补 Anthropic 原图对照及四种光学稿，推荐全体减重、双横缩短内收，含五个 SVG 和宽窄实拍。名称已登记，几何为本轮推荐；未修改产品标识、论文作者元数据或部署。
+
 ## 2026-09-11 · LE 原生 SVG 署名候选
 
 [来源与裁定](research/le-brand-2026-09-11/README.md)接收可取得的3条用户消息与2张图，从原生 CourtWork 几何绘制连续 L 与两条等长横笔。[候选包](../brand/studies/le-2026-09-11/README.md)交付5个零依赖 SVG、尺寸/明暗署名对照和作者自检；推荐单色，保留分色比较。未替换产品品牌或部署 Paper 署名。

@@ -57,3 +57,7 @@ symbol.play('withdraw');
 本包验证的是品牌图形、动效和显示契约，不包括新 Runtime UI、真实 provider、Matter/Review 产品闭环或 main takeover。作者视觉证据及独立验收分别保存在 `evidence/`；验收记录以实际执行为准。
 
 Imagegen 用于材质参考；没有把生成位图描摹成 geometry，也没有把 Apple/Figma/Rive 的资产或源码纳入包。外部项目状态按来源索引的访问日记录，不保证其未来版本。
+
+## 拟设厂商署名
+
+[les Privilege](les-privilege/README.md)是独立的厂商署名登记与零依赖 SVG 包，源于产品图标母题。它不是 CourtWork 核心几何的替代版本。

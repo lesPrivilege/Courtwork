@@ -1,5 +1,7 @@
 # LE · 原生 SVG 候选
 
+> 历史首稿。对外署名已更正为 **les Privilege**；后续几何与 Anthropic 对照见[当前品牌登记](../../les-privilege/README.md)。本页及预览保留当时输出。
+
 从 `brand/geometry/mark.svg` 的竖笔与长、长、短节奏出发，重新构造 LE 厂商署名。它是独立品牌探索，未替换 CourtWork 产品标识。参考会话与两张用户图见[来源记录](../../../engineering/research/le-brand-2026-09-11/README.md)。
 
 ## 造型裁定

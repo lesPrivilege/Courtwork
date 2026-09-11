@@ -1,0 +1,77 @@
+{
+  "name": "les Privilege",
+  "handle": "lesPrivilege",
+  "mark": "le",
+  "status": "registered-name; proposed-optical-revision",
+  "grid": 64,
+  "geometry": {
+    "stroke": 9,
+    "barLength": 26,
+    "stemBarGap": 8,
+    "rowGap": 10.5,
+    "radius": 2.25,
+    "inkBounds": [
+      10.5,
+      8,
+      53.5,
+      56
+    ],
+    "lowerRight": 46.5
+  },
+  "variants": {
+    "previous": [
+      10,
+      28,
+      28,
+      10,
+      46,
+      0
+    ],
+    "thin-l": [
+      8.5,
+      28,
+      28,
+      10,
+      46,
+      0
+    ],
+    "inward": [
+      10,
+      24,
+      28,
+      10,
+      44,
+      2
+    ],
+    "balanced": [
+      9,
+      25,
+      26,
+      9,
+      44,
+      2.5
+    ]
+  },
+  "files": [
+    {
+      "path": "mark.svg",
+      "sha256": "edeb1596a60764e756c77d84ae325a19d24c775f4b8b0cd12cac37148f1c9d35"
+    },
+    {
+      "path": "mark-light.svg",
+      "sha256": "e4afc1a3555ec5958eba8ac3a1cbd56a0d74750df400fa4e1823405e864152d6"
+    },
+    {
+      "path": "mark-dark.svg",
+      "sha256": "5591123039506b0fe418de239095c1453f05d04fe22973c734136c3a73efdc65"
+    },
+    {
+      "path": "mark-tonal-light.svg",
+      "sha256": "378fe2f32201aa913fe67a1bf48a90648e57fae29be581c9a06692327aba6bf8"
+    },
+    {
+      "path": "mark-tonal-dark.svg",
+      "sha256": "2cae1ff9e52bae587fb5452b29ddceba410de5302b1cd9827d455c35344d4330"
+    }
+  ]
+}
