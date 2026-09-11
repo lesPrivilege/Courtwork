@@ -227,7 +227,8 @@
       "spark": "Atmosphere revision 2026-09-11, direction A 'Strike' (author-recommended, replaces the provisional source → fan-out shape): a struck spark leaving up-right",
       "attention": "Atmosphere revision 2026-09-11, direction A 'Awake' (author-recommended, replaces the provisional streams → ring shape): an eye just opened, upper lid and pupil only",
       "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it",
-      "expert": "Courtwork original Quiet profile, 2026-09-12: open human role silhouette; user-authorized frontend identity, no certification or model identity"
+      "expert": "Courtwork original Quiet profile, 2026-09-12: open human role silhouette; user-authorized frontend identity, no certification or model identity",
+      "matter": "Courtwork original Open record, 2026-09-12: an open record frame with two anchored lines; existing work identity, not a project folder or acceptance mark"
     },
     "files": {
       "spark.svg": {
@@ -241,6 +242,9 @@
       },
       "expert.svg": {
         "sha256": "d23af3a7c2e5bccf74bc0c3d8fec229461b466be1312534d8d42cab57f8dd8b5"
+      },
+      "matter.svg": {
+        "sha256": "0f5489f5da7c7824894c60945b8bf9935358d34861e253c6449129e5cd06aacc"
       }
     },
     "history": {
@@ -257,7 +261,7 @@
     "floating.mjs": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
-    "icons.svg": "b644c7987db6b87e33fa9bfb74e001efe989142ba5f3f4e5f8266667b58c2ead",
+    "icons.svg": "802e1b71c3c8b285874bbb0bbec5f184586220b995499427808d5277af23f3f9",
     "LICENSES.txt": "2d46e15ce43cff012f432563e577e536b95c8ad8d48cbeb727c968b09c0f5493"
   }
 }

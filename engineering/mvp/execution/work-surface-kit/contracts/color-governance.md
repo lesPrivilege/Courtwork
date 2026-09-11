@@ -87,3 +87,10 @@ Astra 批准新增普通交互控件 accent（[裁定](../../../../release/ui-pu
 | `--control-unavailable-ink` | `#4a2320` | `#f1c7c3` | 同一不可用控件上的文字 / 滑块 | 对 fill ≥ 4.5:1 |
 
 规则：off 不是 disabled，保持中性；readonly 保持可读不涂淡红；unknown / loading 不得画成 off 或 disabled；Review 待决、失败、diff 各自沿既有角色。普通返回 / 工具 / 导航按钮保持中性；主要动作只在确有必要时用 accent。首个真实样板是 Developer 的 Runtime switch（`runtime-view.mjs` 的 authoritative `resource.exposed`），Settings 的 segmented / radio 沿同一合同扩展。Pages 的 Paper CTA 从 Review 色拆出为 `--campaign-action`，Review 红只留给 `.review-attention` 与登记的 figure 元素。登记：`tools/lint-colors.mjs` FILL 表、`tools/contrast-report.mjs` 与 `settings-view.mjs` 的 CONTRAST_PAIRS、`app/tests/control-accent.test.mjs`。
+
+
+## 首页活动数据色阶 · 2026-09-12
+
+按用户建议由Astra裁定：首页热力图使用独立`--dataviz-activity-1..4`角色，fixed scale `--home-activity-foreground: #c95e55`。1/2/3级分别与当前panel混合28/48/70%，4级为原色；0级沿中性panel与line。只表达既有retained Run数量，强度不表示紧急/失败/Review/disabled，不复用control、danger、diff、brand或Review变量，即使某个色值相同。skin自定义不能写入新增角色（沿既有允许表）。
+
+非零格加同色1px边界，保留低计数浅色可见轮廓；原生forced-colors可接管边界颜色。精确数量继续通过每格aria label、focus/点击后文字提供，色阶不是唯一读取方式。focus用既有focus角色。此处不修改Usage统计或引入Session turn口径，见[后端缺口](../../../../design/sidebar-product-model-2026-09-12/BACKEND-GAPS.md)。Attention卡只给已有needs_you的is-review使用Review红，整卡/标题/空态保持原角色。

@@ -5550,11 +5550,16 @@ html[data-theme="dark"] {
 .home-heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 10px); grid-template-columns: repeat(var(--heatmap-weeks), minmax(0, 1fr)); gap: 3px; }
 .home-heatmap-cell { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: calc(var(--radius-small) / 2); background: var(--hover); }
 .home-heatmap-cell[data-level="0"] { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
-.home-heatmap-cell[data-level="1"] { background: color-mix(in srgb, var(--ink) 28%, var(--panel)); }
-.home-heatmap-cell[data-level="2"] { background: color-mix(in srgb, var(--ink) 48%, var(--panel)); }
-.home-heatmap-cell[data-level="3"] { background: color-mix(in srgb, var(--ink) 70%, var(--panel)); }
-.home-heatmap-cell[data-level="4"] { background: var(--ink); }
-.home-heatmap-cell:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.home-heatmap-cell[data-level="1"] { background: var(--dataviz-activity-1); }
+.home-heatmap-cell[data-level="2"] { background: var(--dataviz-activity-2); }
+.home-heatmap-cell[data-level="3"] { background: var(--dataviz-activity-3); }
+.home-heatmap-cell[data-level="4"] { background: var(--dataviz-activity-4); }
+.home-heatmap-cell:not([data-level="0"]) { border: 1px solid var(--dataviz-activity-outline); }
+.home-heatmap-cell:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (forced-colors: active) {
+  .home-heatmap-cell:not([data-level="0"]) { border-color: CanvasText; }
+  .home-heatmap-cell:focus-visible { outline-color: Highlight; }
+}
 .home-activity-day { margin: 8px 0 5px; min-height: 16px; color: var(--muted-strong); font-size: var(--text-meta); }
 .home-insight-note { margin: 5px 0 0; font-size: var(--text-meta); line-height: 1.45; color: var(--muted-strong); overflow-wrap: anywhere; }
 .home-attention-project { min-width: 0; max-width: 58%; width: auto; padding: 4px 22px 4px 7px; font-size: var(--text-meta); }
@@ -5646,6 +5651,7 @@ html[data-motion="reduce"] .home-attention-item > .ui-icon { transition: none; t
   --home-neutral-hover: #e0e4e7;
   --home-neutral-selected: #d8dee2;
   --home-attention-review-foreground: #ae3630;
+  --home-activity-foreground: #c95e55; /* fixed data hue; not Review or control state */
 }
 html[data-theme="dark"] {
   --home-neutral-frame: #171a1b;
@@ -5676,6 +5682,15 @@ html[data-theme="dark"] {
   }
 }
 :root { --attention-review: var(--home-attention-review-foreground); }
+/* tier:R · Sequential activity data. Colour intensity is quantity, never urgency.
+   Nonzero outlines retain a visible boundary while low-count fills stay quiet. */
+:root {
+  --dataviz-activity-1: color-mix(in srgb, var(--home-activity-foreground) 28%, var(--panel));
+  --dataviz-activity-2: color-mix(in srgb, var(--home-activity-foreground) 48%, var(--panel));
+  --dataviz-activity-3: color-mix(in srgb, var(--home-activity-foreground) 70%, var(--panel));
+  --dataviz-activity-4: var(--home-activity-foreground);
+  --dataviz-activity-outline: var(--home-activity-foreground);
+}
 /* tier:R · components consume semantic roles. Review hue is never assigned
    to runs, activity intensity, links, send, hover, selection, focus or errors. */
 html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dystopia"]) {

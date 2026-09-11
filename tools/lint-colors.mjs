@@ -55,7 +55,7 @@ const FILL = new Map([
   ...[0,1,2,3,4].map(level => [`.usage-heat.level-${level}`, "Reported token intensity; retained-scope data mark, outside review themes"]),
   [".usage-stacked-bar button", "Configured model token series; exact values/table and native forced-colors fallback"],
   [".usage-series-label::before", "Categorical model legend mark, paired with text and exact table"],
-  ...[1, 2, 3, 4].map(level => [` .home-heatmap-cell[data-level="${level}"]`.trim(), "UTC retained-run count intensity; neutral data mark, never review attention"]),
+  ...[1, 2, 3, 4].map(level => [` .home-heatmap-cell[data-level="${level}"]`.trim(), "UTC retained-run count intensity; sequential data role, never review attention"]),
   [".runtime-switch input:checked::before", "Control accent: the on-state track of an authoritative switch (Astra 2026-09-11); not a surface"],
   [".runtime-switch input:checked:not(:disabled):hover::before", "Control accent hover on the same on-state track"],
   [".runtime-switch input:disabled::before", "Unavailable pair: pale track of a switch the contract disabled"],

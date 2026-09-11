@@ -1,17 +1,19 @@
 # Product glyph set · 2026-09-11
 
+2026-09-12：[Matter Open record](../sidebar-product-model-2026-09-12/MATTER.md)新增第五枚domain glyph，消费于已有Matter续接行，Project仍为folder。
+
 2026-09-12：[Expert Quiet profile](../sidebar-product-model-2026-09-12/EXPERT.md)按用户授权新增第四枚domain glyph，仅接App静态planned身份行；后端能力不变。
 
 2026-09-11后续：[用户形象反馈与最新裁定](../../release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将Spark/Attention原造型记为临时实现。三组成对方向、并列表与推荐见 [atmosphere-20260911/README.md](atmosphere-20260911/README.md)；已接入方向A（Strike · Awake），原两枚 SVG 保留在 `atmosphere-20260911/directions/current/`，下文来源记录随之更新。
 
-Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus four CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
+Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus five CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
 
 ## Sources and regeneration
 
 | Set | Source of truth | Generated output |
 |---|---|---|
 | Lucide subset (44 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
-| CourtWork domain (4 files) | `tools/ui-vendor/courtwork/{spark,attention,chat,expert}.svg`, `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
+| CourtWork domain (5 files) | `tools/ui-vendor/courtwork/{spark,attention,chat,expert,matter}.svg`, `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
 | Semantic mapping | `engineering/design/product-semantics/registry.json` (58 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
 | Contact sheet + glyph manifest | `node tools/ui-vendor/contact-sheet.mjs` | `contact-sheet.html`, `glyph-manifest.json` (this directory) |
 
