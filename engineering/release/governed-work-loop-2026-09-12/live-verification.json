@@ -1,0 +1,123 @@
+{
+  "url": "https://lesprivilege.github.io/Courtwork/",
+  "commit": "6f27f5a3a99b4f990e26b9d0d4d21be8a0d1c619",
+  "run": 34644492998,
+  "checked_at": "2026-09-11T20:30:38.481806+00:00",
+  "pass": true,
+  "results": [
+    {
+      "path": "eval.html",
+      "status": 200,
+      "sha256": "9e7e2eda254f2ad0aca3143a98336275adb4917506e50286f6fa89278d701073",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "8a0e093db186aedc4d888aa2e44981280ef7c481ac8a5f783d454b00805dd839",
+      "match": true
+    },
+    {
+      "path": "changelog.html",
+      "status": 200,
+      "sha256": "4197408caa7d13ef0b4197b4ffb59054ed2934f58a7ec1c02973351a01404733",
+      "match": true
+    },
+    {
+      "path": "product-pages.css",
+      "status": 200,
+      "sha256": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "match": true
+    },
+    {
+      "path": "tokens.css",
+      "status": 200,
+      "sha256": "e5364fe55e9f71e2dc482bd125175b157fadd23a9d8c84d8ebb6f8a80609272f",
+      "match": true
+    },
+    {
+      "path": "build-manifest.json",
+      "status": 200,
+      "sha256": "6456f7cd1e191a063667f0a65b506085bc5ad00853b27a4901add057e9c7c188",
+      "match": true
+    },
+    {
+      "path": "data.html",
+      "status": 200,
+      "sha256": "78829ed11da01aa76cad30cef4b8bc44c502a3d571c6acc22235c17dc3e91441",
+      "match": true
+    },
+    {
+      "path": "pricing.css",
+      "status": 200,
+      "sha256": "36f4eb5cf8378d4d60e85736524bad148e57be62b6e3eae3d7f5347f1a0bfd7e",
+      "match": true
+    },
+    {
+      "path": "cli.html",
+      "status": 200,
+      "sha256": "9dbafbf56f849da6a676ea4945976701083a75048804a33686c696410c798251",
+      "match": true
+    },
+    {
+      "path": "site.css",
+      "status": 200,
+      "sha256": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "match": true
+    },
+    {
+      "path": "tour.html",
+      "status": 200,
+      "sha256": "896f3a505148e5ae1789eeaa477d95b1f2ca9068f5716e65ca04d9b927531e65",
+      "match": true
+    },
+    {
+      "path": "experts.html",
+      "status": 200,
+      "sha256": "92d5ea93f901ad1bc18e4a06948c2bf1df00f4668ff09135bc53de14c82dc67d",
+      "match": true
+    },
+    {
+      "path": "features.html",
+      "status": 200,
+      "sha256": "8af436077ea9a02887ccf5dade219d015884286ddc297b51d2fca1f5c8873fb2",
+      "match": true
+    },
+    {
+      "path": "models.html",
+      "status": 200,
+      "sha256": "c6e8f43e006248f498acb03c6fd66347363f1c296c1285fcde372569627c7eca",
+      "match": true
+    },
+    {
+      "path": "get.html",
+      "status": 200,
+      "sha256": "b36882cfa18bdc445040a8bbebd0e532af3b4b217caac6e92bce6d0400259f61",
+      "match": true
+    },
+    {
+      "path": "chat.html",
+      "status": 200,
+      "sha256": "9bc61f8afe99d13e20d27fca9b93d97fdbe6b7aca5b4520617c19c53b50dd540",
+      "match": true
+    },
+    {
+      "path": "specimen/index.html",
+      "status": 200,
+      "sha256": "e3f0f43c9e253ce8b6c7be496a69dee9fac3327338a472080241437cb1b7c9a4",
+      "match": true
+    },
+    {
+      "path": "specimen/specimen.css",
+      "status": 200,
+      "sha256": "42070e59fccde507123b52ca0e4467859dcd66d64a51b5bf7ce9bf149ab7de9c",
+      "match": true
+    },
+    {
+      "path": "specimen/vendor-product/web/styles.css",
+      "status": 200,
+      "sha256": "3d52c7a6831ae5028420ca85d868936c217c7b9c35b15ce465576a631d60561c",
+      "match": true
+    }
+  ]
+}
