@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Chat Memory Broker只登记合流
+
+按用户条件裁定，[Chat长期增量](research/chat-memory-broker-2026-09-12/README.md)细化既有跨Provider连续性，不改变本次发布面定义。Broker组合原owner的获准reader，Compiler编译本次context；可见对话、披露回执与模型实际使用分开，缓存不自动成为memory、跨Provider不跨安全域。已接BE-19/20/23、LG/RG文稿与下一Harness索引，远端没有待合并相关PR；本单合入本地main供消费，未实现API/connector/UI、未新调用Provider或再发布。隔离5177条文档链接与engineering-only范围通过，用户既有未提交内容保留，独立排单仍待用户决定。
+
 ## 2026-09-12 · 公开页面发布完成与下一Runtime索引
 
 按用户“先发布”授权，Courtwork main已推送，`78008ce`经GitHub Pages手动run34641097764 build/deploy成功。[发布回执](../evidence/publication-fast-review-20260912/README.md)含Luna公开文案/媒体有界复核、Astra两张架构图旁白修正、69/69与36/36浏览器检查、161文件重复构建及线上106路径HTTP/hash一致。仅静态站发布，不关闭真实provider或其余产品门；SE未重推部署。Spark临时数据注入已按用户取消；8804保留供下一轮用户真实API验证，原有未提交文件保留。
