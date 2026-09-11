@@ -3230,6 +3230,10 @@ function renderChatHeader() {
     "aria-current",
     !settingsOpen && !state.attentionOpen && state.view === "home" ? "page" : "false",
   );
+  $("chat-button").setAttribute(
+    "aria-current",
+    !settingsOpen && !state.attentionOpen && state.view === "session" ? "page" : "false",
+  );
 }
 
 // The hint above the composer reads the run's recorded startedAt against the
@@ -5581,6 +5585,39 @@ async function goHome() {
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }
+/* CA-01 · Chat entry. Returns to the ordinary conversation: the session already
+ * open (also from under Settings or the Attention workspace), else the most
+ * recently active chat of the active project, else Home, whose composer is the
+ * existing way to start a chat. It never creates a project or session, never
+ * turns an Attention conversation into a chat, and keeps drafts, selection and
+ * the current run: selectSession / goHome persist the draft and the same-id
+ * path re-renders nothing. */
+async function openChat() {
+  const session = currentSession();
+  if (session && state.view === "session" && !state.attentionOpen && !state.settings.open) {
+    closeNavigation({ restoreFocus: false });
+    restoreLayerFocus($("composer-input"));
+    return;
+  }
+  if (session) { await selectSession(session.id); return; }
+  /* The active project first; otherwise the projects already open in the
+   * sidebar, whose sessions are loaded. Nothing is fetched beyond what the
+   * navigation already shows. */
+  const projectIds = state.activeProjectId ? [state.activeProjectId] : [...state.openProjectIds];
+  const candidates = [];
+  for (const projectId of projectIds) {
+    const sessions = state.sessionsByProject.get(projectId) ?? (projectId === state.activeProjectId ? await loadSessionsForProject(projectId) : null);
+    for (const item of sessions || []) candidates.push({ projectId, session: item });
+  }
+  const stamp = (item) => String(item.session.updatedAt ?? item.session.createdAt ?? "");
+  const recent = candidates.sort((a, b) => stamp(b).localeCompare(stamp(a)) || a.session.id.localeCompare(b.session.id))[0];
+  if (recent) {
+    if (recent.projectId !== state.activeProjectId) await selectProject(recent.projectId, { sessionId: recent.session.id });
+    else await selectSession(recent.session.id);
+    return;
+  }
+  await goHome();
+}
 function startNewSession({ projectId = null } = {}) {
   state.homeProjectRequest = false;
   if (!state.projects.length) {
@@ -6185,6 +6222,7 @@ function wireEvents() {
   });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
+  $("chat-button").addEventListener("click", () => void openChat());
   $("attention-button").addEventListener("click", () => attentionAgent.open());
   $("spark-button").addEventListener("click", () => sparkView.open(currentProject()?.id ?? null));
   $("workspace-home-link").addEventListener("click", (event) => {
