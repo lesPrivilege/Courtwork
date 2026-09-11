@@ -23,3 +23,7 @@ Astra实际浏览品牌浅深/16–64阶梯、Paper宽窄署名；Luna完成品�
 [校正发布方案](RELEASE-PLAN.md)消除旧icon待点，修正回退SHA为2817b824，区分build失败与deploy未知，并用保留历史的向前恢复替代会删候选的盲目整批revert。发布仍须实际授权与线上字节回执。
 
 Claude后续按[单红diff／Settings／Chat／Pages串行工单](../../../release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)接续，工单已准备但未声称已发送或作者运行。工程图A及DR-02–05剩余项保留，不因本次Paper完成而关闭。
+
+## Luna非作者源核对回执
+
+Luna只读检查SE `026d5cb` 相对0f23ad1：改动限reader/CSS/签名及QA；CW `7b154a1` 的mark/manifest和派生signature hash均匹配。打印与forced-colors源规则、54/54与12/12既有结果一致；剔除style/script后的中英文本分别145335/294468字符，与基线完全相等。Luna未重跑测试、未做视觉验收、未写SE文件，本回执只证明非作者source/evidence consistency。SE本地main已快进至该候选，未推送或部署。
