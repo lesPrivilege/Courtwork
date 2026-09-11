@@ -1,5 +1,19 @@
 # 当前工程状态
 
+## 2026-09-12 · 前端节点接受与真实Runtime验证入口
+
+[最终前端节点](release/frontend-node-2026-09-12/README.md)已合入本地main：普通控件仅滑动开关用红、Session菜单tooltip避让、Matter/Expert glyph及Fable完整返件消费完成。App全量793/793、Pages36/36、26张1440×900原生明暗媒体及来源/hash校验通过；Luna有界非作者复核与Astra实机修正分别记录。消息动作尺寸审计与二级玻璃/blur材质快审未发现需追加补丁缺口。已消费/归档覆盖分支清理保留原目录与其他writer改动；Frozen Fresh远端开发ref在完整archive tag验证后退役。CW/SE main本轮未push、未部署。
+
+唯一Courtwork main的Web验证入口为本机8804，静态字节已核对，独立仓外数据目录保持运行供用户自行配置key；[8项定向prompts](release/frontend-node-2026-09-12/RUNTIME-VALIDATION.md)覆盖消息、连续性、写入授权、版本、资源暴露、停止及工作候选。尚未执行真实provider验证，不以本节点关闭其余产品/原生a11y门。
+
+## 2026-09-12 · GUI Agent控制面选型消费
+
+[两轮输入与Astra裁决](research/gui-agent-control-plane-2026-09-12/README.md)沿现有Host control plane与BE-6/7收敛声明式Skill提案首片：Agent写草稿、人审精确版本、Host CAS应用、下一Run绑定与实际加载证据。Luna来源/代码探索及合同复核分开；补齐完整提案差异、独立proposal ledger revision、current pointer fail-back与持久决定回执。采用目录/详情、组合、权限、关系与实际拓扑为按需投影，Memory保留其状态owner。本轮交付选型裁决与可施工边界，未实现提案API/新UI、第三方安装或Memory CRUD，不关闭Runtime R4/5完整门。
+
+## 2026-09-12 · RD-006前端优先消费与合流
+
+用户授权接收`ebd3e52`。Astra逐张查看五份截图，Luna核对当前入口，先将项目/目录/执行位置/Git/权限/模型分维及空态规则接入[活动前端规范](design/agent-interface-2026-09-10/frontend-contract.md)；[消费与后端缺口](research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)沿DWB-01/02/03与BE-23登记。已有界面未发现必须先修的功能缺陷，因此本片无App代码或假连接控件，原件六hash通过、分支真实merge ancestry保留。目录绑定、跨project迁移和普通projectless Chat未实现；未push/deploy。
+
 ## 2026-09-12 · Presence最终设计验收合并
 
 按用户“验收 merge”接收167463b，静默折角嘴与原创斜下垂thinking嘟嘴、当前assistant消息下落位成为本轮Design/specimen选定方案。接收session独立审增量和宽浅/窄深原始截图，复跑17/17测试、4876条文档链接、两份清单72文件hash及旧SVG字节核对通过；未重复宣称实机动态检查。已合入本地main，未push/deploy，生产App与真实thinking事实接线仍沿[收敛交接](design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md)。原返件及其hash证据保持；其他writer工作区修改保留。
