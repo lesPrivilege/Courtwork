@@ -1929,6 +1929,7 @@ function renderProjectList() {
                 "aria-current":
                   session.id === state.activeSessionId ? "page" : null,
                 "data-tooltip": session.title || "Untitled chat",
+                "data-tooltip-side": "right",
                 "data-nav-key": `session:${session.id}`,
               },
             },
