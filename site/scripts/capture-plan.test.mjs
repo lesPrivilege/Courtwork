@@ -25,10 +25,20 @@ test('ready is one complete batch pinned to one source', () => {
     const media = { source_sha: captureBatch.source_sha, media: [] };
     for (const [key, slot] of Object.entries(captureSlots)) {
       slot.mediaId = key;
-      media.media.push({ id: key, theme: 'light', viewport: '1440x900', asset_path: `site/media/main/${key}.jpg` });
+      for (const theme of ['light', 'dark']) media.media.push({ id: key, theme, viewport: '1440x900', source_sha: captureBatch.source_sha, state_id: `fixture:${key}`, asset_path: `site/media/main/${key}-${theme}.jpg` });
     }
     assert.doesNotThrow(() => validateCaptureBatch(media, { publish: true }));
-    assert.match(renderCapture(media, 'M1', { alt: 'Home' }), /main\/home.jpg/);
+    assert.match(renderCapture(media, 'M1', { alt: 'Home' }), /main\/home-light.jpg/);
+    const firstDark = media.media.find(entry => entry.theme === 'dark');
+    firstDark.source_sha = 'c'.repeat(40);
+    assert.throws(() => validateCaptureBatch(media, { publish: true }), /share the merged source and state/);
+    firstDark.source_sha = captureBatch.source_sha;
+    firstDark.state_id = 'other-state';
+    assert.throws(() => validateCaptureBatch(media, { publish: true }), /share the merged source and state/);
+    firstDark.state_id = 'fixture:home';
+    media.media.push({...firstDark});
+    assert.throws(() => validateCaptureBatch(media, { publish: true }), /ambiguous/);
+    media.media.pop();
     media.media.pop();
     assert.throws(() => validateCaptureBatch(media, { publish: true }), /incomplete/);
   } finally {

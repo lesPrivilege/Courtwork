@@ -27,7 +27,11 @@ export function validateCaptureBatch(media, { publish = false } = {}) {
   }
   if (captureBatch.status !== 'ready' || !/^[a-f0-9]{40}$/.test(captureBatch.source_sha ?? '') || media.source_sha !== captureBatch.source_sha) throw new Error('Screenshot batch must pin the matching merged product SHA.');
   for (const [key, slot] of Object.entries(captureSlots)) {
-    if (!slot.mediaId || !media.media.some(entry => entry.id === slot.mediaId && entry.theme === 'light' && entry.viewport === '1440x900')) throw new Error(`Screenshot batch is incomplete: ${key}`);
+    if (!slot.mediaId) throw new Error(`Screenshot batch is incomplete: ${key}`);
+    const pair = ['light', 'dark'].map(theme => media.media.filter(entry => entry.id === slot.mediaId && entry.theme === theme && entry.viewport === '1440x900'));
+    if (pair.some(entries => entries.length !== 1)) throw new Error(`Screenshot batch is incomplete or ambiguous: ${key} requires one light/dark pair`);
+    const [light, dark] = pair.map(entries => entries[0]);
+    if ([light, dark].some(entry => entry.source_sha !== captureBatch.source_sha) || !light.state_id || light.state_id !== dark.state_id) throw new Error(`Screenshot pair must share the merged source and state: ${key}`);
   }
 }
 const escape = text => String(text).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
