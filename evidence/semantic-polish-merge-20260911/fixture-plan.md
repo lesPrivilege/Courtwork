@@ -62,3 +62,89 @@ The generated manifest is runtime evidence for fixture setup, not a screenshot
 acceptance record. Final screenshots must be regenerated after clean merge on
 one selected SHA, saved as JPEGs from the browser, and separately validated for
 the 13-slot light/dark gate.
+
+## Spark correction on the merged live fixture
+
+The first merged `--active none` seed changed the Spark source from version 1
+to version 2 before any Candidate existed. That was a valid source-set change,
+but it correctly produced `derivations.total=0` and `stale=0`. The bounded
+correction script `capture-fixture-spark-correction.mjs` handles the live
+fixture by creating a temporary local OpenAI-compatible connection, running a
+natural-language `se_submit_candidate` Run from the Spark session's own source
+projection, then restoring the original fake provider config and deleting the
+temporary connection. It finally uses the normal versioned `replace_sources`
+action to move that same source to version 3.
+
+Provider provenance is intentionally split: the original capture seed and all
+unchanged sessions use the catalog `fake-openai-loopback` (`local-fake`), while
+the one correction Run uses a temporary local compatible connection (`real`
+execution mode pointed at this process's loopback endpoint). No personal or
+paid provider is involved, and the temporary connection is removed after the
+Run.
+
+Verified against the merged live origin on 2026-09-11: Spark Matter
+`matter-4e58aebb-6376-4a7a-b157-ae4f5a92554e` has Candidate
+`candidate-60e4b48afeb75a16c65794e5f28a17d8fcf22bc057e3c987c0d9954e8b1422a5`,
+source version 3, and `GET /work-derivations` reports `total=1`, `stale=1`,
+with `sourceSetChange.fromRevision=2`, `toRevision=3` and a source version
+2 → 3 replacement. The corrected `/tmp/courtwork-capture-merged-none.json`
+records this result under `spark_correction` and `scenarios.spark`.
+
+## Attention conversation correction
+
+The first global conversation Run was retained as a failed specimen. Its
+`attention_projects` and `attention_list` calls succeeded, but the list was
+empty because the Attention item had not been disclosed to that Runtime
+adapter; the subsequent `attention_inspect` call therefore returned
+`NOT_FOUND: Attention unavailable`.
+
+`capture-fixture-conversation-correction.mjs` creates a new global Attention
+conversation and starts a natural-language Run that first waits on `ask_user`.
+While it is waiting, the script uses the human Attention action contract to
+grant that Run's adapter the registry/details/source/relation/event fields for
+the existing item. The script then answers the question and verifies real
+successful `attention_projects`, `attention_list`, and `attention_inspect`
+tool results before the Run completes. It preserves the original failed
+session/run IDs under `scenarios.conversationFailedOriginal`.
+
+Provider provenance is explicit: the original seed used catalog
+`fake-openai-loopback` (`local-fake`); this correction Run temporarily uses a
+local compatible loopback connection (`real-compatible-connection`) and then
+restores the catalog fake configuration and deletes the temporary connection.
+No personal or paid provider is involved.
+
+The two failed attempts are retained separately: the root-caught initial
+attempt is session `508e5bd5-057f-49f1-8494-4c0f2f3751aa`, Run
+`1ef5d785-55dd-4cc3-b3c1-c9a6e91d1788`; the intermediate seed attempt is
+session `affbad59-b3bc-47cf-a061-82de582b788b`, Run
+`b17fcd39-02c9-401d-ae41-98c1a2cd83e6`. Both completed with the same
+undisclosed-runtime `attention_inspect` failure and remain historical evidence.
+The successful correction is session `b0dc68e1-159f-431d-87bc-047da3175e71`,
+Run `d9803621-074a-4f88-8efb-24d787a4175d`, with disclosure revision 2 and all
+three Attention tools successful. A portable, path/token-free summary is
+recorded in [conversation-correction-proof.json](conversation-correction-proof.json).
+
+## Running correction
+
+The earlier merged running sample called `ws_read` in a new empty workspace,
+so its tool result was `file does not exist`; its repetitive response was not
+useful capture evidence. `capture-fixture-running-correction.mjs` starts an
+independent fresh server at the current source SHA, performs a completed
+natural-language Run whose real `ws_write` creates `out/running-context.md`,
+then starts a second natural-language Run that successfully calls `ws_list`
+before streaming a long response. It waits for `status=running` and
+`admissionOpen=true`, leaving the server alive for browser capture. The
+stream is sized for roughly two minutes, enough for both light and dark shots.
+
+Run it with a random manifest path immediately before CUA capture:
+
+```sh
+node evidence/semantic-polish-merge-20260911/capture-fixture-running-correction.mjs \
+  --manifest "$(mktemp -u /tmp/courtwork-running-correction.XXXXXX.json)"
+```
+
+The standalone manifest prints its origin, session and active Run IDs. Its
+seed and running Run both use the catalog `fake-openai-loopback` (`local-fake`);
+the process does not create a compatible connection. The previous failed
+running Run remains in the older merged manifest as a separate historical
+specimen.

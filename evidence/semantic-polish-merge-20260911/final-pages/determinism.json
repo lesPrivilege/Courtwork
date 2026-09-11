@@ -1,0 +1,6 @@
+{
+  "pass": true,
+  "files": 104,
+  "build_manifest_sha256": "6acda67f6afc950a715ecfb603fa00d5964a7ac56ae6082624977b7868790e66",
+  "algorithm": "SHA-256 of every dist file, sorted by path, compared across two sequential builds"
+}

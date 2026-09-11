@@ -1,0 +1,444 @@
+[
+  {
+    "slot": "settings",
+    "theme": "dark",
+    "state_id": "appearance-default-medium",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:11:25.200Z",
+    "asset_path": "site/media/merged-20260911/settings-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/appearance",
+      "width": 1440
+    },
+    "detail": "Appearance: Medium text, default code font, Follow system motion; theme is the only preference changed."
+  },
+  {
+    "slot": "settings",
+    "theme": "light",
+    "state_id": "appearance-default-medium",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:11:30.915Z",
+    "asset_path": "site/media/merged-20260911/settings-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/appearance",
+      "width": 1440
+    },
+    "detail": "Appearance: Medium text, default code font, Follow system motion; theme is the only preference changed."
+  },
+  {
+    "slot": "models",
+    "theme": "light",
+    "state_id": "models-local-default",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:11:56.462Z",
+    "asset_path": "site/media/merged-20260911/models-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/models",
+      "width": 1440
+    },
+    "detail": "Models: local deterministic connection is in force; DeepSeek/OpenAI have no saved credentials; no external request is sent."
+  },
+  {
+    "slot": "integrations",
+    "theme": "light",
+    "state_id": "tools-user-revision-0",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:12:16.254Z",
+    "asset_path": "site/media/merged-20260911/integrations-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/tools",
+      "width": 1440
+    },
+    "detail": "Tools & Integrations: User scope, Configurable view, six built-in tools with policy/exposure facts; no imported external server."
+  },
+  {
+    "slot": "models",
+    "theme": "dark",
+    "state_id": "models-local-default",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:12:28.633Z",
+    "asset_path": "site/media/merged-20260911/models-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/models",
+      "width": 1440
+    },
+    "detail": "Models: local deterministic connection is in force; DeepSeek/OpenAI have no saved credentials; no external request is sent."
+  },
+  {
+    "slot": "integrations",
+    "theme": "dark",
+    "state_id": "tools-user-revision-0",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:12:39.224Z",
+    "asset_path": "site/media/merged-20260911/integrations-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#settings/tools",
+      "width": 1440
+    },
+    "detail": "Tools & Integrations: User scope, Configurable view, six built-in tools with policy/exposure facts; no imported external server."
+  },
+  {
+    "slot": "home",
+    "theme": "dark",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:12:52.685Z",
+    "asset_path": "site/media/merged-20260911/home-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Home with two projects, five retained runs and six chats; one Attention item; post-correction stable workspace."
+  },
+  {
+    "slot": "home",
+    "theme": "light",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:13:20.379Z",
+    "asset_path": "site/media/merged-20260911/home-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Home with two projects, five retained runs and six chats; one Attention item; post-correction stable workspace."
+  },
+  {
+    "slot": "spark",
+    "theme": "light",
+    "state_id": "spark-matter-4e58aebb-source-3-candidate-v2",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:13:35.893Z",
+    "asset_path": "site/media/merged-20260911/spark-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Spark Overview: one stale candidate from source v2 against current source revision 3; comparison Matter has one current candidate."
+  },
+  {
+    "slot": "spark",
+    "theme": "dark",
+    "state_id": "spark-matter-4e58aebb-source-3-candidate-v2",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:15:07.040Z",
+    "asset_path": "site/media/merged-20260911/spark-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Spark Overview: one stale candidate from source v2 against current source revision 3; comparison Matter has one current candidate."
+  },
+  {
+    "slot": "attention",
+    "theme": "dark",
+    "state_id": "attention-c476d0bf-revision-1-inspected",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:15:45.332Z",
+    "asset_path": "site/media/merged-20260911/attention-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Attention workspace: one selected Investigating item with recorded reason and next step; no decision or Review acceptance is asserted."
+  },
+  {
+    "slot": "attention",
+    "theme": "light",
+    "state_id": "attention-c476d0bf-revision-1-inspected",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:16:00.400Z",
+    "asset_path": "site/media/merged-20260911/attention-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Attention workspace: one selected Investigating item with recorded reason and next step; no decision or Review acceptance is asserted."
+  },
+  {
+    "slot": "matter",
+    "theme": "light",
+    "state_id": "cedar-matter-edb93650-source1-overview",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:17:32.749Z",
+    "asset_path": "site/media/merged-20260911/matter-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Bound Matter workspace overview: source revision 1, pending candidate, four checked rules and decision controls; no decision submitted."
+  },
+  {
+    "slot": "review",
+    "theme": "light",
+    "state_id": "cedar-candidate-8bdc2b1462-purpose-open",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:17:52.100Z",
+    "asset_path": "site/media/merged-20260911/review-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Pending Candidate: purpose-limitation expanded with source version, quoted range and recorded-source action; accept/reject/request-evidence remain available and unused."
+  },
+  {
+    "slot": "review",
+    "theme": "dark",
+    "state_id": "cedar-candidate-8bdc2b1462-purpose-open",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:18:15.236Z",
+    "asset_path": "site/media/merged-20260911/review-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Pending Candidate: purpose-limitation expanded with source version, quoted range and recorded-source action; accept/reject/request-evidence remain available and unused."
+  },
+  {
+    "slot": "matter",
+    "theme": "dark",
+    "state_id": "cedar-matter-edb93650-source1-overview",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:18:22.773Z",
+    "asset_path": "site/media/merged-20260911/matter-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Bound Matter workspace overview: source revision 1, pending candidate, four checked rules and decision controls; no decision submitted."
+  },
+  {
+    "slot": "continuity",
+    "theme": "dark",
+    "state_id": "continuity-4ce81f71-cedar-matter-source1",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:22:56.078Z",
+    "asset_path": "site/media/merged-20260911/continuity-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "New continuation session binds existing Cedar Matter and pending candidate; no additional decision."
+  },
+  {
+    "slot": "continuity",
+    "theme": "light",
+    "state_id": "continuity-4ce81f71-cedar-matter-source1",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:23:14.702Z",
+    "asset_path": "site/media/merged-20260911/continuity-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Same continuation session and existing Matter as dark pair; pending candidate unchanged."
+  },
+  {
+    "slot": "artifact",
+    "theme": "light",
+    "state_id": "artifact-e080bc66-recorded-file-2653fe83",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:23:28.869Z",
+    "asset_path": "site/media/merged-20260911/artifact-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Recorded Markdown file 184 B, source-backed working draft; pending human Review."
+  },
+  {
+    "slot": "artifact",
+    "theme": "dark",
+    "state_id": "artifact-e080bc66-recorded-file-2653fe83",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:23:35.819Z",
+    "asset_path": "site/media/merged-20260911/artifact-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Same recorded Markdown version and pending human Review as light pair."
+  },
+  {
+    "slot": "approval",
+    "theme": "light",
+    "state_id": "approval-35d650d7-permission-9047e31c-pending",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:25:18.227Z",
+    "asset_path": "site/media/merged-20260911/approval-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:64114/#",
+      "width": 1440
+    },
+    "detail": "Actual waiting_user, ws_write out/exhibit-index.md, 47 bytes, exact-write-only approval; unanswered."
+  },
+  {
+    "slot": "approval",
+    "theme": "dark",
+    "state_id": "approval-35d650d7-permission-9047e31c-pending",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:25:24.907Z",
+    "asset_path": "site/media/merged-20260911/approval-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:64114/#",
+      "width": 1440
+    },
+    "detail": "Same actual pending permission and preview as light pair; unanswered."
+  },
+  {
+    "slot": "conversation",
+    "theme": "dark",
+    "state_id": "conversation-d9803621-disclosed-revision2-completed",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:30:52.019Z",
+    "asset_path": "site/media/merged-20260911/conversation-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#home",
+      "width": 1440
+    },
+    "detail": "Actual global Attention conversation: resolved question then successful attention_projects/list/inspect; disclosed item revision2; no Review decision."
+  },
+  {
+    "slot": "conversation",
+    "theme": "light",
+    "state_id": "conversation-d9803621-disclosed-revision2-completed",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:31:24.749Z",
+    "asset_path": "site/media/merged-20260911/conversation-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:60985/#",
+      "width": 1440
+    },
+    "detail": "Same successful global Attention conversation and expanded three-tool group as dark pair; disclosure revision2 followed the earlier Attention item captures."
+  },
+  {
+    "slot": "running",
+    "theme": "light",
+    "state_id": "running-e9d0fa78-successful-list-read-active",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:35:51.632Z",
+    "asset_path": "site/media/merged-20260911/running-1440-light.jpg",
+    "observed": {
+      "bodyBackground": "rgb(224, 228, 231)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:64824/#",
+      "width": 1440
+    },
+    "detail": "Same active local-compatible Run after successful ws_list and ws_read; live stream and elapsed time advance naturally; no domain acceptance."
+  },
+  {
+    "slot": "running",
+    "theme": "dark",
+    "state_id": "running-e9d0fa78-successful-list-read-active",
+    "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+    "captured_at": "2026-09-11T04:35:58.299Z",
+    "asset_path": "site/media/merged-20260911/running-1440-dark.jpg",
+    "observed": {
+      "bodyBackground": "rgb(23, 26, 27)",
+      "bodyFont": "14px",
+      "dpr": 1,
+      "height": 900,
+      "url": "http://127.0.0.1:64824/#",
+      "width": 1440
+    },
+    "detail": "Same active Run after successful ws_list and ws_read; dark pair captured while stream remains running."
+  }
+]

@@ -1,0 +1,57 @@
+{
+  "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+  "observed_at": "2026-09-11T04:27:46.424Z",
+  "origin": "http://127.0.0.1:64114",
+  "scenario": {
+    "sessionId": "e994ef80-3346-469b-af19-4a92fae5aa2d",
+    "runId": "35d650d7-ac92-4a56-b5af-fc11f796f39a",
+    "permissionEvent": {
+      "id": "9047e31c-5566-4b03-b473-e538d3d2b45c",
+      "kind": "permission",
+      "toolCallId": "capture-approval-e012dc8c-f08c-458a-a43f-6f98963efb5e",
+      "tool": "ws_write",
+      "path": "out/exhibit-index.md",
+      "bytes": 47,
+      "contentSha256": "8e0eef26e78dee87f6e1bcf05e824ec15b36ab5b9b5a0b1fd4808bc1c7a733d8",
+      "preview": "# Exhibit index\n\nExhibits prepared for review.\n"
+    },
+    "state": "waiting_user; leave unanswered for screenshot"
+  },
+  "run": {
+    "id": "35d650d7-ac92-4a56-b5af-fc11f796f39a",
+    "sessionId": "e994ef80-3346-469b-af19-4a92fae5aa2d",
+    "status": "waiting_user",
+    "admissionOpen": true,
+    "adapterId": "pi-coding-agent@0.85.1/agent-session",
+    "provider": {
+      "provider": "fake-openai-loopback",
+      "model": "fake-model",
+      "api": "openai-completions",
+      "realProvider": false,
+      "connectionId": "catalog-fake-openai-loopback",
+      "credentialSource": "runtime",
+      "contextWindowSource": "catalog",
+      "capabilityNotice": null
+    },
+    "extension": null,
+    "startedAt": "2026-09-11T04:24:25.213Z",
+    "endedAt": null,
+    "error": null,
+    "commandId": "capture-approval",
+    "supersedes": null,
+    "artifacts": [],
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "turns": 0,
+      "missing": true
+    },
+    "hostSession": {
+      "id": "01a08eb5-a980-7273-9915-88ab01f6896b"
+    },
+    "credentialGeneration": 1
+  },
+  "portability": "Disposable host-session filesystem path omitted; identity and runtime status retained."
+}

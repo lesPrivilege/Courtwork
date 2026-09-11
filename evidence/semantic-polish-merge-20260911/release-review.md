@@ -16,27 +16,25 @@
 | PR2 `d804883` 的公开产品故事：Spark/Attention → Ideas/Tour → work surfaces → Matter/Experts/Runtime → Eval；产品文案按完整 fictional product 写，不把 caption/animation 当 runtime evidence | 这是 PR2 的原始输入；后续 brief 与 Astra 视觉裁决重开了页面顺序与分栏，本次不把该原顺序描述成当前 renderer 的最终落实。当前只确认相应产品语义、provenance 边界和 build 接缝仍受检查 | [pages-ordered-integration README](../../engineering/release/pages-ordered-integration-2026-09-11/README.md)、PR2 audit。76-file deterministic build、figure/link/material/public-data checks 通过；未把静态图或演示交互升级成运行时证据 |
 | VG-01 `2eca488`：沿用既有几何、可访问描述、manifest 与 restrained review colour，不重复 merge；caption 说明关系，maturity 留在 figure registry | Pages 使用 10 个注册 figure 与现有 SVG/manifest；figure checker 验证内部分类，页面文字不塞 development disclaimer | [WO-VG-01](../../engineering/release/publishing-visuals-2026-09-10/work-orders/WO-VG-01-figures.md)、[figures.json](../../site/src/assets/figures/figures.json)、Pages integration evidence。VG-01 已是主线祖先；本审查没有发现图形来源被重新冒充为产品结果 |
 | 后续 product brief 的 presentation-first 裁决：产品公开面保持可读，内部 contract、数据来源和成熟度仍由证据链负责；其页面阅读顺序后来由后续 brief/Astra 视觉裁决覆盖 | public narrative 及后续 Pages 实现保留产品语言和 provenance 分层；本次不能把 PR2 的原顺序描述成当前 renderer 的最终落实。最终应以后续 brief、页面视觉 diff 与 Astra 视觉裁决为准 | [public-narrative README](../../engineering/release/public-narrative-2026-09-10/README.md)、[pages-ordered-integration README](../../engineering/release/pages-ordered-integration-2026-09-11/README.md)、[semantic-governance README](../../engineering/research/semantic-governance-2026-09-11/README.md)。当前页面没有把外部研究主张写成 CourtWork 结果 |
-| 原先的 publish-first 记录曾允许显式手动 Pages dispatch 使用空 capture slots，但本轮最新用户流程已改为：review → visual diff → clean merge → Luna 在 merged SHA 采集 26 张 → push/deploy | 当前仍保持 pending，13 slots 保留 null/空位；不使用 `ALLOW_PENDING_CAPTURES` 绕过门。新流程要求先完成视觉差异审查和清洁合流，再采集并发布 | [pages-ordered-integration README](../../engineering/release/pages-ordered-integration-2026-09-11/README.md)（旧 publish-first 记录）；本条最新顺序来自本轮用户裁决。最终必须有固定 merged SHA、Luna 采集回执、push 与线上主路径核验 |
-| 统一截图裁决：UI 完工后，以同一合并产品状态重取全部 current media；旧 specimen `9e5384f` 与旧 media `e818463` 分开保留，不能只换 SHA 冒充新 capture | 当前 product page 仍从 [media/main/manifest.json](../../site/media/main/manifest.json) 的 `source_sha=e818463` 生成安装/contract/source 链接；[product-pages.mjs](../../site/src/product-pages.mjs) 的 checkout 与 blob URL 也直接消费该值 | P1，见下文。根 agent 将在新 ready batch 切换到合并截图 source SHA；修补后必须用固定 SHA 的 CLI gate、build 后 HTML/link 检查确认每个公开链接都指向同一精确 source commit |
+| 原先的 publish-first 记录曾允许显式手动 Pages dispatch 使用空 capture slots，但本轮最新用户流程已改为：review → visual diff → clean merge → Luna 在 merged SHA 采集 26 张 → push/deploy | 当前已完成 26 张采集，13 个图位均有 light/dark 配对；不使用 `ALLOW_PENDING_CAPTURES` 绕过门。仍须完成最终文档回执、push/deploy 与线上主路径核验 | [publication.md](publication.md)、[capture records](capture-records.json)、严格 readiness gate；旧 publish-first 记录保留为历史说明 |
+| 统一截图裁决：UI 完工后，以同一合并产品状态重取全部 current media；旧 specimen `9e5384f` 与旧 media `e818463` 分开保留，不能只换 SHA 冒充新 capture | 当前 product page 从 [media/main/manifest.json](../../site/media/main/manifest.json) 的 `source_sha=f1373cde` 生成安装/contract/source 链接；[product-pages.mjs](../../site/src/product-pages.mjs) 的 checkout 与 blob URL 消费该值 | 源码、manifest、生成 HTML 与 `check-capture-ready` 通过；独立 reviewer 回执链接仍待补齐，见最终 receipt |
 | RD-005 多智能体实践选型及当前 roadmap 的范围：研究/分工可进入工程索引，但不凭 research brief 新建 Task、MAS runtime、第二 runtime 或 Work Core 能力 | RD-005 仅以文档接入；semantic-polish 明确不扩大到新 MAS/Task/第二 runtime/Rust，公开 Pages 没有因此获得新的产品能力 | [RD-005](../../engineering/research/RD-005-multi-agent-selection.md)、[semantic-polish README](../../engineering/execution/2026-09-11-semantic-polish/README.md)、[current.md](../../engineering/current.md)。这是范围落实而非发布页面功能；没有发布义务就不新编功能，也不把研究结果当公开产品事实 |
 | P0.5 semantic registry：复用 Lucide/vendor/brand 来源账与现有 renderer，渐进迁移；none 是有意表达，不等于缺失 | [registry.json](../../engineering/design/product-semantics/registry.json)、[product-semantics.mjs](../../tools/product-semantics.mjs)、generated projection 与两个 workspace consumers 已落地；no-glyph control 保留可见文字、handler 和 capability owner | registry review 的 representation、owner-anchor、negative-oracle 与 direct-render follow-up 已在 `272a2f1` 有界关闭；全量候选记录 47 entries。其余 Chat G01–G06 真实 lifecycle/backend contracts 未凭 fake adapter 冒充生产能力，仍是明确缺口 |
 | VS-01/VS-06 收束：每行要有 surface/state、owner、representation、precedent、evidence、limit；作者与非作者结论分开 | [coverage.md](../../engineering/execution/2026-09-11-semantic-polish/coverage.md) 与 [semantic-polish evidence README](../../evidence/semantic-polish-20260911/README.md) 对 App、Settings、overlay、Pages、registry、测试与限制分层记录；app suite 767/767 | 通过 bounded source/build gates；仍不宣称 native VoiceOver/IME/forced-colors/真实 200% reflow、完整 Pages dark matrix 或 end-user study |
 
 ## 发布前问题与当前处置
 
-### P1：公开 product page 仍绑定旧 media source
+### P1：公开 product page 的旧 media source（已切换）
 
-在审查基线中，[site/src/product-pages.mjs](../../site/src/product-pages.mjs) 读取
-`media.source_sha`，并把它用于 checkout 预览目录和公开 blob 链接；
-[site/media/main/manifest.json](../../site/media/main/manifest.json) 仍记录
-`e818463ab31aa06a4c9d52a968a68099fdb02c3e`。候选产品为
-`f99af4695aa5796e703286b0875ec5663cc22c85`，两者之间已有明显 UI 变化。
-因此公开的 SOURCE、AVAILABLE TODAY、Run locally 与 contract/method 相关链接可能把用户带回过时 UI。
+审查基线中的 [site/src/product-pages.mjs](../../site/src/product-pages.mjs) 读取
+`media.source_sha`，当时 [site/media/main/manifest.json](../../site/media/main/manifest.json) 记录旧的
+`e818463ab31aa06a4c9d52a968a68099fdb02c3e`，因此公开 SOURCE、AVAILABLE TODAY、Run locally 与
+contract/method 相关链接可能把用户带回过时 UI。最终批次已切换到 `f1373cde341b5a17299fad6ba5921ba3fcc43824`。
 
 这不是要求回退到旧 specimen：`9e5384f` 仍是独立历史 specimen identity。
-应在新 ready batch 完成后统一切换 current media 与 manifest source，运行精确 CLI gate
-验证 `ready` 状态、全部 13 slots、每张图的 source SHA 与指定产品 checkout 一致，
-再 build 并 grep/检查生成 HTML 的 checkout/blob 链接。仅改变 manifest 中的 SHA 而不重取或核验截图，不构成关闭。
+新 ready batch 已统一切换 current media 与 manifest source；精确 gate 验证 `ready` 状态、全部 13 slots、
+每张图的 source SHA 与指定产品 checkout 一致，build 后生成 HTML 的 checkout/blob 链接也已核对。旧图未被
+改 SHA 冒充新 capture；旧 manifest 与图片仍由 archive 保留。该 P1 的 source coupling 已有界关闭。
 
 ### P1：capture manifest 的 PNG/JPEG 证据接缝
 
@@ -88,12 +86,12 @@ Fake Chat adapter 只用于合成状态矩阵，生产静态 allowlist 不含 de
 产品能力。
 
 最终 disposition：`0ddb854` 已有界关闭 capture manifest 的格式/尺寸 P1，`9298e48` 已有界关闭
-dark pair readiness 规则 P2；仍保留 P1 旧 current-media source coupling，且最新流程要求先完成
-review/visual-diff/clean-merge，再由 Luna 从 merged SHA 采 26 张并更新 media，随后才 push/deploy。
+dark pair readiness 规则 P2，最终 `f1373cd` 批次已关闭旧 current-media source coupling；仍须完成
+独立 capture-review 回执、push/deploy 与线上主路径核验。
 semantic registry、BM/PR2/VG、RD-005 范围与页面产品叙事的有界落实通过源码/build 证据；本报告不替代
 最终视觉、线上部署或产品接受。
 
-## Final IA bounded review · candidate at `e12d2e1`
+## Final IA bounded review · candidate at `e12d2e1` (pre-capture source review)
 
 本次只读复核的候选 HEAD 为 `e12d2e1`；七个目标文件（页面 IA、公开文案、样式及 Roles
 figure/manifest）相对 `2bbcdf6` 的 combined binary diff SHA-256 为
@@ -113,7 +111,7 @@ Schema-Engineering URL；Paper details 带 `open`；`research-depth#research` �
 raw projections 之前；`#long-work` 位于 Review 之后；没有旧的独立 `longWork` section。相关 gates：
 `check-pages-semantics` 为 13 slots/10 figures，`check-product-copy` 通过，capture/public-data tests
 5/5，build、links（76 files / 230 references）、figures 与 material 均通过，`git diff --check` 通过。
-`check-capture-ready` 按预期因当前 batch pending 拒绝，不属于 IA gate 的失败。
+当时 `check-capture-ready` 按预期因 batch pending 拒绝，不属于该 IA gate 的失败；最终 ready 批次的 receipt 见下文。
 
 ### Public roles figure semantic review · closed at `e12d2e1`
 
@@ -131,3 +129,28 @@ raw projections 之前；`#long-work` 位于 Review 之后；没有旧的独立 
 SHA 上的全量 light/dark capture、原生辅助技术验收或线上部署核验。
 
 Receipt reference correction by Astra: the final image filename above points to e12d2e1. Luna’s closure is source/manifest/generated-HTML review; the image is Astra’s author visual evidence, not independent browser acceptance.
+
+## Final merged capture source/provenance receipt · `f1373cde`
+
+最终采集脚本 [finalize-captures.mjs](finalize-captures.mjs) 将产品来源固定为完整 SHA
+`f1373cde341b5a17299fad6ba5921ba3fcc43824`。当前 [main manifest](../../site/media/main/manifest.json)
+与 [capture records](capture-records.json) 各含 26 条记录、13 个图位，每个图位恰有一组 light/dark；
+每对 `state_id` 相同，全部记录的 `source_sha` 均为该 SHA，原生 JPEG 均为 `1440x900`。逐文件的字节数与
+SHA-256 已由 finalizer 写入 manifest，并由 `site/build.mjs` 重验。
+
+旧批次交接可复现：归档 [main-e818463.json](../../site/media/archive/main-e818463.json) 与
+采集源提交 `f1373cde:site/media/main/manifest.json` 的 pre-switch 字节一致（SHA-256
+`47c4a9150a9fb9e556af242d4c3055f2d16b993988b3a48f1e6f00f87a2da4b0`），其 15 个旧 JPEG 的 manifest
+哈希逐项匹配；新 JPEG 位于 `site/media/merged-20260911/`，没有复用旧图。`capture-plan.mjs` 已置为
+`ready` 并 pin 同一来源，`check-capture-ready` 通过。
+
+Get 页面来源派生也已核对：生成的 `site/dist/get.html` 中 checkout 命令、Installation details 与 roadmap
+链接均指向完整 `f1373cde…`，不再指向旧 `e818463`。构建 manifest 同时保留 `9e5384f` 作为固定 specimen/
+benchmark evidence identity，并记录 `product_media_source_sha=f1373cde…`；这是两条有意分离的证据链，Get
+页面使用当前 product-media 来源。
+
+本轮源码/生成物核对通过：build、capture readiness、Pages semantics（13/10）、figures、copy、links
+（104 files/262 refs）、material 与 `git diff --check` 均通过。尚有一个证据接缝待独立 reviewer 回执：当前
+manifest 每条记录的 `evidence_path` 指向 [capture-review.md](capture-review.md)，但该文件在本次核对时尚未
+落盘，因此 `node tools/check-doc-links.mjs` 以该缺失目标失败。该缺口会使发布 provenance 链不完整；补齐并
+提交独立 image/API review 后再重跑文档链接检查即可关闭。上述记录不构成独立浏览器摄影或产品接受声明。

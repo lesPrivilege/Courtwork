@@ -1,0 +1,35 @@
+{
+  "product_media_source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+  "records": [
+    {
+      "asset_path": "evidence/semantic-polish-merge-20260911/final-pages/get-390.jpg",
+      "bytes": 24495,
+      "sha256": "3ef2a49eef50b66d9ad446fb8d79203e804ada8322cab6938f26d19a969a5c74",
+      "scope": "Astra browser verification of final Pages layout; product photographs separately pinned at f1373cd"
+    },
+    {
+      "asset_path": "evidence/semantic-polish-merge-20260911/final-pages/home-proof-1440.jpg",
+      "bytes": 72483,
+      "sha256": "44bbd38cab1d125094ac4bc3161d8af25cabc3ab172ec39ee2e7d48a0335818c",
+      "scope": "Astra browser verification of final Pages layout; product photographs separately pinned at f1373cd"
+    },
+    {
+      "asset_path": "evidence/semantic-polish-merge-20260911/final-pages/tour-1440.jpg",
+      "bytes": 60479,
+      "sha256": "8ba1aa8a89a009672f06fa646b0bccfce7d59cd3f551f1631fd9ded34bbee778",
+      "scope": "Astra browser verification of final Pages layout; product photographs separately pinned at f1373cd"
+    },
+    {
+      "asset_path": "evidence/semantic-polish-merge-20260911/final-pages/tour-320.jpg",
+      "bytes": 26681,
+      "sha256": "de1dc18b73ba6a74e55fa4f027ad3dc6d18e4cd8973d06d651aac0f90d782f67",
+      "scope": "Astra browser verification of final Pages layout; product photographs separately pinned at f1373cd"
+    },
+    {
+      "asset_path": "evidence/semantic-polish-merge-20260911/final-pages/tour-spark-1440.jpg",
+      "bytes": 60985,
+      "sha256": "5e2bf96dc274c1be839cda29fc30a40b8b9b9d05161dcb053b8d853c76092f6d",
+      "scope": "Astra browser verification of final Pages layout; product photographs separately pinned at f1373cd"
+    }
+  ]
+}

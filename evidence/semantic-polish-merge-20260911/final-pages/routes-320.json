@@ -1,0 +1,272 @@
+[
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/tour.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/get.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/features.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/eval.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/experts.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/cli.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/changelog.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/models.html",
+    "width": 320
+  },
+  {
+    "docWidth": 320,
+    "h1": 1,
+    "nav": [
+      {
+        "height": 44,
+        "label": "Tour",
+        "x": 166.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Paper",
+        "x": 214.15625,
+        "y": 28
+      },
+      {
+        "height": 44,
+        "label": "Release",
+        "x": 262.15625,
+        "y": 28
+      }
+    ],
+    "pending": 0,
+    "url": "http://127.0.0.1:63820/Courtwork/data.html",
+    "width": 320
+  }
+]

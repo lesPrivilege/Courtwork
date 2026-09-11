@@ -17,7 +17,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 ## 版本与再取证
 
-`release.json.source_sha` 是产品证据快照。基础标本和 benchmark 属于 `9e5384f`；产品截图由 `media/main/manifest.json` 独立固定到合并产品 `e818463`；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
+`release.json.source_sha` 是产品证据快照。基础标本和 benchmark 属于 `9e5384f`；产品截图由 `media/main/manifest.json` 独立固定到合并产品 `f1373cd`；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
 
 `site_sha` 是页面原始源码与证据输入的 SHA-256，不是 Git commit；生成的 `dist/`、README 与标本副本不参与输入摘要，因此首次构建和后续重建一致。`dist/` 及 vendor-product 副本由构建生成，不提交、不手改。当前录制的九个机器路径字段已作公开投影，原始哈希与逐字段变更见 [脱敏回执](../evidence/public-repository-cleanup-20260910/specimen-redaction.json)。这是同一产品采集的展示脱敏，不是重新采集。构建会拒绝公开文本中出现机器绝对路径。
 
@@ -45,7 +45,7 @@ Hero中的纸层保留原有构图与动效；其概念属性保存在图登记�
 node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
 ```
 
-Tour 当前编排13类状态，新截图整批待补。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
+Tour 编排13类状态，新批次以合并产品 `f1373cd` 采集明暗配对，发布前必须整批完成并独立复核。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
 
 ## Product presentation and primary navigation
 
@@ -55,4 +55,4 @@ The primary header is a quiet, single-row Tour / Paper / Release navigation besi
 
 ## VS-05 product navigation (2026-09-11)
 
-The first-principles integration keeps the mature Tour / Paper / Release header, one row at narrow widths, and initially expanded Ideas. Spark / Attention follows Hero, then Paper / Tour, actual Home and work / Review, and the established pipeline with three small figures. Only deeper architecture and event projections remain under Research & architecture. Tour retains the five task groups. The earlier five-link navigation and wholesale Paper fold were assistant proposals, not an explicit user override. See [the layout decision](../engineering/execution/2026-09-11-semantic-polish/pages.md) and [visual ruling](../evidence/semantic-polish-merge-20260911/visual-ruling.md). Deployment requires the new merged-product capture batch and final verification.
+The first-principles integration keeps the mature Tour / Paper / Release header, one row at narrow widths, and initially expanded Ideas. Spark / Attention follows Hero, then Paper / Tour, actual Home and work / Review, and the established pipeline with three small figures. Only deeper architecture and event projections remain under Research & architecture. Tour retains the five task groups. The earlier five-link navigation and wholesale Paper fold were assistant proposals, not an explicit user override. See [the layout decision](../engineering/execution/2026-09-11-semantic-polish/pages.md) and [visual ruling](../evidence/semantic-polish-merge-20260911/visual-ruling.md). The merged-product capture handoff and final verification are tracked in [the publication receipt](../evidence/semantic-polish-merge-20260911/publication.md).

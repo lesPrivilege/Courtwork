@@ -1,0 +1,81 @@
+{
+  "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+  "observed_at": "2026-09-11T04:36:29.251Z",
+  "origin": "http://127.0.0.1:64824",
+  "run": {
+    "id": "e9d0fa78-eed4-4efe-a242-fd4b4f8a77a9",
+    "sessionId": "9122239a-7506-4a8e-bc74-3f4d1f025005",
+    "status": "completed",
+    "admissionOpen": false,
+    "adapterId": "pi-coding-agent@0.85.1/agent-session",
+    "provider": {
+      "provider": "conn-50afb8a62411",
+      "model": "running-correction-model",
+      "api": "openai-completions",
+      "baseUrl": "http://127.0.0.1:64822/v1",
+      "realProvider": true,
+      "connectionId": "conn-50afb8a62411",
+      "credentialSource": "runtime",
+      "contextWindowSource": "user",
+      "capabilityNotice": null
+    },
+    "extension": null,
+    "startedAt": "2026-09-11T04:34:05.006Z",
+    "endedAt": "2026-09-11T04:36:17.217Z",
+    "error": null,
+    "commandId": "running-stream-e253a784-cec2-4b6c-ac32-03fc9bd7b8ce",
+    "supersedes": null,
+    "artifacts": [],
+    "usage": {
+      "input": 3,
+      "output": 876,
+      "cacheRead": 0,
+      "cacheWrite": 0,
+      "turns": 3,
+      "missing": false
+    },
+    "hostSession": {
+      "id": "01a08ebe-80c0-7519-8a12-9ec2f7baac15"
+    },
+    "credentialGeneration": 1
+  },
+  "events": [
+    {
+      "seq": 36,
+      "runId": "e9d0fa78-eed4-4efe-a242-fd4b4f8a77a9",
+      "sessionId": "9122239a-7506-4a8e-bc74-3f4d1f025005",
+      "type": "tool.result",
+      "data": {
+        "callId": "running-correction-call-3",
+        "name": "ws_list",
+        "text": "[\n  {\n    \"path\": \"out/project-cedar-review.md\",\n    \"bytes\": 70,\n    \"sha256\": \"a5f87807bbb4087b0805c7fecfa621decd29ff20fa451779a439a11c06456dd9\",\n    \"mtime\": \"2026-09-11T04:34:04.673Z\"\n  }\n]",
+        "isError": false
+      }
+    },
+    {
+      "seq": 46,
+      "runId": "e9d0fa78-eed4-4efe-a242-fd4b4f8a77a9",
+      "sessionId": "9122239a-7506-4a8e-bc74-3f4d1f025005",
+      "type": "tool.result",
+      "data": {
+        "callId": "running-correction-call-4",
+        "name": "ws_read",
+        "text": "# Project Cedar review\n\nSource-backed working notes for human review.\n",
+        "isError": false
+      }
+    }
+  ],
+  "capture_timestamps": [
+    {
+      "theme": "light",
+      "captured_at": "2026-09-11T04:35:51.632Z",
+      "before_recorded_completion": true
+    },
+    {
+      "theme": "dark",
+      "captured_at": "2026-09-11T04:35:58.299Z",
+      "before_recorded_completion": true
+    }
+  ],
+  "interpretation": "API was reread after completion; both native screenshot timestamps precede recorded endedAt and images visibly show Running. No claim of a contemporaneous API request at each shutter time."
+}

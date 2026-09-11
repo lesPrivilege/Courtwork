@@ -1,8 +1,8 @@
 {
   "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
-  "batch": "merged-20260911",
-  "origin": "multiple isolated localhost fixtures; per-image URLs recorded below",
-  "media": [
+  "operator": "Astra",
+  "independent_reviewer": "Luna",
+  "records": [
     {
       "id": "home",
       "kind": "product-screenshot",

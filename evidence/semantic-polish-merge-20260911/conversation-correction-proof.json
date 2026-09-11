@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "conversation-correction-api-proof",
+  "source_sha": "f1373cde341b5a17299fad6ba5921ba3fcc43824",
+  "attentionId": "capture-attention-c476d0bf-295d-4b93-9e47-3c17f6fc6321",
+  "attempts": [
+    {
+      "label": "initial-root-caught-failure",
+      "sessionId": "508e5bd5-057f-49f1-8494-4c0f2f3751aa",
+      "runId": "1ef5d785-55dd-4cc3-b3c1-c9a6e91d1788",
+      "status": "completed",
+      "toolResults": [
+        { "name": "attention_projects", "isError": false },
+        { "name": "attention_list", "isError": false, "count": 0 },
+        { "name": "attention_inspect", "isError": true, "error": "NOT_FOUND: Attention unavailable" }
+      ]
+    },
+    {
+      "label": "intermediate-seed-failure",
+      "sessionId": "affbad59-b3bc-47cf-a061-82de582b788b",
+      "runId": "b17fcd39-02c9-401d-ae41-98c1a2cd83e6",
+      "status": "completed",
+      "toolResults": [
+        { "name": "attention_projects", "isError": false },
+        { "name": "attention_list", "isError": false, "count": 0 },
+        { "name": "attention_inspect", "isError": true, "error": "NOT_FOUND: Attention unavailable" }
+      ]
+    },
+    {
+      "label": "successful-correction",
+      "sessionId": "b0dc68e1-159f-431d-87bc-047da3175e71",
+      "runId": "d9803621-074a-4f88-8efb-24d787a4175d",
+      "status": "completed",
+      "disclosureRevision": 2,
+      "toolResults": [
+        { "name": "ask_user", "isError": false },
+        { "name": "attention_projects", "isError": false, "projectCount": 2 },
+        { "name": "attention_list", "isError": false, "count": 1 },
+        { "name": "attention_inspect", "isError": false, "status": "investigating", "revision": 2 }
+      ]
+    }
+  ],
+  "verification": {
+    "apiRoutes": [
+      "POST /attention/{attentionId}/actions (request_disclosure)",
+      "POST /runs/{runId}/questions/{questionId}",
+      "GET /sessions/{sessionId}",
+      "GET /attention/{attentionId}?projectId={projectId}"
+    ],
+    "successfulToolChain": ["attention_projects", "attention_list", "attention_inspect"],
+    "formalState": "investigating; no acknowledge, resolve, or accept action was performed"
+  },
+  "provider": {
+    "seed": "catalog fake-openai-loopback / local-fake",
+    "correction": "temporary local compatible loopback / real-compatible-connection",
+    "paidOrPersonalProvider": false
+  }
+}

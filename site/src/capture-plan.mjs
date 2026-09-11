@@ -1,19 +1,19 @@
 // One publication batch; pending slots never fall back to an older UI capture.
-export const captureBatch = { status: 'pending', source_sha: null };
+export const captureBatch = { status: 'ready', source_sha: 'f1373cde341b5a17299fad6ba5921ba3fcc43824' };
 export const captureSlots = {
-  home: { mediaId: null, legacyId: 'M1' },
-  spark: { mediaId: null },
-  running: { mediaId: null },
-  attention: { mediaId: null },
-  approval: { mediaId: null, legacyId: 'M2' },
-  artifact: { mediaId: null, legacyId: 'M4' },
-  matter: { mediaId: null },
-  review: { mediaId: null, legacyId: 'M6' },
-  continuity: { mediaId: null, legacyId: 'M5' },
-  models: { mediaId: null, legacyId: 'M7' },
-  integrations: { mediaId: null, legacyId: 'M9' },
-  settings: { mediaId: null, legacyId: 'M10' },
-  conversation: { mediaId: null, legacyId: 'M11' },
+  home: { mediaId: 'home', legacyId: 'M1' },
+  spark: { mediaId: 'spark' },
+  running: { mediaId: 'running' },
+  attention: { mediaId: 'attention' },
+  approval: { mediaId: 'approval', legacyId: 'M2' },
+  artifact: { mediaId: 'artifact', legacyId: 'M4' },
+  matter: { mediaId: 'matter' },
+  review: { mediaId: 'review', legacyId: 'M6' },
+  continuity: { mediaId: 'continuity', legacyId: 'M5' },
+  models: { mediaId: 'models', legacyId: 'M7' },
+  integrations: { mediaId: 'integrations', legacyId: 'M9' },
+  settings: { mediaId: 'settings', legacyId: 'M10' },
+  conversation: { mediaId: 'conversation', legacyId: 'M11' },
 };
 export function captureSlot(id) {
   const key = Object.keys(captureSlots).find(key => key === id || captureSlots[key].legacyId === id);
