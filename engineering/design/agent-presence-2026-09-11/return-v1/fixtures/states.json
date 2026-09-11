@@ -1,0 +1,122 @@
+{
+  "fixture": "agent-presence/states",
+  "version": 1,
+  "synthetic": true,
+  "notice": "Design fixture for the return-v1 specimen. Shaped after ui-state-vocabulary §1–2 (Run status, question/permission, tool rows); it is not a production DTO and adds no runtime field. `blocked` and `cancel` are specimen-only facts the host would have to own before any product use.",
+  "seed": 7,
+  "clock": { "unit": "ms", "note": "startedAtMs and every step `at` are positions on the specimen timeline; elapsed = now − startedAtMs." },
+  "states": [
+    {
+      "id": "idle",
+      "title": "Idle",
+      "facts": { "connection": "connected", "run": null }
+    },
+    {
+      "id": "thinking",
+      "title": "Explicit thinking",
+      "facts": { "connection": "connected", "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 }, "activity": { "kind": "thinking" } }
+    },
+    {
+      "id": "running-no-activity",
+      "title": "Running, no finer activity (not inferred as thinking)",
+      "facts": { "connection": "connected", "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 } }
+    },
+    {
+      "id": "tool-reading",
+      "title": "Tool · reading",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "tools": [{ "id": "call-read-1", "name": "ws_read", "target": "app/web/composer-field.mjs", "scope": "run-syn-01", "status": "running" }]
+      }
+    },
+    {
+      "id": "tool-searching",
+      "title": "Tool · searching",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "tools": [{ "id": "call-grep-1", "name": "ws_grep", "target": "\"presence\" in app/web", "scope": "run-syn-01", "status": "running" }]
+      }
+    },
+    {
+      "id": "tools-concurrent",
+      "title": "Two concurrent tools",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "activity": { "kind": "thinking" },
+        "tools": [
+          { "id": "call-read-2", "name": "ws_read", "target": "app/web/styles.css", "scope": "run-syn-01", "status": "running" },
+          { "id": "call-grep-2", "name": "ws_grep", "target": "\"composer-run-hint\" in app/web", "scope": "run-syn-01", "status": "running" }
+        ]
+      }
+    },
+    {
+      "id": "tool-long-label",
+      "title": "Tool with a long target (layout stress)",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "tools": [{ "id": "call-grep-3", "name": "ws_grep", "target": "\"presence|agent-face|thinking-carousel|composer-run-hint\" in app/web/**/*.mjs and engineering/design/**/*.md", "scope": "run-syn-01", "status": "running" }]
+      }
+    },
+    {
+      "id": "waiting-user",
+      "title": "Waiting for user input",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "waiting_user", "startedAtMs": 0 },
+        "pending": { "id": "q-syn-1", "kind": "ask_user", "summary": "Keep the presence in the composer corner or in the status line?" }
+      }
+    },
+    {
+      "id": "waiting-permission",
+      "title": "Waiting for permission",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "waiting_user", "startedAtMs": 0 },
+        "pending": { "id": "perm-syn-1", "kind": "permission", "summary": "Write engineering/design/agent-presence-2026-09-11/return-v1/notes.md" }
+      }
+    },
+    {
+      "id": "blocked",
+      "title": "Blocked (specimen-only fact)",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "blocked": { "reason": "File write denied for this chat" }
+      }
+    },
+    {
+      "id": "error",
+      "title": "Failed",
+      "facts": { "connection": "connected", "run": { "id": "run-syn-01", "status": "failed", "startedAtMs": 0 } }
+    },
+    {
+      "id": "cancel-requested",
+      "title": "Stop requested, still active",
+      "facts": {
+        "connection": "connected",
+        "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+        "activity": { "kind": "thinking" },
+        "cancel": "requested"
+      }
+    },
+    {
+      "id": "cancelled",
+      "title": "Cancelled (actual terminal state)",
+      "facts": { "connection": "connected", "run": { "id": "run-syn-01", "status": "cancelled", "startedAtMs": 0 } }
+    },
+    {
+      "id": "completed",
+      "title": "Completed",
+      "facts": { "connection": "connected", "run": { "id": "run-syn-01", "status": "completed", "startedAtMs": 0 } }
+    },
+    {
+      "id": "disconnected-unknown",
+      "title": "Disconnected · unknown",
+      "facts": { "connection": "unknown", "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 } }
+    }
+  ]
+}

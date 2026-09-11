@@ -1,0 +1,196 @@
+{
+  "base": "synthetic fixtures, seed 7",
+  "shots": [
+    "compare-board-light.png",
+    "compare-board-dark.png",
+    "keyframes-thinking.png",
+    "chat-line-1440-light.png",
+    "chat-line-1440-dark.png",
+    "chat-line-1280-light.png",
+    "chat-line-1280-dark.png",
+    "chat-line-390-light.png",
+    "chat-line-390-dark.png",
+    "chat-corner-1440-light.png",
+    "chat-corner-1440-dark.png",
+    "chat-corner-390-light.png",
+    "states-line-light-1440.png",
+    "states-corner-dark-1440.png",
+    "states-line-light-390.png",
+    "detail-open-line-1440-light.png",
+    "zoom200-line-long-label.png",
+    "zoom200-corner-long-label.png",
+    "w390-line-long-label.png",
+    "reduced-motion-line-1440-light.png",
+    "forced-colors-corner-soft32.png"
+  ],
+  "results": [
+    {
+      "id": "sequence-check",
+      "pass": true,
+      "detail": "19/19 probes"
+    },
+    {
+      "id": "keyboard-disclosure-line",
+      "pass": true,
+      "detail": {
+        "onTrigger": true,
+        "opened": true,
+        "closedWithFocusBack": true,
+        "spaceReopens": true,
+        "outsideCloses": true
+      }
+    },
+    {
+      "id": "keyboard-disclosure-corner",
+      "pass": true,
+      "detail": {
+        "onTrigger": true,
+        "opened": true,
+        "closedWithFocusBack": true,
+        "spaceReopens": true,
+        "outsideCloses": true
+      }
+    },
+    {
+      "id": "layout-zoom200-line-tool-long-label",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "stop-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 96
+      }
+    },
+    {
+      "id": "layout-zoom200-line-idle",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "send-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 51
+      }
+    },
+    {
+      "id": "layout-zoom200-corner-tool-long-label",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "stop-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 96
+      }
+    },
+    {
+      "id": "layout-zoom200-corner-idle",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "send-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 51
+      }
+    },
+    {
+      "id": "layout-w390-line-tool-long-label",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "stop-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 96
+      }
+    },
+    {
+      "id": "layout-w390-line-idle",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "send-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 51
+      }
+    },
+    {
+      "id": "layout-w390-corner-tool-long-label",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "stop-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 96
+      }
+    },
+    {
+      "id": "layout-w390-corner-idle",
+      "pass": true,
+      "detail": {
+        "inViewport": true,
+        "primary": "send-button",
+        "notCovered": true,
+        "modelVisible": true,
+        "triggerClearOfControls": true,
+        "sendWidth": 51
+      }
+    },
+    {
+      "id": "reduced-motion-static",
+      "pass": true,
+      "detail": "300:Thinking:false 1300:Thinking:false 2600:Thinking:false 4000:Thinking:false 7600:Thinking:false"
+    },
+    {
+      "id": "forced-colors",
+      "pass": true,
+      "detail": {
+        "depthHidden": true,
+        "layers": 1,
+        "color": "rgb(0, 0, 0)"
+      }
+    },
+    {
+      "id": "depth-fallback",
+      "pass": true,
+      "detail": {
+        "depthOffHidesLayers": true,
+        "soft20Resolves": "flat"
+      }
+    },
+    {
+      "id": "no-loop-outside-thinking",
+      "pass": true,
+      "detail": "0 rAF calls in 2.2 s of a held tool fact"
+    },
+    {
+      "id": "hidden-document-pauses",
+      "pass": true,
+      "detail": {
+        "frozen": true,
+        "resumed": true
+      }
+    },
+    {
+      "id": "live-region",
+      "pass": true,
+      "detail": [
+        "ws_read · app/web/composer-field.mjs",
+        "Waiting for your approval",
+        "Thinking",
+        "Work completed"
+      ]
+    }
+  ]
+}

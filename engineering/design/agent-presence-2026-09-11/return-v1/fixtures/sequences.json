@@ -1,0 +1,58 @@
+{
+  "fixture": "agent-presence/sequences",
+  "version": 1,
+  "synthetic": true,
+  "notice": "Fixed fact sequences on the specimen timeline (ms). Each step replaces the facts at `at`; `expect` is what the projection must show after the step. Steps are placed off the 3.5 s word boundary on purpose so a stale rotation would be visible.",
+  "seed": 7,
+  "sequences": [
+    {
+      "id": "think-tool-permission-resume-complete",
+      "title": "thinking → tool → waiting for permission → resume → completed",
+      "steps": [
+        { "at": 0, "state": "thinking", "expect": { "pose": "think", "ambient": true } },
+        { "at": 4200, "state": "tool-reading", "expect": { "pose": "look", "text": "ws_read · app/web/composer-field.mjs" } },
+        { "at": 6100, "state": "waiting-permission", "expect": { "pose": "hold", "text": "Waiting for your approval" } },
+        { "at": 9800, "state": "thinking", "expect": { "pose": "think", "ambient": true } },
+        { "at": 13300, "state": "completed", "expect": { "pose": "settle", "text": "Completed" } }
+      ]
+    },
+    {
+      "id": "think-cancel-requested-cancelled",
+      "title": "thinking → stop requested → cancelled",
+      "steps": [
+        { "at": 0, "state": "thinking", "expect": { "pose": "think", "ambient": true } },
+        { "at": 3300, "state": "cancel-requested", "expect": { "pose": "hold", "text": "Stop requested · still working" } },
+        { "at": 5600, "state": "cancelled", "expect": { "pose": "rest", "text": "Cancelled" } }
+      ]
+    },
+    {
+      "id": "tool-disconnect-unknown",
+      "title": "tool → disconnected (unknown)",
+      "steps": [
+        { "at": 0, "state": "tool-searching", "expect": { "pose": "look", "text": "ws_grep · \"presence\" in app/web" } },
+        { "at": 3400, "state": "disconnected-unknown", "expect": { "pose": "dim", "text": "Connection unknown" } }
+      ]
+    },
+    {
+      "id": "concurrent-tools-partial",
+      "title": "two tools → one finishes → thinking",
+      "steps": [
+        { "at": 0, "state": "tools-concurrent", "expect": { "pose": "look", "text": "2 tools running" } },
+        {
+          "at": 2600,
+          "facts": {
+            "connection": "connected",
+            "run": { "id": "run-syn-01", "status": "running", "startedAtMs": 0 },
+            "activity": { "kind": "thinking" },
+            "tools": [
+              { "id": "call-read-2", "name": "ws_read", "target": "app/web/styles.css", "scope": "run-syn-01", "status": "completed" },
+              { "id": "call-grep-2", "name": "ws_grep", "target": "\"composer-run-hint\" in app/web", "scope": "run-syn-01", "status": "running" }
+            ]
+          },
+          "expect": { "pose": "look", "text": "ws_grep · \"composer-run-hint\" in app/web" }
+        },
+        { "at": 5000, "state": "thinking", "expect": { "pose": "think", "ambient": true } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "fixture": "agent-presence/words",
+  "version": 1,
+  "synthetic": true,
+  "notice": "Local test sample only. These five words are chosen for this specimen; they are not Claude's default word list and not the 185-word fixture named in the source conversation (never received). Replace by incremental mapping if the original file arrives; keep its hash.",
+  "seed": 7,
+  "intervalMs": { "value": 3500, "experimentalRange": [2500, 4000] },
+  "ambient": ["Thinking", "Pondering", "Musing", "Considering", "Reflecting"],
+  "rules": [
+    "Ambient words rotate only while the host reports an explicit thinking fact and no wait, block, stop or terminal fact applies.",
+    "The first word of every thinking span is always the plain word 'Thinking'.",
+    "Screen readers hear 'Thinking' once per thinking span; rotated words are aria-hidden.",
+    "Under reduced motion the word stays 'Thinking'.",
+    "No word implies progress or remaining time (no 'Almost done', 'Nearly there', 'Finishing up')."
+  ],
+  "toolLabels": {
+    "source": "Tool rows render the tool's own name (app/web/app.mjs row.name; toolGlyph names ws_read, ws_grep, ws_list, ws_write).",
+    "format": "<tool name> · <target>",
+    "samples": ["ws_read · app/web/composer-field.mjs", "ws_grep · \"presence\" in app/web", "ws_list · engineering/design", "ws_write · notes.md"]
+  }
+}

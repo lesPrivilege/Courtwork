@@ -1,0 +1,150 @@
+/* Agent presence · Chat scene (synthetic). Layout rules restated from
+   app/web/styles.css at a3a337f (app-shell, sidebar, chat-header, message
+   stream, tool-card, composer) so the presence is judged beside its real
+   neighbours. Only the .presence-* placement rules at the end are new. */
+
+html, body { height: 100%; }
+body { overflow: hidden; }
+
+.app-shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: var(--nav) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+.sidebar {
+  min-width: 0;
+  background: var(--frame);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 12px;
+}
+.sidebar > * + * { margin-top: var(--space-4); }
+.sidebar-header {
+  display: flex; align-items: center;
+  height: var(--band-top);
+  margin: 0 -12px;
+  padding: 0 var(--space-4) 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.workspace-brand { color: var(--ink); font-size: var(--text-label); font-weight: 650; letter-spacing: -0.025em; }
+.nav-home { justify-content: flex-start; width: 100%; min-height: max(32px, var(--control)); padding-left: 8px; }
+.nav-home[aria-current="page"] { background: var(--selected); font-weight: 600; }
+.nav-home svg, .composer-context svg, .tool-card svg { width: 16px; height: 16px; flex: none; }
+.section-heading {
+  margin: 0 0 4px 8px;
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+.session-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.session-list button { width: 100%; justify-content: flex-start; font-size: var(--text-body); min-height: 32px; padding-left: 8px; }
+.session-list button[aria-current="page"] { background: var(--selected); }
+
+.chat-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--panel); overflow: hidden; }
+.chat-header {
+  flex: none; display: flex; align-items: center; gap: 12px;
+  padding: 0 var(--col-gap);
+  border-bottom: 1px solid var(--line);
+  height: var(--band-top);
+}
+.chat-header-inner { min-width: 0; flex: 1; max-width: var(--column); margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.chat-title-wrap { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: var(--space-2); }
+.chat-title-wrap h1 {
+  margin: 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  font-size: var(--text-title); font-weight: 600; letter-spacing: -0.02em;
+}
+.session-meta { flex: none; font-size: var(--text-caption); color: var(--muted-strong); }
+#toggle-nav { display: none; }
+
+.conversation-body {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  --chat-inset: clamp(var(--content-inset-tight), (100% - var(--column)) / 2, var(--content-inset));
+}
+.message-stream-wrap { flex: 1; min-height: 0; position: relative; display: flex; }
+.message-stream {
+  width: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+  padding: var(--space-8) var(--chat-inset) var(--space-6);
+}
+.message-list { width: 100%; max-width: var(--column); margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.message.user { align-self: flex-end; width: fit-content; max-width: 82%; margin: 16px 0 0; }
+.user-message-content { background: var(--panel-muted); padding: 12px 16px; border-radius: var(--radius-container); font-size: var(--text-reading); line-height: 1.7; }
+.message.assistant { margin-top: 8px; }
+.message-body { overflow-wrap: anywhere; font-size: var(--text-reading); line-height: 1.7; }
+.message-body p { margin: 0 0 12px; }
+.tool-card { border-bottom: 1px solid var(--line); padding: 8px 0; color: var(--muted-strong); font-size: var(--text-meta); }
+.tool-card summary { cursor: pointer; padding: 4px 0; display: flex; align-items: center; gap: 8px; list-style: none; }
+.tool-card summary::-webkit-details-marker { display: none; }
+.flow-title { color: var(--ink); font-family: var(--font-mono); font-size: 12px; }
+.flow-meta { margin-left: auto; }
+.tool-detail { font: 12px/1.6 var(--font-mono); white-space: pre-wrap; margin: 8px 0 0; }
+
+.composer-area { flex: none; padding: var(--space-2) var(--chat-inset) var(--space-4); }
+.composer-form {
+  position: relative;
+  max-width: var(--column);
+  margin: 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-container);
+  padding: 12px;
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+.composer-form:focus-within { border-color: var(--ink); }
+#composer-input {
+  display: block; resize: none; width: 100%;
+  min-height: calc(2lh + 8px); max-height: 180px;
+  border: 0; padding: 4px; background: transparent; outline: 0; line-height: 1.65;
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - 12px));
+}
+@supports (field-sizing: content) { #composer-input { field-sizing: content; } }
+.composer-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.composer-context, .composer-buttons { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.composer-buttons { flex: none; }
+.composer-model {
+  flex: none; font-size: var(--text-meta); line-height: 1.45; max-width: 170px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 6px;
+}
+.composer-below { max-width: var(--column); margin: 6px auto 0; font-size: var(--text-caption); color: var(--muted-strong); padding: 0 4px; }
+
+@media (max-width: 1023px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { display: none; }
+  #toggle-nav { display: inline-flex; }
+}
+@media (max-width: 767px) {
+  .conversation-body { --chat-inset: var(--page-gutter); }
+  .chat-header { padding: 0 var(--col-gap); gap: 8px; }
+  .chat-title-wrap h1 { font-size: var(--text-reading); }
+  .message-stream { padding: var(--space-6) var(--chat-inset); }
+}
+
+/* ---- presence placements (new) ---------------------------------------- */
+
+/* Line: the composer's long-running status line (where app.mjs paints
+   composer-run-hint today, with its pulsing dot). The face replaces the dot;
+   the sentence after it is the existing hint. */
+.presence-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 2px 0;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}
+.presence-line[hidden] { display: none; }
+.presence-line > .presence-trigger { flex: 0 1 auto; margin-left: -2px; }
+.presence-hint { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 767px) { .presence-hint { display: none; } }
+
+/* Corner: the composer's bottom-left corner, ahead of Files and the model.
+   The label gives way first; the model control and Send never do. */
+.composer-context > .presence-trigger { flex: 0 1 auto; max-width: 280px; }
+@media (max-width: 767px) {
+  .composer-context > .presence-trigger { max-width: 132px; }
+}

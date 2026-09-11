@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent presence · Chat scene (synthetic)</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/presence.css" />
+    <link rel="stylesheet" href="styles/chat.css" />
+  </head>
+  <!-- Synthetic scene. Every name, file and message below is specimen data;
+       nothing is read from a provider, a store or a person's chat. Controls
+       for state, seed and time live only in index.html (the tool surface). -->
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navigation">
+        <div class="sidebar-header"><span class="workspace-brand">Courtwork</span></div>
+        <div>
+          <button class="nav-home quiet-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="../../../../app/web/vendor/icons.svg#house" /></svg>Home
+          </button>
+        </div>
+        <section>
+          <h2 class="section-heading">Chats</h2>
+          <ul class="session-list">
+            <li><button class="quiet-button" type="button" aria-current="page">Composer spacing pass</button></li>
+            <li><button class="quiet-button" type="button">Settings row audit</button></li>
+            <li><button class="quiet-button" type="button">Usage table copy</button></li>
+          </ul>
+        </section>
+      </aside>
+      <main class="chat-panel" aria-label="Agent workspace">
+        <header class="chat-header">
+          <button id="toggle-nav" class="quiet-button icon-only" type="button" aria-label="Open navigation">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="../../../../app/web/vendor/icons.svg#panel-left" /></svg>
+          </button>
+          <div class="chat-header-inner">
+            <div class="chat-title-wrap">
+              <h1>Composer spacing pass</h1>
+              <span class="session-meta">Synthetic chat</span>
+            </div>
+          </div>
+        </header>
+        <div class="conversation-body">
+          <div class="message-stream-wrap">
+            <section class="message-stream" role="log" aria-label="Conversation">
+              <div class="message-list">
+                <article class="message user">
+                  <div class="user-message-content">Tighten the composer spacing, then check that the run line still fits at 390.</div>
+                </article>
+                <article class="message assistant">
+                  <div class="message-body">
+                    <p>I'll read the composer field and the style rules that set its inset before changing anything.</p>
+                  </div>
+                </article>
+                <details class="tool-card">
+                  <summary>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="../../../../app/web/vendor/icons.svg#file-text" /></svg>
+                    <span class="flow-title">ws_read</span><span>app/web/composer-field.mjs</span><span class="flow-meta">Completed</span>
+                  </summary>
+                  <pre class="tool-detail">63 lines · synthetic result</pre>
+                </details>
+                <details class="tool-card">
+                  <summary>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="../../../../app/web/vendor/icons.svg#search" /></svg>
+                    <span class="flow-title">ws_grep</span><span>"composer-area" in app/web</span><span class="flow-meta">Completed</span>
+                  </summary>
+                  <pre class="tool-detail">4 matches · synthetic result</pre>
+                </details>
+                <article class="message assistant">
+                  <div class="message-body">
+                    <p>The inset comes from one clamp shared with the prose column, so the composer and the answer keep the same left edge. The run line sits inside the composer box, above the controls.</p>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+          <footer class="composer-area">
+            <form id="composer-form" class="composer-form">
+              <label class="sr-only" for="composer-input">Message</label>
+              <textarea id="composer-input" rows="2" maxlength="100000" placeholder="Reply…"></textarea>
+              <div id="presence-line" class="presence-line">
+                <span id="presence-hint" class="presence-hint">Your input will not be sent automatically.</span>
+              </div>
+              <div class="composer-controls">
+                <div id="composer-context" class="composer-context">
+                  <button class="quiet-button icon-only" type="button" aria-label="Chat files">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="../../../../app/web/vendor/icons.svg#paperclip" /></svg>
+                  </button>
+                  <button class="composer-model quiet-button" type="button" aria-haspopup="dialog">Synthetic · model-a</button>
+                </div>
+                <div class="composer-buttons">
+                  <button id="stop-button" class="quiet-button danger-button" type="button" hidden>Stop working</button>
+                  <button id="send-button" class="primary-button" type="submit">Send</button>
+                </div>
+              </div>
+              <button id="presence-trigger" class="quiet-button presence-trigger" type="button" aria-expanded="false" aria-controls="presence-detail">
+                <span id="presence-mark" class="presence-mark"></span>
+                <span id="presence-text" class="presence-text" aria-hidden="true"></span>
+                <span id="presence-elapsed" class="presence-elapsed" aria-hidden="true"></span>
+              </button>
+              <section id="presence-detail" class="presence-detail" aria-labelledby="presence-detail-title" hidden>
+                <h2 id="presence-detail-title">Work details</h2>
+                <dl id="presence-detail-rows"></dl>
+                <p id="presence-detail-note" hidden></p>
+                <p class="presence-source">Host facts only · synthetic fixture</p>
+              </section>
+            </form>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <p id="presence-live" class="sr-only" role="status" aria-live="polite"></p>
+    <script type="module" src="src/chat-scene.mjs"></script>
+  </body>
+</html>

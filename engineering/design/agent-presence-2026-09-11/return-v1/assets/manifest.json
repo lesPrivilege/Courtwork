@@ -1,0 +1,126 @@
+{
+  "manifest": "agent-presence/assets",
+  "version": 1,
+  "source": "src/geometry.mjs (paths are exported, not hand-edited; see tools/build-assets.mjs)",
+  "viewBox": "0 0 24 24",
+  "colour": "stroke = currentColor; depth/sheen layers read --presence-depth / --presence-sheen with a flat-safe fallback",
+  "opticalStrokeUnits": {
+    "16": {
+      "stroke": 2.4,
+      "dot": 3.2
+    },
+    "20": {
+      "stroke": 2.2,
+      "dot": 3
+    },
+    "24": {
+      "stroke": 2,
+      "dot": 2.8
+    },
+    "32": {
+      "stroke": 1.9,
+      "dot": 2.7
+    },
+    "64": {
+      "stroke": 1.7,
+      "dot": 2.5
+    }
+  },
+  "opticalNote": "Stroke is in viewBox units and changes with the rendered size (experimental). Flat assets are exported at the 24 px optical stroke; other sizes are rendered from the geometry source.",
+  "candidates": {
+    "A": {
+      "id": "presence-a-bracket",
+      "name": "A · calm bracket",
+      "eyes": "bars",
+      "restMouth": "bracket",
+      "thinkMouth": "bracket"
+    },
+    "B": {
+      "id": "presence-b-ezh",
+      "name": "B · geometric droop",
+      "eyes": "bars",
+      "restMouth": "ezh",
+      "thinkMouth": "ezh"
+    },
+    "C": {
+      "id": "presence-c-epsilon",
+      "name": "C · soft droop",
+      "eyes": "bars",
+      "restMouth": "epsilon",
+      "thinkMouth": "epsilon"
+    },
+    "AB": {
+      "id": "presence-ab-route",
+      "name": "A→B route",
+      "eyes": "bars",
+      "restMouth": "bracket",
+      "thinkMouth": "ezh"
+    },
+    "AB:": {
+      "id": "presence-ab-route-dots",
+      "name": "A→B route · colon eyes",
+      "eyes": "dots",
+      "restMouth": "bracket",
+      "thinkMouth": "ezh"
+    }
+  },
+  "route": "AB = A mouth at rest, B mouth while an explicit thinking fact holds. Its flat rest and thinking shapes equal presence-a-bracket.svg and presence-b-ezh.svg.",
+  "assets": [
+    {
+      "file": "presence-a-bracket.svg",
+      "candidateId": "presence-a-bracket",
+      "pose": "rest",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-b-ezh.svg",
+      "candidateId": "presence-b-ezh",
+      "pose": "rest",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-c-epsilon.svg",
+      "candidateId": "presence-c-epsilon",
+      "pose": "rest",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-ab-dots-rest.svg",
+      "candidateId": "presence-ab-route-dots",
+      "pose": "rest",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-ab-dots-think.svg",
+      "candidateId": "presence-ab-route-dots",
+      "pose": "think",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-ab-rest-soft-64.svg",
+      "candidateId": "presence-ab-route",
+      "pose": "rest",
+      "opticalSize": 64,
+      "material": "soft"
+    },
+    {
+      "file": "presence-ab-think-soft-64.svg",
+      "candidateId": "presence-ab-route",
+      "pose": "think",
+      "opticalSize": 64,
+      "material": "soft"
+    },
+    {
+      "file": "presence-ab-hard-contrast-64.svg",
+      "candidateId": "presence-ab-route",
+      "pose": "rest",
+      "opticalSize": 64,
+      "material": "hard"
+    }
+  ]
+}

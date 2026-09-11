@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent presence · return-v1 specimen</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/presence.css" />
+    <link rel="stylesheet" href="styles/specimen.css" />
+  </head>
+  <body>
+    <header class="sp-head">
+      <div>
+        <p class="sp-eyebrow">Courtwork · agent presence · return-v1</p>
+        <h1>Horizontal face specimen</h1>
+      </div>
+      <p class="sp-synthetic" role="note">Synthetic specimen · fixture facts only · not a product surface</p>
+    </header>
+
+    <form class="sp-controls" id="controls" aria-label="Specimen controls (synthetic)">
+      <fieldset>
+        <legend>Candidate</legend>
+        <div class="sp-seg" role="radiogroup">
+          <label><input type="radio" name="candidate" value="A" /> A <small>=]</small></label>
+          <label><input type="radio" name="candidate" value="B" /> B <small>=Ʒ</small></label>
+          <label><input type="radio" name="candidate" value="C" /> C <small>=ε</small></label>
+          <label><input type="radio" name="candidate" value="AB" checked /> A→B <small>route</small></label>
+          <label><input type="radio" name="candidate" value="AB:" /> A→B <small>:</small></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Material</legend>
+        <div class="sp-seg">
+          <label><input type="radio" name="material" value="flat" checked /> Flat</label>
+          <label><input type="radio" name="material" value="soft" /> Soft 2.5D <small>≥32</small></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Scheme</legend>
+        <div class="sp-seg">
+          <label><input type="radio" name="theme" value="" checked /> System</label>
+          <label><input type="radio" name="theme" value="light" /> Light</label>
+          <label><input type="radio" name="theme" value="dark" /> Dark</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Fallbacks</legend>
+        <label class="sp-check"><input type="checkbox" name="rm" /> Reduced motion</label>
+        <label class="sp-check"><input type="checkbox" name="depthOff" /> Depth unsupported</label>
+      </fieldset>
+      <fieldset class="sp-wide">
+        <legend>Facts</legend>
+        <label>State <select name="state"></select></label>
+        <label>or sequence <select name="sequence"><option value="">—</option></select></label>
+      </fieldset>
+      <fieldset class="sp-wide">
+        <legend>Clock</legend>
+        <button type="button" id="play" class="quiet-button sp-button">Pause</button>
+        <button type="button" id="restart" class="quiet-button sp-button">Restart</button>
+        <label class="sp-time">t <input type="range" name="t" min="0" max="16000" step="50" value="0" /> <output id="t-out">0 ms</output></label>
+        <label>Seed <input type="number" name="seed" min="1" max="9999" step="1" value="7" /></label>
+        <label>Word interval <input type="number" name="interval" min="2500" max="4000" step="100" value="3500" /> ms</label>
+      </fieldset>
+    </form>
+
+    <main class="sp-main">
+      <section aria-labelledby="h-compare">
+        <h2 id="h-compare">1 · Same eyes, three mouths — flat, rest pose</h2>
+        <p class="sp-lede">One eye proportion for all three. Optical stroke per size (decision.md §3). Soft depth is shown only for the recommended route and only from 32 px; the hard extrusion is a single static contrast.</p>
+        <div class="sp-board" id="compare-board"></div>
+      </section>
+
+      <section aria-labelledby="h-motion">
+        <h2 id="h-motion">2 · Motion stage — one clock, one fact</h2>
+        <p class="sp-lede">Every face below reads the same fixture fact at the same time. Pause, scrub and restart are exact: the frame is a function of <code>(facts, t, seed)</code>.</p>
+        <div class="sp-stage" id="motion-stage"></div>
+      </section>
+
+      <section aria-labelledby="h-scene">
+        <h2 id="h-scene">3 · In a complete Chat</h2>
+        <div class="sp-scene-bar">
+          <fieldset>
+            <legend>Placement</legend>
+            <div class="sp-seg">
+              <label><input type="radio" name="placement" value="line" form="controls" checked /> Status line</label>
+              <label><input type="radio" name="placement" value="corner" form="controls" /> Composer corner</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Width</legend>
+            <div class="sp-seg">
+              <label><input type="radio" name="width" value="1440" form="controls" checked /> 1440</label>
+              <label><input type="radio" name="width" value="1280" form="controls" /> 1280</label>
+              <label><input type="radio" name="width" value="390" form="controls" /> 390</label>
+            </div>
+          </fieldset>
+        </div>
+        <div class="sp-frame-wrap" id="frame-wrap">
+          <iframe id="scene" title="Chat scene (synthetic)" src="chat.html"></iframe>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-check">
+        <h2 id="h-check">4 · Sequence check</h2>
+        <p class="sp-lede">For each fixed sequence, the scene is paused 50 ms after every step and compared with the step's expectation — including that no rotated word survives a fact change.</p>
+        <button type="button" id="run-check" class="secondary-button sp-button">Run check</button>
+        <div id="check-out" class="sp-check-out" aria-live="polite"></div>
+      </section>
+    </main>
+    <script type="module" src="src/specimen.mjs"></script>
+  </body>
+</html>
