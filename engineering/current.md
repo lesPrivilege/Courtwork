@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Paper预发布工单与icon收尾
+
+[Claude串行发布准备工单](release/claude-paper-2026-09-11/PRE-PUBLISH.md)已授权待作者认领，先补证据与可复现候选，再接Astra定稿资产；不执行发布。Astra已固定[optical-03](../brand/les-privilege/README.md)于146e072：L9、双横7×23、上横下退4，黑／彩两宗并列。Luna完成[本轮语义与接入规范](design/les-privilege-paper-2026-09-11.md)及9个SVG来源／几何核对；接入代码事实、非作者接受和发布回执分开。SE仍为本地main 0f23ad1旧icon，待Claude接入；论文9.6不变，未推送SE或部署。本轮不扩展到lab／FakesNews，保留共享工作区他人研究稿。
+
 ## 2026-09-11 · Claude Paper v1已裁并本地集成
 
 [完整原件、八项裁定与验证](research/claude-paper-return-2026-09-11/v1/README.md)接收140文件原包，采用E1封面、黑色宗默认／上横红彩色宗可选；Astra修正元数据、alt、资源缺失和打印层叠。SE本地main已到0f23ad1，浏览器110/110、译文门8与资源负例3通过；源文／译文／历史发布20文件字节不变。CourtWork仅保存裁定与证据，未推送SE或触发Pages，原生a11y等未测项保持开放。此状态替代先前待作者返回记录。
