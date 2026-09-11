@@ -57,3 +57,7 @@ ME-08 的 `PTY` 仅最后兼容候选，不是可依赖控制协议。上述目�
 每片回执包含实际base/代码SHA、作者、独立输入、命令、红→绿反例、未检范围与非作者复核。先后端合同后前端消费；runtime/store schema若改变，另出严格验证、独占原字节备份、旧host拒新库、独立目录恢复测试。不能在旧host与新host间共享升级后的个人数据。
 
 关闭能力与回退代码不等于逆转数据/外部效果；待结算任务先完成、取消或明确unknown。文档交付、合成符合性、真实provider、独立用户成果与长期结果分别登记。本包没有创建后续执行会话或部署任务。
+
+## ME-06后续消费 · 2026-09-12
+
+[义务回执与安静跟进](../obligation-closure-2026-09-12/README.md)补充registered/consumed/implemented/verified/closed分离、真实heartbeat/进展区别及Spark有界核查。沿现有Core关闭权限和Run owner，不另建监督平台；频率、阈值、自动关闭与周期扫描均未冻结/派工。

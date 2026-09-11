@@ -72,3 +72,7 @@ ATT-FE-01合流补充：消费[截图交接](../../design/attention-surface-2026
 ## 共同交付格式
 
 每项实现须记录实际 base SHA、文件清单、fixture hash、正反例、复用测试、作者/非作者验证、迁移备份与回退结果、未检项和停点。研究来源统一回到 [source-index](source-index.md)；本包不把外部数字、网页兼容性、性能或法律效果变成项目结果。
+
+## 2026-09-12 · 工作义务闭环增量（待消费）
+
+[新裁决](../obligation-closure-2026-09-12/README.md)将消费/实现/核查/关闭回执接入现有Attention/ME-06路线。ATT-BE-01已有实现沿当前Core合同，本段不重派旧单；Spark结果是受限检查证据，不取得resolve权，不新增直线状态机或scheduler。

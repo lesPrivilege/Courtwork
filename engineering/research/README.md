@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[工作义务闭环](obligation-closure-2026-09-12/README.md)：2026-09-12，Astra裁决Attention/Spark职责、版本回执、关闭权限与heartbeat边界；只登记，调度与实现后置，不进入发布面。
+
 [Chat Memory Broker长期增量](chat-memory-broker-2026-09-12/README.md)：2026-09-12，受治理检索/编译与可见对话分离；接BE-19/20/23、LG/RG既有PR文稿，不改变本次发布面，无实现。
 
 [RD-007 · 成熟实践与资源治理](RD-007-resource-governance.md)：2026-09-12，完整两轮来源、Luna fast explore、Astra裁决；RG前后端PR与roadmap接LG/DS/BG/Runtime，产品未实施。

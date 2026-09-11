@@ -56,3 +56,7 @@ Gemini性能/价格/能力与Google Spark栈、Codex Spark下架/使用量、Lun
 这是定义与工程边界登记，不修改App/Pages代码、正式schema、Paper或已发出的16f6337完整ZIP。新内容作为该one-shot的补充，作者可沿原任务接续，不重启或追加writer。当前真实读面仍按[SP裁定](../../design/spark-surface-2026-09-10/integration-ruling.md)、[BE-41 DTO](../../design/spark-surface-2026-09-10/be41-dto.md)与current证据判断。
 
 验证仅做来源计数/hash、文档链接与差异检查；没有新增功能、运行实验、独立产品接受或部署。
+
+## 2026-09-12 · 有界准备与闭环核查
+
+[工作义务闭环裁决](../obligation-closure-2026-09-12/README.md)补入来源整理/pre-review与固定修订核查场景；复用本profile及Attention/ME-06。核查coverage、实际使用证据与关闭权限分开，Spark不自行resolve；调度和stale规则待真实trace。本轮只登记，不改变发布文案或首阶段执行定义。
