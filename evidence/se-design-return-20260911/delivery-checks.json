@@ -1,0 +1,16 @@
+{
+  "product_baseline": "dbd1efe52d7a078cfdb8af03a82470135f31a9dd",
+  "scope": "documentation, source archive, static design evidence; no product code",
+  "doc_links": {
+    "pass": true,
+    "documents": 900,
+    "checked": 4206,
+    "problems": []
+  },
+  "source_archive_members_verified": 66,
+  "original_zip_members_verified": 28,
+  "native_capture_files": 38,
+  "product_tests": "not rerun; no app/site behavior changes",
+  "integration": "explicit-stage candidate ready; final main preservation receipt recorded after fast-forward",
+  "bounded_independent_document_review": "pass; all3 findings resolved"
+}

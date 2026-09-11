@@ -1,0 +1,339 @@
+{
+  "kind": "static-return-board-review",
+  "scriptExecution": "blocked by preview CSP",
+  "captures": [
+    {
+      "name": "01-system",
+      "documentHeight": 1622,
+      "documentWidth": 1440,
+      "height": 1380,
+      "title": "Recommended system",
+      "url": "http://127.0.0.1:54273/artboards/Main.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "02-icons",
+      "documentHeight": 1914,
+      "documentWidth": 1440,
+      "height": 1560,
+      "title": "Spark & Attention glyphs",
+      "url": "http://127.0.0.1:54273/artboards/Icons.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "02-icons-tail",
+      "documentHeight": 1914,
+      "documentWidth": 1440,
+      "height": 1560,
+      "title": "Spark & Attention glyphs",
+      "url": "http://127.0.0.1:54273/artboards/Icons.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "03-header",
+      "documentHeight": 720,
+      "documentWidth": 1100,
+      "height": 720,
+      "title": "Header pair: overview vs work surface",
+      "url": "http://127.0.0.1:54273/artboards/HeaderPair.dc.html",
+      "width": 1100
+    },
+    {
+      "name": "01-system-900",
+      "documentHeight": 1622,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Recommended system",
+      "url": "http://127.0.0.1:54273/artboards/Main.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "01-system-bottom",
+      "documentHeight": 1622,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Recommended system",
+      "url": "http://127.0.0.1:54273/artboards/Main.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "02-icons-900",
+      "documentHeight": 1914,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark & Attention glyphs",
+      "url": "http://127.0.0.1:54273/artboards/Icons.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "02-icons-middle",
+      "documentHeight": 1914,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark & Attention glyphs",
+      "url": "http://127.0.0.1:54273/artboards/Icons.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "02-icons-bottom",
+      "documentHeight": 1914,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark & Attention glyphs",
+      "url": "http://127.0.0.1:54273/artboards/Icons.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "04-spark-overview",
+      "documentHeight": 900,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark · Overview · light 1440",
+      "url": "http://127.0.0.1:54273/artboards/SparkOverview.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "05-spark-dark",
+      "documentHeight": 900,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark · Activity · dark 1440",
+      "url": "http://127.0.0.1:54273/artboards/SparkActivityDark.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "06-spark-states",
+      "documentHeight": 1385,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/SparkStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "06-spark-states-bottom",
+      "documentHeight": 1385,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/SparkStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "07-spark-rebuild",
+      "documentHeight": 900,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Spark · rebuild candidate (sample)",
+      "url": "http://127.0.0.1:54273/artboards/SparkRebuild.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "08-spark-narrow",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "title": "Spark · 390 narrow",
+      "url": "http://127.0.0.1:54273/artboards/SparkNarrow.dc.html",
+      "width": 390
+    },
+    {
+      "name": "12-attention-narrow",
+      "documentHeight": 844,
+      "documentWidth": 390,
+      "height": 844,
+      "title": "Attention · 390 narrow · detail",
+      "url": "http://127.0.0.1:54273/artboards/AttentionNarrow.dc.html",
+      "width": 390
+    },
+    {
+      "name": "09-attention-queue",
+      "documentHeight": 980,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention items · editor open · light 1440",
+      "url": "http://127.0.0.1:54273/artboards/AttentionQueue.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "10-attention-assistant",
+      "documentHeight": 900,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention · global assistant · dark 1440",
+      "url": "http://127.0.0.1:54273/artboards/AttentionAssistant.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "09-attention-queue-bottom",
+      "documentHeight": 980,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention items · editor open · light 1440",
+      "url": "http://127.0.0.1:54273/artboards/AttentionQueue.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "11-attention-states",
+      "documentHeight": 2324,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/AttentionStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "11-attention-states-bottom",
+      "documentHeight": 2324,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/AttentionStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "11-attention-states-middle-settled",
+      "documentHeight": 2324,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/AttentionStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "11-attention-states-end-settled",
+      "documentHeight": 2324,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Attention · state matrix",
+      "url": "http://127.0.0.1:54273/artboards/AttentionStates.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "13-chat-space",
+      "documentHeight": 900,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Chat space · running · light 1440",
+      "url": "http://127.0.0.1:54273/artboards/ChatSpace.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "14-composer-motion",
+      "documentHeight": 1742,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Composer · thinking · streaming timeline",
+      "url": "http://127.0.0.1:54273/artboards/ComposerMotion.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "14-composer-motion-bottom",
+      "documentHeight": 1742,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Composer · thinking · streaming timeline",
+      "url": "http://127.0.0.1:54273/artboards/ComposerMotion.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "15-chat-actions",
+      "documentHeight": 1319,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Chat space · actions and rows",
+      "url": "http://127.0.0.1:54273/artboards/ChatActions.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "15-chat-actions-bottom",
+      "documentHeight": 1319,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Chat space · actions and rows",
+      "url": "http://127.0.0.1:54273/artboards/ChatActions.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "16-explore",
+      "documentHeight": 1120,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Explore agent · coordination",
+      "url": "http://127.0.0.1:54273/artboards/Explore.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "16-explore-bottom",
+      "documentHeight": 1120,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Explore agent · coordination",
+      "url": "http://127.0.0.1:54273/artboards/Explore.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "17-settings",
+      "documentHeight": 1320,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Settings · tab · tap controls",
+      "url": "http://127.0.0.1:54273/artboards/Settings.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "17-settings-bottom",
+      "documentHeight": 1320,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Settings · tab · tap controls",
+      "url": "http://127.0.0.1:54273/artboards/Settings.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "18-pages-story",
+      "documentHeight": 1788,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Pages · Spark & Attention story",
+      "url": "http://127.0.0.1:54273/artboards/PagesStory.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "18-pages-story-bottom",
+      "documentHeight": 1788,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Pages · Spark & Attention story",
+      "url": "http://127.0.0.1:54273/artboards/PagesStory.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "14-composer-bottom-settled",
+      "documentHeight": 1742,
+      "documentWidth": 1440,
+      "height": 900,
+      "title": "Composer · thinking · streaming timeline",
+      "url": "http://127.0.0.1:54273/artboards/ComposerMotion.dc.html",
+      "width": 1440
+    },
+    {
+      "name": "19-return-top",
+      "documentHeight": 6744,
+      "documentWidth": 1000,
+      "height": 900,
+      "title": "Design return · RETURN contract",
+      "url": "http://127.0.0.1:54273/artboards/Return.dc.html",
+      "width": 1000
+    },
+    {
+      "name": "19-return-lower",
+      "documentHeight": 6744,
+      "documentWidth": 1000,
+      "height": 900,
+      "title": "Design return · RETURN contract",
+      "url": "http://127.0.0.1:54273/artboards/Return.dc.html",
+      "width": 1000
+    }
+  ]
+}

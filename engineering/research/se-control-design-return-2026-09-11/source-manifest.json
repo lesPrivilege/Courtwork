@@ -1,0 +1,351 @@
+{
+  "source": "user-provided Claude scratchpad canvas directory",
+  "product_baseline": "dbd1efe52d7a078cfdb8af03a82470135f31a9dd",
+  "archive_exclusions": [
+    ".DS_Store",
+    "symlinks"
+  ],
+  "zip_crc": "pass",
+  "zip_files_match_return_package": 28,
+  "pages": 7,
+  "artboards": 19,
+  "files": [
+    {
+      "path": "Courtwork-SE-Design-return-2026-09-11.zip",
+      "bytes": 1187623,
+      "sha256": "043b5f87c23869069c1bc4d6f7fb3e0177cff96ad5a52ea95d89f57efa44f8d0"
+    },
+    {
+      "path": "boards-attention.mjs",
+      "bytes": 21003,
+      "sha256": "07fc64dc060e3061b0660790d2b13836f398593c392125167ad29f3b62184808"
+    },
+    {
+      "path": "boards-chat.mjs",
+      "bytes": 19741,
+      "sha256": "abd1b4e06886c3608ee111c0f6c1e6f2d238bcdb8748ba7eb1b2f0cae7f36bcc"
+    },
+    {
+      "path": "boards-explore-settings.mjs",
+      "bytes": 14888,
+      "sha256": "f23b707517e51a555f552d6df61ffa9d6b39f01504129173877cdb7cb106540b"
+    },
+    {
+      "path": "boards-pages.mjs",
+      "bytes": 12254,
+      "sha256": "f70bb763e6f93ab0d9c32aa5dc9af9b3eaffb9fca78538b5202ded520f1a37b6"
+    },
+    {
+      "path": "boards-return.mjs",
+      "bytes": 21377,
+      "sha256": "9f4ffbc243f9434754baab4d01d41323ff84fb0f87ae42c35c8255542dc7764b"
+    },
+    {
+      "path": "boards-spark.mjs",
+      "bytes": 19176,
+      "sha256": "57d1d39646ad24fdc8aed4b967b33e4daf7d467ca12cfd1e45edb9de7d494647"
+    },
+    {
+      "path": "boards-system.mjs",
+      "bytes": 23750,
+      "sha256": "91521129ed6d6fa3f2e92a5929a5ce1353d9307025ac8584722a6d156e015503"
+    },
+    {
+      "path": "build.mjs",
+      "bytes": 5169,
+      "sha256": "26fa3a6b888d73aefacf77275cf7e69d01d17be49b9fd66cd5ba1d6a57b0ac44"
+    },
+    {
+      "path": "courtwork-se-control-surfaces.html",
+      "bytes": 3352961,
+      "sha256": "a2c23845d1507a2fa88b66556df2b1b1c6af6db9760e33c80ef2411638f95316"
+    },
+    {
+      "path": "return-package/RETURN-design.md",
+      "bytes": 15265,
+      "sha256": "e286d816e1c02a5c9abef4b8e0f68295475cce9ffe91fb1b3c4c89fa3c89038d"
+    },
+    {
+      "path": "return-package/artboards/AttentionAssistant.dc.html",
+      "bytes": 38270,
+      "sha256": "cec3ff599c7972d27ada4da9421d6a1f3e65a11d9a9ba7cb1849f10ff7c73ed0"
+    },
+    {
+      "path": "return-package/artboards/AttentionNarrow.dc.html",
+      "bytes": 29270,
+      "sha256": "fe441bbee6d311a5dea8b654f98b1f4dbaf88f3ce81dc968f4b4bc0a78eda3ec"
+    },
+    {
+      "path": "return-package/artboards/AttentionQueue.dc.html",
+      "bytes": 38252,
+      "sha256": "e1ba95dd27631480c372d3b573d1a2ab196e711dbd475adf50a614265550b51d"
+    },
+    {
+      "path": "return-package/artboards/AttentionStates.dc.html",
+      "bytes": 42035,
+      "sha256": "8d81f4dc0cef8e4503be1346c2276417985f6a8131da898666a5fe92df5a3dd7"
+    },
+    {
+      "path": "return-package/artboards/ChatActions.dc.html",
+      "bytes": 54901,
+      "sha256": "134174bc5aba65417daf211915fd7fed8201dcf83c70bc6b839711c95e5dcb94"
+    },
+    {
+      "path": "return-package/artboards/ChatSpace.dc.html",
+      "bytes": 41552,
+      "sha256": "de68be20ce892e7e247a6b4c58e4393f387ab649dfe0fd1480647cd9793d4e8e"
+    },
+    {
+      "path": "return-package/artboards/ComposerMotion.dc.html",
+      "bytes": 48232,
+      "sha256": "9e2c706821a72d3f1e8a7eb8e6ced9c4e8d1662462094a141e9d1291cfe0fabb"
+    },
+    {
+      "path": "return-package/artboards/Explore.dc.html",
+      "bytes": 35287,
+      "sha256": "f35c102f660aa2f1a837e092b755184700a6947ccfff8f8ca03fc18143ee84ee"
+    },
+    {
+      "path": "return-package/artboards/HeaderPair.dc.html",
+      "bytes": 31232,
+      "sha256": "bdc0945f87dd988d892eb9d053350e0783129706a65598689c3538e81ef889ee"
+    },
+    {
+      "path": "return-package/artboards/Icons.dc.html",
+      "bytes": 100236,
+      "sha256": "e6c0c6c0a238bceef7720326c53bd11e442ba5d64b0c6b31c0d81680df06c72d"
+    },
+    {
+      "path": "return-package/artboards/Main.dc.html",
+      "bytes": 37271,
+      "sha256": "dcefff701f8d984356010f92f39c92f22b5de0b21b81b98b7430d9ac037eceaf"
+    },
+    {
+      "path": "return-package/artboards/PagesStory.dc.html",
+      "bytes": 37794,
+      "sha256": "a138fe4cce7fe881a965972d9ab62c7f78abb4321a6a0fb5f990bd4799f4daef"
+    },
+    {
+      "path": "return-package/artboards/Return.dc.html",
+      "bytes": 47590,
+      "sha256": "49c1d39e9ee9b9d99e0feee94c1a6b12d15e5e2bb175ab25cd24f8c5a4005ff9"
+    },
+    {
+      "path": "return-package/artboards/Settings.dc.html",
+      "bytes": 36009,
+      "sha256": "1794c74a03e5d2d94c7637ccde41fbeb65ba2c0aad9d194463b03f6f385fe87b"
+    },
+    {
+      "path": "return-package/artboards/SparkActivityDark.dc.html",
+      "bytes": 46645,
+      "sha256": "49259ba3fb304b980d9f0342d0d0ddc32c7b362bfb40d7b76e034c7bc351f351"
+    },
+    {
+      "path": "return-package/artboards/SparkNarrow.dc.html",
+      "bytes": 29840,
+      "sha256": "eb548668c6871965c5f3e82024f205e92b46c88a805e34ed4d9d2ff354d6aa1d"
+    },
+    {
+      "path": "return-package/artboards/SparkOverview.dc.html",
+      "bytes": 47159,
+      "sha256": "d6e8369502358b09243ef71a3d7736e0b99dd0b646f32ca8bbaa2a43911f57e1"
+    },
+    {
+      "path": "return-package/artboards/SparkRebuild.dc.html",
+      "bytes": 29744,
+      "sha256": "937edd94f279044ab6d8f614c67e0caae7dcc2bcb20049b5add5779c3655e97d"
+    },
+    {
+      "path": "return-package/artboards/SparkStates.dc.html",
+      "bytes": 36548,
+      "sha256": "689ed52b813e212a93a9fad393e991685ee14387135b740ce52c9391ea2b4eb9"
+    },
+    {
+      "path": "return-package/artboards/canvas.json",
+      "bytes": 5724,
+      "sha256": "89c295c11f01c4e9b1f0ebf8cdd6afc31f0bcaa10f4141d156210ab25b9fae9e"
+    },
+    {
+      "path": "return-package/courtwork-se-control-surfaces.html",
+      "bytes": 3352961,
+      "sha256": "a2c23845d1507a2fa88b66556df2b1b1c6af6db9760e33c80ef2411638f95316"
+    },
+    {
+      "path": "return-package/glyphs/attn-a.svg",
+      "bytes": 294,
+      "sha256": "86d38c768af39c21b20208030642abda0a688eacb3da7f5423ccaefc8a414314"
+    },
+    {
+      "path": "return-package/glyphs/attn-b.svg",
+      "bytes": 278,
+      "sha256": "b0c5c35dfaa5bb2c80b7f80aabe9ebfa9dbafdc2bb8551011231d0ef42a53331"
+    },
+    {
+      "path": "return-package/glyphs/attn-c.svg",
+      "bytes": 278,
+      "sha256": "8ae70e78bb02181ed7a12c3fc238f554efff1b114e78f4ea67e6e40351ac4f3d"
+    },
+    {
+      "path": "return-package/glyphs/spark-a.svg",
+      "bytes": 333,
+      "sha256": "e2827be4faf4465ecad4b3be646ebe141a6f7f82f90e23b5612341a5f63b2391"
+    },
+    {
+      "path": "return-package/glyphs/spark-b.svg",
+      "bytes": 246,
+      "sha256": "214e329da554725995a1a489f7f2b97dfc795c1f4a2c162d17cd5ec02762d2d1"
+    },
+    {
+      "path": "return-package/glyphs/spark-c.svg",
+      "bytes": 310,
+      "sha256": "b02dcc1d6536cef49fa8aa870682c400ccadbd6f7cb0466c301d1f7527721b9c"
+    },
+    {
+      "path": "shared.mjs",
+      "bytes": 35666,
+      "sha256": "7ce406615b8839a448cc2ffe6296dffe7bb8c93df6763cab6da623c3af227fab"
+    },
+    {
+      "path": "work/AttentionAssistant.dc.html",
+      "bytes": 38270,
+      "sha256": "cec3ff599c7972d27ada4da9421d6a1f3e65a11d9a9ba7cb1849f10ff7c73ed0"
+    },
+    {
+      "path": "work/AttentionNarrow.dc.html",
+      "bytes": 29270,
+      "sha256": "fe441bbee6d311a5dea8b654f98b1f4dbaf88f3ce81dc968f4b4bc0a78eda3ec"
+    },
+    {
+      "path": "work/AttentionQueue.dc.html",
+      "bytes": 38252,
+      "sha256": "e1ba95dd27631480c372d3b573d1a2ab196e711dbd475adf50a614265550b51d"
+    },
+    {
+      "path": "work/AttentionStates.dc.html",
+      "bytes": 42035,
+      "sha256": "8d81f4dc0cef8e4503be1346c2276417985f6a8131da898666a5fe92df5a3dd7"
+    },
+    {
+      "path": "work/ChatActions.dc.html",
+      "bytes": 54901,
+      "sha256": "134174bc5aba65417daf211915fd7fed8201dcf83c70bc6b839711c95e5dcb94"
+    },
+    {
+      "path": "work/ChatSpace.dc.html",
+      "bytes": 41552,
+      "sha256": "de68be20ce892e7e247a6b4c58e4393f387ab649dfe0fd1480647cd9793d4e8e"
+    },
+    {
+      "path": "work/ComposerMotion.dc.html",
+      "bytes": 48232,
+      "sha256": "9e2c706821a72d3f1e8a7eb8e6ced9c4e8d1662462094a141e9d1291cfe0fabb"
+    },
+    {
+      "path": "work/Explore.dc.html",
+      "bytes": 35287,
+      "sha256": "f35c102f660aa2f1a837e092b755184700a6947ccfff8f8ca03fc18143ee84ee"
+    },
+    {
+      "path": "work/HeaderPair.dc.html",
+      "bytes": 31232,
+      "sha256": "bdc0945f87dd988d892eb9d053350e0783129706a65598689c3538e81ef889ee"
+    },
+    {
+      "path": "work/Icons.dc.html",
+      "bytes": 100236,
+      "sha256": "e6c0c6c0a238bceef7720326c53bd11e442ba5d64b0c6b31c0d81680df06c72d"
+    },
+    {
+      "path": "work/Main.dc.html",
+      "bytes": 37271,
+      "sha256": "dcefff701f8d984356010f92f39c92f22b5de0b21b81b98b7430d9ac037eceaf"
+    },
+    {
+      "path": "work/PagesStory.dc.html",
+      "bytes": 37794,
+      "sha256": "a138fe4cce7fe881a965972d9ab62c7f78abb4321a6a0fb5f990bd4799f4daef"
+    },
+    {
+      "path": "work/RETURN-design.md",
+      "bytes": 15265,
+      "sha256": "e286d816e1c02a5c9abef4b8e0f68295475cce9ffe91fb1b3c4c89fa3c89038d"
+    },
+    {
+      "path": "work/Return.dc.html",
+      "bytes": 47590,
+      "sha256": "49c1d39e9ee9b9d99e0feee94c1a6b12d15e5e2bb175ab25cd24f8c5a4005ff9"
+    },
+    {
+      "path": "work/Settings.dc.html",
+      "bytes": 36009,
+      "sha256": "1794c74a03e5d2d94c7637ccde41fbeb65ba2c0aad9d194463b03f6f385fe87b"
+    },
+    {
+      "path": "work/SparkActivityDark.dc.html",
+      "bytes": 46645,
+      "sha256": "49259ba3fb304b980d9f0342d0d0ddc32c7b362bfb40d7b76e034c7bc351f351"
+    },
+    {
+      "path": "work/SparkNarrow.dc.html",
+      "bytes": 29840,
+      "sha256": "eb548668c6871965c5f3e82024f205e92b46c88a805e34ed4d9d2ff354d6aa1d"
+    },
+    {
+      "path": "work/SparkOverview.dc.html",
+      "bytes": 47159,
+      "sha256": "d6e8369502358b09243ef71a3d7736e0b99dd0b646f32ca8bbaa2a43911f57e1"
+    },
+    {
+      "path": "work/SparkRebuild.dc.html",
+      "bytes": 29744,
+      "sha256": "937edd94f279044ab6d8f614c67e0caae7dcc2bcb20049b5add5779c3655e97d"
+    },
+    {
+      "path": "work/SparkStates.dc.html",
+      "bytes": 36548,
+      "sha256": "689ed52b813e212a93a9fad393e991685ee14387135b740ce52c9391ea2b4eb9"
+    },
+    {
+      "path": "work/canvas.json",
+      "bytes": 5724,
+      "sha256": "89c295c11f01c4e9b1f0ebf8cdd6afc31f0bcaa10f4141d156210ab25b9fae9e"
+    },
+    {
+      "path": "work/glyphs/attn-a.svg",
+      "bytes": 294,
+      "sha256": "86d38c768af39c21b20208030642abda0a688eacb3da7f5423ccaefc8a414314"
+    },
+    {
+      "path": "work/glyphs/attn-b.svg",
+      "bytes": 278,
+      "sha256": "b0c5c35dfaa5bb2c80b7f80aabe9ebfa9dbafdc2bb8551011231d0ef42a53331"
+    },
+    {
+      "path": "work/glyphs/attn-c.svg",
+      "bytes": 278,
+      "sha256": "8ae70e78bb02181ed7a12c3fc238f554efff1b114e78f4ea67e6e40351ac4f3d"
+    },
+    {
+      "path": "work/glyphs/spark-a.svg",
+      "bytes": 333,
+      "sha256": "e2827be4faf4465ecad4b3be646ebe141a6f7f82f90e23b5612341a5f63b2391"
+    },
+    {
+      "path": "work/glyphs/spark-b.svg",
+      "bytes": 246,
+      "sha256": "214e329da554725995a1a489f7f2b97dfc795c1f4a2c162d17cd5ec02762d2d1"
+    },
+    {
+      "path": "work/glyphs/spark-c.svg",
+      "bytes": 310,
+      "sha256": "b02dcc1d6536cef49fa8aa870682c400ccadbd6f7cb0466c301d1f7527721b9c"
+    }
+  ],
+  "archive": {
+    "file": "source.tar.gz",
+    "sha256": "c4d33dcc2aa52e4c5e1f51fe9de0dd98c9eccde840f926b1b4e35d2839267313",
+    "bytes": 3497170,
+    "members_verified": 66,
+    "member_bytes_unchanged": true
+  }
+}

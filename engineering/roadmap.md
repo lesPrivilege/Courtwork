@@ -285,3 +285,5 @@ Paper 的回流只包含有固定工程 commit 与证据支持的泛化观察，
 ## 2026-09-11 · 系统Design送审
 
 [SE控制面one-shot](design/se-control-one-shot-2026-09-11/HANDOFF.md)覆盖DG-01–09、Scout分层摘要和Taste Memory；用户提交独立Design后Astra裁决再拆施工。发布26图已有a01/34563551594回执，深色气泡修正另记5e3a504，不把送审计划写成产品接受。
+
+Design返回接收完成：[Astra裁决与DR-01–06](design/se-control-one-shot-2026-09-11/return-intake.md)登记7页/19板、45行审计、五处分歧。DR-01来源/裁决已交付；DR-02图标/header、DR-03真实控制面、DR-04Chat/Composer/Settings、DR-05隔离样例、DR-06Pages按各片合同继续，候选资产不自动成为canonical。

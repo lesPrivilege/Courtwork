@@ -1,0 +1,271 @@
+{
+  "source": "native in-app browser static return board captures",
+  "files": [
+    {
+      "file": "screenshots/01-system-900.jpg",
+      "bytes": 177578,
+      "sha256": "858c2b892f037a39f6f10b3217df54d7ecd9521b2d45e444fac486f131193cfd",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/01-system-bottom.jpg",
+      "bytes": 186696,
+      "sha256": "d119df10c729640eef7e975cba53aaa90e9656c28ea2f307d9b4fd26e4e3e346",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/01-system-full.jpg",
+      "bytes": 144831,
+      "sha256": "c4ede43188e9e645b998e96e2c6dfdf8cd2815afb5423cedcc9bf68261e2fc51",
+      "width": 1440,
+      "height": 1622
+    },
+    {
+      "file": "screenshots/01-system.jpg",
+      "bytes": 231423,
+      "sha256": "61538d6ef0f4e67ba6bce4f52845ce09d262f96e3b76395ba876a304f6fbe596",
+      "width": 1440,
+      "height": 1116
+    },
+    {
+      "file": "screenshots/02-icons-900.jpg",
+      "bytes": 122407,
+      "sha256": "1c4be62edfcbf699466e422b7ce9a4b81e07b713357cc0320f9c7eebbda4494d",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/02-icons-bottom.jpg",
+      "bytes": 143343,
+      "sha256": "3b563f9c29a9c32922b037365e69060e3cc37606e7151e7d1453e492594d99e5",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/02-icons-middle.jpg",
+      "bytes": 54088,
+      "sha256": "47c5ccb6c0c382b56ce6017430a650ac08d3d864fa58f063f4c32a539783bfe1",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/02-icons-tail.jpg",
+      "bytes": 138621,
+      "sha256": "9f6e86b6da727d488b5b137920e35b71cc763d116e68821da4afd7e9797a7f31",
+      "width": 1440,
+      "height": 1116
+    },
+    {
+      "file": "screenshots/02-icons.jpg",
+      "bytes": 154358,
+      "sha256": "d0ecf4fabd9d308f82404a733c599e83b105c4b5b23cbaf2e691e7d4767ddaf6",
+      "width": 1440,
+      "height": 1116
+    },
+    {
+      "file": "screenshots/03-header.jpg",
+      "bytes": 95226,
+      "sha256": "12742be49b2a959605e1dd173a52d9a1040c47c311c2acfb6c5a694be46e1b8b",
+      "width": 1100,
+      "height": 720
+    },
+    {
+      "file": "screenshots/04-spark-overview.jpg",
+      "bytes": 62450,
+      "sha256": "f44985d6c7f8e119d90e31865ac58036e024834c21abd1c601f5a3b9f88cf4f0",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/05-spark-dark.jpg",
+      "bytes": 58843,
+      "sha256": "777e0d2d823354feea8efdd2e6f0a94da19f63f1368eb8f09196dd15cb788cc7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/06-spark-states-bottom.jpg",
+      "bytes": 128488,
+      "sha256": "9cd1d44abbcf7adaa353f54d394e1d54ab4fc67facd41904c7b34f93ac6c2df0",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/06-spark-states.jpg",
+      "bytes": 111623,
+      "sha256": "111c30bc7fdc1f1a9ac96cfd1e70092a8e5636c301037b0600d027d99973eafe",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/07-spark-rebuild.jpg",
+      "bytes": 98122,
+      "sha256": "4eb67ae7f2270549c97d8bb61068431b31c3aaeff6360144844bd08645b0c482",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/08-spark-narrow.jpg",
+      "bytes": 34293,
+      "sha256": "1f830a2f59565a5a6ee9a291a731c09f2b993136d338d78ef4ff81280c2bc987",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "screenshots/09-attention-queue-bottom.jpg",
+      "bytes": 80723,
+      "sha256": "d5c9651dbd367c86aedf4a53fbed9ad422249aa799db2f79c6455fa7b8d876a5",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/09-attention-queue.jpg",
+      "bytes": 78210,
+      "sha256": "caa0b1b758f980c1c114895269f82c9fcf234d49f32892cf335303c94e7f55db",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/10-attention-assistant.jpg",
+      "bytes": 66581,
+      "sha256": "3e3e44ab4ea2d2c564a1c3543a671b1f4f988cf30238c861b0438a11a832437e",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/11-attention-states-bottom.jpg",
+      "bytes": 15069,
+      "sha256": "3b7bcd26619ed0c48807ae0f576bd659bdd7046c7996a2920e8e817906dec899",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/11-attention-states-end-settled.jpg",
+      "bytes": 94368,
+      "sha256": "8a2da37a78229c4b06dfb0844e5391f94f3b550d27328eccf307548ebe403a25",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/11-attention-states-middle-settled.jpg",
+      "bytes": 83918,
+      "sha256": "42742527b24c4ed56e942508e59a4ebe0698a0fc68526197b146bd96dfdc32a8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/11-attention-states.jpg",
+      "bytes": 125161,
+      "sha256": "4af1b543b05dd84143a6739910255788aef245c815627903e854eace9700226c",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/12-attention-narrow.jpg",
+      "bytes": 29049,
+      "sha256": "4f51ce561bdcc7e815faed41145b4a4f26a62c6ff213f5cd3ad192153a852e7b",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "screenshots/13-chat-space.jpg",
+      "bytes": 79737,
+      "sha256": "2412b77fb92cb100706bd7429bb9d94c9d35b185e6cbe7e1bf7ea446f9790873",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/14-composer-bottom-settled.jpg",
+      "bytes": 127037,
+      "sha256": "f9e805635dc00b11d698c4c9fc396ce19e508d42195bf7602372689e27fc43eb",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/14-composer-motion-bottom.jpg",
+      "bytes": 150951,
+      "sha256": "4232f9ba22fcf19df4aee79bbd2bcbeeae818b42edb2c8c85b4163d1bbd7e8e6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/14-composer-motion.jpg",
+      "bytes": 141005,
+      "sha256": "22ee86176c04d0178639d65b02e4789d3b55c84d34bd43d52fb6baeafede3242",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/15-chat-actions-bottom.jpg",
+      "bytes": 89479,
+      "sha256": "754f6cf65002c412cabfdcb4cabc4bea9ff28a39dbec7911a7eaa714bd8840a5",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/15-chat-actions.jpg",
+      "bytes": 107161,
+      "sha256": "f538a96a1913ca4a58a158e90479daa7613345096e154c6815ddca3c4fafc6d3",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/16-explore-bottom.jpg",
+      "bytes": 115567,
+      "sha256": "427ca2008171ae1715f3e92f533b591dab47dc372f2cc68118e5a651c8f76a86",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/16-explore.jpg",
+      "bytes": 130742,
+      "sha256": "00fc8397ecbc254315ed05387413410e3a429e397fcea30c28544ae81371eda4",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/17-settings-bottom.jpg",
+      "bytes": 118497,
+      "sha256": "75742c2cc924a1fd6be9394f9fbe74b7565349c42ab1b93d550681f73ca634e2",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/17-settings.jpg",
+      "bytes": 118123,
+      "sha256": "abeed342ef4c430ced060560bb681af730736a6dc0ec5255eea8bdac90d82ac4",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/18-pages-story-bottom.jpg",
+      "bytes": 157389,
+      "sha256": "b76d10962c1a27f0b0bd695802eef4244a4868dc5387d0a83d826edf06d31454",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/18-pages-story.jpg",
+      "bytes": 68372,
+      "sha256": "522351408121847264c5e38187095f33f6aa857fca156d53b6f72175f4aaec4f",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "screenshots/19-return-lower.jpg",
+      "bytes": 94321,
+      "sha256": "117c4c8d1ae290f3a5e6419be0c877655c530aa826a33be75aa1baf90419fa26",
+      "width": 1000,
+      "height": 900
+    },
+    {
+      "file": "screenshots/19-return-top.jpg",
+      "bytes": 111156,
+      "sha256": "ce065a11305659f7c7af6b6d44e2e87f8210561cee2205ef86e12a8e6357cfa1",
+      "width": 1000,
+      "height": 900
+    }
+  ]
+}

@@ -1,32 +1,63 @@
-# Astra · Design回报接收与待核裁决
+# Astra · Design返回裁决与施工边界
 
-2026-09-11 · 输入/当前main均为 `dbd1efe52d7a078cfdb8af03a82470135f31a9dd`。已收[用户转交摘要](../../research/se-control-design-return-2026-09-11/README.md)，画布及所称zip/RETURN-design.md尚未取得。本表区分已可裁的工程边界和仍待看资产的视觉判断；不把未见的19块画板或45行消费账写成已验。
+2026-09-11 · 固定产品基线 `dbd1efe52d7a078cfdb8af03a82470135f31a9dd`。用户随后提供实际canvas目录，现已取得7页/19画板、RETURN-design.md、6个原创glyph及ZIP。此前[未取到文件的初步记录](return-intake-provisional.md)仅保留历史；当前状态以本文为准。[原始材料与hash](../../research/se-control-design-return-2026-09-11/README.md)、[画板审阅](../../../evidence/se-design-return-20260911/visual-review.md)、[45行消费核对](../../../evidence/se-design-return-20260911/consumption-review.md)、[能力核对](../../../evidence/se-design-return-20260911/capability-review.md)共同构成本次裁决依据。
 
-| Gap | Astra当前处置 | 理由 / 取得返回包后核对 |
+**裁决：采纳设计方向，按修正后的合同拆施工；不原样接受返回包为当前产品的像素基线或canonical资产。** Astra负责本次架构/视觉判断；Luna的来源与源码检查是有界非作者核对，不替代产品实现后的独立接受。
+
+## DG-01–09
+
+| Gap | 正式处置 | 本轮确定的边界 |
 |---|---|---|
-| DG-01 | **defer具体资产；保留原生识别方向候选** | 来源→派生适合Spark但不能暗示固定三条关系；Attention人的环不能把所有正常注意力都定义为人的强制介入。需看16/18/20/24px、单色明暗、alternate/rejected及构造来源后裁光学与语义 |
-| DG-02 | **adopt live/sample边界；defer布局接受** | BE41查询live，Rebuild仍sample；来源版本/过期/未知/局部失败/冲突需逐格对owner，不从示例推生产能力 |
-| DG-03 | **adopt身份/权限分离原则；defer完整控制面** | 核全局助手与items队列、披露scope/revision、Question/Approval/Review、回执与恢复；原生图标不是权限状态 |
-| DG-04 | **adapt到真实中断语法；defer动效资产** | 120/180ms正确只是起点；须看首输出前/工具/等人/停止请求/已停止/失败的时间线、reduced-motion、选区和阅读位置保持 |
-| DG-05 | **adopt样本隔离；defer产品任务梯** | coordination当前是通信事实，没有调度/生命周期owner不接真Explore任务进度；只允许明确sample及接口缺口 |
-| DG-06 | **adopt双图标必须区分；text为待验候选** | 当前app.mjs两按钮同为panel-right，前者是context-popover，后者是工作面。text能表达摘要但也可能被读作排版控件，需邻接/窄屏/可访问名称对照及固定vendor来源 |
-| DG-07 | **adapt状态标注；不原样照搬aria-pressed** | 当前工作面标签随Open/Hide/Collapse改变，行为是披露/视图切换。优先按真实被控区域使用aria-expanded/controls并同步所有关闭路径；若要pressed，先明确稳定toggle名称及理由，不能只补属性造成双重语义 |
-| DG-08 | **adopt局部五拍故事范围；defer文案/视觉接受** | 保留hero/nav/Ideas/f137合理；新故事必须区分产品已有连续路径、设计候选和人的正式裁决，不把sample补成已上线能力 |
-| DG-09 | **adopt既有token合法组合和明暗映射；defer逐组合接受** | 不引平行token体系；核当前dark authored修正、Review/skin独立、solid正文/限定transient和focus/hover角色，不能因像素匹配就升为canonical |
+| DG-01 | **adapt：A/A概念进入adopted specimen** | Spark采用source→fan-out，Attention采用streams→ring。Spark A在16px明显偏扁，18×10路径占用不能写成已满足Lucide光学；修正尺寸与间距后再验。环表示注意对象/判断汇聚，不定义所有Attention都要人介入；三条线是抽象图形，不是固定关系数。保留文字标签。B梯级似趋势图，Attention B似列表，C/铃/闪光不采用 |
+| DG-02 | **adapt：沿现有只读Spark继续** | 接受empty/quiet/partial/unknown/error/conflict区别及可见刷新出口。画板视觉需回到实际级联token；Rebuild无生产owner前仍是样例。Refresh只读，不接受画板拟定的POST路径为后端合同 |
+| DG-03 | **adapt：队列/详情/助手各守对象** | 保留列表到详情、scope/revision/typed action/receipt和不确定重试的方向；LIVE标签逐项按能力核对修正。选择、焦点、Needs you可以同时存在；不允许以“判断对象”免除选择语义。全局助手会话与Attention items不合并 |
+| DG-04 | **adapt：功能性motion，非CSS-only完成** | 采用文字先于motion、无假进度、正文不逐token动画、重开不重播。每种动效需绑定真实状态和关闭/中断路径；Stopping宽度不得从28px图标跳成宽文字pill。常驻脉冲不作为默认必做项，先验证必要性和reduced-motion |
+| DG-05 | **adopt sample边界；defer生产任务梯** | 当前Thread/message继续沿既有projection。任务/Run/result/停止语义待实际owner合同；返回稿自拟Thread→task→result不升为新模型。不因存在flag就把新任务梯接进生产导航 |
+| DG-06 | **adapt：header双入口分形，动作沿能力** | Chat overview保留独立入口，使用三横线摘要方向；work surface保留panel-right。donor必须以固定Lucide实际文件名及hash入库，不能虚构text.svg。四种已接动作与其余缺口保持分别记账；不因画板画了hover隐藏条就覆盖现行可见性 |
+| DG-07 | **adapt：复用PropertyRow/tab/filter/disclosure** | 工作面按真实展开区域同步aria-expanded/aria-controls及Open/Hide/Collapse名称；不照搬aria-pressed。Request timeout并未在当前Settings实现，拒绝as-shipped称谓；设置样例数值不得反向制造owner单位/范围。Home/End等行为缺口另以真实源码确认，单独修 |
+| DG-08 | **adapt：五拍放在双原子后、Research前** | 采纳局部故事位置与静态线图方向；保留Hero/nav/Ideas及f137媒体。重写可独立承重的产品文案，移除“新增section/真实控件/静态SVG/无新motion”等施工旁白；第3拍跳转和第5拍Rebuild不能写成基线已接通的连续路径。商业化产品叙事授权保持，工程能力账独立如实记录 |
+| DG-09 | **adapt：只登记真正合法的组合** | 以实际CSS完整级联和appearance policy为准，拒绝旧色阶的pixel-perfect主张。状态与选择正交；Review/danger/focus受固定语义约束；sunken合法，不能泛禁“深色里任何比背景暗的部件”。无新增token家族 |
 
-## 建议PR拆分（登记，不等同已建远端PR或已授权所有候选施工）
+## 五处分歧的明确裁决
 
-1. **DR-01 · 来源与grammar裁定**：原始返回包hash、45行逐项处置、五个真实分歧、DG覆盖、既往裁决变化、合法组合表。此片先完成才发资产施工。
-2. **DR-02 · 原生glyph与header辨识**：Spark/Attention固定SVG、text来源与生成器、semantic映射、tooltip/名称/展开状态。小尺寸/明暗/forced-colors、每种关闭与焦点返回。新geometry与品牌身份包边界独立。
-3. **DR-03 · Spark/Attention真实控制面**：按现有查询和typed actions接线；状态/revision/scope/旧响应竞争与错误恢复。所有新增后端动作另列能力工单。
-4. **DR-04 · Chat/Composer/Settings共同交互**：动作/PropertyRow/tab与功能性motion分小片；当前token优先，键盘/触摸/IME/中断与reduced-motion按影响核。
-5. **DR-05 · Explore/Rebuild设计样本**：纯sample adapter与接口反向登记；无真实owner不发布可用按钮。
-6. **DR-06 · Pages五拍叙事**：DR01/03语义明确后接入；保留现行媒体source，校验页面尺度/窄屏/链接/静态退化，不在此片伪造新能力截图。
+1. **Spark A胜B，但当前SVG不是canonical**：fan-out表达来源依赖；阶梯太像增长/进度。DR-02修光学，不再重新开整族选型。
+2. **Header保持两个入口，不把overview塞进work surface tab**：summary是瞬态读面，工作面是持续工作位置；折叠工作面不应使summary不可达。三横线方案进入候选实现，名称仍为Chat overview；不为两个glyph增加常驻第三种导航。
+3. **Attention当前打开行保留现行float样式，但它仍是选择**：本轮不为统一灰阶改已实现pattern；文档撤回“不是selection”的理由。状态词/选择底/键盘ring可叠加，未来改变颜色需对照完整场景裁定。
+4. **Pages五拍位于双原子之后、Research之前**：这是用户既有原子优先读序的延续；文案改成来源变化→识别过期→定位工作→记录判断→工作继续，避免把未接Rebuild当成已测端到端。
+5. **glyph先adopted specimen，完成局部核验再canonical**：不是等待所有产品门，而是只等本次glyph的16/18/20/24光学、邻接辨识、IC-6、来源/生成器parity、命名、forced-colors/200%/焦点与触摸证据。VoiceOver未测仍明确未测，不补写通过。
 
-Astra主责语义、视觉及合流裁决；Luna可核来源/有界独立复核，作者不自称独立接受。现阶段未改产品、未接受原生glyph、未创建远端PR、未宣称Design材料齐全。待取到实际返回包后逐条完成本表，不要求用户重复批准既有接收工作。
+## 修正后的Visual Grammar
 
-## 固定vendor核对
+| 轴 | 应消费的规则 |
+|---|---|
+| Surface | frame/panel/float/sunken是角色。默认Slate在dbd1efe的light为#e0e4e7/#f4f5f6/#ffffff/#e9edef，dark为#171a1b/#222627/#2e3335/#1c2021；实际appearance可改变获准外观，不能将这组hex硬编码到组件 |
+| State | default/hover/pressed/selected/focus与running/waiting/review是不同事实；运行中的行可以被选中。不能用互斥“先后链”描述这些组合 |
+| Color | Review固定于scheme并独立于skin；danger、success、focus各守角色。activity不自动取得review或permission含义。对比度以实际组合测量，不能由currentColor推断合格 |
+| Type | 继承既有role/scale和排版密度。设计板正文小字号/元信息不能作为全局新标准；Pages campaign serif不进入应用控件 |
+| Material | 正文solid；仅消费已登记blur场景及solid回退。光泽与透明度不表达权威、成功或运行状态；不把旧试验当现行新增材质许可 |
+| Shape | 使用既有control/card/container角色，密度与hit region分别核；glyph视觉尺寸不等于点击尺寸，不能因画板声称44就算触摸通过 |
+| Motion | 按当前状态触发、可打断、阅读位置与输入保持；reduced-motion静态。120/180ms是可用既有值，不证明所有入场/退出生命周期已接通 |
+| Icons | Lucide固定子集继续canonical；原创两槽位单独adopted specimen，保留标签与语义key。图标不含状态/权限徽记，新增donor有来源hash和生成器证据 |
 
-本仓库sources.json固定Lucide1.41.0、commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`。直接读取该commit的 `icons/text.svg` 返回HTTP404；目前不能给此路径编造sha或直接加入来源账。需核对该版本实际资源名与返回包中的路径/alias，是否采用该形状仍待实际视觉比较。
+## 六个施工PR合同
 
-固定commit的官方Git tree已确认存在 `icons/text-align-start.svg`，而无 `icons/text.svg`。进一步读取该SVG和metadata的请求停滞后已终止；尚未确认alias/几何/hash，不能把替代名称自动当作Design所选资产。
+这些是可执行的分片合同，不等于已经创建六个远端PR，也不等于候选功能已实现。每片开工先重新读取main/HEAD、当前writer和相关合同；允许更细拆，不扩大文件所有权。
+
+| PR | owner / 写入面 | 交付与排除 | 必要验收 |
+|---|---|---|---|
+| **DR-01 来源与裁决** | Astra：本目录、research返回包、evidence、current/roadmap | 本次交付：全源hash、19板审阅、45行消费、五分歧、DG裁决与后续合同；不写app/site产品 | ZIP CRC/member一致、archive哈希、文档路径、非作者来源/能力核对 |
+| **DR-02 glyph与header** | Astra定geometry/语义；Luna可有界实施 `tools/ui-vendor/`、图标生成器输入、`app/web/vendor/`生成物、`app/web/semantic-controls.mjs`及header接线 | 原创A/A光学修订、固定donor、语义映射、完整close/open同步；与brand零依赖包分别记来源。不要改整个图标族 | 生成器三集合与hash parity；1440/1280/390明暗邻接；IC-6；可访问名/焦点/开合；forced-colors和200% |
+| **DR-03 Spark/Attention** | Astra整合；单writer拥有`spark-view.mjs`、`attention-view.mjs`/`attention-agent-view.mjs`及必要局部CSS | 只修已拥有事实的呈现和交互，真实projection优先；Rebuild、新调度与授权扩展另单 | partial/unknown/409/晚响应；receipt后重读、uncertain同身份重试、disclosure拒绝/过期；键盘返回与窄屏 |
+| **DR-04 Chat/Composer/Settings** | 单composer writer；`app.mjs`、`composer-field.mjs`、`chat-actions.mjs`、`settings-view.mjs`、`ui-controls.mjs`及局部CSS按子片独占 | 状态→motion hook、停止尺寸、消息动作可用性、PropertyRow和键盘；先对现实现做delta，不照抄整板重写 | IME、发送/等待/停止/失败、draft/selection/scroll保持、reduced-motion；原生owner范围；菜单/tooltip焦点与200% |
+| **DR-05 Explore/Rebuild specimen** | Astra冻结后端缺口；Luna可做隔离specimen adapter | 只在独立样例入口展示，不新增真实Task store/POST/停止操作；生产接线须进入既有MA/ME/BE工单 | 样例无真实副作用/权限提升、不混入真实投影；逐字段owner与capability缺口账 |
+| **DR-06 Pages五拍** | Astra叙事/整合；`site/src/page.mjs`、必要site样式与自有图资产 | 局部接入独立文案和五图；保留双原子/现行导航/Ideas/媒体来源；不以样例重标产品截图 | 构建/链接/媒体hash；桌面与窄屏、静态/reduced-motion；文案与实际证据边界分别复核；部署另按现有发布授权范围 |
+
+**共享文件交接**：DR-02仅在header子片拥有`app/web/app.mjs`与glyph/header所需`app/web/styles.css`块，交付固定commit后释放。DR-03仅拥有Spark/Attention局部模块与对应CSS块，不修改composer/header；如需`app.mjs`入口接线，由Astra在DR-02交接后单独集成commit完成。DR-04在DR-03交接commit后取得`app.mjs`、`styles.css`、`ui-controls.mjs`共享写权。不得并行改同一共享文件，不跨片顺手整理；每个PR描述记录取得/交出的commit及未完成事项。
+
+顺序：DR-01 → DR-02 → DR-03 → DR-04；DR-05是隔离设计资产，可在owner合同待定时整理；DR-06在语义修订后接入。此队列不重开已经接收的深色气泡修补，也不把历史f137截图改成新设计golden。
+
+## 连续性与验证记录
+
+最近已实现先例：`semantic-controls.mjs`的semantic glyph映射；`app.mjs`的context popover与work-surface开合；`spark-view.mjs`的只读dialog/tab；`attention-view.mjs`的registry/detail/typed-action回执；`settings-view.mjs`的PropertyRow；`site/src/page.mjs`的双原子。固定基线均为dbd1efe。影响grammar为Semantic、Projection/Control、Visual、Placement；本片只登记裁决，不改变运行事实。
+
+原始板是静态HTML，CSP禁止所附脚本；截图属于设计审阅，不能当作点击路径、motion执行、原生宿主、VoiceOver、IME、forced-colors或200%测试。19板均有可视取样，长板以相关滚动段加完整原文核对；Return长表存在横向裁切。具体采样与排除文件见visual-review。DR-02–06实现后的接受仍独立；本片未改变Runtime/Core schema、权限、provider或产品门。

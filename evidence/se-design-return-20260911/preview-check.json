@@ -1,0 +1,7 @@
+{
+  "member": "return-package/artboards/Main.dc.html",
+  "byte_equal": true,
+  "sha256": "dcefff701f8d984356010f92f39c92f22b5de0b21b81b98b7430d9ac037eceaf",
+  "scripts_blocked": true,
+  "binding": "127.0.0.1 random port"
+}

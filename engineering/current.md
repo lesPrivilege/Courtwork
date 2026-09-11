@@ -1,6 +1,8 @@
 # 当前工程状态
 
-## 2026-09-11 · Pages已发布；独立Design one-shot送审准备
+## 2026-09-11 · Pages已发布；独立Design返回已裁决
+
+已取得独立Design的7页/19板及45行返回账。Astra完成[逐DG裁决、五分歧与六PR合同](design/se-control-one-shot-2026-09-11/return-intake.md)：A/A原生glyph进入adopted specimen；header入口分形、现行Attention选中样式、双原子后的五拍方向采纳并修订。返回板旧token级联、部分live/CSS-only主张与引用需修，未原样接受为产品baseline。原始66文件已按hash归档；本轮交付为裁决与施工合同，DR-02–06尚未实现，不改变产品/schema/权限或部署状态。
 
 `a01dee89e752111e63012b705ef81350ce518446`已合入并推送main，26张f137真实宿主合成状态截图ready；GitHub手动部署34563551594成功，线上媒体manifest与本地相同。[发布回执](../evidence/semantic-polish-merge-20260911/publication.md)记录来源、失败修正及限定。旧pending/准备段落为历史时点。
 
