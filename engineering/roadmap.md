@@ -314,3 +314,5 @@ Design返回接收完成：[Astra裁决与DR-01–06](design/se-control-one-shot
 [Attention/Spark闭环](research/obligation-closure-2026-09-12/README.md)接ATT/ME-06/LG既有路线：先带版本的采用、消费、实现和检查回执，现Core owner负责关闭。Spark核查不自动resolve，heartbeat不证明完成，Tension仅投影候选；调度规则与执行留后续，不改发布面或当前Harness排序。
 
 2026-09-12整体模型：[governed work loop及独立review入口](release/governed-work-loop-2026-09-12/README.md)采用四职责围绕受治理工作状态，沿现有BE/LG/RG/ATT/ME路线消费，不新增四agent架构或扩大自动关闭权限；review先审owner/回执/披露与实施缺口，再决定下一节点顺序。
+
+2026-09-12 Chat收敛：[薄能力层](research/chat-memory-broker-2026-09-12/thin-capabilities.md)采用人主导讨论与有界执行互补，按需补足检索/来源；模型能力与Harness效果不作未经验证的强弱/因果结论。仅登记main，沿现有路线消费，不改发布或排单。

@@ -129,3 +129,7 @@ Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile
 ## 2026-09-12 · Chat Memory Broker长期消费（未派发）
 
 [登记与消费矩阵](../../../research/chat-memory-broker-2026-09-12/README.md)沿BE-19的memory owner/来源披露/关闭、BE-20 temporary、BE-23普通Chat身份及LG/RG检索接缝。Broker只组合获准reader，Provider侧MCP注册不等于现有MCP客户端已提供该服务；先冻结可信身份、query/read逐次撤权检查、预算与disclosure回执。propose_memory仍为候选，内部context不伪装为用户消息，未启动connector/新API/schema或改发布面。
+
+## 2026-09-12 · Chat薄能力补充（未派发）
+
+[薄能力层裁决](../../../research/chat-memory-broker-2026-09-12/thin-capabilities.md)接原Chat/BE-19/20/23与LG/RG来源路线，默认只做讨论所需的可选search/read/context；实际effect、账号绑定、披露和handoff命令分别检查，不开放通用执行环境，不复制connector注册表。设置分类与Provider兼容性待具体实现验证，本轮无新增API或UI。

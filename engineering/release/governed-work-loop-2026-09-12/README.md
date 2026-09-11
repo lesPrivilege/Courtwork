@@ -47,3 +47,5 @@
 ## 发布与干净节点范围
 
 本次Pages部署包含已提交的深色“一笔红”修正 `ad5a03f`，沿既有GitHub Pages workflow，不迁移hosting。发布结果见[deployment](deployment.md)。独立review使用与远端main对齐的干净检出；共享Courtwork目录的其他writer未提交内容单独保留，不混入本次提交，也不把保留它们的共享目录称为clean。所有已合入本轮开发分支可退役，archive ref保持。
+
+后续Chat边界：[薄能力层裁决](../../research/chat-memory-broker-2026-09-12/thin-capabilities.md)登记Provider会话与可选检索/connector，避免Chat扩张为通用执行环境；这是本发布节点之后的文档增量，不重写已固定部署或冒称已实现。
