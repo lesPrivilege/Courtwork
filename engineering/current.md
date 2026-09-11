@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 工作义务闭环裁决登记
+
+[Attention/Spark小闭环](research/obligation-closure-2026-09-12/README.md)由Astra裁定只作后续工程消费：采用带版本的义务/消费/实现/核查回执，Spark负责有界准备与检查，现Core owner保持关闭权限；不以Spark verified、heartbeat或已阅自动resolve，不以直线回执替换Attention状态机。已接ATT/ME-06/LG与下一Harness索引，Tension仅投影候选，频率/stale/调度等真实trace后另定。隔离5196文档链接通过；本地合流仅文档，无监控/运行/UI/schema或发布面变化，未push/deploy，用户未提交内容保留。
+
 ## 2026-09-12 · Chat Memory Broker只登记合流
 
 按用户条件裁定，[Chat长期增量](research/chat-memory-broker-2026-09-12/README.md)细化既有跨Provider连续性，不改变本次发布面定义。Broker组合原owner的获准reader，Compiler编译本次context；可见对话、披露回执与模型实际使用分开，缓存不自动成为memory、跨Provider不跨安全域。已接BE-19/20/23、LG/RG文稿与下一Harness索引，远端没有待合并相关PR；本单合入本地main供消费，未实现API/connector/UI、未新调用Provider或再发布。隔离5177条文档链接与engineering-only范围通过，用户既有未提交内容保留，独立排单仍待用户决定。
