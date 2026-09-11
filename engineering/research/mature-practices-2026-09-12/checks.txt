@@ -1,0 +1,19 @@
+PASS: 2 turns / 4 complete messages / 1 attachment; raw-to-extracted text equality; all source SHA-256 verified.
+Pre-sync doc links: {
+  "pass": true,
+  "documents": 1024,
+  "checked": 5058,
+  "problems": []
+}
+git diff --check: PASS.
+Main advanced during work: d62f6bb873db2b1d8753beed89ed166956bcb715; prior RD-006 already merged externally.
+Read-only comparison 647bc216..d62f6bb -- app docs: empty.
+Isolated merge: one current.md conflict; retained incoming current and added this intake section.
+Final doc links: {
+  "pass": true,
+  "documents": 1035,
+  "checked": 5121,
+  "problems": []
+}
+git diff --cached --check: PASS.
+No product tests run: documentation-only.

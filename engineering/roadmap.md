@@ -1,5 +1,9 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## 2026-09-12 · 资源、消息与持久成果治理准备
+
+[RD-007](research/RD-007-resource-governance.md)和[分期roadmap](research/mature-practices-2026-09-12/roadmap.md)登记RG-BE-01…06 / RG-FE-01…03：来源保留与只读资源面→消息引用/保留关联→检索/版本注释→引用盘点及按需互操作。沿LG/DS/BG/Runtime既有owner，Core接受不与Library共享混同；DWB目录执行授权与内容关系分开。当前仅文档准备，不抢在途前端writer，不把九份消费稿当必须全部实施的承诺。
+
 ## Paper出版面 · 当前优先设计输入（2026-09-11）
 
 优先消费[修订Paper发布版面](research/paper-publishing-2026-09-11/README.md)，Claude做原创编辑插画及出版view候选，Astra裁决，Luna索引。按[任务稿](research/paper-publishing-2026-09-11/CLAUDE-BRIEF.md)从独立SE Paper真实源和CourtWork角色token出发，保留双语/三卷/主题；不将发布面9月11修订替代论文内容版本。本项是出版设计优先，不重排独立在途产品writer或关闭下列产品门；当前交付为入账/索引/任务稿，未宣称Paper UI已实现。

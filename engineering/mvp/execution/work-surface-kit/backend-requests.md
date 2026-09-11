@@ -121,3 +121,7 @@ Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile
 ## 2026-09-12 · 延迟资源绑定前端消费
 
 [前端消费与缺口](../../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)已接入维度规则；DWB-01绑定/快照/迁移、DWB-02本地只读资源工具、DWB-03真实capability接线沿[原PR文稿](../../../research/deferred-workspace-binding-2026-09-12/pr-plan.md)推进。BE-23普通projectless Chat保持开放；未新增同义BE编号，不以现Attention global创建替代它。
+
+## 2026-09-12 · 内容资源治理消费稿（未派发）
+
+[RD-007 / RG-BE-01…06](../../../research/mature-practices-2026-09-12/pr-plan.md)登记来源保留、消息附件引用、Run版本retain/目标owner关联、检索重建、版本注释与retention dry-run，依[roadmap](../../../research/mature-practices-2026-09-12/roadmap.md)接LG/DS/BG/Runtime原owner。不复用历史BE-24，不把BE-5…11 Runtime Resource当内容store，不以BE-17/18 provider preview或BE-41派生查询替代资源版本reader；一般projectless Chat继续BE-23。本轮仅后续PR文稿，未实现API/schema或重派已交付后端。
