@@ -51,3 +51,8 @@ Pages修订图的红属于`diffAccent`，无需伪装为唯一Attention决策点
 统一合成预览是独立演示身份，不给真实项目伪造历史或执行回执。真实执行成功建立身份后退出默认示例投影，保留用户数据与重新打开示例的入口。开工、失败、刷新与真正开始执行必须区分；具体生命周期沿现owner接入。
 
 用户询问diff双列行号，理解为旧/新行号后明确“不必改”。保留现状，不加列标题。
+
+
+## 2026-09-12 用户澄清 · 覆盖此前 control accent 范围
+
+用户以 Appearance 的 System 选项框截图明确：这类选项框不引入红色，历史红色裁决指滑动式 Button（switch）。因此 segmented 的选中浮层保留中性底色/阴影，普通 native radio/checkbox 沿中性 ink；红色 control accent 保留在滑动 switch 的 on 状态。键盘 focus、真实 disabled 与 Review/danger/diff 语义各自保持。此前允许普通选中项红色的宽泛表述由本条覆盖。

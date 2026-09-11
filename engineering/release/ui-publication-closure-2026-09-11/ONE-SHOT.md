@@ -59,3 +59,8 @@ Astra批准新增普通交互控件accent角色，使开关、选中项等适当
 ## Spark定义接续 · 2026-09-11
 
 消费[Spark产品与发布定义](../../research/spark-product-definition-2026-09-11/README.md)：快速有界的整理、抽取、分类、翻译，后台准备与直接唤起并存；第一阶段是Harness Core受限profile，DeepSeek V4.1 Flash为首个适配目标，非已接入声明。纳入既有Spark面、三面并置及统一预览，产品glyph按最新形象裁定重设计；局部翻译只能在明确示例身份中设计，不新增假可用生产按钮或后端。普通文案取登记稿，不采用未经CW实测的供应商性能结论。原16f6337完整ZIP保持原字节，此为同一工单补充。
+
+
+## 2026-09-12 用户澄清 · 覆盖此前 control accent 范围
+
+用户以 Appearance 的 System 选项框截图明确：这类选项框不引入红色，历史红色裁决指滑动式 Button（switch）。因此 segmented 的选中浮层保留中性底色/阴影，普通 native radio/checkbox 沿中性 ink；红色 control accent 保留在滑动 switch 的 on 状态。键盘 focus、真实 disabled 与 Review/danger/diff 语义各自保持。此前允许普通选中项红色的宽泛表述由本条覆盖。

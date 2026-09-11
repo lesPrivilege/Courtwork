@@ -31,8 +31,8 @@ test("the switch is the specimen: on = accent, disabled = unavailable pair, off 
   assert.match(css, /\.runtime-switch input:disabled::after \{\n  background: var\(--control-unavailable-ink\);/);
   const off = block(".runtime-switch input::before {", "}");
   assert.doesNotMatch(off, /control-accent|unavailable/, "off state stays neutral");
-  assert.match(css, /accent-color: var\(--control-accent\)/, "native checkbox / radio use the control accent");
-  assert.match(css, /\.segmented::before \{ box-shadow: var\(--shadow-thumb\), inset 0 0 0 1px var\(--control-accent\); \}/);
+  assert.match(css, /accent-color: var\(--ink\)/, "ordinary checkbox / radio selection stays neutral");
+  assert.doesNotMatch(css, /\.segmented::before \{[^}]*control-accent/, "segmented selection has no red frame");
   assert.match(css, /\.segmented:disabled \{\n  background: var\(--control-unavailable-fill\);\n  opacity: 1;/);
 });
 

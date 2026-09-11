@@ -441,7 +441,7 @@ body {
   background: var(--frame);
   color: var(--ink);
   overflow: hidden;
-  accent-color: var(--control-accent);
+  accent-color: var(--ink);
   text-wrap: pretty;
 }
 ::selection {
@@ -3276,7 +3276,6 @@ dialog[open]::backdrop {
 .segmented:has(.segment:nth-child(3) input:checked)::before {
   translate: calc(200% + 4px) 0;
 }
-.segmented::before { box-shadow: var(--shadow-thumb), inset 0 0 0 1px var(--control-accent); }
 .segmented:disabled {
   background: var(--control-unavailable-fill);
   opacity: 1;
@@ -5426,8 +5425,8 @@ html[data-theme="dark"] {
     --control-unavailable-ink-foreground: #f1c7c3;
   }
 }
-/* tier:R · control roles. --control-accent says "on / selected" on an interactive
-   control and nothing else: not Review, not danger, not diff, not brand. The
+/* tier:R · control roles. --control-accent says "on" on a sliding switch
+   (2026-09-12 user clarification), not general selected fields: not Review, not danger, not diff, not brand. The
    unavailable pair only appears where the DOM action is actually impossible
    (disabled / aria-disabled), never as a hint on an available control. */
 :root {
