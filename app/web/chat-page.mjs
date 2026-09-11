@@ -85,11 +85,13 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
       if (rows.length > recent.length) continueSection.append(el("p", { className: "form-help", text: `${rows.length - recent.length} more in the project list.` }));
     } else {
       continueSection.append(el("p", { className: "chat-empty", text: "No chats yet. New chat starts one; Home's composer does the same with a project chosen." }));
-      if (example && onExample) {
-        const see = el("button", { className: "quiet-button", text: example.label || "See the example workspace", attrs: { type: "button", "data-chat-action": "example" } });
-        see.addEventListener("click", () => onExample());
-        continueSection.append(see);
-      }
+    }
+    /* Stage 4 · the example workspace can be looked at again from here whether
+     * or not real chats exist; the entry is a quiet button, never a row. */
+    if (example && onExample) {
+      const see = el("button", { className: "quiet-button chat-example", text: example.label || "See the example workspace", attrs: { type: "button", "data-chat-action": "example" } });
+      see.addEventListener("click", () => onExample());
+      continueSection.append(see);
     }
 
     const facets = el("section", { className: "chat-facets", attrs: { "aria-label": "Chat, Attention and Spark" } }, ...FACETS.map(facet));

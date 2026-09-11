@@ -216,6 +216,9 @@
             </h1>
             <div id="session-meta" class="session-meta"></div>
           </div>
+          <!-- Stage 4 · one word while the example workspace is shown; it is not
+               a control and it never appears on Settings. -->
+          <span id="preview-chip" class="preview-chip" hidden>Example</span>
           <!-- WK-94 · 连接身份在这一屏只说一次，说在 composer 的上下文行里；
                header 的 capability badge 因此退役。 -->
           <div class="chat-header-actions">
@@ -251,6 +254,24 @@
         <!-- WK-32 / 46 · Home's top band: three recorded totals and one planned
              row. It leads the reading order on Home and is hidden in a session,
              which has no cross-session totals to state. -->
+        <!-- Stage 4 · the example workspace: one sentence about what is shown and
+             the two ways out while it is active; one offer to look at it when the
+             workspace is empty and it is not active. -->
+        <div id="preview-banner" class="preview-banner" role="region" aria-label="Example workspace" hidden>
+          <div id="preview-banner-active">
+            <p class="preview-banner-text">You are looking at an example: synthetic material and a local deterministic answer, nothing from your machine. Reading here changes nothing; your first real run closes it.</p>
+            <div class="preview-banner-actions">
+              <button id="preview-start-button" class="text-button" type="button">Start with your own work</button>
+              <button id="preview-leave-button" class="quiet-button" type="button">Close the example</button>
+            </div>
+          </div>
+          <div id="preview-banner-offer" hidden>
+            <p class="preview-banner-text">No projects yet. You can look at an example workspace first; it is synthetic and creates nothing.</p>
+            <div class="preview-banner-actions">
+              <button id="preview-offer-button" class="quiet-button" type="button">See the example workspace</button>
+            </div>
+          </div>
+        </div>
         <section
           id="home-top-band"
           class="home-top-band"

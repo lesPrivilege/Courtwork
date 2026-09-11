@@ -24,6 +24,7 @@ installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
 import { createChatPage } from "./chat-page.mjs";
+import { createPreviewLayer, PreviewRefusal } from "./preview-layer.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
@@ -84,6 +85,11 @@ import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.
 
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
+/* Stage 4 (ONE-SHOT 2026-09-11) · the example workspace is a projection layer
+ * over `request()`: while it is active, work reads are answered from one
+ * recorded synthetic story and writes against example objects are refused
+ * locally. Host facts, the data directory and every real object stay real. */
+const preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });
 const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 // WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
@@ -736,6 +742,14 @@ async function request(path, options = {}) {
   }
   if (state.token && path !== "/bootstrap")
     headers["X-Work-Token"] = state.token;
+  if (!options.bypassPreview) {
+    const answered = preview.intercept(path, { method: init.method, body: options.body });
+    if (answered) {
+      if (answered.refuse) throw answered.refuse;
+      if (answered.status) { const error = new Error(answered.message); error.status = answered.status; error.body = null; throw error; }
+      return answered.payload;
+    }
+  }
 
   let response;
   try {
@@ -881,12 +895,18 @@ function mergeEvents(events) {
       if (Number(event.seq) > priorSeq) fresh.push(event);
     }
     const type = normalizedType(event.type);
-    if (type === "run/status" && event.runId && event.data?.status)
+    if (type === "run/status" && event.runId && event.data?.status) {
       changed =
         mergeRun(
           { id: event.runId, status: event.data.status },
           { sessionId: eventSessionId || state.activeSessionId },
         ) || changed;
+      // Stage 4 · the first real run that completes closes the example; a
+      // run that only had its receipt admitted, or failed, changes nothing.
+      const runSession = eventSessionId || state.activeSessionId;
+      if (event.data.status === "completed" && preview.active && runSession && !preview.isExampleId(runSession))
+        void leavePreview("established");
+    }
     if (type === "run/error" && event.runId)
       changed =
         mergeRun(
@@ -1656,6 +1676,11 @@ async function selectProject(projectId, { sessionId = null } = {}) {
 async function loadProjects() {
   const result = await request("/projects");
   state.projects = result.projects || [];
+  if (preview.active) {
+    // The story's projects sit beside the person's own; only the story is marked.
+    const real = await request("/projects", { bypassPreview: true });
+    state.projects = [...state.projects.map((project) => ({ ...project, preview: true })), ...(real.projects || [])];
+  }
   const valid = new Set(state.projects.map((project) => project.id));
   for (const projectId of state.sessionsByProject.keys()) {
     if (!valid.has(projectId)) state.sessionsByProject.delete(projectId);
@@ -1821,6 +1846,7 @@ function renderProjectList() {
         className: "project-name",
         text: project.name || "Unnamed project",
       }),
+      project.preview ? element("span", { className: "project-tag", text: "Example" }) : null,
     );
     button.addEventListener("click", () => {
       const wasOpen = state.openProjectIds.has(project.id);
@@ -4907,20 +4933,22 @@ function homeProjectId() {
   const start = state.homeStart;
   const fixedProject = start?.pending || start?.unconfirmed || start?.session;
   const preferred = (fixedProject ? start.projectId : state.homeProjectId) || state.activeProjectId;
-  return state.projects.find((project) => project.id === preferred)?.id || state.projects[0]?.id || null;
+  const own = state.projects.filter((project) => !project.preview);
+  return own.find((project) => project.id === preferred)?.id || own[0]?.id || null;
 }
 function renderHomeComposerContext() {
   const project = $("home-project-input");
-  const signature = JSON.stringify(state.projects.map(({ id, name }) => [id, name]));
+  const own = state.projects.filter((item) => !item.preview);
+  const signature = JSON.stringify(own.map(({ id, name }) => [id, name]));
   if (project.dataset.options !== signature) {
-    project.replaceChildren(...(state.projects.length
-      ? state.projects.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
+    project.replaceChildren(...(own.length
+      ? own.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
       : [element("option", { text: "Create a project to begin", attrs: { value: "" } })]));
     project.dataset.options = signature;
   }
   project.value = homeProjectId() || "";
   const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session);
-  project.disabled = locked || !state.projects.length;
+  project.disabled = locked || !own.length;
   $("home-permission-input").value = state.homePermissionMode;
   $("home-permission-input").disabled = locked;
   $("home-create-project").disabled = locked;
@@ -5028,6 +5056,11 @@ async function submitSessionRun({ commandId = null } = {}) {
     state.unconfirmedRuns.has(session.id)
   )
     return;
+  if (preview.isExampleId(session.id)) {
+    // The example never runs: the draft stays as typed, nothing is sent.
+    showToast("This chat is part of the example and cannot run. Start your own chat from Home.");
+    return;
+  }
   if (state.connectionLost) {
     // WS-12: the connection-lost guard applies to every send entry point —
     // Enter and a Send click both reach this same function (the form's
@@ -5469,7 +5502,7 @@ async function loadHomeActivity() {
     }
   }
 }
-async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId(), offset = 0) {
+async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId() || state.projects[0]?.id || null, offset = 0) {
   const target = state.homeAttention;
   const own = ++target.generation;
   target.detailGeneration++;
@@ -5614,19 +5647,24 @@ async function openChatPage() {
     sessionsByProject: state.sessionsByProject,
     activeSessionId: state.activeSessionId,
     currentSession: currentSession(),
-    example: state.preview?.available ? { label: "See the example workspace" } : null,
+    example: preview.available && !preview.active ? { label: "See the example workspace" } : null,
   });
   $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
 }
 function startNewSession({ projectId = null } = {}) {
   state.homeProjectRequest = false;
-  if (!state.projects.length) {
+  if (preview.isExampleId(projectId || state.activeProjectId)) {
+    showToast("This project is the example. New chats begin in a project of your own.");
+    projectId = null;
+    state.activeProjectId = null;
+  }
+  if (!state.projects.some((project) => !project.preview)) {
     state.startAfterProject = true;
     openDialog("project-dialog", "project-name-input");
     return;
   }
   state.newSessionProjectId =
-    projectId || state.activeProjectId || state.projects[0].id;
+    projectId || state.activeProjectId || state.projects.find((project) => !project.preview).id;
   $("session-project-label").textContent =
     state.projects.find((p) => p.id === state.newSessionProjectId)?.name ||
     "Project";
@@ -6198,6 +6236,12 @@ function wireEvents() {
   };
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
+  $("preview-start-button").addEventListener("click", async () => {
+    await leavePreview("dismissed");
+    startNewSession();
+  });
+  $("preview-leave-button").addEventListener("click", () => void leavePreview("dismissed"));
+  $("preview-offer-button").addEventListener("click", () => void openPreview());
   setAction($("home-button"), "house", "Home", { visible: true });
   /* The three seats keep icon + text: a name is scanned, a glyph only identifies. */
   setSemanticControl($("chat-button"), "chat.surface", { visible: true });
@@ -6668,7 +6712,7 @@ async function init() {
     onNewChat: () => startNewSession({ projectId: state.activeProjectId }),
     onOpenAttention: () => attentionAgent.open(),
     onOpenSpark: () => sparkView.open(currentProject()?.id ?? null),
-    onExample: () => void openPreview?.(),
+    onExample: () => void openPreview(),
   });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;
@@ -6689,6 +6733,12 @@ async function init() {
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
+    await preview.load();
+    if (preview.shouldAutoEnter({ projectCount: state.projects.length })) {
+      preview.enter();
+      await loadProjects();
+      state.openProjectIds = new Set(state.projects.filter((project) => project.preview).map((project) => project.id));
+    }
     // Only a new device gets the initial overview; an explicitly collapsed tree stays collapsed.
     if (!Array.isArray(savedUi.openProjectIds))
       state.openProjectIds = new Set(state.projects.slice(0, 2).map(project => project.id));
@@ -6724,6 +6774,59 @@ function renderAll() {
   renderChat();
   renderSurfaceVisibility();
   renderConnectionStatus();
+  renderPreviewChrome();
+}
+
+/* --- Stage 4 · the example workspace ------------------------------------
+ * One synthetic story shown through the product's own projections. It is
+ * entered automatically only on a workspace with no projects, left for good
+ * when a real run is admitted, and can be closed or reopened by hand. */
+function renderPreviewChrome() {
+  const settingsOpen = state.settings.open;
+  const home = state.view === "home" && !state.attentionOpen && !state.chatOpen && !settingsOpen;
+  $("preview-chip").hidden = !preview.active || settingsOpen;
+  const banner = $("preview-banner");
+  const offer = !preview.active && preview.available && !state.projects.length;
+  banner.hidden = !home || !(preview.active || offer);
+  banner.dataset.mode = preview.active ? "active" : "offer";
+  $("preview-banner-active").hidden = !preview.active;
+  $("preview-banner-offer").hidden = preview.active;
+  $("app-shell").classList.toggle("preview-active", preview.active);
+}
+async function reloadWorld() {
+  state.chatOpen = false;
+  state.attentionOpen = false;
+  await loadProjects();
+  const valid = new Set(state.projects.map((project) => project.id));
+  if (!state.activeProjectId || !valid.has(state.activeProjectId) || preview.isExampleId(state.activeSessionId)) {
+    state.activeProjectId = null;
+    state.restoreSessionId = null;
+    clearActiveSession();
+    state.view = "home";
+  }
+  await Promise.all([...state.openProjectIds].map((id) => loadSessionsForProject(id)));
+  await loadHome();
+  writeUiState();
+  renderAll();
+}
+async function openPreview() {
+  if (!preview.reopen()) return;
+  await persistCurrentDraft();
+  state.activeProjectId = null;
+  state.restoreSessionId = null;
+  clearActiveSession();
+  state.view = "home";
+  await loadProjects();
+  state.openProjectIds = new Set(state.projects.filter((project) => project.preview).map((project) => project.id));
+  await reloadWorld();
+  $("session-title")?.focus();
+}
+async function leavePreview(reason = "dismissed") {
+  if (!preview.leave(reason)) return;
+  await reloadWorld();
+  showToast(reason === "established"
+    ? "Your first run is recorded. The example workspace is closed; it stays available from Chat."
+    : "The example is closed. It stays available from Chat.");
 }
 
 window.__V5_UI__ = {

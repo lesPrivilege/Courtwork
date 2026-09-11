@@ -6247,3 +6247,41 @@ html[data-theme="dark"] {
   .runtime-row.is-tool-summary { grid-template-columns: minmax(0, 1fr); }
   .runtime-row.is-tool-summary > .runtime-dimensions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ==== Stage 4 · the example workspace (ONE-SHOT 2026-09-11) ============
+   One chip in the title band, one banner at the head of Home, one tag on the
+   story's project rows. All of it is the product's own type and level roles:
+   the example is a labelled state, not a themed mode. */
+.preview-chip {
+  align-self: center;
+  margin-left: var(--space-2);
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.preview-banner {
+  max-width: var(--home-column);
+  margin: 0 auto var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+.preview-banner-text { margin: 0; font-size: var(--text-body); color: var(--muted-strong); }
+.preview-banner-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
+.project-tag {
+  margin-left: auto;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-meta);
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+@media (forced-colors: active) {
+  .preview-chip, .project-tag, .preview-banner { border-color: CanvasText; }
+}

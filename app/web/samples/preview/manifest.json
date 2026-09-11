@@ -1,0 +1,30 @@
+{
+  "file": "responses.json",
+  "bytes": 126551,
+  "sha256": "24643349eb863edd05466ebd3478edf25ed0aac69f0ddbc07347e4c6668f1bcf",
+  "entries": 25,
+  "ids": 49,
+  "source_sha": "2c7d181c3f6af761b0d4d09b04097a9fce8b0460",
+  "origin": "http://127.0.0.1:8848",
+  "recorded_at": "2026-09-11T16:11:33.861Z",
+  "host_routes_seen_but_not_served": [
+    "GET /bootstrap",
+    "GET /extensions",
+    "GET /provider-config",
+    "GET /provider-connections",
+    "GET /provider-models",
+    "GET /runtime-context?sessionId=35079c22-eb07-4751-9532-de4b9c23000d",
+    "GET /runtime-context?sessionId=809bff44-5dac-4f1d-bb11-585809592468",
+    "GET /runtime-context?sessionId=ab845057-7234-4e67-997f-391980d765d6",
+    "GET /runtime-context?sessionId=e470507e-e1c5-454f-a691-e464e9bcf4b5",
+    "GET /runtime-context?sessionId=e470507e-e1c5-454f-a691-e464e9bcf4b5&runId=8ea6a1ce-eb0c-4b1c-a1af-ff2abb461ff2",
+    "GET /runtime-context?sessionId=ee0bf4bf-f345-460c-ab95-961abb834f4d",
+    "GET /runtime-context?sessionId=ee0bf4bf-f345-460c-ab95-961abb834f4d&runId=0a7fe473-4fcc-4b0d-a5f9-9ad36b9514d5",
+    "GET /runtime-control?sessionId=35079c22-eb07-4751-9532-de4b9c23000d",
+    "GET /runtime-control?sessionId=809bff44-5dac-4f1d-bb11-585809592468",
+    "GET /runtime-control?sessionId=ab845057-7234-4e67-997f-391980d765d6",
+    "GET /runtime-control?sessionId=e470507e-e1c5-454f-a691-e464e9bcf4b5",
+    "GET /runtime-control?sessionId=ee0bf4bf-f345-460c-ab95-961abb834f4d",
+    "GET /runtime-info"
+  ]
+}
