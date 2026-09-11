@@ -5,7 +5,7 @@ Stage 4 of the [final Claude Design ONE-SHOT](../../engineering/release/ui-publi
 ## What it is
 
 - **A projection layer, not a runtime.** `app/web/preview-layer.mjs` sits under `request()` in `app.mjs`. While it is active it answers the work-data reads the surfaces make (`/projects`, `/sessions…`, `/runs…`, `/work-*`, `/attention…`, `/coordination…`) from one recorded sample file, and refuses any write aimed at an example object with one sentence. Host facts (`/bootstrap`, provider, runtime, extensions, usage) are never answered by it. Core, schema, the server and the data directory are untouched.
-- **One story.** `app/web/samples/preview/responses.json` is recorded by `app/scripts/record-preview.mjs` from the canonical capture fixture (`evidence/semantic-polish-merge-20260911/capture-fixture.mjs`, `--active none --seed-only --retain`): two projects, six chats, one attention item, one Spark derivation set, a local deterministic answer. `manifest.json` beside it carries the sha256, entry count and the fixture's source commit. The same fixture is the one the Pages media are captured from.
+- **One story.** `app/web/samples/preview/responses.json` is recorded by `app/scripts/record-preview.mjs` from the canonical capture fixture (`evidence/semantic-polish-merge-20260911/capture-fixture.mjs`, `--active none --seed-only --retain`): two projects, project chats and retained Attention conversations, one attention item, one Spark derivation set, a local deterministic answer. `manifest.json` beside it carries the sha256, entry count and the fixture's source commit. The same fixture is the one the Pages media are captured from.
 - **Marked, everywhere.** The title band carries the word *Example*; Home opens with one sentence and two ways out; the story's project rows carry an *Example* tag; the composer's project choice never lists an example project.
 
 ## Entry, exit, reopening
@@ -16,8 +16,11 @@ Stage 4 of the [final Claude Design ONE-SHOT](../../engineering/release/ui-publi
 | Existing projects | nothing automatic; *See the example workspace* on the Chat page opens it beside the person's own projects |
 | *Close the example* / *Start with your own work* on Home | the layer leaves; `off` is remembered on the device; Home offers the example again while there are no projects |
 | First **admitted** real run (2xx run receipt in a chat of the person's own) | the layer leaves for good; `established` is remembered; the Chat page keeps the reopen entry |
-| A real run that fails to start | nothing changes; the example stays until a run is admitted |
+| HTTP admission rejection or a missing/mismatched receipt | nothing changes; the example stays until a matching run is admitted |
+| Provider failure after a matching 2xx receipt | real work was admitted; the example stays closed and the failed run remains real history |
 | No local runtime | the page is not served; there is nothing to enter |
+
+While the example is active, Home totals and activity use the real endpoints whenever real projects exist. With no real projects, those modules show the marked example story. Example IDs in mutation payloads are refused as well as IDs in the URL; mentioning an example in ordinary prompt text is not a write to it.
 
 The memory is one word in `localStorage` under `schema-engineering.preview.v1` (`off` or `established`); a blocked storage reads as nothing remembered.
 
