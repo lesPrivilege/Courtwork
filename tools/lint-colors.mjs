@@ -56,6 +56,7 @@ const FILL = new Map([
   [".usage-stacked-bar button", "Configured model token series; exact values/table and native forced-colors fallback"],
   [".usage-series-label::before", "Categorical model legend mark, paired with text and exact table"],
   ...[1, 2, 3, 4].map(level => [` .home-heatmap-cell[data-level="${level}"]`.trim(), "UTC retained-run count intensity; neutral data mark, never review attention"]),
+  [".diff-add-word", "Single-red change grammar: solid block only on words that are new (diff-view.mjs); not a surface, not danger"],
   ["#send-button", "圆形主控件的实心填充"],
   ["#cancel-run-button", "同槽的 Stop，实心填充"],
   ["#send-button:hover", "同上，按压态"],
