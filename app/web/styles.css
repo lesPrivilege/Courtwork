@@ -5311,16 +5311,19 @@ html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-lef
   color: var(--muted-strong);
 }
 .settings-preview-surface {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
+  border: 0;
+  border-radius: 0;
   padding: var(--space-2);
   background: var(--panel-muted);
   display: grid;
   gap: var(--space-2);
 }
 .settings-preview-code {
-  background: var(--panel);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
+.settings-preview-code .code-toolbar { border: 0; }
 /* tier:S · Single-red change language: one accent for what is new, grey for
    what was there. Default and dark values; the block colour must keep ≥ 4.5:1
    against its dark word ink, the line colour ≥ 4.5:1 against every panel. */
@@ -5354,8 +5357,8 @@ html[data-theme="dark"] {
   margin: 0;
   padding: var(--space-2);
   font-family: var(--font-mono);
-  font-size: var(--text-meta);
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: 1.6;
   overflow-x: auto;
   tab-size: 4;
 }
@@ -5368,9 +5371,15 @@ html[data-theme="dark"] {
 .diff-mark { display: inline-block; width: 1.5ch; margin-left: 1ch; text-align: center; font-weight: 600; }
 /* The one solid block of this grammar: only the words that are actually new,
  * dark ink on the accent so the text stays readable inside the block. */
-.diff-add-word { background: var(--diff-add-mark); color: var(--diff-add-mark-ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
+.diff-add-word { background: var(--diff-add-mark); color: var(--diff-add-mark-ink); text-decoration: none; display: inline-block; border-radius: 0; padding: 0; line-height: inherit; }
 /* Removed words sit on the existing selected-state layer: grey, never a second hue. */
-.diff-del-word { background: var(--selected); color: var(--ink); text-decoration: none; border-radius: var(--radius-small); padding: 0 1px; }
+.diff-del-word { background: var(--selected); color: var(--ink); text-decoration: none; display: inline-block; border-radius: 0; padding: 0; line-height: inherit; }
+/* On a narrow screen, soft-wrap the display sample like a terminal. Keep the
+   source characters, line numbers and signs; do not shrink the code to fit. */
+@media (max-width: 760px) {
+  .diff-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .diff-add-word, .diff-del-word { max-width: 100%; white-space: pre-wrap; }
+}
 @media (forced-colors: active) {
   .diff-add-word { background: Highlight; color: HighlightText; forced-color-adjust: none; }
   .diff-del-word { background: transparent; color: CanvasText; outline: 1px solid CanvasText; }

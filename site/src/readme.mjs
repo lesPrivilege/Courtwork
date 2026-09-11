@@ -4,11 +4,13 @@ import { BUILD } from "./copy.mjs";
 export function renderReadme() {
   return `# CourtWork
 
-人在其中，工作继续。
+Orchestrate your agents. Govern your work.
 
-一件工作会经历多次对话、不同执行者和人的判断。留下材料、成果、决定与未完事项，下一次接手时，才能知道以什么为准、还需要做什么。
+编排让不同 Agent 分工、调用模型与工具、彼此接力。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
 
-CourtWork 是一个本地 AI 工作空间，让这些内容围绕同一件工作积累。你可以从对话开始，检查执行与生成的文件，审阅带着依据的候选，再从已有决定继续。这里既容纳自由讨论，也支持分工明确的协作。你可以委托 Agent 执行，决定下一步，也可以暂时离开；回来时，仍能了解进展，接着做或改变方向。
+CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围绕自己的项目、文件与材料展开讨论，委托 Agent 执行，查看成果并作出决定。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
+
+人在其中，工作继续。你可以随时介入、调整分工或改变方向，也可以暂时离开，再从已有记录接着做。
 
 [体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md)
 
@@ -20,15 +22,15 @@ CourtWork 是一个本地 AI 工作空间，让这些内容围绕同一件工作
 
 **从当前工作继续。** 执行过程留下记录，正式工作状态保存有效决定，下一次运行按需取得相关材料。模型与运行配置可以变化，工作的依据继续保留。
 
-## 三种入口，三种目的
+## 三种入口，让工作连贯
 
-**Chat · 持续交谈。** 用户主导讨论、选择交谈对象。产品方向是让对话更易保留、引用、携带和交接；独立页面正在准备，跨供应商统一会话、导入导出与分层 memory 属于后续能力。
+**Chat · 持续交谈。** 从一个问题或想法开始，选择交谈对象，逐步形成判断。对话中的材料和思路可以被保留、引用与交接，让讨论成为下一步工作的起点。
 
-**Attention · 处理重要变化。** 跨工作查看值得处理的对象，带着依据作判断，再回到工作继续。
+**Attention · 处理重要变化。** 把分散在不同工作中的变化带到眼前，连同相关材料与可采取的行动一起查看。你可以了解发生了什么，作出判断，再回到工作继续。
 
-**Spark · 围绕来源持续推进。** 组织稳定来源、发现与可重建的派生知识。受限的后台分类、标注与比较是后续探索方向，其权限、成本与效果需要逐项验证。
+**Spark · 围绕来源持续推进。** 从持续积累的资料中整理线索、比较变化、形成发现。每项发现都能回到来源；材料更新时，相关知识也能重新整理，为后续工作提供依据。
 
-Expert 用专业工作契约组织责任、能力需求与验证要求。各个入口共享工作的记录，让讨论、执行与判断能够衔接。设计依据见[产品定义与叙事裁定](engineering/release/work-first-narrative-2026-09-11/DECISION.md)。
+Expert 用专业工作契约组织责任、能力需求与验证要求。各个入口共享工作的记录，让讨论、执行与判断能够衔接。
 
 [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
@@ -54,7 +56,7 @@ ${BUILD.commands.slice(0,4).join("\n")}
 
 Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。
 
-产品重心是持有正式来源、状态与决定的 Work Core。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。完整 Work Compiler、第二 Runtime 替换和角色到外部 Runtime 的绑定仍待验证，不声称任意 Agent 已可直接接入。模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
+产品重心是持有正式来源、状态与决定的 Work Core。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
 
 ## 项目结构
 

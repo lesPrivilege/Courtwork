@@ -1,0 +1,26 @@
+{
+  "scope": "Three completed integration-owned intake worktrees; active author, shared main, frozen legacy and other writers preserved.",
+  "rows": [
+    {
+      "branch": "codex/chat-attention-intake-20260911",
+      "head": "099cb8fb3cf0cfd41ec612dc82677bfd2600c518",
+      "clean": true,
+      "mergedInto": "b771ed840bfb9e16383a441270e7ba7b7f976e8f",
+      "removed": true
+    },
+    {
+      "branch": "codex/chat-design-contract-20260911",
+      "head": "a7c84405eede01388fed814c2833cbd0a3aee0e3",
+      "clean": true,
+      "mergedInto": "b771ed840bfb9e16383a441270e7ba7b7f976e8f",
+      "removed": true
+    },
+    {
+      "branch": "codex/chat-product-rationale-20260911",
+      "head": "87341014f913b0ccf8bd32f3fc5d86e40c676950",
+      "clean": true,
+      "mergedInto": "b771ed840bfb9e16383a441270e7ba7b7f976e8f",
+      "removed": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "codex-settings-reference.png",
+      "sha256": "86aff4a880acfcbebccb3cb6422f27409ce178a4531c50b1c7da98f1d1c6ca8c",
+      "bytes": 582209
+    },
+    {
+      "path": "cw-settings-header.png",
+      "sha256": "d621e6ea1a46f299e789e26c843afc916caa706dd50e9a0c5334aa78e710c47c",
+      "bytes": 6642
+    },
+    {
+      "path": "muted-red-disabled-direction.jpg",
+      "sha256": "973f4e5b9c87014ed6ee5f0135e013f92dee5240067e0b863d076092a7fd8e24",
+      "bytes": 30599
+    },
+    {
+      "path": "toggle-muted-reference.png",
+      "sha256": "d87d901bd02a329c79e5c59857f120ba83cd713c972f7aea9dc594488880e982",
+      "bytes": 4344
+    },
+    {
+      "path": "toggle-strong-reference.png",
+      "sha256": "16e581c5c7cd087551063e886b8e83f45137a1fabf32923ae34329de4633fe70",
+      "bytes": 3878
+    }
+  ]
+}

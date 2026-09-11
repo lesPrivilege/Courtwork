@@ -882,7 +882,7 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 .fig .fig-diff-mark { font-weight: 600; }
 .fig .fig-diff-block { fill: var(--campaign-diff-block); }
 .fig .fig-diff-block-ink { fill: var(--campaign-diff-block-ink); }
-.fig .fig-diff-old-block { fill: var(--campaign-soft); stroke: var(--campaign-rule); stroke-width: 1; }
+.fig .fig-diff-old-block { fill: var(--campaign-soft); stroke: none; }
 @media (forced-colors: active) {
   .fig .fig-diff-block { fill: Highlight; } .fig .fig-diff-block-ink { fill: HighlightText; }
   .fig .fig-diff-old-block { fill: Canvas; stroke: CanvasText; }

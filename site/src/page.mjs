@@ -100,7 +100,7 @@ function header() {
 
 function hero(fill, shot) {
   return `<section class="hero" aria-labelledby="h1">
-        <div class="hero-copy"><h1 id="h1"><span lang="en">${escape(HERO.h1[0])}</span><span>${escape(HERO.h1[1])}</span></h1>
+        <div class="hero-copy"><h1 id="h1"><span lang="en">${escape(HERO.h1[0])}</span><span lang="en">${escape(HERO.h1[1])}</span></h1>
         <p class="lede">${escape(HERO.lede)}</p>
         <p class="actions hero-actions" lang="en">${HERO.actions
           .map((a) => `<a class="hero-action${a.primary ? " hero-action-primary" : ""}" href="${escape(a.href)}">${escape(a.label)}</a>`)
@@ -321,7 +321,7 @@ function review(fill, shot) {
             .join("\n          ")}
         </dl>
         <p class="note">${escape(REVIEW.distinction)}</p>
-${figure("change-language", "plate", "修订以一种颜色标出：旧行灰，新行红，真正新增的词段是红块。这是显示样例，不是已接通的工件比较。")}
+${figure("change-language", "plate", "修订示例：旧行保留为灰字，新行以红字标出；真正新增的词段覆上红色，让变化清楚可见。")}
 <p class="review-attention" data-attention="review"><span aria-hidden="true"></span>待人审阅 </p>
 ${shot("M6", {
           alt: "Work Review：一条候选待决定，依据与来源版本可见。",

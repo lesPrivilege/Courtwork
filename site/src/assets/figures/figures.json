@@ -370,7 +370,7 @@
       "source": {
         "file": "site/src/assets/figures/change-language.svg",
         "basis": "file",
-        "sha256": "a8e71d2fd5e2ec83f2f56854b7d2150a8486fdd807f223efbde0140e271837cb",
+        "sha256": "260be6c301f34b1befe93ecc173077c85d371bc466202402bb02b31a579ecc18",
         "generator": "site/scripts/render-diff-figure.mjs",
         "fixture": "app/web/diff-fixture.mjs"
       },
@@ -382,10 +382,10 @@
         "meaning": "changed text in the single-red change language (user ruling 2026-09-11); not attention.review, not a decision point, not a state"
       },
       "reducedMotion": "static",
-      "alt": "一种只用一个颜色的修改语言：原有的行和被删的行保持灰色，新行是红字，只有真正新增的词段落在实心红块上，被删的词段落在灰块上；加减号和行号不靠颜色也能读出增删。这是显示样例，不是已接通的工件比较，也不表示接受或拒绝。",
+      "alt": "修订示例：旧行保留为灰字，新行以红字标出，新增词段覆上实心红块，删去词段保留灰底。加减号和行号共同说明修改。",
       "audit": {
         "verdict": "new",
-        "reason": "Claude UI follow-through stage 3: same fixture and row model as Settings Appearance (app/web/diff-fixture.mjs, diff-view.mjs). The red here is the diff accent token, registered separately from the VG-15 attention red; no fig-attention element."
+        "reason": "Claude UI follow-through stage 3: same fixture and row model as Settings Appearance (app/web/diff-fixture.mjs, diff-view.mjs). The red here is the diff accent token, registered separately from the VG-15 attention red; no fig-attention element. Astra adapts block geometry to square full line cells and removes the decorative old-word outline; fixed source semantics retained."
       }
     }
   ]

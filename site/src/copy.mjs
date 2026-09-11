@@ -15,8 +15,8 @@ export const NAV = [
 export const HERO = {
   wordmark: "CourtWork",
   tagline: "A place for work to continue.",
-  h1: ["Your work. With you in it.", "人在其中，工作继续。"],
-  lede: "CourtWork 是一个本地 AI 工作空间。你可以和 Agent 讨论，把任务交给它执行，查看成果并作出决定。材料、决定与未完事项留在同一件工作里，方便你随时回来接着做。",
+  h1: ["Orchestrate your agents.", "Govern your work."],
+  lede: "让不同 Agent 在同一件工作中分工与接力。CourtWork 将这种编排放进一个共同的工作场合：每个参与者有职责和权限，材料有出处，决定有依据。你可以在自己的电脑与资料上展开工作，随时介入、调整方向，再从已有记录继续。这样的工作场合，就是 Court。",
   actions: [{ href: "./get.html", label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
 };
 

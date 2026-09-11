@@ -26,7 +26,7 @@ const MARK = { context: " ", add: "+", del: "−" };
 const out = [];
 out.push(`<svg class="fig fig-diff" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="fig-change-language-title fig-change-language-desc" xmlns="http://www.w3.org/2000/svg">`);
 out.push(`  <title id="fig-change-language-title">One-colour change language</title>`);
-out.push(`  <desc id="fig-change-language-desc">${esc(`Sample change in ${DIFF_PREVIEW.file}: lines that were there stay grey, the new line is red, and only the words that are actually new sit on a solid red block; the removed words sit on a grey block. Minus and plus markers and line numbers carry the meaning without colour. ${counts.added} added, ${counts.removed} removed. A display sample, not a recorded artifact comparison.`)}</desc>`);
+out.push(`  <desc id="fig-change-language-desc">${esc(`Sample change in ${DIFF_PREVIEW.file}: lines that were there stay grey, the new line is red, and only the words that are actually new sit on a solid red block; the removed words sit on a grey block. Minus and plus markers and line numbers carry the meaning without colour. ${counts.added} added, ${counts.removed} removed. An illustrated revision.`)}</desc>`);
 out.push(`  <text class="fig-label" x="16" y="20" font-size="11">${esc(`${DIFF_PREVIEW.file.toUpperCase()} · ${counts.added} ADDED · ${counts.removed} REMOVED`)}</text>`);
 out.push(`  <line class="fig-rule" data-deco="rule" x1="16" y1="30" x2="${W - 16}" y2="30" />`);
 rows.forEach((row, index) => {
@@ -44,7 +44,7 @@ rows.forEach((row, index) => {
     const width = segment.text.length * ADV;
     if (segment.changed) {
       const block = row.kind === "add" ? "fig-diff-block" : "fig-diff-old-block";
-      group.push(`    <rect class="${block}" x="${f(cursor)}" y="${f(y - FS + 1)}" width="${f(width)}" height="${FS + 5}" rx="2" />`);
+      group.push(`    <rect class="${block}" x="${f(cursor)}" y="${f(y - FS - 3)}" width="${f(width)}" height="${ROW}" />`);
       group.push("    " + text(cursor, y, segment.text, row.kind === "add" ? "fig-diff-block-ink" : "fig-diff-old"));
     } else {
       group.push("    " + text(cursor, y, segment.text, cls));
