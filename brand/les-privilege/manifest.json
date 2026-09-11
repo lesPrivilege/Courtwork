@@ -2,32 +2,41 @@
   "name": "les Privilege",
   "handle": "lesPrivilege",
   "mark": "le",
-  "status": "registered-name; proposed-optical-revision",
+  "status": "astra-optical-finish; pending-independent-review; not-published",
+  "revision": "optical-03",
   "grid": 64,
   "geometry": {
-    "stroke": 9,
-    "barLength": 26,
-    "stemBarGap": 8,
-    "rowGap": 10.5,
-    "radius": 2.25,
+    "LStroke": 9,
+    "barThickness": 7,
+    "barLength": 23,
+    "barX": 24,
+    "barY": [
+      12,
+      30
+    ],
+    "stemBarGap": 7,
+    "topInset": 4,
+    "LRadius": 2.25,
+    "barRadius": 1.75,
     "inkBounds": [
-      10.5,
+      12.5,
       8,
-      53.5,
+      51.5,
       56
     ],
-    "lowerRight": 46.5
+    "lowerRight": 48.5,
+    "translateX": 4.5
   },
   "palette": {
     "light": {
       "L": "#242d33",
       "secondary": "#6f7e88",
-      "red": "#ad4844"
+      "red": "#b4423b"
     },
     "dark": {
       "L": "#e4ebef",
       "secondary": "#95a5af",
-      "red": "#df827b"
+      "red": "#e9847b"
     }
   },
   "families": {
@@ -67,44 +76,52 @@
       9,
       44,
       2.5
+    ],
+    "settled": [
+      9,
+      24,
+      23,
+      7,
+      44,
+      4.5
     ]
   },
   "files": [
     {
       "path": "mark.svg",
-      "sha256": "4535bec6e363cfef3d821a54e6004bbcc58cdea5755bd24301aa764af4f9de8a"
+      "sha256": "f6491af9a90407c020d378f874afae250416aceb1581d5f7b2f5a5875f0c2299"
     },
     {
       "path": "mark-light.svg",
-      "sha256": "55e12a6590b782411c787becd8938234964385d579c724eeb217ee094dc4e103"
+      "sha256": "abe3da0b3b5f5f840fcadb506493e28ddad213f4e914f2ea6a41b8df5fd9470b"
     },
     {
       "path": "mark-dark.svg",
-      "sha256": "965a29d2ed58df6007131a20d065a455703ed3b68a793af80087b0845ff27333"
+      "sha256": "a035a019e092ded91ada848be5d6f736093d911143fcabf431e27a96ab05f935"
     },
     {
       "path": "mark-tonal-light.svg",
-      "sha256": "0028174c6e642be0a0a8606bb40b794f000eb800ce2f44abb3c8d9b0bf129b0d"
+      "sha256": "5eebaf69bcd24b98fdb52218e5f7f40ead0a2905c70762e7e923464a130c9956"
     },
     {
       "path": "mark-tonal-dark.svg",
-      "sha256": "51f42e5e5bb944e1ca40d056f6f1b63865c5ccf7bc3ca4cf23adbf17f3126a21"
+      "sha256": "a453d7b6329c710ea35d2a1ac73b9480940fc2b15b72520e9740051e5241c2e3"
     },
     {
       "path": "mark-tritone-light.svg",
-      "sha256": "a1b508e516408dac03a29aaab1c21d2469090009724fc04fa135192eac4e3773"
+      "sha256": "392bf630ee4bcddc58bf6092cff9e87537d546d5c99aebfe043597e094aa9e99"
     },
     {
       "path": "mark-tritone-dark.svg",
-      "sha256": "6136b082b3c67d9ff01c17c24537d2864e0c3ad86af704413d7aa3c555db2775"
+      "sha256": "f701005bf1bb352345f07cd281339c21b55f7171925a4b6787d73c0210297658"
     },
     {
       "path": "mark-tritone-middle-light.svg",
-      "sha256": "ed8667a62c01bc153edf52f6afed3136190082de41f2370054ce87d61a22289e"
+      "sha256": "f5d02c5c2abdef86d933118298661434ca37a6263b7b79bab8dbdd41be4a5a14"
     },
     {
       "path": "mark-tritone-middle-dark.svg",
-      "sha256": "8f68220440122ed3ae9d4d42a6e59b601ad2d44f0aaa4437bd97909bf1d48e97"
+      "sha256": "293f811b54ae03723ef7e4719e2a6dbf62b72d0c57cdc7e038c51219c65f2aff"
     }
   ]
 }

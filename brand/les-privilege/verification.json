@@ -1,5 +1,6 @@
 {
-  "review": "author-only",
+  "revision": "optical-03",
+  "review": "Astra author checks; Luna source review recorded separately",
   "svgCount": 9,
   "xmlElements": "svg/title/g/path/rect only; no external references or event attributes",
   "accessibleName": "les Privilege",
@@ -8,20 +9,20 @@
     {
       "path": "preview.png",
       "viewport": [
-        1200,
-        1690
+        1280,
+        2100
       ],
-      "scrollWidth": 1200,
+      "scrollWidth": 1280,
       "missingImages": 0
     },
     {
       "path": "mobile.png",
       "viewport": [
         390,
-        2730
+        844
       ],
       "scrollWidth": 390,
-      "missingImages": 0
+      "note": "narrow first viewport, not full page"
     },
     {
       "path": "identity.png",
@@ -29,10 +30,10 @@
         960,
         461
       ],
-      "scrollWidth": 960,
-      "missingImages": 0
+      "scrollWidth": 960
     }
   ],
-  "visualInspection": "Optical variants; top-red/middle-red alternatives; black/color families at 16\u201364 px and on light/dark grounds. Final screenshots inspected.",
-  "sourceUpdateSha256": "f647ed1cb349811128a7cf7029d2d40c4366736f4192d5230f2b7a517d09e7da"
+  "visualInspection": "Astra inspected native SVG before/after, both families in light/dark at 64px and 16–64px ladders; narrow layout has no horizontal overflow. Paper integration is separate.",
+  "sourceBaseline": "bf4b8081a1e4c6c3d680d388472f6f5c93092e62",
+  "buildSha256": "e6a87a1573810adb9252f36736d8fe45cd0fca7e8a8d457769bfb60ea7cf4c61"
 }
