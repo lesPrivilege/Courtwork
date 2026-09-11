@@ -1,5 +1,7 @@
 # 转 Astra 的后端契约请求（Fable，2026-09-09）
 
+2026-09-12增量：[Shell控制面](../../../design/shell-control-plane-2026-09-12/README.md)已优先消费为契约。FE-NOTIFY-01…04需要Host事件/已读ledger、scope/保留/去重、Core Attention幂等关联及跨owner恢复；read不改Attention。FE-OBS-03…06需要各owner提供小时事件、稳定Runtime/Expert/Capability归因、metric单位/分母/覆盖与snapshot过滤；已交付BE-1/3/25/29及Usage date/model下钻不重派。Session-turn、Context精确值与人工介入口径沿原缺口，未新增遥测store。FE-NAV主要是前端位置/恢复契约，缺对象reader的deep link保持不可用。详细字段责任与验收见该入口各分合同。
+
 | 编号 | 请求 | 依据 |
 |---|---|---|
 | BE-1 | `GET /work-activity?days=N`：按日（UTC 日界）返回 recorded run 计数，供 Heatmap（G-1） | WK-37 / WK-46 |

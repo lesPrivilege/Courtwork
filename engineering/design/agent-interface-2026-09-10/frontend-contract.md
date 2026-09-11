@@ -43,6 +43,10 @@ Properties 的 label、help、control、validation、modified/reset、provenance
 
 后端缺口与前端接线顺序见[DWB前端消费回执](../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)。模型与文件权限继续用现有control，发送/取消、Session身份及Review语义保持各自合同。
 
+### Shell返回、提醒与观察（2026-09-12消费）
+
+[Shell控制面合同](../shell-control-plane-2026-09-12/README.md)先冻结FE-NAV访问位置/恢复与deep link，再呈现Back/Forward；瞬时overlay先走自己的关闭与焦点返回，不改变Run。Notification的read、去重与Attention关联须由真实owner支持，read不成为工作决定。Usage复用已有Overview/Models、calendar和snapshot下钻；新增Metric × Dimension、小时矩阵、Context/人工介入统计先有口径与覆盖，不从旧日桶或glyph推导。三张外部参考只消费结构，未锁定蓝色、20–24px尺寸或示例指标。
+
 ## 视觉保持与变更
 
 A类是跨面不变量：语义、role用途、focus、控件解剖与已裁密度；B类是pattern关系：PropertyRow、Model Picker、审批/弹层返回路径；C类是页面编排，可随产品任务演进。截图探测变化，不能代替设计裁决。历史截图不自动成为golden，候选specimen不自动成为canonical。
