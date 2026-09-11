@@ -1,0 +1,522 @@
+[
+  {
+    "slot": "home",
+    "theme": "light",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "captured_at": "2026-09-11T17:13:06.264Z",
+    "asset_path": "site/media/publication-final-20260911/home-1440-light.jpg",
+    "sha256": "4ade722ac9ebf0527466571660b428b767c7158d21e0f0b6b33a37f658e91fb7",
+    "bytes": 115420,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Home with two projects, retained runs and chats; one Attention item; Spark and conversation corrections applied to the same fixture.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "home",
+    "theme": "dark",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "captured_at": "2026-09-11T17:13:10.943Z",
+    "asset_path": "site/media/publication-final-20260911/home-1440-dark.jpg",
+    "sha256": "b23308ab55e99a9e7c730d43a6c975a109bc6cf92d5471e24e957cd5544908cf",
+    "bytes": 120081,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Home with two projects, retained runs and chats; one Attention item; Spark and conversation corrections applied to the same fixture.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "spark",
+    "theme": "light",
+    "state_id": "spark-matter-source-3-candidate-v2",
+    "captured_at": "2026-09-11T17:13:17.427Z",
+    "asset_path": "site/media/publication-final-20260911/spark-1440-light.jpg",
+    "sha256": "0593f1cb4a2c95c6fd7ac1b3bbf6ee3a48ae9aef3337397b86b585592a0f6d96",
+    "bytes": 92906,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Spark Overview for Project Cedar review: one stale candidate from source v2 against current source revision 3; comparison Matter has one current candidate.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "spark",
+    "theme": "dark",
+    "state_id": "spark-matter-source-3-candidate-v2",
+    "captured_at": "2026-09-11T17:13:23.916Z",
+    "asset_path": "site/media/publication-final-20260911/spark-1440-dark.jpg",
+    "sha256": "df8b55c73f6b6f8b80386141600de6866cb6b41f40c8006c203a155824ca8c11",
+    "bytes": 96901,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Spark Overview for Project Cedar review: one stale candidate from source v2 against current source revision 3; comparison Matter has one current candidate.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "artifact",
+    "theme": "light",
+    "state_id": "artifact-ab845057-recorded-file",
+    "captured_at": "2026-09-11T17:13:54.108Z",
+    "asset_path": "site/media/publication-final-20260911/artifact-1440-light.jpg",
+    "sha256": "029a2f161ff0ec9d262c54f99ea0895bf9d49adb784da5d53245b3ae90a581d3",
+    "bytes": 72951,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Recorded Markdown file out/project-cedar-review.md opened from the run's Files card in the expanded workspace; pending human Review.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "artifact",
+    "theme": "dark",
+    "state_id": "artifact-ab845057-recorded-file",
+    "captured_at": "2026-09-11T17:14:06.442Z",
+    "asset_path": "site/media/publication-final-20260911/artifact-1440-dark.jpg",
+    "sha256": "8b99353d17bfee854b93cd05064d10731606f99efe10a664dd183097613be628",
+    "bytes": 76515,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Recorded Markdown file out/project-cedar-review.md opened from the run's Files card in the expanded workspace; pending human Review.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "matter",
+    "theme": "light",
+    "state_id": "cedar-matter-0ec7dd5a-source1-overview",
+    "captured_at": "2026-09-11T17:14:17.259Z",
+    "asset_path": "site/media/publication-final-20260911/matter-1440-light.jpg",
+    "sha256": "1bcf75775a2be6343070d728108fd9837d5cda4c857f260ecb9fc63099f290ff",
+    "bytes": 88014,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Bound Matter workspace overview: source revision 1, pending candidate, four checked rules and decision controls; no decision submitted.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "matter",
+    "theme": "dark",
+    "state_id": "cedar-matter-0ec7dd5a-source1-overview",
+    "captured_at": "2026-09-11T17:14:28.076Z",
+    "asset_path": "site/media/publication-final-20260911/matter-1440-dark.jpg",
+    "sha256": "254afb3c24c98e29287c68e8453efc6d64e35940a117f7b645888ae0a6e9ee13",
+    "bytes": 91743,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Bound Matter workspace overview: source revision 1, pending candidate, four checked rules and decision controls; no decision submitted.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "review",
+    "theme": "light",
+    "state_id": "cedar-candidate-ea8c461096-purpose-open",
+    "captured_at": "2026-09-11T17:14:40.101Z",
+    "asset_path": "site/media/publication-final-20260911/review-1440-light.jpg",
+    "sha256": "1b0a3c8df4810ce9bcadefd9d116c2f127ab6e575c21af82f3f18f4ccf23dea2",
+    "bytes": 101097,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Pending Candidate with purpose-limitation expanded: source version, quoted range and recorded-source action; accept / reject / request-evidence remain available and unused.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "review",
+    "theme": "dark",
+    "state_id": "cedar-candidate-ea8c461096-purpose-open",
+    "captured_at": "2026-09-11T17:14:52.128Z",
+    "asset_path": "site/media/publication-final-20260911/review-1440-dark.jpg",
+    "sha256": "c69500a73374b60bcb4d5a3d466f54366d7d72becba69f1adcabf71456a71347",
+    "bytes": 105493,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Pending Candidate with purpose-limitation expanded: source version, quoted range and recorded-source action; accept / reject / request-evidence remain available and unused.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "continuity",
+    "theme": "light",
+    "state_id": "continuity-35079c22-cedar-matter-source1",
+    "captured_at": "2026-09-11T17:15:02.955Z",
+    "asset_path": "site/media/publication-final-20260911/continuity-1440-light.jpg",
+    "sha256": "5ff10e7183dde4dfef6a568b44bb78731439c834a7de04a8679c5b712abe6b5d",
+    "bytes": 88100,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Continuation session bound to the existing Matter, expanded workspace; pending candidate unchanged.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "continuity",
+    "theme": "dark",
+    "state_id": "continuity-35079c22-cedar-matter-source1",
+    "captured_at": "2026-09-11T17:15:13.774Z",
+    "asset_path": "site/media/publication-final-20260911/continuity-1440-dark.jpg",
+    "sha256": "3f0c16bcbe27a1b992fa27282bf11c28ce4760edbdfceb644b9b28df0176ee63",
+    "bytes": 91907,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Continuation session bound to the existing Matter, expanded workspace; pending candidate unchanged.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "models",
+    "theme": "light",
+    "state_id": "models-local-default",
+    "captured_at": "2026-09-11T17:15:18.338Z",
+    "asset_path": "site/media/publication-final-20260911/models-1440-light.jpg",
+    "sha256": "bfa7bc2681d186c819515cd48ac72401794095ccc438f0968fe5b0fa2cfbf6a0",
+    "bytes": 84097,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/models",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Models: the local deterministic connection is in force; no saved external credentials; no external request is sent.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/models"
+  },
+  {
+    "slot": "models",
+    "theme": "dark",
+    "state_id": "models-local-default",
+    "captured_at": "2026-09-11T17:15:22.888Z",
+    "asset_path": "site/media/publication-final-20260911/models-1440-dark.jpg",
+    "sha256": "d6e670aabde9a5c388322ab808dcb25631414daabff3e550343ca430e52c71a6",
+    "bytes": 86402,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/models",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Models: the local deterministic connection is in force; no saved external credentials; no external request is sent.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/models"
+  },
+  {
+    "slot": "integrations",
+    "theme": "light",
+    "state_id": "tools-user-revision-0",
+    "captured_at": "2026-09-11T17:15:27.444Z",
+    "asset_path": "site/media/publication-final-20260911/integrations-1440-light.jpg",
+    "sha256": "46ceb2b97a5049232dbfb678acbed1c6d33433bb3e1e016b251807d6500bc293",
+    "bytes": 91631,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/tools",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Tools & Integrations: User scope, Configurable view, built-in tools with policy / exposure facts; no imported external server.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/tools"
+  },
+  {
+    "slot": "integrations",
+    "theme": "dark",
+    "state_id": "tools-user-revision-0",
+    "captured_at": "2026-09-11T17:15:31.995Z",
+    "asset_path": "site/media/publication-final-20260911/integrations-1440-dark.jpg",
+    "sha256": "3db3a774c936a8d8c4dd77554395751eb3990b787872ffd53567969db1e5245a",
+    "bytes": 94018,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/tools",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Tools & Integrations: User scope, Configurable view, built-in tools with policy / exposure facts; no imported external server.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/tools"
+  },
+  {
+    "slot": "settings",
+    "theme": "light",
+    "state_id": "appearance-default-medium",
+    "captured_at": "2026-09-11T17:15:36.539Z",
+    "asset_path": "site/media/publication-final-20260911/settings-1440-light.jpg",
+    "sha256": "05f54774356d7a7915cf496f7f9a4a84c4f2e349ca0b374bd03a9f382a60e9f5",
+    "bytes": 103052,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/appearance",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Appearance: Medium text, default code font, Follow system motion; the theme is the only preference changed.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/appearance"
+  },
+  {
+    "slot": "settings",
+    "theme": "dark",
+    "state_id": "appearance-default-medium",
+    "captured_at": "2026-09-11T17:15:41.087Z",
+    "asset_path": "site/media/publication-final-20260911/settings-1440-dark.jpg",
+    "sha256": "3e6a70a57f5b00600bf9241eba8ae39dabadbc1b3c105e40f3f664553a3795b2",
+    "bytes": 104731,
+    "observed": {
+      "url": "http://127.0.0.1:8848/#settings/appearance",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Appearance: Medium text, default code font, Follow system motion; the theme is the only preference changed.",
+    "displayed_path": "http://127.0.0.1:8848/#settings/appearance"
+  },
+  {
+    "slot": "running",
+    "theme": "light",
+    "state_id": "running-successful-list-read-active",
+    "captured_at": "2026-09-11T17:17:28.457Z",
+    "asset_path": "site/media/publication-final-20260911/running-1440-light.jpg",
+    "sha256": "d35c1e5d6a0dab46b1be0f22d848f2c435ced19611b56126ff933e4a88ee42a2",
+    "bytes": 98562,
+    "observed": {
+      "url": "http://127.0.0.1:50073/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Active local-compatible Run after successful ws_list and ws_read; live stream and elapsed time advance naturally; no domain acceptance.",
+    "displayed_path": "http://127.0.0.1:50073/"
+  },
+  {
+    "slot": "running",
+    "theme": "dark",
+    "state_id": "running-successful-list-read-active",
+    "captured_at": "2026-09-11T17:17:41.687Z",
+    "asset_path": "site/media/publication-final-20260911/running-1440-dark.jpg",
+    "sha256": "6694875b50e3d8f71ad7692e66523749461a536166f0c95f0b99a7b0328a3b44",
+    "bytes": 107062,
+    "observed": {
+      "url": "http://127.0.0.1:50073/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Active local-compatible Run after successful ws_list and ws_read; live stream and elapsed time advance naturally; no domain acceptance.",
+    "displayed_path": "http://127.0.0.1:50073/"
+  },
+  {
+    "slot": "attention",
+    "theme": "light",
+    "state_id": "attention-667751df-revision-inspected",
+    "captured_at": "2026-09-11T17:21:52.960Z",
+    "asset_path": "site/media/publication-final-20260911/attention-1440-light.jpg",
+    "sha256": "3df349e4675d09b48f40b704485d77049e458f806bf157cb1b24011d780485eb",
+    "bytes": 87078,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Attention workspace: the one Investigating item selected, with its recorded reason and next step; no decision asserted.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "attention",
+    "theme": "dark",
+    "state_id": "attention-667751df-revision-inspected",
+    "captured_at": "2026-09-11T17:22:01.837Z",
+    "asset_path": "site/media/publication-final-20260911/attention-1440-dark.jpg",
+    "sha256": "2e97e71a1ad4667b3502e4dfb7ffc029ba036973549bca72f6fabbc61deb671f",
+    "bytes": 90611,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Attention workspace: the one Investigating item selected, with its recorded reason and next step; no decision asserted.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "conversation",
+    "theme": "light",
+    "state_id": "conversation-9f912814-disclosed-completed",
+    "captured_at": "2026-09-11T17:26:43.535Z",
+    "asset_path": "site/media/publication-final-20260911/conversation-1440-light.jpg",
+    "sha256": "18ec0ba42e020b0c7bfa47a8068fe48820e8b43f9e5a06ad812c08cc6988e2b4",
+    "bytes": 118618,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Global Attention conversation after the corrected run: question answered, the three Attention tools expanded, final answer; disclosure revision 2.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "conversation",
+    "theme": "dark",
+    "state_id": "conversation-9f912814-disclosed-completed",
+    "captured_at": "2026-09-11T17:26:53.820Z",
+    "asset_path": "site/media/publication-final-20260911/conversation-1440-dark.jpg",
+    "sha256": "a888fb26bbf4988638179f3f427850fc125e5ce3a8c0f3e36bb67496e25679df",
+    "bytes": 120717,
+    "observed": {
+      "url": "http://127.0.0.1:8848/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Global Attention conversation after the corrected run: question answered, the three Attention tools expanded, final answer; disclosure revision 2.",
+    "displayed_path": "http://127.0.0.1:8848/"
+  },
+  {
+    "slot": "approval",
+    "theme": "light",
+    "state_id": "approval-permission-pending",
+    "captured_at": "2026-09-11T17:27:23.243Z",
+    "asset_path": "site/media/publication-final-20260911/approval-1440-light.jpg",
+    "sha256": "b90a5435d2787c56bc88a421d83311839acbfee160dcd464195a94cc25048b2f",
+    "bytes": 100637,
+    "observed": {
+      "url": "http://127.0.0.1:50822/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(224, 228, 231)",
+      "theme": null
+    },
+    "detail": "Actual waiting_user: ws_write out/exhibit-index.md, exact-write-only approval request; unanswered.",
+    "displayed_path": "http://127.0.0.1:50822/"
+  },
+  {
+    "slot": "approval",
+    "theme": "dark",
+    "state_id": "approval-permission-pending",
+    "captured_at": "2026-09-11T17:27:50.145Z",
+    "asset_path": "site/media/publication-final-20260911/approval-1440-dark.jpg",
+    "sha256": "c571762ff17b2e0d781292eb1cec3c6ac822b4886ae11edc8243495d7c4ba91d",
+    "bytes": 102721,
+    "observed": {
+      "url": "http://127.0.0.1:50822/",
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "bodyFont": "14px",
+      "bodyBackground": "rgb(23, 26, 27)",
+      "theme": null
+    },
+    "detail": "Actual waiting_user: ws_write out/exhibit-index.md, exact-write-only approval request; unanswered.",
+    "displayed_path": "http://127.0.0.1:50822/"
+  }
+]

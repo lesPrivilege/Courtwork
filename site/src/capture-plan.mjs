@@ -1,5 +1,5 @@
 // One publication batch; pending slots never fall back to an older UI capture.
-export const captureBatch = { status: 'ready', source_sha: 'f1373cde341b5a17299fad6ba5921ba3fcc43824' };
+export const captureBatch = { status: 'ready', source_sha: '1397b995afe138fd07cd8022391f36d16bc29c85' };
 export const captureSlots = {
   home: { mediaId: 'home', legacyId: 'M1' },
   spark: { mediaId: 'spark' },
