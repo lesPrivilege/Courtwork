@@ -4,5 +4,7 @@
   "zipEntries": 172,
   "sourceHead": "f8b8914dfa466d6dbad452f3086703a380694748",
   "verifiedSourceFiles": 114,
-  "status": "received; review in progress; not yet accepted or deployed"
+  "status": "consumed with Astra integration corrections; browser/frontend node accepted within recorded scope; not deployed",
+  "integrationSource": "07688226330121e5877a6ff1e09e6ebf82995ae3",
+  "acceptance": "engineering/release/frontend-node-2026-09-12/README.md"
 }

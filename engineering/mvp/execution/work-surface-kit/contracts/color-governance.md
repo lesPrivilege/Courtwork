@@ -94,3 +94,8 @@ Astra 批准新增普通交互控件 accent（[裁定](../../../../release/ui-pu
 按用户建议由Astra裁定：首页热力图使用独立`--dataviz-activity-1..4`角色，fixed scale `--home-activity-foreground: #c95e55`。1/2/3级分别与当前panel混合28/48/70%，4级为原色；0级沿中性panel与line。只表达既有retained Run数量，强度不表示紧急/失败/Review/disabled，不复用control、danger、diff、brand或Review变量，即使某个色值相同。skin自定义不能写入新增角色（沿既有允许表）。
 
 非零格加同色1px边界，保留低计数浅色可见轮廓；原生forced-colors可接管边界颜色。精确数量继续通过每格aria label、focus/点击后文字提供，色阶不是唯一读取方式。focus用既有focus角色。此处不修改Usage统计或引入Session turn口径，见[后端缺口](../../../../design/sidebar-product-model-2026-09-12/BACKEND-GAPS.md)。Attention卡只给已有needs_you的is-review使用Review红，整卡/标题/空态保持原角色。
+
+
+## 2026-09-12 · 普通选项与滑动开关的范围澄清
+
+用户以 Appearance/System 选项截图限定此前普通红色裁决：滑动式 switch 的开启态可使用 control accent；segmented 选中框、普通 radio/checkbox 保持中性 ink/panel/shadow。不得把“选中”普遍解释为红色。Runtime resource exposure 是现有可持续二态开关先例，读 authoritative exposed 与作用域来源；继承另行 Reset，不增加第三挡。Home 显示模块仅为候选，Theme/尺寸/访问策略与 reasoning 未声明状态不压成开关。详见[本轮裁决](../../../../release/ui-publication-closure-2026-09-11/DECISION.md)。

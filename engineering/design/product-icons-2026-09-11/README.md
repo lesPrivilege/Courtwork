@@ -51,7 +51,7 @@ Full hashes are in `tools/ui-vendor/lucide/sources.json`, `tools/ui-vendor/court
 - Glyphs are `aria-hidden` and unfocusable; labels, accessible names, tooltips, object names, state words and consequences stay in the host control. Spark / Attention / Chat keep their visible text in the sidebar (`setSemanticControl(…, { visible: true })`).
 - No state is drawn into iconography; no fill/line variants; no Settings facts are invented — each Settings glyph names an existing group of `SETTINGS_GROUPS`.
 - Hit regions stay 32px desktop / 44px narrow from `--control`, independent of the 16/18/20/24 glyph size.
-- Text-reserved keys (`attention.queue`, `matter.object`, `review.open`, `approval.request`, …) stay text.
+- Text-reserved keys (`attention.queue`, `review.open`, `approval.request`, …) stay text.
 - `plug` is shared by Tools & Integrations, Connection and MCP server as a multi-purpose glyph; the name beside it supplies the object.
 
 ## Consumption ledger (product buttons, header, sidebar, menus)

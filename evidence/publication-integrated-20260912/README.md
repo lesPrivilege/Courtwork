@@ -1,0 +1,29 @@
+# Integrated frontend publication evidence
+
+Product/UI source: **07688226330121e5877a6ff1e09e6ebf82995ae3**. Astra integrated and inspected the native browser; Luna independently reviewed source, preview counterexamples and saved images. This receipt distinguishes each scope. The [frontend node](../../engineering/release/frontend-node-2026-09-12/README.md) owns the combined disposition; the original Fable return remains byte-preserved.
+
+## Verification
+
+- Final full App suite: **793/793**, zero failures/skips, [raw log](app-test-final.log). Earlier pre-neutral full793 run [retained](app-test.log); earlier selector-guard failure [retained](app-test-before-guard-update.log), corrected by3ddba90 rather than deleting coverage.
+- Product pages browser verifier: **36/36**, [raw output](product-pages.log), [structured results](product-pages/verify.json). This consumes2effc32's explicit fixes to four expectations that contradicted the accepted Pages narrative/capture plan. Prior RETURN's32/4 result remains historical evidence.
+- Site build, links296, material, figures21 passed. [Build log](site-build.log); [final contrast](contrast-final.log). Color43 files and interaction38 files passed on0768822; control-accent3/3 confirms switches vs neutral options. Prior product icon/semantic/static allowlist19 and nav/preview16 targeted checks are recorded in the [sidebar evidence](../expert-sidebar-glyph-20260912/README.md) and original delivery.
+- [Luna preview review](non-author-preview.md) records admission rejection and actual-only Home aggregation. [Tooltip native reproduction](navigation-tooltip.md) records next-row interception and right-placement fix. Additional390 dark native Tab/Enter selected Final review memo, dismissed navigation and retained no horizontal overflow; title fit in the mobile drawer, so no truncation tooltip was needed. [Capture](keyboard-390-dark.jpg). These bounded checks do not claim whole-product keyboard acceptance.
+- [Response-action audit](../response-action-audit-20260912/README.md) measured equal32px buttons/18px slots and verified focus. No optical per-icon scaling is introduced.
+
+## Native media
+
+[Current manifest](../../site/media/main/manifest.json) contains **13 states ×2 schemes,26 native1440×900 JPEGs**. No DOM screenshot edits, image overlays, resizing or re-encoding were performed. The in-app browser screenshot API returns JPEG bytes; initial `.png` filenames were corrected to `.jpg` after inspecting signatures. Recorded devicePixelRatio is1 or2 per observation; the API's actual output remains1440×900 in all files. This is not a claim of uniform physical display density.
+
+[Per-image observations](../../site/media/publication-integrated-20260912/observations.json) contain actual URL/time/theme/source and state description. Sources are isolated synthetic fixtures:60816 for ordinary states,62043 for actual unanswered exact-write permission,51706 for actual local-compatible streaming after successful ws_list/ws_read. Running pair shows naturally advancing text/time; pending permission was not answered. No paid provider or personal data used.
+
+The first capture helper retained an old closure's source stamp and three superseded records; [raw helper output](capture-observations-raw.json) is preserved as **rejected metadata**, not final proof. Independent review then found the Settings pair still rendered pre-neutral styles and was scrolled below the heading. Astra explicitly reloaded and **re-captured all22 ordinary-state images**, using a literal076 source stamp and an upserted on-disk record, and verified shadow-only neutral selected segments. Approval/running used separate newly-loaded076 origins already. The final source is substantiated by the current browser reload and captured styles, not by changing an old stamp. Old1397b99 [manifest](../../site/media/archive/main-publication-final-1397b99.json) and JPEGs remain unchanged.
+
+[Finalizer](finalize-media.py) verifies source equality over app/brand/docs/PAPER/LICENSE, pair completeness, state equality, viewport, native JPEG signature/dimensions and SHA256, and updates the active registry without overwriting the old archive. Capture-ready ancestry is checked after main integration. This is a new selected frontend baseline, not a claim that a prior pixel baseline automatically passed.
+
+## Review scopes and remaining gates
+
+Astra's Fable review accepts directionA and the five-stage browser/frontend implementation after listed corrections. Luna's independent media pass found no concrete defects in the other12pairs and flagged the Settings stale capture; the corrected pair is re-reviewed separately. Root-authored Expert/Matter and neutral/tooltip corrections use Luna's bounded source/visual review, not self-declared independent acceptance. Full raw returned statements remain transcribed in the node receipt where relevant.
+
+AppKit hit testing/dragging, VoiceOver, actual200% browser zoom and complete App forced-colors/reduced-motion matrix were not independently run. Fable's108/108 native-chrome count is simulated browser packet geometry. Pages browser tests and screenshot review do not close G1–G5 or assert real provider reliability. The user will run the [targeted prompt suite](../../engineering/release/frontend-node-2026-09-12/RUNTIME-VALIDATION.md) on the main Web UI with their own key.
+
+Luna corrected-media follow-up: both Settings images now show the complete Appearance heading and neutral shadow-only Theme/Text size/Reduced motion thumbs; no red inset remains. All26 manifest entries were independently matched to source0768822, file hashes, byte counts, MIME and1440×900 viewport; mixed observed DPR is explicit. No new visual blocker was reported. This is bounded visual/identity review, not a screen-reader or actual-provider test.

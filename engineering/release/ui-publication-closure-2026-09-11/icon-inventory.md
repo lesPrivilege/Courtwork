@@ -61,3 +61,8 @@ Delivery levels: **L0** source SVGs + generator + manifest + contact sheet; **L1
 This inventory supplies source facts to [ONE-SHOT](ONE-SHOT.md), which authorizes asset-first design and same-package Settings/nav/Chat front-end implementation. Do not infer capabilities from drawings, change schema, add unsupported provider identity, or alter the Lucide family. Preserve visible labels and text fallbacks. Candidate implementation and non-author acceptance remain separate facts.
 
 Settings reuse candidates for the actual SETTINGS_GROUPS in settings-view.mjs: General sliders-horizontal, Appearance palette, Models cpu, Tools & Integrations plug, Skills book-open, Memory database, Permissions key-round, Keyboard keyboard, Developer code. These are drawing/reuse candidates, not already accepted mappings; check the vendored subset and source/license before adding any missing source. These name existing categories, not new domain state. Prepare optional roadmap assets with explicit reserved status; do not manufacture live controls to consume them.
+
+
+## 2026-09-12 integrated disposition
+
+The inventory above is the original design intake. `matter.object` and `expert.role` now have admitted domain glyphs in the semantic registry; the earlier text-reserved listing is superseded for those two keys. Matter identifies an existing bound domain object, never a project folder. Expert remains a static Planned navigation identity without a routing capability. See [integrated icon package](../../design/product-icons-2026-09-11/README.md) and [frontend node](../frontend-node-2026-09-12/README.md).

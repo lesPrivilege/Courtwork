@@ -1,0 +1,51 @@
+[
+  {
+    "branch": "codex/attention-proposal-20260909",
+    "sha": "96e9b9eaae4a185735bb97641139408ef93879a9",
+    "merged": true,
+    "checked_out": false,
+    "unique": 0
+  },
+  {
+    "branch": "codex/dsh-observation-20260910",
+    "sha": "fa71b782a7c29c701a9e90b0c0aef069eb38f5a8",
+    "merged": false,
+    "checked_out": false,
+    "unique": 3
+  },
+  {
+    "branch": "codex/paper-prepublish-integration-20260911",
+    "sha": "026d5cb0191816e44ae473e220ab557d24afbcfe",
+    "merged": true,
+    "checked_out": true,
+    "unique": 0
+  },
+  {
+    "branch": "codex/paper-skin-english-20260910",
+    "sha": "8b2839a476267cdc0f223040191b59306ce30996",
+    "merged": true,
+    "checked_out": false,
+    "unique": 0
+  },
+  {
+    "branch": "codex/paper-v1-integration-20260911",
+    "sha": "0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75",
+    "merged": true,
+    "checked_out": true,
+    "unique": 0
+  },
+  {
+    "branch": "codex/reader-controls-20260911",
+    "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+    "merged": true,
+    "checked_out": true,
+    "unique": 0
+  },
+  {
+    "branch": "main",
+    "sha": "026d5cb0191816e44ae473e220ab557d24afbcfe",
+    "merged": true,
+    "checked_out": true,
+    "unique": 0
+  }
+]

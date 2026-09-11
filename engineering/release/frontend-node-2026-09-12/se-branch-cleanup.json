@@ -1,0 +1,42 @@
+{
+  "main": "158de6f782eedf1697a7a1610fca1b17f6140b8e",
+  "deleted": [
+    {
+      "branch": "codex/attention-proposal-20260909",
+      "sha": "96e9b9eaae4a185735bb97641139408ef93879a9",
+      "action": "Deleted branch codex/attention-proposal-20260909 (was 96e9b9e)."
+    },
+    {
+      "branch": "codex/dsh-observation-20260910",
+      "sha": "fa71b782a7c29c701a9e90b0c0aef069eb38f5a8",
+      "action": "Deleted branch codex/dsh-observation-20260910 (was fa71b78)."
+    },
+    {
+      "branch": "codex/paper-skin-english-20260910",
+      "sha": "8b2839a476267cdc0f223040191b59306ce30996",
+      "action": "Deleted branch codex/paper-skin-english-20260910 (was 8b2839a)."
+    },
+    {
+      "branch": "codex/paper-prepublish-integration-20260911",
+      "sha": "026d5cb0191816e44ae473e220ab557d24afbcfe",
+      "action": "Deleted branch codex/paper-prepublish-integration-20260911 (was 026d5cb)."
+    },
+    {
+      "branch": "codex/paper-v1-integration-20260911",
+      "sha": "0f23ad1ebed4ff2ef42394a5b1744eaaff30dd75",
+      "action": "Deleted branch codex/paper-v1-integration-20260911 (was 0f23ad1)."
+    },
+    {
+      "branch": "codex/reader-controls-20260911",
+      "sha": "2817b8240c34d0754caf623e2a867cc168a260ab",
+      "action": "Deleted branch codex/reader-controls-20260911 (was 2817b82)."
+    },
+    {
+      "branch": "codex/se-branch-reconciliation-20260912",
+      "sha": "158de6f782eedf1697a7a1610fca1b17f6140b8e",
+      "action": "Deleted branch codex/se-branch-reconciliation-20260912 (was 158de6f)."
+    }
+  ],
+  "worktrees": "Kept at detached fixed HEADs; files and ignored generated artifacts preserved.",
+  "remote": "Only main exists; no remote deletion; no push/deploy."
+}

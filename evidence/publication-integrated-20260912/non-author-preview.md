@@ -1,0 +1,9 @@
+# Luna · bounded preview review
+
+This is Astra's transcription of Mendel's returned verification summary, not a fabricated raw execution log. Reviewed/fixed source: isolated `80f433c4c8611e4ac50e53c1974d07dc3e7c825f` and `a0221b83e3f2cb0c6750060247cfd75bce04cfef`. Astra reviewed and merged those changes, then kept the concise HTML banner in 4412391.
+
+Luna found and fixed three concrete gaps in the original Fable preview: completion-only exit instead of admitted-receipt exit; Home aggregate mixing example and actual projects; example IDs in mutation bodies bypassing path-only rejection. Nine unit cases and the corrected 17-case preview audit passed on the fixed source. Source guards keep prompt free text distinct from ID-bearing fields; matching run/session/command receipt establishes real use even if the provider later fails.
+
+Additional returned checks: configured unavailable model produced HTTP503, zero Runs and zero fake-provider calls. Preview chip/banner remained active and memory remained unset. With one completed actual local-fixture Run plus reopened example, Home summary and activity matched the server's one actual Run rather than the sample's seven/six counts. Requests returned HTTP200 for both aggregate reads. No personal provider or data was used.
+
+[Rejection fixture](preview-rejection-home-audit.mjs) and [aggregate fixture](preview-stats-audit.mjs) preserve the returned scripts with their two imports changed from the temporary checkout to relative repository paths. These script copies were not re-executed merely to label them as raw logs. Author and non-author roles remain separate; this review covers the original Fable implementation and fixes, not an independent acceptance by the fix author of those new lines. Astra integration review and final 793-case suite cover the combined source.

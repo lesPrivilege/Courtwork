@@ -1,0 +1,553 @@
+[
+  {
+    "slot": "settings",
+    "theme": "light",
+    "state_id": "appearance-default-medium",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:39:22.931Z",
+    "asset_path": "site/media/publication-integrated-20260912/settings-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/appearance",
+      "width": 1440
+    },
+    "detail": "Appearance with Medium/default code font/follow-system motion; explicit Light theme.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/appearance"
+  },
+  {
+    "slot": "models",
+    "theme": "light",
+    "state_id": "models-local-default",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:39:31.140Z",
+    "asset_path": "site/media/publication-integrated-20260912/models-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/models",
+      "width": 1440
+    },
+    "detail": "Models using local deterministic loopback connection; external catalog entries are not invoked.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/models"
+  },
+  {
+    "slot": "integrations",
+    "theme": "light",
+    "state_id": "tools-user-revision-0",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:39:40.417Z",
+    "asset_path": "site/media/publication-integrated-20260912/integrations-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/tools",
+      "width": 1440
+    },
+    "detail": "Tools & Integrations user scope and built-in tools.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/tools"
+  },
+  {
+    "slot": "settings",
+    "theme": "light",
+    "state_id": "appearance-default-medium",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:41:16.554Z",
+    "asset_path": "site/media/publication-integrated-20260912/settings-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/appearance",
+      "width": 1440
+    },
+    "detail": "Neutral selected segments; Medium/default code font/follow-system motion, Light theme.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/appearance"
+  },
+  {
+    "slot": "models",
+    "theme": "light",
+    "state_id": "models-local-default",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:41:23.834Z",
+    "asset_path": "site/media/publication-integrated-20260912/models-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/models",
+      "width": 1440
+    },
+    "detail": "Local deterministic connection; catalog entries not invoked.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/models"
+  },
+  {
+    "slot": "integrations",
+    "theme": "light",
+    "state_id": "tools-user-revision-0",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:41:32.897Z",
+    "asset_path": "site/media/publication-integrated-20260912/integrations-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Settings",
+      "url": "http://127.0.0.1:60816/#settings/tools",
+      "width": 1440
+    },
+    "detail": "Tools and integrations, user scope built-in resources.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/tools"
+  },
+  {
+    "slot": "home",
+    "theme": "light",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:41:40.419Z",
+    "asset_path": "site/media/publication-integrated-20260912/home-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Home",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Two synthetic projects, six retained runs, seven chats, one investigating Attention item.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "spark",
+    "theme": "light",
+    "state_id": "spark-matter-source-3-candidate-v2",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:41:51.518Z",
+    "asset_path": "site/media/publication-integrated-20260912/spark-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Home",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Spark Overview with stale source-v2 candidate against source revision3 and one current Matter.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "attention",
+    "theme": "light",
+    "state_id": "attention-revision-inspected",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:42:22.977Z",
+    "asset_path": "site/media/publication-integrated-20260912/attention-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Attention",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Investigating item selected, recorded reason and next step; no decision submitted.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "matter",
+    "theme": "light",
+    "state_id": "cedar-matter-source1-overview",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:43:11.027Z",
+    "asset_path": "site/media/publication-integrated-20260912/matter-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewInbound NDA — Project Cedar",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Expanded Workspace: bound Matter version0/source1, pending Candidate and decision controls untouched.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "review",
+    "theme": "light",
+    "state_id": "cedar-candidate-purpose-open",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:43:16.208Z",
+    "asset_path": "site/media/publication-integrated-20260912/review-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewInbound NDA — Project Cedar",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Pending Candidate purpose-limitation opened; recorded source and decisions untouched.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "continuity",
+    "theme": "light",
+    "state_id": "continuity-cedar-matter-source1",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:43:35.415Z",
+    "asset_path": "site/media/publication-integrated-20260912/continuity-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewContinue Project Cedar review",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Continuation session expanded Workspace uses same existing Matter source1 and pending Candidate.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "artifact",
+    "theme": "light",
+    "state_id": "artifact-recorded-file",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:43:47.789Z",
+    "asset_path": "site/media/publication-integrated-20260912/artifact-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewFinal review memo — working artifact",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Recorded out/project-cedar-review.md opened from run file card.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "conversation",
+    "theme": "light",
+    "state_id": "conversation-disclosed-completed",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:05.262Z",
+    "asset_path": "site/media/publication-integrated-20260912/conversation-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewFinal review memo — working artifact",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Completed Attention conversation; resolved question and final answer, no new actions.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "settings",
+    "theme": "dark",
+    "state_id": "appearance-default-medium",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:16.772Z",
+    "asset_path": "site/media/publication-integrated-20260912/settings-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewSettings",
+      "url": "http://127.0.0.1:60816/#settings/appearance",
+      "width": 1440
+    },
+    "detail": "Neutral segments, Dark theme; other defaults unchanged.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/appearance"
+  },
+  {
+    "slot": "models",
+    "theme": "dark",
+    "state_id": "models-local-default",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:23.985Z",
+    "asset_path": "site/media/publication-integrated-20260912/models-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewSettings",
+      "url": "http://127.0.0.1:60816/#settings/models",
+      "width": 1440
+    },
+    "detail": "Local deterministic connection, no external provider invoked.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/models"
+  },
+  {
+    "slot": "integrations",
+    "theme": "dark",
+    "state_id": "tools-user-revision-0",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:32.450Z",
+    "asset_path": "site/media/publication-integrated-20260912/integrations-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewSettings",
+      "url": "http://127.0.0.1:60816/#settings/tools",
+      "width": 1440
+    },
+    "detail": "User scope built-in resources.",
+    "displayed_path": "http://127.0.0.1:60816/#settings/tools"
+  },
+  {
+    "slot": "home",
+    "theme": "dark",
+    "state_id": "home-cedar-northside-after-spark-correction",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:40.053Z",
+    "asset_path": "site/media/publication-integrated-20260912/home-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Home",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Same two projects, six retained runs, seven chats, one Attention item.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "spark",
+    "theme": "dark",
+    "state_id": "spark-matter-source-3-candidate-v2",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:46.359Z",
+    "asset_path": "site/media/publication-integrated-20260912/spark-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Home",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Spark Overview, same stale and current candidates.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "attention",
+    "theme": "dark",
+    "state_id": "attention-revision-inspected",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:44:56.106Z",
+    "asset_path": "site/media/publication-integrated-20260912/attention-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Attention",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Same Investigating item details, no decision.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "matter",
+    "theme": "dark",
+    "state_id": "cedar-matter-source1-overview",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:01.939Z",
+    "asset_path": "site/media/publication-integrated-20260912/matter-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewInbound NDA — Project Cedar",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Same Matter source1, pending Candidate, expanded Workspace.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "review",
+    "theme": "dark",
+    "state_id": "cedar-candidate-purpose-open",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:07.436Z",
+    "asset_path": "site/media/publication-integrated-20260912/review-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewInbound NDA — Project Cedar",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Pending purpose-limitation evidence expanded.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "continuity",
+    "theme": "dark",
+    "state_id": "continuity-cedar-matter-source1",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:13.324Z",
+    "asset_path": "site/media/publication-integrated-20260912/continuity-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewContinue Project Cedar review",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Continuation on existing Matter in expanded Workspace.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "artifact",
+    "theme": "dark",
+    "state_id": "artifact-recorded-file",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:19.368Z",
+    "asset_path": "site/media/publication-integrated-20260912/artifact-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewFinal review memo — working artifact",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Recorded workspace Markdown from the same run file card.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "conversation",
+    "theme": "dark",
+    "state_id": "conversation-disclosed-completed",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:24.262Z",
+    "asset_path": "site/media/publication-integrated-20260912/conversation-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewFinal review memo — working artifact",
+      "url": "http://127.0.0.1:60816/#",
+      "width": 1440
+    },
+    "detail": "Same completed disclosed Attention conversation.",
+    "displayed_path": "http://127.0.0.1:60816/#"
+  },
+  {
+    "slot": "approval",
+    "theme": "light",
+    "state_id": "approval-permission-pending",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:45:54.591Z",
+    "asset_path": "site/media/publication-integrated-20260912/approval-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewExhibit index rebuild — approval",
+      "url": "http://127.0.0.1:62043/#",
+      "width": 1440
+    },
+    "detail": "Actual waiting_user ws_write out/exhibit-index.md, exact-write-only permission; unanswered.",
+    "displayed_path": "http://127.0.0.1:62043/#"
+  },
+  {
+    "slot": "approval",
+    "theme": "dark",
+    "state_id": "approval-permission-pending",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:46:08.723Z",
+    "asset_path": "site/media/publication-integrated-20260912/approval-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewExhibit index rebuild — approval",
+      "url": "http://127.0.0.1:62043/#",
+      "width": 1440
+    },
+    "detail": "Same unanswered exact write permission, elapsed time advances naturally.",
+    "displayed_path": "http://127.0.0.1:62043/#"
+  },
+  {
+    "slot": "running",
+    "theme": "light",
+    "state_id": "running-successful-list-read-active",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:47:58.747Z",
+    "asset_path": "site/media/publication-integrated-20260912/running-1440-light.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "light",
+      "title": "Project Cedar reviewSource inspection",
+      "url": "http://127.0.0.1:51706/#",
+      "width": 1440
+    },
+    "detail": "Actual local-compatible streaming Run after successful ws_list/ws_read; Running and Stop control visible.",
+    "displayed_path": "http://127.0.0.1:51706/#"
+  },
+  {
+    "slot": "running",
+    "theme": "dark",
+    "state_id": "running-successful-list-read-active",
+    "source_sha": "ea6449e",
+    "captured_at": "2026-09-11T18:48:10.682Z",
+    "asset_path": "site/media/publication-integrated-20260912/running-1440-dark.png",
+    "observed": {
+      "dpr": 1,
+      "height": 900,
+      "overflow": false,
+      "theme": "dark",
+      "title": "Project Cedar reviewSource inspection",
+      "url": "http://127.0.0.1:51706/#",
+      "width": 1440
+    },
+    "detail": "Same active Run; stream and elapsed time advance naturally, no state or image manipulation.",
+    "displayed_path": "http://127.0.0.1:51706/#"
+  }
+]
