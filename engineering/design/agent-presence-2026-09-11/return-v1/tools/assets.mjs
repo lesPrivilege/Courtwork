@@ -5,6 +5,10 @@ import { CANDIDATES, OPTICAL, REST, VIEWBOX, svgMarkup } from "../src/geometry.m
 const THINK = { ...REST, morph: 1 };
 
 export const ASSETS = [
+  ...[16, 20, 24, 32, 64].flatMap((size) => [
+    { file: `presence-quiet-corner-${size}.svg`, candidate: "JP", pose: "rest", size, material: "flat", title: "Agent presence, quiet corner" },
+    { file: `presence-sloping-pout-${size}.svg`, candidate: "JP", pose: "think", size, material: "flat", title: "Agent presence, sloping pout" },
+  ]),
   { file: "presence-a-bracket.svg", candidate: "A", pose: "rest", size: 24, material: "flat", title: "Agent presence A, calm bracket" },
   { file: "presence-b-ezh.svg", candidate: "B", pose: "rest", size: 24, material: "flat", title: "Agent presence B, geometric droop" },
   { file: "presence-c-epsilon.svg", candidate: "C", pose: "rest", size: 24, material: "flat", title: "Agent presence C, soft droop" },
@@ -22,14 +26,14 @@ export function assetMarkup(asset) {
 export function manifest() {
   return {
     manifest: "agent-presence/assets",
-    version: 1,
+    version: 2,
     source: "src/geometry.mjs (paths are exported, not hand-edited; see tools/build-assets.mjs)",
     viewBox: `0 0 ${VIEWBOX} ${VIEWBOX}`,
     colour: "stroke = currentColor; depth/sheen layers read --presence-depth / --presence-sheen with a flat-safe fallback",
     opticalStrokeUnits: OPTICAL,
     opticalNote: "Stroke is in viewBox units and changes with the rendered size (experimental). Flat assets are exported at the 24 px optical stroke; other sizes are rendered from the geometry source.",
     candidates: Object.fromEntries(Object.entries(CANDIDATES).map(([key, c]) => [key, { id: c.id, name: c.name, eyes: c.eyes, restMouth: c.rest, thinkMouth: c.think }])),
-    route: "AB = A mouth at rest, B mouth while an explicit thinking fact holds. Its flat rest and thinking shapes equal presence-a-bracket.svg and presence-b-ezh.svg.",
+    route: "JP = quiet corner at rest, original sloping pout during explicit thinking. AB and A/B/C remain historical comparisons; message placement is default.",
     assets: ASSETS.map(({ file, candidate, pose, size, material }) => ({ file, candidateId: CANDIDATES[candidate].id, pose, opticalSize: size, material })),
   };
 }

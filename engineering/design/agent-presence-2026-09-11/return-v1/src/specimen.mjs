@@ -38,12 +38,12 @@ function boards() {
     `<td class="sp-sep">${rec && label === "rest" ? mark(c, { size: 64, material: "hard", params }) : '<span class="sp-na">—</span>'}</td></tr>`;
   const route =
     `<table aria-label="Recommended route, flat and soft depth">${routeHead}` +
-    routeRow("AB", REST, "rest", true) +
-    routeRow("AB", THINK, "thinking shape", true) +
+    routeRow("JP", REST, "rest", true) +
+    routeRow("JP", THINK, "thinking shape", true) +
     routeRow("AB:", REST, "rest", false) +
     routeRow("AB:", THINK, "thinking shape", false) +
     `</table>`;
-  $("compare-board").innerHTML = compare + `<h3 class="sp-inline" style="margin:20px 0 6px">Recommended route and its <code>:</code> eye variant</h3>` + route;
+  $("compare-board").innerHTML = route + `<h3 class="sp-inline" style="margin:20px 0 6px">Historical A/B/C comparison</h3>` + compare;
 }
 boards();
 
@@ -53,9 +53,9 @@ const STAGE = [
   { c: "A", size: 64, title: "A · =]" },
   { c: "B", size: 64, title: "B · =Ʒ" },
   { c: "C", size: 64, title: "C · =ε" },
-  { c: "AB", size: 64, title: "Selected · 64", rec: true },
-  { c: "AB", size: 20, title: "Selected · corner 20", rec: true },
-  { c: "AB", size: 16, title: "Selected · line 16", rec: true },
+  { c: "JP", size: 64, title: "Selected · 64", rec: true },
+  { c: "JP", size: 20, title: "Selected · corner 20", rec: true },
+  { c: "JP", size: 16, title: "Selected · message 16", rec: true },
 ];
 const views = STAGE.map((s) => {
   const cell = document.createElement("div");

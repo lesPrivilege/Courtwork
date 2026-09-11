@@ -1,6 +1,6 @@
 {
   "manifest": "agent-presence/assets",
-  "version": 1,
+  "version": 2,
   "source": "src/geometry.mjs (paths are exported, not hand-edited; see tools/build-assets.mjs)",
   "viewBox": "0 0 24 24",
   "colour": "stroke = currentColor; depth/sheen layers read --presence-depth / --presence-sheen with a flat-safe fallback",
@@ -28,6 +28,13 @@
   },
   "opticalNote": "Stroke is in viewBox units and changes with the rendered size (experimental). Flat assets are exported at the 24 px optical stroke; other sizes are rendered from the geometry source.",
   "candidates": {
+    "JP": {
+      "id": "presence-corner-pout",
+      "name": "Quiet corner → sloping pout",
+      "eyes": "bars",
+      "restMouth": "corner",
+      "thinkMouth": "pout"
+    },
     "A": {
       "id": "presence-a-bracket",
       "name": "A · calm bracket",
@@ -64,8 +71,78 @@
       "thinkMouth": "ezh"
     }
   },
-  "route": "AB = A mouth at rest, B mouth while an explicit thinking fact holds. Its flat rest and thinking shapes equal presence-a-bracket.svg and presence-b-ezh.svg.",
+  "route": "JP = quiet corner at rest, original sloping pout during explicit thinking. AB and A/B/C remain historical comparisons; message placement is default.",
   "assets": [
+    {
+      "file": "presence-quiet-corner-16.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "rest",
+      "opticalSize": 16,
+      "material": "flat"
+    },
+    {
+      "file": "presence-sloping-pout-16.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "think",
+      "opticalSize": 16,
+      "material": "flat"
+    },
+    {
+      "file": "presence-quiet-corner-20.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "rest",
+      "opticalSize": 20,
+      "material": "flat"
+    },
+    {
+      "file": "presence-sloping-pout-20.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "think",
+      "opticalSize": 20,
+      "material": "flat"
+    },
+    {
+      "file": "presence-quiet-corner-24.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "rest",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-sloping-pout-24.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "think",
+      "opticalSize": 24,
+      "material": "flat"
+    },
+    {
+      "file": "presence-quiet-corner-32.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "rest",
+      "opticalSize": 32,
+      "material": "flat"
+    },
+    {
+      "file": "presence-sloping-pout-32.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "think",
+      "opticalSize": 32,
+      "material": "flat"
+    },
+    {
+      "file": "presence-quiet-corner-64.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "rest",
+      "opticalSize": 64,
+      "material": "flat"
+    },
+    {
+      "file": "presence-sloping-pout-64.svg",
+      "candidateId": "presence-corner-pout",
+      "pose": "think",
+      "opticalSize": 64,
+      "material": "flat"
+    },
     {
       "file": "presence-a-bracket.svg",
       "candidateId": "presence-a-bracket",
