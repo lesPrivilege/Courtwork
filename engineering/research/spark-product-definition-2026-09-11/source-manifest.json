@@ -1,0 +1,66 @@
+{
+  "conversationId": "6aa405ea-3b0c-83ec-9a65-d010f947272e",
+  "title": "Gemini Spark 产品解析",
+  "updatedAt": 1789135014.764612,
+  "fetchedAt": "2026-09-11T14:01:10.084307+00:00",
+  "turns": 4,
+  "messages": 7,
+  "hasMore": false,
+  "attachments": [],
+  "messageIndex": [
+    {
+      "id": "7ac25318-d9f0-4392-b1ec-e70f9d75863f",
+      "turnId": "7ac25318-d9f0-4392-b1ec-e70f9d75863f",
+      "role": "user",
+      "sha256": "1f478d8edc4afeca309970c94fcd98c115a9ae50f492f3a1d697b30fc91a9f4a"
+    },
+    {
+      "id": "780c5175-9294-47a6-8d6f-e7554f589d79",
+      "turnId": "7ac25318-d9f0-4392-b1ec-e70f9d75863f",
+      "role": "assistant",
+      "sha256": "8c0b5268acdc176f2fb4aa191824ee75806fe8d93b9998601e941faf47327267"
+    },
+    {
+      "id": "45ce051d-3689-4476-93fc-248c58e0590a",
+      "turnId": "45ce051d-3689-4476-93fc-248c58e0590a",
+      "role": "user",
+      "sha256": "b8e359c161fce27a757ed8aed0cfd1b5bf2ab203d573e8e29d188e389aedd2c5"
+    },
+    {
+      "id": "7875f8c3-1478-4405-91c3-90e3ef316c6a",
+      "turnId": "45ce051d-3689-4476-93fc-248c58e0590a",
+      "role": "assistant",
+      "sha256": "bf165272f5c9dd640c0c003eb7c66bdac3a60c4f38dd07bfdf80eee79d658f04"
+    },
+    {
+      "id": "e3acf389-f68b-4656-98a6-f48c2c7389eb",
+      "turnId": "e3acf389-f68b-4656-98a6-f48c2c7389eb",
+      "role": "user",
+      "sha256": "84974f648ca96338d5831981bdfe5446a08efe209ced1171775c81d2327eb9ff"
+    },
+    {
+      "id": "e404b6b9-bff9-4d83-8a25-dedd8ff52192",
+      "turnId": "e3acf389-f68b-4656-98a6-f48c2c7389eb",
+      "role": "assistant",
+      "sha256": "0e522a812e177d009f5f10808a3ecc372e4d3eec683e5e59f179d9c3f7cd3389"
+    },
+    {
+      "id": "e654b9ec-2917-4caa-ad2c-2ad98714b7e5",
+      "turnId": "e654b9ec-2917-4caa-ad2c-2ad98714b7e5",
+      "role": "user",
+      "sha256": "be853dc6dace6819ea6733581534239b014b86beb0fcfbc7bf55325bfcd9d1ae"
+    }
+  ],
+  "files": [
+    {
+      "path": "connector-response.json",
+      "sha256": "04b52533e0ae6728faa0268ef4ba89afd1a35a0ebe3734ffda4a7bf67f043534",
+      "bytes": 22939
+    },
+    {
+      "path": "input-snapshot.md",
+      "sha256": "29e482d751bb756e9de216244048ba381950b783675d77fa8d79b641fac44d1c",
+      "bytes": 20266
+    }
+  ]
+}

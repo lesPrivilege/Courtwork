@@ -20,3 +20,7 @@
 依据：[主roadmap](../../roadmap.md)的ME-03/04及资料维护边界、[SP集成裁决](integration-ruling.md)、[BE-41 DTO与后续补充](be41-dto.md)、[Design正式裁决](../se-control-one-shot-2026-09-11/return-intake.md)。历史SP/DTO开头的“未实现”是原时点；最新接收看[current](../../current.md)。
 
 本单仅补命名参考与边界，不改Spark定义owner、不开新PR工作流、不改变Claude绘图范围，不改App/Pages或部署。Claude可消费命名分层与上述候选/已实现标记，不把参考中的自治闭环画成现行能力。
+
+## 有界语义工作补充 · 2026-09-11
+
+[新定义登记](../../research/spark-product-definition-2026-09-11/README.md)消费4轮7消息及用户直接补充：持续准备由有界局部工作组成，翻译可直接唤起；第一阶段是Harness Core受限profile，DeepSeek为首个适配目标。复用既有权限机制但限制授权，不删除Run/恢复记录，不改变现SP/BE-41交付状态。定义已接入最后一轮Design单。
