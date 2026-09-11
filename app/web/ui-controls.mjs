@@ -58,6 +58,19 @@ const icons = new Set([
   "pause",
   "play",
   "download",
+  // CourtWork domain glyphs and the Settings group set (stage 1, 2026-09-11)
+  "spark",
+  "attention",
+  "chat",
+  "text-align-start",
+  "sliders-horizontal",
+  "palette",
+  "cpu",
+  "book-open",
+  "database",
+  "key-round",
+  "keyboard",
+  "code",
 ]);
 /* IC-1 / copy-convention §4 · the glyph slot is 16 in a row, 18 on a control and
  * 20 in navigation. The size is stated where the glyph is built, not patched

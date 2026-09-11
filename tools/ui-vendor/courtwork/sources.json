@@ -1,0 +1,22 @@
+{
+  "project": "CourtWork domain glyphs",
+  "kind": "courtwork-domain",
+  "license": "MIT (repository LICENSE)",
+  "grammar": "24 grid, 2px centred stroke, round cap/join, currentColor, 1px safe edge; Lucide neighbour density",
+  "origin": {
+    "spark": "Design return v2 spark-a2 (optical candidate, Astra DR-02 direction A): source \u2192 fan-out",
+    "attention": "Design return v1/v2 attn-a (Astra selected A): streams \u2192 ring",
+    "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it"
+  },
+  "files": {
+    "spark.svg": {
+      "sha256": "9247e80bd768b2c7adc4f6118255c3c368822982be4c06d3f0ca603e75fade26"
+    },
+    "attention.svg": {
+      "sha256": "1bd6adfc595571dfc4b99610927991c246dbdc630b2ace2318212fb0112e2665"
+    },
+    "chat.svg": {
+      "sha256": "1c14966a17880410d4fd41711f9ca8f1cf259db4cc1a2d569960918f7d546851"
+    }
+  }
+}

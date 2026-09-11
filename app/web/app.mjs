@@ -6189,7 +6189,7 @@ function wireEvents() {
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
     "refresh-button": ["refresh-cw", "Refresh workspace"],
     "clear-nav-filter-button": ["x", "Clear filter"],
-    "show-run-button": ["panel-right", "Chat overview"],
+    "show-run-button": ["text-align-start", "Chat overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["panel-right", "Hide work surface"],
     "close-materials-button": ["x", "Close files"],
@@ -6199,8 +6199,10 @@ function wireEvents() {
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
   setAction($("home-button"), "house", "Home", { visible: true });
-  setSemanticControl($("attention-button"), "attention.agent");
-  setSemanticControl($("spark-button"), "spark.surface");
+  /* The three seats keep icon + text: a name is scanned, a glyph only identifies. */
+  setSemanticControl($("chat-button"), "chat.surface", { visible: true });
+  setSemanticControl($("attention-button"), "attention.agent", { visible: true });
+  setSemanticControl($("spark-button"), "spark.surface", { visible: true });
   setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat", {
     visible: true,

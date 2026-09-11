@@ -31,7 +31,8 @@ export function generatedModule(registry) {
 export async function checkRegistry({write=false}={}) {
   const registry=JSON.parse(await readFile(path.join(root,'engineering/design/product-semantics/registry.json'),'utf8'));
   const source=JSON.parse(await readFile(path.join(root,'tools/ui-vendor/lucide/sources.json'),'utf8'));
-  const errors=validateRegistry(registry,new Set(Object.keys(source.files).map(f=>f.replace(/\.svg$/,''))));
+  const domain=JSON.parse(await readFile(path.join(root,'tools/ui-vendor/courtwork/sources.json'),'utf8'));
+  const errors=validateRegistry(registry,new Set([...Object.keys(source.files),...Object.keys(domain.files)].map(f=>f.replace(/\.svg$/,''))));
   for(const e of registry.entries) {
     if(typeof e.ownerRef!=='string'||e.ownerRef.startsWith('/')||e.ownerRef.split('/').includes('..'))continue;
     try {const owner=await readFile(path.join(root,e.ownerRef),'utf8');if(!e.ownerAnchor || !owner.includes(e.ownerAnchor))errors.push(`${e.semanticKey}: absent owner anchor`);} catch {errors.push(`${e.semanticKey}: absent owner ${e.ownerRef}`);}
