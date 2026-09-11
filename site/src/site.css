@@ -712,9 +712,10 @@ h2 { font-size: clamp(30px, 4.4vw, 58px); max-width: 23ch; line-height: 1.12; le
 /* Single-red change language (user ruling 2026-09-11): one campaign accent for
  * what is new in a change, grey for what was there. It is not the review token
  * and not a state: it marks changed text only. Values mirror the product's
- * --diff-change-* scale (app/web/styles.css). */
+ * --diff-change-* scale (app/web/styles.css); the Pages dark foreground is an
+ * explicit one-red override for the published figure. */
 :root { --campaign-diff-change: #a13c36; --campaign-diff-block: #dd7068; --campaign-diff-block-ink: #172025; }
-@media (prefers-color-scheme: dark) { :root { --campaign-diff-change: #e28b83; --campaign-diff-block: #d4685f; --campaign-diff-block-ink: #11171b; } }
+@media (prefers-color-scheme: dark) { :root { --campaign-diff-change: #c95e55; --campaign-diff-block: #d4685f; --campaign-diff-block-ink: #11171b; } }
 @media (forced-colors: active) { .review-attention { color: CanvasText; } }
 
 /* Record bars recede; the stem retains the identity's primary ink. */
