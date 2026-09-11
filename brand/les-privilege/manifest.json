@@ -18,6 +18,23 @@
     ],
     "lowerRight": 46.5
   },
+  "palette": {
+    "light": {
+      "L": "#242d33",
+      "secondary": "#6f7e88",
+      "red": "#ad4844"
+    },
+    "dark": {
+      "L": "#e4ebef",
+      "secondary": "#95a5af",
+      "red": "#df827b"
+    }
+  },
+  "families": {
+    "color": "tritone; Dystopia",
+    "black": "monochrome; Anthropic A-backslash reference"
+  },
+  "recommendedColor": "red top bar; gray middle bar; dark L on light ground",
   "variants": {
     "previous": [
       10,
@@ -55,23 +72,39 @@
   "files": [
     {
       "path": "mark.svg",
-      "sha256": "edeb1596a60764e756c77d84ae325a19d24c775f4b8b0cd12cac37148f1c9d35"
+      "sha256": "4535bec6e363cfef3d821a54e6004bbcc58cdea5755bd24301aa764af4f9de8a"
     },
     {
       "path": "mark-light.svg",
-      "sha256": "e4afc1a3555ec5958eba8ac3a1cbd56a0d74750df400fa4e1823405e864152d6"
+      "sha256": "55e12a6590b782411c787becd8938234964385d579c724eeb217ee094dc4e103"
     },
     {
       "path": "mark-dark.svg",
-      "sha256": "5591123039506b0fe418de239095c1453f05d04fe22973c734136c3a73efdc65"
+      "sha256": "965a29d2ed58df6007131a20d065a455703ed3b68a793af80087b0845ff27333"
     },
     {
       "path": "mark-tonal-light.svg",
-      "sha256": "378fe2f32201aa913fe67a1bf48a90648e57fae29be581c9a06692327aba6bf8"
+      "sha256": "0028174c6e642be0a0a8606bb40b794f000eb800ce2f44abb3c8d9b0bf129b0d"
     },
     {
       "path": "mark-tonal-dark.svg",
-      "sha256": "2cae1ff9e52bae587fb5452b29ddceba410de5302b1cd9827d455c35344d4330"
+      "sha256": "51f42e5e5bb944e1ca40d056f6f1b63865c5ccf7bc3ca4cf23adbf17f3126a21"
+    },
+    {
+      "path": "mark-tritone-light.svg",
+      "sha256": "a1b508e516408dac03a29aaab1c21d2469090009724fc04fa135192eac4e3773"
+    },
+    {
+      "path": "mark-tritone-dark.svg",
+      "sha256": "6136b082b3c67d9ff01c17c24537d2864e0c3ad86af704413d7aa3c555db2775"
+    },
+    {
+      "path": "mark-tritone-middle-light.svg",
+      "sha256": "ed8667a62c01bc153edf52f6afed3136190082de41f2370054ce87d61a22289e"
+    },
+    {
+      "path": "mark-tritone-middle-dark.svg",
+      "sha256": "8f68220440122ed3ae9d4d42a6e59b601ad2d44f0aaa4437bd97909bf1d48e97"
     }
   ]
 }

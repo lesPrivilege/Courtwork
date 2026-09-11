@@ -1,6 +1,6 @@
 {
   "review": "author-only",
-  "svgCount": 5,
+  "svgCount": 9,
   "xmlElements": "svg/title/g/path/rect only; no external references or event attributes",
   "accessibleName": "les Privilege",
   "deterministicRebuild": true,
@@ -9,7 +9,7 @@
       "path": "preview.png",
       "viewport": [
         1200,
-        1340
+        1690
       ],
       "scrollWidth": 1200,
       "missingImages": 0
@@ -18,12 +18,21 @@
       "path": "mobile.png",
       "viewport": [
         390,
-        2050
+        2730
       ],
       "scrollWidth": 390,
       "missingImages": 0
+    },
+    {
+      "path": "identity.png",
+      "viewport": [
+        960,
+        461
+      ],
+      "scrollWidth": 960,
+      "missingImages": 0
     }
   ],
-  "visualInspection": "Four optical variants; mono and tonal size ladders; light and dark signatures; reference comparison. Both final screenshots inspected.",
+  "visualInspection": "Optical variants; top-red/middle-red alternatives; black/color families at 16\u201364 px and on light/dark grounds. Final screenshots inspected.",
   "sourceUpdateSha256": "f647ed1cb349811128a7cf7029d2d40c4366736f4192d5230f2b7a517d09e7da"
 }
