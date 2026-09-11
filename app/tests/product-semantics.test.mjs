@@ -6,7 +6,8 @@ import { productSemantics } from '../web/product-semantics.generated.mjs';
 import { semanticPresentation, semanticAction, semanticIcon, setSemanticControl } from '../web/semantic-controls.mjs';
 import { withTinyDom } from './tiny-dom.mjs';
 const glyphSource=JSON.parse(await readFile(`${root}/tools/ui-vendor/lucide/sources.json`,'utf8'));
-const glyphs=new Set(Object.keys(glyphSource.files).map(name=>name.replace(/\.svg$/,'')));
+const domainSource=JSON.parse(await readFile(`${root}/tools/ui-vendor/courtwork/sources.json`,'utf8'));
+const glyphs=new Set([...Object.keys(glyphSource.files),...Object.keys(domainSource.files)].map(name=>name.replace(/\.svg$/,'')));
 test('registry owners and generated browser projection agree',async()=>{assert.equal((await checkRegistry()).entries,productSemantics.entries.length);});
 test('single-purpose collisions fail while contextual shared geometry is admitted',()=>{
   assert.deepEqual(validateRegistry(productSemantics,glyphs),[]);
@@ -37,7 +38,7 @@ test('semantic action preserves existing control anatomy and handler',async()=>w
   assert.equal(button.querySelector('.sr-only').textContent,'Close Files');
   assert.equal(button.dataset.semanticKey,'surface.close');
   button.click(); assert.equal(clicked,1);
-  assert.equal(semanticIcon('attention.agent'),null);
+  assert.equal(semanticIcon('attention.agent')?.getAttribute('data-semantic-key'),'attention.agent');
 }));
 test('migrated workspace close/add controls cannot return to raw glyph calls',async()=>{
   const source=await readFile(`${root}/app/web/workspace-view.mjs`,'utf8');
@@ -61,13 +62,13 @@ test('actual workspace consumers preserve callbacks and contextual names',async(
   const close=container.querySelectorAll('[data-semantic-key]').find(node=>node.getAttribute('data-semantic-key')==='surface.close');assert.equal(close.getAttribute('aria-label'),'Close chat overview');close.click();assert.equal(closed,1);
 }));
 
-test('text-reserved navigation preserves its handler without a blank icon slot',()=>withTinyDom(async()=>{
+test('domain navigation preserves its handler with a visible label and glyph',()=>withTinyDom(async()=>{
   const {action,setAction}=await import('../web/ui-controls.mjs');let called=0;
   const button=action('message-square','Old identity',()=>called++);
-  setSemanticControl(button,'attention.agent');
+  setSemanticControl(button,'attention.agent',{visible:true});
   assert.equal(button.getAttribute('aria-label'),'Attention');
   assert.equal(button.querySelector('.button-label').textContent,'Attention');
-  assert.equal(button.querySelector('svg'),null);
+  assert.equal(button.querySelectorAll('svg').length,1);
   assert.equal(button.classList.contains('icon-only'),false);
   button.click();assert.equal(called,1);
   assert.throws(()=>setAction(button,null,'Missing visible label'),/visible name/);
