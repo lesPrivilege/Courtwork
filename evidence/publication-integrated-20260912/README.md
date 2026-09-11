@@ -27,3 +27,6 @@ Astra's Fable review accepts directionA and the five-stage browser/frontend impl
 AppKit hit testing/dragging, VoiceOver, actual200% browser zoom and complete App forced-colors/reduced-motion matrix were not independently run. Fable's108/108 native-chrome count is simulated browser packet geometry. Pages browser tests and screenshot review do not close G1–G5 or assert real provider reliability. The user will run the [targeted prompt suite](../../engineering/release/frontend-node-2026-09-12/RUNTIME-VALIDATION.md) on the main Web UI with their own key.
 
 Luna corrected-media follow-up: both Settings images now show the complete Appearance heading and neutral shadow-only Theme/Text size/Reduced motion thumbs; no red inset remains. All26 manifest entries were independently matched to source0768822, file hashes, byte counts, MIME and1440×900 viewport; mixed observed DPR is explicit. No new visual blocker was reported. This is bounded visual/identity review, not a screen-reader or actual-provider test.
+
+
+Main integration completed at647bc21 with62 pre-existing uncommitted files hash-preserved. `node site/scripts/check-capture-ready.mjs` passed after the actual main transition. Neither main branch was pushed or deployed in this node. The only remote mutation was retiring the old Fresh development branch after its full archive tag was verified.

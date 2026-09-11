@@ -1,0 +1,307 @@
+建议登记，而且这三项其实属于同一个缺口：**Courtwork 目前已有越来越多二级对象与运行状态，但 Shell 还缺少“可返回、可提醒、可观察”的控制面。** 先登记前端契约，不急着施工是合适的。
+
+从你给的 Codex 截图看，我会分别吸收它的三个 grammar，但不直接照搬。
+
+### 1. Back / Forward：值得进入 Shell，但先冻结“历史单位”
+
+这里最危险的是先画两个箭头，再让实现去猜“返回是什么意思”。Courtwork 后面会同时存在 Chat、Matter、Expert、Plugin detail、Attention item、Preview/Inspector 等层级，必须先定义 app history。
+
+建议登记为 **FE-NAV-01 · Navigation history contract**：
+
+```text
+LocationSnapshot
+├─ surface          Chat / Attention / Spark / Settings / ...
+├─ primaryObject    conversation / matter / capability / run
+├─ objectId
+├─ subview          overview / runtime / permissions / ...
+├─ selection        optional
+├─ filters          optional
+├─ scrollAnchor     optional
+└─ inspector        optional object
+```
+
+其中：
+
+* **Back/Forward 操作 LocationSnapshot，不操作 runtime。**
+* tab、popover、hover、展开/折叠这种瞬时 UI 不进入全局 history。
+* modal 优先自己关闭；关闭后才轮到 Back。
+* 从 A → B → Back → 新开 C 时，正常截断 Forward stack。
+* Back 后应恢复**选择、筛选、滚动位置、Inspector 对象**，否则它只是换 route，不是真正“回去”。
+* 新窗口/重启后暂时不需要保存完整 forward/back stack；**deep link 必须稳定，history 可以 session-local**。
+* `⌘[` / `⌘]` 可以后置，但底层契约应允许。
+
+尤其需要处理一种 Courtwork 高频情况：
+
+```text
+Attention item
+   ↓
+Matter
+   ↓
+Run
+   ↓
+Capability detail
+```
+
+这时 Back 应严格按访问轨迹回退，而不是根据信息架构猜“父页面”。
+
+所以 Codex 顶栏的箭头 grammar 可以消费，但**先有 navigation stack，后有箭头**。
+
+---
+
+### 2. Notification：可以加，但必须与 Attention 切开
+
+我建议 Bell 存在，不过绝不能形成第二个 Attention inbox。
+
+边界可以定得很干净：
+
+**Attention = durable actionable work**
+
+需要人作决定、继续执行或者承担责任：
+
+* Approval requested
+* 外部邮件/GitHub 事项
+* Agent 卡住需要输入
+* Review requested
+* 需要处理的异常
+
+**Notifications = event awareness**
+
+让用户知道系统发生了什么，但通常无需立刻进入工作流：
+
+* Scheduled run completed
+* Export ready
+* Plugin updated
+* MCP reconnected
+* Background Spark finished
+* Auth 即将过期
+* Run failed但已有自动恢复
+* 新版本/系统状态
+
+如果 Notification 事件后来需要人工介入：
+
+```text
+Notification
+    ↓ promote
+Attention
+```
+
+而不是两个地方各复制一条独立记录。
+
+所以可以登记：
+
+```text
+FE-NOTIFY-01  Notification center shell
+FE-NOTIFY-02  Notification ↔ Attention promotion contract
+FE-NOTIFY-03  Object deep-link + unread/read state
+FE-NOTIFY-04  Notification grouping / deduplication
+```
+
+视觉上 Bell panel 应该非常轻，不做“消息中心”：
+
+```text
+Today
+
+● Contract review completed
+  Contract Expert · 3m
+                         Open
+
+  GitHub reconnected
+  MCP · 28m
+
+Yesterday
+  Spark indexed 42 files
+```
+
+**对象 + 状态 + 时间 + 跳转**，基本不写解释性长文。
+
+顶部蓝点这种 grammar 可以直接用。
+
+---
+
+### 3. Usage / Heatmap：值得扩，但应该从“模型消费统计”升级成“Runtime observability”
+
+你给的第二、三张图已经有一个很好的基础 grammar：
+
+```text
+summary metrics
+     ↓
+temporal density
+     ↓
+breakdown
+```
+
+Courtwork 可以保留这个视觉骨架，但维度不能只围绕 token/model。
+
+我建议首轮登记这些 **Dimension**：
+
+| 维度                | 值                                             |
+| ----------------- | --------------------------------------------- |
+| Surface           | Chat / Attention / Spark                      |
+| Runtime           | Codex / Claude / Hermes / Courtwork…          |
+| Provider / Model  | model family / version                        |
+| Expert            | Contract / Coding / …                         |
+| Matter            | matter/project                                |
+| Capability        | Skill / MCP / Plugin / Tool                   |
+| Run state         | success / failed / cancelled / waiting / HITL |
+| Time              | hour / day / week                             |
+| Context           | input / output / cached / compacted           |
+| Tool activity     | tool calls / MCP calls                        |
+| Human interaction | approvals / interventions / resumes           |
+
+Metric 再独立：
+
+```text
+Runs
+Turns
+Messages
+Tokens
+Tool calls
+Active time
+Latency
+Failures
+Human interventions
+Cost     // provider 能可靠提供时
+```
+
+也就是说不要做十张 heatmap，而是：
+
+```text
+Heatmap
+
+Metric   [ Runs ▾ ]
+Group    [ Surface ▾ ]
+Range    All   30d   7d
+```
+
+同一张图复用 grammar。
+
+---
+
+### 4. 比“总 tokens”更适合 Courtwork 的几个指标
+
+你截图里的 `105.6M tokens`、favorite model、streak 对个人统计很好，但 CW 更值得展示：
+
+```text
+Runs                 428
+Completed            91%
+Human interventions  37
+Tool calls           6,281
+Compactions          84
+Active matters       12
+```
+
+以及 Context/Runtime 专属的一组：
+
+```text
+Context
+
+Input          18.4M
+Output          4.1M
+Cache hit        72%
+Compacted       2.8M
+Peak context     81%
+```
+
+因为后面真正需要回答的是：
+
+> 哪个 Runtime 在消耗？
+> 哪个 Expert 在频繁人工接管？
+> 哪个 MCP 错误高？
+> 哪个 Matter 上下文膨胀？
+> Spark 有没有真的承担后台廉价工作？
+
+这会使 Usage 成为**产品调试面 + 用户可理解的运行面**，而不仅是漂亮的 usage recap。
+
+---
+
+### 5. Heatmap 也建议分两种 grammar
+
+不要强迫一种热力图承载所有语义。
+
+**Calendar density**：
+
+```text
+Jul                         Sep
+□□□■■□□□□■■■□□…
+```
+
+适合展示长期运行密度、runs、tokens、tool calls。
+
+**Week × hour matrix**：
+
+```text
+        00  04  08  12  16  20
+Mon      ·   ·   ░   █   ▓   ░
+Tue      ·   ·   ▒   █   █   ▒
+...
+```
+
+更适合找：
+
+* Spark 什么时段工作
+* Scheduled automation 什么时候集中
+* 用户 Attention 高峰
+* Runtime latency / failures 是否存在时段性
+
+两个都是真实不同的语义，不建议强行合并。
+
+---
+
+### 6. Usage 页也应该能一路 drill down
+
+图不是终点。
+
+例如点：
+
+```text
+Sep 11
+  ↓
+Contract Expert
+  ↓
+Claude Runtime
+  ↓
+GitHub MCP
+  ↓
+12 calls / 1 failure
+  ↓
+具体 Run
+```
+
+也就是说每一个统计图元都最好对应一个筛选器，而不是 tooltip 看完就没了。
+
+这样 Usage 与我们上一轮定义的 Runtime topology 会真正接起来：
+
+```text
+Overview → Pattern → Breakdown → Run trace
+```
+
+---
+
+## 可以先登记成这一组前端缺口
+
+我建议暂时全部标为 **Explore / contract only，no implementation**：
+
+```text
+SHELL
+FE-NAV-01     Back / Forward history contract
+FE-NAV-02     Location snapshot restoration
+FE-NAV-03     Deep-link / return-origin semantics
+
+ATTENTION
+FE-NOTIFY-01  Notification center
+FE-NOTIFY-02  Notification → Attention promotion
+FE-NOTIFY-03  Unread / grouping / dedupe semantics
+
+OBSERVABILITY
+FE-OBS-01     Usage overview shell
+FE-OBS-02     Calendar activity heatmap
+FE-OBS-03     Week × hour heatmap
+FE-OBS-04     Metric × dimension selector
+FE-OBS-05     Runtime / Expert / Capability breakdown
+FE-OBS-06     Context / compaction / cache metrics
+FE-OBS-07     Chart → filtered runs drill-down
+```
+
+其中我会把 **FE-NAV-01 放在真正施工前必须先裁定的位置**。Notification 与 Usage 即使数据暂时不齐，也可以先把 presentation contract 和 telemetry schema 留出来。
+
+还有一个视觉上的整体判断：你给的 Codex 顶栏其实提示了一个很好的方向——**Shell 上层控制应该始终很轻**。Back/Forward、Search、Notifications 都可以是 20–24px 的低权重图标；真正的数据复杂度进入二级 panel。这样不会因为能力越来越多，把 Courtwork 的主工作面重新变成传统 SaaS 导航墙。

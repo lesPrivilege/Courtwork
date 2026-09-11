@@ -2,7 +2,7 @@
 
 2026-09-12；状态：Astra裁决、前后端PR文稿与roadmap已登记，产品未实施。用户本轮要求消费《调研成熟实践》，由Luna fast explore、Astra裁决；不是执行源会话中的Exa调用指令或立即安装全部外部系统。
 
-产品基线为Courtwork main `647bc2167efe5437d0ca73a60a406549d9a1e268`。本分支从前轮纯文档提交 `ebd3e52` 叠加，以保留[RD-006](../RD-006-deferred-workspace-binding.md)的关联；这不是主线已合入RD-006。共享main的current及其他writer修改保留。
+产品基线为Courtwork main `647bc2167efe5437d0ca73a60a406549d9a1e268`。本分支从前轮纯文档提交 `ebd3e52` 叠加，以保留[RD-006](../RD-006-deferred-workspace-binding.md)的关联；开始时RD-006未合主线。工作期间其他任务已接收RD-006，本轮分支随后纳入main@d62f6bb的最新文档，App/docs源码与原产品基线无差异；共享main的current及其他writer修改保留。
 
 ## 输入完整性
 

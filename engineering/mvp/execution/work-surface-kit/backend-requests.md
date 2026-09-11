@@ -1,5 +1,7 @@
 # 转 Astra 的后端契约请求（Fable，2026-09-09）
 
+2026-09-12增量：[Shell控制面](../../../design/shell-control-plane-2026-09-12/README.md)已优先消费为契约。FE-NOTIFY-01…04需要Host事件/已读ledger、scope/保留/去重、Core Attention幂等关联及跨owner恢复；read不改Attention。FE-OBS-03…06需要各owner提供小时事件、稳定Runtime/Expert/Capability归因、metric单位/分母/覆盖与snapshot过滤；已交付BE-1/3/25/29及Usage date/model下钻不重派。Session-turn、Context精确值与人工介入口径沿原缺口，未新增遥测store。FE-NAV主要是前端位置/恢复契约，缺对象reader的deep link保持不可用。详细字段责任与验收见该入口各分合同。
+
 | 编号 | 请求 | 依据 |
 |---|---|---|
 | BE-1 | `GET /work-activity?days=N`：按日（UTC 日界）返回 recorded run 计数，供 Heatmap（G-1） | WK-37 / WK-46 |
@@ -7,7 +9,7 @@
 | BE-3 | "今日"口径的 work-summary 过滤字段与时区声明（G-3） | WK-46 |
 | BE-4 | RC gap：B-1 `provenance[]` 含 MCP 服务器闸门；B-2 `catalog-only` characters 语义；B-4 `prompt_template` 不入 `context[]`；B-10 `mcp_effect_unknown` fixture 入口 | WK-50 |
 | BE-5 | R2 Source Resolver：`runtime.resolve(source)` → ResolvedRuntimeArtifact（identity、provenance、portable、native[]、capabilities、requirements、trust、adapters） | WK-64 / 65 |
-| BE-6 | R4 Runtime Proposal：`runtime.propose` → { source, target, operations[], effectiveDiff, permissions delta, contextImpact, trustImpact, persistence, rollback }；`runtime.apply(proposalId)` 走 CAS revision | WK-64 |
+| BE-6 | [首片声明式Skill提案](../../../research/gui-agent-control-plane-2026-09-12/skill-proposal-slice.md)已裁施工边界（未实现）；R4 Runtime Proposal：`runtime.propose` → { source, target, operations[], effectiveDiff, permissions delta, contextImpact, trustImpact, persistence, rollback }；`runtime.apply(proposalId)` 走 CAS revision | WK-64 |
 | BE-7 | R5 事务化 apply：fail-back 到 current 指针；proposal / apply / rollback 记录持久化并可 inspect；批准按包版本逐次留 DecisionReceipt，无"未来版本"批准 | WK-68 |
 | BE-8 | R6 Expert 快照：composition generation（session-mount-once + version / hash + 重发现事件）；overlay（preference / requirement / policy 三类字段）；Save runtime… → Expert | WK-68 / 讨论转录 §8 |
 | BE-9 | R3 兼容矩阵：adapter 按固定 commit 登记（DSH `c389f96`、Pi、OpenCode …），Native / Semantic / Lossy / Unsupported 四档，无静默降级 | WK-68 |
@@ -115,3 +117,11 @@ BE-41后端作者实现（2026-09-10，待组合接收）：[交付与限制](..
 ## DRT-01–04 · DeepSeek与Runtime解耦候选（2026-09-11）
 
 Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile实验](../../../architecture-runtime-canon.md)登记主roadmap；使用DRT专属编号，不复用BE-40/41/42。本轮仅术语/发布准备，无runtime实现。先基本GUI与通用Harness，协议恢复沿现runtime owner，Core不吸收provider私有state。与BE-42共享遥测口径约束，真实provider按既有GUI授权路径另验；不因本文登记启动付费调用或关闭产品门。
+
+## 2026-09-12 · 延迟资源绑定前端消费
+
+[前端消费与缺口](../../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)已接入维度规则；DWB-01绑定/快照/迁移、DWB-02本地只读资源工具、DWB-03真实capability接线沿[原PR文稿](../../../research/deferred-workspace-binding-2026-09-12/pr-plan.md)推进。BE-23普通projectless Chat保持开放；未新增同义BE编号，不以现Attention global创建替代它。
+
+## 2026-09-12 · 内容资源治理消费稿（未派发）
+
+[RD-007 / RG-BE-01…06](../../../research/mature-practices-2026-09-12/pr-plan.md)登记来源保留、消息附件引用、Run版本retain/目标owner关联、检索重建、版本注释与retention dry-run，依[roadmap](../../../research/mature-practices-2026-09-12/roadmap.md)接LG/DS/BG/Runtime原owner。不复用历史BE-24，不把BE-5…11 Runtime Resource当内容store，不以BE-17/18 provider preview或BE-41派生查询替代资源版本reader；一般projectless Chat继续BE-23。本轮仅后续PR文稿，未实现API/schema或重派已交付后端。

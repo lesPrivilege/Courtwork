@@ -4,7 +4,7 @@
 
 ## 裁决结论
 
-采用“既有owner上有界资源治理”，优先让用户上传与一个Run产物在明确权限下进入可复用资源面，保留确切来源版本。选择薄接缝与成熟机制，不引入完整Paperless/Mayan/DataHub，也不另建通用Resource Fabric控制中心。
+这里的Resource均指content resource（内容资源），区别于现有Runtime Resource的skill/MCP/profile能力配置语义；不复用其resolver端点存用户附件。采用“既有owner上有界资源治理”，优先让用户上传与一个Run产物在明确权限下进入可复用资源面，保留确切来源版本。选择薄接缝与成熟机制，不引入完整Paperless/Mayan/DataHub，也不另建通用Resource Fabric控制中心。
 
 [LG-01](local-governance-2026-09-09/pr-plan.md)已计划Intake sidecar持有确切来源字节/manifest；[DS](data-systems-2026-09-09/pr-plan.md)维护owner、核对和重建；[BG](../../docs/work-core/governance.md)拥有正式对象披露；Runtime负责Session/Run/events与运行产物。这些不是可随意互换的store。
 

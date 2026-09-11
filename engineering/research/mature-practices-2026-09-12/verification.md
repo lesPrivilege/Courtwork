@@ -6,7 +6,9 @@
 
 共享Courtwork checkout开始时为main `647bc2167efe5437d0ca73a60a406549d9a1e268`，current、WK98证据及数份研究/截图有其他writer未提交变更。未stash/reset/checkout共享树，未把这些未提交研究当产品基线。
 
-本轮在 `codex/resource-governance-roadmap-20260912` 隔离，父提交 `ebd3e52` 仅含上一轮RD-006文档；产品代码仍与上述main相同。该父提交未合main，本轮交付同样是本地文档提交，未push/创建远端PR/部署。后续合流可按父→子顺序消费，必须重新核对main和writer。
+本轮在 `codex/resource-governance-roadmap-20260912` 隔离，父提交 `ebd3e52` 仅含上一轮RD-006文档；产品代码仍与上述main相同。开始时该父提交未合main；工作期间其他任务已接收RD-006并将main推进至d62f6bb。本分支纳入该main，current唯一文本冲突按主线全文保留并追加本轮登记解决；不改共享checkout。本研究仍是本地文档交付，未合main/push/创建远端PR/部署，后续只需消费本轮增量。
+
+Luna实际从共享main@173129e9只读取证，未在指定隔离树读取；Astra核对647bc216→d62f6bb的app/与docs/无diff，backend-requests和前端规范的新文档已一并消费。源码证据因此适用于固定产品基线，文档阅读版本差异如实保留。
 
 ## 实际验证
 

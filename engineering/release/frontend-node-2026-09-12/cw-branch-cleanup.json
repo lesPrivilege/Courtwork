@@ -1,0 +1,237 @@
+{
+  "main": "647bc2167efe5437d0ca73a60a406549d9a1e268",
+  "preserved_fresh_tag": "archive/fresh-development-retired-20260912",
+  "preserved_fresh_sha": "34a87c2b92dc5819798ccac64b859fd9810da42e",
+  "deleted": [
+    {
+      "branch": "claude/ic2-controls-b",
+      "sha": "8421fdebb944d7d570d0b9f09a350781857653f5",
+      "covered_by": "main",
+      "worktree": "TEMP/se-agent-ic2b",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch claude/ic2-controls-b (was 8421fde)."
+    },
+    {
+      "branch": "claude/publication-final-v1",
+      "sha": "2effc325ee36dc5fc95ae3fa40bfef4c514a5580",
+      "covered_by": "main",
+      "worktree": "TEMP/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/pubfinal/cw",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch claude/publication-final-v1 (was 2effc32)."
+    },
+    {
+      "branch": "claude/ui-followthrough-v1",
+      "sha": "f4dca5a947c676ba45c4e329eb0b3489450d8416",
+      "covered_by": "main",
+      "worktree": "TEMP/claude-501/-Users-lesprivilege-Projects-Schema-Engineering/08ea8205-68af-4d1d-8c16-bb6634ea899b/scratchpad/uifw-v1/cw",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch claude/ui-followthrough-v1 (was f4dca5a)."
+    },
+    {
+      "branch": "codex/agent-presence-convergence-20260912",
+      "sha": "167463b48018724179c7e4706c07b1fbe6db3497",
+      "covered_by": "main",
+      "worktree": "TEMP/cw-presence-final",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/agent-presence-convergence-20260912 (was 167463b)."
+    },
+    {
+      "branch": "codex/agent-presence-design-20260911",
+      "sha": "7fbbda68dafe97c2347decae7e22861c82e1200b",
+      "covered_by": "main",
+      "worktree": "TEMP/se-agent-presence",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/agent-presence-design-20260911 (was 7fbbda6)."
+    },
+    {
+      "branch": "codex/agent-presence-review-20260912",
+      "sha": "26eb8bb53a40e9a2ad880cc7c6339a9133950969",
+      "covered_by": "main",
+      "worktree": "TEMP/cw-presence-review",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/agent-presence-review-20260912 (was 26eb8bb)."
+    },
+    {
+      "branch": "codex/context-window-intake-20260911",
+      "sha": "2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/context-window-intake-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/context-window-intake-20260911 (was 2337ada)."
+    },
+    {
+      "branch": "codex/deepseek-runtime-intake-20260911",
+      "sha": "f35968cf86d89064141acf5098564ce58183a9c5",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/deepseek-runtime-intake-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/deepseek-runtime-intake-20260911 (was f35968c)."
+    },
+    {
+      "branch": "codex/fable-partial-integration-20260911",
+      "sha": "6292105e7fa6dbaee0de0b108f0949d07c42db23",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/fable-partial-integration-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/fable-partial-integration-20260911 (was 6292105)."
+    },
+    {
+      "branch": "codex/fable-stage1-testfix-20260911",
+      "sha": "90d7b653f5f4df63d0a6fb7c22769b3047d2f0e2",
+      "covered_by": "main",
+      "worktree": "TEMP/fable-stage1-testfix-20260911",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/fable-stage1-testfix-20260911 (was 90d7b65)."
+    },
+    {
+      "branch": "codex/fresh-courtwork",
+      "sha": "b0173deab477b9be577df75a712f446d14e3c356",
+      "covered_by": "archive/fresh-development-retired-20260912",
+      "worktree": "USER_HOME/Projects/Courtwork-fresh",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch codex/fresh-courtwork (was b0173de)."
+    },
+    {
+      "branch": "codex/fresh-web-integration",
+      "sha": "3926a5eda76f40552bdc8e310a12560b84c6bfb6",
+      "covered_by": "archive/fresh-development-retired-20260912",
+      "worktree": "USER_HOME/.codex/worktrees/f757/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch codex/fresh-web-integration (was 3926a5e)."
+    },
+    {
+      "branch": "codex/le-brand-study-20260911",
+      "sha": "bb1cba2946157bf8eec0a7d95577a4118f078050",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/le-brand-study-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/le-brand-study-20260911 (was bb1cba2)."
+    },
+    {
+      "branch": "codex/pages-common-red-20260911",
+      "sha": "9bdbb5594fbeef23c49082cb0f73139488f6ee80",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/pages-common-red-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/pages-common-red-20260911 (was 9bdbb55)."
+    },
+    {
+      "branch": "codex/pages-v3-integration-20260911",
+      "sha": "608ed1b35da3d88b3e57568b22120c9620fe5fdd",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/pages-v3-integration-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/pages-v3-integration-20260911 (was 608ed1b)."
+    },
+    {
+      "branch": "codex/paper-prepublish-icon-20260911",
+      "sha": "89e2f0f69d7d0346504bd268b088f42826917cc1",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/paper-prepublish-icon-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/paper-prepublish-icon-20260911 (was 89e2f0f)."
+    },
+    {
+      "branch": "codex/paper-prepublish-intake-20260911",
+      "sha": "320e77d6fb176b5ae60cd15b2934fdbccc029820",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/paper-prepublish-intake-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/paper-prepublish-intake-20260911 (was 320e77d)."
+    },
+    {
+      "branch": "codex/paper-publishing-intake-20260911",
+      "sha": "c7ff265d1bd420d3167d34da06556218ce222911",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/paper-publishing-intake-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/paper-publishing-intake-20260911 (was c7ff265)."
+    },
+    {
+      "branch": "codex/paper-v1-intake-20260911",
+      "sha": "18b0ecafbe4d3a2649d7c9848601fa154b9bf232",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/paper-v1-intake-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/paper-v1-intake-20260911 (was 18b0eca)."
+    },
+    {
+      "branch": "codex/preview-consumption-fixes-20260912",
+      "sha": "a0221b83e3f2cb0c6750060247cfd75bce04cfef",
+      "covered_by": "main",
+      "worktree": "TEMP/courtwork-preview-review-20260912",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/preview-consumption-fixes-20260912 (was a0221b8)."
+    },
+    {
+      "branch": "codex/product-icon-atmosphere-20260911",
+      "sha": "9761e1dbf097f601d42ab0c798fc6d0957592446",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/product-icon-atmosphere-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/product-icon-atmosphere-20260911 (was 9761e1d)."
+    },
+    {
+      "branch": "codex/semantic-polish-prep-20260911",
+      "sha": "16e9d37a47366de195e1217a6440dd88b660be90",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/semantic-polish-prep-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": true,
+      "deletion": "Deleted branch codex/semantic-polish-prep-20260911 (was 16e9d37)."
+    },
+    {
+      "branch": "codex/spark-product-definition-20260911",
+      "sha": "d9c3c86a05233e21602357484a4e0d81ada0158b",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/spark-product-definition-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/spark-product-definition-20260911 (was d9c3c86)."
+    },
+    {
+      "branch": "codex/ui-publication-integration-20260911",
+      "sha": "f7c6b4d4f38f76ea952d28f7cf4d077d2f0204b5",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/ui-publication-integration-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/ui-publication-integration-20260911 (was f7c6b4d)."
+    },
+    {
+      "branch": "codex/work-first-narrative-20260911",
+      "sha": "c4693f61707a2436ec134c1e79321832f1c96445",
+      "covered_by": "main",
+      "worktree": "USER_HOME/.codex/worktrees/work-first-narrative-20260911/Courtwork",
+      "action": "detached HEAD metadata only; files/index/status/diff unchanged",
+      "was_dirty": false,
+      "deletion": "Deleted branch codex/work-first-narrative-20260911 (was c4693f6)."
+    }
+  ],
+  "kept_active_integration_branch": "codex/expert-sidebar-glyph-20260912",
+  "directories_removed": 0,
+  "remote_development_branch_deleted": "codex/fresh-courtwork",
+  "remote_development_branch_remaining": false,
+  "main_pushed": false
+}

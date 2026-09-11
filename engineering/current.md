@@ -2,11 +2,26 @@
 
 ## 2026-09-12 · 成熟实践与资源治理前后端准备
 
-[RD-007](research/RD-007-resource-governance.md)消费《调研成熟实践》完整2轮/4消息、1张题录Library截图与22条原外链，Luna fast explore、Astra裁决。[前后端PR稿](research/mature-practices-2026-09-12/pr-plan.md)及[roadmap](research/mature-practices-2026-09-12/roadmap.md)沿LG/DS/BG/Runtime原owner，先来源保留/list与exact reader，再消息引用/Run版本保留/明确关联，后检索与版本注释；retention、disclosure、Core acceptance分轴，GC先只读盘点。六份一手规范/文档有限核验，其余成熟系统留候选，不引入DMS/向量库/工作流平台。本轮为叠于RD-006文档提交ebd3e52的隔离分支准备，未改产品/schema、未合主线/远端PR或部署，不重排在途writer与产品门。
+[RD-007](research/RD-007-resource-governance.md)消费《调研成熟实践》完整2轮/4消息、1张题录Library截图与22条原外链，Luna fast explore、Astra裁决。[前后端PR稿](research/mature-practices-2026-09-12/pr-plan.md)及[roadmap](research/mature-practices-2026-09-12/roadmap.md)沿LG/DS/BG/Runtime原owner，先来源保留/list与exact reader，再消息引用/Run版本保留/明确关联，后检索与版本注释；retention、disclosure、Core acceptance分轴，GC先只读盘点。六份一手规范/文档有限核验，其余成熟系统留候选，不引入DMS/向量库/工作流平台。本轮在隔离分支准备并已纳入main@d62f6bb的最新文档（RD-006已由其他任务合流），未改产品/schema，本研究未合主线/创建远端PR或部署，不重排在途writer与产品门。
 
-## 2026-09-12 · 延迟工作区绑定研究与PR准备
 
-[RD-006](research/RD-006-deferred-workspace-binding.md)消费《探索延迟工作区绑定》完整1轮/2消息与追加5张语义截图，原件/hash入账。Luna有界探索、Astra裁定沿现有Session保留managed目录，增加显式外部资源绑定；project/global身份不热切，权限、执行位置、Git与模型分维。[DWB-01–03 PR文稿](research/deferred-workspace-binding-2026-09-12/pr-plan.md)先Runtime合同/迁移，再本地只读纵切，后入口UI；write/remote/跨project迁移后置。本轮为独立分支文档准备，未改产品、schema、部署或创建远端PR；不构成产品独立接受。
+## 2026-09-12 · Shell返回、提醒与观察契约优先消费
+
+[Shell控制面](design/shell-control-plane-2026-09-12/README.md)消费原始建议与三张追加截图：FE-NAV先冻结位置历史/选择筛选滚动与焦点恢复；Notification保持事件认知，与Core Attention以幂等引用关联；Usage承接已有Overview/Models、日历与date/model→Run快照下钻，小时矩阵和新Metric × Dimension先补owner/覆盖口径。已接活动前端规范与后端缺口，修正Usage先例路径；四项原件hash及隔离5067条链接通过。此轮仅合同/语义参考，无App、schema、箭头/Bell或新增统计实现，无非作者产品接受；8804保持运行，未push/deploy。
+
+## 2026-09-12 · 前端节点接受与真实Runtime验证入口
+
+[最终前端节点](release/frontend-node-2026-09-12/README.md)已合入本地main：普通控件仅滑动开关用红、Session菜单tooltip避让、Matter/Expert glyph及Fable完整返件消费完成。App全量793/793、Pages36/36、26张1440×900原生明暗媒体及来源/hash校验通过；Luna有界非作者复核与Astra实机修正分别记录。消息动作尺寸审计与二级玻璃/blur材质快审未发现需追加补丁缺口。已消费/归档覆盖分支清理保留原目录与其他writer改动；Frozen Fresh远端开发ref在完整archive tag验证后退役。CW/SE main本轮未push、未部署。
+
+唯一Courtwork main的Web验证入口为本机8804，静态字节已核对，独立仓外数据目录保持运行供用户自行配置key；[8项定向prompts](release/frontend-node-2026-09-12/RUNTIME-VALIDATION.md)覆盖消息、连续性、写入授权、版本、资源暴露、停止及工作候选。尚未执行真实provider验证，不以本节点关闭其余产品/原生a11y门。
+
+## 2026-09-12 · GUI Agent控制面选型消费
+
+[两轮输入与Astra裁决](research/gui-agent-control-plane-2026-09-12/README.md)沿现有Host control plane与BE-6/7收敛声明式Skill提案首片：Agent写草稿、人审精确版本、Host CAS应用、下一Run绑定与实际加载证据。Luna来源/代码探索及合同复核分开；补齐完整提案差异、独立proposal ledger revision、current pointer fail-back与持久决定回执。采用目录/详情、组合、权限、关系与实际拓扑为按需投影，Memory保留其状态owner。本轮交付选型裁决与可施工边界，未实现提案API/新UI、第三方安装或Memory CRUD，不关闭Runtime R4/5完整门。
+
+## 2026-09-12 · RD-006前端优先消费与合流
+
+用户授权接收`ebd3e52`。Astra逐张查看五份截图，Luna核对当前入口，先将项目/目录/执行位置/Git/权限/模型分维及空态规则接入[活动前端规范](design/agent-interface-2026-09-10/frontend-contract.md)；[消费与后端缺口](research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)沿DWB-01/02/03与BE-23登记。已有界面未发现必须先修的功能缺陷，因此本片无App代码或假连接控件，原件六hash通过、分支真实merge ancestry保留。目录绑定、跨project迁移和普通projectless Chat未实现；未push/deploy。
 
 ## 2026-09-12 · Presence最终设计验收合并
 

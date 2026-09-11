@@ -35,6 +35,18 @@
 
 Properties 的 label、help、control、validation、modified/reset、provenance 优先复用 `settingsRow` / `createPreferenceGovernance`。请求值、已存值、有效值和bound事实分开；没有来源事实不补假provenance。当前原生DOM builder和原生表单仍合法，不照搬React库的“禁止直接button/input/select”规则。
 
+### 任务入口与资源维度（2026-09-12消费）
+
+按[RD-006五图语义参考](../../research/deferred-workspace-binding-2026-09-12/semantic-reference.md)，项目组织归属、外部资源目录、执行位置、Git/worktree、权限、模型/effort各有owner；不能把它们合成一个workspace权限标签，也不要求排六个chip。No folder与无project含义不同；托管成果目录不等于用户外部目录，Local不表示已授文件权限，未知Git不补成main。最近项只是候选，选择失败保留原scope与草稿，不自动继承最近目录。
+
+现有Attention可免选project创建，普通Chat仍依赖project；不得为表现空选项把普通Chat转成global Attention。Connect/Disconnect、跨project切换、worktree操作必须由真实服务capability驱动，截图不是动作授权或实现证据。当前无相关后端时，消费维度规则和既有入口，不渲染假连接状态或可用按钮。声明式资源草稿同样只由Host proposal事实浮现，模型文本不产生已安装状态，见[GUI控制面裁决](../../research/gui-agent-control-plane-2026-09-12/README.md)。
+
+后端缺口与前端接线顺序见[DWB前端消费回执](../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)。模型与文件权限继续用现有control，发送/取消、Session身份及Review语义保持各自合同。
+
+### Shell返回、提醒与观察（2026-09-12消费）
+
+[Shell控制面合同](../shell-control-plane-2026-09-12/README.md)先冻结FE-NAV访问位置/恢复与deep link，再呈现Back/Forward；瞬时overlay先走自己的关闭与焦点返回，不改变Run。Notification的read、去重与Attention关联须由真实owner支持，read不成为工作决定。Usage复用已有Overview/Models、calendar和snapshot下钻；新增Metric × Dimension、小时矩阵、Context/人工介入统计先有口径与覆盖，不从旧日桶或glyph推导。三张外部参考只消费结构，未锁定蓝色、20–24px尺寸或示例指标。
+
 ## 视觉保持与变更
 
 A类是跨面不变量：语义、role用途、focus、控件解剖与已裁密度；B类是pattern关系：PropertyRow、Model Picker、审批/弹层返回路径；C类是页面编排，可随产品任务演进。截图探测变化，不能代替设计裁决。历史截图不自动成为golden，候选specimen不自动成为canonical。
