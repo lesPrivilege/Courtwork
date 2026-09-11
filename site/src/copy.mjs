@@ -7,11 +7,9 @@ export const PAPER_ENTRY = {
   baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
 };
 export const NAV = [
-  { label: "Product", href: "./tour.html" },
-  { label: "Experts", href: "./experts.html" },
-  { label: "Eval", href: "./eval.html" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Download", href: "./get.html" },
+  { label: "Tour", href: "./tour.html" },
+  { label: "Paper", href: PAPER_ENTRY.href },
+  { label: "Release", href: "./get.html" },
 ];
 
 export const HERO = {
@@ -19,7 +17,7 @@ export const HERO = {
   tagline: "A place for expert work to take form.",
   h1: ["Work that survives the model.", "模型可以离场，工作继续。"],
   lede: "在本地处理材料，与 AI 一起推进专业工作。工具调用清晰可见，候选带着证据进入审阅，决定与文件留在事项里，下一次打开就能接着做。",
-  actions: [{ ...NAV[4], label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
+  actions: [{ href: "./get.html", label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
 };
 
 export const RAW_GOVERNED = {

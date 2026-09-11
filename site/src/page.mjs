@@ -61,20 +61,19 @@ export function renderPage({ identity, evidence, recording, diagram, media, page
     ${header()}
     <main id="main">
       ${hero(fill, shot)}
-      ${currentHome(fill, shot)}
       ${productAtoms()}
+      ${primaryEntries()}
+      ${currentHome(fill, shot)}
       ${matter(fill)}
-      ${longWork()}
       ${review(fill, shot)}
+      ${researchFigures()}
       ${portability(fill)}
       ${evidenceSection(fill, evidence)}
       ${renderPricing()}
       ${build(fill, shot)}
       <details class="research-depth" id="research"><summary>Research &amp; architecture</summary>
-        ${primaryEntries()}
         ${architecture(fill, diagram)}
         ${rawGoverned(fill, recording)}
-        ${researchFigures()}
       </details>
     </main>
     ${closingShot()}
@@ -282,20 +281,10 @@ function productAtoms() {
   </section>`;
 }
 
-function longWork() {
-  return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title" data-semantic-key="expert.role">
-    <p class="index">EXPERTS</p>
-    <h2 id="long-work-title"><span lang="en">Different expertise.<br>The same work.</span><span class="zh">各有所长，共同推进一件事。</span></h2>
-    <p class="lede">Expert 围绕明确的责任处理材料，提出有依据的候选。Matter 保留共同来源，成果进入 Review，下一步沿已有决定继续。</p>
-    <dl class="words"><dt>Matter</dt><dd>找到同一件工作的材料、决定与未完事项。</dd><dt>Experts</dt><dd>让专业责任与本次工作的范围相匹配。</dd><dt>Review</dt><dd>带着来源与证据，决定哪些成果可以留下。</dd></dl>
-    <p class="actions"><a href="./experts.html">Explore Experts →</a></p>
-  </section>`;
-}
-
 function researchFigures() {
-  return `<section class="section long-work" id="research-work" aria-labelledby="research-work-title">
+  return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
     <p class="index">HOW THE WORK CONTINUES</p>
-    <h2 id="research-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
+    <h2 id="long-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
     <p class="lede">Matter 保存来源、成果与决定。每次执行从当前有效的材料出发，把相关知识带进工作，把新的判断留给下一次。</p>
     ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
     <div class="long-work-stages">
@@ -391,7 +380,7 @@ function primaryEntries() {
   return `<section class="primary-entries" aria-label="Paper 理念与 Tour 编排">
     <div class="entry-heading"><p class="index">TWO WAYS INTO COURTWORK</p></div>
     <div class="entry-grid">
-      <details class="entry-chapter entry-paper" id="paper">
+      <details class="entry-chapter entry-paper" id="paper" open>
         <summary><span class="entry-kicker">01 / THE IDEAS</span><span class="entry-title">Paper</span><span class="entry-description">工作的状态、来源与判断，如何持续存在。</span><span class="entry-cover entry-cover-paper" aria-hidden="true"><span>EVENT</span><span>STATE</span><span>CONTEXT</span></span><span class="entry-toggle"><span class="entry-closed">Explore ideas</span><span class="entry-open">Close ideas</span><span class="entry-sign" aria-hidden="true"></span></span></summary>
         <div class="entry-content"><h3>The thinking behind the work.</h3><p>Schema Engineering 将长期工作组织为三个相互连接的层次。</p><dl class="entry-principles"><div><dt>Event</dt><dd>记录行动与变化，保留工作的来路。</dd></div><div><dt>State</dt><dd>保存当前事实、正式判断与未完事项。</dd></div><div><dt>Context</dt><dd>从当前工作中组织下一次运行需要的材料。</dd></div></dl><nav class="entry-actions" aria-label="Paper volumes" lang="en"><a href="${PAPER_ENTRY.href}?mode=canonical#paper-canonical">Canonical ↗</a><a href="${PAPER_ENTRY.href}?mode=practice#paper-practice">Practice ↗</a><a href="${PAPER_ENTRY.href}?mode=index#paper-index">Index ↗</a></nav><div class="entry-next"><p class="index">COURTWORK</p><p>资料有出处，发现可重建，重要变化进入人的视野。确定性治理、Spark 与 Attention 让工作长久延续。</p><a href="#long-work">Explore the ideas →</a></div></div>
       </details>
