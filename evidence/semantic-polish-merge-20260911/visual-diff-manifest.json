@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "captures": [
+    {
+      "path": "visual-diff/baseline-get-390.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 900,
+      "sha256": "4f53e6f4b3cf6305f61bac8596391098aaeb6e8f3602e2bc803909e27862a8c5",
+      "source": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/baseline-hero-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c5e5da5ad983e946e17c00fb4c798f3f5706925d6b3a9cc57a5f3c15809b229d",
+      "source": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/baseline-paper-tour-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7283603c06e9154b16cc77b580b19a72168a27519c9ea07842f892347457c0ac",
+      "source": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/baseline-three-figures-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b7e9dc3e59297f336f1855923e89c0392d0ea45bea67e54c6ae63752dc0d0df5",
+      "source": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/baseline-tour-320.jpg",
+      "format": "JPEG",
+      "width": 320,
+      "height": 900,
+      "sha256": "973d8cb9c8ecd8413e682f72cdf36ed37ebc1edf86aa8c7847a9b1d21677b366",
+      "source": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-get-390.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 900,
+      "sha256": "ddbae9d393e24bfce7a27942fa69cedcaa92675036f83bfd51991cce65b1cec0",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-hero-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b10e15ca25640efffca945c57bbe36adb41c02bd32617aaf995eb37665f13f56",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-research-closed-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "38552525a6553f0496e97d24897012f533f9bb2f625cc9eb0eda8d5a682bc214",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-research-fixed-390.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 900,
+      "sha256": "6bd74bde579d469f05d11455bb90ba514c5df31dbfa9e237b58e6090c1608d8f",
+      "source": "0ddb8543a9c90ee5239b1e6717610f6ce372fec5",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-research-open-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e8ae3e671b4ce7b48d6ce2b23b58ae257dcdc445d9f47477a4411bf25c9b3d89",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-roles-before-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "12154a8750336ecb4f9d4caeedb69a595bd1b7bee36038747ed0299325bb0bab",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-three-figures-fixed-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b49518df3045240616840cd72ef88a77bc281c0195e80ec2e8d1ff88fd586820",
+      "source": "0ddb8543a9c90ee5239b1e6717610f6ce372fec5",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/candidate-tour-320.jpg",
+      "format": "JPEG",
+      "width": 320,
+      "height": 900,
+      "sha256": "fa2bcf71802d040286c667cece3e142a3d06ab30f9460edba4c3755bc5435984",
+      "source": "2bbcdf6591aa8f943fb60351a4ccde44a6ab9ede",
+      "scheme": "light",
+      "type": "author real-browser visual comparison; not a product-capture batch"
+    },
+    {
+      "path": "visual-diff/rejudged-hero-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "184cd89cae4921862f72bda01d627a7b42b959ea0b30676b6b30e1463d581972",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-hero-320.jpg",
+      "format": "JPEG",
+      "width": 320,
+      "height": 900,
+      "sha256": "a4be1e9098f4701eb28ed2a5fc2b3351f61f43b86e3c087f66590f1b32dcc943",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-paper-tour-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5516fcc2a3a10415618c71e4c384552e3d67551d5abaa2b48db90e6a57df03c8",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-three-figures-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ebfecf32711cd5b588f06f4302930f194ecc5ded2c0f6daf907594ca0eb2c3f",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-tour-320.jpg",
+      "format": "JPEG",
+      "width": 320,
+      "height": 900,
+      "sha256": "1e9b86e63b25014cc70ddd57c5ddc5b31665b5189f5905f148fc591c8d4a0bbc",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-tour-390.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 900,
+      "sha256": "f221e9c3759d0447f17b645103804fc1e4b5f6d31d4f24e90467000750b5e575",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-get-390.jpg",
+      "format": "JPEG",
+      "width": 390,
+      "height": 900,
+      "sha256": "e05e67864c0d082ff3bd890459e80460008a54afaf2cd584c3fc14a25b195124",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6",
+        "site/src/assets/figures/roles.svg": "da39235d315795bb44b4cdd4fedaa2cfafa8a1eede012f06737c4a1d40d3e604",
+        "site/src/assets/figures/figures.json": "9da4663e7503c6067a626a3e6cc4bfce31cdb95e6a45f5a169e520dbd22ea986"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-roles-public-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f06048e5ed54cd3b9b9809772c573e94661e11cf767a9c8df9ff04890c91b0e1",
+      "source_base": "9298e485efeec086a6df95f504712a4183b9551e",
+      "source_files_sha256": {
+        "site/src/page.mjs": "0f11ee1430f8493e78ec76af812b733d697f0b9824574d8a83303f18e2103e79",
+        "site/src/copy.mjs": "460f0a3afc7139454b3c7620a1eafa8f2b8c027db011aa4976931a93c8088da3",
+        "site/src/site.css": "1e796c3effd26957c8954078c3b6d163aa2ea14d9ea9e981fd5f64a125853cf6",
+        "site/src/assets/figures/roles.svg": "da39235d315795bb44b4cdd4fedaa2cfafa8a1eede012f06737c4a1d40d3e604",
+        "site/src/assets/figures/figures.json": "9da4663e7503c6067a626a3e6cc4bfce31cdb95e6a45f5a169e520dbd22ea986"
+      },
+      "scheme": "light",
+      "type": "author actual-browser first-principles visual comparison; not product capture"
+    },
+    {
+      "path": "visual-diff/rejudged-execution-final-1440.jpg",
+      "format": "JPEG",
+      "width": 1440,
+      "height": 900,
+      "sha256": "163ee111cbc800a6a2e87f9d5715075ed09d17831158f21c65f99c04c2460217",
+      "source": "e12d2e1479e5020e94a7ac5cc5399ebe5611407a",
+      "scheme": "light",
+      "type": "author actual browser, final public execution labels"
+    }
+  ]
+}

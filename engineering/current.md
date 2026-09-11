@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Pages 第一性原理重裁与合流准备
+
+本轮消费旧 Pages 分支、PR/RD 落实与建设会话理由，纠正把助手五项导航建议写作用户裁决的归属。三项导航、Paper/Tour 主阅读入口与默认展开 Ideas 保留；新 Tour 分组、文案、真实 Home 入口及图示尺度修补接续，Runtime 公开图去除 Pi 实现名。作者完成实际前后对照，非作者源码复核与发布门分别记录于[本轮裁决](../evidence/semantic-polish-merge-20260911/visual-ruling.md)。下一步固定合流节点，由 Luna 通过真实 API 合成状态实拍 13 个图位明暗配对，再按既有授权推送部署；此段不预报合流、截图完成或线上结果。
+
 ## 2026-09-11 · WO-VS-01 本地候选交付
 
 整体语义与界面 polish 已完成本轮有界施工与回归，产品固定 `f99af4695aa5796e703286b0875ec5663cc22c85`，隔离分支 `codex/semantic-polish-prep-20260911`。47项 presentation registry、六族原始消费账及文案/Pages映射门已落地；Inspector/Usage、Chat动作、Home/Settings/Attention/Spark与Pages产品路径已接线。[交付与验证](../evidence/semantic-polish-20260911/README.md)和[逐表面处置](execution/2026-09-11-semantic-polish/coverage.md)记录实现、先例、作者视觉判断与非作者复核。最终全量 **767/767**、smoke、三项lint及Pages检查通过；初次失败及其修补保留。

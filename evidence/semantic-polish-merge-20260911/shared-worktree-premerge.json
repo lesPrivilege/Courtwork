@@ -1,0 +1,111 @@
+{
+  "main": "590739fa3d1bc401905261172260143e36e82c5e",
+  "candidate": "57b408163909ac2ca87d9f5220ce041d55da3b3e",
+  "files": [
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/explore/ex-ss1-secondary-surface.md",
+      "sha256": "6cbc3b91124437e4f2acf70e50f913340c36a3474d16c080bf0e1ca4c80e9a84",
+      "actual_sha256": "6cbc3b91124437e4f2acf70e50f913340c36a3474d16c080bf0e1ca4c80e9a84",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/architecture-focus.png",
+      "sha256": "fdf5b561e1dd127e73c58400c8330553b5954f3427b8f759fe4ad65f82ffda9d",
+      "actual_sha256": "fdf5b561e1dd127e73c58400c8330553b5954f3427b8f759fe4ad65f82ffda9d",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/contrast.json",
+      "sha256": "fb271d622497c2317ffcb2c10be44b30fa0489b07385d7bb25df62f827fd9ede",
+      "actual_sha256": "fb271d622497c2317ffcb2c10be44b30fa0489b07385d7bb25df62f827fd9ede",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/page-1440-dark.png",
+      "sha256": "5e0d645a5b0ede422b8c58d89b318cf5203ffed33d7df0b97632817b821e1450",
+      "actual_sha256": "5e0d645a5b0ede422b8c58d89b318cf5203ffed33d7df0b97632817b821e1450",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/page-1440-light-zoom200.png",
+      "sha256": "2bacc09b275985d7860934cc1f4c35f9b251aac7efc203ab5c8ad51ebaf95dab",
+      "actual_sha256": "2bacc09b275985d7860934cc1f4c35f9b251aac7efc203ab5c8ad51ebaf95dab",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/page-1440-light.png",
+      "sha256": "7d31f867ccef7e002ef6aa31fcbe2eda66642d65c8ec99915a3473a8d946f585",
+      "actual_sha256": "7d31f867ccef7e002ef6aa31fcbe2eda66642d65c8ec99915a3473a8d946f585",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/page-390-dark.png",
+      "sha256": "7c418ba6992db4f5fe2761becc4d78986eb0f04ae889706b1454a77fb946065d",
+      "actual_sha256": "7c418ba6992db4f5fe2761becc4d78986eb0f04ae889706b1454a77fb946065d",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/page-390-light.png",
+      "sha256": "085d0620bfbdfe7eb762f531c551a9a9ce9b9b99c865d3806ea1367566feee51",
+      "actual_sha256": "085d0620bfbdfe7eb762f531c551a9a9ce9b9b99c865d3806ea1367566feee51",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/pricing-1440-dark.png",
+      "sha256": "d0d055b6902d26030dd50915d6fa08571285047a40b5e5285b4ffce475c7ed94",
+      "actual_sha256": "d0d055b6902d26030dd50915d6fa08571285047a40b5e5285b4ffce475c7ed94",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/pricing-1440-light-zoom200.png",
+      "sha256": "da3345f1e563bac98b881fee633df544e5e9b67b94528501df57070b8f5f072a",
+      "actual_sha256": "da3345f1e563bac98b881fee633df544e5e9b67b94528501df57070b8f5f072a",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/pricing-1440-light.png",
+      "sha256": "75b797caf64a3390389e2f735de66c99d70d8275748de65766767644ccaa67c7",
+      "actual_sha256": "75b797caf64a3390389e2f735de66c99d70d8275748de65766767644ccaa67c7",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/pricing-390-dark.png",
+      "sha256": "e88372be02dd58856004922b055c4f000d61abd151ef6ee26deec1364d00ea82",
+      "actual_sha256": "e88372be02dd58856004922b055c4f000d61abd151ef6ee26deec1364d00ea82",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/pricing-390-light.png",
+      "sha256": "6cd366ff3cce6798eb75819230f0965ff1a5ca806a4ba6bd050ddb8e75e5e1bf",
+      "actual_sha256": "6cd366ff3cce6798eb75819230f0965ff1a5ca806a4ba6bd050ddb8e75e5e1bf",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "site/verification/main-20260910/verify.json",
+      "sha256": "dcdbbcb013d5668b95891712d8dd6f3eec2082dd5df5710521cf1c53e8d88a48",
+      "actual_sha256": "dcdbbcb013d5668b95891712d8dd6f3eec2082dd5df5710521cf1c53e8d88a48",
+      "unchanged": true,
+      "incoming_overlap": false
+    },
+    {
+      "path": "evidence/fe01-main-integration-20260909/wk98-regression.json",
+      "sha256": "b1e3a8dbd40e02211679b85b72858a619433097532aec38009c1ce4a71a01769",
+      "actual_sha256": "b1e3a8dbd40e02211679b85b72858a619433097532aec38009c1ce4a71a01769",
+      "unchanged": true,
+      "incoming_overlap": false
+    }
+  ]
+}
