@@ -24,6 +24,8 @@ const pairs = [
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
   ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
   ["diff-add", "panel", 4.5], ["diff-add", "float", 4.5], ["diff-add", "panel-muted", 4.5], ["diff-add-mark-ink", "diff-add-mark", 4.5],
+  ["control-accent", "panel", 3], ["control-accent", "float", 3], ["control-accent", "panel-muted", 3], ["panel", "control-accent", 3],
+  ["control-unavailable-ink", "control-unavailable-fill", 4.5],
 ];
 let fail = 0;
 console.log("# WK7 对比度表（WCAG 2.x 相对亮度）\n\n生成：`node tools/contrast-report.mjs`。门槛：文字 4.5:1，非文字 3:1。边线（line / line-strong）不作为控件的唯一指示（输入有焦点环），不设门槛，见 color-governance §2。\n");

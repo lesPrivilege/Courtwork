@@ -1637,6 +1637,8 @@ export const CONTRAST_PAIRS = [
   ["attention-review", "panel", 4.5], ["attention-review", "float", 4.5],
   ["attention-review", "panel-muted", 4.5], ["attention-review", "hover", 4.5],
   ["diff-add", "panel", 4.5], ["diff-add", "float", 4.5], ["diff-add", "panel-muted", 4.5], ["diff-add-mark-ink", "diff-add-mark", 4.5],
+  ["control-accent", "panel", 3], ["control-accent", "float", 3], ["control-accent", "panel-muted", 3], ["panel", "control-accent", 3],
+  ["control-unavailable-ink", "control-unavailable-fill", 4.5],
 ];
 function hexChannels(value) {
   const text = String(value || "").trim();

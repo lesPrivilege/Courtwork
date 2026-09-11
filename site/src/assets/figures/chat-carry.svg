@@ -1,0 +1,15 @@
+<svg class="fig" viewBox="0 0 440 232" role="img" aria-labelledby="fig-chat-carry-title fig-chat-carry-desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="fig-chat-carry-title">A conversation that stays with the work</title>
+  <desc id="fig-chat-carry-desc">左侧是一段持续的对话：几个交替的发言块，其中一块被标为值得保留。右侧是工作面上的一页；一条细线把那一块从对话带到工作页，并注明它的出处。对话本身不产生正式决定；被带走的片段在工作中仍然指向它来自的那一句。</desc>
+  <text class="fig-label" x="8" y="14" font-size="11">CONVERSATION</text>
+  <g data-node="turn-1"><rect class="fig-node" x="8" y="26" width="160" height="26" rx="4" /><text class="fig-muted" x="18" y="43" font-size="12">a question</text></g>
+  <g data-node="turn-2"><rect class="fig-node" x="28" y="60" width="160" height="26" rx="4" /><text class="fig-muted" x="38" y="77" font-size="12">an answer</text></g>
+  <g data-node="turn-3"><rect class="fig-node fig-engaged" x="8" y="94" width="160" height="34" rx="4" /><text x="18" y="109" font-size="12">worth keeping</text><text class="fig-muted" x="18" y="122" font-size="11">kept · cited</text></g>
+  <g data-node="turn-4"><rect class="fig-node" x="28" y="136" width="160" height="26" rx="4" /><text class="fig-muted" x="38" y="153" font-size="12">the talk goes on</text></g>
+  <text class="fig-muted" x="8" y="184" font-size="11">no decision is made here</text>
+  <text class="fig-label" x="252" y="14" font-size="11">WORK</text>
+  <g data-node="work-sheet"><rect class="fig-sheet" x="252" y="26" width="180" height="150" rx="3" /><text x="264" y="46" font-size="12">Matter · notes</text><line class="fig-rule" data-deco="rule" x1="264" y1="54" x2="420" y2="54" /><rect class="fig-set" x="264" y="66" width="156" height="28" rx="3" /><text x="272" y="84" font-size="12">worth keeping</text><text class="fig-muted" x="272" y="112" font-size="11">from chat · turn 3</text><text class="fig-muted" x="272" y="128" font-size="11">still a candidate</text></g>
+  <polyline class="fig-edge" data-edge="carry" points="168,111 212,111 212,80 264,80" />
+  <polyline class="fig-trace" data-edge="cite" points="272,106 232,124 168,118" />
+  <text class="fig-muted" x="190" y="210" font-size="11">carried, still pointing back</text>
+</svg>

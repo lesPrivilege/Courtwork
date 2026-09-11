@@ -1,0 +1,26 @@
+{
+  "generated": "2026-09-11T16:09:42.057Z",
+  "directions": {
+    "a": {
+      "title": "Strike · Awake",
+      "spark": "d7232086fac7784fd5a759fbc381bf25d1fa91dd6de437adeb3e44de29bb860a",
+      "attention": "bbd8af8302def841bcfe76b070594587fcbf3cd847a5225961283fcbe57c0423"
+    },
+    "b": {
+      "title": "Pop · Hold",
+      "spark": "0d29d7579724de41a44569503ccc9712bf9681626b337021d6ffc904c8ef3e99",
+      "attention": "220aa999b7cc622bcf7da6447e5f8f1e21f3e398c7bb1026df378cb09256b41d"
+    },
+    "c": {
+      "title": "Sprout · Regard",
+      "spark": "db1b7ec68444147e20d4c1cd8e8e1384d8ae507d4a218b944b4ae1727e561a0e",
+      "attention": "f9d5bc760236592ac9075837cd61a8a29179591e8554f61149b63fb62db53038"
+    },
+    "current": {
+      "title": "Current pair",
+      "spark": "9247e80bd768b2c7adc4f6118255c3c368822982be4c06d3f0ca603e75fade26",
+      "attention": "1bd6adfc595571dfc4b99610927991c246dbdc630b2ace2318212fb0112e2665"
+    }
+  },
+  "sheet": "sheet.html"
+}

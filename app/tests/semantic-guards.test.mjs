@@ -20,7 +20,7 @@ test('raw consumer guard rejects new, duplicated and stale literal consumers',()
 });
 test('actual raw consumers and Pages cross-map remain registered',async()=>{
   assert.ok((await checkConsumers()).entries>0);
-  assert.deepEqual(await checkPagesSemantics(),{captureSlots:13,figures:15});
+  assert.deepEqual(await checkPagesSemantics(),{captureSlots:13,figures:21});
   const entries=[{semanticKey:'chat.object',allowedSurfaces:['app']}];
   const map={schemaVersion:1,captureSlots:{home:['chat.object']},figures:{}};
   assert.match(validatePagesMap(map,entries,{home:{}},[]).join('\n'),/Invalid Pages/);

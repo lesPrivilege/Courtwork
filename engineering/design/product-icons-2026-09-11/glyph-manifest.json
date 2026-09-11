@@ -1,6 +1,6 @@
 {
   "sprite": "app/web/vendor/icons.svg",
-  "spriteSha256": "7c81ec8bf77814fb70c4d6f86827306fef4e3275fec6b387c3e4e8a6c7de2989",
+  "spriteSha256": "b644c7987db6b87e33fa9bfb74e001efe989142ba5f3f4e5f8266667b58c2ead",
   "symbols": [
     {
       "symbol": "activity",
@@ -384,7 +384,7 @@
     {
       "symbol": "attention",
       "kind": "courtwork-domain",
-      "sha256": "1bd6adfc595571dfc4b99610927991c246dbdc630b2ace2318212fb0112e2665",
+      "sha256": "bbd8af8302def841bcfe76b070594587fcbf3cd847a5225961283fcbe57c0423",
       "consumers": [
         "attention.agent"
       ]
@@ -408,7 +408,7 @@
     {
       "symbol": "spark",
       "kind": "courtwork-domain",
-      "sha256": "9247e80bd768b2c7adc4f6118255c3c368822982be4c06d3f0ca603e75fade26",
+      "sha256": "d7232086fac7784fd5a759fbc381bf25d1fa91dd6de437adeb3e44de29bb860a",
       "consumers": [
         "spark.surface"
       ]

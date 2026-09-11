@@ -441,7 +441,7 @@ body {
   background: var(--frame);
   color: var(--ink);
   overflow: hidden;
-  accent-color: var(--accent);
+  accent-color: var(--control-accent);
   text-wrap: pretty;
 }
 ::selection {
@@ -3276,9 +3276,14 @@ dialog[open]::backdrop {
 .segmented:has(.segment:nth-child(3) input:checked)::before {
   translate: calc(200% + 4px) 0;
 }
+.segmented::before { box-shadow: var(--shadow-thumb), inset 0 0 0 1px var(--control-accent); }
 .segmented:disabled {
-  opacity: 0.55;
+  background: var(--control-unavailable-fill);
+  opacity: 1;
 }
+.segmented:disabled::before { box-shadow: none; background: transparent; }
+.segmented:disabled .segment { color: var(--control-unavailable-ink); }
+.segmented:disabled .segment:has(input:checked) { color: var(--control-unavailable-ink); font-weight: 500; }
 .segment {
   position: relative;
   display: inline-flex;
@@ -4096,20 +4101,27 @@ court-symbol {
   transition: transform var(--duration-fast) var(--ease-out);
 }
 .runtime-switch input:checked::before {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--control-accent);
+  border-color: var(--control-accent);
+}
+.runtime-switch input:checked:not(:disabled):hover::before {
+  background: var(--control-accent-strong);
+  border-color: var(--control-accent-strong);
 }
 .runtime-switch input:checked::after {
   background: var(--panel);
   transform: translateX(12px);
 }
+/* Unavailable: the pale pair on a control the contract has made impossible;
+   `disabled` is what makes it impossible, the colour only says so. */
 .runtime-switch input:disabled::before {
-  background: var(--selected);
-  border-color: var(--line);
+  background: var(--control-unavailable-fill);
+  border-color: var(--control-unavailable-fill);
 }
 .runtime-switch input:disabled::after {
-  background: var(--muted);
+  background: var(--control-unavailable-ink);
 }
+.runtime-switch input:disabled + .runtime-switch-text { color: var(--control-unavailable-ink); }
 .runtime-switch-text {
   font-size: var(--text-meta);
   overflow-wrap: anywhere;
@@ -4557,6 +4569,12 @@ html[data-shell="desktop"] .app-shell { --band-top: max(48px, var(--native-toolb
 html[data-shell="desktop"] .sidebar-header { padding-left: max(20px, var(--native-controls-inset, env(titlebar-area-x, 80px))); }
 html[data-shell="desktop"] .app-shell.nav-collapsed .chat-header,
 html[data-shell="desktop"] .app-shell.settings-active .chat-header { padding-left: max(24px, var(--native-controls-inset, env(titlebar-area-x, 80px))); }
+/* Secondary surfaces that take the whole main area (the expanded work-surface
+ * view-switch from 1024 up, the narrow sheet below it) share the host's
+ * leading reservation and the toolbar-height band: their first control starts
+ * after the native window controls and never sits inside [0, inset) × [0, toolbar). */
+html[data-shell="desktop"] .surface-panel.is-expanded .surface-header,
+html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { padding-left: max(24px, var(--native-controls-inset, env(titlebar-area-x, 80px))); min-height: var(--band-top); height: auto; }
 @media (max-width: 1023px) {
   html[data-shell="desktop"] .chat-header { padding-left: max(24px, var(--native-controls-inset, env(titlebar-area-x, 80px))); }
 }
@@ -5384,6 +5402,40 @@ html[data-theme="dark"] {
     --diff-change-block-ink: #11171b;
   }
 }
+/* tier:S · Ordinary control accent (Astra ruling 2026-09-11): a restrained red
+   for the on / selected state of interactive native controls, and a pale
+   unavailable pair for controls whose action contract makes them impossible now.
+   Scheme-owned like focus and danger; skins do not write these. */
+:root {
+  --control-accent-foreground: #b8443c;
+  --control-accent-strong-foreground: #9c352e;
+  --control-unavailable-fill-foreground: #f2d6d4;
+  --control-unavailable-ink-foreground: #4a2320;
+}
+html[data-theme="dark"] {
+  --control-accent-foreground: #d9675f;
+  --control-accent-strong-foreground: #e57d75;
+  --control-unavailable-fill-foreground: #5a3634;
+  --control-unavailable-ink-foreground: #f1c7c3;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --control-accent-foreground: #d9675f;
+    --control-accent-strong-foreground: #e57d75;
+    --control-unavailable-fill-foreground: #5a3634;
+    --control-unavailable-ink-foreground: #f1c7c3;
+  }
+}
+/* tier:R · control roles. --control-accent says "on / selected" on an interactive
+   control and nothing else: not Review, not danger, not diff, not brand. The
+   unavailable pair only appears where the DOM action is actually impossible
+   (disabled / aria-disabled), never as a hint on an available control. */
+:root {
+  --control-accent: var(--control-accent-foreground);
+  --control-accent-strong: var(--control-accent-strong-foreground);
+  --control-unavailable-fill: var(--control-unavailable-fill-foreground);
+  --control-unavailable-ink: var(--control-unavailable-ink-foreground);
+}
 /* tier:R · diff roles. They mean "changed text", never error, danger, review or
    rejection; skins may not reassign them to a state colour. */
 :root {
@@ -5651,6 +5703,42 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .home-attention-heading-link { padding: 0; min-height: 0; border: 0; border-radius: 0; background: none; color: var(--ink); font-size: var(--text-body); font-weight: 600; }
 .home-attention-heading-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .attention-workspace { min-height: 0; flex: 1; overflow: auto; padding: 32px var(--page-gutter) 48px; }
+/* Chat page: the same page anatomy as the Attention workspace (eyebrow, title,
+ * one lede, sections in the 1040 measure); no new material, no glass. */
+.chat-page { min-height: 0; flex: 1; overflow: auto; padding: 32px var(--page-gutter) 48px; }
+.chat-page-inner { max-width: 1040px; margin: 0 auto; display: grid; gap: 32px; }
+.chat-page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.chat-page-heading h1 { display: flex; align-items: center; gap: 10px; font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 8px; }
+.chat-page-heading h1 > .ui-icon { color: var(--muted-strong); }
+.chat-eyebrow { font-size: var(--text-meta); letter-spacing: 0.08em; color: var(--muted-strong); margin: 0; }
+.chat-lede { margin: 0; max-width: 60ch; color: var(--muted-strong); }
+.chat-page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.chat-page h2 { font-size: var(--text-title); margin: 0 0 12px; }
+.chat-rows { display: grid; gap: 4px; }
+.chat-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: var(--control); padding: 8px 10px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.chat-row:hover { background: var(--hover); }
+.chat-row.is-current { background: var(--selected); }
+.chat-row > .ui-icon { flex: none; color: var(--muted-strong); }
+.chat-row-text { display: grid; gap: 2px; min-width: 0; }
+.chat-row-title { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-row-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: var(--text-meta); color: var(--muted-strong); }
+.chat-empty { margin: 0 0 12px; color: var(--muted-strong); }
+.chat-facets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.chat-facet { display: grid; gap: 10px; align-content: start; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
+.chat-facet.is-current { border-color: var(--line-strong); }
+.chat-facet-name { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--text-body); font-weight: 600; }
+.chat-facet-name > .ui-icon { color: var(--muted-strong); }
+.chat-facet p { margin: 0; color: var(--muted-strong); font-size: var(--text-body); }
+.chat-facet-here { color: var(--muted-strong); font-size: var(--text-meta); }
+.chat-facet .quiet-button { justify-self: start; }
+.chat-keeps dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 20px; margin: 0; max-width: 72ch; }
+.chat-keeps dt { font-weight: 600; }
+.chat-keeps dd { margin: 0; color: var(--muted-strong); }
+@media (max-width: 720px) {
+  .chat-facets { grid-template-columns: 1fr; }
+  .chat-keeps dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .chat-keeps dd { margin-bottom: 10px; }
+}
 .attention-workspace-inner { max-width: 1040px; margin: 0 auto; }
 .attention-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
 .attention-workspace-heading h1 { font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 8px; }
@@ -6188,4 +6276,42 @@ html[data-theme="dark"] {
 @media (max-width: 767px) {
   .runtime-row.is-tool-summary { grid-template-columns: minmax(0, 1fr); }
   .runtime-row.is-tool-summary > .runtime-dimensions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ==== Stage 4 · the example workspace (ONE-SHOT 2026-09-11) ============
+   One chip in the title band, one banner at the head of Home, one tag on the
+   story's project rows. All of it is the product's own type and level roles:
+   the example is a labelled state, not a themed mode. */
+.preview-chip {
+  align-self: center;
+  margin-left: var(--space-2);
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  color: var(--muted-strong);
+  white-space: nowrap;
+}
+.preview-banner {
+  max-width: var(--home-column);
+  margin: 0 auto var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+.preview-banner-text { margin: 0; font-size: var(--text-body); color: var(--muted-strong); }
+.preview-banner-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
+.project-tag {
+  margin-left: auto;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-meta);
+  font-weight: 400;
+  color: var(--muted-strong);
+}
+@media (forced-colors: active) {
+  .preview-chip, .project-tag, .preview-banner { border-color: CanvasText; }
 }

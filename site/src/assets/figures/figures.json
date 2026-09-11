@@ -2,7 +2,7 @@
   "version": 1,
   "registry": "engineering/release/publishing-visuals-2026-09-10/visual-semantic-registry.md",
   "red_token": "--campaign-attention-review",
-  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour; user-authorized Hero paper reading link may use the same colour without implying pending review",
+  "red_rule": "intake VG-15: one sparse red per figure at most, only on the point that needs a person; static; readable without colour. The Hero paper link uses the campaign action token (2026-09-11), not this red.",
   "figures": [
     {
       "id": "fig-00-matter-object",
@@ -386,6 +386,162 @@
       "audit": {
         "verdict": "new",
         "reason": "Claude UI follow-through stage 3: same fixture and row model as Settings Appearance (app/web/diff-fixture.mjs, diff-view.mjs). The red here is the diff accent token, registered separately from the VG-15 attention red; no fig-attention element. Astra adapts block geometry to square full line cells and removes the decorative old-word outline; fixed source semantics retained."
+      }
+    },
+    {
+      "id": "chat-carry",
+      "concepts": [
+        "chat",
+        "candidate"
+      ],
+      "status": "concept",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/chat-carry.svg",
+        "basis": "file",
+        "sha256": "5476c4d448cf511e0514f5a223924b0f93ac23be6bb58dbd044978c83c8bad44"
+      },
+      "mount": "data-figure",
+      "page": "chat.html",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "左侧是一段持续的对话，其中一块被标为值得保留；右侧是工作页，一条线把那一块带到工作页并注明出处。对话不产生正式决定；被带走的片段在工作中仍指向它来自的那一句。",
+      "audit": {
+        "verdict": "new",
+        "reason": "Chat product page (DECISION 2026-09-11): the conversation → kept fragment → work sheet relation, drawn in the site's existing object grammar; no point needs a person, so no red."
+      }
+    },
+    {
+      "id": "ownership",
+      "concepts": [
+        "core",
+        "runtime",
+        "expert",
+        "state"
+      ],
+      "status": "research",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/ownership.svg",
+        "basis": "file",
+        "sha256": "cfa88986b3146cdec3d55390ef58df26ffdb1faaba64aa9f36e1d654a855428a"
+      },
+      "mount": "data-figure",
+      "page": "features.html",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "Above the stable runtime boundary CourtWork owns durable work semantics: the Work Surface, the Work Core (state, evidence, authority, commitment), the Expert package (Schema, Work Contract, capability requirements) and the Work Compiler, which emits a frozen Run Plan. Below the boundary sits replaceable execution: a Runtime Adapter (run control, events, recovery, host protocol), the Runtime in use (Pi) with candidate runtimes not yet connected, the Model / Provider Adapter and the Environment. Two things come back across the boundary by two different routes: run events and telemetry go to the host runtime store (execution trace), and candidates go to the Work Core through the extension work adapter. Effect is produced only through the Work API and the Core. The Work Surface reaches the Core directly through the Work API; the compiler is not on the control path. Work Core does not depend on the Model Adapter; the Environment is not the Matter store. Today the service still calls the Pi SessionManager directly; the adapter boundary is a target, drawn as the stable line.",
+      "audit": {
+        "verdict": "new",
+        "reason": "F1 of engineering/release/architecture-reconciliation-2026-09-11.md, from Claude Design v3 repaired-ab F1-ownership.svg; five secondary labels shortened so every text fits its box and the viewBox under the static geometry check (nodes, edges, maturity and meaning unchanged). Layout and relation reading per the reconciliation: Work Core / Surface / adapter seam implemented; Work Compiler and Run Plan target; Pi the runtime in use, Codex / DSH candidates not drawn as connected; candidates return to Core through the extension work adapter, run events to the host runtime store. No point needs a person, so no red."
+      }
+    },
+    {
+      "id": "runtime-anatomy",
+      "concepts": [
+        "runtime",
+        "capability",
+        "environment"
+      ],
+      "status": "research",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/runtime-anatomy.svg",
+        "basis": "file",
+        "sha256": "5723dfc1f51e810b016fe7be0d1c99e0d9e2b690282b555df038ee3e213dda6d"
+      },
+      "mount": "data-figure",
+      "page": "features.html",
+      "red": null,
+      "reducedMotion": "static",
+      "alt": "A resolved Runtime is one execution composition: a Model / Provider Adapter (identity, catalog, protocol, usage), a provider-neutral Harness Core (turn and step loop, tool dispatch, events, cancel, resume), Harness Capabilities admitted by policy and by what the adapter supports, and a Runtime Profile that binds model, effort, capability set and environment. It executes in an Environment — files, process, network, permission boundary — which today is a local working directory, not a trusted sandbox. The Harness Core keeps runtime protocol state, runtime-scoped; the execution owner is obliged to keep it recoverable, and that fidelity is not yet proven (DRT-02). It is not memory and not the Matter. Matter state lives in the Work Core, outside this chain; candidates reach it through the extension work adapter, while run events and telemetry go to the host runtime store. Today the composition is Pi AgentSession plus configuration and the service still calls its session manager directly; the target is to replace the composition and keep the Matter.",
+      "audit": {
+        "verdict": "new",
+        "reason": "F3 of the reconciliation, from v3 F3-runtime-anatomy.svg; three secondary labels shortened to fit (composition, implemented vs candidate, and the unproven recoverability note unchanged): one execution composition — model / provider adapter, Harness Core, admitted capabilities, runtime profile, environment; no extra Runtime layer; the existing anatomy-instrument stays (F4 reuse)."
+      }
+    },
+    {
+      "id": "compile-commit",
+      "concepts": [
+        "expert",
+        "candidate",
+        "decision",
+        "state"
+      ],
+      "status": "research",
+      "grammar": "plate",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/compile-commit.svg",
+        "basis": "file",
+        "sha256": "60d64eb56c607c64cafb0ea8338c74ad0f81ec7cd79b9401fb75b841c2f4f02c"
+      },
+      "mount": "data-figure",
+      "page": "experts.html",
+      "red": {
+        "element": "#compile-commit-decision",
+        "concept": "decision"
+      },
+      "reducedMotion": "static",
+      "alt": "Inputs — the Expert, the Matter projection, role and stage, organization policy, the available capabilities and the authority envelope — are compiled by the Work Compiler into a frozen Run Plan. The Runtime Adapter realizes the plan on the runtime in use. The run yields observations (a record, not a work fact) and proposes candidates through the domain adapter. A candidate reaches effect only through Review and Authority — here the instance where a person decides — and the Core's commit transaction; execution success does not commit. The effective state becomes the next run's projection. Work queries and decisions go to the Core; run control and events belong to the host runtime owner; neither passes through the compiler.",
+      "audit": {
+        "verdict": "new",
+        "reason": "F2 of the reconciliation, from v3 F2-compile-commit.svg; an id on the registered red element, one input label shortened and three secondary labels one size smaller so texts fit and the inputs connector no longer crosses a label. Compile, execute, candidate, Review / authority and commit drawn apart; execution success never commits; the return edge goes to the Core's valid state. The single red is the point where a person decides."
+      }
+    },
+    {
+      "id": "expert-composition",
+      "concepts": [
+        "expert",
+        "contract",
+        "schema"
+      ],
+      "status": "research",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/expert-composition.svg",
+        "basis": "file",
+        "sha256": "4c53e2b1d0ffe4c3ffcccd202fce0df51d72d6cbf97438bcd9b63ce73ed5192b"
+      },
+      "mount": "data-figure",
+      "page": "experts.html",
+      "viewport": "wide",
+      "red": null,
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "An Expert composes a Work Contract and declares method, evaluation, capability requirements and presentation (surface) metadata — never UI authority; the Work Contract uses a Schema and states scope, inputs and outputs, evidence, completion and review requirements; the Schema is reusable on its own. These are composition dependencies, not nesting: an Expert declares requirements and grants no permission.",
+      "audit": {
+        "verdict": "new",
+        "reason": "F5 of the reconciliation, from v3 F5-expert-composition.svg with the Expert lines regrouped to fit its box: composition, not containment; the Expert declares requirements and grants no permission; surface metadata is presentation, not UI authority."
+      }
+    },
+    {
+      "id": "expert-composition-compact",
+      "concepts": [
+        "expert",
+        "contract",
+        "schema"
+      ],
+      "status": "research",
+      "grammar": "object",
+      "renderer": "svg-file",
+      "source": {
+        "file": "site/src/assets/figures/expert-composition-compact.svg",
+        "basis": "file",
+        "sha256": "dd984bfff689516c778db9021c8dad6774f8f927f78d7d522a976b509b8a70c5"
+      },
+      "mount": "data-figure",
+      "page": "experts.html",
+      "viewport": "compact",
+      "red": null,
+      "reducedMotion": "Static; no animation or transition. Compact view replaces the wide view at 720px.",
+      "alt": "Compact stacked view for narrow screens. An Expert composes a Work Contract and declares method, evaluation, capability requirements and presentation metadata; the Work Contract uses a Schema and states scope, inputs and outputs, evidence, completion and review requirements; the Schema is reusable alone. Composition, not containment; declaring requirements grants nothing.",
+      "audit": {
+        "verdict": "new",
+        "reason": "F5 compact for the 390 view, restacked from v3 with two-line boxes and the reuse edge routed outside the boxes; same facts as the wide view."
       }
     }
   ]

@@ -2,7 +2,7 @@
 
 2026-09-12：[Expert Quiet profile](../sidebar-product-model-2026-09-12/EXPERT.md)按用户授权新增第四枚domain glyph，仅接App静态planned身份行；后端能力不变。
 
-2026-09-11后续：[用户形象反馈与最新裁定](../../release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将Spark/Attention现有造型记为临时实现；下文是已接入来源记录，不再要求新造型继承拓扑隐喻。
+2026-09-11后续：[用户形象反馈与最新裁定](../../release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将Spark/Attention原造型记为临时实现。三组成对方向、并列表与推荐见 [atmosphere-20260911/README.md](atmosphere-20260911/README.md)；已接入方向A（Strike · Awake），原两枚 SVG 保留在 `atmosphere-20260911/directions/current/`，下文来源记录随之更新。
 
 Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus four CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
 
@@ -28,8 +28,8 @@ node --test app/tests/product-icons.test.mjs    # sprite ⊇ registry ⊇ ui-con
 
 | slot | semanticKey | meaning | ownerRef | sourceKind · path · sha256 | sizes | surface | accessible name / visible text | status |
 |---|---|---|---|---|---|---|---|---|
-| Spark seat | `spark.surface` | Spark surface identity: source → fan-out | `engineering/design/spark-surface-2026-09-10/be41-dto.md` | courtwork-domain · `tools/ui-vendor/courtwork/spark.svg` · see `courtwork/sources.json` | 20 nav (16/18/24 on sheet) | app sidebar | Spark (visible text kept) | mapped · candidate |
-| Attention seat | `attention.agent` | Attention assistant identity: streams → ring | `app/docs/attention-agent.md` | courtwork-domain · `courtwork/attention.svg` | 20 | app sidebar | Attention | mapped · candidate |
+| Spark seat | `spark.surface` | Spark identity: a struck spark leaving up-right (atmosphere direction A, 2026-09-11; replaces source → fan-out) | `engineering/design/spark-surface-2026-09-10/be41-dto.md` | courtwork-domain · `tools/ui-vendor/courtwork/spark.svg` · see `courtwork/sources.json` | 20 nav (16/18/24 on sheet) | app sidebar | Spark (visible text kept) | mapped · candidate |
+| Attention seat | `attention.agent` | Attention identity: an eye just opened, upper lid and pupil (atmosphere direction A, 2026-09-11; replaces streams → ring) | `app/docs/attention-agent.md` | courtwork-domain · `courtwork/attention.svg` | 20 | app sidebar | Attention | mapped · candidate |
 | Chat seat / page | `chat.surface` | Chat page: a conversation with a fragment carried out of it | `engineering/design/chat-product-page-2026-09-11/DECISION.md` | courtwork-domain · `courtwork/chat.svg` | 20 | app sidebar, Chat page | Chat | mapped · candidate |
 | Chat overview (header) | `chat.overview` | three-line summary beside the stream | `docs/interface-components.md` §Chat composition | lucide · `lucide/text-align-start.svg` · `db38ff88…` | 20 | app header | Chat overview | mapped · resolves the double `panel-right` gap; work-surface entry keeps `panel-right` |
 | Settings · General | `settings.general` | category | `docs/interface-components.md` §Settings | lucide · `sliders-horizontal.svg` · `e43a00e5…` | 18 | Settings nav | General | mapped |

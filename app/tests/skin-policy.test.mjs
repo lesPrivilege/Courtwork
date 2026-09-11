@@ -131,6 +131,8 @@ test("unknown, semantic, and material declarations cannot enter the modern skin"
   for (const declaration of [
     "--unknown-brand: #ff0000;",
     "--attention-review: #ff0000;",
+    "--control-accent: #ff0000;",
+    "--control-unavailable-fill: #ffcccc;",
     "--danger-11: #ff0000;",
     "--success-11: #00ff00;",
     "--focus: #0000ff;",

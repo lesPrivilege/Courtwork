@@ -23,12 +23,14 @@ import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
 import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
+import { createChatPage } from "./chat-page.mjs";
+import { createPreviewLayer, PreviewRefusal } from "./preview-layer.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
-let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView;
+let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;
 import {
   createSettingsPage,
   createSettingsView,
@@ -83,6 +85,11 @@ import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.
 
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
+/* Stage 4 (ONE-SHOT 2026-09-11) · the example workspace is a projection layer
+ * over `request()`: while it is active, work reads are answered from one
+ * recorded synthetic story and writes against example objects are refused
+ * locally. Host facts, the data directory and every real object stay real. */
+const preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });
 const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;
 const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");
 // WK-58 · below 768 the composer docks at the foot of the frame on Home too, so
@@ -100,6 +107,7 @@ const state = {
   navigationOpen: false,
   sidebarCollapsed: false,
   attentionOpen: false,
+  chatOpen: false,
   homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },
   homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },
   home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },
@@ -734,6 +742,14 @@ async function request(path, options = {}) {
   }
   if (state.token && path !== "/bootstrap")
     headers["X-Work-Token"] = state.token;
+  if (!options.bypassPreview) {
+    const answered = preview.intercept(path, { method: init.method, body: options.body });
+    if (answered) {
+      if (answered.refuse) throw answered.refuse;
+      if (answered.status) { const error = new Error(answered.message); error.status = answered.status; error.body = null; throw error; }
+      return answered.payload;
+    }
+  }
 
   let response;
   try {
@@ -879,12 +895,18 @@ function mergeEvents(events) {
       if (Number(event.seq) > priorSeq) fresh.push(event);
     }
     const type = normalizedType(event.type);
-    if (type === "run/status" && event.runId && event.data?.status)
+    if (type === "run/status" && event.runId && event.data?.status) {
       changed =
         mergeRun(
           { id: event.runId, status: event.data.status },
           { sessionId: eventSessionId || state.activeSessionId },
         ) || changed;
+      // Stage 4 · the first real run that completes closes the example; a
+      // run that only had its receipt admitted, or failed, changes nothing.
+      const runSession = eventSessionId || state.activeSessionId;
+      if (event.data.status === "completed" && preview.active && runSession && !preview.isExampleId(runSession))
+        void leavePreview("established");
+    }
     if (type === "run/error" && event.runId)
       changed =
         mergeRun(
@@ -1422,6 +1444,7 @@ async function selectSession(
 ) {
   if (!sessionId) return;
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   /* 侧栏在 Settings 在场时是可点的（这正是页面而非模态的意思），所以走到一个会话
    * 就得让这一页退场：否则会话在底下换好了，顶带还写着 Settings。焦点交给下面的
@@ -1514,6 +1537,7 @@ async function selectSession(
 
 function clearActiveSession() {
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   stopPolling();
   void disposeSurfaceRenderer();
@@ -1652,6 +1676,11 @@ async function selectProject(projectId, { sessionId = null } = {}) {
 async function loadProjects() {
   const result = await request("/projects");
   state.projects = result.projects || [];
+  if (preview.active) {
+    // The story's projects sit beside the person's own; only the story is marked.
+    const real = await request("/projects", { bypassPreview: true });
+    state.projects = [...state.projects.map((project) => ({ ...project, preview: true })), ...(real.projects || [])];
+  }
   const valid = new Set(state.projects.map((project) => project.id));
   for (const projectId of state.sessionsByProject.keys()) {
     if (!valid.has(projectId)) state.sessionsByProject.delete(projectId);
@@ -1817,6 +1846,7 @@ function renderProjectList() {
         className: "project-name",
         text: project.name || "Unnamed project",
       }),
+      project.preview ? element("span", { className: "project-tag", text: "Example" }) : null,
     );
     button.addEventListener("click", () => {
       const wasOpen = state.openProjectIds.has(project.id);
@@ -3118,7 +3148,9 @@ function renderChatHeader() {
   const settingsOpen = state.settings.open;
   $("settings-page").hidden = !settingsOpen;
   $("attention-workspace").hidden = !state.attentionOpen || settingsOpen;
+  $("chat-page").hidden = !state.chatOpen || settingsOpen;
   $("app-shell").classList.toggle("attention-active", state.attentionOpen && !settingsOpen);
+  $("app-shell").classList.toggle("chat-active", state.chatOpen && !settingsOpen);
   renderConversationBodyVisibility();
   $("app-shell").classList.toggle("settings-active", settingsOpen);
   /* WK-116 · 进入 Settings 后全局侧栏不渲染。`hidden` 让它离开无障碍树，`inert`
@@ -3137,7 +3169,7 @@ function renderChatHeader() {
   projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
   $("session-title-text").textContent = settingsOpen
     ? "Settings"
-    : state.attentionOpen ? "Attention" : state.view === "home"
+    : state.attentionOpen ? "Attention" : state.chatOpen ? "Chat" : state.view === "home"
       ? "Home"
       : session?.title || "Loading chat…";
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
@@ -3158,10 +3190,10 @@ function renderChatHeader() {
       );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
-  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || !session;
-  $("show-run-button").hidden = settingsOpen || state.attentionOpen || !session;
-  const home = state.view === "home" && !state.attentionOpen;
-  $("composer-area").hidden = settingsOpen || state.attentionOpen || (!home && !session);
+  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
+  $("show-run-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
+  const home = state.view === "home" && !state.attentionOpen && !state.chatOpen;
+  $("composer-area").hidden = settingsOpen || state.attentionOpen || state.chatOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
@@ -3197,6 +3229,9 @@ function renderChatHeader() {
   // User refinement: attention and recorded activity orient Home above the
   // composer. DOM order is reading/tab order. Mobile keeps its docked composer.
   if (bandLayout && body.firstElementChild !== modules) body.prepend(modules);
+  // Stage 4 · the example banner is the first thing on Home in every layout.
+  const previewBanner = $("preview-banner");
+  if (home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
@@ -3232,7 +3267,7 @@ function renderChatHeader() {
   );
   $("chat-button").setAttribute(
     "aria-current",
-    !settingsOpen && !state.attentionOpen && state.view === "session" ? "page" : "false",
+    !settingsOpen && (state.chatOpen || (!state.attentionOpen && state.view === "session")) ? "page" : "false",
   );
 }
 
@@ -3505,8 +3540,8 @@ function surfaceViewSwitch() {
 function renderConversationBodyVisibility() {
   const body = $("conversation-body");
   const switched = surfaceViewSwitch();
-  body.hidden = state.settings.open || state.attentionOpen || switched;
-  body.inert = state.attentionOpen || (switched && !state.settings.open);
+  body.hidden = state.settings.open || state.attentionOpen || state.chatOpen || switched;
+  body.inert = state.attentionOpen || state.chatOpen || (switched && !state.settings.open);
 }
 function surfaceIsModal() {
   return (
@@ -4901,20 +4936,22 @@ function homeProjectId() {
   const start = state.homeStart;
   const fixedProject = start?.pending || start?.unconfirmed || start?.session;
   const preferred = (fixedProject ? start.projectId : state.homeProjectId) || state.activeProjectId;
-  return state.projects.find((project) => project.id === preferred)?.id || state.projects[0]?.id || null;
+  const own = state.projects.filter((project) => !project.preview);
+  return own.find((project) => project.id === preferred)?.id || own[0]?.id || null;
 }
 function renderHomeComposerContext() {
   const project = $("home-project-input");
-  const signature = JSON.stringify(state.projects.map(({ id, name }) => [id, name]));
+  const own = state.projects.filter((item) => !item.preview);
+  const signature = JSON.stringify(own.map(({ id, name }) => [id, name]));
   if (project.dataset.options !== signature) {
-    project.replaceChildren(...(state.projects.length
-      ? state.projects.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
+    project.replaceChildren(...(own.length
+      ? own.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
       : [element("option", { text: "Create a project to begin", attrs: { value: "" } })]));
     project.dataset.options = signature;
   }
   project.value = homeProjectId() || "";
   const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session);
-  project.disabled = locked || !state.projects.length;
+  project.disabled = locked || !own.length;
   $("home-permission-input").value = state.homePermissionMode;
   $("home-permission-input").disabled = locked;
   $("home-create-project").disabled = locked;
@@ -5022,6 +5059,11 @@ async function submitSessionRun({ commandId = null } = {}) {
     state.unconfirmedRuns.has(session.id)
   )
     return;
+  if (preview.isExampleId(session.id)) {
+    // The example never runs: the draft stays as typed, nothing is sent.
+    showToast("This chat is part of the example and cannot run. Start your own chat from Home.");
+    return;
+  }
   if (state.connectionLost) {
     // WS-12: the connection-lost guard applies to every send entry point —
     // Enter and a Send click both reach this same function (the form's
@@ -5463,7 +5505,7 @@ async function loadHomeActivity() {
     }
   }
 }
-async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId(), offset = 0) {
+async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId() || state.projects[0]?.id || null, offset = 0) {
   const target = state.homeAttention;
   const own = ++target.generation;
   target.detailGeneration++;
@@ -5568,6 +5610,7 @@ async function openAttentionWorkspace(projectId = state.homeAttention.projectId 
   if (own !== state.navigationEpoch) return;
   closeSettings({ restoreFocus: false });
   state.attentionOpen = true;
+  state.chatOpen = false;
   closeNavigation({ restoreFocus: false });
   renderAll();
   void attentionWorkspace.open({ projects: state.projects, projectId, attentionId });
@@ -5575,6 +5618,7 @@ async function openAttentionWorkspace(projectId = state.homeAttention.projectId 
 }
 async function goHome() {
   state.attentionOpen = false;
+  state.chatOpen = false;
   attentionWorkspace?.deactivate();
   closeSettings({ restoreFocus: false });
   const own = ++state.navigationEpoch;
@@ -5585,48 +5629,45 @@ async function goHome() {
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }
-/* CA-01 · Chat entry. Returns to the ordinary conversation: the session already
- * open (also from under Settings or the Attention workspace), else the most
- * recently active chat of the active project, else Home, whose composer is the
- * existing way to start a chat. It never creates a project or session, never
- * turns an Attention conversation into a chat, and keeps drafts, selection and
- * the current run: selectSession / goHome persist the draft and the same-id
- * path re-renders nothing. */
-async function openChat() {
-  const session = currentSession();
-  if (session && state.view === "session" && !state.attentionOpen && !state.settings.open) {
-    closeNavigation({ restoreFocus: false });
-    restoreLayerFocus($("composer-input"));
-    return;
-  }
-  if (session) { await selectSession(session.id); return; }
-  /* The active project first; otherwise the projects already open in the
-   * sidebar, whose sessions are loaded. Nothing is fetched beyond what the
-   * navigation already shows. */
-  const projectIds = state.activeProjectId ? [state.activeProjectId] : [...state.openProjectIds];
-  const candidates = [];
-  for (const projectId of projectIds) {
-    const sessions = state.sessionsByProject.get(projectId) ?? (projectId === state.activeProjectId ? await loadSessionsForProject(projectId) : null);
-    for (const item of sessions || []) candidates.push({ projectId, session: item });
-  }
-  const stamp = (item) => String(item.session.updatedAt ?? item.session.createdAt ?? "");
-  const recent = candidates.sort((a, b) => stamp(b).localeCompare(stamp(a)) || a.session.id.localeCompare(b.session.id))[0];
-  if (recent) {
-    if (recent.projectId !== state.activeProjectId) await selectProject(recent.projectId, { sessionId: recent.session.id });
-    else await selectSession(recent.session.id);
-    return;
-  }
-  await goHome();
+/* The Chat page (chat-product-page DECISION, 2026-09-11) is the seat beside
+ * Attention and Spark: an independent page over the chats that exist, the real
+ * New chat route and the two sibling entries. It never creates a project or a
+ * session, never turns an Attention conversation into a chat, and keeps the
+ * open session, its draft and its run untouched underneath: persistCurrentDraft
+ * runs before the page shows, and "Return to …" goes back through selectSession. */
+async function openChatPage() {
+  const own = ++state.navigationEpoch;
+  await persistCurrentDraft();
+  if (own !== state.navigationEpoch) return;
+  closeSettings({ restoreFocus: false });
+  state.attentionOpen = false;
+  attentionWorkspace?.deactivate();
+  state.chatOpen = true;
+  closeNavigation({ restoreFocus: false });
+  renderAll();
+  chatPage.open({
+    projects: state.projects.filter((project) => state.openProjectIds.has(project.id) || project.id === state.activeProjectId),
+    sessionsByProject: state.sessionsByProject,
+    activeSessionId: state.activeSessionId,
+    currentSession: currentSession(),
+    example: preview.available && !preview.active ? { label: "See the example workspace" } : null,
+  });
+  $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
 }
 function startNewSession({ projectId = null } = {}) {
   state.homeProjectRequest = false;
-  if (!state.projects.length) {
+  if (preview.isExampleId(projectId || state.activeProjectId)) {
+    showToast("This project is the example. New chats begin in a project of your own.");
+    projectId = null;
+    state.activeProjectId = null;
+  }
+  if (!state.projects.some((project) => !project.preview)) {
     state.startAfterProject = true;
     openDialog("project-dialog", "project-name-input");
     return;
   }
   state.newSessionProjectId =
-    projectId || state.activeProjectId || state.projects[0].id;
+    projectId || state.activeProjectId || state.projects.find((project) => !project.preview).id;
   $("session-project-label").textContent =
     state.projects.find((p) => p.id === state.newSessionProjectId)?.name ||
     "Project";
@@ -6198,6 +6239,12 @@ function wireEvents() {
   };
   for (const [id, [name, label]] of Object.entries(actions))
     setAction($(id), name, label);
+  $("preview-start-button").addEventListener("click", async () => {
+    await leavePreview("dismissed");
+    startNewSession();
+  });
+  $("preview-leave-button").addEventListener("click", () => void leavePreview("dismissed"));
+  $("preview-offer-button").addEventListener("click", () => void openPreview());
   setAction($("home-button"), "house", "Home", { visible: true });
   /* The three seats keep icon + text: a name is scanned, a glyph only identifies. */
   setSemanticControl($("chat-button"), "chat.surface", { visible: true });
@@ -6223,7 +6270,7 @@ function wireEvents() {
   });
   $("nav-backdrop").addEventListener("click", () => closeNavigation());
   $("home-button").addEventListener("click", goHome);
-  $("chat-button").addEventListener("click", () => void openChat());
+  $("chat-button").addEventListener("click", () => void openChatPage());
   $("attention-button").addEventListener("click", () => attentionAgent.open());
   $("spark-button").addEventListener("click", () => sparkView.open(currentProject()?.id ?? null));
   $("workspace-home-link").addEventListener("click", (event) => {
@@ -6662,8 +6709,16 @@ async function init() {
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  chatPage = createChatPage($("chat-page"), {
+    onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
+    onNewChat: () => startNewSession({ projectId: state.activeProjectId }),
+    onOpenAttention: () => attentionAgent.open(),
+    onOpenSpark: () => sparkView.open(currentProject()?.id ?? null),
+    onExample: () => void openPreview(),
+  });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;
+    state.chatOpen = false;
     attentionWorkspace.deactivate();
     renderAll();
     $("attention-button").focus();
@@ -6680,6 +6735,12 @@ async function init() {
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
+    await preview.load();
+    if (preview.shouldAutoEnter({ projectCount: state.projects.length })) {
+      preview.enter();
+      await loadProjects();
+      state.openProjectIds = new Set(state.projects.filter((project) => project.preview).map((project) => project.id));
+    }
     // Only a new device gets the initial overview; an explicitly collapsed tree stays collapsed.
     if (!Array.isArray(savedUi.openProjectIds))
       state.openProjectIds = new Set(state.projects.slice(0, 2).map(project => project.id));
@@ -6715,6 +6776,59 @@ function renderAll() {
   renderChat();
   renderSurfaceVisibility();
   renderConnectionStatus();
+  renderPreviewChrome();
+}
+
+/* --- Stage 4 · the example workspace ------------------------------------
+ * One synthetic story shown through the product's own projections. It is
+ * entered automatically only on a workspace with no projects, left for good
+ * when a real run is admitted, and can be closed or reopened by hand. */
+function renderPreviewChrome() {
+  const settingsOpen = state.settings.open;
+  const home = state.view === "home" && !state.attentionOpen && !state.chatOpen && !settingsOpen;
+  $("preview-chip").hidden = !preview.active || settingsOpen;
+  const banner = $("preview-banner");
+  const offer = !preview.active && preview.available && !state.projects.length;
+  banner.hidden = !home || !(preview.active || offer);
+  banner.dataset.mode = preview.active ? "active" : "offer";
+  $("preview-banner-active").hidden = !preview.active;
+  $("preview-banner-offer").hidden = preview.active;
+  $("app-shell").classList.toggle("preview-active", preview.active);
+}
+async function reloadWorld() {
+  state.chatOpen = false;
+  state.attentionOpen = false;
+  await loadProjects();
+  const valid = new Set(state.projects.map((project) => project.id));
+  if (!state.activeProjectId || !valid.has(state.activeProjectId) || preview.isExampleId(state.activeSessionId)) {
+    state.activeProjectId = null;
+    state.restoreSessionId = null;
+    clearActiveSession();
+    state.view = "home";
+  }
+  await Promise.all([...state.openProjectIds].map((id) => loadSessionsForProject(id)));
+  await loadHome();
+  writeUiState();
+  renderAll();
+}
+async function openPreview() {
+  if (!preview.reopen()) return;
+  await persistCurrentDraft();
+  state.activeProjectId = null;
+  state.restoreSessionId = null;
+  clearActiveSession();
+  state.view = "home";
+  await loadProjects();
+  state.openProjectIds = new Set(state.projects.filter((project) => project.preview).map((project) => project.id));
+  await reloadWorld();
+  $("session-title")?.focus();
+}
+async function leavePreview(reason = "dismissed") {
+  if (!preview.leave(reason)) return;
+  await reloadWorld();
+  showToast(reason === "established"
+    ? "Your first run is recorded. The example workspace is closed; it stays available from Chat."
+    : "The example is closed. It stays available from Chat.");
 }
 
 window.__V5_UI__ = {

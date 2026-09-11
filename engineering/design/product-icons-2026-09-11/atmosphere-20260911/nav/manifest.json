@@ -1,0 +1,199 @@
+{
+  "origin": "http://127.0.0.1:8848",
+  "at": "2026-09-11T16:07:58.509Z",
+  "note": "Real navigation, glyphs swapped in the live DOM; served sprite untouched. 16px nav glyph, 32px hit region.",
+  "shots": [
+    {
+      "file": "nav-a-light-1x.png",
+      "direction": "a",
+      "theme": "light",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-b-light-1x.png",
+      "direction": "b",
+      "theme": "light",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-c-light-1x.png",
+      "direction": "c",
+      "theme": "light",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-current-light-1x.png",
+      "direction": "current",
+      "theme": "light",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-a-light-2x.png",
+      "direction": "a",
+      "theme": "light",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-b-light-2x.png",
+      "direction": "b",
+      "theme": "light",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-c-light-2x.png",
+      "direction": "c",
+      "theme": "light",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-current-light-2x.png",
+      "direction": "current",
+      "theme": "light",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-a-dark-1x.png",
+      "direction": "a",
+      "theme": "dark",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-b-dark-1x.png",
+      "direction": "b",
+      "theme": "dark",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-c-dark-1x.png",
+      "direction": "c",
+      "theme": "dark",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-current-dark-1x.png",
+      "direction": "current",
+      "theme": "dark",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-a-dark-2x.png",
+      "direction": "a",
+      "theme": "dark",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-b-dark-2x.png",
+      "direction": "b",
+      "theme": "dark",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-c-dark-2x.png",
+      "direction": "c",
+      "theme": "dark",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-current-dark-2x.png",
+      "direction": "current",
+      "theme": "dark",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    }
+  ]
+}

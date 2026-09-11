@@ -1,0 +1,27 @@
+{
+  "a": {
+    "title": "Strike · Awake",
+    "spark": "A struck spark: one oblique stroke leaving the lower left, three short rays flying off its tip up and to the right. The gap between stroke and rays is the moment of ignition; the weight sits low-left so the motion reads as departing, not as a star.",
+    "attention": "An eye that has just opened: only the upper lid and the pupil, no almond, no lashes. Without the lower lid it is not a watching eye but an awake one — the pupil rests on the open line of the lid.",
+    "together": "Both are one long line plus small marks. Spark leans and leaves; Attention is level and still. Same weight, opposite temperaments."
+  },
+  "b": {
+    "title": "Pop · Hold",
+    "spark": "A small thing bursting: a dot with three detached motion dashes up and to the right. The dashes never touch the dot, so it reads as a pop or a ping rather than a branch. The object is the dot; the change is happening around it.",
+    "attention": "A dot held in an open cup. The cup's rim is open to the top; nothing closes over the dot. Presence as being held and in view, not being tracked.",
+    "together": "The dot is the shared subject: in Spark it is bursting, in Attention it is held. Round, warm, and the most compact silhouettes of the three at 16px."
+  },
+  "c": {
+    "title": "Sprout · Regard",
+    "spark": "A shoot with a single leaf and a free grain of light above and to the left. Germination — the small change that is about to happen — with the loose dot as the lightness the leaf does not yet have.",
+    "attention": "A still centre between two open arcs — ( • ) — the look of something regarded from both sides without being enclosed. No ring closes, no lens, no target cross.",
+    "together": "Organic against geometric: the shoot grows, the arcs stay. The pair is the most poetic and the least like the neighbouring Lucide seats."
+  },
+  "current": {
+    "title": "Current pair",
+    "spark": "Source → fan-out: a rectangle feeding three lines. Reads as a structure tool.",
+    "attention": "Streams → ring: three short bars feeding a circle. Reads as a filter or adjustment.",
+    "together": "Provisional implementation, kept for comparison; the user's feedback is recorded in icon-atmosphere-20260911/README.md."
+  },
+  "recommendation": "Direction A (Strike · Awake) is integrated. It is the only pair where both glyphs keep a clear silhouette at 16px in the real nav: the struck spark has a low-left weight and a direction, so it reads as something leaving rather than a star or a branch; the opened eye is level and calm, and because it has no lower lid it reads as awake rather than watching. B is the friendliest but the cup-and-dot reads as a face beside Chat, and the pop's dashes lose their gap at 16px. C is the most poetic and the least compatible: the shoot reads as a letter P at 16px, and ( • ) reads as sound or vibration. Trade-off accepted with A: the spark's three rays are a familiar comic device; the eye may read as a sunrise to some, which is within the 'awake' feel and not a surveillance reading."
+}
