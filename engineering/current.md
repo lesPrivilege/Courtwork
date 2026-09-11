@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Chat／Attention长期快照与合流小单
+
+[5轮／10消息时间快照](research/chat-attention-2026-09-11/README.md)已入账，保留9个外部项目引用与原始时间；长期Provider／Runtime／Local Worker分工不全裁，外部研究主张未重新核验。CA-01仅登记Chat位点／Attention命名梳理，留待稍后UI合流结合实际代码消费，不立即实施。CW最下方短横红登记为设计建议，单色与状态语义保持，尚未改资产或产品。
+
 ## 2026-09-11 · Paper预发布工单与icon收尾
 
 [Claude串行发布准备工单](release/claude-paper-2026-09-11/PRE-PUBLISH.md)已授权待作者认领，先补证据与可复现候选，再接Astra定稿资产；不执行发布。Astra已固定[optical-03](../brand/les-privilege/README.md)于146e072：L9、双横7×23、上横下退4，黑／彩两宗并列。Luna完成[本轮语义与接入规范](design/les-privilege-paper-2026-09-11.md)及9个SVG来源／几何核对；接入代码事实、非作者接受和发布回执分开。SE仍为本地main 0f23ad1旧icon，待Claude接入；论文9.6不变，未推送SE或部署。本轮不扩展到lab／FakesNews，保留共享工作区他人研究稿。
