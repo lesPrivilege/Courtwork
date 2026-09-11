@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Paper预发布接收与单红diff串行接续
+
+[Paper最终接收](research/claude-paper-return-2026-09-11/prepublish-v1/README.md)已保存91文件原包；SE本地main为026d5cb，完成optical-03及common-red-v1接入，资产源7b154a1，品牌浅深同红#c95e55。最终补证54/54、署名12/12、双构建一致与20源文/译文/历史文件不变；未推送SE或部署。Luna核对Motto仓内单红主题，用户两张截图固定灰旧行／红新行／词段红底深字，取消绿色并升为Settings主展示及Pages局部语言；[Claude串行工单](release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)包括共享diff、Settings、Chat同层入口及Pages，已授权待认领，未声称实际施工。长期Chat分层及A工程图/DR-02–05其余门保留；本段替代下文旧icon待接与CA-01未授权状态。
+
 ## 2026-09-11 · Chat／Attention长期快照与合流小单
 
 [5轮／10消息时间快照](research/chat-attention-2026-09-11/README.md)已入账，保留9个外部项目引用与原始时间；长期Provider／Runtime／Local Worker分工不全裁，外部研究主张未重新核验。CA-01仅登记Chat位点／Attention命名梳理，留待稍后UI合流结合实际代码消费，不立即实施。CW最下方短横红登记为设计建议，单色与状态语义保持，尚未改资产或产品。
