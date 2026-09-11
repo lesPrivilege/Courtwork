@@ -1,5 +1,8 @@
 # Long-life Roadmap · 全场景与交互架构
 
+2026-09-11输入接续：[Work临时能力消费](research/work-capability-input-2026-09-11/README.md)登记WCI-01–05，分别接DRT身份/profile、RD-005有界执行、context重投影实验、CUA待核与后置局部UI；未选择拓扑或启动实现，不改当前Claude Pages派单。
+
+
 2026-09-11接续：[A/B v2接收](research/se-control-design-return-2026-09-11/v2/README.md)与[Pages独立任务](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)准备完成；待修候选按正式裁决消费，CR-05接DR-04，未新增产品接受。
 
 

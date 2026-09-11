@@ -26,3 +26,6 @@
 机制评测复用 ME-09 / SE continuity：先锁 capability floor、paired baseline 与独立 holdout，再比较全生命周期成本、父 agent 实际复用、延迟与质量。作者验证和非作者判别分开；holdout 不回流调参。没有生产消费者、不能确定性约束、质量退化或总成本无收益则停止/删除候选层。
 
 本次只运行来源完整性、链接与 diff 检查；未运行产品或模型试验，不追加产品 PASS。后续 PR 的开工条件、owner、反例及退回位置见[PR 裁决](multi-agent-selection-2026-09-10/pr-plan.md)。
+
+
+2026-09-11补充输入：[WCI-02–04](work-capability-input-2026-09-11/README.md)接本路线；Explore/有界Worker/可选Code capability与same-worker/child/hybrid为合同及对照候选，权限不由角色名授予，未新增自主MAS或实施派工。

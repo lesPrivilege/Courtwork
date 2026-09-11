@@ -1,5 +1,8 @@
 # RD：研究与开发验证
 
+[2026-09-11 Provider指控与Work临时能力](work-capability-input-2026-09-11/README.md)：12轮/24消息及截图归档；外部证据分级、Astra逐轮处置与WCI候选，接DRT/RD-005。
+
+
 [2026-09-11 DeepSeek Runtime / 架构与Visual Compilation](deepseek-runtime-2026-09-11/README.md)：原始会话、两附件、哈希与Astra逐项处置；架构尾部截断，外部主张分级，非runtime交付。
 
 

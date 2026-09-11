@@ -58,3 +58,6 @@ DRT-04不预定Minimal优胜，也不把host接收时间称provider decode TPS�
 当前CW叙述用human/domain expert指专业人士，用Expert指专业能力包；用expert-guided work trajectory描述人工引导的原型轨迹，用latent work semantics说明尚未显式化的专业规则。人工判断分别进入work contract、context compilation、organization policy、review/authority，不全部归为runtime。
 
 [术语附件](research/deepseek-runtime-2026-09-11/terminology-input.txt)是SE修订建议，不是已发布论文。PAPER仍固定SE9.6/DEC-012；历史snapshot不重写。未来独立review应检验这组词是否改善边界，而不只检查英文替换。
+
+
+2026-09-11研究接续：[WCI输入裁决](research/work-capability-input-2026-09-11/README.md)将provider身份来源、scoped capability与context重投影映射DRT-01–04。保留DEC-013现owner；新profile/结果投影/切换边界为待验证候选，不增全能Adaptor或正式Result Capsule对象。

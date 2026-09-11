@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-11 · Work临时能力研究输入
+
+[总结Anthropic新指控完整入账](research/work-capability-input-2026-09-11/README.md)：12轮/24消息及截图已固定，Astra逐轮处置；原报告指控与独立归因分开，provider身份、局部coding能力、上下文重投影及CUA登记WCI候选并接DRT/RD-005。未新增Runtime/UI实现或改变Claude Pages范围。
+
+
 ## 2026-09-11 · Claude Pages正式开工授权
 
 用户确认v2裁决后批准开工。[正式ONE-SHOT](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)固定内容输入bf7fa82：Claude先修A/B，再对Home五拍P1与Tour候选→正式结果P2各出3个不同构图，独立scratchpad返回；无需再等选段落。Astra保留语义、选型、集成与发布治理；当前为已授权、待作者认领/返回，未声称实际施工或新资产接受。

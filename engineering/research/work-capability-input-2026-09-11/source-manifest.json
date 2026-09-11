@@ -1,0 +1,69 @@
+{
+  "conversationId": "6aa3b029-1174-83ec-aed7-3e1b68f7fcdc",
+  "title": "总结Anthropic新指控",
+  "readDate": "2026-09-11",
+  "inputCommit": "b7b7be8fdd64261385978e3e41bcc1a9c63aeed1",
+  "pages": 2,
+  "turns": 12,
+  "messages": 24,
+  "hasMore": false,
+  "connectorTruncations": [],
+  "sourceImage": "source-image.jpeg",
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 103004,
+      "sha256": "eaf22358b4e1e36e948a63ce116a95e6548b745af69e4195f820f321220262dc"
+    },
+    {
+      "path": "input-snapshot.txt",
+      "bytes": 85241,
+      "sha256": "26b12f7c443c7d01d7ed39ffe5ebff0afa8bf84ca994bb95ff4113881ae97ead"
+    },
+    {
+      "path": "source-image.jpeg",
+      "bytes": 290571,
+      "sha256": "5bec94175d2125cb78cdb8f42fe44441d8aaedff969366907090d77e32c98054"
+    }
+  ],
+  "turnIds": [
+    "af519490-c95e-488e-98f0-07d2dd1fd8fc",
+    "8e678aa7-15cd-494e-91e0-8f7429f06104",
+    "dfc97942-92c5-4812-8858-5e4d5af2dd07",
+    "09cc61c9-dbc6-432b-9cda-5b96730422ec",
+    "b0e8061c-2fea-40b3-b567-4549b9132a6b",
+    "a63abb80-80a6-4ca7-ad0d-76b25747c385",
+    "c5ef4f9a-3261-412f-b63e-b4ea34e636c4",
+    "5239db6b-d301-4087-8ce5-03281b1d264e",
+    "b2f2ff96-d6e8-4766-a9c2-a9d50cfaabec",
+    "fdaff8b6-8dac-4ffa-af05-3df11cd07999",
+    "b5e9e893-4ed9-4ab5-a74b-a4f001c8459f",
+    "9baa5d79-a39e-48da-9bd6-6e771f8a8a55"
+  ],
+  "sourceUrls": [
+    "https://agent.minimax.io/docs/code/welcome",
+    "https://ai.google.dev/gemini-api/docs/antigravity-agent",
+    "https://api-docs.deepseek.com/updates/",
+    "https://arxiv.org/html/2606.19348",
+    "https://cua.ai/docs/concepts/sdk-mcp-and-hosting",
+    "https://cua.ai/docs/how-to-guides/driver/use-sdk-in-process",
+    "https://cua.ai/docs/how-to-guides/driver/use-sdk-in-process?utm_source=x&utm_medium=organic-social&utm_campaign=driver-in-process",
+    "https://cua.ai/docs/reference/cua-driver/contracts",
+    "https://cua.ai/docs/reference/cua-driver/permission-modes",
+    "https://deepseek-harness.github.io/deepseek-harness/en/reference/",
+    "https://developers.openai.com/codex/permissions",
+    "https://github.com/QwenLM/qwen-code",
+    "https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/subagent/subagent-claude-code/README.md",
+    "https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex",
+    "https://huggingface.co/blog/deepseekv4",
+    "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731",
+    "https://support.claude.com/en/articles/14479288-claude-cowork-architecture-overview",
+    "https://twitter-thread.com/t/2078514339552628880",
+    "https://www.anthropic.com/threat-intelligence-report-september-2026",
+    "https://www.bloomberg.com/news/articles/2026-09-10/moonshot-secretly-routed-user-requests-through-claude-anthropic-says",
+    "https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-251a",
+    "https://www.kimi.ai/help/kimi-work/overview",
+    "https://www.scmp.com/news/us/diplomacy/article/3367112/moonshot-deepseek-secretly-routed-user-requests-claude-anthropic-claims",
+    "https://z.ai/blog/glm-5"
+  ]
+}
