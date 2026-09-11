@@ -1,0 +1,21 @@
+{
+  "conversationId": "6aa3e21f-3c00-83ec-836a-72d6ed1aa1c0",
+  "sourceUpdatedAt": 1789128986.3907,
+  "turns": 9,
+  "messages": 18,
+  "previousSnapshotTurns": 5,
+  "newTurns": 4,
+  "hasMore": false,
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 76257,
+      "sha256": "5bd933275ef5b6832f23be76d184154066d77a5a75344d91c31db32d1a1b44a7"
+    },
+    {
+      "path": "input-snapshot.md",
+      "bytes": 60497,
+      "sha256": "9eb43fdd91552c8266eeb9e520a0ba2a5c65dce498cdce4f9a8e8b6f70e6bb62"
+    }
+  ]
+}

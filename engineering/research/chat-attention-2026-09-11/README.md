@@ -48,3 +48,7 @@
 ## 后续授权 · 2026-09-11
 
 用户随后明确由Claude串行施工并顺带加入Chat tab bar。CA-01已进入[正式接续工单](../../release/claude-ui-followthrough-2026-09-11/ONE-SHOT.md)，排在diff与Settings共享预览之后；当前是已授权待实现，长期分层研究仍未全裁。
+
+## 产品理由扩展登记
+
+[新增4轮、累计9轮/18消息的产品理由快照](product-rationale/README.md)固定Chat连续对话与可移植性、Attention跨工作判断、Spark持续来源工作三种用户理由；README小幅补方向，Pages纳入Claude局部文案工单。外部72结果生态及条款主张仍未独立核验，旧快照字节保留。

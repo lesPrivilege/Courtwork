@@ -16,6 +16,8 @@ CourtWork 是一个本地 AI 工作空间，把材料、执行过程、文件与
 
 **Spark & Experts.** Spark 围绕稳定来源组织可重建的派生知识；Expert 以专业工作契约组织适用范围、能力需求、证据与审阅要求；当前领域实现围绕同一 Matter 保留成果与决定。
 
+产品体验沿三个入口展开：**Chat** 让人持续交谈，**Attention** 让值得处理的变化有明确对象，**Spark** 让围绕来源的工作持续推进。Chat 的后续方向是让对话历史与分层记忆更容易由用户保留、携带和交接，减少不同供应商客户端之间的割裂；统一跨供应商会话、导入导出与 memory 仍在规划中。见[产品方向与当前边界](engineering/research/chat-attention-2026-09-11/product-rationale/README.md)。
+
 [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
 ## Can the work continue?

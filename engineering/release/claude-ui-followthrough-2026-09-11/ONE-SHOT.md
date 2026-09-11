@@ -55,3 +55,9 @@ Paper 预发布由 Astra 本轮收尾，不再把等待 icon 留给本单。Home
 ## 第二张截图 · 精确视觉层级
 
 用户随后提供[主要实现参照](../../research/motto-diff-2026-09-11/user-mono-diff-detail.png)：旧行/上下文灰字，新行红字，真正新增词段才有紧贴文字的实心红块＋深色反字，不是整行红底或遮掉内容。第1/3阶段按此层级施工；红块大小由真实差异片段决定，不做随机涂鸦。截图下方失败提示不属于本次diff grammar，不因此改变全局danger/Review映射。截图中的命令和路径仅为视觉样例，不执行。
+
+## 三入口产品理由补交
+
+消费[产品理由登记](../../research/chat-attention-2026-09-11/product-rationale/README.md)，这是用户随后确认的新方向：Chat回答“我想和谁持续交谈”，Attention回答“什么值得我处理”，Spark回答“哪些工作可以持续推进”。本条细化第2阶段：Chat是独立产品方向的前端预留，不能将普通coding session改标签就宣称跨Provider会话/memory已实现。既有普通聊天保持可达；若复用既有聊天作临时承载，必须明示实际能力，不假造独立会话所有权。占位不要提供假可用的Provider/Memory/Handoff控件。
+
+第3阶段Pages同时消费README新增方向：按现页面节奏局部说明三种用户目的，Chat用规划语境，Spark未来routine与当前来源/派生实现分开；Matter、Runtime、Expert责任保持。Home双原子无需硬改三张同权功能卡，不新增三套agent叙事；Features不列未实现能力为可用。不得直接使用来源助手的star、成熟度或条款摘要为发布证据。
